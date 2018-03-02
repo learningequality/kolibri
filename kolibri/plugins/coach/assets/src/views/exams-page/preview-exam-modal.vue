@@ -49,7 +49,6 @@
               :kind="content.kind"
               :files="content.files"
               :contentId="content.content_id"
-              :channelId="examChannelId"
               :available="content.available"
               :extraFields="content.extra_fields"
               :itemId="itemId"
@@ -90,10 +89,6 @@
       uiProgressLinear,
     },
     props: {
-      examChannelId: {
-        type: String,
-        required: true,
-      },
       examQuestionSources: {
         type: Array,
         required: true,

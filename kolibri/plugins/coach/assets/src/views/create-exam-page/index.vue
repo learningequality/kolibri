@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('createNewExam', { channelName: currentChannel.name }) }}</h1>
+    <h1>{{ $tr('createNewExam') }}</h1>
     <div class="pure-g">
       <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
         <k-textbox
@@ -115,7 +115,6 @@
 
     <preview-new-exam-modal
       v-if="showPreviewNewExamModal"
-      :examChannelId="currentChannel.id"
       :examQuestionSources="questionSources"
       :examSeed="seed"
       :examNumQuestions="inputNumQuestions"
@@ -132,7 +131,8 @@
   import exerciseRow from './exercise-row';
   import previewNewExamModal from './preview-new-exam-modal';
   import {
-    fetchContent,
+    goToTopic,
+    goToTopLevel,
     createExam,
     addExercise,
     removeExercise,
@@ -170,7 +170,7 @@
     },
     mixins: [responsiveWindow],
     $trs: {
-      createNewExam: 'Create a new exam from {channelName}',
+      createNewExam: 'Create a new exam',
       chooseExercises: 'Select exercises to pull questions from',
       selectAll: 'Select all',
       title: 'Exam title',
@@ -352,9 +352,15 @@
       },
       handleGoToTopic(topicId) {
         this.loading = true;
-        this.fetchContent(topicId).then(() => {
-          this.loading = false;
-        });
+        if (!topicId) {
+          this.goToTopLevel().then(() => {
+            this.loading = false;
+          });
+        } else {
+          this.goToTopic(topicId).then(() => {
+            this.loading = false;
+          });
+        }
       },
       handleAddExercise(exercise) {
         this.selectionMade = true;
@@ -398,7 +404,6 @@
           };
           const examObj = {
             classId: this.classId,
-            channelId: this.currentChannel.id,
             title: this.inputTitle,
             numQuestions: this.inputNumQuestions,
             questionSources: this.questionSources,
@@ -435,7 +440,6 @@
       getters: {
         classId: state => state.classId,
         className,
-        currentChannel: state => state.pageState.currentChannel,
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,
@@ -444,7 +448,8 @@
         exams: state => state.pageState.exams,
       },
       actions: {
-        fetchContent,
+        goToTopic,
+        goToTopLevel,
         createExam,
         addExercise,
         removeExercise,

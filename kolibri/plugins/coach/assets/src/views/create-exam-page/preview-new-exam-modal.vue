@@ -1,7 +1,6 @@
 <template>
 
   <preview-exam-modal
-    :examChannelId="examChannelId"
     :examQuestionSources="examQuestionSources"
     :examSeed="examSeed"
     :examNumQuestions="examNumQuestions"
@@ -31,10 +30,6 @@
       kButton,
     },
     props: {
-      examChannelId: {
-        type: String,
-        required: true,
-      },
       examQuestionSources: {
         type: Array,
         required: true,

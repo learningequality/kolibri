@@ -9,6 +9,7 @@ import {
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 import pick from 'lodash/fp/pick';
+import concat from 'lodash/concat';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import * as CoreActions from 'kolibri.coreVue.vuex.actions';
@@ -58,6 +59,7 @@ function _breadcrumbsState(topics) {
 function _currentTopicState(topic, ancestors = []) {
   let breadcrumbs = Array.from(ancestors);
   breadcrumbs.push({ pk: topic.pk, title: topic.title });
+  breadcrumbs.unshift({ pk: null, title: 'Channels' });
   breadcrumbs = _breadcrumbsState(breadcrumbs);
   return {
     id: topic.pk,
@@ -324,7 +326,8 @@ function getAllExercisesWithinTopic(store, topicId) {
 }
 
 // fetches topic, it's children subtopics, and children exercises
-function fetchContent(store, topicId) {
+// TODO: Optimize
+function fetchTopic(store, topicId) {
   return new Promise((resolve, reject) => {
     const topicPromise = ContentNodeResource.getModel(topicId).fetch();
     const ancestorsPromise = ContentNodeResource.fetchAncestors(topicId);
@@ -363,9 +366,6 @@ function fetchContent(store, topicId) {
               return subtopic;
             });
 
-            store.dispatch('SET_TOPIC', topic);
-            store.dispatch('SET_SUBTOPICS', subtopics);
-            store.dispatch('SET_EXERCISES', exercises);
             resolve({ topic, subtopics, exercises });
           },
           error => reject(error)
@@ -376,43 +376,92 @@ function fetchContent(store, topicId) {
   });
 }
 
-function showCreateExamPage(store, classId, channelId) {
+function goToTopic(store, topicId) {
+  return new Promise((resolve, reject) => {
+    fetchTopic(store, topicId).then(
+      content => {
+        store.dispatch('SET_TOPIC', content.topic);
+        store.dispatch('SET_SUBTOPICS', content.subtopics);
+        store.dispatch('SET_EXERCISES', content.exercises);
+        resolve();
+      },
+      error => reject(error)
+    );
+  });
+}
+
+// TODO: Optimize
+function goToTopLevel(store) {
+  return new Promise((resolve, reject) => {
+    const channelPromise = ChannelResource.getCollection({ available: true }).fetch();
+
+    ConditionalPromise.all([channelPromise]).only(
+      CoreActions.samePageCheckGenerator(store),
+      ([channelsCollection]) => {
+        const fetchTopicPromises = channelsCollection.map(channel =>
+          fetchTopic(store, channel.root)
+        );
+        ConditionalPromise.all(fetchTopicPromises).only(
+          CoreActions.samePageCheckGenerator(store),
+          channelsContent => {
+            const subtopics = channelsContent.map(channel => {
+              const subtopic = channel.topic;
+              let allExercisesWithinSubtopic = [];
+              channel.subtopics.forEach(subtopic => {
+                allExercisesWithinSubtopic = concat(
+                  allExercisesWithinSubtopic,
+                  subtopic.allExercisesWithinTopic
+                );
+              });
+              subtopic.allExercisesWithinTopic = allExercisesWithinSubtopic;
+              return subtopic;
+            });
+
+            let allExercisesWithinTopic = [];
+            subtopics.forEach(subtopic => {
+              allExercisesWithinTopic = concat(
+                allExercisesWithinTopic,
+                subtopic.allExercisesWithinTopic
+              );
+            });
+            const topic = {
+              allExercisesWithinTopic,
+            };
+            store.dispatch('SET_TOPIC', topic);
+            store.dispatch('SET_SUBTOPICS', subtopics);
+            resolve();
+          },
+          error => reject(error)
+        );
+      },
+      error => reject(error)
+    );
+  });
+}
+
+function showCreateExamPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CREATE_EXAM);
   store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamCreationPageTitle'));
+  store.dispatch('SET_PAGE_STATE', {
+    topic: {},
+    subtopics: [],
+    exercises: [],
+    selectedExercises: [],
+    examModalShown: false,
+  });
 
-  const channelPromise = ChannelResource.getCollection().fetch();
   const examsPromise = ExamResource.getCollection({
     collection: classId,
   }).fetch({}, true);
+  const goToTopLevelPromise = goToTopLevel(store);
 
-  ConditionalPromise.all([channelPromise, examsPromise, setClassState(store, classId)]).only(
+  ConditionalPromise.all([examsPromise, setClassState(store, classId), goToTopLevelPromise]).only(
     CoreActions.samePageCheckGenerator(store),
-    ([channelsCollection, exams]) => {
-      const currentChannel = _channelState(
-        channelsCollection.find(channel => channel.id === channelId)
-      );
-
-      const fetchContentPromise = fetchContent(store, currentChannel.rootPk);
-      ConditionalPromise.all([fetchContentPromise]).only(
-        CoreActions.samePageCheckGenerator(store),
-        ([content]) => {
-          const pageState = {
-            currentChannel,
-            topic: content.topic,
-            subtopics: content.subtopics,
-            exercises: content.exercises,
-            selectedExercises: [],
-            examModalShown: false,
-            exams: _examsState(exams),
-          };
-
-          store.dispatch('SET_PAGE_STATE', pageState);
-          store.dispatch('CORE_SET_ERROR', null);
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-        },
-        error => CoreActions.handleError(store, error)
-      );
+    ([exams]) => {
+      store.dispatch('SET_EXAMS', exams);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => CoreActions.handleError(store, error)
   );
@@ -652,10 +701,11 @@ export {
   renameExam,
   deleteExam,
   updateExamAssignments,
-  fetchContent,
   createExam,
   addExercise,
   removeExercise,
   getAllExercisesWithinTopic,
   setSelectedExercises,
+  goToTopic,
+  goToTopLevel,
 };

@@ -149,9 +149,9 @@ const routes = [
   },
   {
     name: PageNames.CREATE_EXAM,
-    path: '/:classId/exams/new/:channelId',
+    path: '/:classId/exams/new/',
     handler: toRoute => {
-      examActions.showCreateExamPage(store, toRoute.params.classId, toRoute.params.channelId);
+      examActions.showCreateExamPage(store, toRoute.params.classId);
     },
   },
   {
