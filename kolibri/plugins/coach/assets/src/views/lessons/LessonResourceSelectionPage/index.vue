@@ -98,23 +98,7 @@
         };
       },
       saveResources() {
-        const modelResources = this.workingResources.map(resourceId => {
-          const lessonNode = this.currentLesson.resources.find(
-            r => r.contentnode_id === resourceId
-          );
-          if (lessonNode) {
-            return lessonNode;
-          }
-          const cachedNode = this.resourceCache[resourceId];
-          if (cachedNode) {
-            return {
-              contentnode_id: cachedNode.id,
-              channel_id: cachedNode.channel_id,
-              content_id: cachedNode.content_id,
-            };
-          }
-        });
-        this.saveLessonResources(this.lessonId, modelResources).then(() => {
+        this.saveLessonResources(this.lessonId, this.workingResources).then(() => {
           // route to summary page with confirmation message
           this.createSnackbar({
             text: this.$tr('resourceSaveConfirmation'),

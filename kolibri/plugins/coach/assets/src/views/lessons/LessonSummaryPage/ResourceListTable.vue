@@ -106,16 +106,6 @@
 
   const saveDebounceTime = 6000;
 
-  // debounced function, pulling out of direct binding to preserve cancel() function
-  const commitRemovals = debounce(function() {
-    const remainingResources = this.workingResources.filter(
-      resourceId => !this.removals.includes(resourceId)
-    );
-    this.removals = [];
-    this.setWorkingResources(remainingResources);
-    this.autoSave();
-  }, removalSnackbarTime);
-
   export default {
     name: 'lessonResourceListTable',
     components: {
@@ -183,24 +173,19 @@
             this.removals = [];
             this.clearSnackbar();
           },
+          hideCallback: () => {
+            console.log(this);
+            const remainingResources = this.workingResources.filter(
+              resourceId => !this.removals.includes(resourceId)
+            );
+            this.removals = [];
+            this.setWorkingResources(remainingResources);
+            this.autoSave(remainingResources);
+          },
         });
-
-        // cancel any pending calls to reset timer
-        this.cancelCommitRemovals();
-        this.commitRemovals();
       },
-      commitRemovals,
-      cancelCommitRemovals: commitRemovals.cancel,
-      autoSave() {
-        const modelResources = this.workingResources.map(resourceId => {
-          const node = this.resourceContentNodes[resourceId];
-          return {
-            contentnode_id: node.id,
-            channel_id: node.channel_id,
-            content_id: node.content_id,
-          };
-        });
-        return this.debouncedSaveLessonResources(this.lessonId, modelResources);
+      autoSave(resources) {
+        return this.debouncedSaveLessonResources(this.lessonId, resources);
       },
       moveUpOne(oldIndex) {
         this.shiftOne(oldIndex, oldIndex - 1);
@@ -216,7 +201,7 @@
         resources[oldIndex] = oldResourceId;
 
         this.setWorkingResources(resources);
-        this.autoSave();
+        this.autoSave(resources);
 
         this.createSnackbar({
           text: this.$tr('resourceReorderConfirmationMessage'),
@@ -232,7 +217,7 @@
         resources.splice(newIndex, 0, resourceId);
 
         this.setWorkingResources(resources);
-        this.autoSave();
+        this.autoSave(resources);
       },
     },
     vuex: {

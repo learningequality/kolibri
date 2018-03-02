@@ -281,16 +281,45 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
   );
 }
 
-export function saveLessonResources(store, lessonId, resources) {
-  // Client-side validation of data shape
-  function validateResource(resource) {
-    return resource.contentnode_id && resource.channel_id && resource.content_id;
+function getResourceCache(store, resourceIds) {
+  const { resourceCache } = store.state.pageState;
+  const nonCachedResourceIds = [];
+
+  if (resourceCache) {
+    resourceIds.forEach(id => {
+      if (!resourceCache[id]) {
+        nonCachedResourceIds.push(id);
+      }
+    });
   }
-  if (resources.every(validateResource)) {
-    // IDEA update current lesson here
+
+  if (nonCachedResourceIds.length) {
+    return ContentNodeResource.getCollection({
+      ids: nonCachedResourceIds,
+    })
+      .fetch()
+      ._promise.then(contentNodes => {
+        contentNodes.forEach(contentNode => store.dispatch('ADD_TO_RESOURCE_CACHE', contentNode));
+        return resourceCache;
+      });
+  } else {
+    return Promise.resolve(resourceCache);
+  }
+}
+
+export function saveLessonResources(store, lessonId, resourceIds) {
+  return getResourceCache(store, resourceIds).then(resourceCache => {
+    const resources = resourceIds.map(resourceId => {
+      const node = resourceCache[resourceId];
+      return {
+        contentnode_id: resourceId,
+        channel_id: node.channel_id,
+        content_id: node.content_id,
+      };
+    });
+
     return LessonResource.getModel(lessonId).save({ resources });
-  }
-  return Promise.reject();
+  });
 }
 
 export function showLessonResourceContentPreview(store, classId, lessonId, contentId) {
