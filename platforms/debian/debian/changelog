@@ -1,3 +1,16 @@
+kolibri-source (0.7.2-0ubuntu3) trusty; urgency=medium
+
+  * Fix environment preservation inside system service for Ubuntu 14.04
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 02 Mar 2018 13:36:17 +0100
+
+kolibri-source (0.7.2-0ubuntu2) trusty; urgency=medium
+
+  * Make python3-cryptography a RECOMMENDED dependency #11
+  * Add startup service export statements for Ubuntu 14.04 #16
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 01 Mar 2018 18:15:43 +0100
+
 kolibri-source (0.7.2-0ubuntu1) trusty; urgency=medium
 
   * New upstream release

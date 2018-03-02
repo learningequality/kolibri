@@ -27,19 +27,26 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
 . /etc/default/kolibri
 
+# We wanted this pattern, but it doesn't work on Ubuntu 14.04
+# because $HOME is unavailable when preserving the env with -p.
+#   su $KOLIBRI_USER -l -p -s /bin/sh -c "COMMAND"
+# However, this seems to preserve environment and switch $HOME
+# by default on both 14.04 and 16.04:
+#   su kolibri -c "COMMAND"
+
 case "$1" in
   start)
     # run ka-lite as another user, the one who generated this file
-    su $KOLIBRI_USER -l -p -s /bin/sh -c "$KOLIBRI_COMMAND start"
+    su $KOLIBRI_USER -c "$KOLIBRI_COMMAND start"
     ;;
   stop)
-    su $KOLIBRI_USER -l -p -s /bin/sh -c "$KOLIBRI_COMMAND stop"
+    su $KOLIBRI_USER -c "$KOLIBRI_COMMAND stop"
     ;;
   restart)
-    su $KOLIBRI_USER -l -p -s /bin/sh -c "$KOLIBRI_COMMAND restart"
+    su $KOLIBRI_USER -c "$KOLIBRI_COMMAND restart"
     ;;
   status)
-    su $KOLIBRI_USER -l -p -s /bin/sh -c "$KOLIBRI_COMMAND status"
+    su $KOLIBRI_USER -c "$KOLIBRI_COMMAND status"
     ;;
   *)
     log_success_msg "Usage: /etc/init.d/kolibri {start|stop|restart|status}"
