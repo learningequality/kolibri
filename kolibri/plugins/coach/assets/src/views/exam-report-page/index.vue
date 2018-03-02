@@ -2,15 +2,17 @@
 
   <div>
 
-    <div class="header">
-      <h1>
-        {{ $tr('examTakenby', { num: takenBy }) }}
-      </h1>
-      <h1 v-if="takenBy > 0">
-        {{ $tr('averageScore', { num: averageScore }) }}
-      </h1>
-    </div>
+    <h1>
+      <content-icon :kind="examIcon" />
+      {{ examTitle }}
+    </h1>
 
+    <p>
+      {{ $tr('examTakenby', { num: takenBy }) }}
+    </p>
+    <p v-if="takenBy > 0">
+      {{ $tr('averageScore', { num: averageScore }) }}
+    </p>
     <core-table v-if="!noExamData">
       <caption class="visuallyhidden">{{ $tr('examReport') }}</caption>
       <thead slot="thead">
@@ -77,7 +79,7 @@
   import { PageNames } from '../../constants';
   import sumBy from 'lodash/sumBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import { USER } from 'kolibri.coreVue.vuex.constants';
+  import { USER, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'examReportPage',
@@ -92,6 +94,9 @@
       },
       USER() {
         return USER;
+      },
+      examIcon() {
+        return ContentNodeKinds.EXAM;
       },
       averageScore() {
         const totalScores = sumBy(this.examsInProgress, 'score');
@@ -123,6 +128,7 @@
         classId: state => state.classId,
         exam: state => state.pageState.exam,
         channelId: state => state.pageState.channelId,
+        examTitle: state => state.pageState.exam.title,
       },
     },
     $trs: {
@@ -144,13 +150,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  .header
-    position: relative
-    padding-right: 150px
-    margin-bottom: 16px
-
-</style>
+<style lang="stylus" scoped></style>

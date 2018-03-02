@@ -25,7 +25,6 @@ const name = 'coachExamPageTitles';
 const messages = {
   coachExamListPageTitle: 'Exams',
   coachExamCreationPageTitle: 'Create new exam',
-  coachExamReportPageTitle: 'Exam Report',
   coachExamReportDetailPageTitle: 'Exam Report Detail',
 };
 
@@ -560,7 +559,7 @@ function showExamReportPage(store, classId, examId) {
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamReportPageTitle'));
+      store.dispatch('CORE_SET_TITLE', exam.title);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
