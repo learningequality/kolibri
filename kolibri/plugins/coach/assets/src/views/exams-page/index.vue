@@ -9,10 +9,10 @@
         :inline="true"
         v-model="statusSelected"
       />
-      <k-button
+      <k-router-link
         :primary="true"
         appearance="raised-button"
-        @click="openCreateExamModal"
+        :to="newExamRoute"
         :text="$tr('newExam')"
       />
     </div>
@@ -54,11 +54,6 @@
       {{ $tr('noInactiveExams') }}
     </p>
 
-    <create-exam-modal
-      v-if="showCreateExamModal"
-      :classId="classId"
-      :channels="sortedChannels"
-    />
     <activate-exam-modal
       v-if="showActivateExamModal"
       :examId="selectedExam.id"
@@ -115,10 +110,9 @@
   import { Modals as ExamModals } from '../../examConstants';
   import { PageNames } from '../../constants';
   import orderBy from 'lodash/orderBy';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import examRow from './exam-row';
-  import createExamModal from './create-exam-modal';
   import activateExamModal from './activate-exam-modal';
   import deactivateExamModal from './deactivate-exam-modal';
   import changeExamVisibilityModal from './change-exam-visibility-modal';
@@ -143,10 +137,9 @@
     },
     components: {
       CoreTable,
-      kButton,
+      kRouterLink,
       kSelect,
       examRow,
-      createExamModal,
       activateExamModal,
       deactivateExamModal,
       changeExamVisibilityModal,
@@ -196,9 +189,6 @@
         }
         return this.sortedExams;
       },
-      showCreateExamModal() {
-        return this.examModalShown === ExamModals.CREATE_EXAM;
-      },
       showActivateExamModal() {
         return this.examModalShown === ExamModals.ACTIVATE_EXAM;
       },
@@ -217,13 +207,13 @@
       showDeleteExamModal() {
         return this.examModalShown === ExamModals.DELETE_EXAM;
       },
+      newExamRoute() {
+        return { name: PageNames.CREATE_EXAM };
+      },
     },
     methods: {
       setSelectedExam(examId) {
         Object.assign(this.selectedExam, this.sortedExams.find(exam => exam.id === examId));
-      },
-      openCreateExamModal() {
-        this.displayExamModal(ExamModals.CREATE_EXAM);
       },
       openChangeExamVisibilityModal(examId) {
         this.setSelectedExam(examId);

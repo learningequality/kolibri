@@ -51,7 +51,6 @@ const LearnerReports = [
 
 const ExamPages = [
   PageNames.EXAMS,
-  PageNames.CREATE_EXAM,
   PageNames.EXAM_REPORT,
   PageNames.EXAM_REPORT_DETAIL,
   PageNames.LEARNERS,
