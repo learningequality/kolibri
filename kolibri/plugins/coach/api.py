@@ -1,5 +1,4 @@
 import datetime
-
 from dateutil.parser import parse
 from django.db import connection
 from django.db.models import Min, Q
@@ -8,9 +7,12 @@ from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import Collection, FacilityUser
 from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog, MasteryLog
+from kolibri.core.lessons.models import Lesson
 from rest_framework import pagination, permissions, viewsets
-
-from .serializers import ContentReportSerializer, ContentSummarySerializer, UserReportSerializer
+from .serializers import ContentReportSerializer
+from .serializers import ContentSummarySerializer
+from .serializers import LessonReportSerializer
+from .serializers import UserReportSerializer
 from .utils.return_users import get_members_or_user
 
 
@@ -28,8 +30,20 @@ class KolibriReportPermissions(permissions.BasePermission):
 
     # check if requesting user has permission for collection or user
     def has_permission(self, request, view):
-        collection_kind = view.kwargs.get('collection_kind', 'user')
-        collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
+        if isinstance(view, LessonReportViewset):
+            report_pk = view.kwargs.get('pk', None)
+            if report_pk is None:
+                # If requesting list view, check if requester has coach/admin permissions on whole facility
+                collection_kind = 'facility'
+                collection_or_user_pk = request.user.facility_id
+            else:
+                # If requesting detail view, only check if requester has permissions on the Classroom
+                collection_kind = 'classroom'
+                collection_or_user_pk = Lesson.objects.get(pk=report_pk).collection.id
+
+        else:
+            collection_kind = view.kwargs.get('collection_kind', 'user')
+            collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
 
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
         try:
@@ -106,3 +120,9 @@ class RecentReportViewSet(viewsets.ModelViewSet):
                 channel_id=channel_id, content_id__in=recent_content_items).values('content_id').order_by('lft').annotate(
                 pk=Min('pk')).values_list('pk', flat=True)
         return ContentNode.objects.filter(pk__in=pks_with_unique_content_ids).order_by('lft')
+
+
+class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
+    permission_classes = (permissions.IsAuthenticated, KolibriReportPermissions,)
+    serializer_class = LessonReportSerializer
+    queryset = Lesson.objects.all()
