@@ -185,6 +185,7 @@ function showResourceSelectionPage(
 }
 
 export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   const channelContentList = getChannels(store.state).map(channel => {
     return {
       id: channel.root_id,
@@ -205,6 +206,8 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
 }
 
 export function showLessonResourceSelectionTopicPage(store, classId, lessonId, topicId) {
+  // IDEA should probably have both selection pages set loading themselves
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   const loadRequirements = [
     ContentNodeResource.getModel(topicId).fetch(),
     ContentNodeResource.getCollection({ parent: topicId }).fetch(),
