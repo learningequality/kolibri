@@ -43,7 +43,6 @@
           <div class="exercise-container pure-u-2-3">
             <content-renderer
               v-if="content && itemId"
-              class="content-renderer"
               ref="contentRenderer"
               :id="content.pk"
               :kind="content.kind"

@@ -142,13 +142,13 @@
       },
       // POSTs a new Lesson object to the server
       createLessonCopy() {
-        const { name, description, resources } = this.currentLesson;
+        const { title, description, resources } = this.currentLesson;
         const payload = {
-          name: this.$tr('copyOfLesson', { lessonName: name }).substring(0, 50),
+          title: this.$tr('copyOfLesson', { lessonTitle: title }).substring(0, 50),
           description,
           resources,
           collection: this.selectedClassroomId,
-          assigned_groups: this.selectedCollectionIds.map(id => ({ collection: id })),
+          lesson_assignments: this.selectedCollectionIds.map(id => ({ collection: id })),
         };
         return LessonResource.createModel(payload)
           .save()
@@ -177,14 +177,14 @@
     },
     $trs: {
       copyLessonTitle: 'Copy lesson',
-      copyLessonExplanation: 'Make a copy of this lesson in which class?',
+      copyLessonExplanation: 'Copy this lesson to:',
       currentClass: '(current class)',
       continue: 'Continue',
       cancel: 'Cancel',
       makeCopy: 'Copy',
       destinationClassroomExplanation: `This lesson will be copied to '{classroomName}'`,
       lessonAssignmentQuestion: 'Who should this lesson be assigned to?',
-      copyOfLesson: 'Copy of {lessonName}',
+      copyOfLesson: 'Copy of {lessonTitle}',
       copiedLessonTo: `Copied lesson to '{classroomName}'`,
     },
   };

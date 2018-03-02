@@ -1,15 +1,18 @@
 <template>
 
   <div>
-    <h1 :class="{header: sortedGroups.length}">{{ $tr('classGroups') }}</h1>
+    <section>
+      <h1 :class="{header: sortedGroups.length}">{{ $tr('classGroups') }}</h1>
 
-    <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>
+      <span v-if="!sortedGroups.length">{{ $tr('noGroups') }}</span>
 
-    <k-button
-      :text="$tr('newGroup')"
-      :primary="true"
-      @click="openCreateGroupModal"
-    />
+      <k-button
+        class="new-group-button"
+        :text="$tr('newGroup')"
+        :primary="true"
+        @click="openCreateGroupModal"
+      />
+    </section>
 
     <create-group-modal
       v-if="showCreateGroupModal"
@@ -170,7 +173,8 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
+  .new-group-button
+    float: right
 
   .header
     display: inline-block

@@ -1,5 +1,4 @@
 import * as Constants from '../../constants';
-import { LessonsPageNames } from '../../lessonsConstants';
 
 function className(state) {
   const cls = state.classList.find(thisClass => thisClass.id === state.classId);
@@ -29,17 +28,4 @@ function isLearnerPage(state) {
   return Constants.LearnerReports.includes(state.pageName);
 }
 
-// Whenever page is immersive, disable core-page and other default navigations
-function currentPageIsImmersive(state) {
-  const immersivePages = [LessonsPageNames.SELECTION, LessonsPageNames.SELECTION_ROOT];
-  return immersivePages.includes(state.pageName);
-}
-
-export {
-  className,
-  classMemberCount,
-  isRecentPage,
-  isTopicPage,
-  isLearnerPage,
-  currentPageIsImmersive,
-};
+export { className, classMemberCount, isRecentPage, isTopicPage, isLearnerPage };

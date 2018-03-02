@@ -74,8 +74,10 @@ import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
 import kDropdownMenu from '../views/k-dropdown-menu';
+// webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
 import CoreInfoIcon from '../views/CoreInfoIcon';
+import * as contentNode from '../utils/contentNodeUtils';
 
 export default {
   client,
@@ -150,6 +152,7 @@ export default {
   },
   urls,
   utils: {
+    contentNode,
     browser,
     exams,
     validators,

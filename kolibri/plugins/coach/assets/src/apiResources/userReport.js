@@ -1,6 +1,6 @@
 import { Resource } from 'kolibri.lib.apiResource';
 
-export default class UserReportResource extends Resource {
+class UserReportResource extends Resource {
   static resourceName() {
     return 'kolibri:coach:userreport';
   }
@@ -11,3 +11,5 @@ export default class UserReportResource extends Resource {
     return ['channel_id', 'content_node_id', 'collection_kind', 'collection_id'];
   }
 }
+
+export default new UserReportResource();

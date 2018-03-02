@@ -1,5 +1,6 @@
 import { LessonsPageNames } from '../../lessonsConstants';
 
+// IDEA kill these in favor of using vuex param autocomplete
 // Creates a Link to the Lesson Summary Page
 export function lessonSummaryLink({ classId, lessonId }) {
   return {
@@ -30,6 +31,17 @@ export function topicListingLink({ classId, lessonId, topicId }) {
       classId,
       lessonId,
       topicId,
+    },
+  };
+}
+
+// Creates Link to the Lesson Resource Whole-Classroom Report Page
+export function resourceUserSummaryLink(contentId) {
+  return {
+    name: LessonsPageNames.RESOURCE_USER_SUMMARY,
+    // classId, lessonId filled in by router
+    params: {
+      contentId,
     },
   };
 }
