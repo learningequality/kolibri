@@ -2,7 +2,7 @@
 
   <div>
     <content-page>
-      <div slot="below_content">
+      <div slot="below_content" class="below-content-area">
         <template v-if="nextLessonResource">
           <h1>{{ $tr('nextInLesson') }}</h1>
           <content-card
@@ -57,4 +57,9 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .below-content-area
+    max-width: 800px
+
+</style>
