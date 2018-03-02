@@ -2,7 +2,15 @@
 
   <div>
     <ul class="ui-menu" role="menu" :class="classes">
-      <div class="ui-menu-header" v-if="$slots.header"><slot name="header"></slot></div>
+      <!-- if anything in the dropdown menu has an icon, then we are
+      going to add padding to make all the items align -->
+      <div
+        class="ui-menu-header"
+        :class="{'ui-menu-header-lp': hasIcons}"
+        v-if="$slots.header"
+      >
+        <slot name="header"></slot>
+      </div>
       <menu-option
         :disableRipple="disableRipple"
         :disabled="option[keys.disabled]"
@@ -159,6 +167,12 @@
     border-bottom: solid 1px rgba(black, 0.08);
     color: $primary-text-color;
     font-size: $ui-dropdown-item-font-size;
+  }
+
+  //created this so that "Role" and "Admin" could be aligned with the rest
+  //of the items in the dropdown menu, gave it a left padding
+  .ui-menu-header-lp{
+    padding-left: 38px // TODO make a variable?
   }
 
 </style>

@@ -20,7 +20,12 @@
           v-if="icon"
         />
 
-        <div class="ui-menu-option-text">{{ label }}</div>
+        <!-- if anything in the dropdown menu has an icon, then we are
+      going to add padding to make all the items align -->
+        <div
+          class="ui-menu-option-text"
+          :class="{ 'ui-menu-option-lp': !icon }"
+        >{{ label }}</div>
 
         <div class="ui-menu-option-secondary-text" v-if="secondaryText">
           {{ secondaryText }}
@@ -138,18 +143,22 @@
       align-items: center;
       display: flex;
       height: rem-calc(40px);
-      padding: rem-calc(0 16px);
+      //edited this padding so that all the items aligned
+      padding: rem-calc(0 6px);
   }
 
   .ui-menu-option-icon {
       color: $secondary-text-color;
       font-size: rem-calc(18px);
-      margin-right: rem-calc(16px);
+      //edited this padding so that all the items aligned
+      margin-right: rem-calc(6px);
   }
 
   .ui-menu-option-text {
       @include text-truncation;
       flex-grow: 1;
+      //adding the padding so the items didn't get cut off
+      padding-right: 8px;
   }
 
   .ui-menu-option-secondary-text {
@@ -157,6 +166,12 @@
       flex-shrink: 0;
       font-size: rem-calc(13px);
       margin-left: rem-calc(4px);
+  }
+
+  //created this so that the other items that do not have icons could be aligned
+  //with the rest of the items in the dropdown menu, gave it a left padding
+  .ui-menu-option-lp {
+    padding-left: 31px
   }
 
 </style>
