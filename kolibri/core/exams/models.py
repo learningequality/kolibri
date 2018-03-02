@@ -24,8 +24,6 @@ class Exam(AbstractFacilityDataModel):
     )
 
     title = models.CharField(max_length=200)
-    # The channel this Exam is associated with.
-    channel_id = models.CharField(max_length=32)
     # Number of total questions this exam has
     question_count = models.IntegerField()
     # JSON blob describing content ids for the assessments this exam draws from, and how many
