@@ -1,37 +1,28 @@
 import { ContentNodeResource } from 'kolibri.resources';
 import { currentUserId, getChannelObject, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
-
 import {
   samePageCheckGenerator,
   setChannelInfo,
   handleApiError,
 } from 'kolibri.coreVue.vuex.actions';
-
 import { PageNames } from '../../constants';
 import { contentState, setAndCheckChannels } from './main';
-
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniqBy from 'lodash/uniqBy';
 import { createTranslator } from 'kolibri.utils.i18n';
 
-const name = 'learnerRecommendationPageTitles';
-
-const messages = {
+const translator = createTranslator('learnerRecommendationPageTitles', {
   popularPageTitle: 'Popular',
   resumePageTitle: 'Resume',
   nextStepsPageTitle: 'Next Steps',
   featuredInChannelPageTitle: 'Featured - { currentChannel }',
   learnContentPageTitle: '{ currentContent } - { currentChannel }',
   learnPageTitle: 'Learn',
-};
-
-const translator = createTranslator(name, messages);
+});
 
 // User-agnostic recommendations
-
 function _getPopular() {
-  const popularPayload = { popular: 'true' };
-  return ContentNodeResource.getCollection(popularPayload).fetch();
+  return ContentNodeResource.getCollection({ popular: 'true' }).fetch();
 }
 
 function _getFeatured(state, channelId) {
@@ -40,19 +31,15 @@ function _getFeatured(state, channelId) {
 
 // User-specific recommendations
 function _getNextSteps(state) {
-  const nextStepsPayload = { next_steps: currentUserId(state) };
-
   if (isUserLoggedIn(state)) {
-    return ContentNodeResource.getCollection(nextStepsPayload).fetch();
+    return ContentNodeResource.getCollection({ next_steps: currentUserId(state) }).fetch();
   }
   return Promise.resolve([]);
 }
 
 function _getResume(state) {
-  const resumePayload = { resume: currentUserId(state) };
-
   if (isUserLoggedIn(state)) {
-    return ContentNodeResource.getCollection(resumePayload).fetch();
+    return ContentNodeResource.getCollection({ resume: currentUserId(state) }).fetch();
   }
   return Promise.resolve([]);
 }
@@ -62,10 +49,9 @@ function _mapContentSet(contentSet) {
 }
 
 function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, channelId = null) {
-  const state = store.state;
   // promise that resolves with content array, already mapped to state
   const pagePrep = Promise.all([
-    getContentPromise(state, channelId),
+    getContentPromise(store.state, channelId),
     setAndCheckChannels(store),
     // resolves to mapped content set because then resolves to its function's return value
   ]).then(([content, channels]) => [_mapContentSet(content), channels]);
@@ -97,7 +83,7 @@ function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, chan
   );
 }
 
-function showLearn(store) {
+export function showLearn(store) {
   store.dispatch('SET_EMPTY_LOGGING_STATE');
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
@@ -106,12 +92,11 @@ function showLearn(store) {
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
 
-  const channelsPromise = setAndCheckChannels(store);
-  ConditionalPromise.all([
+  return ConditionalPromise.all([
     _getNextSteps(state),
     _getPopular(),
     _getResume(state),
-    channelsPromise,
+    setAndCheckChannels(store),
   ]).only(
     samePageCheckGenerator(store),
     ([nextSteps, popular, resume, channels]) => {
@@ -152,19 +137,19 @@ function showLearn(store) {
   );
 }
 
-function showPopularPage(store) {
+export function showPopularPage(store) {
   _showRecSubpage(store, _getPopular, PageNames.RECOMMENDED_POPULAR, 'popularPageTitle');
 }
 
-function showResumePage(store) {
+export function showResumePage(store) {
   _showRecSubpage(store, _getResume, PageNames.RECOMMENDED_RESUME, 'resumePageTitle');
 }
 
-function showNextStepsPage(store) {
+export function showNextStepsPage(store) {
   _showRecSubpage(store, _getNextSteps, PageNames.RECOMMENDED_NEXT_STEPS, 'nextStepsPageTitle');
 }
 
-function showFeaturedPage(store, channelId) {
+export function showFeaturedPage(store, channelId) {
   _showRecSubpage(
     store,
     _getFeatured,
@@ -174,7 +159,7 @@ function showFeaturedPage(store, channelId) {
   );
 }
 
-function showLearnContent(store, id) {
+export function showLearnContent(store, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.RECOMMENDED_CONTENT);
   const contentPromise = ContentNodeResource.getModel(id).fetch();
@@ -221,12 +206,3 @@ function showLearnContent(store, id) {
     }
   );
 }
-
-export {
-  showLearn,
-  showPopularPage,
-  showNextStepsPage,
-  showResumePage,
-  showFeaturedPage,
-  showLearnContent,
-};

@@ -27,7 +27,7 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { LessonResource } from 'kolibri.resources';
-  import { updateClassLessons } from '../../../state/actions/lessons';
+  import { refreshClassLessons } from '../../../state/actions/lessons';
   import { LessonsPageNames } from '../../../lessonsConstants';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
 
@@ -53,7 +53,7 @@
       handleDeleteLesson() {
         return LessonResource.getModel(this.lessonId)
           .delete()
-          ._promise.then(() => this.updateClassLessons(this.classId))
+          ._promise.then(() => this.refreshClassLessons(this.classId))
           .then(() => {
             this.goToLessonsRootPage();
             this.createSnackbar({
@@ -73,10 +73,10 @@
       getters: {
         classId: state => state.classId,
         lessonId: state => state.pageState.currentLesson.id,
-        lessonTitle: state => state.pageState.currentLesson.name,
+        lessonTitle: state => state.pageState.currentLesson.title,
       },
       actions: {
-        updateClassLessons,
+        refreshClassLessons,
         createSnackbar,
       },
     },

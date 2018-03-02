@@ -1,70 +1,50 @@
 <template>
 
-  <div class="selection-page">
-    <ui-toolbar
-      :title="$tr('toolbarTitle')"
-      textColor="white"
-      type="colored"
-      class="immersive-header"
-    >
-      <div slot="icon">
-        <router-link :to="lessonPage">
-          <mat-svg
-            class="exit-button"
-            category="navigation"
-            name="close"
-          />
-        </router-link>
-      </div>
-    </ui-toolbar>
+  <form
+    class="resource-selection-page"
+    @submit.prevent="saveResources"
+  >
+    <h1 class="selection-header">
+      {{ $tr('addResourcesHeader') }}
+    </h1>
 
-    <div class="immersive-content">
-      <form class="selection-form" @submit.prevent="saveResources">
-        <h1 class="selection-header">{{ $tr('addResourcesHeader') }}</h1>
+    <search-tools />
 
-        <search-box />
-
-        <k-breadcrumbs
-          :items="selectionCrumbs"
-          :showAllCrumbs="true"
+    <ul class="content-list">
+      <li
+        class="content-list-item"
+        :key="content.id"
+        v-for="content in contentList"
+      >
+        <k-checkbox
+          class="content-checkbox"
+          :label="content.title"
+          v-if="!contentIsDirectoryKind(content)"
+          :showLabel="false"
+          :checked="isSelected(content.id)"
+          @change="toggleSelected($event, content.id)"
         />
+        <content-card
+          class="content-card"
+          :title="content.title"
+          :thumbnail="content.thumbnail"
+          :description="content.description"
+          :kind="content.kind"
+          :message="selectionMetadata(content.id)"
+          :link="contentLink(content)"
+        />
+      </li>
+    </ul>
 
-        <ul class="content-list">
-          <li
-            class="content-list-item"
-            :key="content.id"
-            v-for="content in contentList"
-          >
-            <k-checkbox
-              class="content-checkbox"
-              :label="content.title"
-              v-if="!contentIsDirectoryKind(content)"
-              :showLabel="false"
-              :checked="isSelected(content.id)"
-              @change="toggleSelected($event, content.id)"
-            />
-            <content-card
-              class="content-card"
-              :title="content.title"
-              :thumbnail="content.thumbnail"
-              :description="content.description"
-              :kind="content.kind"
-              :link="contentLink(content)"
-            />
-          </li>
-        </ul>
-
-        <div class="information">
-          <p> {{ $tr('totalResourcesSelected', { total: workingResources.length }) }} </p>
-          <k-button
-            type="submit"
-            :primary="true"
-            :text="$tr('save')"
-          />
-        </div>
-      </form>
+    <div class="information">
+      <p> {{ $tr('totalResourcesSelected', { total: workingResources.length }) }} </p>
+      <k-button
+        type="submit"
+        :primary="true"
+        :text="$tr('save')"
+      />
     </div>
-  </div>
+  </form>
 
 </template>
 
@@ -73,25 +53,23 @@
 
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import contentCard from './content-card';
-  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import searchTools from './searchTools';
   import { saveLessonResources } from '../../../state/actions/lessons';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { LessonsPageNames } from '../../../lessonsConstants';
-  import searchBox from '../../../../../../learn/assets/src/views/search-box/';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { lessonSummaryLink, selectionRootLink, topicListingLink } from '../lessonsRouterUtils';
+  import { lessonSummaryLink, topicListingLink } from '../lessonsRouterUtils';
 
   export default {
     name: 'lessonResourceSelectionPage',
     components: {
       uiToolbar,
-      kBreadcrumbs,
-      searchBox,
       contentCard,
       kButton,
       kCheckbox,
+      searchTools,
     },
     computed: {
       lessonPage() {
@@ -100,29 +78,19 @@
       routerParams() {
         return { classId: this.classId, lessonId: this.lessonId };
       },
-      selectionCrumbs() {
-        return [
-          // The "Channels" breadcrumb
-          { text: this.$tr('channelBreadcrumbLabel'), link: selectionRootLink(this.routerParams) },
-          // Ancestors breadcrumbs
-          // NOTE: The current topic is injected into `ancestors` in the showPage action
-          ...this.ancestors.map(a => ({
-            text: a.title,
-            link: topicListingLink({ ...this.routerParams, topicId: a.pk }),
-          })),
-        ];
-      },
     },
     methods: {
+      // IDEA refactor router logic into actions
       contentIsDirectoryKind({ kind }) {
         return kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL;
       },
+      // IDEA refactor router logic into actions
       contentLink(content) {
         if (this.contentIsDirectoryKind(content)) {
           return topicListingLink({ ...this.routerParams, topicId: content.id });
         }
         return {
-          name: LessonsPageNames.CONTENT_PREVIEW,
+          name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
           params: {
             ...this.routerParams,
             contentId: content.id,
@@ -130,19 +98,22 @@
         };
       },
       saveResources() {
-        const modelResources = this.workingResources.map(resourceId => ({
-          contentnode_id: resourceId,
-        }));
-        this.saveLessonResources(this.lessonId, modelResources).then(() => {
-          const snackBarOptions = {
+        this.saveLessonResources(this.lessonId, this.workingResources).then(() => {
+          // route to summary page with confirmation message
+          this.createSnackbar({
             text: this.$tr('resourceSaveConfirmation'),
             autoDismiss: true,
-          };
-
-          // route to summary page with confirmation message
-          this.createSnackbar(snackBarOptions);
+          });
           this.$router.push(lessonSummaryLink(this.routerParams));
         });
+      },
+      selectionMetadata(contentId) {
+        const count = this.ancestorCounts[contentId];
+        const total = this.workingResources.length;
+        if (count) {
+          return this.$tr('selectionInformation', { count, total });
+        }
+        return '';
       },
       isSelected(contentId) {
         // resource id is a content pk, but the pk === id in vuex
@@ -158,17 +129,20 @@
     },
     vuex: {
       getters: {
+        currentLesson: state => state.pageState.currentLesson,
         lessonId: state => state.pageState.currentLesson.id,
         workingResources: state => state.pageState.workingResources,
         // TODO remove since we don't need it in template; use actions
         classId: state => state.classId,
-        ancestors: state => state.pageState.ancestors,
         contentList: state => state.pageState.contentList,
+        resourceCache: state => state.pageState.resourceCache,
+        ancestorCounts: state => state.pageState.ancestorCounts,
       },
       actions: {
         saveLessonResources,
         createSnackbar,
         addToSelectedResources(store, contentId) {
+          store.dispatch('ADD_TO_RESOURCE_CACHE', this.contentList.find(n => n.id === contentId));
           store.dispatch('ADD_TO_WORKING_RESOURCES', contentId);
         },
         removeFromSelectedResources(store, contentId) {
@@ -179,10 +153,13 @@
     $trs: {
       // TODO semantic string names
       addResourcesHeader: 'Add resources to your lesson',
-      channelBreadcrumbLabel: 'Channels',
       save: 'Save',
-      toolbarTitle: 'Select resources',
+      selectionInformation:
+        '{count, number, integer} of {total, number, integer} resources selected',
       totalResourcesSelected: 'Total resources selected: {total, number, integer}',
+      // only shown on search page
+      // TODO add search page check for this
+      sourceInformation: 'from {sourceName}',
       resourceSaveConfirmation: 'Changes to lesson saved',
     },
   };
@@ -193,11 +170,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  .exit-button
-    fill: white
-    margin-left: 0.5em
-    font-size: 1rem
 
   .content-list
     list-style: none
@@ -218,27 +190,11 @@
   .content-card
     width: 100%
 
-  .selection-form
+  .resource-selection-page
     // offset to maintain straight lines in form w/ dynamic checkbox
     margin-left:64px
 
   .information
     text-align: right
-
-  .immersive
-    &-header
-      position: fixed
-      left: 0
-      right: 0
-      top: 0
-      z-index: 4 // material spec
-    &-content
-      position: absolute
-      top: 58px // height of action bar
-      left: 0
-      right: 0
-      bottom: 0
-      overflow-y: scroll
-      padding: 32px
 
 </style>

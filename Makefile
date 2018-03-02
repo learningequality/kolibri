@@ -34,11 +34,11 @@ help:
 	@echo "Internationalization"
 	@echo "--------------------"
 	@echo ""
-	@echo "translation-django-makemessages: creates source messages for django"
-	@echo "translation-django-compilemessages: compiles all language translation sources"
-	@echo "translation-crowdin-install: installs the CrowdIn CLI"
-	@echo "translation-crowdin-upload branch=<crowdin-branch>: uploads kolibri translation sources via CrowdIn"
-	@echo "translation-crowdin-download branch=<crowdin-branch>: downloads kolibri translated languages via CrowdIn"
+	@echo "translation-extract: extract all strings from application (both front- and back-end)"
+	@echo "translation-crowdin-upload branch=<crowdin-branch>: upload strings to Crowdin"
+	@echo "translation-crowdin-download branch=<crowdin-branch>: download strings from Crowdin and compile"
+	@echo "translation-crowdin-install: installs the Crowdin CLI"
+	@echo "translation-django-compilemessages: compiles .po files to .mo files for Django"
 
 
 clean: clean-build clean-pyc clean-assets
@@ -126,6 +126,9 @@ staticdeps:
 	git checkout -- kolibri/dist # restore __init__.py
 	pip install -t kolibri/dist -r "requirements.txt"
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	# Remove unnecessary python2-syntax'ed file
+	# https://github.com/learningequality/kolibri/issues/3152
+	rm -f kolibri/dist/kolibri_exercise_perseus_plugin/static/mathjax/kathjax.py
 	python build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
 	make test-namespaced-packages
 
@@ -158,7 +161,7 @@ dist: writeversion staticdeps staticdeps-cext buildconfig assets translation-dja
 pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed -s 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
-translation-django-makemessages: assets
+translation-extract: assets
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
 
 translation-django-compilemessages:
