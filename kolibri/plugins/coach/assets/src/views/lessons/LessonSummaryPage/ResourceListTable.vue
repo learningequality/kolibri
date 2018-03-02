@@ -27,7 +27,6 @@
       tag="tbody"
     >
       <tr
-        v-if="!removals.includes(resourceId)"
         :key="resourceId"
         v-for="(resourceId, index) in workingResources"
       >
@@ -78,7 +77,7 @@
         <td>
           <k-button
             :text="$tr('resourceRemovalButtonLabel')"
-            @click="stageRemoval(index, resourceId)"
+            @click="stageRemoval(resourceId)"
             appearance="flat-button"
           />
         </td>
@@ -118,18 +117,19 @@
     },
     data() {
       return {
-        removals: [],
+        workingResourcesBackup: Array.from(this.workingResources),
+        firstRemovalTitle: '',
       };
     },
     computed: {
       removalMessage() {
-        const numberOfRemovals = this.removals.length;
+        const numberOfRemovals = this.workingResourcesBackup.length - this.workingResources.length;
 
         if (!numberOfRemovals) {
           return '';
         } else if (numberOfRemovals === 1) {
           return this.$tr('singleResourceRemovalConfirmationMessage', {
-            resourceTitle: this.resourceTitle(this.removals[0]),
+            resourceTitle: this.firstRemovalTitle,
           });
         }
 
@@ -161,8 +161,9 @@
           total: this.totalLearners,
         });
       },
-      stageRemoval(index, resourceId) {
-        this.removals.push(resourceId);
+      stageRemoval(resourceId) {
+        this.firstRemovalTitle = this.resourceTitle(resourceId);
+        this.removeFromWorkingResources(resourceId);
 
         this.createSnackbar({
           text: this.removalMessage,
@@ -170,17 +171,15 @@
           autoDismiss: true,
           actionText: this.$tr('undoActionPrompt'),
           actionCallback: () => {
-            this.removals = [];
+            this.setWorkingResources(this.workingResourcesBackup);
             this.clearSnackbar();
           },
           hideCallback: () => {
-            console.log(this);
-            const remainingResources = this.workingResources.filter(
-              resourceId => !this.removals.includes(resourceId)
-            );
-            this.removals = [];
-            this.setWorkingResources(remainingResources);
-            this.autoSave(remainingResources);
+            if (this.workingResourcesBackup) {
+              // snackbar might carryover to another page (like select)
+              this.workingResourcesBackup = this.workingResources;
+            }
+            this.autoSave(Array.from(this.workingResources));
           },
         });
       },
