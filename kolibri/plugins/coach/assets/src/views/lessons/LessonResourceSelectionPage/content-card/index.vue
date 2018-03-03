@@ -1,34 +1,37 @@
 <template>
 
-  <router-link :to="link" class="card">
+  <router-link :to="link" class="content-card">
 
-    <div class="content-card">
-      <card-thumbnail
-        class="thumbnail"
-        :thumbnail="thumbnail"
-        :kind="kind"
-        :isMobile="true"
-      />
+    <card-thumbnail
+      class="thumbnail"
+      :thumbnail="thumbnail"
+      :kind="kind"
+      :isMobile="true"
+    />
 
-      <div class="text">
-        <h3 class="title" dir="auto">{{ title }}</h3>
-        <p class="description">
-          <!-- eslint-disable -->
-          <span :class="truncatedClass">{{ descriptionHead }}<span class="visuallyhidden">{{ descriptionTail }}</span></span>
-          <!-- eslint-enable -->
-          <k-button
-            v-if="descriptionIsTooLong"
-            @click.stop.prevent="descriptionExpanded=!descriptionExpanded"
-            appearance="basic-link"
-            :text="!descriptionExpanded ? $tr('viewMoreButtonPrompt') : $tr('viewLessButtonPrompt')"
-          />
-
-        </p>
-      </div>
-
+    <div class="text">
+      <h3
+        class="title"
+        :class="{'has-message': Boolean(message)}"
+        dir="auto"
+      >
+        {{ title }}
+      </h3>
       <div v-if="message" class="message">
         {{ message }}
       </div>
+      <p class="description">
+        <!-- eslint-disable -->
+        <span :class="truncatedClass">{{ descriptionHead }}<span class="visuallyhidden">{{ descriptionTail }}</span></span>
+        <!-- eslint-enable -->
+        <k-button
+          v-if="descriptionIsTooLong"
+          @click.stop.prevent="descriptionExpanded=!descriptionExpanded"
+          appearance="basic-link"
+          :text="!descriptionExpanded ? $tr('viewMoreButtonPrompt') : $tr('viewLessButtonPrompt')"
+        />
+
+      </p>
     </div>
 
   </router-link>
@@ -120,18 +123,15 @@
   @require '~kolibri.styles.definitions'
   @require './card.styl'
 
-  .card
+  .content-card
     text-decoration: none
-    display: inline-block
+    display: block
     border-radius: 2px
     background-color: $core-bg-light
     height: $thumb-height
     margin-bottom: 16px
-    overflow: auto
     text-align: left
-
-    .text
-      margin-left: $thumb-width
+    display: relative
 
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
                 0 3px 1px -2px rgba(0, 0, 0, 0.2),
@@ -144,13 +144,28 @@
 
   .text
     color: $core-text-default
-    height: 100%
+    position: absolute
+    top: 0
+    bottom: 0
+    left: $thumb-width
+    width: 'calc(100% - %s)' % $thumb-width // stylus exlusive
+    padding: 24px
+    overflow-y: auto
+
+  .title, .description
+    margin: 0
+
+  .title, .message
     overflow: hidden
-    max-width: 50%
-    padding: 16px
+    text-overflow: ellipsis
+    white-space: nowrap
+
+  .title.has-message, .message
+    max-width: 45%
+
   .title
     font-size: 16px
-    margin-top: 8px
+    padding-bottom: 8px
 
   .description
     font-size: 12px
@@ -159,13 +174,10 @@
     content: '\2026\0020'
     display: inline
 
-  .content-card
-    position: relative
-
   .message
     color: $core-text-default
     position: absolute
-    top: 16px
-    right: 16px
+    top: 24px
+    right: 24px
 
 </style>
