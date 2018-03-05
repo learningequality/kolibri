@@ -6,7 +6,7 @@ six==1.11.0
 colorlog==3.1.2
 docopt==0.6.2
 django-mptt==0.9.0
-djangorestframework-csv==2.0.0
+djangorestframework-csv==2.1.0
 tqdm==4.19.5                     # progress bars
 requests==2.18.4
 cherrypy==13.0.1  # Temporarily pinning this until CherryPy stops depending on namespaced package, see #2971 # pyup: <13.1.0
