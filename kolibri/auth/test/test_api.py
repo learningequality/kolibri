@@ -417,3 +417,22 @@ class FacilityDatasetAPITestCase(APITestCase):
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD)
         response = self.client.delete(reverse('facilitydataset-detail', kwargs={'pk': self.facility.dataset_id}), format="json")
         self.assertEqual(response.status_code, 403)
+
+
+class MembershipCascadeDeletion(APITestCase):
+
+    def setUp(self):
+        provision_device()
+        self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.classroom = ClassroomFactory.create(parent=self.facility)
+        self.lg = LearnerGroupFactory.create(parent=self.classroom)
+
+    def test_delete_classroom_membership(self):
+        models.Membership.objects.create(collection=self.classroom, user=self.user)
+        models.Membership.objects.create(collection=self.lg, user=self.user)
+        url = reverse('membership-list') + "?user={}&collection={}".format(self.user.id, self.classroom.id)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(models.Membership.objects.all().exists())
