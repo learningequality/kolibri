@@ -79,7 +79,7 @@ INSTALLED_APPS = [
 # specifically on the value of LOCALE_PATHS to find its catalog files.
 LOCALE_PATHS += [
     i18n.get_installed_app_locale_path(app) for app in INSTALLED_APPS
-    if i18n.is_external_plugin(app)
+    if i18n.is_external_plugin(app) and i18n.get_installed_app_locale_path(app)
 ]
 
 MIDDLEWARE = [

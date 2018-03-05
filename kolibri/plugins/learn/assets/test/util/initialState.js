@@ -8,6 +8,7 @@ const learnInitialState = {
     topics: [],
     contents: [],
     searchTerm: '',
+    topic: {},
   },
   learnAppState: {
     memberships: [],

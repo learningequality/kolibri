@@ -123,11 +123,11 @@ var config = {
           options: { limit: 10000, name: '[name].[ext]?[hash]' },
         },
       },
-      // Use file loader to load font files.
+      // Use url loader to load font files.
       {
         test: /\.(eot|woff|ttf|woff2)$/,
         use: {
-          loader: 'file-loader',
+          loader: 'url-loader',
           options: { name: '[name].[ext]?[hash]' },
         },
       },

@@ -6,6 +6,13 @@
     width="400px"
   >
     <form @submit.prevent="submitLessonData">
+      <ui-alert
+        v-if="showError"
+        type="error"
+        :dismissible="false"
+      >
+        {{ $tr('submitLessonError') }}
+      </ui-alert>
       <k-textbox
         :label="$tr('title')"
         :maxlength="50"
@@ -13,12 +20,14 @@
         :invalid="titleIsInvalid"
         :invalidText="titleIsInvalidText"
         v-model="title"
+        :disabled="formIsSubmitted"
       />
       <k-textbox
         :label="$tr('description')"
         :maxlength="200"
         :textArea="true"
         v-model="description"
+        :disabled="formIsSubmitted"
       />
 
       <fieldset>
@@ -27,6 +36,7 @@
           v-model="selectedCollectionIds"
           :groups="groups"
           :classId="classId"
+          :disabled="formIsSubmitted"
         />
       </fieldset>
       <div class="core-modal-buttons">
@@ -53,11 +63,13 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import RecipientSelector from './RecipientSelector';
+  import UiAlert from 'keen-ui/src/UiAlert';
   import { LessonResource } from 'kolibri.resources';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { lessonSummaryLink } from '../lessonsRouterUtils';
-  import RecipientSelector from './RecipientSelector';
   import { LessonsPageNames } from '../../../lessonsConstants';
+  import { refreshLessonReport } from '../../../state/actions/lessonReportsActions';
 
   export default {
     name: 'lessonDetailsModal',
@@ -66,23 +78,25 @@
       kButton,
       kTextbox,
       RecipientSelector,
+      UiAlert,
     },
     data() {
       return {
-        title: '',
         description: '',
-        titleIsVisited: false,
         descriptionIsVisited: false,
-        selectedCollectionIds: [],
         formIsSubmitted: false,
+        selectedCollectionIds: [],
+        title: '',
+        titleIsVisited: false,
+        showError: false,
       };
     },
     computed: {
       formData() {
         return {
-          name: this.title,
+          title: this.title,
           description: this.description,
-          assigned_groups: this.selectedCollectionIds.map(groupId => ({ collection: groupId })),
+          lesson_assignments: this.selectedCollectionIds.map(groupId => ({ collection: groupId })),
         };
       },
       modalTexts() {
@@ -110,21 +124,21 @@
         return '';
       },
       titleIsInvalid() {
-        return !!this.titleIsInvalidText;
+        return Boolean(this.titleIsInvalidText);
       },
       formIsValid() {
         return !this.titleIsInvalid;
       },
-      currentCollectionIds() {
-        return this.currentLesson.assigned_groups.map(g => g.collection);
-      },
       groupsHaveChanged() {
-        const unsharedIds = xor(this.selectedCollectionIds, this.currentCollectionIds);
+        const unsharedIds = xor(
+          this.selectedCollectionIds,
+          this.currentLessonAssignedCollectionIds
+        );
         return unsharedIds.length > 0;
       },
       lessonDetailsHaveChanged() {
         return (
-          this.currentLesson.name !== this.title ||
+          this.currentLesson.title !== this.title ||
           this.currentLesson.description !== this.description ||
           this.groupsHaveChanged
         );
@@ -132,9 +146,9 @@
     },
     created() {
       if (this.isInEditMode) {
-        this.title = this.currentLesson.name;
+        this.title = this.currentLesson.title;
         this.description = this.currentLesson.description;
-        this.selectedCollectionIds = this.currentLesson.assigned_groups.map(g => g.collection);
+        this.selectedCollectionIds = [...this.currentLessonAssignedCollectionIds];
       } else {
         this.selectedCollectionIds = [this.classId];
       }
@@ -146,7 +160,20 @@
           autoDismiss: true,
         });
       },
+      handleSubmitSuccess() {
+        this.closeModal();
+        this.showSuccessSnackbar();
+      },
+      handleSubmitFailure() {
+        this.formIsSubmitted = false;
+        this.showError = true;
+      },
       submitLessonData() {
+        this.showError = false;
+        // Return immediately if "submit" has already been clicked
+        if (this.formIsSubmitted) {
+          return;
+        }
         if (this.isInEditMode && !this.lessonDetailsHaveChanged) {
           return this.closeModal();
         }
@@ -155,25 +182,22 @@
           if (this.isInEditMode) {
             return this.updateLesson()
               .then(updatedLesson => {
-                this.closeModal();
-                this.showSuccessSnackbar();
+                this.handleSubmitSuccess();
                 return this.updateCurrentLesson(updatedLesson);
               })
-              .catch(error => {
-                // TODO handle error properly
-                console.log(error); // eslint-disable-line
+              .catch(() => {
+                this.handleSubmitFailure();
               });
           } else {
             return this.createLesson()
               .then(newLesson => {
-                this.closeModal();
-                this.showSuccessSnackbar();
+                this.handleSubmitSuccess();
                 return this.$router.push(
                   lessonSummaryLink({ classId: this.classId, lessonId: newLesson.id })
                 );
               })
-              .catch(error => {
-                console.log(error); // eslint-disable-line
+              .catch(() => {
+                this.handleSubmitFailure();
               });
           }
         }
@@ -199,16 +223,18 @@
         groups: state => state.pageState.learnerGroups,
         // If the page name is (Lesson) SUMMARY, then should be in edit mode
         isInEditMode: state => state.pageName === LessonsPageNames.SUMMARY,
+        currentLessonAssignedCollectionIds: state =>
+          state.pageState.currentLesson.lesson_assignments.map(a => a.collection),
       },
       actions: {
         createSnackbar,
         updateCurrentLesson(store, lesson) {
           store.dispatch('SET_CURRENT_LESSON', lesson);
+          return refreshLessonReport(store, lesson.id);
         },
       },
     },
     $trs: {
-      // TODO make these labels more semantic
       cancel: 'Cancel',
       changesToLessonSaved: 'Changes to lesson saved',
       continue: 'Continue',
@@ -218,6 +244,7 @@
       newLessonCreated: 'New lesson created',
       required: 'This is required',
       save: 'Save',
+      submitLessonError: 'There was a problem saving this lesson',
       title: 'Title',
       visibleTo: 'Visible to',
     },

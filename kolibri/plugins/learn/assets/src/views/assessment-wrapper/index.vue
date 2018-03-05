@@ -16,7 +16,6 @@ oriented data synchronization.
     <div>
       <content-renderer
         ref="contentRenderer"
-        class="content-renderer"
         :id="content.id"
         :kind="content.kind"
         :files="content.files"

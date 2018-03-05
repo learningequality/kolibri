@@ -97,7 +97,7 @@
         return '';
       },
       passwordIsInvalid() {
-        return !!this.passwordIsInvalidText;
+        return Boolean(this.passwordIsInvalidText);
       },
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.submittedForm) {
@@ -111,7 +111,7 @@
         return '';
       },
       confirmedPasswordIsInvalid() {
-        return !!this.confirmedPasswordIsInvalidText;
+        return Boolean(this.confirmedPasswordIsInvalidText);
       },
       formIsValid() {
         return !this.passwordIsInvalid && !this.confirmedPasswordIsInvalid;

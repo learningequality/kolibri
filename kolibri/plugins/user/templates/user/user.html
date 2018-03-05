@@ -1,8 +1,11 @@
 {% extends "kolibri/base.html" %}
 {% load user_tags %}
 {% load kolibri_tags %}
+{% load cache %}
 {% block content %}
-  {% kolibri_bootstrap_collection 'facilitydataset' 'FacilityDatasetResource' facility_id=currentFacilityId %}
+  {% cache 500 facility_collection_bootstrap %}
+    {% kolibri_bootstrap_collection 'facility' 'FacilityResource' %}
+  {% endcache %}
   {% user_async_assets %}
   {% user_assets %}
 {% endblock %}

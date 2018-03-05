@@ -13,7 +13,7 @@ Changes are ordered reverse-chronologically.
 -----
 
  - Fix issue with importing large channels on Windows
-
+ - Fix issue that prevented importing topic thumbnail files
 
 0.7.1
 -----

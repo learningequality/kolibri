@@ -4,7 +4,7 @@
 
     <ui-toolbar type="colored" textColor="white">
       <template slot="icon">
-        <ui-icon class="app-bar-icon"><logo /></ui-icon>
+        <logo class="app-bar-icon" />
       </template>
       <template slot="brand">
         {{ $tr('kolibri') }}
@@ -123,7 +123,6 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import logo from 'kolibri.coreVue.components.logo';
-  import uiIcon from 'keen-ui/src/UiIcon';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import languageSwitcherFooter from '../language-switcher-footer';
 
@@ -151,7 +150,6 @@
       kTextbox,
       uiToolbar,
       logo,
-      uiIcon,
       kSelect,
       languageSwitcherFooter,
     },
@@ -187,7 +185,7 @@
         return '';
       },
       nameIsInvalid() {
-        return !!this.nameIsInvalidText;
+        return Boolean(this.nameIsInvalidText);
       },
       usernameDoesNotExistYet() {
         if (this.errorCode === 400) {
@@ -210,7 +208,7 @@
         return '';
       },
       usernameIsInvalid() {
-        return !!this.usernameIsInvalidText;
+        return Boolean(this.usernameIsInvalidText);
       },
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
@@ -221,7 +219,7 @@
         return '';
       },
       passwordIsInvalid() {
-        return !!this.passwordIsInvalidText;
+        return Boolean(this.passwordIsInvalidText);
       },
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.formSubmitted) {
@@ -235,7 +233,7 @@
         return '';
       },
       confirmedPasswordIsInvalid() {
-        return !!this.confirmedPasswordIsInvalidText;
+        return Boolean(this.confirmedPasswordIsInvalidText);
       },
       noFacilitySelected() {
         return !this.selectedFacility.value;
@@ -249,7 +247,7 @@
         return '';
       },
       facilityIsInvalid() {
-        return !!this.facilityIsInvalidText;
+        return Boolean(this.facilityIsInvalidText);
       },
       formIsValid() {
         return (
@@ -367,7 +365,7 @@
       margin-top: 0
 
   .app-bar-icon
-    font-size: 2.5em
+    height: 40px
     margin-left: 0.25em
 
   .footer
