@@ -17,12 +17,10 @@ function getElements(wrapper) {
   };
 }
 
+// prettier-ignore
 function getTextInScoreColumn(tdEl) {
   // in the fourth column
-  return tdEl
-    .findAll('td')
-    .at(3)
-    .text();
+  return tdEl.findAll('td').at(3).text();
 }
 
 const initialState = () => ({
@@ -51,7 +49,7 @@ describe('exam report page', () => {
         .trim(),
       'Exam taken by: 0 learners'
     );
-    assert(!averageScore().isVueComponent);
+    assert(!averageScore().exists());
   });
 
   it('average score is shown if at least one exam in progress', () => {

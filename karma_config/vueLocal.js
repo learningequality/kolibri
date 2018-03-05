@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import vue from 'vue';
 import vuex from 'vuex';
 import router from 'vue-router';
