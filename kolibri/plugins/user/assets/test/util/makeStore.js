@@ -8,10 +8,10 @@ export default function makeStore() {
         connection: {
           connected: true,
         },
+        facilities: [],
         facilityConfig: {},
         session: {
           kind: [],
-          facilities: [],
         },
       },
       ...initialState,
