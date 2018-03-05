@@ -71,7 +71,7 @@
     name: 'pointsPopup',
     $trs: {
       plusPoints: '+ { maxPoints, number } Points',
-      niceWork: 'Great work! Keep it up!',
+      niceWork: 'Great work - keep it up!',
       nextContent: 'Next Item',
       topic: 'Topic',
       channel: 'Channel',

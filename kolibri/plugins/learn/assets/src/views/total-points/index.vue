@@ -22,7 +22,7 @@
 
   export default {
     name: 'totalPoints',
-    $trs: { pointsTooltip: 'You have earned { points, number } points!' },
+    $trs: { pointsTooltip: 'You earned { points, number } points!' },
     components: {
       pointsIcon,
       uiTooltip,

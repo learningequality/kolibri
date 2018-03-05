@@ -110,7 +110,7 @@ oriented data synchronization.
     $trs: {
       goal:
         'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up:',
-      tryAgain: 'Try again!',
+      tryAgain: 'Try again',
       correct: 'Correct!',
       check: 'Check',
       next: 'Next question',
