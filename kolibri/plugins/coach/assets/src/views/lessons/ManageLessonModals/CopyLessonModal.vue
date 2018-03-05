@@ -177,7 +177,7 @@
     },
     $trs: {
       copyLessonTitle: 'Copy lesson',
-      copyLessonExplanation: 'Copy this lesson to:',
+      copyLessonExplanation: 'Copy this lesson to',
       currentClass: '(current class)',
       continue: 'Continue',
       cancel: 'Cancel',

@@ -241,7 +241,7 @@
       exportToDisk: 'Export to {driveName}',
       importFromDisk: 'Import from {driveName}',
       kolibriCentralServer: 'Kolibri Studio',
-      languageFilterLabel: 'Language:',
+      languageFilterLabel: 'Language',
       titleFilterPlaceholder: 'Search for a channel…',
       yourChannels: 'Your channels',
       channelTokenButtonLabel: 'Try adding a token',
