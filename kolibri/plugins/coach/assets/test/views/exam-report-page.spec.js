@@ -3,26 +3,26 @@ import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import assert from 'assert';
 import ExamReportPage from '../../src/views/exam-report-page';
-import { mount } from 'avoriaz';
+import { mount } from '@vue/test-utils';
 
 function makeWrapper(options = {}) {
-  const components = {
-    'router-link': '<div></div>',
-  };
-  return mount(ExamReportPage, { ...options, components });
+  return mount(ExamReportPage, { ...options, stubs: ['kRouterLink'] });
 }
 
 function getElements(wrapper) {
   return {
-    averageScore: () => wrapper.find('.header h1:nth-child(2)')[0],
-    tableRows: () => wrapper.find('tbody > tr'),
-    takenBy: () => wrapper.find('.header h1:nth-child(1)')[0],
+    averageScore: () => wrapper.find('.header h1:nth-child(2)'),
+    tableRows: () => wrapper.findAll('tbody > tr'),
+    takenBy: () => wrapper.find('.header h1:nth-child(1)'),
   };
 }
 
 function getTextInScoreColumn(tdEl) {
   // in the fourth column
-  return tdEl.find('td')[3].text();
+  return tdEl
+    .findAll('td')
+    .at(3)
+    .text();
 }
 
 const initialState = () => ({
@@ -51,7 +51,7 @@ describe('exam report page', () => {
         .trim(),
       'Exam taken by: 0 learners'
     );
-    assert(averageScore() === undefined);
+    assert(!averageScore().isVueComponent);
   });
 
   it('average score is shown if at least one exam in progress', () => {
@@ -86,8 +86,8 @@ describe('exam report page', () => {
     const wrapper = makeWrapper({ store: new Vuex.Store({ state }) });
     const { tableRows } = getElements(wrapper);
     // score is properly formatted
-    assert.equal(getTextInScoreColumn(tableRows()[0]).trim(), '50%');
+    assert.equal(getTextInScoreColumn(tableRows().at(0)).trim(), '50%');
     // emdash
-    assert.equal(getTextInScoreColumn(tableRows()[1]).trim(), '–');
+    assert.equal(getTextInScoreColumn(tableRows().at(1)).trim(), '–');
   });
 });
