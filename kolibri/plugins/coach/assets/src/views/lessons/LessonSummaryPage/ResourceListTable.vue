@@ -261,7 +261,7 @@
       multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',
       moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',
       moveResourceDownButtonDescription: 'Move this resource one position down in this lesson',
-      parentChannelLabel: 'Parent channel:',
+      parentChannelLabel: 'Parent channel',
     },
   };
 
