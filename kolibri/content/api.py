@@ -28,6 +28,7 @@ from .utils.search import fuzz
 from kolibri.content import models
 from kolibri.content import serializers
 from kolibri.content.permissions import CanManageContent
+from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
 from kolibri.content.utils.paths import get_channel_lookup_url
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
@@ -305,7 +306,7 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
     serializer_class = serializers.ContentNodeGranularSerializer
 
     def get_queryset(self):
-        return models.ContentNode.objects.all().prefetch_related('files__local_file')
+        return models.ContentNode.objects.all().prefetch_related('files__local_file').filter(renderable_contentnodes_q_filter)
 
     def retrieve(self, request, pk):
         queryset = self.get_queryset()

@@ -8,15 +8,18 @@ import mock
 import requests
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.test import TestCase
 from le_utils.constants import content_kinds
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+import kolibri.content.serializers
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 from kolibri.auth.test.helpers import provision_device
 from kolibri.content import models as content
+from kolibri.content.utils.content_types_tools import renderable_local_files_q_filter
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.logger.models import ContentSummaryLog
@@ -333,6 +336,35 @@ class ContentNodeAPITestCase(APITestCase):
         content.ContentNode.objects.filter(title="root").update(available=False)
         response = self.client.get(reverse("channel-list"))
         self.assertEqual(response.data[0]["available"], False)
+
+    def test_channelmetadata_file_sizes_filter_has_total_resources(self):
+        response = self.client.get(reverse("channel-list"), {"file_sizes": True})
+        self.assertEqual(response.data[0]["total_resources"], 1)
+
+    def test_channelmetadata_file_sizes_filter_has_total_file_size(self):
+        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).filter(renderable_local_files_q_filter).update(file_size=1)
+        response = self.client.get(reverse("channel-list"), {"file_sizes": True})
+        self.assertEqual(response.data[0]["total_file_size"], 2)
+
+    def test_channelmetadata_file_sizes_filter_has_on_device_resources(self):
+        response = self.client.get(reverse("channel-list"), {"file_sizes": True})
+        self.assertEqual(response.data[0]["on_device_resources"], 1)
+
+    def test_channelmetadata_file_sizes_filter_has_on_device_file_size(self):
+        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).filter(renderable_local_files_q_filter).update(file_size=1)
+        response = self.client.get(reverse("channel-list"), {"file_sizes": True})
+        self.assertEqual(response.data[0]["on_device_file_size"], 2)
+
+    def test_channelmetadata_file_sizes_filter_has_no_on_device_file_size(self):
+        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).filter(renderable_local_files_q_filter).update(available=True)
+        response = self.client.get(reverse("channel-list"), {"file_sizes": True})
+        self.assertEqual(response.data[0]["on_device_file_size"], 0)
+
+    @mock.patch.object(kolibri.content.serializers, 'renderable_local_files_q_filter', Q(files__contentnode__kind=content_kinds.TOPIC))
+    def test_channelmetadata_file_sizes_filter_has_no_renderable_on_device_file_size(self):
+        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
+        response = self.client.get(reverse("channel-list"), {"file_sizes": True})
+        self.assertEqual(response.data[0]["on_device_file_size"], 0)
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
