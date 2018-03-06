@@ -84,7 +84,7 @@
     },
     $trs: {
       noResourcesInLesson: 'There are no resources in this lesson!',
-      teacherNote: 'Coach note:',
+      teacherNote: 'Coach note',
     },
   };
 
