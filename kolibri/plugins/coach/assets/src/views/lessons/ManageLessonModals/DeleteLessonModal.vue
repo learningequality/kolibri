@@ -5,7 +5,10 @@
     @cancel="closeModal()"
   >
     <p>{{ $tr('lessonDeletionConfirmation', { title: lessonTitle }) }}</p>
-    <div class="core-modal-buttons">
+    <form
+      @submit.prevent="handleDeleteLesson"
+      class="core-modal-buttons"
+    >
       <k-button
         :text="$tr('cancel')"
         appearance="flat-button"
@@ -14,9 +17,9 @@
       <k-button
         :text="$tr('delete')"
         :primary="true"
-        @click="handleDeleteLesson()"
+        type="submit"
       />
-    </div>
+    </form>
   </core-modal>
 
 </template>

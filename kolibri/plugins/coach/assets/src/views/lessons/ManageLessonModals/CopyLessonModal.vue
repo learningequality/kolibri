@@ -35,7 +35,7 @@
     <!-- Learner Group Selection Form -->
     <div v-else>
       <p>{{ $tr('destinationClassroomExplanation', { classroomName: selectedClassroomName }) }}</p>
-      <p>{{ $tr('lessonVisibility') }}</p>
+      <p>{{ $tr('lessonVisibilityQuestion') }}</p>
       <form @submit.prevent="createLessonCopy">
         <recipient-selector
           v-model="selectedCollectionIds"
