@@ -306,7 +306,7 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
     serializer_class = serializers.ContentNodeGranularSerializer
 
     def get_queryset(self):
-        return models.ContentNode.objects.all().prefetch_related('files__local_file').filter(renderable_contentnodes_q_filter)
+        return models.ContentNode.objects.all().prefetch_related('files__local_file').filter(renderable_contentnodes_q_filter).distinct()
 
     def retrieve(self, request, pk):
         queryset = self.get_queryset()
