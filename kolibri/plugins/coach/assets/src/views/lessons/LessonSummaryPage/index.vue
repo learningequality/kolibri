@@ -117,7 +117,6 @@
             :key="resourceId"
             v-for="(resourceId, index) in workingResources"
           >
-            <!-- TODO add content type icon -->
             <td class="core-table-icon-col">
               <ui-icon-button
                 type="flat"
@@ -345,17 +344,6 @@
           text: this.$tr('resourceReorderConfirmationMessage'),
           autoDismiss: true,
         });
-      },
-      shiftMany(oldIndex, newIndex) {
-        // to be used w/ drag and drop if we do this
-        const resources = [...this.workingResources];
-        // remove the resourceId from the array, store here
-        const [resourceId] = resources.splice(oldIndex, 1);
-        // re-add resourceId at the new index
-        resources.splice(newIndex, 0, resourceId);
-
-        this.setWorkingResources(resources);
-        this.autoSave(resources);
       },
     },
     vuex: {
