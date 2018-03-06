@@ -389,9 +389,11 @@ function setChannelInfo(store) {
     .then(
       channelsData => {
         store.dispatch('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
+        return channelsData;
       },
       error => {
         handleApiError(store, error);
+        return error;
       }
     );
 }
