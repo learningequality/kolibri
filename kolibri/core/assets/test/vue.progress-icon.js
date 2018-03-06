@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import Vue from 'vue-test';
+import Vue from 'vue-test'; // eslint-disable-line
 import ProgressIcon from '../src/views/progress-icon';
 import { mount } from 'avoriaz';
 import UiTooltip from 'keen-ui/src/UiTooltip';
