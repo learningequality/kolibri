@@ -6,7 +6,7 @@
   >
     <p>{{ $tr('lessonDeletionConfirmation', { title: lessonTitle }) }}</p>
     <form
-      @submit.prevent="handleDeleteLesson"
+      @submit.prevent.once="handleDeleteLesson"
       class="core-modal-buttons"
     >
       <k-button
