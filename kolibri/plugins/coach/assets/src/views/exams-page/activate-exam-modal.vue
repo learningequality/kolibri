@@ -45,7 +45,7 @@
     $trs: {
       activateExam: 'Activate exam',
       areYouSure: "Are you sure you want to activate '{ examTitle }'?",
-      willBeVisible: 'The exam will be visible to the following:',
+      willBeVisible: 'The exam will be visible to',
       cancel: 'Cancel',
       activate: 'Activate',
       entireClass: 'Entire class',

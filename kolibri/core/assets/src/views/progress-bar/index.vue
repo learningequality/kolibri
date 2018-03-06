@@ -24,7 +24,7 @@
   export default {
     name: 'progressBar',
     $trs: {
-      label: 'Progress:',
+      label: 'Progress',
       pct: '{0, number, percent}',
     },
     props: {

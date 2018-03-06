@@ -50,7 +50,7 @@
       },
     },
     $trs: {
-      nextInLesson: 'Next in Lesson:',
+      nextInLesson: 'Next in lesson',
     },
   };
 
