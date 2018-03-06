@@ -29,10 +29,11 @@
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import { error as logError } from 'kolibri.lib.logging';
   import { LessonResource } from 'kolibri.resources';
   import { refreshClassLessons } from '../../../state/actions/lessons';
   import { LessonsPageNames } from '../../../lessonsConstants';
-  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import { createSnackbar, handleApiError } from 'kolibri.coreVue.vuex.actions';
 
   export default {
     name: 'deleteLessonModal',
@@ -66,9 +67,8 @@
           })
           .catch(error => {
             // TODO handle error inside the current apge
-            /* eslint-disable */
-            console.log(error);
-            /* eslint-enable */
+            this.handleApiError(error);
+            logError(error);
           });
       },
     },
@@ -79,6 +79,7 @@
         lessonTitle: state => state.pageState.currentLesson.title,
       },
       actions: {
+        handleApiError,
         refreshClassLessons,
         createSnackbar,
       },
