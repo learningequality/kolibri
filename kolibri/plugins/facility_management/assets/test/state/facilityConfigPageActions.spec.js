@@ -2,7 +2,7 @@
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
 import sinon from 'sinon';
 import * as actions from '../../src/state/facilityConfigPageActions';
-import { mockResource } from 'testUtils';
+import { mockResource } from 'testUtils'; // eslint-disable-line
 
 const FacilityStub = mockResource(FacilityResource);
 const DatasetStub = mockResource(FacilityDatasetResource);
