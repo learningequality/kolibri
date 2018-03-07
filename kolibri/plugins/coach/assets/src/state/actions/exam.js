@@ -144,7 +144,7 @@ function showExamsPage(store, classId) {
 
   const promises = [
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
-    ChannelResource.getCollection().fetch(),
+    ChannelResource.getCollection({ available: true, has_exercise: true }).fetch(),
     ExamResource.getCollection({ collection: classId }).fetch({}, true),
     setClassState(store, classId),
   ];
@@ -382,7 +382,7 @@ function showCreateExamPage(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', PageNames.CREATE_EXAM);
   store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamCreationPageTitle'));
 
-  const channelPromise = ChannelResource.getCollection().fetch();
+  const channelPromise = ChannelResource.getCollection({ available: true }).fetch();
   const examsPromise = ExamResource.getCollection({
     collection: classId,
   }).fetch({}, true);
