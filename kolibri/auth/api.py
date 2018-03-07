@@ -174,17 +174,9 @@ class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
 
 class MembershipFilter(FilterSet):
     user_ids = CharFilter(method="filter_user_ids")
-    collection = CharFilter(method="filter_collection_id")
 
     def filter_user_ids(self, queryset, name, value):
         return queryset.filter(user_id__in=value.split(','))
-
-    def filter_collection_id(self, queryset, name, value):
-        # for deleting memberships, we want to include collections that belong to the target collection (ex. learnergroup belonging to classroom)
-        if self.request.method == 'DELETE':
-            collection_ids = Collection.objects.filter(Q(parent_id=value) | Q(id=value)).values_list('id', flat=True)
-            return queryset.filter(collection_id__in=collection_ids)
-        return queryset.filter(collection_id=value)
 
     class Meta:
         model = Membership
