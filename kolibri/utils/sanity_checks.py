@@ -14,7 +14,8 @@ def check_other_kolibri_running(port):
         pid, listen_address, listen_port = get_status()
         logger.error(
             "There is another Kolibri server running. "
-            "Please use `kolibri stop` and try again.")
+            "Please use `kolibri stop` and try again."
+        )
         sys.exit(1)
 
     except NotRunning:
@@ -37,6 +38,7 @@ def check_port_availability(host, port):
         logger.error(
             "Port {} is occupied.\n"
             "Please check that you do not have other processes "
-            "running on this port and try again.\n".format(port))
+            "running on this port and try again.\n".format(port)
+        )
         s.close()
         sys.exit(1)
