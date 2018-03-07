@@ -135,7 +135,7 @@
       password: 'Password',
       reEnterPassword: 'Re-enter password',
       passwordMatchError: 'Passwords do not match',
-      genericError: 'Something went wrong during sign up!',
+      genericError: 'Something went wrong during sign up',
       usernameAlphaNumError: 'Username can only contain letters, numbers, and underscores',
       usernameAlreadyExistsError: 'An account with that username already exists',
       logIn: 'Sign in',
