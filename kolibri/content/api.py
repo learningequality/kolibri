@@ -37,13 +37,22 @@ logger = logging.getLogger(__name__)
 
 class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available")
+    has_exercise = BooleanFilter(method="filter_has_exercise")
+
+    def filter_has_exercise(self,queryset,name,value):
+        channel_ids = []
+        for c in queryset:
+            num_exercises = c.root.get_descendants().filter(kind=content_kinds.EXERCISE).count()
+            if num_exercises > 0:
+                channel_ids.append(c.id)
+        return queryset.filter(id__in=channel_ids)
 
     def filter_available(self, queryset, name, value):
         return queryset.filter(root__available=value)
 
     class Meta:
         model = models.ChannelMetadata
-        fields = ['available', ]
+        fields = ['available', 'has_exercise',]
 
 
 class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
