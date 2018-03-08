@@ -16,13 +16,14 @@
  */
 
 var path = require('path');
-var merge = require('webpack-merge');
 var mkdirp = require('mkdirp');
 var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+// adds custom rules
+require('./htmlhint_custom');
+var prettierOptions = require('../../.prettier');
 
 var production = process.env.NODE_ENV === 'production';
-var lint = process.env.LINT || production;
 
 var base_dir = path.join(__dirname, '..', '..');
 
@@ -44,10 +45,7 @@ var cssLoader = {
 };
 
 // for stylus blocks in vue files.
-var vueStylusLoaders = [cssLoader, postCSSLoader, 'stylus-loader'];
-if (lint) {
-  vueStylusLoaders.push('stylint-loader');
-}
+var vueStylusLoaders = [cssLoader, postCSSLoader, 'stylus-loader', 'stylint-loader'];
 
 // for scss blocks in vue files (e.g. Keen-UI files)
 var vueSassLoaders = [
@@ -61,10 +59,41 @@ var vueSassLoaders = [
 ];
 
 // primary webpack config
-var config = {
+module.exports = {
   context: base_dir,
   module: {
     rules: [
+      // Linting rules
+      {
+        test: /\.(vue|js)$/,
+        enforce: 'pre',
+        use: {
+          loader: 'eslint-loader',
+          options: {
+            failOnError: production,
+            emitError: production,
+            emitWarning: !production,
+            fix: !production,
+            configFile: path.resolve(path.join(base_dir, '.eslintrc.js')),
+          },
+        },
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.(vue|html)/,
+        enforce: 'pre',
+        use: {
+          loader: 'htmlhint-loader',
+          options: { failOnError: production, emitAs: production ? 'error' : 'warning' },
+        },
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.styl$/,
+        enforce: 'pre',
+        loader: 'stylint-loader',
+      },
+      // Transpilation and code loading rules
       {
         test: /\.vue$/,
         loader: 'vue-loader',
@@ -140,7 +169,13 @@ var config = {
       },
     ],
   },
-  plugins: [],
+  plugins: [
+    new PrettierFrontendPlugin({
+      extensions: ['.js', '.vue'],
+      logLevel: 'warn',
+      prettierOptions,
+    }),
+  ],
   resolve: {
     extensions: ['.js', '.vue', '.styl'],
     alias: {},
@@ -161,55 +196,3 @@ var config = {
   },
   stats: 'minimal',
 };
-
-// Only lint in dev mode if LINT env is set. Always lint in production.
-if (lint) {
-  // adds custom rules
-  require('./htmlhint_custom');
-  var prettierOptions = require('../../.prettier');
-
-  var lintConfig = {
-    module: {
-      rules: [
-        {
-          test: /\.(vue|js)$/,
-          enforce: 'pre',
-          use: {
-            loader: 'eslint-loader',
-            options: {
-              failOnError: production,
-              emitError: production,
-              emitWarning: !production,
-              fix: !production,
-            },
-          },
-          exclude: /node_modules/,
-        },
-        {
-          test: /\.(vue|html)/,
-          enforce: 'pre',
-          use: {
-            loader: 'htmlhint-loader',
-            options: { failOnError: production, emitAs: production ? 'error' : 'warning' },
-          },
-          exclude: /node_modules/,
-        },
-        {
-          test: /\.styl$/,
-          enforce: 'pre',
-          loader: 'stylint-loader',
-        },
-      ],
-    },
-    plugins: [
-      new PrettierFrontendPlugin({
-        extensions: ['.js', '.vue'],
-        logLevel: 'warn',
-        prettierOptions,
-      }),
-    ],
-  };
-  config = merge.smart(config, lintConfig);
-}
-
-module.exports = config;
