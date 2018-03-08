@@ -20,7 +20,7 @@ steps:
   - wait
 
   - label: Upload artifacts
-    command: docker image prune -f
+    command: .buildkite/setup_and_upload_artifact.sh && docker image prune -f
 
   - wait
 
