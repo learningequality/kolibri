@@ -2,6 +2,7 @@ import KolibriApp from 'kolibri_app';
 import RootVue from './views';
 import prepareLearnApp from './state/prepareLearnApp';
 import {
+  showRoot,
   showChannels,
   showSearch,
   showContentUnavailable,
@@ -24,8 +25,11 @@ import store from 'kolibri.coreVue.vuex.store';
 
 const routes = [
   {
+    name: PageNames.ROOT,
     path: '/',
-    redirect: '/recommended',
+    handler: () => {
+      showRoot(store);
+    },
   },
   {
     name: PageNames.TOPICS_ROOT,
