@@ -1,5 +1,6 @@
 // a name for every URL pattern
 export const PageNames = {
+  ROOT: 'ROOT',
   TOPICS_ROOT: 'TOPICS_ROOT',
   TOPICS_CHANNEL: 'TOPICS_CHANNEL',
   TOPICS_TOPIC: 'TOPICS_TOPIC',

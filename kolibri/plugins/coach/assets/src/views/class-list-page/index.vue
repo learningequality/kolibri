@@ -23,7 +23,7 @@
             <th scope="row" class="core-table-main-col">
               <k-router-link
                 :text="cl.name"
-                :to="recentPageLink(cl.id)"
+                :to="learnerPageLink(cl.id)"
               />
             </th>
             <td>{{ cl.memberCount }}</td>
@@ -63,9 +63,9 @@
       },
     },
     methods: {
-      recentPageLink(id) {
+      learnerPageLink(id) {
         return {
-          name: constants.PageNames.TOPIC_CHANNELS,
+          name: constants.PageNames.LEARNER_LIST,
           params: { classId: id },
         };
       },
