@@ -35,7 +35,7 @@
     <!-- Learner Group Selection Form -->
     <div v-else>
       <p>{{ $tr('destinationClassroomExplanation', { classroomName: selectedClassroomName }) }}</p>
-      <p>{{ $tr('lessonVisibility') }}</p>
+      <p>{{ $tr('lessonVisibilityQuestion') }}</p>
       <form @submit.prevent="createLessonCopy">
         <recipient-selector
           v-model="selectedCollectionIds"
@@ -65,11 +65,12 @@
 
   import sortBy from 'lodash/sortBy';
   import find from 'lodash/find';
+  import { error as logError } from 'kolibri.lib.logging';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import { LearnerGroupResource, LessonResource } from 'kolibri.resources';
-  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import { createSnackbar, handleApiError } from 'kolibri.coreVue.vuex.actions';
   import RecipientSelector from './RecipientSelector';
 
   const Stages = {
@@ -127,7 +128,8 @@
             this.blockControls = false;
           })
           .catch(err => {
-            console.log(err); // eslint-disable-line
+            this.handleApiError(err);
+            logError(err);
             this.blockControls = false;
           });
       },
@@ -160,7 +162,8 @@
             });
           })
           .catch(error => {
-            console.log(error); // eslint-disable-line
+            this.handleApiError(error);
+            logError(error);
           });
       },
     },
@@ -173,6 +176,7 @@
       },
       actions: {
         createSnackbar,
+        handleApiError,
       },
     },
     $trs: {

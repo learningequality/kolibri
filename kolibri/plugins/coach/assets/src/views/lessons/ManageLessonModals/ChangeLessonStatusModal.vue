@@ -37,11 +37,12 @@
 
 <script>
 
+  import { error as logError } from 'kolibri.lib.logging';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { LessonResource } from 'kolibri.resources';
-  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import { createSnackbar, handleApiError } from 'kolibri.coreVue.vuex.actions';
 
   export default {
     name: 'changeLessonStatusModal',
@@ -88,7 +89,8 @@
           })
           .catch(err => {
             // TODO handle error properly
-            console.error(err); // eslint-disable-line
+            this.handleApiError(err);
+            logError(err);
           });
       },
     },
@@ -101,6 +103,7 @@
         updateCurrentLesson(store, lesson) {
           store.dispatch('SET_CURRENT_LESSON', lesson);
         },
+        handleApiError,
         createSnackbar,
       },
     },
