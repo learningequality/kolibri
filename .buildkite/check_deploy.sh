@@ -22,4 +22,7 @@ if [ ! -z "$NANOBOX_APP_NAME" ] && [ "$BUILDKITE_PULL_REQUEST" = "false" ]; then
         echo "The outputs of the command `nanobox remote add` are changed."
     fi
 
+else
+    echo "This is a pull request. Nanobox will not deploy the app."
+
 fi
