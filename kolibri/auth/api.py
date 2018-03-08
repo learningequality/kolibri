@@ -76,6 +76,10 @@ class KolibriAuthPermissions(permissions.BasePermission):
     A Django REST Framework permissions class that defers to Kolibri's permissions
     system to determine object-level permissions.
     """
+    def validator(self, request, view, datum):
+        model = view.get_serializer_class().Meta.model
+        validated_data = view.get_serializer().to_internal_value(_ensure_raw_dict(datum))
+        return request.user.can_create(model, validated_data)
 
     def has_permission(self, request, view):
 
@@ -86,12 +90,7 @@ class KolibriAuthPermissions(permissions.BasePermission):
             else:
                 data = [request.data]
 
-            model = view.get_serializer_class().Meta.model
-
-            def validate(datum):
-                validated_data = view.get_serializer().to_internal_value(_ensure_raw_dict(datum))
-                return request.user.can_create(model, validated_data)
-            return all(validate(datum) for datum in data)
+            return all(self.validator(request, view, datum) for datum in data)
 
         # for other methods, we return True, as their permissions get checked below
         return True
@@ -181,7 +180,7 @@ class MembershipFilter(FilterSet):
 
     class Meta:
         model = Membership
-        fields = ["user_ids", ]
+        fields = ["user", "collection", "user_ids", ]
 
 
 class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
@@ -205,6 +204,14 @@ class FacilityViewSet(viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter,)
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
+
+    def get_queryset(self, prefetch=True):
+        queryset = Facility.objects.all()
+        if prefetch:
+            # This is a default field on the serializer, so do a select_related
+            # to prevent n queries when n facilities are queried
+            return queryset.select_related('dataset')
+        return queryset
 
 
 class CurrentFacilityViewSet(viewsets.ViewSet):

@@ -9,7 +9,7 @@
     <k-button
       class="error-page-retry-button"
       :text="$tr('errorPageRetryButtonLabel')"
-      primary="true"
+      :primary="true"
       @click="refreshPage"
     />
 
@@ -32,7 +32,7 @@
     name: 'onboardingErrorPage',
     components: { submissionStatePage, kButton },
     $trs: {
-      errorPageHeader: 'Something went wrong!',
+      errorPageHeader: 'Something went wrong',
       errorPageSubheader: 'Please check your server connection and retry.',
       errorPageAdditionalGuidance:
         "If retrying doesn't work, restart the server and refresh the page.",

@@ -1,9 +1,17 @@
-import * as getters from 'kolibri.coreVue.vuex.getters';
+import {
+  isUserLoggedIn,
+  currentUserId,
+  isSuperuser,
+  isAdmin,
+  currentFacilityId,
+  facilities,
+} from 'kolibri.coreVue.vuex.getters';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
+  FacilityResource,
   FacilityDatasetResource,
   ContentSessionLogResource,
   ContentSummaryLogResource,
@@ -183,7 +191,7 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
       if (isFirstDeviceSignIn) {
         // Hacky way to redirect to content import page after completing setup wizard
         redirectBrowser(`${window.location.origin}${deviceURL}#/welcome`);
-      } else if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
+      } else if (isSuperuser(store.state) || isAdmin(store.state)) {
         /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
         redirectBrowser(window.location.origin + facilityURL);
       } else {
@@ -233,13 +241,27 @@ function getCurrentSession(store, force = false) {
     });
 }
 
-function getFacilityConfig(store) {
-  // assumes session is loaded
-  const currentFacilityId = getters.currentFacilityId(store.state);
-  const facilityConfigCollection = FacilityDatasetResource.getCollection({
-    facility_id: currentFacilityId,
-  }).fetch();
-  return facilityConfigCollection.then(facilityConfig => {
+function getFacilities(store) {
+  return FacilityResource.getCollection()
+    .fetch()
+    .then(facilities => {
+      store.dispatch('CORE_SET_FACILITIES', facilities);
+    });
+}
+
+function getFacilityConfig(store, facilityId = currentFacilityId(store.state)) {
+  const currentFacility = facilities(store.state).find(facility => facility.id === facilityId);
+  let datasetPromise;
+  if (currentFacility && currentFacility.dataset) {
+    datasetPromise = Promise.resolve([currentFacility.dataset]);
+  } else {
+    datasetPromise = FacilityDatasetResource.getCollection({
+      // getCollection for currentSession's facilityId if none was passed
+      facility_id: facilityId,
+    }).fetch();
+  }
+
+  return datasetPromise.then(facilityConfig => {
     let config = {};
     const facility = facilityConfig[0];
     if (facility) {
@@ -367,9 +389,11 @@ function setChannelInfo(store) {
     .then(
       channelsData => {
         store.dispatch('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
+        return channelsData;
       },
       error => {
         handleApiError(store, error);
+        return error;
       }
     );
 }
@@ -404,8 +428,8 @@ function saveLogs(store) {
 }
 
 function fetchPoints(store) {
-  if (getters.isUserLoggedIn(store.state)) {
-    const userProgressModel = UserProgressResource.getModel(getters.currentUserId(store.state));
+  if (isUserLoggedIn(store.state)) {
+    const userProgressModel = UserProgressResource.getModel(currentUserId(store.state));
     userProgressModel.fetch().then(progress => {
       store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
     });
@@ -436,8 +460,8 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
   const completedContent = originalProgress < 1 && summaryProgress === 1;
   if (completedContent) {
     store.dispatch('SET_LOGGING_COMPLETION_TIME', now());
-    if (getters.isUserLoggedIn(store.state)) {
-      const userProgressModel = UserProgressResource.getModel(getters.currentUserId(store.state));
+    if (isUserLoggedIn(store.state)) {
+      const userProgressModel = UserProgressResource.getModel(currentUserId(store.state));
       // Fetch first to ensure we never accidentally have an undefined progress
       userProgressModel.fetch().then(progress => {
         userProgressModel.set({
@@ -644,7 +668,7 @@ function saveAndStoreAttemptLog(store) {
 }
 
 function createAttemptLog(store, itemId) {
-  const user = getters.isUserLoggedIn(store.state) ? getters.currentUserId(store.state) : null;
+  const user = isUserLoggedIn(store.state) ? currentUserId(store.state) : null;
   const attemptLogModel = AttemptLogResource.createModel({
     id: null,
     user,
@@ -737,6 +761,7 @@ export {
   kolibriLogin,
   kolibriLogout,
   getCurrentSession,
+  getFacilities,
   getFacilityConfig,
   initContentSession,
   setChannelInfo,

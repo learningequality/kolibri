@@ -107,10 +107,10 @@
       contentProgress: 'Resource progress',
       lastActivity: 'Last activity',
       exerciseCountText:
-        '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+        '{count, number, integer} {count, plural, one {exercise} other {exercises}}',
       contentCountText:
-        '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
-      noLearners: 'You do not have any learners registered yet',
+        '{count, number, integer} {count, plural, one {resource} other {resources}}',
+      noLearners: 'There are no learners enrolled in this class',
     },
     computed: {
       isExercisePage() {

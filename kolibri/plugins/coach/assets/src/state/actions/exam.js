@@ -203,7 +203,7 @@ function deactivateExam(store, examId) {
 function _assignExamTo(examId, collection) {
   const assignmentPayload = {
     exam: examId,
-    collection,
+    collection: collection.id,
   };
   return new Promise((resolve, reject) => {
     ExamAssignmentResource.createModel(assignmentPayload)

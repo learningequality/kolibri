@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import Vue from 'vue-test';
+import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
 import assert from 'assert';
 import LearnIndex from '../../src/views/index.vue';
@@ -11,7 +11,7 @@ const router = new VueRouter({
   routes: [
     { path: '/recommended', name: 'RECOMMENDED' },
     { path: '/topics', name: 'TOPICS_ROOT' },
-    { path: '/exams', name: 'EXAM_LIST' },
+    { path: '/classes', name: 'ALL_CLASSES' },
   ],
 });
 
@@ -30,7 +30,7 @@ function makeWrapper(options) {
 function getElements(wrapper) {
   return {
     // hrefs need to match the routes in the mock router above
-    examLink: () => wrapper.find('[href="#/exams"]')[0],
+    classesLink: () => wrapper.find('[href="#/classes"]')[0],
     recommendedLink: () => wrapper.find('[href="#/recommended"]')[0],
     topicsLink: () => wrapper.find('[href="#/topics"]')[0],
     tabLinks: () => wrapper.find('.k-navbar-links')[0],
@@ -71,32 +71,32 @@ describe('learn plugin index page', () => {
     assert(topicsLink() !== undefined);
   });
 
-  it('the exam tab is available if user is logged in and has memberships', () => {
+  it('the classes tab is available if user is logged in and has memberships', () => {
     // should work for any user 'kind' except for 'anonymous'
     setSessionUserKind('learner');
     setMemberships([{ id: 'membership_1' }]);
     const wrapper = makeWrapper({ store });
-    const { examLink, tabLinks } = getElements(wrapper);
+    const { classesLink, tabLinks } = getElements(wrapper);
     assert(tabLinks() !== undefined);
-    assert(examLink() !== undefined);
+    assert(classesLink() !== undefined);
   });
 
-  it('the exam tab is not available if user is not logged in', () => {
+  it('the classes tab is not available if user is not logged in', () => {
     // in current implementation, anonymous user implies empty memberships
     setSessionUserKind('anonymous');
     setMemberships([]);
     const wrapper = makeWrapper({ store });
-    const { examLink, tabLinks } = getElements(wrapper);
+    const { classesLink, tabLinks } = getElements(wrapper);
     assert(tabLinks() !== undefined);
-    assert(examLink() === undefined);
+    assert(classesLink() === undefined);
   });
 
-  it('the exam tab is not available if user has no memberships/classes', () => {
+  it('the classes tab is not available if user has no memberships/classes', () => {
     setSessionUserKind('learner');
     setMemberships([]);
     const wrapper = makeWrapper({ store });
-    const { examLink, tabLinks } = getElements(wrapper);
+    const { classesLink, tabLinks } = getElements(wrapper);
     assert(tabLinks() !== undefined);
-    assert(examLink() === undefined);
+    assert(classesLink() === undefined);
   });
 });

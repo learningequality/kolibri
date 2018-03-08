@@ -1,42 +1,53 @@
 <template>
 
   <div>
-    <div v-if="navBarNeeded" :class="`gutter-${windowSize.gutterWidth}`">
-      <app-bar
-        class="app-bar align-to-parent"
-        :title="appBarTitle"
+    <!-- temporary hack, resolves flicker when using other templates -->
+    <template v-if="!loading && navBarNeeded">
+
+      <immersive-toolbar
+        v-if="immersivePage"
+        :appBarTitle="appBarTitle"
+        :icon="immersivePageIcon"
+        :route="immersivePageRoute"
+        :primary="immersivePagePrimary"
         :height="headerHeight"
-        :navShown="navShown"
-        @toggleSideNav="navShown=!navShown"
-      >
-        <div slot="app-bar-actions" class="app-bar-actions">
-          <slot name="app-bar-actions"></slot>
-        </div>
-      </app-bar>
-      <side-nav
-        :navShown="navShown"
-        :headerHeight="headerHeight"
-        :width="navWidth"
-        :topLevelPageName="topLevelPageName"
-        @toggleSideNav="navShown=!navShown"
+        @nav-icon-click="$emit('navIconClick')"
       />
-      <div :style="contentStyle" class="content-container">
-        <loading-spinner v-if="loading" class="align-to-parent" />
-        <template v-else>
-          <error-box v-if="error" />
-          <slot></slot>
-        </template>
-      </div>
-    </div>
-    <div v-else>
-      <loading-spinner v-if="loading" class="align-to-parent" />
+
       <template v-else>
-        <error-box v-if="error" />
-        <slot></slot>
+        <app-bar
+          class="app-bar align-to-parent"
+          :title="appBarTitle"
+          :height="headerHeight"
+          :navShown="navShown"
+          @toggleSideNav="navShown=!navShown"
+        >
+          <div slot="app-bar-actions" class="app-bar-actions">
+            <slot name="app-bar-actions"></slot>
+          </div>
+        </app-bar>
+        <side-nav
+          :navShown="navShown"
+          :headerHeight="headerHeight"
+          :width="navWidth"
+          :topLevelPageName="topLevelPageName"
+          @toggleSideNav="navShown=!navShown"
+        />
       </template>
-    </div>
+
+    </template>
+
+    <app-body
+      :topGap="headerHeight"
+      :bottomGap="bottomMargin"
+      :class="`gutter-${windowSize.gutterWidth}`"
+      :padding="mobile ? 16 : 32"
+    >
+      <slot></slot>
+    </app-body>
 
     <global-snackbar />
+
   </div>
 
 </template>
@@ -45,21 +56,25 @@
 <script>
 
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
+  import immersiveToolbar from './immersive-toolbar';
+  import globalSnackbar from './global-snackbar';
+  import appBody from './app-body';
   import values from 'lodash/values';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import appBar from 'kolibri.coreVue.components.appBar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
-  import errorBox from './error-box';
-  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
-  import globalSnackbar from './global-snackbar';
 
   export default {
     name: 'coreBasePage',
+    $trs: {
+      kolibriMessage: 'Kolibri',
+      kolibriTitleMessage: '{ title } - Kolibri',
+    },
     components: {
       appBar,
+      immersiveToolbar,
       sideNav,
-      errorBox,
-      loadingSpinner,
+      appBody,
       globalSnackbar,
     },
     mixins: [responsiveWindow],
@@ -90,12 +105,33 @@
         type: Number,
         default: 0,
       },
+      // IMMERSIVE-SPECIFIC
+      immersivePage: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      immersivePageIcon: {
+        type: String,
+        required: false,
+        default: 'close',
+      },
+      immersivePageRoute: {
+        type: Object,
+        required: false,
+      },
+      // determines the color, primary being the classic kolibri appbar color
+      immersivePagePrimary: {
+        type: Boolean,
+        required: false,
+      },
     },
     vuex: {
       getters: {
+        // used to toggle app bar appearance
         loading: state => state.core.loading,
-        error: state => state.core.error,
-        title: state => state.core.title,
+        // set document title (window name)
+        documentTitle: state => state.core.title,
       },
     },
     data: () => ({ navShown: false }),
@@ -109,34 +145,20 @@
       navWidth() {
         return this.headerHeight * 4;
       },
-      contentStyle() {
-        const padding = (this.mobile ? 16 : 32) + 'px';
-        return {
-          top: `${this.headerHeight}px`,
-          [this.isRtl ? 'right' : 'left']: 0,
-          paddingTop: padding,
-          paddingLeft: padding,
-          paddingRight: padding,
-          marginBottom: this.bottomMargin + 'px',
-        };
-      },
     },
     watch: {
-      title: 'updateDocumentTitle',
+      documentTitle: 'updateDocumentTitle',
     },
     created() {
       this.updateDocumentTitle();
     },
     methods: {
+      // move this responsibility to state?
       updateDocumentTitle() {
-        document.title = this.title
-          ? this.$tr('kolibriTitleMessage', { title: this.title })
+        document.title = this.documentTitle
+          ? this.$tr('kolibriTitleMessage', { title: this.documentTitle })
           : this.$tr('kolibriMessage');
       },
-    },
-    $trs: {
-      kolibriMessage: 'Kolibri',
-      kolibriTitleMessage: '{ title } - Kolibri',
     },
   };
 

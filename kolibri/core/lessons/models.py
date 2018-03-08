@@ -1,11 +1,13 @@
 from __future__ import unicode_literals
 from django.db import models
 from jsonfield import JSONField
+from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import AbstractFacilityDataModel
 from kolibri.auth.models import Collection
 from kolibri.auth.models import FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
-from kolibri.auth.constants import role_kinds
+from kolibri.core.fields import DateTimeTzField
+from kolibri.utils.time import local_now
 
 class Lesson(AbstractFacilityDataModel):
     """
@@ -15,19 +17,20 @@ class Lesson(AbstractFacilityDataModel):
 
     permissions = RoleBasedPermissions(
         target_field='collection',
-        can_be_created_by=(),
+        can_be_created_by=(role_kinds.ADMIN, role_kinds.COACH),
         can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
         can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
-        can_be_deleted_by=(),
+        can_be_deleted_by=(role_kinds.ADMIN, role_kinds.COACH),
     )
 
-    name = models.CharField(max_length=50)
+    title = models.CharField(max_length=50)
     description = models.CharField(default='', blank=True, max_length=200)
     """
     Like Exams, we store an array of objects with the following form:
     {
       contentnode_id: string,
-      position: integer // where the resource appears in the Lesson
+      content_id: string,
+      channel_id: string
     }
     """
     resources = JSONField(default=[], blank=True)
@@ -36,13 +39,23 @@ class Lesson(AbstractFacilityDataModel):
 
     # The Classroom-type Collection for which the Lesson is created
     collection = models.ForeignKey(Collection, related_name='lessons', blank=False, null=False)
+
     created_by = models.ForeignKey(FacilityUser, related_name='lessons_created', blank=False, null=False)
-    # Set to True when the Lesson is 'deleted'
-    is_archived = models.BooleanField(default=False)
+    date_created = DateTimeTzField(default=local_now, editable=False)
+
+    def get_all_learners(self):
+        """
+        Get all Learners that are somehow assigned to this Lesson
+        """
+        assignments = self.lesson_assignments.all()
+        learners = FacilityUser.objects.none()
+        for a in assignments:
+            learners = learners.union(a.collection.get_members())
+        return learners
 
     def __str__(self):
         return 'Lesson {} for Classroom {}'.format(
-            self.name,
+            self.title,
             self.collection.name,
         )
 
@@ -71,13 +84,13 @@ class LessonAssignment(AbstractFacilityDataModel):
         )
     )
 
-    lesson = models.ForeignKey(Lesson, related_name='assigned_groups', blank=False, null=False)
+    lesson = models.ForeignKey(Lesson, related_name='lesson_assignments', blank=False, null=False)
     collection = models.ForeignKey(Collection, related_name='assigned_lessons', blank=False, null=False)
     assigned_by = models.ForeignKey(FacilityUser, related_name='assigned_lessons', blank=False, null=False)
 
     def __str__(self):
-        return 'Lesson {} for Collection {}'.format(
-            self.lesson.name,
+        return 'Lesson Assignment {} for Collection {}'.format(
+            self.lesson.title,
             self.collection.name,
         )
 

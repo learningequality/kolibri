@@ -1,6 +1,12 @@
 <template>
 
   <div class="fh">
+
+    <facility-modal
+      v-if="facilityModalVisible"
+      @close="closeFacilityModal"
+    />
+
     <div class="wrapper-table">
       <div class="main-row"><div id="main-cell">
         <logo class="logo" />
@@ -19,7 +25,7 @@
               ref="username"
               id="username"
               autocomplete="username"
-              :autofocus="true"
+              :autofocus="!hasMultipleFacilities"
               :label="$tr('username')"
               :invalid="usernameIsInvalid"
               :invalidText="usernameIsInvalidText"
@@ -46,7 +52,7 @@
           </transition>
           <transition name="textbox">
             <k-textbox
-              v-if="(!simpleSignIn || (simpleSignIn && (passwordMissing || invalidCredentials)))"
+              v-if="needPasswordField"
               ref="password"
               id="password"
               type="password"
@@ -103,7 +109,7 @@
 
   import { kolibriLogin } from 'kolibri.coreVue.vuex.actions';
   import { PageNames } from '../../constants';
-  import { facilityConfig, currentFacilityId } from 'kolibri.coreVue.vuex.getters';
+  import { facilityConfig } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -114,6 +120,7 @@
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
   import languageSwitcherFooter from '../language-switcher-footer';
+  import facilityModal from './facility-modal';
 
   export default {
     name: 'signInPage',
@@ -136,22 +143,26 @@
       kRouterLink,
       kExternalLink,
       kTextbox,
+      facilityModal,
       logo,
       uiAutocompleteSuggestion,
       uiAlert,
       languageSwitcherFooter,
     },
-    data: () => ({
-      username: '',
-      password: '',
-      usernameSuggestions: [],
-      suggestionTerm: '',
-      showDropdown: true,
-      highlightedIndex: -1,
-      usernameBlurred: false,
-      passwordBlurred: false,
-      formSubmitted: false,
-    }),
+    data() {
+      return {
+        username: '',
+        password: '',
+        usernameSuggestions: [],
+        facilityModalVisible: this.hasMultipleFacilities,
+        suggestionTerm: '',
+        showDropdown: true,
+        highlightedIndex: -1,
+        usernameBlurred: false,
+        passwordBlurred: false,
+        formSubmitted: false,
+      };
+    },
     computed: {
       simpleSignIn() {
         return this.facilityConfig.learnerCanLoginWithNoPassword;
@@ -201,9 +212,21 @@
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
+      hasServerError() {
+        return Boolean(this.passwordMissing || this.invalidCredentials);
+      },
+      needPasswordField() {
+        const isSimpleButHasError = this.simpleSignIn && this.hasServerError;
+        return !this.simpleSignIn || isSimpleButHasError;
+      },
     },
-    watch: { username: 'setSuggestionTerm' },
+    watch: {
+      username: 'setSuggestionTerm',
+    },
     methods: {
+      closeFacilityModal() {
+        this.facilityModalVisible = false;
+      },
       setSuggestionTerm(newVal) {
         if (newVal !== null && typeof newVal !== 'undefined') {
           // Only check if defined or not null
@@ -275,7 +298,7 @@
           this.showDropdown = false;
           this.highlightedIndex = -1;
           // focus on input after selection
-          this.$refs.username.$el.querySelector('input').focus();
+          this.$refs.username.focus();
         }
       },
       handleUsernameBlur() {
@@ -288,8 +311,8 @@
           this.kolibriLogin({
             username: this.username,
             password: this.password,
-            facility: this.facility,
-          });
+            facility: this.facilityId,
+          }).catch();
         } else {
           this.focusOnInvalidField();
         }
@@ -304,8 +327,10 @@
     },
     vuex: {
       getters: {
-        facility: currentFacilityId,
+        // backend's default facility on load
+        facilityId: state => state.facilityId,
         facilityConfig,
+        hasMultipleFacilities: state => state.pageState.hasMultipleFacilities,
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,

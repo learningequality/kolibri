@@ -21,7 +21,9 @@ function makeStore() {
     state: {
       pageState: {
         taskList: [],
-        channelList: [{ id: 'channel_1', name: 'Installed Channel', root: 'channel_1_root' }],
+        channelList: [
+          { id: 'channel_1', name: 'Installed Channel', root: 'channel_1_root', available: true },
+        ],
         wizardState: {
           ...importExportWizardState(),
           pageName: 'SELECT_CONTENT',

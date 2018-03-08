@@ -1,6 +1,7 @@
 import { PageNames } from '../constants';
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri.coreVue.vuex.constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import { currentFacilityId, facilities } from 'kolibri.coreVue.vuex.getters';
 import { SignUpResource, FacilityUserResource, FacilityResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import Lockr from 'lockr';
@@ -108,6 +109,12 @@ export function showProfilePage(store) {
   resetProfileState(store);
 }
 
+export function setFacilitiesAndConfig(store) {
+  return coreActions.getFacilities(store).then(() => {
+    return coreActions.getFacilityConfig(store);
+  });
+}
+
 export function showSignInPage(store) {
   const trs = createTranslator('signedOutSnackbar', {
     signedOut: 'You were automatically signed out due to inactivity',
@@ -121,11 +128,17 @@ export function showSignInPage(store) {
     });
     Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, null);
   }
-  resetAndSetPageName(store, {
-    pageName: PageNames.SIGN_IN,
-    title: translator.$tr('userSignInPageTitle'),
+  setFacilitiesAndConfig(store).then(() => {
+    // grabs facilityId from session, which is the backend's default on sign in page
+    store.dispatch('SET_FACILITY_ID', currentFacilityId(store.state));
+    store.dispatch('SET_PAGE_STATE', {
+      hasMultipleFacilities: facilities(store.state).length > 1,
+    });
+    resetAndSetPageName(store, {
+      pageName: PageNames.SIGN_IN,
+      title: translator.$tr('userSignInPageTitle'),
+    });
   });
-  store.dispatch('SET_PAGE_STATE', {});
 }
 
 export function showSignUpPage(store) {

@@ -19,7 +19,7 @@
         <tr v-for="user in visibleUsers" :key="user.id">
           <td class="core-table-icon-col">
             <permissions-icon
-              v-if="!!getPermissionType(user.id)"
+              v-if="Boolean(getPermissionType(user.id))"
               :permissionType="getPermissionType(user.id)"
             />
           </td>

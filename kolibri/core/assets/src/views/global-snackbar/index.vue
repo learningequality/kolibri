@@ -8,6 +8,7 @@
     :backdrop="snackbarOptions.backdrop"
     :autoDismiss="snackbarOptions.autoDismiss"
     @actionClicked="snackbarOptions.actionCallback()"
+    @hide="hideCallback"
   />
 
 </template>
@@ -33,6 +34,13 @@
           unique.text = '';
         }
         return JSON.stringify(unique);
+      },
+    },
+    methods: {
+      hideCallback() {
+        if (this.snackbarOptions.hideCallback) {
+          this.snackbarOptions.hideCallback();
+        }
       },
     },
     vuex: {

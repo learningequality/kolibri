@@ -151,6 +151,7 @@
   import random from 'lodash/random';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import flatMap from 'lodash/flatMap';
 
   export default {
     name: 'createExamPage',
@@ -225,7 +226,7 @@
         return '';
       },
       titleIsInvalid() {
-        return !!this.titleIsInvalidText;
+        return Boolean(this.titleIsInvalidText);
       },
       maxQuestionsFromSelection() {
         // in case numAssestments is null, return 0
@@ -261,7 +262,7 @@
         return '';
       },
       numQuestIsInvalid() {
-        return !!this.numQuestIsInvalidText;
+        return Boolean(this.numQuestIsInvalidText);
       },
       selectionIsInvalidText() {
         if (this.selectionMade || this.previewOrSubmissionAttempt) {
@@ -272,7 +273,7 @@
         return '';
       },
       selectionIsInvalid() {
-        return !!this.selectionIsInvalidText;
+        return Boolean(this.selectionIsInvalidText);
       },
       formIsInvalidText() {
         if (this.titleIsInvalid) {
@@ -287,14 +288,14 @@
         return '';
       },
       formIsInvalid() {
-        return !!this.formIsInvalidText;
+        return Boolean(this.formIsInvalidText);
       },
       allExercisesWithinCurrentTopic() {
-        let allExercises = [];
-        this.subtopics.forEach(subtopic => {
-          allExercises = allExercises.concat(subtopic.allExercisesWithinTopic);
-        });
-        return [allExercises, ...this.exercises];
+        const subtopicExercises = flatMap(
+          this.subtopics,
+          subtopic => subtopic.allExercisesWithinTopic
+        );
+        return [...subtopicExercises, ...this.exercises];
       },
       allExercisesWithinCurrentTopicSelected() {
         if (this.allExercisesWithinCurrentTopic.length === 0) {

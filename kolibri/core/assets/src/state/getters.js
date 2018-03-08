@@ -58,6 +58,10 @@ function facilityConfig(state) {
   return state.core.facilityConfig;
 }
 
+function facilities(state) {
+  return state.core.facilities;
+}
+
 function getChannels(state) {
   return state.core.channels.list;
 }
@@ -110,6 +114,7 @@ export {
   contentPoints,
   currentUserId,
   facilityConfig,
+  facilities,
   sessionTimeSpent,
   canManageContent,
   getUserRole,

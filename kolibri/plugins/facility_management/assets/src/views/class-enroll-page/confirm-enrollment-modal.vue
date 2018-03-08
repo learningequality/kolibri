@@ -39,10 +39,10 @@
   export default {
     name: 'confirmEnrollmentModal',
     $trs: {
-      confirmEnrollment: 'Confirm enrollment of selected users',
-      areYouSure: 'Are you sure you want to enroll the following users into {className}?',
-      noGoBack: 'No, go back',
-      yesEnrollUsers: 'Yes, enroll learners',
+      confirmEnrollment: 'Confirm enrollment',
+      areYouSure: "Are you sure you want to enroll these users into '{className}'?",
+      noGoBack: 'Cancel',
+      yesEnrollUsers: 'Enroll users',
     },
     components: {
       coreModal,
@@ -99,8 +99,8 @@
 <style lang="stylus" scoped>
 
   .review-enroll-ul
-    list-style: none
-    margin: 20px 0
+    list-style: inside
+    padding: 0
 
   .review-enroll-li
     line-height: 1.8em
