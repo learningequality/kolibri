@@ -9,6 +9,15 @@ from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
 from django.utils.translation import ugettext as _
+from django_filters.rest_framework import BooleanFilter, CharFilter, ChoiceFilter, DjangoFilterBackend, FilterSet
+from kolibri.content import models, serializers
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.permissions import CanManageContent
+from kolibri.content.utils.paths import get_channel_lookup_url
+from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
+from le_utils.constants import content_kinds, languages
+from rest_framework import mixins, pagination, viewsets
+from rest_framework.decorators import detail_route, list_route
 from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
@@ -37,13 +46,22 @@ logger = logging.getLogger(__name__)
 
 class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available")
+    has_exercise = BooleanFilter(method="filter_has_exercise")
+
+    def filter_has_exercise(self,queryset,name,value):
+        channel_ids = []
+        for c in queryset:
+            num_exercises = c.root.get_descendants().filter(kind=content_kinds.EXERCISE).count()
+            if num_exercises > 0:
+                channel_ids.append(c.id)
+        return queryset.filter(id__in=channel_ids)
 
     def filter_available(self, queryset, name, value):
         return queryset.filter(root__available=value)
 
     class Meta:
         model = models.ChannelMetadata
-        fields = ['available', ]
+        fields = ['available', 'has_exercise',]
 
 
 class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
