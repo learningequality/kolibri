@@ -7,8 +7,10 @@
     <core-modal
       :title=" $tr('facilityPermissionsPresetDetailsHeader')"
       @cancel="hideFacilityPermissionsDetails"
+      @enter="hideFacilityPermissionsDetails"
       :enableBgClickCancel="true"
-      v-if="permissionPresetDetailsModalShown">
+      v-if="permissionPresetDetailsModalShown"
+    >
 
       <dl class="permission-preset-human">
         <dt class="permission-preset-human-title">
@@ -49,34 +51,27 @@
         </dd>
       </dl>
 
-      <span class="permission-preset-modal-dismiss-button-wrapper">
+      <div class="core-modal-buttons">
         <k-button
           class="permission-preset-modal-dismiss-button"
           :text="$tr('permissionsModalDismissText')"
           :primary="true"
           @click="hideFacilityPermissionsDetails"
         />
-      </span>
+      </div>
 
     </core-modal>
 
     <onboarding-form
       :header="$tr('facilityPermissionsSetupFormHeader')"
+      :description="$tr('facilityPermissionsSetupFormDescription')"
       :submitText="submitText"
-      @submit="setPermissions">
-
-      <template slot="description">
-        {{ $tr('facilityPermissionsSetupFormDescription') }}
-        <k-button
-          appearance="basic-link"
-          :text="$tr('facilityPermissionsPresetDetailsLink')"
-          ref="details"
-          @click="showFacilityPermissionsDetails"
-        />
-      </template>
+      @submit="setPermissions"
+    >
 
       <label class="permission-preset">
         <k-radio-button
+          ref="first-button"
           class="permission-preset-radio-button"
           v-model="selectedPreset"
           radiovalue="nonformal"
@@ -111,6 +106,14 @@
         </span>
       </label>
 
+      <k-button
+        slot="footer"
+        appearance="basic-link"
+        :text="$tr('facilityPermissionsPresetDetailsLink')"
+        @click="showFacilityPermissionsDetails"
+      />
+
+
     </onboarding-form>
 
   </div>
@@ -138,8 +141,8 @@
     $trs: {
       facilityPermissionsSetupFormHeader: 'Choose a Facility setup',
       facilityPermissionsSetupFormDescription:
-        'How will you be using Kolibri? You can customize these settings later.',
-      facilityPermissionsPresetDetailsLink: 'Setup details',
+        'How will you be using Kolibri? (You can customize these settings later)',
+      facilityPermissionsPresetDetailsLink: 'More information about these settings',
       facilityPermissionsPresetDetailsHeader: 'Facility setup details',
       adminManagedSetupTitle: 'Admin-managed',
       adminManagedSetupDescription: 'For schools and other formal learning contexts',
@@ -172,7 +175,7 @@
       };
     },
     mounted() {
-      this.$refs.details.$el.focus();
+      this.$refs['first-button'].focus();
     },
     methods: {
       setPermissions() {
@@ -223,11 +226,6 @@
     &-modal
       &-dismiss-button
         text-transform: uppercase
-        &-wrapper
-          display: block
-          text-align: right
-          width: 100%
-
 
   .permission-preset-human
     margin-bottom: 8px

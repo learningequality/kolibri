@@ -7,7 +7,6 @@
 
     <content-renderer
       v-if="!content.assessment"
-      v-show="!searchOpen"
       class="content-renderer"
       @sessionInitialized="setWasIncomplete"
       @startTracking="startTracking"
@@ -20,7 +19,8 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields"
-      :initSession="initSession">
+      :initSession="initSession"
+    >
       <k-button
         :primary="true"
         @click="nextContentClicked"
@@ -33,7 +33,6 @@
 
     <assessment-wrapper
       v-else
-      v-show="!searchOpen"
       class="content-renderer"
       @sessionInitialized="setWasIncomplete"
       @startTracking="startTracking"
@@ -47,7 +46,8 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :checkButtonIsPrimary="!showNextBtn"
-      :initSession="initSession">
+      :initSession="initSession"
+    >
       <k-button
         :primary="true"
         @click="nextContentClicked"
@@ -58,17 +58,17 @@
       />
     </assessment-wrapper>
 
+    <!-- TODO consolidate this metadata table with coach/lessons -->
     <!-- TODO: RTL - Remove ta-l -->
     <p v-html="description" dir="auto" class="ta-l"></p>
 
 
-    <div class="metadata">
+    <section class="metadata" v-if="showMetadata">
       <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.author">
         {{ $tr('author', {author: content.author}) }}
       </p>
 
-      <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.license">
         {{ $tr('license', {license: content.license}) }}
 
@@ -80,36 +80,42 @@
             type="secondary"
             @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
           />
-          <!-- TODO: RTL - Do not interpolate strings -->
           <p v-if="licenceDescriptionIsVisible" dir="auto" class="ta-l">
             {{ content.license_description }}
           </p>
         </template>
-
       </p>
 
       <p v-if="content.license_owner">
         {{ $tr('copyrightHolder', {copyrightHolder: content.license_owner}) }}
       </p>
-    </div>
+    </section>
 
-    <download-button v-if="canDownload" :files="downloadableFiles" class="download-button" />
+    <download-button
+      v-if="canDownload"
+      :files="downloadableFiles"
+      class="download-button"
+    />
 
-    <template v-if="showRecommended">
-      <h2>{{ $tr('recommended') }}</h2>
-      <content-card-group-carousel
-        :genContentLink="genContentLink"
-        :header="recommendedText"
-        :contents="recommended" />
-    </template>
+    <slot name="below_content">
+      <template v-if="showRecommended">
+        <h2>{{ $tr('recommended') }}</h2>
+        <content-card-group-carousel
+          :genContentLink="genContentLink"
+          :header="recommendedText"
+          :contents="recommended"
+        />
+      </template>
+    </slot>
 
     <template v-if="progress >= 1 && wasIncomplete">
       <points-popup
         v-if="showPopup"
         @close="markAsComplete"
-        :kind="content.next_content.kind"
-        :title="content.next_content.title">
+        :nextContent="content.next_content"
+      >
         <k-button
+          v-if="nextContent"
           :primary="true"
           slot="nextItemBtn"
           @click="nextContentClicked"
@@ -136,7 +142,7 @@
     startTrackingProgress as startTracking,
     stopTrackingProgress as stopTracking,
   } from 'kolibri.coreVue.vuex.actions';
-  import { PageNames, PageModes } from '../../constants';
+  import { PageNames, PageModes, ClassesPageNames } from '../../constants';
   import { pageMode } from '../../state/getters';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
@@ -152,6 +158,7 @@
   import pointsSlidein from '../points-slidein';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
+  import { lessonResourceViewerLink } from '../classes/classPageLinks';
 
   export default {
     name: 'learnContent',
@@ -209,6 +216,10 @@
       },
       nextContentLink() {
         if (this.content.next_content) {
+          // HACK Use a the Resource Viewer Link instead
+          if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+            return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
+          }
           return this.genContentLink(this.content.next_content.id, this.content.next_content.kind);
         }
         return null;
@@ -228,6 +239,10 @@
       },
       downloadableFiles() {
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
+      },
+      showMetadata() {
+        // Hide metadata when viewing Resource in a Lesson
+        return !this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
       },
     },
     beforeDestroy() {
@@ -251,26 +266,25 @@
         this.wasIncomplete = false;
       },
       genContentLink(id, kind) {
-        if (kind === 'topic') {
-          return {
-            name: PageNames.TOPICS_TOPIC,
-            params: { channel_id: this.channelId, id },
-          };
+        let name;
+        if (kind === ContentNodeKinds.TOPIC) {
+          name = PageNames.TOPICS_TOPIC;
+        } else {
+          name = PageNames.RECOMMENDED_CONTENT;
         }
         return {
-          name: PageNames.RECOMMENDED_CONTENT,
+          name,
           params: { channel_id: this.channelId, id },
         };
       },
     },
     vuex: {
       getters: {
-        searchOpen: state => state.searchOpen,
         content: state => state.pageState.content,
         contentId: state => state.pageState.content.content_id,
         contentNodeId: state => state.pageState.content.id,
         channelId: state => state.pageState.content.channel_id,
-        pagename: state => state.pageName,
+        pageName: state => state.pageName,
         recommended: state => state.pageState.recommended,
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,
@@ -290,8 +304,6 @@
 
 
 <style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
 
   .float
     float: right

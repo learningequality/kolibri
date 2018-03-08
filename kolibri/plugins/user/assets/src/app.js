@@ -1,39 +1,68 @@
 import KolibriApp from 'kolibri_app';
-
 import RootVue from './views';
-import * as actions from './state/actions';
-import { initialState, mutations } from './state/store';
+import { showSignInPage, showSignUpPage, showProfilePage } from './state/actions';
+import initialState from './state/initialState';
+import mutations from './state/mutations';
 import { PageNames } from './constants';
 import store from 'kolibri.coreVue.vuex.store';
 import { getFacilityConfig } from 'kolibri.coreVue.vuex.actions';
+import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
+import router from 'kolibri.coreVue.router';
 
 const routes = [
   {
     name: PageNames.ROOT,
     path: '/',
     handler: () => {
-      actions.showRoot(store);
+      if (isUserLoggedIn(store.state)) {
+        router.getInstance().replace({
+          name: PageNames.PROFILE,
+        });
+      } else {
+        router.getInstance().replace({
+          name: PageNames.SIGN_IN,
+        });
+      }
     },
   },
   {
     name: PageNames.SIGN_IN,
     path: '/signin',
     handler: () => {
-      actions.showSignIn(store);
+      if (isUserLoggedIn(store.state)) {
+        router.getInstance().replace({
+          name: PageNames.PROFILE,
+        });
+      } else {
+        showSignInPage(store);
+      }
     },
   },
   {
     name: PageNames.SIGN_UP,
     path: '/create_account',
     handler: () => {
-      actions.showSignUp(store);
+      if (isUserLoggedIn(store.state)) {
+        router.getInstance().replace({
+          name: PageNames.PROFILE,
+        });
+        return Promise.resolve();
+      } else {
+        return showSignUpPage(store);
+      }
     },
   },
   {
     name: PageNames.PROFILE,
     path: '/profile',
     handler: () => {
-      actions.showProfile(store);
+      if (!isUserLoggedIn(store.state)) {
+        router.getInstance().replace({
+          name: PageNames.SIGN_IN,
+        });
+      } else {
+        showProfilePage(store);
+      }
     },
   },
   {
@@ -60,6 +89,4 @@ class UserModule extends KolibriApp {
   }
 }
 
-const userModule = new UserModule();
-
-export { userModule as default };
+export default new UserModule();

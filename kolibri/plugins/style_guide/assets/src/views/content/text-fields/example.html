@@ -21,6 +21,12 @@
       :maxlength="15"
     >
     </k-textbox>
+    <k-textbox
+      v-model="model3"
+      label="Text area"
+      :text-area="true"
+    >
+    </k-textbox>
   </div>
 
 </template>
@@ -32,6 +38,7 @@
     data: () => ({
       model1: '',
       model2: 'disabled',
+      model3: '',
     }),
     computed: {
       isInvalid() {

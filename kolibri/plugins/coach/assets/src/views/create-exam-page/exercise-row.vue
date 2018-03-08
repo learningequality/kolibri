@@ -1,7 +1,7 @@
 <template>
 
   <tr>
-    <th class="col-checkbox">
+    <th class="core-table-checkbox-col">
       <k-checkbox
         :label="$tr('selectExercise')"
         :showLabel="false"
@@ -9,11 +9,11 @@
         @change="changeSelection"
       />
     </th>
-    <td class="col-title">
+    <td class="col-table-main-col">
       <content-icon :kind="exercise" />
       <span>{{ exerciseTitle }}</span>
     </td>
-    <td class="col-selection"></td>
+    <td></td>
   </tr>
 
 </template>
@@ -87,4 +87,3 @@
 
 
 <style lang="stylus" scoped></style>
-

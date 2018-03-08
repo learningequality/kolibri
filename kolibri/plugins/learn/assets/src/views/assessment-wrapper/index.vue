@@ -16,7 +16,6 @@ oriented data synchronization.
     <div>
       <content-renderer
         ref="contentRenderer"
-        class="content-renderer"
         :id="content.id"
         :kind="content.kind"
         :files="content.files"
@@ -33,7 +32,8 @@ oriented data synchronization.
         @itemError="handleItemError"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
-        @updateProgress="updateProgress" />
+        @updateProgress="updateProgress"
+      />
     </div>
 
     <div>

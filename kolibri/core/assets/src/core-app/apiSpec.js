@@ -73,6 +73,10 @@ import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
 import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
+import CoreTable from '../views/CoreTable';
+// webpack optimization
+import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
+import * as contentNode from '../utils/contentNodeUtils';
 
 export default {
   client,
@@ -128,6 +132,7 @@ export default {
       appBar,
       coreSnackbar,
       customUiMenu,
+      CoreTable,
     },
     router,
     mixins: {
@@ -141,9 +146,11 @@ export default {
     theme,
     definitions,
     keenVars,
+    buttonAndLinkStyles,
   },
   urls,
   utils: {
+    contentNode,
     browser,
     exams,
     validators,

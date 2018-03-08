@@ -89,8 +89,12 @@ function reconnectTime(state) {
   return state.core.connection.reconnectTime;
 }
 
-function currentSnackbar(state) {
-  return state.core.currentSnackbar;
+function snackbarIsVisible(state) {
+  return state.core.snackbarIsVisible;
+}
+
+function snackbarOptions(state) {
+  return state.core.snackbarOptions;
 }
 
 export {
@@ -113,5 +117,6 @@ export {
   userHasPermissions,
   connected,
   reconnectTime,
-  currentSnackbar,
+  snackbarIsVisible,
+  snackbarOptions,
 };

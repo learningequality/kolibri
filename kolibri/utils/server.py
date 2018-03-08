@@ -8,9 +8,11 @@ import ifcfg
 import requests
 from django.conf import settings
 from django.core.management import call_command
-from kolibri.content.utils import paths
 
-from .system import kill_pid, pid_exists
+from .system import kill_pid
+from .system import pid_exists
+from kolibri.content.utils import paths
+from kolibri.utils.conf import KOLIBRI_HOME
 
 logger = logging.getLogger(__name__)
 
@@ -28,15 +30,15 @@ STATUS_PID_FILE_INVALID = 100
 STATUS_UNKNOWN = 101
 
 # Used to store PID and port number (both in foreground and daemon mode)
-PID_FILE = os.path.join(os.environ['KOLIBRI_HOME'], "server.pid")
+PID_FILE = os.path.join(KOLIBRI_HOME, "server.pid")
 
 # Used to PID, port during certain exclusive startup process, before we fork
 # to daemon mode
-STARTUP_LOCK = os.path.join(os.environ['KOLIBRI_HOME'], "server.lock")
+STARTUP_LOCK = os.path.join(KOLIBRI_HOME, "server.lock")
 
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
-DAEMON_LOG = os.path.join(os.environ['KOLIBRI_HOME'], "server.log")
+DAEMON_LOG = os.path.join(KOLIBRI_HOME, "server.log")
 
 # Currently non-configurable until we know how to properly handle this
 LISTEN_ADDRESS = "0.0.0.0"
@@ -211,9 +213,10 @@ def get_status():  # noqa: max-complexity=16
     The behavior is also quite redundant given that `kalite start` should
     always create a PID file, and if its been started directly with the
     runserver command, then its up to the developer to know what's happening.
+
     :returns: (PID, address, port), where address is not currently detected in
-              a valid way because it's not configurable, and we might be
-              listening on several IPs.
+        a valid way because it's not configurable, and we might be
+        listening on several IPs.
     :raises: NotRunning
     """
 

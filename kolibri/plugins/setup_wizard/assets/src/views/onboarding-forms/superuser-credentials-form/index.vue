@@ -4,7 +4,8 @@
     :header="$tr('adminAccountCreationHeader')"
     :description="$tr('adminAccountCreationDescription')"
     :submitText="submitText"
-    @submit="setSuperuserCredentials">
+    @submit="setSuperuserCredentials"
+  >
 
     <k-textbox
       v-model="name"
@@ -136,16 +137,16 @@
         return '';
       },
       nameIsInvalid() {
-        return this.visitedFields.name && !!this.nameErrorMessage;
+        return this.visitedFields.name && Boolean(this.nameErrorMessage);
       },
       usernameIsInvalid() {
-        return this.visitedFields.username && !!this.usernameErrorMessage;
+        return this.visitedFields.username && Boolean(this.usernameErrorMessage);
       },
       passwordIsInvalid() {
-        return this.visitedFields.password && !!this.passwordErrorMessage;
+        return this.visitedFields.password && Boolean(this.passwordErrorMessage);
       },
       passwordConfirmIsInvalid() {
-        return this.visitedFields.passwordConfirm && !!this.passwordConfirmErrorMessage;
+        return this.visitedFields.passwordConfirm && Boolean(this.passwordConfirmErrorMessage);
       },
       formIsValid() {
         return (

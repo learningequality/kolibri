@@ -17,14 +17,12 @@ import {
 } from 'kolibri.resources';
 
 import RecentReportResourceConstructor from '../../apiResources/recentReport';
-import UserReportResourceConstructor from '../../apiResources/userReport';
+import UserReportResource from '../../apiResources/userReport';
 import ContentSummaryResourceConstructor from '../../apiResources/contentSummary';
 import ContentReportResourceConstructor from '../../apiResources/contentReport';
 import { createTranslator } from 'kolibri.utils.i18n';
 
-const name = 'coachReportPageTitles';
-
-const messages = {
+const translator = createTranslator('coachReportPageTitles', {
   recentChannelsPageTitle: 'Recent - All channels',
   recentItemsForChannelPageTitle: 'Recent - Items',
   recentPageTitle: 'Recent',
@@ -40,12 +38,9 @@ const messages = {
   learnersReportForChannelPageTitle: 'Learners - Channel',
   learnersReportForContentItemsPageTitle: 'Learners - Items',
   learnersItemDetailsReportPageTitle: 'Learners - Item Details',
-};
-
-const translator = createTranslator(name, messages);
+});
 
 const RecentReportResource = new RecentReportResourceConstructor();
-const UserReportResource = new UserReportResourceConstructor();
 const ContentSummaryResource = new ContentSummaryResourceConstructor();
 const ContentReportResource = new ContentReportResourceConstructor();
 
@@ -55,7 +50,7 @@ const ContentReportResource = new ContentReportResourceConstructor();
  * @param {string} classId -
  * @returns {Promise} that resolves channel with lastActive value in object:
  *   { 'channelId': dateOfLastActivity }
-*/
+ */
 function channelLastActivePromise(channel, userScope, userScopeId) {
   const summaryPayload = {
     channel_id: channel.id,
@@ -317,7 +312,7 @@ function _showLearnerList(store, options) {
 }
 
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
-function _showExerciseDetailView(
+export function showExerciseDetailView(
   store,
   classId,
   userId,
@@ -326,11 +321,11 @@ function _showExerciseDetailView(
   attemptLogIndex,
   interactionIndex
 ) {
-  ContentNodeResource.getModel(contentId)
+  return ContentNodeResource.getModel(contentId)
     .fetch()
-    .then(
+    ._promise.then(
       exercise => {
-        Promise.all([
+        return Promise.all([
           AttemptLogResource.getCollection({
             user: userId,
             content: exercise.content_id,
@@ -368,11 +363,15 @@ function _showExerciseDetailView(
             currentInteractionHistory,
             currentInteraction: currentInteractionHistory[interactionIndex],
             summaryLog: summaryLog[0],
-            channelId,
+            channelId, // not really needed
             attemptLogIndex,
+            // hack, allows caryover of custom state
+            ...store.state.pageState,
           };
+
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
+          return pageState;
         });
       },
       error => {
@@ -385,18 +384,18 @@ function clearReportSorting(store) {
   store.dispatch('SET_REPORT_SORTING');
 }
 
-function setReportSorting(store, sortColumn, sortOrder) {
+export function setReportSorting(store, sortColumn, sortOrder) {
   store.dispatch('SET_REPORT_SORTING', sortColumn, sortOrder);
 }
 
-function showRecentChannels(store, classId) {
+export function showRecentChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_CHANNELS);
   store.dispatch('CORE_SET_TITLE', translator.$tr('recentChannelsPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showChannelList(store, classId, null, true);
 }
 
-function showRecentItemsForChannel(store, classId, channelId) {
+export function showRecentItemsForChannel(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL);
   store.dispatch('CORE_SET_TITLE', translator.$tr('recentItemsForChannelPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -443,7 +442,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
   );
 }
 
-function showRecentLearnersForItem(store, classId, channelId, contentId) {
+export function showRecentLearnersForItem(store, classId, channelId, contentId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', translator.$tr('recentLearnerActivityReportPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -459,7 +458,7 @@ function showRecentLearnersForItem(store, classId, channelId, contentId) {
   });
 }
 
-function showRecentLearnerItemDetails(
+export function showRecentLearnerItemDetails(
   store,
   classId,
   userId,
@@ -473,7 +472,7 @@ function showRecentLearnerItemDetails(
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
   store.dispatch('CORE_SET_TITLE', translator.$tr('recentActivityLearnerDetailsReportPageTitle'));
-  _showExerciseDetailView(
+  showExerciseDetailView(
     store,
     classId,
     userId,
@@ -484,7 +483,7 @@ function showRecentLearnerItemDetails(
   );
 }
 
-function showTopicChannels(store, classId) {
+export function showTopicChannels(store, classId) {
   clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNELS);
   store.dispatch('CORE_SET_TITLE', translator.$tr('topicsReportAllChannelsPageTitle'));
@@ -492,7 +491,7 @@ function showTopicChannels(store, classId) {
   _showChannelList(store, classId, null, false);
 }
 
-function showTopicChannelRoot(store, classId, channelId) {
+export function showTopicChannelRoot(store, classId, channelId) {
   clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', translator.$tr('topicsForChannelReportPageTitle'));
@@ -515,7 +514,7 @@ function showTopicChannelRoot(store, classId, channelId) {
   );
 }
 
-function showTopicItemList(store, classId, channelId, topicId) {
+export function showTopicItemList(store, classId, channelId, topicId) {
   clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_ITEM_LIST);
   store.dispatch('CORE_SET_TITLE', translator.$tr('topicsContentItemsReportPageTitle'));
@@ -532,7 +531,7 @@ function showTopicItemList(store, classId, channelId, topicId) {
   });
 }
 
-function showTopicLearnersForItem(store, classId, channelId, contentId) {
+export function showTopicLearnersForItem(store, classId, channelId, contentId) {
   clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', translator.$tr('topicsLearnersReportForContentItemPageTitle'));
@@ -549,7 +548,7 @@ function showTopicLearnersForItem(store, classId, channelId, contentId) {
   });
 }
 
-function showTopicLearnerItemDetails(
+export function showTopicLearnerItemDetails(
   store,
   classId,
   userId,
@@ -563,7 +562,7 @@ function showTopicLearnerItemDetails(
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
   store.dispatch('CORE_SET_TITLE', translator.$tr('topicsLearnerDetailReportPageTitle'));
-  _showExerciseDetailView(
+  showExerciseDetailView(
     store,
     classId,
     userId,
@@ -574,7 +573,7 @@ function showTopicLearnerItemDetails(
   );
 }
 
-function showLearnerList(store, classId) {
+export function showLearnerList(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_LIST);
   store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -607,14 +606,14 @@ function showLearnerList(store, classId) {
   );
 }
 
-function showLearnerChannels(store, classId, userId) {
+export function showLearnerChannels(store, classId, userId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_CHANNELS);
   store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportAllChannelsPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showChannelList(store, classId, userId, false);
 }
 
-function showLearnerChannelRoot(store, classId, userId, channelId) {
+export function showLearnerChannelRoot(store, classId, userId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportForChannelPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -636,7 +635,7 @@ function showLearnerChannelRoot(store, classId, userId, channelId) {
   );
 }
 
-function showLearnerItemList(store, classId, userId, channelId, topicId) {
+export function showLearnerItemList(store, classId, userId, channelId, topicId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_LIST);
   store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportForContentItemsPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -651,7 +650,7 @@ function showLearnerItemList(store, classId, userId, channelId, topicId) {
   });
 }
 
-function showLearnerItemDetails(
+export function showLearnerItemDetails(
   store,
   classId,
   userId,
@@ -665,7 +664,7 @@ function showLearnerItemDetails(
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
   store.dispatch('CORE_SET_TITLE', translator.$tr('learnersItemDetailsReportPageTitle'));
-  _showExerciseDetailView(
+  showExerciseDetailView(
     store,
     classId,
     userId,
@@ -675,21 +674,3 @@ function showLearnerItemDetails(
     interactionIndex
   );
 }
-
-export {
-  showRecentChannels,
-  showRecentItemsForChannel,
-  showRecentLearnersForItem,
-  showRecentLearnerItemDetails,
-  showTopicChannels,
-  showTopicChannelRoot,
-  showTopicItemList,
-  showTopicLearnersForItem,
-  showTopicLearnerItemDetails,
-  showLearnerList,
-  showLearnerChannels,
-  showLearnerChannelRoot,
-  showLearnerItemList,
-  showLearnerItemDetails,
-  setReportSorting,
-};

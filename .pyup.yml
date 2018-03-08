@@ -1,7 +1,7 @@
 # update schedule
 # default: empty
 # allowed: "every day", "every week", ..
-schedule: "every day"
+schedule: "every two weeks on monday"
 
 # DON'T CHANGE, BECAUSE WHEN SOMEONE ADDS A NEW REQ
 # FILE IN requirements/ IT WON'T BE SCANNED

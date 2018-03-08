@@ -15,11 +15,11 @@ export default class KolibriModule {
     return [];
   }
   /**
-  * The constructor function for the base KolibriModule object.
-  * @param {object} options - an options hash to set properties of the object.
-  * @param {Array} args - any additional arguments that will be passed to initialize.
-  * @constructor
-  */
+   * The constructor function for the base KolibriModule object.
+   * @param {object} options - an options hash to set properties of the object.
+   * @param {Array} args - any additional arguments that will be passed to initialize.
+   * @constructor
+   */
   constructor(options, ...args) {
     /* eslint-disable no-undef */
     // __kolibriModuleName is replaced during webpack compilation with the name derived from

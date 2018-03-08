@@ -56,6 +56,8 @@
     display: inline-block
     width: 20px
     height: 20px
+    position: relative
+    top: 2px
 
   .description
     display: inline-block

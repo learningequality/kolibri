@@ -1,6 +1,16 @@
 <template>
 
-  <core-modal :title="$tr('preview')" @cancel="close" width="100%" height="100%">
+  <core-modal
+    :title="$tr('preview')"
+    @cancel="close"
+    width="100%"
+    height="100%"
+  >
+    <k-button
+      :text="$tr('close')"
+      :primary="false"
+      @click="close"
+    />
     <ui-progress-linear v-show="loading" />
     <div v-show="!loading">
       <div>
@@ -32,7 +42,6 @@
         <div class="exercise-container pure-u-2-3">
           <content-renderer
             v-if="content && itemId"
-            class="content-renderer"
             ref="contentRenderer"
             :id="content.pk"
             :kind="content.kind"
@@ -43,7 +52,8 @@
             :extraFields="content.extra_fields"
             :itemId="itemId"
             :assessment="true"
-            :allowHints="false" />
+            :allowHints="false"
+          />
         </div>
       </div>
     </div>
@@ -67,7 +77,7 @@
       preview: 'Preview exam',
       close: 'Close',
       question: 'Question { num }',
-      numQuestions: '{ num } questions',
+      numQuestions: '{num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
     },
     components: {
@@ -182,7 +192,6 @@
 
   .question-selector, .exercise-container
     overflow-y: auto
-
 
   ol
     padding: 0

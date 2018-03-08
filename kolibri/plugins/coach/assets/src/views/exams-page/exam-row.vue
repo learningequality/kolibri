@@ -1,20 +1,21 @@
 <template>
 
   <tr>
-    <td class="col-icon">
+    <td class="core-table-icon-col prel">
       <ui-icon
-        icon="assignment"
+        icon="assignment_late"
         :ariaLabel="String(examActive)"
+
         :class="[examActive ? 'icon-active' : 'icon-inactive', { 'rtl-icon': isRtl }]"
       />
       <span v-if="examActive" class="active-circle"></span>
     </td>
 
-    <td class="col-title"><strong>{{ examTitle }}</strong></td>
+    <td class="core-table-main-col">{{ examTitle }}</td>
 
-    <td class="col-visibility">{{ visibilityString }}</td>
+    <td>{{ visibilityString }}</td>
 
-    <td class="col-action">
+    <td>
       <dropdown-menu
         :name="$tr('options')"
         :options="actionOptions"
@@ -141,8 +142,8 @@
 
   @require '~kolibri.styles.definitions'
 
-  .col-icon
-    width: 40px
+  .prel
+    position: relative
 
   .icon-active
     color: $core-action-normal
@@ -150,13 +151,11 @@
   .icon-inactive
     color: $core-text-annotation
 
-  .col-visibility, .col-action
-    text-align: left
-
   .active-circle
+    position: absolute
     display: inline-block
-    margin-left: -5px
-    vertical-align: bottom
+    bottom: 15px
+    right: 15px
     height: 10px
     width: 10px
     border-radius: 50%

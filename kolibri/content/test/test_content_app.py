@@ -9,14 +9,17 @@ import requests
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from kolibri.auth.models import Facility, FacilityUser
-from kolibri.auth.test.helpers import provision_device
-from kolibri.content import models as content
-from kolibri.core.device.models import DevicePermissions, DeviceSettings
-from kolibri.logger.models import ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from kolibri.auth.models import Facility
+from kolibri.auth.models import FacilityUser
+from kolibri.auth.test.helpers import provision_device
+from kolibri.content import models as content
+from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import DeviceSettings
+from kolibri.logger.models import ContentSummaryLog
 
 DUMMY_PASSWORD = "password"
 
@@ -475,8 +478,8 @@ class KolibriStudioAPITestCase(APITestCase):
 
     def setUp(self):
         DeviceSettings.objects.create(is_provisioned=True)
-        facility = Facility.objects.create(name='facility')
-        superuser = FacilityUser.objects.create(username='superuser', facility=facility)
+        self.facility = Facility.objects.create(name='facility')
+        superuser = FacilityUser.objects.create(username='superuser', facility=self.facility)
         superuser.set_password(DUMMY_PASSWORD)
         superuser.save()
         DevicePermissions.objects.create(user=superuser, is_superuser=True)
@@ -486,6 +489,16 @@ class KolibriStudioAPITestCase(APITestCase):
     def test_channel_list(self):
         response = self.client.get(reverse('remotechannel-list'), format='json')
         self.assertEqual(response.data[0]['id'], 1)
+
+    @mock_patch_decorator
+    def test_no_permission_non_superuser_channel_list(self):
+        user = FacilityUser.objects.create(username='user', facility=self.facility)
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.logout()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('remotechannel-list'), format='json')
+        self.assertEqual(response.status_code, 403)
 
     @mock_patch_decorator
     def test_channel_retrieve(self):

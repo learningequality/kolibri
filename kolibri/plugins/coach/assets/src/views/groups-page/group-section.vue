@@ -1,6 +1,7 @@
 <template>
 
   <div class="group-section">
+
     <div class="pure-g">
       <div class="no-side-padding" :class="elSize.width < 700 ? 'pure-u-1-1' : 'pure-u-1-2'">
         <h2 class="group-name right-margin">{{ group.name }}</h2>
@@ -38,10 +39,10 @@
       </div>
     </div>
 
-    <table v-if="group.users.length">
-      <thead>
+    <core-table v-if="group.users.length">
+      <thead slot="thead">
         <tr>
-          <th class="col-checkbox">
+          <th class="core-table-checkbox-col">
             <k-checkbox
               :label="$tr('selectAll')"
               :showLabel="false"
@@ -50,18 +51,18 @@
               @change="toggleSelectAll"
             />
           </th>
-          <th class="col-name">{{ $tr('name') }}</th>
-          <th class="col-username">{{ $tr('username') }}</th>
+          <th class="core-table-main-col">{{ $tr('name') }}</th>
+          <th>{{ $tr('username') }}</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody slot="tbody" class="core-table-rows-selectable">
         <tr
           v-for="user in group.users"
           :key="user.id"
-          :class="isSelected(user.id) ? 'selectedrow' : ''"
+          :class="isSelected(user.id) ? 'core-table-row-selected' : ''"
           @click="toggleSelection(user.id)"
         >
-          <td class="col-checkbox">
+          <td class="core-table-checkbox-col">
             <k-checkbox
               :label="$tr('selectLearner')"
               :showLabel="false"
@@ -70,12 +71,12 @@
               @click.native.stop
             />
           </td>
-          <td class="col-name"><strong>{{ user.full_name }}</strong></td>
-          <td class="col-username">{{ user.username }}</td>
+          <td class="core-table-main-col">{{ user.full_name }}</td>
+          <td>{{ user.username }}</td>
         </tr>
       </tbody>
-    </table>
-    <span v-else>{{ $tr('noLearners') }}</span>
+    </core-table>
+    <p v-else>{{ $tr('noLearners') }}</p>
   </div>
 
 </template>
@@ -83,6 +84,7 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import * as groupActions from '../../state/actions/group';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -96,16 +98,17 @@
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       moveLearners: 'Move Learners',
       actions: 'Actions',
-      renameGroup: 'Rename Group',
-      deleteGroup: 'Delete Group',
+      renameGroup: 'Rename group',
+      deleteGroup: 'Delete group',
       name: 'Name',
       username: 'Username',
       selected: 'Selected',
-      noLearners: 'No Learners in this group',
+      noLearners: 'No learners in this group',
       selectAll: 'Select all',
       selectLearner: 'Select learner',
     },
     components: {
+      CoreTable,
       kButton,
       kCheckbox,
       uiButton,
@@ -212,35 +215,5 @@
 
   .vertically-align
     line-height: 50px
-
-  table
-    width: 100%
-    word-break: break-all
-
-  th
-    text-align: left
-
-  td, th
-    padding: 8px
-
-  tbody
-    tr
-      cursor: pointer
-      &:hover
-        background-color: $core-grey
-
-  thead
-    .col-name, .col-username
-      color: $core-text-annotation
-      font-size: small
-
-  .selectedrow
-    background-color: $core-bg-canvas
-
-  .col-checkbox
-    width: 4%
-
-  .col-name, .col-username
-    width: 48%
 
 </style>

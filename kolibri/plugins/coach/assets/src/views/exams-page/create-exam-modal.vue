@@ -1,6 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('createNewExam')" @cancel="close">
+  <core-modal
+    :title="$tr('createNewExam')"
+    @cancel="close"
+  >
     <p>{{ $tr('useContentFrom') }}</p>
     <k-select
       :label="$tr('selectChannel')"
@@ -8,12 +11,16 @@
       v-model="selectedChannel"
       class="channel-select"
     />
-    <div class="footer">
-      <k-button :text="$tr('cancel')" appearance="flat-button" @click="close" />
+    <div class="core-modal-buttons">
+      <k-button
+        :text="$tr('cancel')"
+        appearance="flat-button"
+        @click="close"
+      />
       <k-button
         :text="$tr('createExam')"
         :primary="true"
-        :disabled="!selectedChannel"
+        :disabled="Object.keys(selectedChannel).length === 0"
         @click="routeToCreateExamPage"
       />
     </div>
@@ -85,9 +92,6 @@
 
 
 <style lang="stylus" scoped>
-
-  .footer
-    text-align: right
 
   .channel-select
     margin-bottom: 4rem

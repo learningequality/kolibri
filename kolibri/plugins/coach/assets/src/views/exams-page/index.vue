@@ -1,30 +1,32 @@
 <template>
 
   <div>
-    <h1>{{ $tr('classExams', {className}) }}</h1>
+    <h1>{{ $tr('classExams') }}</h1>
+    <p v-if="!exams.length">{{ $tr('noExams') }}</p>
     <k-select
       :label="$tr('exams')"
       :options="statusOptions"
       :inline="true"
       v-model="statusSelected"
+      v-if="sortedExams.length"
     />
     <k-button
       :primary="true"
       appearance="raised-button"
-      class="create-button"
       @click="openCreateExamModal"
       :text="$tr('newExam')"
+      :class="{'pull-right': sortedExams.length}"
     />
-    <table v-if="sortedExams.length">
-      <thead>
+    <core-table v-if="sortedExams.length">
+      <thead slot="thead">
         <tr>
-          <th class="col-icon"></th>
-          <th class="col-title">{{ $tr('title') }}</th>
-          <th class="col-visibility">{{ $tr('visibleTo') }}</th>
-          <th class="col-action"></th>
+          <th class="core-table-icon-col"></th>
+          <th class="core-table-main-col">{{ $tr('title') }}</th>
+          <th>{{ $tr('visibleTo') }}</th>
+          <th></th>
         </tr>
       </thead>
-      <tbody>
+      <tbody slot="tbody">
         <exam-row
           v-for="exam in filteredExams"
           :key="exam.id"
@@ -41,8 +43,7 @@
           @deleteExam="openDeleteExamModal"
         />
       </tbody>
-    </table>
-    <p v-else class="center-text"><strong>{{ $tr('noExams') }}</strong></p>
+    </core-table>
     <create-exam-modal
       v-if="showCreateExamModal"
       :classId="classId"
@@ -98,6 +99,7 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { className } from '../../state/getters/main';
   import * as ExamActions from '../../state/actions/exam';
   import { Modals as ExamModals } from '../../examConstants';
@@ -118,16 +120,17 @@
     name: 'coachExamsPage',
     $trs: {
       exams: 'Exams',
-      classExams: '{className} Exams',
+      classExams: 'Exams',
       all: 'All',
       active: 'Active',
       inactive: 'Inactive',
-      newExam: 'New Exam',
+      newExam: 'New exam',
       title: 'Title',
       visibleTo: 'Visible to',
-      noExams: `You do not have any exams. Start by creating a new exam above.`,
+      noExams: 'You do not have any exams',
     },
     components: {
+      CoreTable,
       kButton,
       kSelect,
       examRow,
@@ -265,27 +268,12 @@
 
   @require '~kolibri.styles.definitions'
 
-  .create-button
+  .pull-right
     float: right
     margin-top: 1em
     margin-bottom: 1em
 
   .center-text
     text-align: center
-
-  table
-    margin-top: 3em
-    width: 100%
-
-  .col-title
-    text-align: left
-
-  .col-visibility
-    text-align: left
-
-  th
-    color: $core-text-annotation
-    font-size: smaller
-    font-weight: normal
 
 </style>

@@ -1,6 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('renameLearnerGroup')" @cancel="close">
+  <core-modal
+    :title="$tr('renameLearnerGroup')"
+    @cancel="close"
+  >
     <div>
       <form @submit.prevent="callRenameGroup">
         <k-textbox
@@ -13,7 +16,7 @@
           @blur="nameBlurred = true"
           v-model.trim="name"
         />
-        <div class="ta-r">
+        <div class="core-modal-buttons">
           <k-button
             type="button"
             :text="$tr('cancel')"
@@ -43,8 +46,8 @@
   export default {
     name: 'renameGroupModal',
     $trs: {
-      renameLearnerGroup: 'Rename Learner Group',
-      learnerGroupName: 'Learner Group Name',
+      renameLearnerGroup: 'Rename group',
+      learnerGroupName: 'Group name',
       cancel: 'Cancel',
       save: 'Save',
       duplicateName: 'A group with that name already exists',
@@ -102,7 +105,7 @@
         return '';
       },
       nameIsInvalid() {
-        return !!this.nameIsInvalidText;
+        return Boolean(this.nameIsInvalidText);
       },
       formIsValid() {
         return !this.nameIsInvalid;
@@ -133,9 +136,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .ta-r
-    text-align: right
-
-</style>
+<style lang="stylus" scoped></style>

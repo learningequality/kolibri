@@ -13,9 +13,17 @@
         :label="language.lang_name"
         v-model="selectedLanguage"
       />
-      <div class="footer">
-        <k-button :text="$tr('cancelButtonText')" :raised="false" @click="closeModal" />
-        <k-button :text="$tr('confirmButtonText')" :primary="true" @click="setLang" />
+      <div class="core-modal-buttons">
+        <k-button
+          :text="$tr('cancelButtonText')"
+          :raised="false"
+          @click="closeModal"
+        />
+        <k-button
+          :text="$tr('confirmButtonText')"
+          :primary="true"
+          @click="setLang"
+        />
       </div>
     </core-modal>
   </div>
@@ -58,9 +66,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .footer
-    text-align: right
-
-</style>
+<style lang="stylus"></style>

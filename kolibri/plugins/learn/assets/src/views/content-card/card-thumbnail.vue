@@ -9,7 +9,7 @@
     <content-icon
       v-if="!thumbnail"
       :kind="kind"
-      class="thumbnail-icon"
+      class="type-icon"
     />
 
     <progress-icon
@@ -18,7 +18,10 @@
       :progress="progress"
     />
 
-    <div class="content-icon-wrapper">
+    <div
+      v-if="showContentIcon"
+      class="content-icon-wrapper"
+    >
       <svg
         height="64"
         width="64"
@@ -26,16 +29,26 @@
         class="content-icon-bg"
         :style="contentIconBgColor"
       >
-        <polygon stroke-width="0" :points="contentIconBgCoords" />
+        <polygon
+          stroke-width="0"
+          :points="contentIconBgCoords"
+        />
       </svg>
-      <content-icon :kind="kind" class="content-icon"/>
+      <content-icon
+        :kind="kind"
+        class="content-icon"
+      />
     </div>
 
-    <div class="progress-bar-wrapper">
+    <div
+      v-if="progress!==undefined"
+      class="progress-bar-wrapper"
+    >
       <div
         class="progress-bar"
         :style="{ width: `${progress * 100}%` }"
-        :class="{ 'progress-bar-mastered': isMastered, 'progress-bar-progress': isInProgress }">
+        :class="{ 'progress-bar-mastered': isMastered, 'progress-bar-progress': isInProgress }"
+      >
       </div>
     </div>
 
@@ -68,9 +81,14 @@
           return values(ContentNodeKinds).includes(value);
         },
       },
+      // If true, shows the content icon on the upper left of the thumbnail
+      showContentIcon: {
+        type: Boolean,
+        default: true,
+      },
       progress: {
         type: Number,
-        required: true,
+        required: false,
         default: 0.0,
         validator(value) {
           return value >= 0.0 && value <= 1.0;
@@ -105,20 +123,14 @@
         return `${topLeft} ${topRight} ${bottomLeft}`;
       },
       contentIconBgColor() {
-        if (this.kind === 'exercise') {
-          return { fill: '#0eafaf' };
-        } else if (this.kind === 'video') {
-          return { fill: '#3938A5' };
-        } else if (this.kind === 'audio') {
-          return { fill: '#E65997' };
-        } else if (this.kind === 'document') {
-          return { fill: '#ED2828' };
-        } else if (this.kind === 'topic') {
-          return { fill: '#262626' };
-        } else if (this.kind === 'html5') {
-          return { fill: '#FF8B41' };
-        }
-        return {};
+        const kindToFillHex = {
+          exercise: '#0eafaf',
+          video: '#3938A5',
+          audio: '#E65997',
+          topic: '#262626',
+          html5: '#FF8B41',
+        };
+        return { fill: kindToFillHex[this.kind] };
       },
     },
   };
@@ -139,7 +151,7 @@
     background-position: center
     background-color: $core-grey
 
-  .thumbnail-icon
+  .type-icon
     position: absolute
     top: 50%
     left: 50%
@@ -193,7 +205,7 @@
 
   .mobile-thumbnail
 
-    .thumbnail-icon
+    .type-icon
       transform: translate(-50%, -50%) scale(2)
 
     .content-icon-wrapper

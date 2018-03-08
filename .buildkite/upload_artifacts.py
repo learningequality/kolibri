@@ -70,12 +70,6 @@ file_manifest = {
         'category': PYTHON_PKG_CAT,
         'content_type': 'application/zip',
     },
-    'zip': {
-        'extension': 'zip',
-        'description': 'Zip file',
-        'category': PYTHON_PKG_CAT,
-        'content_type': 'application/zip',
-    },
     'gz': {
         'extension': 'gz',
         'description': 'Tar file',
@@ -95,7 +89,6 @@ file_order = [
     'apk',
     'pex',
     'whl',
-    'zip',
     'gz',
 ]
 
@@ -174,16 +167,16 @@ def upload_artifacts():
     for file_data in artifacts.values():
         logging.info("Uploading file (%s)" % (file_data.get("name")))
         if is_release:
-            blob = bucket.blob('kolibri/%s/%s/%s' % (RELEASE_DIR, BUILD_ID, file_data.get("name")))
+            blob = bucket.blob('kolibri-%s-%s-%s' % (RELEASE_DIR, BUILD_ID, file_data.get("name")))
         else:
-            blob = bucket.blob('kolibri/buildkite/build-%s/%s/%s' % (ISSUE_ID, BUILD_ID, file_data.get("name")))
+            blob = bucket.blob('kolibri-buildkite-build-%s-%s-%s' % (ISSUE_ID, BUILD_ID, file_data.get("name")))
         blob.upload_from_filename(filename=file_data.get("file_location"))
         blob.make_public()
         file_data.update({'media_url': blob.media_link})
 
     html = create_status_report_html(artifacts)
 
-    blob = bucket.blob('kolibri/%s/%s/report.html' % (RELEASE_DIR, BUILD_ID))
+    blob = bucket.blob('kolibri-%s-%s-report.html' % (RELEASE_DIR, BUILD_ID))
 
     blob.upload_from_string(html, content_type='text/html')
 

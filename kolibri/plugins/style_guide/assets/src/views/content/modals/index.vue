@@ -1,9 +1,10 @@
 <template>
 
   <component-template
-      class="modal-style-guide"
-      :codeExamplesTemplate="codeExamplesTemplate"
-      :api="api">
+    class="modal-style-guide"
+    :codeExamplesTemplate="codeExamplesTemplate"
+    :api="api"
+  >
 
     <h1 slot="title">Simple modals</h1>
     <p slot="summary">

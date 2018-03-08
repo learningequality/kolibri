@@ -73,5 +73,13 @@ module.exports = {
         },
       },
     ],
+    'vue/html-closing-bracket-newline': [
+      'error',
+      {
+        singleline: 'never',
+        multiline: 'always',
+      },
+    ],
+    'vue/html-closing-bracket-spacing': ['error'],
   },
 };

@@ -6,7 +6,8 @@
     textColor="white"
     class="app-bar"
     @nav-icon-click="$emit('toggleSideNav')"
-    :style="{ height: height + 'px' }">
+    :style="{ height: height + 'px' }"
+  >
 
     <div>
       <div class="app-bar-title-icon"></div>
@@ -180,19 +181,12 @@
 </script>
 
 
-<style lang="stylus">
-
-  @require '~kolibri.styles.definitions'
-
-  .override-ui-toolbar
-    color: $core-text-default
-
-</style>
-
-
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  >>>.override-ui-toolbar
+    color: $core-text-default
 
   .app-bar
     overflow: hidden

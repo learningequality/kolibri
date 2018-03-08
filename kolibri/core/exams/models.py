@@ -1,11 +1,12 @@
 from django.db import models
 from jsonfield import JSONField
 
-from kolibri.auth.constants import role_kinds
-from kolibri.auth.models import AbstractFacilityDataModel, Collection, FacilityUser
-from kolibri.auth.permissions.base import RoleBasedPermissions
-
 from .permissions import UserCanReadExamAssignmentData
+from kolibri.auth.constants import role_kinds
+from kolibri.auth.models import AbstractFacilityDataModel
+from kolibri.auth.models import Collection
+from kolibri.auth.models import FacilityUser
+from kolibri.auth.permissions.base import RoleBasedPermissions
 
 class Exam(AbstractFacilityDataModel):
     """
@@ -16,10 +17,10 @@ class Exam(AbstractFacilityDataModel):
 
     permissions = RoleBasedPermissions(
         target_field="collection",
-        can_be_created_by=(),
+        can_be_created_by=(role_kinds.ADMIN, role_kinds.COACH),
         can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
         can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
-        can_be_deleted_by=(),
+        can_be_deleted_by=(role_kinds.ADMIN, role_kinds.COACH),
     )
 
     title = models.CharField(max_length=200)
@@ -27,15 +28,13 @@ class Exam(AbstractFacilityDataModel):
     channel_id = models.CharField(max_length=32)
     # Number of total questions this exam has
     question_count = models.IntegerField()
-    """
-    JSON blob describing content ids for the assessments this exam draws from, and how many
-    questions each assessment contributes to the exam. e.g.:
-
-    [
-        {"exercise_id": <content_id1>, "number_of_questions": 6},
-        {"exercise_id": <content_id2>, "number_of_questions": 5}
-    ]
-    """
+    # JSON blob describing content ids for the assessments this exam draws from, and how many
+    # questions each assessment contributes to the exam. e.g.:
+    #
+    # [
+    #     {"exercise_id": <content_id1>, "number_of_questions": 6},
+    #     {"exercise_id": <content_id2>, "number_of_questions": 5}
+    # ]
     question_sources = JSONField(default=[], blank=True)
     # The random seed we use to decide which questions are in the exam
     seed = models.IntegerField(default=1)
@@ -69,10 +68,10 @@ class ExamAssignment(AbstractFacilityDataModel):
     permissions = (
         RoleBasedPermissions(
             target_field="collection",
-            can_be_created_by=(),
+            can_be_created_by=(role_kinds.ADMIN, role_kinds.COACH),
             can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
-            can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
-            can_be_deleted_by=(),
+            can_be_updated_by=(),
+            can_be_deleted_by=(role_kinds.ADMIN, role_kinds.COACH),
         ) | UserCanReadExamAssignmentData()
     )
     exam = models.ForeignKey(Exam, related_name='assignments', blank=False, null=False)

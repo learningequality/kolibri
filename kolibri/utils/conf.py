@@ -15,7 +15,9 @@ This module should be easier to document, for instance by having VARIABLES
 instead of a dict.
 
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import json
 import logging
@@ -25,7 +27,10 @@ from kolibri.utils.compat import module_exists
 
 logger = logging.getLogger(__name__)
 
-KOLIBRI_HOME = os.environ["KOLIBRI_HOME"]
+with open(os.path.join(os.path.dirname(__file__), 'KOLIBRI_CORE_JS_NAME')) as f:
+    KOLIBRI_CORE_JS_NAME = f.read().strip()
+
+KOLIBRI_HOME = os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"]))
 
 # Creating KOLIBRI_HOME atm. has to happen here as for instance utils.cli is not
 # called through py.test. This file is the first basic entry point of
@@ -48,7 +53,8 @@ try:
     DEFAULT_PLUGINS = plugins
 except ImportError:
     DEFAULT_PLUGINS = [
-        "kolibri.plugins.management",
+        "kolibri.plugins.facility_management",
+        "kolibri.plugins.device_management",
         "kolibri.plugins.learn",
         "kolibri.plugins.document_pdf_render",
         "kolibri.plugins.html5_app_renderer",

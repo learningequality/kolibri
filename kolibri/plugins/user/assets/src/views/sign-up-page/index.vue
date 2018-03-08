@@ -4,20 +4,31 @@
 
     <ui-toolbar type="colored" textColor="white">
       <template slot="icon">
-        <ui-icon class="app-bar-icon"><logo /></ui-icon>
+        <logo class="app-bar-icon" />
       </template>
       <template slot="brand">
         {{ $tr('kolibri') }}
       </template>
       <div slot="actions">
-        <router-link id="signin" :to="signInPage">
+        <router-link
+          id="signin"
+          :to="signInPage"
+        >
           <span>{{ $tr('logIn') }}</span>
         </router-link>
       </div>
     </ui-toolbar>
 
-    <form class="signup-form" ref="form" @submit.prevent="signUp">
-      <ui-alert type="error" @dismiss="resetSignUpState" v-if="unknownError">
+    <form
+      class="signup-form"
+      ref="form"
+      @submit.prevent="signUp"
+    >
+      <ui-alert
+        v-if="unknownError"
+        type="error"
+        @dismiss="resetSignUpState"
+      >
         {{ errorMessage }}
       </ui-alert>
 
@@ -84,7 +95,13 @@
         @blur="facilityBlurred = true"
       />
 
-      <k-button :disabled="busy" :primary="true" :text="$tr('finish')" type="submit" />
+      <k-button
+        :disabled="busy"
+        :primary="true"
+        :text="$tr('finish')"
+        type="submit"
+        class="submit"
+      />
 
     </form>
 
@@ -98,7 +115,7 @@
 
 <script>
 
-  import { signUp, resetSignUpState } from '../../state/actions';
+  import { signUpNewUser, resetSignUpState } from '../../state/actions';
   import { PageNames } from '../../constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -106,7 +123,6 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import logo from 'kolibri.coreVue.components.logo';
-  import uiIcon from 'keen-ui/src/UiIcon';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import languageSwitcherFooter from '../language-switcher-footer';
 
@@ -134,7 +150,6 @@
       kTextbox,
       uiToolbar,
       logo,
-      uiIcon,
       kSelect,
       languageSwitcherFooter,
     },
@@ -170,7 +185,7 @@
         return '';
       },
       nameIsInvalid() {
-        return !!this.nameIsInvalidText;
+        return Boolean(this.nameIsInvalidText);
       },
       usernameDoesNotExistYet() {
         if (this.errorCode === 400) {
@@ -193,7 +208,7 @@
         return '';
       },
       usernameIsInvalid() {
-        return !!this.usernameIsInvalidText;
+        return Boolean(this.usernameIsInvalidText);
       },
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
@@ -204,7 +219,7 @@
         return '';
       },
       passwordIsInvalid() {
-        return !!this.passwordIsInvalidText;
+        return Boolean(this.passwordIsInvalidText);
       },
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.formSubmitted) {
@@ -218,7 +233,7 @@
         return '';
       },
       confirmedPasswordIsInvalid() {
-        return !!this.confirmedPasswordIsInvalidText;
+        return Boolean(this.confirmedPasswordIsInvalidText);
       },
       noFacilitySelected() {
         return !this.selectedFacility.value;
@@ -232,7 +247,7 @@
         return '';
       },
       facilityIsInvalid() {
-        return !!this.facilityIsInvalidText;
+        return Boolean(this.facilityIsInvalidText);
       },
       formIsValid() {
         return (
@@ -263,7 +278,7 @@
         this.formSubmitted = true;
         const canSubmit = this.formIsValid && !this.busy;
         if (canSubmit) {
-          this.signUpAction({
+          this.signUpNewUser({
             facility: this.selectedFacility.value,
             full_name: this.name,
             username: this.username,
@@ -294,8 +309,8 @@
         facilities: state => state.core.facilities,
       },
       actions: {
-        signUpAction: signUp,
-        resetSignUpState: resetSignUpState,
+        signUpNewUser,
+        resetSignUpState,
       },
     },
   };
@@ -350,11 +365,14 @@
       margin-top: 0
 
   .app-bar-icon
-    font-size: 2.5em
+    height: 40px
     margin-left: 0.25em
 
   .footer
     margin: 36px
     margin-top: 96px
+
+  .submit
+    margin-left: 0
 
 </style>

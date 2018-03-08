@@ -7,10 +7,8 @@
       <template v-for="(attemptLog, index) in attemptLogs">
         <li
           @click="setSelectedAttemptLog(index)"
-          :class="{
-            selected: isSelected(index),
-            clickable: true
-          }"
+          class="clickable attempt-item"
+          :class="{selected: isSelected(index)}"
           :key="index"
         >
           <mat-svg
@@ -94,6 +92,7 @@
     margin: 0
     padding-left: 20px
     padding-top: 10px
+    padding-bottom: 10px
 
   .history-list
     list-style-type: none
@@ -109,6 +108,7 @@
     vertical-align: middle
     height: auto
     width: 32px
+    margin-right: 8px
 
   .svg-hint
     fill: $core-text-annotation
@@ -122,7 +122,7 @@
   .svg-noattempt
     fill: $core-text-annotation
 
-  li
+  .attempt-item
     clear: both
     min-width: 120px
     border-bottom: 2px solid $core-text-disabled

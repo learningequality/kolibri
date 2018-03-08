@@ -1,25 +1,51 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import time
 
-from django.contrib.auth import authenticate, get_user, login, logout, update_session_auth_hash
+from django.contrib.auth import authenticate
+from django.contrib.auth import get_user
+from django.contrib.auth import login
+from django.contrib.auth import logout
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.db import transaction
 from django.db.models import Q
 from django.db.models.query import F
-from django_filters.rest_framework import CharFilter, DjangoFilterBackend, FilterSet, ModelChoiceFilter
-from kolibri.core.mixins import BulkCreateMixin, BulkDeleteMixin
-from kolibri.logger.models import UserSessionLog
-from rest_framework import filters, permissions, status, viewsets
+from django_filters.rest_framework import CharFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import ModelChoiceFilter
+from rest_framework import filters
+from rest_framework import permissions
+from rest_framework import status
+from rest_framework import viewsets
 from rest_framework.response import Response
 
 from .constants import collection_kinds
 from .filters import HierarchyRelationsFilter
-from .models import Classroom, Collection, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
-from .serializers import (
-    ClassroomSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUsernameSerializer, FacilityUserSerializer, FacilityUserSignupSerializer,
-    LearnerGroupSerializer, MembershipSerializer, PublicFacilitySerializer, RoleSerializer
-)
+from .models import Classroom
+from .models import Collection
+from .models import Facility
+from .models import FacilityDataset
+from .models import FacilityUser
+from .models import LearnerGroup
+from .models import Membership
+from .models import Role
+from .serializers import ClassroomSerializer
+from .serializers import FacilityDatasetSerializer
+from .serializers import FacilitySerializer
+from .serializers import FacilityUsernameSerializer
+from .serializers import FacilityUserSerializer
+from .serializers import FacilityUserSignupSerializer
+from .serializers import LearnerGroupSerializer
+from .serializers import MembershipSerializer
+from .serializers import PublicFacilitySerializer
+from .serializers import RoleSerializer
+from kolibri.core.mixins import BulkCreateMixin
+from kolibri.core.mixins import BulkDeleteMixin
+from kolibri.logger.models import UserSessionLog
 
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
@@ -50,6 +76,10 @@ class KolibriAuthPermissions(permissions.BasePermission):
     A Django REST Framework permissions class that defers to Kolibri's permissions
     system to determine object-level permissions.
     """
+    def validator(self, request, view, datum):
+        model = view.get_serializer_class().Meta.model
+        validated_data = view.get_serializer().to_internal_value(_ensure_raw_dict(datum))
+        return request.user.can_create(model, validated_data)
 
     def has_permission(self, request, view):
 
@@ -60,12 +90,7 @@ class KolibriAuthPermissions(permissions.BasePermission):
             else:
                 data = [request.data]
 
-            model = view.serializer_class.Meta.model
-
-            def validate(datum):
-                validated_data = view.serializer_class().to_internal_value(_ensure_raw_dict(datum))
-                return request.user.can_create(model, validated_data)
-            return all(validate(datum) for datum in data)
+            return all(self.validator(request, view, datum) for datum in data)
 
         # for other methods, we return True, as their permissions get checked below
         return True
@@ -83,7 +108,7 @@ class KolibriAuthPermissions(permissions.BasePermission):
 
 
 class FacilityDatasetViewSet(viewsets.ModelViewSet):
-    permissions_classes = (KolibriAuthPermissions,)
+    permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
     serializer_class = FacilityDatasetSerializer
 
@@ -155,7 +180,7 @@ class MembershipFilter(FilterSet):
 
     class Meta:
         model = Membership
-        fields = ["user_ids", ]
+        fields = ["user", "collection", "user_ids", ]
 
 
 class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):

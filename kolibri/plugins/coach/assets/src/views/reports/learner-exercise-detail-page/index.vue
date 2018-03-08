@@ -1,48 +1,7 @@
 <template>
 
   <immersive-full-screen :backPageLink="backPageLink" :backPageText="backPageText">
-    <template>
-      <div class="summary-container">
-        <attempt-summary
-          :exerciseTitle="exercise.title"
-          :userName="user.full_name"
-          :kind="exercise.kind"
-          :summaryLog="summaryLog" />
-      </div>
-      <div class="details-container">
-        <div class="attempt-log-container">
-          <attempt-log-list
-            :attemptLogs="attemptLogs"
-            :selectedQuestionNumber="attemptLogIndex"
-            @select="navigateToNewAttempt($event)"
-          />
-        </div>
-        <div class="exercise-container">
-          <interaction-list
-            :interactions="currentInteractionHistory"
-            :selectedInteractionIndex="interactionIndex"
-            :attemptNumber="currentAttemptLog.questionNumber"
-            @select="navigateToNewInteraction($event)"
-          />
-
-          <content-renderer
-            class="content-renderer"
-            v-if="currentInteraction"
-            :id="exercise.pk"
-            :itemId="currentAttemptLog.item"
-            :assessment="true"
-            :allowHints="false"
-            :kind="exercise.kind"
-            :files="exercise.files"
-            :contentId="exercise.content_id"
-            :channelId="channelId"
-            :available="exercise.available"
-            :answerState="currentInteraction.answer"
-            :interactive="false"
-            :extraFields="exercise.extra_fields" />
-        </div>
-      </div>
-    </template>
+    <learner-exercise-report />
   </immersive-full-screen>
 
 </template>
@@ -52,19 +11,14 @@
 
   import * as constants from '../../../constants';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
-  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import attemptSummary from './attempt-summary';
-  import attemptLogList from '../../attempt-log-list';
-  import interactionList from '../../interaction-list';
+  import learnerExerciseReport from './learner-exercise-report';
+
   export default {
     name: 'coachExerciseRenderPage',
     $trs: { backPrompt: 'Back to { backTitle }' },
     components: {
       immersiveFullScreen,
-      contentRenderer,
-      attemptSummary,
-      attemptLogList,
-      interactionList,
+      learnerExerciseReport,
     },
     computed: {
       backPageLink() {
@@ -111,46 +65,13 @@
         return this.exercise.ancestors[this.exercise.ancestors.length - 1];
       },
     },
-    methods: {
-      navigateToNewAttempt(attemptLogIndex) {
-        this.$router.push({
-          name: this.pageName,
-          params: {
-            channelId: this.channelId,
-            userId: this.user.id,
-            contentId: this.exercise.pk,
-            interactionIndex: 0,
-            attemptLogIndex,
-          },
-        });
-      },
-      navigateToNewInteraction(interactionIndex) {
-        this.$router.push({
-          name: this.pageName,
-          params: {
-            channelId: this.channelId,
-            userId: this.user.id,
-            contentId: this.exercise.pk,
-            attemptLogIndex: this.attemptLogIndex,
-            interactionIndex,
-          },
-        });
-      },
-    },
     vuex: {
       getters: {
-        interactionIndex: state => state.pageState.interactionIndex,
-        currentAttemptLog: state => state.pageState.currentAttemptLog,
-        attemptLogs: state => state.pageState.attemptLogs,
-        currentInteraction: state => state.pageState.currentInteraction,
-        currentInteractionHistory: state => state.pageState.currentInteractionHistory,
-        classId: state => state.classId,
         channelId: state => state.pageState.channelId,
         user: state => state.pageState.user,
         exercise: state => state.pageState.exercise,
-        summaryLog: state => state.pageState.summaryLog,
+        classId: state => state.classId,
         pageName: state => state.pageName,
-        attemptLogIndex: state => state.pageState.attemptLogIndex,
       },
     },
   };
@@ -163,12 +84,6 @@
   @require '~kolibri.styles.definitions'
 
   $container-side-padding = 15px
-
-  .summary-container
-    padding-top: $container-side-padding
-    padding-left: $container-side-padding
-    padding-right: $container-side-padding
-    height: 15%
 
   .details-container
     width: 100%

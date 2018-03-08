@@ -36,9 +36,10 @@
     $trs: {
       facilityNamingFormHeader: 'Name your Facility',
       facilityNamingFormDescription:
-        'A Facility is the location where you are installing Kolibri, such as a school or training center.',
+        'A "Facility" is the location where you are installing Kolibri, such as a school or training center',
       facilityNameFieldLabel: 'Facility name',
       facilityNameFieldEmptyErrorMessage: 'Facility cannot be empty',
+      facilityNameFieldMaxLengthReached: 'Facility name cannot be more than 100 characters',
     },
     props: {
       submitText: {
@@ -57,10 +58,13 @@
         if (this.facilityName === '') {
           return this.$tr('facilityNameFieldEmptyErrorMessage');
         }
+        if (this.facilityName.length > 100) {
+          return this.$tr('facilityNameFieldMaxLengthReached');
+        }
         return '';
       },
       facilityNameIsInvalid() {
-        return this.fieldVisited && !!this.facilityNameErrorMessage;
+        return this.fieldVisited && Boolean(this.facilityNameErrorMessage);
       },
     },
     methods: {

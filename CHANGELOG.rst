@@ -1,9 +1,26 @@
-.. :changelog:
-
 Release Notes
 =============
 
 Changes are ordered reverse-chronologically.
+
+0.8.0 (unreleased)
+------------------
+
+ - TBA
+
+
+0.7.2
+-----
+
+ - Fix issue with importing large channels on Windows
+ - Fix issue that prevented importing topic thumbnail files
+
+0.7.1
+-----
+
+ - Improvements and fixes to installers including Windows & Debian
+ - Updated documentation
+
 
 0.7.0
 -----
@@ -18,10 +35,18 @@ Changes are ordered reverse-chronologically.
  - Granular content import and export
 
 
-0.6.1 (unreleased)
-------------------
+0.6.2
+-----
 
- - Added mobile-friendly content cards
+ - Consistent ordering of channels in learner views
+
+
+0.6.1
+-----
+
+ - Many mobile-friendly updates across the app
+ - Update French, Portuguese, and Swahili translations
+ - Upgraded Windows installer
 
 
 0.6.0

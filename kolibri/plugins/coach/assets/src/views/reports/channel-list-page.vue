@@ -1,29 +1,42 @@
 <template>
 
   <div>
-    <div v-if="showRecentOnly" class="header">
+    <template v-if="showRecentOnly">
       <h1>{{ $tr('recentTitle') }}</h1>
-      <report-subheading />
-    </div>
-
-    <report-table v-if="standardDataTable.length" :caption="$tr('channelList')">
+      <p v-if="standardDataTable.length">{{ $tr('showingRecent', { threshold }) }}</p>
+      <p v-else>{{ $tr('noRecent', { threshold }) }}</p>
+    </template>
+    <template v-else>
+      <h1>{{ $tr('topicsTitle') }}</h1>
+      <p v-if="!standardDataTable.length">{{ $tr('noChannels') }}</p>
+    </template>
+    <core-table
+      v-if="standardDataTable.length"
+      :caption="$tr('channelList')"
+    >
       <thead slot="thead">
         <tr>
+          <th class="core-table-icon-col"></th>
           <header-cell
             :text="$tr('channels')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.NAME" />
+            :column="tableColumns.NAME"
+          />
           <header-cell
             :text="$tr('lastActivity')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.DATE" />
+            :column="tableColumns.DATE"
+          />
         </tr>
       </thead>
       <tbody slot="tbody">
         <template v-for="channel in standardDataTable">
           <tr :key="channel.id">
+            <td class="core-table-icon-col">
+              <content-icon :kind="CHANNEL" />
+            </td>
             <name-cell
               :kind="CHANNEL"
               :title="channel.title"
@@ -37,7 +50,7 @@
           </tr>
         </template>
       </tbody>
-    </report-table>
+    </core-table>
   </div>
 
 </template>
@@ -45,13 +58,13 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
   import * as reportConstants from '../../reportConstants';
   import * as reportGetters from '../../state/getters/reports';
-  import reportTable from './report-table';
-  import reportSubheading from './report-subheading';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
@@ -59,18 +72,22 @@
   export default {
     name: 'coachRecentPageChannelList',
     components: {
-      reportTable,
-      reportSubheading,
+      contentIcon,
+      CoreTable,
       headerCell,
       nameCell,
       activityCell,
     },
     mixins: [alignMixin],
     $trs: {
-      recentTitle: 'Recent Activity',
+      recentTitle: 'Recent activity',
+      topicsTitle: 'Content',
       channels: 'Channels',
       channelList: 'Channel list',
       lastActivity: 'Last active',
+      showingRecent: 'Showing activity in past {threshold} days',
+      noRecent: 'There has been no activity in the past {threshold} days',
+      noChannels: 'You do not have any content yet',
     },
     computed: {
       CHANNEL() {
@@ -78,6 +95,9 @@
       },
       tableColumns() {
         return reportConstants.TableColumns;
+      },
+      threshold() {
+        return reportConstants.RECENCY_THRESHOLD_IN_DAYS;
       },
     },
     methods: {

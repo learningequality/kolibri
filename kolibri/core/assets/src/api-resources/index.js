@@ -26,6 +26,7 @@ import ContentNodeProgressResource from './contentNodeProgress';
 import DeviceProvisionResource from './deviceProvision';
 import DevicePermissionsResource, { NewDevicePermissionsResource } from './devicePermissions';
 import RemoteChannel from './remoteChannel';
+import Lesson from './lesson';
 
 const classroomResource = new ClassroomResource();
 const contentNodeResource = new ContentNodeResource();
@@ -56,12 +57,14 @@ const devicePermissionsResource = new DevicePermissionsResource();
 const newDevicePermissionsResource = new NewDevicePermissionsResource();
 const ContentNodeGranularResource = new ContentNodeGranular();
 const RemoteChannelResource = new RemoteChannel();
+const LessonResource = new Lesson();
 
 export {
   classroomResource as ClassroomResource,
   contentNodeResource as ContentNodeResource,
   ContentNodeGranularResource,
   RemoteChannelResource,
+  LessonResource,
   facilityUserResource as FacilityUserResource,
   facilityUsernameResource as FacilityUsernameResource,
   learnerGroupResource as LearnerGroupResource,

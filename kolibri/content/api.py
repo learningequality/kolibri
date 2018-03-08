@@ -4,7 +4,8 @@ from random import sample
 
 import requests
 from django.core.cache import cache
-from django.db.models import Q, Sum
+from django.db.models import Q
+from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
 from django.utils.translation import ugettext as _
@@ -17,10 +18,28 @@ from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds, languages
 from rest_framework import mixins, pagination, viewsets
 from rest_framework.decorators import detail_route, list_route
+from django_filters.rest_framework import BooleanFilter
+from django_filters.rest_framework import CharFilter
+from django_filters.rest_framework import ChoiceFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
+from le_utils.constants import content_kinds
+from le_utils.constants import languages
+from rest_framework import mixins
+from rest_framework import pagination
+from rest_framework import viewsets
+from rest_framework.decorators import detail_route
+from rest_framework.decorators import list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from .utils.search import fuzz
+from kolibri.content import models
+from kolibri.content import serializers
+from kolibri.content.permissions import CanManageContent
+from kolibri.content.utils.paths import get_channel_lookup_url
+from kolibri.logger.models import ContentSessionLog
+from kolibri.logger.models import ContentSummaryLog
 
 logger = logging.getLogger(__name__)
 
@@ -343,7 +362,7 @@ class FileViewset(viewsets.ReadOnlyModelViewSet):
 
 
 class RemoteChannelViewSet(viewsets.ViewSet):
-    permissions_classes = (CanManageContent,)
+    permission_classes = (CanManageContent,)
 
     http_method_names = ['get']
 

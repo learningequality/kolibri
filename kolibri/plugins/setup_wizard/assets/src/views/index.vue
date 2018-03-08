@@ -68,9 +68,9 @@
           case 2:
             return facilityNameForm;
           case 3:
-            return superuserCredentialsForm;
-          case 4:
             return facilityPermissionsForm;
+          case 4:
+            return superuserCredentialsForm;
           default:
             return null;
         }
@@ -128,7 +128,7 @@
       width: 90%
       max-width: 550px
       &.mobile
-        margin: 48px
+        margin: 48px auto
         width: auto
         margin-top: 40px
 

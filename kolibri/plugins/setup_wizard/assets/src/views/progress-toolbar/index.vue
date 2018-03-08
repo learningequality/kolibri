@@ -3,7 +3,8 @@
   <ui-toolbar
     class="progress-toolbar"
     type="colored"
-    textColor="white">
+    textColor="white"
+  >
     <ui-icon-button
       slot="icon"
       v-show="currentStep > 1"

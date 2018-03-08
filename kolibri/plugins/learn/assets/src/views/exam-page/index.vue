@@ -27,11 +27,11 @@
             <div class="answer-history-container column">
               <answer-history
                 :questionNumber="questionNumber"
-                @goToQuestion="goToQuestion" />
+                @goToQuestion="goToQuestion"
+              />
             </div>
             <div class="exercise-container column">
               <content-renderer
-                class="content-renderer"
                 ref="contentRenderer"
                 v-if="itemId"
                 :id="content.id"
@@ -45,7 +45,8 @@
                 :assessment="true"
                 :allowHints="false"
                 :answerState="currentAttempt.answer"
-                @interaction="throttledSaveAnswer" />
+                @interaction="throttledSaveAnswer"
+              />
               <ui-alert v-else :dismissible="false" type="error">
                 {{ $tr('noItemId') }}
               </ui-alert>
@@ -65,11 +66,27 @@
           </div>
         </div>
       </div>
-      <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="toggleModal">
+      <core-modal
+        v-if="submitModalOpen"
+        :title="$tr('submitExam')"
+        @cancel="toggleModal"
+      >
         <p>{{ $tr('areYouSure') }}</p>
-        <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}</p>
-        <k-button :text="$tr('cancel')" appearance="flat-button" @click="toggleModal" />
-        <k-button :text="$tr('submitExam')" @click="finishExam" :primary="true" />
+        <p v-if="questionsUnanswered">
+          {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
+        </p>
+        <div class="core-modal-buttons">
+          <k-button
+            :text="$tr('cancel')"
+            appearance="flat-button"
+            @click="toggleModal"
+          />
+          <k-button
+            :text="$tr('submitExam')"
+            @click="finishExam"
+            :primary="true"
+          />
+        </div>
       </core-modal>
     </template>
   </immersive-full-screen>
@@ -79,9 +96,9 @@
 
 <script>
 
-  import { PageNames } from '../../constants';
+  import { ClassesPageNames } from '../../constants';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
-  import * as actions from '../../state/actions/main';
+  import { setAndSaveCurrentExamAttemptLog, closeExam } from '../../state/actions/main';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
   import throttle from 'lodash/throttle';
@@ -131,15 +148,14 @@
         questionsAnswered: state => state.pageState.questionsAnswered,
       },
       actions: {
-        setAndSaveCurrentExamAttemptLog: actions.setAndSaveCurrentExamAttemptLog,
-        closeExam: actions.closeExam,
+        setAndSaveCurrentExamAttemptLog,
+        closeExam,
       },
     },
     computed: {
       backPageLink() {
         return {
-          name: PageNames.EXAM_LIST,
-          params: { channel_id: this.channelId },
+          name: ClassesPageNames.CLASS_ASSIGNMENTS,
         };
       },
       questionsUnanswered() {
@@ -189,10 +205,9 @@
       goToQuestion(questionNumber) {
         this.saveAnswer().then(() => {
           this.$router.push({
-            name: PageNames.EXAM,
+            name: ClassesPageNames.EXAM_VIEWER,
             params: {
-              channel_id: this.channelId,
-              id: this.exam.id,
+              examId: this.exam.id,
               questionNumber,
             },
           });

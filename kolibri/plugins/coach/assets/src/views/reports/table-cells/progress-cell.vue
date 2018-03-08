@@ -8,7 +8,11 @@
         {{ extraText }}
       </div>
     </template>
-    <template v-else>–</template>
+    <template v-else>
+      <div class="tal">
+        –
+      </div>
+    </template>
   </td>
 
 </template>
@@ -50,6 +54,9 @@
   td
     text-align: center
     width: 19%
+
+  .tal
+    text-align: left
 
   .extra-text
     font-size: smaller

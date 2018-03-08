@@ -17,31 +17,39 @@
       </ul>
     </div>
 
-    <report-table>
+    <core-table>
       <thead slot="thead">
         <tr>
+          <th class="core-table-icon-col"></th>
           <header-cell
             :text="$tr('name')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.NAME" />
+            :column="tableColumns.NAME"
+          />
           <header-cell
             :text="$tr('avgExerciseProgress')"
             :sortable="true"
-            :column="tableColumns.EXERCISE" />
+            :column="tableColumns.EXERCISE"
+          />
           <header-cell
             :text="$tr('avgContentProgress')"
             :sortable="true"
-            :column="tableColumns.CONTENT" />
+            :column="tableColumns.CONTENT"
+          />
           <header-cell
             :text="$tr('lastActivity')"
             :align="alignStart"
             :sortable="true"
-            :column="tableColumns.DATE" />
+            :column="tableColumns.DATE"
+          />
         </tr>
       </thead>
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
+          <td class="core-table-icon-col">
+            <content-icon :kind="row.kind" />
+          </td>
           <name-cell :kind="row.kind" :title="row.title" :link="genRowLink(row)">
             {{ $tr('exerciseCountText', {count: row.exerciseCount}) }}
             •
@@ -52,7 +60,7 @@
           <activity-cell :date="row.lastActive" />
         </tr>
       </tbody>
-    </report-table>
+    </core-table>
 
   </div>
 
@@ -61,13 +69,13 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import * as CoachConstants from '../../constants';
   import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
   import * as reportGetters from '../../state/getters/reports';
   import * as reportConstants from '../../reportConstants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
-  import reportTable from './report-table';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import progressCell from './table-cells/progress-cell';
@@ -78,9 +86,9 @@
   export default {
     name: 'itemReportPage',
     components: {
+      CoreTable,
       contentIcon,
       breadcrumbs,
-      reportTable,
       headerCell,
       nameCell,
       progressCell,
@@ -93,9 +101,9 @@
       avgContentProgress: 'Avg. resource progress',
       lastActivity: 'Last activity',
       exerciseCountText:
-        '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+        '{count, number, integer} {count, plural, one {exercise} other {exercises}}',
       contentCountText:
-        '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+        '{count, number, integer} {count, plural, one {resource} other {resources}}',
     },
     computed: {
       tableColumns() {

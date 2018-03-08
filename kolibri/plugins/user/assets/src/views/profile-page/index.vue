@@ -38,11 +38,11 @@
         {{ $tr('success') }}
       </ui-alert>
       <ui-alert
-        v-if="error"
+        v-if="unknownError"
         type="error"
         :dismissible="false"
       >
-        {{ errorMessage || $tr('genericError') }}
+        {{ errorMessage }}
       </ui-alert>
 
       <k-textbox
@@ -74,6 +74,7 @@
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
+        @input="resetProfileState"
         v-model="username"
       />
       <template v-else>
@@ -89,7 +90,22 @@
         :primary="true"
         :disabled="busy"
       />
+
     </form>
+
+    <k-button
+      v-if="canEditPassword"
+      appearance="basic-link"
+      :text="$tr('changePasswordPrompt')"
+      :disabled="busy"
+      class="change-password"
+      @click="setPasswordModalVisible(true)"
+    />
+
+    <change-user-password-modal
+      v-if="passwordModalVisible"
+      @cancel="setPasswordModalVisible(false)"
+    />
   </div>
 
 </template>
@@ -97,7 +113,7 @@
 
 <script>
 
-  import { editProfile, resetProfileState } from '../../state/actions';
+  import { updateUserProfile, resetProfileState } from '../../state/actions';
   import {
     facilityConfig,
     isSuperuser,
@@ -117,6 +133,7 @@
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import changeUserPasswordModal from './change-user-password-modal';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
@@ -139,6 +156,8 @@
       required: 'This field is required',
       limitedPermissions: 'Limited permissions',
       youCan: 'You can',
+      changePasswordPrompt: 'Change password',
+      usernameAlreadyExists: 'An account with that username already exists',
     },
     components: {
       kButton,
@@ -146,6 +165,7 @@
       uiAlert,
       pointsIcon,
       permissionsIcon,
+      changeUserPasswordModal,
     },
     mixins: [responsiveWindow],
     data() {
@@ -177,9 +197,9 @@
         return null;
       },
       permissionTypeText() {
-        if (this.permissionType === PermissionTypes.SUPERUSER) {
+        if (this.isSuperuser) {
           return this.$tr('isSuperuser');
-        } else if (this.permissionType === PermissionTypes.LIMITED_PERMISSIONS) {
+        } else if (this.userHasPermissions) {
           return this.$tr('limitedPermissions');
         }
         return '';
@@ -196,6 +216,9 @@
         }
         return true;
       },
+      canEditPassword() {
+        return this.isSuperuser || this.facilityConfig.learnerCanEditPassword;
+      },
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
@@ -205,7 +228,7 @@
         return '';
       },
       nameIsInvalid() {
-        return !!this.nameIsInvalidText;
+        return Boolean(this.nameIsInvalidText);
       },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
@@ -215,11 +238,26 @@
           if (!validateUsername(this.username)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
           }
+          if (this.usernameAlreadyExists) {
+            return this.$tr('usernameAlreadyExists');
+          }
         }
         return '';
       },
       usernameIsInvalid() {
-        return !!this.usernameIsInvalidText;
+        return Boolean(this.usernameIsInvalidText);
+      },
+      usernameAlreadyExists() {
+        return this.errorCode === 400;
+      },
+      unknownError() {
+        if (this.errorCode) {
+          return this.errorCode !== 400;
+        }
+        return false;
+      },
+      errorMessage() {
+        return this.backendErrorMessage || this.$tr('genericError');
       },
       formIsValid() {
         return !this.usernameIsInvalid;
@@ -233,11 +271,13 @@
         this.formSubmitted = true;
         this.resetProfileState();
         if (this.formIsValid) {
-          const edits = {
-            username: this.username,
-            full_name: this.name,
-          };
-          this.editProfile(edits, this.session);
+          this.updateUserProfile({
+            edits: {
+              username: this.username,
+              full_name: this.name,
+            },
+            session: this.session,
+          });
         } else {
           if (this.nameIsInvalid) {
             this.$refs.name.focus();
@@ -263,17 +303,21 @@
         totalPoints,
         session: state => state.core.session,
         busy: state => state.pageState.busy,
-        error: state => state.pageState.error,
-        errorMessage: state => state.pageState.errorMessage,
+        errorCode: state => state.pageState.errorCode,
+        backendErrorMessage: state => state.pageState.errorMessage,
         success: state => state.pageState.success,
+        passwordModalVisible: state => state.pageState.passwordState.modal,
         getUserRole,
         getUserPermissions,
         userHasPermissions,
       },
       actions: {
-        editProfile,
+        updateUserProfile,
         resetProfileState,
         fetchPoints,
+        setPasswordModalVisible(store, visibility) {
+          store.dispatch('SET_PROFILE_PASSWORD_MODAL', visibility);
+        },
       },
     },
   };
@@ -316,5 +360,11 @@
 
   .permissions-icon
     padding-right: 8px
+
+  .submit
+    margin-left: 0
+
+  .change-password
+    margin-top: 8px
 
 </style>

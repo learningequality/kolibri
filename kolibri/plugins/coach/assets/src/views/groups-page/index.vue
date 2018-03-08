@@ -1,13 +1,18 @@
 <template>
 
   <div>
-    <h1 class="header">{{ $tr('classGroups') }}</h1>
+    <section>
+      <h1 :class="{header: sortedGroups.length}">{{ $tr('classGroups') }}</h1>
 
-    <k-button
-      :text="$tr('newGroup')"
-      :primary="true"
-      @click="openCreateGroupModal"
-    />
+      <span v-if="!sortedGroups.length">{{ $tr('noGroups') }}</span>
+
+      <k-button
+        class="new-group-button"
+        :text="$tr('newGroup')"
+        :primary="true"
+        @click="openCreateGroupModal"
+      />
+    </section>
 
     <create-group-modal
       v-if="showCreateGroupModal"
@@ -62,18 +67,21 @@
   import { GroupModals } from '../../constants';
   import differenceWith from 'lodash/differenceWith';
   import orderBy from 'lodash/orderBy';
+  import flatMap from 'lodash/flatMap';
   import kButton from 'kolibri.coreVue.components.kButton';
   import createGroupModal from './create-group-modal';
   import groupSection from './group-section';
   import renameGroupModal from './rename-group-modal';
   import deleteGroupModal from './delete-group-modal';
   import moveLearnersModal from './move-learners-modal';
+
   export default {
     name: 'coachGroupsPage',
     $trs: {
       classGroups: 'Class groups',
       newGroup: 'New group',
       ungrouped: 'Ungrouped',
+      noGroups: 'You do not have any groups',
     },
     components: {
       kButton,
@@ -110,13 +118,7 @@
         return orderBy(this.groups, [group => group.name.toUpperCase()], ['asc']);
       },
       groupedUsers() {
-        const groupedUsers = [];
-        this.sortedGroups.forEach(group => {
-          group.users.forEach(user => {
-            groupedUsers.push(user);
-          });
-        });
-        return groupedUsers;
+        return flatMap(this.sortedGroups, 'users');
       },
       ungroupedUsers() {
         return differenceWith(this.classUsers, this.groupedUsers, (a, b) => a.id === b.id);
@@ -171,7 +173,8 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
+  .new-group-button
+    float: right
 
   .header
     display: inline-block

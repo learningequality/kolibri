@@ -1,41 +1,26 @@
-Kolibri User Guide
-==================
+Developer Guide
+===============
 
-**Kolibri** is an open-source educational platform specially designed to provide offline access to a wide range of quality, openly licensed educational content in low-resource contexts like rural schools, refugee camps, orphanages, and also in non-formal school programs.
+First of all, please read :ref:`our gettting started guide <getting_started>`.
+to learn about :ref:`setting up your development environment <dev_env_intro>`,
+:ref:`a nice development workflow <workflow_intro>` and
+:ref:`our technology stack <stack>`.
 
-Kolibri can serve high quality education content from several publicly available **content channels**, collections of educational resources (exercises, videos, audio or document files) and associated metadata, prepared and organized for their use in Kolibri. It also works in conjuntion with `Kolibri Studio <https://studio.learningequality.org>`_, the tool used to organize content and build custom content channels, aligned to the local curricula, or according to specific learning needs.
+If you are looking for help installing, configuring and using Kolibri,
+please refer to the `Kolibri User Guide <https://kolibri.rtfd.io>`__.
 
-   .. figure:: img/content-channels-logos.png
-      :alt: Some publicly available learning content that may be included in Kolibri.
+.. include:: ../README.rst
 
-      Some publicly available learning content that may be included in Kolibri.
 
-.. toctree::
-   :maxdepth: 2
-
-   install
-   
-.. toctree::
-   :maxdepth: 3
-
-   access
+Table of contents
+=================
 
 .. toctree::
    :maxdepth: 3
 
-   manage
+   start/index
+   references/index
+   architecture/index
+   pipeline/index
+   changelog
 
-.. toctree::
-   :maxdepth: 3
-
-   coach
-
-.. toctree::
-   :maxdepth: 3
-
-   learner
-
-.. toctree::
-   :maxdepth: 3
-
-   faq

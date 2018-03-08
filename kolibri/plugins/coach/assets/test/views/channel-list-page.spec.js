@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import Vue from 'vue-test';
+import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import assert from 'assert';
 import sinon from 'sinon';
@@ -58,7 +58,7 @@ function makeWrapper(options = {}, state) {
 function getElements(wrapper) {
   return {
     channelRows: () => wrapper.find('tbody > tr'),
-    header: () => wrapper.find('.header')[0],
+    headerText: () => wrapper.find('h1')[0],
   };
 }
 
@@ -77,10 +77,10 @@ describe('channel list page component', () => {
   });
 
   describe('in "show everything" mode', () => {
-    it('does not show the "recent activity" header', () => {
+    it('shows the correct header', () => {
       const wrapper = makeWrapper({}, state);
-      const { header } = getElements(wrapper);
-      assert(header() === undefined);
+      const { headerText } = getElements(wrapper);
+      assert.equal(headerText().text(), 'Content');
     });
 
     it('shows all channels, regardless of activity', () => {
@@ -98,8 +98,8 @@ describe('channel list page component', () => {
 
     it('shows the "recent activity" header', () => {
       const wrapper = makeWrapper({}, state);
-      const { header } = getElements(wrapper);
-      assert(header().is('div'));
+      const { headerText } = getElements(wrapper);
+      assert.equal(headerText().text(), 'Recent activity');
     });
 
     it('hides channels that have null or not-recent activity', () => {

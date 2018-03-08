@@ -19,6 +19,9 @@ const ContentNodeKinds = {
   TOPIC: 'topic',
   HTML5: 'html5',
   CHANNEL: 'channel', // e.g. a root topic
+  EXAM: 'exam',
+  LESSON: 'lesson',
+  CLASSROOM: 'CLASSROOM',
 };
 
 // used internally on the client as a hack to allow content-icons to display users
@@ -105,13 +108,7 @@ const PermissionTypes = {
   LIMITED_PERMISSIONS: 'LIMITED_PERMISSIONS',
 };
 
-const ConnectionSnackbars = {
-  DISCONNECTED: 'DISCONNECTED',
-  TRYING_TO_RECONNECT: 'TRYING_TO_RECONNECT',
-  SUCCESSFULLY_RECONNECTED: 'SUCCESSFULLY_RECONNECTED',
-};
-
-const SignedOutDueToInactivitySnackbar = 'SIGNED_OUT_DUE_TO_INACTIVITY';
+const SIGNED_OUT_DUE_TO_INACTIVITY = 'SIGNED_OUT_DUE_TO_INACTIVITY';
 
 export {
   UserKinds,
@@ -126,6 +123,5 @@ export {
   MaxPointsPerContent,
   LoginErrors,
   PermissionTypes,
-  ConnectionSnackbars,
-  SignedOutDueToInactivitySnackbar,
+  SIGNED_OUT_DUE_TO_INACTIVITY,
 };

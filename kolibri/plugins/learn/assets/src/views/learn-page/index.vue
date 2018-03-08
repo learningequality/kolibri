@@ -2,6 +2,8 @@
 
   <div>
 
+    <h1 class="visuallyhidden">{{ $tr('recommended') }}</h1>
+
     <template v-if="popular.length">
       <content-card-group-header
         :header="$tr('popularSectionHeader')"
@@ -102,10 +104,11 @@
   export default {
     name: 'recommendedPage',
     $trs: {
+      recommended: 'Recommended',
       popularSectionHeader: 'Most popular',
       suggestedNextStepsSectionHeader: 'Next steps',
       resumeSectionHeader: 'Resume',
-      featuredSectionHeader: 'Featured in { channelTitle }',
+      featuredSectionHeader: "Featured in '{ channelTitle }'",
     },
     components: {
       contentCardGroupCarousel,

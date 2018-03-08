@@ -4,18 +4,20 @@ Kolibri Content hooks
 
 Hooks for managing the display and rendering of content.
 """
-
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import json
 import logging
 import os
 
-from django.conf import settings as django_settings
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
-from kolibri.core.webpack.hooks import WebpackBundleHook
 from le_utils.constants import content_kinds
+
+from kolibri.core.webpack.hooks import WebpackBundleHook
+from kolibri.utils import conf
 
 logger = logging.getLogger(__name__)
 
@@ -24,9 +26,12 @@ _JSON_CONTENT_TYPES_CACHE = {}
 class ContentRendererHook(WebpackBundleHook):
     """
     An inheritable hook that allows special behaviour for a frontend module that defines
-    a content renderer.
+    a content renderer. Reads a JSON file detailing the kinds and file extensions that the
+    renderer can handle.
+    """
 
-    Reads a JSON file of this format:
+    """
+    JSON file format:
     {
         "kinds": [
             {
@@ -50,7 +55,6 @@ class ContentRendererHook(WebpackBundleHook):
             }
         ]
     }
-    Detailing the kinds and file extensions that the renderer can handle.
     """
 
     # Set local path to content type JSON that details the kind, extension pairs this deals with.
@@ -85,7 +89,7 @@ class ContentRendererHook(WebpackBundleHook):
         urls = [chunk['url'] for chunk in self.bundle]
         tags = self.frontend_message_tag() +\
             ['<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {content_types});</script>'.format(
-                kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
+                kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
                 bundle=self.unique_slug,
                 urls='","'.join(urls),
                 content_types=json.dumps(self._content_type_json),

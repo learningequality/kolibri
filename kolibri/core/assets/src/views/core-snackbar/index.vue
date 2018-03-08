@@ -68,7 +68,7 @@
     mounted() {
       this.isVisible = true;
       if (this.autoDismiss) {
-        this.timeout = window.setTimeout(this.clearSnackbar, this.duration);
+        this.timeout = window.setTimeout(this.hideSnackbar, this.duration);
       }
       if (this.backdrop) {
         window.addEventListener('focus', this.containFocus, true);
@@ -98,7 +98,10 @@
     },
     vuex: {
       actions: {
-        clearSnackbar,
+        hideSnackbar(store) {
+          this.$emit('hide');
+          clearSnackbar(store);
+        },
       },
     },
   };

@@ -1,18 +1,19 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import collections
-import factory
 import sys
 
+import factory
+from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
-
 from rest_framework import status
 from rest_framework.test import APITestCase as BaseTestCase
-from django.contrib.sessions.models import Session
-
-from .helpers import create_superuser, provision_device
 
 from .. import models
+from .helpers import create_superuser
+from .helpers import provision_device
 
 DUMMY_PASSWORD = "password"
 
@@ -379,23 +380,65 @@ class FacilityDatasetAPITestCase(APITestCase):
     def setUp(self):
         provision_device()
         self.facility = FacilityFactory.create()
+        self.facility2 = FacilityFactory.create()
         self.superuser = create_superuser(self.facility)
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.facility.add_admin(self.admin)
 
-    def test_return_dataset_that_user_is_an_admin_for(self):
+    def test_return_all_datasets_for_an_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse('facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
-        self.assertEqual(self.admin.dataset_id, response.data[0]['id'])
+
+    def test_admin_can_edit_dataset_for_which_they_are_admin(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(reverse('facilitydataset-detail', kwargs={'pk': self.facility.dataset_id}),
+                                     {'description': 'This is not a drill'}, format="json")
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_cant_edit_dataset_for_which_they_are_not_admin(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.delete(reverse('facilitydataset-detail', kwargs={'pk': self.facility2.dataset_id}),
+                                      {'description': 'This is not a drill'}, format="json")
+        self.assertEqual(response.status_code, 403)
 
     def test_return_all_datasets_for_superuser(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.get(reverse('facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
 
-    def test_return_dataset_for_facility_user(self):
+    def test_return_all_datasets_for_facility_user(self):
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse('facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
+
+    def test_facility_user_cannot_delete_dataset(self):
+        self.client.login(username=self.user.username, password=DUMMY_PASSWORD)
+        response = self.client.delete(reverse('facilitydataset-detail', kwargs={'pk': self.facility.dataset_id}), format="json")
+        self.assertEqual(response.status_code, 403)
+
+
+class MembershipCascadeDeletion(APITestCase):
+
+    def setUp(self):
+        provision_device()
+        self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.classroom = ClassroomFactory.create(parent=self.facility)
+        self.lg = LearnerGroupFactory.create(parent=self.classroom)
+        self.classroom_membership = models.Membership.objects.create(collection=self.classroom, user=self.user)
+        models.Membership.objects.create(collection=self.lg, user=self.user)
+
+    def test_delete_classroom_membership(self):
+        url = reverse('membership-list') + "?user={}&collection={}".format(self.user.id, self.classroom.id)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(models.Membership.objects.all().exists())
+
+    def test_delete_detail(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.delete(reverse('membership-detail', kwargs={'pk': self.classroom_membership.id}))
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(models.Membership.objects.all().exists())
