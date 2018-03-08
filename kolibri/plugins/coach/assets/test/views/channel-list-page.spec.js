@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import Vue from 'vue-test';
+import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import assert from 'assert';
 import sinon from 'sinon';

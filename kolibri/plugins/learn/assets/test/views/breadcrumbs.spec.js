@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import Vue from 'vue-test';
+import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
 import assert from 'assert';
 import Breadcrumbs from '../../src/views/breadcrumbs';

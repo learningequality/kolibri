@@ -47,7 +47,7 @@
     mixins: [responsiveWindow],
     $trs: {
       // error alerts
-      errorAlert: 'Error in:',
+      errorAlert: 'Error in',
       // aria labels
       closeWindow: 'Close window',
     },

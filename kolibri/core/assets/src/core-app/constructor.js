@@ -9,6 +9,7 @@ import router from 'vue-router';
 import Mediator from './mediator';
 import apiSpec from './apiSpec';
 import { setUpIntl } from '../utils/i18n';
+import merge from 'lodash/merge';
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -42,7 +43,8 @@ export default class CoreApp {
     Object.assign(this, apiSpec);
 
     // Assign any overridden core API elements here
-    Object.assign(this, __coreAPISpec);
+    // Use the default object if it has been specified using an ES6 default export.
+    merge(this, __coreAPISpec.default || __coreAPISpec);
 
     const mediator = new Mediator();
 

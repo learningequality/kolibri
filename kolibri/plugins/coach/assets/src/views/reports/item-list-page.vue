@@ -101,9 +101,9 @@
       avgContentProgress: 'Avg. resource progress',
       lastActivity: 'Last activity',
       exerciseCountText:
-        '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+        '{count, number, integer} {count, plural, one {exercise} other {exercises}}',
       contentCountText:
-        '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+        '{count, number, integer} {count, plural, one {resource} other {resources}}',
     },
     computed: {
       tableColumns() {

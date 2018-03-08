@@ -113,8 +113,7 @@
     },
     data() {
       return {
-        // Initialized with this filter, but localized label is added after mount
-        languageFilter: { value: 'ALL' },
+        languageFilter: {},
         titleFilter: '',
         showTokenModal: false,
       };
@@ -191,7 +190,7 @@
         };
       },
     },
-    mounted() {
+    beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
     },
     methods: {
@@ -242,7 +241,7 @@
       exportToDisk: 'Export to {driveName}',
       importFromDisk: 'Import from {driveName}',
       kolibriCentralServer: 'Kolibri Studio',
-      languageFilterLabel: 'Language:',
+      languageFilterLabel: 'Language',
       titleFilterPlaceholder: 'Search for a channel…',
       yourChannels: 'Your channels',
       channelTokenButtonLabel: 'Try adding a token',

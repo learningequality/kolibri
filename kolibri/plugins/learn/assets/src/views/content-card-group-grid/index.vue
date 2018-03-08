@@ -57,7 +57,7 @@
       videos: 'Videos',
       audio: 'Audio',
       documents: 'Documents',
-      html5: 'HTML5 Apps',
+      html5: 'Apps',
       channels: 'Channels',
     },
     components: {

@@ -300,7 +300,8 @@ def get_prerelease_version(version):
 
         if git_version[3] == 'final' and version[3] != 'final':
             raise AssertionError(
-                "You have added a final tag without bumping kolibri.VERISON"
+                "You have added a final tag without bumping kolibri.VERSION, " +
+                "OR you need to make a new alpha0 tag. Current tag: {}".format(git_version)
             )
 
         return (

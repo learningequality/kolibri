@@ -71,10 +71,10 @@
   import { refreshChannelList } from '../../state/actions/manageContentActions';
 
   const pageNameComponentMap = {
-    [ContentWizardPages.SELECT_IMPORT_SOURCE]: 'selectImportSource',
-    [ContentWizardPages.SELECT_DRIVE]: 'selectDriveModal',
-    [ContentWizardPages.AVAILABLE_CHANNELS]: 'availableChannelsPage',
-    [ContentWizardPages.SELECT_CONTENT]: 'selectContentPage',
+    [ContentWizardPages.SELECT_IMPORT_SOURCE]: selectImportSource,
+    [ContentWizardPages.SELECT_DRIVE]: selectDriveModal,
+    [ContentWizardPages.AVAILABLE_CHANNELS]: availableChannelsPage,
+    [ContentWizardPages.SELECT_CONTENT]: selectContentPage,
   };
 
   const POLL_DELAY = 1000;
@@ -90,14 +90,10 @@
     },
     components: {
       authMessage,
-      availableChannelsPage,
       channelsGrid,
       kButton,
-      selectDriveModal,
-      selectContentPage,
       subpageContainer,
       taskProgress,
-      selectImportSource,
     },
     data: () => ({
       intervalId: undefined,

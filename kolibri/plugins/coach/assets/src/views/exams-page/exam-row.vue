@@ -16,9 +16,10 @@
     <td>{{ visibilityString }}</td>
 
     <td>
-      <dropdown-menu
-        :name="$tr('options')"
+      <k-dropdown-menu
+        :text="$tr('options')"
         :options="actionOptions"
+        appearance="flat-button"
         @select="handleSelection"
       />
     </td>
@@ -31,7 +32,7 @@
 
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiIcon from 'keen-ui/src/UiIcon';
-  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
 
   export default {
     name: 'examRow',
@@ -51,7 +52,7 @@
     },
     components: {
       uiIcon,
-      dropdownMenu,
+      kDropdownMenu,
       kButton,
     },
     props: {

@@ -106,7 +106,7 @@
         return '';
       },
       titleIsInvalid() {
-        return !!this.titleIsInvalidText;
+        return Boolean(this.titleIsInvalidText);
       },
       formIsValid() {
         return !this.titleIsInvalid;

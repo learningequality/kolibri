@@ -127,7 +127,7 @@
       newExam: 'New exam',
       title: 'Title',
       visibleTo: 'Visible to',
-      noExams: 'You do not have any exams yet',
+      noExams: 'You do not have any exams',
     },
     components: {
       CoreTable,

@@ -1,13 +1,12 @@
 from functools import reduce
-
 from dateutil.parser import parse
 from django.db.models import Case, Count, F, IntegerField, Manager, Max, Sum, When
 from kolibri.auth.models import FacilityUser
 from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog
+from kolibri.core.lessons.models import Lesson
 from le_utils.constants import content_kinds
 from rest_framework import serializers
-
 from .utils.return_users import get_members_or_user
 
 
@@ -240,3 +239,48 @@ class ContentSummarySerializer(ContentReportSerializer):
     def get_num_users(self, target_node):
         kwargs = self.context['view'].kwargs
         return get_members_or_user(kwargs['collection_kind'], kwargs['collection_id']).count()
+
+
+class LessonReportSerializer(serializers.ModelSerializer):
+    """
+    Annotates a Lesson with a 'progress' array, which maps 1-to-1 with Lesson.resources.
+    Each entry in the 'progress' array gives the total number of Learners who have
+    been assigned the Lesson and have 'mastered' the Resource.
+    """
+    progress = serializers.SerializerMethodField()
+    total_learners = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Lesson
+        fields = ('id', 'title', 'progress', 'total_learners',)
+
+    def get_progress(self, instance):
+        learners = instance.get_all_learners()
+        if learners.count() is 0:
+            return []
+
+        return [self._resource_progress(r, learners) for r in instance.resources]
+
+    def get_total_learners(self, instance):
+        return instance.get_all_learners().count()
+
+    def _resource_progress(self, resource, learners):
+        response = {
+            'contentnode_id': resource['contentnode_id'],
+            'num_learners_completed': 0,
+        }
+        completed_content_logs = ContentSummaryLog.objects \
+            .filter(
+                content_id=resource['content_id'],
+                user__in=learners,
+                progress=1.0,
+            ) \
+            .values('content_id') \
+            .annotate(total=Count('pk'))
+
+        # If no logs for the Content Item,
+        if completed_content_logs.count() is 0:
+            return response
+        else:
+            response['num_learners_completed'] = completed_content_logs[0]['total']
+            return response
