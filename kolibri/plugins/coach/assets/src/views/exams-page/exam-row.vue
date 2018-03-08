@@ -2,10 +2,7 @@
 
   <tr>
     <td class="core-table-icon-col">
-      <ui-icon
-        icon="assignment_late"
-        :ariaLabel="String(examActive)"
-      />
+      <content-icon :kind="examIcon" />
     </td>
 
     <td class="core-table-main-col">
@@ -19,12 +16,6 @@
 
     <td>
       <status-icon :active="examActive" />
-      <k-dropdown-menu
-        :text="$tr('options')"
-        :options="actionOptions"
-        appearance="flat-button"
-        @select="handleSelection"
-      />
     </td>
   </tr>
 
@@ -34,30 +25,20 @@
 <script>
 
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import uiIcon from 'keen-ui/src/UiIcon';
-  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import StatusIcon from '../StatusIcon';
   import { PageNames } from '../../constants';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'examRow',
     $trs: {
-      change: 'Change',
-      activate: 'Activate',
-      deactivate: 'Deactivate',
-      previewExam: 'Preview exam',
-      changeVisibility: 'Change visibility',
-      viewReport: 'View report',
-      rename: 'Rename',
-      delete: 'Delete',
       entireClass: 'Entire class',
       groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
       nobody: 'Nobody',
-      options: 'Options',
     },
     components: {
-      uiIcon,
-      kDropdownMenu,
+      contentIcon,
       kRouterLink,
       StatusIcon,
     },
@@ -80,6 +61,9 @@
       },
     },
     computed: {
+      examIcon() {
+        return ContentNodeKinds.EXAM;
+      },
       recipients() {
         if (this.examVisibility.class) {
           return this.$tr('entireClass');
@@ -88,62 +72,11 @@
         }
         return this.$tr('nobody');
       },
-      actionOptions() {
-        return [
-          { label: this.examActive ? this.$tr('deactivate') : this.$tr('activate') },
-          { label: this.$tr('previewExam') },
-          { label: this.$tr('changeVisibility') },
-          { label: this.$tr('viewReport') },
-          { label: this.$tr('rename') },
-          { label: this.$tr('delete') },
-        ];
-      },
       examRoute() {
         return {
           name: PageNames.EXAM_REPORT,
           params: { examId: this.examId },
         };
-      },
-    },
-    methods: {
-      emitActivateExam() {
-        this.$emit('activateExam', this.examId);
-      },
-      emitDeactivateExam() {
-        this.$emit('deactivateExam', this.examId);
-      },
-      emitPreviewExam() {
-        this.$emit('previewExam', this.examId);
-      },
-      emitChangeExamVisibility() {
-        this.$emit('changeExamVisibility', this.examId);
-      },
-      emitViewReport() {
-        this.$emit('viewReport');
-      },
-      emitRenameExam() {
-        this.$emit('renameExam', this.examId);
-      },
-      emitDeleteExam() {
-        this.$emit('deleteExam', this.examId);
-      },
-      handleSelection(optionSelected) {
-        const action = optionSelected.label;
-        if (action === this.$tr('activate')) {
-          this.emitActivateExam();
-        } else if (action === this.$tr('deactivate')) {
-          this.emitDeactivateExam();
-        } else if (action === this.$tr('previewExam')) {
-          this.emitPreviewExam();
-        } else if (action === this.$tr('changeVisibility')) {
-          this.emitChangeExamVisibility();
-        } else if (action === this.$tr('viewReport')) {
-          this.emitViewReport();
-        } else if (action === this.$tr('rename')) {
-          this.emitRenameExam();
-        } else if (action === this.$tr('delete')) {
-          this.emitDeleteExam();
-        }
       },
     },
   };

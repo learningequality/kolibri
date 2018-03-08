@@ -40,13 +40,6 @@
           :examTitle="exam.title"
           :examActive="exam.active"
           :examVisibility="exam.visibility"
-          @changeExamVisibility="openChangeExamVisibilityModal"
-          @activateExam="openActivateExamModal"
-          @deactivateExam="openDeactivateExamModal"
-          @previewExam="openPreviewExamModal"
-          @viewReport="routeToExamReport(exam)"
-          @renameExam="openRenameExamModal"
-          @deleteExam="openDeleteExamModal"
         />
       </tbody>
     </core-table>

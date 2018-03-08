@@ -30,6 +30,10 @@ const messages = {
 
 const translator = createTranslator(name, messages);
 
+const allChannels = createTranslator('allChannels', {
+  allChannels: 'All channels',
+}).$tr('allChannels');
+
 const pickIdAndName = pick(['id', 'name']);
 
 function _channelState(channel) {
@@ -58,7 +62,7 @@ function _breadcrumbsState(topics) {
 function _currentTopicState(topic, ancestors = []) {
   let breadcrumbs = Array.from(ancestors);
   breadcrumbs.push({ pk: topic.pk, title: topic.title });
-  breadcrumbs.unshift({ pk: null, title: 'Channels' });
+  breadcrumbs.unshift({ pk: null, title: allChannels });
   breadcrumbs = _breadcrumbsState(breadcrumbs);
   return {
     id: topic.pk,
@@ -298,8 +302,15 @@ function deleteExam(store, examId) {
       () => {
         const exams = store.state.pageState.exams;
         const updatedExams = exams.filter(exam => exam.id !== examId);
-
         store.dispatch('SET_EXAMS', updatedExams);
+
+        router.replace({ name: PageNames.EXAMS });
+        CoreActions.createSnackbar(store, {
+          text: createTranslator('examDeleted', {
+            examDeleted: 'Exam deleted',
+          }).$tr('examDeleted'),
+          autoDismiss: true,
+        });
         displayExamModal(store, false);
       },
       error => CoreActions.handleError(store, error)
@@ -425,6 +436,8 @@ function goToTopLevel(store) {
             });
             const topic = {
               allExercisesWithinTopic,
+              id: null,
+              title: allChannels,
             };
             store.dispatch('SET_TOPIC', topic);
             store.dispatch('SET_SUBTOPICS', subtopics);
@@ -520,50 +533,71 @@ function createExam(store, classCollection, examObj) {
 function showExamReportPage(store, classId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT);
-  const examLogPromise = ExamLogResource.getCollection({
-    exam: examId,
-    collection: classId,
-  }).fetch();
+
   const examPromise = ExamResource.getModel(examId).fetch();
-  const facilityUserPromise = FacilityUserResource.getCollection({
-    member_of: classId,
-  }).fetch();
-  const groupPromise = LearnerGroupResource.getCollection({
-    parent: classId,
-  }).fetch();
-  ConditionalPromise.all([
-    examLogPromise,
-    facilityUserPromise,
-    groupPromise,
-    examPromise,
-    setClassState(store, classId),
-  ]).only(
+  ConditionalPromise.all([examPromise]).only(
     CoreActions.samePageCheckGenerator(store),
-    ([examLogs, facilityUsers, learnerGroups, exam]) => {
-      const examTakers = facilityUsers.map(user => {
-        const examTakenByUser = examLogs.find(examLog => String(examLog.user) === user.id) || {};
-        const learnerGroup =
-          learnerGroups.find(group => group.user_ids.indexOf(user.id) > -1) || {};
-        return {
-          id: user.id,
-          name: user.full_name,
-          group: learnerGroup,
-          score: examTakenByUser.score,
-          progress: examTakenByUser.progress,
-          closed: examTakenByUser.closed,
-        };
-      });
-      const pageState = {
-        examTakers,
-        exam,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', exam.title);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    ([exam]) => {
+      const examLogPromise = ExamLogResource.getCollection({
+        exam: examId,
+        collection: classId,
+      }).fetch();
+      const facilityUserPromise = FacilityUserResource.getCollection({
+        member_of: classId,
+      }).fetch();
+      const groupPromise = LearnerGroupResource.getCollection({
+        parent: classId,
+      }).fetch();
+      const examsPromise = ExamResource.getCollection({
+        collection: classId,
+      }).fetch({}, true);
+      ConditionalPromise.all([
+        examLogPromise,
+        facilityUserPromise,
+        groupPromise,
+        examsPromise,
+        setClassState(store, classId),
+      ]).only(
+        CoreActions.samePageCheckGenerator(store),
+        ([examLogs, facilityUsers, learnerGroups, exams]) => {
+          const examTakers = facilityUsers.map(user => {
+            const examTakenByUser =
+              examLogs.find(examLog => String(examLog.user) === user.id) || {};
+            const learnerGroup =
+              learnerGroups.find(group => group.user_ids.indexOf(user.id) > -1) || {};
+            return {
+              id: user.id,
+              name: user.full_name,
+              group: learnerGroup,
+              score: examTakenByUser.score,
+              progress: examTakenByUser.progress,
+              closed: examTakenByUser.closed,
+            };
+          });
+          const pageState = {
+            examTakers,
+            exam,
+            examModalShown: null,
+            exams,
+            learnerGroups,
+          };
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_ERROR', null);
+          store.dispatch('CORE_SET_TITLE', exam.title);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+        },
+        error => {
+          CoreActions.handleApiError(store, error);
+        }
+      );
     },
     error => {
-      CoreActions.handleApiError(store, error);
+      if (error.status.code === 404) {
+        // TODO: route to 404 page
+        router.replace({ name: PageNames.EXAMS });
+      } else {
+        CoreActions.handleApiError(store, error);
+      }
     }
   );
 }

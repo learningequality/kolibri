@@ -1,18 +1,25 @@
 <template>
 
   <div>
+    <assignment-summary
+      :kind="examKind"
+      :title="exam.title"
+      :active="exam.active"
+      :recipients="exam.assignments"
+      :groups="learnerGroups"
+      @changeStatus="openChangeStatusModal"
+    >
+      <k-dropdown-menu
+        slot="optionsDropdown"
+        :text="$tr('options')"
+        :options="actionOptions"
+        appearance="raised-button"
+        @select="handleSelection"
+      />
+    </assignment-summary>
 
-    <h1>
-      <content-icon :kind="examIcon" />
-      {{ examTitle }}
-    </h1>
+    <p v-if="takenBy > 0">{{ $tr('averageScore', { num: averageScore }) }}</p>
 
-    <p>
-      {{ $tr('examTakenby', { num: takenBy }) }}
-    </p>
-    <p v-if="takenBy > 0">
-      {{ $tr('averageScore', { num: averageScore }) }}
-    </p>
     <core-table v-if="!noExamData">
       <caption class="visuallyhidden">{{ $tr('examReport') }}</caption>
       <thead slot="thead">
@@ -67,6 +74,20 @@
 
     <p v-else>{{ $tr('noExamData') }}</p>
 
+    <preview-exam-modal
+      v-if="showPreviewExamModal"
+      :examQuestionSources="exam.question_sources"
+      :examSeed="exam.seed"
+      :examNumQuestions="exam.question_count"
+    />
+
+    <delete-exam-modal
+      v-if="showDeleteExamModal"
+      :examId="exam.id"
+      :examTitle="exam.title"
+      :classId="classId"
+    />
+
   </div>
 
 </template>
@@ -80,6 +101,12 @@
   import sumBy from 'lodash/sumBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import { USER, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import { Modals as ExamModals } from '../../examConstants';
+  import previewExamModal from '../exams-page/preview-exam-modal';
+  import deleteExamModal from '../exams-page/delete-exam-modal';
+  import { displayExamModal } from '../../state/actions/exam';
+  import AssignmentSummary from '../AssignmentSummary';
 
   export default {
     name: 'examReportPage',
@@ -87,6 +114,10 @@
       contentIcon,
       CoreTable,
       kRouterLink,
+      kDropdownMenu,
+      previewExamModal,
+      deleteExamModal,
+      AssignmentSummary,
     },
     computed: {
       noExamData() {
@@ -95,7 +126,7 @@
       USER() {
         return USER;
       },
-      examIcon() {
+      examKind() {
         return ContentNodeKinds.EXAM;
       },
       averageScore() {
@@ -108,31 +139,59 @@
       takenBy() {
         return this.examsInProgress.length;
       },
+      actionOptions() {
+        return [
+          { label: this.$tr('previewExam') },
+          { label: this.$tr('editDetails') },
+          { label: this.$tr('copyTo') },
+          { label: this.$tr('delete') },
+        ];
+      },
+      showPreviewExamModal() {
+        return this.examModalShown === ExamModals.PREVIEW_EXAM;
+      },
+      showDeleteExamModal() {
+        return this.examModalShown === ExamModals.DELETE_EXAM;
+      },
     },
     methods: {
+      handleSelection(optionSelected) {
+        const action = optionSelected.label;
+        if (action === this.$tr('previewExam')) {
+          this.displayExamModal(ExamModals.PREVIEW_EXAM);
+        } else if (action === this.$tr('editDetails')) {
+          this.displayExamModal(ExamModals.EDIT_EXAM_DETAILS);
+        } else if (action === this.$tr('copyTo')) {
+          this.displayExamModal(ExamModals.COPY_EXAM);
+        } else if (action === this.$tr('delete')) {
+          this.displayExamModal(ExamModals.DELETE_EXAM);
+        }
+      },
       examDetailPageLink(id) {
         return {
           name: PageNames.EXAM_REPORT_DETAIL_ROOT,
           params: {
             classId: this.classId,
-            channelId: this.channelId,
             examId: this.exam.id,
             userId: id,
           },
         };
       },
+      openChangeStatusModal() {},
     },
     vuex: {
       getters: {
         examTakers: state => state.pageState.examTakers,
         classId: state => state.classId,
         exam: state => state.pageState.exam,
-        channelId: state => state.pageState.channelId,
-        examTitle: state => state.pageState.exam.title,
+        examModalShown: state => state.pageState.examModalShown,
+        learnerGroups: state => state.pageState.learnerGroups,
+      },
+      actions: {
+        displayExamModal,
       },
     },
     $trs: {
-      examTakenby: 'Exam taken by: {num, plural, one {# learner} other {# learners}}',
       averageScore: 'Average score: {num, number, percent}',
       examReport: 'Exam report',
       completed: 'Completed',
@@ -144,6 +203,11 @@
       scorePercentage: '{num, number, percent}',
       group: 'Group',
       noExamData: 'No data to show.',
+      options: 'Options',
+      previewExam: 'Preview exam',
+      editDetails: 'Edit details',
+      copyTo: 'Copy to',
+      delete: 'Delete',
     },
   };
 
