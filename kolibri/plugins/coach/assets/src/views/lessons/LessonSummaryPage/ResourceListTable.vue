@@ -252,10 +252,12 @@
       resourceReorderConfirmationMessage: 'New lesson order saved',
       undoActionPrompt: 'Undo',
       resourceProgressMessage: '{completed, number}/{total, number} completed',
-      resourceReorderColumnHeaderForTable: 'Use buttons in this column to re-order resources in the lesson',
+      resourceReorderColumnHeaderForTable:
+        'Use buttons in this column to re-order resources in the lesson',
       nameColumnHeaderForTable: 'Name',
       resourceProgressColumnHeaderForTable: 'Resource progress',
-      resourceRemovalColumnHeaderForTable: 'Use buttons in this column to remove resources from the lesson',
+      resourceRemovalColumnHeaderForTable:
+        'Use buttons in this column to remove resources from the lesson',
       resourceRemovalButtonLabel: 'Remove',
       singleResourceRemovalConfirmationMessage: 'Removed { resourceTitle }',
       multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',
