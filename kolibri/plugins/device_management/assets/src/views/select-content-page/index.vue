@@ -210,12 +210,10 @@
         updateTreeViewTopic,
         updateResourceCounts(store) {
           const { transferredChannel, availableChannels } = wizardState(store.state);
-          for (let i = 0; i < availableChannels.length; i++) {
-            if (transferredChannel.id === availableChannels[i].id) {
-              // Update channel total resources.
-              store.dispatch('SET_TRANSFERRED_CHANNEL', availableChannels[i]);
-            }
-          }
+          const updatedChannel = availableChannels.find(
+            channel => channel.id === transferredChannel.id
+          );
+          store.dispatch('SET_TRANSFERRED_CHANNEL', updatedChannel);
         },
       },
     },
