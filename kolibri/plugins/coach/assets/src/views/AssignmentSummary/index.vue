@@ -117,7 +117,6 @@
     },
     $trs: {
       status: 'Status',
-
       statusDescription: 'Status description',
       statusTooltipText: 'Active: visible to learners. Inactive: hidden from learners.',
       changeStatus: 'Change',

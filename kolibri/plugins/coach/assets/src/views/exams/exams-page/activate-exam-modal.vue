@@ -1,12 +1,12 @@
 <template>
 
   <core-modal
-    :title="$tr('deactivateExam')"
+    :title="$tr('activateExam')"
     @cancel="close"
   >
     <p>
       <span>{{ $tr('areYouSure', { examTitle }) }}</span>
-      {{ $tr('noLongerVisible') }}
+      {{ $tr('willBeVisible') }}
     </p>
     <p>
       <span v-if="examVisibility.class"><strong>{{ $tr('entireClass') }}</strong></span>
@@ -25,9 +25,9 @@
         @click="close"
       />
       <k-button
-        :text="$tr('deactivate')"
+        :text="$tr('activate')"
         :primary="true"
-        @click="deactivateExam(examId)"
+        @click="activateExam(examId)"
       />
     </div>
   </core-modal>
@@ -37,17 +37,17 @@
 
 <script>
 
-  import * as examActions from '../../state/actions/exam';
+  import * as examActions from '../../../state/actions/exam';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    name: 'deactivateExamModal',
+    name: 'activateExamModal',
     $trs: {
-      deactivateExam: 'Deactivate exam',
-      areYouSure: "Are you sure you want to deactivate '{ examTitle }'?",
-      noLongerVisible: 'The exam will be no longer be visible to the following:',
+      activateExam: 'Activate exam',
+      areYouSure: "Are you sure you want to activate '{ examTitle }'?",
+      willBeVisible: 'The exam will be visible to the following:',
       cancel: 'Cancel',
-      deactivate: 'Deactivate',
+      activate: 'Activate',
       entireClass: 'Entire class',
     },
     components: {
@@ -80,7 +80,7 @@
     vuex: {
       actions: {
         displayExamModal: examActions.displayExamModal,
-        deactivateExam: examActions.deactivateExam,
+        activateExam: examActions.activateExam,
       },
     },
   };

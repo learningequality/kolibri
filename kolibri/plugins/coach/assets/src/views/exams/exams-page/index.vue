@@ -105,10 +105,10 @@
 <script>
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import { className } from '../../state/getters/main';
-  import * as ExamActions from '../../state/actions/exam';
-  import { Modals as ExamModals } from '../../examConstants';
-  import { PageNames } from '../../constants';
+  import { className } from '../../../state/getters/main';
+  import * as ExamActions from '../../../state/actions/exam';
+  import { Modals as ExamModals } from '../../../examConstants';
+  import { PageNames } from '../../../constants';
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kSelect from 'kolibri.coreVue.components.kSelect';

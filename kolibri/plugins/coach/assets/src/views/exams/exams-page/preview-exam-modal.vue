@@ -65,7 +65,7 @@
 
 <script>
 
-  import * as examActions from '../../state/actions/exam';
+  import * as examActions from '../../../state/actions/exam';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
   import coreModal from 'kolibri.coreVue.components.coreModal';

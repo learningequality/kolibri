@@ -19,7 +19,7 @@
 
 <script>
 
-  import * as ExamActions from '../../state/actions/exam';
+  import * as ExamActions from '../../../state/actions/exam';
   import previewExamModal from '../exams-page/preview-exam-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {

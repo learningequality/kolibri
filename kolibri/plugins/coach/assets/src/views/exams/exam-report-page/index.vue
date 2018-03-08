@@ -97,16 +97,16 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import { PageNames } from '../../constants';
+  import { PageNames } from '../../../constants';
   import sumBy from 'lodash/sumBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import { USER, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
-  import { Modals as ExamModals } from '../../examConstants';
+  import { Modals as ExamModals } from '../../../examConstants';
   import previewExamModal from '../exams-page/preview-exam-modal';
   import deleteExamModal from '../exams-page/delete-exam-modal';
-  import { displayExamModal } from '../../state/actions/exam';
-  import AssignmentSummary from '../AssignmentSummary';
+  import { displayExamModal } from '../../../state/actions/exam';
+  import AssignmentSummary from '../../AssignmentSummary';
 
   export default {
     name: 'examReportPage',

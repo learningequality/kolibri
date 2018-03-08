@@ -1,23 +1,10 @@
 <template>
 
   <core-modal
-    :title="$tr('activateExam')"
+    :title="$tr('deleteExam')"
     @cancel="close"
   >
-    <p>
-      <span>{{ $tr('areYouSure', { examTitle }) }}</span>
-      {{ $tr('willBeVisible') }}
-    </p>
-    <p>
-      <span v-if="examVisibility.class"><strong>{{ $tr('entireClass') }}</strong></span>
-      <span v-else>
-        <ul>
-          <li v-for="(group, index) in examVisibility.groups" :key="index">
-            <strong>{{ group.collection.name }}</strong>
-          </li>
-        </ul>
-      </span>
-    </p>
+    <p>{{ $tr('areYouSure', { examTitle }) }}</p>
     <div class="core-modal-buttons">
       <k-button
         :text="$tr('cancel')"
@@ -25,9 +12,9 @@
         @click="close"
       />
       <k-button
-        :text="$tr('activate')"
+        :text="$tr('delete')"
         :primary="true"
-        @click="activateExam(examId)"
+        @click="deleteExam(examId)"
       />
     </div>
   </core-modal>
@@ -37,18 +24,17 @@
 
 <script>
 
-  import * as examActions from '../../state/actions/exam';
+  import * as examActions from '../../../state/actions/exam';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
-    name: 'activateExamModal',
+    name: 'deleteExamModal',
     $trs: {
-      activateExam: 'Activate exam',
-      areYouSure: "Are you sure you want to activate '{ examTitle }'?",
-      willBeVisible: 'The exam will be visible to the following:',
+      deleteExam: 'Delete exam',
+      areYouSure:
+        "Are you sure you want to delete '{ examTitle }'? You will lose all data for this exam.",
       cancel: 'Cancel',
-      activate: 'Activate',
-      entireClass: 'Entire class',
+      delete: 'Delete',
     },
     components: {
       coreModal,
@@ -61,10 +47,6 @@
       },
       examTitle: {
         type: String,
-        required: true,
-      },
-      examVisibility: {
-        type: Object,
         required: true,
       },
       classId: {
@@ -80,7 +62,7 @@
     vuex: {
       actions: {
         displayExamModal: examActions.displayExamModal,
-        activateExam: examActions.activateExam,
+        deleteExam: examActions.deleteExam,
       },
     },
   };

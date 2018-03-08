@@ -38,7 +38,7 @@
 
 <script>
 
-  import { displayExamModal, updateExamAssignments } from '../../state/actions/exam';
+  import { displayExamModal, updateExamAssignments } from '../../../state/actions/exam';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
