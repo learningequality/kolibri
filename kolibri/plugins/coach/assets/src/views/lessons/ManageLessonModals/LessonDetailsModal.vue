@@ -5,14 +5,15 @@
     @cancel="closeModal()"
     width="400px"
   >
+    <ui-alert
+      v-if="showServerError"
+      type="error"
+      :dismissible="false"
+    >
+      {{ $tr('submitLessonError') }}
+    </ui-alert>
+
     <form @submit.prevent="submitLessonData">
-      <ui-alert
-        v-if="showError"
-        type="error"
-        :dismissible="false"
-      >
-        {{ $tr('submitLessonError') }}
-      </ui-alert>
       <k-textbox
         @blur="titleIsVisited = true"
         ref="titleField"
@@ -41,6 +42,7 @@
           :disabled="formIsSubmitted"
         />
       </fieldset>
+
       <div class="core-modal-buttons">
         <k-button
           :text="$tr('cancel')"
@@ -90,7 +92,7 @@
         selectedCollectionIds: [],
         title: '',
         titleIsVisited: false,
-        showError: false,
+        showServerError: false,
       };
     },
     computed: {
@@ -168,10 +170,10 @@
       },
       handleSubmitFailure() {
         this.formIsSubmitted = false;
-        this.showError = true;
+        this.showServerError = true;
       },
       submitLessonData() {
-        this.showError = false;
+        this.showServerError = false;
         // Return immediately if "submit" has already been clicked
         if (this.formIsSubmitted) {
           return;
