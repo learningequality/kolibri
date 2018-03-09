@@ -52,6 +52,7 @@ import kRadioButton from '../views/k-radio-button';
 import kFilterTextbox from '../views/k-filter-textbox';
 import kSelect from '../views/k-select';
 import router from '../router';
+import pureGrid from '../mixins/pure-grid';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
 import theme from '../styles/core-theme.styl';
@@ -136,6 +137,7 @@ export default {
     },
     router,
     mixins: {
+      pureGrid,
       responsiveWindow,
       responsiveElement,
       languageSwitcherMixin,

@@ -3,7 +3,7 @@
   <div>
     <h1>{{ $tr('createNewExam', { channelName: currentChannel.name }) }}</h1>
     <div class="pure-g">
-      <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
+      <div :class="windowSize.breakpoint > 3 ? pg(1, 2) : pg(1, 1)">
         <k-textbox
           ref="title"
           :label="$tr('title')"
@@ -14,7 +14,7 @@
           v-model.trim="inputTitle"
         />
       </div>
-      <div :class="windowSize.breakpoint > 3 ? 'pure-u-1-2' : 'pure-u-1-1'">
+      <div :class="windowSize.breakpoint > 3 ? pg(1, 2) : pg(1, 1)">
         <k-textbox
           ref="numQuest"
           type="number"
@@ -150,11 +150,13 @@
   import shuffle from 'lodash/shuffle';
   import random from 'lodash/random';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import pureGrid from 'kolibri.coreVue.mixins.pureGrid';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import flatMap from 'lodash/flatMap';
 
   export default {
     name: 'createExamPage',
+    mixins: [pureGrid],
     components: {
       uiProgressLinear,
       kButton,

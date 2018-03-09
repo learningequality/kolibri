@@ -2,11 +2,8 @@
 
   <div class="pure-g">
 
-    <h1 class="pure-u-1-1">{{ $tr('pageHeading') }}</h1>
-
-    <p class="pure-u-1-1">
-      {{ $tr('pageSubHeading') }}
-    </p>
+    <h1 :class="pg(1, 1)">{{ $tr('pageHeading') }}</h1>
+    <p :class="pg(1, 1)">{{ $tr('pageSubHeading') }}</p>
 
     <div :class="columnSize">
       <h2>{{ $tr('detailsHeading') }}</h2>
@@ -45,13 +42,14 @@
 
   import urls from 'kolibri.urls';
   import { isAndroidWebView } from 'kolibri.utils.browser';
+  import pureGrid from 'kolibri.coreVue.mixins.pureGrid';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
     name: 'manageData',
     components: { kButton },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, pureGrid],
     $trs: {
       pageHeading: 'Export usage data',
       pageSubHeading:
@@ -73,7 +71,7 @@
         return isAndroidWebView();
       },
       columnSize() {
-        return this.windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1';
+        return this.windowSize.breakpoint > 2 ? this.pg(1, 2) : this.pg(1, 1);
       },
     },
     methods: {
