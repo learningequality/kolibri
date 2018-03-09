@@ -88,6 +88,8 @@ before_install:
   - nvm use $TRAVIS_NODE_VERSION
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
+  - make staticdeps  # install staticdeps for all envs
+  - yarn  # build and install yarn deps for all envs
 
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
