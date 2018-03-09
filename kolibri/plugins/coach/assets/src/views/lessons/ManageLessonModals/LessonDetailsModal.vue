@@ -14,6 +14,7 @@
         {{ $tr('submitLessonError') }}
       </ui-alert>
       <k-textbox
+        @blur="titleIsVisited = true"
         :label="$tr('title')"
         :maxlength="50"
         :autofocus="true"
@@ -200,6 +201,9 @@
                 this.handleSubmitFailure();
               });
           }
+        } else {
+          // shouldn't ever be true, but being safe
+          this.formIsSubmitted = false;
         }
       },
       createLesson() {
