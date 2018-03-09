@@ -3,7 +3,7 @@
   <div>
     <h1>{{ $tr('createNewExam', { channelName: currentChannel.name }) }}</h1>
     <k-grid>
-      <k-grid-item :size="1" :cols="numCols">
+      <k-grid-item size="1" :cols="numCols">
         <k-textbox
           ref="title"
           :label="$tr('title')"
@@ -14,7 +14,7 @@
           v-model.trim="inputTitle"
         />
       </k-grid-item>
-      <k-grid-item :size="1" :cols="numCols">
+      <k-grid-item size="1" :cols="numCols">
         <k-textbox
           ref="numQuest"
           type="number"

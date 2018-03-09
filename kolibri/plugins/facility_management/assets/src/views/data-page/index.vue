@@ -2,14 +2,14 @@
 
   <k-grid>
 
-    <k-grid-item :size="1" :cols="1">
+    <k-grid-item size="1" cols="1">
       <h1>{{ $tr('pageHeading') }}</h1>
     </k-grid-item>
-    <k-grid-item :size="1" :cols="1">
+    <k-grid-item size="1" cols="1">
       <p>{{ $tr('pageSubHeading') }}</p>
     </k-grid-item>
 
-    <k-grid-item :size="1" :cols="numCols">
+    <k-grid-item size="1" :cols="numCols">
       <h2>{{ $tr('detailsHeading') }}</h2>
       <p>
         {{ $tr('detailsSubHeading') }}
@@ -23,7 +23,7 @@
       </p>
     </k-grid-item>
 
-    <k-grid-item :size="1" :cols="numCols">
+    <k-grid-item size="1" :cols="numCols">
       <h2>{{ $tr('summaryHeading') }}</h2>
       <p>
         {{ $tr('summarySubHeading') }}

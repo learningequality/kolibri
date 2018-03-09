@@ -3,7 +3,7 @@
   <div>
     <k-grid class="top-buttons">
       <k-grid-item
-        :size="1"
+        size="1"
         :cols="numCols"
         :class="{'align-center' : isMobile}"
       >
@@ -16,7 +16,7 @@
         />
       </k-grid-item>
       <k-grid-item
-        :size="1"
+        size="1"
         :cols="numCols"
         :class="isMobile ? 'align-center' : 'align-right'"
       >

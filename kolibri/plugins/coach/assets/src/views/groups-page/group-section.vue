@@ -5,7 +5,7 @@
     <k-grid>
       <k-grid-item
         class="no-side-padding"
-        :size="1"
+        size="1"
         :cols="numCols"
       >
         <h2 class="group-name right-margin">{{ group.name }}</h2>
@@ -13,7 +13,7 @@
       </k-grid-item>
       <k-grid-item
         class="no-side-padding"
-        :size="1"
+        size="1"
         :cols="numCols"
         :class="{mobile : isSmall}"
       >

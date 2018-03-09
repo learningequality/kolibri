@@ -13,11 +13,11 @@
     name: 'kGridItem',
     props: {
       size: {
-        type: Number,
+        type: [Number, String],
         required: true,
       },
       cols: {
-        type: Number,
+        type: [Number, String],
         required: true,
       },
     },

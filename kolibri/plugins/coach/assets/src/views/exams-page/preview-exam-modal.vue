@@ -18,7 +18,7 @@
         <slot name="randomize-button"></slot>
       </div>
       <k-grid class="exam-preview-container">
-        <k-grid-item :size="1" :cols="3" class="question-selector">
+        <k-grid-item size="1" cols="3" class="question-selector">
           <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
             <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
             <ol class="question-list">
@@ -39,7 +39,7 @@
             </ol>
           </div>
         </k-grid-item>
-        <k-grid-item :size="2" :cols="3" class="exercise-container">
+        <k-grid-item size="2" cols="3" class="exercise-container">
           <content-renderer
             v-if="content && itemId"
             ref="contentRenderer"
