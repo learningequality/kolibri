@@ -621,7 +621,9 @@ def main(args=None):  # noqa: max-complexity=13
         from django.conf import settings
         if "malformed" in str(e):
             recover_cmd = (
-                "sqlite3 {path} .dump > {path}"
+                "    sqlite3 {path} .dump | sqlite3 fixed.db \n"
+                "    cp fixed.db {path}"
+                ""
             ).format(
                 path=settings.DATABASES['default']['NAME'],
             )
@@ -630,8 +632,8 @@ def main(args=None):  # noqa: max-complexity=13
                 "Your database is corrupted. This is a "
                 "known issue that is usually fixed by running this "
                 "command: "
-                "\n\n"
-                "    " + recover_cmd +
+                "\n\n" +
+                recover_cmd +
                 "\n\n"
                 "Notice that you need the 'sqlite3' command available "
                 "on your system prior to running this."
