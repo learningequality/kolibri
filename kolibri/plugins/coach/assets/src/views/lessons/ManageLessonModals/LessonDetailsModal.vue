@@ -227,12 +227,23 @@
     vuex: {
       getters: {
         classId: state => state.classId,
-        currentLesson: state => state.pageState.currentLesson || null,
+        currentLesson: state => {
+          const newLesson = {
+            title: '',
+            description: '',
+          };
+          return state.pageState.currentLesson || newLesson;
+        },
         groups: state => state.pageState.learnerGroups,
         // If the page name is (Lesson) SUMMARY, then should be in edit mode
         isInEditMode: state => state.pageName === LessonsPageNames.SUMMARY,
-        currentLessonAssignedCollectionIds: state =>
-          state.pageState.currentLesson.lesson_assignments.map(a => a.collection),
+        // This only exists in edit mode
+        currentLessonAssignedCollectionIds: state => {
+          if (state.pageState.currentLesson) {
+            return state.pageState.currentLesson.lesson_assignments.map(a => a.collection);
+          }
+          return [state.classId];
+        },
       },
       actions: {
         createSnackbar,
