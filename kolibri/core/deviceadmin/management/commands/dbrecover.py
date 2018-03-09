@@ -51,7 +51,7 @@ class Command(BaseCommand):
         prompt = (
             "Only use this command to recover a corrupt database. It "
             "would (if successful) recover data without any loss. "
-            "Your old database will be backed up in {}. Continue? [y/N)]"
+            "Your old database will be backed up in {}. Continue? [y/N)] "
         ).format(utils.default_backup_folder())
 
         if not no_input:
