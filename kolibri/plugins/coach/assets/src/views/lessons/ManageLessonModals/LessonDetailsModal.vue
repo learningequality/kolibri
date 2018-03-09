@@ -120,7 +120,8 @@
         };
       },
       titleIsInvalidText() {
-        if (this.titleIsVisited || this.formIsSubmitted) {
+        // submission is handled because "blur" event happens on submit
+        if (this.titleIsVisited) {
           if (this.title === '') {
             return this.$tr('required');
           }
