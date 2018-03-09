@@ -167,49 +167,52 @@
         this.showServerError = false;
         // Return immediately if "submit" has already been clicked
         if (this.formIsSubmitted) {
+          // IDEA a loading indictor or something would probably be handy
           return;
         }
-        if (this.isInEditMode && !this.lessonDetailsHaveChanged) {
-          return this.closeModal();
-        }
-        this.formIsSubmitted = true;
+
         if (this.formIsValid) {
-          if (this.isInEditMode) {
-            return this.updateLesson()
-              .then(updatedLesson => {
-                this.handleSubmitSuccess();
-                return this.updateCurrentLesson(updatedLesson);
-              })
-              .catch(() => {
-                this.handleSubmitFailure();
-              });
-          } else {
-            return this.createLesson()
-              .then(newLesson => {
-                this.handleSubmitSuccess();
-                return this.$router.push(
-                  lessonSummaryLink({ classId: this.classId, lessonId: newLesson.id })
-                );
-              })
-              .catch(() => {
-                this.handleSubmitFailure();
-              });
-          }
+          this.formIsSubmitted = true;
+
+          return this.isInEditMode ? this.updateLesson() : this.createLesson();
         } else {
           // shouldn't ever be true, but being safe
           this.formIsSubmitted = false;
           this.$refs.titleField.focus();
         }
       },
+      // probably better suited for actions
       createLesson() {
         return LessonResource.createModel({
           ...this.formData,
           resources: [],
           collection: this.classId,
-        }).save();
+        })
+          .save()
+          .then(newLesson => {
+            this.handleSubmitSuccess();
+            return this.$router.push(
+              lessonSummaryLink({ classId: this.classId, lessonId: newLesson.id })
+            );
+          })
+          .catch(() => {
+            this.handleSubmitFailure();
+          });
       },
       updateLesson() {
-        return LessonResource.getModel(this.currentLesson.id).save({ ...this.formData });
+        if (!this.lessonDetailsHaveChanged) {
+          this.closeModal();
+          return Promise.resolve();
+        }
+        return LessonResource.getModel(this.currentLesson.id)
+          .save({ ...this.formData })
+          .then(updatedLesson => {
+            this.handleSubmitSuccess();
+            return this.updateCurrentLesson(updatedLesson);
+          })
+          .catch(() => {
+            this.handleSubmitFailure();
+          });
       },
       closeModal() {
         this.$emit('cancel');
