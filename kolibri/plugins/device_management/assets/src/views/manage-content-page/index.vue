@@ -32,7 +32,6 @@
               v-if="deviceHasChannels"
               :text="$tr('export')"
               class="button"
-              :primary="true"
               @click="openWizard('export')"
             />
           </div>
