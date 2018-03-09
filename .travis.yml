@@ -88,7 +88,9 @@ before_install:
   - nvm use $TRAVIS_NODE_VERSION
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
-  - make staticdeps  # install staticdeps for all envs
+  # Until we have staged builds, we will be running this in each and every
+  # environment even though builds should be done in Py 2.7
+  - SKIP_PY_CHECK=1 make staticdeps  # install staticdeps for all envs
   - yarn  # build and install yarn deps for all envs
 
 before_script:
