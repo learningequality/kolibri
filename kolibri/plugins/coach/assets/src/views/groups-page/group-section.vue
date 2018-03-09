@@ -3,14 +3,14 @@
   <div class="group-section">
 
     <div class="pure-g">
-      <div class="no-side-padding" :class="elSize.width < 700 ? 'pure-u-1-1' : 'pure-u-1-2'">
+      <div class="no-side-padding" :class="elSize.width < 700 ? pg(1, 1) : pg(1, 2)">
         <h2 class="group-name right-margin">{{ group.name }}</h2>
         <span class="small-text">{{ $tr('numLearners', {count: group.users.length }) }}</span>
       </div>
 
       <div
         class="no-side-padding"
-        :class="elSize.width < 700 ? 'pure-u-1-1' : 'pure-u-1-2 right-align vertically-align'"
+        :class="elSize.width < 700 ? pg(1, 1) : pg(1, 2) + ' right-align vertically-align'"
       >
         <span v-if="group.users.length" class="right-margin small-text">
           {{ `${selectedUsers.length} ${$tr('selected')}` }}
@@ -82,6 +82,7 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import pureGrid from 'kolibri.coreVue.mixins.pureGrid';
 
   export default {
     name: 'coachGroupsTable',
@@ -105,7 +106,7 @@
       kCheckbox,
       kDropdownMenu,
     },
-    mixins: [ResponsiveElement],
+    mixins: [ResponsiveElement, pureGrid],
     props: {
       group: {
         type: Object,

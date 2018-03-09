@@ -3,7 +3,7 @@
   <div>
     <div class="top-buttons pure-g">
 
-      <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1 align-center'">
+      <div :class="windowSize.breakpoint > 2 ? pg(1, 2) : pg(1, 1) + ' align-center'">
         <k-router-link
           :text="$tr('backToClassDetails')"
           :to="editClassLink"
@@ -14,7 +14,7 @@
       </div>
 
       <div
-        :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'"
+        :class="windowSize.breakpoint > 2 ? pg(1, 2) + ' align-right' : pg(1, 1) + ' align-center'"
       >
         <k-button
           :text="$tr('createNewUser')"
@@ -155,6 +155,7 @@
   import * as constants from '../../constants';
   import * as actions from '../../state/actions';
   import differenceWith from 'lodash/differenceWith';
+  import pureGrid from 'kolibri.coreVue.mixins.pureGrid';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -182,7 +183,7 @@
       userRole,
       CoreTable,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, pureGrid],
     $trs: {
       backToClassDetails: 'Back to class details',
       enrollSelectedUsers: 'Review & save',
