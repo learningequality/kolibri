@@ -5,9 +5,9 @@
       <!-- if anything in the dropdown menu has an icon, then we are
       going to add padding to make all the items align -->
       <div
+        v-if="$slots.header"
         class="ui-menu-header"
         :class="{'ui-menu-header-lp': hasIcons}"
-        v-if="$slots.header"
       >
         <slot name="header"></slot>
       </div>
@@ -169,8 +169,6 @@
     font-size: $ui-dropdown-item-font-size;
   }
 
-  //created this so that "Role" and "Admin" could be aligned with the rest
-  //of the items in the dropdown menu, gave it a left padding
   .ui-menu-header-lp{
     padding-left: 38px // TODO make a variable?
   }

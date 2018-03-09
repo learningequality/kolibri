@@ -21,11 +21,13 @@
         />
 
         <!-- if anything in the dropdown menu has an icon, then we are
-      going to add padding to make all the items align -->
+        going to add padding to make all the items align -->
         <div
           class="ui-menu-option-text"
           :class="{ 'ui-menu-option-lp': !icon }"
-        >{{ label }}</div>
+        >
+          {{ label }}
+        </div>
 
         <div class="ui-menu-option-secondary-text" v-if="secondaryText">
           {{ secondaryText }}
@@ -168,8 +170,6 @@
       margin-left: rem-calc(4px);
   }
 
-  //created this so that the other items that do not have icons could be aligned
-  //with the rest of the items in the dropdown menu, gave it a left padding
   .ui-menu-option-lp {
     padding-left: 31px
   }
