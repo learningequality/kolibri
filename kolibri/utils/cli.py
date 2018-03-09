@@ -20,6 +20,7 @@ import django  # noqa
 from django.core.management import call_command  # noqa
 from django.core.exceptions import AppRegistryNotReady  # noqa
 from django.db.utils import DatabaseError  # noqa
+from sqlite3 import DatabaseError as SQLite3DatabaseError  # noqa
 from docopt import docopt  # noqa
 
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
@@ -141,7 +142,6 @@ def initialize(debug=False):
 
     :param: debug: Tells initialization to setup logging etc.
     """
-    from django.conf import settings
     if not os.path.isfile(version_file()):
         django.setup()
 
@@ -170,23 +170,7 @@ def initialize(debug=False):
                     "this DB engine.")
             enable_default_plugins()
 
-        try:
-            django.setup()
-        except DatabaseError as e:
-            if "malformed" in str(e):
-                recover_cmd = (
-                    "sqlite3 {path} .dump > {path}"
-                ).format(
-                    path=settings.DATABASES['default']['NAME'],
-                )
-                logger.error(
-                    "Your database is reported having problems. This is a "
-                    "known issue that you can fix by running this command: "
-                    "\n\n"
-                    "    " + recover_cmd
-                )
-                sys.exit(1)
-            raise
+        django.setup()
 
         setup_logging(debug=debug)
 
@@ -614,7 +598,7 @@ def _get_port(port):
     return port
 
 
-def main(args=None):
+def main(args=None):  # noqa: max-complexity=13
     """
     Kolibri's main function. Parses arguments and calls utility functions.
     Utility functions should be callable for unit testing purposes, but remember
@@ -631,7 +615,30 @@ def main(args=None):
         port = _get_port(arguments['--port'])
         check_other_kolibri_running(port)
 
-    initialize(debug=debug)
+    try:
+        initialize(debug=debug)
+    except (DatabaseError, SQLite3DatabaseError) as e:
+        from django.conf import settings
+        if "malformed" in str(e):
+            recover_cmd = (
+                "sqlite3 {path} .dump > {path}"
+            ).format(
+                path=settings.DATABASES['default']['NAME'],
+            )
+            logger.error(
+                "\n"
+                "Your database is corrupted. This is a "
+                "known issue that is usually fixed by running this "
+                "command: "
+                "\n\n"
+                "    " + recover_cmd +
+                "\n\n"
+                "Notice that you need the 'sqlite3' command available "
+                "on your system prior to running this."
+                "\n\n"
+            )
+            sys.exit(1)
+        raise
 
     # Alias
     if arguments['shell']:
