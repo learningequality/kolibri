@@ -125,6 +125,9 @@
       ContentNodeKinds() {
         return ContentNodeKinds;
       },
+      USER() {
+        return USER;
+      },
       colorClass() {
         return `color-${this.colorStyle}`;
       },
