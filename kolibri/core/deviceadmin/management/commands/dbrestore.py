@@ -1,13 +1,18 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import logging
 import os
 
-import kolibri
-from django.core.management.base import BaseCommand, CommandError
-from kolibri.utils import server
+from django.core.management.base import BaseCommand
+from django.core.management.base import CommandError
 
-from ...utils import dbrestore, default_backup_folder, search_latest
+import kolibri
+from ...utils import dbrestore
+from ...utils import default_backup_folder
+from ...utils import exit_if_kolibri_running
+from ...utils import search_latest
 
 logger = logging.getLogger(__name__)
 
@@ -42,17 +47,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        try:
-            server.get_status()
-            self.stderr.write(self.style.ERROR(
-                "Cannot restore while Kolibri is running, please run:\n"
-                "\n"
-                "    kolibri stop\n"
-            ))
-            raise SystemExit()
-        except server.NotRunning:
-            # Great, it's not running!
-            pass
+        exit_if_kolibri_running(self)
 
         latest = options['latest']
         use_backup = options.get("dump_file", None)

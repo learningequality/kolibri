@@ -1,12 +1,15 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import logging
 
-import kolibri
 from django.core.management.base import BaseCommand
-from kolibri.utils import server
 
+import kolibri
 from ...utils import dbbackup
+from kolibri.core.deviceadmin.utils import dbbackup_sqlite3_dump
+from kolibri.utils import server
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +35,14 @@ class Command(BaseCommand):
                 "is created in the default location ~/.kolibri/backups"
             )
         )
+        parser.add_argument(
+            '--external',
+            action='store_true',
+            dest='external',
+            help=(
+                "Use external `sqlite3` command."
+            )
+        )
 
     def handle(self, *args, **options):
 
@@ -48,8 +59,13 @@ class Command(BaseCommand):
             pass
 
         dest_folder = options.get("dest_folder", None)
+        external = options.get("external", False)
 
-        backup = dbbackup(kolibri.__version__, dest_folder=dest_folder)
+        if external:
+            backup = dbbackup_sqlite3_dump(kolibri.__version__, dest_folder=dest_folder)
+        else:
+            backup = dbbackup(kolibri.__version__, dest_folder=dest_folder)
+
         self.stdout.write(self.style.SUCCESS(
             "Backed up database to: {path}".format(path=backup)
         ))
