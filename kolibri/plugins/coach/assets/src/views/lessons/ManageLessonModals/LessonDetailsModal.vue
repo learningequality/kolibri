@@ -15,6 +15,7 @@
       </ui-alert>
       <k-textbox
         @blur="titleIsVisited = true"
+        ref="titleField"
         :label="$tr('title')"
         :maxlength="50"
         :autofocus="true"
@@ -204,6 +205,7 @@
         } else {
           // shouldn't ever be true, but being safe
           this.formIsSubmitted = false;
+          this.$refs.titleField.focus();
         }
       },
       createLesson() {
