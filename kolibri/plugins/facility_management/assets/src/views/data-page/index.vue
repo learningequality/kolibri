@@ -1,11 +1,15 @@
 <template>
 
-  <div class="pure-g">
+  <k-grid>
 
-    <h1 :class="pg(1, 1)">{{ $tr('pageHeading') }}</h1>
-    <p :class="pg(1, 1)">{{ $tr('pageSubHeading') }}</p>
+    <k-grid-item :size="1" :cols="1">
+      <h1>{{ $tr('pageHeading') }}</h1>
+    </k-grid-item>
+    <k-grid-item :size="1" :cols="1">
+      <p>{{ $tr('pageSubHeading') }}</p>
+    </k-grid-item>
 
-    <div :class="columnSize">
+    <k-grid-item :size="1" :cols="numCols">
       <h2>{{ $tr('detailsHeading') }}</h2>
       <p>
         {{ $tr('detailsSubHeading') }}
@@ -17,9 +21,9 @@
       <p class="infobox">
         <b>{{ $tr('note') }}</b>: {{ $tr('detailsInfo') }}
       </p>
-    </div>
+    </k-grid-item>
 
-    <div :class="columnSize">
+    <k-grid-item :size="1" :cols="numCols">
       <h2>{{ $tr('summaryHeading') }}</h2>
       <p>
         {{ $tr('summarySubHeading') }}
@@ -31,9 +35,9 @@
       <p class="infobox">
         <b>{{ $tr('note') }}</b>: {{ $tr('summaryInfo') }}
       </p>
-    </div>
+    </k-grid-item>
 
-  </div>
+  </k-grid>
 
 </template>
 
@@ -42,14 +46,19 @@
 
   import urls from 'kolibri.urls';
   import { isAndroidWebView } from 'kolibri.utils.browser';
-  import pureGrid from 'kolibri.coreVue.mixins.pureGrid';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
     name: 'manageData',
-    components: { kButton },
-    mixins: [responsiveWindow, pureGrid],
+    components: {
+      kButton,
+      kGrid,
+      kGridItem,
+    },
+    mixins: [responsiveWindow],
     $trs: {
       pageHeading: 'Export usage data',
       pageSubHeading:
@@ -70,8 +79,8 @@
       cannotDownload() {
         return isAndroidWebView();
       },
-      columnSize() {
-        return this.windowSize.breakpoint > 2 ? this.pg(1, 2) : this.pg(1, 1);
+      numCols() {
+        return this.windowSize.breakpoint > 2 ? 2 : 1;
       },
     },
     methods: {

@@ -50,9 +50,10 @@ import kBreadcrumbs from '../views/k-breadcrumbs';
 import kCheckbox from '../views/k-checkbox';
 import kRadioButton from '../views/k-radio-button';
 import kFilterTextbox from '../views/k-filter-textbox';
+import kGrid from '../views/k-grid';
+import kGridItem from '../views/k-grid/item.vue';
 import kSelect from '../views/k-select';
 import router from '../router';
-import pureGrid from '../mixins/pure-grid';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
 import theme from '../styles/core-theme.styl';
@@ -127,6 +128,8 @@ export default {
       kCheckbox,
       kRadioButton,
       kFilterTextbox,
+      kGrid,
+      kGridItem,
       kSelect,
       uiAlert,
       appBar,
@@ -137,7 +140,6 @@ export default {
     },
     router,
     mixins: {
-      pureGrid,
       responsiveWindow,
       responsiveElement,
       languageSwitcherMixin,

@@ -2,8 +2,8 @@
 
   <div>
     <h1>{{ $tr('createNewExam', { channelName: currentChannel.name }) }}</h1>
-    <div class="pure-g">
-      <div :class="windowSize.breakpoint > 3 ? pg(1, 2) : pg(1, 1)">
+    <k-grid>
+      <k-grid-item :size="1" :cols="numCols">
         <k-textbox
           ref="title"
           :label="$tr('title')"
@@ -13,8 +13,8 @@
           @blur="titleBlurred = true"
           v-model.trim="inputTitle"
         />
-      </div>
-      <div :class="windowSize.breakpoint > 3 ? pg(1, 2) : pg(1, 1)">
+      </k-grid-item>
+      <k-grid-item :size="1" :cols="numCols">
         <k-textbox
           ref="numQuest"
           type="number"
@@ -24,8 +24,8 @@
           @blur="numQuestBlurred = true"
           v-model.trim.number="inputNumQuestions"
         />
-      </div>
-    </div>
+      </k-grid-item>
+    </k-grid>
 
     <h2>{{ $tr('chooseExercises') }}</h2>
 
@@ -145,22 +145,24 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import shuffle from 'lodash/shuffle';
   import random from 'lodash/random';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
-  import pureGrid from 'kolibri.coreVue.mixins.pureGrid';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import flatMap from 'lodash/flatMap';
 
   export default {
     name: 'createExamPage',
-    mixins: [pureGrid],
     components: {
       uiProgressLinear,
       kButton,
       kTextbox,
+      kGrid,
+      kGridItem,
       topicRow,
       exerciseRow,
       previewNewExamModal,
@@ -207,6 +209,9 @@
       };
     },
     computed: {
+      numCols() {
+        return this.windowSize.breakpoint > 3 ? 2 : 1;
+      },
       duplicateTitle() {
         const index = this.exams.findIndex(
           exam => exam.title.toUpperCase() === this.inputTitle.toUpperCase()
