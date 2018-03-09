@@ -70,7 +70,7 @@
       />
     </ui-icon>
     <ui-tooltip
-      v-if="tooltipText"
+      v-if="tooltipText && showTooltip"
       trigger="type-icon"
       position="top middle"
     >
@@ -119,6 +119,10 @@
       colorstyle: {
         type: String,
         default: 'action',
+      },
+      showTooltip: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {
