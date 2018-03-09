@@ -321,13 +321,13 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
     importable = serializers.SerializerMethodField()
 
     def get_total_resources(self, obj):
-        total_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(renderable_contentnodes_q_filter).count()
+        total_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(renderable_contentnodes_q_filter).distinct().count()
 
         return total_resources
 
     def get_on_device_resources(self, obj):
         available_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(
-            renderable_contentnodes_q_filter).filter(available=True).count()
+            renderable_contentnodes_q_filter).filter(available=True).distinct().count()
 
         return available_resources
 

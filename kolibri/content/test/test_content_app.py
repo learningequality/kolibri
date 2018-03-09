@@ -184,10 +184,10 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "root", "kind": "topic", "available": False,
-                "total_resources": 2, "on_device_resources": 0, "importable": True, "children": [
+                "total_resources": 1, "on_device_resources": 0, "importable": True, "children": [
                     {
                         "pk": c2_id, "title": "c1", "kind": "video", "available": False,
-                        "total_resources": 2, "on_device_resources": 0, "importable": True
+                        "total_resources": 1, "on_device_resources": 0, "importable": True
                     },
                     {
                         "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
@@ -210,11 +210,11 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "root", "kind": "topic", "available": False,
-                "total_resources": 2, "on_device_resources": 0, "importable": True,
+                "total_resources": 1, "on_device_resources": 0, "importable": True,
                 "children": [
                     {
                         "pk": c2_id, "title": "c1", "kind": "video", "available": False,
-                        "total_resources": 2, "on_device_resources": 0, "importable": False
+                        "total_resources": 1, "on_device_resources": 0, "importable": False
                     },
                     {
                         "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
@@ -228,7 +228,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "c1", "kind": "video", "available": True,
-                "total_resources": 2, "on_device_resources": 2, "importable": True,
+                "total_resources": 1, "on_device_resources": 1, "importable": True,
                 "children": []})
 
     def test_contentnode_granular_export_unavailable(self):
@@ -238,7 +238,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "c1", "kind": "video", "available": False,
-                "total_resources": 2, "on_device_resources": 0, "importable": True,
+                "total_resources": 1, "on_device_resources": 0, "importable": True,
                 "children": []})
 
     def test_contentnodefilesize_resourcenode(self):
