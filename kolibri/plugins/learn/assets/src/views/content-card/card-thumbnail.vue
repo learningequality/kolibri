@@ -36,6 +36,7 @@
       </svg>
       <content-icon
         :kind="kind"
+        :showTooltip="true"
         class="content-icon"
       />
     </div>
