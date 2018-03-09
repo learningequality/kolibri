@@ -39,7 +39,7 @@ class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available")
     has_exercise = BooleanFilter(method="filter_has_exercise")
 
-    def filter_has_exercise(self,queryset,name,value):
+    def filter_has_exercise(self, queryset, name, value):
         channel_ids = []
         for c in queryset:
             num_exercises = c.root.get_descendants().filter(kind=content_kinds.EXERCISE).count()
@@ -52,7 +52,7 @@ class ChannelMetadataFilter(FilterSet):
 
     class Meta:
         model = models.ChannelMetadata
-        fields = ['available', 'has_exercise',]
+        fields = ['available', 'has_exercise', ]
 
 
 class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
