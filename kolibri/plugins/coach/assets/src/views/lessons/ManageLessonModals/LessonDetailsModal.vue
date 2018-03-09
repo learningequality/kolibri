@@ -3,6 +3,7 @@
   <core-modal
     :title="modalTexts.title"
     @cancel="closeModal()"
+    :hasError="showServerError || !formIsValid"
     width="400px"
   >
     <ui-alert
