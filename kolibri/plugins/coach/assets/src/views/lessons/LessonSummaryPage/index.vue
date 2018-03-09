@@ -62,7 +62,7 @@
   import ManageLessonModals from '../ManageLessonModals';
   import { LessonActions } from '../../../lessonsConstants';
   import { selectionRootLink } from '../lessonsRouterUtils';
-  import AssignmentSummary from '../../AssignmentSummary';
+  import AssignmentSummary from '../../assignments/AssignmentSummary';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {

@@ -26,7 +26,7 @@
 
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import StatusIcon from '../../StatusIcon';
+  import StatusIcon from '../../assignments/StatusIcon';
   import { PageNames } from '../../../constants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 

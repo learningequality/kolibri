@@ -184,6 +184,13 @@ function activateExam(store, examId) {
 
         store.dispatch('SET_EXAMS', exams);
         displayExamModal(store, false);
+
+        CoreActions.createSnackbar(store, {
+          text: createTranslator('examStatusSnackbar', {
+            examIsNowActive: 'Exam is now active',
+          }).$tr('examIsNowActive'),
+          autoDismiss: true,
+        });
       },
       error => CoreActions.handleError(store, error)
     );
@@ -200,6 +207,13 @@ function deactivateExam(store, examId) {
 
         store.dispatch('SET_EXAMS', exams);
         displayExamModal(store, false);
+
+        CoreActions.createSnackbar(store, {
+          text: createTranslator('examStatusSnackbar', {
+            examIsNowInactive: 'Exam is now inactive',
+          }).$tr('examIsNowInactive'),
+          autoDismiss: true,
+        });
       },
       error => CoreActions.handleError(store, error)
     );

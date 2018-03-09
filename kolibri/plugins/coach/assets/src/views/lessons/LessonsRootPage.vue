@@ -82,7 +82,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import LessonDetailsModal from './ManageLessonModals/LessonDetailsModal';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import StatusIcon from '../StatusIcon';
+  import StatusIcon from '../assignments/StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';

@@ -7,7 +7,7 @@
       :active="exam.active"
       :recipients="exam.assignments"
       :groups="learnerGroups"
-      @changeStatus="openChangeStatusModal"
+      @changeStatus="displayExamModal(LessonActions.CHANGE_STATUS)"
     >
       <k-dropdown-menu
         slot="optionsDropdown"
@@ -81,11 +81,21 @@
       :examNumQuestions="exam.question_count"
     />
 
-    <delete-exam-modal
-      v-if="showDeleteExamModal"
-      :examId="exam.id"
-      :examTitle="exam.title"
-      :classId="classId"
+    <assignment-change-status-modal
+      v-if="examModalShown === LessonActions.CHANGE_STATUS"
+      :title="$tr('changeExamStatusTitle')"
+      :description="$tr('changeExamStatusDescription')"
+      :active="exam.active"
+      @changeStatus="handleChangeStatus"
+      @cancel="displayExamModal(null)"
+    />
+
+    <assignment-delete-modal
+      v-if="examModalShown === LessonActions.DELETE"
+      :title="$tr('deleteExamTitle')"
+      :description="$tr('deleteExamDescription', { title: exam.title })"
+      @delete="deleteExam(exam.id)"
+      @cancel="displayExamModal(null)"
     />
 
   </div>
@@ -105,8 +115,17 @@
   import { Modals as ExamModals } from '../../../examConstants';
   import previewExamModal from '../exams-page/preview-exam-modal';
   import deleteExamModal from '../exams-page/delete-exam-modal';
-  import { displayExamModal } from '../../../state/actions/exam';
-  import AssignmentSummary from '../../AssignmentSummary';
+  import {
+    displayExamModal,
+    activateExam,
+    deactivateExam,
+    deleteExam,
+  } from '../../../state/actions/exam';
+  import AssignmentSummary from '../../assignments/AssignmentSummary';
+  import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
+  import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
+
+  import { LessonActions } from '../../../lessonsConstants';
 
   export default {
     name: 'examReportPage',
@@ -118,8 +137,13 @@
       previewExamModal,
       deleteExamModal,
       AssignmentSummary,
+      AssignmentChangeStatusModal,
+      AssignmentDeleteModal,
     },
     computed: {
+      LessonActions() {
+        return LessonActions;
+      },
       noExamData() {
         return this.examTakers.length === 0;
       },
@@ -164,7 +188,7 @@
         } else if (action === this.$tr('copyTo')) {
           this.displayExamModal(ExamModals.COPY_EXAM);
         } else if (action === this.$tr('delete')) {
-          this.displayExamModal(ExamModals.DELETE_EXAM);
+          this.displayExamModal(LessonActions.DELETE);
         }
       },
       examDetailPageLink(id) {
@@ -177,7 +201,13 @@
           },
         };
       },
-      openChangeStatusModal() {},
+      handleChangeStatus(isActive) {
+        if (isActive === true) {
+          this.activateExam(this.exam.id);
+        } else if (isActive === false) {
+          this.deactivateExam(this.exam.id);
+        }
+      },
     },
     vuex: {
       getters: {
@@ -189,6 +219,9 @@
       },
       actions: {
         displayExamModal,
+        activateExam,
+        deactivateExam,
+        deleteExam,
       },
     },
     $trs: {
@@ -208,6 +241,10 @@
       editDetails: 'Edit details',
       copyTo: 'Copy to',
       delete: 'Delete',
+      changeExamStatusTitle: 'Change exam status',
+      changeExamStatusDescription: 'Learners can only see active exams',
+      deleteExamTitle: 'Delete exam',
+      deleteExamDescription: "Are you sure you want to delete '{ title }'?",
     },
   };
 
