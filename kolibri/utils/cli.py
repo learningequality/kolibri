@@ -16,8 +16,10 @@ env.set_env()
 
 import kolibri  # noqa
 import django  # noqa
+
 from django.core.management import call_command  # noqa
 from django.core.exceptions import AppRegistryNotReady  # noqa
+from django.db.utils import DatabaseError  # noqa
 from docopt import docopt  # noqa
 
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
@@ -112,15 +114,24 @@ class PluginBaseLoadsApp(Exception):
     pass
 
 
+def _get_kolibri_home():
+    """
+    This is preferred to be called through a function as KOLIBRI_HOME is
+    redefined during tests.
+
+    NEEDS TO BE FURTHER CLEANED UP AND CENTRALIZED.
+
+    Please do not expand use of this function to other modules.
+    """
+    return os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"]))
+
+
 def version_file():
     """
     During test runtime, this path may differ because KOLIBRI_HOME is
     regenerated
     """
-    return os.path.join(
-        os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"])),
-        '.data_version'
-    )
+    return os.path.join(_get_kolibri_home(), '.data_version')
 
 
 def initialize(debug=False):
@@ -130,6 +141,7 @@ def initialize(debug=False):
 
     :param: debug: Tells initialization to setup logging etc.
     """
+    from django.conf import settings
     if not os.path.isfile(version_file()):
         django.setup()
 
@@ -158,7 +170,23 @@ def initialize(debug=False):
                     "this DB engine.")
             enable_default_plugins()
 
-        django.setup()
+        try:
+            django.setup()
+        except DatabaseError as e:
+            if "malformed" in str(e):
+                recover_cmd = (
+                    "sqlite3 {path} .dump > {path}"
+                ).format(
+                    path=settings.DATABASES['default']['NAME'],
+                )
+                logger.error(
+                    "Your database is reported having problems. This is a "
+                    "known issue that you can fix by running this command: "
+                    "\n\n"
+                    "    " + recover_cmd
+                )
+                sys.exit(1)
+            raise
 
         setup_logging(debug=debug)
 
