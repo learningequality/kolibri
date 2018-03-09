@@ -86,12 +86,12 @@
     },
     data() {
       return {
-        description: '',
-        descriptionIsVisited: false,
-        formIsSubmitted: false,
-        selectedCollectionIds: [],
-        title: '',
+        // set default values
+        title: this.currentLesson.title,
+        description: this.currentLesson.description,
+        selectedCollectionIds: this.currentLessonAssignedCollectionIds,
         titleIsVisited: false,
+        formIsSubmitted: false,
         showServerError: false,
       };
     },
@@ -147,15 +147,6 @@
           this.groupsHaveChanged
         );
       },
-    },
-    created() {
-      if (this.isInEditMode) {
-        this.title = this.currentLesson.title;
-        this.description = this.currentLesson.description;
-        this.selectedCollectionIds = [...this.currentLessonAssignedCollectionIds];
-      } else {
-        this.selectedCollectionIds = [this.classId];
-      }
     },
     methods: {
       showSuccessSnackbar() {
