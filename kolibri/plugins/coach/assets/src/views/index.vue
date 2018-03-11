@@ -12,9 +12,10 @@
 
       <template v-if="showCoachNav">
         <class-selector
-          :classes="classList"
-          :currentClassId="classId"
-          @changeClass="changeClass"
+          :className="className"
+          :classId="classId"
+          :linkClass="shouldLinkToCurrentClass"
+          :username="usernameForCurrentScope"
         />
         <top-nav class="top-nav" />
       </template>
@@ -31,6 +32,8 @@
 <script>
 
   import { PageNames } from '../constants';
+  import * as ReportConstants from '../reportConstants';
+  import { className } from '../state/getters/main';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
@@ -188,17 +191,14 @@
         }
         return true;
       },
-    },
-    methods: {
-      changeClass(classSelectedId) {
-        if (this.pageName === PageNames.EXAM_REPORT) {
-          this.$router.push({
-            name: PageNames.EXAMS,
-            params: { classId: classSelectedId },
-          });
-        } else {
-          this.$router.push({ params: { classId: classSelectedId } });
+      shouldLinkToCurrentClass() {
+        return this.pageName !== PageNames.LEARNER_LIST;
+      },
+      usernameForCurrentScope() {
+        if (this.pageState.userScope === ReportConstants.UserScopes.USER) {
+          return this.pageState.userScopeName;
         }
+        return null;
       },
     },
     vuex: {
@@ -208,9 +208,11 @@
         isAdmin,
         isCoach,
         isSuperuser,
+        className,
         classList: state => state.classList,
         classId: state => state.classId,
         isLoading: state => state.core.loading,
+        pageState: state => state.pageState,
       },
     },
   };

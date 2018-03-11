@@ -1,71 +1,63 @@
 <template>
 
-  <div>
-    <h1 class="classes-link">
-      <k-router-link :text="$tr('allClasses')" :to="classListPage" />
-    </h1>
-    <k-select
-      :label="$tr('selectClass')"
-      :value="currentClass"
-      :options="classOptions"
-      :inline="true"
-      @change="changeClass"
-      class="class-selector"
-    />
-  </div>
+  <h1>
+    <span class="caret-after">
+      <k-router-link
+        :text="$tr('allClasses')"
+        :to="classListPage"
+      />
+    </span>
+    <span :class="{ 'caret-after' : username }">
+      <k-router-link
+        v-if="linkClass"
+        :text="className"
+        :to="classRootPage"
+      />
+      <span v-else>{{ className }}</span>
+    </span>
+    <span v-if="username">{{ username }}</span>
+  </h1>
 
 </template>
 
 
 <script>
 
-  import orderBy from 'lodash/orderBy';
   import { PageNames } from '../../constants';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
-  import uiIcon from 'keen-ui/src/UiIcon';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
     name: 'classSelector',
     $trs: {
       allClasses: 'All classes',
-      selectClass: 'Class',
     },
     components: {
-      kSelect,
-      uiIcon,
       kRouterLink,
     },
     props: {
-      classes: {
-        type: Array,
-        required: true,
-      },
-      currentClassId: {
+      className: {
         type: String,
         required: true,
       },
+      classId: {
+        type: String,
+        required: true,
+      },
+      linkClass: {
+        type: Boolean,
+        default: true,
+      },
+      username: {
+        type: String,
+        default: null,
+      },
     },
     computed: {
-      sortedClasses() {
-        return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
-      },
-      classOptions() {
-        return this.sortedClasses.map(classroom => ({
-          label: classroom.name,
-          value: classroom.id,
-        }));
-      },
-      currentClass() {
-        return this.classOptions.find(classroom => classroom.value === this.currentClassId);
-      },
       classListPage() {
         return { name: PageNames.CLASS_LIST };
       },
-    },
-    methods: {
-      changeClass(classSelected) {
-        this.$emit('changeClass', classSelected.value);
+      classRootPage() {
+        return { name: PageNames.CLASS_ROOT, classId: this.classId };
       },
     },
   };
@@ -75,24 +67,11 @@
 
 <style lang="stylus" scoped>
 
-  .class-selector
-    vertical-align: bottom
-
-  >>>.ui-select__display-value
-    font-size: 1.5em
-    font-weight: bold
-
-  .classes-link
-    display: inline-block
+  .caret-after
     &:after
       content: '\203A'
       margin-right: 8px
       margin-left: 8px
       vertical-align: top
-
-  a
-    display: inline-block
-    vertical-align: bottom
-    margin-bottom: 2px
 
 </style>

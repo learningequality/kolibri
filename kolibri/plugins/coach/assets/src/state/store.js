@@ -36,6 +36,7 @@ export const mutations = {
     Vue.set(state.pageState, 'contentScopeId', options.contentScopeId);
     Vue.set(state.pageState, 'userScope', options.userScope);
     Vue.set(state.pageState, 'userScopeId', options.userScopeId);
+    Vue.set(state.pageState, 'userScopeName', options.userScopeName);
     Vue.set(state.pageState, 'viewBy', options.viewBy);
     Vue.set(state.pageState, 'showRecentOnly', options.showRecentOnly);
   },
