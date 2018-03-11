@@ -1,8 +1,7 @@
 <template>
 
-  <a :class="buttonClasses" :href="href">
-    {{ text }}
-  </a>
+  <!-- no extra whitespace inside link -->
+  <a :class="buttonClasses" :href="href">{{ text }}</a>
 
 </template>
 
