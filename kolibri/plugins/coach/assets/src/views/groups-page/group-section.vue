@@ -2,15 +2,20 @@
 
   <div class="group-section">
 
-    <div class="pure-g">
-      <div class="no-side-padding" :class="elSize.width < 700 ? 'pure-u-1-1' : 'pure-u-1-2'">
+    <k-grid>
+      <k-grid-item
+        class="no-side-padding"
+        size="1"
+        :cols="numCols"
+      >
         <h2 class="group-name right-margin">{{ group.name }}</h2>
         <span class="small-text">{{ $tr('numLearners', {count: group.users.length }) }}</span>
-      </div>
-
-      <div
+      </k-grid-item>
+      <k-grid-item
         class="no-side-padding"
-        :class="elSize.width < 700 ? 'pure-u-1-1' : 'pure-u-1-2 right-align vertically-align'"
+        size="1"
+        :cols="numCols"
+        :class="{mobile : isSmall}"
       >
         <span v-if="group.users.length" class="right-margin small-text">
           {{ `${selectedUsers.length} ${$tr('selected')}` }}
@@ -28,8 +33,8 @@
           :options="menuOptions"
           @select="handleSelection"
         />
-      </div>
-    </div>
+      </k-grid-item>
+    </k-grid>
 
     <core-table v-if="group.users.length">
       <thead slot="thead">
@@ -82,6 +87,8 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
 
   export default {
     name: 'coachGroupsTable',
@@ -104,6 +111,8 @@
       kButton,
       kCheckbox,
       kDropdownMenu,
+      kGrid,
+      kGridItem,
     },
     mixins: [ResponsiveElement],
     props: {
@@ -127,6 +136,12 @@
       return { selectedUsers: [] };
     },
     computed: {
+      isSmall() {
+        return this.elSize.width < 700;
+      },
+      numCols() {
+        return this.isSmall ? 1 : 2;
+      },
       menuOptions() {
         return [this.$tr('renameGroup'), this.$tr('deleteGroup')];
       },
@@ -188,9 +203,6 @@
   .group-name
     display: inline-block
 
-  .right-align
-    text-align: right
-
   .right-margin
     margin-right: 8px
 
@@ -201,7 +213,8 @@
   .small-text
     font-size: small
 
-  .vertically-align
+  .mobile
+    text-align: right
     line-height: 50px
 
 </style>
