@@ -7,15 +7,13 @@
         :to="classListPage"
       />
     </span>
-    <span :class="{ 'caret-after' : username }">
-      <k-router-link
-        v-if="linkClass"
-        :text="className"
-        :to="classRootPage"
-      />
-      <span v-else>{{ className }}</span>
+    <span v-if="username">
+      <span class="caret-after">
+        <k-router-link :text="className" :to="classRootPage" />
+      </span>
+      <span>{{ username }}</span>
     </span>
-    <span v-if="username">{{ username }}</span>
+    <span v-else>{{ className }}</span>
   </h1>
 
 </template>

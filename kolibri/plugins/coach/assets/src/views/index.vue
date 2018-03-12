@@ -14,7 +14,6 @@
         <nav-title
           :className="className"
           :classId="classId"
-          :linkClass="shouldLinkToCurrentClass"
           :username="usernameForCurrentScope"
         />
         <top-nav class="top-nav" />
@@ -190,9 +189,6 @@
           return false;
         }
         return true;
-      },
-      shouldLinkToCurrentClass() {
-        return this.pageName !== PageNames.LEARNER_LIST;
       },
       usernameForCurrentScope() {
         if (this.pageState.userScope === ReportConstants.UserScopes.USER) {
