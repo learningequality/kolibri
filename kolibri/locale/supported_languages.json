@@ -1,34 +1,44 @@
 [
   {
-    "language_code": "en",
-    "language_name":"English"
+    "language_code": "ar",
+    "language_name": "العَرَبِيَّة‎‎",
+    "english_name": "Arabic"
   },
   {
-    "language_code": "sw",
-    "territory_code": "tz",
-    "language_name": "Kiswahili"
+    "language_code": "en",
+    "language_name": "English"
   },
   {
     "language_code": "es",
     "territory_code": "es",
-    "language_name": "Español"
+    "language_name": "Español",
+    "english_name": "Spanish"
+  },
+  {
+    "language_code": "fa",
+    "language_name": "فارسی",
+    "english_name": "Farsi"
   },
   {
     "language_code": "fr",
     "territory_code": "fr",
-    "language_name": "Français"
+    "language_name": "Français",
+    "english_name": "French"
   },
   {
-    "language_code": "ar",
-    "language_name": "العَرَبِيَّة‎‎"
+    "language_code": "ht",
+    "language_name": "creole",
+    "english_name": "Hatian Creole"
   },
   {
-    "language_code": "fa",
-    "language_name": "فارسی"
+    "language_code": "my",
+    "language_name": "ဗမာစာ",
+    "english_name": "Burmese"
   },
   {
     "language_code": "ur",
     "territory_code": "pk",
-    "language_name": "اُردو (پاکستان)‏"
+    "language_name": "اُردو (پاکستان)‏",
+    "english_name": "Urdu (Pakistani)"
   }
 ]
