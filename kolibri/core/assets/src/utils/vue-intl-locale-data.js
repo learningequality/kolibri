@@ -36,6 +36,12 @@ module.exports = function(locale) {
           resolve(require('vue-intl/locale-data/fr.js'));
         });
       });
+    case 'fr-HT':
+      return new Promise(function(resolve) {
+        require.ensure(['vue-intl/locale-data/fr.js'], function(require) {
+          resolve(require('vue-intl/locale-data/fr.js'));
+        });
+      });
     case 'my':
       return new Promise(function(resolve) {
         require.ensure(['vue-intl/locale-data/my.js'], function(require) {
