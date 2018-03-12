@@ -22,6 +22,8 @@
       :title="$tr('copyExamTitle')"
       :copyExplanation="$tr('copyExplanation')"
       :assignmentQuestion="$tr('assignmentQuestion')"
+      :classId="classId"
+      :classList="classList"
       @copy="copyExam"
       @cancel="displayExamModal(null)"
     />
@@ -33,7 +35,6 @@
       @delete="deleteExam(exam.id)"
       @cancel="displayExamModal(null)"
     />
-
   </div>
 
 </template>
@@ -44,7 +45,6 @@
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import previewExamModal from '../exams-page/preview-exam-modal';
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
-
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
   import { Modals as ExamModals } from '../../../examConstants';
   import { LessonActions } from '../../../lessonsConstants';
@@ -56,7 +56,7 @@
   } from '../../../state/actions/exam';
 
   export default {
-    name: 'manageLessonModels',
+    name: 'manageExamModals',
     components: {
       AssignmentChangeStatusModal,
       previewExamModal,
@@ -87,6 +87,8 @@
       getters: {
         exam: state => state.pageState.exam,
         examModalShown: state => state.pageState.examModalShown,
+        classId: state => state.classId,
+        classList: state => state.classList,
       },
       actions: {
         displayExamModal,

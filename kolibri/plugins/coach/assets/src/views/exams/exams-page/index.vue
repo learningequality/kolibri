@@ -33,14 +33,27 @@
         </tr>
       </thead>
       <tbody slot="tbody">
-        <exam-row
+        <tr
           v-for="exam in filteredExams"
           :key="exam.id"
-          :examId="exam.id"
-          :examTitle="exam.title"
-          :examActive="exam.active"
-          :examVisibility="exam.visibility"
-        />
+        >
+          <td class="core-table-icon-col">
+            <content-icon :kind="examIcon" />
+          </td>
+
+          <td class="core-table-main-col">
+            <k-router-link
+              :text="exam.title"
+              :to="genExamRoute(exam.id)"
+            />
+          </td>
+
+          <td> {{ genRecipientsString(exam.visibility) }} </td>
+
+          <td>
+            <status-icon :active="exam.active" />
+          </td>
+        </tr>
       </tbody>
     </core-table>
 
@@ -54,20 +67,6 @@
       {{ $tr('noInactiveExams') }}
     </p>
 
-    <activate-exam-modal
-      v-if="showActivateExamModal"
-      :examId="selectedExam.id"
-      :examTitle="selectedExam.title"
-      :examVisibility="selectedExam.visibility"
-      :classId="classId"
-    />
-    <deactivate-exam-modal
-      v-if="showDeactivateExamModal"
-      :examId="selectedExam.id"
-      :examTitle="selectedExam.title"
-      :examVisibility="selectedExam.visibility"
-      :classId="classId"
-    />
     <change-exam-visibility-modal
       v-if="showChangeExamVisibilityModal"
       :examId="selectedExam.id"
@@ -112,14 +111,13 @@
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kSelect from 'kolibri.coreVue.components.kSelect';
-  import examRow from './exam-row';
-  import activateExamModal from './activate-exam-modal';
-  import deactivateExamModal from './deactivate-exam-modal';
   import changeExamVisibilityModal from './change-exam-visibility-modal';
   import previewExamModal from './preview-exam-modal';
   import renameExamModal from './rename-exam-modal';
-  import deleteExamModal from './delete-exam-modal';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import StatusIcon from '../../assignments/StatusIcon';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'coachExamsPage',
@@ -138,19 +136,20 @@
       status: 'Status',
       statusDescription: 'Status description',
       statusTooltipText: 'Learners can only see active lessons',
+      entireClass: 'Entire class',
+      groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
+      nobody: 'Nobody',
     },
     components: {
       CoreTable,
       kRouterLink,
       kSelect,
-      examRow,
-      activateExamModal,
-      deactivateExamModal,
       changeExamVisibilityModal,
       previewExamModal,
       renameExamModal,
-      deleteExamModal,
       CoreInfoIcon,
+      contentIcon,
+      StatusIcon,
     },
     data() {
       return {
@@ -166,6 +165,9 @@
       };
     },
     computed: {
+      examIcon() {
+        return ContentNodeKinds.EXAM;
+      },
       sortedExams() {
         return orderBy(this.exams, [exam => exam.title.toUpperCase()], ['asc']);
       },
@@ -253,6 +255,20 @@
       openDeleteExamModal(examId) {
         this.setSelectedExam(examId);
         this.displayExamModal(ExamModals.DELETE_EXAM);
+      },
+      genExamRoute(examId) {
+        return {
+          name: PageNames.EXAM_REPORT,
+          params: { examId },
+        };
+      },
+      genRecipientsString(examVisibility) {
+        if (examVisibility.class) {
+          return this.$tr('entireClass');
+        } else if (examVisibility.groups.length) {
+          return this.$tr('groups', { count: examVisibility.groups.length });
+        }
+        return this.$tr('nobody');
       },
     },
     vuex: {

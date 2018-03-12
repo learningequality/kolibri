@@ -76,7 +76,7 @@
 
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import StatusIcon from '../StatusIcon';
+  import StatusIcon from './StatusIcon';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 

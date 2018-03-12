@@ -71,7 +71,7 @@
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import { LearnerGroupResource } from 'kolibri.resources';
   import { handleApiError } from 'kolibri.coreVue.vuex.actions';
-  import RecipientSelector from '../RecipientSelector';
+  import RecipientSelector from './RecipientSelector';
 
   const Stages = {
     SELECT_CLASSROOM: 'SELECT_CLASSROOM',
@@ -97,6 +97,14 @@
       },
       assignmentQuestion: {
         type: String,
+        required: true,
+      },
+      classId: {
+        type: String,
+        required: true,
+      },
+      classList: {
+        type: Array,
         required: true,
       },
     },
@@ -156,13 +164,11 @@
       closeModal() {
         return this.$emit('cancel');
       },
+      isCurrentClassroom(classroom) {
+        return classroom.id === this.classId;
+      },
     },
     vuex: {
-      getters: {
-        classId: state => state.classId,
-        classList: state => state.classList,
-        isCurrentClassroom: state => classroom => classroom.id === state.classId,
-      },
       actions: {
         handleApiError,
       },
@@ -173,7 +179,7 @@
       cancel: 'Cancel',
       makeCopy: 'Copy',
       copyOf: 'Copy of {title}',
-      destinationExplanation: `This will be copied to '{classroomName}'`,
+      destinationExplanation: `Will be copied to '{classroomName}'`,
     },
   };
 
