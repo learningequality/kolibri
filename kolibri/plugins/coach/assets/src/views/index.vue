@@ -11,7 +11,7 @@
     >
 
       <template v-if="showCoachNav">
-        <class-selector
+        <nav-title
           :className="className"
           :classId="classId"
           :linkClass="shouldLinkToCurrentClass"
@@ -50,7 +50,7 @@
   import channelListPage from './reports/channel-list-page';
   import itemListPage from './reports/item-list-page';
   import learnerListPage from './reports/learner-list-page';
-  import classSelector from './class-selector';
+  import navTitle from './nav-title';
 
   // lessons
   import { LessonsPageNames } from '../lessonsConstants';
@@ -100,7 +100,7 @@
       channelListPage,
       itemListPage,
       learnerListPage,
-      classSelector,
+      navTitle,
       // lessons
       LessonsRootPage,
       LessonSummaryPage,

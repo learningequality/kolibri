@@ -23,7 +23,7 @@
 
 <script>
 
-  import { PageNames } from '../../constants';
+  import { PageNames } from '../constants';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
