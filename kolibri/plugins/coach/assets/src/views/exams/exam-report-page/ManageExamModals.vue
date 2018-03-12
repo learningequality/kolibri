@@ -9,7 +9,7 @@
     />
 
     <assignment-change-status-modal
-      v-if="examModalShown === LessonActions.CHANGE_STATUS"
+      v-else-if="examModalShown === LessonActions.CHANGE_STATUS"
       :title="$tr('changeExamStatusTitle')"
       :description="$tr('changeExamStatusDescription')"
       :active="exam.active"
@@ -17,13 +17,23 @@
       @cancel="displayExamModal(null)"
     />
 
+    <assignment-copy-modal
+      v-else-if="examModalShown === LessonActions.COPY"
+      :title="$tr('copyExamTitle')"
+      :copyExplanation="$tr('copyExplanation')"
+      :assignmentQuestion="$tr('assignmentQuestion')"
+      @copy="copyExam"
+      @cancel="displayExamModal(null)"
+    />
+
     <assignment-delete-modal
-      v-if="examModalShown === LessonActions.DELETE"
+      v-else-if="examModalShown === LessonActions.DELETE"
       :title="$tr('deleteExamTitle')"
       :description="$tr('deleteExamDescription', { title: exam.title })"
       @delete="deleteExam(exam.id)"
       @cancel="displayExamModal(null)"
     />
+
   </div>
 
 </template>
@@ -33,6 +43,8 @@
 
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import previewExamModal from '../exams-page/preview-exam-modal';
+  import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
+
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
   import { Modals as ExamModals } from '../../../examConstants';
   import { LessonActions } from '../../../lessonsConstants';
@@ -48,6 +60,7 @@
     components: {
       AssignmentChangeStatusModal,
       previewExamModal,
+      AssignmentCopyModal,
       AssignmentDeleteModal,
     },
     computed: {
@@ -66,6 +79,9 @@
           this.deactivateExam(this.exam.id);
         }
       },
+      copyExam(classId, recipients) {
+        console.log('handle copy', recipients);
+      },
     },
     vuex: {
       getters: {
@@ -82,6 +98,9 @@
     $trs: {
       changeExamStatusTitle: 'Change exam status',
       changeExamStatusDescription: 'Learners can only see active exams',
+      copyExamTitle: 'Copy exam',
+      copyExplanation: 'Copy this exam to',
+      assignmentQuestion: 'Who should this exam be assigned to?',
       deleteExamTitle: 'Delete exam',
       deleteExamDescription: "Are you sure you want to delete '{ title }'?",
     },

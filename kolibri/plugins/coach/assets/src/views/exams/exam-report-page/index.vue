@@ -144,9 +144,9 @@
         if (action === this.$tr('previewExam')) {
           this.displayExamModal(ExamModals.PREVIEW_EXAM);
         } else if (action === this.$tr('editDetails')) {
-          this.displayExamModal(ExamModals.EDIT_EXAM_DETAILS);
+          this.displayExamModal(LessonActions.EDIT_DETAILS);
         } else if (action === this.$tr('copyTo')) {
-          this.displayExamModal(ExamModals.COPY_EXAM);
+          this.displayExamModal(LessonActions.COPY);
         } else if (action === this.$tr('delete')) {
           this.displayExamModal(LessonActions.DELETE);
         }
