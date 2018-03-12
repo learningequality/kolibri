@@ -162,7 +162,7 @@ CENTRAL_CONTENT_DOWNLOAD_BASE_URL = os.environ.get('CENTRAL_CONTENT_DOWNLOAD_BAS
 with open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json")) as f:
     LANGUAGES = i18n.parse_supported_languages(json.load(f))
 
-# French creole ios not supported out-of-the-box by Django
+# Haitian Creole is not supported out-of-the-box by Django
 # Here, we use the language code in Intl.js
 EXTRA_LANG_INFO = {
     'fr-ht': {
