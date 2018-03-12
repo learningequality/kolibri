@@ -13,6 +13,7 @@ files:
         ar: ar
         es: es
         hi: hi
+        my: my
 
   - source: 'LC_MESSAGES/*.po'
     translation: '/kolibri/locale/%locale_with_underscore%/LC_MESSAGES/%original_file_name%'
@@ -21,3 +22,4 @@ files:
         ar: ar
         es: es
         hi: hi
+        my: my
