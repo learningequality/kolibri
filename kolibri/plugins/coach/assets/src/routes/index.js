@@ -36,6 +36,11 @@ export default [
     },
   },
   {
+    name: PageNames.CLASS_ROOT,
+    path: '/:classId/',
+    redirect: '/:classId/learners/',
+  },
+  {
     name: PageNames.EXAMS,
     path: '/:classId/exams',
     handler: toRoute => {
