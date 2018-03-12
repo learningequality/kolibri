@@ -36,12 +36,12 @@ module.exports = function(locale) {
           resolve(require('vue-intl/locale-data/fr.js'));
         });
       });
-    case 'ht':
-      return new Promise(function(resolve) {
-        require.ensure(['vue-intl/locale-data/ht.js'], function(require) {
-          resolve(require('vue-intl/locale-data/ht.js'));
-        });
-      });
+    // case 'ht':
+    //   return new Promise(function(resolve) {
+    //     require.ensure(['vue-intl/locale-data/ht.js'], function(require) {
+    //       resolve(require('vue-intl/locale-data/ht.js'));
+    //     });
+    //   });
     case 'my':
       return new Promise(function(resolve) {
         require.ensure(['vue-intl/locale-data/my.js'], function(require) {

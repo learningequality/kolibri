@@ -36,12 +36,12 @@ module.exports = function(locale) {
           resolve(require('intl/locale-data/jsonp/fr-FR.js'));
         });
       });
-    case 'ht':
-      return new Promise(function(resolve) {
-        require.ensure(['intl/locale-data/jsonp/ht.js'], function(require) {
-          resolve(require('intl/locale-data/jsonp/ht.js'));
-        });
-      });
+    // case 'ht':
+    //   return new Promise(function(resolve) {
+    //     require.ensure(['intl/locale-data/jsonp/ht.js'], function(require) {
+    //       resolve(require('intl/locale-data/jsonp/ht.js'));
+    //     });
+    //   });
     case 'my':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/my.js'], function(require) {
