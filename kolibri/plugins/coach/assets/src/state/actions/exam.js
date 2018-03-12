@@ -148,7 +148,7 @@ function showExamsPage(store, classId) {
 
   const promises = [
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
-    ChannelResource.getCollection().fetch(),
+    ChannelResource.getCollection({ available: true, has_exercise: true }).fetch(),
     ExamResource.getCollection({ collection: classId }).fetch({}, true),
     setClassState(store, classId),
   ];

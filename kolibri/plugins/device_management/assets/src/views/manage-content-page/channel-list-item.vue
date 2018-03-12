@@ -68,7 +68,6 @@
         @click="$emit('clickselect')"
         name="select"
         :text="$tr('selectButton')"
-        primary
         :disabled="tasksInQueue"
       />
       <k-button

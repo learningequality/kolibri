@@ -140,7 +140,7 @@
     name: 'profilePage',
     $trs: {
       genericError: 'Something went wrong',
-      success: 'Profile details updated!',
+      success: 'Profile details updated',
       username: 'Username',
       name: 'Full name',
       updateProfile: 'Save changes',

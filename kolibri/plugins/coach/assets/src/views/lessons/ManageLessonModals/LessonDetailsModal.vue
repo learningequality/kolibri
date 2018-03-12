@@ -3,17 +3,21 @@
   <core-modal
     :title="modalTexts.title"
     @cancel="closeModal()"
+    :hasError="showServerError || !formIsValid"
     width="400px"
   >
+    <ui-alert
+      v-if="showServerError"
+      type="error"
+      :dismissible="false"
+    >
+      {{ $tr('submitLessonError') }}
+    </ui-alert>
+
     <form @submit.prevent="submitLessonData">
-      <ui-alert
-        v-if="showError"
-        type="error"
-        :dismissible="false"
-      >
-        {{ $tr('submitLessonError') }}
-      </ui-alert>
       <k-textbox
+        @blur="titleIsVisited = true"
+        ref="titleField"
         :label="$tr('title')"
         :maxlength="50"
         :autofocus="true"
@@ -39,6 +43,7 @@
           :disabled="formIsSubmitted"
         />
       </fieldset>
+
       <div class="core-modal-buttons">
         <k-button
           :text="$tr('cancel')"
@@ -82,13 +87,13 @@
     },
     data() {
       return {
-        description: '',
-        descriptionIsVisited: false,
-        formIsSubmitted: false,
-        selectedCollectionIds: [],
-        title: '',
+        // set default values
+        title: this.currentLesson.title,
+        description: this.currentLesson.description,
+        selectedCollectionIds: this.currentLessonAssignedCollectionIds,
         titleIsVisited: false,
-        showError: false,
+        formIsSubmitted: false,
+        showServerError: false,
       };
     },
     computed: {
@@ -116,7 +121,8 @@
         };
       },
       titleIsInvalidText() {
-        if (this.titleIsVisited || this.formIsSubmitted) {
+        // submission is handled because "blur" event happens on submit
+        if (this.titleIsVisited) {
           if (this.title === '') {
             return this.$tr('required');
           }
@@ -144,15 +150,6 @@
         );
       },
     },
-    created() {
-      if (this.isInEditMode) {
-        this.title = this.currentLesson.title;
-        this.description = this.currentLesson.description;
-        this.selectedCollectionIds = [...this.currentLessonAssignedCollectionIds];
-      } else {
-        this.selectedCollectionIds = [this.classId];
-      }
-    },
     methods: {
       showSuccessSnackbar() {
         this.createSnackbar({
@@ -166,51 +163,58 @@
       },
       handleSubmitFailure() {
         this.formIsSubmitted = false;
-        this.showError = true;
+        this.showServerError = true;
       },
       submitLessonData() {
-        this.showError = false;
+        this.showServerError = false;
         // Return immediately if "submit" has already been clicked
         if (this.formIsSubmitted) {
+          // IDEA a loading indictor or something would probably be handy
           return;
         }
-        if (this.isInEditMode && !this.lessonDetailsHaveChanged) {
-          return this.closeModal();
-        }
-        this.formIsSubmitted = true;
+
         if (this.formIsValid) {
-          if (this.isInEditMode) {
-            return this.updateLesson()
-              .then(updatedLesson => {
-                this.handleSubmitSuccess();
-                return this.updateCurrentLesson(updatedLesson);
-              })
-              .catch(() => {
-                this.handleSubmitFailure();
-              });
-          } else {
-            return this.createLesson()
-              .then(newLesson => {
-                this.handleSubmitSuccess();
-                return this.$router.push(
-                  lessonSummaryLink({ classId: this.classId, lessonId: newLesson.id })
-                );
-              })
-              .catch(() => {
-                this.handleSubmitFailure();
-              });
-          }
+          this.formIsSubmitted = true;
+
+          return this.isInEditMode ? this.updateLesson() : this.createLesson();
+        } else {
+          // shouldn't ever be true, but being safe
+          this.formIsSubmitted = false;
+          this.$refs.titleField.focus();
         }
       },
+      // probably better suited for actions
       createLesson() {
         return LessonResource.createModel({
           ...this.formData,
           resources: [],
           collection: this.classId,
-        }).save();
+        })
+          .save()
+          .then(newLesson => {
+            this.handleSubmitSuccess();
+            return this.$router.push(
+              lessonSummaryLink({ classId: this.classId, lessonId: newLesson.id })
+            );
+          })
+          .catch(() => {
+            this.handleSubmitFailure();
+          });
       },
       updateLesson() {
-        return LessonResource.getModel(this.currentLesson.id).save({ ...this.formData });
+        if (!this.lessonDetailsHaveChanged) {
+          this.closeModal();
+          return Promise.resolve();
+        }
+        return LessonResource.getModel(this.currentLesson.id)
+          .save({ ...this.formData })
+          .then(updatedLesson => {
+            this.handleSubmitSuccess();
+            return this.updateCurrentLesson(updatedLesson);
+          })
+          .catch(() => {
+            this.handleSubmitFailure();
+          });
       },
       closeModal() {
         this.$emit('cancel');
@@ -219,12 +223,23 @@
     vuex: {
       getters: {
         classId: state => state.classId,
-        currentLesson: state => state.pageState.currentLesson || null,
+        currentLesson: state => {
+          const newLesson = {
+            title: '',
+            description: '',
+          };
+          return state.pageState.currentLesson || newLesson;
+        },
         groups: state => state.pageState.learnerGroups,
         // If the page name is (Lesson) SUMMARY, then should be in edit mode
         isInEditMode: state => state.pageName === LessonsPageNames.SUMMARY,
-        currentLessonAssignedCollectionIds: state =>
-          state.pageState.currentLesson.lesson_assignments.map(a => a.collection),
+        // This only exists in edit mode
+        currentLessonAssignedCollectionIds: state => {
+          if (state.pageState.currentLesson) {
+            return state.pageState.currentLesson.lesson_assignments.map(a => a.collection);
+          }
+          return [state.classId];
+        },
       },
       actions: {
         createSnackbar,

@@ -1,14 +1,17 @@
 <template>
 
   <router-link :to="link" class="card" :class="{ 'mobile-card': isMobile }">
-
     <card-thumbnail
       class="thumbnail"
       v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
     />
 
-    <h3 class="text" dir="auto">{{ title }}</h3>
-
+    <h3 class="text" dir="auto">
+      <shaved-text
+        :title="title"
+        :maxHeight="isMobile ? 40 : 60"
+      />
+    </h3>
   </router-link>
 
 </template>
@@ -20,10 +23,12 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import cardThumbnail from './card-thumbnail';
+  import shavedText from './shaved-text';
 
   export default {
     components: {
       cardThumbnail,
+      shavedText,
     },
     props: {
       title: {
@@ -92,7 +97,7 @@
     color: $core-text-default
     overflow: hidden
     margin: 16px
-    height: 54px
+    height: 60px
 
   .mobile-card.card
     width: 100%

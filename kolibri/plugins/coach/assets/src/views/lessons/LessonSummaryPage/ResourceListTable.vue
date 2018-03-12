@@ -30,7 +30,6 @@
         :key="resourceId"
         v-for="(resourceId, index) in workingResources"
       >
-        <!-- TODO add content type icon -->
         <td class="core-table-icon-col">
           <ui-icon-button
             type="flat"
@@ -207,17 +206,6 @@
           autoDismiss: true,
         });
       },
-      shiftMany(oldIndex, newIndex) {
-        // unused, to be used w/ drag and drop if we do this
-        const resources = [...this.workingResources];
-        // remove the resourceId from the array, store here
-        const [resourceId] = resources.splice(oldIndex, 1);
-        // re-add resourceId at the new index
-        resources.splice(newIndex, 0, resourceId);
-
-        this.setWorkingResources(resources);
-        this.autoSave(resources);
-      },
     },
     vuex: {
       getters: {
@@ -252,10 +240,12 @@
       resourceReorderConfirmationMessage: 'New lesson order saved',
       undoActionPrompt: 'Undo',
       resourceProgressMessage: '{completed, number}/{total, number} completed',
-      resourceReorderColumnHeaderForTable: 'Reorder buttons',
+      resourceReorderColumnHeaderForTable:
+        'Use buttons in this column to re-order resources in the lesson',
       nameColumnHeaderForTable: 'Name',
       resourceProgressColumnHeaderForTable: 'Resource progress',
-      resourceRemovalColumnHeaderForTable: 'Removal button',
+      resourceRemovalColumnHeaderForTable:
+        'Use buttons in this column to remove resources from the lesson',
       resourceRemovalButtonLabel: 'Remove',
       singleResourceRemovalConfirmationMessage: 'Removed { resourceTitle }',
       multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',

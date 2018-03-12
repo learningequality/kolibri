@@ -5,7 +5,10 @@
     @cancel="closeModal()"
   >
     <p>{{ $tr('lessonDeletionConfirmation', { title: lessonTitle }) }}</p>
-    <div class="core-modal-buttons">
+    <form
+      @submit.prevent.once="handleDeleteLesson"
+      class="core-modal-buttons"
+    >
       <k-button
         :text="$tr('cancel')"
         appearance="flat-button"
@@ -14,9 +17,9 @@
       <k-button
         :text="$tr('delete')"
         :primary="true"
-        @click="handleDeleteLesson()"
+        type="submit"
       />
-    </div>
+    </form>
   </core-modal>
 
 </template>
@@ -26,10 +29,11 @@
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import { error as logError } from 'kolibri.lib.logging';
   import { LessonResource } from 'kolibri.resources';
   import { refreshClassLessons } from '../../../state/actions/lessons';
   import { LessonsPageNames } from '../../../lessonsConstants';
-  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import { createSnackbar, handleApiError } from 'kolibri.coreVue.vuex.actions';
 
   export default {
     name: 'deleteLessonModal',
@@ -63,9 +67,8 @@
           })
           .catch(error => {
             // TODO handle error inside the current apge
-            /* eslint-disable */
-            console.log(error);
-            /* eslint-enable */
+            this.handleApiError(error);
+            logError(error);
           });
       },
     },
@@ -76,6 +79,7 @@
         lessonTitle: state => state.pageState.currentLesson.title,
       },
       actions: {
+        handleApiError,
         refreshClassLessons,
         createSnackbar,
       },

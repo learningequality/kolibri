@@ -45,7 +45,7 @@
     $trs: {
       deactivateExam: 'Deactivate exam',
       areYouSure: "Are you sure you want to deactivate '{ examTitle }'?",
-      noLongerVisible: 'The exam will be no longer be visible to the following:',
+      noLongerVisible: 'The exam will be no longer be visible to',
       cancel: 'Cancel',
       deactivate: 'Deactivate',
       entireClass: 'Entire class',
