@@ -31,7 +31,7 @@
 <script>
 
   import { PageNames } from '../constants';
-  import * as ReportConstants from '../reportConstants';
+  import { UserScopes } from '../reportConstants';
   import { className } from '../state/getters/main';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
@@ -191,7 +191,7 @@
         return true;
       },
       usernameForCurrentScope() {
-        if (this.pageState.userScope === ReportConstants.UserScopes.USER) {
+        if (this.pageState.userScope === UserScopes.USER) {
           return this.pageState.userScopeName;
         }
         return null;
