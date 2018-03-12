@@ -74,29 +74,7 @@
 
     <p v-else>{{ $tr('noExamData') }}</p>
 
-    <preview-exam-modal
-      v-if="showPreviewExamModal"
-      :examQuestionSources="exam.question_sources"
-      :examSeed="exam.seed"
-      :examNumQuestions="exam.question_count"
-    />
-
-    <assignment-change-status-modal
-      v-if="examModalShown === LessonActions.CHANGE_STATUS"
-      :title="$tr('changeExamStatusTitle')"
-      :description="$tr('changeExamStatusDescription')"
-      :active="exam.active"
-      @changeStatus="handleChangeStatus"
-      @cancel="displayExamModal(null)"
-    />
-
-    <assignment-delete-modal
-      v-if="examModalShown === LessonActions.DELETE"
-      :title="$tr('deleteExamTitle')"
-      :description="$tr('deleteExamDescription', { title: exam.title })"
-      @delete="deleteExam(exam.id)"
-      @cancel="displayExamModal(null)"
-    />
+    <manage-exam-modals />
 
   </div>
 
@@ -112,20 +90,11 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import { USER, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import { displayExamModal } from '../../../state/actions/exam';
   import { Modals as ExamModals } from '../../../examConstants';
-  import previewExamModal from '../exams-page/preview-exam-modal';
-  import deleteExamModal from '../exams-page/delete-exam-modal';
-  import {
-    displayExamModal,
-    activateExam,
-    deactivateExam,
-    deleteExam,
-  } from '../../../state/actions/exam';
-  import AssignmentSummary from '../../assignments/AssignmentSummary';
-  import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
-  import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
-
   import { LessonActions } from '../../../lessonsConstants';
+  import AssignmentSummary from '../../assignments/AssignmentSummary';
+  import ManageExamModals from './ManageExamModals';
 
   export default {
     name: 'examReportPage',
@@ -134,11 +103,8 @@
       CoreTable,
       kRouterLink,
       kDropdownMenu,
-      previewExamModal,
-      deleteExamModal,
       AssignmentSummary,
-      AssignmentChangeStatusModal,
-      AssignmentDeleteModal,
+      ManageExamModals,
     },
     computed: {
       LessonActions() {
@@ -171,12 +137,6 @@
           { label: this.$tr('delete') },
         ];
       },
-      showPreviewExamModal() {
-        return this.examModalShown === ExamModals.PREVIEW_EXAM;
-      },
-      showDeleteExamModal() {
-        return this.examModalShown === ExamModals.DELETE_EXAM;
-      },
     },
     methods: {
       handleSelection(optionSelected) {
@@ -201,27 +161,16 @@
           },
         };
       },
-      handleChangeStatus(isActive) {
-        if (isActive === true) {
-          this.activateExam(this.exam.id);
-        } else if (isActive === false) {
-          this.deactivateExam(this.exam.id);
-        }
-      },
     },
     vuex: {
       getters: {
         examTakers: state => state.pageState.examTakers,
         classId: state => state.classId,
         exam: state => state.pageState.exam,
-        examModalShown: state => state.pageState.examModalShown,
         learnerGroups: state => state.pageState.learnerGroups,
       },
       actions: {
         displayExamModal,
-        activateExam,
-        deactivateExam,
-        deleteExam,
       },
     },
     $trs: {
@@ -241,10 +190,6 @@
       editDetails: 'Edit details',
       copyTo: 'Copy to',
       delete: 'Delete',
-      changeExamStatusTitle: 'Change exam status',
-      changeExamStatusDescription: 'Learners can only see active exams',
-      deleteExamTitle: 'Delete exam',
-      deleteExamDescription: "Are you sure you want to delete '{ title }'?",
     },
   };
 
