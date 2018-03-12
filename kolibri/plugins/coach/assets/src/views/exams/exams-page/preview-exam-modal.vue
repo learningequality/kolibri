@@ -18,8 +18,8 @@
           <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
           <slot name="randomize-button"></slot>
         </div>
-        <div class="exam-preview-container pure-g">
-          <div class="question-selector pure-u-1-3">
+        <k-grid class="exam-preview-container">
+          <k-grid-item size="1" cols="3" class="question-selector">
             <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
               <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
@@ -39,8 +39,8 @@
                 </li>
               </ol>
             </div>
-          </div>
-          <div class="exercise-container pure-u-2-3">
+          </k-grid-item>
+          <k-grid-item size="2" cols="3" class="exercise-container">
             <content-renderer
               v-if="content && itemId"
               ref="contentRenderer"
@@ -54,8 +54,8 @@
               :assessment="true"
               :allowHints="false"
             />
-          </div>
-        </div>
+          </k-grid-item>
+        </k-grid>
       </div>
     </transition>
   </core-modal>

@@ -1,9 +1,12 @@
 <template>
 
   <div>
-    <div class="top-buttons pure-g">
-
-      <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1 align-center'">
+    <k-grid class="top-buttons">
+      <k-grid-item
+        size="1"
+        :cols="numCols"
+        :class="{'align-center' : isMobile}"
+      >
         <k-router-link
           :text="$tr('backToClassDetails')"
           :to="editClassLink"
@@ -11,10 +14,11 @@
           appearance="flat-button"
           class="link-button"
         />
-      </div>
-
-      <div
-        :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'"
+      </k-grid-item>
+      <k-grid-item
+        size="1"
+        :cols="numCols"
+        :class="isMobile ? 'align-center' : 'align-right'"
       >
         <k-button
           :text="$tr('createNewUser')"
@@ -27,9 +31,8 @@
           @click="openConfirmEnrollmentModal"
           :disabled="selectedUsers.length === 0"
         />
-      </div>
-
-    </div>
+      </k-grid-item>
+    </k-grid>
 
     <confirm-enrollment-modal
       v-if="showConfirmEnrollmentModal"
@@ -155,6 +158,8 @@
   import * as constants from '../../constants';
   import * as actions from '../../state/actions';
   import differenceWith from 'lodash/differenceWith';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -177,6 +182,8 @@
       uiIconButton,
       uiIcon,
       kFilterTextbox,
+      kGrid,
+      kGridItem,
       userCreateModal,
       confirmEnrollmentModal,
       userRole,
@@ -214,6 +221,12 @@
       showSelectedUsers: false,
     }),
     computed: {
+      isMobile() {
+        return this.windowSize.breakpoint <= 3;
+      },
+      numCols() {
+        return this.isMobile ? 1 : 2;
+      },
       usersNotInClass() {
         return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
       },
