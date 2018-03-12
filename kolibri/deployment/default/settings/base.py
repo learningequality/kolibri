@@ -21,6 +21,9 @@ from tzlocal import get_localzone
 import kolibri
 from kolibri.utils import conf
 from kolibri.utils import i18n
+
+from django.conf import locale
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # import kolibri, so we can get the path to the module.
 # we load other utilities related to i18n
@@ -157,8 +160,19 @@ CENTRAL_CONTENT_DOWNLOAD_BASE_URL = os.environ.get('CENTRAL_CONTENT_DOWNLOAD_BAS
 # http://helpsharepointvision.nevron.com/Culture_Table.html
 
 with open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json")) as f:
-
     LANGUAGES = i18n.parse_supported_languages(json.load(f))
+
+# Haitian Creole is not supported out-of-the-box by Django
+# Here, we use the language code in Intl.js
+EXTRA_LANG_INFO = {
+    'fr-ht': {
+        'bidi': False,
+        'code': 'fr-ht',
+        'name': 'Haitian Creole',
+        'name_local': 'Kreyòl ayisyen',
+    },
+}
+locale.LANG_INFO.update(EXTRA_LANG_INFO)
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
 
