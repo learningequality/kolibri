@@ -8,7 +8,6 @@ import {
   FacilityUserResource,
   ExamAttemptLogResource,
 } from 'kolibri.resources';
-import pick from 'lodash/fp/pick';
 import concat from 'lodash/concat';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
@@ -33,20 +32,6 @@ const translator = createTranslator(name, messages);
 const allChannels = createTranslator('allChannels', {
   allChannels: 'All channels',
 }).$tr('allChannels');
-
-const pickIdAndName = pick(['id', 'name']);
-
-function _channelState(channel) {
-  return {
-    id: channel.id,
-    name: channel.name,
-    rootPk: channel.root,
-  };
-}
-
-function _channelsState(channels) {
-  return channels.map(channel => _channelState(channel));
-}
 
 function _breadcrumbState(topic) {
   return {
@@ -182,7 +167,7 @@ function activateExam(store, examId) {
         setExamsModal(store, false);
 
         CoreActions.createSnackbar(store, {
-          text: createTranslator('examStatusSnackbar', {
+          text: createTranslator('examActivateSnackbar', {
             examIsNowActive: 'Exam is now active',
           }).$tr('examIsNowActive'),
           autoDismiss: true,
@@ -205,7 +190,7 @@ function deactivateExam(store, examId) {
         setExamsModal(store, false);
 
         CoreActions.createSnackbar(store, {
-          text: createTranslator('examStatusSnackbar', {
+          text: createTranslator('examDeactivateSnackbar', {
             examIsNowInactive: 'Exam is now inactive',
           }).$tr('examIsNowInactive'),
           autoDismiss: true,

@@ -70,7 +70,7 @@ class ExamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exam
         fields = (
-            'id', 'title', 'question_count', 'question_sources', 'seed',
+            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
             'active', 'collection', 'archive', 'assignments', 'creator',
         )
         read_only_fields = ('assignments',)
@@ -103,7 +103,7 @@ class UserExamSerializer(serializers.ModelSerializer):
         # defined as they are directly attached to a particular user's collection.
         model = ExamAssignment
         read_only_fields = (
-            'id', 'title', 'question_count', 'question_sources', 'seed',
+            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
             'active', 'score', 'archive', 'answer_count', 'closed',
         )
         fields = '__all__'
@@ -111,7 +111,7 @@ class UserExamSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         output = {}
         exam_fields = (
-            'id', 'title', 'question_count', 'question_sources', 'seed',
+            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
             'active', 'archive',
         )
         for field in exam_fields:

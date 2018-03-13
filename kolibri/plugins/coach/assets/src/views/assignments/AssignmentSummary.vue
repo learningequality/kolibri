@@ -81,7 +81,7 @@
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
-    name: 'AssignmentSummary',
+    name: 'assignmentSummary',
     components: {
       CoreInfoIcon,
       contentIcon,

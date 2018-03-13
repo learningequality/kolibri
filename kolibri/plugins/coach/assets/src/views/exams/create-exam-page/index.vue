@@ -61,6 +61,7 @@
                     :showLabel="false"
                     :checked="allExercisesWithinCurrentTopicSelected"
                     :indeterminate="someExercisesWithinCurrentTopicSelected"
+                    :disabled="!subtopics.length && !exercises.length"
                     @change="changeSelection"
                   />
                 </th>
@@ -209,6 +210,7 @@
         selectAll: false,
         previewOrSubmissionAttempt: false,
         submitting: false,
+        dummyChannelId: null,
       };
     },
     computed: {
@@ -348,6 +350,11 @@
       },
     },
     methods: {
+      setDummyChannelId(id) {
+        if (!this.dummyChannelId) {
+          this.dummyChannelId = id;
+        }
+      },
       changeSelection() {
         this.selectionMade = true;
         const allExercises = this.allExercisesWithinCurrentTopic;
@@ -357,6 +364,7 @@
         } else {
           this.handleAddTopicExercises(allExercises, currentTopicTitle);
         }
+        this.setDummyChannelId();
       },
       handleGoToTopic(topicId) {
         this.loading = true;
@@ -369,6 +377,7 @@
             this.loading = false;
           });
         }
+        this.setDummyChannelId(this.subtopics[0].id);
       },
       handleAddExercise(exercise) {
         this.selectionMade = true;
@@ -382,10 +391,11 @@
           autoDismiss: true,
         });
       },
-      handleAddTopicExercises(allExercisesWithinTopic, topicTitle) {
+      handleAddTopicExercises(allExercisesWithinTopic, topicTitle, topicId) {
         this.selectionMade = true;
         allExercisesWithinTopic.forEach(exercise => this.addExercise(exercise));
         this.createSnackbar({ text: `${this.$tr('added')} ${topicTitle}`, autoDismiss: true });
+        this.setDummyChannelId(topicId);
       },
       handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
         allExercisesWithinTopic.forEach(exercise => this.removeExercise(exercise));
@@ -416,6 +426,7 @@
             numQuestions: this.inputNumQuestions,
             questionSources: this.questionSources,
             seed: this.seed,
+            channelId: this.dummyChannelId,
           };
           this.createExam(classCollection, examObj);
         }
