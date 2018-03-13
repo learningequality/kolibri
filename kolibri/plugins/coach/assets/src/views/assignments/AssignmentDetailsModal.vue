@@ -177,13 +177,23 @@
 
         if (this.formIsValid) {
           this.formIsSubmitted = true;
+          if (!this.lessonDetailsHaveChanged) {
+            this.closeModal();
+            return;
+          }
 
-          return this.isInEditMode ? this.$emit('save') : this.$emit('continue');
+          return this.isInEditMode
+            ? this.$emit('save', this.formData)
+            : this.$emit('continue', this.formData);
         } else {
           // shouldn't ever be true, but being safe
           this.formIsSubmitted = false;
           this.$refs.titleField.focus();
         }
+      },
+      handleSubmitFailure() {
+        this.formIsSubmitted = false;
+        this.showServerError = true;
       },
       closeModal() {
         this.$emit('cancel');

@@ -56,7 +56,7 @@
   import ResourceListTable from './ResourceListTable';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import map from 'lodash/map';
-  import ManageLessonModals from '../ManageLessonModals';
+  import ManageLessonModals from './ManageLessonModals';
   import { AssignmentActions } from '../../../assignmentsConstants';
   import { selectionRootLink } from '../lessonsRouterUtils';
   import AssignmentSummary from '../../assignments/AssignmentSummary';

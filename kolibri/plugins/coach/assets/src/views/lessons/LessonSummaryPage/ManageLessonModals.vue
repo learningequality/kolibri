@@ -14,14 +14,16 @@
       v-else-if="lessonsModalSet === AssignmentActions.EDIT_DETAILS"
       :modalTitle="$tr('editLessonDetails')"
       :submitErrorMessage="$tr('saveLessonError')"
-      :showDescriptionField="false"
+      :initialDescription="currentLesson.description"
+      :showDescriptionField="true"
       :isInEditMode="true"
-      :initialTitle="exam.title"
-      :initialSelectedCollectionIds="selectedCollectionIds"
+      :initialTitle="currentLesson.title"
+      :initialSelectedCollectionIds="initialSelectedCollectionIds"
       :classId="classId"
       :groups="learnerGroups"
-      @save="updateExamDetails"
+      @save="handleDetailsModalSave"
       @cancel="setLessonsModal(null)"
+      ref="detailsModal"
     />
 
     <assignment-copy-modal
@@ -59,6 +61,7 @@
     updateLessonStatus,
     copyLesson,
     deleteLesson,
+    updateLesson,
   } from '../../../state/actions/lessons';
 
   export default {
@@ -72,6 +75,9 @@
     computed: {
       AssignmentActions() {
         return AssignmentActions;
+      },
+      initialSelectedCollectionIds() {
+        return this.currentLesson.lesson_assignments.map(recipient => recipient.collection);
       },
     },
     methods: {
@@ -91,6 +97,11 @@
         };
         this.copyLesson(payload, this.className);
       },
+      handleDetailsModalSave(payload) {
+        this.updateLesson(this.currentLesson.id, payload)
+          .then()
+          .catch(() => this.$refs.detailsModal.handleSubmitFailure());
+      },
     },
     vuex: {
       getters: {
@@ -99,12 +110,14 @@
         classId: state => state.classId,
         classList: state => state.classList,
         className: state => state.className,
+        learnerGroups: state => state.pageState.learnerGroups,
       },
       actions: {
         setLessonsModal,
         updateLessonStatus,
         deleteLesson,
         copyLesson,
+        updateLesson,
       },
     },
     $trs: {

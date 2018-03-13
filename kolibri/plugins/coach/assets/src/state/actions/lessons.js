@@ -10,6 +10,7 @@ import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import { handleApiError, createSnackbar } from 'kolibri.coreVue.vuex.actions';
 import { error as logError } from 'kolibri.lib.logging';
 import router from 'kolibri.coreVue.router';
+import { lessonSummaryLink } from '../../views/lessons/lessonsRouterUtils';
 
 const translator = createTranslator('lessonsPageTitles', {
   lessons: 'Lessons',
@@ -363,7 +364,7 @@ export function setLessonsModal(store, modalName) {
 }
 
 export function updateLessonStatus(store, lessonId, isActive) {
-  return LessonResource.getModel(lessonId)
+  LessonResource.getModel(lessonId)
     .save({
       is_active: isActive,
     })
@@ -389,7 +390,7 @@ export function updateLessonStatus(store, lessonId, isActive) {
 }
 
 export function deleteLesson(store, lessonId, classId) {
-  return LessonResource.getModel(lessonId)
+  LessonResource.getModel(lessonId)
     .delete()
     ._promise.then(() => refreshClassLessons(store, classId))
     .then(() => {
@@ -415,7 +416,7 @@ export function deleteLesson(store, lessonId, classId) {
 }
 
 export function copyLesson(store, payload, classroomName) {
-  return LessonResource.createModel(payload)
+  LessonResource.createModel(payload)
     .save()
     ._promise.then(() => {
       setLessonsModal(store, null);
@@ -430,4 +431,50 @@ export function copyLesson(store, payload, classroomName) {
       handleApiError(store, error);
       logError(error);
     });
+}
+
+export function updateLesson(store, lessonId, payload) {
+  return new Promise((resolve, reject) => {
+    LessonResource.getModel(lessonId)
+      .save(payload)
+      .then(updatedLesson => {
+        setLessonsModal(store, null);
+        createSnackbar(store, {
+          text: createTranslator('lessonUpdatedSnackbar', {
+            changesToLessonSaved: 'Changes to lesson saved',
+          }).$tr('changesToLessonSaved'),
+          autoDismiss: true,
+        });
+        updateCurrentLesson(store, lessonId);
+        resolve();
+      })
+      .catch(error => {
+        reject();
+      });
+  });
+}
+
+export function createLesson(store, classId, payload) {
+  return new Promise((resolve, reject) => {
+    return LessonResource.createModel({
+      ...payload,
+      resources: [],
+      collection: classId,
+    })
+      .save()
+      .then(newLesson => {
+        setLessonsModal(store, null);
+        router.push(lessonSummaryLink({ classId: classId, lessonId: newLesson.id }));
+        createSnackbar(store, {
+          text: createTranslator('lessonCreatedSnackbar', {
+            newLessonCreated: 'New lesson created',
+          }).$tr('newLessonCreated'),
+          autoDismiss: true,
+        });
+        resolve();
+      })
+      .catch(() => {
+        reject();
+      });
+  });
 }
