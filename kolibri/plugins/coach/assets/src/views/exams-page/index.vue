@@ -99,7 +99,7 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import { className } from '../../state/getters/main';
   import * as ExamActions from '../../state/actions/exam';
   import { Modals as ExamModals } from '../../examConstants';
@@ -130,7 +130,7 @@
       noExams: 'You do not have any exams',
     },
     components: {
-      CoreTable,
+      coreTable,
       kButton,
       kSelect,
       examRow,

@@ -55,7 +55,7 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import * as CoachConstants from '../../constants';
   import * as reportConstants from '../../reportConstants';
@@ -71,7 +71,7 @@
   export default {
     name: 'coachRecentReports',
     components: {
-      CoreTable,
+      coreTable,
       breadcrumbs,
       headerCell,
       nameCell,

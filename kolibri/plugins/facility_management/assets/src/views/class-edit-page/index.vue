@@ -104,7 +104,7 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
   import * as constants from '../../constants';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
@@ -130,7 +130,7 @@
       allUsersFilteredOut: 'No matching users',
     },
     components: {
-      CoreTable,
+      coreTable,
       classRenameModal,
       userRemoveModal,
       kButton,

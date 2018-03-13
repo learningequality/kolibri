@@ -81,7 +81,7 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import * as groupActions from '../../state/actions/group';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -107,7 +107,7 @@
       options: 'Options',
     },
     components: {
-      CoreTable,
+      coreTable,
       kButton,
       kCheckbox,
       kDropdownMenu,

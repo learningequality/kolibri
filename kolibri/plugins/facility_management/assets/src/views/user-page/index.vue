@@ -118,7 +118,7 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
   import * as constants from '../../constants';
   import * as actions from '../../state/actions';
@@ -147,7 +147,7 @@
       kDropdownMenu,
       userRole,
       kSelect,
-      CoreTable,
+      coreTable,
       UiIcon,
     },
     data: () => ({

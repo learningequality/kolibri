@@ -79,7 +79,7 @@
 <script>
 
   import countBy from 'lodash/countBy';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import LessonDetailsModal from './ManageLessonModals/LessonDetailsModal';
   import InfoIcon from './InfoIcon';
   import StatusIcon from './StatusIcon';
@@ -93,7 +93,7 @@
   export default {
     name: 'lessonsRootPage',
     components: {
-      CoreTable,
+      coreTable,
       LessonDetailsModal,
       InfoIcon,
       StatusIcon,

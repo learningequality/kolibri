@@ -42,7 +42,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import ContentIcon from 'kolibri.coreVue.components.contentIcon';
   import { PageNames } from '../../constants';
   import orderBy from 'lodash/orderBy';
@@ -51,7 +51,7 @@
   export default {
     name: 'coachClassListPage',
     components: {
-      CoreTable,
+      coreTable,
       ContentIcon,
       kRouterLink,
     },

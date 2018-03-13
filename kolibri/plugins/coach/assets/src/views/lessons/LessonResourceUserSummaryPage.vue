@@ -157,7 +157,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import progressBar from 'kolibri.coreVue.components.progressBar';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../../lessonsConstants';
@@ -166,7 +166,7 @@
     name: 'lessonResourceUserSummaryPage',
     components: {
       contentIcon,
-      CoreTable,
+      coreTable,
       progressBar,
       kRouterLink,
       kButton,

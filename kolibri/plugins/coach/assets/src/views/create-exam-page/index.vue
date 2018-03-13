@@ -152,7 +152,7 @@
   import shuffle from 'lodash/shuffle';
   import random from 'lodash/random';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import flatMap from 'lodash/flatMap';
 
   export default {
@@ -168,7 +168,7 @@
       previewNewExamModal,
       kCheckbox,
       uiAlert,
-      CoreTable,
+      coreTable,
     },
     mixins: [responsiveWindow],
     $trs: {

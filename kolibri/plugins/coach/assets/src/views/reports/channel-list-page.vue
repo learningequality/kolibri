@@ -58,7 +58,7 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
@@ -73,7 +73,7 @@
     name: 'coachRecentPageChannelList',
     components: {
       contentIcon,
-      CoreTable,
+      coreTable,
       headerCell,
       nameCell,
       activityCell,

@@ -69,7 +69,7 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import * as CoachConstants from '../../constants';
   import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
   import * as reportGetters from '../../state/getters/reports';
@@ -86,7 +86,7 @@
   export default {
     name: 'itemReportPage',
     components: {
-      CoreTable,
+      coreTable,
       contentIcon,
       breadcrumbs,
       headerCell,

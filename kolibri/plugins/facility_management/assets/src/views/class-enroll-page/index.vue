@@ -171,7 +171,7 @@
   import userCreateModal from '../user-page/user-create-modal';
   import confirmEnrollmentModal from './confirm-enrollment-modal';
   import userRole from '../user-role';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
 
   export default {
     name: 'managementClassEnroll',
@@ -187,7 +187,7 @@
       userCreateModal,
       confirmEnrollmentModal,
       userRole,
-      CoreTable,
+      coreTable,
     },
     mixins: [responsiveWindow],
     $trs: {
