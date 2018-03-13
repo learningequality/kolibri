@@ -1,12 +1,21 @@
 import os
+
 from django.core.cache import cache
-from django.db.models import Manager, Sum
+from django.db.models import Manager
+from django.db.models import Sum
 from django.db.models.query import RawQuerySet
-from kolibri.content.models import AssessmentMetaData, ChannelMetadata, ContentNode, File, Language, LocalFile
 from le_utils.constants import content_kinds
 from rest_framework import serializers
-from kolibri.content.utils.paths import get_content_storage_file_path
+
+from kolibri.content.models import AssessmentMetaData
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.models import ContentNode
+from kolibri.content.models import File
+from kolibri.content.models import Language
+from kolibri.content.models import LocalFile
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
+from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
+from kolibri.content.utils.paths import get_content_storage_file_path
 
 
 class ChannelMetadataSerializer(serializers.ModelSerializer):
@@ -20,12 +29,15 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
 
         # if it has the file_size flag add extra file_size information
         if 'request' in self.context and self.context['request'].GET.get('file_sizes', False):
-            descendants = instance.root.get_descendants().exclude(kind=content_kinds.TOPIC)
-            total_resources = descendants.count()
-            local_files = LocalFile.objects.filter(files__contentnode__channel_id=instance.id).distinct()
+            # only count up currently renderable content types, as only these will be downloaded
+            descendants = ContentNode.objects.filter(channel_id=instance.id).filter(renderable_contentnodes_q_filter).distinct()
+            total_resources = descendants.exclude(kind=content_kinds.TOPIC).count()
+
+            # only count up currently renderable content types, as only these will be downloaded
+            local_files = LocalFile.objects.filter(files__contentnode__in=descendants).distinct()
             total_file_size = local_files.aggregate(Sum('file_size'))['file_size__sum'] or 0
 
-            on_device_resources = descendants.filter(available=True).count()
+            on_device_resources = descendants.exclude(kind=content_kinds.TOPIC).filter(available=True).count()
             on_device_file_size = local_files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
 
             value.update(
@@ -309,12 +321,13 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
     importable = serializers.SerializerMethodField()
 
     def get_total_resources(self, obj):
-        total_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).count()
+        total_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(renderable_contentnodes_q_filter).distinct().count()
 
         return total_resources
 
     def get_on_device_resources(self, obj):
-        available_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(available=True).count()
+        available_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(
+            renderable_contentnodes_q_filter).filter(available=True).distinct().count()
 
         return available_resources
 

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-22 18:11-0800\n"
-"PO-Revision-Date: 2017-12-05 00:33-0500\n"
+"PO-Revision-Date: 2018-03-12 01:53-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: es-ES\n"
-"X-Crowdin-File: /release-v0.7.x/LC_MESSAGES/django.po\n"
+"X-Crowdin-File: /release-v0.8.x/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:12
 #: kolibri/plugins/management/kolibri_plugin.py:29
@@ -23,7 +23,7 @@ msgstr "Centro educativo"
 
 #: kolibri/auth/constants/collection_kinds.py:13
 msgid "Classroom"
-msgstr "Clase"
+msgstr "Salón de clase"
 
 #: kolibri/auth/constants/collection_kinds.py:14
 msgid "Learner group"
@@ -31,7 +31,7 @@ msgstr "Grupo de estudiantes"
 
 #: kolibri/auth/constants/role_kinds.py:10
 msgid "Admin"
-msgstr "Administrador"
+msgstr "Adminsitrador"
 
 #: kolibri/auth/constants/role_kinds.py:11
 msgid "Coach"
@@ -43,7 +43,7 @@ msgstr "nombre de usuario"
 
 #: kolibri/auth/models.py:212
 msgid "Required. 30 characters or fewer. Letters and digits only"
-msgstr "Requerido. 30 caracteres o menos. Solamente letras y números."
+msgstr "Requerido. 30 caracteres o menos. Sólo letras y números"
 
 #: kolibri/auth/models.py:216
 msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
@@ -55,15 +55,15 @@ msgstr "nombre completo"
 
 #: kolibri/auth/models.py:221
 msgid "date joined"
-msgstr "fecha de registró"
+msgstr "fecha de registro"
 
 #: kolibri/auth/serializers.py:31
 msgid "An account with that username already exists"
-msgstr "Ya existe una cuenta con ese nombre de usuario."
+msgstr "Ya existe una cuenta con ese nombre de usuario"
 
 #: kolibri/content/api.py:355
 msgid "The requested channel does not exist on the content server"
-msgstr "El canal solicitado no existe en el servidor de contenido."
+msgstr "El canal solicitado no existe en el servidor de contenidos"
 
 #: kolibri/content/models.py:183
 msgid "Unknown format"

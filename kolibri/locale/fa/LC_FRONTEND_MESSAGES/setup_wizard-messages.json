@@ -36,6 +36,7 @@
     "facilityNameForm.facilityNamingFormDescription": "مرکز جایی‌ست که شما Kolibri را در آن نصب کنید، جایی مانند مدرسه یا مرکز آموزش.",
     "facilityNameForm.facilityNameFieldLabel": "نام مرکز",
     "facilityNameForm.facilityNameFieldEmptyErrorMessage": "مرکز نمی‌تواند خالی باشد",
+    "facilityNameForm.facilityNameFieldMaxLengthReached": "نام مرکز نمی‌تواند بیشتر از ۱۰۰ کاراکتر داشته باشد",
     "defaultLanguageForm.languageFormHeader": "لطفاً زبان پیش‌فرض را برای Kolibri انتخاب کنید",
     "progressToolbar.progressIndicator": "مرحله {currentStep, number} از {totalSteps, number}\n",
     "onboardingErrorPage.errorPageHeader": "مشکلی به وجود آمد!",

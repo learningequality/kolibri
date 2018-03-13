@@ -64,7 +64,7 @@ class ContentRendererHook(WebpackBundleHook):
         abstract = True
 
     @cached_property
-    def _content_type_json(self):
+    def content_types(self):
         global _JSON_CONTENT_TYPES_CACHE
         if not _JSON_CONTENT_TYPES_CACHE.get(self.unique_slug):
             try:
@@ -92,6 +92,6 @@ class ContentRendererHook(WebpackBundleHook):
                 kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
                 bundle=self.unique_slug,
                 urls='","'.join(urls),
-                content_types=json.dumps(self._content_type_json),
+                content_types=json.dumps(self.content_types),
             )]
         return mark_safe('\n'.join(tags))
