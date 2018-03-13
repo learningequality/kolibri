@@ -112,6 +112,16 @@
       },
       examViewerLink,
     },
+    created() {
+      this.resetExamAttempLogs();
+    },
+    vuex: {
+      actions: {
+        resetExamAttempLogs(store) {
+          store.state.examAttemptLogs = [];
+        },
+      },
+    },
     $trs: {
       examsHeader: 'Exams',
       howManyCorrect: '{ score, number }/{ outOf, number } correct',
