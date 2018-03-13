@@ -1,13 +1,13 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import assert from 'assert';
-import { shallow } from 'avoriaz';
+import { shallow } from '@vue/test-utils';
 import ProgressBar from '../src/views/progress-bar';
 
 function testProgressBar(wrapper, expected) {
   const { text, width } = expected;
-  assert.equal(wrapper.first('.progress-bar-text').text(), text);
-  assert(wrapper.first('.progress-bar-complete').hasStyle('width', width));
+  assert.equal(wrapper.find('.progress-bar-text').text(), text);
+  assert(wrapper.find('.progress-bar-complete').hasStyle('width', width));
 }
 
 describe('ProgressBar Component', () => {

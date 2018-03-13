@@ -1,21 +1,16 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import ProgressIcon from '../src/views/progress-icon';
-import { mount } from 'avoriaz';
+import { mount } from '@vue/test-utils';
 import UiTooltip from 'keen-ui/src/UiTooltip';
 import UiIcon from 'keen-ui/src/UiIcon';
 import assert from 'assert';
 
 function testIcon(wrapper, expected) {
   const { iconType, text } = expected;
-  assert.equal(wrapper.first(UiIcon).getProp('icon'), iconType);
-  assert.equal(
-    wrapper
-      .first(UiTooltip)
-      .text()
-      .trim(),
-    text
-  );
+  assert.equal(wrapper.find(UiIcon).props().icon, iconType);
+  // prettier-ignore
+  assert.equal(wrapper.find(UiTooltip).text().trim(), text);
 }
 
 describe('ProgressIcon Component', () => {
@@ -26,7 +21,7 @@ describe('ProgressIcon Component', () => {
         progress: -1.0,
       },
     });
-    const tooltip = wrapper.first(UiTooltip);
+    const tooltip = wrapper.find(UiTooltip);
     assert.equal(wrapper.contains(UiIcon), false);
     // Tooltip is still around, just nothing to trigger it.
     assert.equal(tooltip.text().trim(), 'Completed');

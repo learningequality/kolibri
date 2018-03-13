@@ -1,12 +1,7 @@
 /* eslint-env mocha */
-// The following two rules are disabled so that we can use anonymous functions with mocha
-// This allows the test instance to be properly referenced with `this`
-/* eslint prefer-arrow-callback: "off", func-names: "off" */
-
 import Vue from 'vue-test'; // eslint-disable-line
-import downloadButton from '../src/views/content-renderer/download-button.vue';
-
-const DownloadButtonComponent = Vue.extend(downloadButton);
+import DownloadButton from '../src/views/content-renderer/download-button.vue';
+import { mount } from '@vue/test-utils';
 import assert from 'assert';
 
 describe('download-button Component', function() {
@@ -25,15 +20,13 @@ describe('download-button Component', function() {
 
   describe('computed property', function() {
     describe('fileOptions', function() {
-      beforeEach(function() {
-        this.vm = new DownloadButtonComponent({
+      it('should return an array of length equal to number of files', function() {
+        const wrapper = mount(DownloadButton, {
           propsData: {
             files: samplesFiles,
           },
-        }).$mount();
-      });
-      it('should return an array of length equal to number of files', function() {
-        assert.equal(this.vm.fileOptions.length, samplesFiles.length);
+        });
+        assert.equal(wrapper.vm.fileOptions.length, samplesFiles.length);
       });
     });
   });
