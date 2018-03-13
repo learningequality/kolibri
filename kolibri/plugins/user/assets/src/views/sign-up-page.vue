@@ -115,8 +115,8 @@
 
 <script>
 
-  import { signUpNewUser, resetSignUpState } from '../../state/actions';
-  import { PageNames } from '../../constants';
+  import { signUpNewUser, resetSignUpState } from '../state/actions';
+  import { PageNames } from '../constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
@@ -124,7 +124,7 @@
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import logo from 'kolibri.coreVue.components.logo';
   import kSelect from 'kolibri.coreVue.components.kSelect';
-  import languageSwitcherFooter from '../language-switcher-footer';
+  import languageSwitcherFooter from './language-switcher-footer';
 
   export default {
     name: 'signUpPage',

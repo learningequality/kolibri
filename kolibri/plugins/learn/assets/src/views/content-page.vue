@@ -142,23 +142,23 @@
     startTrackingProgress as startTracking,
     stopTrackingProgress as stopTracking,
   } from 'kolibri.coreVue.vuex.actions';
-  import { PageNames, PageModes, ClassesPageNames } from '../../constants';
-  import { pageMode } from '../../state/getters';
+  import { PageNames, PageModes, ClassesPageNames } from '../constants';
+  import { pageMode } from '../state/getters';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
-  import { updateContentNodeProgress } from '../../state/actions/main';
-  import pageHeader from '../page-header';
-  import contentCardGroupCarousel from '../content-card-group-carousel';
+  import { updateContentNodeProgress } from '../state/actions/main';
+  import pageHeader from './page-header';
+  import contentCardGroupCarousel from './content-card-group-carousel';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import downloadButton from 'kolibri.coreVue.components.downloadButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
-  import assessmentWrapper from '../assessment-wrapper';
-  import pointsPopup from '../points-popup';
-  import pointsSlidein from '../points-slidein';
+  import assessmentWrapper from './assessment-wrapper';
+  import pointsPopup from './points-popup';
+  import pointsSlidein from './points-slidein';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
-  import { lessonResourceViewerLink } from '../classes/classPageLinks';
+  import { lessonResourceViewerLink } from './classes/classPageLinks';
 
   export default {
     name: 'learnContent',

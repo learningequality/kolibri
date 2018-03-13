@@ -46,7 +46,7 @@
 
 <script>
 
-  import { PageNames } from '../../constants';
+  import { PageNames } from '../constants';
   import uiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {

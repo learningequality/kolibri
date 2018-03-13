@@ -16,9 +16,9 @@
 
 <script>
 
-  import { PageNames } from '../../constants';
-  import pageHeader from '../page-header';
-  import contentCardGroupGrid from '../content-card-group-grid';
+  import { PageNames } from '../constants';
+  import pageHeader from './page-header';
+  import contentCardGroupGrid from './content-card-group-grid';
   export default {
     name: 'learnChannels',
     $trs: {

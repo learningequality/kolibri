@@ -26,11 +26,11 @@
 
 <script>
 
-  import { PageNames } from '../../constants';
+  import { PageNames } from '../constants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import pageHeader from '../page-header';
-  import contentCard from '../content-card';
-  import contentCardGroupGrid from '../content-card-group-grid';
+  import pageHeader from './page-header';
+  import contentCard from './content-card';
+  import contentCardGroupGrid from './content-card-group-grid';
   export default {
     name: 'learnTopics',
     $trs: {

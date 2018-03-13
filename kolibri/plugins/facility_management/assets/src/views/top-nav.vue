@@ -32,7 +32,7 @@
 
 <script>
 
-  import { PageNames } from '../../constants';
+  import { PageNames } from '../constants';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   export default {

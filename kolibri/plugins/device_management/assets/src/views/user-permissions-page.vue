@@ -76,13 +76,13 @@
 <script>
 
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
-  import subpageContainer from '../containers/subpage-container';
+  import subpageContainer from './containers/subpage-container';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
-  import { addOrUpdateUserPermissions } from '../../state/actions/managePermissionsActions';
-  import { PageNames } from '../../constants';
+  import { addOrUpdateUserPermissions } from '../state/actions/managePermissionsActions';
+  import { PageNames } from '../constants';
   import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
 
   const SUCCESS = 'SUCCESS';

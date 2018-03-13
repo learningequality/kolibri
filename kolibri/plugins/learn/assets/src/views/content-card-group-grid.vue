@@ -44,7 +44,7 @@
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import some from 'lodash/some';
   import kSelect from 'kolibri.coreVue.components.kSelect';
-  import contentCard from '../content-card';
+  import contentCard from './content-card';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   export default {

@@ -69,7 +69,7 @@
   import customUiMenu from 'kolibri.coreVue.components.customUiMenu';
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
-  import languageSwitcherModal from '../language-switcher/modal';
+  import languageSwitcherModal from './language-switcher/modal';
   export default {
     name: 'appBar',
     components: {

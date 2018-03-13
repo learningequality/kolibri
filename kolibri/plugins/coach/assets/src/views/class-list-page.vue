@@ -44,7 +44,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import ContentIcon from 'kolibri.coreVue.components.contentIcon';
-  import { PageNames } from '../../constants';
+  import { PageNames } from '../constants';
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 

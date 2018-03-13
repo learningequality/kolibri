@@ -15,7 +15,7 @@
 <script>
 
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
-  import errorBox from '../error-box';
+  import errorBox from './error-box';
 
   export default {
     name: 'appBody',

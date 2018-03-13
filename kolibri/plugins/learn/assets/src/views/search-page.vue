@@ -31,10 +31,10 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { PageNames } from '../../constants';
-  import contentCard from '../content-card';
-  import contentCardGroupGrid from '../content-card-group-grid';
-  import searchBox from '../search-box';
+  import { PageNames } from '../constants';
+  import contentCard from './content-card';
+  import contentCardGroupGrid from './content-card-group-grid';
+  import searchBox from './search-box';
   export default {
     name: 'learnSearch',
     $trs: {

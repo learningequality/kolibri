@@ -40,7 +40,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import UiPopover from 'keen-ui/src/UiPopover';
   import uiMenu from 'keen-ui/src/UiMenu';
-  import { validator } from '../buttons-and-links/appearances';
+  import { validator } from './buttons-and-links/appearances';
 
   /**
    * The kDropdownMenu component is used to contain multiple actions

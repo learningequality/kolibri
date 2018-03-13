@@ -15,10 +15,10 @@
 
 <script>
 
-  import { PageNames, PageModes } from '../../constants';
-  import { pageMode } from '../../state/getters';
+  import { PageNames, PageModes } from '../constants';
+  import { pageMode } from '../state/getters';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
-  import classesBreadcrumbItems from '../classes/classesBreadcrumbItems';
+  import classesBreadcrumbItems from './classes/classesBreadcrumbItems';
   export default {
     name: 'learnBreadcrumbs',
     $trs: {
