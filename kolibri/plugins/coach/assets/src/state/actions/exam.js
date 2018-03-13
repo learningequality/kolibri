@@ -147,18 +147,14 @@ function showExamsPage(store, classId) {
   store.dispatch('SET_PAGE_NAME', PageNames.EXAMS);
 
   const promises = [
-    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
-    ChannelResource.getCollection({ available: true, has_exercise: true }).fetch(),
     ExamResource.getCollection({ collection: classId }).fetch({}, true),
     setClassState(store, classId),
   ];
 
   return ConditionalPromise.all(promises).only(
     CoreActions.samePageCheckGenerator(store),
-    ([learnerGroups, channels, exams]) => {
+    ([exams]) => {
       const pageState = {
-        channels: _channelsState(channels),
-        currentClassGroups: learnerGroups.map(pickIdAndName),
         exams: _examsState(exams),
         examsModalSet: false,
         busy: false,

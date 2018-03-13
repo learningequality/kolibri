@@ -66,36 +66,6 @@
     <p v-else-if=" statusSelected.value === $tr('inactiveExams') && !inactiveExams.length">
       {{ $tr('noInactiveExams') }}
     </p>
-
-    <change-exam-visibility-modal
-      v-if="showChangeExamVisibilityModal"
-      :examId="selectedExam.id"
-      :examTitle="selectedExam.title"
-      :examVisibility="selectedExam.visibility"
-      :classId="classId"
-      :className="className"
-      :classGroups="currentClassGroups"
-    />
-    <preview-exam-modal
-      v-if="showPreviewExamModal"
-      :examChannelId="selectedExam.channelId"
-      :examQuestionSources="selectedExam.questionSources"
-      :examSeed="selectedExam.seed"
-      :examNumQuestions="selectedExam.questionCount"
-    />
-    <rename-exam-modal
-      v-if="showRenameExamModal"
-      :examId="selectedExam.id"
-      :examTitle="selectedExam.title"
-      :classId="classId"
-      :exams="sortedExams"
-    />
-    <delete-exam-modal
-      v-if="showDeleteExamModal"
-      :examId="selectedExam.id"
-      :examTitle="selectedExam.title"
-      :classId="classId"
-    />
   </div>
 
 </template>
@@ -104,16 +74,10 @@
 <script>
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import { className } from '../../../state/getters/main';
-  import * as ExamActions from '../../../state/actions/exam';
-  import { Modals as ExamModals } from '../../../examConstants';
   import { PageNames } from '../../../constants';
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kSelect from 'kolibri.coreVue.components.kSelect';
-  import changeExamVisibilityModal from './change-exam-visibility-modal';
-  import previewExamModal from './preview-exam-modal';
-  import renameExamModal from './rename-exam-modal';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import StatusIcon from '../../assignments/StatusIcon';
@@ -130,7 +94,7 @@
       title: 'Title',
       recipients: 'Recipients',
       noExams: 'You do not have any exams',
-      noActiveExams: 'No acitve exams',
+      noActiveExams: 'No active exams',
       noInactiveExams: 'No inactive exams',
       show: 'Show',
       status: 'Status',
@@ -144,9 +108,6 @@
       CoreTable,
       kRouterLink,
       kSelect,
-      changeExamVisibilityModal,
-      previewExamModal,
-      renameExamModal,
       CoreInfoIcon,
       contentIcon,
       StatusIcon,
@@ -154,14 +115,6 @@
     data() {
       return {
         statusSelected: { label: this.$tr('allExams'), value: this.$tr('allExams') },
-        selectedExam: {
-          title: '',
-          id: '',
-          visibility: {
-            class: null,
-            groups: [],
-          },
-        },
       };
     },
     computed: {
@@ -170,9 +123,6 @@
       },
       sortedExams() {
         return orderBy(this.exams, [exam => exam.title.toUpperCase()], ['asc']);
-      },
-      sortedChannels() {
-        return orderBy(this.channels, [channel => channel.name.toUpperCase()], ['asc']);
       },
       statusOptions() {
         return [
@@ -196,66 +146,11 @@
         }
         return this.sortedExams;
       },
-      showActivateExamModal() {
-        return this.examsModalSet === ExamModals.ACTIVATE_EXAM;
-      },
-      showDeactivateExamModal() {
-        return this.examsModalSet === ExamModals.DEACTIVATE_EXAM;
-      },
-      showChangeExamVisibilityModal() {
-        return this.examsModalSet === ExamModals.CHANGE_EXAM_VISIBILITY;
-      },
-      showPreviewExamModal() {
-        return this.examsModalSet === ExamModals.PREVIEW_EXAM;
-      },
-      showRenameExamModal() {
-        return this.examsModalSet === ExamModals.RENAME_EXAM;
-      },
-      showDeleteExamModal() {
-        return this.examsModalSet === ExamModals.DELETE_EXAM;
-      },
       newExamRoute() {
         return { name: PageNames.CREATE_EXAM };
       },
     },
     methods: {
-      setSelectedExam(examId) {
-        Object.assign(this.selectedExam, this.sortedExams.find(exam => exam.id === examId));
-      },
-      openChangeExamVisibilityModal(examId) {
-        this.setSelectedExam(examId);
-        this.setExamsModal(ExamModals.CHANGE_EXAM_VISIBILITY);
-      },
-      openActivateExamModal(examId) {
-        this.setSelectedExam(examId);
-        this.setExamsModal(ExamModals.ACTIVATE_EXAM);
-      },
-      openDeactivateExamModal(examId) {
-        this.setSelectedExam(examId);
-        this.setExamsModal(ExamModals.DEACTIVATE_EXAM);
-      },
-      openPreviewExamModal(examId) {
-        this.setSelectedExam(examId);
-        this.setExamsModal(ExamModals.PREVIEW_EXAM);
-      },
-      routeToExamReport({ id, channelId }) {
-        this.$router.push({
-          name: PageNames.EXAM_REPORT,
-          params: {
-            classId: this.classId,
-            examId: id,
-            channelId,
-          },
-        });
-      },
-      openRenameExamModal(examId) {
-        this.setSelectedExam(examId);
-        this.setExamsModal(ExamModals.RENAME_EXAM);
-      },
-      openDeleteExamModal(examId) {
-        this.setSelectedExam(examId);
-        this.setExamsModal(ExamModals.DELETE_EXAM);
-      },
       genExamRoute(examId) {
         return {
           name: PageNames.EXAM_REPORT,
@@ -272,14 +167,8 @@
       },
     },
     vuex: {
-      actions: { setExamsModal: ExamActions.setExamsModal },
       getters: {
-        classId: state => state.classId,
-        className,
-        currentClassGroups: state => state.pageState.currentClassGroups,
         exams: state => state.pageState.exams,
-        channels: state => state.pageState.channels,
-        examsModalSet: state => state.pageState.examsModalSet,
       },
     },
   };
