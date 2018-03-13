@@ -18,6 +18,7 @@
       />
     </assignment-summary>
 
+    <h2>{{ $tr('examReport') }}</h2>
     <p v-if="takenBy > 0">{{ $tr('averageScore', { num: averageScore }) }}</p>
 
     <core-table v-if="!noExamData">
@@ -190,6 +191,12 @@
       editDetails: 'Edit details',
       copyTo: 'Copy to',
       delete: 'Delete',
+
+      // TODO
+      viewByGroups: 'View by groups',
+      allLearners: 'All learners',
+      progress: 'Progress',
+      started: 'Started',
     },
   };
 

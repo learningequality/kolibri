@@ -31,18 +31,17 @@ export default [
   },
   {
     name: PageNames.EXAM_REPORT_DETAIL_ROOT,
-    path: '/:classId/:channelId/exams/:examId/users/:userId',
-    redirect: '/:classId/:channelId/exams/:examId/users/:userId/0/0',
+    path: '/:classId/exams/:examId/users/:userId',
+    redirect: '/:classId/exams/:examId/users/:userId/0/0',
   },
   {
     name: PageNames.EXAM_REPORT_DETAIL,
-    path: '/:classId/:channelId/exams/:examId/users/:userId/:question/:interaction',
+    path: '/:classId/exams/:examId/users/:userId/:question/:interaction',
     handler: toRoute => {
       showExamReportDetailPage(
         store,
         toRoute.params.classId,
         toRoute.params.userId,
-        toRoute.params.channelId,
         toRoute.params.examId,
         toRoute.params.question,
         toRoute.params.interaction

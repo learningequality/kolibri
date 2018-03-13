@@ -601,7 +601,6 @@ function showExamReportDetailPage(
   store,
   classId,
   userId,
-  channelId,
   examId,
   questionNumber,
   interactionIndex
@@ -610,9 +609,7 @@ function showExamReportDetailPage(
     store.dispatch('CORE_SET_PAGE_LOADING', true);
     store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT_DETAIL);
   }
-  const examPromise = ExamResource.getModel(examId, {
-    channel_id: channelId,
-  }).fetch();
+  const examPromise = ExamResource.getModel(examId).fetch();
   const examLogPromise = ExamLogResource.getCollection({
     exam: examId,
     user: userId,
@@ -698,7 +695,6 @@ function showExamReportDetailPage(
               questionNumber,
               currentAttempt,
               exercise,
-              channelId,
               interactionIndex,
               currentInteraction,
               currentInteractionHistory,
