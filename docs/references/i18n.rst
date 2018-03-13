@@ -152,10 +152,12 @@ This will update local translation files. Find and delete all files for unsuppor
 
 Finally, build the backend .mo files for Django:
 
+.. code-block:: bash
+
     $ make translation-django-compilemessages
 
-.. _new_language:
 
+.. _new_language:
 
 Adding a newly supported language
 ---------------------------------
@@ -171,6 +173,7 @@ The language must be described using the following keys, with everything in lowe
     "language_name": "<Language name in the target language>",
     "territory_code": "<Optional: Language territory code>",
     "script_code": "<Optional: Language script code>"
+    "english_name": "<Optional: Language name in English>"
   }
 
 Any time a language is added to supported languages the command ``yarn run generate-locale-data`` must be run, and the resulting file changes committed to the code base.

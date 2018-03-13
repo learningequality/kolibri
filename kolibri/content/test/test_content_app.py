@@ -8,11 +8,13 @@ import mock
 import requests
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.test import TestCase
 from le_utils.constants import content_kinds
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+import kolibri.content.serializers
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 from kolibri.auth.test.helpers import provision_device
@@ -182,14 +184,14 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "root", "kind": "topic", "available": False,
-                "total_resources": 4, "on_device_resources": 0, "importable": True, "children": [
+                "total_resources": 1, "on_device_resources": 0, "importable": True, "children": [
                     {
                         "pk": c2_id, "title": "c1", "kind": "video", "available": False,
                         "total_resources": 1, "on_device_resources": 0, "importable": True
                     },
                     {
                         "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
-                        "total_resources": 3, "on_device_resources": 0, "importable": True}]})
+                        "total_resources": 0, "on_device_resources": 0, "importable": True}]})
 
     @mock.patch('kolibri.content.serializers.get_mounted_drives_with_channel_info')
     def test_contentnode_granular_local_import(self, drive_mock):
@@ -208,7 +210,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(
             response.data, {
                 "pk": c1_id, "title": "root", "kind": "topic", "available": False,
-                "total_resources": 4, "on_device_resources": 0, "importable": True,
+                "total_resources": 1, "on_device_resources": 0, "importable": True,
                 "children": [
                     {
                         "pk": c2_id, "title": "c1", "kind": "video", "available": False,
@@ -216,7 +218,7 @@ class ContentNodeAPITestCase(APITestCase):
                     },
                     {
                         "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
-                        "total_resources": 3, "on_device_resources": 0, "importable": True
+                        "total_resources": 0, "on_device_resources": 0, "importable": True
                     }]
             })
 
@@ -290,9 +292,9 @@ class ContentNodeAPITestCase(APITestCase):
         c1_id = content.ContentNode.objects.get(title="c1").id
         content.ContentNode.objects.filter(pk=c1_id).update(available=False)
         response = self.client.get(reverse("channel-detail", kwargs={'pk': data["id"]}), {'file_sizes': True})
-        self.assertEqual(response.data['total_resources'], 4)
+        self.assertEqual(response.data['total_resources'], 1)
         self.assertEqual(response.data['total_file_size'], 0)
-        self.assertEqual(response.data['on_device_resources'], 3)
+        self.assertEqual(response.data['on_device_resources'], 0)
         self.assertEqual(response.data['on_device_file_size'], 0)
 
     def test_channelmetadata_langfield(self):
@@ -333,6 +335,35 @@ class ContentNodeAPITestCase(APITestCase):
         content.ContentNode.objects.filter(title="root").update(available=False)
         response = self.client.get(reverse("channel-list"))
         self.assertEqual(response.data[0]["available"], False)
+
+    def test_channelmetadata_file_sizes_filter_has_total_resources(self):
+        response = self.client.get(reverse("channel-list"), {"file_sizes": True})
+        self.assertEqual(response.data[0]["total_resources"], 1)
+
+    def test_channelmetadata_file_sizes_filter_has_total_file_size(self):
+        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
+        response = self.client.get(reverse("channel-list"), {"file_sizes": True})
+        self.assertEqual(response.data[0]["total_file_size"], 2)
+
+    def test_channelmetadata_file_sizes_filter_has_on_device_resources(self):
+        response = self.client.get(reverse("channel-list"), {"file_sizes": True})
+        self.assertEqual(response.data[0]["on_device_resources"], 1)
+
+    def test_channelmetadata_file_sizes_filter_has_on_device_file_size(self):
+        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
+        response = self.client.get(reverse("channel-list"), {"file_sizes": True})
+        self.assertEqual(response.data[0]["on_device_file_size"], 2)
+
+    def test_channelmetadata_file_sizes_filter_has_no_on_device_file_size(self):
+        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(available=True)
+        response = self.client.get(reverse("channel-list"), {"file_sizes": True})
+        self.assertEqual(response.data[0]["on_device_file_size"], 0)
+
+    @mock.patch.object(kolibri.content.serializers, 'renderable_contentnodes_q_filter', Q(kind=content_kinds.TOPIC))
+    def test_channelmetadata_file_sizes_filter_has_no_renderable_on_device_file_size(self):
+        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
+        response = self.client.get(reverse("channel-list"), {"file_sizes": True})
+        self.assertEqual(response.data[0]["on_device_file_size"], 0)
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
