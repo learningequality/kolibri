@@ -18,6 +18,11 @@ steps:
     command: mkdir -p dist && .buildkite/build_apk.sh
 
   - wait
-  
+
   - label: Upload artifacts
     command: .buildkite/setup_and_upload_artifact.sh && docker image prune -f
+
+  - wait
+
+  - label: Check and deploy
+    command: .buildkite/check_deploy.sh
