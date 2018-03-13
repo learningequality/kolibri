@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
 import sinon from 'sinon';
-import * as actions from '../../src/state/facilityConfigPageActions';
+import * as actions from '../../src/state/actions/facilityConfig';
 import { mockResource } from 'testUtils'; // eslint-disable-line
 
 const FacilityStub = mockResource(FacilityResource);

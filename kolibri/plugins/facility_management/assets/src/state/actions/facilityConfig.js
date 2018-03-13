@@ -1,11 +1,14 @@
 /* eslint-disable prefer-arrow-callback */
-import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
+import { convertKeysToCamelCase, convertKeysToSnakeCase } from 'kolibri.coreVue.vuex.mappers';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
+
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
-import preparePage from './helpers/preparePage';
+
 import { PageNames, defaultFacilityConfig, notificationTypes } from '../../constants';
+
+import preparePage from './helpers/preparePage';
 
 // Utility that wraps the ubiquitous "don't resolve if not on same page" logic.
 // The `_promise` property is accessed because the thenable returned by
@@ -38,9 +41,9 @@ function showFacilityConfigPage(store) {
         facilityDatasetId: dataset.id,
         facilityName: facility.name,
         // this part of state is mutated as user interacts with form
-        settings: CoreMappers.convertKeysToCamelCase(dataset),
+        settings: convertKeysToCamelCase(dataset),
         // this copy is kept for the purpose of undoing if save fails
-        settingsCopy: CoreMappers.convertKeysToCamelCase(dataset),
+        settingsCopy: convertKeysToCamelCase(dataset),
         notification: null,
       });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -59,9 +62,7 @@ function saveFacilityConfig(store) {
   showNotification(store, null);
   const { facilityDatasetId, settings } = store.state.pageState;
   const resourceRequests = [
-    FacilityDatasetResource.getModel(facilityDatasetId).save(
-      CoreMappers.convertKeysToSnakeCase(settings)
-    ),
+    FacilityDatasetResource.getModel(facilityDatasetId).save(convertKeysToSnakeCase(settings)),
   ];
   return resolveOnlyIfOnSamePage(resourceRequests, store)
     .then(function onSuccess() {
