@@ -72,7 +72,7 @@
 
 <script>
 
-  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   export default {
@@ -107,7 +107,7 @@
         return '\u2013';
       },
       Kinds() {
-        return CoreConstants.ContentNodeKinds;
+        return ContentNodeKinds;
       },
       isInProgress() {
         return this.contentProgress > 0 && this.contentProgress < 1;

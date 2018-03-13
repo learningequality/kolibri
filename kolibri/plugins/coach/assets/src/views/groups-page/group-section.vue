@@ -82,7 +82,7 @@
 <script>
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
-  import * as groupActions from '../../state/actions/group';
+  import { displayModal } from '../../state/actions/group';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -186,7 +186,7 @@
     },
     vuex: {
       getters: { groupModalShown: state => state.pageState.groupModalShown },
-      actions: { displayModal: groupActions.displayModal },
+      actions: { displayModal },
     },
   };
 

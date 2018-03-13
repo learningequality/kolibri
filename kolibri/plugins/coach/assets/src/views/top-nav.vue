@@ -44,7 +44,7 @@
 
 <script>
 
-  import * as Constants from '../constants';
+  import { PageNames } from '../constants';
   import { LessonsPageNames } from '../lessonsConstants';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
@@ -63,36 +63,33 @@
       kNavbarLink,
     },
     computed: {
-      Constants() {
-        return Constants;
-      },
       recentLink() {
         return {
-          name: Constants.PageNames.RECENT_CHANNELS,
+          name: PageNames.RECENT_CHANNELS,
           params: { classId: this.classId },
         };
       },
       topicsLink() {
         return {
-          name: Constants.PageNames.TOPIC_CHANNELS,
+          name: PageNames.TOPIC_CHANNELS,
           params: { classId: this.classId },
         };
       },
       examsLink() {
         return {
-          name: Constants.PageNames.EXAMS,
+          name: PageNames.EXAMS,
           params: { classId: this.classId },
         };
       },
       learnersLink() {
         return {
-          name: Constants.PageNames.LEARNER_LIST,
+          name: PageNames.LEARNER_LIST,
           params: { classId: this.classId },
         };
       },
       groupsLink() {
         return {
-          name: Constants.PageNames.GROUPS,
+          name: PageNames.GROUPS,
           params: { classId: this.classId },
         };
       },

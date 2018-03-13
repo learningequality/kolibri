@@ -63,8 +63,8 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
-  import * as reportConstants from '../../reportConstants';
-  import * as reportGetters from '../../state/getters/reports';
+  import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../reportConstants';
+  import { standardDataTable } from '../../state/getters/reports';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
@@ -94,10 +94,10 @@
         return ContentNodeKinds.CHANNEL;
       },
       tableColumns() {
-        return reportConstants.TableColumns;
+        return TableColumns;
       },
       threshold() {
-        return reportConstants.RECENCY_THRESHOLD_IN_DAYS;
+        return RECENCY_THRESHOLD_IN_DAYS;
       },
     },
     methods: {
@@ -119,7 +119,7 @@
     vuex: {
       getters: {
         channels: getChannels,
-        standardDataTable: reportGetters.standardDataTable,
+        standardDataTable,
         classId: state => state.classId,
         pageName: state => state.pageName,
         showRecentOnly: state => state.pageState.showRecentOnly,

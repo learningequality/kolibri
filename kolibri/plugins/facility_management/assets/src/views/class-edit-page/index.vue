@@ -106,15 +106,16 @@
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import * as constants from '../../constants';
+  import { PageNames, Modals } from '../../constants';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import * as actions from '../../state/actions';
+  import { displayModal } from '../../state/actions';
   import orderBy from 'lodash/orderBy';
   import classRenameModal from './class-rename-modal';
   import userRemoveModal from './user-remove-modal';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
+
   export default {
     name: 'classEnrollPage',
     $trs: {
@@ -147,7 +148,7 @@
       COACH: () => UserKinds.COACH,
       classEnrollLink() {
         return {
-          name: constants.PageNames.CLASS_ENROLL_MGMT_PAGE,
+          name: PageNames.CLASS_ENROLL_MGMT_PAGE,
           params: { classId: this.currClass.id },
         };
       },
@@ -175,19 +176,19 @@
         return orderBy(filteredUsers, [user => user.username.toUpperCase()], ['asc']);
       },
       showEditNameModal() {
-        return this.modalShown === constants.Modals.EDIT_CLASS_NAME;
+        return this.modalShown === Modals.EDIT_CLASS_NAME;
       },
       showRemoveUserModal() {
-        return this.modalShown === constants.Modals.REMOVE_USER;
+        return this.modalShown === Modals.REMOVE_USER;
       },
     },
     methods: {
       openEditNameModal() {
-        this.displayModal(constants.Modals.EDIT_CLASS_NAME);
+        this.displayModal(Modals.EDIT_CLASS_NAME);
       },
       openRemoveUserModal(user) {
         this.currentUserRemove = user;
-        this.displayModal(constants.Modals.REMOVE_USER);
+        this.displayModal(Modals.REMOVE_USER);
       },
     },
     vuex: {
@@ -198,7 +199,7 @@
         classes: state => state.pageState.classes,
       },
       actions: {
-        displayModal: actions.displayModal,
+        displayModal,
       },
     },
   };

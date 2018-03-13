@@ -155,8 +155,8 @@
 
 <script>
 
-  import * as constants from '../../constants';
-  import * as actions from '../../state/actions';
+  import { PageNames, Modals } from '../../constants';
+  import { displayModal } from '../../state/actions';
   import differenceWith from 'lodash/differenceWith';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
@@ -280,15 +280,15 @@
       },
       editClassLink() {
         return {
-          name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
+          name: PageNames.CLASS_EDIT_MGMT_PAGE,
           id: this.classId,
         };
       },
       showCreateUserModal() {
-        return this.modalShown === constants.Modals.CREATE_USER;
+        return this.modalShown === Modals.CREATE_USER;
       },
       showConfirmEnrollmentModal() {
-        return this.modalShown === constants.Modals.CONFIRM_ENROLLMENT;
+        return this.modalShown === Modals.CONFIRM_ENROLLMENT;
       },
       selectAllIsChecked() {
         return (
@@ -348,10 +348,10 @@
         return Math.abs(this.pageNum - page) <= maxOnEachSide;
       },
       openCreateUserModal() {
-        this.displayModal(constants.Modals.CREATE_USER);
+        this.displayModal(Modals.CREATE_USER);
       },
       openConfirmEnrollmentModal() {
-        this.displayModal(constants.Modals.CONFIRM_ENROLLMENT);
+        this.displayModal(Modals.CONFIRM_ENROLLMENT);
       },
     },
     vuex: {
@@ -363,7 +363,7 @@
         modalShown: state => state.pageState.modalShown,
         userJustCreated: state => state.pageState.userJustCreated,
       },
-      actions: { displayModal: actions.displayModal },
+      actions: { displayModal },
     },
   };
 

@@ -70,10 +70,10 @@
 <script>
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
-  import * as CoachConstants from '../../constants';
-  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
-  import * as reportGetters from '../../state/getters/reports';
-  import * as reportConstants from '../../reportConstants';
+  import { TopicReports, LearnerReports, PageNames } from '../../constants';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { exerciseCount, contentCount, standardDataTable } from '../../state/getters/reports';
+  import { TableColumns } from '../../reportConstants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
   import headerCell from './table-cells/header-cell';
@@ -107,15 +107,15 @@
     },
     computed: {
       tableColumns() {
-        return reportConstants.TableColumns;
+        return TableColumns;
       },
     },
     methods: {
       genRowLink(row) {
-        if (CoachConstants.TopicReports.includes(this.pageName)) {
-          if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+        if (TopicReports.includes(this.pageName)) {
+          if (row.kind === ContentNodeKinds.TOPIC) {
             return {
-              name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+              name: PageNames.TOPIC_ITEM_LIST,
               params: {
                 classId: this.classId,
                 channelId: this.pageState.channelId,
@@ -124,26 +124,26 @@
             };
           }
           return {
-            name: CoachConstants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
+            name: PageNames.TOPIC_LEARNERS_FOR_ITEM,
             params: {
               classId: this.classId,
               channelId: this.pageState.channelId,
               contentId: row.id,
             },
           };
-        } else if (CoachConstants.LearnerReports.includes(this.pageName)) {
-          if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+        } else if (LearnerReports.includes(this.pageName)) {
+          if (row.kind === ContentNodeKinds.TOPIC) {
             return {
-              name: CoachConstants.PageNames.LEARNER_ITEM_LIST,
+              name: PageNames.LEARNER_ITEM_LIST,
               params: {
                 classId: this.classId,
                 channelId: this.pageState.channelId,
                 topicId: row.id,
               },
             };
-          } else if (row.kind === CoreConstants.ContentNodeKinds.EXERCISE) {
+          } else if (row.kind === ContentNodeKinds.EXERCISE) {
             return {
-              name: CoachConstants.PageNames.LEARNER_ITEM_DETAILS_ROOT,
+              name: PageNames.LEARNER_ITEM_DETAILS_ROOT,
               params: {
                 classId: this.classId,
                 channelId: this.pageState.channelId,
@@ -160,9 +160,9 @@
         classId: state => state.classId,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
-        exerciseCount: reportGetters.exerciseCount,
-        contentCount: reportGetters.contentCount,
-        standardDataTable: reportGetters.standardDataTable,
+        exerciseCount,
+        contentCount,
+        standardDataTable,
       },
     },
   };

@@ -74,17 +74,16 @@
 <script>
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
-  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
-  import * as CoachConstants from '../../constants';
-  import * as reportGetters from '../../state/getters/reports';
-  import * as ReportConstants from '../../reportConstants';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { PageNames } from '../../constants';
+  import { exerciseCount, contentCount, standardDataTable } from '../../state/getters/reports';
+  import { TableColumns } from '../../reportConstants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import progressCell from './table-cells/progress-cell';
   import activityCell from './table-cells/activity-cell';
-
   import alignMixin from './align-mixin';
 
   export default {
@@ -114,22 +113,22 @@
     },
     computed: {
       isExercisePage() {
-        return this.pageState.contentScopeSummary.kind === CoreConstants.ContentNodeKinds.EXERCISE;
+        return this.pageState.contentScopeSummary.kind === ContentNodeKinds.EXERCISE;
       },
       isRootLearnerPage() {
-        return this.pageName === CoachConstants.PageNames.LEARNER_LIST;
+        return this.pageName === PageNames.LEARNER_LIST;
       },
       TableColumns() {
-        return ReportConstants.TableColumns;
+        return TableColumns;
       },
     },
     methods: {
       genLink(row) {
         if (this.isExercisePage) {
           const targetName =
-            this.pageName === CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM
-              ? CoachConstants.PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT
-              : CoachConstants.PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT;
+            this.pageName === PageNames.RECENT_LEARNERS_FOR_ITEM
+              ? PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT
+              : PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT;
           return {
             name: targetName,
             params: {
@@ -141,7 +140,7 @@
           };
         } else if (this.isRootLearnerPage) {
           return {
-            name: CoachConstants.PageNames.LEARNER_CHANNELS,
+            name: PageNames.LEARNER_CHANNELS,
             params: {
               classId: this.classId,
               userId: row.id,
@@ -156,9 +155,9 @@
         classId: state => state.classId,
         pageState: state => state.pageState,
         pageName: state => state.pageName,
-        exerciseCount: reportGetters.exerciseCount,
-        contentCount: reportGetters.contentCount,
-        standardDataTable: reportGetters.standardDataTable,
+        exerciseCount,
+        contentCount,
+        standardDataTable,
       },
     },
   };

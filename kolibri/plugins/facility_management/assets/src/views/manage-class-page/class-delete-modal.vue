@@ -31,7 +31,7 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
+  import { deleteClass, displayModal } from '../../state/actions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   export default {
@@ -68,8 +68,8 @@
     },
     vuex: {
       actions: {
-        deleteClass: actions.deleteClass,
-        displayModal: actions.displayModal,
+        deleteClass,
+        displayModal,
       },
     },
   };

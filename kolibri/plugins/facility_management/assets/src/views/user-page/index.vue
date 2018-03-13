@@ -120,8 +120,8 @@
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import * as constants from '../../constants';
-  import * as actions from '../../state/actions';
+  import { Modals } from '../../constants';
+  import { displayModal } from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import userCreateModal from './user-create-modal';
   import editUserModal from './edit-user-modal';
@@ -192,16 +192,16 @@
         );
       },
       showEditUserModal() {
-        return this.modalShown === constants.Modals.EDIT_USER;
+        return this.modalShown === Modals.EDIT_USER;
       },
       showResetUserPasswordModal() {
-        return this.modalShown === constants.Modals.RESET_USER_PASSWORD;
+        return this.modalShown === Modals.RESET_USER_PASSWORD;
       },
       showDeleteUserModal() {
-        return this.modalShown === constants.Modals.DELETE_USER;
+        return this.modalShown === Modals.DELETE_USER;
       },
       showCreateUserModal() {
-        return this.modalShown === constants.Modals.CREATE_USER;
+        return this.modalShown === Modals.CREATE_USER;
       },
     },
     beforeMount() {
@@ -221,15 +221,15 @@
       handleManageUserSelection(selection, user) {
         this.selectedUser = user;
         if (selection.label === this.$tr('editUser')) {
-          this.displayModal(constants.Modals.EDIT_USER);
+          this.displayModal(Modals.EDIT_USER);
         } else if (selection.label === this.$tr('resetUserPassword')) {
-          this.displayModal(constants.Modals.RESET_USER_PASSWORD);
+          this.displayModal(Modals.RESET_USER_PASSWORD);
         } else if (selection.label === this.$tr('deleteUser')) {
-          this.displayModal(constants.Modals.DELETE_USER);
+          this.displayModal(Modals.DELETE_USER);
         }
       },
       openCreateUserModal() {
-        this.displayModal(constants.Modals.CREATE_USER);
+        this.displayModal(Modals.CREATE_USER);
       },
       canEditUser(user) {
         if (!this.isSuperuser) {
@@ -246,7 +246,7 @@
         isSuperuser,
       },
       actions: {
-        displayModal: actions.displayModal,
+        displayModal,
       },
     },
     $trs: {

@@ -4,7 +4,7 @@
 
     <breadcrumbs />
     <h1>{{ $tr('title') }}</h1>
-    <p v-if="!standardDataTable.length">{{ $tr('noRecentProgress', { threshold }) }}</p>
+    <p v-if="!standardDataTable.length">{{ noProgressText }}</p>
     <core-table v-if="standardDataTable.length">
       <thead slot="thead">
         <tr>
@@ -57,8 +57,8 @@
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import * as CoachConstants from '../../constants';
-  import * as reportConstants from '../../reportConstants';
+  import { PageNames } from '../../constants';
+  import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../reportConstants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import * as mainGetters from '../../state/getters/main';
   import * as reportGetters from '../../state/getters/reports';
@@ -94,10 +94,10 @@
     },
     computed: {
       tableColumns() {
-        return reportConstants.TableColumns;
+        return TableColumns;
       },
-      threshold() {
-        return reportConstants.RECENCY_THRESHOLD_IN_DAYS;
+      noProgressText() {
+        return this.$tr('noRecentProgress', { RECENCY_THRESHOLD_IN_DAYS });
       },
     },
     methods: {
@@ -121,7 +121,7 @@
       },
       genLink(row) {
         return {
-          name: CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM,
+          name: PageNames.RECENT_LEARNERS_FOR_ITEM,
           params: {
             classId: this.classId,
             channelId: this.pageState.channelId,
