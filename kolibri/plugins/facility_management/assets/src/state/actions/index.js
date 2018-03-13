@@ -14,6 +14,6 @@ export {
 
 export { createUser, updateUser, deleteUser, showUserPage } from './user';
 
-export { default as showDataPage } from './data';
+export { showDataPage } from './data';
 
 export { default as displayModal } from './helpers/displayModal';
