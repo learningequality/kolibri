@@ -4,8 +4,8 @@ import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
-import preparePage from './preparePage';
-import { PageNames, defaultFacilityConfig, notificationTypes } from '../constants';
+import preparePage from './helpers/preparePage';
+import { PageNames, defaultFacilityConfig, notificationTypes } from '../../constants';
 
 // Utility that wraps the ubiquitous "don't resolve if not on same page" logic.
 // The `_promise` property is accessed because the thenable returned by

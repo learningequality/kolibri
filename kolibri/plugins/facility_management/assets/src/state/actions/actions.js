@@ -13,7 +13,7 @@ import {
   handleApiError,
 } from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { PageNames } from '../constants';
+import { PageNames } from '../../constants';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import {
   showFacilityConfigPage,
@@ -21,7 +21,7 @@ import {
   saveFacilityConfig,
 } from './facilityConfigPageActions';
 
-import preparePage from './preparePage';
+import preparePage from './helpers/preparePage';
 
 /**
  * Vuex State Mappers
