@@ -1,11 +1,11 @@
 <template>
 
   <core-modal
-    :title="title"
+    :title="modalTitle"
     @cancel="closeModal()"
   >
     <form @submit.prevent="changeStatus">
-      <p>{{ description }}</p>
+      <p>{{ modalDescription }}</p>
       <k-radio-button
         :label="$tr('activeOption')"
         :radiovalue="true"
@@ -49,11 +49,11 @@
       kRadioButton,
     },
     props: {
-      title: {
+      modalTitle: {
         type: String,
         required: true,
       },
-      description: {
+      modalDescription: {
         type: String,
         required: true,
       },

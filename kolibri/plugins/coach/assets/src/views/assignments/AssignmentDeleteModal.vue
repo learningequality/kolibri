@@ -1,10 +1,10 @@
 <template>
 
   <core-modal
-    :title="title"
+    :title="modalTitle"
     @cancel="closeModal()"
   >
-    <p>{{ description }}</p>
+    <p>{{ modalDescription }}</p>
     <form
       @submit.prevent.once="$emit('delete')"
       class="core-modal-buttons"
@@ -36,11 +36,11 @@
       kButton,
     },
     props: {
-      title: {
+      modalTitle: {
         type: String,
         required: true,
       },
-      description: {
+      modalDescription: {
         type: String,
         required: true,
       },

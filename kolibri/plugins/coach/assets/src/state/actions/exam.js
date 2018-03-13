@@ -739,6 +739,30 @@ function showExamReportDetailPage(
   );
 }
 
+// TODO
+function copyExam(store) {
+  const className = 'TODO';
+  const trs = createTranslator('copyExam', {
+    copiedExamToClass: 'Copied exam to { className }',
+    copyOfExam: 'Copy of {examTitle}',
+  });
+
+  CoreActions.createSnackbar(store, {
+    text: trs.$tr('copiedExamToClass', { className }),
+    autoDismiss: true,
+  });
+}
+
+// TODO
+function updateExamDetails(store) {
+  CoreActions.createSnackbar(store, {
+    text: createTranslator('editExamDetailsSnackbar', {
+      changesToExamSaved: 'Changes to exam saved',
+    }).$tr('changesToExamSaved'),
+    autoDismiss: true,
+  });
+}
+
 export {
   displayExamModal,
   showExamsPage,
@@ -758,4 +782,6 @@ export {
   setSelectedExercises,
   goToTopic,
   goToTopLevel,
+  copyExam,
+  updateExamDetails,
 };

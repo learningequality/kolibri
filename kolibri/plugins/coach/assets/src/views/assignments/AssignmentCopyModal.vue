@@ -1,7 +1,7 @@
 <template>
 
   <core-modal
-    :title="title"
+    :title="modalTitle"
     @cancel="closeModal()"
   >
     <!-- Classroom Selection Form -->
@@ -87,7 +87,7 @@
       RecipientSelector,
     },
     props: {
-      title: {
+      modalTitle: {
         type: String,
         required: true,
       },
@@ -178,7 +178,6 @@
       continue: 'Continue',
       cancel: 'Cancel',
       makeCopy: 'Copy',
-      copyOf: 'Copy of {title}',
       destinationExplanation: `Will be copied to '{classroomName}'`,
     },
   };

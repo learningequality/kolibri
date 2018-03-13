@@ -10,16 +10,30 @@
 
     <assignment-change-status-modal
       v-else-if="examModalShown === LessonActions.CHANGE_STATUS"
-      :title="$tr('changeExamStatusTitle')"
-      :description="$tr('changeExamStatusDescription')"
+      :modalTitle="$tr('changeExamStatusTitle')"
+      :modalDescription="$tr('changeExamStatusDescription')"
       :active="exam.active"
       @changeStatus="handleChangeStatus"
       @cancel="displayExamModal(null)"
     />
 
+    <assignment-details-modal
+      v-else-if="examModalShown === LessonActions.EDIT_DETAILS"
+      :modalTitle="$tr('editExamDetails')"
+      :submitErrorMessage="$tr('saveExamError')"
+      :showDescriptionField="false"
+      :isInEditMode="true"
+      :initialTitle="exam.title"
+      :initialSelectedCollectionIds="selectedCollectionIds"
+      :classId="classId"
+      :groups="learnerGroups"
+      @save="updateExamDetails"
+      @cancel="displayExamModal(null)"
+    />
+
     <assignment-copy-modal
       v-else-if="examModalShown === LessonActions.COPY"
-      :title="$tr('copyExamTitle')"
+      :modalTitle="$tr('copyExamTitle')"
       :copyExplanation="$tr('copyExplanation')"
       :assignmentQuestion="$tr('assignmentQuestion')"
       :classId="classId"
@@ -30,8 +44,8 @@
 
     <assignment-delete-modal
       v-else-if="examModalShown === LessonActions.DELETE"
-      :title="$tr('deleteExamTitle')"
-      :description="$tr('deleteExamDescription', { title: exam.title })"
+      :modalTitle="$tr('deleteExamTitle')"
+      :modalDescription="$tr('deleteExamDescription', { title: exam.title })"
       @delete="deleteExam(exam.id)"
       @cancel="displayExamModal(null)"
     />
@@ -44,6 +58,7 @@
 
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import previewExamModal from '../exams-page/preview-exam-modal';
+  import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
   import { Modals as ExamModals } from '../../../examConstants';
@@ -52,6 +67,8 @@
     displayExamModal,
     activateExam,
     deactivateExam,
+    updateExamDetails,
+    copyExam,
     deleteExam,
   } from '../../../state/actions/exam';
 
@@ -60,6 +77,7 @@
     components: {
       AssignmentChangeStatusModal,
       previewExamModal,
+      AssignmentDetailsModal,
       AssignmentCopyModal,
       AssignmentDeleteModal,
     },
@@ -70,6 +88,9 @@
       ExamModals() {
         return ExamModals;
       },
+      selectedCollectionIds() {
+        return this.exam.assignments.map(assignment => assignment.collection.id);
+      },
     },
     methods: {
       handleChangeStatus(isActive) {
@@ -79,9 +100,6 @@
           this.deactivateExam(this.exam.id);
         }
       },
-      copyExam(classId, recipients) {
-        console.log('handle copy', recipients);
-      },
     },
     vuex: {
       getters: {
@@ -89,12 +107,15 @@
         examModalShown: state => state.pageState.examModalShown,
         classId: state => state.classId,
         classList: state => state.classList,
+        learnerGroups: state => state.pageState.learnerGroups,
       },
       actions: {
         displayExamModal,
         activateExam,
         deactivateExam,
         deleteExam,
+        copyExam,
+        updateExamDetails,
       },
     },
     $trs: {
@@ -105,6 +126,8 @@
       assignmentQuestion: 'Who should this exam be assigned to?',
       deleteExamTitle: 'Delete exam',
       deleteExamDescription: "Are you sure you want to delete '{ title }'?",
+      editExamDetails: 'Edit exam details',
+      saveExamError: 'There was a problem saving this exam',
     },
   };
 
