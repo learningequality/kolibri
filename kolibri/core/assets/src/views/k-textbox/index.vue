@@ -108,6 +108,7 @@
         default: false,
       },
       /**
+       * @private
        * Whether or not to display as a floating label
        */
       floatingLabel: {
