@@ -25,6 +25,7 @@
   import AssignedLessonsCards from './AssignedLessonsCards';
 
   export default {
+    name: 'ClassAssignmentsPage',
     components: {
       AssignedExamsTable,
       AssignedLessonsCards,

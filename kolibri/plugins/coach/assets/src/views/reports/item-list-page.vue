@@ -84,7 +84,7 @@
   import alignMixin from './align-mixin';
 
   export default {
-    name: 'itemReportPage',
+    name: 'itemListPage',
     components: {
       coreTable,
       contentIcon,

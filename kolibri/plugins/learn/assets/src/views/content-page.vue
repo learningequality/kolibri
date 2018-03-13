@@ -161,7 +161,7 @@
   import { lessonResourceViewerLink } from './classes/classPageLinks';
 
   export default {
-    name: 'learnContent',
+    name: 'contentPage',
     $trs: {
       recommended: 'Recommended',
       nextContent: 'Go to next item',

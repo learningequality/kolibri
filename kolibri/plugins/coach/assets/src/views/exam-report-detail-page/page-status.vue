@@ -43,7 +43,7 @@
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   export default {
-    name: 'coachExamReportDetailPageStatus',
+    name: 'pageStatus',
     $trs: {
       title: '{name} - Exam performance',
       overallScore: 'Overall score: { score, number, percent }',

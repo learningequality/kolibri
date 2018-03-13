@@ -49,7 +49,7 @@
 <script>
 
   export default {
-    name: 'coachExerciseAnswerHistory',
+    name: 'attemptLogList',
     $trs: {
       header: 'Answer history',
       today: 'Today',

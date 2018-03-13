@@ -49,7 +49,7 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
-    name: 'coachClassListPage',
+    name: 'classListPage',
     components: {
       coreTable,
       ContentIcon,

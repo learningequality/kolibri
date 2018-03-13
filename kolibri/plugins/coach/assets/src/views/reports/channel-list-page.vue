@@ -70,7 +70,7 @@
   import activityCell from './table-cells/activity-cell';
   import alignMixin from './align-mixin';
   export default {
-    name: 'coachRecentPageChannelList',
+    name: 'channelListPage',
     components: {
       contentIcon,
       coreTable,

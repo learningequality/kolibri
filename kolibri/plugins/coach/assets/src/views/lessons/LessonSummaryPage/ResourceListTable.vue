@@ -105,7 +105,7 @@
   const saveDebounceTime = 6000;
 
   export default {
-    name: 'lessonResourceListTable',
+    name: 'resourceListTable',
     components: {
       uiIconButton,
       kButton,

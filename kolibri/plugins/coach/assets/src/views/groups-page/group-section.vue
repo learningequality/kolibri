@@ -91,7 +91,7 @@
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
 
   export default {
-    name: 'coachGroupsTable',
+    name: 'groupSection',
     $trs: {
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       moveLearners: 'Move Learners',

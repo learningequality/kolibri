@@ -52,7 +52,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    name: 'manageData',
+    name: 'dataPage',
     components: {
       kButton,
       kGrid,

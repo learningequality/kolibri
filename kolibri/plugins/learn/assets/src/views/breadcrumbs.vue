@@ -20,7 +20,7 @@
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import classesBreadcrumbItems from './classes/classesBreadcrumbItems';
   export default {
-    name: 'learnBreadcrumbs',
+    name: 'breadcrumbs',
     $trs: {
       recommended: 'Recommended',
       channels: 'Channels',

@@ -74,7 +74,7 @@
   const gutterWidth = 20;
 
   export default {
-    name: 'contentCardCarousel',
+    name: 'contentCardGroupCarousel',
     components: {
       uiIconButton,
       contentCard,

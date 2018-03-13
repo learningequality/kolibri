@@ -11,6 +11,7 @@
 
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   export default {
+    name: 'activityCell',
     components: { elapsedTime },
     props: {
       date: {

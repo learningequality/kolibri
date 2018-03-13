@@ -35,7 +35,7 @@
   import searchBox from './search-box';
 
   export default {
-    name: 'actionBarSearchBar',
+    name: 'actionBarSearchBox',
     components: {
       uiIconButton,
       searchBox,

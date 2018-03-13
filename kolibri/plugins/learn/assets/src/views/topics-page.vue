@@ -32,7 +32,7 @@
   import contentCard from './content-card';
   import contentCardGroupGrid from './content-card-group-grid';
   export default {
-    name: 'learnTopics',
+    name: 'topicsPage',
     $trs: {
       topics: 'Topics',
       navigate: 'Navigate content using headings',

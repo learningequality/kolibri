@@ -31,7 +31,7 @@
 <script>
 
   export default {
-    name: 'examAnswerHistory',
+    name: 'answerHistory',
     $trs: {
       question: 'Question { num }',
     },

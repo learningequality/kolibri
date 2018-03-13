@@ -20,7 +20,7 @@
   import pageHeader from './page-header';
   import contentCardGroupGrid from './content-card-group-grid';
   export default {
-    name: 'learnChannels',
+    name: 'channelsPage',
     $trs: {
       channels: 'Channels',
     },
