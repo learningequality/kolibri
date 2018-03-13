@@ -1,7 +1,8 @@
 import KolibriApp from 'kolibri_app';
 import RootVue from './views';
 import * as actions from './state/actions';
-import { initialState, mutations } from './state/store';
+import * as mutations from './state/mutations';
+import initialState from './state/initialState';
 import { PageNames } from './constants';
 import store from 'kolibri.coreVue.vuex.store';
 

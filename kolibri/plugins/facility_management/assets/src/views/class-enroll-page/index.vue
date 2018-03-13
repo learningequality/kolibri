@@ -299,6 +299,7 @@
       },
     },
     watch: {
+      // TODO to be removed
       userJustCreated(user) {
         this.selectedUsers.push(user.id);
       },
