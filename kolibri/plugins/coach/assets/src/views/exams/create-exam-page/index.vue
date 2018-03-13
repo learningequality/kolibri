@@ -364,7 +364,7 @@
         } else {
           this.handleAddTopicExercises(allExercises, currentTopicTitle);
         }
-        this.setDummyChannelId();
+        this.setDummyChannelId(this.subtopics[0].id);
       },
       handleGoToTopic(topicId) {
         this.loading = true;
@@ -377,7 +377,7 @@
             this.loading = false;
           });
         }
-        this.setDummyChannelId(this.subtopics[0].id);
+        this.setDummyChannelId(topicId);
       },
       handleAddExercise(exercise) {
         this.selectionMade = true;
