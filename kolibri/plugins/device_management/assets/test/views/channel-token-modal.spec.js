@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import assert from 'assert';
-import { mount } from 'avoriaz';
+import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
 import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
 import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -13,8 +13,8 @@ function makeWrapper() {
 
 function getElements(wrapper) {
   return {
-    cancelButton: () => wrapper.first('button[name="cancel"]'),
-    tokenTextbox: () => wrapper.first(kTextbox),
+    cancelButton: () => wrapper.find('button[name="cancel"]'),
+    tokenTextbox: () => wrapper.find(kTextbox),
     networkErrorAlert: () => wrapper.find(UiAlert),
     lookupTokenStub: () => sinon.stub(wrapper.vm, 'lookupToken'),
     $emitSpy: () => sinon.stub(wrapper.vm, '$emit'),
@@ -42,20 +42,20 @@ describe('channelTokenModal component', () => {
       const textbox = getElements(wrapper).tokenTextbox();
       textbox.vm.$emit('input', token);
       return wrapper.vm.$nextTick().then(() => {
-        assert.equal(textbox.getProp('value'), token.trim());
+        assert.equal(textbox.props().value, token.trim());
       });
     }
 
     function assertTextboxInvalid(wrapper) {
       const textbox = getElements(wrapper).tokenTextbox();
-      assert.equal(textbox.getProp('invalid'), true);
-      assert.equal(textbox.getProp('invalidText'), 'Check whether you entered token correctly');
+      assert.equal(textbox.props().invalid, true);
+      assert.equal(textbox.props().invalidText, 'Check whether you entered token correctly');
     }
 
     it('if user has not interacted with the form, then no validation messages appear', () => {
       const { tokenTextbox, networkErrorAlert } = getElements(wrapper);
-      assert.equal(tokenTextbox().getProp('invalid'), false);
-      assert.deepEqual(networkErrorAlert(), []);
+      assert.equal(tokenTextbox().props().invalid, false);
+      assert(!networkErrorAlert().exists());
     });
 
     it('disables the form while waiting for a response from the server', () => {
@@ -148,8 +148,8 @@ describe('channelTokenModal component', () => {
         .then(() => {
           sinon.assert.calledWith(lookupStub, 'toka-toka-token');
           sinon.assert.notCalled(emitSpy);
-          assert.equal(textbox.getProp('invalid'), false);
-          assert(networkErrorAlert()[0].isVueComponent);
+          assert.equal(textbox.props().invalid, false);
+          assert(networkErrorAlert().isVueInstance());
         });
     });
   });
