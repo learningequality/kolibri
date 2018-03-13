@@ -36,7 +36,7 @@
 
 <script>
 
-  import { displayExamModal, renameExam } from '../../../state/actions/exam';
+  import { setExamsModal, renameExam } from '../../../state/actions/exam';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -123,12 +123,12 @@
         }
       },
       close() {
-        this.displayExamModal(false);
+        this.setExamsModal(false);
       },
     },
     vuex: {
       actions: {
-        displayExamModal,
+        setExamsModal,
         renameExam,
       },
     },

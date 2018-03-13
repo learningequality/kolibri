@@ -137,7 +137,7 @@
     createExam,
     addExercise,
     removeExercise,
-    displayExamModal,
+    setExamsModal,
     setSelectedExercises,
   } from '../../../state/actions/exam';
   import { className } from '../../../state/getters/main';
@@ -328,7 +328,7 @@
         );
       },
       showPreviewNewExamModal() {
-        return this.examModalShown === ExamModals.PREVIEW_NEW_EXAM;
+        return this.examsModalSet === ExamModals.PREVIEW_NEW_EXAM;
       },
       questionSources() {
         const questionSources = [];
@@ -396,7 +396,7 @@
         if (this.formIsInvalid) {
           this.focusOnInvalidField();
         } else {
-          this.displayExamModal(ExamModals.PREVIEW_NEW_EXAM);
+          this.setExamsModal(ExamModals.PREVIEW_NEW_EXAM);
         }
       },
       finish() {
@@ -452,7 +452,7 @@
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,
         selectedExercises: state => state.pageState.selectedExercises,
-        examModalShown: state => state.pageState.examModalShown,
+        examsModalSet: state => state.pageState.examsModalSet,
         exams: state => state.pageState.exams,
       },
       actions: {
@@ -461,7 +461,7 @@
         createExam,
         addExercise,
         removeExercise,
-        displayExamModal,
+        setExamsModal,
         createSnackbar,
         setSelectedExercises,
       },

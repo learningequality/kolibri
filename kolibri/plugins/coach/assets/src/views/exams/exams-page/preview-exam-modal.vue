@@ -174,13 +174,13 @@
         return '';
       },
       close() {
-        this.displayExamModal(false);
+        this.setExamsModal(false);
       },
       getExerciseQuestions(exerciseId) {
         return this.questions.filter(q => q.contentId === exerciseId);
       },
     },
-    vuex: { actions: { displayExamModal: examActions.displayExamModal } },
+    vuex: { actions: { setExamsModal: examActions.setExamsModal } },
   };
 
 </script>

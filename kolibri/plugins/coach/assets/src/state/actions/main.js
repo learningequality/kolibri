@@ -53,7 +53,7 @@ function showClassListPage(store) {
 // - - - - - Action for Coach Exercise Render Page - - - - - -
 
 function setSelectedAttemptLogIndex(store, index) {
-  store.dispatch('SET_SELETED_ATTEMPTLOG_INDEX', index);
+  store.dispatch('SET_SELECTED_ATTEMPT_LOG_INDEX', index);
 }
 
 export { setClassState, showClassListPage, setSelectedAttemptLogIndex };

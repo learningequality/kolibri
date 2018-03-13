@@ -45,10 +45,10 @@
     },
     methods: {
       close() {
-        this.displayExamModal(false);
+        this.setExamsModal(false);
       },
     },
-    vuex: { actions: { displayExamModal: ExamActions.displayExamModal } },
+    vuex: { actions: { setExamsModal: ExamActions.setExamsModal } },
   };
 
 </script>

@@ -138,8 +138,8 @@ function _examsState(exams) {
   return exams.map(exam => _examState(exam));
 }
 
-function displayExamModal(store, modalName) {
-  store.dispatch('SET_EXAM_MODAL', modalName);
+function setExamsModal(store, modalName) {
+  store.dispatch('SET_EXAMS_MODAL', modalName);
 }
 
 function showExamsPage(store, classId) {
@@ -160,7 +160,7 @@ function showExamsPage(store, classId) {
         channels: _channelsState(channels),
         currentClassGroups: learnerGroups.map(pickIdAndName),
         exams: _examsState(exams),
-        examModalShown: false,
+        examsModalSet: false,
         busy: false,
       };
 
@@ -183,7 +183,7 @@ function activateExam(store, examId) {
         exams[examIndex].active = true;
 
         store.dispatch('SET_EXAMS', exams);
-        displayExamModal(store, false);
+        setExamsModal(store, false);
 
         CoreActions.createSnackbar(store, {
           text: createTranslator('examStatusSnackbar', {
@@ -206,7 +206,7 @@ function deactivateExam(store, examId) {
         exams[examIndex].active = false;
 
         store.dispatch('SET_EXAMS', exams);
-        displayExamModal(store, false);
+        setExamsModal(store, false);
 
         CoreActions.createSnackbar(store, {
           text: createTranslator('examStatusSnackbar', {
@@ -280,7 +280,7 @@ function updateExamAssignments(store, examId, collectionsToAssign, assignmentsTo
       store.dispatch('SET_EXAMS', exams);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('SET_BUSY', false);
-      displayExamModal(store, false);
+      setExamsModal(store, false);
     },
     error => {
       store.dispatch('SET_BUSY', false);
@@ -290,7 +290,7 @@ function updateExamAssignments(store, examId, collectionsToAssign, assignmentsTo
 }
 
 function previewExam(store) {
-  displayExamModal(store, false);
+  setExamsModal(store, false);
 }
 
 function renameExam(store, examId, newExamTitle) {
@@ -303,7 +303,7 @@ function renameExam(store, examId, newExamTitle) {
         exams[examIndex].title = newExamTitle;
 
         store.dispatch('SET_EXAMS', exams);
-        displayExamModal(store, false);
+        setExamsModal(store, false);
       },
       error => CoreActions.handleError(store, error)
     );
@@ -325,7 +325,7 @@ function deleteExam(store, examId) {
           }).$tr('examDeleted'),
           autoDismiss: true,
         });
-        displayExamModal(store, false);
+        setExamsModal(store, false);
       },
       error => CoreActions.handleError(store, error)
     );
@@ -474,7 +474,7 @@ function showCreateExamPage(store, classId) {
     subtopics: [],
     exercises: [],
     selectedExercises: [],
-    examModalShown: false,
+    examsModalSet: false,
   });
 
   const examsPromise = ExamResource.getCollection({
@@ -591,7 +591,7 @@ function showExamReportPage(store, classId, examId) {
           const pageState = {
             examTakers,
             exam,
-            examModalShown: null,
+            examsModalSet: null,
             exams,
             learnerGroups,
           };
@@ -764,7 +764,7 @@ function updateExamDetails(store) {
 }
 
 export {
-  displayExamModal,
+  setExamsModal,
   showExamsPage,
   showCreateExamPage,
   showExamReportPage,

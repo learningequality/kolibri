@@ -9,7 +9,7 @@
       :description="lessonDescription"
       :recipients="lessonAssignments"
       :groups="learnerGroups"
-      @changeStatus="currentAction = LessonActions.CHANGE_STATUS"
+      @changeStatus="setLessonsModal(AssignmentActions.CHANGE_STATUS)"
     >
       <k-dropdown-menu
         slot="optionsDropdown"
@@ -42,10 +42,7 @@
         {{ $tr('noResourcesInLesson') }}
       </p>
 
-      <manage-lesson-modals
-        :currentAction="currentAction"
-        @cancel="currentAction=null"
-      />
+      <manage-lesson-modals />
     </div>
 
   </div>
@@ -60,10 +57,11 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import map from 'lodash/map';
   import ManageLessonModals from '../ManageLessonModals';
-  import { LessonActions } from '../../../lessonsConstants';
+  import { AssignmentActions } from '../../../assignmentsConstants';
   import { selectionRootLink } from '../lessonsRouterUtils';
   import AssignmentSummary from '../../assignments/AssignmentSummary';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { setLessonsModal } from '../../../state/actions/lessons';
 
   export default {
     name: 'lessonSummaryPage',
@@ -74,11 +72,6 @@
       kRouterLink,
       AssignmentSummary,
     },
-    data() {
-      return {
-        currentAction: null,
-      };
-    },
     computed: {
       lessonOptions() {
         return map(this.actionsToLabelMap, (label, action) => ({
@@ -88,13 +81,13 @@
       },
       actionsToLabelMap() {
         return {
-          [LessonActions.EDIT_DETAILS]: 'editLessonDetails',
-          [LessonActions.COPY]: 'copyLesson',
-          [LessonActions.DELETE]: 'deleteLesson',
+          [AssignmentActions.EDIT_DETAILS]: 'editLessonDetails',
+          [AssignmentActions.COPY]: 'copyLesson',
+          [AssignmentActions.DELETE]: 'deleteLesson',
         };
       },
-      LessonActions() {
-        return LessonActions;
+      AssignmentActions() {
+        return AssignmentActions;
       },
       lessonSelectionRootPage() {
         return selectionRootLink({ lessonId: this.lessonId, classId: this.classId });
@@ -105,10 +98,13 @@
     },
     methods: {
       handleSelectOption({ action }) {
-        this.currentAction = action;
+        this.setLessonsModal(action);
       },
     },
     vuex: {
+      actions: {
+        setLessonsModal,
+      },
       getters: {
         // IDEA refactor, make actions get all this information themselves.
         classId: state => state.classId,

@@ -2,23 +2,23 @@
 
   <div>
     <preview-exam-modal
-      v-if="examModalShown === ExamModals.PREVIEW_EXAM"
+      v-if="examsModalSet === ExamModals.PREVIEW_EXAM"
       :examQuestionSources="exam.question_sources"
       :examSeed="exam.seed"
       :examNumQuestions="exam.question_count"
     />
 
     <assignment-change-status-modal
-      v-else-if="examModalShown === LessonActions.CHANGE_STATUS"
+      v-else-if="examsModalSet === AssignmentActions.CHANGE_STATUS"
       :modalTitle="$tr('changeExamStatusTitle')"
       :modalDescription="$tr('changeExamStatusDescription')"
       :active="exam.active"
       @changeStatus="handleChangeStatus"
-      @cancel="displayExamModal(null)"
+      @cancel="setExamsModal(null)"
     />
 
     <assignment-details-modal
-      v-else-if="examModalShown === LessonActions.EDIT_DETAILS"
+      v-else-if="examsModalSet === AssignmentActions.EDIT_DETAILS"
       :modalTitle="$tr('editExamDetails')"
       :submitErrorMessage="$tr('saveExamError')"
       :showDescriptionField="false"
@@ -28,26 +28,26 @@
       :classId="classId"
       :groups="learnerGroups"
       @save="updateExamDetails"
-      @cancel="displayExamModal(null)"
+      @cancel="setExamsModal(null)"
     />
 
     <assignment-copy-modal
-      v-else-if="examModalShown === LessonActions.COPY"
+      v-else-if="examsModalSet === AssignmentActions.COPY"
       :modalTitle="$tr('copyExamTitle')"
       :copyExplanation="$tr('copyExplanation')"
       :assignmentQuestion="$tr('assignmentQuestion')"
       :classId="classId"
       :classList="classList"
       @copy="copyExam"
-      @cancel="displayExamModal(null)"
+      @cancel="setExamsModal(null)"
     />
 
     <assignment-delete-modal
-      v-else-if="examModalShown === LessonActions.DELETE"
+      v-else-if="examsModalSet === AssignmentActions.DELETE"
       :modalTitle="$tr('deleteExamTitle')"
       :modalDescription="$tr('deleteExamDescription', { title: exam.title })"
       @delete="deleteExam(exam.id)"
-      @cancel="displayExamModal(null)"
+      @cancel="setExamsModal(null)"
     />
   </div>
 
@@ -62,9 +62,9 @@
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
   import { Modals as ExamModals } from '../../../examConstants';
-  import { LessonActions } from '../../../lessonsConstants';
+  import { AssignmentActions } from '../../../assignmentsConstants';
   import {
-    displayExamModal,
+    setExamsModal,
     activateExam,
     deactivateExam,
     updateExamDetails,
@@ -82,8 +82,8 @@
       AssignmentDeleteModal,
     },
     computed: {
-      LessonActions() {
-        return LessonActions;
+      AssignmentActions() {
+        return AssignmentActions;
       },
       ExamModals() {
         return ExamModals;
@@ -104,13 +104,13 @@
     vuex: {
       getters: {
         exam: state => state.pageState.exam,
-        examModalShown: state => state.pageState.examModalShown,
+        examsModalSet: state => state.pageState.examsModalSet,
         classId: state => state.classId,
         classList: state => state.classList,
         learnerGroups: state => state.pageState.learnerGroups,
       },
       actions: {
-        displayExamModal,
+        setExamsModal,
         activateExam,
         deactivateExam,
         deleteExam,

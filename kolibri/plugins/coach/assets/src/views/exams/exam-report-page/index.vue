@@ -7,7 +7,7 @@
       :active="exam.active"
       :recipients="exam.assignments"
       :groups="learnerGroups"
-      @changeStatus="displayExamModal(LessonActions.CHANGE_STATUS)"
+      @changeStatus="setExamsModal(AssignmentActions.CHANGE_STATUS)"
     >
       <k-dropdown-menu
         slot="optionsDropdown"
@@ -90,9 +90,9 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import { USER, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
-  import { displayExamModal } from '../../../state/actions/exam';
+  import { setExamsModal } from '../../../state/actions/exam';
   import { Modals as ExamModals } from '../../../examConstants';
-  import { LessonActions } from '../../../lessonsConstants';
+  import { AssignmentActions } from '../../../assignmentsConstants';
   import AssignmentSummary from '../../assignments/AssignmentSummary';
   import ManageExamModals from './ManageExamModals';
 
@@ -107,8 +107,8 @@
       ManageExamModals,
     },
     computed: {
-      LessonActions() {
-        return LessonActions;
+      AssignmentActions() {
+        return AssignmentActions;
       },
       noExamData() {
         return this.examTakers.length === 0;
@@ -142,13 +142,13 @@
       handleSelection(optionSelected) {
         const action = optionSelected.label;
         if (action === this.$tr('previewExam')) {
-          this.displayExamModal(ExamModals.PREVIEW_EXAM);
+          this.setExamsModal(ExamModals.PREVIEW_EXAM);
         } else if (action === this.$tr('editDetails')) {
-          this.displayExamModal(LessonActions.EDIT_DETAILS);
+          this.setExamsModal(AssignmentActions.EDIT_DETAILS);
         } else if (action === this.$tr('copyTo')) {
-          this.displayExamModal(LessonActions.COPY);
+          this.setExamsModal(AssignmentActions.COPY);
         } else if (action === this.$tr('delete')) {
-          this.displayExamModal(LessonActions.DELETE);
+          this.setExamsModal(AssignmentActions.DELETE);
         }
       },
       examDetailPageLink(id) {
@@ -170,7 +170,7 @@
         learnerGroups: state => state.pageState.learnerGroups,
       },
       actions: {
-        displayExamModal,
+        setExamsModal,
       },
     },
     $trs: {

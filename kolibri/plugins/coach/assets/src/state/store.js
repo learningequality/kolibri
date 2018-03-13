@@ -74,11 +74,11 @@ export const mutations = {
   SET_EXAMS(state, exams) {
     state.pageState.exams = exams;
   },
-  SET_EXAM_MODAL(state, modalName) {
-    state.pageState.examModalShown = modalName;
+  SET_EXAMS_MODAL(state, modalName) {
+    state.pageState.examsModalSet = modalName;
   },
   // etc
-  SET_SELETED_ATTEMPTLOG_INDEX(state, attemptLog) {
+  SET_SELECTED_ATTEMPT_LOG_INDEX(state, attemptLog) {
     state.pageState.selectedAttemptLogIndex = attemptLog;
   },
 
