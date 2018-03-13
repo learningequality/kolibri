@@ -9,6 +9,7 @@ import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import { handleApiError, createSnackbar } from 'kolibri.coreVue.vuex.actions';
 import { error as logError } from 'kolibri.lib.logging';
+import router from 'kolibri.coreVue.router';
 
 const translator = createTranslator('lessonsPageTitles', {
   lessons: 'Lessons',
@@ -384,5 +385,31 @@ export function updateLessonStatus(store, lessonId, isActive) {
       // TODO handle error properly
       handleApiError(store, err);
       logError(err);
+    });
+}
+
+export function deleteLesson(store, lessonId, classId) {
+  return LessonResource.getModel(lessonId)
+    .delete()
+    ._promise.then(() => refreshClassLessons(store, classId))
+    .then(() => {
+      router.replace({
+        name: LessonsPageNames.ROOT,
+        params: {
+          classId,
+          lessonId,
+        },
+      });
+      createSnackbar(store, {
+        text: createTranslator('lessonDeletedSnackbar', {
+          lessonDeleted: 'Lesson deleted',
+        }).$tr('lessonDeleted'),
+        autoDismiss: true,
+      });
+    })
+    .catch(error => {
+      // TODO handle error inside the current page
+      handleApiError(store, error);
+      logError(error);
     });
 }

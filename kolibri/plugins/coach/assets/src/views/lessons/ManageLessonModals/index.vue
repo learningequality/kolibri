@@ -38,8 +38,8 @@
     <assignment-delete-modal
       v-else-if="lessonsModalSet === AssignmentActions.DELETE"
       :modalTitle="$tr('deleteLessonTitle')"
-      :modalDescription="$tr('deleteLessonDescription', { title: exam.title })"
-      @delete="deleteExam(exam.id)"
+      :modalDescription="$tr('deleteLessonDescription', { title: currentLesson.title })"
+      @delete="deleteLesson(currentLesson.id, classId)"
       @cancel="setLessonsModal(null)"
     />
   </div>
@@ -54,7 +54,11 @@
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../assignmentsConstants';
-  import { setLessonsModal, updateLessonStatus } from '../../../state/actions/lessons';
+  import {
+    setLessonsModal,
+    updateLessonStatus,
+    deleteLesson,
+  } from '../../../state/actions/lessons';
 
   export default {
     name: 'manageLessonModals',
@@ -78,10 +82,12 @@
       getters: {
         currentLesson: state => state.pageState.currentLesson,
         lessonsModalSet: state => state.pageState.lessonsModalSet,
+        classId: state => state.classId,
       },
       actions: {
         setLessonsModal,
         updateLessonStatus,
+        deleteLesson,
       },
     },
     $trs: {
@@ -90,7 +96,7 @@
       copyLessonTitle: 'Copy lesson',
       copyExplanation: 'Copy this lesson to',
       assignmentQuestion: 'Who should this lesson be assigned to?',
-      deleteLessonTitle: 'Delete title',
+      deleteLessonTitle: 'Delete lesson',
       deleteLessonDescription: "Are you sure you want to delete '{ title }'?",
       editLessonDetails: 'Edit lesson details',
       newLesson: 'New lesson',
