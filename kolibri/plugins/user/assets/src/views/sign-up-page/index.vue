@@ -4,21 +4,32 @@
 
     <ui-toolbar type="colored" textColor="white">
       <template slot="icon">
-        <ui-icon class="app-bar-icon"><logo/></ui-icon>
+        <logo class="app-bar-icon" />
       </template>
       <template slot="brand">
         {{ $tr('kolibri') }}
       </template>
       <div slot="actions">
-        <router-link id="signin" :to="signInPage">
+        <router-link
+          id="signin"
+          :to="signInPage"
+        >
           <span>{{ $tr('logIn') }}</span>
         </router-link>
       </div>
     </ui-toolbar>
 
-    <form class="signup-form" ref="form" @submit.prevent="signUp">
-      <ui-alert type="error" @dismiss="resetSignUpState" v-if="unknownError">
-        {{errorMessage}}
+    <form
+      class="signup-form"
+      ref="form"
+      @submit.prevent="signUp"
+    >
+      <ui-alert
+        v-if="unknownError"
+        type="error"
+        @dismiss="resetSignUpState"
+      >
+        {{ errorMessage }}
       </ui-alert>
 
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
@@ -75,22 +86,28 @@
         v-model="confirmedPassword"
       />
 
-      <ui-select
-        :name="$tr('selectFacility')"
-        :placeholder="$tr('selectFacility')"
+      <k-select
         :label="$tr('facility')"
-        :value="selectedFacility"
+        v-model="selectedFacility"
         :options="facilityList"
         :invalid="facilityIsInvalid"
-        :error="facilityIsInvalidText"
+        :invalidText="facilityIsInvalidText"
         @blur="facilityBlurred = true"
-        @input="updateSelection"
       />
 
-      <k-button :disabled="busy" :primary="true" :text="$tr('finish')" type="submit" />
+      <k-button
+        :disabled="busy"
+        :primary="true"
+        :text="$tr('finish')"
+        type="submit"
+        class="submit"
+      />
 
     </form>
 
+    <div class="footer">
+      <language-switcher-footer />
+    </div>
   </div>
 
 </template>
@@ -98,16 +115,17 @@
 
 <script>
 
-  import { signUp, resetSignUpState } from '../../state/actions';
+  import { signUpNewUser, resetSignUpState } from '../../state/actions';
   import { PageNames } from '../../constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import logo from 'kolibri.coreVue.components.logo';
-  import uiIcon from 'keen-ui/src/UiIcon';
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import languageSwitcherFooter from '../language-switcher-footer';
+
   export default {
     name: 'signUpPage',
     $trs: {
@@ -117,14 +135,13 @@
       password: 'Password',
       reEnterPassword: 'Re-enter password',
       passwordMatchError: 'Passwords do not match',
-      genericError: 'Something went wrong during sign up!',
+      genericError: 'Something went wrong during sign up',
       usernameAlphaNumError: 'Username can only contain letters, numbers, and underscores',
       usernameAlreadyExistsError: 'An account with that username already exists',
       logIn: 'Sign in',
       kolibri: 'Kolibri',
       finish: 'Finish',
       facility: 'Facility',
-      selectFacility: 'Select a facility',
       required: 'This field is required',
     },
     components: {
@@ -133,15 +150,15 @@
       kTextbox,
       uiToolbar,
       logo,
-      uiIcon,
-      uiSelect,
+      kSelect,
+      languageSwitcherFooter,
     },
     data: () => ({
       name: '',
       username: '',
       password: '',
       confirmedPassword: '',
-      selection: {},
+      selectedFacility: {},
       nameBlurred: false,
       usernameBlurred: false,
       passwordBlurred: false,
@@ -156,14 +173,8 @@
       facilityList() {
         return this.facilities.map(facility => ({
           label: facility.name,
-          id: facility.id,
+          value: facility.id,
         }));
-      },
-      selectedFacility() {
-        if (this.facilityList.length === 1) {
-          return this.facilityList[0];
-        }
-        return this.selection;
       },
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
@@ -174,7 +185,7 @@
         return '';
       },
       nameIsInvalid() {
-        return !!this.nameIsInvalidText;
+        return Boolean(this.nameIsInvalidText);
       },
       usernameDoesNotExistYet() {
         if (this.errorCode === 400) {
@@ -197,7 +208,7 @@
         return '';
       },
       usernameIsInvalid() {
-        return !!this.usernameIsInvalidText;
+        return Boolean(this.usernameIsInvalidText);
       },
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
@@ -208,7 +219,7 @@
         return '';
       },
       passwordIsInvalid() {
-        return !!this.passwordIsInvalidText;
+        return Boolean(this.passwordIsInvalidText);
       },
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.formSubmitted) {
@@ -222,10 +233,10 @@
         return '';
       },
       confirmedPasswordIsInvalid() {
-        return !!this.confirmedPasswordIsInvalidText;
+        return Boolean(this.confirmedPasswordIsInvalidText);
       },
       noFacilitySelected() {
-        return !this.selectedFacility.id;
+        return !this.selectedFacility.value;
       },
       facilityIsInvalidText() {
         if (this.facilityBlurred || this.formSubmitted) {
@@ -236,7 +247,7 @@
         return '';
       },
       facilityIsInvalid() {
-        return !!this.facilityIsInvalidText;
+        return Boolean(this.facilityIsInvalidText);
       },
       formIsValid() {
         return (
@@ -257,16 +268,18 @@
         return this.backendErrorMessage || this.$tr('genericError');
       },
     },
+    beforeMount() {
+      if (this.facilityList.length === 1) {
+        this.selectedFacility = this.facilityList[0];
+      }
+    },
     methods: {
-      updateSelection(selection) {
-        this.selection = selection;
-      },
       signUp() {
         this.formSubmitted = true;
         const canSubmit = this.formIsValid && !this.busy;
         if (canSubmit) {
-          this.signUpAction({
-            facility: this.selectedFacility.id,
+          this.signUpNewUser({
+            facility: this.selectedFacility.value,
             full_name: this.name,
             username: this.username,
             password: this.password,
@@ -296,8 +309,8 @@
         facilities: state => state.core.facilities,
       },
       actions: {
-        signUpAction: signUp,
-        resetSignUpState: resetSignUpState,
+        signUpNewUser,
+        resetSignUpState,
       },
     },
   };
@@ -352,7 +365,14 @@
       margin-top: 0
 
   .app-bar-icon
-    font-size: 2.5em
+    height: 40px
     margin-left: 0.25em
+
+  .footer
+    margin: 36px
+    margin-top: 96px
+
+  .submit
+    margin-left: 0
 
 </style>

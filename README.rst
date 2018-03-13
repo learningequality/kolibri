@@ -3,13 +3,15 @@ Kolibri
 =======
 
 .. image:: https://badge.fury.io/py/kolibri.svg
-   :target: https://pypi.python.org/pypi/kolibri/
-.. image:: https://travis-ci.org/learningequality/kolibri.svg
+  :target: https://pypi.python.org/pypi/kolibri/
+.. image:: https://travis-ci.org/learningequality/kolibri.svg?branch=develop
   :target: https://travis-ci.org/learningequality/kolibri
-.. image:: http://codecov.io/github/learningequality/kolibri/coverage.svg?branch=master
-  :target: http://codecov.io/github/learningequality/kolibri?branch=master
-.. image:: https://readthedocs.org/projects/kolibri/badge/?version=latest
+.. image:: http://codecov.io/github/learningequality/kolibri/coverage.svg?branch=develop
+  :target: http://codecov.io/github/learningequality/kolibri?branch=develop
+.. image:: https://img.shields.io/badge/docs-user-ff69b4.svg
   :target: http://kolibri.readthedocs.org/en/latest/
+.. image:: https://img.shields.io/badge/docs-developer-69ffb4.svg
+  :target: http://kolibri-dev.readthedocs.org/en/developer/
 .. image:: https://img.shields.io/badge/support-on%20discourse-blue.svg
   :target: https://community.learningequality.org/
 .. image:: https://img.shields.io/badge/irc-%23kolibri%20on%20freenode-blue.svg
@@ -34,36 +36,16 @@ insight (like "next lesson" recommendations), and to allow user data to be synce
 thus a Kolibri learner can use his or her credentials on any linked Kolibri installation, for instance on different
 devices at a school.
 
-See https://learningequality.org/kolibri/ for more info.
+See `our website <https://learningequality.org/kolibri/>`_ for more information.
 
 
 How can I use it?
 -----------------
 
-Kolibri is under active development and is not yet ready to be used in real
-deployments.
-
-**We expect a public beta to be available during second half of 2017.**
-
-In the meantime, take a look at
-`KA-Lite <https://learningequality.org/ka-lite/>`_, Kolibri's predecessor which
-is already deployed around the world.
+An initial version of Kolibri is `now available for download! <https://learningequality.org/download/>`_
 
 
 How can I contribute?
 ---------------------
 
-.. warning::
-
-  *We welcome new contributors but since* ***Kolibri*** *is still in*
-  *development, the APIs are subject to change, and upgrade paths are not*
-  *guaranteed for all releases. We do not recommend deploying Kolibri before*
-  *the first public betas are available.*
-
-  *Please start by:*
-
-* Reading our `Developer Documentation <http://kolibri.readthedocs.io/en/develop/dev/getting_started.html>`_ available online, and in the ``docs/`` directory.
-* Get support in our `Support Community <http://community.learningequality.org/>`_.
-* Sign up to receive developer announcements: `Google groups <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_.
-* or via IRC: #kolibri on Freenode.
-
+Thanks for your interest! Please see the `contributing section <http://kolibri-dev.readthedocs.io/en/develop/start/contributing/index.html>`_ of our `online developer documentation <http://kolibri-dev.readthedocs.io/>`_.

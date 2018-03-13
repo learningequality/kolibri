@@ -16,7 +16,6 @@ oriented data synchronization.
     <div>
       <content-renderer
         ref="contentRenderer"
-        class="content-renderer"
         :id="content.id"
         :kind="content.kind"
         :files="content.files"
@@ -33,15 +32,16 @@ oriented data synchronization.
         @itemError="handleItemError"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
-        @updateProgress="updateProgress"/>
+        @updateProgress="updateProgress"
+      />
     </div>
 
     <div>
       <transition mode="out-in">
         <k-button
           :text="$tr('check')"
-          :primary="false"
-          :raised="true"
+          :primary="checkButtonIsPrimary"
+          appearance="raised-button"
           v-if="!complete"
           @click="checkAnswer"
           class="question-btn"
@@ -49,31 +49,34 @@ oriented data synchronization.
           :disabled="checkingAnswer"
         />
         <k-button
-          :text="$tr('correct')"
+          :text="$tr('next')"
           :primary="true"
-          :raised="true"
+          appearance="raised-button"
           v-else
           @click="nextQuestion"
           class="question-btn"
         />
       </transition>
-      <slot/>
+      <slot></slot>
     </div>
 
     <div class="attemptprogress-container" :class="{ mobile: isMobile }">
+      <p class="message">
+        {{ $tr('goal', {count: totalCorrectRequiredM}) }}
+      </p>
       <exercise-attempts
         class="attemptprogress"
-        :class="{ mobile: isMobile }"
-        :waitingForAttempt="firstAttempt"
-        :success="success"
+        :waitingForAttempt="firstAttemptAtQuestion"
         :numSpaces="attemptsWindowN"
         :log="recentAttempts"
       />
-      <p class="message" :class="{ mobile: isMobile }">
-        {{ $tr('goal', {count: totalCorrectRequiredM}) }}
-      </p>
-      <p class="try-again" v-if="correct < 1 && !firstAttempt && !onlyHinted">
-        {{ $tr('tryAgain') }}
+      <p class="status">
+        <span class="try-again" v-if="!correct && !firstAttemptAtQuestion && !hintWasTaken">
+          {{ $tr('tryAgain') }}
+        </span>
+        <span class="correct" v-if="correct && !firstAttemptAtQuestion && !hintWasTaken">
+          {{ $tr('correct') }}
+        </span>
       </p>
     </div>
   </div>
@@ -86,25 +89,31 @@ oriented data synchronization.
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import * as getters from 'kolibri.coreVue.vuex.getters';
   import * as actions from 'kolibri.coreVue.vuex.actions';
-  import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
-  import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
+  import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import seededShuffle from 'kolibri.lib.seededshuffle';
   import { now } from 'kolibri.utils.serverClock';
   import { updateContentNodeProgress } from '../../state/actions/main';
-  import exerciseAttempts from 'kolibri.coreVue.components.exerciseAttempts';
+  import exerciseAttempts from './exercise-attempts';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
+
   export default {
     name: 'assessmentWrapper',
+    components: {
+      exerciseAttempts,
+      contentRenderer,
+      kButton,
+      uiAlert,
+    },
     mixins: [responsiveWindow],
     $trs: {
       goal:
         'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',
-      tryAgain: 'Try again!',
+      tryAgain: 'Try again',
+      correct: 'Correct!',
       check: 'Check',
-      correct: 'Next question',
-      incorrect: 'Sorry, try again',
+      next: 'Next question',
       itemError: 'There was an error showing this item',
     },
     props: {
@@ -140,195 +149,23 @@ oriented data synchronization.
         type: Function,
         default: () => Promise.resolve(),
       },
-    },
-    watch: { exerciseProgress: 'updateExerciseProgressMethod' },
-    components: {
-      exerciseAttempts,
-      contentRenderer,
-      kButton,
-      uiAlert,
+      checkButtonIsPrimary: {
+        type: Boolean,
+        default: false,
+      },
     },
     data: () => ({
       ready: false,
       itemId: '',
       shake: false,
-      firstAttempt: true,
+      firstAttemptAtQuestion: true,
       complete: false,
       correct: 0,
       itemError: false,
-      onlyHinted: false,
+      hintWasTaken: false,
       // Attempted fix for #1725
       checkingAnswer: false,
     }),
-    methods: {
-      updateAttemptLogMasteryLog({
-        correct,
-        complete,
-        firstAttempt = false,
-        hinted,
-        answerState,
-        simpleAnswer,
-      }) {
-        this.updateMasteryAttemptStateAction({
-          currentTime: now(),
-          correct,
-          complete,
-          firstAttempt,
-          hinted,
-          answerState,
-          simpleAnswer,
-        });
-      },
-      saveAttemptLogMasterLog() {
-        this.saveAttemptLogAction().then(() => {
-          if (this.isUserLoggedIn && this.success) {
-            this.setMasteryLogCompleteAction(now());
-            this.saveMasteryLogAction();
-          }
-        });
-      },
-      checkAnswer() {
-        if (!this.checkingAnswer) {
-          this.checkingAnswer = true;
-          const answer = this.$refs.contentRenderer.checkAnswer();
-          if (answer) {
-            this.answerGiven(answer);
-          }
-          this.checkingAnswer = false;
-        }
-      },
-      answerGiven({ correct, answerState, simpleAnswer }) {
-        this.onlyHinted = false;
-        correct = Number(correct);
-        this.correct = correct;
-        if (correct < 1) {
-          if (!this.shake) {
-            setTimeout(() => {
-              this.shake = false;
-            }, 1000);
-            this.shake = true;
-          }
-        }
-        this.updateAttemptLogInteractionHistoryAction({
-          type: InteractionTypes.answer,
-          answer: answerState,
-          correct,
-        });
-        this.complete = correct === 1;
-        if (this.firstAttempt) {
-          this.firstAttempt = false;
-          this.updateAttemptLogMasteryLog({
-            correct,
-            complete: this.complete,
-            answerState,
-            simpleAnswer,
-            firstAttempt: true,
-          });
-          // Save attempt log on first attempt
-          this.saveAttemptLogMasterLog();
-        } else {
-          this.updateAttemptLogMasteryLog({
-            complete: this.complete,
-          });
-          if (this.complete) {
-            // Otherwise only save if the attempt is now complete
-            this.saveAttemptLogMasterLog();
-          }
-        }
-      },
-      hintTaken({ answerState }) {
-        this.updateAttemptLogInteractionHistoryAction({
-          type: InteractionTypes.hint,
-          answer: answerState,
-        });
-        if (this.firstAttempt) {
-          this.updateAttemptLogMasteryLog({
-            correct: 0,
-            complete: false,
-            firstAttempt: true,
-            hinted: true,
-            answerState,
-            simpleAnswer: '',
-          });
-          this.firstAttempt = false;
-          this.onlyHinted = true;
-          // Only save if this was the first attempt to capture this
-          this.saveAttemptLogMasterLog();
-        }
-      },
-      setItemId() {
-        const index = this.totalattempts % this.assessmentIds.length;
-        if (this.randomize) {
-          if (this.userid) {
-            this.itemId = seededShuffle.shuffle(this.assessmentIds, this.userid, true)[index];
-          } else {
-            this.itemId = seededShuffle.shuffle(this.assessmentIds, Date.now(), true)[index];
-          }
-        } else {
-          this.itemId = this.assessmentIds[index];
-        }
-      },
-      nextQuestion() {
-        this.complete = false;
-        this.shake = false;
-        this.firstAttempt = true;
-        this.correct = 0;
-        this.itemError = false;
-        this.setItemId();
-        this.createAttemptLog();
-      },
-      initMasteryLog() {
-        this.initMasteryLogAction(this.masterySpacingTime, this.masteryModel);
-      },
-      createAttemptLog() {
-        this.ready = false;
-        this.createAttemptLogAction(this.itemId);
-        this.ready = true;
-      },
-      updateExerciseProgressMethod() {
-        this.updateExerciseProgress(this.exerciseProgress);
-        updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
-      },
-      sessionInitialized() {
-        if (this.isUserLoggedIn) {
-          this.initMasteryLog();
-        } else {
-          this.createDummyMasteryLogAction();
-        }
-        this.nextQuestion();
-        this.$emit('sessionInitialized');
-      },
-      handleItemError() {
-        this.itemError = true;
-        this.updateAttemptLogInteractionHistoryAction({
-          type: InteractionTypes.error,
-        });
-        this.complete = true;
-        if (this.firstAttempt) {
-          this.updateAttemptLogMasteryLog({
-            correct: 1,
-            complete: this.complete,
-            firstAttempt: true,
-          });
-          this.firstAttempt = false;
-        } else {
-          this.updateAttemptLogMasteryLog({ complete: this.complete });
-        }
-      },
-      updateProgress(...args) {
-        this.$emit('updateProgress', ...args);
-      },
-      startTracking(...args) {
-        this.$emit('startTracking', ...args);
-      },
-      stopTracking(...args) {
-        this.$emit('stopTracking', ...args);
-      },
-    },
-    beforeDestroy() {
-      // Make sure any unsaved data is captured before tear down.
-      this.saveAttemptLogMasterLog();
-    },
     computed: {
       recentAttempts() {
         if (!this.pastattempts) {
@@ -344,7 +181,10 @@ oriented data synchronization.
           .reverse();
       },
       mOfNMasteryModel() {
-        return MasteryModelGenerators[this.masteryModel.type](this.assessmentIds, this.masteryModel);
+        return MasteryModelGenerators[this.masteryModel.type](
+          this.assessmentIds,
+          this.masteryModel
+        );
       },
       totalCorrectRequiredM() {
         return this.mOfNMasteryModel.m;
@@ -378,14 +218,193 @@ oriented data synchronization.
         return this.windowSize.breakpoint <= 1;
       },
     },
+    watch: { exerciseProgress: 'updateExerciseProgressMethod' },
+    beforeDestroy() {
+      this.saveAttemptLogMasterLog(false);
+    },
+    methods: {
+      updateAttemptLogMasteryLog({
+        correct,
+        complete,
+        firstAttempt = false,
+        hinted,
+        answerState,
+        simpleAnswer,
+      }) {
+        this.updateMasteryAttemptStateAction({
+          currentTime: now(),
+          correct,
+          complete,
+          firstAttempt,
+          hinted,
+          answerState,
+          simpleAnswer,
+        });
+      },
+      saveAttemptLogMasterLog(updateStore = true) {
+        if (updateStore) {
+          this.saveAndStoreAttemptLogAction().then(() => {
+            if (this.isUserLoggedIn && this.success) {
+              this.setMasteryLogCompleteAction(now());
+              this.saveAndStoreMasteryLogAction();
+            }
+          });
+        } else {
+          this.saveAttemptLogAction().then(() => {
+            if (this.isUserLoggedIn && this.success) {
+              this.saveMasteryLogAction();
+            }
+          });
+        }
+      },
+      checkAnswer() {
+        if (!this.checkingAnswer) {
+          this.checkingAnswer = true;
+          const answer = this.$refs.contentRenderer.checkAnswer();
+          if (answer) {
+            this.answerGiven(answer);
+          }
+          this.checkingAnswer = false;
+        }
+      },
+      answerGiven({ correct, answerState, simpleAnswer }) {
+        this.hintWasTaken = false;
+        correct = Number(correct);
+        this.correct = correct;
+        if (correct < 1) {
+          if (!this.shake) {
+            setTimeout(() => {
+              this.shake = false;
+            }, 1000);
+            this.shake = true;
+          }
+        }
+        this.updateAttemptLogInteractionHistoryAction({
+          type: InteractionTypes.answer,
+          answer: answerState,
+          correct,
+        });
+        this.complete = correct === 1;
+        if (this.firstAttemptAtQuestion) {
+          this.firstAttemptAtQuestion = false;
+          this.updateAttemptLogMasteryLog({
+            correct,
+            complete: this.complete,
+            answerState,
+            simpleAnswer,
+            firstAttempt: true,
+          });
+          // Save attempt log on first attempt
+          this.saveAttemptLogMasterLog();
+        } else {
+          this.updateAttemptLogMasteryLog({
+            complete: this.complete,
+          });
+          if (this.complete) {
+            // Otherwise only save if the attempt is now complete
+            this.saveAttemptLogMasterLog();
+          }
+        }
+      },
+      hintTaken({ answerState }) {
+        this.updateAttemptLogInteractionHistoryAction({
+          type: InteractionTypes.hint,
+          answer: answerState,
+        });
+        if (this.firstAttemptAtQuestion) {
+          this.updateAttemptLogMasteryLog({
+            correct: 0,
+            complete: false,
+            firstAttempt: true,
+            hinted: true,
+            answerState,
+            simpleAnswer: '',
+          });
+          this.firstAttemptAtQuestion = false;
+          this.hintWasTaken = true;
+          // Only save if this was the first attempt to capture this
+          this.saveAttemptLogMasterLog();
+        }
+      },
+      setItemId() {
+        const index = this.totalattempts % this.assessmentIds.length;
+        if (this.randomize) {
+          if (this.userid) {
+            this.itemId = seededShuffle.shuffle(this.assessmentIds, this.userid, true)[index];
+          } else {
+            this.itemId = seededShuffle.shuffle(this.assessmentIds, Date.now(), true)[index];
+          }
+        } else {
+          this.itemId = this.assessmentIds[index];
+        }
+      },
+      nextQuestion() {
+        this.complete = false;
+        this.shake = false;
+        this.firstAttemptAtQuestion = true;
+        this.correct = 0;
+        this.itemError = false;
+        this.setItemId();
+        this.createAttemptLog();
+      },
+      initMasteryLog() {
+        this.initMasteryLogAction(this.masterySpacingTime, this.masteryModel);
+      },
+      createAttemptLog() {
+        this.ready = false;
+        this.createAttemptLogAction(this.itemId);
+        this.ready = true;
+      },
+      updateExerciseProgressMethod() {
+        this.updateExerciseProgress(this.exerciseProgress);
+        updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
+      },
+      sessionInitialized() {
+        if (this.isUserLoggedIn) {
+          this.initMasteryLog();
+        } else {
+          this.createDummyMasteryLogAction();
+        }
+        this.nextQuestion();
+        this.$emit('sessionInitialized');
+      },
+      handleItemError() {
+        this.itemError = true;
+        this.updateAttemptLogInteractionHistoryAction({
+          type: InteractionTypes.error,
+        });
+        this.complete = true;
+        if (this.firstAttemptAtQuestion) {
+          this.updateAttemptLogMasteryLog({
+            correct: 1,
+            complete: this.complete,
+            firstAttempt: true,
+          });
+          this.firstAttemptAtQuestion = false;
+        } else {
+          this.updateAttemptLogMasteryLog({ complete: this.complete });
+        }
+      },
+      updateProgress(...args) {
+        this.$emit('updateProgress', ...args);
+      },
+      startTracking(...args) {
+        this.$emit('startTracking', ...args);
+      },
+      stopTracking(...args) {
+        this.$emit('stopTracking', ...args);
+      },
+    },
     vuex: {
       actions: {
         initMasteryLogAction: actions.initMasteryLog,
         createDummyMasteryLogAction: actions.createDummyMasteryLog,
         saveMasteryLogAction: actions.saveMasteryLog,
+        saveAndStoreMasteryLogAction: actions.saveAndStoreMasteryLog,
         setMasteryLogCompleteAction: actions.setMasteryLogComplete,
         createAttemptLogAction: actions.createAttemptLog,
         saveAttemptLogAction: actions.saveAttemptLog,
+        saveAndStoreAttemptLogAction: actions.saveAndStoreAttemptLog,
         updateMasteryAttemptStateAction: actions.updateMasteryAttemptState,
         updateAttemptLogInteractionHistoryAction: actions.updateAttemptLogInteractionHistory,
         updateExerciseProgress: actions.updateExerciseProgress,
@@ -413,53 +432,37 @@ oriented data synchronization.
 
   .message
     color: $core-text-annotation
-    padding: 16px
-    font-size: 14px
+    margin: 0
 
-  .message.mobile
-    position: relative
-    text-align: center
-    clear: both
-    top: 40px
-    font-size: 12px
-    margin-top: 0
-    padding: 0
-
-  .attemptprogress
-    position: absolute
-    padding-left: 14px
-    top: 38px
-
-
-  .attemptprogress.mobile
-    top: 0
-    padding-left: 0
-    left: 50%
-    transform: translate(-50%, 0)
-
-  .attemptprogress-container
-    border-radius: $radius
-    position: relative
-    background-color: $core-bg-light
-    height: 104px
-
-  .attemptprogress-container.mobile
-    position: fixed
-    height: 60px
-    width: 100%
-    border-radius: 0
-    bottom: 0
-    border-bottom: thin solid $core-text-annotation
-    border-top: thin solid $core-text-annotation
-    z-index: 2
-    left: 0
+  .status
+    font-weight: bold
+    min-height: 14px
+    margin: 0
 
   .try-again
-    color: $core-text-error
-    font-size: 14px
-    font-weight: bold
-    padding: 16px
-    padding-top: 20px
+    color: $core-status-wrong
+
+  .correct
+    color: $core-status-correct
+
+  .attemptprogress-container
+    position: relative
+    margin-top: 8px
+
+  .attemptprogress-container.mobile
+    font-size: smaller
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), 0 3px 6px rgba(0, 0, 0, 0.6)
+    background-color: $core-bg-light
+    margin: 0
+    padding: 8px
+    position: fixed
+    width: 100%
+    height: 88px // if changed, also change BOTTOM_SPACED_RESERVED in top-level index
+    overflow-x: auto
+    overflow-y: hidden
+    z-index: 3 // material - Quick entry / Search bar (scrolled state)
+    bottom: 0
+    left: 0
 
   .question-btn
     margin-left: 1.5em

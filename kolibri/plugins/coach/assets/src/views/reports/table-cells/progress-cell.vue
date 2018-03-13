@@ -2,13 +2,17 @@
 
   <td>
     <template v-if="num !== undefined">
-      <progress-bar :progress="num"/>
+      <progress-bar :progress="num" />
       <div v-if="extraText" class="extra-text">
-        <mat-svg category="social" name="person" class="person-icon"/>
-        {{extraText}}
+        <mat-svg category="social" name="person" class="person-icon" />
+        {{ extraText }}
       </div>
     </template>
-    <template v-else>–</template>
+    <template v-else>
+      <div class="tal">
+        –
+      </div>
+    </template>
   </td>
 
 </template>
@@ -50,6 +54,9 @@
   td
     text-align: center
     width: 19%
+
+  .tal
+    text-align: left
 
   .extra-text
     font-size: smaller

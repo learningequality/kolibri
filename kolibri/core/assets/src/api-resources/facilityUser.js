@@ -10,7 +10,7 @@ export default class FacilityUserResource extends Resource {
 
   getCurrentFacility() {
     const promise = new Promise(
-      (resolve, reject) => {
+      resolve => {
         this.client({ path: this.currentFacilityUrl() }).then(
           response => {
             resolve(response.entity);

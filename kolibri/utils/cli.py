@@ -1,47 +1,30 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import importlib  # noqa
 import logging  # noqa
 import os  # noqa
 import signal  # noqa
 import sys  # noqa
-from distutils import util
 
-# Do this before importing anything else, we need to add bundled requirements
-# from the distributed version in case it exists before importing anything
-# else.
-# TODO: Do we want to manage the path at an even more fundamental place like
-# kolibri.__init__ !? Load order will still matter...
+from . import env
+
+# Setup the environment before loading anything else from the application
+# TODO: This should perhaps be moved to kolibri.__init__
+env.set_env()
 
 import kolibri  # noqa
-from kolibri import dist as kolibri_dist  # noqa
-sys.path = sys.path + [
-    os.path.realpath(os.path.dirname(kolibri_dist.__file__))
-]
-
-# Set default env
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
-)
-os.environ.setdefault(
-    "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
-)
-os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8080")
-
 import django  # noqa
 from django.core.management import call_command  # noqa
+from django.core.exceptions import AppRegistryNotReady  # noqa
 from docopt import docopt  # noqa
+
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
 
 from . import server  # noqa
 from .system import become_daemon  # noqa
-
-# This was added in
-# https://github.com/learningequality/kolibri/pull/580
-# ...we need to (re)move it /benjaoming
-# Force python2 to interpret every string as unicode.
-if sys.version[0] == '2':
-    reload(sys)  # noqa
-    sys.setdefaultencoding('utf8')
+from .sanity_checks import check_other_kolibri_running  # noqa
 
 USAGE = """
 Kolibri
@@ -114,41 +97,6 @@ Auto-generated usage instructions from ``kolibri -h``::
 logger = logging.getLogger(__name__)
 
 
-def get_cext_path(dist_path):
-    """
-    Get the directory of dist/cext.
-    """
-    # Python version of current platform
-    python_version = 'cp' + str(sys.version_info.major) + str(sys.version_info.minor)
-    dirname = os.path.join(dist_path, 'cext/' + python_version)
-
-    platform = util.get_platform()
-    # For Linux system with cpython<3.3, there could be abi tags 'm' and 'mu'
-    if 'linux' in platform and int(python_version[2:]) < 33:
-        dirname = os.path.join(dirname, 'linux')
-        # encode with ucs2
-        if sys.maxunicode == 65535:
-            dirname = os.path.join(dirname, python_version+'m')
-        # encode with ucs4
-        else:
-            dirname = os.path.join(dirname, python_version+'mu')
-
-    elif 'macosx' in platform:
-        platform = 'macosx'
-    dirname = os.path.join(dirname, platform)
-    sys.path = sys.path + [os.path.realpath(str(dirname))]
-
-
-# Add path for c extensions to sys.path
-get_cext_path(os.path.realpath(os.path.dirname(kolibri_dist.__file__)))
-try:
-    import cryptography  # noqa
-except ImportError:
-    # Fallback
-    logging.warning('No C Extensions available for this platform.\n')
-    sys.path = sys.path[:-1]
-
-
 class PluginDoesNotExist(Exception):
     """
     This exception is local to the CLI environment in case actions are performed
@@ -156,12 +104,23 @@ class PluginDoesNotExist(Exception):
     """
 
 
+class PluginBaseLoadsApp(Exception):
+    """
+    An exception raised in case a kolibri_plugin.py results in loading of the
+    Django app stack.
+    """
+    pass
+
+
 def version_file():
     """
     During test runtime, this path may differ because KOLIBRI_HOME is
     regenerated
     """
-    return os.path.join(os.environ['KOLIBRI_HOME'], '.data_version')
+    return os.path.join(
+        os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"])),
+        '.data_version'
+    )
 
 
 def initialize(debug=False):
@@ -171,7 +130,6 @@ def initialize(debug=False):
 
     :param: debug: Tells initialization to setup logging etc.
     """
-
     if not os.path.isfile(version_file()):
         django.setup()
 
@@ -185,8 +143,19 @@ def initialize(debug=False):
         autoremove_unavailable_plugins()
 
         version = open(version_file(), "r").read()
-        change_version = kolibri.__version__ != version.strip()
+        version = version.strip() if version else ""
+        change_version = kolibri.__version__ != version
         if change_version:
+            # Version changed, make a backup no matter what.
+            from kolibri.core.deviceadmin.utils import dbbackup
+            try:
+                backup = dbbackup(version)
+                logger.info(
+                    "Backed up database to: {path}".format(path=backup))
+            except IncompatibleDatabase:
+                logger.warning(
+                    "Skipped automatic database backup, not compatible with "
+                    "this DB engine.")
             enable_default_plugins()
 
         django.setup()
@@ -201,6 +170,15 @@ def initialize(debug=False):
                 )
             )
             update()
+
+def _migrate_databases():
+    """
+    Try to migrate all active databases. This should not be called unless Django has
+    been initialized.
+    """
+    from django.conf import settings
+    for database in settings.DATABASES:
+        call_command("migrate", interactive=False, database=database)
 
 
 def _first_run():
@@ -224,7 +202,7 @@ def _first_run():
     # We need to migrate the database before enabling plugins, because they
     # might depend on database readiness.
     if not SKIP_AUTO_DATABASE_MIGRATION:
-        call_command("migrate", interactive=False, database="default")
+        _migrate_databases()
 
     for plugin_module in DEFAULT_PLUGINS:
         try:
@@ -261,7 +239,7 @@ def update():
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
 
     if not SKIP_AUTO_DATABASE_MIGRATION:
-        call_command("migrate", interactive=False, database="default")
+        _migrate_databases()
 
     with open(version_file(), "w") as f:
         f.write(kolibri.__version__)
@@ -285,12 +263,9 @@ def start(port=None, daemon=True):
     # https://github.com/learningequality/kolibri/issues/1615
     update()
 
-    if port is None:
-        try:
-            port = int(os.environ['KOLIBRI_LISTEN_PORT'])
-        except ValueError:
-            logger.error("Invalid KOLIBRI_LISTEN_PORT, must be an integer")
-            raise
+    # In case that some tests run start() function only
+    if not isinstance(port, int):
+        port = _get_port(port)
 
     if not daemon:
         logger.info("Running 'kolibri start' in foreground...")
@@ -337,6 +312,7 @@ def stop():
         pid, __, __ = server.get_status()
         server.stop(pid=pid)
         stopped = True
+        logger.info("Kolibri server has successfully been stoppped.")
     except server.NotRunning as e:
         verbose_status = "{msg:s} ({code:d})".format(
             code=e.status_code,
@@ -428,8 +404,8 @@ def setup_logging(debug=False):
         settings.DEBUG = True
         LOGGING['handlers']['console']['level'] = 'DEBUG'
         LOGGING['loggers']['kolibri']['level'] = 'DEBUG'
+        logger.debug("Debug mode is on!")
     logging.config.dictConfig(LOGGING)
-    logger.debug("Debug mode is on!")
 
 
 def manage(cmd, args=[]):
@@ -473,13 +449,21 @@ def get_kolibri_plugin(plugin_name):
             if _is_plugin(obj):
                 plugin_classes.append(obj)
     except ImportError as e:
-        if str(e).startswith("No module named"):
-            raise PluginDoesNotExist(
-                "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?".
-                format(plugin_name)
-            )
+        # Python 2: message, Python 3: msg
+        exc_message = getattr(e, 'message', getattr(e, 'msg', None))
+        if exc_message.startswith("No module named"):
+            msg = (
+                "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?"
+            ).format(plugin_name)
+            raise PluginDoesNotExist(msg)
         else:
             raise
+    except AppRegistryNotReady:
+        msg = (
+            "Plugin '{}' loads the Django app registry, which it isn't "
+            "allowed to do while enabling or disabling itself."
+        ).format(plugin_name)
+        raise PluginBaseLoadsApp(msg)
 
     if not plugin_classes:
         # There's no clear use case for a plugin without a KolibriPluginBase
@@ -491,19 +475,19 @@ def get_kolibri_plugin(plugin_name):
     return plugin_classes
 
 
-def plugin(plugin_name, **args):
+def plugin(plugin_name, **kwargs):
     """
     Receives a plugin identifier and tries to load its main class. Calls class
     functions.
     """
     from kolibri.utils import conf
 
-    if args.get('enable', False):
+    if kwargs.get('enable', False):
         plugin_classes = get_kolibri_plugin(plugin_name)
         for klass in plugin_classes:
             klass.enable()
 
-    if args.get('disable', False):
+    if kwargs.get('disable', False):
         try:
             plugin_classes = get_kolibri_plugin(plugin_name)
             for klass in plugin_classes:
@@ -591,6 +575,17 @@ def parse_args(args=None):
     return docopt(USAGE, **docopt_kwargs), django_args
 
 
+def _get_port(port):
+    port = int(port) if port else None
+    if port is None:
+        try:
+            port = int(os.environ['KOLIBRI_LISTEN_PORT'])
+        except ValueError:
+            logger.error("Invalid KOLIBRI_LISTEN_PORT, must be an integer")
+            raise
+    return port
+
+
 def main(args=None):
     """
     Kolibri's main function. Parses arguments and calls utility functions.
@@ -603,6 +598,10 @@ def main(args=None):
     arguments, django_args = parse_args(args)
 
     debug = arguments['--debug']
+
+    if arguments['start']:
+        port = _get_port(arguments['--port'])
+        check_other_kolibri_running(port)
 
     initialize(debug=debug)
 
@@ -622,9 +621,10 @@ def main(args=None):
         return
 
     if arguments['start']:
-        port = arguments['--port']
-        port = int(port) if port else None
-        start(port, daemon=not arguments['--foreground'])
+        daemon = not arguments['--foreground']
+        if sys.platform == 'darwin':
+            daemon = False
+        start(port, daemon=daemon)
         return
 
     if arguments['stop']:

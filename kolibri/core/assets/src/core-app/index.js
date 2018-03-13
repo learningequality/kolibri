@@ -15,6 +15,9 @@ KeenUiConfig.set(require('../keen-config/options.json'));
 // TODO: rtibbles whittle down these polyfills to only what is needed for the application
 require('core-js');
 
+// Shim Array includes for ES7 spec compliance
+require('array-includes').shim();
+
 // set up logging
 const logging = require('kolibri.lib.logging').default;
 

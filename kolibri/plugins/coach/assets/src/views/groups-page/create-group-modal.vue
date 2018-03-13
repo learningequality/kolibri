@@ -1,7 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('newLearnerGroup')"
-    @cancel="close">
+  <core-modal
+    :title="$tr('newLearnerGroup')"
+    @cancel="close"
+  >
     <div>
       <form @submit.prevent="callCreateGroup">
         <k-textbox
@@ -14,18 +16,20 @@
           @blur="nameBlurred = true"
           v-model.trim="name"
         />
-        <k-button
-          type="button"
-          :text="$tr('cancel')"
-          :raised="false"
-          @click="close"
-        />
-        <k-button
-          type="submit"
-          :text="$tr('save')"
-          :primary="true"
-          :disabled="submitting"
-        />
+        <div class="core-modal-buttons">
+          <k-button
+            type="button"
+            :text="$tr('cancel')"
+            appearance="flat-button"
+            @click="close"
+          />
+          <k-button
+            type="submit"
+            :text="$tr('save')"
+            :primary="true"
+            :disabled="submitting"
+          />
+        </div>
       </form>
     </div>
   </core-modal>
@@ -42,8 +46,8 @@
   export default {
     name: 'createGroupModal',
     $trs: {
-      newLearnerGroup: 'New Learner Group',
-      learnerGroupName: 'Learner Group Name',
+      newLearnerGroup: 'Add new group',
+      learnerGroupName: 'Group name',
       cancel: 'Cancel',
       save: 'Save',
       duplicateName: 'A group with that name already exists',
@@ -90,7 +94,7 @@
         return '';
       },
       nameIsInvalid() {
-        return !!this.nameIsInvalidText;
+        return Boolean(this.nameIsInvalidText);
       },
       formIsValid() {
         return !this.nameIsInvalid;

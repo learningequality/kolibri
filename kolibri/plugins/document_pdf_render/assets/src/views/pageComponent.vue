@@ -2,14 +2,17 @@
 
   <section
     class="pdf-page-container"
-    :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }">
-    <span class="pdf-page-loading"> {{ this.$formatNumber(this.pageNum) }}</span>
+    :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }"
+  >
+    <span class="pdf-page-loading"> {{ $formatNumber(pageNum) }}</span>
     <canvas
       v-show="active"
       class="canvas"
       ref="canvas"
+      dir="ltr"
       :height="pageHeight"
-      :width="pageWidth">
+      :width="pageWidth"
+    >
     </canvas>
   </section>
 
@@ -33,6 +36,7 @@
         type: Number,
       },
       pdfPage: {
+        type: [Object, Promise],
         default: null,
       },
     },
@@ -43,11 +47,6 @@
       active: false,
       rendered: false,
     }),
-    watch: {
-      scale: 'renderPage',
-      active: 'renderPage',
-      pdfPage: 'renderPage',
-    },
     computed: {
       pageHeight() {
         return this.height || this.defaultHeight;
@@ -55,6 +54,11 @@
       pageWidth() {
         return this.width || this.defaultWidth;
       },
+    },
+    watch: {
+      scale: 'renderPage',
+      active: 'renderPage',
+      pdfPage: 'renderPage',
     },
     methods: {
       cancelRender() {
@@ -112,8 +116,8 @@
           // We have a pdfPage, so use this opportunity to set the current page width and height
           this.setPageDimensions();
         } else {
-          // No pdfPage and not active, either we are not being asked to render a page yet, or it has been removed
-          // so we should tear down any existing page
+          // No pdfPage and not active, either we are not being asked to render a page yet,
+          // or it has been removed so we should tear down any existing page
           this.cancelRender();
           this.clearPage();
         }

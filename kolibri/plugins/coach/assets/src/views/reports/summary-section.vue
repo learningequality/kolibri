@@ -23,7 +23,7 @@
     <div v-if="kind === (Kinds.VIDEO || Kinds.AUDIO)">
 
       <div v-if="singleUser">
-        <progress-icon :progress="contentProgress"/>
+        <progress-icon :progress="contentProgress" />
 
         <span v-if="(kind === Kinds.VIDEO)">
           <span v-if="isCompleted">{{ $tr('watched') }}</span>
@@ -53,7 +53,7 @@
     <div v-if="kind === Kinds.DOCUMENT">
 
       <div v-if="singleUser">
-        <progress-icon :progress="contentProgress"/>
+        <progress-icon :progress="contentProgress" />
         <span v-if="isCompleted">{{ $tr('viewed') }}</span>
         <span v-else-if="isInProgress">{{ $tr('inProgress') }}</span>
         <span v-else>{{ $tr('notViewed') }}</span>
@@ -81,8 +81,10 @@
       lastActive: 'Last active',
       lastActiveText: '{0, date, medium}',
       na: '-',
-      exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+      exerciseCountText:
+        '{count, number, integer} {count, plural, one {exercise} other {exercises}}',
+      contentCountText:
+        '{count, number, integer} {count, plural, one {resource} other {resources}}',
       mastered: 'Completed',
       watched: 'Watched',
       listened: 'Listened',

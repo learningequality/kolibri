@@ -1,31 +1,44 @@
 <template>
 
   <div>
-    <h1 class="header">{{ $tr('classGroups') }}</h1>
+    <section>
+      <h1 :class="{header: sortedGroups.length}">{{ $tr('classGroups') }}</h1>
 
-    <k-button
-      :text="$tr('newGroup')"
-      :primary="true"
-      @click="openCreateGroupModal"
+      <span v-if="!sortedGroups.length">{{ $tr('noGroups') }}</span>
+
+      <k-button
+        class="new-group-button"
+        :text="$tr('newGroup')"
+        :primary="true"
+        @click="openCreateGroupModal"
+      />
+    </section>
+
+    <create-group-modal
+      v-if="showCreateGroupModal"
+      :groups="sortedGroups"
     />
 
-    <create-group-modal v-if="showCreateGroupModal"
-      :groups="sortedGroups" />
-
-    <rename-group-modal v-if="showRenameGroupModal"
+    <rename-group-modal
+      v-if="showRenameGroupModal"
       :groupName="selectedGroup.name"
       :groupId="selectedGroup.id"
-      :groups="sortedGroups" />
+      :groups="sortedGroups"
+    />
 
-    <delete-group-modal v-if="showDeleteGroupModal"
+    <delete-group-modal
+      v-if="showDeleteGroupModal"
       :groupName="selectedGroup.name"
-      :groupId="selectedGroup.id" />
+      :groupId="selectedGroup.id"
+    />
 
-    <move-learners-modal v-if="showMoveLearnersModal"
+    <move-learners-modal
+      v-if="showMoveLearnersModal"
       :groupId="selectedGroup.id"
       :groups="sortedGroups"
       :usersToMove="usersToMove"
-      :isUngrouped="isUngrouped" />
+      :isUngrouped="isUngrouped"
+    />
 
     <group-section
       v-for="group in sortedGroups"
@@ -34,13 +47,15 @@
       :group="group"
       @rename="openRenameGroupModal"
       @delete="openDeleteGroupModal"
-      @move="openMoveLearnersModal" />
+      @move="openMoveLearnersModal"
+    />
 
     <group-section
       :canMove="Boolean(sortedGroups.length)"
       :group="ungroupedUsersObject"
       :isUngrouped="true"
-      @move="openMoveLearnersModal" />
+      @move="openMoveLearnersModal"
+    />
   </div>
 
 </template>
@@ -52,18 +67,21 @@
   import { GroupModals } from '../../constants';
   import differenceWith from 'lodash/differenceWith';
   import orderBy from 'lodash/orderBy';
+  import flatMap from 'lodash/flatMap';
   import kButton from 'kolibri.coreVue.components.kButton';
   import createGroupModal from './create-group-modal';
   import groupSection from './group-section';
   import renameGroupModal from './rename-group-modal';
   import deleteGroupModal from './delete-group-modal';
   import moveLearnersModal from './move-learners-modal';
+
   export default {
     name: 'coachGroupsPage',
     $trs: {
       classGroups: 'Class groups',
       newGroup: 'New group',
       ungrouped: 'Ungrouped',
+      noGroups: 'You do not have any groups',
     },
     components: {
       kButton,
@@ -100,13 +118,7 @@
         return orderBy(this.groups, [group => group.name.toUpperCase()], ['asc']);
       },
       groupedUsers() {
-        const groupedUsers = [];
-        this.sortedGroups.forEach(group => {
-          group.users.forEach(user => {
-            groupedUsers.push(user);
-          });
-        });
-        return groupedUsers;
+        return flatMap(this.sortedGroups, 'users');
       },
       ungroupedUsers() {
         return differenceWith(this.classUsers, this.groupedUsers, (a, b) => a.id === b.id);
@@ -161,7 +173,8 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
+  .new-group-button
+    float: right
 
   .header
     display: inline-block

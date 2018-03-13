@@ -1,37 +1,17 @@
-import vue from 'vue';
-import vuex from 'vuex';
-import router from 'vue-router';
-import vueintl from 'vue-intl';
+import 'intl';
+import 'intl/locale-data/jsonp/en.js';
+import Vue from 'vue';
+import Vuex from 'vuex';
+import VueRouter from 'vue-router';
+import kRouter from 'kolibri.coreVue.router';
+import { setUpVueIntl } from 'kolibri.utils.i18n';
 
-vue.prototype.Kolibri = {};
-vue.config.silent = true;
-vue.use(vuex);
-vue.use(router);
-require('intl');
-require('intl/locale-data/jsonp/en.js');
-vue.use(vueintl, { defaultLocale: 'en-us' });
+kRouter.init([]);
 
-vue.mixin({
-  store: new vuex.Store({}),
-});
+Vue.prototype.Kolibri = {};
+Vue.config.silent = true;
+Vue.use(Vuex);
+Vue.use(VueRouter);
+setUpVueIntl();
 
-function $trWrapper(formatter, messageId, args) {
-  if (args) {
-    if (!Array.isArray(args) && typeof args !== 'object') {
-      logging.error(`The $tr functions take either an array of positional
-                      arguments or an object of named options.`);
-    }
-  }
-  const defaultMessageText = this.$options.$trs[messageId];
-  const message = {
-    id: `${this.$options.$trNameSpace}.${messageId}`,
-    defaultMessage: defaultMessageText,
-  };
-  return formatter(message, args);
-}
-
-vue.prototype.$tr = function $tr(messageId, args) {
-  return $trWrapper.call(this, this.$formatMessage, messageId, args);
-};
-
-export default vue;
+export default Vue;

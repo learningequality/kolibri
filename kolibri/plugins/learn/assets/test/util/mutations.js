@@ -32,6 +32,6 @@ const learnMutations = {
   },
 };
 
-const mutations = Object.assign({}, coreStore.mutations, learnMutations);
+const mutations = Object.assign({}, coreStore.coreMutations, learnMutations);
 
 export default mutations;

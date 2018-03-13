@@ -3,7 +3,8 @@
   <form
     class="search-box"
     @submit.prevent="search"
-    @keydown.esc.prevent="handleEscKey">
+    @keydown.esc.prevent="handleEscKey"
+  >
     <div class="search-box-row">
       <label class="visuallyhidden" for="searchfield">{{ $tr('searchBoxLabel') }}</label>
       <input
@@ -30,6 +31,7 @@
             type="secondary"
             color="white"
             class="search-submit-button"
+            :class="{ 'rtl-icon': icon === 'arrow_forward' && isRtl }"
             :icon="icon"
             :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"
@@ -68,6 +70,11 @@
         searchQuery: this.searchTerm,
       };
     },
+    watch: {
+      searchTerm(val) {
+        this.searchQuery = val || '';
+      },
+    },
     methods: {
       handleEscKey() {
         if (this.searchQuery === '') {
@@ -83,11 +90,6 @@
             query: { query: this.searchQuery },
           });
         }
-      },
-    },
-    watch: {
-      searchTerm(val) {
-        this.searchQuery = val || '';
       },
     },
     vuex: {
@@ -119,6 +121,7 @@
   .search-input
     display: table-cell
     width: 100%
+    height: 36px
     margin: 0
     padding: 0
     padding-left: 8px
@@ -130,10 +133,16 @@
     &::placeholder
       color: $core-text-annotation
 
+    // removes the IE clear button
+    &::-ms-clear
+      display: none
+
   .search-buttons-wrapper
     display: table-cell
     text-align: right
     width: 78px
+    height: 36px
+    vertical-align: middle
 
   .search-clear-button
     visibility: hidden

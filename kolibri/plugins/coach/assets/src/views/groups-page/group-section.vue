@@ -1,48 +1,45 @@
 <template>
 
   <div class="group-section">
-    <div class="pure-g">
-      <div class="no-side-padding" :class="elSize.width < 700 ? 'pure-u-1-1' : 'pure-u-1-2'">
+
+    <k-grid>
+      <k-grid-item
+        class="no-side-padding"
+        size="1"
+        :cols="numCols"
+      >
         <h2 class="group-name right-margin">{{ group.name }}</h2>
         <span class="small-text">{{ $tr('numLearners', {count: group.users.length }) }}</span>
-      </div>
-
-      <div
+      </k-grid-item>
+      <k-grid-item
         class="no-side-padding"
-        :class="elSize.width < 700 ? 'pure-u-1-1' : 'pure-u-1-2 right-align vertically-align'"
+        size="1"
+        :cols="numCols"
+        :class="{mobile : isSmall}"
       >
         <span v-if="group.users.length" class="right-margin small-text">
           {{ `${selectedUsers.length} ${$tr('selected')}` }}
         </span>
         <k-button
-          v-if="canMove"
           class="right-margin"
           :text="$tr('moveLearners')"
           :primary="false"
-          :disabled="selectedUsers.length === 0"
+          :disabled="!canMove || selectedUsers.length === 0"
           @click="emitMove"
         />
-        <ui-button
+        <k-dropdown-menu
           v-if="!isUngrouped"
-          color="primary"
-          ref="dropdownButton"
-          size="small"
-          :has-dropdown="true"
-        >
-          <ui-menu
-            slot="dropdown"
-            :options="menuOptions"
-            @select="handleSelection"
-            @close="close"
-          />
-        </ui-button>
-      </div>
-    </div>
+          :text="$tr('options')"
+          :options="menuOptions"
+          @select="handleSelection"
+        />
+      </k-grid-item>
+    </k-grid>
 
-    <table v-if="group.users.length">
-      <thead>
+    <core-table v-if="group.users.length">
+      <thead slot="thead">
         <tr>
-          <th class="col-checkbox">
+          <th class="core-table-checkbox-col">
             <k-checkbox
               :label="$tr('selectAll')"
               :showLabel="false"
@@ -51,18 +48,18 @@
               @change="toggleSelectAll"
             />
           </th>
-          <th class="col-name">{{ $tr('name') }}</th>
-          <th class="col-username">{{ $tr('username') }}</th>
+          <th class="core-table-main-col">{{ $tr('name') }}</th>
+          <th>{{ $tr('username') }}</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody slot="tbody" class="core-table-rows-selectable">
         <tr
           v-for="user in group.users"
           :key="user.id"
-          :class="isSelected(user.id) ? 'selectedrow' : ''"
+          :class="isSelected(user.id) ? 'core-table-row-selected' : ''"
           @click="toggleSelection(user.id)"
         >
-          <td class="col-checkbox">
+          <td class="core-table-checkbox-col">
             <k-checkbox
               :label="$tr('selectLearner')"
               :showLabel="false"
@@ -71,12 +68,12 @@
               @click.native.stop
             />
           </td>
-          <td class="col-name"><strong>{{ user.full_name }}</strong></td>
-          <td class="col-username">{{ user.username }}</td>
+          <td class="core-table-main-col">{{ user.full_name }}</td>
+          <td>{{ user.username }}</td>
         </tr>
       </tbody>
-    </table>
-    <span v-else>{{ $tr('noLearners') }}</span>
+    </core-table>
+    <p v-else>{{ $tr('noLearners') }}</p>
   </div>
 
 </template>
@@ -84,12 +81,14 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import * as groupActions from '../../state/actions/group';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import uiButton from 'keen-ui/src/UiButton';
-  import uiMenu from 'keen-ui/src/UiMenu';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
 
   export default {
     name: 'coachGroupsTable',
@@ -97,22 +96,25 @@
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       moveLearners: 'Move Learners',
       actions: 'Actions',
-      renameGroup: 'Rename Group',
-      deleteGroup: 'Delete Group',
+      renameGroup: 'Rename group',
+      deleteGroup: 'Delete group',
       name: 'Name',
       username: 'Username',
       selected: 'Selected',
-      noLearners: 'No Learners in this group',
+      noLearners: 'No learners in this group',
       selectAll: 'Select all',
       selectLearner: 'Select learner',
+      options: 'Options',
     },
-    mixins: [ResponsiveElement],
     components: {
+      CoreTable,
       kButton,
       kCheckbox,
-      uiButton,
-      uiMenu,
+      kDropdownMenu,
+      kGrid,
+      kGridItem,
     },
+    mixins: [ResponsiveElement],
     props: {
       group: {
         type: Object,
@@ -134,6 +136,12 @@
       return { selectedUsers: [] };
     },
     computed: {
+      isSmall() {
+        return this.elSize.width < 700;
+      },
+      numCols() {
+        return this.isSmall ? 1 : 2;
+      },
       menuOptions() {
         return [this.$tr('renameGroup'), this.$tr('deleteGroup')];
       },
@@ -153,9 +161,6 @@
         } else if (selectedOption === this.$tr('deleteGroup')) {
           this.$emit('delete', this.group.name, this.group.id);
         }
-      },
-      close() {
-        this.$refs.dropdownButton.closeDropdown();
       },
       isSelected(userId) {
         return this.selectedUsers.includes(userId);
@@ -198,9 +203,6 @@
   .group-name
     display: inline-block
 
-  .right-align
-    text-align: right
-
   .right-margin
     margin-right: 8px
 
@@ -211,37 +213,8 @@
   .small-text
     font-size: small
 
-  .vertically-align
+  .mobile
+    text-align: right
     line-height: 50px
-
-  table
-    width: 100%
-    word-break: break-all
-
-  th
-    text-align: left
-
-  td, th
-    padding: 8px
-
-  tbody
-    tr
-      cursor: pointer
-      &:hover
-        background-color: $core-grey
-
-  thead
-    .col-name, .col-username
-      color: $core-text-annotation
-      font-size: small
-
-  .selectedrow
-    background-color: $core-bg-canvas
-
-  .col-checkbox
-    width: 4%
-
-  .col-name, .col-username
-    width: 48%
 
 </style>

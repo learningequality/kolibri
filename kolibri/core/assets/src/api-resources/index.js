@@ -1,5 +1,6 @@
 import ClassroomResource from './classroom';
 import ContentNodeResource from './contentNode';
+import ContentNodeGranular from './contentNodeGranular';
 import FacilityUserResource from './facilityUser';
 import FacilityUsernameResource from './facilityUsername';
 import LearnerGroupResource from './learnerGroup';
@@ -23,8 +24,9 @@ import FacilityDatasetResource from './facilityDataset';
 import UserProgressResource from './userProgress';
 import ContentNodeProgressResource from './contentNodeProgress';
 import DeviceProvisionResource from './deviceProvision';
-import DevicePermissionsResource from './devicePermissions';
-import { NewDevicePermissionsResource } from './devicePermissions';
+import DevicePermissionsResource, { NewDevicePermissionsResource } from './devicePermissions';
+import RemoteChannel from './remoteChannel';
+import Lesson from './lesson';
 
 const classroomResource = new ClassroomResource();
 const contentNodeResource = new ContentNodeResource();
@@ -53,10 +55,16 @@ const contentNodeProgressResource = new ContentNodeProgressResource();
 const deviceProvisionResource = new DeviceProvisionResource();
 const devicePermissionsResource = new DevicePermissionsResource();
 const newDevicePermissionsResource = new NewDevicePermissionsResource();
+const ContentNodeGranularResource = new ContentNodeGranular();
+const RemoteChannelResource = new RemoteChannel();
+const LessonResource = new Lesson();
 
 export {
   classroomResource as ClassroomResource,
   contentNodeResource as ContentNodeResource,
+  ContentNodeGranularResource,
+  RemoteChannelResource,
+  LessonResource,
   facilityUserResource as FacilityUserResource,
   facilityUsernameResource as FacilityUsernameResource,
   learnerGroupResource as LearnerGroupResource,

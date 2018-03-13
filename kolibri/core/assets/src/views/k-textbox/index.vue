@@ -14,7 +14,9 @@
       :autocomplete="autocomplete"
       :type="type"
       :enforceMaxlength="true"
-      :floatingLabel="true"
+      :floatingLabel="floatingLabel"
+      :multiLine="textArea"
+      :rows="3"
       @input="updateText"
       @keydown="emitKeydown"
       @focus="$emit('focus')"
@@ -97,6 +99,21 @@
       type: {
         type: String,
         default: 'text',
+      },
+      /**
+       * Display as text area.
+       */
+      textArea: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+       * @private
+       * Whether or not to display as a floating label
+       */
+      floatingLabel: {
+        type: Boolean,
+        default: true,
       },
     },
     data() {

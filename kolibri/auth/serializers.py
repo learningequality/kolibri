@@ -12,38 +12,29 @@ class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Role
-        exclude = ("dataset",)
-
-class BaseKolibriUserSerializer(serializers.ModelSerializer):
-
-    def update(self, instance, validated_data):
-        if 'password' in validated_data:
-            serializers.raise_errors_on_nested_writes('update', self, validated_data)
-            instance.set_password(validated_data['password'])
-            instance.save()
-            return instance
-        else:
-            return super(BaseKolibriUserSerializer, self).update(instance, validated_data)
-
-    def validate_username(self, value):
-        if FacilityUser.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError(_('An account with that username already exists'))
-        return value
-
-    def create(self, validated_data):
-        user = self.Meta.model(**validated_data)
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
+        fields = ('id', 'kind', 'collection', 'user')
 
 
-class FacilityUserSerializer(BaseKolibriUserSerializer):
+class FacilityUserSerializer(serializers.ModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
 
     class Meta:
         model = FacilityUser
         extra_kwargs = {'password': {'write_only': True}}
-        fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles')
+        fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles', 'is_superuser')
+
+    def create(self, validated_data):
+        if FacilityUser.objects.filter(username__iexact=validated_data['username']).exists():
+            raise serializers.ValidationError(_('An account with that username already exists'))
+        return super(FacilityUserSerializer, self).create(validated_data)
+
+
+class FacilityUserSignupSerializer(FacilityUserSerializer):
+
+    def validate_username(self, value):
+        if FacilityUser.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError(_('An account with that username already exists'))
+        return value
 
 
 class FacilityUsernameSerializer(serializers.ModelSerializer):
@@ -57,7 +48,7 @@ class MembershipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Membership
-        exclude = ("dataset",)
+        fields = ('id', 'collection', 'user')
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
@@ -73,8 +64,15 @@ class FacilitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Facility
-        extra_kwargs = {'id': {'read_only': True}}
-        exclude = ("dataset", "kind", "parent")
+        extra_kwargs = {'id': {'read_only': True}, 'dataset': {'read_only': True}}
+        fields = ('id', 'name', 'dataset')
+
+
+class PublicFacilitySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Facility
+        fields = ('dataset', 'name')
 
 
 class ClassroomSerializer(serializers.ModelSerializer):
@@ -101,6 +99,7 @@ class ClassroomSerializer(serializers.ModelSerializer):
                 fields=('parent', 'name')
             )
         ]
+
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
 

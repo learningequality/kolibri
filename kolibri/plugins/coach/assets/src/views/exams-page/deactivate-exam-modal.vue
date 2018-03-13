@@ -1,6 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('deactivateExam')" @cancel="close">
+  <core-modal
+    :title="$tr('deactivateExam')"
+    @cancel="close"
+  >
     <p>
       <span>{{ $tr('areYouSure', { examTitle }) }}</span>
       {{ $tr('noLongerVisible') }}
@@ -9,13 +12,23 @@
       <span v-if="examVisibility.class"><strong>{{ $tr('entireClass') }}</strong></span>
       <span v-else>
         <ul>
-          <li v-for="group in examVisibility.groups"><strong>{{ group.collection.name }}</strong></li>
+          <li v-for="(group, index) in examVisibility.groups" :key="index">
+            <strong>{{ group.collection.name }}</strong>
+          </li>
         </ul>
       </span>
     </p>
-    <div class="footer">
-      <k-button :text="$tr('cancel')" :raised="false" @click="close"/>
-      <k-button :text="$tr('deactivate')" :primary="true" @click="deactivateExam(examId)"/>
+    <div class="core-modal-buttons">
+      <k-button
+        :text="$tr('cancel')"
+        appearance="flat-button"
+        @click="close"
+      />
+      <k-button
+        :text="$tr('deactivate')"
+        :primary="true"
+        @click="deactivateExam(examId)"
+      />
     </div>
   </core-modal>
 
@@ -32,7 +45,7 @@
     $trs: {
       deactivateExam: 'Deactivate exam',
       areYouSure: "Are you sure you want to deactivate '{ examTitle }'?",
-      noLongerVisible: 'The exam will be no longer be visible to the following:',
+      noLongerVisible: 'The exam will be no longer be visible to',
       cancel: 'Cancel',
       deactivate: 'Deactivate',
       entireClass: 'Entire class',
@@ -75,11 +88,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .footer
-    text-align: center
-    button
-      min-width: 45%
-
-</style>
+<style lang="stylus"></style>

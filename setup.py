@@ -46,15 +46,25 @@ is_building_dist = any([
 
 static_dir = os.path.dirname(os.path.realpath(kolibri_dist.__file__))
 
+dependency_links, install_requires, static_requirements = [], [], []
+
 # Check if user supplied the special '--static' option
-if '--static' in sys.argv:
+# !! Currently, we just bundle no matter what
+if is_building_dist or '--static' in sys.argv:
     sys.argv.remove('--static')
     dist_name = 'kolibri'
     description += " This static version bundles all dependencies."
-    install_requires, static_requirements = [], []
-    dependency_links = []
     static_build = True
-else:
+# TODO:
+# `pip -e .` should work in a source dir, however since it doesn't
+# anyways (because of http sources in requirements.txt), we can
+# just skip this part
+# Either the installation is a .whl or sdist or it's done from source
+# dir and this requires `pip install -r requirements.txt`
+# anyways!
+# We don't currently have a release that has dependencies, everything
+# is bundled.
+elif False:
     req_file = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "requirements.txt"
     )
@@ -156,7 +166,6 @@ setup(
     include_package_data=True,
     install_requires=install_requires,
     dependency_links=dependency_links,
-    setup_requires=['pytest-runner'],
     tests_require=['pytest', 'tox', 'flake8'],
     license='MIT',
     zip_safe=False,
@@ -172,6 +181,7 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
     cmdclass={

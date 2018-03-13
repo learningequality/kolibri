@@ -113,6 +113,7 @@ export class Model {
                 payload[key] = attrs[key];
               }
             });
+            this.set(payload);
           } else {
             this.set(attrs);
             payload = this.attributes;
@@ -122,6 +123,9 @@ export class Model {
             resolve(this.attributes);
           } else {
             this.synced = false;
+            // Partial updates are currently broken, so just use dirty checking
+            // to prevent unneccessary saves for now.
+            payload = this.attributes;
             let url;
             let clientObj;
             if (this.id) {
@@ -185,11 +189,14 @@ export class Model {
             // Otherwise, DELETE the Model
             const clientObj = { path: this.url, method: 'DELETE' };
             this.resource.client(clientObj).then(
-              response => {
+              () => {
                 // delete this instance
                 this.resource.removeModel(this);
                 // Set a flag so that any collection containing this can ignore this model
                 this.deleted = true;
+                // Any collection containing this model is now probably out of date,
+                // set synced to false to ensure that they update their data on fetch
+                this.synced = false;
                 // Resolve the promise with the id.
                 // Vuex will use this id to delete the model in its state.
                 resolve(this.id);
@@ -293,8 +300,8 @@ export class Collection {
                   // Mark that the fetch has completed.
                   this.synced = true;
                 } else if (typeof (response.entity || {}).results !== 'undefined') {
-                  // If it's not, there are two possibilities - something is awry, or we have received
-                  // paginated data! Check to see if it is paginated.
+                  // If it's not, there are two possibilities - something is awry,
+                  // or we have received paginated data! Check to see if it is paginated.
                   this.clearCache();
                   // Paginated objects have 'results' as their results object so interpret this as
                   // such.
@@ -313,6 +320,111 @@ export class Collection {
                 }
                 // Return the data from the models, not the models themselves.
                 resolve(this.data);
+                // Clean up the reference to this promise
+                this.promises.splice(this.promises.indexOf(promise), 1);
+              },
+              response => {
+                logging.error('An error occurred', response);
+                reject(response);
+                // Clean up the reference to this promise
+                this.promises.splice(this.promises.indexOf(promise), 1);
+              }
+            );
+          }
+        },
+        reason => {
+          reject(reason);
+        }
+      );
+    });
+    this.promises.push(promise);
+    return promise;
+  }
+
+  /**
+   * Method to save data to the server for this particular collection.
+   * Can only currently be used to save new models to the server, not do bulk updates.
+   * @returns {Promise} - Promise is resolved with list of collection attributes when the XHR
+   * successfully returns, otherwise reject is called with the response object.
+   */
+  save() {
+    const promise = new ConditionalPromise((resolve, reject) => {
+      Promise.all(this.promises).then(
+        () => {
+          if (!this.isNew) {
+            // Collection is not new so constituent models must be synced, so already saved.
+            reject('Cannot update collections, only create them');
+          }
+          this.synced = false;
+          const url = this.resource.collectionUrl();
+          const payload = this.data;
+          const clientObj = { path: url, entity: payload };
+          // Do a save on the URL.
+          this.resource.client(clientObj).then(
+            response => {
+              if (Array.isArray(response.entity)) {
+                this.clearCache();
+                this.set(response.entity);
+                // Mark that the fetch has completed.
+                this.synced = true;
+              } else {
+                // It's all gone a bit Pete Tong.
+                logging.debug('Data appears to be malformed', response.entity);
+                reject(response);
+              }
+              // Resolve the promise with the Collection.
+              resolve(this.data);
+              // Clean up the reference to this promise
+              this.promises.splice(this.promises.indexOf(promise), 1);
+            },
+            response => {
+              logging.error('An error occurred', response);
+              reject(response);
+              // Clean up the reference to this promise
+              this.promises.splice(this.promises.indexOf(promise), 1);
+            }
+          );
+        },
+        reason => {
+          reject(reason);
+        }
+      );
+    });
+    this.promises.push(promise);
+    return promise;
+  }
+
+  /**
+   * Method to delete a collection.
+   * @returns {Promise} - Promise is resolved with list of collection ids
+   * returns, otherwise reject is called with the response object.
+   */
+  delete() {
+    const promise = new ConditionalPromise((resolve, reject) => {
+      Promise.all(this.promises).then(
+        () => {
+          if (!Object.keys(this.getParams).length) {
+            // Cannot do a DELETE unless we are filtering by something,
+            // to prevent dangerous bulk deletes
+            reject('Can not delete unfiltered collection (collection without any GET params');
+          } else {
+            // Otherwise, DELETE the Collection
+            const clientObj = {
+              path: this.resource.collectionUrl(),
+              method: 'DELETE',
+              params: this.getParams,
+            };
+            this.resource.client(clientObj).then(
+              () => {
+                // delete this instance
+                this.resource.removeCollection(this);
+                // delete and remove each model
+                this.models.forEach(model => {
+                  model.deleted = true;
+                  this.resource.removeModel(model);
+                });
+                // Vuex will use this id to delete the model in its state.
+                resolve(this.models.map(model => model.id));
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
@@ -374,8 +486,14 @@ export class Collection {
       // Note: this method ensures instantiation deduplication of models within the collection
       //  and across collections.
       const setModel = this.resource.addModel(model, this.resourceIds);
-      if (!this._model_map[setModel.id]) {
-        this._model_map[setModel.id] = setModel;
+      let cacheKey;
+      if (setModel.id) {
+        cacheKey = setModel.id;
+      } else {
+        cacheKey = this.resource.cacheKey(setModel.attributes, setModel.resourceIds);
+      }
+      if (!this._model_map[cacheKey]) {
+        this._model_map[cacheKey] = setModel;
         this.models.push(setModel);
       }
     });
@@ -404,6 +522,12 @@ export class Collection {
       });
     }
   }
+
+  get isNew() {
+    // We only say the Collection is new if it, itself, is not synced, and all its
+    // constituent models are also not synced.
+    return this.models.reduce((isNew, model) => isNew && !model.synced, !this._synced);
+  }
 }
 
 /** Class representing a single API resource.
@@ -425,7 +549,9 @@ export class Resource {
     return JSON.stringify(
       Object.assign(
         {},
-        ...Object.keys(allParams).sort().map(paramKey => ({ [paramKey]: allParams[paramKey] }))
+        ...Object.keys(allParams)
+          .sort()
+          .map(paramKey => ({ [paramKey]: allParams[paramKey] }))
       )
     );
   }
@@ -467,6 +593,19 @@ export class Resource {
    * @returns {Collection} - Returns an instantiated Collection object.
    */
   createCollection(resourceIds = {}, getParams = {}, data = []) {
+    if (!this.hasResourceIds) {
+      if (Object.keys(resourceIds).length && Object.keys(getParams).length && data.length) {
+        throw TypeError(
+          `resourceIds and getParams passed to getCollection method of ${this.name} ` +
+            'resource, which does not use resourceIds, only pass getParams for this resource'
+        );
+      } else if (Object.keys(resourceIds).length) {
+        if (Object.keys(getParams).length) {
+          data = getParams; // eslint-disable-line no-param-reassign
+        }
+        getParams = resourceIds; // eslint-disable-line no-param-reassign
+      }
+    }
     const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
     const collection = new Collection(filteredResourceIds, getParams, data, this);
     const key = this.cacheKey(getParams, filteredResourceIds);
@@ -597,7 +736,15 @@ export class Resource {
   }
 
   removeModel(model) {
-    delete this.models[model.id];
+    const filteredResourceIds = this.filterAndCheckResourceIds(model.resourceIds);
+    const cacheKey = this.cacheKey({ [this.idKey]: model.id }, filteredResourceIds);
+    delete this.models[cacheKey];
+  }
+
+  removeCollection(collection) {
+    const filteredResourceIds = this.filterAndCheckResourceIds(collection.resourceIds);
+    const cacheKey = this.cacheKey(collection.getParams, filteredResourceIds);
+    delete this.collections[cacheKey];
   }
 
   /**
@@ -678,5 +825,23 @@ export class Resource {
    */
   static resourceIdentifiers() {
     return [];
+  }
+
+  // Determines if this resource can save multiple new resources at once
+  static canBulkCreate() {
+    return false;
+  }
+
+  // Determines if this resource can delete multiple resources at once
+  static canBulkDelete() {
+    return false;
+  }
+
+  get bulkCreate() {
+    return this.constructor.canBulkCreate();
+  }
+
+  get bulkDelete() {
+    return this.constructor.canBulkDelete();
   }
 }

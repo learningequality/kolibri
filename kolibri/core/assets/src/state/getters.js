@@ -1,28 +1,49 @@
 import { UserKinds, MaxPointsPerContent } from '../constants';
-import cookiejs from 'js-cookie';
+import some from 'lodash/some';
 
-function isUserLoggedIn(state) {
-  return state.core.session.kind[0] !== UserKinds.ANONYMOUS;
-}
-
-function isSuperuser(state) {
-  return state.core.session.kind[0] === UserKinds.SUPERUSER;
-}
-
+// ROLES
 function isAdmin(state) {
-  return state.core.session.kind[0] === UserKinds.ADMIN;
+  return state.core.session.kind.includes(UserKinds.ADMIN);
 }
 
 function isCoach(state) {
-  return state.core.session.kind[0] === UserKinds.COACH;
+  return state.core.session.kind.includes(UserKinds.COACH);
 }
 
 function isLearner(state) {
-  return state.core.session.kind[0] === UserKinds.LEARNER;
+  return state.core.session.kind.includes(UserKinds.LEARNER);
 }
 
+function isUserLoggedIn(state) {
+  return !state.core.session.kind.includes(UserKinds.ANONYMOUS);
+}
+
+function getUserRole(state) {
+  if (isAdmin(state)) {
+    return UserKinds.ADMIN;
+  } else if (isCoach(state)) {
+    return UserKinds.COACH;
+  } else if (isLearner(state)) {
+    return UserKinds.LEARNER;
+  }
+  return UserKinds.ANONYMOUS;
+}
+
+// PERMISSIONS
 function canManageContent(state) {
   return state.core.session.can_manage_content;
+}
+function isSuperuser(state) {
+  return state.core.session.kind.includes(UserKinds.SUPERUSER);
+}
+function getUserPermissions(state) {
+  const permissions = {};
+  permissions.can_manage_content = state.core.session.can_manage_content;
+  return permissions;
+}
+
+function userHasPermissions(state) {
+  return some(getUserPermissions(state));
 }
 
 function currentFacilityId(state) {
@@ -35,6 +56,10 @@ function currentUserId(state) {
 
 function facilityConfig(state) {
   return state.core.facilityConfig;
+}
+
+function facilities(state) {
+  return state.core.facilities;
 }
 
 function getChannels(state) {
@@ -60,6 +85,22 @@ function sessionTimeSpent(state) {
   return state.core.logging.session.time_spent;
 }
 
+function connected(state) {
+  return state.core.connection.connected;
+}
+
+function reconnectTime(state) {
+  return state.core.connection.reconnectTime;
+}
+
+function snackbarIsVisible(state) {
+  return state.core.snackbarIsVisible;
+}
+
+function snackbarOptions(state) {
+  return state.core.snackbarOptions;
+}
+
 export {
   isUserLoggedIn,
   isSuperuser,
@@ -73,6 +114,14 @@ export {
   contentPoints,
   currentUserId,
   facilityConfig,
+  facilities,
   sessionTimeSpent,
   canManageContent,
+  getUserRole,
+  getUserPermissions,
+  userHasPermissions,
+  connected,
+  reconnectTime,
+  snackbarIsVisible,
+  snackbarOptions,
 };

@@ -6,25 +6,30 @@
     <p>{{ $tr('pageDescription') }}</p>
 
     <div class="table-wrapper" v-if="!noClassesExist">
-      <table class="main-table">
+      <core-table>
         <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
-        <thead>
+        <thead slot="thead">
           <tr>
-            <th scope="col" class="table-text">{{ $tr('className') }}</th>
-            <th scope="col" class="table-data">{{ $tr('members') }}</th>
+            <th class="core-table-icon-col"></th>
+            <th class="core-table-main-col">{{ $tr('className') }}</th>
+            <th>{{ $tr('members') }}</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="cl in sortedClasses">
-            <th scope="row" class="table-text">
-              <router-link :to="recentPageLink(cl.id)">
-                {{ cl.name }}
-              </router-link>
+        <tbody slot="tbody">
+          <tr v-for="cl in sortedClasses" :key="cl.id">
+            <td class="core-table-icon-col">
+              <content-icon :kind="CLASSROOM" />
+            </td>
+            <th scope="row" class="core-table-main-col">
+              <k-router-link
+                :text="cl.name"
+                :to="learnerPageLink(cl.id)"
+              />
             </th>
-            <td class="table-data">{{ cl.memberCount }}</td>
+            <td>{{ cl.memberCount }}</td>
           </tr>
         </tbody>
-      </table>
+      </core-table>
     </div>
 
     <p v-else>{{ $tr('noClassesExist') }}</p>
@@ -36,14 +41,22 @@
 
 <script>
 
-  import * as constants from '../../constants';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import ContentIcon from 'kolibri.coreVue.components.contentIcon';
+  import { PageNames } from '../../constants';
   import orderBy from 'lodash/orderBy';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
-    data: () => ({
-      currentClassDelete: null,
-    }),
+    name: 'coachClassListPage',
+    components: {
+      CoreTable,
+      ContentIcon,
+      kRouterLink,
+    },
     computed: {
+      CLASSROOM: () => ContentNodeKinds.CLASSROOM,
       sortedClasses() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
@@ -52,9 +65,9 @@
       },
     },
     methods: {
-      recentPageLink(id) {
+      learnerPageLink(id) {
         return {
-          name: constants.PageNames.TOPIC_CHANNELS,
+          name: PageNames.LEARNER_LIST,
           params: { classId: id },
         };
       },
@@ -64,41 +77,17 @@
         classes: state => state.classList,
       },
     },
-    name: 'coachClassListPage',
     $trs: {
       myClasses: 'All classes',
       pageDescription: 'View learner progress and performance',
       className: 'Class name',
       tableCaption: 'List of classes',
       members: 'Members',
-      noClassesExist: 'No Classes Exist.',
+      noClassesExist: 'No classes exist',
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  .main-table
-    width: 100%
-    border-spacing: 8px
-    border-collapse: separate
-
-  thead th
-    color: $core-text-annotation
-    font-size: smaller
-    font-weight: normal
-
-  .table-text
-    text-align: left
-
-  .table-data
-    text-align: center
-
-  .table-wrapper
-    overflow-x: auto
-
-</style>
+<style lang="stylus" scoped></style>

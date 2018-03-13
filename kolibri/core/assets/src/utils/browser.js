@@ -3,9 +3,9 @@ export function redirectBrowser(url) {
 }
 
 /**
-  * Detects whether an Android device is using WebView.
-  * Based on https://developer.chrome.com/multidevice/user-agent#webview_user_agent
-  */
+ * Detects whether an Android device is using WebView.
+ * Based on https://developer.chrome.com/multidevice/user-agent#webview_user_agent
+ */
 export function isAndroidWebView() {
   const ua = window.navigator.userAgent;
   const isAndroid = /Android/.test(ua);

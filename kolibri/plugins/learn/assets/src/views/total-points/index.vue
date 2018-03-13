@@ -1,11 +1,13 @@
 <template>
 
-  <div v-if="isUserLoggedIn && !isSuperuser" class="points" ref="points">
-    <points-icon class="icon" :active="true"/>
+  <div v-if="isUserLoggedIn" class="points" ref="points">
+    <points-icon class="icon" :active="true" />
     <div class="description">
       <div class="description-value">{{ $formatNumber(totalPoints) }}</div>
     </div>
-    <ui-tooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">{{ $tr('pointsTooltip', { points: totalPoints }) }}</ui-tooltip>
+    <ui-tooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">
+      {{ $tr('pointsTooltip', { points: totalPoints }) }}
+    </ui-tooltip>
   </div>
 
 </template>
@@ -13,18 +15,14 @@
 
 <script>
 
-  import {
-    totalPoints,
-    currentUserId,
-    isUserLoggedIn,
-    isSuperuser,
-  } from 'kolibri.coreVue.vuex.getters';
+  import { totalPoints, currentUserId, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import uiTooltip from 'keen-ui/src/UiTooltip';
+
   export default {
     name: 'totalPoints',
-    $trs: { pointsTooltip: 'You have earned { points, number } points!' },
+    $trs: { pointsTooltip: 'You earned { points, number } points!' },
     components: {
       pointsIcon,
       uiTooltip,
@@ -34,14 +32,13 @@
         totalPoints,
         currentUserId,
         isUserLoggedIn,
-        isSuperuser,
       },
       actions: { fetchPoints },
     },
+    watch: { currentUserId: 'fetchPoints' },
     created() {
       this.fetchPoints();
     },
-    watch: { currentUserId: 'fetchPoints' },
   };
 
 </script>
@@ -59,6 +56,8 @@
     display: inline-block
     width: 20px
     height: 20px
+    position: relative
+    top: 2px
 
   .description
     display: inline-block

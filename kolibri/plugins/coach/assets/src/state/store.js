@@ -1,24 +1,27 @@
-import Vuex from 'kolibri.lib.vuex';
 import Vue from 'kolibri.lib.vue';
-import * as coreStore from 'kolibri.coreVue.vuex.store';
+import * as lessonsMutations from './mutations/lessonsMutations';
 
-const initialState = {
+export const initialState = {
   pageName: '',
   pageState: {},
   classId: null,
+  className: null,
   classList: [],
+  busy: false,
 };
 
-const mutations = {
+export const mutations = {
   // coach-wide
+  ...lessonsMutations,
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
   SET_PAGE_NAME(state, pageName) {
     state.pageName = pageName;
   },
-  SET_CLASS_INFO(state, classId, classList) {
+  SET_CLASS_INFO(state, classId, className, classList) {
     state.classId = classId;
+    state.className = className;
     state.classList = classList;
   },
 
@@ -78,15 +81,8 @@ const mutations = {
   SET_SELETED_ATTEMPTLOG_INDEX(state, attemptLog) {
     state.pageState.selectedAttemptLogIndex = attemptLog;
   },
+
+  SET_BUSY(state, isBusy) {
+    state.pageState.busy = isBusy;
+  },
 };
-
-// assigns core state and mutations
-Object.assign(initialState, coreStore.initialState);
-Object.assign(mutations, coreStore.mutations);
-
-const store = new Vuex.Store({
-  state: initialState,
-  mutations,
-});
-
-export { store as default };

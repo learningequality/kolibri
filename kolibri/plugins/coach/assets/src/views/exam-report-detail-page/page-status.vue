@@ -19,11 +19,11 @@
     </div>
     <div class="column pure-u-1-4">
       <div class="inner-column">
-        <progress-icon class="svg-icon" :progress="progress"/>
+        <progress-icon class="svg-icon" :progress="progress" />
         <span v-if="completed">
           <strong> {{ $tr('completed') }} </strong>
-          <br />
-          <elapsed-time :date="completionTimestamp"/>
+          <br>
+          <elapsed-time :date="completionTimestamp" />
         </span>
         <span v-else-if="completed !== null">
           <strong> {{ $tr('inProgress') }} </strong>
@@ -45,7 +45,7 @@
   export default {
     name: 'coachExamReportDetailPageStatus',
     $trs: {
-      title: '{name} - Exam Performance',
+      title: '{name} - Exam performance',
       overallScore: 'Overall score: { score, number, percent }',
       questionsCorrect: 'Questions correct: {correct, number} of {total, number}',
       completed: 'Completed',
@@ -63,7 +63,7 @@
       },
       questions: {
         type: Array,
-        default: [],
+        default: () => [],
       },
       completed: {
         type: Boolean,

@@ -1,13 +1,14 @@
 <template>
 
-  <div>
+  <div class="content-renderer">
     <ui-alert v-if="noRendererAvailable" :dismissible="false" type="error">
       {{ $tr('rendererNotAvailable') }}
     </ui-alert>
-    <div v-else-if="available" class="fill-height">
-      <div class="content-wrapper">
-        <loading-spinner id="spinner" v-if="!currentViewClass"/>
-        <component v-else :is="currentViewClass"
+    <template v-else-if="available">
+      <loading-spinner id="spinner" v-if="!currentViewClass" />
+      <component
+        v-else
+        :is="currentViewClass"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
@@ -25,13 +26,12 @@
         :interactive="interactive"
         :lang="lang"
         ref="contentView"
-        />
-      </div>
-    </div>
+      />
+    </template>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
     </div>
-    <slot/>
+    <slot></slot>
   </div>
 
 </template>
@@ -49,6 +49,10 @@
     $trs: {
       msgNotAvailable: 'This content is not available',
       rendererNotAvailable: 'Kolibri is unable to render this content',
+    },
+    components: {
+      loadingSpinner,
+      uiAlert,
     },
     props: {
       id: {
@@ -79,8 +83,14 @@
         type: Boolean,
         default: false,
       },
-      itemId: { default: null },
-      answerState: { default: null },
+      itemId: {
+        type: String,
+        default: null,
+      },
+      answerState: {
+        type: Object,
+        default: null,
+      },
       allowHints: {
         type: Boolean,
         default: true,
@@ -101,10 +111,10 @@
         validator: languageValidator,
       },
     },
-    components: {
-      loadingSpinner,
-      uiAlert,
-    },
+    data: () => ({
+      currentViewClass: null,
+      noRendererAvailable: false,
+    }),
     computed: {
       extension() {
         if (this.availableFiles.length > 0) {
@@ -116,7 +126,9 @@
         return this.files.filter(file => !file.thumbnail && !file.supplementary && file.available);
       },
       defaultFile() {
-        return this.availableFiles && this.availableFiles.length ? this.availableFiles[0] : undefined;
+        return this.availableFiles && this.availableFiles.length
+          ? this.availableFiles[0]
+          : undefined;
       },
       supplementaryFiles() {
         return this.files.filter(file => file.supplementary && file.available);
@@ -130,10 +142,6 @@
       // This means this component has to be torn down on channel switches.
       this.$watch('files', this.updateRendererComponent);
     },
-    data: () => ({
-      currentViewClass: null,
-      noRendererAvailable: false,
-    }),
     methods: {
       /* Check the Kolibri core app for a content renderer module that is able to
        * handle the rendering of the current content node. This is the entrance point for changes
@@ -142,7 +150,8 @@
       updateRendererComponent() {
         // Assume we will find a renderer until we find out otherwise.
         this.noRendererAvailable = false;
-        // Only bother to do this is if the node is available, and the kind and extension are defined.
+        // Only bother to do this is if the node is available,
+        // and the kind and extension are defined.
         // Otherwise the template can handle it.
         if (this.available && this.kind && this.extension) {
           return Promise.all([
@@ -150,7 +159,7 @@
             this.Kolibri.retrieveContentRenderer(this.kind, this.extension),
           ])
             .then(([session, component]) => {
-              this.$emit('sessionInitialized');
+              this.$emit('sessionInitialized', session);
               this.currentViewClass = component;
               return this.currentViewClass;
             })
@@ -204,10 +213,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  .fill-height
-    height: 100%
-
-  .content-wrapper
+  .content-renderer
     height: 100%
 
   #spinner

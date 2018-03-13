@@ -1,84 +1,107 @@
 <template>
 
-  <div class="login">
-    <div id="login-container">
-      <logo class="logo"/>
-      <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
-      <form id="login-form" ref="form" @submit.prevent="signIn">
-        <ui-alert
-          v-if="invalidCredentials"
-          type="error"
-          class="alert"
-          :dismissible="false"
-        >
-          {{ $tr('signInError') }}
-        </ui-alert>
-        <transition name="textbox">
-          <k-textbox
-            ref="username"
-            id="username"
-            autocomplete="username"
-            :autofocus="true"
-            :label="$tr('username')"
-            :invalid="usernameIsInvalid"
-            :invalidText="usernameIsInvalidText"
-            @blur="handleUsernameBlur"
-            @input="showDropdown = true"
-            @keydown="handleKeyboardNav"
-            v-model="username"
-          />
-        </transition>
-        <transition name="list">
-          <ul
-            v-if="simpleSignIn && suggestions.length"
-            v-show="showDropdown"
-            class="suggestions"
-          >
-            <ui-autocomplete-suggestion
-              v-for="(suggestion, i) in suggestions"
-              :key="i"
-              :suggestion="suggestion"
-              :class="{ highlighted: highlightedIndex === i }"
-              @click.native="fillUsername(suggestion)"
-            />
-          </ul>
-        </transition>
-        <transition name="textbox">
-          <k-textbox
-            v-if="(!simpleSignIn || (simpleSignIn && (passwordMissing || invalidCredentials)))"
-            ref="password"
-            id="password"
-            type="password"
-            autocomplete="current-password"
-            :label="$tr('password')"
-            :autofocus="simpleSignIn"
-            :invalid="passwordIsInvalid"
-            :invalidText="passwordIsInvalidText"
-            @blur="passwordBlurred = true"
-            v-model="password"
-          />
-        </transition>
-        <k-button
-          id="login-btn"
-          type="submit"
-          :text="$tr('signIn')"
-          :primary="true"
-          :disabled="busy"
-        />
-      </form>
-      <div id="divid-line"></div>
+  <div class="fh">
 
-      <p class="login-text no-account">{{ $tr('noAccount') }}</p>
-      <div id="btn-group">
-        <router-link v-if="canSignUp" class="group-btn" :to="signUpPage">
-          <k-button :text="$tr('createAccount')" :primary="false"/>
-        </router-link>
-        <a class="group-btn" href="/learn">
-          <k-button :text="$tr('accessAsGuest')" :primary="false"/>
-        </a>
+    <facility-modal
+      v-if="facilityModalVisible"
+      @close="closeFacilityModal"
+    />
+
+    <div class="wrapper-table">
+      <div class="main-row"><div id="main-cell">
+        <logo class="logo" />
+        <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
+        <form class="login-form" ref="form" @submit.prevent="signIn">
+          <ui-alert
+            v-if="invalidCredentials"
+            type="error"
+            class="alert"
+            :dismissible="false"
+          >
+            {{ $tr('signInError') }}
+          </ui-alert>
+          <transition name="textbox">
+            <k-textbox
+              ref="username"
+              id="username"
+              autocomplete="username"
+              :autofocus="!hasMultipleFacilities"
+              :label="$tr('username')"
+              :invalid="usernameIsInvalid"
+              :invalidText="usernameIsInvalidText"
+              @blur="handleUsernameBlur"
+              @input="showDropdown = true"
+              @keydown="handleKeyboardNav"
+              v-model="username"
+            />
+          </transition>
+          <transition name="list">
+            <ul
+              v-if="simpleSignIn && suggestions.length"
+              v-show="showDropdown"
+              class="suggestions"
+            >
+              <ui-autocomplete-suggestion
+                v-for="(suggestion, i) in suggestions"
+                :key="i"
+                :suggestion="suggestion"
+                :class="{ highlighted: highlightedIndex === i }"
+                @click.native="fillUsername(suggestion)"
+              />
+            </ul>
+          </transition>
+          <transition name="textbox">
+            <k-textbox
+              v-if="needPasswordField"
+              ref="password"
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              :label="$tr('password')"
+              :autofocus="simpleSignIn"
+              :invalid="passwordIsInvalid"
+              :invalidText="passwordIsInvalidText"
+              :floatingLabel="!autoFilledByChromeAndNotEdited"
+              @blur="passwordBlurred = true"
+              @input="handlePasswordChanged"
+              v-model="password"
+            />
+          </transition>
+          <k-button
+            class="login-btn"
+            type="submit"
+            :text="$tr('signIn')"
+            :primary="true"
+            :disabled="busy"
+          />
+        </form>
+        <div class="divider"></div>
+
+        <p class="login-text no-account">{{ $tr('noAccount') }}</p>
+        <div>
+          <k-router-link
+            v-if="canSignUp"
+            :text="$tr('createAccount')"
+            :to="signUpPage"
+            :primary="false"
+            appearance="raised-button"
+          />
+        </div>
+        <div>
+          <k-external-link
+            :text="$tr('accessAsGuest')"
+            href="/learn"
+            :primary="false"
+            appearance="flat-button"
+          />
+        </div>
+        <p class="login-text version">{{ versionMsg }}</p>
+      </div></div>
+      <div class="footer-row">
+        <language-switcher-footer class="footer-cell" />
       </div>
-      <p class="login-text version">{{ versionMsg }}</p>
     </div>
+
   </div>
 
 </template>
@@ -88,14 +111,18 @@
 
   import { kolibriLogin } from 'kolibri.coreVue.vuex.actions';
   import { PageNames } from '../../constants';
-  import { facilityConfig, currentFacilityId } from 'kolibri.coreVue.vuex.getters';
+  import { facilityConfig } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import logo from 'kolibri.coreVue.components.logo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import languageSwitcherFooter from '../language-switcher-footer';
+  import facilityModal from './facility-modal';
 
   export default {
     name: 'signInPage',
@@ -115,22 +142,30 @@
     },
     components: {
       kButton,
+      kRouterLink,
+      kExternalLink,
       kTextbox,
+      facilityModal,
       logo,
       uiAutocompleteSuggestion,
       uiAlert,
+      languageSwitcherFooter,
     },
-    data: () => ({
-      username: '',
-      password: '',
-      usernameSuggestions: [],
-      suggestionTerm: '',
-      showDropdown: true,
-      highlightedIndex: -1,
-      usernameBlurred: false,
-      passwordBlurred: false,
-      formSubmitted: false,
-    }),
+    data() {
+      return {
+        username: '',
+        password: '',
+        usernameSuggestions: [],
+        facilityModalVisible: this.hasMultipleFacilities,
+        suggestionTerm: '',
+        showDropdown: true,
+        highlightedIndex: -1,
+        usernameBlurred: false,
+        passwordBlurred: false,
+        formSubmitted: false,
+        autoFilledByChromeAndNotEdited: false,
+      };
+    },
     computed: {
       simpleSignIn() {
         return this.facilityConfig.learnerCanLoginWithNoPassword;
@@ -139,14 +174,6 @@
         // Filter suggestions on the client side so we don't hammer the server
         return this.usernameSuggestions.filter(sug =>
           sug.toLowerCase().startsWith(this.username.toLowerCase())
-        );
-      },
-      // TODO: not used
-      uniqueMatch() {
-        // If we have a matching username entered, don't show any suggestions.
-        return (
-          this.suggestions.length === 1 &&
-          this.suggestions[0].toLowerCase() === this.username.toLowerCase()
         );
       },
       usernameIsInvalidText() {
@@ -158,7 +185,7 @@
         return '';
       },
       usernameIsInvalid() {
-        return !!this.usernameIsInvalidText;
+        return Boolean(this.usernameIsInvalidText);
       },
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
@@ -171,7 +198,11 @@
         return '';
       },
       passwordIsInvalid() {
-        return !!this.passwordIsInvalidText;
+        // prevent validation from showing when we only think that the password is empty
+        if (this.autoFilledByChromeAndNotEdited) {
+          return false;
+        }
+        return Boolean(this.passwordIsInvalidText);
       },
       formIsValid() {
         if (this.simpleSignIn) {
@@ -188,9 +219,41 @@
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
+      hasServerError() {
+        return Boolean(this.passwordMissing || this.invalidCredentials);
+      },
+      needPasswordField() {
+        const isSimpleButHasError = this.simpleSignIn && this.hasServerError;
+        return !this.simpleSignIn || isSimpleButHasError;
+      },
     },
-    watch: { username: 'setSuggestionTerm' },
+    watch: {
+      username: 'setSuggestionTerm',
+    },
+    mounted() {
+      /*
+        Chrome has non-standard behavior with auto-filled text fields where
+        the value shows up as an empty string even though there is text in
+        the field:
+          https://bugs.chromium.org/p/chromium/issues/detail?id=669724
+        As super-brittle hack to detect the presence of auto-filled text and
+        work-around it, we look for a change in background color as described
+        here:
+          https://stackoverflow.com/a/35783761
+      */
+      setTimeout(() => {
+        const bgColor = window.getComputedStyle(this.$refs.username.$el.querySelector('input'))
+          .backgroundColor;
+
+        if (bgColor === 'rgb(250, 255, 189)') {
+          this.autoFilledByChromeAndNotEdited = true;
+        }
+      }, 250);
+    },
     methods: {
+      closeFacilityModal() {
+        this.facilityModalVisible = false;
+      },
       setSuggestionTerm(newVal) {
         if (newVal !== null && typeof newVal !== 'undefined') {
           // Only check if defined or not null
@@ -262,7 +325,7 @@
           this.showDropdown = false;
           this.highlightedIndex = -1;
           // focus on input after selection
-          this.$refs.username.$el.querySelector('input').focus();
+          this.$refs.username.focus();
         }
       },
       handleUsernameBlur() {
@@ -275,8 +338,8 @@
           this.kolibriLogin({
             username: this.username,
             password: this.password,
-            facility: this.facility,
-          });
+            facility: this.facilityId,
+          }).catch();
         } else {
           this.focusOnInvalidField();
         }
@@ -288,29 +351,36 @@
           this.$refs.password.focus();
         }
       },
+      handlePasswordChanged() {
+        this.autoFilledByChromeAndNotEdited = false;
+      },
     },
     vuex: {
       getters: {
-        facility: currentFacilityId,
+        // backend's default facility on load
+        facilityId: state => state.facilityId,
         facilityConfig,
+        hasMultipleFacilities: state => state.pageState.hasMultipleFacilities,
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,
       },
-      actions: { kolibriLogin },
+      actions: {
+        kolibriLogin,
+      },
     },
   };
 
 </script>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
 
   $login-text = #D8D8D8
 
-  #login-container
+  #main-cell >>>
     .ui-
       &textbox__
         &label-text
@@ -320,93 +390,89 @@
           color: $login-text
           &:autofill
             background-color: transparent
-      &button
-        background-color: $login-red
 
-</style>
+    .button.secondary.raised
+      background-color: $core-text-default
+      color: $core-grey
 
+      &:hover
+        background-color: #0E0E0E
 
-<style lang="stylus" scoped>
+    .button.secondary.flat
+      color: $core-grey
+      font-weight: normal
 
-  @require '~kolibri.styles.definitions'
+      &:hover
+        background: none
 
-  $login-overlay = #201A21
-  $login-text = #D8D8D8
+  .fh
+    height: 100%
 
-  .login
-    background-color: $login-overlay
-    height: 90%
-    // Fallback for older browers.
-    background: $core-bg-canvas
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center fixed
+  .fh
+    height: 100%
+
+  .wrapper-table
+    text-align: center
+    background-color: #201A21
+    width: 100%
+    height: 100%
+    display: table
+
+  .main-row
+    display: table-row
+
+  #main-cell
+    background: linear-gradient(rgba(0, 0, 0, 0.7),
+                rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center
     background-size: cover
-    overflow: hidden
-
-  #login-container
-    display: block
-    margin: auto
+    display: table-cell
+    vertical-align: middle
+    height: 100%
 
   .logo
-    position: relative
-    display: block
-    margin: auto
-    margin-top: 34px
-    width: 30%
-    height: auto
-    max-width: 120px
-    min-width: 60px
+    margin-top: 36px
+    width: 120px
 
   .login-text
     color: $login-text
 
   .title
-    font-weight: 100
     font-size: 1.3em
-    letter-spacing: 0.1em
-    text-align: center
 
-  #login-form
+  .login-form
     width: 70%
     max-width: 300px
-    margin: auto
-    margin-top: 30px
     position: relative
-
-  #password
-    margin-top: 30px
-
-  #login-btn
-    display: block
+    text-align: left
     margin: auto
-    margin-top: 38px
+
+  .login-btn
+    display: block
     width: 100%
 
-  #btn-group
-    display: table
+  .divider
     margin: auto
-    margin-top: 28px
-    margin-bottom: 20px
-    text-align: center
-
-  .group-btn
-    padding: 5px
-    display: inline-block
-    text-decoration: none
-
-  #divid-line
-    width: 412px
+    margin-top: 48px
+    margin-bottom: 36px
+    width: 100%
+    max-width: 412px
     height: 1px
     background-color: $core-text-annotation
-    background-color: $login-text
-    margin: auto
-    margin-top: 24px
 
   .version
-    text-align: center
     font-size: 0.8em
+    margin-top: 36px
+    margin-bottom: 36px
 
-  .no-account
-    text-align: center
+  .footer-row
+    display: table-row
+    background-color: $core-bg-canvas
+
+  .footer-cell
+    display: table-cell
+    vertical-align: middle
+    min-height: 50px
+    padding: 18px
 
   .sign-in-error
     color: $core-text-error

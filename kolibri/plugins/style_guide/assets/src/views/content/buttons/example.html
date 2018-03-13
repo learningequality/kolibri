@@ -1,18 +1,31 @@
 <template>
 
   <div>
-    <k-button text="raised primary" :primary="true" :raised="true"></k-button>
-    <k-button text="raised primary disabled" :primary="true" :raised="true" :disabled="true"></k-button>
-    <k-button text="raised secondary" :primary="false" :raised="true"></k-button>
-    <k-button text="raised secondary disabled" :primary="false" :raised="true" :disabled="true"></k-button>
-    <k-button text="flat primary" :primary="true" :raised="false"></k-button>
-    <k-button text="flat primary disabled" :primary="true" :raised="false" :disabled="true"></k-button>
-    <k-button text="flat secondary" :primary="false" :raised="false" ></k-button>
-    <k-button text="flat secondary disabled" :primary="false" :raised="false" :disabled="true"></k-button>
+    <k-button text="button" appearance="basic-link"></k-button>
+    <k-router-link text="router link" :to="{}"></k-router-link>
+    <k-external-link text="external link" href="#"></k-external-link>
     <br>
-    <a href="#" @click.prevent="">Standard link</a>
+    <k-button text="button" appearance="flat-button"></k-button>
+    <k-router-link text="router link" :to="{}" appearance="flat-button"></k-router-link>
+    <k-external-link text="external link" href="#" appearance="flat-button"></k-external-link>
     <br>
-    <router-link :to="{}">Vue router link</router-link>
+    <k-button text="button" :primary="true" appearance="flat-button"></k-button>
+    <k-router-link text="router link" :to="{}" :primary="true" appearance="flat-button"></k-router-link>
+    <k-external-link text="external link" href="#" :primary="true" appearance="flat-button"></k-external-link>
+    <br>
+    <k-button text="button" :primary="true"></k-button>
+    <k-router-link text="router link" :to="{}" :primary="true" appearance="raised-button"></k-router-link>
+    <k-external-link text="external link" href="#" :primary="true" appearance="raised-button"></k-external-link>
+    <br>
+    <k-button text="button"></k-button>
+    <k-router-link text="router link" :to="{}" appearance="raised-button"></k-router-link>
+    <k-external-link text="external link" href="#" appearance="raised-button"></k-external-link>
+    <br>
+    <k-button text="disabled button" :primary="true" :disabled="true"></k-button>
+    <k-button text="disabled button" appearance="flat-button" :primary="true" :disabled="true"></k-button>
+    <br>
+    <k-button text="disabled button" :disabled="true"></k-button>
+    <k-button text="disabled button" appearance="flat-button" :disabled="true"></k-button>
   </div>
 
 </template>

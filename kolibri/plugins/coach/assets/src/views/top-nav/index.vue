@@ -3,24 +3,6 @@
   <k-navbar>
     <k-navbar-link
       type="icon-and-title"
-      :title="$tr('topics')"
-      icon="folder"
-      :link="topicsLink"
-    />
-    <k-navbar-link
-      type="icon-and-title"
-      :title="$tr('recent')"
-      icon="access_time"
-      :link="recentLink"
-    />
-    <k-navbar-link
-      type="icon-and-title"
-      :title="$tr('exams')"
-      icon="assignment_late"
-      :link="examsLink"
-    />
-    <k-navbar-link
-      type="icon-and-title"
       :title="$tr('learners')"
       icon="people"
       :link="learnersLink"
@@ -31,6 +13,30 @@
       icon="group_work"
       :link="groupsLink"
     />
+    <k-navbar-link
+      type="icon-and-title"
+      :title="$tr('lessons')"
+      icon="import_contacts"
+      :link="lessonsLink"
+    />
+    <k-navbar-link
+      type="icon-and-title"
+      :title="$tr('exams')"
+      icon="assignment_late"
+      :link="examsLink"
+    />
+    <k-navbar-link
+      type="icon-and-title"
+      :title="$tr('recent')"
+      icon="access_time"
+      :link="recentLink"
+    />
+    <k-navbar-link
+      type="icon-and-title"
+      :title="$tr('topics')"
+      icon="folder"
+      :link="topicsLink"
+    />
   </k-navbar>
 
 </template>
@@ -39,6 +45,7 @@
 <script>
 
   import * as Constants from '../../constants';
+  import { LessonsPageNames } from '../../lessonsConstants';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   export default {
@@ -49,6 +56,7 @@
       exams: 'Exams',
       learners: 'Learners',
       groups: 'Groups',
+      lessons: 'Lessons',
     },
     components: {
       kNavbar,
@@ -85,6 +93,12 @@
       groupsLink() {
         return {
           name: Constants.PageNames.GROUPS,
+          params: { classId: this.classId },
+        };
+      },
+      lessonsLink() {
+        return {
+          name: LessonsPageNames.ROOT,
           params: { classId: this.classId },
         };
       },

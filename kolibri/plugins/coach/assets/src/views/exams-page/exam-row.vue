@@ -1,56 +1,27 @@
 <template>
 
   <tr>
-    <td class="col-icon">
+    <td class="core-table-icon-col prel">
       <ui-icon
-        icon="assignment"
+        icon="assignment_late"
         :ariaLabel="String(examActive)"
-        :class="examActive ? 'icon-active' : 'icon-inactive'"
+
+        :class="[examActive ? 'icon-active' : 'icon-inactive', { 'rtl-icon': isRtl }]"
       />
       <span v-if="examActive" class="active-circle"></span>
     </td>
 
-    <td class="col-title"><strong>{{ examTitle }}</strong></td>
+    <td class="core-table-main-col">{{ examTitle }}</td>
 
-    <td class="col-visibility"><strong>{{ visibilityString }}</strong> |
-      <k-button
-        :primary="false"
-        :raised="false"
-        @click="emitChangeExamVisibility"
-        :text="$tr('change')"
+    <td>{{ visibilityString }}</td>
+
+    <td>
+      <k-dropdown-menu
+        :text="$tr('options')"
+        :options="actionOptions"
+        appearance="flat-button"
+        @select="handleSelection"
       />
-    </td>
-
-    <td class="col-action">
-      <k-button
-        v-if="examActive"
-        :primary="true"
-        :raised="false"
-        @click="emitDeactivateExam"
-        :text="$tr('deactivate')"
-      />
-
-      <k-button
-        v-else
-        :primary="false"
-        :raised="false"
-        @click="emitActivateExam"
-        :text="$tr('activate')"
-      />
-
-      <ui-icon-button
-        type="secondary"
-        color="primary"
-        :has-dropdown="true"
-        ref="dropdown"
-        icon="arrow_drop_down">
-        <ui-menu
-          slot="dropdown"
-          :options="actionOptions"
-          @select="handleSelection"
-          @close="$refs.dropdown.closeDropdown();"
-        />
-      </ui-icon-button>
     </td>
   </tr>
 
@@ -61,8 +32,8 @@
 
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiIcon from 'keen-ui/src/UiIcon';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
-  import uiMenu from 'keen-ui/src/UiMenu';
+  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+
   export default {
     name: 'examRow',
     $trs: {
@@ -70,17 +41,18 @@
       activate: 'Activate',
       deactivate: 'Deactivate',
       previewExam: 'Preview exam',
+      changeVisibility: 'Change visibility',
       viewReport: 'View report',
       rename: 'Rename',
       delete: 'Delete',
       entireClass: 'Entire class',
       groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
       nobody: 'Nobody',
+      options: 'Options',
     },
     components: {
-      uiIconButton,
       uiIcon,
-      uiMenu,
+      kDropdownMenu,
       kButton,
     },
     props: {
@@ -112,7 +84,9 @@
       },
       actionOptions() {
         return [
+          { label: this.examActive ? this.$tr('deactivate') : this.$tr('activate') },
           { label: this.$tr('previewExam') },
+          { label: this.$tr('changeVisibility') },
           { label: this.$tr('viewReport') },
           { label: this.$tr('rename') },
           { label: this.$tr('delete') },
@@ -120,9 +94,6 @@
       },
     },
     methods: {
-      emitChangeExamVisibility() {
-        this.$emit('changeExamVisibility', this.examId);
-      },
       emitActivateExam() {
         this.$emit('activateExam', this.examId);
       },
@@ -131,6 +102,9 @@
       },
       emitPreviewExam() {
         this.$emit('previewExam', this.examId);
+      },
+      emitChangeExamVisibility() {
+        this.$emit('changeExamVisibility', this.examId);
       },
       emitViewReport() {
         this.$emit('viewReport');
@@ -143,8 +117,14 @@
       },
       handleSelection(optionSelected) {
         const action = optionSelected.label;
-        if (action === this.$tr('previewExam')) {
+        if (action === this.$tr('activate')) {
+          this.emitActivateExam();
+        } else if (action === this.$tr('deactivate')) {
+          this.emitDeactivateExam();
+        } else if (action === this.$tr('previewExam')) {
           this.emitPreviewExam();
+        } else if (action === this.$tr('changeVisibility')) {
+          this.emitChangeExamVisibility();
         } else if (action === this.$tr('viewReport')) {
           this.emitViewReport();
         } else if (action === this.$tr('rename')) {
@@ -163,19 +143,20 @@
 
   @require '~kolibri.styles.definitions'
 
+  .prel
+    position: relative
+
   .icon-active
     color: $core-action-normal
 
   .icon-inactive
     color: $core-text-annotation
 
-  .col-visibility, .col-action
-    text-align: right
-
   .active-circle
+    position: absolute
     display: inline-block
-    margin-left: -5px
-    vertical-align: bottom
+    bottom: 15px
+    right: 15px
     height: 10px
     width: 10px
     border-radius: 50%

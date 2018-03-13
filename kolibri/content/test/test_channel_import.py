@@ -2,18 +2,17 @@ import json
 import os
 import pickle
 
-from django.apps import apps
 from django.core.management import call_command
 from django.test import TestCase, TransactionTestCase
 
-from kolibri.content.utils.channel_import import ChannelImport, NO_VERSION, mappings
-from kolibri.content.utils.sqlalchemybridge import get_default_db_string, clear_cache
+from kolibri.content import models as content
+from kolibri.content.models import NO_VERSION, V020BETA1, V040BETA3, ChannelMetadata, ContentNode
+from kolibri.content.utils.channel_import import ChannelImport, mappings, import_channel_from_local_db
+from kolibri.content.utils.sqlalchemybridge import get_default_db_string
 
 from mock import patch, MagicMock, Mock, call
 
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 
 from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
@@ -39,7 +38,7 @@ class BaseChannelImportClassConstructorTestCase(TestCase):
     @patch('kolibri.content.utils.channel_import.get_content_database_file_path')
     def test_get_config(self, db_path_mock, apps_mock, tree_id_mock, BridgeMock):
         ChannelImport('test')
-        apps_mock.assert_has_calls([call.get_app_config('content'), call.get_app_config().models.values()])
+        apps_mock.assert_has_calls([call.get_app_config('content'), call.get_app_config().get_models(include_auto_created=True)])
 
     def test_tree_id(self, apps_mock, tree_id_mock, BridgeMock):
         ChannelImport('test')
@@ -192,7 +191,7 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
     def test_no_merge_records_bulk_insert_no_flush(self, apps_mock, tree_id_mock, BridgeMock):
         channel_import = ChannelImport('test')
         record_mock = MagicMock(spec=['__table__'])
-        record_mock.__table__.columns.keys.return_value = ['test_attr']
+        record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         channel_import.table_import(MagicMock(), lambda x, y: 'test_val', lambda x: [{}]*100, 0)
         channel_import.destination.session.bulk_insert_mappings.assert_has_calls([call(record_mock, [{'test_attr': 'test_val'}]*100)])
@@ -201,7 +200,7 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
     def test_no_merge_records_bulk_insert_flush(self, apps_mock, tree_id_mock, BridgeMock):
         channel_import = ChannelImport('test')
         record_mock = MagicMock(spec=['__table__'])
-        record_mock.__table__.columns.keys.return_value = ['test_attr']
+        record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         channel_import.table_import(MagicMock(), lambda x, y: 'test_val', lambda x: [{}]*10000, 0)
         channel_import.destination.session.bulk_insert_mappings.assert_has_calls([call(record_mock, [{'test_attr': 'test_val'}]*10000)])
@@ -212,7 +211,7 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         from kolibri.content.utils.channel_import import merge_models
         channel_import = ChannelImport('test')
         record_mock = MagicMock(spec=['__table__'])
-        record_mock.__table__.columns.keys.return_value = ['test_attr']
+        record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         model_mock = MagicMock()
         merge_models.append(model_mock)
@@ -225,7 +224,7 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         from kolibri.content.utils.channel_import import merge_models
         channel_import = ChannelImport('test')
         record_mock = Mock(spec=['__table__'])
-        record_mock.__table__.columns.keys.return_value = ['test_attr']
+        record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         model_mock = Mock()
         merge_models.append(model_mock)
@@ -284,6 +283,31 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             call.session.query().all()
         ])
 
+class MaliciousDatabaseTestCase(TestCase):
+
+    @patch('kolibri.content.utils.channel_import.set_leaf_node_availability_from_local_file_availability')
+    @patch('kolibri.content.utils.channel_import.recurse_availability_up_tree')
+    @patch('kolibri.content.utils.channel_import.initialize_import_manager')
+    def test_non_existent_root_node(self, initialize_manager_mock, recurse_mock, leaf_mock):
+        import_mock = MagicMock()
+        initialize_manager_mock.return_value = import_mock
+        channel_id = '6199dde695db4ee4ab392222d5af1e5c'
+
+        def create_channel():
+            ChannelMetadata.objects.create(
+                id=channel_id,
+                name='test',
+                min_schema_version='1',
+                root_id=channel_id,
+            )
+        import_mock.import_channel_data.side_effect = create_channel
+        import_channel_from_local_db(channel_id)
+        try:
+            channel = ChannelMetadata.objects.get(id=channel_id)
+            assert channel.root
+        except ContentNode.DoesNotExist:
+            self.fail('Channel imported without a valid root node')
+
 
 SCHEMA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{name}_content_schema')
 
@@ -300,70 +324,34 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
     by Django.
     """
 
-    content_fixture = 'content_test.json'
-
     # When incrementing content schema versions, this should be incremented to the new version
     # A new TestCase for importing for this old version should then be subclassed from this TestCase
     # See 'NoVersionImportTestCase' below for an example
-    name = '1'
+    #
+    # TODO: rtibbles Revert this change that only tests unversioned import
+    name = NO_VERSION
+
+    legacy_schema = None
+
+    @property
+    def schema_name(self):
+        return self.legacy_schema or self.name
 
     def setUp(self):
         try:
             self.set_content_fixture()
         except (IOError, EOFError):
-            self.create_content_fixture()
-            self.set_content_fixture()
+            print('No content schema and/or data for {name}'.format(name=self.schema_name))
 
         super(NaiveImportTestCase, self).setUp()
-
-    def create_content_fixture(self):
-
-        # This is a utility for creating the fixtures that we use in later testing.
-        # It should not get called during ordinary test runs, but will happen the first time
-        # a new schema version is created and run.
-        #
-        # When a new content schema version is created, this test suite must be run and the resulting
-        # fixtures committed to the codebase.
-
-        engine = django_connection_engine()
-
-        metadata = MetaData()
-
-        app_config = apps.get_app_config('content')
-        table_names = [model._meta.db_table for model in app_config.models.values()]
-        metadata.reflect(engine, only=table_names)
-        Base = automap_base(metadata=metadata)
-        # TODO map relationship backreferences using the django names
-        Base.prepare()
-        session = sessionmaker(bind=engine, autoflush=False)()
-
-        # Load fixture data into the test database with Django
-        call_command('loaddata', self.content_fixture, interactive=False)
-
-        def get_dict(item):
-            value = {key: value for key, value in item.__dict__.items() if key != '_sa_instance_state'}
-            return value
-
-        data = {}
-
-        for table_name, record in Base.classes.items():
-            data[table_name] = [get_dict(r) for r in session.query(record).all()]
-
-        with open(SCHEMA_PATH_TEMPLATE.format(name=self.name), 'wb') as f:
-            pickle.dump(metadata, f, protocol=2)
-
-        with open(DATA_PATH_TEMPLATE.format(name=self.name), 'w') as f:
-            json.dump(data, f)
-
-        call_command('flush', interactive=False)
 
     def set_content_fixture(self):
         self.content_engine = create_engine('sqlite:///:memory:', convert_unicode=True)
 
-        with open(SCHEMA_PATH_TEMPLATE.format(name=self.name), 'rb') as f:
+        with open(SCHEMA_PATH_TEMPLATE.format(name=self.schema_name), 'rb') as f:
             metadata = pickle.load(f)
 
-        with open(DATA_PATH_TEMPLATE.format(name=self.name), 'r') as f:
+        with open(DATA_PATH_TEMPLATE.format(name=self.schema_name), 'r') as f:
             data = json.load(f)
 
         metadata.bind = self.content_engine
@@ -374,7 +362,8 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
 
         # Write data for each fixture into the table
         for table in metadata.sorted_tables:
-            conn.execute(table.insert(), data[table.name])
+            if data[table.name]:
+                conn.execute(table.insert(), data[table.name])
 
         conn.close()
 
@@ -392,7 +381,6 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
         return self.content_engine
 
     def tearDown(self):
-        clear_cache()
         call_command('flush', interactive=False)
         super(NaiveImportTestCase, self).tearDown()
 
@@ -402,9 +390,29 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
         super(NaiveImportTestCase, cls).tearDownClass()
 
 
-class NoVersionImportTestCase(NaiveImportTestCase):
+# class NoVersionImportTestCase(NaiveImportTestCase):
+#     """
+#     Integration test for import from no version import
+#     """
+
+#     name = NO_VERSION
+
+
+class NoVersionv020ImportTestCase(NaiveImportTestCase):
     """
     Integration test for import from no version import
     """
 
-    name = NO_VERSION
+    legacy_schema = V020BETA1
+
+    def test_lang_str(self):
+        # test for Language __str__
+        p = content.Language.objects.get(lang_code="en")
+        self.assertEqual(str(p), '')
+
+class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
+    """
+    Integration test for import from no version import
+    """
+
+    legacy_schema = V040BETA3

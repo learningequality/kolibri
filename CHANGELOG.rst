@@ -1,20 +1,99 @@
-.. :changelog:
-
 Release Notes
 =============
 
 Changes are ordered reverse-chronologically.
 
-0.6
----
+0.8.0 (unreleased)
+------------------
 
- - Add support for RTL languages
- - Add support for frontend translation outside of Vue components
- - Delete DeviceOwner model, and replace with a superuser flag on FacilityUsers
+ - TBA
 
 
-0.5
----
+0.7.2
+-----
+
+ - Fix issue with importing large channels on Windows
+ - Fix issue that prevented importing topic thumbnail files
+
+0.7.1
+-----
+
+ - Improvements and fixes to installers including Windows & Debian
+ - Updated documentation
+
+
+0.7.0
+-----
+
+ - Completed RTL language support
+ - Languages: English, Spanish, Arabic, Farsi, Swahili, Urdu, and French
+ - Support for Python 3.6
+ - Split user and developer documentation
+ - Improved lost-connection and session timeout handling
+ - Added 'device info' administrator page
+ - Content search integration with Studio
+ - Granular content import and export
+
+
+0.6.2
+-----
+
+ - Consistent ordering of channels in learner views
+
+
+0.6.1
+-----
+
+ - Many mobile-friendly updates across the app
+ - Update French, Portuguese, and Swahili translations
+ - Upgraded Windows installer
+
+
+0.6.0
+-----
+
+ - Cross-channel searching and browsing
+ - Improved device onboarding experience
+ - Improved device permissions experience (deprecated 'device owner', added 'superuser' flag and import permission)
+ - Various channel import/export experience and stability improvements
+ - Responsive login page
+ - Dynamic language switching
+ - Work on integrated living style guide
+ - Added beta support for right-to-left languages
+ - Improved handling of locale codes
+ - Added support for frontend translation outside of Vue components
+ - Added an open-source 'code of conduct' for contributors
+ - By default run PEX file in foreground on MacOS
+ - Crypto optimizations from C extensions
+ - Deprecated support for HTML in translation strings
+ - Hide thumbnails from content 'download' button
+ - Automatic database backup during upgrades. #2365
+ - ... and many other updates and fixes
+
+
+0.5.3
+-----
+
+ - Release timeout bug fix from 0.4.8
+
+
+0.5.2
+-----
+
+ - Release bug fix from 0.4.7
+
+
+0.5.1
+-----
+
+ - Python dependencies: Only bundle, do not install dependencies in system env #2299
+ - Beta Android support
+ - Fix 'importchannel' command #2082
+ - Small translation improvements for Spanish, French, Hindi, and Swahili
+
+
+0.5.0
+-----
 
  - Update all user logging related timestamps to a custom datetime field that includes timezone info
  - Added daemon mode (system service) to run ``kolibri start`` in background (default!) #1548
@@ -27,10 +106,48 @@ Changes are ordered reverse-chronologically.
  - KOLIBRI_LISTEN_PORT environment variable for specifying a default for the --port option #1724
 
 
+0.4.9
+-----
+  - User experience improvements for session timeout
+
+
+0.4.8
+-----
+
+ - Prevent session timeout if user is still active
+ - Fix exam completion timestamp bug
+ - Prevent exercise attempt logging crosstalk bug
+ - Update Hindi translations
+
+0.4.7
+-----
+
+ - Fix bug that made updating existing Django models from the frontend impossible
+
+
+0.4.6
+-----
+
+ - Fix various exam and progress tracking issues
+ - Add automatic sign-out when browser is closed
+ - Fix search issue
+ - Learner UI updates
+ - Updated Hindi translations
+
+
+0.4.5
+-----
+
+ - Frontend and backend changes to increase performance of the Kolibri application under heavy load
+ - Fix bug in frontend simplified login code
+
+
 0.4.4
 -----
 
  - Fix for Python 3 compatibility in Whl, Windows and Pex builds #1797
+ - Adds Mexican Spanish as an interface language
+ - Upgrades django-q for bug fixes
 
 
 0.4.3
@@ -53,8 +170,8 @@ Changes are ordered reverse-chronologically.
  - Removes wrong CLI usage instructions #1742
 
 
-0.4
----
+0.4.0
+-----
 
  - Class and group management
  - Learner reports #1464
@@ -62,6 +179,27 @@ Changes are ordered reverse-chronologically.
  - Anonymous exercises fixed #1466
  - Integrated Morango, to prep for data syncing (will require fresh database)
  - Adds Simplified Login support as a configurable facility flag
+
+
+0.3.3
+-----
+
+ - Turns video captions on by default
+
+
+0.3.2
+-----
+
+ - Updated translations for Portuguese and Kiswahili in exercises.
+ - Updated Spanish translations
+
+
+0.3.2
+-----
+
+ - Portuguese and Kaswihili updates
+ - Windows fixes (mimetypes and modified time)
+ - VF sidebar translations
 
 
 0.3.0

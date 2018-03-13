@@ -1,5 +1,5 @@
-import { sortBy, flatten } from 'lodash';
-
+import sortBy from 'lodash/sortBy';
+import flatten from 'lodash/flatten';
 import buttonsPage from '../content/buttons';
 import breadcrumbsPage from '../content/breadcrumbs';
 import navbarPage from '../content/navbar';
@@ -7,6 +7,8 @@ import checkboxesPage from '../content/checkboxes';
 import radioButtonsPage from '../content/radio-buttons';
 import textFieldsPage from '../content/text-fields';
 import filtersPage from '../content/filters';
+import dropdownMenusPage from '../content/dropdown-menus';
+
 import home from '../content/_home';
 
 function sortSectionItems(items) {
@@ -36,14 +38,14 @@ const navMenu = [
         },
       },
       {
-        itemName: 'Breadcrumbs',
+        itemName: 'Topic tree breadcrumbs',
         itemRoute: {
           path: `/components/breadcrumbs`,
           component: breadcrumbsPage,
         },
       },
       {
-        itemName: 'Horizontal Navbar',
+        itemName: 'Horizontal navbar',
         itemRoute: {
           path: `/components/navbar`,
           component: navbarPage,
@@ -75,6 +77,13 @@ const navMenu = [
         itemRoute: {
           path: `/components/filters`,
           component: filtersPage,
+        },
+      },
+      {
+        itemName: 'Dropdown menus',
+        itemRoute: {
+          path: `/components/dropdown-menus`,
+          component: dropdownMenusPage,
         },
       },
     ]),

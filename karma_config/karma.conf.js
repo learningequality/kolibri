@@ -3,6 +3,7 @@ const _ = require('lodash');
 const webpack_config = _.clone(require('../frontend_build/src/webpack.config.base'));
 const path = require('path');
 const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 webpack_config.plugins.push(
   new webpack.DefinePlugin({
@@ -12,7 +13,10 @@ webpack_config.plugins.push(
     },
   })
 );
-webpack_config.devtool = '#inline-source-map';
+
+webpack_config.plugins.push(new ExtractTextPlugin('styles.css'));
+
+webpack_config.devtool = 'none';
 
 // html5media plugin requires this
 webpack_config.module.rules.push({
@@ -24,11 +28,17 @@ webpack_config.module.rules.push({
   ],
 });
 
+webpack_config.stats = 'none';
+
 const aliases = require('../frontend_build/src/apiSpecExportTools').coreAliases();
 aliases.testUtils = path.resolve(__dirname, './testUtils');
 aliases['vue-test'] = path.resolve(__dirname, './vueLocal');
 
 webpack_config.resolve.alias = aliases;
+
+webpack_config.externals = {
+  kolibri: 'kolibriGlobal',
+};
 
 module.exports = function(config) {
   config.set({
@@ -41,9 +51,11 @@ module.exports = function(config) {
 
     // list of files / patterns to load
     files: [
+      './karma_config/globals.js',
       // Detailed pattern to include a file. Similarly other options can be used
       { pattern: './node_modules/core-js/client/core.js', watched: false },
-      'kolibri/**/assets/test/**/*.js',
+      { pattern: 'kolibri/**/assets/test/**/*.js', watched: false },
+      { pattern: 'kolibri/**/assets/**/*.spec.js', watched: false },
     ],
 
     // list of files to exclude
@@ -53,6 +65,7 @@ module.exports = function(config) {
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
       'kolibri/**/assets/test/**/*.js': ['webpack', 'sourcemap'],
+      'kolibri/**/assets/**/*.spec.js': ['webpack', 'sourcemap'],
     },
 
     // test results reporter to use
@@ -67,7 +80,6 @@ module.exports = function(config) {
     colors: true,
 
     // level of logging
-    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     logLevel: config.LOG_INFO,
 
     // enable / disable watching file and executing tests whenever any file changes

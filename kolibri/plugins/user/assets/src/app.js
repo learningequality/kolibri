@@ -1,65 +1,96 @@
-import KolibriModule from 'kolibri_module';
-import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import KolibriApp from 'kolibri_app';
+import RootVue from './views';
+import {
+  showSignInPage,
+  showSignUpPage,
+  showProfilePage,
+  setFacilitiesAndConfig,
+} from './state/actions';
+import initialState from './state/initialState';
+import mutations from './state/mutations';
+import { PageNames } from './constants';
+import store from 'kolibri.coreVue.vuex.store';
+import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 import router from 'kolibri.coreVue.router';
 
-import Vue from 'kolibri.lib.vue';
-
-import RootVue from './views';
-import * as actions from './state/actions';
-import store from './state/store';
-import { PageNames } from './constants';
-
-class UserModule extends KolibriModule {
-  ready() {
-    coreActions
-      .getCurrentSession(store)
-      .then(() => coreActions.getFacilityConfig(store))
-      .then(() => {
-        const routes = [
-          {
-            name: PageNames.ROOT,
-            path: '/',
-            handler: (toRoute, fromRoute) => {
-              actions.showRoot(store);
-            },
-          },
-          {
-            name: PageNames.SIGN_IN,
-            path: '/signin',
-            handler: (toRoute, fromRoute) => {
-              actions.showSignIn(store);
-            },
-          },
-          {
-            name: PageNames.SIGN_UP,
-            path: '/create_account',
-            handler: (toRoute, fromRoute) => {
-              actions.showSignUp(store);
-            },
-          },
-          {
-            name: PageNames.PROFILE,
-            path: '/profile',
-            handler: (toRoute, fromRoute) => {
-              actions.showProfile(store);
-            },
-          },
-          {
-            path: '*',
-            redirect: '/',
-          },
-        ];
-
-        this.rootvue = new Vue({
-          el: 'rootvue',
-          name: 'UserRoot',
-          render: createElement => createElement(RootVue),
-          router: router.init(routes),
+const routes = [
+  {
+    name: PageNames.ROOT,
+    path: '/',
+    handler: () => {
+      if (isUserLoggedIn(store.state)) {
+        router.getInstance().replace({
+          name: PageNames.PROFILE,
         });
-      });
+      } else {
+        router.getInstance().replace({
+          name: PageNames.SIGN_IN,
+        });
+      }
+    },
+  },
+  {
+    name: PageNames.SIGN_IN,
+    path: '/signin',
+    handler: () => {
+      if (isUserLoggedIn(store.state)) {
+        router.getInstance().replace({
+          name: PageNames.PROFILE,
+        });
+      } else {
+        showSignInPage(store);
+      }
+    },
+  },
+  {
+    name: PageNames.SIGN_UP,
+    path: '/create_account',
+    handler: () => {
+      if (isUserLoggedIn(store.state)) {
+        router.getInstance().replace({
+          name: PageNames.PROFILE,
+        });
+        return Promise.resolve();
+      } else {
+        return showSignUpPage(store);
+      }
+    },
+  },
+  {
+    name: PageNames.PROFILE,
+    path: '/profile',
+    handler: () => {
+      if (!isUserLoggedIn(store.state)) {
+        router.getInstance().replace({
+          name: PageNames.SIGN_IN,
+        });
+      } else {
+        showProfilePage(store);
+      }
+    },
+  },
+  {
+    path: '*',
+    redirect: '/',
+  },
+];
+
+class UserModule extends KolibriApp {
+  get stateSetters() {
+    return [setFacilitiesAndConfig];
+  }
+  get routes() {
+    return routes;
+  }
+  get RootVue() {
+    return RootVue;
+  }
+  get initialState() {
+    return initialState;
+  }
+  get mutations() {
+    return mutations;
   }
 }
 
-const userModule = new UserModule();
-
-export { userModule as default };
+export default new UserModule();

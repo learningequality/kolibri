@@ -53,7 +53,7 @@ class ImportChannelTestCase(TestCase):
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_dest_path, local_src_path]
         FileCopyMock.return_value.__iter__.return_value = ['one', 'two', 'three']
-        call_command("importchannel", "local", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
+        call_command("importchannel", "disk", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
         # Check that is_cancelled was called
         is_cancelled_mock.assert_called_with()
         # Check that the FileCopy initiated
@@ -127,8 +127,8 @@ class ImportContentTestCase(TestCase):
     @patch('kolibri.content.management.commands.importcontent.transfer.FileDownload')
     @patch('kolibri.content.management.commands.importcontent.AsyncCommand.cancel')
     @patch('kolibri.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, False, False, False, False, True, True, True])
-    def test_remote_cancel_after_file_copy_file_deleted(self, is_cancelled_mock, cancel_mock, FileDownloadMock, local_path_mock, remote_path_mock,
-                                                        start_progress_mock, annotation_mock):
+    def test_remote_cancel_after_file_copy_file_not_deleted(self, is_cancelled_mock, cancel_mock, FileDownloadMock, local_path_mock, remote_path_mock,
+                                                            start_progress_mock, annotation_mock):
         # If transfer is cancelled after transfer of first file
         local_path_1 = tempfile.mkstemp()[1]
         local_path_2 = tempfile.mkstemp()[1]
@@ -139,11 +139,9 @@ class ImportContentTestCase(TestCase):
         call_command("importcontent", "network", self.the_channel_id)
         # Check that the command itself was also cancelled.
         cancel_mock.assert_called_with()
-        # Check that the temp file we created where the first file was being downloaded to has been deleted
-        self.assertFalse(os.path.exists(local_path_1))
-        annotation_mock.mark_local_files_as_available.assert_not_called()
-        annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
-        annotation_mock.recurse_availability_up_tree.assert_not_called()
+        # Check that the temp file we created where the first file was being downloaded to has not been deleted
+        self.assertTrue(os.path.exists(local_path_1))
+        annotation_mock.set_availability.assert_called()
 
     @patch('kolibri.content.management.commands.importcontent.transfer.FileCopy')
     @patch('kolibri.content.management.commands.importcontent.AsyncCommand.cancel')
@@ -151,7 +149,7 @@ class ImportContentTestCase(TestCase):
     def test_local_cancel_immediately(self, is_cancelled_mock, cancel_mock, FileCopyMock, annotation_mock):
         # Local version of test above
         FileCopyMock.return_value.__iter__.return_value = ['one', 'two', 'three']
-        call_command("importcontent", "local", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
+        call_command("importcontent", "disk", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
         is_cancelled_mock.assert_has_calls([call(), call()])
         FileCopyMock.assert_not_called()
         cancel_mock.assert_called_with()
@@ -170,14 +168,12 @@ class ImportContentTestCase(TestCase):
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_dest_path, local_src_path]
         FileCopyMock.return_value.__iter__.return_value = ['one', 'two', 'three']
-        call_command("importcontent", "local", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
+        call_command("importcontent", "disk", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
         is_cancelled_mock.assert_has_calls([call(), call(), call()])
         FileCopyMock.assert_called_with(local_src_path, local_dest_path)
         FileCopyMock.assert_has_calls([call().cancel()])
         cancel_mock.assert_called_with()
-        annotation_mock.mark_local_files_as_available.assert_not_called()
-        annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
-        annotation_mock.recurse_availability_up_tree.assert_not_called()
+        annotation_mock.set_availability.assert_called()
 
 
 @override_settings(

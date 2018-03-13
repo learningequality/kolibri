@@ -1,7 +1,7 @@
 <template>
 
   <tr>
-    <th class="col-checkbox">
+    <th class="core-table-checkbox-col">
       <k-checkbox
         :label="$tr('selectTopic')"
         :showLabel="false"
@@ -11,14 +11,21 @@
         @change="changeSelection"
       />
     </th>
-    <td class="col-title">
-      <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }"/>
-      <button v-if="topicHasExercises" class="title" @click="$emit('goToTopic', topicId)">{{ topicTitle }}</button>
+    <td class="core-table-main-col">
+      <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }" />
+      <button v-if="topicHasExercises" class="title" @click="$emit('goToTopic', topicId)">
+        {{ topicTitle }}
+      </button>
       <span v-else class="disabled">{{ topicTitle }}</span>
     </td>
-    <td class="col-selection">
+    <td>
       <template v-if="!noExercisesWithinTopicSelected">
-      {{ $tr('exercisesSelected', { selected: numExercisesWithinTopicSelected, total: numExercisesWithinTopic })}}
+        {{
+          $tr(
+            'exercisesSelected',
+            { selected: numExercisesWithinTopicSelected, total: numExercisesWithinTopic }
+          )
+        }}
       </template>
     </td>
   </tr>
@@ -122,4 +129,3 @@
     color: $core-text-disabled
 
 </style>
-

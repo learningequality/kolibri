@@ -4,6 +4,8 @@ language: python
 
 dist: trusty
 
+sudo: required
+
 addons:
   chrome: stable
 
@@ -30,6 +32,10 @@ matrix:
       env:
         - TOX_ENV=pythonbuild3.5
         - TRAVIS_NODE_VERSION="6"
+    - python: "3.6"
+      env:
+        - TOX_ENV=pythonbuild3.6
+        - TRAVIS_NODE_VERSION="6"
     - python: "2.7"
       env:
         - TOX_ENV=pythonlint
@@ -54,6 +60,10 @@ matrix:
       env:
         - TOX_ENV=py3.5
         - TRAVIS_NODE_VERSION="6"
+    - python: "3.6"
+      env:
+        - TOX_ENV=py3.6
+        - TRAVIS_NODE_VERSION="6"
     - python: "2.7"
       env:
         - TOX_ENV=node6.x
@@ -68,7 +78,10 @@ matrix:
         - TRAVIS_NODE_VERSION="6"
 
 before_install:
-  - git describe --tags
+  - git fetch
+  - git describe --tags --always
+  # Required until this is fixed: https://github.com/travis-ci/travis-ci/issues/9112
+  - sudo apt-get update --option Acquire::Retries=100 --option Acquire::http::Timeout="60"
   - pip install -U pip codecov tox
   - . $HOME/.nvm/nvm.sh
   - nvm install $TRAVIS_NODE_VERSION
@@ -79,7 +92,7 @@ before_install:
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
 
-# command to run tests, e.g. python setup.py test
+# command to run tests
 script:
   - tox -e $TOX_ENV
 

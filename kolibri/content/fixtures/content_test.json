@@ -25,7 +25,7 @@
       "license_owner": "",
       "parent": null,
       "title": "root",
-      "license": 1,
+      "license_name": "WTFPL",
       "tags": [
         "1d21d6cf40554b68977366f8218248ae",
         "77b57a14a1f0466bb27ea7de8ff468be",
@@ -51,7 +51,7 @@
       "license_owner": "",
       "parent": "da7ecc42e62553eebc8121242746e88a",
       "title": "c1",
-      "license": 1,
+      "license_name": "WTFPL",
       "tags": [
         "1d21d6cf40554b68977366f8218248ae"
       ],
@@ -77,7 +77,7 @@
       "license_owner": "",
       "parent": "da7ecc42e62553eebc8121242746e88a",
       "title": "c2",
-      "license": 2,
+      "license_name": "GNU",
       "tags": [
         "77b57a14a1f0466bb27ea7de8ff468be"
       ],
@@ -101,7 +101,7 @@
       "license_owner": "",
       "parent": "2e8bac07947855369fe2d77642dfc870",
       "title": "c2c1",
-      "license": 3,
+      "license_name": "CC",
       "tags": [],
       "kind": "exercise",
       "content_id": "ce603df7c46b424b934348995e1b05fb",
@@ -123,7 +123,7 @@
       "license_owner": "",
       "parent": "2e8bac07947855369fe2d77642dfc870",
       "title": "c2c2",
-      "license": 2,
+      "license_name": "GNU",
       "tags": [],
       "kind": "document",
       "content_id": "481e1bda1faa445d801ceb2afbd2f42f",
@@ -145,7 +145,7 @@
       "license_owner": "",
       "parent": "2e8bac07947855369fe2d77642dfc870",
       "title": "c2c3",
-      "license": 2,
+      "license_name": "GNU",
       "tags": [],
       "kind": "audio",
       "content_id": "f2332710c2fd483386cdeb5ecbdda81f",
@@ -160,6 +160,50 @@
       "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
     },
     "pk": "b391bfeec8a458f89f013cf1ca9cf33a",
+    "model": "content.contentnode"
+  },
+  {
+    "fields": {
+      "license_owner": "",
+      "parent": "b391bfeec8a458f89f013cf1ca9cf33a",
+      "title": "c3",
+      "license_name": "WTFPL",
+      "tags": [],
+      "kind": "topic",
+      "content_id": "f2332710c2fd483386cdeb5dcbdda81a",
+      "tree_id": 1,
+      "rght": 10,
+      "description": "balbla5",
+      "available": false,
+      "lft": 9,
+      "sort_order": null,
+      "level": 2,
+      "author": "",
+      "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
+    },
+    "pk": "c391bfeec8a458f89f013cf1ca9cf33b",
+    "model": "content.contentnode"
+  },
+  {
+    "fields": {
+      "license_owner": "",
+      "parent": "c391bfeec8a458f89f013cf1ca9cf33b",
+      "title": "c3c1",
+      "license_name": "WTFPL",
+      "tags": [],
+      "kind": "topic",
+      "content_id": "f2332710c2fd483386cdeb5dcbdda81f",
+      "tree_id": 1,
+      "rght": 10,
+      "description": "balbla5",
+      "available": true,
+      "lft": 9,
+      "sort_order": null,
+      "level": 2,
+      "author": "",
+      "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
+    },
+    "pk": "c391bfeec8a458f89f013cf1ca9cf33a",
     "model": "content.contentnode"
   },
   {
@@ -301,34 +345,6 @@
     },
     "pk": "8ad3fffedf144cba9492e16daec1e39a",
     "model": "content.localfile"
-  },
-  {
-    "fields": {
-      "license_name": "WTFPL"
-    },
-    "pk": 1,
-    "model": "content.license"
-  },
-  {
-    "fields": {
-      "license_name": "GNU"
-    },
-    "pk": 2,
-    "model": "content.license"
-  },
-  {
-    "fields": {
-      "license_name": "CC"
-    },
-    "pk": 3,
-    "model": "content.license"
-  },
-  {
-    "fields": {
-      "license_name": "MIT"
-    },
-    "pk": 4,
-    "model": "content.license"
   },
   {
     "fields": {

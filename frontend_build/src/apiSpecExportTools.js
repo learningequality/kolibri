@@ -54,7 +54,8 @@ function specModule(filePath) {
           type: 'Literal',
           value: path,
           raw: '"' + path + '"',
-        }), (prop.shorthand = false);
+        }),
+          (prop.shorthand = false);
       }
     });
   }
@@ -90,16 +91,27 @@ function specModule(filePath) {
 
 var apiSpec = specModule(specFilePath);
 
+var kolibriName = require('./kolibriName');
+
 function requireName(pathArray) {
   return ['kolibri'].concat(pathArray.slice(1)).join('.');
 }
 
-function coreExternals(kolibri_name) {
+var baseAliases = {
+  kolibri_module: path.resolve(__dirname, '../../kolibri/core/assets/src/kolibri_module'),
+  kolibri_app: path.resolve(__dirname, '../../kolibri/core/assets/src/kolibri_app'),
+  content_renderer_module: path.resolve(
+    __dirname,
+    '../../kolibri/core/assets/src/content_renderer_module'
+  ),
+};
+
+function coreExternals() {
   /*
    * Function for creating a hash of externals for modules that are exposed on the core kolibri object.
    */
   var externalsObj = {
-    kolibri: kolibri_name,
+    kolibri: kolibriName,
   };
   function recurseObjectKeysAndExternalize(obj, pathArray) {
     if (typeof obj === 'object') {
@@ -114,7 +126,7 @@ function coreExternals(kolibri_name) {
       externalsObj[requireName(pathArray)] = pathArray.join('.');
     }
   }
-  recurseObjectKeysAndExternalize(apiSpec, [kolibri_name]);
+  recurseObjectKeysAndExternalize(apiSpec, [kolibriName]);
   return externalsObj;
 }
 
@@ -122,13 +134,7 @@ function coreAliases(localAPISpec) {
   /*
    * Function for creating a hash of aliases for modules that are exposed on the core kolibri object.
    */
-  var aliasesObj = {
-    kolibri_module: path.resolve(__dirname, '../../kolibri/core/assets/src/kolibri_module'),
-    content_renderer_module: path.resolve(
-      __dirname,
-      '../../kolibri/core/assets/src/content_renderer_module'
-    ),
-  };
+  var aliasesObj = Object.assign({}, baseAliases);
   function recurseObjectKeysAndAlias(obj, pathArray) {
     if (typeof obj === 'object') {
       Object.keys(obj).forEach(function(key) {
@@ -161,4 +167,5 @@ function coreAliases(localAPISpec) {
 module.exports = {
   coreExternals: coreExternals,
   coreAliases: coreAliases,
+  baseAliases: baseAliases,
 };

@@ -1,12 +1,16 @@
 <template>
 
   <div>
-    <core-base :navBarNeeded="navBarNeeded" :topLevelPageName="topLevelPageName" :appBarTitle="appBarTitle">
-      <component v-if="navBarNeeded" :is="currentPage"/>
+    <!-- v-if applied to component and not core-base because it sets doc title -->
+    <core-base
+      :navBarNeeded="navBarNeeded"
+      :topLevelPageName="topLevelPageName"
+      :appBarTitle="appBarTitle"
+    >
+      <component :is="currentPage" v-if="navBarNeeded" />
     </core-base>
     <div v-if="!navBarNeeded" class="full-page">
-      <component :is="currentPage"/>
-      <language-switcher :footer="true"/>
+      <component :is="currentPage" />
     </div>
   </div>
 
@@ -15,64 +19,56 @@
 
 <script>
 
-  import store from '../state/store';
   import { PageNames } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import signInPage from './sign-in-page';
   import signUpPage from './sign-up-page';
   import profilePage from './profile-page';
-  import languageSwitcher from 'kolibri.coreVue.components.languageSwitcher';
+
+  const pageNameComponentMap = {
+    [PageNames.SIGN_IN]: signInPage,
+    [PageNames.SIGN_UP]: signUpPage,
+    [PageNames.PROFILE]: profilePage,
+  };
+
   export default {
-    $trs: { userProfileTitle: 'Profile' },
     name: 'userPlugin',
     components: {
       coreBase,
       signInPage,
       signUpPage,
       profilePage,
-      languageSwitcher,
     },
     computed: {
       appBarTitle() {
         if (this.pageName === PageNames.PROFILE) {
           return this.$tr('userProfileTitle');
         }
-        return null;
+        return '';
       },
       topLevelPageName: () => TopLevelPageNames.USER,
       currentPage() {
-        if (this.pageName === PageNames.SIGN_IN) {
-          return 'sign-in-page';
-        }
-        if (this.pageName === PageNames.SIGN_UP) {
-          return 'sign-up-page';
-        }
-        if (this.pageName === PageNames.PROFILE) {
-          return 'profile-page';
-        }
-        return null;
+        return pageNameComponentMap[this.pageName] || null;
       },
       navBarNeeded() {
-        if (this.pageName === PageNames.SIGN_IN) {
-          return false;
-        }
-        if (this.pageName === PageNames.SIGN_UP) {
-          return false;
-        }
-        return true;
+        return this.pageName !== PageNames.SIGN_IN && this.pageName !== PageNames.SIGN_UP;
       },
     },
-    vuex: { getters: { pageName: state => state.pageName } },
-    store,
+    vuex: {
+      getters: {
+        pageName: state => state.pageName,
+      },
+    },
+    $trs: {
+      userProfileTitle: 'Profile',
+    },
   };
 
 </script>
 
 
 <style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
 
   .full-page
     position: absolute

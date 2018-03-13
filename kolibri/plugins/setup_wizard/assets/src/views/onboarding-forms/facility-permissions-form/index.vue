@@ -7,8 +7,10 @@
     <core-modal
       :title=" $tr('facilityPermissionsPresetDetailsHeader')"
       @cancel="hideFacilityPermissionsDetails"
+      @enter="hideFacilityPermissionsDetails"
       :enableBgClickCancel="true"
-      v-if="permissionPresetDetailsModalShown">
+      v-if="permissionPresetDetailsModalShown"
+    >
 
       <dl class="permission-preset-human">
         <dt class="permission-preset-human-title">
@@ -49,49 +51,41 @@
         </dd>
       </dl>
 
-      <span class="permission-preset-modal-dismiss-button-wrapper">
+      <div class="core-modal-buttons">
         <k-button
           class="permission-preset-modal-dismiss-button"
           :text="$tr('permissionsModalDismissText')"
           :primary="true"
           @click="hideFacilityPermissionsDetails"
         />
-      </span>
+      </div>
 
     </core-modal>
 
     <onboarding-form
       :header="$tr('facilityPermissionsSetupFormHeader')"
-      :submit-text="submitText"
-      @submit="setPermissions">
+      :description="$tr('facilityPermissionsSetupFormDescription')"
+      :submitText="submitText"
+      @submit="setPermissions"
+    >
 
-      <template slot="description">
-        {{ $tr('facilityPermissionsSetupFormDescription') }}
+      <label class="permission-preset">
+        <k-radio-button
+          ref="first-button"
+          class="permission-preset-radio-button"
+          v-model="selectedPreset"
+          radiovalue="nonformal"
+          :label="$tr('selfManagedSetupTitle')"
+        />
+        <span class="permission-preset-description">
+          {{ $tr('selfManagedSetupDescription') }}
+        </span>
+      </label>
 
-        <a class="permission-preset-modal-link" @click="showFacilityPermissionsDetails">
-          {{ $tr('facilityPermissionsPresetDetailsLink') }}
-        </a>
-      </template>
-
-      <label
-      class="permission-preset">
-      <k-radio-button
-      class="permission-preset-radio-button"
-      v-model="selectedPreset"
-      radiovalue="informal"
-      :label="$tr('selfManagedSetupTitle')"
-      />
-      <span class="permission-preset-description">
-        {{ $tr('selfManagedSetupDescription') }}
-      </span>
-    </label>
-
-      <label
-        class="permission-preset">
+      <label class="permission-preset">
         <k-radio-button
           class="permission-preset-radio-button"
           v-model="selectedPreset"
-          :autofocus="true"
           radiovalue="formal"
           :label="$tr('adminManagedSetupTitle')"
         />
@@ -100,18 +94,25 @@
         </span>
       </label>
 
-      <label
-        class="permission-preset">
+      <label class="permission-preset">
         <k-radio-button
           class="permission-preset-radio-button"
           v-model="selectedPreset"
-          radiovalue="nonformal"
+          radiovalue="informal"
           :label="$tr('informalSetupTitle')"
         />
         <span class="permission-preset-description">
           {{ $tr('informalSetupDescription') }}
         </span>
       </label>
+
+      <k-button
+        slot="footer"
+        appearance="basic-link"
+        :text="$tr('facilityPermissionsPresetDetailsLink')"
+        @click="showFacilityPermissionsDetails"
+      />
+
 
     </onboarding-form>
 
@@ -131,11 +132,17 @@
 
   export default {
     name: 'selectPermissionsForm',
+    components: {
+      onboardingForm,
+      kRadioButton,
+      kButton,
+      coreModal,
+    },
     $trs: {
       facilityPermissionsSetupFormHeader: 'Choose a Facility setup',
       facilityPermissionsSetupFormDescription:
-        'How will you be using Kolibri? You can customize these settings later.',
-      facilityPermissionsPresetDetailsLink: 'Setup details',
+        'How will you be using Kolibri? (You can customize these settings later)',
+      facilityPermissionsPresetDetailsLink: 'More information about these settings',
       facilityPermissionsPresetDetailsHeader: 'Facility setup details',
       adminManagedSetupTitle: 'Admin-managed',
       adminManagedSetupDescription: 'For schools and other formal learning contexts',
@@ -161,17 +168,14 @@
         required: true,
       },
     },
-    components: {
-      onboardingForm,
-      kRadioButton,
-      kButton,
-      coreModal,
-    },
     data() {
       return {
         selectedPreset: this.currentPermissionPreset,
         permissionPresetDetailsModalShown: false,
       };
+    },
+    mounted() {
+      this.$refs['first-button'].focus();
     },
     methods: {
       setPermissions() {
@@ -220,23 +224,16 @@
       margin-left: $margin-of-radio-button-text
 
     &-modal
-      &-link
-        cursor: pointer
       &-dismiss-button
         text-transform: uppercase
-        &-wrapper
-          display: block
-          text-align: right
-          width: 100%
-
 
   .permission-preset-human
-    list-style: none
     margin-bottom: 8px
     &-title
       font-weight: bold
     &-detail
       line-height: 1.4em
-      margin: 0
+      display: list-item
+      margin-left: 20px
 
 </style>

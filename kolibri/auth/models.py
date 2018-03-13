@@ -24,7 +24,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import logging as logger
 
 import six
-from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
+from django.contrib.auth.models import AbstractBaseUser, AnonymousUser, UserManager
 from django.core import validators
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
@@ -32,13 +32,14 @@ from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from kolibri.auth.constants.morango_scope_definitions import FULL_FACILITY, SINGLE_USER
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
 from morango.certificates import Certificate
+from morango.manager import SyncableModelManager
 from morango.models import SyncableModel
-from morango.query import SyncableModelQuerySet
-from morango.utils.morango_mptt import MorangoMPTTModel
+from morango.utils.morango_mptt import MorangoMPTTModel, MorangoMPTTTreeManager
 from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds, facility_presets, role_kinds
@@ -48,7 +49,7 @@ from .errors import (
 )
 from .filters import HierarchyRelationsFilter
 from .permissions.auth import (
-    AllCanReadFacilityDataset, AnonUserCanReadFacilitiesThatAllowSignUps, CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups,
+    AllCanReadFacilityDataset, AnonUserCanReadFacilities, CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups,
     CollectionSpecificRoleBasedPermissions, FacilityAdminCanEditForOwnFacilityDataset
 )
 from .permissions.base import BasePermissions, RoleBasedPermissions
@@ -109,12 +110,12 @@ class FacilityDataset(FacilityDataSyncableModel):
     def calculate_source_id(self):
         # if we don't already have a source ID, get one by generating a new root certificate, and using its ID
         if not self._morango_source_id:
-            self._morango_source_id = Certificate.generate_root_certificate("full-facility").id
+            self._morango_source_id = Certificate.generate_root_certificate(FULL_FACILITY).id
         return self._morango_source_id
 
     @staticmethod
     def compute_namespaced_id(partition_value, source_id_value, model_name):
-        assert partition_value.startswith(FacilityDataset.ID_PLACEHOLDER)
+        # assert partition_value.startswith(FacilityDataset.ID_PLACEHOLDER)
         assert model_name == FacilityDataset.morango_model_name
         # we use the source_id as the ID for the FacilityDataset
         return source_id_value
@@ -447,6 +448,41 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
             return queryset.none()
 
 
+class FacilityUserModelManager(SyncableModelManager, UserManager):
+
+    def create_user(self, username, email=None, password=None, **extra_fields):
+        """
+        Creates and saves a User with the given username.
+        """
+        if not username:
+            raise ValueError('The given username must be set')
+        if 'facility' not in extra_fields:
+            extra_fields['facility'] = Facility.get_default_facility()
+        user = self.model(username=username, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, password):
+
+        # import here to avoid circularity
+        from kolibri.core.device.models import DevicePermissions
+
+        # get the default facility
+        facility = Facility.get_default_facility()
+
+        # create the new account in that facility
+        superuser = FacilityUser(username=username, facility=facility)
+        superuser.set_password(password)
+        superuser.save()
+
+        # make the user a facility admin
+        facility.add_role(superuser, role_kinds.ADMIN)
+
+        # make the user into a superuser on this device
+        DevicePermissions.objects.create(user=superuser, is_superuser=True)
+
+
 @python_2_unicode_compatible
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
@@ -469,12 +505,11 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         )
     )
 
+    objects = FacilityUserModelManager()
+
     facility = models.ForeignKey("Facility")
 
     is_facility_user = True
-
-    class Meta:
-        unique_together = (("username", "facility"),)
 
     def calculate_partition(self):
         return "{dataset_id}:user-ro:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)
@@ -487,6 +522,26 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return getattr(self.devicepermissions, 'is_superuser') or getattr(self.devicepermissions, permission)
         except ObjectDoesNotExist:
             return False
+
+    def has_morango_certificate_scope_permission(self, scope_definition_id, scope_params):
+        if self.is_superuser:
+            # superusers of a device always have permission to sync
+            return True
+        if scope_params.get("dataset_id") != self.dataset_id:
+            # if the request isn't for the same facility as this user, abort
+            return False
+        if scope_definition_id == FULL_FACILITY:
+            # if request is for full-facility syncing, return True only if user is a Facility Admin
+            return self.has_role_for_collection(role_kinds.ADMIN, self.facility)
+        elif scope_definition_id == SINGLE_USER:
+            # for single-user syncing, return True if this user *is* target user, or is admin for target user
+            target_user = FacilityUser.objects.get(id=scope_params.get("user_id"))
+            if self == target_user:
+                return True
+            if self.has_role_for_user(target_user, role_kinds.ADMIN):
+                return True
+            return False
+        return False
 
     @property
     def can_manage_content(self):
@@ -587,7 +642,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     def can_update(self, obj):
         # Superusers cannot update their own permissions, because they only thing they can do is make themselves
         # not super, we all saw what happened in Superman 2, no red kryptonite here!
-        if self.is_superuser and obj is not self.devicepermissions:
+        if self.is_superuser and obj != self.devicepermissions:
             return True
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
@@ -597,11 +652,11 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     def can_delete(self, obj):
         # Users cannot delete themselves
-        if self is obj:
+        if self == obj:
             return False
         # Superusers cannot update their own permissions, because they only thing they can do is make themselves
         # not super, we all saw what happened in Superman 2, no red kryptonite here!
-        if self.is_superuser and obj is not self.devicepermissions:
+        if self.is_superuser and obj != self.devicepermissions:
             return True
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
@@ -646,7 +701,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     """
 
     # Morango syncing settings
-    morango_model_name = "collection"
+    morango_model_name = None
 
     # Collection can be read by anybody from the facility; writing is only allowed by an admin for the collection.
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
@@ -654,7 +709,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     permissions = (
         IsFromSameFacility(read_only=True) |
         CollectionSpecificRoleBasedPermissions() |
-        AnonUserCanReadFacilitiesThatAllowSignUps() |
+        AnonUserCanReadFacilities() |
         CoachesCanManageGroupsForTheirClasses()
     )
 
@@ -823,7 +878,7 @@ class Membership(AbstractFacilityDataModel):
         CoachesCanManageMembershipsForTheirGroups()  # Membership can be written by coaches under the coaches' group
     )
 
-    user = models.ForeignKey('FacilityUser', blank=False, null=False)
+    user = models.ForeignKey('FacilityUser', related_name='memberships', blank=False, null=False)
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
     collection = TreeForeignKey("Collection")
@@ -897,8 +952,7 @@ class Role(AbstractFacilityDataModel):
         return "{user}'s {kind} role for {collection}".format(user=self.user, kind=self.kind, collection=self.collection)
 
 
-# class CollectionProxyManager(models.Manager.from_queryset(SyncableModelQuerySet)):
-class CollectionProxyManager(models.Manager.from_queryset(SyncableModelQuerySet)):  # should this be from_queryset or just MorangoManager
+class CollectionProxyManager(MorangoMPTTTreeManager):
     def get_queryset(self):
         return super(CollectionProxyManager, self).get_queryset().filter(kind=self.model._KIND)
 
@@ -910,7 +964,6 @@ class Facility(Collection):
     FIELDS_TO_EXCLUDE_FROM_VALIDATION = ["dataset"]
 
     morango_model_name = "facility"
-    _morango_proxy_order = 1
 
     _KIND = collection_kinds.FACILITY
 
@@ -921,8 +974,22 @@ class Facility(Collection):
 
     @classmethod
     def get_default_facility(cls):
-        # temporary approach to a default facility; later, we can make this more refined
-        return cls.objects.all().first()
+        from kolibri.core.device.models import DeviceSettings
+        try:
+            device_settings = DeviceSettings.objects.get()
+            default_facility = device_settings.default_facility
+        except DeviceSettings.DoesNotExist:
+            # device has not been provisioned yet, so just return None in this case
+            return None
+        if not default_facility:
+            # Legacy databases will not have this explicitly set.
+            # Set this here to ensure future default facility queries are
+            # predictable, even if incorrect.
+            default_facility = cls.objects.all().first()
+            if default_facility:
+                device_settings.default_facility = default_facility
+                device_settings.save()
+        return default_facility
 
     def save(self, *args, **kwargs):
         if self.parent:
@@ -975,8 +1042,7 @@ class Facility(Collection):
 class Classroom(Collection):
 
     morango_model_name = "classroom"
-    _morango_proxy_order = 2
-
+    morango_model_dependencies = (Facility,)
     _KIND = collection_kinds.CLASSROOM
 
     objects = CollectionProxyManager()
@@ -1031,8 +1097,7 @@ class Classroom(Collection):
 class LearnerGroup(Collection):
 
     morango_model_name = "learnergroup"
-    _morango_proxy_order = 3
-
+    morango_model_dependencies = (Classroom,)
     _KIND = collection_kinds.LEARNERGROUP
 
     objects = CollectionProxyManager()

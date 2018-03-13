@@ -2,12 +2,11 @@
 
   <div>
 
-    <page-header :title="content.title">
-    </page-header>
+    <!-- TODO: RTL - Remove ta-l -->
+    <page-header :title="content.title" dir="auto" class="ta-l" />
 
     <content-renderer
       v-if="!content.assessment"
-      v-show="!searchOpen"
       class="content-renderer"
       @sessionInitialized="setWasIncomplete"
       @startTracking="startTracking"
@@ -20,13 +19,20 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields"
-      :initSession="initSession">
-      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
+      :initSession="initSession"
+    >
+      <k-button
+        :primary="true"
+        @click="nextContentClicked"
+        v-if="showNextBtn"
+        class="float"
+        :text="$tr('nextContent')"
+        alignment="right"
+      />
     </content-renderer>
 
     <assessment-wrapper
       v-else
-      v-show="!searchOpen"
       class="content-renderer"
       @sessionInitialized="setWasIncomplete"
       @startTracking="startTracking"
@@ -39,57 +45,87 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields"
-      :initSession="initSession">
-      <k-button :primary="true" @click="nextContentClicked" v-if="showNextBtn" class="float" :text="$tr('nextContent')" alignment="right"/>
+      :checkButtonIsPrimary="!showNextBtn"
+      :initSession="initSession"
+    >
+      <k-button
+        :primary="true"
+        @click="nextContentClicked"
+        v-if="showNextBtn"
+        class="float"
+        :text="$tr('nextContent')"
+        alignment="right"
+      />
     </assessment-wrapper>
 
-    <p v-html="description"></p>
+    <!-- TODO consolidate this metadata table with coach/lessons -->
+    <!-- TODO: RTL - Remove ta-l -->
+    <p v-html="description" dir="auto" class="ta-l"></p>
 
 
-    <div class="metadata">
+    <section class="metadata" v-if="showMetadata">
+      <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.author">
         {{ $tr('author', {author: content.author}) }}
       </p>
 
-      <p v-if="content.license" >
+      <p v-if="content.license">
         {{ $tr('license', {license: content.license}) }}
 
         <template v-if="content.license_description">
-          <span ref="licensetooltip">
-            <ui-icon icon="info_outline" :ariaLabel="$tr('licenseDescription')" class="license-tooltip"/>
-          </span>
-
-          <ui-popover trigger="licensetooltip" class="license-description">
+          <ui-icon-button
+            :icon="licenceDescriptionIsVisible ? 'expand_less' : 'expand_more'"
+            :ariaLabel="$tr('toggleLicenseDescription')"
+            size="small"
+            type="secondary"
+            @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
+          />
+          <p v-if="licenceDescriptionIsVisible" dir="auto" class="ta-l">
             {{ content.license_description }}
-          </ui-popover>
+          </p>
         </template>
-
       </p>
 
       <p v-if="content.license_owner">
         {{ $tr('copyrightHolder', {copyrightHolder: content.license_owner}) }}
       </p>
-    </div>
+    </section>
 
-    <download-button v-if="canDownload" :files="downloadableFiles" class="download-button"/>
+    <download-button
+      v-if="canDownload"
+      :files="downloadableFiles"
+      class="download-button"
+    />
 
-    <content-card-group-carousel
-      v-if="showRecommended"
-      :gen-content-link="genContentLink"
-      :header="recommendedText"
-      :contents="recommended"/>
+    <slot name="below_content">
+      <template v-if="showRecommended">
+        <h2>{{ $tr('recommended') }}</h2>
+        <content-card-group-carousel
+          :genContentLink="genContentLink"
+          :header="recommendedText"
+          :contents="recommended"
+        />
+      </template>
+    </slot>
 
     <template v-if="progress >= 1 && wasIncomplete">
       <points-popup
         v-if="showPopup"
         @close="markAsComplete"
-        :kind="content.next_content.kind"
-        :title="content.next_content.title">
-        <k-button :primary="true" slot="nextItemBtn" @click="nextContentClicked" :text="$tr('nextContent')" alignment="right"/>
+        :nextContent="content.next_content"
+      >
+        <k-button
+          v-if="nextContent"
+          :primary="true"
+          slot="nextItemBtn"
+          @click="nextContentClicked"
+          :text="$tr('nextContent')"
+          alignment="right"
+        />
       </points-popup>
 
       <transition v-else name="slidein" appear>
-        <points-slidein @close="markAsComplete"/>
+        <points-slidein @close="markAsComplete" />
       </transition>
     </template>
 
@@ -106,7 +142,7 @@
     startTrackingProgress as startTracking,
     stopTrackingProgress as stopTracking,
   } from 'kolibri.coreVue.vuex.actions';
-  import { PageNames, PageModes } from '../../constants';
+  import { PageNames, PageModes, ClassesPageNames } from '../../constants';
   import { pageMode } from '../../state/getters';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
@@ -120,10 +156,9 @@
   import assessmentWrapper from '../assessment-wrapper';
   import pointsPopup from '../points-popup';
   import pointsSlidein from '../points-slidein';
-  import uiPopover from 'keen-ui/src/UiPopover';
-  import uiIcon from 'keen-ui/src/UiIcon';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { lessonResourceViewerLink } from '../classes/classPageLinks';
 
   export default {
     name: 'learnContent',
@@ -132,10 +167,24 @@
       nextContent: 'Go to next item',
       author: 'Author: {author}',
       license: 'License: {license}',
-      licenseDescription: 'License description',
+      toggleLicenseDescription: 'Toggle license description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
     },
-    data: () => ({ wasIncomplete: false }),
+    components: {
+      pageHeader,
+      contentCardGroupCarousel,
+      contentRenderer,
+      downloadButton,
+      kButton,
+      assessmentWrapper,
+      pointsPopup,
+      pointsSlidein,
+      uiIconButton,
+    },
+    data: () => ({
+      wasIncomplete: false,
+      licenceDescriptionIsVisible: false,
+    }),
     computed: {
       canDownload() {
         if (this.content) {
@@ -167,6 +216,10 @@
       },
       nextContentLink() {
         if (this.content.next_content) {
+          // HACK Use a the Resource Viewer Link instead
+          if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+            return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
+          }
           return this.genContentLink(this.content.next_content.id, this.content.next_content.kind);
         }
         return null;
@@ -187,18 +240,13 @@
       downloadableFiles() {
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
       },
+      showMetadata() {
+        // Hide metadata when viewing Resource in a Lesson
+        return !this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
+      },
     },
-    components: {
-      pageHeader,
-      contentCardGroupCarousel,
-      contentRenderer,
-      downloadButton,
-      kButton,
-      assessmentWrapper,
-      pointsPopup,
-      pointsSlidein,
-      uiPopover,
-      uiIcon,
+    beforeDestroy() {
+      this.stopTracking();
     },
     methods: {
       nextContentClicked() {
@@ -218,29 +266,25 @@
         this.wasIncomplete = false;
       },
       genContentLink(id, kind) {
-        if (kind === 'topic') {
-          return {
-            name: PageNames.TOPICS_TOPIC,
-            params: { channel_id: this.channelId, id },
-          };
+        let name;
+        if (kind === ContentNodeKinds.TOPIC) {
+          name = PageNames.TOPICS_TOPIC;
+        } else {
+          name = PageNames.RECOMMENDED_CONTENT;
         }
         return {
-          name: PageNames.RECOMMENDED_CONTENT,
+          name,
           params: { channel_id: this.channelId, id },
         };
       },
     },
-    beforeDestroy() {
-      this.stopTracking();
-    },
     vuex: {
       getters: {
-        searchOpen: state => state.searchOpen,
         content: state => state.pageState.content,
         contentId: state => state.pageState.content.content_id,
         contentNodeId: state => state.pageState.content.id,
         channelId: state => state.pageState.content.channel_id,
-        pagename: state => state.pageName,
+        pageName: state => state.pageName,
         recommended: state => state.pageState.recommended,
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,
@@ -261,8 +305,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
   .float
     float: right
 
@@ -272,14 +314,7 @@
   .download-button
     display: block
 
-  .license-tooltip
-    cursor: pointer
-    font-size: 1.25em
-    color: $core-action-dark
-
-  .license-description
-    max-width: 300px
-    padding: 1em
-    font-size: smaller
+  .ta-l
+    text-align: left
 
 </style>

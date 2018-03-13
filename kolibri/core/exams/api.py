@@ -1,10 +1,17 @@
 from django.db.models.query import F
 from django.shortcuts import get_object_or_404
-from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
-from kolibri.auth.filters import HierarchyRelationsFilter
-from kolibri.core.exams import models, serializers
-from rest_framework import filters, pagination, viewsets
+from django.utils.timezone import now
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
+from rest_framework import pagination
+from rest_framework import viewsets
 from rest_framework.response import Response
+
+from kolibri.auth.api import KolibriAuthPermissions
+from kolibri.auth.api import KolibriAuthPermissionsFilter
+from kolibri.auth.filters import HierarchyRelationsFilter
+from kolibri.core.exams import models
+from kolibri.core.exams import serializers
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
@@ -16,7 +23,7 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size = None
     page_size_query_param = "page_size"
 
-class ExamFilter(filters.FilterSet):
+class ExamFilter(FilterSet):
 
     class Meta:
         model = models.Exam
@@ -25,28 +32,39 @@ class ExamFilter(filters.FilterSet):
 class ExamViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ExamSerializer
     pagination_class = OptionalPageNumberPagination
-    permissions_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     filter_class = ExamFilter
 
     def get_queryset(self):
         return models.Exam.objects.all()
 
+    def perform_update(self, serializer):
+        was_active = serializer.instance.active
+        serializer.save()
+        if was_active and not serializer.instance.active:
+            # Has changed from active to not active, set completion_timestamps on all non closed examlogs
+            serializer.instance.examlogs.filter(completion_timestamp__isnull=True).update(completion_timestamp=now())
+
 
 class ExamAssignmentViewset(viewsets.ModelViewSet):
-    serializer_class = serializers.ExamAssignmentSerializer
     pagination_class = OptionalPageNumberPagination
-    permissions_classes = (KolibriAuthPermissions,)
+    permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
 
     def get_queryset(self):
         return models.ExamAssignment.objects.all()
 
+    def get_serializer_class(self):
+        if hasattr(self, 'action') and self.action == 'create':
+            return serializers.ExamAssignmentCreationSerializer
+        return serializers.ExamAssignmentRetrieveSerializer
+
 
 class UserExamViewset(viewsets.ModelViewSet):
     serializer_class = serializers.UserExamSerializer
     pagination_class = OptionalPageNumberPagination
-    permissions_classes = (KolibriAuthPermissions,)
+    permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
 
     def get_queryset(self):

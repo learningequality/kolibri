@@ -8,25 +8,29 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import json
 import os
 
-# import kolibri, so we can get the path to the module.
+import pytz
+from tzlocal import get_localzone
+
 import kolibri
+from kolibri.utils import conf
+from kolibri.utils import i18n
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# import kolibri, so we can get the path to the module.
 # we load other utilities related to i18n
 # This is essential! We load the kolibri conf INSIDE the Django conf
-from kolibri.utils import conf, i18n
-from tzlocal import get_localzone
 
 KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 
-KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
-
-KOLIBRI_CORE_JS_NAME = 'kolibriGlobal'
+KOLIBRI_HOME = conf.KOLIBRI_HOME
 
 LOCALE_PATHS = [
     os.path.join(KOLIBRI_MODULE_PATH, "locale"),
@@ -53,14 +57,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
     'kolibri.auth.apps.KolibriAuthConfig',
     'kolibri.content',
     'kolibri.logger',
     'kolibri.tasks.apps.KolibriTasksConfig',
+    'kolibri.core.deviceadmin',
     'kolibri.core.webpack',
     'kolibri.core.exams',
     'kolibri.core.device',
     'kolibri.core.discovery',
+    'kolibri.core.lessons',
+    'kolibri.core.analytics',
     'rest_framework',
     'django_js_reverse',
     'jsonfield',
@@ -71,12 +79,12 @@ INSTALLED_APPS = [
 # specifically on the value of LOCALE_PATHS to find its catalog files.
 LOCALE_PATHS += [
     i18n.get_installed_app_locale_path(app) for app in INSTALLED_APPS
-    if i18n.is_external_plugin(app)
+    if i18n.is_external_plugin(app) and i18n.get_installed_app_locale_path(app)
 ]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+    'kolibri.core.device.middleware.KolibriLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'kolibri.plugins.setup_wizard.middleware.SetupWizardMiddleware',
@@ -85,7 +93,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-)
+]
 
 QUEUE_JOB_STORAGE_PATH = os.path.join(KOLIBRI_HOME, "job_storage.sqlite3")
 
@@ -103,6 +111,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'kolibri.core.context_processors.custom_context_processor.return_session',
+                'kolibri.core.context_processors.custom_context_processor.supported_browser',
             ],
         },
     },
@@ -137,25 +146,34 @@ if not os.path.exists(CONTENT_STORAGE_DIR):
     os.makedirs(CONTENT_STORAGE_DIR)
 
 # Base default URL for downloading content from an online server
-CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "https://studio.learningequality.org"
+CENTRAL_CONTENT_DOWNLOAD_BASE_URL = os.environ.get('CENTRAL_CONTENT_DOWNLOAD_BASE_URL',
+                                                   'http://studio.learningequality.org')
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
-LANGUAGES = [
-    ('en', 'English'),
-    ('sw-tz', 'Kiswahili'),
-    ('es-es', 'Español'),
-    ('es-mx', 'Español (México)'),
-    ('fr-fr', 'Français'),
-    ('pt-pt', 'Português'),
-    ('hi-in', 'हिंदी'),
-    ('ar-eg', 'العَرَبِيَّة‎‎')
-]
+# For language names, see:
+# https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+# http://helpsharepointvision.nevron.com/Culture_Table.html
+
+with open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json")) as f:
+
+    LANGUAGES = i18n.parse_supported_languages(json.load(f))
 
 LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
 
-TIME_ZONE = get_localzone().zone
+try:
+    TIME_ZONE = get_localzone().zone
+except pytz.UnknownTimeZoneError:
+    # Do not fail at this point because a timezone was not
+    # detected.
+    TIME_ZONE = pytz.utc.zone
+
+# Fixes https://github.com/regebro/tzlocal/issues/44
+# tzlocal 1.4 returns 'local' if unable to detect the timezone,
+# and this TZ id is invalid
+if TIME_ZONE == "local":
+    TIME_ZONE = pytz.utc.zone
 
 USE_I18N = True
 
@@ -250,6 +268,11 @@ LOGGING = {
         'kolibri': {
             'handlers': ['console', 'mail_admins', 'file', 'file_debug'],
             'level': 'INFO',
+        },
+        'iceqube': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
         }
     }
 }
@@ -287,3 +310,10 @@ JS_REVERSE_JS_VAR_NAME = 'kolibriUrls'
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
 
 ENABLE_DATA_BOOTSTRAPPING = True
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+SESSION_COOKIE_AGE = 600
+
+# morango specific settings
+MORANGO_JSON_SERIALIZER_CLASS = "kolibri.auth.encoders"

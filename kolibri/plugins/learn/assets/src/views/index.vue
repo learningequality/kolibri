@@ -1,42 +1,50 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
+  <core-base
+    :topLevelPageName="topLevelPageName"
+    :appBarTitle="appBarTitle"
+    :bottomMargin="bottomSpaceReserved"
+    :immersivePage="isImmersivePage"
+    :immersivePageIcon="immersivePageIcon"
+    :immersivePagePrimary="immersivePageIsPrimary"
+    :immersivePageRoute="immersiveToolbarRoute"
+  >
     <template slot="app-bar-actions">
-      <action-bar-search-box v-if="!isWithinSearchPage"/>
+      <action-bar-search-box v-if="!isWithinSearchPage" />
     </template>
 
     <div v-if="tabLinksAreVisible" class="k-navbar-links">
       <k-navbar>
+        <k-navbar-link
+          name="classes-link"
+          v-if="isUserLoggedIn && userHasMemberships"
+          type="icon-and-title"
+          :title="$tr('classes')"
+          icon="business"
+          :link="allClassesLink"
+        />
+        <k-navbar-link
+          type="icon-and-title"
+          :title="$tr('channels')"
+          icon="apps"
+          :link="channelsLink"
+        />
         <k-navbar-link
           type="icon-and-title"
           :title="$tr('recommended')"
           icon="forum"
           :link="recommendedLink"
         />
-        <k-navbar-link
-          type="icon-and-title"
-          :title="$tr('topics')"
-          icon="folder"
-          :link="channelsLink"
-        />
-        <k-navbar-link
-          name="exam-link"
-          v-if="isUserLoggedIn && userHasMemberships"
-          type="icon-and-title"
-          :title="$tr('exams')"
-          icon="assignment_late"
-          :link="examsLink"
-        />
       </k-navbar>
     </div>
 
     <div v-if="pointsAreVisible" class="points-wrapper">
-      <a class="points-link" href="/user"><total-points/></a>
+      <a class="points-link" href="/user"><total-points /></a>
     </div>
 
     <div>
-      <breadcrumbs/>
-      <component :is="currentPage"/>
+      <breadcrumbs />
+      <component :is="currentPage" />
     </div>
 
   </core-base>
@@ -46,8 +54,7 @@
 
 <script>
 
-  import store from '../state/store';
-  import { PageNames, PageModes, RecommendedPages } from '../constants';
+  import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -62,36 +69,51 @@
   import searchPage from './search-page';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
-  import examList from './exam-list';
   import examPage from './exam-page';
   import totalPoints from './total-points';
+  import AllClassesPage from './classes/AllClassesPage';
+  import ClassAssignmentsPage from './classes/ClassAssignmentsPage';
+  import LessonPlaylistPage from './classes/LessonPlaylistPage';
+  import LessonResourceViewer from './classes/LessonResourceViewer';
   import actionBarSearchBox from './action-bar-search-box';
+
+  const BOTTOM_SPACED_RESERVED = 88;
+
+  const pageNameToComponentMap = {
+    [PageNames.TOPICS_ROOT]: channelsPage,
+    [PageNames.TOPICS_CHANNEL]: topicsPage,
+    [PageNames.TOPICS_TOPIC]: topicsPage,
+    [PageNames.TOPICS_CONTENT]: contentPage,
+    [PageNames.RECOMMENDED_CONTENT]: contentPage,
+    [PageNames.RECOMMENDED]: learnPage,
+    [PageNames.CONTENT_UNAVAILABLE]: contentUnavailablePage,
+    [PageNames.SEARCH]: searchPage,
+    [ClassesPageNames.EXAM_VIEWER]: examPage,
+    [ClassesPageNames.ALL_CLASSES]: AllClassesPage,
+    [ClassesPageNames.CLASS_ASSIGNMENTS]: ClassAssignmentsPage,
+    [ClassesPageNames.LESSON_PLAYLIST]: LessonPlaylistPage,
+    [ClassesPageNames.LESSON_RESOURCE_VIEWER]: LessonResourceViewer,
+  };
+
+  const immersivePages = [ClassesPageNames.LESSON_RESOURCE_VIEWER];
+
   export default {
     name: 'learn',
     $trs: {
       learnTitle: 'Learn',
       recommended: 'Recommended',
-      topics: 'Topics',
-      exams: 'Exams',
+      channels: 'Channels',
+      classes: 'Classes',
     },
-    mixins: [responsiveWindow],
     components: {
-      channelsPage,
-      topicsPage,
-      contentPage,
-      learnPage,
-      recommendedSubpage,
-      contentUnavailablePage,
       coreBase,
       breadcrumbs,
-      searchPage,
       kNavbar,
       kNavbarLink,
-      examList,
-      examPage,
       totalPoints,
       actionBarSearchBox,
     },
+    mixins: [responsiveWindow],
     computed: {
       topLevelPageName() {
         return TopLevelPageNames.LEARN;
@@ -100,35 +122,38 @@
         return this.memberships.length > 0;
       },
       currentPage() {
-        if (this.pageName === PageNames.TOPICS_ROOT) {
-          return 'channels-page';
-        }
-        if (this.pageName === PageNames.TOPICS_CHANNEL || this.pageName === PageNames.TOPICS_TOPIC) {
-          return 'topics-page';
-        }
-        if (
-          this.pageName === PageNames.TOPICS_CONTENT ||
-          this.pageName === PageNames.RECOMMENDED_CONTENT
-        ) {
-          return 'content-page';
-        }
-        if (this.pageName === PageNames.RECOMMENDED) {
-          return 'learn-page';
-        }
-        if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
-          return 'content-unavailable-page';
-        }
-        if (this.pageName === PageNames.SEARCH) {
-          return 'search-page';
-        }
-        if (this.pageName === PageNames.EXAM_LIST) {
-          return 'exam-list';
-        }
-        if (this.pageName === PageNames.EXAM) {
-          return 'exam-page';
-        }
         if (RecommendedPages.includes(this.pageName)) {
-          return 'recommended-subpage';
+          return recommendedSubpage;
+        }
+        return pageNameToComponentMap[this.pageName] || null;
+      },
+      appBarTitle() {
+        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          if (this.content) {
+            return this.content.title;
+          }
+        }
+        return this.$tr('learnTitle');
+      },
+      isImmersivePage() {
+        return immersivePages.includes(this.pageName);
+      },
+      immersiveToolbarRoute() {
+        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          return {
+            name: ClassesPageNames.LESSON_PLAYLIST,
+          };
+        }
+      },
+      immersivePageIsPrimary() {
+        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          return false;
+        }
+        return true;
+      },
+      immersivePageIcon() {
+        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          return 'arrow_back';
         }
         return null;
       },
@@ -136,10 +161,18 @@
         return this.pageName === PageNames.SEARCH;
       },
       tabLinksAreVisible() {
-        return this.pageName !== PageNames.CONTENT_UNAVAILABLE && this.pageName !== PageNames.SEARCH;
+        return (
+          this.pageName !== PageNames.CONTENT_UNAVAILABLE &&
+          this.pageName !== PageNames.SEARCH &&
+          !this.isImmersivePage
+        );
       },
       pointsAreVisible() {
-        return this.windowSize.breakpoint > 0 && this.pageName !== PageNames.SEARCH;
+        return (
+          this.windowSize.breakpoint > 0 &&
+          this.pageName !== PageNames.SEARCH &&
+          !this.isImmersivePage
+        );
       },
       recommendedLink() {
         return {
@@ -151,10 +184,18 @@
           name: PageNames.TOPICS_ROOT,
         };
       },
-      examsLink() {
+      allClassesLink() {
         return {
-          name: PageNames.EXAM_LIST,
+          name: ClassesPageNames.ALL_CLASSES,
         };
+      },
+      bottomSpaceReserved() {
+        const isContentPage =
+          this.pageName === PageNames.TOPICS_CONTENT ||
+          this.pageName === PageNames.RECOMMENDED_CONTENT;
+        const isAssessment = isContentPage && this.content && this.content.assessment;
+        // height of .attemptprogress-container.mobile in assessment-wrapper
+        return isAssessment && this.windowSize.breakpoint <= 1 ? BOTTOM_SPACED_RESERVED : 0;
       },
     },
 
@@ -164,9 +205,9 @@
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
         isUserLoggedIn,
+        content: state => state.pageState.content,
       },
     },
-    store,
   };
 
 </script>
@@ -183,6 +224,8 @@
   .points-link
     display: inline-block
     text-decoration: none
+    color: $core-status-correct
+    position: relative
 
   .points-wrapper
     margin-top: -70px

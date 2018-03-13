@@ -31,6 +31,10 @@
       inProgress: 'In progress',
       completed: 'Completed',
     },
+    components: {
+      uiIcon,
+      uiTooltip,
+    },
     props: {
       progress: {
         type: Number,
@@ -42,15 +46,11 @@
     },
     computed: {
       isInProgress() {
-        return this.progress > 0 && this.progress < 1;
+        return this.progress !== null && this.progress >= 0 && this.progress < 1;
       },
       isCompleted() {
         return this.progress >= 1;
       },
-    },
-    components: {
-      uiIcon,
-      uiTooltip,
     },
   };
 
@@ -65,7 +65,6 @@
     border-radius: 50%
     color: white
     cursor: default
-
 
   .inprogress
     background-color: $core-status-progress

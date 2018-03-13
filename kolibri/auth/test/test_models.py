@@ -8,6 +8,8 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
+from kolibri.core.device.models import DeviceSettings
+
 from .helpers import create_superuser
 
 from ..constants import role_kinds, collection_kinds
@@ -366,7 +368,7 @@ class StringMethodTestCase(TestCase):
         self.assertEqual(str(Collection.objects.filter(kind=collection_kinds.FACILITY)[0]), '"Arkham" (facility)')
 
     def test_membership_str_method(self):
-        self.assertEqual(str(self.learner.membership_set.all()[0]), '"foo"@"Arkham"\'s membership in "Oodles of Fun" (learnergroup)')
+        self.assertEqual(str(self.learner.memberships.all()[0]), '"foo"@"Arkham"\'s membership in "Oodles of Fun" (learnergroup)')
 
     def test_role_str_method(self):
         self.assertEqual(str(self.classroom_coach.roles.all()[0]), '"bar"@"Arkham"\'s coach role for "Classroom X" (classroom)')
@@ -379,3 +381,31 @@ class StringMethodTestCase(TestCase):
 
     def test_learner_group_str_method(self):
         self.assertEqual(str(self.lg), "Oodles of Fun")
+
+
+class FacilityTestCase(TestCase):
+
+    def test_existing_facility_becomes_default_facility(self):
+        self.facility = Facility.objects.create()
+        self.device_settings = DeviceSettings.objects.create()
+        self.assertEqual(self.device_settings.default_facility, None)
+        default_facility = Facility.get_default_facility()
+        self.assertEqual(default_facility, self.facility)
+        self.device_settings.refresh_from_db()
+        self.assertEqual(self.device_settings.default_facility, self.facility)
+
+    def test_default_facility_returns_none_when_no_settings(self):
+        default_facility = Facility.get_default_facility()
+        self.assertEqual(default_facility, None)
+
+
+class FacilityUserTestCase(TestCase):
+
+    def test_able_to_create_user_with_same_username(self):
+        self.facility = Facility.objects.create()
+        self.device_settings = DeviceSettings.objects.create()
+        FacilityUser.objects.create(username='bob', facility=self.facility)
+        try:
+            FacilityUser.objects.create(username='bob', facility=self.facility)
+        except IntegrityError:
+            self.fail("Can't create user with same username.")

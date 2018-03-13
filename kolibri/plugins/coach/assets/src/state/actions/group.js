@@ -2,9 +2,12 @@ import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import * as Constants from '../../constants';
 import { setClassState } from './main';
+import logger from 'kolibri.lib.logging';
 
 import { LearnerGroupResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
+
+const logging = logger.getLogger(__filename);
 
 const name = 'groupManagementPageTitles';
 
@@ -55,13 +58,13 @@ function showGroupsPage(store, classId) {
   }).fetch({}, true);
 
   ConditionalPromise.all([
-    facilityPromise,
     classUsersPromise,
     groupPromise,
+    facilityPromise,
     setClassState(store, classId),
   ]).only(
     coreActions.samePageCheckGenerator(store),
-    ([facility, classUsers, groupsCollection]) => {
+    ([classUsers, groupsCollection]) => {
       const groups = _groupsState(groupsCollection);
       const groupUsersPromises = groups.map(group =>
         FacilityUserResource.getCollection({ member_of: group.id }).fetch({}, true)
@@ -98,20 +101,22 @@ function createGroup(store, groupName) {
     parent: store.state.classId,
     name: groupName,
   };
-  LearnerGroupResource.createModel(groupPayload).save().then(
-    group => {
-      const groups = store.state.pageState.groups;
-      groups.push(_groupState(group));
+  LearnerGroupResource.createModel(groupPayload)
+    .save()
+    .then(
+      group => {
+        const groups = store.state.pageState.groups;
+        groups.push(_groupState(group));
 
-      // Clear cache for future fetches
-      LearnerGroupResource.clearCache();
+        // Clear cache for future fetches
+        LearnerGroupResource.clearCache();
 
-      store.dispatch('SET_GROUPS', groups);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      displayModal(store, false);
-    },
-    error => coreActions.handleError(store, error)
-  );
+        store.dispatch('SET_GROUPS', groups);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        displayModal(store, false);
+      },
+      error => coreActions.handleError(store, error)
+    );
 }
 
 function renameGroup(store, groupId, newGroupName) {
@@ -119,80 +124,62 @@ function renameGroup(store, groupId, newGroupName) {
   const groupPayload = {
     name: newGroupName,
   };
-  LearnerGroupResource.getModel(groupId).save(groupPayload).then(
-    () => {
-      const groups = store.state.pageState.groups;
-      const groupIndex = groups.findIndex(group => group.id === groupId);
-      groups[groupIndex].name = newGroupName;
+  LearnerGroupResource.getModel(groupId)
+    .save(groupPayload)
+    .then(
+      () => {
+        const groups = store.state.pageState.groups;
+        const groupIndex = groups.findIndex(group => group.id === groupId);
+        groups[groupIndex].name = newGroupName;
 
-      store.dispatch('SET_GROUPS', groups);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      this.displayModal(false);
-    },
-    error => coreActions.handleError(store, error)
-  );
+        store.dispatch('SET_GROUPS', groups);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        this.displayModal(false);
+      },
+      error => coreActions.handleError(store, error)
+    );
 }
 
 function deleteGroup(store, groupId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  LearnerGroupResource.getModel(groupId).delete().then(
-    () => {
-      const groups = store.state.pageState.groups;
-      const updatedGroups = groups.filter(group => group.id !== groupId);
-
-      store.dispatch('SET_GROUPS', updatedGroups);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      this.displayModal(false);
-    },
-    error => coreActions.handleError(store, error)
-  );
-}
-
-function _addUserToGroup(store, groupId, userId) {
-  const membershipPayload = {
-    collection: groupId,
-    user: userId,
-  };
-  return new Promise((resolve, reject) => {
-    MembershipResource.createModel(membershipPayload).save().then(
+  LearnerGroupResource.getModel(groupId)
+    .delete()
+    .then(
       () => {
         const groups = store.state.pageState.groups;
-        const groupIndex = groups.findIndex(group => group.id === groupId);
-        const userObject = store.state.pageState.classUsers.find(user => user.id === userId);
-        groups[groupIndex].users.push(userObject);
+        const updatedGroups = groups.filter(group => group.id !== groupId);
 
-        // Clear cache for future fetches
-        LearnerGroupResource.clearCache();
-
-        store.dispatch('SET_GROUPS', groups);
-        resolve();
+        store.dispatch('SET_GROUPS', updatedGroups);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        this.displayModal(false);
       },
-      error => reject(error)
+      error => coreActions.handleError(store, error)
     );
-  });
 }
 
 function _addMultipleUsersToGroup(store, groupId, userIds) {
-  const addPromises = userIds.map(userId => _addUserToGroup(store, groupId, userId));
+  const memberships = userIds.map(userId => ({
+    collection: groupId,
+    user: userId,
+  }));
 
   return new Promise((resolve, reject) => {
-    Promise.all(addPromises).then(() => resolve(), error => reject(error));
-  });
-}
-
-function _removeUserfromGroup(store, groupId, userId) {
-  const membershipPayload = {
-    collection_id: groupId,
-    user_id: userId,
-  };
-  return new Promise((resolve, reject) => {
-    MembershipResource.getCollection(membershipPayload).fetch().then(membership => {
-      const membershipId = membership[0].id; // will always only have one item in the array.
-      MembershipResource.getModel(membershipId).delete().then(
+    MembershipResource.createCollection(
+      {
+        collection: groupId,
+      },
+      memberships
+    )
+      .save()
+      .then(
         () => {
-          const groups = store.state.pageState.groups;
+          const groups = Array(...store.state.pageState.groups);
           const groupIndex = groups.findIndex(group => group.id === groupId);
-          groups[groupIndex].users = groups[groupIndex].users.filter(user => user.id !== userId);
+
+          userIds.forEach(userId => {
+            const userObject = store.state.pageState.classUsers.find(user => user.id === userId);
+            groups[groupIndex].users.push(userObject);
+          });
 
           // Clear cache for future fetches
           LearnerGroupResource.clearCache();
@@ -202,15 +189,32 @@ function _removeUserfromGroup(store, groupId, userId) {
         },
         error => reject(error)
       );
-    });
   });
 }
 
 function _removeMultipleUsersFromGroup(store, groupId, userIds) {
-  const removePromises = userIds.map(userId => _removeUserfromGroup(store, groupId, userId));
-
   return new Promise((resolve, reject) => {
-    Promise.all(removePromises).then(() => resolve(), error => reject(error));
+    MembershipResource.getCollection({
+      user_ids: userIds,
+      collection: groupId,
+    })
+      .delete()
+      .then(
+        () => {
+          const groups = Array(...store.state.pageState.groups);
+          const groupIndex = groups.findIndex(group => group.id === groupId);
+          groups[groupIndex].users = groups[groupIndex].users.filter(
+            user => !userIds.includes(user.id)
+          );
+
+          // Clear cache for future fetches
+          LearnerGroupResource.clearCache();
+
+          store.dispatch('SET_GROUPS', groups);
+          resolve();
+        },
+        error => reject(error)
+      );
   });
 }
 
@@ -221,7 +225,7 @@ function addUsersToGroup(store, groupId, userIds) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
     },
-    error => error(error)
+    error => logging.error(error)
   );
 }
 
@@ -232,7 +236,7 @@ function removeUsersFromGroup(store, groupId, userIds) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
     },
-    error => error(error)
+    error => logging.error(error)
   );
 }
 
@@ -245,7 +249,7 @@ function moveUsersBetweenGroups(store, currentGroupId, newGroupId, userIds) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
     },
-    error => error(error)
+    error => logging.error(error)
   );
 }
 

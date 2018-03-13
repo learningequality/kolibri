@@ -21,7 +21,7 @@
 
       <component
         :is="currentOnboardingForm"
-        :submit-text="submitText"
+        :submitText="submitText"
         :isMobile="isMobile"
         @submit="continueOnboarding"
         :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
@@ -49,12 +49,12 @@
 
   export default {
     name: 'onboarding',
+    components: { progressToolbar, loadingPage, errorPage },
     mixins: [responsiveWindow],
     $trs: {
       onboardingNextStepButton: 'Continue',
       onboardingFinishButton: 'Finish',
     },
-    components: { progressToolbar, loadingPage, errorPage },
     data() {
       return {
         totalOnboardingSteps: 4,
@@ -68,9 +68,9 @@
           case 2:
             return facilityNameForm;
           case 3:
-            return superuserCredentialsForm;
-          case 4:
             return facilityPermissionsForm;
+          case 4:
+            return superuserCredentialsForm;
           default:
             return null;
         }
@@ -128,7 +128,7 @@
       width: 90%
       max-width: 550px
       &.mobile
-        margin: 48px
+        margin: 48px auto
         width: auto
         margin-top: 40px
 

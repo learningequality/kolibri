@@ -1,27 +1,35 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('coachTitle')">
+  <div>
+    <core-base
+      :immersivePage="currentPageIsImmersive"
+      :topLevelPageName="topLevelPageName"
+      :appBarTitle="appBarTitle"
+      :immersivePageIcon="immersivePageIcon"
+      :immersivePageRoute="toolbarRoute"
+      :immersivePagePrimary="immersivePagePrimary"
+    >
 
-    <div class="content">
-      <template v-if="showTopNav">
-        <class-selector :classes="classList" :currentClassId="classId" @changeClass="changeClass"/>
-        <top-nav/>
+      <template v-if="showCoachNav">
+        <class-selector
+          :classes="classList"
+          :currentClassId="classId"
+          @changeClass="changeClass"
+        />
+        <top-nav class="top-nav" />
       </template>
 
-      <div v-if="userCanAccessPage">
-        <component :is="currentPage"/>
-      </div>
-      <auth-message v-else authorizedRole="adminOrCoach" />
-    </div>
+      <!-- TODO need a better solution for passing in authMessage -->
+      <component authorizedRole="adminOrCoach" :is="currentPage" />
 
-  </core-base>
+    </core-base>
+  </div>
 
 </template>
 
 
 <script>
 
-  import store from '../state/store';
   import { PageNames } from '../constants';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
@@ -40,10 +48,38 @@
   import itemListPage from './reports/item-list-page';
   import learnerListPage from './reports/learner-list-page';
   import classSelector from './class-selector';
+
+  // lessons
+  import { LessonsPageNames } from '../lessonsConstants';
+  import LessonsRootPage from './lessons/LessonsRootPage';
+  import LessonSummaryPage from './lessons/LessonSummaryPage';
+  import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';
+  import LessonContentPreviewPage from './lessons/LessonContentPreviewPage';
+  import LessonResourceUserReportPage from './reports/learner-exercise-detail-page/learner-exercise-report';
+  import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
+
+  // IDEA set up routenames that all use the same PageName instead of doing this?
+  // See Content Preview routes in app.js + PageName handling here
+  const selectionPages = [LessonsPageNames.SELECTION, LessonsPageNames.SELECTION_ROOT];
+  const resourceUserPages = [
+    LessonsPageNames.RESOURCE_USER_SUMMARY,
+    LessonsPageNames.RESOURCE_USER_REPORT,
+  ];
+
+  const immersivePages = [
+    ...selectionPages,
+    ...resourceUserPages,
+    LessonsPageNames.CONTENT_PREVIEW,
+    LessonsPageNames.RESOURCE_CLASSROOM_REPORT,
+  ];
+
   export default {
     name: 'coachRoot',
     $trs: {
-      coachTitle: 'Coach',
+      coachToolbarHeader: 'Coach',
+      selectPageToolbarHeader: 'Select resources',
+      resourceUserPageToolbarHeader: 'Lesson Report Details',
+      previewContentPageToolbarHeader: 'Preview resources',
     },
     components: {
       authMessage,
@@ -62,6 +98,13 @@
       itemListPage,
       learnerListPage,
       classSelector,
+      // lessons
+      LessonsRootPage,
+      LessonSummaryPage,
+      LessonResourceSelectionPage,
+      LessonContentPreviewPage,
+      LessonResourceUserSummaryPage,
+      LessonResourceUserReportPage,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -88,14 +131,62 @@
           [PageNames.LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
           [PageNames.EXAM_REPORT]: 'exam-report-page',
           [PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page',
+
+          // lessons
+          [LessonsPageNames.ROOT]: 'LessonsRootPage',
+          [LessonsPageNames.SUMMARY]: 'LessonSummaryPage',
+          [LessonsPageNames.SELECTION_ROOT]: 'LessonResourceSelectionPage',
+          [LessonsPageNames.SELECTION]: 'LessonResourceSelectionPage',
+          [LessonsPageNames.CONTENT_PREVIEW]: 'LessonContentPreviewPage',
+          [LessonsPageNames.RESOURCE_USER_SUMMARY]: 'LessonResourceUserSummaryPage',
+          [LessonsPageNames.RESOURCE_USER_REPORT]: 'LessonResourceUserReportPage',
         };
+        if (!this.userCanAccessPage) {
+          // TODO better solution
+          return 'authMessage';
+        }
         return pageNameToComponentMap[this.pageName];
       },
-      showTopNav() {
-        return this.pageName !== PageNames.CLASS_LIST && this.userCanAccessPage;
+      showCoachNav() {
+        return (
+          this.pageName !== PageNames.CLASS_LIST &&
+          this.userCanAccessPage &&
+          !this.currentPageIsImmersive
+        );
+      },
+      currentPageIsImmersive() {
+        return immersivePages.includes(this.pageName);
       },
       userCanAccessPage() {
         return this.isCoach || this.isAdmin || this.isSuperuser;
+      },
+      appBarTitle() {
+        if (this.currentPageIsImmersive) {
+          if (this.pageName === LessonsPageNames.CONTENT_PREVIEW) {
+            return this.$tr('previewContentPageToolbarHeader');
+          }
+          if (selectionPages.includes(this.pageName)) {
+            return this.$tr('selectPageToolbarHeader');
+          }
+          if (resourceUserPages.includes(this.pageName)) {
+            return this.$tr('resourceUserPageToolbarHeader');
+          }
+        }
+        return this.$tr('coachToolbarHeader');
+      },
+      immersivePageIcon() {
+        const backButtonPages = [LessonsPageNames.CONTENT_PREVIEW, ...resourceUserPages];
+        if (backButtonPages.includes(this.pageName)) {
+          return 'arrow_back';
+        }
+        return 'close';
+      },
+      immersivePagePrimary() {
+        // TODO going to need to set a backgrund color
+        if (this.pageName === LessonsPageNames.CONTENT_PREVIEW) {
+          return false;
+        }
+        return true;
       },
     },
     methods: {
@@ -112,15 +203,16 @@
     },
     vuex: {
       getters: {
+        toolbarRoute: state => state.pageState.toolbarRoute,
         pageName: state => state.pageName,
         isAdmin,
         isCoach,
         isSuperuser,
         classList: state => state.classList,
         classId: state => state.classId,
+        isLoading: state => state.core.loading,
       },
     },
-    store,
   };
 
 </script>
@@ -130,8 +222,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  .content
-    background-color: $core-bg-light
-    padding: 1em
+  .top-nav
+    margin-bottom: 32px
 
 </style>

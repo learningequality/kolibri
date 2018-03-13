@@ -5,10 +5,12 @@ from __future__ import unicode_literals
 import django.db.models.deletion
 import django.db.models.manager
 import jsonfield.fields
+import mptt.fields
+from django.db import migrations
+from django.db import models
+
 import kolibri.content.models
 import kolibri.core.fields
-import mptt.fields
-from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -65,9 +67,17 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('lft',),
             },
-            managers=[
-                ('_default_manager', django.db.models.manager.Manager()),
-            ],
+            # Removed because django-mptt 0.8.7 patched up an error in
+            # Django 1.9 (fixed since 1.10).
+            # Ref: https://code.djangoproject.com/ticket/26643
+            # https://github.com/learningequality/kolibri/pull/3180
+            # managers=[
+            #     ('_default_manager', django.db.models.manager.Manager()),
+            # ],
+            # Removed with the same reasoning
+            # managers=[
+            #     ('objects', django.db.models.manager.Manager()),
+            # ],
         ),
         migrations.CreateModel(
             name='ContentTag',

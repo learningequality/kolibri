@@ -135,6 +135,11 @@ class Transfer(object):
 
 class FileDownload(Transfer):
 
+    def __init__(self, *args, **kwargs):
+        # Set block size to None, to always get the largest chunk available from the socket
+        kwargs["block_size"] = None
+        super(FileDownload, self).__init__(*args, **kwargs)
+
     def start(self):
         assert not self.started, "File download has already been started, and cannot be started again"
 

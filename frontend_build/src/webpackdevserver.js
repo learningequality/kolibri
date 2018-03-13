@@ -26,18 +26,15 @@ var server = new WebpackDevServer(compiler, {
   compress: false,
 
   // webpack-dev-middleware options
-  quiet: false,
-  noInfo: false,
   watchOptions: {
     aggregateTimeout: 300,
     poll: 1000,
   },
   // It's a required option.
   publicPath: devServerConfig.publicPath,
-  stats: {
-    colors: true,
-    chunks: false,
-    errorDetails: true,
+  stats: 'minimal',
+  headers: {
+    'Access-Control-Allow-Origin': '*',
   },
 });
 server.listen(devServerConfig.port, devServerConfig.address, function() {});

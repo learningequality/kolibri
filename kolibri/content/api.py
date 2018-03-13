@@ -1,44 +1,73 @@
+import logging
 from functools import reduce
 from random import sample
 
+import requests
 from django.core.cache import cache
 from django.db.models import Q
+from django.db.models import Sum
 from django.db.models.aggregates import Count
-from kolibri.content import models, serializers
-from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
+from django.http import Http404
+from django.utils.translation import ugettext as _
+from django_filters.rest_framework import BooleanFilter
+from django_filters.rest_framework import CharFilter
+from django_filters.rest_framework import ChoiceFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
 from le_utils.constants import content_kinds
-from rest_framework import filters, pagination, viewsets
-from rest_framework.decorators import detail_route, list_route
+from le_utils.constants import languages
+from rest_framework import mixins
+from rest_framework import pagination
+from rest_framework import viewsets
+from rest_framework.decorators import detail_route
+from rest_framework.decorators import list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from .utils.search import fuzz
+from kolibri.content import models
+from kolibri.content import serializers
+from kolibri.content.permissions import CanManageContent
+from kolibri.content.utils.paths import get_channel_lookup_url
+from kolibri.logger.models import ContentSessionLog
+from kolibri.logger.models import ContentSummaryLog
+
+logger = logging.getLogger(__name__)
 
 
-class ChannelMetadataFilter(filters.FilterSet):
-    available = filters.django_filters.MethodFilter()
+class ChannelMetadataFilter(FilterSet):
+    available = BooleanFilter(method="filter_available")
+    has_exercise = BooleanFilter(method="filter_has_exercise")
 
-    def filter_available(self, queryset, value):
+    def filter_has_exercise(self, queryset, name, value):
+        channel_ids = []
+        for c in queryset:
+            num_exercises = c.root.get_descendants().filter(kind=content_kinds.EXERCISE).count()
+            if num_exercises > 0:
+                channel_ids.append(c.id)
+        return queryset.filter(id__in=channel_ids)
+
+    def filter_available(self, queryset, name, value):
         return queryset.filter(root__available=value)
 
     class Meta:
         model = models.ChannelMetadata
-        fields = ['available', ]
+        fields = ['available', 'has_exercise', ]
 
 
 class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ChannelMetadataSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend,)
     filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
-        return models.ChannelMetadata.objects.all()
+        return models.ChannelMetadata.objects.all().order_by('-last_updated')
 
 
-class IdFilter(filters.FilterSet):
-    ids = filters.django_filters.MethodFilter()
+class IdFilter(FilterSet):
+    ids = CharFilter(method="filter_ids")
 
-    def filter_ids(self, queryset, value):
+    def filter_ids(self, queryset, name, value):
         return queryset.filter(pk__in=value.split(','))
 
     class Meta:
@@ -46,18 +75,19 @@ class IdFilter(filters.FilterSet):
 
 
 class ContentNodeFilter(IdFilter):
-    search = filters.django_filters.MethodFilter(action='title_description_filter')
-    recommendations_for = filters.django_filters.MethodFilter()
-    next_steps = filters.django_filters.MethodFilter()
-    popular = filters.django_filters.MethodFilter()
-    resume = filters.django_filters.MethodFilter()
-    kind = filters.django_filters.MethodFilter()
+    search = CharFilter(method='title_description_filter')
+    recommendations_for = CharFilter(method="filter_recommendations_for")
+    next_steps = CharFilter(method="filter_next_steps")
+    popular = CharFilter(method="filter_popular")
+    resume = CharFilter(method="filter_resume")
+    kind = ChoiceFilter(method="filter_kind", choices=(content_kinds.choices + ('content', _('Content'))))
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids', 'content_id', 'channel_id']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related',
+                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind']
 
-    def title_description_filter(self, queryset, value):
+    def title_description_filter(self, queryset, name, value):
         """
         search for title or description that contains the keywords that are not necessary in adjacent
         """
@@ -73,14 +103,14 @@ class ContentNodeFilter(IdFilter):
             Q(parent__isnull=False),
             reduce(lambda x, y: x & y, token_queries))
 
-    def filter_recommendations_for(self, queryset, value):
+    def filter_recommendations_for(self, queryset, name, value):
         """
         Recommend items that are similar to this piece of content.
         """
         return queryset.get(pk=value).get_siblings(
             include_self=False).order_by("lft").exclude(kind=content_kinds.TOPIC)
 
-    def filter_next_steps(self, queryset, value):
+    def filter_next_steps(self, queryset, name, value):
         """
         Recommend content that has user completed content as a prerequisite, or leftward sibling.
 
@@ -109,7 +139,7 @@ class ContentNodeFilter(IdFilter):
             Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
         ).order_by()
 
-    def filter_popular(self, queryset, value):
+    def filter_popular(self, queryset, name, value):
         """
         Recommend content that is popular with all users.
 
@@ -141,7 +171,7 @@ class ContentNodeFilter(IdFilter):
         cache.set(cache_key, most_popular, 60 * 10)
         return most_popular
 
-    def filter_resume(self, queryset, value):
+    def filter_resume(self, queryset, name, value):
         """
         Recommend content that the user has recently engaged with, but not finished.
 
@@ -170,7 +200,7 @@ class ContentNodeFilter(IdFilter):
 
         return resume
 
-    def filter_kind(self, queryset, value):
+    def filter_kind(self, queryset, name, value):
         """
         Show only content of a given kind.
 
@@ -195,7 +225,7 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
 
 class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeFilter
     pagination_class = OptionalPageNumberPagination
 
@@ -204,7 +234,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
             'assessmentmetadata',
             'files',
             'files__local_file'
-        ).select_related('license', 'lang')
+        ).select_related('lang')
 
     def get_queryset(self, prefetch=True):
         queryset = models.ContentNode.objects.filter(available=True)
@@ -243,7 +273,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     def descendants(self, request, **kwargs):
         node = self.get_object(prefetch=False)
         kind = self.request.query_params.get('descendant_kind', None)
-        descendants = node.get_descendants()
+        descendants = node.get_descendants().filter(available=True)
         if kind:
             descendants = descendants.filter(kind=kind)
 
@@ -267,27 +297,47 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     def next_content(self, request, **kwargs):
         # retrieve the "next" content node, according to depth-first tree traversal
         this_item = self.get_object()
-        next_item = models.ContentNode.objects.filter(tree_id=this_item.tree_id, lft__gt=this_item.rght).order_by("lft").first()
+        next_item = models.ContentNode.objects.filter(available=True, tree_id=this_item.tree_id, lft__gt=this_item.rght).order_by("lft").first()
         if not next_item:
             next_item = this_item.get_root()
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
 
     @list_route(methods=['get'])
     def all_content(self, request, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset()).exclude(kind=content_kinds.TOPIC)
+        queryset = self.filter_queryset(self.get_queryset(prefetch=False)).exclude(kind=content_kinds.TOPIC)
 
         serializer = self.get_serializer(queryset, many=True, limit=24)
         return Response(serializer.data)
 
 
+class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    serializer_class = serializers.ContentNodeGranularSerializer
+
+    def get_queryset(self):
+        return models.ContentNode.objects.all().prefetch_related('files__local_file')
+
+    def retrieve(self, request, pk):
+        queryset = self.get_queryset()
+        instance = get_object_or_404(queryset, pk=pk)
+        children = queryset.filter(parent=instance)
+
+        parent_serializer = self.get_serializer(instance)
+        parent_data = parent_serializer.data
+        child_serializer = self.get_serializer(children, many=True)
+        parent_data['children'] = child_serializer.data
+
+        return Response(parent_data)
+
+
 class ContentNodeProgressFilter(IdFilter):
     class Meta:
         model = models.ContentNode
+        fields = ['ids', ]
 
 
 class ContentNodeProgressViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeProgressSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeProgressFilter
 
     def get_queryset(self):
@@ -300,3 +350,116 @@ class FileViewset(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return models.File.objects.all()
+
+
+class RemoteChannelViewSet(viewsets.ViewSet):
+    permission_classes = (CanManageContent,)
+
+    http_method_names = ['get']
+
+    def _cache_kolibri_studio_channel_request(self, identifier=None):
+        cache_key = get_channel_lookup_url(identifier=identifier)
+
+        # cache channel lookup values
+        if cache.get(cache_key):
+            return Response(cache.get(cache_key))
+
+        resp = requests.get(cache_key)
+
+        # always check response code of request and set cache
+        if resp.status_code == 404:
+            raise Http404(
+                _("The requested channel does not exist on the content server")
+            )
+
+        kolibri_mapped_response = []
+        for channel in resp.json():
+            kolibri_mapped_response.append(self._studio_response_to_kolibri_response(channel))
+
+        cache.set(cache_key, kolibri_mapped_response, 5)
+
+        return Response(kolibri_mapped_response)
+
+    @staticmethod
+    def _get_lang_native_name(code):
+        try:
+            lang_name = languages.getlang(code).native_name
+        except AttributeError:
+            logger.warning("Did not find language code {} in our le_utils.constants!".format(code))
+            lang_name = None
+
+        return lang_name
+
+    @classmethod
+    def _studio_response_to_kolibri_response(cls, studioresp):
+        """
+        This modifies the JSON response returned by Kolibri Studio,
+        and then transforms its keys that are more in line with the keys
+        we return with /api/channels.
+        """
+
+        # See the spec at:
+        # https://docs.google.com/document/d/1FGR4XBEu7IbfoaEy-8xbhQx2PvIyxp0VugoPrMfo4R4/edit#
+
+        # Go through the channel's included_languages and add in the native name
+        # for each language
+        included_languages = {}
+        for code in studioresp.get("included_languages", []):
+            included_languages[code] = cls._get_lang_native_name(code)
+
+        channel_lang_name = cls._get_lang_native_name(studioresp.get("language"))
+
+        resp = {
+            "id": studioresp["id"],
+            "description": studioresp.get("description"),
+            "name": studioresp["name"],
+            "lang_code": studioresp.get("language"),
+            "lang_name": channel_lang_name,
+            "thumbnail": studioresp.get("icon_encoding"),
+            "public": studioresp.get("public", True),
+            "total_resources": studioresp.get("total_resource_count", 0),
+            "total_file_size": studioresp.get("published_size"),
+            "version": studioresp.get("version", 0),
+            "included_languages": included_languages,
+            "last_updated": studioresp.get("last_published"),
+        }
+
+        return resp
+
+    def list(self, request, *args, **kwargs):
+        """
+        Gets metadata about all public channels on kolibri studio.
+        """
+        return self._cache_kolibri_studio_channel_request()
+
+    def retrieve(self, request, pk=None):
+        """
+        Gets metadata about a channel through a token or channel id.
+        """
+        return self._cache_kolibri_studio_channel_request(identifier=pk)
+
+    @list_route(methods=['get'])
+    def kolibri_studio_status(self, request, **kwargs):
+        try:
+            resp = requests.get(get_channel_lookup_url())
+            if resp.status_code == 404:
+                raise requests.ConnectionError("Kolibri studio URL is incorrect!")
+            else:
+                return Response({"status": "online"})
+        except requests.ConnectionError:
+            return Response({"status": "offline"})
+
+
+class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.ContentNodeGranularSerializer
+
+    def get_queryset(self):
+        return models.ContentNode.objects.all()
+
+    def retrieve(self, request, pk):
+        instance = self.get_object()
+        files = models.LocalFile.objects.filter(files__contentnode__in=instance.get_descendants(include_self=True)).distinct()
+        total_file_size = files.aggregate(Sum('file_size'))['file_size__sum'] or 0
+        on_device_file_size = files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
+
+        return Response({'total_file_size': total_file_size, 'on_device_file_size': on_device_file_size})

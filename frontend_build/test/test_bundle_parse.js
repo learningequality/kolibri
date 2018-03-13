@@ -1,6 +1,9 @@
+/* eslint-env node, mocha */
+
 var assert = require('assert');
 var rewire = require('rewire');
 var _ = require('lodash');
+var path = require('path');
 
 var parseBundlePlugin = require('../src/parse_bundle_plugin');
 var readBundlePlugins = rewire('../src/read_bundle_plugins');
@@ -34,72 +37,120 @@ describe('parseBundlePlugin', function() {
   });
   describe('input is valid, bundles output', function() {
     it('should have one entry', function(done) {
-      assert(typeof parseBundlePlugin(data, '/')[0] !== 'undefined');
+      assert(typeof parseBundlePlugin(data, '/') !== 'undefined');
+      done();
+    });
+    it('should set the entry name to data.name', function(done) {
+      assert(Object.keys(parseBundlePlugin(data).entry)[0] === data.name);
+      done();
+    });
+    it('should set the entry path to the path to the source file', function(done) {
+      assert(
+        parseBundlePlugin(data).entry[data.name] === path.join(data.plugin_path, data.src_file)
+      );
+      done();
+    });
+    it('should add plugin node modules to resolve paths', function(done) {
+      assert(
+        parseBundlePlugin(data).resolve.modules.includes(
+          path.join(data.plugin_path, 'node_modules')
+        )
+      );
+      done();
+    });
+    it('should add plugin node modules first to resolve paths', function(done) {
+      assert(
+        parseBundlePlugin(data).resolve.modules[0] === path.join(data.plugin_path, 'node_modules')
+      );
+      done();
+    });
+    it('should add plugin node modules to resolve loader paths', function(done) {
+      assert(
+        parseBundlePlugin(data).resolveLoader.modules.includes(
+          path.join(data.plugin_path, 'node_modules')
+        )
+      );
+      done();
+    });
+    it('should add plugin node modules first to resolve loader paths', function(done) {
+      assert(
+        parseBundlePlugin(data).resolveLoader.modules[0] ===
+          path.join(data.plugin_path, 'node_modules')
+      );
+      done();
+    });
+    it('should set the name to data.name', function(done) {
+      assert(parseBundlePlugin(data).name === data.name);
+      done();
+    });
+    it('should set the output path to the correct subdir in static', function(done) {
+      assert(
+        parseBundlePlugin(data).output.path === path.resolve(path.join(data.static_dir, data.name))
+      );
+      done();
+    });
+    it('should include the version in the output filename', function(done) {
+      assert(parseBundlePlugin(data).output.filename.indexOf(data.version) > -1);
+      done();
+    });
+    it('should include the version in the output chunk filename', function(done) {
+      assert(parseBundlePlugin(data).output.chunkFilename.indexOf(data.version) > -1);
+      done();
+    });
+    it('should set the public path to the static url', function(done) {
+      assert(
+        parseBundlePlugin(data).output.publicPath ===
+          path.join('/', data.static_url_root, data.name, '/')
+      );
       done();
     });
   });
   describe('input is missing name, bundles output', function() {
     it('should be undefined', function(done) {
       delete data.name;
-      assert(typeof parseBundlePlugin(data, '/') === 'undefined');
+      assert(typeof parseBundlePlugin(data) === 'undefined');
       done();
     });
   });
   describe('input is missing src_file, bundles output', function() {
     it('should be undefined', function(done) {
       delete data.src_file;
-      assert(typeof parseBundlePlugin(data, '/') === 'undefined');
+      assert(typeof parseBundlePlugin(data) === 'undefined');
       done();
     });
   });
   describe('input is missing stats_file, bundles output', function() {
     it('should be undefined', function(done) {
       delete data.stats_file;
-      assert(typeof parseBundlePlugin(data, '/') === 'undefined');
+      assert(typeof parseBundlePlugin(data) === 'undefined');
       done();
     });
   });
   describe('input is missing static_dir, bundles output', function() {
     it('should be undefined', function(done) {
       delete data.static_dir;
-      assert(typeof parseBundlePlugin(data, '/') === 'undefined');
+      assert(typeof parseBundlePlugin(data) === 'undefined');
       done();
     });
   });
   describe('input is missing locale_data_folder, bundles output', function() {
     it('should be undefined', function(done) {
       delete data.locale_data_folder;
-      assert(typeof parseBundlePlugin(data, '/') === 'undefined');
+      assert(typeof parseBundlePlugin(data) === 'undefined');
       done();
     });
   });
   describe('input is missing plugin_path, bundles output', function() {
     it('should be undefined', function(done) {
       delete data.plugin_path;
-      assert(typeof parseBundlePlugin(data, '/') === 'undefined');
+      assert(typeof parseBundlePlugin(data) === 'undefined');
       done();
     });
   });
   describe('input is missing version, bundles output', function() {
     it('should be undefined', function(done) {
       delete data.version;
-      assert(typeof parseBundlePlugin(data, '/') === 'undefined');
-      done();
-    });
-  });
-  describe('input is valid, has externals flag and core_name value, externals output', function() {
-    it('should have one entry', function(done) {
-      data.external = true;
-      data.core_name = 'test_core';
-      assert(typeof parseBundlePlugin(data, '/')[1] !== 'undefined');
-      done();
-    });
-  });
-  describe('input is valid, has core flag', function() {
-    it('should have its name set to kolibriGlobal', function(done) {
-      data.external = true;
-      data.core_name = 'kolibriGlobal';
-      assert.equal(parseBundlePlugin(data, '/')[0].output.library, data.core_name);
+      assert(typeof parseBundlePlugin(data) === 'undefined');
       done();
     });
   });
@@ -117,7 +168,7 @@ describe('readBundlePlugins', function() {
   describe('two valid inputs, output', function() {
     it('should have two entries', function(done) {
       data = [baseData, baseData1];
-      assert(readBundlePlugins('', '').length === 2);
+      assert(readBundlePlugins().length === 2);
       done();
     });
   });
@@ -126,7 +177,7 @@ describe('readBundlePlugins', function() {
       var badData = _.clone(baseData);
       delete badData.src_file;
       data = [badData, baseData1];
-      assert(readBundlePlugins('', '').length === 1);
+      assert(readBundlePlugins().length === 1);
       done();
     });
   });
@@ -137,43 +188,7 @@ describe('readBundlePlugins', function() {
       var badData1 = _.clone(baseData1);
       delete badData1.src_file;
       data = [badData, badData1];
-      assert(readBundlePlugins('', '').length === 0);
-      done();
-    });
-  });
-  describe('two external flags on inputs, one with core_name value, externals output', function() {
-    it('should have two entries', function(done) {
-      var coreData = _.clone(baseData);
-      coreData.external = true;
-      coreData.core_name = 'test_global';
-      var coreData1 = _.clone(baseData1);
-      coreData1.external = true;
-      data = [coreData, coreData1];
-      assert(
-        Object.keys(
-          readBundlePlugins('', function() {
-            return {};
-          })[0].externals
-        ).length === 2
-      );
-      done();
-    });
-  });
-  describe('two core bundles specified', function() {
-    it('should throw an error', function(done) {
-      var coreData = _.clone(baseData);
-      coreData.external = true;
-      coreData.core_name = 'test_global';
-      var coreData1 = _.clone(baseData1);
-      coreData1.name = coreData.name;
-      coreData1.external = true;
-      coreData1.core_name = 'test_global';
-      data = [coreData, coreData1];
-      assert.throws(function() {
-        readBundlePlugins('', function() {
-          return {};
-        });
-      });
+      assert(readBundlePlugins().length === 0);
       done();
     });
   });

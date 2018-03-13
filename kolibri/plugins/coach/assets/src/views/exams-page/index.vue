@@ -1,31 +1,32 @@
 <template>
 
   <div>
-    <h1>{{ className }} {{ $tr('exams') }}</h1>
-    <ui-radio-group
-      :name="$tr('examFilter')"
-      :label="$tr('show')"
-      :options="filterOptions"
-      v-model="filterSelected"
-      class="radio-group"
+    <h1>{{ $tr('classExams') }}</h1>
+    <p v-if="!exams.length">{{ $tr('noExams') }}</p>
+    <k-select
+      :label="$tr('exams')"
+      :options="statusOptions"
+      :inline="true"
+      v-model="statusSelected"
+      v-if="sortedExams.length"
     />
     <k-button
       :primary="true"
-      :raised="true"
-      class="create-button"
+      appearance="raised-button"
       @click="openCreateExamModal"
       :text="$tr('newExam')"
+      :class="{'pull-right': sortedExams.length}"
     />
-    <table v-if="sortedExams.length">
-      <thead>
+    <core-table v-if="sortedExams.length">
+      <thead slot="thead">
         <tr>
-          <th class="col-icon"></th>
-          <th class="col-title">{{ $tr('title') }}</th>
-          <th class="col-visibility">{{ $tr('visibleTo') }}</th>
-          <th class="col-action">{{ $tr('action') }}</th>
+          <th class="core-table-icon-col"></th>
+          <th class="core-table-main-col">{{ $tr('title') }}</th>
+          <th>{{ $tr('visibleTo') }}</th>
+          <th></th>
         </tr>
       </thead>
-      <tbody>
+      <tbody slot="tbody">
         <exam-row
           v-for="exam in filteredExams"
           :key="exam.id"
@@ -33,9 +34,6 @@
           :examTitle="exam.title"
           :examActive="exam.active"
           :examVisibility="exam.visibility"
-          :classId="classId"
-          :className="className"
-          :classGroups="[]"
           @changeExamVisibility="openChangeExamVisibilityModal"
           @activateExam="openActivateExamModal"
           @deactivateExam="openDeactivateExamModal"
@@ -45,8 +43,7 @@
           @deleteExam="openDeleteExamModal"
         />
       </tbody>
-    </table>
-    <p v-else class="center-text"><strong>{{ $tr('noExams') }}</strong></p>
+    </core-table>
     <create-exam-modal
       v-if="showCreateExamModal"
       :classId="classId"
@@ -102,13 +99,14 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { className } from '../../state/getters/main';
   import * as ExamActions from '../../state/actions/exam';
   import { Modals as ExamModals } from '../../examConstants';
   import { PageNames } from '../../constants';
   import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiRadioGroup from 'keen-ui/src/UiRadioGroup';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   import examRow from './exam-row';
   import createExamModal from './create-exam-modal';
   import activateExamModal from './activate-exam-modal';
@@ -117,24 +115,24 @@
   import previewExamModal from './preview-exam-modal';
   import renameExamModal from './rename-exam-modal';
   import deleteExamModal from './delete-exam-modal';
+
   export default {
     name: 'coachExamsPage',
     $trs: {
       exams: 'Exams',
-      show: 'Show',
+      classExams: 'Exams',
       all: 'All',
       active: 'Active',
       inactive: 'Inactive',
-      examFilter: 'Exam filter',
-      newExam: 'New Exam',
+      newExam: 'New exam',
       title: 'Title',
       visibleTo: 'Visible to',
-      action: 'Action',
-      noExams: `You do not have any exams. Start by creating a new exam above.`,
+      noExams: 'You do not have any exams',
     },
     components: {
+      CoreTable,
       kButton,
-      uiRadioGroup,
+      kSelect,
       examRow,
       createExamModal,
       activateExamModal,
@@ -146,7 +144,7 @@
     },
     data() {
       return {
-        filterSelected: this.$tr('all'),
+        statusSelected: { label: this.$tr('all'), value: this.$tr('all') },
         selectedExam: {
           title: '',
           id: '',
@@ -164,20 +162,11 @@
       sortedChannels() {
         return orderBy(this.channels, [channel => channel.name.toUpperCase()], ['asc']);
       },
-      filterOptions() {
+      statusOptions() {
         return [
-          {
-            label: this.$tr('all'),
-            value: this.$tr('all'),
-          },
-          {
-            label: this.$tr('active'),
-            value: this.$tr('active'),
-          },
-          {
-            label: this.$tr('inactive'),
-            value: this.$tr('inactive'),
-          },
+          { label: this.$tr('all'), value: this.$tr('all') },
+          { label: this.$tr('active'), value: this.$tr('active') },
+          { label: this.$tr('inactive'), value: this.$tr('inactive') },
         ];
       },
       activeExams() {
@@ -187,7 +176,7 @@
         return this.sortedExams.filter(exam => exam.active === false);
       },
       filteredExams() {
-        const filter = this.filterSelected;
+        const filter = this.statusSelected.label;
         if (filter === this.$tr('active')) {
           return this.activeExams;
         } else if (filter === this.$tr('inactive')) {
@@ -277,25 +266,14 @@
 
 <style lang="stylus" scoped>
 
-  .create-button
+  @require '~kolibri.styles.definitions'
+
+  .pull-right
     float: right
     margin-top: 1em
     margin-bottom: 1em
 
   .center-text
     text-align: center
-
-  .radio-group
-    display: inline-block
-
-  table
-    margin-top: 3em
-    width: 100%
-
-  .col-title
-    text-align: left
-
-  .col-visibility, .col-action
-    text-align: right
 
 </style>

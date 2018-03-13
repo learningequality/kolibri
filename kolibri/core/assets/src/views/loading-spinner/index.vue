@@ -20,17 +20,17 @@
       timeoutId: undefined,
       isVisible: false,
     }),
-    methods: {
-      show() {
-        this.isVisible = true;
-      },
-    },
     mounted() {
       this.isVisible = false;
       this.timeoutId = window.setTimeout(this.show, this.delay);
     },
     destroyed() {
       window.clearTimeout(this.timeoutId);
+    },
+    methods: {
+      show() {
+        this.isVisible = true;
+      },
     },
   };
 

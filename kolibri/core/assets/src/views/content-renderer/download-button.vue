@@ -1,9 +1,8 @@
 <template>
 
-  <dropdown-menu
-    :name="$tr('downloadContent')"
+  <k-dropdown-menu
+    :text="$tr('downloadContent')"
     :options="fileOptions"
-    icon="file_download"
     @select="download"
   />
 
@@ -13,15 +12,18 @@
 <script>
 
   import filesize from 'filesize';
-  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+
   export default {
-    components: { dropdownMenu },
     name: 'downloadButton',
+    components: {
+      kDropdownMenu,
+    },
     $trs: { downloadContent: 'Download content' },
     props: {
       files: {
         type: Array,
-        default: [],
+        default: () => [],
       },
     },
     computed: {

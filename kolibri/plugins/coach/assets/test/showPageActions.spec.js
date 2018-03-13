@@ -1,4 +1,6 @@
 /* eslint-env mocha */
+import Vue from 'vue-test'; // eslint-disable-line
+import { mockResource } from 'testUtils'; // eslint-disable-line
 import sinon from 'sinon';
 import {
   ChannelResource,
@@ -10,26 +12,11 @@ import {
 
 import * as examActions from '../src/state/actions/exam';
 
-const channelStub = sinon.stub();
-const classroomStub = sinon.stub();
-const contentNodeStub = sinon.stub();
-const examStub = sinon.stub();
-const learnerGroupStub = sinon.stub();
-
-Object.assign(ChannelResource, { getCollection: channelStub });
-Object.assign(ClassroomResource, { getCollection: classroomStub });
-Object.assign(ContentNodeResource, { getCollection: contentNodeStub });
-Object.assign(ExamResource, { getCollection: examStub });
-Object.assign(LearnerGroupResource, { getCollection: learnerGroupStub });
-
-// mocks either getCollection, or getModel where request is successful
-function makeHappyFetchable(fetchResult = {}) {
-  return { fetch: () => Promise.resolve(fetchResult) };
-}
-
-function makeSadFetchable(fetchResult = {}) {
-  return { fetch: () => Promise.reject(fetchResult) };
-}
+mockResource(ChannelResource);
+mockResource(ClassroomResource);
+mockResource(ContentNodeResource);
+mockResource(ExamResource);
+mockResource(LearnerGroupResource);
 
 // fakes for data, since they have similar shape
 const fakeItems = [
@@ -174,26 +161,29 @@ describe('showPage actions for coach exams section', () => {
   const dispatchSpy = storeMock.dispatch;
 
   beforeEach(() => {
-    channelStub.reset();
-    classroomStub.reset();
+    ChannelResource.__resetMocks();
+    ClassroomResource.__resetMocks();
+    ContentNodeResource.__resetMocks();
+    ExamResource.__resetMocks();
+    LearnerGroupResource.__resetMocks();
     dispatchSpy.reset();
-    examStub.reset();
-    learnerGroupStub.reset();
   });
 
   describe('showExamsPage', () => {
     it('store is properly set up when there are no problems', () => {
-      channelStub.returns(makeHappyFetchable(fakeItems));
-      learnerGroupStub.returns(makeHappyFetchable(fakeItems));
-      classroomStub.returns(makeHappyFetchable(fakeItems));
-      examStub.returns(makeHappyFetchable(fakeExams));
+      ChannelResource.__getCollectionFetchReturns(fakeItems);
+      LearnerGroupResource.__getCollectionFetchReturns(fakeItems);
+      ClassroomResource.__getCollectionFetchReturns(fakeItems);
+      ExamResource.__getCollectionFetchReturns(fakeExams);
 
-      return examActions.showExamsPage(storeMock, 'class_1')._promise.then(() => {
-        sinon.assert.calledWith(channelStub);
-        sinon.assert.calledWith(learnerGroupStub, { parent: 'class_1' });
-        sinon.assert.calledWith(classroomStub);
-        sinon.assert.calledWith(examStub, { collection: 'class_1' });
-        sinon.assert.calledWith(dispatchSpy, 'SET_CLASS_INFO', 'class_1', [
+      // Using the weird naming from fakeItems
+      const classId = 'item_1';
+      return examActions.showExamsPage(storeMock, classId)._promise.then(() => {
+        sinon.assert.calledWith(ChannelResource.getCollection);
+        sinon.assert.calledWith(LearnerGroupResource.getCollection, { parent: classId });
+        sinon.assert.calledWith(ClassroomResource.getCollection);
+        sinon.assert.calledWith(ExamResource.getCollection, { collection: classId });
+        sinon.assert.calledWith(dispatchSpy, 'SET_CLASS_INFO', classId, 'item one', [
           { id: 'item_1', name: 'item one', memberCount: 5 },
           { id: 'item_2', name: 'item two', memberCount: 6 },
         ]);
@@ -217,10 +207,10 @@ describe('showPage actions for coach exams section', () => {
     });
 
     it('store is properly set up when there are errors', () => {
-      channelStub.returns(makeSadFetchable('channel error'));
-      learnerGroupStub.returns(makeHappyFetchable(fakeItems));
-      classroomStub.returns(makeHappyFetchable(fakeItems));
-      examStub.returns(makeHappyFetchable(fakeExams));
+      ChannelResource.__getCollectionFetchReturns('channel error', true);
+      LearnerGroupResource.__getCollectionFetchReturns(fakeItems);
+      ClassroomResource.__getCollectionFetchReturns(fakeItems);
+      ExamResource.__getCollectionFetchReturns(fakeExams);
       return examActions.showExamsPage(storeMock, 'class_1')._promise.catch(() => {
         sinon.assert.calledWith(dispatchSpy, 'CORE_SET_ERROR', 'channel error');
       });

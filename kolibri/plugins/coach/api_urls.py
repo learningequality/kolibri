@@ -1,8 +1,11 @@
-from django.conf.urls import include, url
-from django.http import Http404
+from django.conf.urls import include
+from django.conf.urls import url
 from rest_framework import routers
-
-from .api import ContentReportViewSet, ContentSummaryViewSet, RecentReportViewSet, UserReportViewSet, UserSummaryViewSet
+from .api import ContentReportViewSet
+from .api import ContentSummaryViewSet
+from .api import LessonReportViewset
+from .api import RecentReportViewSet
+from .api import UserReportViewSet
 
 reports_router = routers.SimpleRouter()
 
@@ -13,16 +16,12 @@ reports_router.register(r'recentreport', RecentReportViewSet, base_name='recentr
 content_summary_router = routers.SimpleRouter()
 content_summary_router.register(r'contentsummary', ContentSummaryViewSet, base_name='contentsummary')
 
-user_summary_router = routers.SimpleRouter()
-user_summary_router.register(r'usersummary', UserSummaryViewSet, base_name='usersummary')
-
-def return_404(*args, **kwargs):
-    raise Http404
+base_router = routers.SimpleRouter()
+base_router.register(r'lessonreport', LessonReportViewset, base_name='lessonreport')
 
 
 urlpatterns = [
     url(r'^(?P<channel_id>[^/.]+)/(?P<content_node_id>[^/.]+)/(?P<collection_kind>[^/.]+)/(?P<collection_id>[^/.]+)/', include(reports_router.urls)),
     url(r'^(?P<channel_id>[^/.]+)/(?P<collection_kind>[^/.]+)/(?P<collection_id>[^/.]+)/', include(content_summary_router.urls)),
-    url(r'^(?P<channel_id>[^/.]+)/(?P<content_node_id>[^/.]+)/', include(user_summary_router.urls)),
-    url(r'^', return_404)
+    url(r'^', include(base_router.urls))
 ]

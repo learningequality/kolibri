@@ -1,9 +1,15 @@
+from collections import OrderedDict
+
 from django.db.models import Sum
-from kolibri.auth.models import Collection, FacilityUser
-from kolibri.core.exams.models import Exam, ExamAssignment
-from kolibri.logger.models import ExamLog
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+
+from kolibri.auth.models import Collection
+from kolibri.auth.models import FacilityUser
+from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import ExamAssignment
+from kolibri.logger.models import ExamLog
+
 
 class NestedCollectionSerializer(serializers.ModelSerializer):
 
@@ -23,10 +29,10 @@ class NestedExamAssignmentSerializer(serializers.ModelSerializer):
             'id', 'exam', 'collection',
         )
 
-class ExamAssignmentSerializer(serializers.ModelSerializer):
 
-    assigned_by = serializers.PrimaryKeyRelatedField(read_only=True)
-    collection = NestedCollectionSerializer(read_only=False)
+class ExamAssignmentCreationSerializer(serializers.ModelSerializer):
+    assigned_by = serializers.PrimaryKeyRelatedField(read_only=False, queryset=FacilityUser.objects.all())
+    collection = serializers.PrimaryKeyRelatedField(read_only=False, queryset=Collection.objects.all())
 
     class Meta:
         model = ExamAssignment
@@ -35,22 +41,39 @@ class ExamAssignmentSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('assigned_by',)
 
-    def create(self, validated_data):
-        validated_data['collection'] = Collection.objects.get(id=self.initial_data['collection'].get('id'))
-        return ExamAssignment.objects.create(assigned_by=self.context['request'].user, **validated_data)
+    def to_internal_value(self, data):
+        # Make a new OrderedDict from the input, which could be an immutable QueryDict
+        data = OrderedDict(data)
+        data['assigned_by'] = self.context['request'].user.id
+        return super(ExamAssignmentCreationSerializer, self).to_internal_value(data)
+
+
+class ExamAssignmentRetrieveSerializer(serializers.ModelSerializer):
+
+    assigned_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    collection = NestedCollectionSerializer(read_only=True)
+
+    class Meta:
+        model = ExamAssignment
+        fields = (
+            'id', 'exam', 'collection', 'assigned_by',
+        )
+        read_only_fields = ('assigned_by', 'collection', )
+
 
 class ExamSerializer(serializers.ModelSerializer):
 
-    assignments = ExamAssignmentSerializer(many=True, read_only=True)
+    assignments = ExamAssignmentRetrieveSerializer(many=True, read_only=True)
     question_sources = serializers.JSONField(default='[]')
+    creator = serializers.PrimaryKeyRelatedField(read_only=False, queryset=FacilityUser.objects.all())
 
     class Meta:
         model = Exam
         fields = (
             'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'collection', 'archive', 'assignments',
+            'active', 'collection', 'archive', 'assignments', 'creator',
         )
-        read_only_fields = ('creator',)
+        read_only_fields = ('assignments',)
 
         validators = [
             UniqueTogetherValidator(
@@ -59,8 +82,17 @@ class ExamSerializer(serializers.ModelSerializer):
             )
         ]
 
-    def create(self, validated_data):
-        return Exam.objects.create(creator=self.context['request'].user, **validated_data)
+    def to_internal_value(self, data):
+        # Make a new OrderedDict from the input, which could be an immutable QueryDict
+        data = OrderedDict(data)
+        if 'creator' not in data:
+            if self.context['view'].action == 'create':
+                data['creator'] = self.context['request'].user.id
+            else:
+                # Otherwise we are just updating the exam, so allow a partial update
+                self.partial = True
+        return super(ExamSerializer, self).to_internal_value(data)
+
 
 class UserExamSerializer(serializers.ModelSerializer):
 
@@ -74,6 +106,7 @@ class UserExamSerializer(serializers.ModelSerializer):
             'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
             'active', 'score', 'archive', 'answer_count', 'closed',
         )
+        fields = '__all__'
 
     def to_representation(self, obj):
         output = {}

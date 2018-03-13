@@ -1,15 +1,14 @@
 <template>
 
-  <th scope="row">
+  <td scope="row" class="core-table-main-col">
     <div class="wrapper">
-      <content-icon :kind="kind" class="icon"/>
-      <router-link v-if="link" :to="link" class="link">{{ title }}</router-link>
+      <k-router-link v-if="link" :text="title" :to="link" class="link" />
       <span v-else>{{ title }}</span>
     </div>
     <div class="wrapper">
-      <slot name="details" />
+      <slot name="details"></slot>
     </div>
-  </th>
+  </td>
 
 </template>
 
@@ -18,8 +17,10 @@
 
   import { validateLinkObject } from 'kolibri.utils.validators';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+
   export default {
-    components: { contentIcon },
+    components: { contentIcon, kRouterLink },
     props: {
       kind: {
         type: String,
@@ -42,27 +43,5 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  th
-    text-align: left
-
-  .wrapper
-    font-weight: normal
-    position: relative
-    text-align: left
-    padding: 2px 0 0 25px
-    color: $core-text-annotation
-
-  .hasicon
-    padding-left: 20px
-
-  .icon
-    position: absolute
-    left: 0
-    fill: $core-text-default
-    font-size: 1.25em
-
-  .link
-    font-weight: bold
 
 </style>

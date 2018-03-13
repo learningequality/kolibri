@@ -5,6 +5,9 @@ set -euo pipefail
 # clone a fresh copy of the latest Kolibri Kivy repository
 yes y | rm -r kolibri-kivy/ || true 2> /dev/null
 git clone https://github.com/learningequality/kolibri-kivy.git
+cd kolibri-kivy
+git checkout v0.1.0-beta1
+cd ..
 
 # copy in the latest whl to make it available to the Docker build script
 buildkite-agent artifact download 'dist/*.whl' dist/

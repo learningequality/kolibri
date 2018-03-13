@@ -1,40 +1,42 @@
 /* eslint-env mocha */
-import Vue from 'vue-test';
+import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
 import assert from 'assert';
 import LearnIndex from '../../src/views/index.vue';
 import makeStore from '../util/makeStore';
-import coreBase from '../util/core-base.vue';
+import { mount } from '@vue/test-utils';
 
 const router = new VueRouter({
   routes: [
-    { path: '/learn', name: 'RECOMMENDED' },
-    { path: '/topics', name: 'TOPICS_CHANNEL' },
-    { path: '/exams', name: 'EXAM_LIST' },
+    { path: '/recommended', name: 'RECOMMENDED' },
+    { path: '/topics', name: 'TOPICS_ROOT' },
+    { path: '/classes', name: 'ALL_CLASSES' },
   ],
 });
 
-function makeVm(options) {
-  const Ctor = Vue.extend(LearnIndex);
-  Object.assign(options, {
-    components: {
-      coreBase,
-      'topics-page': '<div>Topics Page</div>',
-      'content-unavailable-page': '<div>Content Unavailable</div>',
+function makeWrapper(options) {
+  return mount(LearnIndex, {
+    ...options,
+    stubs: {
+      coreBase: '<div><slot></slot></div>',
+      topicsPage: true,
+      contentUnavailablePage: true,
     },
     router,
   });
-  return new Ctor(options).$mount();
 }
 
-function getElements(vm) {
+function getElements(wrapper) {
   return {
-    examLink: () => vm.$el.querySelector('li[name="exam-link"]'),
-    tabLinks: () => vm.$el.querySelector('.tab-links'),
+    // hrefs need to match the routes in the mock router above
+    classesLink: () => wrapper.find('[href="#/classes"]'),
+    recommendedLink: () => wrapper.find('[href="#/recommended"]'),
+    topicsLink: () => wrapper.find('[href="#/topics"]'),
+    tabLinks: () => wrapper.findAll({ name: 'kNavbarLink' }),
   };
 }
 
-describe('learn index', () => {
+describe('learn plugin index page', () => {
   let store;
 
   const setSessionUserKind = kind => {
@@ -53,34 +55,47 @@ describe('learn index', () => {
 
   it('there are no tabs if showing content unavailable page', () => {
     setPageName('CONTENT_UNAVAILABLE');
-    const vm = makeVm({ store });
-    const { tabLinks } = getElements(vm);
-    assert(tabLinks() === null);
+    const wrapper = makeWrapper({ store });
+    const { tabLinks } = getElements(wrapper);
+    assert.equal(tabLinks().length, 0);
   });
 
-  it('the exam tab is available if user is logged in and has memberships', () => {
+  it('the recommended and channel links are always available to everybody', () => {
+    setSessionUserKind('anonymous');
+    setMemberships([]);
+    const wrapper = makeWrapper({ store });
+    const { tabLinks, recommendedLink, topicsLink } = getElements(wrapper);
+    assert.equal(tabLinks().length, 2);
+    assert(recommendedLink().is('a'));
+    assert(topicsLink().is('a'));
+  });
+
+  it('the classes tab is available if user is logged in and has memberships', () => {
     // should work for any user 'kind' except for 'anonymous'
     setSessionUserKind('learner');
     setMemberships([{ id: 'membership_1' }]);
-    const vm = makeVm({ store });
-    const { examLink } = getElements(vm);
-    assert(examLink() !== null);
+    const wrapper = makeWrapper({ store });
+    const { classesLink, tabLinks } = getElements(wrapper);
+    assert.equal(tabLinks().length, 3);
+    assert(classesLink().is('a'));
   });
 
-  it('the exam tab is not available if user is not logged in', () => {
+  it('the classes tab is not available if user is not logged in', () => {
     // in current implementation, anonymous user implies empty memberships
     setSessionUserKind('anonymous');
     setMemberships([]);
-    const vm = makeVm({ store });
-    const { examLink } = getElements(vm);
-    assert(examLink() === null);
+    const wrapper = makeWrapper({ store });
+    const { classesLink, tabLinks } = getElements(wrapper);
+    assert.equal(tabLinks().length, 2);
+    assert(!classesLink().exists());
   });
 
-  it('the exam tab is not available if user has no memberships/classes', () => {
+  it('the classes tab is not available if user has no memberships/classes', () => {
     setSessionUserKind('learner');
     setMemberships([]);
-    const vm = makeVm({ store });
-    const { examLink } = getElements(vm);
-    assert(examLink() === null);
+    const wrapper = makeWrapper({ store });
+    const { classesLink, tabLinks } = getElements(wrapper);
+    assert.equal(tabLinks().length, 2);
+    assert(!classesLink().exists());
   });
 });

@@ -1,32 +1,47 @@
 <template>
 
-  <core-modal :title="$tr('preview')" @cancel="close" width="100%" height="100%">
-    <ui-progress-linear v-show="loading"/>
+  <core-modal
+    :title="$tr('preview')"
+    @cancel="close"
+    width="100%"
+    height="100%"
+  >
+    <k-button
+      :text="$tr('close')"
+      :primary="false"
+      @click="close"
+    />
+    <ui-progress-linear v-show="loading" />
     <div v-show="!loading">
       <div>
-        <strong>{{ $tr('numQuestions', { num: examNumQuestions })}}</strong>
-        <slot name="randomize-button"/>
+        <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
+        <slot name="randomize-button"></slot>
       </div>
-      <div class="exam-preview-container pure-g">
-        <div class="question-selector pure-u-1-3">
-          <div v-for="(exercise, exerciseIndex) in examQuestionSources">
+      <k-grid class="exam-preview-container">
+        <k-grid-item size="1" cols="3" class="question-selector">
+          <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
             <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
             <ol class="question-list">
-              <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)">
+              <li
+                v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
+                :key="questionIndex"
+              >
                 <k-button
                   @click="goToQuestion(question.itemId, exercise.exercise_id)"
                   :primary="isSelected(question.itemId, exercise.exercise_id)"
-                  :raised="false"
-                  :text="$tr('question', { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 })"
+                  appearance="flat-button"
+                  :text="$tr(
+                    'question',
+                    { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
+                  )"
                 />
               </li>
             </ol>
           </div>
-        </div>
-        <div class="exercise-container pure-u-2-3">
+        </k-grid-item>
+        <k-grid-item size="2" cols="3" class="exercise-container">
           <content-renderer
             v-if="content && itemId"
-            class="content-renderer"
             ref="contentRenderer"
             :id="content.pk"
             :kind="content.kind"
@@ -37,10 +52,11 @@
             :extraFields="content.extra_fields"
             :itemId="itemId"
             :assessment="true"
-            :allowHints="false"/>
-          </div>
-      </div>
-      </div>
+            :allowHints="false"
+          />
+        </k-grid-item>
+      </k-grid>
+    </div>
   </core-modal>
 
 </template>
@@ -61,7 +77,7 @@
       preview: 'Preview exam',
       close: 'Close',
       question: 'Question { num }',
-      numQuestions: '{ num } questions',
+      numQuestions: '{num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
     },
     components: {
@@ -120,6 +136,18 @@
         return this.currentQuestion.itemId;
       },
     },
+    created() {
+      ContentNodeResource.getCollection({
+        ids: this.examQuestionSources.map(item => item.exercise_id),
+      })
+        .fetch()
+        .then(contentNodes => {
+          contentNodes.forEach(node => {
+            this.$set(this.exercises, node.pk, node);
+          });
+          this.loading = false;
+        });
+    },
     methods: {
       isSelected(questionItemId, exerciseId) {
         return (
@@ -144,18 +172,9 @@
       close() {
         this.displayExamModal(false);
       },
-    },
-    created() {
-      ContentNodeResource.getCollection({
-        ids: this.examQuestionSources.map(item => item.exercise_id),
-      })
-        .fetch()
-        .then(contentNodes => {
-          contentNodes.forEach(node => {
-            this.$set(this.exercises, node.pk, node);
-          });
-          this.loading = false;
-        });
+      getExerciseQuestions(exerciseId) {
+        return this.questions.filter(q => q.contentId === exerciseId);
+      },
     },
     vuex: { actions: { displayExamModal: examActions.displayExamModal } },
   };
@@ -173,7 +192,6 @@
 
   .question-selector, .exercise-container
     overflow-y: auto
-
 
   ol
     padding: 0

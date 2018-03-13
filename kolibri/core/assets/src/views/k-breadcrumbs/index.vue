@@ -1,15 +1,22 @@
 <template>
 
-  <div v-show="crumbs.length > 1">
+  <div v-show="showAllCrumbs || crumbs.length > 1">
     <nav class="breadcrumbs">
       <div v-show="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
-        <ui-icon-button :has-dropdown="true" icon="expand_more" size="small">
+        <ui-icon-button :hasDropdown="true" icon="expand_more" size="small">
           <div slot="dropdown" class="breadcrumbs-dropdown">
             <ol class="breadcrumbs-dropdown-items">
-              <li v-for="crumb in collapsedCrumbs" class="breadcrumbs-dropdown-item">
-                <router-link :to="crumb.link" :style="{ maxWidth: `${collapsedCrumbMaxWidth}px` }">
-                  {{ crumb.text }}
-                </router-link>
+              <li
+                v-for="(crumb, index) in collapsedCrumbs"
+                class="breadcrumbs-dropdown-item"
+                :key="index"
+              >
+                <k-router-link
+                  :text="crumb.text"
+                  :to="crumb.link"
+                  :style="{ maxWidth: `${collapsedCrumbMaxWidth}px` }"
+                  dir="auto"
+                />
               </li>
             </ol>
           </div>
@@ -22,15 +29,26 @@
             v-if="index !== crumbs.length - 1"
             class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
             v-show="!crumb.collapsed"
+            :key="index"
           >
-            <router-link :to="crumb.link">{{ crumb.text }}</router-link>
+            <k-router-link
+              :text="crumb.text"
+              :to="crumb.link"
+              dir="auto"
+            />
           </li>
 
           <li
             v-else
             class="breadcrumbs-visible-item breadcrumb-visible-item-last"
+            :key="index"
           >
-            <span :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">{{ crumb.text }}</span>
+            <span
+              :style="{ maxWidth: `${lastCrumbMaxWidth}px` }"
+              dir="auto"
+            >
+              {{ crumb.text }}
+            </span>
           </li>
         </template>
       </ol>
@@ -45,14 +63,16 @@
             v-if="index !== crumbs.length - 1"
             :ref="`crumb${index}`"
             class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
+            :key="index"
           >
-            <router-link :to="crumb.link" tabindex="-1">{{ crumb.text }}</router-link>
+            <k-router-link :text="crumb.text" :to="crumb.link" tabindex="-1" />
           </li>
 
           <li
             v-else
             :ref="`crumb${index}`"
             class="breadcrumbs-visible-item breadcrumb-visible-item-last"
+            :key="index"
           >
             <span :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">{{ crumb.text }}</span>
           </li>
@@ -73,22 +93,24 @@
   import startsWith from 'lodash/startsWith';
   import throttle from 'lodash/throttle';
   import uiIconButton from 'keen-ui/src/UiIconButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   const DROPDOWN_BTN_WIDTH = 55;
   const DROPDOWN_SIDE_PADDING = 32; // pulled from .breadcrumbs-dropdown
   const MAX_CRUMB_WIDTH = 300; // pulled from .breadcrumbs-visible-item class
 
   /**
-   * Used to aid deeply nested navigation
+   * Used to aid deeply nested navigation of content channels, topics, and resources
    */
   export default {
     name: 'kBreadcrumbs',
-    components: { uiIconButton },
+    components: { uiIconButton, kRouterLink },
     mixins: [ResponsiveElement],
     props: {
       /**
-       * An array of item objects. All objects must have a text value.
-       * All objects, but the last, must have a router link object.
+       * An array of objects, each with a 'text' attribute (String) and a
+       * 'link' attribute (vue router link object). The 'link' attribute
+       * of the last item in the array is optional and ignored.
        */
       items: {
         type: Array,
@@ -102,11 +124,20 @@
           return crumbItems.slice(0, -1).every(crumb => validateLinkObject(crumb.link));
         },
       },
+      /**
+       * When set to 'true', a breadcrumb will be shown for each item in 'items' array.
+       * Otherwise, the first item will be omitted.
+       */
+      showAllCrumbs: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     data: () => ({
       // Array of crumb objects.
-      // Each object contains text, router-link, vue ref, a resize sensor, and it's collapsed state.
+      // Each object contains:
+      // text, router-link 'to' object, vue ref, a resize sensor, and its collapsed state
       crumbs: [],
     }),
     computed: {
@@ -124,6 +155,12 @@
       },
       collapsedCrumbMaxWidth() {
         return Math.min(this.parentWidth - DROPDOWN_SIDE_PADDING, MAX_CRUMB_WIDTH);
+      },
+    },
+    watch: {
+      items(val) {
+        this.crumbs = Array.from(val);
+        this.attachSensors();
       },
     },
     created() {
@@ -207,8 +244,8 @@
   @require '~kolibri.styles.definitions'
 
   .breadcrumbs
-    margin-top: 24px
-    margin-bottom: 24px
+    margin-top: 8px
+    margin-bottom: 8px
     font-size: 16px
     font-weight: bold
 

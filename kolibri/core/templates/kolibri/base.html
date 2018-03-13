@@ -8,6 +8,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google" content="notranslate">
   <link rel="shortcut icon" href="{% static 'images/logo.ico' %}">
   <title>{% trans "Kolibri" %}</title>
   {% if LANGUAGE_CODE == "ach-ug" %}
@@ -19,6 +20,8 @@
   {% endif %}
 </head>
 <body>
+{% csrf_token %}
+{% if supported_browser %}
 <rootvue>
   <style>
     .loading-spinner-wrapper-base{
@@ -73,5 +76,10 @@
 
 {% endblock %}
 
+{% else %}
+
+{% include 'kolibri/unsupported_browser.html' %}
+
+{% endif %}
 </body>
 </html>

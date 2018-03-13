@@ -1,24 +1,23 @@
-import * as constants from '../constants';
+import { PageNames, PageModes } from '../constants';
 
-function pageMode(state) {
+export function pageMode(state) {
   const topicsPages = [
-    constants.PageNames.TOPICS_ROOT,
-    constants.PageNames.TOPICS_CHANNEL,
-    constants.PageNames.TOPICS_TOPIC,
-    constants.PageNames.TOPICS_CONTENT,
+    PageNames.TOPICS_ROOT,
+    PageNames.TOPICS_CHANNEL,
+    PageNames.TOPICS_TOPIC,
+    PageNames.TOPICS_CONTENT,
   ];
-  const learnPages = [constants.PageNames.RECOMMENDED, constants.PageNames.RECOMMENDED_CONTENT];
-  const examPages = [constants.PageNames.EXAM_LIST, constants.PageNames.EXAM];
-  if (topicsPages.some(page => page === state.pageName)) {
-    return constants.PageModes.TOPICS;
-  } else if (learnPages.some(page => page === state.pageName)) {
-    return constants.PageModes.RECOMMENDED;
-  } else if (constants.PageNames.SEARCH === state.pageName) {
-    return constants.PageModes.SEARCH;
-  } else if (examPages.some(page => page === state.pageName)) {
-    return constants.PageModes.EXAM;
+  const learnPages = [PageNames.RECOMMENDED, PageNames.RECOMMENDED_CONTENT];
+  const examPages = [PageNames.EXAM_LIST, PageNames.EXAM];
+  const pageNameMatches = page => page === state.pageName;
+  if (topicsPages.some(pageNameMatches)) {
+    return PageModes.TOPICS;
+  } else if (learnPages.some(pageNameMatches)) {
+    return PageModes.RECOMMENDED;
+  } else if (PageNames.SEARCH === state.pageName) {
+    return PageModes.SEARCH;
+  } else if (examPages.some(pageNameMatches)) {
+    return PageModes.EXAM;
   }
   return undefined;
 }
-
-export { pageMode };

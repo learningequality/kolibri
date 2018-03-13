@@ -1,0 +1,92 @@
+
+@require '~kolibri.styles.definitions'
+
+$transition = all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)
+$raised-shadow = 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12)
+
+.button
+  background: none
+  border: none
+  display: inline-block
+  cursor: pointer
+  outline: none
+  overflow: hidden
+  text-align: center
+  text-decoration: none
+  user-select: none
+  white-space: nowrap
+  margin: 8px
+  padding: 0 16px
+  min-width: 64px
+  min-height: 36px
+  border-radius: 2px
+  transition: $transition
+  font-size: 14px
+  font-weight: bold
+  line-height: 36px
+  text-transform: uppercase
+  max-width: 100%
+  white-space: nowrap
+  overflow: hidden
+  text-overflow: ellipsis
+
+  &::-moz-focus-inner
+    border: none
+
+a.button
+  display: inline-table // helps with vertical layout
+
+.button.primary.raised
+  background-color: $core-action-normal
+  color: white
+  &:hover, &:focus
+    background-color: $core-action-dark
+  &:disabled
+    background-color: rgba($core-action-normal, 0.75)
+    color: rgba(white, 0.45)
+
+.button.primary.flat
+  color: $core-action-normal
+  &:hover, &:focus
+    background-color: $core-grey-300
+  &:disabled
+    color: rgba($core-action-normal, 0.5)
+
+.button.secondary.raised
+  background-color: $core-grey-200
+  color: $core-text-default
+  &:hover, &:focus
+    background-color: $core-grey-300
+  &:disabled
+    background-color: rgba($core-text-default, 0.1)
+    color: rgba($core-text-default, 0.25)
+
+.button.secondary.flat
+  color: $core-text-default
+  &:hover, &:focus
+    background-color: $core-grey-300
+  &:disabled
+    color: rgba($core-text-default, 0.25)
+
+.button.primary.raised, .button.secondary.raised
+  box-shadow: $raised-shadow
+
+.button.primary.raised, .button.primary.flat, .button.secondary.raised, .button.secondary.flat
+  &:disabled
+    box-shadow: none
+    cursor: default
+    pointer-events: none
+
+.link
+  color: $core-action-normal
+  transition: $transition
+  text-decoration: underline
+  cursor: pointer
+  padding: 0
+  display: inline
+
+  &:hover
+    color: $core-action-dark
+
+  &:hover:focus
+    outline: $core-outline

@@ -1,9 +1,17 @@
-import * as getters from 'kolibri.coreVue.vuex.getters';
+import {
+  isUserLoggedIn,
+  currentUserId,
+  isSuperuser,
+  isAdmin,
+  currentFacilityId,
+  facilities,
+} from 'kolibri.coreVue.vuex.getters';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
+  FacilityResource,
   FacilityDatasetResource,
   ContentSessionLogResource,
   ContentSummaryLogResource,
@@ -14,6 +22,7 @@ import {
 } from 'kolibri.resources';
 import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import intervalTimer from '../timer';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import { createTranslator } from 'kolibri.utils.i18n';
@@ -177,14 +186,14 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
   return sessionPromise
     .then(session => {
       store.dispatch('CORE_SET_SESSION', _sessionState(session));
-      const manageURL = urls['kolibri:managementplugin:management']();
-      const deviceURL = urls['kolibri:managementplugin:device_management']();
+      const facilityURL = urls['kolibri:facilitymanagementplugin:facility_management']();
+      const deviceURL = urls['kolibri:devicemanagementplugin:device_management']();
       if (isFirstDeviceSignIn) {
         // Hacky way to redirect to content import page after completing setup wizard
         redirectBrowser(`${window.location.origin}${deviceURL}#/welcome`);
-      } else if (getters.isSuperuser(store.state) || getters.isAdmin(store.state)) {
+      } else if (isSuperuser(store.state) || isAdmin(store.state)) {
         /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
-        redirectBrowser(window.location.origin + manageURL);
+        redirectBrowser(window.location.origin + facilityURL);
       } else {
         redirectBrowser();
       }
@@ -205,7 +214,7 @@ function kolibriLogout(store) {
   const sessionModel = SessionResource.getModel('current');
   const logoutPromise = sessionModel.delete();
   return logoutPromise
-    .then(response => {
+    .then(() => {
       /* Very hacky solution to redirect a user back to Learn tab on logout*/
       redirectBrowser();
     })
@@ -232,13 +241,27 @@ function getCurrentSession(store, force = false) {
     });
 }
 
-function getFacilityConfig(store) {
-  // assumes session is loaded
-  const currentFacilityId = getters.currentFacilityId(store.state);
-  const facilityConfigCollection = FacilityDatasetResource.getCollection({
-    facility_id: currentFacilityId,
-  }).fetch();
-  return facilityConfigCollection.then(facilityConfig => {
+function getFacilities(store) {
+  return FacilityResource.getCollection()
+    .fetch()
+    .then(facilities => {
+      store.dispatch('CORE_SET_FACILITIES', facilities);
+    });
+}
+
+function getFacilityConfig(store, facilityId = currentFacilityId(store.state)) {
+  const currentFacility = facilities(store.state).find(facility => facility.id === facilityId);
+  let datasetPromise;
+  if (currentFacility && currentFacility.dataset) {
+    datasetPromise = Promise.resolve([currentFacility.dataset]);
+  } else {
+    datasetPromise = FacilityDatasetResource.getCollection({
+      // getCollection for currentSession's facilityId if none was passed
+      facility_id: facilityId,
+    }).fetch();
+  }
+
+  return datasetPromise.then(facilityConfig => {
     let config = {};
     const facility = facilityConfig[0];
     if (facility) {
@@ -269,7 +292,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
     const summaryCollectionPromise = summaryCollection.fetch({}, true);
 
     // ensure the store has finished update for summaryLog.
-    const summaryPromise = new Promise((resolve, reject) => {
+    const summaryPromise = new Promise(resolve => {
       summaryCollectionPromise.then(summary => {
         /* If a summary model exists, map that to the state */
         if (summary.length > 0) {
@@ -349,7 +372,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
   const sessionModelPromise = sessionModel.save();
 
   // ensure the store has finished update for sessionLog.
-  const sessionPromise = new Promise((resolve, reject) => {
+  const sessionPromise = new Promise(resolve => {
     sessionModelPromise.then(newSession => {
       store.dispatch('SET_LOGGING_SESSION_ID', newSession.pk);
       resolve();
@@ -361,14 +384,18 @@ function initContentSession(store, channelId, contentId, contentKind) {
 }
 
 function setChannelInfo(store) {
-  return ChannelResource.getCollection({ available: true }).fetch().then(
-    channelsData => {
-      store.dispatch('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+  return ChannelResource.getCollection({ available: true })
+    .fetch()
+    .then(
+      channelsData => {
+        store.dispatch('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
+        return channelsData;
+      },
+      error => {
+        handleApiError(store, error);
+        return error;
+      }
+    );
 }
 
 /**
@@ -386,33 +413,23 @@ function saveLogs(store) {
   /* If a session model exists, save it with updated values */
   if (sessionLog.id) {
     const sessionModel = ContentSessionLogResource.getModel(sessionLog.id);
-    sessionModel
-      .save(_contentSessionModel(store))
-      .then(data => {
-        /* PLACEHOLDER */
-      })
-      .catch(error => {
-        handleApiError(store, error);
-      });
+    sessionModel.save(_contentSessionModel(store)).catch(error => {
+      handleApiError(store, error);
+    });
   }
 
   /* If a summary model exists, save it with updated values */
   if (summaryLog.id) {
     const summaryModel = ContentSummaryLogResource.getModel(summaryLog.id);
-    summaryModel
-      .save(_contentSummaryModel(store))
-      .then(data => {
-        /* PLACEHOLDER */
-      })
-      .catch(error => {
-        handleApiError(store, error);
-      });
+    summaryModel.save(_contentSummaryModel(store)).catch(error => {
+      handleApiError(store, error);
+    });
   }
 }
 
 function fetchPoints(store) {
-  if (getters.isUserLoggedIn(store.state)) {
-    const userProgressModel = UserProgressResource.getModel(getters.currentUserId(store.state));
+  if (isUserLoggedIn(store.state)) {
+    const userProgressModel = UserProgressResource.getModel(currentUserId(store.state));
     userProgressModel.fetch().then(progress => {
       store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
     });
@@ -443,8 +460,8 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
   const completedContent = originalProgress < 1 && summaryProgress === 1;
   if (completedContent) {
     store.dispatch('SET_LOGGING_COMPLETION_TIME', now());
-    if (getters.isUserLoggedIn(store.state)) {
-      const userProgressModel = UserProgressResource.getModel(getters.currentUserId(store.state));
+    if (isUserLoggedIn(store.state)) {
+      const userProgressModel = UserProgressResource.getModel(currentUserId(store.state));
       // Fetch first to ensure we never accidentally have an undefined progress
       userProgressModel.fetch().then(progress => {
         userProgressModel.set({
@@ -560,12 +577,13 @@ function stopTrackingProgress(store) {
 
 function saveMasteryLog(store) {
   const masteryLogModel = MasteryLogResource.getModel(store.state.core.logging.mastery.id);
-  masteryLogModel
-    .save(_masteryLogModel(store))
-    .only(samePageCheckGenerator(store), newMasteryLog => {
-      // Update store in case an id has been set.
-      store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
-    });
+  return masteryLogModel.save(_masteryLogModel(store));
+}
+
+function saveAndStoreMasteryLog(store) {
+  return saveMasteryLog(store).only(samePageCheckGenerator(store), newMasteryLog => {
+    store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
+  });
 }
 
 function setMasteryLogComplete(store, completetime) {
@@ -623,16 +641,34 @@ function saveAttemptLog(store) {
   const attemptLogModel = AttemptLogResource.findModel({
     item: store.state.core.logging.attempt.item,
   });
-  const promise = attemptLogModel.save(_attemptLogModel(store));
-  promise.then(newAttemptLog => {
+  if (attemptLogModel) {
+    return attemptLogModel.save(_attemptLogModel(store));
+  }
+  return ConditionalPromise.resolve();
+}
+
+function saveAndStoreAttemptLog(store) {
+  const attemptLogId = store.state.core.logging.attempt.id;
+  const attemptLogItem = store.state.core.logging.attempt.item;
+  /*
+   * Create a 'same item' check instead of same page check, which only allows the resulting save
+   * payload to be set if two conditions are met: firstly, that at the time the save was
+   * initiated, the attemptlog did not have an id, we need this id for future updating saves,
+   * but no other information saved to the server needs to be persisted back into the vuex store;
+   * secondly, we check that the item id when the save has resolved is the same as when the save
+   * was initiated, ensuring that we are not overwriting the vuex attemptlog representation for a
+   * different question.
+   */
+  const sameItemAndNoLogIdCheck = () =>
+    !attemptLogId && attemptLogItem === store.state.core.logging.attempt.item;
+  return saveAttemptLog(store).only(sameItemAndNoLogIdCheck, newAttemptLog => {
     // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
     store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
   });
-  return promise;
 }
 
 function createAttemptLog(store, itemId) {
-  const user = getters.isUserLoggedIn(store.state) ? getters.currentUserId(store.state) : null;
+  const user = isUserLoggedIn(store.state) ? currentUserId(store.state) : null;
   const attemptLogModel = AttemptLogResource.createModel({
     id: null,
     user,
@@ -712,12 +748,20 @@ function updateMasteryAttemptState(
   });
 }
 
+function createSnackbar(store, snackbarOptions) {
+  store.dispatch('CORE_CREATE_SNACKBAR', snackbarOptions);
+}
+function clearSnackbar(store) {
+  store.dispatch('CORE_CLEAR_SNACKBAR');
+}
+
 export {
   handleError,
   handleApiError,
   kolibriLogin,
   kolibriLogout,
   getCurrentSession,
+  getFacilities,
   getFacilityConfig,
   initContentSession,
   setChannelInfo,
@@ -730,11 +774,15 @@ export {
   samePageCheckGenerator,
   initMasteryLog,
   saveMasteryLog,
+  saveAndStoreMasteryLog,
   setMasteryLogComplete,
   createDummyMasteryLog,
   createAttemptLog,
   saveAttemptLog,
+  saveAndStoreAttemptLog,
   updateMasteryAttemptState,
   updateAttemptLogInteractionHistory,
   fetchPoints,
+  createSnackbar,
+  clearSnackbar,
 };

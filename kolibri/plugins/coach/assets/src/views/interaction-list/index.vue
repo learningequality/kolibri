@@ -1,7 +1,7 @@
 <template>
 
   <div class="interaction-list">
-  <!--TODO-->
+    <!--TODO-->
     <template v-if="interactions.length">
       <h3 class="header">{{ $tr('questionHeader', {questionNumber: attemptNumber }) }}</h3>
       <p>{{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}</p>
@@ -29,21 +29,26 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import interactionItem from './interaction-item';
   export default {
-    mixins: [responsiveElement],
     name: 'coachExerciseQuestionAttempt',
+    components: { interactionItem },
+    mixins: [responsiveElement],
     $trs: {
       currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} answer',
       questionHeader: 'Question {questionNumber, number} attempts',
       noInteractions: 'No attempts made on this question',
     },
-    components: { interactionItem },
     props: {
       interactions: {
         type: Array,
         required: true,
       },
-      selectedInteractionIndex: {},
-      attemptNumber: { required: true },
+      selectedInteractionIndex: {
+        type: Number,
+      },
+      attemptNumber: {
+        type: Number,
+        required: true,
+      },
     },
     methods: {
       setCurrentInteractionIndex(index) {

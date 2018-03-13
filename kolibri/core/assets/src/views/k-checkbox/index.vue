@@ -19,7 +19,7 @@
           :title="label"
           @click.stop="toggleCheck"
           @focus="isActive = true"
-          @blur="isActive = false"
+          @blur="markInactive"
         >
 
         <mat-svg
@@ -62,8 +62,8 @@
 <script>
 
   /**
-    * Used for selection
-    */
+   * Used for toggling boolean user input
+   */
   export default {
     name: 'kCheckbox',
     props: {
@@ -136,6 +136,13 @@
            */
           this.$emit('change', this.isCurrentlyChecked, event);
         }
+      },
+      markInactive() {
+        this.isActive = false;
+        /**
+         * Emits blur event, useful for validation
+         */
+        this.$emit('blur');
       },
     },
   };

@@ -1,12 +1,9 @@
 import vue from 'kolibri.lib.vue';
 import logger from '../logging';
-import importIntlLocale from './import-intl-locale';
+import importIntlLocale from './intl-locale-data';
+import importVueIntlLocaleData from './vue-intl-locale-data';
 
 const logging = logger.getLogger(__filename);
-
-let toFakeRTL;
-// This will get set during initialization if the dummy language
-// has been activated
 
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   if (args) {
@@ -20,10 +17,6 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
     id: `${nameSpace}.${messageId}`,
     defaultMessage: defaultMessageText,
   };
-
-  if (vue.locale === 'rt-lft') {
-    message.defaultMessage = toFakeRTL(defaultMessageText);
-  }
 
   return formatter(message, args);
 }
@@ -161,7 +154,7 @@ export function createTranslator(nameSpace, defaultMessages) {
   return new Translator(nameSpace, defaultMessages);
 }
 
-function setUpVueIntl() {
+export function setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
    **/
@@ -190,7 +183,11 @@ function setUpVueIntl() {
     if (global.coreLanguageMessages) {
       vue.registerMessages(currentLanguage, global.coreLanguageMessages);
     }
+    return importVueIntlLocaleData(currentLanguage).then(localeData => {
+      VueIntl.addLocaleData(localeData);
+    });
   }
+  return Promise.resolve();
 }
 
 export function setUpIntl() {
@@ -218,8 +215,7 @@ export function setUpIntl() {
           requires[0]();
           // Executes function that requires intl locale data - needs intl to have run
           requires[1]();
-          setUpVueIntl();
-          resolve();
+          setUpVueIntl().then(() => resolve());
         },
         error => {
           logging.error(error);
@@ -227,19 +223,8 @@ export function setUpIntl() {
           reject();
         }
       );
-    } else if (global.languageCode === 'rt-lft') {
-      require.ensure(
-        ['./mirrorText'],
-        require => {
-          toFakeRTL = require('./mirrorText').default;
-          setUpVueIntl();
-          resolve();
-        },
-        'fakeRtl'
-      );
     } else {
-      setUpVueIntl();
-      resolve();
+      setUpVueIntl().then(() => resolve());
     }
   });
 }
