@@ -413,3 +413,21 @@ export function deleteLesson(store, lessonId, classId) {
       logError(error);
     });
 }
+
+export function copyLesson(store, payload, classroomName) {
+  return LessonResource.createModel(payload)
+    .save()
+    ._promise.then(() => {
+      setLessonsModal(store, null);
+      createSnackbar(store, {
+        text: createTranslator('lessonCopiedSnackbar', {
+          copiedLessonTo: `Copied lesson to '{classroomName}'`,
+        }).$tr('copiedLessonTo', { classroomName }),
+        autoDismiss: true,
+      });
+    })
+    .catch(error => {
+      handleApiError(store, error);
+      logError(error);
+    });
+}

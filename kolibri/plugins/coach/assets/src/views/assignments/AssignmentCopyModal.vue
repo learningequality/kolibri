@@ -79,7 +79,7 @@
   };
 
   export default {
-    name: 'copyLessonModal',
+    name: 'assignmentCopyModal',
     components: {
       coreModal,
       kButton,

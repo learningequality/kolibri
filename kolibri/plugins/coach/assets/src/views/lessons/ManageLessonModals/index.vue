@@ -31,7 +31,7 @@
       :assignmentQuestion="$tr('assignmentQuestion')"
       :classId="classId"
       :classList="classList"
-      @copy="copyExam"
+      @copy="handleCopy"
       @cancel="setLessonsModal(null)"
     />
 
@@ -57,6 +57,7 @@
   import {
     setLessonsModal,
     updateLessonStatus,
+    copyLesson,
     deleteLesson,
   } from '../../../state/actions/lessons';
 
@@ -77,17 +78,33 @@
       handleChangeStatus(isActive) {
         this.updateLessonStatus(this.currentLesson.id, isActive);
       },
+      handleCopy(selectedClassroomId, selectedCollectionIds) {
+        const payload = {
+          title: this.$tr('copyOfLesson', { lessonTitle: this.currentLesson.title }).substring(
+            0,
+            50
+          ),
+          description: this.currentLesson.description,
+          resources: this.currentLesson.resources,
+          collection: selectedClassroomId,
+          lesson_assignments: selectedCollectionIds.map(id => ({ collection: id })),
+        };
+        this.copyLesson(payload, this.className);
+      },
     },
     vuex: {
       getters: {
         currentLesson: state => state.pageState.currentLesson,
         lessonsModalSet: state => state.pageState.lessonsModalSet,
         classId: state => state.classId,
+        classList: state => state.classList,
+        className: state => state.className,
       },
       actions: {
         setLessonsModal,
         updateLessonStatus,
         deleteLesson,
+        copyLesson,
       },
     },
     $trs: {
@@ -101,6 +118,7 @@
       editLessonDetails: 'Edit lesson details',
       newLesson: 'New lesson',
       saveLessonError: 'There was a problem saving this lesson',
+      copyOfLesson: 'Copy of  { lessonTitle }',
     },
   };
 
