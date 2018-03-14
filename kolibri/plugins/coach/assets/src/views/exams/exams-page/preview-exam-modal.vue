@@ -65,7 +65,7 @@
 
 <script>
 
-  import * as examActions from '../../../state/actions/exam';
+  import { setExamsModal } from '../../../state/actions/exam';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
   import coreModal from 'kolibri.coreVue.components.coreModal';
@@ -184,7 +184,7 @@
         return this.questions.filter(q => q.contentId === exerciseId);
       },
     },
-    vuex: { actions: { setExamsModal: examActions.setExamsModal } },
+    vuex: { actions: { setExamsModal } },
   };
 
 </script>

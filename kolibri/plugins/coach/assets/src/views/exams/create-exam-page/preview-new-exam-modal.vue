@@ -20,7 +20,7 @@
 
 <script>
 
-  import { displayExamModal } from '../../state/actions/exam';
+  import { setExamsModal } from '../../../state/actions/exam';
   import previewExamModal from '../exams-page/preview-exam-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
@@ -50,10 +50,10 @@
     },
     methods: {
       close() {
-        this.displayExamModal(false);
+        this.setExamsModal(false);
       },
     },
-    vuex: { actions: { displayExamModal } },
+    vuex: { actions: { setExamsModal } },
   };
 
 </script>
