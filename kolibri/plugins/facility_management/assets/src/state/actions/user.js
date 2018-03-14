@@ -9,6 +9,8 @@ import {
 
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 
+import { currentUserId } from 'kolibri.coreVue.vuex.getters';
+
 import { PageNames } from '../../constants';
 
 import { _userState, _managePageTitle } from './helpers/mappers';
@@ -23,19 +25,36 @@ import displayModal from './helpers/displayModal';
  * @param {string} user.kind
  * Needed: id, facility, kind
  */
-function assignUserRole(user, kind) {
-  return RoleResource.createModel({
-    user: user.id,
-    collection: user.facility,
-    kind,
-  })
-    .save()
-    .then(roleModel => {
-      // add role to user's attribute here to limit API call
-      user.roles.push(roleModel);
-      return user;
+function setUserRole(user, kind) {
+  function createNewUserRole() {
+    if (!kind || kind === UserKinds.LEARNER) {
+      return Promise.resolve(user);
+    }
+    return RoleResource.createModel({
+      user: user.id,
+      collection: user.facility,
+      kind,
     })
-    .catch(error => handleApiError(error));
+      .save()
+      .then(roleModel => {
+        // add role to user's attribute here to limit API call
+        user.roles.push(roleModel);
+        return user;
+      })
+      .catch(error => handleApiError(error));
+  }
+
+  if (user.roles.length) {
+    return Promise.all(user.roles.map(({ id }) => RoleResource.getModel(id).delete()))
+      .then(() => {
+        user.roles = [];
+        return createNewUserRole();
+      })
+      .catch(error => handleApiError(error));
+  }
+  return createNewUserRole();
+  // roles exist. delete them, then create new one
+  // no role exists,
 }
 
 /**
@@ -63,7 +82,7 @@ export function createUser(store, stateUserData) {
       }
       // only runs if there's a role to be assigned
       if (stateUserData.kind !== UserKinds.LEARNER) {
-        return assignUserRole(userModel, stateUserData.kind).then(user => dispatchUser(user));
+        return setUserRole(userModel, stateUserData.kind).then(user => dispatchUser(user));
       } else {
         // no role to assigned
         return dispatchUser(userModel);
@@ -82,7 +101,7 @@ export function updateUser(store, userId, userUpdates) {
   store.dispatch('SET_ERROR', '');
   store.dispatch('SET_BUSY', true);
   const savedUserModel = FacilityUserResource.getModel(userId);
-  const savedUser = savedUserModel.attributes;
+  const savedUser = { ...savedUserModel.attributes };
 
   // explicit checks for the only values that can be changed
   const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);
@@ -103,74 +122,38 @@ export function updateUser(store, userId, userUpdates) {
   if (Object.getOwnPropertyNames(changedValues).length === 0) {
     displayModal(store, false);
   } else {
-    let roleAssigned = Promise.resolve(savedUser);
-
-    if (changedValues.kind) {
-      // assumes there's no previous roles to delete at first
-      let handlePreviousRoles = Promise.resolve();
-
-      if (savedUser.roles.length) {
-        // delete the old role models if this was not a learner
-        handlePreviousRoles = Promise.all(
-          savedUser.roles.map(({ id }) => RoleResource.getModel(id).delete())
-        ).then(
-          () => {
-            // to avoid having to make an API call, clear manually
-            savedUser.roles = [];
-          },
-          // models could not be deleted
-          error => error
-        );
-      }
-
-      // then assign the new role
-      // Take care of previous roles if necessary (will autoresolve if not)
-      roleAssigned = handlePreviousRoles.then(
-        () => {
-          // only need to assign a new role if not a learner
-          if (changedValues.kind !== UserKinds.LEARNER) {
-            assignUserRole(savedUser, changedValues.kind).then(
-              updated => updated,
-              error => handleApiError(store, error)
-            );
-          } else {
-            // new role is learner - having deleted old roles is enough
-            return savedUser;
-          }
-        },
-        error => handleApiError(error)
-      );
-    }
-
-    roleAssigned.then(() => {
-      // payload needs username, fullname, and facility
-      // update user object with new values
-      savedUserModel.save(changedValues).then(
-        userWithAttrs => {
-          // dispatch changes to store
-          store.dispatch('UPDATE_USERS', [_userState(userWithAttrs)]);
-          displayModal(store, false);
-          const currentUser = store.state.pageState.facilityUsers.find(
-            user => user.id === store.state.core.session.user_id
-          );
-          if (currentUser.id === userId && changedValues.kind) {
+    return savedUserModel.save(changedValues).then(
+      userWithAttrs => {
+        if (changedValues.kind) {
+          if (currentUserId(store.state) === userId) {
+            // keep superuser if present
             const newCurrentUserKind = store.state.core.session.kind.filter(
               kind => kind === UserKinds.SUPERUSER
             );
+
             newCurrentUserKind.push(changedValues.kind);
+
             store.dispatch('UPDATE_CURRENT_USER_KIND', newCurrentUserKind);
           }
-        },
-        error => {
-          if (error.status.code === 400) {
-            store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
-          } else if (error.status.code === 403) {
-            store.dispatch('SET_ERROR', error.entity);
-          }
-          store.dispatch('SET_BUSY', false);
+          return setUserRole(savedUser, changedValues.kind).then(userWithRole => {
+            store.dispatch('UPDATE_USERS', [_userState(userWithRole)]);
+            displayModal(store, false);
+          });
         }
-      );
-    });
+        // dispatch changes to store
+        store.dispatch('UPDATE_USERS', [_userState(userWithAttrs)]);
+
+        displayModal(store, false);
+      },
+      error => {
+        if (error.status.code === 400) {
+          store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
+        } else if (error.status.code === 403) {
+          store.dispatch('SET_ERROR', error.entity);
+        }
+        store.dispatch('SET_BUSY', false);
+      }
+    );
   }
 }
 
