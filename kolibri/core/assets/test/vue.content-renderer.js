@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import Vue from 'vue-test';
+import Vue from 'vue-test'; // eslint-disable-line
 import contentRenderer from '../src/views/content-renderer';
 import { mount } from 'avoriaz';
 import assert from 'assert';

@@ -36,6 +36,11 @@ export default [
     },
   },
   {
+    name: PageNames.CLASS_ROOT,
+    path: '/:classId/',
+    redirect: '/:classId/learners/',
+  },
+  {
     name: PageNames.EXAMS,
     path: '/:classId/exams',
     handler: toRoute => {
@@ -51,7 +56,7 @@ export default [
   },
   {
     name: PageNames.EXAM_REPORT,
-    path: '/:classId/:channelId/exams/:examId',
+    path: '/:classId/exams/:channelId/:examId',
     handler: toRoute => {
       showExamReportPage(
         store,
@@ -63,12 +68,12 @@ export default [
   },
   {
     name: PageNames.EXAM_REPORT_DETAIL_ROOT,
-    path: '/:classId/:channelId/exams/:examId/users/:userId',
-    redirect: '/:classId/:channelId/exams/:examId/users/:userId/0/0',
+    path: '/:classId/exams/:channelId/:examId/users/:userId',
+    redirect: '/:classId/exams/:channelId/:examId/users/:userId/0/0',
   },
   {
     name: PageNames.EXAM_REPORT_DETAIL,
-    path: '/:classId/:channelId/exams/:examId/users/:userId/:question/:interaction',
+    path: '/:classId/exams/:channelId/:examId/users/:userId/:question/:interaction',
     handler: toRoute => {
       showExamReportDetailPage(
         store,

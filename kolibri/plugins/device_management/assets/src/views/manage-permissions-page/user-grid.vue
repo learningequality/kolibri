@@ -23,7 +23,7 @@
               :permissionType="getPermissionType(user.id)"
             />
           </td>
-          <td>
+          <td class="core-table-main-col">
             {{ user.full_name }}
             <span v-if="isCurrentUser(user.username)"> ({{ $tr('you') }})</span>
           </td>

@@ -35,11 +35,12 @@
 
 ### Contributor Checklist
 
+- [ ] Contributor has fully tested the PR manually
 - [ ] PR has the correct target branch and milestone
 - [ ] PR has 'needs review' or 'work-in-progress' label
-- [ ] Contributor has fully tested the PR manually
-- [ ] Screenshots of any front-end changes are in the PR description
 - [ ] If PR is ready for review, a reviewer has been added. (Don't use 'Assignees')
+- [ ] If there are any front-end changes, before/after screenshots are included
+- [ ] If this is an important user-facing change, PR or related issue has a 'changelog' label
 
 ### Reviewer Checklist
 

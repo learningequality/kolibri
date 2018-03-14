@@ -16,10 +16,12 @@
     <div v-if="tabLinksAreVisible" class="k-navbar-links">
       <k-navbar>
         <k-navbar-link
+          name="classes-link"
+          v-if="isUserLoggedIn && userHasMemberships"
           type="icon-and-title"
-          :title="$tr('recommended')"
-          icon="forum"
-          :link="recommendedLink"
+          :title="$tr('classes')"
+          icon="business"
+          :link="allClassesLink"
         />
         <k-navbar-link
           type="icon-and-title"
@@ -28,12 +30,10 @@
           :link="channelsLink"
         />
         <k-navbar-link
-          name="classes-link"
-          v-if="isUserLoggedIn && userHasMemberships"
           type="icon-and-title"
-          :title="$tr('classes')"
-          icon="business"
-          :link="allClassesLink"
+          :title="$tr('recommended')"
+          icon="forum"
+          :link="recommendedLink"
         />
       </k-navbar>
     </div>

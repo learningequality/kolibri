@@ -42,8 +42,7 @@
       <k-button
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
-        :primary="false"
-        appearance="flat-button"
+        :primary="true"
         @click="endTask()"
         :disabled="uiBlocked"
       />

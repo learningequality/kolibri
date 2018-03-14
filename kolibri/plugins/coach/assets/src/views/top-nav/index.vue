@@ -3,18 +3,6 @@
   <k-navbar>
     <k-navbar-link
       type="icon-and-title"
-      :title="$tr('channels')"
-      icon="apps"
-      :link="channelsLink"
-    />
-    <k-navbar-link
-      type="icon-and-title"
-      :title="$tr('recent')"
-      icon="access_time"
-      :link="recentLink"
-    />
-    <k-navbar-link
-      type="icon-and-title"
       :title="$tr('learners')"
       icon="people"
       :link="learnersLink"
@@ -27,15 +15,27 @@
     />
     <k-navbar-link
       type="icon-and-title"
+      :title="$tr('lessons')"
+      icon="import_contacts"
+      :link="lessonsLink"
+    />
+    <k-navbar-link
+      type="icon-and-title"
       :title="$tr('exams')"
       icon="assignment_late"
       :link="examsLink"
     />
     <k-navbar-link
       type="icon-and-title"
-      :title="$tr('lessons')"
-      icon="import_contacts"
-      :link="lessonsLink"
+      :title="$tr('recent')"
+      icon="access_time"
+      :link="recentLink"
+    />
+    <k-navbar-link
+      type="icon-and-title"
+      :title="$tr('channels')"
+      icon="apps"
+      :link="channelsLink"
     />
   </k-navbar>
 

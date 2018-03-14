@@ -6,16 +6,16 @@
 */
 module.exports = function(locale) {
   switch (locale) {
+    case 'ar':
+      return new Promise(function(resolve) {
+        require.ensure(['vue-intl/locale-data/ar.js'], function(require) {
+          resolve(require('vue-intl/locale-data/ar.js'));
+        });
+      });
     case 'en':
       return new Promise(function(resolve) {
         require.ensure(['vue-intl/locale-data/en.js'], function(require) {
           resolve(require('vue-intl/locale-data/en.js'));
-        });
-      });
-    case 'sw-TZ':
-      return new Promise(function(resolve) {
-        require.ensure(['vue-intl/locale-data/sw.js'], function(require) {
-          resolve(require('vue-intl/locale-data/sw.js'));
         });
       });
     case 'es-ES':
@@ -24,22 +24,28 @@ module.exports = function(locale) {
           resolve(require('vue-intl/locale-data/es.js'));
         });
       });
+    case 'fa':
+      return new Promise(function(resolve) {
+        require.ensure(['vue-intl/locale-data/fa.js'], function(require) {
+          resolve(require('vue-intl/locale-data/fa.js'));
+        });
+      });
     case 'fr-FR':
       return new Promise(function(resolve) {
         require.ensure(['vue-intl/locale-data/fr.js'], function(require) {
           resolve(require('vue-intl/locale-data/fr.js'));
         });
       });
-    case 'ar':
+    case 'fr-HT':
       return new Promise(function(resolve) {
-        require.ensure(['vue-intl/locale-data/ar.js'], function(require) {
-          resolve(require('vue-intl/locale-data/ar.js'));
+        require.ensure(['vue-intl/locale-data/fr.js'], function(require) {
+          resolve(require('vue-intl/locale-data/fr.js'));
         });
       });
-    case 'fa':
+    case 'my':
       return new Promise(function(resolve) {
-        require.ensure(['vue-intl/locale-data/fa.js'], function(require) {
-          resolve(require('vue-intl/locale-data/fa.js'));
+        require.ensure(['vue-intl/locale-data/my.js'], function(require) {
+          resolve(require('vue-intl/locale-data/my.js'));
         });
       });
     case 'ur-PK':

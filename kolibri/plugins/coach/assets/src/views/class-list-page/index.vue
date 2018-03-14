@@ -18,12 +18,12 @@
         <tbody slot="tbody">
           <tr v-for="cl in sortedClasses" :key="cl.id">
             <td class="core-table-icon-col">
-              <ui-icon icon="people" />
+              <content-icon :kind="CLASSROOM" />
             </td>
             <th scope="row" class="core-table-main-col">
               <k-router-link
                 :text="cl.name"
-                :to="recentPageLink(cl.id)"
+                :to="learnerPageLink(cl.id)"
               />
             </th>
             <td>{{ cl.memberCount }}</td>
@@ -41,9 +41,10 @@
 
 <script>
 
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import uiIcon from 'keen-ui/src/UiIcon';
-  import * as constants from '../../constants';
+  import ContentIcon from 'kolibri.coreVue.components.contentIcon';
+  import { PageNames } from '../../constants';
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
@@ -51,10 +52,11 @@
     name: 'coachClassListPage',
     components: {
       CoreTable,
+      ContentIcon,
       kRouterLink,
-      uiIcon,
     },
     computed: {
+      CLASSROOM: () => ContentNodeKinds.CLASSROOM,
       sortedClasses() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
@@ -63,9 +65,9 @@
       },
     },
     methods: {
-      recentPageLink(id) {
+      learnerPageLink(id) {
         return {
-          name: constants.PageNames.TOPIC_CHANNELS,
+          name: PageNames.LEARNER_LIST,
           params: { classId: id },
         };
       },

@@ -61,7 +61,9 @@
               :autofocus="simpleSignIn"
               :invalid="passwordIsInvalid"
               :invalidText="passwordIsInvalidText"
+              :floatingLabel="!autoFilledByChromeAndNotEdited"
               @blur="passwordBlurred = true"
+              @input="handlePasswordChanged"
               v-model="password"
             />
           </transition>
@@ -161,6 +163,7 @@
         usernameBlurred: false,
         passwordBlurred: false,
         formSubmitted: false,
+        autoFilledByChromeAndNotEdited: false,
       };
     },
     computed: {
@@ -195,6 +198,10 @@
         return '';
       },
       passwordIsInvalid() {
+        // prevent validation from showing when we only think that the password is empty
+        if (this.autoFilledByChromeAndNotEdited) {
+          return false;
+        }
         return Boolean(this.passwordIsInvalidText);
       },
       formIsValid() {
@@ -222,6 +229,26 @@
     },
     watch: {
       username: 'setSuggestionTerm',
+    },
+    mounted() {
+      /*
+        Chrome has non-standard behavior with auto-filled text fields where
+        the value shows up as an empty string even though there is text in
+        the field:
+          https://bugs.chromium.org/p/chromium/issues/detail?id=669724
+        As super-brittle hack to detect the presence of auto-filled text and
+        work-around it, we look for a change in background color as described
+        here:
+          https://stackoverflow.com/a/35783761
+      */
+      setTimeout(() => {
+        const bgColor = window.getComputedStyle(this.$refs.username.$el.querySelector('input'))
+          .backgroundColor;
+
+        if (bgColor === 'rgb(250, 255, 189)') {
+          this.autoFilledByChromeAndNotEdited = true;
+        }
+      }, 250);
     },
     methods: {
       closeFacilityModal() {
@@ -323,6 +350,9 @@
         } else if (this.passwordIsInvalid) {
           this.$refs.password.focus();
         }
+      },
+      handlePasswordChanged() {
+        this.autoFilledByChromeAndNotEdited = false;
       },
     },
     vuex: {
