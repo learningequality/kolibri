@@ -63,7 +63,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
-  import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../reportConstants';
+  import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
   import { standardDataTable } from '../../state/getters/reports';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';

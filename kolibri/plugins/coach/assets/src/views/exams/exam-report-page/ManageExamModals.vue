@@ -61,8 +61,8 @@
   import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
-  import { Modals as ExamModals } from '../../../examConstants';
-  import { AssignmentActions } from '../../../assignmentsConstants';
+  import { Modals as ExamModals } from '../../../constants/examConstants';
+  import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import {
     setExamsModal,
     activateExam,

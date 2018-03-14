@@ -77,7 +77,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../../constants';
   import { exerciseCount, contentCount, standardDataTable } from '../../state/getters/reports';
-  import { TableColumns } from '../../reportConstants';
+  import { TableColumns } from '../../constants/reportConstants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
   import headerCell from './table-cells/header-cell';

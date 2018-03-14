@@ -116,8 +116,8 @@
   import { USER, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import { setExamsModal } from '../../../state/actions/exam';
-  import { Modals as ExamModals } from '../../../examConstants';
-  import { AssignmentActions } from '../../../assignmentsConstants';
+  import { Modals as ExamModals } from '../../../constants/examConstants';
+  import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import AssignmentSummary from '../../assignments/AssignmentSummary';
   import ManageExamModals from './ManageExamModals';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';

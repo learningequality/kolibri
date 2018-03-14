@@ -142,7 +142,7 @@
     setSelectedExercises,
   } from '../../../state/actions/exam';
   import { className } from '../../../state/getters/main';
-  import { Modals as ExamModals } from '../../../examConstants';
+  import { Modals as ExamModals } from '../../../constants/examConstants';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';

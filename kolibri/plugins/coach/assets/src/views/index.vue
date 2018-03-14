@@ -31,7 +31,7 @@
 <script>
 
   import { PageNames } from '../constants';
-  import { UserScopes } from '../reportConstants';
+  import { UserScopes } from '../constants/reportConstants';
   import { className } from '../state/getters/main';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
@@ -52,7 +52,7 @@
   import navTitle from './nav-title';
 
   // lessons
-  import { LessonsPageNames } from '../lessonsConstants';
+  import { LessonsPageNames } from '../constants/lessonsConstants';
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
   import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';

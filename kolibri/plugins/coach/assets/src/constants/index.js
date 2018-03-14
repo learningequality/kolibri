@@ -1,4 +1,4 @@
-const PageNames = {
+export const PageNames = {
   CLASS_LIST: 'CLASS_LIST',
   CLASS_ROOT: 'CLASS_ROOT',
   RECENT_CHANNELS: 'RECENT_CHANNELS',
@@ -27,14 +27,14 @@ const PageNames = {
   GROUPS: 'GROUPS',
 };
 
-const RecentReports = [
+export const RecentReports = [
   PageNames.RECENT_CHANNELS,
   PageNames.RECENT_ITEMS_FOR_CHANNEL,
   PageNames.RECENT_LEARNERS_FOR_ITEM,
   PageNames.RECENT_LEARNER_ITEM_DETAILS,
 ];
 
-const TopicReports = [
+export const TopicReports = [
   PageNames.TOPIC_CHANNELS,
   PageNames.TOPIC_CHANNEL_ROOT,
   PageNames.TOPIC_ITEM_LIST,
@@ -42,7 +42,7 @@ const TopicReports = [
   PageNames.TOPIC_LEARNER_ITEM_DETAILS,
 ];
 
-const LearnerReports = [
+export const LearnerReports = [
   PageNames.LEARNER_LIST,
   PageNames.LEARNER_CHANNELS,
   PageNames.LEARNER_CHANNEL_ROOT,
@@ -50,18 +50,16 @@ const LearnerReports = [
   PageNames.LEARNER_ITEM_DETAILS,
 ];
 
-const ExamPages = [
+export const ExamPages = [
   PageNames.EXAMS,
   PageNames.EXAM_REPORT,
   PageNames.EXAM_REPORT_DETAIL,
   PageNames.LEARNERS,
 ];
 
-const GroupModals = {
+export const GroupModals = {
   CREATE_GROUP: 'CREATE_GROUP',
   RENAME_GROUP: 'RENAME_GROUP',
   DELETE_GROUP: 'DELETE_GROUP',
   MOVE_LEARNERS: 'MOVE_LEARNERS',
 };
-
-export { PageNames, RecentReports, TopicReports, ExamPages, LearnerReports, GroupModals };

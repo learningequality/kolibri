@@ -1,4 +1,4 @@
-import { LessonsPageNames } from '../../lessonsConstants';
+import { LessonsPageNames } from '../../constants/lessonsConstants';
 import { getChannels } from 'kolibri.coreVue.vuex.getters';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { setClassState } from './main';

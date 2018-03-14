@@ -160,7 +160,7 @@
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { LessonsPageNames } from '../../lessonsConstants';
+  import { LessonsPageNames } from '../../constants/lessonsConstants';
 
   export default {
     name: 'lessonResourceUserSummaryPage',

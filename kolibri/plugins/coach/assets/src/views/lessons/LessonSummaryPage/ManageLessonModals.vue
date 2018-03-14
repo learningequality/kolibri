@@ -55,7 +55,7 @@
   import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
-  import { AssignmentActions } from '../../../assignmentsConstants';
+  import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import {
     setLessonsModal,
     updateLessonStatus,

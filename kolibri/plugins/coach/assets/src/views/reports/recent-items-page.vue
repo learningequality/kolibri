@@ -58,7 +58,7 @@
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { PageNames } from '../../constants';
-  import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../reportConstants';
+  import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import * as mainGetters from '../../state/getters/main';
   import * as reportGetters from '../../state/getters/reports';

@@ -99,23 +99,6 @@
       progressBar,
       progressIcon,
     },
-    computed: {
-      lastActiveDate() {
-        if (this.lastActive) {
-          return this.$tr('lastActiveText', [new Date(this.lastActive)]);
-        }
-        return '\u2013';
-      },
-      Kinds() {
-        return ContentNodeKinds;
-      },
-      isInProgress() {
-        return this.contentProgress > 0 && this.contentProgress < 1;
-      },
-      isCompleted() {
-        return this.contentProgress === 1;
-      },
-    },
     props: {
       kind: {
         type: String,
@@ -152,6 +135,23 @@
       isRecentView: {
         type: Boolean,
         required: true,
+      },
+    },
+    computed: {
+      lastActiveDate() {
+        if (this.lastActive) {
+          return this.$tr('lastActiveText', [new Date(this.lastActive)]);
+        }
+        return '\u2013';
+      },
+      Kinds() {
+        return ContentNodeKinds;
+      },
+      isInProgress() {
+        return this.contentProgress > 0 && this.contentProgress < 1;
+      },
+      isCompleted() {
+        return this.contentProgress === 1;
       },
     },
   };

@@ -29,7 +29,7 @@
 <script>
 
   import { sortColumn, sortOrder } from '../../../state/getters/reports';
-  import { SortOrders } from '../../../reportConstants';
+  import { SortOrders } from '../../../constants/reportConstants';
   import { setReportSorting } from '../../../state/actions/reports';
 
   export default {
