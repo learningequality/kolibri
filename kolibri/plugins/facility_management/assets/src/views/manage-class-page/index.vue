@@ -128,12 +128,20 @@
       actions: { displayModal },
     },
     $trs: {
+      // TODO kill
       allClasses: 'All classes',
+      adminClassPageHeader: 'Classes',
+      adminClassPageSubheader: 'View and manage your classes',
       addNew: 'Add new class',
       deleteClass: 'Delete class',
       className: 'Class name',
       classes: 'Users',
+      // TODO kill
       members: 'Members',
+      learnersTableColumnHeader: 'Learners',
+      coachesTableColumnHeader: 'Coaches',
+      extraUserCountLabel:
+        '{numberOfUsers, number} {numberOfUsers, plural, one {other}, other {others}',
       actions: 'Actions',
       noClassesExist: 'No classes exist.',
     },
