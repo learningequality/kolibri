@@ -24,22 +24,18 @@ import displayModal from './helpers/displayModal';
  * Needed: id, facility, kind
  */
 function assignUserRole(user, kind) {
-  return new Promise((resolve, reject) => {
-    RoleResource.createModel({
-      user: user.id,
-      collection: user.facility,
-      kind,
+  return RoleResource.createModel({
+    user: user.id,
+    collection: user.facility,
+    kind,
+  })
+    .save()
+    .then(roleModel => {
+      // add role to user's attribute here to limit API call
+      user.roles.push(roleModel);
+      return user;
     })
-      .save()
-      .then(
-        roleModel => {
-          // add role to user's attribute here to limit API call
-          user.roles.push(roleModel);
-          resolve(user);
-        },
-        error => reject(error)
-      );
-  });
+    .catch(error => handleApiError(error));
 }
 
 /**
@@ -48,41 +44,32 @@ function assignUserRole(user, kind) {
  *  Needed: username, full_name, facility, role, password
  */
 export function createUser(store, stateUserData) {
-  return new Promise((resolve, reject) => {
-    FacilityUserResource.createModel({
-      facility: store.state.core.session.facility_id,
-      username: stateUserData.username,
-      full_name: stateUserData.full_name,
-      password: stateUserData.password,
+  // resolves with user object
+  return FacilityUserResource.createModel({
+    facility: store.state.core.session.facility_id,
+    username: stateUserData.username,
+    full_name: stateUserData.full_name,
+    password: stateUserData.password,
+  })
+    .save()
+    .then(userModel => {
+      function dispatchUser(newUser) {
+        const userState = _userState(newUser);
+        store.dispatch('ADD_USER', userState);
+        // TODO to be removed
+        store.dispatch('SET_USER_JUST_CREATED', userState);
+        displayModal(store, false);
+        return userState;
+      }
+      // only runs if there's a role to be assigned
+      if (stateUserData.kind !== UserKinds.LEARNER) {
+        return assignUserRole(userModel, stateUserData.kind).then(user => dispatchUser(user));
+      } else {
+        // no role to assigned
+        return dispatchUser(userModel);
+      }
     })
-      .save()
-      .then(
-        userModel => {
-          // only runs if there's a role to be assigned
-          if (stateUserData.kind !== UserKinds.LEARNER) {
-            assignUserRole(userModel, stateUserData.kind).then(
-              userWithRole => resolve(userWithRole),
-              error => reject(error)
-            );
-          } else {
-            // no role to assigned
-            resolve(userModel);
-          }
-        },
-        error => reject(error)
-      );
-  }).then(
-    // dispatch newly created user
-    newUser => {
-      const userState = _userState(newUser);
-      store.dispatch('ADD_USER', userState);
-      // TODO to be removed
-      store.dispatch('SET_USER_JUST_CREATED', userState);
-      displayModal(store, false);
-    },
-    // send back error if necessary
-    error => Promise.reject(error)
-  );
+    .catch(error => handleApiError(error));
 }
 
 /**
@@ -137,24 +124,22 @@ export function updateUser(store, userId, userUpdates) {
       }
 
       // then assign the new role
-      roleAssigned = new Promise((resolve, reject) => {
-        // Take care of previous roles if necessary (will autoresolve if not)
-        handlePreviousRoles.then(
-          () => {
-            // only need to assign a new role if not a learner
-            if (changedValues.kind !== UserKinds.LEARNER) {
-              assignUserRole(savedUser, changedValues.kind).then(
-                updated => resolve(updated),
-                error => handleApiError(store, error)
-              );
-            } else {
-              // new role is learner - having deleted old roles is enough
-              resolve(savedUserModel);
-            }
-          },
-          error => reject(error)
-        );
-      });
+      // Take care of previous roles if necessary (will autoresolve if not)
+      roleAssigned = handlePreviousRoles.then(
+        () => {
+          // only need to assign a new role if not a learner
+          if (changedValues.kind !== UserKinds.LEARNER) {
+            assignUserRole(savedUser, changedValues.kind).then(
+              updated => updated,
+              error => handleApiError(store, error)
+            );
+          } else {
+            // new role is learner - having deleted old roles is enough
+            return savedUser;
+          }
+        },
+        error => handleApiError(error)
+      );
     }
 
     roleAssigned.then(() => {
