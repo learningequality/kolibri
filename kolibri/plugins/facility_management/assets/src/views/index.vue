@@ -42,6 +42,8 @@
     $trs: {
       facilityTitle: 'Facility',
       adminOrSuperuser: 'You must be signed in as an admin or superuser to view this page',
+      // here because going to use immersive-page
+      detailPageReturnPrompt: 'Class details',
     },
     name: 'managementRoot',
     components: {

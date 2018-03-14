@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <!-- TODO breakout for reusability within immersive page -->
     <k-grid class="top-buttons">
       <k-grid-item
         size="1"
@@ -191,12 +192,16 @@
     },
     mixins: [responsiveWindow],
     $trs: {
+      // TODO kill
       backToClassDetails: 'Back to class details',
+      // TODO kill
       enrollSelectedUsers: 'Review & save',
+      confirmSelectionButtonLabel: 'Confirm',
       selectLearners: 'Select users to enroll in {className}',
       showingAllUnassigned: 'Showing all users currently not enrolled in this class',
       searchForUser: 'Search for a user',
       createNewUser: 'New user account',
+      userIconColumnHeader: 'User Icon',
       name: 'Full name',
       username: 'Username',
       selectedUsers: 'Show selected users',
