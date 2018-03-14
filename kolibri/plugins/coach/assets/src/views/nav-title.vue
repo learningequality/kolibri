@@ -28,6 +28,8 @@
     name: 'classSelector',
     $trs: {
       allClasses: 'All classes',
+      coachPageHeader: 'Classes',
+      coachListLabel: 'Coaches:',
     },
     components: {
       kRouterLink,
