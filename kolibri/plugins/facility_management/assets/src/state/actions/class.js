@@ -17,12 +17,10 @@ import preparePage from './helpers/preparePage';
  * @param {string} name
  */
 export function createClass(store, name) {
-  const classData = {
+  ClassroomResource.createModel({
     name,
     parent: store.state.core.session.facility_id,
-  };
-
-  ClassroomResource.createModel(classData)
+  })
     .save()
     .then(
       classModel => {
@@ -46,17 +44,17 @@ export function updateClass(store, id, updateData) {
     // if no id or empty updateData passed, abort the function
     return;
   }
-  const classModel = ClassroomResource.getModel(id);
-
-  classModel.save(updateData).then(
-    response => {
-      store.dispatch('UPDATE_CLASS', id, response);
-      displayModal(store, false);
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+  ClassroomResource.getModel(id)
+    .save(updateData)
+    .then(
+      response => {
+        store.dispatch('UPDATE_CLASS', id, response);
+        displayModal(store, false);
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
 }
 
 /**
@@ -83,15 +81,14 @@ export function deleteClass(store, id) {
 
 export function enrollUsersInClass(store, classId, users) {
   // TODO no error handling
-  const memberships = users.map(userId => ({
-    collection: classId,
-    user: userId,
-  }));
   return MembershipResource.createCollection(
     {
       collection: classId,
     },
-    memberships
+    users.map(userId => ({
+      collection: classId,
+      user: userId,
+    }))
   ).save();
 }
 
@@ -122,24 +119,21 @@ export function showClassesPage(store) {
     name: PageNames.CLASS_MGMT_PAGE,
     title: 'Classes',
   });
-  const classCollection = ClassroomResource.getCollection();
-  const classPromise = classCollection.fetch({}, true);
-  const promises = [classPromise];
-  ConditionalPromise.all(promises).only(
-    samePageCheckGenerator(store),
-    ([classes]) => {
-      const pageState = {
-        modalShown: false,
-        classes: classes.map(_classState),
-      };
-
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+  ClassroomResource.getCollection()
+    .fetch({}, true)
+    .only(
+      samePageCheckGenerator(store),
+      classes => {
+        store.dispatch('SET_PAGE_STATE', {
+          modalShown: false,
+          classes: classes.map(_classState),
+        });
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
 }
 
 export function showClassEditPage(store, classId) {

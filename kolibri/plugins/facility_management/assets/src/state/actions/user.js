@@ -7,8 +7,6 @@ import {
   handleApiError,
 } from 'kolibri.coreVue.vuex.actions';
 
-import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 
 import { PageNames } from '../../constants';
@@ -26,14 +24,12 @@ import displayModal from './helpers/displayModal';
  * Needed: id, facility, kind
  */
 function assignUserRole(user, kind) {
-  const rolePayload = {
-    user: user.id,
-    collection: user.facility,
-    kind,
-  };
-
   return new Promise((resolve, reject) => {
-    RoleResource.createModel(rolePayload)
+    RoleResource.createModel({
+      user: user.id,
+      collection: user.facility,
+      kind,
+    })
       .save()
       .then(
         roleModel => {
@@ -52,15 +48,13 @@ function assignUserRole(user, kind) {
  *  Needed: username, full_name, facility, role, password
  */
 export function createUser(store, stateUserData) {
-  const userData = {
-    facility: store.state.core.session.facility_id,
-    username: stateUserData.username,
-    full_name: stateUserData.full_name,
-    password: stateUserData.password,
-  };
-
   return new Promise((resolve, reject) => {
-    FacilityUserResource.createModel(userData)
+    FacilityUserResource.createModel({
+      facility: store.state.core.session.facility_id,
+      username: stateUserData.username,
+      full_name: stateUserData.full_name,
+      password: stateUserData.password,
+    })
       .save()
       .then(
         userModel => {
@@ -82,6 +76,7 @@ export function createUser(store, stateUserData) {
     newUser => {
       const userState = _userState(newUser);
       store.dispatch('ADD_USER', userState);
+      // TODO to be removed
       store.dispatch('SET_USER_JUST_CREATED', userState);
       displayModal(store, false);
     },
@@ -128,10 +123,10 @@ export function updateUser(store, userId, userUpdates) {
       let handlePreviousRoles = Promise.resolve();
 
       if (savedUser.roles.length) {
-        const roleDeletes = savedUser.roles.map(({ id }) => RoleResource.getModel(id).delete());
-
         // delete the old role models if this was not a learner
-        handlePreviousRoles = Promise.all(roleDeletes).then(
+        handlePreviousRoles = Promise.all(
+          savedUser.roles.map(({ id }) => RoleResource.getModel(id).delete())
+        ).then(
           () => {
             // to avoid having to make an API call, clear manually
             savedUser.roles = [];
@@ -226,25 +221,21 @@ export function showUserPage(store) {
     title: _managePageTitle('Users'),
   });
 
-  const userCollection = FacilityUserResource.getCollection();
-  const userPromise = userCollection.fetch({}, true);
-
-  const promises = [userPromise];
-
-  ConditionalPromise.all(promises).only(
-    samePageCheckGenerator(store),
-    ([users]) => {
-      const pageState = {
-        facilityUsers: users.map(_userState),
-        modalShown: false,
-        error: '',
-        isBusy: false,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+  FacilityUserResource.getCollection()
+    .fetch({}, true)
+    .only(
+      samePageCheckGenerator(store),
+      users => {
+        store.dispatch('SET_PAGE_STATE', {
+          facilityUsers: users.map(_userState),
+          modalShown: false,
+          error: '',
+          isBusy: false,
+        });
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
 }
