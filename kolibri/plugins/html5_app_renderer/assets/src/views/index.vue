@@ -22,9 +22,12 @@
 
   import ScreenFull from 'screenfull';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
+
   export default {
     name: 'html5Renderer',
     components: { kButton },
+    mixins: [contentRendererMixin],
     props: {
       defaultFile: {
         type: Object,
