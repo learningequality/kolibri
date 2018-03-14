@@ -45,11 +45,11 @@ export function showGroupsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.GROUPS);
   const promises = [
-    FacilityUserResource.getCollection({ member_of: classId, }).fetch({}, true),
-    LearnerGroupResource.getCollection({ parent: classId, }).fetch({}, true),
+    FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
+    LearnerGroupResource.getCollection({ parent: classId }).fetch({}, true),
     FacilityUserResource.getCurrentFacility(),
     setClassState(store, classId),
-  ]
+  ];
   return ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([classUsers, groupsCollection]) => {
@@ -223,9 +223,9 @@ export function removeUsersFromGroup(store, groupId, userIds) {
 export function moveUsersBetweenGroups(store, currentGroupId, newGroupId, userIds) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const promises = [
-     _removeMultipleUsersFromGroup(store, currentGroupId, userIds),
-     _addMultipleUsersToGroup(store, newGroupId, userIds),
-  ]
+    _removeMultipleUsersFromGroup(store, currentGroupId, userIds),
+    _addMultipleUsersToGroup(store, newGroupId, userIds),
+  ];
   return Promise.all(promises).then(
     () => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
