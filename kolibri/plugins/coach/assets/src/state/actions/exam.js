@@ -156,7 +156,7 @@ export function showExamsPage(store, classId) {
 }
 
 export function activateExam(store, examId) {
-  ExamResource.getModel(examId)
+  return ExamResource.getModel(examId)
     .save({ active: true })
     .then(
       () => {
@@ -179,7 +179,7 @@ export function activateExam(store, examId) {
 }
 
 export function deactivateExam(store, examId) {
-  ExamResource.getModel(examId)
+  return ExamResource.getModel(examId)
     .save({ active: false })
     .then(
       () => {
@@ -202,12 +202,11 @@ export function deactivateExam(store, examId) {
 }
 
 function _assignExamTo(examId, collection) {
-  const assignmentPayload = {
-    exam: examId,
-    collection: collection.id,
-  };
   return new Promise((resolve, reject) => {
-    ExamAssignmentResource.createModel(assignmentPayload)
+    ExamAssignmentResource.createModel({
+      exam: examId,
+      collection: collection.id,
+    })
       .save()
       .then(assignment => resolve(assignment), error => reject(error));
   });
@@ -276,7 +275,7 @@ export function previewExam(store) {
 }
 
 export function renameExam(store, examId, newExamTitle) {
-  ExamResource.getModel(examId)
+  return ExamResource.getModel(examId)
     .save({ title: newExamTitle })
     .then(
       () => {
@@ -292,7 +291,7 @@ export function renameExam(store, examId, newExamTitle) {
 }
 
 export function deleteExam(store, examId) {
-  ExamResource.getModel(examId)
+  return ExamResource.getModel(examId)
     .delete()
     .then(
       () => {
@@ -496,15 +495,14 @@ export function setSelectedExercises(store, selectedExercises) {
 
 export function createExam(store, classCollection, examObj) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  const examPayload = {
+  return ExamResource.createModel({
     collection: examObj.classId,
     channel_id: examObj.channelId,
     title: examObj.title,
     question_count: examObj.numQuestions,
     question_sources: examObj.questionSources,
     seed: examObj.seed,
-  };
-  ExamResource.createModel(examPayload)
+  })
     .save()
     .then(
       exam => {
@@ -570,14 +568,13 @@ export function showExamReportPage(store, classId, examId) {
               closed: examTakenByUser.closed,
             };
           });
-          const pageState = {
+          store.dispatch('SET_PAGE_STATE', {
             examTakers,
             exam,
             examsModalSet: null,
             exams,
             learnerGroups,
-          };
-          store.dispatch('SET_PAGE_STATE', pageState);
+          });
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', exam.title);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -685,7 +682,7 @@ export function showExamReportDetailPage(
             const currentAttempt = allQuestions[questionNumber];
             const currentInteractionHistory = currentAttempt.interaction_history;
             const currentInteraction = currentInteractionHistory[interactionIndex];
-            const pageState = {
+            store.dispatch('SET_PAGE_STATE', {
               exam: _examState(exam),
               itemId,
               questions,
@@ -699,9 +696,7 @@ export function showExamReportDetailPage(
               user,
               examAttempts: allQuestions,
               examLog,
-            };
-
-            store.dispatch('SET_PAGE_STATE', pageState);
+            });
             store.dispatch('CORE_SET_ERROR', null);
             store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamReportDetailPageTitle'));
             store.dispatch('CORE_SET_PAGE_LOADING', false);
