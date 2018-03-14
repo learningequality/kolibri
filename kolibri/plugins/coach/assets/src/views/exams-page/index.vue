@@ -211,23 +211,23 @@
         Object.assign(this.selectedExam, this.sortedExams.find(exam => exam.id === examId));
       },
       openCreateExamModal() {
-        this.displayExamModal(ExamModals.CREATE_EXAM);
+        this.setExamsModal(ExamModals.CREATE_EXAM);
       },
       openChangeExamVisibilityModal(examId) {
         this.setSelectedExam(examId);
-        this.displayExamModal(ExamModals.CHANGE_EXAM_VISIBILITY);
+        this.setExamsModal(ExamModals.CHANGE_EXAM_VISIBILITY);
       },
       openActivateExamModal(examId) {
         this.setSelectedExam(examId);
-        this.displayExamModal(ExamModals.ACTIVATE_EXAM);
+        this.setExamsModal(ExamModals.ACTIVATE_EXAM);
       },
       openDeactivateExamModal(examId) {
         this.setSelectedExam(examId);
-        this.displayExamModal(ExamModals.DEACTIVATE_EXAM);
+        this.setExamsModal(ExamModals.DEACTIVATE_EXAM);
       },
       openPreviewExamModal(examId) {
         this.setSelectedExam(examId);
-        this.displayExamModal(ExamModals.PREVIEW_EXAM);
+        this.setExamsModal(ExamModals.PREVIEW_EXAM);
       },
       routeToExamReport({ id, channelId }) {
         this.$router.push({
@@ -241,15 +241,15 @@
       },
       openRenameExamModal(examId) {
         this.setSelectedExam(examId);
-        this.displayExamModal(ExamModals.RENAME_EXAM);
+        this.setExamsModal(ExamModals.RENAME_EXAM);
       },
       openDeleteExamModal(examId) {
         this.setSelectedExam(examId);
-        this.displayExamModal(ExamModals.DELETE_EXAM);
+        this.setExamsModal(ExamModals.DELETE_EXAM);
       },
     },
     vuex: {
-      actions: { displayExamModal: ExamActions.displayExamModal },
+      actions: { setExamsModal: ExamActions.setExamsModal },
       getters: {
         classId: state => state.classId,
         className,

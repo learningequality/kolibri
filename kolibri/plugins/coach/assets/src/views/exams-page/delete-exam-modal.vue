@@ -24,7 +24,7 @@
 
 <script>
 
-  import { displayExamModal, deleteExam } from '../../state/actions/exam';
+  import { setExamsModal, deleteExam } from '../../state/actions/exam';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   export default {
@@ -56,12 +56,12 @@
     },
     methods: {
       close() {
-        this.displayExamModal(false);
+        this.setExamsModal(false);
       },
     },
     vuex: {
       actions: {
-        displayExamModal,
+        setExamsModal,
         deleteExam,
       },
     },

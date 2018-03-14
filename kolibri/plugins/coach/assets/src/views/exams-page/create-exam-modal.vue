@@ -31,7 +31,7 @@
 
 <script>
 
-  import { displayExamModal } from '../../state/actions/exam';
+  import { setExamsModal } from '../../state/actions/exam';
   import { PageNames } from '../../constants';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -82,10 +82,10 @@
         });
       },
       close() {
-        this.displayExamModal(false);
+        this.setExamsModal(false);
       },
     },
-    vuex: { actions: { displayExamModal } },
+    vuex: { actions: { setExamsModal } },
   };
 
 </script>
