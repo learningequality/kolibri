@@ -2,21 +2,13 @@
 import Vue from 'vue-test'; // eslint-disable-line
 import { mockResource } from 'testUtils'; // eslint-disable-line
 import sinon from 'sinon';
-import {
-  ChannelResource,
-  ClassroomResource,
-  ContentNodeResource,
-  ExamResource,
-  LearnerGroupResource,
-} from 'kolibri.resources';
+import { ClassroomResource, ContentNodeResource, ExamResource } from 'kolibri.resources';
 
 import * as examActions from '../src/state/actions/exam';
 
-mockResource(ChannelResource);
 mockResource(ClassroomResource);
 mockResource(ContentNodeResource);
 mockResource(ExamResource);
-mockResource(LearnerGroupResource);
 
 // fakes for data, since they have similar shape
 const fakeItems = [
@@ -161,26 +153,20 @@ describe('showPage actions for coach exams section', () => {
   const dispatchSpy = storeMock.dispatch;
 
   beforeEach(() => {
-    ChannelResource.__resetMocks();
     ClassroomResource.__resetMocks();
     ContentNodeResource.__resetMocks();
     ExamResource.__resetMocks();
-    LearnerGroupResource.__resetMocks();
     dispatchSpy.reset();
   });
 
   describe('showExamsPage', () => {
     it('store is properly set up when there are no problems', () => {
-      ChannelResource.__getCollectionFetchReturns(fakeItems);
-      LearnerGroupResource.__getCollectionFetchReturns(fakeItems);
       ClassroomResource.__getCollectionFetchReturns(fakeItems);
       ExamResource.__getCollectionFetchReturns(fakeExams);
 
       // Using the weird naming from fakeItems
       const classId = 'item_1';
       return examActions.showExamsPage(storeMock, classId)._promise.then(() => {
-        sinon.assert.calledWith(ChannelResource.getCollection);
-        sinon.assert.calledWith(LearnerGroupResource.getCollection, { parent: classId });
         sinon.assert.calledWith(ClassroomResource.getCollection);
         sinon.assert.calledWith(ExamResource.getCollection, { collection: classId });
         sinon.assert.calledWith(dispatchSpy, 'SET_CLASS_INFO', classId, 'item one', [
@@ -191,26 +177,16 @@ describe('showPage actions for coach exams section', () => {
           dispatchSpy,
           'SET_PAGE_STATE',
           sinon.match({
-            channels: [
-              { id: 'item_1', name: 'item one', rootPk: 'pk1' },
-              { id: 'item_2', name: 'item two', rootPk: 'pk2' },
-            ],
-            currentClassGroups: [
-              { id: 'item_1', name: 'item one' },
-              { id: 'item_2', name: 'item two' },
-            ],
             exams: fakeExamState,
-            examModalShown: false,
+            examsModalSet: false,
           })
         );
       });
     });
 
     it('store is properly set up when there are errors', () => {
-      ChannelResource.__getCollectionFetchReturns('channel error', true);
-      LearnerGroupResource.__getCollectionFetchReturns(fakeItems);
       ClassroomResource.__getCollectionFetchReturns(fakeItems);
-      ExamResource.__getCollectionFetchReturns(fakeExams);
+      ExamResource.__getCollectionFetchReturns('channel error', true);
       return examActions.showExamsPage(storeMock, 'class_1')._promise.catch(() => {
         sinon.assert.calledWith(dispatchSpy, 'CORE_SET_ERROR', 'channel error');
       });

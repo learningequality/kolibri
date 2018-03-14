@@ -69,12 +69,12 @@
 
 <script>
 
-  import { PageNames } from '../../constants';
+  import * as constants from '../../../constants';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import pageStatus from './page-status';
-  import attemptLogList from '../attempt-log-list';
-  import interactionList from '../interaction-list';
+  import attemptLogList from '../../attempt-log-list';
+  import interactionList from '../../interaction-list';
   export default {
     name: 'coachExamDetailPage',
     $trs: { backTo: 'Back to exam report for { title }' },
@@ -88,7 +88,7 @@
     computed: {
       backPageLink() {
         return {
-          name: PageNames.EXAM_REPORT,
+          name: constants.PageNames.EXAM_REPORT,
           params: {
             classId: this.classId,
             channelId: this.channelId,
@@ -106,7 +106,7 @@
       },
       navigateTo(question, interaction) {
         this.$router.push({
-          name: PageNames.EXAM_REPORT_DETAIL,
+          name: constants.PageNames.EXAM_REPORT_DETAIL,
           params: {
             channelId: this.channelId,
             classId: this.classId,

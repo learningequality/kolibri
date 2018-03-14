@@ -33,9 +33,9 @@
     />
     <k-navbar-link
       type="icon-and-title"
-      :title="$tr('topics')"
-      icon="folder"
-      :link="topicsLink"
+      :title="$tr('channels')"
+      icon="apps"
+      :link="channelsLink"
     />
   </k-navbar>
 
@@ -52,7 +52,7 @@
     name: 'topNav',
     $trs: {
       recent: 'Recent',
-      topics: 'Topics',
+      channels: 'Channels',
       exams: 'Exams',
       learners: 'Learners',
       groups: 'Groups',
@@ -69,7 +69,7 @@
           params: { classId: this.classId },
         };
       },
-      topicsLink() {
+      channelsLink() {
         return {
           name: PageNames.TOPIC_CHANNELS,
           params: { classId: this.classId },

@@ -38,10 +38,10 @@
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import topNav from './top-nav';
   import classListPage from './class-list-page';
-  import examsPage from './exams-page';
-  import createExamPage from './create-exam-page';
-  import examReportPage from './exam-report-page';
-  import examReportDetailPage from './exam-report-detail-page';
+  import examsPage from './exams/exams-page';
+  import createExamPage from './exams/create-exam-page';
+  import examReportPage from './exams/exam-report-page';
+  import examReportDetailPage from './exams/exam-report-detail-page';
   import groupsPage from './groups-page';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import learnerExerciseDetailPage from './reports/learner-exercise-detail-page';
