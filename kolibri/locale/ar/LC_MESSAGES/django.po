@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-22 18:11-0800\n"
-"PO-Revision-Date: 2017-12-05 19:25-0500\n"
+"PO-Revision-Date: 2018-03-12 01:49-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Arabic\n"
 "Language: ar_SA\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: ar\n"
-"X-Crowdin-File: /release-v0.7.x/LC_MESSAGES/django.po\n"
+"X-Crowdin-File: /release-v0.8.x/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:12
 #: kolibri/plugins/management/kolibri_plugin.py:29
@@ -35,7 +35,7 @@ msgstr "مشرف"
 
 #: kolibri/auth/constants/role_kinds.py:11
 msgid "Coach"
-msgstr "مدرّب"
+msgstr "مدرب"
 
 #: kolibri/auth/models.py:210
 msgid "username"
@@ -87,7 +87,7 @@ msgstr "نعتذر، الإصدار الحالي لمتصفحك غير مدعو�
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:30
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "لاستهدام كوليبري، ننصح باستخدام متصفح فايرفوكس أو متصفح كروم."
+msgstr "لاستخدام كوليبري، ننصح باستخدام متصفح فايرفوكس أو متصفح كروم."
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:31
 msgid "You can also try updating your current browser."
@@ -95,11 +95,11 @@ msgstr "يمكنك أيضاً محاولة تحديث متصفحك الحالي.
 
 #: kolibri/tasks/api.py:31
 msgid "There was a network error."
-msgstr "حدث خطأ في الشبكة."
+msgstr "حصل خطأ في الشبكة."
 
 #: kolibri/tasks/api.py:33
 msgid "There was a disk access error."
-msgstr "حدث خطأ أثناء الوصول إلى القرص."
+msgstr "حصل خطأ أثناء الوصول إلى القرص."
 
 #: kolibri/tasks/api.py:35
 msgid "There was an unknown error."

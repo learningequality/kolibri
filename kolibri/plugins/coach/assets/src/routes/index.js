@@ -33,6 +33,11 @@ export default [
     },
   },
   {
+    name: PageNames.CLASS_ROOT,
+    path: '/:classId/',
+    redirect: '/:classId/learners/',
+  },
+  {
     name: PageNames.RECENT_CHANNELS,
     path: '/:classId/recent',
     handler: to => {

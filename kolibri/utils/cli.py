@@ -16,8 +16,11 @@ env.set_env()
 
 import kolibri  # noqa
 import django  # noqa
+
 from django.core.management import call_command  # noqa
 from django.core.exceptions import AppRegistryNotReady  # noqa
+from django.db.utils import DatabaseError  # noqa
+from sqlite3 import DatabaseError as SQLite3DatabaseError  # noqa
 from docopt import docopt  # noqa
 
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
@@ -112,15 +115,24 @@ class PluginBaseLoadsApp(Exception):
     pass
 
 
+def _get_kolibri_home():
+    """
+    This is preferred to be called through a function as KOLIBRI_HOME is
+    redefined during tests.
+
+    NEEDS TO BE FURTHER CLEANED UP AND CENTRALIZED.
+
+    Please do not expand use of this function to other modules.
+    """
+    return os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"]))
+
+
 def version_file():
     """
     During test runtime, this path may differ because KOLIBRI_HOME is
     regenerated
     """
-    return os.path.join(
-        os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"])),
-        '.data_version'
-    )
+    return os.path.join(_get_kolibri_home(), '.data_version')
 
 
 def initialize(debug=False):
@@ -586,7 +598,7 @@ def _get_port(port):
     return port
 
 
-def main(args=None):
+def main(args=None):  # noqa: max-complexity=13
     """
     Kolibri's main function. Parses arguments and calls utility functions.
     Utility functions should be callable for unit testing purposes, but remember
@@ -603,7 +615,32 @@ def main(args=None):
         port = _get_port(arguments['--port'])
         check_other_kolibri_running(port)
 
-    initialize(debug=debug)
+    try:
+        initialize(debug=debug)
+    except (DatabaseError, SQLite3DatabaseError) as e:
+        from django.conf import settings
+        if "malformed" in str(e):
+            recover_cmd = (
+                "    sqlite3 {path} .dump | sqlite3 fixed.db \n"
+                "    cp fixed.db {path}"
+                ""
+            ).format(
+                path=settings.DATABASES['default']['NAME'],
+            )
+            logger.error(
+                "\n"
+                "Your database is corrupted. This is a "
+                "known issue that is usually fixed by running this "
+                "command: "
+                "\n\n" +
+                recover_cmd +
+                "\n\n"
+                "Notice that you need the 'sqlite3' command available "
+                "on your system prior to running this."
+                "\n\n"
+            )
+            sys.exit(1)
+        raise
 
     # Alias
     if arguments['shell']:

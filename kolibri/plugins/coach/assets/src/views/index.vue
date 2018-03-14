@@ -11,10 +11,10 @@
     >
 
       <template v-if="showCoachNav">
-        <class-selector
-          :classes="classList"
-          :currentClassId="classId"
-          @changeClass="changeClass"
+        <nav-title
+          :className="className"
+          :classId="classId"
+          :username="usernameForCurrentScope"
         />
         <top-nav class="top-nav" />
       </template>
@@ -31,6 +31,8 @@
 <script>
 
   import { PageNames } from '../constants';
+  import { UserScopes } from '../reportConstants';
+  import { className } from '../state/getters/main';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
@@ -47,7 +49,7 @@
   import channelListPage from './reports/channel-list-page';
   import itemListPage from './reports/item-list-page';
   import learnerListPage from './reports/learner-list-page';
-  import classSelector from './class-selector';
+  import navTitle from './nav-title';
 
   // lessons
   import { LessonsPageNames } from '../lessonsConstants';
@@ -97,7 +99,7 @@
       channelListPage,
       itemListPage,
       learnerListPage,
-      classSelector,
+      navTitle,
       // lessons
       LessonsRootPage,
       LessonSummaryPage,
@@ -188,17 +190,11 @@
         }
         return true;
       },
-    },
-    methods: {
-      changeClass(classSelectedId) {
-        if (this.pageName === PageNames.EXAM_REPORT) {
-          this.$router.push({
-            name: PageNames.EXAMS,
-            params: { classId: classSelectedId },
-          });
-        } else {
-          this.$router.push({ params: { classId: classSelectedId } });
+      usernameForCurrentScope() {
+        if (this.pageState.userScope === UserScopes.USER) {
+          return this.pageState.userScopeName;
         }
+        return null;
       },
     },
     vuex: {
@@ -208,9 +204,11 @@
         isAdmin,
         isCoach,
         isSuperuser,
+        className,
         classList: state => state.classList,
         classId: state => state.classId,
         isLoading: state => state.core.loading,
+        pageState: state => state.pageState,
       },
     },
   };
