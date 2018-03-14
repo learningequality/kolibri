@@ -44,21 +44,13 @@ export function displayModal(store, modalName) {
 export function showGroupsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.GROUPS);
-
-  const facilityPromise = FacilityUserResource.getCurrentFacility();
-  const classUsersPromise = FacilityUserResource.getCollection({
-    member_of: classId,
-  }).fetch({}, true);
-  const groupPromise = LearnerGroupResource.getCollection({
-    parent: classId,
-  }).fetch({}, true);
-
-  ConditionalPromise.all([
-    classUsersPromise,
-    groupPromise,
-    facilityPromise,
+  const promises = [
+    FacilityUserResource.getCollection({ member_of: classId, }).fetch({}, true),
+    LearnerGroupResource.getCollection({ parent: classId, }).fetch({}, true),
+    FacilityUserResource.getCurrentFacility(),
     setClassState(store, classId),
-  ]).only(
+  ]
+  return ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([classUsers, groupsCollection]) => {
       const groups = _groupsState(groupsCollection);
@@ -72,14 +64,11 @@ export function showGroupsPage(store, classId) {
           groupsUsersCollection.forEach((groupUsers, index) => {
             groups[index].users = _usersState(groupUsers);
           });
-
-          const pageState = {
+          store.dispatch('SET_PAGE_STATE', {
             classUsers: _usersState(classUsers),
             groups,
             groupModalShown: false,
-          };
-
-          store.dispatch('SET_PAGE_STATE', pageState);
+          });
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', translator.$tr('groupManagementPageTitle'));
@@ -93,11 +82,10 @@ export function showGroupsPage(store, classId) {
 
 export function createGroup(store, groupName) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  const groupPayload = {
+  return LearnerGroupResource.createModel({
     parent: store.state.classId,
     name: groupName,
-  };
-  LearnerGroupResource.createModel(groupPayload)
+  })
     .save()
     .then(
       group => {
@@ -117,17 +105,13 @@ export function createGroup(store, groupName) {
 
 export function renameGroup(store, groupId, newGroupName) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  const groupPayload = {
-    name: newGroupName,
-  };
-  LearnerGroupResource.getModel(groupId)
-    .save(groupPayload)
+  return LearnerGroupResource.getModel(groupId)
+    .save({ name: newGroupName })
     .then(
       () => {
         const groups = store.state.pageState.groups;
         const groupIndex = groups.findIndex(group => group.id === groupId);
         groups[groupIndex].name = newGroupName;
-
         store.dispatch('SET_GROUPS', groups);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
         this.displayModal(false);
@@ -138,7 +122,7 @@ export function renameGroup(store, groupId, newGroupName) {
 
 export function deleteGroup(store, groupId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  LearnerGroupResource.getModel(groupId)
+  return LearnerGroupResource.getModel(groupId)
     .delete()
     .then(
       () => {
@@ -216,7 +200,7 @@ function _removeMultipleUsersFromGroup(store, groupId, userIds) {
 
 export function addUsersToGroup(store, groupId, userIds) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  _addMultipleUsersToGroup(store, groupId, userIds).then(
+  return _addMultipleUsersToGroup(store, groupId, userIds).then(
     () => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
@@ -227,7 +211,7 @@ export function addUsersToGroup(store, groupId, userIds) {
 
 export function removeUsersFromGroup(store, groupId, userIds) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  _removeMultipleUsersFromGroup(store, groupId, userIds).then(
+  return _removeMultipleUsersFromGroup(store, groupId, userIds).then(
     () => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
@@ -238,9 +222,11 @@ export function removeUsersFromGroup(store, groupId, userIds) {
 
 export function moveUsersBetweenGroups(store, currentGroupId, newGroupId, userIds) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  const removeUsersPromise = _removeMultipleUsersFromGroup(store, currentGroupId, userIds);
-  const addUsersPromise = _addMultipleUsersToGroup(store, newGroupId, userIds);
-  Promise.all([removeUsersPromise, addUsersPromise]).then(
+  const promises = [
+     _removeMultipleUsersFromGroup(store, currentGroupId, userIds),
+     _addMultipleUsersToGroup(store, newGroupId, userIds),
+  ]
+  return Promise.all(promises).then(
     () => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
