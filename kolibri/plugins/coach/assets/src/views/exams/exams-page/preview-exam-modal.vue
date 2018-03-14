@@ -71,6 +71,8 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   export default {
     name: 'previewExamModal',
@@ -85,6 +87,8 @@
       coreModal,
       contentRenderer,
       kButton,
+      kGrid,
+      kGridItem,
       uiProgressLinear,
     },
     props: {
