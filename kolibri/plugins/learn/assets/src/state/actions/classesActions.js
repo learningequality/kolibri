@@ -53,6 +53,10 @@ export function showClassAssignmentsPage(store, classId) {
     ._promise.then(classroom => {
       store.dispatch('SET_CURRENT_CLASSROOM', classroom);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+
+      // Reset examAttemptLogs, so that it will not merge into another exam.
+      store.state.examAttemptLogs = [];
+      store.dispatch('SET_EXAM_ATTEMPT_LOGS', store.state.examAttemptLogs);
     })
     .catch(error => {
       return handleApiError(store, error);
