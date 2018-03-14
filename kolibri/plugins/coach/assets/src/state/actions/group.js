@@ -1,9 +1,8 @@
-import * as coreActions from 'kolibri.coreVue.vuex.actions';
+import { handleError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import * as Constants from '../../constants';
+import { PageNames } from '../../constants';
 import { setClassState } from './main';
 import logger from 'kolibri.lib.logging';
-
 import { LearnerGroupResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 
@@ -47,7 +46,7 @@ function displayModal(store, modalName) {
 
 function showGroupsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.GROUPS);
+  store.dispatch('SET_PAGE_NAME', PageNames.GROUPS);
 
   const facilityPromise = FacilityUserResource.getCurrentFacility();
   const classUsersPromise = FacilityUserResource.getCollection({
@@ -63,7 +62,7 @@ function showGroupsPage(store, classId) {
     facilityPromise,
     setClassState(store, classId),
   ]).only(
-    coreActions.samePageCheckGenerator(store),
+    samePageCheckGenerator(store),
     ([classUsers, groupsCollection]) => {
       const groups = _groupsState(groupsCollection);
       const groupUsersPromises = groups.map(group =>
@@ -71,7 +70,7 @@ function showGroupsPage(store, classId) {
       );
 
       ConditionalPromise.all(groupUsersPromises).only(
-        coreActions.samePageCheckGenerator(store),
+        samePageCheckGenerator(store),
         groupsUsersCollection => {
           groupsUsersCollection.forEach((groupUsers, index) => {
             groups[index].users = _usersState(groupUsers);
@@ -88,10 +87,10 @@ function showGroupsPage(store, classId) {
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', translator.$tr('groupManagementPageTitle'));
         },
-        error => coreActions.handleError(store, error)
+        error => handleError(store, error)
       );
     },
-    error => coreActions.handleError(store, error)
+    error => handleError(store, error)
   );
 }
 
@@ -115,7 +114,7 @@ function createGroup(store, groupName) {
         store.dispatch('CORE_SET_PAGE_LOADING', false);
         displayModal(store, false);
       },
-      error => coreActions.handleError(store, error)
+      error => handleError(store, error)
     );
 }
 
@@ -136,7 +135,7 @@ function renameGroup(store, groupId, newGroupName) {
         store.dispatch('CORE_SET_PAGE_LOADING', false);
         this.displayModal(false);
       },
-      error => coreActions.handleError(store, error)
+      error => handleError(store, error)
     );
 }
 
@@ -153,7 +152,7 @@ function deleteGroup(store, groupId) {
         store.dispatch('CORE_SET_PAGE_LOADING', false);
         this.displayModal(false);
       },
-      error => coreActions.handleError(store, error)
+      error => handleError(store, error)
     );
 }
 
