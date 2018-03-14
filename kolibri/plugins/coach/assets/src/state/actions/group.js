@@ -8,13 +8,9 @@ import { createTranslator } from 'kolibri.utils.i18n';
 
 const logging = logger.getLogger(__filename);
 
-const name = 'groupManagementPageTitles';
-
-const messages = {
+const translator = createTranslator('groupManagementPageTitles', {
   groupManagementPageTitle: 'Groups',
-};
-
-const translator = createTranslator(name, messages);
+});
 
 function _userState(user) {
   return {
@@ -40,11 +36,12 @@ function _groupsState(groups) {
   return groups.map(group => _groupState(group));
 }
 
-function displayModal(store, modalName) {
+// TODO rename to 'setGroupsModal' per 'setExamsModal'
+export function displayModal(store, modalName) {
   store.dispatch('SET_GROUP_MODAL', modalName);
 }
 
-function showGroupsPage(store, classId) {
+export function showGroupsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.GROUPS);
 
@@ -94,7 +91,7 @@ function showGroupsPage(store, classId) {
   );
 }
 
-function createGroup(store, groupName) {
+export function createGroup(store, groupName) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const groupPayload = {
     parent: store.state.classId,
@@ -118,7 +115,7 @@ function createGroup(store, groupName) {
     );
 }
 
-function renameGroup(store, groupId, newGroupName) {
+export function renameGroup(store, groupId, newGroupName) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const groupPayload = {
     name: newGroupName,
@@ -139,7 +136,7 @@ function renameGroup(store, groupId, newGroupName) {
     );
 }
 
-function deleteGroup(store, groupId) {
+export function deleteGroup(store, groupId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   LearnerGroupResource.getModel(groupId)
     .delete()
@@ -217,7 +214,7 @@ function _removeMultipleUsersFromGroup(store, groupId, userIds) {
   });
 }
 
-function addUsersToGroup(store, groupId, userIds) {
+export function addUsersToGroup(store, groupId, userIds) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _addMultipleUsersToGroup(store, groupId, userIds).then(
     () => {
@@ -228,7 +225,7 @@ function addUsersToGroup(store, groupId, userIds) {
   );
 }
 
-function removeUsersFromGroup(store, groupId, userIds) {
+export function removeUsersFromGroup(store, groupId, userIds) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _removeMultipleUsersFromGroup(store, groupId, userIds).then(
     () => {
@@ -239,7 +236,7 @@ function removeUsersFromGroup(store, groupId, userIds) {
   );
 }
 
-function moveUsersBetweenGroups(store, currentGroupId, newGroupId, userIds) {
+export function moveUsersBetweenGroups(store, currentGroupId, newGroupId, userIds) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const removeUsersPromise = _removeMultipleUsersFromGroup(store, currentGroupId, userIds);
   const addUsersPromise = _addMultipleUsersToGroup(store, newGroupId, userIds);
@@ -251,14 +248,3 @@ function moveUsersBetweenGroups(store, currentGroupId, newGroupId, userIds) {
     error => logging.error(error)
   );
 }
-
-export {
-  displayModal,
-  showGroupsPage,
-  createGroup,
-  renameGroup,
-  deleteGroup,
-  addUsersToGroup,
-  removeUsersFromGroup,
-  moveUsersBetweenGroups,
-};
