@@ -35,7 +35,7 @@
         <h3>
           {{ viewByGroups ? reportGrouping[0].group.name : $tr('allLearners') }}
         </h3>
-        <p>
+        <p class="average-score">
           {{
             getAverageScore(reportGrouping) ?
               $tr('averageScore', { num: getAverageScore(reportGrouping) }) :
@@ -86,7 +86,7 @@
 
                 {{
                   examTaker.score === undefined ?
-                    '-' :
+                    '–' :
                     $tr('scorePercentage', { num: examTaker.score / exam.question_count })
                 }}
               </td>
