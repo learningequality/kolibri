@@ -2,7 +2,7 @@
 
   <div>
 
-    <h1>{{ $tr('myClasses') }}</h1>
+    <h1>{{ $tr('classPageHeader') }}</h1>
     <p>{{ $tr('pageDescription') }}</p>
 
     <div class="table-wrapper" v-if="!noClassesExist">
@@ -78,12 +78,16 @@
       },
     },
     $trs: {
-      myClasses: 'All classes',
-      pageDescription: 'View learner progress and performance',
+      classPageHeader: 'Classes',
+      pageDescription: 'View learner progress and class performance',
       className: 'Class name',
       tableCaption: 'List of classes',
+      // TODO kill
       members: 'Members',
       noClassesExist: 'No classes exist',
+      coachesTableHeader: 'Coaches',
+      learnerTableHeader: 'Learners',
+      classIconTableDescription: 'Class icon',
     },
   };
 
