@@ -108,7 +108,7 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { PageNames } from '../../../constants';
   import sumBy from 'lodash/sumBy';
@@ -126,7 +126,7 @@
     name: 'examReportPage',
     components: {
       contentIcon,
-      CoreTable,
+      coreTable,
       kRouterLink,
       kDropdownMenu,
       AssignmentSummary,
