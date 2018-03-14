@@ -11,52 +11,53 @@
       :primary="false"
       @click="close"
     />
-    <ui-progress-linear v-show="loading" />
-    <div v-show="!loading">
-      <div>
-        <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
-        <slot name="randomize-button"></slot>
+    <transition mode="out-in">
+      <ui-progress-linear v-if="loading" />
+      <div v-else>
+        <div>
+          <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
+          <slot name="randomize-button"></slot>
+        </div>
+        <k-grid class="exam-preview-container">
+          <k-grid-item size="1" cols="3" class="question-selector">
+            <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
+              <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
+              <ol class="question-list">
+                <li
+                  v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
+                  :key="questionIndex"
+                >
+                  <k-button
+                    @click="goToQuestion(question.itemId, exercise.exercise_id)"
+                    :primary="isSelected(question.itemId, exercise.exercise_id)"
+                    appearance="flat-button"
+                    :text="$tr(
+                      'question',
+                      { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
+                    )"
+                  />
+                </li>
+              </ol>
+            </div>
+          </k-grid-item>
+          <k-grid-item size="2" cols="3" class="exercise-container">
+            <content-renderer
+              v-if="content && itemId"
+              ref="contentRenderer"
+              :id="content.pk"
+              :kind="content.kind"
+              :files="content.files"
+              :contentId="content.content_id"
+              :available="content.available"
+              :extraFields="content.extra_fields"
+              :itemId="itemId"
+              :assessment="true"
+              :allowHints="false"
+            />
+          </k-grid-item>
+        </k-grid>
       </div>
-      <k-grid class="exam-preview-container">
-        <k-grid-item size="1" cols="3" class="question-selector">
-          <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
-            <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
-            <ol class="question-list">
-              <li
-                v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
-                :key="questionIndex"
-              >
-                <k-button
-                  @click="goToQuestion(question.itemId, exercise.exercise_id)"
-                  :primary="isSelected(question.itemId, exercise.exercise_id)"
-                  appearance="flat-button"
-                  :text="$tr(
-                    'question',
-                    { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
-                  )"
-                />
-              </li>
-            </ol>
-          </div>
-        </k-grid-item>
-        <k-grid-item size="2" cols="3" class="exercise-container">
-          <content-renderer
-            v-if="content && itemId"
-            ref="contentRenderer"
-            :id="content.pk"
-            :kind="content.kind"
-            :files="content.files"
-            :contentId="content.content_id"
-            :channelId="examChannelId"
-            :available="content.available"
-            :extraFields="content.extra_fields"
-            :itemId="itemId"
-            :assessment="true"
-            :allowHints="false"
-          />
-        </k-grid-item>
-      </k-grid>
-    </div>
+    </transition>
   </core-modal>
 
 </template>
@@ -64,7 +65,7 @@
 
 <script>
 
-  import * as examActions from '../../state/actions/exam';
+  import * as examActions from '../../../state/actions/exam';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
   import coreModal from 'kolibri.coreVue.components.coreModal';
@@ -79,7 +80,7 @@
       preview: 'Preview exam',
       close: 'Close',
       question: 'Question { num }',
-      numQuestions: '{num, plural, one {question} other {questions}}',
+      numQuestions: '{num} {num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
     },
     components: {
@@ -91,10 +92,6 @@
       uiProgressLinear,
     },
     props: {
-      examChannelId: {
-        type: String,
-        required: true,
-      },
       examQuestionSources: {
         type: Array,
         required: true,
@@ -140,19 +137,26 @@
         return this.currentQuestion.itemId;
       },
     },
+    watch: {
+      examQuestionSources: 'setExercises',
+    },
     created() {
-      ContentNodeResource.getCollection({
-        ids: this.examQuestionSources.map(item => item.exercise_id),
-      })
-        .fetch()
-        .then(contentNodes => {
-          contentNodes.forEach(node => {
-            this.$set(this.exercises, node.pk, node);
-          });
-          this.loading = false;
-        });
+      this.setExercises();
     },
     methods: {
+      setExercises() {
+        this.loading = true;
+        ContentNodeResource.getCollection({
+          ids: this.examQuestionSources.map(item => item.exercise_id),
+        })
+          .fetch()
+          .then(contentNodes => {
+            contentNodes.forEach(node => {
+              this.$set(this.exercises, node.pk, node);
+            });
+            this.loading = false;
+          });
+      },
       isSelected(questionItemId, exerciseId) {
         return (
           this.currentQuestion.itemId === questionItemId &&
@@ -174,13 +178,13 @@
         return '';
       },
       close() {
-        this.displayExamModal(false);
+        this.setExamsModal(false);
       },
       getExerciseQuestions(exerciseId) {
         return this.questions.filter(q => q.contentId === exerciseId);
       },
     },
-    vuex: { actions: { displayExamModal: examActions.displayExamModal } },
+    vuex: { actions: { setExamsModal: examActions.setExamsModal } },
   };
 
 </script>

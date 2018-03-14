@@ -2,18 +2,17 @@
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import assert from 'assert';
-import ExamReportPage from '../../src/views/exam-report-page';
+import ExamReportPage from '../../src/views/exams/exam-report-page';
 import { mount } from '@vue/test-utils';
 
 function makeWrapper(options = {}) {
-  return mount(ExamReportPage, { ...options, stubs: ['kRouterLink'] });
+  return mount(ExamReportPage, { ...options, stubs: ['kRouterLink', 'assignmentSummary'] });
 }
 
 function getElements(wrapper) {
   return {
-    averageScore: () => wrapper.find('.header h1:nth-child(2)'),
+    averageScore: () => wrapper.find('.average-score'),
     tableRows: () => wrapper.findAll('tbody > tr'),
-    takenBy: () => wrapper.find('.header h1:nth-child(1)'),
   };
 }
 
@@ -31,6 +30,7 @@ const initialState = () => ({
     exam: {
       question_count: 6,
     },
+    learnerGroups: [],
   },
 });
 
@@ -42,14 +42,13 @@ describe('exam report page', () => {
       { progress: undefined, group: {}, score: undefined },
     ];
     const wrapper = makeWrapper({ store: new Vuex.Store({ state }) });
-    const { takenBy, averageScore } = getElements(wrapper);
-    assert.equal(
-      takenBy()
+    const { averageScore } = getElements(wrapper);
+    assert(
+      !averageScore()
         .text()
-        .trim(),
-      'Exam taken by: 0 learners'
+        .trim()
+        .endsWith('%')
     );
-    assert(!averageScore().exists());
   });
 
   it('average score is shown if at least one exam in progress', () => {
@@ -60,18 +59,12 @@ describe('exam report page', () => {
       { progress: undefined, group: {}, score: undefined },
     ];
     const wrapper = makeWrapper({ store: new Vuex.Store({ state }) });
-    const { averageScore, takenBy } = getElements(wrapper);
-    assert.equal(
-      takenBy()
-        .text()
-        .trim(),
-      'Exam taken by: 2 learners'
-    );
-    assert.equal(
+    const { averageScore } = getElements(wrapper);
+    assert(
       averageScore()
         .text()
-        .trim(),
-      'Average score: 50%'
+        .trim()
+        .endsWith('%')
     );
   });
 

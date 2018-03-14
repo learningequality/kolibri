@@ -22,10 +22,10 @@
           <th class="core-table-icon-col"></th>
           <th class="core-table-main-col">{{ $tr('title') }}</th>
           <th>{{ $tr('size') }}</th>
-          <th>{{ $tr('visibleTo') }}</th>
+          <th>{{ $tr('recipients') }}</th>
           <th>
             {{ $tr('status') }}
-            <info-icon
+            <core-info-icon
               :iconAriaLabel="$tr('lessonStatusDescription')"
               :tooltipText="$tr('statusTooltipText')"
               tooltipPosition="bottom right"
@@ -67,9 +67,20 @@
       {{ $tr('noInactiveLessons') }}
     </p>
 
-    <lesson-details-modal
+    <assignment-details-modal
       v-if="showModal"
+      :modalTitle="$tr('newLesson')"
+      :submitErrorMessage="$tr('saveLessonError')"
+      :initialDescription="''"
+      :showDescriptionField="true"
+      :isInEditMode="false"
+      :initialTitle="''"
+      :initialSelectedCollectionIds="[classId]"
+      :classId="classId"
+      :groups="learnerGroups"
+      @continue="handleDetailsModalContinue"
       @cancel="showModal=false"
+      ref="detailsModal"
     />
   </div>
 
@@ -80,27 +91,28 @@
 
   import countBy from 'lodash/countBy';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import LessonDetailsModal from './ManageLessonModals/LessonDetailsModal';
-  import InfoIcon from './InfoIcon';
-  import StatusIcon from './StatusIcon';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import StatusIcon from '../assignments/StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import { lessonSummaryLink } from './lessonsRouterUtils';
+  import { createLesson } from '../../state/actions/lessons';
+  import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
 
   export default {
     name: 'lessonsRootPage',
     components: {
       CoreTable,
-      LessonDetailsModal,
-      InfoIcon,
+      CoreInfoIcon,
       StatusIcon,
       contentIcon,
       kButton,
       kRouterLink,
       kSelect,
+      AssignmentDetailsModal,
     },
     data() {
       return {
@@ -148,12 +160,21 @@
         }
         return this.$tr('numberOfGroups', { count: numOfAssignments });
       },
+      handleDetailsModalContinue(payload) {
+        this.createLesson(this.classId, payload)
+          .then()
+          .catch(() => this.$refs.detailsModal.handleSubmitFailure());
+      },
     },
     vuex: {
+      actions: {
+        createLesson,
+      },
       getters: {
         lessons: state => state.pageState.lessons,
         className: state => state.className,
         classId: state => state.classId,
+        learnerGroups: state => state.pageState.learnerGroups,
       },
     },
     $trs: {
@@ -165,7 +186,7 @@
       newLesson: 'New lesson',
       title: 'Title',
       size: 'Size',
-      visibleTo: 'Visible to',
+      recipients: 'Recipients',
       entireClass: 'Entire class',
       numberOfGroups: '{count, number, integer} {count, plural, one {group} other {groups}}',
       noOne: 'No one',
@@ -177,6 +198,7 @@
       noInactiveLessons: 'No inactive lessons',
       lessonStatusDescription: 'Lesson status description',
       statusTooltipText: 'Learners can only see active lessons',
+      saveLessonError: 'There was a problem saving this lesson',
     },
   };
 

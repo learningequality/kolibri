@@ -107,7 +107,12 @@
         if (this.allExercisesWithinTopicSelected) {
           this.$emit('removeTopicExercises', this.allExercisesWithinTopic, this.topicTitle);
         } else {
-          this.$emit('addTopicExercises', this.allExercisesWithinTopic, this.topicTitle);
+          this.$emit(
+            'addTopicExercises',
+            this.allExercisesWithinTopic,
+            this.topicTitle,
+            this.topicId
+          );
         }
       },
     },

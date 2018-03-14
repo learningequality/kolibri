@@ -1,12 +1,12 @@
 <template>
 
   <core-modal
-    :title="$tr('copyLessonTitle')"
+    :title="modalTitle"
     @cancel="closeModal()"
   >
     <!-- Classroom Selection Form -->
     <div v-if="stage===Stages.SELECT_CLASSROOM">
-      <p>{{ $tr('copyLessonExplanation') }}</p>
+      <p>{{ copyExplanation }}</p>
       <form @submit.prevent="goToAvailableGroups()">
         <template v-for="classroom in availableClassrooms">
           <k-radio-button
@@ -34,9 +34,9 @@
 
     <!-- Learner Group Selection Form -->
     <div v-else>
-      <p>{{ $tr('destinationClassroomExplanation', { classroomName: selectedClassroomName }) }}</p>
-      <p>{{ $tr('lessonVisibilityQuestion') }}</p>
-      <form @submit.prevent="createLessonCopy">
+      <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>
+      <p>{{ assignmentQuestion }}</p>
+      <form @submit.prevent="$emit('copy', selectedClassroomId, selectedCollectionIds)">
         <recipient-selector
           v-model="selectedCollectionIds"
           :groups="availableGroups"
@@ -69,8 +69,8 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import { LearnerGroupResource, LessonResource } from 'kolibri.resources';
-  import { createSnackbar, handleApiError } from 'kolibri.coreVue.vuex.actions';
+  import { LearnerGroupResource } from 'kolibri.resources';
+  import { handleApiError } from 'kolibri.coreVue.vuex.actions';
   import RecipientSelector from './RecipientSelector';
 
   const Stages = {
@@ -79,12 +79,34 @@
   };
 
   export default {
-    name: 'copyLessonModal',
+    name: 'assignmentCopyModal',
     components: {
       coreModal,
       kButton,
       kRadioButton,
       RecipientSelector,
+    },
+    props: {
+      modalTitle: {
+        type: String,
+        required: true,
+      },
+      copyExplanation: {
+        type: String,
+        required: true,
+      },
+      assignmentQuestion: {
+        type: String,
+        required: true,
+      },
+      classId: {
+        type: String,
+        required: true,
+      },
+      classList: {
+        type: Array,
+        required: true,
+      },
     },
     data() {
       return {
@@ -142,54 +164,21 @@
       closeModal() {
         return this.$emit('cancel');
       },
-      // POSTs a new Lesson object to the server
-      createLessonCopy() {
-        const { title, description, resources } = this.currentLesson;
-        const payload = {
-          title: this.$tr('copyOfLesson', { lessonTitle: title }).substring(0, 50),
-          description,
-          resources,
-          collection: this.selectedClassroomId,
-          lesson_assignments: this.selectedCollectionIds.map(id => ({ collection: id })),
-        };
-        return LessonResource.createModel(payload)
-          .save()
-          ._promise.then(() => {
-            this.closeModal();
-            this.createSnackbar({
-              text: this.$tr('copiedLessonTo', { classroomName: this.selectedClassroomName }),
-              autoDismiss: true,
-            });
-          })
-          .catch(error => {
-            this.handleApiError(error);
-            logError(error);
-          });
+      isCurrentClassroom(classroom) {
+        return classroom.id === this.classId;
       },
     },
     vuex: {
-      getters: {
-        classId: state => state.classId,
-        classList: state => state.classList,
-        isCurrentClassroom: state => classroom => classroom.id === state.classId,
-        currentLesson: state => state.pageState.currentLesson,
-      },
       actions: {
-        createSnackbar,
         handleApiError,
       },
     },
     $trs: {
-      copyLessonTitle: 'Copy lesson',
-      copyLessonExplanation: 'Copy this lesson to',
       currentClass: '(current class)',
       continue: 'Continue',
       cancel: 'Cancel',
       makeCopy: 'Copy',
-      destinationClassroomExplanation: `This lesson will be copied to '{classroomName}'`,
-      lessonVisibilityQuestion: 'Who should this lesson be visible to in this class?',
-      copyOfLesson: 'Copy of {lessonTitle}',
-      copiedLessonTo: `Copied lesson to '{classroomName}'`,
+      destinationExplanation: `Will be copied to '{classroomName}'`,
     },
   };
 

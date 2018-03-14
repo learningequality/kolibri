@@ -69,12 +69,12 @@
 
 <script>
 
-  import * as constants from '../../constants';
+  import * as constants from '../../../constants';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import pageStatus from './page-status';
-  import attemptLogList from '../attempt-log-list';
-  import interactionList from '../interaction-list';
+  import attemptLogList from '../../attempt-log-list';
+  import interactionList from '../../interaction-list';
   export default {
     name: 'coachExamDetailPage',
     $trs: { backTo: 'Back to exam report for { title }' },

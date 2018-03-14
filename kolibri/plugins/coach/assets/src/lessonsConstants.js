@@ -16,10 +16,3 @@ export const CollectionTypes = {
   LEARNERGROUP: 'learnergroup',
   CLASSROOM: 'classroom',
 };
-
-export const LessonActions = {
-  CHANGE_STATUS: 'CHANGE_STATUS',
-  COPY: 'COPY',
-  DELETE: 'DELETE',
-  EDIT_DETAILS: 'EDIT_DETAILS',
-};

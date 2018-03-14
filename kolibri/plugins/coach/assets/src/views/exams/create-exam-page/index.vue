@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('createNewExam', { channelName: currentChannel.name }) }}</h1>
+    <h1>{{ $tr('createNewExam') }}</h1>
     <k-grid>
       <k-grid-item size="1" :cols="numCols">
         <k-textbox
@@ -61,6 +61,7 @@
                     :showLabel="false"
                     :checked="allExercisesWithinCurrentTopicSelected"
                     :indeterminate="someExercisesWithinCurrentTopicSelected"
+                    :disabled="!subtopics.length && !exercises.length"
                     @change="changeSelection"
                   />
                 </th>
@@ -115,12 +116,12 @@
 
     <preview-new-exam-modal
       v-if="showPreviewNewExamModal"
-      :examChannelId="currentChannel.id"
       :examQuestionSources="questionSources"
       :examSeed="seed"
       :examNumQuestions="inputNumQuestions"
-      @randomize="seed = generateRandomSeed()"
+      @randomize="randomize"
     />
+
   </div>
 
 </template>
@@ -132,14 +133,16 @@
   import exerciseRow from './exercise-row';
   import previewNewExamModal from './preview-new-exam-modal';
   import {
-    fetchContent,
+    goToTopic,
+    goToTopLevel,
     createExam,
     addExercise,
     removeExercise,
-    displayExamModal,
-  } from '../../state/actions/exam';
-  import { className } from '../../state/getters/main';
-  import { Modals as ExamModals } from '../../examConstants';
+    setExamsModal,
+    setSelectedExercises,
+  } from '../../../state/actions/exam';
+  import { className } from '../../../state/getters/main';
+  import { Modals as ExamModals } from '../../../examConstants';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -150,6 +153,7 @@
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import shuffle from 'lodash/shuffle';
+  import orderBy from 'lodash/orderBy';
   import random from 'lodash/random';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
@@ -172,7 +176,7 @@
     },
     mixins: [responsiveWindow],
     $trs: {
-      createNewExam: 'Create a new exam from {channelName}',
+      createNewExam: 'Create a new exam',
       chooseExercises: 'Select exercises to pull questions from',
       selectAll: 'Select all',
       title: 'Exam title',
@@ -206,6 +210,7 @@
         selectAll: false,
         previewOrSubmissionAttempt: false,
         submitting: false,
+        dummyChannelId: null,
       };
     },
     computed: {
@@ -325,42 +330,31 @@
         );
       },
       showPreviewNewExamModal() {
-        return this.examModalShown === ExamModals.PREVIEW_NEW_EXAM;
+        return this.examsModalSet === ExamModals.PREVIEW_NEW_EXAM;
       },
       questionSources() {
-        const shuffledExercises = shuffle(Array.from(this.selectedExercises));
-        const numExercises = shuffledExercises.length;
-        const numQuestions = this.inputNumQuestions;
-        const questionsPerExercise = numQuestions / numExercises;
-        const remainingQuestions = numQuestions % numExercises;
-        if (remainingQuestions === 0) {
-          return shuffledExercises.map(exercise => ({
-            exercise_id: exercise.id,
-            number_of_questions: Math.trunc(questionsPerExercise),
-          }));
-        } else if (questionsPerExercise >= 1) {
-          return shuffledExercises.map((exercise, index) => {
-            if (index < remainingQuestions) {
-              return {
-                exercise_id: exercise.id,
-                number_of_questions: Math.trunc(questionsPerExercise) + 1,
-              };
-            }
-            return {
-              exercise_id: exercise.id,
-              number_of_questions: Math.trunc(questionsPerExercise),
-            };
-          });
+        const questionSources = [];
+        for (let i = 0; i < this.inputNumQuestions; i++) {
+          const questionSourcesIndex = i % this.selectedExercises.length;
+          if (questionSources[questionSourcesIndex]) {
+            questionSources[questionSourcesIndex].number_of_questions += 1;
+          } else {
+            questionSources.push({
+              exercise_id: this.selectedExercises[i].id,
+              number_of_questions: 1,
+              title: this.selectedExercises[i].title,
+            });
+          }
         }
-        const exercisesSubset = shuffledExercises;
-        exercisesSubset.splice(numQuestions);
-        return exercisesSubset.map(exercise => ({
-          exercise_id: exercise.id,
-          number_of_questions: 1,
-        }));
+        return orderBy(questionSources, [exercise => exercise.title.toLowerCase()]);
       },
     },
     methods: {
+      setDummyChannelId(id) {
+        if (!this.dummyChannelId) {
+          this.dummyChannelId = id;
+        }
+      },
       changeSelection() {
         this.selectionMade = true;
         const allExercises = this.allExercisesWithinCurrentTopic;
@@ -370,12 +364,20 @@
         } else {
           this.handleAddTopicExercises(allExercises, currentTopicTitle);
         }
+        this.setDummyChannelId(this.subtopics[0].id);
       },
       handleGoToTopic(topicId) {
         this.loading = true;
-        this.fetchContent(topicId).then(() => {
-          this.loading = false;
-        });
+        if (!topicId) {
+          this.goToTopLevel().then(() => {
+            this.loading = false;
+          });
+        } else {
+          this.goToTopic(topicId).then(() => {
+            this.loading = false;
+          });
+        }
+        this.setDummyChannelId(topicId);
       },
       handleAddExercise(exercise) {
         this.selectionMade = true;
@@ -389,10 +391,11 @@
           autoDismiss: true,
         });
       },
-      handleAddTopicExercises(allExercisesWithinTopic, topicTitle) {
+      handleAddTopicExercises(allExercisesWithinTopic, topicTitle, topicId) {
         this.selectionMade = true;
         allExercisesWithinTopic.forEach(exercise => this.addExercise(exercise));
         this.createSnackbar({ text: `${this.$tr('added')} ${topicTitle}`, autoDismiss: true });
+        this.setDummyChannelId(topicId);
       },
       handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
         allExercisesWithinTopic.forEach(exercise => this.removeExercise(exercise));
@@ -403,7 +406,7 @@
         if (this.formIsInvalid) {
           this.focusOnInvalidField();
         } else {
-          this.displayExamModal(ExamModals.PREVIEW_NEW_EXAM);
+          this.setExamsModal(ExamModals.PREVIEW_NEW_EXAM);
         }
       },
       finish() {
@@ -419,11 +422,11 @@
           };
           const examObj = {
             classId: this.classId,
-            channelId: this.currentChannel.id,
             title: this.inputTitle,
             numQuestions: this.inputNumQuestions,
             questionSources: this.questionSources,
             seed: this.seed,
+            channelId: this.dummyChannelId,
           };
           this.createExam(classCollection, examObj);
         }
@@ -447,26 +450,31 @@
       generateRandomSeed() {
         return random(1000);
       },
+      randomize() {
+        this.seed = this.generateRandomSeed();
+        this.setSelectedExercises(shuffle(this.selectedExercises));
+      },
     },
     vuex: {
       getters: {
         classId: state => state.classId,
         className,
-        currentChannel: state => state.pageState.currentChannel,
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,
         selectedExercises: state => state.pageState.selectedExercises,
-        examModalShown: state => state.pageState.examModalShown,
+        examsModalSet: state => state.pageState.examsModalSet,
         exams: state => state.pageState.exams,
       },
       actions: {
-        fetchContent,
+        goToTopic,
+        goToTopLevel,
         createExam,
         addExercise,
         removeExercise,
-        displayExamModal,
+        setExamsModal,
         createSnackbar,
+        setSelectedExercises,
       },
     },
   };

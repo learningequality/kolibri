@@ -6,12 +6,23 @@
       v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
     />
 
-    <h3 class="text" dir="auto">
-      <shaved-text
-        :title="title"
-        :maxHeight="isMobile ? 40 : 60"
-      />
-    </h3>
+    <div
+      class="text"
+      dir="auto"
+    >
+      <h3 class="title">
+        <shaved-text
+          :title="title"
+          :maxHeight="maxTitleHeight"
+        />
+      </h3>
+      <p
+        v-if="subtitle"
+        class="subtitle"
+      >
+        {{ subtitle }}
+      </p>
+    </div>
   </router-link>
 
 </template>
@@ -34,6 +45,10 @@
       title: {
         type: String,
         required: true,
+      },
+      subtitle: {
+        type: String,
+        required: false,
       },
       thumbnail: {
         type: String,
@@ -68,6 +83,14 @@
         default: false,
       },
     },
+    computed: {
+      maxTitleHeight() {
+        if (this.subtitle) {
+          return this.isMobile ? 20 : 40;
+        }
+        return this.isMobile ? 40 : 60;
+      },
+    },
   };
 
 </script>
@@ -96,8 +119,22 @@
   .text
     color: $core-text-default
     overflow: hidden
-    margin: 16px
-    height: 60px
+    padding: 16px
+    height: 92px
+    position: relative
+
+  .title, .subtitle
+    margin: 0
+
+  .subtitle
+    position: absolute
+    bottom: 12px
+    left: 16px
+    right: 16px
+    font-size: 14px
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
 
   .mobile-card.card
     width: 100%

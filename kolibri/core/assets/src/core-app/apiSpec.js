@@ -78,6 +78,7 @@ import CoreTable from '../views/CoreTable';
 import kDropdownMenu from '../views/k-dropdown-menu';
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
+import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
 
 export default {
@@ -137,6 +138,7 @@ export default {
       customUiMenu,
       CoreTable,
       kDropdownMenu,
+      CoreInfoIcon,
     },
     router,
     mixins: {
