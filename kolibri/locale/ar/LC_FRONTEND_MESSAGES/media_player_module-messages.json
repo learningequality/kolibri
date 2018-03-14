@@ -16,9 +16,9 @@
     "videoRender.captions": "التسميات التوضيحية",
     "videoRender.captionsOff": "إيقاف عرض التسميات التوضيحية ",
     "videoRender.volumeLevel": "مستوى الصوت",
-    "videoRender.networkError": "أدى خطأ ما في الشبكة في فشل التنزيل",
+    "videoRender.networkError": "أدى خطأ ما في الشبكة إلى فشل التنزيل",
     "videoRender.formatError": "لا يمكن تحميل الوسيط المطلوب إما لمشكلة في الخادم أو الشبكة أو لأن الصيغة غير مدعومة",
     "videoRender.corruptionOrSupportError": "تم إيقاف تشغيل الوسيط بسبب مشكلة في الملف أو لأن الوسيط فيه سمات لا يدعمها متصفحك",
     "videoRender.sourceError": "لم يتم العثور على مصدر متوافق لهذا الوسيط",
-    "videoRender.encryptionError": "الوسيط مشفر وليس عندنا مفاتيح فك التشفير"
+    "videoRender.encryptionError": "الوسيط مشفر ولا نملك مفاتيح فك التشفير"
 }
