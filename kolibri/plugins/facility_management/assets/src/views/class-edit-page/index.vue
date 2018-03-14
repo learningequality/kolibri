@@ -30,6 +30,7 @@
           appearance="raised-button"
         />
       </div>
+      <!-- TODO kill -->
       <k-filter-textbox
         :placeholder="$tr('searchText')"
         v-model="searchFilter"
@@ -46,6 +47,8 @@
       :userid="currentUserRemove.id"
     />
 
+    <!-- TODO break table out into reusable component -->
+    <!-- TODO swap username with fullname -->
     <core-table>
       <caption class="visuallyhidden">{{ $tr('users') }}</caption>
 
@@ -116,17 +119,31 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   export default {
+    // QUESTION update component name?
     name: 'classEnrollPage',
     $trs: {
+      // TODO kill
       enrollUsers: 'Enroll users ',
+      enrollLearnerButtonLabel: 'Enroll learners',
+      assignCoachesButtonLabel: 'Assign coaches',
+      // TODO kill
       tableTitle: 'Manage users in this class',
-      searchText: 'Find a user...',
+      coachEnrollmentPageTitle: 'Manage class coaches and learners',
+      // TODO kill | deprecated
       users: 'Users',
+      coachTableTitle: 'Coaches',
+      learnerTableTitle: 'Learners',
+      noCoachesInClassMessge: "You don't have any assigned coaches",
+      noLearnersInClassMessage: "You don't have any enrolled learners",
+      searchText: 'Find a user...',
+      userIconColumnHeader: 'User icon',
       fullName: 'Full name',
       username: 'Username',
       role: 'Role',
+      userActionsColumnHeader: 'Actions',
       remove: 'Remove',
       noUsersExist: 'No users in this class',
+      // TODO kill
       allUsersFilteredOut: 'No matching users',
     },
     components: {

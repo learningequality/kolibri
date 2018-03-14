@@ -103,6 +103,8 @@
       learners: 'Learner reports',
       name: 'Name',
       group: 'Group',
+      channelIconColumnHeader: 'Channel icon',
+      userIconColumnHeader: 'User icon',
       exerciseProgress: 'Exercise progress',
       contentProgress: 'Resource progress',
       lastActivity: 'Last activity',
