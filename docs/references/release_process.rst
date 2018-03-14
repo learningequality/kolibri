@@ -41,6 +41,8 @@ Keep entries concise and consistent with the established writing style. The chan
 
 Note that for older patch releases, the change should only be mentioned once: it is implied that fixes in older releases are propagated forward.
 
+Additionally, we should also be adding the 'changelog' label to issues and pull requests on github. A more technical and granular overview of changes can be obtained by filtering by milestone and the 'changelog' label. Go through these issues and PRs, and ensure that the titles would be clear and meaningful.
+
 
 Create a release branch
 ~~~~~~~~~~~~~~~~~~~~~~~
