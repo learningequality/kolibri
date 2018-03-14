@@ -4,7 +4,7 @@ import Vuex from 'vuex';
 import assert from 'assert';
 import sinon from 'sinon';
 import ChannelListPage from '../../src/views/reports/channel-list-page';
-import * as ReportConstants from '../../src/reportConstants';
+import { ViewBy } from '../../src/constants/reportConstants';
 import { mount } from '@vue/test-utils';
 
 const initialState = () => ({
@@ -38,7 +38,7 @@ const initialState = () => ({
         id: 'test3',
       },
     ],
-    viewBy: ReportConstants.ViewBy.CHANNEL,
+    viewBy: ViewBy.CHANNEL,
     sortColumn: '',
     sortOrder: '',
   },

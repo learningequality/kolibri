@@ -14,7 +14,6 @@ import {
 import { className } from '../getters/main';
 import { setClassState } from './main';
 import { now } from 'kolibri.utils.serverClock';
-
 import {
   AttemptLogResource,
   ChannelResource,
@@ -23,7 +22,6 @@ import {
   ContentSummaryLogResource,
   LearnerGroupResource,
 } from 'kolibri.resources';
-
 import RecentReportResourceConstructor from '../../apiResources/recentReport';
 import UserReportResource from '../../apiResources/userReport';
 import ContentSummaryResourceConstructor from '../../apiResources/contentSummary';
@@ -60,24 +58,23 @@ const ContentReportResource = new ContentReportResourceConstructor();
  *   { 'channelId': dateOfLastActivity }
  */
 function channelLastActivePromise(channel, userScope, userScopeId) {
-  const summaryPayload = {
-    channel_id: channel.id,
-    collection_kind: userScope,
-    collection_id: userScopeId,
-  };
-
   // workaround for conditionalPromise.then() misbehaving
   return new Promise((resolve, reject) => {
-    const getSumm = ContentSummaryResource.getModel(channel.root_id, summaryPayload).fetch();
-    getSumm.then(
-      channelSummary => {
-        const obj = Object.assign({}, channelSummary, {
-          channelId: channel.id,
-        });
-        resolve(obj);
-      },
-      error => reject(error)
-    );
+    ContentSummaryResource.getModel(channel.root_id, {
+      channel_id: channel.id,
+      collection_kind: userScope,
+      collection_id: userScopeId,
+    })
+      .fetch()
+      .then(
+        channelSummary => {
+          const obj = Object.assign({}, channelSummary, {
+            channelId: channel.id,
+          });
+          resolve(obj);
+        },
+        error => reject(error)
+      );
   });
 }
 
@@ -117,20 +114,16 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
     promises.push(FacilityUserResource.getModel(userId).fetch());
   }
 
-  /* eslint-disable no-unused-vars */
-  return Promise.all(promises).then(([allChannelLastActive, cls, user]) => {
-    /* eslint-enable no-unused-vars */
-    const reportProps = {
+  return Promise.all(promises).then(([allChannelLastActive, , user]) => {
+    const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
+    store.dispatch('SET_REPORT_SORTING', defaultSortCol, SortOrders.DESCENDING);
+    store.dispatch('SET_REPORT_PROPERTIES', {
       userScope: scope,
       userScopeId: scopeId,
       userScopeName: userId ? user.username : className(store.state),
       viewBy: ViewBy.CHANNEL,
       showRecentOnly,
-    };
-
-    const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
-    store.dispatch('SET_REPORT_SORTING', defaultSortCol, SortOrders.DESCENDING);
-    store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+    });
     store.dispatch('SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('CORE_SET_ERROR', null);
@@ -230,11 +223,11 @@ function _contentSummaryState(data) {
 }
 
 function _setContentReport(store, reportPayload) {
-  const reportPromise = ContentReportResource.getCollection(reportPayload).fetch();
-  reportPromise.then(report => {
-    store.dispatch('SET_REPORT_TABLE_DATA', _contentReportState(report));
-  });
-  return reportPromise;
+  return ContentReportResource.getCollection(reportPayload)
+    .fetch()
+    .then(report => {
+      store.dispatch('SET_REPORT_TABLE_DATA', _contentReportState(report));
+    });
 }
 
 function _setLearnerReport(store, reportPayload, classId) {
@@ -248,11 +241,11 @@ function _setLearnerReport(store, reportPayload, classId) {
 }
 
 function _setContentSummary(store, contentScopeId, reportPayload) {
-  const contentPromise = ContentSummaryResource.getModel(contentScopeId, reportPayload).fetch();
-  contentPromise.then(contentSummary => {
-    store.dispatch('SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
-  });
-  return contentPromise;
+  return ContentSummaryResource.getModel(contentScopeId, reportPayload)
+    .fetch()
+    .then(contentSummary => {
+      store.dispatch('SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
+    });
 }
 
 function _showContentList(store, options) {
@@ -272,10 +265,9 @@ function _showContentList(store, options) {
     promises.push(FacilityUserResource.getModel(options.userScopeId).fetch());
   }
   Promise.all(promises).then(
-    /* eslint-disable no-unused-vars */
-    ([contentSummary, contentReport, cls, user]) => {
-      /* eslint-enable no-unused-vars */
-      const reportProps = {
+    ([, , , user]) => {
+      store.dispatch('SET_REPORT_SORTING', TableColumns.NAME, SortOrders.DESCENDING);
+      store.dispatch('SET_REPORT_PROPERTIES', {
         channelId: options.channelId,
         contentScope: options.contentScope,
         contentScopeId: options.contentScopeId,
@@ -283,9 +275,7 @@ function _showContentList(store, options) {
         userScopeId: options.userScopeId,
         userScopeName: isUser ? user.username : className(store.state),
         viewBy: ViewBy.CONTENT,
-      };
-      store.dispatch('SET_REPORT_SORTING', TableColumns.NAME, SortOrders.DESCENDING);
-      store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+      });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => handleError(store, error)
@@ -309,7 +299,8 @@ function _showClassLearnerList(store, options) {
   ];
   Promise.all(promises).then(
     () => {
-      const reportProps = {
+      store.dispatch('SET_REPORT_SORTING', TableColumns.NAME, SortOrders.DESCENDING);
+      store.dispatch('SET_REPORT_PROPERTIES', {
         channelId: options.channelId,
         contentScope: contentScope,
         contentScopeId: options.contentScopeId,
@@ -318,9 +309,7 @@ function _showClassLearnerList(store, options) {
         userScopeName: className(store.state),
         viewBy: ViewBy.LEARNER,
         showRecentOnly: options.showRecentOnly,
-      };
-      store.dispatch('SET_REPORT_SORTING', TableColumns.NAME, SortOrders.DESCENDING);
-      store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+      });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => handleError(store, error)
@@ -421,28 +410,25 @@ export function showRecentItemsForChannel(store, classId, channelId) {
     ([channelData]) => {
       const threshold = now();
       threshold.setDate(threshold.getDate() - RECENCY_THRESHOLD_IN_DAYS);
-
-      const reportPayload = {
+      const recentReportsPromise = RecentReportResource.getCollection({
         channel_id: channelId,
         content_node_id: channelData.root,
         collection_kind: UserScopes.CLASSROOM,
         collection_id: classId,
         last_active_time: threshold,
-      };
-      const recentReportsPromise = RecentReportResource.getCollection(reportPayload).fetch();
+      }).fetch();
 
       recentReportsPromise.then(
         reports => {
           store.dispatch('SET_REPORT_TABLE_DATA', _recentReportState(reports));
-          const reportProps = {
+          store.dispatch('SET_REPORT_PROPERTIES', {
             channelId,
             userScope: UserScopes.CLASSROOM,
             userScopeId: classId,
             userScopeName: className(store.state),
             viewBy: ViewBy.RECENT,
             showRecentOnly: true,
-          };
-          store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+          });
           store.dispatch('SET_REPORT_SORTING', TableColumns.DATE, SortOrders.DESCENDING);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
