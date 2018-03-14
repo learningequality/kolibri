@@ -1,24 +1,24 @@
-const ContentScopes = {
+export const ContentScopes = {
   ROOT: 'root',
   TOPIC: 'topic',
   CONTENT: 'content',
 };
 
-const UserScopes = {
+export const UserScopes = {
   FACILITY: 'facility',
   CLASSROOM: 'classroom',
   LEARNERGROUP: 'learnergroup',
   USER: 'user',
 };
 
-const ViewBy = {
+export const ViewBy = {
   CONTENT: 'content',
   LEARNER: 'learner',
   RECENT: 'recent',
   CHANNEL: 'channel',
 };
 
-const TableColumns = {
+export const TableColumns = {
   NAME: 'name',
   EXERCISE: 'exercise_progress',
   CONTENT: 'content_progress',
@@ -26,12 +26,10 @@ const TableColumns = {
   GROUP: 'group',
 };
 
-const SortOrders = {
+export const SortOrders = {
   ASCENDING: 'asc',
   DESCENDING: 'desc',
   NONE: 'none',
 };
 
-const RECENCY_THRESHOLD_IN_DAYS = 7;
-
-export { ContentScopes, UserScopes, ViewBy, TableColumns, SortOrders, RECENCY_THRESHOLD_IN_DAYS };
+export const RECENCY_THRESHOLD_IN_DAYS = 7;
