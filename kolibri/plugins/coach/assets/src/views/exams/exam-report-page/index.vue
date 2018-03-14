@@ -19,64 +19,88 @@
     </assignment-summary>
 
     <h2>{{ $tr('examReport') }}</h2>
-    <p v-if="takenBy > 0">{{ $tr('averageScore', { num: averageScore }) }}</p>
 
-    <core-table v-if="!noExamData">
-      <caption class="visuallyhidden">{{ $tr('examReport') }}</caption>
-      <thead slot="thead">
-        <tr>
-          <th class="core-table-icon-col"></th>
-          <th class="core-table-main-col">{{ $tr('name') }}</th>
-          <th>{{ $tr('status') }}</th>
-          <th>{{ $tr('score') }}</th>
-          <th>{{ $tr('group') }}</th>
-        </tr>
-      </thead>
-      <tbody slot="tbody">
-        <tr class="table-row" v-for="(examTaker, i) in examTakers" :key="i">
-          <td class="core-table-icon-col">
-            <content-icon :kind="USER" />
-          </td>
-          <td class="core-table-main-col">
-            <k-router-link
-              v-if="examTaker.progress !== undefined"
-              :text="examTaker.name"
-              :to="examDetailPageLink(examTaker.id)"
-              class="table-name"
-            />
-            <span v-else class="table-name">
-              {{ examTaker.name }}
-            </span>
-          </td>
+    <k-checkbox
+      :label="$tr('viewByGroups')"
+      :checked="viewByGroups"
+      @change="viewByGroups = !viewByGroups"
+      :disabled="viewByGroupsIsDisabled"
+    />
 
-          <td>
-            <span v-if="(examTaker.progress === exam.question_count) || examTaker.closed">
-              {{ $tr('completed') }}
-            </span>
-            <span v-else-if="examTaker.progress !== undefined">
-              {{ $tr('remaining', { num: (exam.question_count - examTaker.progress) }) }}
-            </span>
-            <span v-else>
-              {{ $tr('notstarted') }}
-            </span>
-          </td>
+    <template v-if="reportGroupings.length">
+      <div
+        v-for="(reportGrouping, i) in reportGroupings"
+        :key="i"
+      >
+        <h3>
+          {{ viewByGroups ? reportGrouping[0].group.name : $tr('allLearners') }}
+        </h3>
+        <p>
+          {{
+            getAverageScore(reportGrouping) ?
+              $tr('averageScore', { num: getAverageScore(reportGrouping) }) :
+              $tr('noAverageScore')
+          }}
+        </p>
 
-          <td>
-            <span v-if="examTaker.score === undefined">–</span>
-            <span v-else>
-              {{ $tr('scorePercentage', { num: examTaker.score / exam.question_count }) }}
-            </span>
-          </td>
+        <core-table>
+          <caption class="visuallyhidden">{{ $tr('examReport') }}</caption>
+          <thead slot="thead">
+            <tr>
+              <th class="core-table-icon-col"></th>
+              <th class="core-table-main-col">{{ $tr('name') }}</th>
+              <th>{{ $tr('progress') }}</th>
+              <th>{{ $tr('score') }}</th>
+              <th v-if="!viewByGroups">{{ $tr('group') }}</th>
+            </tr>
+          </thead>
+          <tbody slot="tbody">
+            <tr v-for="(examTaker, i) in reportGrouping" :key="i">
+              <td class="core-table-icon-col">
+                <content-icon :kind="USER" />
+              </td>
+              <td class="core-table-main-col">
+                <k-router-link
+                  v-if="examTaker.progress !== undefined"
+                  :text="examTaker.name"
+                  :to="examDetailPageLink(examTaker.id)"
+                />
+                <template v-else>
+                  {{ examTaker.name }}
+                </template>
+              </td>
 
-          <td>{{ examTaker.group.name || '–' }}</td>
-        </tr>
-      </tbody>
-    </core-table>
+              <td>
+                <template v-if="(examTaker.progress === exam.question_count) || examTaker.closed">
+                  {{ $tr('completed') }}
+                </template>
+                <template v-else-if="examTaker.progress !== undefined">
+                  {{ $tr('remaining', { num: (exam.question_count - examTaker.progress) }) }}
+                </template>
+                <template v-else>
+                  {{ $tr('notstarted') }}
+                </template>
+              </td>
+
+              <td>
+
+                {{
+                  examTaker.score === undefined ?
+                    '-' :
+                    $tr('scorePercentage', { num: examTaker.score / exam.question_count })
+                }}
+              </td>
+
+              <td v-if="!viewByGroups">{{ examTaker.group.name || '–' }}</td>
+            </tr>
+          </tbody>
+        </core-table>
+      </div>
+    </template>
 
     <p v-else>{{ $tr('noExamData') }}</p>
 
     <manage-exam-modals />
-
   </div>
 
 </template>
@@ -96,6 +120,7 @@
   import { AssignmentActions } from '../../../assignmentsConstants';
   import AssignmentSummary from '../../assignments/AssignmentSummary';
   import ManageExamModals from './ManageExamModals';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
 
   export default {
     name: 'examReportPage',
@@ -106,29 +131,36 @@
       kDropdownMenu,
       AssignmentSummary,
       ManageExamModals,
+      kCheckbox,
+    },
+    data() {
+      return {
+        viewByGroups: false,
+      };
     },
     computed: {
+      viewByGroupsIsDisabled() {
+        return !this.learnerGroups.length || this.examTakers.every(learner => !learner.group.id);
+      },
+      reportGroupings() {
+        let reportGroupings;
+        if (this.viewByGroups) {
+          reportGroupings = this.learnerGroups.map(group =>
+            this.examTakers.filter(learner => learner.group.id === group.id)
+          );
+        } else {
+          reportGroupings = [this.examTakers];
+        }
+        return reportGroupings.filter(grouping => grouping.length !== 0);
+      },
       AssignmentActions() {
         return AssignmentActions;
-      },
-      noExamData() {
-        return this.examTakers.length === 0;
       },
       USER() {
         return USER;
       },
       examKind() {
         return ContentNodeKinds.EXAM;
-      },
-      averageScore() {
-        const totalScores = sumBy(this.examsInProgress, 'score');
-        return totalScores / this.takenBy / this.exam.question_count;
-      },
-      examsInProgress() {
-        return this.examTakers.filter(examTaker => examTaker.progress !== undefined);
-      },
-      takenBy() {
-        return this.examsInProgress.length;
       },
       actionOptions() {
         return [
@@ -162,6 +194,11 @@
           },
         };
       },
+      getAverageScore(learners) {
+        const examsInProgress = learners.filter(learner => learner.progress !== undefined);
+        const totalScores = sumBy(examsInProgress, 'score');
+        return totalScores / examsInProgress.length / this.exam.question_count;
+      },
     },
     vuex: {
       getters: {
@@ -176,12 +213,13 @@
     },
     $trs: {
       averageScore: 'Average score: {num, number, percent}',
+      noAverageScore: 'Average score: -',
       examReport: 'Exam report',
       completed: 'Completed',
       remaining: '{ num, number } {num, plural, one {question} other {questions}} remaining',
       notstarted: 'Not started',
       name: 'Name',
-      status: 'Status',
+      progress: 'Progress',
       score: 'Score',
       scorePercentage: '{num, number, percent}',
       group: 'Group',
@@ -195,7 +233,6 @@
       // TODO
       viewByGroups: 'View by groups',
       allLearners: 'All learners',
-      progress: 'Progress',
       started: 'Started',
     },
   };
