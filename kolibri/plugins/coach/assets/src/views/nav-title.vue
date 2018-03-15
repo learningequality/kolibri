@@ -16,7 +16,12 @@
     <div v-if="classCoaches.length">
       {{ $tr('coachListLabel') }}
       <ul>
-        <li v-for="coach in classCoaches"> {{ coach.full_name }}</li>
+        <li
+          v-for="(coachName, idx) in classCoaches"
+          :key="idx"
+        >
+          <span>{{ coachName }}</span>
+        </li>
       </ul>
     </div>
   </div>
@@ -25,8 +30,6 @@
 
 
 <script>
-
-  import { PageNames } from '../constants';
 
   export default {
     name: 'navTitle',
@@ -45,7 +48,7 @@
       },
       classCoaches: {
         type: Array,
-        default: [],
+        default: () => [],
       },
     },
   };
@@ -61,8 +64,7 @@ ul, li
   display: inline
   list-style-type: none
 
-li
-  &::after:not(&:last-child)
-    content: ','
+li:not(&:last-child)::after
+  content: ', '
 
 </style>
