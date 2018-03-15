@@ -10,7 +10,7 @@
 <script>
 
   export default {
-    name: 'classLearnerEnrollPage',
+    name: 'coachClassAssignmentPage',
     components: {},
     computed: {},
     methods: {},
@@ -19,8 +19,8 @@
       actions: {},
     },
     $trs: {
-      pageHeader: "Enroll learners into '{className}'",
-      pageSubheader: 'Only showing learners that are not enrolled in this class',
+      pageHeader: "Assign a coach to '{className}'",
+      pageSubheader: 'Showing coaches that are not assigned to this class',
     },
   };
 
