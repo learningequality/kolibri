@@ -9,11 +9,11 @@
 
   import find from 'lodash/find';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
-  import * as CoachConstants from '../../constants';
-  import * as coachGetters from '../../state/getters/main';
+  import { PageNames } from '../../constants';
+  import { isTopicPage } from '../../state/getters/main';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
-    name: 'reportBreadcrumbs',
+    name: 'breadcrumbs',
     $trs: { channels: 'Channels' },
     components: { kBreadcrumbs },
     computed: {
@@ -21,9 +21,9 @@
         return find(this.channels, channel => channel.id === this.pageState.channelId).title;
       },
       breadcrumbs() {
-        if (this.pageName === CoachConstants.PageNames.RECENT_ITEMS_FOR_CHANNEL) {
+        if (this.pageName === PageNames.RECENT_ITEMS_FOR_CHANNEL) {
           return this.recentChannelItemsCrumbs;
-        } else if (this.pageName === CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM) {
+        } else if (this.pageName === PageNames.RECENT_LEARNERS_FOR_ITEM) {
           return this.recentItemCrumbs;
         } else if (this.isTopicPage) {
           return this.topicCrumbs;
@@ -35,7 +35,7 @@
           {
             text: this.$tr('channels'),
             link: {
-              name: CoachConstants.PageNames.RECENT_CHANNELS,
+              name: PageNames.RECENT_CHANNELS,
               params: { classId: this.classId },
             },
           },
@@ -47,14 +47,14 @@
           {
             text: this.$tr('channels'),
             link: {
-              name: CoachConstants.PageNames.RECENT_CHANNELS,
+              name: PageNames.RECENT_CHANNELS,
               params: { classId: this.classId },
             },
           },
           {
             text: this.channelTitle,
             link: {
-              name: CoachConstants.PageNames.RECENT_ITEMS_FOR_CHANNEL,
+              name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
               params: {
                 classId: this.classId,
                 channelId: this.pageState.channelId,
@@ -70,7 +70,7 @@
           {
             text: this.$tr('channels'),
             link: {
-              name: CoachConstants.PageNames.TOPIC_CHANNELS,
+              name: PageNames.TOPIC_CHANNELS,
               params: { classId: this.classId },
             },
           },
@@ -79,7 +79,7 @@
             const breadcrumb = { text: item.title };
             if (index) {
               breadcrumb.link = {
-                name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+                name: PageNames.TOPIC_ITEM_LIST,
                 params: {
                   classId: this.classId,
                   channelId: this.pageState.channelId,
@@ -89,7 +89,7 @@
             } else {
               // link to channel root
               breadcrumb.link = {
-                name: CoachConstants.PageNames.TOPIC_CHANNEL_ROOT,
+                name: PageNames.TOPIC_CHANNEL_ROOT,
                 params: {
                   classId: this.classId,
                   channelId: this.pageState.channelId,
@@ -109,7 +109,7 @@
         classId: state => state.classId,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
-        isTopicPage: coachGetters.isTopicPage,
+        isTopicPage,
       },
     },
   };

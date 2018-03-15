@@ -63,7 +63,7 @@
 
 <script>
 
-  import * as groupActions from '../../state/actions/group';
+  import { displayModal } from '../../state/actions/group';
   import { GroupModals } from '../../constants';
   import differenceWith from 'lodash/differenceWith';
   import orderBy from 'lodash/orderBy';
@@ -164,7 +164,7 @@
         groups: state => state.pageState.groups,
         groupModalShown: state => state.pageState.groupModalShown,
       },
-      actions: { displayModal: groupActions.displayModal },
+      actions: { displayModal },
     },
   };
 

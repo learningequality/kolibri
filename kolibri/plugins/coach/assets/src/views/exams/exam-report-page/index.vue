@@ -108,7 +108,7 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { PageNames } from '../../../constants';
   import sumBy from 'lodash/sumBy';
@@ -116,8 +116,8 @@
   import { USER, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import { setExamsModal } from '../../../state/actions/exam';
-  import { Modals as ExamModals } from '../../../examConstants';
-  import { AssignmentActions } from '../../../assignmentsConstants';
+  import { Modals as ExamModals } from '../../../constants/examConstants';
+  import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import AssignmentSummary from '../../assignments/AssignmentSummary';
   import ManageExamModals from './ManageExamModals';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -126,7 +126,7 @@
     name: 'examReportPage',
     components: {
       contentIcon,
-      CoreTable,
+      coreTable,
       kRouterLink,
       kDropdownMenu,
       AssignmentSummary,

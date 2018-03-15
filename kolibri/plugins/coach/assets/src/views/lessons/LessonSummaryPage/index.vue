@@ -57,7 +57,7 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import map from 'lodash/map';
   import ManageLessonModals from './ManageLessonModals';
-  import { AssignmentActions } from '../../../assignmentsConstants';
+  import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import { selectionRootLink } from '../lessonsRouterUtils';
   import AssignmentSummary from '../../assignments/AssignmentSummary';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';

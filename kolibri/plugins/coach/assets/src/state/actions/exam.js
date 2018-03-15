@@ -11,7 +11,12 @@ import {
 import concat from 'lodash/concat';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
-import * as CoreActions from 'kolibri.coreVue.vuex.actions';
+import {
+  handleError,
+  handleApiError,
+  createSnackbar,
+  samePageCheckGenerator,
+} from 'kolibri.coreVue.vuex.actions';
 import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
 import { setClassState } from './main';
@@ -19,15 +24,11 @@ import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.ex
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { createTranslator } from 'kolibri.utils.i18n';
 
-const name = 'coachExamPageTitles';
-
-const messages = {
+const translator = createTranslator('coachExamPageTitles', {
   coachExamListPageTitle: 'Exams',
   coachExamCreationPageTitle: 'Create new exam',
   coachExamReportDetailPageTitle: 'Exam Report Detail',
-};
-
-const translator = createTranslator(name, messages);
+});
 
 const allChannels = createTranslator('allChannels', {
   allChannels: 'All channels',
@@ -123,11 +124,11 @@ function _examsState(exams) {
   return exams.map(exam => _examState(exam));
 }
 
-function setExamsModal(store, modalName) {
+export function setExamsModal(store, modalName) {
   store.dispatch('SET_EXAMS_MODAL', modalName);
 }
 
-function showExamsPage(store, classId) {
+export function showExamsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXAMS);
 
@@ -137,7 +138,7 @@ function showExamsPage(store, classId) {
   ];
 
   return ConditionalPromise.all(promises).only(
-    CoreActions.samePageCheckGenerator(store),
+    samePageCheckGenerator(store),
     ([exams]) => {
       const pageState = {
         exams: _examsState(exams),
@@ -150,12 +151,12 @@ function showExamsPage(store, classId) {
       store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamListPageTitle'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => CoreActions.handleError(store, error)
+    error => handleError(store, error)
   );
 }
 
-function activateExam(store, examId) {
-  ExamResource.getModel(examId)
+export function activateExam(store, examId) {
+  return ExamResource.getModel(examId)
     .save({ active: true })
     .then(
       () => {
@@ -166,19 +167,19 @@ function activateExam(store, examId) {
         store.dispatch('SET_EXAMS', exams);
         setExamsModal(store, false);
 
-        CoreActions.createSnackbar(store, {
+        createSnackbar(store, {
           text: createTranslator('examActivateSnackbar', {
             examIsNowActive: 'Exam is now active',
           }).$tr('examIsNowActive'),
           autoDismiss: true,
         });
       },
-      error => CoreActions.handleError(store, error)
+      error => handleError(store, error)
     );
 }
 
-function deactivateExam(store, examId) {
-  ExamResource.getModel(examId)
+export function deactivateExam(store, examId) {
+  return ExamResource.getModel(examId)
     .save({ active: false })
     .then(
       () => {
@@ -189,24 +190,23 @@ function deactivateExam(store, examId) {
         store.dispatch('SET_EXAMS', exams);
         setExamsModal(store, false);
 
-        CoreActions.createSnackbar(store, {
+        createSnackbar(store, {
           text: createTranslator('examDeactivateSnackbar', {
             examIsNowInactive: 'Exam is now inactive',
           }).$tr('examIsNowInactive'),
           autoDismiss: true,
         });
       },
-      error => CoreActions.handleError(store, error)
+      error => handleError(store, error)
     );
 }
 
 function _assignExamTo(examId, collection) {
-  const assignmentPayload = {
-    exam: examId,
-    collection: collection.id,
-  };
   return new Promise((resolve, reject) => {
-    ExamAssignmentResource.createModel(assignmentPayload)
+    ExamAssignmentResource.createModel({
+      exam: examId,
+      collection: collection.id,
+    })
       .save()
       .then(assignment => resolve(assignment), error => reject(error));
   });
@@ -220,14 +220,14 @@ function _removeAssignment(assignmentId) {
   });
 }
 
-function updateExamAssignments(store, examId, collectionsToAssign, assignmentsToRemove) {
+export function updateExamAssignments(store, examId, collectionsToAssign, assignmentsToRemove) {
   store.dispatch('SET_BUSY', true);
   const assignPromises = collectionsToAssign.map(collection => _assignExamTo(examId, collection));
   const unassignPromises = assignmentsToRemove.map(assignment => _removeAssignment(assignment));
   const assignmentPromises = assignPromises.concat(unassignPromises);
 
   ConditionalPromise.all(assignmentPromises).only(
-    CoreActions.samePageCheckGenerator(store),
+    samePageCheckGenerator(store),
     response => {
       let newAssignments = response.filter(n => n);
       newAssignments = _assignmentsState(newAssignments);
@@ -265,17 +265,17 @@ function updateExamAssignments(store, examId, collectionsToAssign, assignmentsTo
     },
     error => {
       store.dispatch('SET_BUSY', false);
-      CoreActions.handleError(store, error);
+      handleError(store, error);
     }
   );
 }
 
-function previewExam(store) {
+export function previewExam(store) {
   setExamsModal(store, false);
 }
 
-function renameExam(store, examId, newExamTitle) {
-  ExamResource.getModel(examId)
+export function renameExam(store, examId, newExamTitle) {
+  return ExamResource.getModel(examId)
     .save({ title: newExamTitle })
     .then(
       () => {
@@ -286,12 +286,12 @@ function renameExam(store, examId, newExamTitle) {
         store.dispatch('SET_EXAMS', exams);
         setExamsModal(store, false);
       },
-      error => CoreActions.handleError(store, error)
+      error => handleError(store, error)
     );
 }
 
-function deleteExam(store, examId) {
-  ExamResource.getModel(examId)
+export function deleteExam(store, examId) {
+  return ExamResource.getModel(examId)
     .delete()
     .then(
       () => {
@@ -300,7 +300,7 @@ function deleteExam(store, examId) {
         store.dispatch('SET_EXAMS', updatedExams);
 
         router.replace({ name: PageNames.EXAMS });
-        CoreActions.createSnackbar(store, {
+        createSnackbar(store, {
           text: createTranslator('examDeleted', {
             examDeleted: 'Exam deleted',
           }).$tr('examDeleted'),
@@ -308,11 +308,11 @@ function deleteExam(store, examId) {
         });
         setExamsModal(store, false);
       },
-      error => CoreActions.handleError(store, error)
+      error => handleError(store, error)
     );
 }
 
-function getAllExercisesWithinTopic(store, topicId) {
+export function getAllExercisesWithinTopic(store, topicId) {
   return new Promise((resolve, reject) => {
     const exercisesPromise = ContentNodeResource.getDescendantsCollection(topicId, {
       descendant_kind: ContentNodeKinds.EXERCISE,
@@ -320,7 +320,7 @@ function getAllExercisesWithinTopic(store, topicId) {
     }).fetch();
 
     ConditionalPromise.all([exercisesPromise]).only(
-      CoreActions.samePageCheckGenerator(store),
+      samePageCheckGenerator(store),
       ([exercisesCollection]) => {
         const exercises = _exercisesState(exercisesCollection);
         resolve(exercises);
@@ -353,7 +353,7 @@ function fetchTopic(store, topicId) {
       exercisesPromise,
       ancestorsPromise,
     ]).only(
-      CoreActions.samePageCheckGenerator(store),
+      samePageCheckGenerator(store),
       ([topicModel, subtopicsCollection, exercisesCollection, ancestors]) => {
         const topic = _currentTopicState(topicModel, ancestors);
         const exercises = _exercisesState(exercisesCollection);
@@ -364,7 +364,7 @@ function fetchTopic(store, topicId) {
         );
 
         ConditionalPromise.all(subtopicsExercisesPromises).only(
-          CoreActions.samePageCheckGenerator(store),
+          samePageCheckGenerator(store),
           subtopicsExercises => {
             subtopics = subtopics.map((subtopic, index) => {
               subtopic.allExercisesWithinTopic = subtopicsExercises[index];
@@ -381,7 +381,7 @@ function fetchTopic(store, topicId) {
   });
 }
 
-function goToTopic(store, topicId) {
+export function goToTopic(store, topicId) {
   return new Promise((resolve, reject) => {
     fetchTopic(store, topicId).then(
       content => {
@@ -396,18 +396,18 @@ function goToTopic(store, topicId) {
 }
 
 // TODO: Optimize
-function goToTopLevel(store) {
+export function goToTopLevel(store) {
   return new Promise((resolve, reject) => {
     const channelPromise = ChannelResource.getCollection({ available: true }).fetch();
 
     ConditionalPromise.all([channelPromise]).only(
-      CoreActions.samePageCheckGenerator(store),
+      samePageCheckGenerator(store),
       ([channelsCollection]) => {
         const fetchTopicPromises = channelsCollection.map(channel =>
           fetchTopic(store, channel.root)
         );
         ConditionalPromise.all(fetchTopicPromises).only(
-          CoreActions.samePageCheckGenerator(store),
+          samePageCheckGenerator(store),
           channelsContent => {
             const subtopics = channelsContent.map(channel => {
               const subtopic = channel.topic;
@@ -446,7 +446,7 @@ function goToTopLevel(store) {
   });
 }
 
-function showCreateExamPage(store, classId) {
+export function showCreateExamPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CREATE_EXAM);
   store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamCreationPageTitle'));
@@ -464,24 +464,24 @@ function showCreateExamPage(store, classId) {
   const goToTopLevelPromise = goToTopLevel(store);
 
   ConditionalPromise.all([examsPromise, setClassState(store, classId), goToTopLevelPromise]).only(
-    CoreActions.samePageCheckGenerator(store),
+    samePageCheckGenerator(store),
     ([exams]) => {
       store.dispatch('SET_EXAMS', exams);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => CoreActions.handleError(store, error)
+    error => handleError(store, error)
   );
 }
 
-function addExercise(store, exercise) {
+export function addExercise(store, exercise) {
   const selectedExercises = store.state.pageState.selectedExercises;
   if (!selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)) {
     setSelectedExercises(store, selectedExercises.concat(exercise));
   }
 }
 
-function removeExercise(store, exercise) {
+export function removeExercise(store, exercise) {
   let selectedExercises = store.state.pageState.selectedExercises;
   selectedExercises = selectedExercises.filter(
     selectedExercise => selectedExercise.id !== exercise.id
@@ -489,21 +489,20 @@ function removeExercise(store, exercise) {
   setSelectedExercises(store, selectedExercises);
 }
 
-function setSelectedExercises(store, selectedExercises) {
+export function setSelectedExercises(store, selectedExercises) {
   store.dispatch('SET_SELECTED_EXERCISES', selectedExercises);
 }
 
-function createExam(store, classCollection, examObj) {
+export function createExam(store, classCollection, examObj) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  const examPayload = {
+  return ExamResource.createModel({
     collection: examObj.classId,
     channel_id: examObj.channelId,
     title: examObj.title,
     question_count: examObj.numQuestions,
     question_sources: examObj.questionSources,
     seed: examObj.seed,
-  };
-  ExamResource.createModel(examPayload)
+  })
     .save()
     .then(
       exam => {
@@ -511,27 +510,27 @@ function createExam(store, classCollection, examObj) {
           () => {
             store.dispatch('CORE_SET_PAGE_LOADING', false);
             router.getInstance().push({ name: PageNames.EXAMS });
-            CoreActions.createSnackbar(store, {
+            createSnackbar(store, {
               text: createTranslator('newExamCreated', {
                 newExamCreated: 'New exam created',
               }).$tr('newExamCreated'),
               autoDismiss: true,
             });
           },
-          error => CoreActions.handleError(store, error)
+          error => handleError(store, error)
         );
       },
-      error => CoreActions.handleError(store, error)
+      error => handleError(store, error)
     );
 }
 
-function showExamReportPage(store, classId, examId) {
+export function showExamReportPage(store, classId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT);
 
   const examPromise = ExamResource.getModel(examId).fetch();
   ConditionalPromise.all([examPromise]).only(
-    CoreActions.samePageCheckGenerator(store),
+    samePageCheckGenerator(store),
     ([exam]) => {
       const examLogPromise = ExamLogResource.getCollection({
         exam: examId,
@@ -553,7 +552,7 @@ function showExamReportPage(store, classId, examId) {
         examsPromise,
         setClassState(store, classId),
       ]).only(
-        CoreActions.samePageCheckGenerator(store),
+        samePageCheckGenerator(store),
         ([examLogs, facilityUsers, learnerGroups, exams]) => {
           const examTakers = facilityUsers.map(user => {
             const examTakenByUser =
@@ -569,20 +568,19 @@ function showExamReportPage(store, classId, examId) {
               closed: examTakenByUser.closed,
             };
           });
-          const pageState = {
+          store.dispatch('SET_PAGE_STATE', {
             examTakers,
             exam,
             examsModalSet: null,
             exams,
             learnerGroups,
-          };
-          store.dispatch('SET_PAGE_STATE', pageState);
+          });
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', exam.title);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
         },
         error => {
-          CoreActions.handleApiError(store, error);
+          handleApiError(store, error);
         }
       );
     },
@@ -591,13 +589,13 @@ function showExamReportPage(store, classId, examId) {
         // TODO: route to 404 page
         router.replace({ name: PageNames.EXAMS });
       } else {
-        CoreActions.handleApiError(store, error);
+        handleApiError(store, error);
       }
     }
   );
 }
 
-function showExamReportDetailPage(
+export function showExamReportDetailPage(
   store,
   classId,
   userId,
@@ -626,7 +624,7 @@ function showExamReportDetailPage(
     examLogPromise,
     setClassState(store, classId),
   ]).only(
-    CoreActions.samePageCheckGenerator(store),
+    samePageCheckGenerator(store),
     ([examAttempts, exam, user, examLogs]) => {
       const examLog = examLogs[0] || {};
       const seed = exam.seed;
@@ -636,17 +634,14 @@ function showExamReportDetailPage(
 
       if (!questionList[questionNumber]) {
         // Illegal question number!
-        CoreActions.handleError(
-          store,
-          `Question number ${questionNumber} is not valid for this exam`
-        );
+        handleError(store, `Question number ${questionNumber} is not valid for this exam`);
       } else {
         const contentPromise = ContentNodeResource.getCollection({
           ids: questionSources.map(item => item.exercise_id),
         }).fetch();
 
         contentPromise.only(
-          CoreActions.samePageCheckGenerator(store),
+          samePageCheckGenerator(store),
           contentNodes => {
             const contentNodeMap = {};
 
@@ -687,7 +682,7 @@ function showExamReportDetailPage(
             const currentAttempt = allQuestions[questionNumber];
             const currentInteractionHistory = currentAttempt.interaction_history;
             const currentInteraction = currentInteractionHistory[interactionIndex];
-            const pageState = {
+            store.dispatch('SET_PAGE_STATE', {
               exam: _examState(exam),
               itemId,
               questions,
@@ -701,64 +696,39 @@ function showExamReportDetailPage(
               user,
               examAttempts: allQuestions,
               examLog,
-            };
-
-            store.dispatch('SET_PAGE_STATE', pageState);
+            });
             store.dispatch('CORE_SET_ERROR', null);
             store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamReportDetailPageTitle'));
             store.dispatch('CORE_SET_PAGE_LOADING', false);
           },
-          error => CoreActions.handleApiError(store, error)
+          error => handleApiError(store, error)
         );
       }
     },
-    error => CoreActions.handleApiError(store, error)
+    error => handleApiError(store, error)
   );
 }
 
 // TODO
-function copyExam(store) {
+export function copyExam(store) {
   const className = 'TODO';
   const trs = createTranslator('copyExam', {
     copiedExamToClass: 'Copied exam to { className }',
     copyOfExam: 'Copy of {examTitle}',
   });
 
-  CoreActions.createSnackbar(store, {
+  createSnackbar(store, {
     text: trs.$tr('copiedExamToClass', { className }),
     autoDismiss: true,
   });
 }
 
 // TODO
-function updateExamDetails(store) {
-  CoreActions.createSnackbar(store, {
+export function updateExamDetails(store) {
+  createSnackbar(store, {
     text: createTranslator('editExamDetailsSnackbar', {
       changesToExamSaved: 'Changes to exam saved',
     }).$tr('changesToExamSaved'),
     autoDismiss: true,
   });
 }
-
-export {
-  setExamsModal,
-  showExamsPage,
-  showCreateExamPage,
-  showExamReportPage,
-  showExamReportDetailPage,
-  activateExam,
-  deactivateExam,
-  previewExam,
-  renameExam,
-  deleteExam,
-  updateExamAssignments,
-  createExam,
-  addExercise,
-  removeExercise,
-  getAllExercisesWithinTopic,
-  setSelectedExercises,
-  goToTopic,
-  goToTopLevel,
-  copyExam,
-  updateExamDetails,
-};

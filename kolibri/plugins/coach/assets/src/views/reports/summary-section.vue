@@ -72,7 +72,7 @@
 
 <script>
 
-  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   export default {
@@ -98,23 +98,6 @@
     components: {
       progressBar,
       progressIcon,
-    },
-    computed: {
-      lastActiveDate() {
-        if (this.lastActive) {
-          return this.$tr('lastActiveText', [new Date(this.lastActive)]);
-        }
-        return '\u2013';
-      },
-      Kinds() {
-        return CoreConstants.ContentNodeKinds;
-      },
-      isInProgress() {
-        return this.contentProgress > 0 && this.contentProgress < 1;
-      },
-      isCompleted() {
-        return this.contentProgress === 1;
-      },
     },
     props: {
       kind: {
@@ -152,6 +135,23 @@
       isRecentView: {
         type: Boolean,
         required: true,
+      },
+    },
+    computed: {
+      lastActiveDate() {
+        if (this.lastActive) {
+          return this.$tr('lastActiveText', [new Date(this.lastActive)]);
+        }
+        return '\u2013';
+      },
+      Kinds() {
+        return ContentNodeKinds;
+      },
+      isInProgress() {
+        return this.contentProgress > 0 && this.contentProgress < 1;
+      },
+      isCompleted() {
+        return this.contentProgress === 1;
       },
     },
   };

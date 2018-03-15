@@ -12,6 +12,7 @@
 <script>
 
   export default {
+    name: 'answerIcon',
     props: {
       answer: {
         type: String,

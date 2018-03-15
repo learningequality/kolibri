@@ -73,7 +73,7 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import { PageNames } from '../../../constants';
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
@@ -105,7 +105,7 @@
       nobody: 'Nobody',
     },
     components: {
-      CoreTable,
+      coreTable,
       kRouterLink,
       kSelect,
       CoreInfoIcon,

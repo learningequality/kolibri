@@ -2,7 +2,6 @@ import lessonsRoutes from './lessonsRoutes';
 import examRoutes from './examRoutes';
 import { showClassListPage } from '../state/actions/main';
 import { showGroupsPage } from '../state/actions/group';
-
 import {
   showLearnerChannelRoot,
   showLearnerChannels,

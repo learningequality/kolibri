@@ -58,7 +58,7 @@
   import searchTools from './searchTools';
   import { saveLessonResources } from '../../../state/actions/lessons';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
-  import { LessonsPageNames } from '../../../lessonsConstants';
+  import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { lessonSummaryLink, topicListingLink } from '../lessonsRouterUtils';
 

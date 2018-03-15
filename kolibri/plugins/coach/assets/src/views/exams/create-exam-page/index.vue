@@ -142,7 +142,7 @@
     setSelectedExercises,
   } from '../../../state/actions/exam';
   import { className } from '../../../state/getters/main';
-  import { Modals as ExamModals } from '../../../examConstants';
+  import { Modals as ExamModals } from '../../../constants/examConstants';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -156,7 +156,7 @@
   import orderBy from 'lodash/orderBy';
   import random from 'lodash/random';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import flatMap from 'lodash/flatMap';
 
   export default {
@@ -172,7 +172,7 @@
       previewNewExamModal,
       kCheckbox,
       uiAlert,
-      CoreTable,
+      coreTable,
     },
     mixins: [responsiveWindow],
     $trs: {

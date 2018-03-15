@@ -25,7 +25,7 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
-    name: 'classSelector',
+    name: 'navTitle',
     $trs: {
       allClasses: 'All classes',
     },

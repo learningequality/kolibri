@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import sinon from 'sinon';
-import { mount } from 'avoriaz';
+import { mount } from '@vue/test-utils';
 import assert from 'assert';
 import ContentNodeRow from '../../src/views/select-content-page/content-node-row.vue';
 import { makeNode } from '../utils/data';
@@ -22,21 +22,14 @@ function makeWrapper(props = {}) {
   });
 }
 
+// prettier-ignore
 function getElements(wrapper) {
   return {
-    titleText: () =>
-      wrapper
-        .first('.title')
-        .text()
-        .trim(),
-    messageText: () =>
-      wrapper
-        .first('.message')
-        .text()
-        .trim(),
+    titleText: () => wrapper.find('.title').text().trim(),
+    messageText: () => wrapper.find('.message').text().trim(),
     goToTopicButton: () => wrapper.find('button[name="select-node"]'),
-    checkbox: () => wrapper.first('input[type="checkbox"]'),
-    kCheckbox: () => wrapper.first(kCheckbox),
+    checkbox: () => wrapper.find('input[type="checkbox"]'),
+    kCheckbox: () => wrapper.find(kCheckbox),
   };
 }
 
@@ -57,11 +50,9 @@ describe('contentNodeRow component', () => {
     const wrapper = makeWrapper();
     const { goToTopicButton } = getElements(wrapper);
     const emitSpy = sinon.spy(wrapper.vm, '$emit');
-    goToTopicButton()[0].trigger('click');
-    return wrapper.vm.$nextTick().then(() => {
-      sinon.assert.calledOnce(emitSpy);
-      sinon.assert.calledWith(emitSpy, 'clicktopic', wrapper.vm.node);
-    });
+    goToTopicButton().trigger('click');
+    sinon.assert.calledOnce(emitSpy);
+    sinon.assert.calledWith(emitSpy, 'clicktopic', wrapper.vm.node);
   });
 
   it('when node is not a topic, title is just text', () => {
@@ -71,7 +62,7 @@ describe('contentNodeRow component', () => {
       }),
     });
     const { goToTopicButton, titleText } = getElements(wrapper);
-    assert.equal(goToTopicButton()[0], undefined);
+    assert.equal(goToTopicButton().exists(), false);
     assert.equal(titleText(), 'node_1');
   });
 
@@ -88,16 +79,14 @@ describe('contentNodeRow component', () => {
     const emitSpy = sinon.spy(wrapper.vm, '$emit');
     // have to "click" the inner checkbox to trigger "change" on whole component
     checkbox().trigger('click');
-    return wrapper.vm.$nextTick().then(() => {
-      sinon.assert.calledOnce(emitSpy);
-      sinon.assert.calledWith(emitSpy, 'changeselection', wrapper.vm.node);
-    });
+    sinon.assert.calledOnce(emitSpy);
+    sinon.assert.calledWith(emitSpy, 'changeselection', wrapper.vm.node);
   });
 
   it('when props.disabled, the checkbox is disabled', () => {
     const wrapper = makeWrapper({ disabled: true });
     const { checkbox } = getElements(wrapper);
-    assert.equal(checkbox().getAttribute('disabled'), 'disabled');
+    assert.equal(checkbox().attributes().disabled, 'disabled');
   });
 
   it('when props.checked, the checkbox is checked', () => {
@@ -107,7 +96,7 @@ describe('contentNodeRow component', () => {
     });
     // For some reason, the HTML for the actual checkbox does not have checked attribute
     const { kCheckbox } = getElements(wrapper);
-    assert.equal(kCheckbox().getProp('checked'), true);
+    assert.equal(kCheckbox().props().checked, true);
   });
 
   it('when props.determinate, the checkbox is indeterminate', () => {
@@ -117,6 +106,6 @@ describe('contentNodeRow component', () => {
       indeterminate: true,
     });
     const { kCheckbox } = getElements(wrapper);
-    assert.equal(kCheckbox().getProp('indeterminate'), true);
+    assert.equal(kCheckbox().props().indeterminate, true);
   });
 });
