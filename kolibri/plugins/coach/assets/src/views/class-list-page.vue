@@ -7,32 +7,34 @@
       <p>{{ $tr('classPageSubheader') }}</p>
     </section>
 
-    <div class="table-wrapper" v-if="!noClassesExist">
-      <core-table>
-        <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
-        <thead slot="thead">
-          <tr>
-            <th class="core-table-icon-col"></th>
-            <th class="core-table-main-col">{{ $tr('classroomName') }}</th>
-            <th>{{ $tr('learnerColumnHeader') }}</th>
-          </tr>
-        </thead>
-        <tbody slot="tbody">
-          <tr v-for="cl in sortedClasses" :key="cl.id">
-            <td class="core-table-icon-col">
-              <content-icon :kind="CLASSROOM" />
-            </td>
-            <th scope="row" class="core-table-main-col">
-              <k-router-link
-                :text="cl.name"
-                :to="learnerPageLink(cl.id)"
-              />
-            </th>
-            <td>{{ cl.memberCount }}</td>
-          </tr>
-        </tbody>
-      </core-table>
-    </div>
+    <core-table v-if="!noClassesExist">
+      <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
+      <thead slot="thead">
+        <tr>
+          <th class="core-table-icon-col"></th>
+          <th class="core-table-main-col">{{ $tr('classroomName') }}</th>
+          <th>{{ $tr('learnerColumnHeader') }}</th>
+        </tr>
+      </thead>
+
+      <tbody slot="tbody">
+        <tr
+          v-for="classroom in sortedClasses"
+          :key="classroom.id"
+        >
+          <td class="core-table-icon-col">
+            <content-icon :kind="CLASSROOM" />
+          </td>
+          <td class="core-table-main-col">
+            <k-router-link
+              :text="classroom.name"
+              :to="learnerPageLink(classroom.id)"
+            />
+          </td>
+          <td>{{ classroom.learner_count }}</td>
+        </tr>
+      </tbody>
+    </core-table>
 
     <p v-else>{{ $tr('noClassesExist') }}</p>
 
@@ -50,6 +52,13 @@
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
+  function learnerPageLink(classId) {
+    return {
+      name: PageNames.LEARNER_LIST,
+      params: { classId },
+    };
+  }
+
   export default {
     name: 'classListPage',
     components: {
@@ -60,23 +69,16 @@
     computed: {
       CLASSROOM: () => ContentNodeKinds.CLASSROOM,
       sortedClasses() {
-        return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
-      },
-      noClassesExist() {
-        return this.sortedClasses ? this.sortedClasses.length === 0 : false;
+        return orderBy(this.classList, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
     },
     methods: {
-      learnerPageLink(id) {
-        return {
-          name: PageNames.LEARNER_LIST,
-          params: { classId: id },
-        };
-      },
+      learnerPageLink,
     },
     vuex: {
       getters: {
-        classes: state => state.classList,
+        classList: state => state.classList,
+        noClassesExist: state => state.classList.length === 0,
       },
     },
     $trs: {
