@@ -7,14 +7,6 @@ const translator = createTranslator('classListTitles', {
   classListPageTitle: 'Classes',
 });
 
-function _classState(classData) {
-  return {
-    id: classData.id,
-    name: classData.name,
-    memberCount: classData.learner_count,
-  };
-}
-
 export function setClassState(store, classId = null) {
   return ClassroomResource.getCollection()
     .fetch()
@@ -23,7 +15,7 @@ export function setClassState(store, classId = null) {
       if (classId) {
         className = classes.find(classroom => classroom.id === classId).name;
       }
-      store.dispatch('SET_CLASS_INFO', classId, className, classes.map(_classState));
+      store.dispatch('SET_CLASS_INFO', classId, className, [...classes]);
     });
 }
 
