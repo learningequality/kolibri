@@ -22,6 +22,7 @@
         <tr>
           <th class="core-table-icon-col"></th>
           <th class="core-table-main-col">{{ $tr('className') }}</th>
+          <th>{{ $tr('coachesColumnHeader') }}</th>
           <th>{{ $tr('learnersColumnHeader') }}</th>
           <th>{{ $tr('actions') }}</th>
         </tr>
@@ -34,12 +35,15 @@
           <td class="core-table-icon-col">
             <ui-icon icon="business" />
           </td>
-          <th class="core-table-main-col">
+          <td class="core-table-main-col">
             <k-router-link
               :text="classroom.name"
               :to="classEditLink(classroom.id)"
             />
-          </th>
+          </td>
+          <td>
+            {{ coachNames(classroom) }}
+          </td>
           <td>
             {{ classroom.learner_count }}
           </td>
@@ -110,6 +114,20 @@
       },
     },
     methods: {
+      coachNames(classroom) {
+        const { coach_names } = classroom;
+        if (coach_names.length === 0) {
+          return '–';
+        }
+        if (coach_names.length <= 2) {
+          return classroom.coach_names.join(', ');
+        }
+        return this.$tr('truncatedCoachNames', {
+          name1: coach_names[0],
+          name2: coach_names[1],
+          numRemaining: coach_names.length - 2,
+        });
+      },
       classEditLink,
       openDeleteClassModal(classModel) {
         this.currentClassDelete = classModel;
@@ -135,8 +153,8 @@
       tableCaption: 'List of classes',
       learnersColumnHeader: 'Learners',
       coachesColumnHeader: 'Coaches',
-      extraUserCountLabel:
-        '{numberOfUsers, number} {numberOfUsers, plural, one {other}, other {others}',
+      truncatedCoachNames:
+        '{name1}, {name2}, {numRemaining, number} {numRemaining, plural, one {other} other {others}}',
       actions: 'Actions',
       noClassesExist: 'No classes exist.',
     },
