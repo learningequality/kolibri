@@ -13,6 +13,7 @@
         <tr>
           <th class="core-table-icon-col"></th>
           <th class="core-table-main-col">{{ $tr('classroomName') }}</th>
+          <th>{{ $tr('coachesColumnHeader') }}</th>
           <th>{{ $tr('learnerColumnHeader') }}</th>
         </tr>
       </thead>
@@ -31,6 +32,7 @@
               :to="learnerPageLink(classroom.id)"
             />
           </td>
+          <td>{{ coachNames(classroom) }}</td>
           <td>{{ classroom.learner_count }}</td>
         </tr>
       </tbody>
@@ -74,6 +76,21 @@
     },
     methods: {
       learnerPageLink,
+      // Duplicated in manage-classroom-page
+      coachNames(classroom) {
+        const { coach_names } = classroom;
+        if (coach_names.length === 0) {
+          return '–';
+        }
+        if (coach_names.length <= 2) {
+          return classroom.coach_names.join(', ');
+        }
+        return this.$tr('truncatedCoachNames', {
+          name1: coach_names[0],
+          name2: coach_names[1],
+          numRemaining: coach_names.length - 2,
+        });
+      },
     },
     vuex: {
       getters: {
@@ -90,6 +107,8 @@
       coachesColumnHeader: 'Coaches',
       learnerColumnHeader: 'Learners',
       classIconTableDescription: 'Class icon',
+      truncatedCoachNames:
+        '{name1}, {name2}, {numRemaining, number} {numRemaining, plural, one {other} other {others}}',
     },
   };
 
