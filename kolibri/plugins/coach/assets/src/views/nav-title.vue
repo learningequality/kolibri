@@ -58,9 +58,11 @@
 ul, li
   margin: 0
   padding: 0
-  display: inline-text
+  display: inline
+  list-style-type: none
 
-li::after
-  content: ','
+li
+  &::after:not(&:last-child)
+    content: ','
 
 </style>
