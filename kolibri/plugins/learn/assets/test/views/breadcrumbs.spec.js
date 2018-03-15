@@ -3,7 +3,7 @@ import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
 import assert from 'assert';
 import Breadcrumbs from '../../src/views/breadcrumbs';
-import { mount } from 'avoriaz';
+import { mount } from '@vue/test-utils';
 import makeStore from '../util/makeStore';
 import { PageNames } from '../../src/constants';
 import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
@@ -28,13 +28,13 @@ const router = new VueRouter({
 });
 
 function makeWrapper(options = {}) {
-  return mount(Breadcrumbs, Object.assign(options, { router }));
+  return mount(Breadcrumbs, { ...options, router });
 }
 
 function getElements(wrapper) {
   return {
-    breadcrumbs: () => wrapper.find(kBreadcrumbs)[0],
-    breadcrumbItems: () => wrapper.first(kBreadcrumbs).getProp('items'),
+    breadcrumbs: () => wrapper.find(kBreadcrumbs),
+    breadcrumbItems: () => wrapper.find(kBreadcrumbs).props().items,
   };
 }
 
@@ -44,7 +44,7 @@ describe('learn page breadcrumbs', () => {
       const store = makeStore({ pageName: PageNames.RECOMMENDED });
       const wrapper = makeWrapper({ store });
       const { breadcrumbs } = getElements(wrapper);
-      assert.equal(breadcrumbs(), undefined);
+      assert.equal(breadcrumbs().exists(), false);
     });
 
     it('shows correct breadcrumbs when on a Recommended Content Item', () => {
@@ -68,7 +68,7 @@ describe('learn page breadcrumbs', () => {
       const store = makeStore({ pageName: PageNames.TOPICS_ROOT });
       const wrapper = makeWrapper({ store });
       const { breadcrumbs } = getElements(wrapper);
-      assert.equal(breadcrumbs(), undefined);
+      assert.equal(breadcrumbs().exists(), false);
     });
 
     it('shows correct breadcrumbs at a Channel', () => {

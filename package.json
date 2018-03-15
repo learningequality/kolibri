@@ -64,7 +64,6 @@
   "devDependencies": {
     "@vue/test-utils": "^1.0.0-beta.12",
     "autoprefixer": "^7.1.4",
-    "avoriaz": "^6.0.0",
     "buble": "^0.16.0",
     "buble-loader": "^0.4.1",
     "colors": "^1.1.2",

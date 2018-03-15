@@ -54,7 +54,7 @@
     }),
     computed: {
       maxWidth() {
-        return this.enoughSpace ? this.elSize.width : this.elSize.width - 36 * 2;
+        return this.enoughSpace ? this.elSize.width : this.elSize.width - 38 * 2;
       },
     },
     mounted() {

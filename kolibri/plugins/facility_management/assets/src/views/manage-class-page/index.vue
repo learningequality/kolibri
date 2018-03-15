@@ -68,10 +68,10 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import * as constants from '../../constants';
-  import * as actions from '../../state/actions';
+  import { Modals, PageNames } from '../../constants';
+  import { displayModal } from '../../state/actions';
   import orderBy from 'lodash/orderBy';
   import classCreateModal from './class-create-modal';
   import classDeleteModal from './class-delete-modal';
@@ -82,7 +82,7 @@
   export default {
     name: 'classPage',
     components: {
-      CoreTable,
+      coreTable,
       classCreateModal,
       classDeleteModal,
       kButton,
@@ -96,10 +96,10 @@
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
       showDeleteClassModal() {
-        return this.modalShown === constants.Modals.DELETE_CLASS;
+        return this.modalShown === Modals.DELETE_CLASS;
       },
       showCreateClassModal() {
-        return this.modalShown === constants.Modals.CREATE_CLASS;
+        return this.modalShown === Modals.CREATE_CLASS;
       },
       noClassesExist() {
         return this.sortedClasses.length === 0;
@@ -108,16 +108,16 @@
     methods: {
       classEditLink(id) {
         return {
-          name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
+          name: PageNames.CLASS_EDIT_MGMT_PAGE,
           params: { id },
         };
       },
       openDeleteClassModal(classModel) {
         this.currentClassDelete = classModel;
-        this.displayModal(constants.Modals.DELETE_CLASS);
+        this.displayModal(Modals.DELETE_CLASS);
       },
       openCreateClassModal() {
-        this.displayModal(constants.Modals.CREATE_CLASS);
+        this.displayModal(Modals.CREATE_CLASS);
       },
     },
     vuex: {
@@ -125,7 +125,7 @@
         modalShown: state => state.pageState.modalShown,
         classes: state => state.pageState.classes,
       },
-      actions: { displayModal: actions.displayModal },
+      actions: { displayModal },
     },
     $trs: {
       allClasses: 'All classes',

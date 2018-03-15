@@ -36,6 +36,7 @@
     "facilityNameForm.facilityNamingFormDescription": "Un institut est l’endroit où vous installez Kolibri, comme une école ou un centre de formation.",
     "facilityNameForm.facilityNameFieldLabel": "Nom de l'institut",
     "facilityNameForm.facilityNameFieldEmptyErrorMessage": "Le nom de l'institut ne peut pas être vide",
+    "facilityNameForm.facilityNameFieldMaxLengthReached": "Le nom de l'établissement ne peut pas comporter plus de 100 caractères",
     "defaultLanguageForm.languageFormHeader": "Veuillez sélectionner la langue par défaut pour Kolibri",
     "progressToolbar.progressIndicator": "Étape {currentStep, number} de {totalSteps, number}",
     "onboardingErrorPage.errorPageHeader": "Une erreur s'est produite!",

@@ -10,6 +10,7 @@
 <script>
 
   export default {
+    name: 'vueExample',
     props: {
       code: {
         type: String,

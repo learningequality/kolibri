@@ -1,11 +1,15 @@
-import os
 import logging as logger
+import os
+
 from django.conf import settings
 from django.core.management.base import CommandError
-from kolibri.tasks.management.commands.base import AsyncCommand
 from requests.exceptions import HTTPError
 
-from ...utils import annotation, import_export_content, paths, transfer
+from ...utils import annotation
+from ...utils import import_export_content
+from ...utils import paths
+from ...utils import transfer
+from kolibri.tasks.management.commands.base import AsyncCommand
 
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
@@ -60,6 +64,14 @@ class Command(AsyncCommand):
             help=exclude_node_ids_help_text
         )
 
+        parser.add_argument(
+            "--include-unrenderable-content",
+            action='store_false',
+            default=True,
+            dest="renderable_only",
+            help="Import all content, not just that which this Kolibri instance can render"
+        )
+
         # to implement these two groups of commands and their corresponding
         # arguments, we'll need argparse.subparsers.
         subparsers = parser.add_subparsers(dest='command', help="The following subcommands are available.")
@@ -97,16 +109,16 @@ class Command(AsyncCommand):
         disk_subparser.add_argument('channel_id', type=str)
         disk_subparser.add_argument('directory', type=str)
 
-    def download_content(self, channel_id, node_ids=None, exclude_node_ids=None, baseurl=None):
-        self._transfer(DOWNLOAD_METHOD, channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, baseurl=baseurl)
+    def download_content(self, channel_id, node_ids=None, exclude_node_ids=None, baseurl=None, renderable_only=True):
+        self._transfer(DOWNLOAD_METHOD, channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, baseurl=baseurl, renderable_only=renderable_only)
 
-    def copy_content(self, channel_id, path, node_ids=None, exclude_node_ids=None):
-        self._transfer(COPY_METHOD, channel_id, path=path, node_ids=node_ids, exclude_node_ids=exclude_node_ids)
+    def copy_content(self, channel_id, path, node_ids=None, exclude_node_ids=None, renderable_only=True):
+        self._transfer(COPY_METHOD, channel_id, path=path, node_ids=node_ids, exclude_node_ids=exclude_node_ids, renderable_only=renderable_only)
 
-    def _transfer(self, method, channel_id, path=None, node_ids=None, exclude_node_ids=None, baseurl=None):  # noqa: max-complexity=16
+    def _transfer(self, method, channel_id, path=None, node_ids=None, exclude_node_ids=None, baseurl=None, renderable_only=True):  # noqa: max-complexity=16
 
         files_to_download, total_bytes_to_transfer = import_export_content.get_files_to_transfer(
-            channel_id, node_ids, exclude_node_ids, False)
+            channel_id, node_ids, exclude_node_ids, False, renderable_only=renderable_only)
 
         number_of_skipped_files = 0
         file_checksums_to_annotate = []
@@ -173,12 +185,14 @@ class Command(AsyncCommand):
             self.download_content(options["channel_id"],
                                   node_ids=options["node_ids"],
                                   exclude_node_ids=options['exclude_node_ids'],
-                                  baseurl=options["baseurl"])
+                                  baseurl=options["baseurl"],
+                                  renderable_only=options["renderable_only"])
         elif options['command'] == 'disk':
             self.copy_content(options["channel_id"],
                               options["directory"],
                               node_ids=options["node_ids"],
-                              exclude_node_ids=options["exclude_node_ids"])
+                              exclude_node_ids=options["exclude_node_ids"],
+                              renderable_only=options["renderable_only"])
         else:
             self._parser.print_help()
             raise CommandError("Please give a valid subcommand. You gave: {}".format(options["command"]))

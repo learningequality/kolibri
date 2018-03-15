@@ -40,6 +40,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
 
   export default {
+    name: 'cardThumbnail',
     components: {
       contentIcon,
     },

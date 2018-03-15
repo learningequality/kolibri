@@ -74,10 +74,11 @@ import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
 import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
-import CoreTable from '../views/CoreTable';
+import coreTable from '../views/core-table';
 import kDropdownMenu from '../views/k-dropdown-menu';
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
+import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
 
 export default {
@@ -135,8 +136,9 @@ export default {
       appBar,
       coreSnackbar,
       customUiMenu,
-      CoreTable,
+      coreTable,
       kDropdownMenu,
+      CoreInfoIcon,
     },
     router,
     mixins: {

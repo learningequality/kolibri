@@ -20,6 +20,7 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
+    name: 'nameCell',
     components: { contentIcon, kRouterLink },
     props: {
       kind: {

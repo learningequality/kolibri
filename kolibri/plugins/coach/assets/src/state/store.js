@@ -36,6 +36,7 @@ export const mutations = {
     Vue.set(state.pageState, 'contentScopeId', options.contentScopeId);
     Vue.set(state.pageState, 'userScope', options.userScope);
     Vue.set(state.pageState, 'userScopeId', options.userScopeId);
+    Vue.set(state.pageState, 'userScopeName', options.userScopeName);
     Vue.set(state.pageState, 'viewBy', options.viewBy);
     Vue.set(state.pageState, 'showRecentOnly', options.showRecentOnly);
   },
@@ -74,11 +75,11 @@ export const mutations = {
   SET_EXAMS(state, exams) {
     state.pageState.exams = exams;
   },
-  SET_EXAM_MODAL(state, modalName) {
-    state.pageState.examModalShown = modalName;
+  SET_EXAMS_MODAL(state, modalName) {
+    state.pageState.examsModalSet = modalName;
   },
   // etc
-  SET_SELETED_ATTEMPTLOG_INDEX(state, attemptLog) {
+  SET_SELECTED_ATTEMPT_LOG_INDEX(state, attemptLog) {
     state.pageState.selectedAttemptLogIndex = attemptLog;
   },
 

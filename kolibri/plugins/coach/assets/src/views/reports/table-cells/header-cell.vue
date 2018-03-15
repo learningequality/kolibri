@@ -28,9 +28,9 @@
 
 <script>
 
-  import * as reportGetters from '../../../state/getters/reports';
-  import * as reportConstants from '../../../reportConstants';
-  import * as reportActions from '../../../state/actions/reports';
+  import { sortColumn, sortOrder } from '../../../state/getters/reports';
+  import { SortOrders } from '../../../constants/reportConstants';
+  import { setReportSorting } from '../../../state/actions/reports';
 
   export default {
     name: 'headerCell',
@@ -57,15 +57,14 @@
     computed: {
       sorted() {
         return (
-          this.column === this.sortColumn &&
-          (this.sortOrder && this.sortOrder !== reportConstants.SortOrders.NONE)
+          this.column === this.sortColumn && (this.sortOrder && this.sortOrder !== SortOrders.NONE)
         );
       },
       sortedDescending() {
-        return this.sorted && this.sortOrder === reportConstants.SortOrders.DESCENDING;
+        return this.sorted && this.sortOrder === SortOrders.DESCENDING;
       },
       sortedAscending() {
-        return this.sorted && this.sortOrder === reportConstants.SortOrders.ASCENDING;
+        return this.sorted && this.sortOrder === SortOrders.ASCENDING;
       },
     },
     methods: {
@@ -73,22 +72,22 @@
         let sortOrder;
         if (!this.sorted) {
           // If not currently sorted, sort descending
-          sortOrder = reportConstants.SortOrders.DESCENDING;
+          sortOrder = SortOrders.DESCENDING;
         } else if (this.sortedDescending) {
-          sortOrder = reportConstants.SortOrders.ASCENDING;
+          sortOrder = SortOrders.ASCENDING;
         } else {
-          sortOrder = reportConstants.SortOrders.NONE;
+          sortOrder = SortOrders.NONE;
         }
         this.setReportSorting(this.column, sortOrder);
       },
     },
     vuex: {
       getters: {
-        sortColumn: reportGetters.sortColumn,
-        sortOrder: reportGetters.sortOrder,
+        sortColumn,
+        sortOrder,
       },
       actions: {
-        setReportSorting: reportActions.setReportSorting,
+        setReportSorting,
       },
     },
   };

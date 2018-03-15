@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-22 18:11-0800\n"
-"PO-Revision-Date: 2017-12-05 19:25-0500\n"
+"PO-Revision-Date: 2018-03-12 01:54-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Urdu (Pakistan)\n"
 "Language: ur_PK\n"
@@ -14,16 +14,16 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: ur-PK\n"
-"X-Crowdin-File: /release-v0.7.x/LC_MESSAGES/django.po\n"
+"X-Crowdin-File: /release-v0.8.x/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:12
 #: kolibri/plugins/management/kolibri_plugin.py:29
 msgid "Facility"
-msgstr "تعلیمی ادارہ"
+msgstr "سہولت"
 
 #: kolibri/auth/constants/collection_kinds.py:13
 msgid "Classroom"
-msgstr "کلاس روم"
+msgstr "کمرۂ جماعت"
 
 #: kolibri/auth/constants/collection_kinds.py:14
 msgid "Learner group"
@@ -59,15 +59,15 @@ msgstr "شمولیات کی تاریخ"
 
 #: kolibri/auth/serializers.py:31
 msgid "An account with that username already exists"
-msgstr "اس نام سے ایک اکاؤنٹ پہلے ہی موجود ہے ۔"
+msgstr "اس صارف کے ساتھ اکاؤنٹ پہلے ہی موجود ہے"
 
 #: kolibri/content/api.py:355
 msgid "The requested channel does not exist on the content server"
-msgstr "درخواست کردہ چینل موادکے سرور پر موجود نہیں ہے"
+msgstr "درخواست کردہ چینل مواد سرور پر موجود نہیں ہے"
 
 #: kolibri/content/models.py:183
 msgid "Unknown format"
-msgstr "نا معلوم ساخت"
+msgstr "نامعلوم شکل"
 
 #: kolibri/core/device/serializers.py:44
 msgid "Language is not supported by Kolibri"

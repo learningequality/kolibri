@@ -4,8 +4,8 @@ import Vuex from 'vuex';
 import assert from 'assert';
 import sinon from 'sinon';
 import ChannelListPage from '../../src/views/reports/channel-list-page';
-import * as ReportConstants from '../../src/reportConstants';
-import { mount } from 'avoriaz';
+import { ViewBy } from '../../src/constants/reportConstants';
+import { mount } from '@vue/test-utils';
 
 const initialState = () => ({
   classId: '',
@@ -38,7 +38,7 @@ const initialState = () => ({
         id: 'test3',
       },
     ],
-    viewBy: ReportConstants.ViewBy.CHANNEL,
+    viewBy: ViewBy.CHANNEL,
     sortColumn: '',
     sortOrder: '',
   },
@@ -48,17 +48,17 @@ function makeWrapper(options = {}, state) {
   const store = new Vuex.Store({
     state: state || initialState(),
   });
-  const components = {
-    'report-subheading': '<div></div>',
-    'name-cell': '<div></div>',
-  };
-  return mount(ChannelListPage, Object.assign(options, { store, components }));
+  return mount(ChannelListPage, {
+    ...options,
+    stubs: ['report-subheading', 'name-cell'],
+    store,
+  });
 }
 
 function getElements(wrapper) {
   return {
-    channelRows: () => wrapper.find('tbody > tr'),
-    headerText: () => wrapper.find('h1')[0],
+    channelRows: () => wrapper.findAll('tbody > tr'),
+    headerText: () => wrapper.findAll('h1').at(0),
   };
 }
 

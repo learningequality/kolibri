@@ -1,32 +1,92 @@
 // TODO move more mutations here so they can be tested
+export function SET_PAGE_NAME(state, name) {
+  state.pageName = name;
+}
+export function SET_PAGE_STATE(state, pageState) {
+  state.pageState = pageState;
+}
+// modal mutations
+export function SET_MODAL(state, modalName) {
+  state.pageState.modalShown = modalName;
+}
 
-function CONFIG_PAGE_NOTIFY(state, notificationType) {
+// class mutations
+export function ADD_CLASS(state, classModel) {
+  state.pageState.classes.push(classModel);
+}
+
+export function UPDATE_CLASS(state, id, updatedClass) {
+  state.pageState.classes.forEach((classModel, index, arr) => {
+    if (classModel.id === id) {
+      arr[index] = updatedClass;
+    }
+  });
+}
+
+export function DELETE_CLASS(state, id) {
+  state.pageState.classes = state.pageState.classes.filter(classModel => classModel.id !== id);
+}
+
+export function DELETE_CLASS_USER(state, id) {
+  state.pageState.classUsers = state.pageState.classUsers.filter(user => user.id !== id);
+}
+
+// user mutations
+export function ADD_USER(state, user) {
+  state.pageState.facilityUsers.push(user);
+}
+
+// TODO to be removed
+export function SET_USER_JUST_CREATED(state, user) {
+  state.pageState.userJustCreated = user;
+}
+
+export function UPDATE_USERS(state, users) {
+  users.forEach(user => {
+    state.pageState.facilityUsers.forEach(existingUser => {
+      if (existingUser.id === user.id.toString()) {
+        existingUser.username = user.username;
+        existingUser.full_name = user.full_name;
+        existingUser.kind = user.kind;
+      }
+    });
+  });
+}
+
+export function SET_ERROR(state, error) {
+  state.pageState.error = error;
+}
+
+export function SET_BUSY(state, isBusy) {
+  state.pageState.isBusy = isBusy;
+}
+
+export function DELETE_USER(state, id) {
+  state.pageState.facilityUsers = state.pageState.facilityUsers.filter(user => user.id !== id);
+}
+
+export function UPDATE_CURRENT_USER_KIND(state, newKind) {
+  state.core.session.kind = newKind;
+}
+export function CONFIG_PAGE_NOTIFY(state, notificationType) {
   state.pageState.notification = notificationType;
 }
 
-function CONFIG_PAGE_UNDO_SETTINGS_CHANGE(state) {
+export function CONFIG_PAGE_UNDO_SETTINGS_CHANGE(state) {
   state.pageState.settings = Object.assign({}, state.pageState.settingsCopy);
 }
 
-function CONFIG_PAGE_MODIFY_SETTING(state, { name, value }) {
+export function CONFIG_PAGE_MODIFY_SETTING(state, { name, value }) {
   if (state.pageState.settings[name] !== undefined) {
     state.pageState.settings[name] = value;
   }
 }
 
-function CONFIG_PAGE_MODIFY_ALL_SETTINGS(state, settings) {
+export function CONFIG_PAGE_MODIFY_ALL_SETTINGS(state, settings) {
   state.pageState.settings = Object.assign({}, settings);
 }
 
 // this is basically the inverse of undo settings...
-function CONFIG_PAGE_COPY_SETTINGS(state) {
+export function CONFIG_PAGE_COPY_SETTINGS(state) {
   state.pageState.settingsCopy = Object.assign({}, state.pageState.settings);
 }
-
-export default {
-  CONFIG_PAGE_NOTIFY,
-  CONFIG_PAGE_UNDO_SETTINGS_CHANGE,
-  CONFIG_PAGE_MODIFY_SETTING,
-  CONFIG_PAGE_MODIFY_ALL_SETTINGS,
-  CONFIG_PAGE_COPY_SETTINGS,
-};

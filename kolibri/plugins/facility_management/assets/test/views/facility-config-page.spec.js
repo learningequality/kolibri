@@ -4,8 +4,8 @@ import Vuex from 'vuex';
 import sinon from 'sinon';
 import assert from 'assert';
 import ConfigPage from '../../src/views/facilities-config-page';
-import confirmResetModal from '../../src/views/facilities-config-page/confirm-reset-modal.vue';
-import { mount } from 'avoriaz';
+import confirmResetModal from '../../src/views/facilities-config-page/confirm-reset-modal';
+import { mount } from '@vue/test-utils';
 
 function makeWrapper(propsData = {}) {
   const store = new Vuex.Store({
@@ -30,35 +30,33 @@ function makeWrapper(propsData = {}) {
 
 function getElements(wrapper) {
   return {
-    cancelResetButton: () => wrapper.first('button[name="cancel"]'),
-    checkbox: () => wrapper.first('input[class="k-checkbox-input"]'),
-    confirmResetButton: () => wrapper.first('button[name="reset"]'),
-    resetButton: () => wrapper.first('button[name="reset-settings"]'),
-    saveButton: () => wrapper.first('button[name="save-settings"]'),
-    confirmResetModal: () => wrapper.find(confirmResetModal)[0],
+    cancelResetButton: () => wrapper.find('button[name="cancel"]'),
+    checkbox: () => wrapper.find('input[class="k-checkbox-input"]'),
+    confirmResetButton: () => wrapper.find('button[name="reset"]'),
+    resetButton: () => wrapper.find('button[name="reset-settings"]'),
+    saveButton: () => wrapper.find('button[name="save-settings"]'),
+    confirmResetModal: () => wrapper.find(confirmResetModal),
   };
 }
 
 describe('facility config page view', () => {
   function assertModalIsUp(wrapper) {
     const { confirmResetModal } = getElements(wrapper);
-    assert(confirmResetModal().isVueComponent);
+    assert(confirmResetModal().exists());
   }
 
   function assertModalIsDown(wrapper) {
     const { confirmResetModal } = getElements(wrapper);
-    assert(confirmResetModal() === undefined);
+    assert(!confirmResetModal().exists());
   }
 
   it('clicking checkboxes dispatches a modify action', () => {
     const wrapper = makeWrapper();
     const { checkbox } = getElements(wrapper);
     checkbox().trigger('click');
-    return Vue.nextTick().then(() => {
-      assert.deepEqual(wrapper.vm.$store.state.TEST_DROPBOX, {
-        name: 'learnerCanEditUsername',
-        value: true,
-      });
+    assert.deepEqual(wrapper.vm.$store.state.TEST_DROPBOX, {
+      name: 'learnerCanEditUsername',
+      value: true,
     });
   });
 
@@ -67,9 +65,7 @@ describe('facility config page view', () => {
     wrapper.vm.saveFacilityConfig = sinon.stub().returns(Promise.resolve());
     const { saveButton } = getElements(wrapper);
     saveButton().trigger('click');
-    return Vue.nextTick().then(() => {
-      sinon.assert.calledOnce(wrapper.vm.saveFacilityConfig);
-    });
+    sinon.assert.calledOnce(wrapper.vm.saveFacilityConfig);
   });
 
   it('clicking reset button brings up the confirmation modal', () => {
@@ -85,11 +81,9 @@ describe('facility config page view', () => {
     const { resetButton, cancelResetButton } = getElements(wrapper);
     assertModalIsDown(wrapper);
     resetButton().trigger('click');
-    return Vue.nextTick().then(() => {
-      assertModalIsUp(wrapper);
-      cancelResetButton().trigger('click');
-      assertModalIsDown(wrapper);
-    });
+    assertModalIsUp(wrapper);
+    cancelResetButton().trigger('click');
+    assertModalIsDown(wrapper);
   });
 
   it('confirming reset calls the reset action and closes modal', () => {
@@ -97,16 +91,10 @@ describe('facility config page view', () => {
     wrapper.vm.resetFacilityConfig = sinon.spy();
     const { resetButton, confirmResetButton } = getElements(wrapper);
     resetButton().trigger('click');
-    return Vue.nextTick()
-      .then(() => {
-        assertModalIsUp(wrapper);
-        confirmResetButton().trigger('click');
-        return Vue.nextTick();
-      })
-      .then(() => {
-        sinon.assert.called(wrapper.vm.resetFacilityConfig);
-        assertModalIsDown(wrapper);
-      });
+    assertModalIsUp(wrapper);
+    confirmResetButton().trigger('click');
+    sinon.assert.called(wrapper.vm.resetFacilityConfig);
+    assertModalIsDown(wrapper);
   });
 
   // not tested: notifications

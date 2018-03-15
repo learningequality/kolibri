@@ -27,6 +27,7 @@
   import { navMenu } from './nav-menu.js';
 
   export default {
+    name: 'sideNav',
     data() {
       return {
         navMenu,

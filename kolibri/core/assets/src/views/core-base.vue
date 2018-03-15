@@ -65,7 +65,7 @@
   import sideNav from 'kolibri.coreVue.components.sideNav';
 
   export default {
-    name: 'coreBasePage',
+    name: 'coreBase',
     $trs: {
       kolibriMessage: 'Kolibri',
       kolibriTitleMessage: '{ title } - Kolibri',

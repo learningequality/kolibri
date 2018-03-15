@@ -3,7 +3,7 @@ import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import assert from 'assert';
-import { mount } from 'avoriaz';
+import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
 import ContentTreeViewer from '../../src/views/select-content-page/content-tree-viewer.vue';
 import ContentNodeRow from '../../src/views/select-content-page/content-node-row.vue';
@@ -42,14 +42,15 @@ function makeWrapper(options = {}) {
   });
 }
 
+// prettier-ignore
 function getElements(wrapper) {
   return {
     // Need to filter out checkboxes in content-node-rows
-    selectAllCheckbox: () =>
-      wrapper.find(kCheckbox).find(el => el.getProp('label') === 'Select all'),
-    emptyState: () => wrapper.first('.no-contents'),
-    contentsSection: () => wrapper.find('.contents'),
-    firstTopicButton: () => wrapper.find(ContentNodeRow)[0].first('button'),
+    selectAllCheckbox: () => wrapper.findAll(kCheckbox).filter(el => el.props().label === 'Select all').at(0),
+    emptyState: () => wrapper.find('.no-contents'),
+    contentsSection: () => wrapper.findAll('.contents'),
+    firstTopicButton: () => wrapper.find(ContentNodeRow).find('button'),
+    contentNodeRows: () => wrapper.findAll(ContentNodeRow),
   };
 }
 
@@ -91,7 +92,7 @@ describe('contentTreeViewer component', () => {
       ],
     });
     const wrapper = makeWrapper({ store });
-    const rows = wrapper.find(ContentNodeRow);
+    const rows = wrapper.findAll(ContentNodeRow);
     assert.equal(rows.length, 2);
   });
 
@@ -111,8 +112,8 @@ describe('contentTreeViewer component', () => {
       ],
     });
     const wrapper = makeWrapper({ store });
-    const rows = wrapper.find(ContentNodeRow);
-    assert.equal(rows.length, 1);
+    const { contentNodeRows } = getElements(wrapper);
+    assert.equal(contentNodeRows().length, 1);
   });
 
   it('in LOCALEXPORT, if a node has available: false, then it is not shown', () => {
@@ -133,15 +134,15 @@ describe('contentTreeViewer component', () => {
       ],
     });
     const wrapper = makeWrapper({ store });
-    const rows = wrapper.find(ContentNodeRow);
-    assert.equal(rows.length, 1);
+    const { contentNodeRows } = getElements(wrapper);
+    assert.equal(contentNodeRows().length, 1);
   });
 
   it('it shows an empty state if the topic has no children', () => {
     setChildren([]);
     const wrapper = makeWrapper({ store });
     const { contentsSection, emptyState } = getElements(wrapper);
-    assert.equal(contentsSection()[0], undefined);
+    assert.equal(contentsSection().length, 0);
     assert(emptyState().is('div'));
   });
 
@@ -172,23 +173,11 @@ describe('contentTreeViewer component', () => {
     });
   });
 
-  xit('the correct breadcrumbs appear on the top', () => {
-    // TODO create breadcrumb util to convert path -> breadrumbs.items prop
-  });
-
-  describe('loading and error states', () => {
-    it('shows loading screen when loading', () => {});
-
-    it('removes loading screen when loaded', () => {});
-
-    it('shows an error state if there was an error loading node', () => {});
-  });
-
   describe('"select all" checkbox state', () => {
     // These are integration tests with component and annotateNode utility
     function checkboxIsChecked(wrapper) {
       const { selectAllCheckbox } = getElements(wrapper);
-      return selectAllCheckbox().getProp('checked');
+      return selectAllCheckbox().props().checked;
     }
 
     it('if neither topic nor any ancestor is selected, then "Select All" is unchecked', () => {
@@ -246,16 +235,14 @@ describe('contentTreeViewer component', () => {
         .returns(Promise.resolve());
       const { selectAllCheckbox } = getElements(wrapper);
       selectAllCheckbox().trigger('click');
-      return wrapper.vm.$nextTick().then(() => {
-        const sanitized = omit(wrapper.vm.annotatedTopicNode, [
-          'message',
-          'checkboxType',
-          'disabled',
-          'children',
-        ]);
-        sinon.assert.calledOnce(removeNodeStub);
-        sinon.assert.calledWithMatch(removeNodeStub, sanitized);
-      });
+      const sanitized = omit(wrapper.vm.annotatedTopicNode, [
+        'message',
+        'checkboxType',
+        'disabled',
+        'children',
+      ]);
+      sinon.assert.calledOnce(removeNodeStub);
+      sinon.assert.calledWithMatch(removeNodeStub, sanitized);
     });
   });
 
@@ -272,14 +259,12 @@ describe('contentTreeViewer component', () => {
       const removeNodeStub = sinon
         .stub(wrapper.vm, 'removeNodeForTransfer')
         .returns(Promise.resolve());
-      const topicRow = wrapper.first(ContentNodeRow);
-      assert.equal(topicRow.getProp('checked'), true);
-      assert.equal(topicRow.getProp('disabled'), false);
-      topicRow.first('input[type="checkbox"]').trigger('click');
-      return wrapper.vm.$nextTick().then(() => {
-        sinon.assert.calledOnce(removeNodeStub);
-        sinon.assert.calledWithMatch(removeNodeStub, subTopic);
-      });
+      const topicRow = wrapper.find(ContentNodeRow);
+      assert.equal(topicRow.props().checked, true);
+      assert.equal(topicRow.props().disabled, false);
+      topicRow.find('input[type="checkbox"]').trigger('click');
+      sinon.assert.calledOnce(removeNodeStub);
+      sinon.assert.calledWithMatch(removeNodeStub, subTopic);
     });
 
     it('clicking an unchecked child node triggers an "add node" action', () => {
@@ -297,13 +282,11 @@ describe('contentTreeViewer component', () => {
       setChildren([subTopic, subTopic2]);
       const wrapper = makeWrapper({ store });
       const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
-      const topicRow = wrapper.first(ContentNodeRow);
-      assert.equal(topicRow.getProp('checked'), false);
-      topicRow.first('input[type="checkbox"]').trigger('click');
-      return wrapper.vm.$nextTick().then(() => {
-        sinon.assert.calledOnce(addNodeStub);
-        sinon.assert.calledWithMatch(addNodeStub, subTopic);
-      });
+      const topicRow = wrapper.find(ContentNodeRow);
+      assert.equal(topicRow.props().checked, false);
+      topicRow.find('input[type="checkbox"]').trigger('click');
+      sinon.assert.calledOnce(addNodeStub);
+      sinon.assert.calledWithMatch(addNodeStub, subTopic);
     });
 
     it('clicking an indeterminate child node triggers an "add node" action', () => {
@@ -325,18 +308,12 @@ describe('contentTreeViewer component', () => {
       setIncludedNodes([subSubTopic]);
       const wrapper = makeWrapper({ store });
       const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
-      const topicRow = wrapper.first(ContentNodeRow);
-      assert.equal(topicRow.getProp('checked'), false);
-      assert.equal(topicRow.getProp('indeterminate'), true);
-      topicRow.first('input[type="checkbox"]').trigger('click');
-      return wrapper.vm.$nextTick().then(() => {
-        sinon.assert.calledOnce(addNodeStub);
-        sinon.assert.calledWithMatch(addNodeStub, { pk: 'subtopic' });
-      });
+      const topicRow = wrapper.find(ContentNodeRow);
+      assert.equal(topicRow.props().checked, false);
+      assert.equal(topicRow.props().indeterminate, true);
+      topicRow.find('input[type="checkbox"]').trigger('click');
+      sinon.assert.calledOnce(addNodeStub);
+      sinon.assert.calledWithMatch(addNodeStub, { pk: 'subtopic' });
     });
-  });
-
-  xit('clicking an indeterminate or unchecked child node that completes the parent', () => {
-    // ...triggers an "add node" action with the parent topic
   });
 });

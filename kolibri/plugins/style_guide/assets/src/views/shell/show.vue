@@ -9,7 +9,9 @@
 
 <script>
 
-  export default {};
+  export default {
+    name: 'show',
+  };
 
 </script>
 

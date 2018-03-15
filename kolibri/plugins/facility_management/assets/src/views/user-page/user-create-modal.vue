@@ -86,7 +86,7 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
+  import { createUser, displayModal } from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -276,8 +276,8 @@
     vuex: {
       getters: { users: state => state.pageState.facilityUsers },
       actions: {
-        createUser: actions.createUser,
-        displayModal: actions.displayModal,
+        createUser,
+        displayModal,
       },
     },
   };
