@@ -6,16 +6,6 @@ import { UserKinds } from 'kolibri.coreVue.vuex.constants';
  * The methods below help map data from
  * the API to state in the Vuex store
  */
-export function _classState(data) {
-  return {
-    id: data.id,
-    name: data.name,
-    parent: data.parent,
-    memberCount: data.learner_count,
-    coachCount: data.coach_count,
-    adminCount: data.admin_count,
-  };
-}
 
 // On 'Users' page, this will end up showing a Admin/Coach role if user has such
 // Role for any class
