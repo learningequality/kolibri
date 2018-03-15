@@ -7,6 +7,7 @@ export const initialState = {
   classId: null,
   className: null,
   classList: [],
+  classCoaches: [],
   busy: false,
 };
 

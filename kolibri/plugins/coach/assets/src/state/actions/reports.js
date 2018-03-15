@@ -11,7 +11,7 @@ import {
   UserScopes,
   ViewBy,
 } from '../../constants/reportConstants';
-import { className } from '../getters/main';
+import { className } from '../getters/classes';
 import { setClassState } from './main';
 import { now } from 'kolibri.utils.serverClock';
 import {
