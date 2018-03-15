@@ -2,8 +2,10 @@
 
   <div>
 
-    <h1>{{ $tr('classPageHeader') }}</h1>
-    <p>{{ $tr('pageDescription') }}</p>
+    <section>
+      <h1>{{ $tr('classPageHeader') }}</h1>
+      <p>{{ $tr('classPageSubheader') }}</p>
+    </section>
 
     <div class="table-wrapper" v-if="!noClassesExist">
       <core-table>
@@ -11,8 +13,8 @@
         <thead slot="thead">
           <tr>
             <th class="core-table-icon-col"></th>
-            <th class="core-table-main-col">{{ $tr('className') }}</th>
-            <th>{{ $tr('members') }}</th>
+            <th class="core-table-main-col">{{ $tr('classroomName') }}</th>
+            <th>{{ $tr('learnerColumnHeader') }}</th>
           </tr>
         </thead>
         <tbody slot="tbody">
@@ -79,14 +81,12 @@
     },
     $trs: {
       classPageHeader: 'Classes',
-      pageDescription: 'View learner progress and class performance',
-      className: 'Class name',
+      classPageSubheader: 'View learner progress and class performance',
+      classroomName: 'Class name',
       tableCaption: 'List of classes',
-      // TODO kill
-      members: 'Members',
       noClassesExist: 'No classes exist',
-      coachesTableHeader: 'Coaches',
-      learnerTableHeader: 'Learners',
+      coachesColumnHeader: 'Coaches',
+      learnerColumnHeader: 'Learners',
       classIconTableDescription: 'Class icon',
     },
   };
