@@ -87,7 +87,10 @@ class ClassroomSerializer(serializers.ModelSerializer):
         return instance.get_members().count()
 
     def get_coach_names(self, instance):
-        return Role.objects.filter(collection=instance, kind=role_kinds.COACH)
+        # TODO this only filters members who have COACH role; not necessarily class coach
+        return instance.get_members() \
+            .filter(roles__kind=role_kinds.COACH) \
+            .values_list('full_name', flat=True)
 
     class Meta:
         model = Classroom
