@@ -60,7 +60,7 @@
   import { PageNames } from '../../constants';
   import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import * as mainGetters from '../../state/getters/main';
+  import { classMemberCount } from '../../state/getters/classes';
   import * as reportGetters from '../../state/getters/reports';
   import breadcrumbs from './breadcrumbs';
   import headerCell from './table-cells/header-cell';
@@ -134,7 +134,7 @@
       getters: {
         classId: state => state.classId,
         pageState: state => state.pageState,
-        userCount: mainGetters.classMemberCount,
+        userCount: classMemberCount,
         standardDataTable: reportGetters.standardDataTable,
       },
     },

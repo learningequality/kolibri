@@ -13,8 +13,8 @@
       <template v-if="showCoachNav">
         <nav-title
           :className="className"
-          :classId="classId"
           :username="usernameForCurrentScope"
+          :classCoaches="classCoaches"
         />
         <top-nav class="top-nav" />
       </template>
@@ -32,7 +32,7 @@
 
   import { PageNames } from '../constants';
   import { UserScopes } from '../constants/reportConstants';
-  import { className } from '../state/getters/main';
+  import { className, classCoaches } from '../state/getters/classes';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
@@ -187,6 +187,7 @@
         isCoach,
         isSuperuser,
         className,
+        classCoaches,
         classList: state => state.classList,
         classId: state => state.classId,
         isLoading: state => state.core.loading,
