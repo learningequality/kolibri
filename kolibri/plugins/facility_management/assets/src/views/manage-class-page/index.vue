@@ -3,7 +3,10 @@
   <div>
 
     <div class="header">
-      <h1>{{ $tr('allClasses') }}</h1>
+      <section>
+        <h1>{{ $tr('adminClassPageHeader') }}</h1>
+        <p>{{ $tr('adminClassPageSubheader') }}</p>
+      </section>
 
       <k-button
         class="create-btn"
@@ -14,7 +17,7 @@
       />
     </div>
     <core-table v-if="!noClassesExist">
-      <caption class="visuallyhidden">{{ $tr('classes') }}</caption>
+      <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
@@ -25,25 +28,25 @@
       </thead>
       <tbody slot="tbody">
         <tr
-          v-for="classModel in sortedClasses"
-          :key="classModel.id"
+          v-for="classroom in sortedClassrooms"
+          :key="classroom.id"
         >
           <td class="core-table-icon-col">
             <ui-icon icon="business" />
           </td>
           <th class="core-table-main-col">
             <k-router-link
-              :text="classModel.name"
-              :to="classEditLink(classModel.id)"
+              :text="classroom.name"
+              :to="classEditLink(classroom.id)"
             />
           </th>
           <td>
-            {{ classModel.memberCount }}
+            {{ classroom.learner_count }}
           </td>
           <td>
             <k-button
               appearance="flat-button"
-              @click="openDeleteClassModal(classModel)"
+              @click="openDeleteClassModal(classroom)"
               :text="$tr('deleteClass')"
             />
           </td>
@@ -60,7 +63,7 @@
     />
     <class-create-modal
       v-if="modalShown===Modals.CREATE_CLASS"
-      :classes="sortedClasses"
+      :classes="sortedClassrooms"
     />
 
   </div>
@@ -102,7 +105,7 @@
     data: () => ({ currentClassDelete: null }),
     computed: {
       Modals: () => Modals,
-      sortedClasses() {
+      sortedClassrooms() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
     },
@@ -124,13 +127,12 @@
       },
     },
     $trs: {
-      allClasses: 'All classes',
       adminClassPageHeader: 'Classes',
       adminClassPageSubheader: 'View and manage your classes',
-      addNew: 'Add new class',
+      addNew: 'New class',
       deleteClass: 'Delete class',
       className: 'Class name',
-      classes: 'Users',
+      tableCaption: 'List of classes',
       learnersColumnHeader: 'Learners',
       coachesColumnHeader: 'Coaches',
       extraUserCountLabel:
