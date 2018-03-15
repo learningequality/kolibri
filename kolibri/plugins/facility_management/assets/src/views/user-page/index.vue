@@ -38,12 +38,14 @@
       <thead slot="thead" v-if="usersMatchFilter">
         <tr>
           <th class="core-table-icon-col"></th>
-          <th class="core-table-main-col">{{ $tr('username') }}</th>
+          <th>{{ $tr('fullName') }}</th>
           <th>
             <span class="visuallyhidden">{{ $tr('kind') }}</span>
           </th>
-          <th>{{ $tr('fullName') }}</th>
-          <th></th>
+          <th>{{ $tr('username') }}</th>
+          <th>
+            <span class="visuallyhidden">{{ $tr('userActions') }}</span>
+          </th>
         </tr>
       </thead>
 
@@ -53,20 +55,11 @@
           <td class="core-table-icon-col">
             <ui-icon icon="person" />
           </td>
-          <!-- Username field -->
-          <th class="core-table-main-col">{{ user.username }}</th>
-
-          <!-- Logic for role tags -->
+          <td class="core-table-main-col">{{ user.full_name }}</td>
           <td>
             <user-role :role="user.kind" :omitLearner="true" />
           </td>
-
-          <!-- Full Name field -->
-          <td>
-            <span>{{ user.full_name }}</span>
-          </td>
-
-          <!-- Edit field -->
+          <td>{{ user.username }}</td>
           <td>
             <k-dropdown-menu
               :text="$tr('manage')"
@@ -188,7 +181,8 @@
       visibleUsers() {
         return filterAndSortUsers(
           this.users,
-          user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user)
+          user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user),
+          'full_name'
         );
       },
       showEditUserModal() {
@@ -268,6 +262,7 @@
       editUser: 'Edit',
       resetUserPassword: 'Reset password',
       deleteUser: 'Delete',
+      userActions: 'User management actions',
     },
   };
 
