@@ -8,19 +8,11 @@
       <k-button
         class="create-btn"
         :class="{ 'create-btn-mobile': windowSize.breakpoint <= 0}"
-        @click="openCreateClassModal"
+        @click="displayModal(Modals.CREATE_CLASS)"
         :text="$tr('addNew')"
         :primary="true"
       />
     </div>
-
-    <class-delete-modal
-      v-if="showDeleteClassModal"
-      :classid="currentClassDelete.id"
-      :classname="currentClassDelete.name"
-    />
-    <class-create-modal v-if="showCreateClassModal" :classes="sortedClasses" />
-
     <core-table v-if="!noClassesExist">
       <caption class="visuallyhidden">{{ $tr('classes') }}</caption>
       <thead slot="thead">
@@ -61,6 +53,16 @@
 
     <p v-else>{{ $tr('noClassesExist') }}</p>
 
+    <class-delete-modal
+      v-if="modalShown===Modals.DELETE_CLASS"
+      :classid="currentClassDelete.id"
+      :classname="currentClassDelete.name"
+    />
+    <class-create-modal
+      v-if="modalShown===Modals.CREATE_CLASS"
+      :classes="sortedClasses"
+    />
+
   </div>
 
 </template>
@@ -79,6 +81,13 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
+  function classEditLink(classId) {
+    return {
+      name: PageNames.CLASS_EDIT_MGMT_PAGE,
+      params: { id: classId },
+    };
+  }
+
   export default {
     name: 'manageClassPage',
     components: {
@@ -92,40 +101,27 @@
     mixins: [responsiveWindow],
     data: () => ({ currentClassDelete: null }),
     computed: {
+      Modals: () => Modals,
       sortedClasses() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
-      showDeleteClassModal() {
-        return this.modalShown === Modals.DELETE_CLASS;
-      },
-      showCreateClassModal() {
-        return this.modalShown === Modals.CREATE_CLASS;
-      },
-      noClassesExist() {
-        return this.sortedClasses.length === 0;
-      },
     },
     methods: {
-      classEditLink(id) {
-        return {
-          name: PageNames.CLASS_EDIT_MGMT_PAGE,
-          params: { id },
-        };
-      },
+      classEditLink,
       openDeleteClassModal(classModel) {
         this.currentClassDelete = classModel;
         this.displayModal(Modals.DELETE_CLASS);
-      },
-      openCreateClassModal() {
-        this.displayModal(Modals.CREATE_CLASS);
       },
     },
     vuex: {
       getters: {
         modalShown: state => state.pageState.modalShown,
         classes: state => state.pageState.classes,
+        noClassesExist: state => state.pageState.classes.length === 0,
       },
-      actions: { displayModal },
+      actions: {
+        displayModal,
+      },
     },
     $trs: {
       allClasses: 'All classes',
