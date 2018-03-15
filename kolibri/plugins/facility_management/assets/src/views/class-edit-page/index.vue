@@ -49,38 +49,28 @@
     <core-table>
       <caption class="visuallyhidden">{{ $tr('users') }}</caption>
 
-      <!-- Table Headers -->
       <thead slot="thead" v-if="usersMatchFilter">
         <tr>
           <th class="core-table-icon-col"></th>
-          <th class="core-table-main-col">{{ $tr('username') }}</th>
+          <th>{{ $tr('fullName') }}</th>
           <th>
             <span class="visuallyhidden">{{ $tr('role') }}</span>
           </th>
-          <th>{{ $tr('fullName') }}</th>
-          <th></th>
+          <th>{{ $tr('username') }}</th>
+          <th>
+            <span class="visuallyhidden">{{ $tr('userActions') }}</span>
+          </th>
         </tr>
       </thead>
 
-      <!-- Table body -->
       <tbody slot="tbody" v-if="usersMatchFilter">
         <tr v-for="user in visibleUsers" :key="user.id">
           <td class="core-table-icon-col">
             <ui-icon icon="person" />
           </td>
-
-          <!-- Username field -->
-          <th class="core-table-main-col">{{ user.username }}</th>
-
-          <!-- Logic for role tags -->
+          <td class="core-table-main-col"><span>{{ user.full_name }}</span></td>
           <td></td>
-
-          <!-- Full Name field -->
-          <td>
-            <span>{{ user.full_name }}</span>
-          </td>
-
-          <!-- Edit field -->
+          <td>{{ user.username }}</td>
           <td>
             <k-button
               appearance="flat-button"
@@ -88,7 +78,6 @@
               :text="$tr('remove')"
             />
           </td>
-
         </tr>
       </tbody>
 
@@ -115,6 +104,7 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
+  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
 
   export default {
     name: 'classEnrollPage',
@@ -129,6 +119,7 @@
       remove: 'Remove',
       noUsersExist: 'No users in this class',
       allUsersFilteredOut: 'No matching users',
+      userActions: 'User management actions',
     },
     components: {
       coreTable,
@@ -153,7 +144,7 @@
         };
       },
       noUsersExist() {
-        return this.users.length === 0;
+        return this.classUsers.length === 0;
       },
       allUsersFilteredOut() {
         return !this.noUsersExist && this.visibleUsers.length === 0;
@@ -162,18 +153,11 @@
         return !this.noUsersExist && !this.allUsersFilteredOut;
       },
       visibleUsers() {
-        const searchFilter = this.searchFilter;
-        function matchesText(user) {
-          const searchTerms = searchFilter
-            .split(' ')
-            .filter(Boolean)
-            .map(val => val.toLowerCase());
-          const fullName = user.full_name.toLowerCase();
-          const username = user.username.toLowerCase();
-          return searchTerms.every(term => fullName.includes(term) || username.includes(term));
-        }
-        const filteredUsers = this.users.filter(user => matchesText(user));
-        return orderBy(filteredUsers, [user => user.username.toUpperCase()], ['asc']);
+        return filterAndSortUsers(
+          this.classUsers,
+          user => userMatchesFilter(user, this.searchFilter),
+          'full_name'
+        );
       },
       showEditNameModal() {
         return this.modalShown === Modals.EDIT_CLASS_NAME;
@@ -194,7 +178,7 @@
     vuex: {
       getters: {
         modalShown: state => state.pageState.modalShown,
-        users: state => state.pageState.classUsers,
+        classUsers: state => state.pageState.classUsers,
         currClass: state => state.pageState.currentClass,
         classes: state => state.pageState.classes,
       },
