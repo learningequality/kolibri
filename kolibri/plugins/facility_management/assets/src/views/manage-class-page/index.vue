@@ -27,7 +27,7 @@
         <tr>
           <th class="core-table-icon-col"></th>
           <th class="core-table-main-col">{{ $tr('className') }}</th>
-          <th>{{ $tr('members') }}</th>
+          <th>{{ $tr('learnersColumnHeader') }}</th>
           <th>{{ $tr('actions') }}</th>
         </tr>
       </thead>
@@ -80,7 +80,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   export default {
-    name: 'classPage',
+    name: 'manageClassPage',
     components: {
       coreTable,
       classCreateModal,
@@ -128,7 +128,6 @@
       actions: { displayModal },
     },
     $trs: {
-      // TODO kill
       allClasses: 'All classes',
       adminClassPageHeader: 'Classes',
       adminClassPageSubheader: 'View and manage your classes',
@@ -136,10 +135,8 @@
       deleteClass: 'Delete class',
       className: 'Class name',
       classes: 'Users',
-      // TODO kill
-      members: 'Members',
-      learnersTableColumnHeader: 'Learners',
-      coachesTableColumnHeader: 'Coaches',
+      learnersColumnHeader: 'Learners',
+      coachesColumnHeader: 'Coaches',
       extraUserCountLabel:
         '{numberOfUsers, number} {numberOfUsers, plural, one {other}, other {others}',
       actions: 'Actions',
