@@ -17,6 +17,7 @@
     </div>
 
     <ui-popover
+      v-if="!disabled"
       ref="popover"
       trigger="buttonContainer"
       :containFocus="false"
