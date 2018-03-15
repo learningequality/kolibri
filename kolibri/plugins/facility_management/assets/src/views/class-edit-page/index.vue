@@ -2,17 +2,23 @@
 
   <div class="user-roster">
 
-    <!-- Modals -->
-    <class-rename-modal
-      v-if="showEditNameModal"
-      :classname="currClass.name"
-      :classid="currClass.id"
-      :classes="classes"
-    />
-
-    <div id="name-edit-box" @click="openEditNameModal">
-      <div id="edit-name" class="name-edit">{{ currClass.name }}</div>
-      <mat-svg id="edit-icon" class="name-edit" category="image" name="edit" aria-hidden="true" />
+    <div
+      id="name-edit-box"
+      @click="displayModal(Modals.EDIT_CLASS_NAME)"
+    >
+      <div
+        id="edit-name"
+        class="name-edit"
+      >
+        {{ currentClass.name }}
+      </div>
+      <mat-svg
+        id="edit-icon"
+        class="name-edit"
+        category="image"
+        name="edit"
+        aria-hidden="true"
+      />
     </div>
 
     <div class="header">
@@ -25,7 +31,7 @@
       <div class="enroll">
         <k-router-link
           :text="$tr('enrollUsers')"
-          :to="classEnrollLink"
+          :to="classEnrollLink(currentClass.id)"
           :primary="true"
           appearance="raised-button"
         />
@@ -38,12 +44,19 @@
     </div>
 
     <!-- Modals -->
+    <class-rename-modal
+      v-if="modalShown===Modals.EDIT_CLASS_NAME"
+      :classname="currentClass.name"
+      :classid="currentClass.id"
+      :classes="classes"
+    />
+
     <user-remove-modal
-      v-if="showRemoveUserModal"
-      :classname="currClass.name"
-      :classid="currClass.id"
-      :username="currentUserRemove.username"
-      :userid="currentUserRemove.id"
+      v-if="modalShown===Modals.REMOVE_USER"
+      :classname="currentClass.name"
+      :classid="currentClass.id"
+      :username="userToBeRemoved.username"
+      :userid="userToBeRemoved.id"
     />
 
     <core-table>
@@ -83,9 +96,10 @@
 
     </core-table>
 
-    <p class="empty-list" v-if="noUsersExist">{{ $tr('noUsersExist') }}</p>
-    <p class="empty-list" v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</p>
-
+    <p class="empty-list">
+      <span v-if="noUsersInClass">{{ $tr('noUsersExist') }} </span>
+      <span v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</span>
+    </p>
   </div>
 
 </template>
@@ -98,7 +112,6 @@
   import { PageNames, Modals } from '../../constants';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { displayModal } from '../../state/actions';
-  import orderBy from 'lodash/orderBy';
   import classRenameModal from './class-rename-modal';
   import userRemoveModal from './user-remove-modal';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
@@ -106,12 +119,19 @@
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
 
+  function classEnrollLink(classId) {
+    return {
+      name: PageNames.CLASS_ENROLL_MGMT_PAGE,
+      params: { classId },
+    };
+  }
+
   export default {
     name: 'classEnrollPage',
     $trs: {
       enrollUsers: 'Enroll users ',
       tableTitle: 'Manage users in this class',
-      searchText: 'Find a user...',
+      searchText: 'Search for a user…',
       users: 'Users',
       fullName: 'Full name',
       username: 'Username',
@@ -132,25 +152,17 @@
     },
     data: () => ({
       searchFilter: '',
-      currentUserRemove: null,
+      userToBeRemoved: null,
     }),
     computed: {
       LEARNER: () => UserKinds.LEARNER,
       COACH: () => UserKinds.COACH,
-      classEnrollLink() {
-        return {
-          name: PageNames.CLASS_ENROLL_MGMT_PAGE,
-          params: { classId: this.currClass.id },
-        };
-      },
-      noUsersExist() {
-        return this.classUsers.length === 0;
-      },
+      Modals: () => Modals,
       allUsersFilteredOut() {
-        return !this.noUsersExist && this.visibleUsers.length === 0;
+        return !this.noUsersInClass && this.visibleUsers.length === 0;
       },
       usersMatchFilter() {
-        return !this.noUsersExist && !this.allUsersFilteredOut;
+        return !this.noUsersInClass && !this.allUsersFilteredOut;
       },
       visibleUsers() {
         return filterAndSortUsers(
@@ -159,28 +171,21 @@
           'full_name'
         );
       },
-      showEditNameModal() {
-        return this.modalShown === Modals.EDIT_CLASS_NAME;
-      },
-      showRemoveUserModal() {
-        return this.modalShown === Modals.REMOVE_USER;
-      },
     },
     methods: {
-      openEditNameModal() {
-        this.displayModal(Modals.EDIT_CLASS_NAME);
-      },
       openRemoveUserModal(user) {
-        this.currentUserRemove = user;
+        this.userToBeRemoved = user;
         this.displayModal(Modals.REMOVE_USER);
       },
+      classEnrollLink,
     },
     vuex: {
       getters: {
-        modalShown: state => state.pageState.modalShown,
         classUsers: state => state.pageState.classUsers,
-        currClass: state => state.pageState.currentClass,
         classes: state => state.pageState.classes,
+        currentClass: state => state.pageState.currentClass,
+        modalShown: state => state.pageState.modalShown,
+        noUsersInClass: state => state.pageState.classUsers.length === 0,
       },
       actions: {
         displayModal,
@@ -194,9 +199,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  // height of elements in toolbar,  based off of icon-button height
-  $toolbar-height = 36px
 
   .toolbar
     margin-bottom: 32px
