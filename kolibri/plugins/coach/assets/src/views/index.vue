@@ -12,6 +12,7 @@
 
       <template v-if="showCoachNav">
         <nav-title
+          class="nav-title"
           :className="className"
           :username="usernameForCurrentScope"
           :classCoaches="classCoaches"
@@ -202,6 +203,9 @@
 <style lang="stylus" scoped>
 
   .top-nav
+    margin-bottom: 32px
+
+  .nav-title
     margin-bottom: 32px
 
 </style>

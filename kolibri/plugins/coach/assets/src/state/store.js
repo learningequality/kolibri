@@ -8,6 +8,7 @@ export const initialState = {
   className: null,
   classList: [],
   classCoaches: [],
+  currentClassroom: {},
   busy: false,
 };
 
@@ -20,9 +21,10 @@ export const mutations = {
   SET_PAGE_NAME(state, pageName) {
     state.pageName = pageName;
   },
-  SET_CLASS_INFO(state, classId, className, classList) {
+  SET_CLASS_INFO(state, { classId, classList, currentClassroom }) {
+    state.currentClassroom = currentClassroom;
     state.classId = classId;
-    state.className = className;
+    state.className = currentClassroom ? currentClassroom.name : '';
     state.classList = classList;
   },
 
