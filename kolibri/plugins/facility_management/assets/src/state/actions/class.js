@@ -42,8 +42,8 @@ export function updateClass(store, id, updateData) {
   ClassroomResource.getModel(id)
     .save(updateData)
     .then(
-      response => {
-        store.dispatch('UPDATE_CLASS', id, response);
+      classroom => {
+        store.dispatch('UPDATE_CLASS', id, classroom);
         displayModal(store, false);
       },
       error => {
@@ -61,7 +61,7 @@ export function deleteClass(store, id) {
     // if no id passed, abort the function
     return;
   }
-  ClassroomResource.getModel(id)
+  return ClassroomResource.getModel(id)
     .delete()
     .then(
       () => {
@@ -93,23 +93,24 @@ export function removeClassUser(store, classId, userId) {
     return;
   }
   // fetch the membership model with this classId and userId.
-  const MembershipCollection = MembershipResource.getCollection({
+  return MembershipResource.getCollection({
     user: userId,
     collection: classId,
-  });
-
-  MembershipCollection.delete().then(
-    () => {
-      store.dispatch('DELETE_CLASS_USER', userId);
-      displayModal(store, false);
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+  })
+    .delete()
+    .then(
+      () => {
+        store.dispatch('DELETE_CLASS_USER', userId);
+        displayModal(store, false);
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
 }
 
 export function showClassesPage(store) {
+  // TODO localize this title
   preparePage(store.dispatch, {
     name: PageNames.CLASS_MGMT_PAGE,
     title: 'Classes',
@@ -118,10 +119,10 @@ export function showClassesPage(store) {
     .fetch({}, true)
     .only(
       samePageCheckGenerator(store),
-      classes => {
+      classrooms => {
         store.dispatch('SET_PAGE_STATE', {
           modalShown: false,
-          classes: [...classes],
+          classes: [...classrooms],
         });
         store.dispatch('CORE_SET_PAGE_LOADING', false);
       },
@@ -155,6 +156,7 @@ export function showClassEditPage(store, classId) {
     };
   }
 
+  // TODO localize this title
   preparePage(store.dispatch, {
     name: PageNames.CLASS_EDIT_MGMT_PAGE,
     title: 'Edit Class',
@@ -188,6 +190,7 @@ export function showClassEditPage(store, classId) {
 }
 
 export function showClassEnrollPage(store, classId) {
+  // TODO localize this title
   preparePage(store.dispatch, {
     name: PageNames.CLASS_ENROLL_MGMT_PAGE,
     title: 'Classes',
