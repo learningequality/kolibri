@@ -3,6 +3,7 @@
   <core-modal
     :title="$tr('confirmEnrollment')"
     @cancel="close"
+    @enter="enrollUsers"
     class="confirm-modal"
   >
     <div>
