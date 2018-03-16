@@ -10,7 +10,7 @@ import {
   showLessonResourceUserReportPage,
   showLessonResourceUserSummaryPage,
 } from '../state/actions/lessonReportsActions';
-import { LessonsPageNames } from '../lessonsConstants';
+import { LessonsPageNames } from '../constants/lessonsConstants';
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 

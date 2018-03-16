@@ -81,8 +81,8 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import * as groupActions from '../../state/actions/group';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import { displayModal } from '../../state/actions/group';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -91,7 +91,7 @@
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
 
   export default {
-    name: 'coachGroupsTable',
+    name: 'groupSection',
     $trs: {
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       moveLearners: 'Move Learners',
@@ -107,7 +107,7 @@
       options: 'Options',
     },
     components: {
-      CoreTable,
+      coreTable,
       kButton,
       kCheckbox,
       kDropdownMenu,
@@ -186,7 +186,7 @@
     },
     vuex: {
       getters: { groupModalShown: state => state.pageState.groupModalShown },
-      actions: { displayModal: groupActions.displayModal },
+      actions: { displayModal },
     },
   };
 

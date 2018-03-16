@@ -2,7 +2,7 @@
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import assert from 'assert';
-import { mount } from 'avoriaz';
+import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
 import SelectDriveModal from '../../src/views/manage-content-page/wizards/select-drive-modal';
 import { wizardState } from '../../src/state/getters';
@@ -57,15 +57,15 @@ function makeStore() {
 // prettier-ignore
 function getElements(wrapper) {
   return {
-    titleText: () => wrapper.first(coreModal).getProp('title'),
+    titleText: () => wrapper.find(coreModal).props().title,
     driveListLoading: () => wrapper.find('.drive-list-loading'),
-    driveListLoadingText: () => wrapper.first('.drive-list-loading').text().trim(),
+    driveListLoadingText: () => wrapper.find('.drive-list-loading').text().trim(),
     driveListContainer: () => wrapper.find('.drive-list'),
     writableImportableRadio: () => wrapper.find('input[value="writable_importable_drive"]'),
     noContentRadio: () => wrapper.find('input[value="no_content_drive"]'),
     unwritableRadio: () => wrapper.find('input[value="unwritable_drive"]'),
-    cancelButton: () => wrapper.find('.core-modal-buttons button')[0],
-    continueButton: () => wrapper.find('.core-modal-buttons button')[1],
+    cancelButton: () => wrapper.find('.core-modal-buttons button'),
+    continueButton: () => wrapper.findAll('.core-modal-buttons button').at(1),
     UiAlerts: () => wrapper.find(UiAlert),
     findingLocalDrives: () => wrapper.find('.finding-local-drives'),
   };
@@ -96,12 +96,10 @@ describe('selectDriveModal component', () => {
     assert.equal(titleText(), 'Select an export destination');
   });
 
-  xit('drive labels show the available space', () => {});
-
   it('when drive list is loading, show a message', () => {
     const wrapper = makeWrapper({ store });
     return wrapper.vm.$nextTick().then(() => {
-      const alert = wrapper.find(UiAlert)[0];
+      const alert = wrapper.find(UiAlert);
       assert.equal(alert.text().trim(), 'Finding local drives…');
     });
   });
@@ -115,8 +113,8 @@ describe('selectDriveModal component', () => {
         return wrapper.vm.$nextTick();
       })
       .then(() => {
-        assert(driveListContainer()[0].is('div'));
-        assert.deepEqual(driveListLoading(), []);
+        assert(driveListContainer().is('div'));
+        assert.equal(driveListLoading().exists(), false);
       });
   });
 
@@ -124,17 +122,17 @@ describe('selectDriveModal component', () => {
     setTransferType('localimport');
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio, noContentRadio } = getElements(wrapper);
-    assert(writableImportableRadio()[0].is('input'));
-    assert.deepEqual(noContentRadio(), []);
+    assert(writableImportableRadio().is('input'));
+    assert.equal(noContentRadio().exists(), false);
   });
 
   it('in export mode, drive-list only shows drives that are writable', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio, noContentRadio, unwritableRadio } = getElements(wrapper);
-    assert(writableImportableRadio()[0].is('input'));
-    assert(noContentRadio()[0].is('input'));
-    assert.deepEqual(unwritableRadio(), []);
+    assert(writableImportableRadio().is('input'));
+    assert(noContentRadio().is('input'));
+    assert.equal(unwritableRadio().exists(), false);
   });
 
   it('in import mode, if there are no drives with content, there is an empty state', () => {
@@ -145,7 +143,7 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     const driveListText = wrapper.find(UiAlert);
     const expectedMessage = 'No drives with Kolibri content are connected to the server';
-    assert.equal(driveListText[0].text().trim(), expectedMessage);
+    assert.equal(driveListText.text().trim(), expectedMessage);
   });
 
   it('in export mode, if there are no writable drives, there is an empty state', () => {
@@ -156,21 +154,21 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     const driveListText = wrapper.find(UiAlert);
     const expectedMessage = 'No drives that can be written to are connected to the server';
-    assert.equal(driveListText[0].text().trim(), expectedMessage);
+    assert.equal(driveListText.text().trim(), expectedMessage);
   });
 
   it('when no drive is selected, "Continue" button is disabled', () => {
     const wrapper = makeWrapper({ store });
     const { continueButton } = getElements(wrapper);
-    assert.equal(continueButton().getAttribute('disabled'), 'disabled');
+    assert.equal(continueButton().attributes().disabled, 'disabled');
   });
 
   it('when a drive is selected, "Continue" button is enabled', () => {
     const wrapper = makeWrapper({ store });
     const { continueButton, writableImportableRadio } = getElements(wrapper);
-    writableImportableRadio()[0].trigger('click');
+    writableImportableRadio().trigger('click');
     return wrapper.vm.$nextTick().then(() => {
-      assert.equal(continueButton().hasAttribute('disabled'), false);
+      assert.equal(continueButton().attributes().disabled, undefined);
     });
   });
 
@@ -178,18 +176,14 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     const transitionStub = sinon.stub(wrapper.vm, 'transitionWizardPage');
     const { continueButton, writableImportableRadio } = getElements(wrapper);
-    writableImportableRadio()[0].trigger('click');
-    return wrapper.vm
-      .$nextTick()
-      .then(() => {
-        continueButton().trigger('click');
-      })
-      .then(() => {
-        // same parameters for import or export flow
-        sinon.assert.calledWith(transitionStub, 'forward', {
-          driveId: 'writable_importable_drive',
-        });
+    writableImportableRadio().trigger('click');
+    return wrapper.vm.$nextTick().then(() => {
+      continueButton().trigger('click');
+      // same parameters for import or export flow
+      sinon.assert.calledWith(transitionStub, 'forward', {
+        driveId: 'writable_importable_drive',
       });
+    });
   });
 
   it('clicking "Cancel" triggers a "transitionWizardPage" action', () => {
@@ -197,9 +191,7 @@ describe('selectDriveModal component', () => {
     const transitionStub = sinon.stub(wrapper.vm, 'transitionWizardPage');
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
-    return wrapper.vm.$nextTick().then(() => {
-      sinon.assert.calledWith(transitionStub, 'cancel');
-    });
+    sinon.assert.calledWith(transitionStub, 'cancel');
   });
 
   // not tested

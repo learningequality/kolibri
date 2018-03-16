@@ -72,7 +72,7 @@
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   export default {
-    name: 'coachExercisePageStatus',
+    name: 'attemptSummary',
     $trs: {
       statusMastered: 'Completed',
       statusInProgress: 'In progress',

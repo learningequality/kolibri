@@ -60,7 +60,7 @@
 
 <script>
 
-  import InfoIcon from '../../InfoIcon';
+  import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
 
   const dataRequired = ['title'];
   const completionDataRequired = ['m', 'n'];

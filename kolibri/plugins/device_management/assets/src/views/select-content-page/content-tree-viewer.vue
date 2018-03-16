@@ -139,7 +139,8 @@
         if (this.transferType === TransferTypes.LOCALEXPORT) {
           return node.available;
         }
-        return node.importable;
+        // If there are no resources at all within the node, do not display at all
+        return node.importable && node.total_resources;
       },
       updateCurrentTopicNode(node) {
         return navigateToTopicUrl.call(this, node);

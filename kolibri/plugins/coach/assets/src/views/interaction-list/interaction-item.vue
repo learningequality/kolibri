@@ -29,6 +29,7 @@
 <script>
 
   export default {
+    name: 'interactionItem',
     props: {
       interaction: {
         type: Object,

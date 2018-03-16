@@ -22,6 +22,7 @@
 <script>
 
   export default {
+    name: 'pageComponent',
     props: {
       defaultHeight: {
         type: Number,

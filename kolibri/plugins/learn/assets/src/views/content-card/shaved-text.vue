@@ -11,6 +11,7 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
 
   export default {
+    name: 'shavedText',
     mixins: [responsiveElement],
     props: {
       title: {

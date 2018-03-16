@@ -66,6 +66,7 @@
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
 
   export default {
+    name: 'cardThumbnail',
     components: {
       contentIcon,
       progressIcon,

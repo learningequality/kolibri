@@ -61,7 +61,7 @@
   import channelsPage from './channels-page';
   import topicsPage from './topics-page';
   import contentPage from './content-page';
-  import learnPage from './learn-page';
+  import recommendedPage from './recommended-page';
   import recommendedSubpage from './recommended-subpage';
   import contentUnavailablePage from './content-unavailable-page';
   import coreBase from 'kolibri.coreVue.components.coreBase';
@@ -85,7 +85,7 @@
     [PageNames.TOPICS_TOPIC]: topicsPage,
     [PageNames.TOPICS_CONTENT]: contentPage,
     [PageNames.RECOMMENDED_CONTENT]: contentPage,
-    [PageNames.RECOMMENDED]: learnPage,
+    [PageNames.RECOMMENDED]: recommendedPage,
     [PageNames.CONTENT_UNAVAILABLE]: contentUnavailablePage,
     [PageNames.SEARCH]: searchPage,
     [ClassesPageNames.EXAM_VIEWER]: examPage,
