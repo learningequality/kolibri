@@ -14,6 +14,7 @@
     name: 'userRole',
     $trs: {
       admin: 'Admin',
+      facilityCoachRoleLabel: 'Facility coach',
       coach: 'Coach',
       learner: 'Learner',
     },

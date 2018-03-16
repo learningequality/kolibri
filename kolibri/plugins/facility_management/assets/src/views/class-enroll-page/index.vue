@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <!-- TODO convert to template for reusability w/in respective pages -->
     <k-grid class="top-buttons">
       <k-grid-item
         size="1"
@@ -191,14 +192,19 @@
     },
     mixins: [responsiveWindow],
     $trs: {
+      // TODO kill
       backToClassDetails: 'Back to class details',
+      // TODO kill
       enrollSelectedUsers: 'Review & save',
+      confirmSelectionButtonLabel: 'Confirm',
       selectLearners: 'Select users to enroll in {className}',
       showingAllUnassigned: 'Showing all users currently not enrolled in this class',
       searchForUser: 'Search for a user',
       createNewUser: 'New user account',
+      userIconColumnHeader: 'User Icon',
       name: 'Full name',
       username: 'Username',
+      userTableLabel: 'User List',
       selectedUsers: 'Show selected users',
       role: 'Role',
       noUsersExist: 'No users exist',

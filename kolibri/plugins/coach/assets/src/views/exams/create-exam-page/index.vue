@@ -141,7 +141,7 @@
     setExamsModal,
     setSelectedExercises,
   } from '../../../state/actions/exam';
-  import { className } from '../../../state/getters/main';
+  import { className } from '../../../state/getters/classes';
   import { Modals as ExamModals } from '../../../constants/examConstants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';

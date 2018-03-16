@@ -12,9 +12,10 @@
 
       <template v-if="showCoachNav">
         <nav-title
+          class="nav-title"
           :className="className"
-          :classId="classId"
           :username="usernameForCurrentScope"
+          :classCoaches="classCoaches"
         />
         <top-nav class="top-nav" />
       </template>
@@ -32,7 +33,7 @@
 
   import { PageNames } from '../constants';
   import { UserScopes } from '../constants/reportConstants';
-  import { className } from '../state/getters/main';
+  import { className, classCoaches } from '../state/getters/classes';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
@@ -112,6 +113,9 @@
       selectPageToolbarHeader: 'Select resources',
       resourceUserPageToolbarHeader: 'Lesson Report Details',
       previewContentPageToolbarHeader: 'Preview resources',
+      noAssignmentErrorHeader: "You aren't assigned to any classes",
+      noAssignmentErrorSubheader:
+        'To start coaching a class, please consult your Kolibri administrator',
     },
     components: {
       authMessage,
@@ -184,6 +188,7 @@
         isCoach,
         isSuperuser,
         className,
+        classCoaches,
         classList: state => state.classList,
         classId: state => state.classId,
         isLoading: state => state.core.loading,
@@ -198,6 +203,9 @@
 <style lang="stylus" scoped>
 
   .top-nav
+    margin-bottom: 32px
+
+  .nav-title
     margin-bottom: 32px
 
 </style>

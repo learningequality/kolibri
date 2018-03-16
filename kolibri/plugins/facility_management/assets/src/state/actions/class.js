@@ -1,14 +1,10 @@
 import { ClassroomResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
-
 import { samePageCheckGenerator, handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-
 import { PageNames } from '../../constants';
-
-import { _classState, _userState } from './helpers/mappers';
+import { _userState } from './helpers/mappers';
 import displayModal from './helpers/displayModal';
 import preparePage from './helpers/preparePage';
 
@@ -23,9 +19,8 @@ export function createClass(store, name) {
   })
     .save()
     .then(
-      classModel => {
-        // dispatch newly created class
-        store.dispatch('ADD_CLASS', _classState(classModel));
+      classroom => {
+        store.dispatch('ADD_CLASS', classroom);
         displayModal(store, false);
       },
       error => {
@@ -119,14 +114,14 @@ export function showClassesPage(store) {
     name: PageNames.CLASS_MGMT_PAGE,
     title: 'Classes',
   });
-  ClassroomResource.getCollection()
+  return ClassroomResource.getCollection()
     .fetch({}, true)
     .only(
       samePageCheckGenerator(store),
       classes => {
         store.dispatch('SET_PAGE_STATE', {
           modalShown: false,
-          classes: classes.map(_classState),
+          classes: [...classes],
         });
         store.dispatch('CORE_SET_PAGE_LOADING', false);
       },
