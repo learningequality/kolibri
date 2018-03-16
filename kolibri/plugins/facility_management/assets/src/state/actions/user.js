@@ -1,18 +1,13 @@
 /* eslint-env node */
 import { FacilityUserResource, RoleResource } from 'kolibri.resources';
-
 import {
   samePageCheckGenerator,
   kolibriLogout,
   handleApiError,
 } from 'kolibri.coreVue.vuex.actions';
-
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-
 import { currentUserId } from 'kolibri.coreVue.vuex.getters';
-
 import { PageNames } from '../../constants';
-
 import { _userState, _managePageTitle } from './helpers/mappers';
 import preparePage from './helpers/preparePage';
 import displayModal from './helpers/displayModal';
