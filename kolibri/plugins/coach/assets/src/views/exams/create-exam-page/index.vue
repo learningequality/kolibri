@@ -135,7 +135,7 @@
   import {
     goToTopic,
     goToTopLevel,
-    createExam,
+    createExamAndRoute,
     addExercise,
     removeExercise,
     setExamsModal,
@@ -143,7 +143,6 @@
   } from '../../../state/actions/exam';
   import { className } from '../../../state/getters/main';
   import { Modals as ExamModals } from '../../../constants/examConstants';
-  import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -415,20 +414,16 @@
           this.focusOnInvalidField();
         } else {
           this.submitting = true;
-          const classCollection = {
-            id: this.classId,
-            name: this.className,
-            kind: CollectionKinds.CLASSROOM,
-          };
-          const examObj = {
-            classId: this.classId,
+          const exam = {
+            collection: this.classId,
+            channel_id: this.dummyChannelId,
             title: this.inputTitle,
-            numQuestions: this.inputNumQuestions,
-            questionSources: this.questionSources,
+            question_count: this.inputNumQuestions,
+            question_sources: this.questionSources,
             seed: this.seed,
-            channelId: this.dummyChannelId,
+            assignments: [{ collection: this.classId }],
           };
-          this.createExam(classCollection, examObj);
+          this.createExamAndRoute(exam);
         }
       },
       focusOnInvalidField() {
@@ -469,7 +464,7 @@
       actions: {
         goToTopic,
         goToTopLevel,
-        createExam,
+        createExamAndRoute,
         addExercise,
         removeExercise,
         setExamsModal,

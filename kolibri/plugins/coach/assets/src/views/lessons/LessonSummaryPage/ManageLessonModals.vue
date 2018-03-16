@@ -98,7 +98,10 @@
         this.copyLesson(payload, this.className);
       },
       handleDetailsModalSave(payload) {
-        this.updateLesson(this.currentLesson.id, payload)
+        this.updateLesson(this.currentLesson.id, {
+          ...payload,
+          lesson_assignments: payload.assignments,
+        })
           .then()
           .catch(() => this.$refs.detailsModal.handleSubmitFailure());
       },
@@ -131,7 +134,7 @@
       editLessonDetails: 'Edit lesson details',
       newLesson: 'New lesson',
       saveLessonError: 'There was a problem saving this lesson',
-      copyOfLesson: 'Copy of  { lessonTitle }',
+      copyOfLesson: 'Copy of { lessonTitle }',
     },
   };
 
