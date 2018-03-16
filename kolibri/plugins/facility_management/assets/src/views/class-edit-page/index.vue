@@ -57,7 +57,6 @@
     />
 
     <!-- TODO break table out into reusable component -->
-    <!-- TODO swap username with fullname -->
     <core-table>
       <caption class="visuallyhidden">{{ $tr('users') }}</caption>
 
@@ -101,6 +100,7 @@
 
 <script>
 
+  import userTable from './user-table';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
   import { PageNames, Modals } from '../../constants';
@@ -145,6 +145,7 @@
       userActions: 'User management actions',
     },
     components: {
+      userTable,
       coreTable,
       classRenameModal,
       userRemoveModal,
