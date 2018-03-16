@@ -45,7 +45,7 @@
       </li>
     </ul>
 
-    <div class="information">
+    <div class="information" v-if="contentList.length > 2">
       <p> {{ $tr('totalResourcesSelected', { total: workingResources.length }) }} </p>
       <k-button
         type="submit"
