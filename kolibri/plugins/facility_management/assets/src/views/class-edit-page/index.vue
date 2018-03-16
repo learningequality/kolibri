@@ -2,6 +2,8 @@
 
   <div class="user-roster">
 
+    <!-- TODO use grid -->
+
     <div
       id="name-edit-box"
       @click="displayModal(Modals.EDIT_CLASS_NAME)"
@@ -36,12 +38,6 @@
           appearance="raised-button"
         />
       </div>
-      <!-- TODO kill -->
-      <k-filter-textbox
-        :placeholder="$tr('searchText')"
-        v-model="searchFilter"
-        class="searchbar"
-      />
     </div>
 
     <!-- Modals -->
@@ -65,13 +61,10 @@
     <core-table>
       <caption class="visuallyhidden">{{ $tr('users') }}</caption>
 
-      <thead slot="thead" v-if="usersMatchFilter">
+      <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
           <th>{{ $tr('fullName') }}</th>
-          <th>
-            <span class="visuallyhidden">{{ $tr('role') }}</span>
-          </th>
           <th>{{ $tr('username') }}</th>
           <th>
             <span class="visuallyhidden">{{ $tr('userActions') }}</span>
@@ -79,13 +72,12 @@
         </tr>
       </thead>
 
-      <tbody slot="tbody" v-if="usersMatchFilter">
-        <tr v-for="user in visibleUsers" :key="user.id">
+      <tbody slot="tbody">
+        <tr v-for="user in classUsers" :key="user.id">
           <td class="core-table-icon-col">
             <ui-icon icon="person" />
           </td>
-          <td class="core-table-main-col"><span>{{ user.full_name }}</span></td>
-          <td></td>
+          <td class="core-table-main-col">{{ user.full_name }}</td>
           <td>{{ user.username }}</td>
           <td>
             <k-button
@@ -101,7 +93,6 @@
 
     <p class="empty-list">
       <span v-if="noUsersInClass">{{ $tr('noUsersExist') }} </span>
-      <span v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</span>
     </p>
   </div>
 
@@ -119,8 +110,6 @@
   import userRemoveModal from './user-remove-modal';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
-  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
 
   function classEnrollLink(classId) {
     return {
@@ -146,8 +135,6 @@
       learnerTableTitle: 'Learners',
       noCoachesInClassMessge: "You don't have any assigned coaches",
       noLearnersInClassMessage: "You don't have any enrolled learners",
-      // TODO kill
-      searchText: 'Find a user...',
       userIconColumnHeader: 'User icon',
       fullName: 'Full name',
       username: 'Username',
@@ -155,8 +142,6 @@
       userActionsColumnHeader: 'Actions',
       remove: 'Remove',
       noUsersExist: 'No users in this class',
-      // TODO kill
-      allUsersFilteredOut: 'No matching users',
       userActions: 'User management actions',
     },
     components: {
@@ -165,30 +150,15 @@
       userRemoveModal,
       kButton,
       kRouterLink,
-      kFilterTextbox,
       UiIcon,
     },
     data: () => ({
-      searchFilter: '',
       userToBeRemoved: null,
     }),
     computed: {
       LEARNER: () => UserKinds.LEARNER,
       COACH: () => UserKinds.COACH,
       Modals: () => Modals,
-      allUsersFilteredOut() {
-        return !this.noUsersInClass && this.visibleUsers.length === 0;
-      },
-      usersMatchFilter() {
-        return !this.noUsersInClass && !this.allUsersFilteredOut;
-      },
-      visibleUsers() {
-        return filterAndSortUsers(
-          this.classUsers,
-          user => userMatchesFilter(user, this.searchFilter),
-          'full_name'
-        );
-      },
     },
     methods: {
       openRemoveUserModal(user) {
