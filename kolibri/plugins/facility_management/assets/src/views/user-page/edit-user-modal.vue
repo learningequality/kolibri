@@ -44,6 +44,25 @@
         v-model="newKind"
       />
 
+      <fieldset v-if="coachIsSelected">
+        <label>
+          <k-radio-button
+            :label="$tr('classCoachLabel')"
+            :radiovalue="false"
+            v-model="isFacilityCoach"
+          />
+          {{ $tr('classCoachDescription') }}
+        </label>
+        <label>
+          <k-radio-button
+            :label="$tr('facilityCoachLabel')"
+            :radiovalue="true"
+            v-model="isFacilityCoach"
+          />
+          {{ $tr('facilityCoachDescription') }}
+        </label>
+      </fieldset>
+
       <div class="core-modal-buttons">
         <k-button
           :text="$tr('cancel')"
@@ -75,6 +94,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
 
   export default {
     name: 'editUserModal',
@@ -90,6 +110,10 @@
       cancel: 'Cancel',
       required: 'This field is required',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      classCoachLabel: 'Class coach',
+      classCoachDescription: "Can only instruct classes that they're assigned to",
+      facilityCoachLabel: 'Facility coach',
+      facilityCoachDescription: 'Can instruct all classes in your facility',
     },
     components: {
       kButton,
@@ -97,6 +121,7 @@
       kTextbox,
       kSelect,
       uiAlert,
+      kRadioButton,
     },
     props: {
       id: {
@@ -118,6 +143,7 @@
     },
     data() {
       return {
+        isFacilityCoach: false,
         newName: this.name,
         newUsername: this.username,
         newKind: null,
@@ -127,6 +153,9 @@
       };
     },
     computed: {
+      coachIsSelected() {
+        return this.newKind.value === UserKinds.COACH;
+      },
       userKinds() {
         return [
           {
