@@ -13,7 +13,8 @@
       </template>
     </h1>
 
-    <div v-if="classCoaches.length">
+    <!-- HACK: infer whether coaches should appear based on whether in a page for a user -->
+    <div v-if="classCoaches.length && !username">
       {{ $tr('coachListLabel') }}
       <ul>
         <li
@@ -58,13 +59,13 @@
 
 <style lang="stylus" scoped>
 
-ul, li
-  margin: 0
-  padding: 0
-  display: inline
-  list-style-type: none
+  ul, li
+    margin: 0
+    padding: 0
+    display: inline
+    list-style-type: none
 
-li:not(&:last-child)::after
-  content: ', '
+  li:not(&:last-child)::after
+    content: ', '
 
 </style>
