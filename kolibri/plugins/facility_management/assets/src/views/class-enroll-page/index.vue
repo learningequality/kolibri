@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <!-- TODO breakout for reusability within immersive page -->
+    <!-- TODO convert to template for reusability w/in respective pages -->
     <k-grid class="top-buttons">
       <k-grid-item
         size="1"
@@ -204,6 +204,7 @@
       userIconColumnHeader: 'User Icon',
       name: 'Full name',
       username: 'Username',
+      userTableLabel: 'User List',
       selectedUsers: 'Show selected users',
       role: 'Role',
       noUsersExist: 'No users exist',
