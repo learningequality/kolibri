@@ -157,7 +157,7 @@
       },
       classroomLabel(classroom) {
         if (this.isCurrentClassroom(classroom)) {
-          return `${classroom.name} ${this.$tr('currentClass')}`;
+          return this.$tr('currentClass', { name: classroom.name });
         }
         return classroom.name;
       },
@@ -174,7 +174,7 @@
       },
     },
     $trs: {
-      currentClass: '(current class)',
+      currentClass: '{ name } (current class)',
       continue: 'Continue',
       cancel: 'Cancel',
       makeCopy: 'Copy',
