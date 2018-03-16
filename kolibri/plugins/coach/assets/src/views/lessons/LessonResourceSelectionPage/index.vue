@@ -10,6 +10,15 @@
 
     <search-tools />
 
+    <div class="information">
+      <p> {{ $tr('totalResourcesSelected', { total: workingResources.length }) }} </p>
+      <k-button
+        type="submit"
+        :primary="true"
+        :text="$tr('save')"
+      />
+    </div>
+
     <ul class="content-list">
       <li
         class="content-list-item"
