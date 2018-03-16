@@ -2,7 +2,6 @@ from collections import OrderedDict
 
 from django.db.models import Sum
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from kolibri.auth.models import Collection
 from kolibri.auth.models import FacilityUser
@@ -78,13 +77,6 @@ class ExamSerializer(serializers.ModelSerializer):
             'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
             'active', 'collection', 'archive', 'assignments', 'creator',
         )
-
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Exam.objects.all(),
-                fields=('collection', 'title')
-            )
-        ]
 
     def to_internal_value(self, data):
         # Make a new OrderedDict from the input, which could be an immutable QueryDict

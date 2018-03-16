@@ -192,7 +192,6 @@
       removed: 'Removed',
       selected:
         '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
-      duplicateTitle: 'An exam with that title already exists',
       name: 'Name',
     },
     data() {
@@ -216,22 +215,10 @@
       numCols() {
         return this.windowSize.breakpoint > 3 ? 2 : 1;
       },
-      duplicateTitle() {
-        const index = this.exams.findIndex(
-          exam => exam.title.toUpperCase() === this.inputTitle.toUpperCase()
-        );
-        if (index === -1) {
-          return false;
-        }
-        return true;
-      },
       titleIsInvalidText() {
         if (this.titleBlurred || this.previewOrSubmissionAttempt) {
           if (this.inputTitle === '') {
             return this.$tr('examRequiresTitle');
-          }
-          if (this.duplicateTitle) {
-            return this.$tr('duplicateTitle');
           }
         }
         return '';
@@ -459,7 +446,6 @@
         exercises: state => state.pageState.exercises,
         selectedExercises: state => state.pageState.selectedExercises,
         examsModalSet: state => state.pageState.examsModalSet,
-        exams: state => state.pageState.exams,
       },
       actions: {
         goToTopic,

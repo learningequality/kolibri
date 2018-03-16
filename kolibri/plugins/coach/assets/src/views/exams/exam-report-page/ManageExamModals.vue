@@ -127,7 +127,9 @@
           .catch(() => this.$refs.detailsModal.handleSubmitFailure());
       },
       handleCopyExam(selectedClassroomId, selectedCollectionIds) {
-        const title = this.$tr('copyOfExam', { examTitle: this.exam.title }).substring(0, 50);
+        let title = this.$tr('copyOfExam', { examTitle: this.exam.title })
+          .substring(0, 50)
+          .trim();
         const exam = {
           collection: selectedClassroomId,
           channel_id: this.exam.channel_id,
