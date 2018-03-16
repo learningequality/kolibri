@@ -143,6 +143,7 @@
       learnerCanEditUsername: 'Allow learners and coaches to edit their username',
       learnerCanSignUp: 'Allow learners to sign-up on this device',
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
+      showDownloadButtonInLearn: "Show 'download' button with content",
       pageDescription: 'Configure and change different facility settings here.',
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to default settings',
