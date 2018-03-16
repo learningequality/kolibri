@@ -122,6 +122,7 @@ test-namespaced-packages:
 	! find kolibri/dist -mindepth 1 -maxdepth 1 -type d -not -name __pycache__ -not -name cext -not -name py2only -exec ls {}/__init__.py \; 2>&1 | grep  "No such file"
 
 staticdeps:
+	test "${SKIP_PY_CHECK}" = "1" || python --version 2>&1 | grep -q 2.7 || ( echo "Only intended to run on Python 2.7" && exit 1 )
 	rm -rf kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
 	pip install -t kolibri/dist -r "requirements.txt"
