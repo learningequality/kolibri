@@ -30,7 +30,12 @@
     <div class="toolbar">
       <div class="enroll">
         <k-router-link
-          :text="$tr('enrollUsers')"
+          :text="$tr('assignCoachesButtonLabel')"
+          :to="classEnrollLink(currentClass.id)"
+          appearance="raised-button"
+        />
+        <k-router-link
+          :text="$tr('enrollLearnerButtonLabel')"
           :to="classEnrollLink(currentClass.id)"
           :primary="true"
           appearance="raised-button"
