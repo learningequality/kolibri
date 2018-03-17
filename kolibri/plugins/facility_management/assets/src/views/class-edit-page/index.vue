@@ -23,11 +23,9 @@
       />
     </div>
 
-    <div class="header">
-      <h2 class="table-title">
-        {{ $tr('tableTitle') }}
-      </h2>
-    </div>
+    <h2 class="header">
+      {{ $tr('coachEnrollmentPageTitle') }}
+    </h2>
 
     <div class="toolbar">
       <div class="enroll">
@@ -195,8 +193,7 @@
     color: $core-text-annotation
     margin-left: 10px
 
-  .header h2
-    display: inline-block
+  .header
     font-weight: normal
 
   .user-roster
