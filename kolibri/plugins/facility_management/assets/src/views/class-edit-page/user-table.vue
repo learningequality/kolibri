@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <!-- <core-table>
+    <core-table>
       <caption class="visuallyhidden">{{ $tr('users') }}</caption>
 
       <thead slot="thead">
@@ -9,29 +9,29 @@
           <th class="core-table-icon-col"></th>
           <th>{{ $tr('fullName') }}</th>
           <th>{{ $tr('username') }}</th>
-          <th>
-            <span class="visuallyhidden">{{ $tr('userActions') }}</span>
+          <th class="remove-button-column">
+            <span class="visuallyhidden">{{ $tr('userActionsColumnHeader') }}</span>
           </th>
         </tr>
       </thead>
 
       <tbody slot="tbody">
-        <tr v-for="user in classUsers" :key="user.id">
+        <tr v-for="user in users" :key="user.id">
           <td class="core-table-icon-col">
             <ui-icon icon="person" />
           </td>
           <td class="core-table-main-col">{{ user.full_name }}</td>
           <td>{{ user.username }}</td>
-          <td>
+          <td class="remove-button-column">
             <k-button
-            appearance="flat-button"
-            @click="openRemoveUserModal(user)"
-            :text="$tr('remove')"
+              appearance="flat-button"
+              @click="removeUserClick(user)"
+              :text="$tr('remove')"
             />
           </td>
         </tr>
       </tbody>
-    </core-table> -->
+    </core-table>
   </div>
 
 </template>
@@ -39,10 +39,27 @@
 
 <script>
 
+  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import UiIcon from 'keen-ui/src/UiIcon';
+
   export default {
     name: 'userTable',
-    components: {},
-    props: {},
+    components: {
+      coreTable,
+      kButton,
+      UiIcon,
+    },
+    props: {
+      users: {
+        type: Array,
+        required: true,
+      },
+      removeUserClick: {
+        type: Function,
+        required: false,
+      },
+    },
     computed: {},
     methods: {},
     vuex: {
@@ -66,4 +83,9 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .remove-button-column
+    text-align: right
+
+</style>
