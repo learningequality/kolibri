@@ -57,13 +57,17 @@
     />
 
     <user-table
-      :users="classUsers"
-      :removeUserClick="openRemoveUserModal"
+      :title="$tr('coachTableTitle')"
+      :users="[]"
+      :emptyMessage="$tr('noCoachesInClassMessge')"
     />
 
-    <p class="empty-list">
-      <span v-if="noUsersInClass">{{ $tr('noUsersExist') }} </span>
-    </p>
+    <user-table
+      :title="$tr('learnerTableTitle')"
+      :users="classUsers"
+      :removeUserClick="openRemoveUserModal"
+      :emptyMessage="$tr('noLearnersInClassMessage')"
+    />
   </div>
 
 </template>

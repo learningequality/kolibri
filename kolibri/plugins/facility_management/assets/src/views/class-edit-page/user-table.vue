@@ -1,8 +1,10 @@
 <template>
 
   <div>
-    <core-table>
-      <caption class="visuallyhidden">{{ $tr('users') }}</caption>
+    <core-table class="user-table">
+      <caption class="title">
+        {{ title }}
+      </caption>
 
       <thead slot="thead">
         <tr>
@@ -16,7 +18,10 @@
       </thead>
 
       <tbody slot="tbody">
-        <tr v-for="user in users" :key="user.id">
+        <tr
+          v-for="user in users"
+          :key="user.id"
+        >
           <td class="core-table-icon-col">
             <ui-icon icon="person" />
           </td>
@@ -32,6 +37,14 @@
         </tr>
       </tbody>
     </core-table>
+
+    <p
+      v-if="!users.length"
+      class="empty-message"
+    >
+      {{ emptyMessage }}
+    </p>
+
   </div>
 
 </template>
@@ -55,9 +68,15 @@
         type: Array,
         required: true,
       },
+      title: {
+        type: String,
+        required: true,
+      },
       removeUserClick: {
         type: Function,
-        required: false,
+      },
+      emptyMessage: {
+        type: String,
       },
     },
     computed: {},
@@ -84,6 +103,18 @@
 
 
 <style lang="stylus" scoped>
+
+  .title, .empty-message
+    margin-bottom: 16px
+
+  .title
+    font-size: 24px
+    text-align: left
+    font-weight: bold
+
+  .empty-message
+    text-align: center
+    font-weight: bold
 
   .remove-button-column
     text-align: right
