@@ -56,39 +56,10 @@
       :userid="userToBeRemoved.id"
     />
 
-    <!-- TODO break table out into reusable component -->
-    <core-table>
-      <caption class="visuallyhidden">{{ $tr('users') }}</caption>
-
-      <thead slot="thead">
-        <tr>
-          <th class="core-table-icon-col"></th>
-          <th>{{ $tr('fullName') }}</th>
-          <th>{{ $tr('username') }}</th>
-          <th>
-            <span class="visuallyhidden">{{ $tr('userActions') }}</span>
-          </th>
-        </tr>
-      </thead>
-
-      <tbody slot="tbody">
-        <tr v-for="user in classUsers" :key="user.id">
-          <td class="core-table-icon-col">
-            <ui-icon icon="person" />
-          </td>
-          <td class="core-table-main-col">{{ user.full_name }}</td>
-          <td>{{ user.username }}</td>
-          <td>
-            <k-button
-              appearance="flat-button"
-              @click="openRemoveUserModal(user)"
-              :text="$tr('remove')"
-            />
-          </td>
-        </tr>
-      </tbody>
-
-    </core-table>
+    <user-table
+      :users="classUsers"
+      :removeUserClick="openRemoveUserModal"
+    />
 
     <p class="empty-list">
       <span v-if="noUsersInClass">{{ $tr('noUsersExist') }} </span>
@@ -101,15 +72,12 @@
 <script>
 
   import userTable from './user-table';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
-  import UiIcon from 'keen-ui/src/UiIcon';
   import { PageNames, Modals } from '../../constants';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { displayModal } from '../../state/actions';
   import classRenameModal from './class-rename-modal';
   import userRemoveModal from './user-remove-modal';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import kButton from 'kolibri.coreVue.components.kButton';
 
   function classEnrollLink(classId) {
     return {
@@ -146,12 +114,9 @@
     },
     components: {
       userTable,
-      coreTable,
       classRenameModal,
       userRemoveModal,
-      kButton,
       kRouterLink,
-      UiIcon,
     },
     data: () => ({
       userToBeRemoved: null,
@@ -229,14 +194,6 @@
   .header h2
     display: inline-block
     font-weight: normal
-
-  .remove-user-btn
-    color: $core-action-normal
-    font-weight: bold
-    width: 90px
-    padding: 8px
-    cursor: pointer
-    margin-right: 4px
 
   .user-roster
     overflow-x: auto
