@@ -3,10 +3,10 @@
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('facilityTitle')">
 
     <div v-if="isAdmin || isSuperuser">
-      <div class="manage-content">
+      <div class="facility-management">
         <top-nav />
+        <component :is="currentPage" />
       </div>
-      <component class="manage-content page" :is="currentPage" />
     </div>
 
     <auth-message v-else :details="$tr('adminOrSuperuser')" />
@@ -82,15 +82,5 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  .manage-content
-    width: 100%
-
-  .page
-    padding: 1em 2em
-    padding-bottom: 3em
-    background-color: $core-bg-light
-    margin-top: 1em
-    border-radius: $radius
 
 </style>
