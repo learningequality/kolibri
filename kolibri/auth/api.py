@@ -230,11 +230,28 @@ class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PublicFacilitySerializer
 
 
+class ClassroomFilter(FilterSet):
+
+    role = CharFilter(method="filter_has_role_for")
+
+    def filter_has_role_for(self, queryset, name, value):
+        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            source_user=get_user(self.request),
+            role_kind=value,
+            descendant_collection=F("id"),
+        )
+
+    class Meta:
+        model = Classroom
+        fields = ['role', ]
+
+
 class ClassroomViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Classroom.objects.all()
     serializer_class = ClassroomSerializer
+    filter_class = ClassroomFilter
 
 
 class LearnerGroupViewSet(viewsets.ModelViewSet):
