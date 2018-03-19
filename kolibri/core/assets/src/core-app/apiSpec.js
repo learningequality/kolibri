@@ -50,6 +50,8 @@ import kBreadcrumbs from '../views/k-breadcrumbs';
 import kCheckbox from '../views/k-checkbox';
 import kRadioButton from '../views/k-radio-button';
 import kFilterTextbox from '../views/k-filter-textbox';
+import kGrid from '../views/k-grid';
+import kGridItem from '../views/k-grid/item.vue';
 import kSelect from '../views/k-select';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
@@ -72,10 +74,11 @@ import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
 import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
-import CoreTable from '../views/CoreTable';
+import coreTable from '../views/core-table';
 import kDropdownMenu from '../views/k-dropdown-menu';
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
+import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
 
 export default {
@@ -126,13 +129,16 @@ export default {
       kCheckbox,
       kRadioButton,
       kFilterTextbox,
+      kGrid,
+      kGridItem,
       kSelect,
       uiAlert,
       appBar,
       coreSnackbar,
       customUiMenu,
-      CoreTable,
+      coreTable,
       kDropdownMenu,
+      CoreInfoIcon,
     },
     router,
     mixins: {

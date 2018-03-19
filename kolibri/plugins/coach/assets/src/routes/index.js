@@ -1,12 +1,7 @@
 import lessonsRoutes from './lessonsRoutes';
+import examRoutes from './examRoutes';
 import { showClassListPage } from '../state/actions/main';
 import { showGroupsPage } from '../state/actions/group';
-import {
-  showCreateExamPage,
-  showExamReportDetailPage,
-  showExamReportPage,
-  showExamsPage,
-} from '../state/actions/exam';
 import {
   showLearnerChannelRoot,
   showLearnerChannels,
@@ -28,6 +23,7 @@ import store from 'kolibri.coreVue.vuex.store';
 
 export default [
   ...lessonsRoutes,
+  ...examRoutes,
   {
     name: PageNames.CLASS_LIST,
     path: '/',
@@ -36,50 +32,9 @@ export default [
     },
   },
   {
-    name: PageNames.EXAMS,
-    path: '/:classId/exams',
-    handler: toRoute => {
-      showExamsPage(store, toRoute.params.classId);
-    },
-  },
-  {
-    name: PageNames.CREATE_EXAM,
-    path: '/:classId/exams/new/:channelId',
-    handler: toRoute => {
-      showCreateExamPage(store, toRoute.params.classId, toRoute.params.channelId);
-    },
-  },
-  {
-    name: PageNames.EXAM_REPORT,
-    path: '/:classId/:channelId/exams/:examId',
-    handler: toRoute => {
-      showExamReportPage(
-        store,
-        toRoute.params.classId,
-        toRoute.params.channelId,
-        toRoute.params.examId
-      );
-    },
-  },
-  {
-    name: PageNames.EXAM_REPORT_DETAIL_ROOT,
-    path: '/:classId/:channelId/exams/:examId/users/:userId',
-    redirect: '/:classId/:channelId/exams/:examId/users/:userId/0/0',
-  },
-  {
-    name: PageNames.EXAM_REPORT_DETAIL,
-    path: '/:classId/:channelId/exams/:examId/users/:userId/:question/:interaction',
-    handler: toRoute => {
-      showExamReportDetailPage(
-        store,
-        toRoute.params.classId,
-        toRoute.params.userId,
-        toRoute.params.channelId,
-        toRoute.params.examId,
-        toRoute.params.question,
-        toRoute.params.interaction
-      );
-    },
+    name: PageNames.CLASS_ROOT,
+    path: '/:classId/',
+    redirect: '/:classId/learners/',
   },
   {
     name: PageNames.RECENT_CHANNELS,

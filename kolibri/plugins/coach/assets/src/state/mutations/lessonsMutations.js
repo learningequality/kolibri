@@ -61,3 +61,7 @@ export function ADD_TO_RESOURCE_CACHE(state, node) {
     };
   }
 }
+
+export function SET_LESSONS_MODAL(state, modalName) {
+  state.pageState.lessonsModalSet = modalName;
+}

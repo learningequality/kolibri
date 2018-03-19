@@ -36,6 +36,7 @@
       </svg>
       <content-icon
         :kind="kind"
+        :showTooltip="true"
         class="content-icon"
       />
     </div>
@@ -65,6 +66,7 @@
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
 
   export default {
+    name: 'cardThumbnail',
     components: {
       contentIcon,
       progressIcon,

@@ -2,7 +2,7 @@ import find from 'lodash/find';
 import { LessonResource, ContentNodeResource, LearnerGroupResource } from 'kolibri.resources';
 import LessonReportResource from '../../apiResources/lessonReport';
 import UserReportResource from '../../apiResources/userReport';
-import { CollectionTypes, LessonsPageNames } from '../../lessonsConstants';
+import { CollectionTypes, LessonsPageNames } from '../../constants/lessonsConstants';
 import { getChannelObject } from 'kolibri.coreVue.vuex.getters';
 import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { showExerciseDetailView } from './reports';

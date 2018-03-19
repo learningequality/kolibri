@@ -165,6 +165,14 @@ export function setAndCheckChannels(store) {
  * These methods are used to update client-side state
  */
 
+export function showRoot(store) {
+  if (store.state.learnAppState.memberships.length) {
+    router.replace({ name: ClassesPageNames.ALL_CLASSES });
+  } else {
+    router.replace({ name: PageNames.TOPICS_ROOT });
+  }
+}
+
 export function showChannels(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_ROOT);

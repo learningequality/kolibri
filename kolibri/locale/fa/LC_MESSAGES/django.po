@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-22 18:11-0800\n"
-"PO-Revision-Date: 2017-12-05 19:25-0500\n"
+"PO-Revision-Date: 2018-03-12 01:53-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Persian\n"
 "Language: fa_IR\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: fa\n"
-"X-Crowdin-File: /release-v0.7.x/LC_MESSAGES/django.po\n"
+"X-Crowdin-File: /release-v0.8.x/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:12
 #: kolibri/plugins/management/kolibri_plugin.py:29

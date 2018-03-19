@@ -21,7 +21,11 @@
       >
         <polygon stroke-width="0" :points="contentIconBgCoords" />
       </svg>
-      <content-icon :kind="kind" class="content-icon" />
+      <content-icon
+        :kind="kind"
+        :showTooltip="true"
+        class="content-icon"
+      />
     </div>
 
   </div>
@@ -36,6 +40,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
 
   export default {
+    name: 'cardThumbnail',
     components: {
       contentIcon,
     },

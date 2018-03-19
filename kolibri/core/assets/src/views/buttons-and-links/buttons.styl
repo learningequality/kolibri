@@ -4,6 +4,18 @@
 $transition = all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)
 $raised-shadow = 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12)
 
+$primary-raised-color = white
+$primary-raised-disabled-color = rgba(white, 0.45)
+
+$primary-flat-color = $core-action-normal
+$primary-flat-disabled-color = rgba($core-action-normal, 0.5)
+
+$secondary-raised-color = $core-text-default
+$secondary-raised-disabled-color = rgba($core-text-default, 0.25)
+
+$secondary-flat-color = $core-text-default
+$secondary-flat-disabled-color = rgba($core-text-default, 0.25)
+
 .button
   background: none
   border: none
@@ -38,35 +50,52 @@ a.button
 
 .button.primary.raised
   background-color: $core-action-normal
-  color: white
+  color: $primary-raised-color
   &:hover, &:focus
     background-color: $core-action-dark
   &:disabled
     background-color: rgba($core-action-normal, 0.75)
-    color: rgba(white, 0.45)
+    color: $primary-raised-disabled-color
+    svg
+      fill: $primary-raised-disabled-color
+  svg
+    fill: $primary-raised-color
+
 
 .button.primary.flat
-  color: $core-action-normal
+  color: $primary-flat-color
   &:hover, &:focus
     background-color: $core-grey-300
   &:disabled
-    color: rgba($core-action-normal, 0.5)
+    color: $primary-flat-disabled-color
+    svg
+      fill: rgba($core-action-normal, 0.5)
+  svg
+    fill: $primary-flat-color
 
 .button.secondary.raised
   background-color: $core-grey-200
-  color: $core-text-default
+  color: $secondary-raised-color
   &:hover, &:focus
     background-color: $core-grey-300
   &:disabled
     background-color: rgba($core-text-default, 0.1)
-    color: rgba($core-text-default, 0.25)
+    color: $secondary-raised-disabled-color
+    svg
+      fill: $secondary-raised-disabled-color
+  svg
+    fill: $secondary-raised-color
 
 .button.secondary.flat
-  color: $core-text-default
+  color:$secondary-flat-color
   &:hover, &:focus
     background-color: $core-grey-300
   &:disabled
-    color: rgba($core-text-default, 0.25)
+    color: $secondary-flat-disabled-color
+    svg
+      fill: $secondary-flat-color
+  svg
+    fill: $secondary-flat-color
 
 .button.primary.raised, .button.secondary.raised
   box-shadow: $raised-shadow

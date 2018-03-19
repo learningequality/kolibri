@@ -28,6 +28,7 @@ from .utils.search import fuzz
 from kolibri.content import models
 from kolibri.content import serializers
 from kolibri.content.permissions import CanManageContent
+from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
 from kolibri.content.utils.paths import get_channel_lookup_url
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
@@ -37,13 +38,22 @@ logger = logging.getLogger(__name__)
 
 class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available")
+    has_exercise = BooleanFilter(method="filter_has_exercise")
+
+    def filter_has_exercise(self, queryset, name, value):
+        channel_ids = []
+        for c in queryset:
+            num_exercises = c.root.get_descendants().filter(kind=content_kinds.EXERCISE).count()
+            if num_exercises > 0:
+                channel_ids.append(c.id)
+        return queryset.filter(id__in=channel_ids)
 
     def filter_available(self, queryset, name, value):
         return queryset.filter(root__available=value)
 
     class Meta:
         model = models.ChannelMetadata
-        fields = ['available', ]
+        fields = ['available', 'has_exercise', ]
 
 
 class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
@@ -305,7 +315,7 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
     serializer_class = serializers.ContentNodeGranularSerializer
 
     def get_queryset(self):
-        return models.ContentNode.objects.all().prefetch_related('files__local_file')
+        return models.ContentNode.objects.all().prefetch_related('files__local_file').filter(renderable_contentnodes_q_filter).distinct()
 
     def retrieve(self, request, pk):
         queryset = self.get_queryset()

@@ -1,9 +1,12 @@
 <template>
 
   <div>
-    <div class="top-buttons pure-g">
-
-      <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1 align-center'">
+    <k-grid class="top-buttons">
+      <k-grid-item
+        size="1"
+        :cols="numCols"
+        :class="{'align-center' : isMobile}"
+      >
         <k-router-link
           :text="$tr('backToClassDetails')"
           :to="editClassLink"
@@ -11,10 +14,11 @@
           appearance="flat-button"
           class="link-button"
         />
-      </div>
-
-      <div
-        :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'"
+      </k-grid-item>
+      <k-grid-item
+        size="1"
+        :cols="numCols"
+        :class="isMobile ? 'align-center' : 'align-right'"
       >
         <k-button
           :text="$tr('createNewUser')"
@@ -27,9 +31,8 @@
           @click="openConfirmEnrollmentModal"
           :disabled="selectedUsers.length === 0"
         />
-      </div>
-
-    </div>
+      </k-grid-item>
+    </k-grid>
 
     <confirm-enrollment-modal
       v-if="showConfirmEnrollmentModal"
@@ -152,9 +155,11 @@
 
 <script>
 
-  import * as constants from '../../constants';
-  import * as actions from '../../state/actions';
+  import { PageNames, Modals } from '../../constants';
+  import { displayModal } from '../../state/actions';
   import differenceWith from 'lodash/differenceWith';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -166,7 +171,7 @@
   import userCreateModal from '../user-page/user-create-modal';
   import confirmEnrollmentModal from './confirm-enrollment-modal';
   import userRole from '../user-role';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
 
   export default {
     name: 'managementClassEnroll',
@@ -177,10 +182,12 @@
       uiIconButton,
       uiIcon,
       kFilterTextbox,
+      kGrid,
+      kGridItem,
       userCreateModal,
       confirmEnrollmentModal,
       userRole,
-      CoreTable,
+      coreTable,
     },
     mixins: [responsiveWindow],
     $trs: {
@@ -214,6 +221,12 @@
       showSelectedUsers: false,
     }),
     computed: {
+      isMobile() {
+        return this.windowSize.breakpoint <= 3;
+      },
+      numCols() {
+        return this.isMobile ? 1 : 2;
+      },
       usersNotInClass() {
         return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
       },
@@ -267,15 +280,15 @@
       },
       editClassLink() {
         return {
-          name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
+          name: PageNames.CLASS_EDIT_MGMT_PAGE,
           id: this.classId,
         };
       },
       showCreateUserModal() {
-        return this.modalShown === constants.Modals.CREATE_USER;
+        return this.modalShown === Modals.CREATE_USER;
       },
       showConfirmEnrollmentModal() {
-        return this.modalShown === constants.Modals.CONFIRM_ENROLLMENT;
+        return this.modalShown === Modals.CONFIRM_ENROLLMENT;
       },
       selectAllIsChecked() {
         return (
@@ -286,6 +299,7 @@
       },
     },
     watch: {
+      // TODO to be removed
       userJustCreated(user) {
         this.selectedUsers.push(user.id);
       },
@@ -335,10 +349,10 @@
         return Math.abs(this.pageNum - page) <= maxOnEachSide;
       },
       openCreateUserModal() {
-        this.displayModal(constants.Modals.CREATE_USER);
+        this.displayModal(Modals.CREATE_USER);
       },
       openConfirmEnrollmentModal() {
-        this.displayModal(constants.Modals.CONFIRM_ENROLLMENT);
+        this.displayModal(Modals.CONFIRM_ENROLLMENT);
       },
     },
     vuex: {
@@ -350,7 +364,7 @@
         modalShown: state => state.pageState.modalShown,
         userJustCreated: state => state.pageState.userJustCreated,
       },
-      actions: { displayModal: actions.displayModal },
+      actions: { displayModal },
     },
   };
 

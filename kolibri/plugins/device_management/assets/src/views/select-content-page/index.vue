@@ -172,6 +172,8 @@
           this.showUpdateProgressBar = false;
           // Update the topic in case content names have changed
           this.updateTreeViewTopic(this.topicNode);
+          // Update total Channel resource counts
+          this.updateResourceCounts();
         });
       },
       startTransferringContent() {
@@ -206,6 +208,13 @@
         transferChannelContent,
         waitForTaskToComplete,
         updateTreeViewTopic,
+        updateResourceCounts(store) {
+          const { transferredChannel, availableChannels } = wizardState(store.state);
+          const updatedChannel = availableChannels.find(
+            channel => channel.id === transferredChannel.id
+          );
+          store.dispatch('SET_TRANSFERRED_CHANNEL', updatedChannel);
+        },
       },
     },
     $trs: {

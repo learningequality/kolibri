@@ -34,7 +34,7 @@
   import { PageNames } from '../constants';
 
   export default {
-    name: 'deviceManagementTopNav',
+    name: 'deviceTopNav',
     components: {
       kNavbar,
       kNavbarLink,

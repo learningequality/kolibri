@@ -4,7 +4,7 @@ import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import assert from 'assert';
 import sinon from 'sinon';
-import { mount } from 'avoriaz';
+import { mount } from '@vue/test-utils';
 import AvailableChannelsPage from '../../src/views/available-channels-page';
 import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import kSelect from 'kolibri.coreVue.components.kSelect';
@@ -91,23 +91,23 @@ function getElements(wrapper) {
   return {
     noChannels: () => wrapper.find('.no-channels'),
     channelsList: () => wrapper.find('.channels-list'),
-    channelsAvailableText: () => wrapper.first('.channels p').text().trim(),
-    channelListItems: () => wrapper.find(ChannelListItem),
-    channelTokenModal: () => wrapper.first(ChannelTokenModal),
+    channelsAvailableText: () => wrapper.find('.channels p').text().trim(),
+    channelListItems: () => wrapper.findAll(ChannelListItem),
+    channelTokenModal: () => wrapper.find(ChannelTokenModal),
     filters: () => wrapper.find('.filters'),
-    languageFilter: () => wrapper.first(kSelect),
-    titleText: () => wrapper.first('.channels h1').text().trim(),
-    titleFilter: () => wrapper.first(kFilterTextbox),
-    unlistedChannelsSection: () => wrapper.find('section.unlisted-channels'),
-    wholePageBackLink: () => wrapper.first(ImmersiveFullScreen).getProp('backPageLink'),
-    wholePageBackText: () => wrapper.first(ImmersiveFullScreen).getProp('backPageText'),
+    languageFilter: () => wrapper.find(kSelect),
+    titleText: () => wrapper.find('.channels h1').text().trim(),
+    titleFilter: () => wrapper.find(kFilterTextbox),
+    unlistedChannelsSection: () => wrapper.findAll('section.unlisted-channels'),
+    wholePageBackLink: () => wrapper.find(ImmersiveFullScreen).props().backPageLink,
+    wholePageBackText: () => wrapper.find(ImmersiveFullScreen).props().backPageText,
   }
 }
 
 function testChannelVisibility(wrapper, visibilities) {
   const channels = getElements(wrapper).channelListItems();
   visibilities.forEach((v, i) => {
-    assert.equal(!channels[i].hasStyle('display', 'none'), v);
+    assert.equal(channels.at(i).isVisible(), v);
   });
 }
 
@@ -125,8 +125,7 @@ describe('availableChannelsPage', () => {
   it('back button link is correct', () => {
     const wrapper = makeWrapper();
     const { wholePageBackLink } = getElements(wrapper);
-    const backLink = wholePageBackLink();
-    assert.deepEqual(backLink, {
+    assert.deepEqual(wholePageBackLink(), {
       name: 'wizardtransition',
       path: '',
       params: {
@@ -140,18 +139,17 @@ describe('availableChannelsPage', () => {
     setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
     const { unlistedChannelsSection, channelTokenModal } = getElements(wrapper);
-    const button = unlistedChannelsSection()[0].first('button');
+    // prettier-ignore
+    const button = unlistedChannelsSection().at(0).find('button');
     button.trigger('click');
-    return wrapper.vm.$nextTick().then(() => {
-      assert(channelTokenModal().isVueComponent);
-    });
+    assert(channelTokenModal().isVueComponent);
   });
 
   it('in LOCALIMPORT and LOCALEXPORT mode, the unlisted channel button is not available', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
     const { unlistedChannelsSection } = getElements(wrapper);
-    assert.deepEqual(unlistedChannelsSection(), []);
+    assert.equal(unlistedChannelsSection().length, 0);
   });
 
   it('in LOCALEXPORT mode, the back link text and title are correct', () => {
@@ -192,7 +190,7 @@ describe('availableChannelsPage', () => {
     const wrapper = makeWrapper({ store });
     const { channelsAvailableText, noChannels } = getElements(wrapper);
     assert.equal(channelsAvailableText(), '2 channels available');
-    assert.deepEqual(noChannels(), []);
+    assert(!noChannels().exists());
   });
 
   it('in REMOTEIMPORT/LOCALIMPORT shows the correct number of channels available message', () => {
@@ -200,25 +198,26 @@ describe('availableChannelsPage', () => {
     const wrapper = makeWrapper({ store });
     const { channelsAvailableText, noChannels } = getElements(wrapper);
     assert.equal(channelsAvailableText(), '4 channels available');
-    assert.deepEqual(noChannels(), []);
+    assert(!noChannels().exists());
   });
 
   it('if there are no channels, then filters do not appear', () => {
     store.state.pageState.wizardState.availableChannels = [];
     const wrapper = makeWrapper({ store });
     const { filters } = getElements(wrapper);
-    assert.deepEqual(filters(), []);
+    assert(!filters().exists());
   });
 
   it('in LOCALIMPORT/REMOTEIMPORT, channel item (not) on device has the correct props', () => {
     const wrapper = makeWrapper();
     const { channelListItems } = getElements(wrapper);
     const channels = channelListItems();
-    assert.equal(channels[0].getProp('mode'), 'IMPORT');
-    assert.equal(channels[0].getProp('onDevice'), true);
-    assert.equal(channels[1].getProp('onDevice'), false);
-    assert.equal(channels[2].getProp('onDevice'), false);
-    assert.equal(channels[3].getProp('onDevice'), true);
+    const channelNProps = n => channels.at(n).props();
+    assert.equal(channelNProps(0).mode, 'IMPORT');
+    assert.equal(channelNProps(0).onDevice, true);
+    assert.equal(channelNProps(1).onDevice, false);
+    assert.equal(channelNProps(2).onDevice, false);
+    assert.equal(channelNProps(3).onDevice, true);
   });
 
   it('IN LOCALEXPORT, with no filters, all channels (with resources) appear', () => {
@@ -247,7 +246,7 @@ describe('availableChannelsPage', () => {
       { label: 'English', value: 'en' },
       { label: 'German', value: 'de' },
     ];
-    assert.deepEqual(languageFilter().getProp('options'), expected);
+    assert.deepEqual(languageFilter().props().options, expected);
   });
 
   it('with language filter, the correct channels appear', () => {
@@ -293,10 +292,9 @@ describe('availableChannelsPage', () => {
     const { channelListItems } = getElements(wrapper);
     const actionStub = sinon.stub(wrapper.vm, 'transitionWizardPage');
     const channels = channelListItems();
-    channels[0].first('button').trigger('click');
-    return wrapper.vm.$nextTick().then(() => {
-      sinon.assert.calledOnce(actionStub);
-      sinon.assert.calledWith(actionStub, 'forward', { channel: availableChannels[0] });
-    });
+    // prettier-ignore
+    channels.at(0).find('button').trigger('click');
+    sinon.assert.calledOnce(actionStub);
+    sinon.assert.calledWith(actionStub, 'forward', { channel: availableChannels[0] });
   });
 });

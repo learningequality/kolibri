@@ -16,10 +16,12 @@
     <div v-if="tabLinksAreVisible" class="k-navbar-links">
       <k-navbar>
         <k-navbar-link
+          name="classes-link"
+          v-if="isUserLoggedIn && userHasMemberships"
           type="icon-and-title"
-          :title="$tr('recommended')"
-          icon="forum"
-          :link="recommendedLink"
+          :title="$tr('classes')"
+          icon="business"
+          :link="allClassesLink"
         />
         <k-navbar-link
           type="icon-and-title"
@@ -28,12 +30,10 @@
           :link="channelsLink"
         />
         <k-navbar-link
-          name="classes-link"
-          v-if="isUserLoggedIn && userHasMemberships"
           type="icon-and-title"
-          :title="$tr('classes')"
-          icon="business"
-          :link="allClassesLink"
+          :title="$tr('recommended')"
+          icon="forum"
+          :link="recommendedLink"
         />
       </k-navbar>
     </div>
@@ -61,7 +61,7 @@
   import channelsPage from './channels-page';
   import topicsPage from './topics-page';
   import contentPage from './content-page';
-  import learnPage from './learn-page';
+  import recommendedPage from './recommended-page';
   import recommendedSubpage from './recommended-subpage';
   import contentUnavailablePage from './content-unavailable-page';
   import coreBase from 'kolibri.coreVue.components.coreBase';
@@ -85,7 +85,7 @@
     [PageNames.TOPICS_TOPIC]: topicsPage,
     [PageNames.TOPICS_CONTENT]: contentPage,
     [PageNames.RECOMMENDED_CONTENT]: contentPage,
-    [PageNames.RECOMMENDED]: learnPage,
+    [PageNames.RECOMMENDED]: recommendedPage,
     [PageNames.CONTENT_UNAVAILABLE]: contentUnavailablePage,
     [PageNames.SEARCH]: searchPage,
     [ClassesPageNames.EXAM_VIEWER]: examPage,

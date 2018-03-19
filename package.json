@@ -12,6 +12,8 @@
     "build": "webpack --config ./frontend_build/src/webpack.config.prod.js",
     "test-build": "yarn run lint-js && webpack --config ./frontend_build/src/webpack.config.prod.js --bail",
     "watch": "node ./frontend_build/src/webpackdevserver.js",
+    "django-devserver": "kolibri --debug manage devserver --settings=kolibri.deployment.default.settings.dev ",
+    "devserver": "./node_modules/.bin/npm-run-all --parallel django-devserver watch",
     "test-karma:watch": "./node_modules/karma/bin/karma start ./karma_config/karma.conf.js",
     "bundle-stats": "webpack --config ./frontend_build/src/webpack.config.prod.js --json | node ./node_modules/webpack-bundle-size-analyzer/webpack-bundle-size-analyzer",
     "install": "node ./frontend_build/src/install_dependencies.js",
@@ -19,7 +21,6 @@
     "preinstall": "node ./frontend_build/src/npm_deprecation_warning.js",
     "lint-js": "node ./frontend_build/src/prettier-frontend.js --prettierPath ./.prettier.js",
     "lint-js:fix": "yarn run lint-js -- -w",
-    "devserver": "kolibri --debug manage devserver --webpack --settings=kolibri.deployment.default.settings.dev",
     "generate-locale-data": "node ./frontend_build/src/intl_code_gen.js"
   },
   "repository": {
@@ -52,6 +53,7 @@
     "rest": "^1.3.2",
     "screenfull": "^3.3.1",
     "seededshuffle": "^0.1.1",
+    "shave": "^2.1.3",
     "typeface-noto-sans": "^0.0.54",
     "vue": "^2.3.3",
     "vue-intl": "2.1.1",
@@ -62,7 +64,6 @@
   "devDependencies": {
     "@vue/test-utils": "^1.0.0-beta.12",
     "autoprefixer": "^7.1.4",
-    "avoriaz": "^6.0.0",
     "buble": "^0.16.0",
     "buble-loader": "^0.4.1",
     "colors": "^1.1.2",
@@ -122,10 +123,11 @@
     "webpack-bundle-size-analyzer": "^2.0.2",
     "webpack-bundle-tracker": "https://github.com/learningequality/webpack-bundle-tracker",
     "webpack-dev-middleware": "^1.9.0",
-    "webpack-dev-server": "^2.3.0",
-    "webpack-hot-middleware": "^2.12.1",
+    "webpack-dev-server": "2.3.0",
+    "webpack-hot-middleware": "2.12.1",
     "webpack-merge": "^4.1.0",
-    "webpack-rtl-plugin": "^1.6.0"
+    "webpack-rtl-plugin": "^1.6.0",
+    "yarn-run-all": "^3.1.1"
   },
   "optionalDependencies": {
     "fsevents": "*"
