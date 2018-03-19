@@ -170,7 +170,7 @@
   }
 
   .ui-menu-header-lp{
-    padding-left: 38px // TODO make a variable?
+    padding-left: 56px // TODO make a variable?
   }
 
 </style>

@@ -24,7 +24,7 @@
         going to add padding to make all the items align -->
         <div
           class="ui-menu-option-text"
-          :class="{ 'ui-menu-option-lp': !icon }"
+          :class="{ 'ui-menu-option-text-lp': !icon }"
         >
           {{ label }}
         </div>
@@ -145,22 +145,18 @@
       align-items: center;
       display: flex;
       height: rem-calc(40px);
-      //edited this padding so that all the items aligned
-      padding: rem-calc(0 6px);
+      padding: rem-calc(0 16px);
   }
 
   .ui-menu-option-icon {
       color: $secondary-text-color;
       font-size: rem-calc(18px);
-      //edited this padding so that all the items aligned
-      margin-right: rem-calc(6px);
+      margin-right: rem-calc(16px);
   }
 
   .ui-menu-option-text {
       @include text-truncation;
       flex-grow: 1;
-      //adding the padding so the items didn't get cut off
-      padding-right: 8px;
   }
 
   .ui-menu-option-secondary-text {
@@ -170,8 +166,8 @@
       margin-left: rem-calc(4px);
   }
 
-  .ui-menu-option-lp {
-    padding-left: 31px
+  .ui-menu-option-text-lp {
+    padding-left: 40px
   }
 
 </style>

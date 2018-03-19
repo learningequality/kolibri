@@ -206,6 +206,7 @@
 
   .role
     font-size: small
+    font-weight: bold
     margin-bottom: 8px
 
   // Will display icon in app bar if variables are defined
