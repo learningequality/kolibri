@@ -32,7 +32,7 @@
 
   .template-wrapper
     margin-right: 24px
-    margin-bottom: 24px
+    margin-bottom: 240px
 
   .in-progress
     text-align: right

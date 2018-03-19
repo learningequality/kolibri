@@ -1,6 +1,6 @@
 <template>
 
-  <div v-show="showAllCrumbs || crumbs.length > 1">
+  <div v-show="showSingleItem || crumbs.length > 1">
     <nav class="breadcrumbs">
       <div v-show="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
         <ui-icon-button :hasDropdown="true" icon="expand_more" size="small">
@@ -125,10 +125,10 @@
         },
       },
       /**
-       * When set to 'true', a breadcrumb will be shown for each item in 'items' array.
-       * Otherwise, the first item will be omitted.
+       * By default, the breadcrums will be hidden when the length of items is 1.
+       * When set to 'true', a breadcrumb will be shown even when there is only one.
        */
-      showAllCrumbs: {
+      showSingleItem: {
         type: Boolean,
         default: false,
       },

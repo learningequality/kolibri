@@ -11,7 +11,7 @@
     <k-breadcrumbs
       v-if="!noContentOnDevice"
       :items="selectionCrumbs"
-      :showAllCrumbs="true"
+      :showSingleItem="true"
     />
 
     <!-- TODO add conditional filters for search -->
