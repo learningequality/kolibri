@@ -53,6 +53,7 @@
   import Lockr from 'lockr';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
   import ScreenFull from 'screenfull';
   import audioIconPoster from './audio-icon-poster.svg';
 
@@ -89,16 +90,8 @@
     },
     components: { loadingSpinner },
 
-    mixins: [ResponsiveElement],
+    mixins: [ResponsiveElement, contentRendererMixin],
 
-    props: {
-      files: {
-        type: Array,
-        required: true,
-      },
-      supplementaryFiles: { type: Array },
-      thumbnailFiles: { type: Array },
-    },
     data: () => ({
       dummyTime: 0,
       progressStartingPoint: 0,

@@ -66,6 +66,7 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
   import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
@@ -93,12 +94,7 @@
       uiIconButton,
       pageComponent,
     },
-    mixins: [responsiveWindow, responsiveElement],
-    props: {
-      defaultFile: {
-        type: Object,
-      },
-    },
+    mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
       isFullscreen: false,
       progress: 0,
