@@ -55,7 +55,7 @@ export function showClassAssignmentsPage(store, classId) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
 
       // Reset examAttemptLogs, so that it will not merge into another exam.
-      store.state.examAttemptLogs = [];
+      store.dispatch('SET_EXAM_ATTEMPT_LOGS', 'RESET_EXAM_LOGS');
     })
     .catch(error => {
       return handleApiError(store, error);

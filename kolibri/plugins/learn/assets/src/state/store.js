@@ -31,13 +31,17 @@ export const mutations = {
   },
   SET_EXAM_ATTEMPT_LOGS(state, examAttemptLogs) {
     const newState = Object.assign({}, state.examAttemptLogs);
-    Object.keys(examAttemptLogs).forEach(contentId => {
-      if (!newState[contentId]) {
-        newState[contentId] = {};
-      }
-      Object.assign(newState[contentId], examAttemptLogs[contentId]);
-    });
-    state.examAttemptLogs = newState;
+    if (examAttemptLogs === 'RESET_EXAM_LOGS') {
+      state.examAttemptLogs = [];
+    } else {
+      Object.keys(examAttemptLogs).forEach(contentId => {
+        if (!newState[contentId]) {
+          newState[contentId] = {};
+        }
+        Object.assign(newState[contentId], examAttemptLogs[contentId]);
+      });
+      state.examAttemptLogs = newState;
+    }
   },
   SET_QUESTIONS_ANSWERED(state, questionsAnswered) {
     state.pageState.questionsAnswered = questionsAnswered;
