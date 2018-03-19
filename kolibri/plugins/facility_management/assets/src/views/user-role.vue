@@ -10,6 +10,13 @@
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
 
+  const roleToLabelMap = {
+    [UserKinds.ADMIN]: 'admin',
+    [UserKinds.COACH]: 'coach',
+    [UserKinds.LEARNER]: 'learner',
+    [UserKinds.FACILITY_COACH]: 'facilityCoachRoleLabel',
+  };
+
   export default {
     name: 'userRole',
     $trs: {
@@ -33,14 +40,8 @@
     },
     computed: {
       text() {
-        if (this.role === UserKinds.LEARNER) {
-          return this.$tr('learner');
-        } else if (this.role === UserKinds.COACH) {
-          return this.$tr('coach');
-        } else if (this.role === UserKinds.ADMIN) {
-          return this.$tr('admin');
-        }
-        return '';
+        const label = roleToLabelMap[this.role];
+        return label ? this.$tr(label) : '';
       },
       hidden() {
         return this.role === UserKinds.LEARNER && this.omitLearner;
