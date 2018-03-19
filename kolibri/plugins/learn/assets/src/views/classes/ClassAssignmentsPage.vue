@@ -4,11 +4,11 @@
     <h1 class="classroom-name">
       {{ classroomName }}
     </h1>
-    <assigned-exams-table
-      class="exams-table"
-      :exams="exams"
-    />
 
+    <assigned-exams-cards
+      :exams="exams"
+      :isMobile="isMobile"
+    />
     <assigned-lessons-cards
       :lessons="lessons"
       :isMobile="isMobile"
@@ -21,12 +21,14 @@
 <script>
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import AssignedExamsTable from './AssignedExamsTable';
+  import AssignedExamsCards from './AssignedExamsCards';
+
   import AssignedLessonsCards from './AssignedLessonsCards';
 
   export default {
+    name: 'ClassAssignmentsPage',
     components: {
-      AssignedExamsTable,
+      AssignedExamsCards,
       AssignedLessonsCards,
     },
     mixins: [responsiveWindow],
@@ -51,8 +53,5 @@
 
   .classroom-name
     margin-bottom: 32px
-
-  .exams-table
-    margin-bottom: 96px
 
 </style>

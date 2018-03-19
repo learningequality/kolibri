@@ -19,7 +19,7 @@
 <script>
 
   import { PageNames } from '../constants';
-  import * as getters from 'kolibri.coreVue.vuex.getters';
+  import { isAdmin, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   const pageNameComponentMap = {
     [PageNames.CLASS_EDIT_MGMT_PAGE]: 'class-edit-page',
@@ -64,8 +64,8 @@
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        isAdmin: getters.isAdmin,
-        isSuperuser: getters.isSuperuser,
+        isAdmin,
+        isSuperuser,
       },
     },
   };

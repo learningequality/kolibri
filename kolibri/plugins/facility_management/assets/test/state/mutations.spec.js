@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 import assert from 'assert';
-import mutations from '../../src/state/mutations';
+import * as mutations from '../../src/state/mutations';
 
 describe('facility config page mutations', () => {
   it('CONFIG_PAGE_NOTIFY', () => {

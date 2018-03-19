@@ -93,7 +93,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import progressBar from 'kolibri.coreVue.components.progressBar';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { resourceUserSummaryLink } from '../lessonsRouterUtils';
   import { createSnackbar, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
@@ -105,13 +105,13 @@
   const saveDebounceTime = 6000;
 
   export default {
-    name: 'lessonResourceListTable',
+    name: 'resourceListTable',
     components: {
       uiIconButton,
       kButton,
       kRouterLink,
       progressBar,
-      CoreTable,
+      coreTable,
       contentIcon,
     },
     data() {

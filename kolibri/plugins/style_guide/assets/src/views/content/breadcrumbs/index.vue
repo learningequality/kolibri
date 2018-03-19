@@ -1,10 +1,8 @@
 <template>
 
-  <page-template :completed="false">
+  <page-template :completed="true">
 
     <h1>Topic tree breadcrumbs</h1>
-
-    <h2>Usage guidelines</h2>
 
     <p>
       Breadcrumbs should be used to aid navigation across channels, topic trees, and resources.
@@ -12,8 +10,8 @@
     </p>
 
     <p>
-      It should include the current item/location, which does not require a link.
-      This text might be repeated in a header, which is fine.
+      The last item should be the current item, which will not be linked.
+      This text might be redundant with the same name in an adjacent header, which is ok.
     </p>
 
     <show>

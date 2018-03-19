@@ -9,7 +9,7 @@
 
 <script>
 
-  import * as constants from '../../../constants';
+  import { PageNames, LearnerReports } from '../../../constants';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import learnerExerciseReport from './learner-exercise-report';
 
@@ -22,9 +22,9 @@
     },
     computed: {
       backPageLink() {
-        if (this.pageName === constants.PageNames.RECENT_LEARNER_ITEM_DETAILS) {
+        if (this.pageName === PageNames.RECENT_LEARNER_ITEM_DETAILS) {
           return {
-            name: constants.PageNames.RECENT_LEARNERS_FOR_ITEM,
+            name: PageNames.RECENT_LEARNERS_FOR_ITEM,
             params: {
               classId: this.classId,
               channelId: this.channelId,
@@ -32,9 +32,9 @@
             },
           };
         }
-        if (this.pageName === constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS) {
+        if (this.pageName === PageNames.TOPIC_LEARNER_ITEM_DETAILS) {
           return {
-            name: constants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
+            name: PageNames.TOPIC_LEARNERS_FOR_ITEM,
             params: {
               classId: this.classId,
               channelId: this.channelId,
@@ -42,9 +42,9 @@
             },
           };
         }
-        if (this.pageName === constants.PageNames.LEARNER_ITEM_DETAILS) {
+        if (this.pageName === PageNames.LEARNER_ITEM_DETAILS) {
           return {
-            name: constants.PageNames.LEARNER_ITEM_LIST,
+            name: PageNames.LEARNER_ITEM_LIST,
             params: {
               classId: this.classId,
               channelId: this.channelId,
@@ -56,7 +56,7 @@
         return undefined;
       },
       backPageText() {
-        if (constants.LearnerReports.includes(this.pageName)) {
+        if (LearnerReports.includes(this.pageName)) {
           return this.$tr('backPrompt', { backTitle: this.parentTopic.title });
         }
         return this.$tr('backPrompt', { backTitle: this.exercise.title });

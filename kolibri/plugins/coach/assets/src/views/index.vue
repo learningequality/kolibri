@@ -31,17 +31,17 @@
 <script>
 
   import { PageNames } from '../constants';
-  import { UserScopes } from '../reportConstants';
+  import { UserScopes } from '../constants/reportConstants';
   import { className } from '../state/getters/main';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import topNav from './top-nav';
   import classListPage from './class-list-page';
-  import examsPage from './exams-page';
-  import createExamPage from './create-exam-page';
-  import examReportPage from './exam-report-page';
-  import examReportDetailPage from './exam-report-detail-page';
+  import examsPage from './exams/exams-page';
+  import createExamPage from './exams/create-exam-page';
+  import examReportPage from './exams/exam-report-page';
+  import examReportDetailPage from './exams/exam-report-detail-page';
   import groupsPage from './groups-page';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import learnerExerciseDetailPage from './reports/learner-exercise-detail-page';
@@ -50,9 +50,7 @@
   import itemListPage from './reports/item-list-page';
   import learnerListPage from './reports/learner-list-page';
   import navTitle from './nav-title';
-
-  // lessons
-  import { LessonsPageNames } from '../lessonsConstants';
+  import { LessonsPageNames } from '../constants/lessonsConstants';
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
   import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';
@@ -75,8 +73,40 @@
     LessonsPageNames.RESOURCE_CLASSROOM_REPORT,
   ];
 
+  const pageNameToComponentMap = {
+    [PageNames.CLASS_LIST]: classListPage,
+    [PageNames.EXAMS]: examsPage,
+    [PageNames.GROUPS]: groupsPage,
+    [PageNames.CREATE_EXAM]: createExamPage,
+    // reports
+    [PageNames.RECENT_CHANNELS]: channelListPage,
+    [PageNames.RECENT_ITEMS_FOR_CHANNEL]: recentItemsPage,
+    [PageNames.RECENT_LEARNERS_FOR_ITEM]: learnerListPage,
+    [PageNames.RECENT_LEARNER_ITEM_DETAILS]: learnerExerciseDetailPage,
+    [PageNames.TOPIC_CHANNELS]: channelListPage,
+    [PageNames.TOPIC_CHANNEL_ROOT]: itemListPage,
+    [PageNames.TOPIC_ITEM_LIST]: itemListPage,
+    [PageNames.TOPIC_LEARNERS_FOR_ITEM]: learnerListPage,
+    [PageNames.TOPIC_LEARNER_ITEM_DETAILS]: learnerExerciseDetailPage,
+    [PageNames.LEARNER_LIST]: learnerListPage,
+    [PageNames.LEARNER_CHANNELS]: channelListPage,
+    [PageNames.LEARNER_CHANNEL_ROOT]: itemListPage,
+    [PageNames.LEARNER_ITEM_LIST]: itemListPage,
+    [PageNames.LEARNER_ITEM_DETAILS]: learnerExerciseDetailPage,
+    [PageNames.EXAM_REPORT]: examReportPage,
+    [PageNames.EXAM_REPORT_DETAIL]: examReportDetailPage,
+    // lessons
+    [LessonsPageNames.ROOT]: LessonsRootPage,
+    [LessonsPageNames.SUMMARY]: LessonSummaryPage,
+    [LessonsPageNames.SELECTION_ROOT]: LessonResourceSelectionPage,
+    [LessonsPageNames.SELECTION]: LessonResourceSelectionPage,
+    [LessonsPageNames.CONTENT_PREVIEW]: LessonContentPreviewPage,
+    [LessonsPageNames.RESOURCE_USER_SUMMARY]: LessonResourceUserSummaryPage,
+    [LessonsPageNames.RESOURCE_USER_REPORT]: LessonResourceUserReportPage,
+  };
+
   export default {
-    name: 'coachRoot',
+    name: 'coachIndexPage',
     $trs: {
       coachToolbarHeader: 'Coach',
       selectPageToolbarHeader: 'Select resources',
@@ -86,68 +116,17 @@
     components: {
       authMessage,
       topNav,
-      classListPage,
-      examsPage,
-      createExamPage,
-      // reports
-      examReportPage,
-      examReportDetailPage,
-      groupsPage,
       coreBase,
-      learnerExerciseDetailPage,
-      recentItemsPage,
-      channelListPage,
-      itemListPage,
-      learnerListPage,
       navTitle,
-      // lessons
-      LessonsRootPage,
-      LessonSummaryPage,
-      LessonResourceSelectionPage,
-      LessonContentPreviewPage,
-      LessonResourceUserSummaryPage,
-      LessonResourceUserReportPage,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
-        const pageNameToComponentMap = {
-          [PageNames.CLASS_LIST]: 'class-list-page',
-          [PageNames.EXAMS]: 'exams-page',
-          [PageNames.GROUPS]: 'groups-page',
-          [PageNames.CREATE_EXAM]: 'create-exam-page',
-          // reports
-          [PageNames.RECENT_CHANNELS]: 'channel-list-page',
-          [PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recent-items-page',
-          [PageNames.RECENT_LEARNERS_FOR_ITEM]: 'learner-list-page',
-          [PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
-          [PageNames.TOPIC_CHANNELS]: 'channel-list-page',
-          [PageNames.TOPIC_CHANNEL_ROOT]: 'item-list-page',
-          [PageNames.TOPIC_ITEM_LIST]: 'item-list-page',
-          [PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'learner-list-page',
-          [PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
-          [PageNames.LEARNER_LIST]: 'learner-list-page',
-          [PageNames.LEARNER_CHANNELS]: 'channel-list-page',
-          [PageNames.LEARNER_CHANNEL_ROOT]: 'item-list-page',
-          [PageNames.LEARNER_ITEM_LIST]: 'item-list-page',
-          [PageNames.LEARNER_ITEM_DETAILS]: 'learner-exercise-detail-page',
-          [PageNames.EXAM_REPORT]: 'exam-report-page',
-          [PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page',
-
-          // lessons
-          [LessonsPageNames.ROOT]: 'LessonsRootPage',
-          [LessonsPageNames.SUMMARY]: 'LessonSummaryPage',
-          [LessonsPageNames.SELECTION_ROOT]: 'LessonResourceSelectionPage',
-          [LessonsPageNames.SELECTION]: 'LessonResourceSelectionPage',
-          [LessonsPageNames.CONTENT_PREVIEW]: 'LessonContentPreviewPage',
-          [LessonsPageNames.RESOURCE_USER_SUMMARY]: 'LessonResourceUserSummaryPage',
-          [LessonsPageNames.RESOURCE_USER_REPORT]: 'LessonResourceUserReportPage',
-        };
         if (!this.userCanAccessPage) {
           // TODO better solution
           return 'authMessage';
         }
-        return pageNameToComponentMap[this.pageName];
+        return pageNameToComponentMap[this.pageName] || null;
       },
       showCoachNav() {
         return (
@@ -217,8 +196,6 @@
 
 
 <style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
 
   .top-nav
     margin-bottom: 32px

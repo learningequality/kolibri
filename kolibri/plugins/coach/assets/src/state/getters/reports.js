@@ -1,6 +1,6 @@
-import * as ReportConstants from '../../reportConstants';
-import * as CoachConstants from '../../constants';
-import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
+import { ViewBy, SortOrders, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
+import { PageNames } from '../../constants';
+import { ContentNodeKinds, USER } from 'kolibri.coreVue.vuex.constants';
 import { now } from 'kolibri.utils.serverClock';
 import * as ReportUtils from './reportUtils';
 import { classMemberCount } from './main';
@@ -8,8 +8,6 @@ import differenceInDays from 'date-fns/difference_in_days';
 import logger from 'kolibri.lib.logging';
 
 const logging = logger.getLogger(__filename);
-
-const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 
 // Object to be exported by this module.
 export const sortColumn = state => (state.pageState || {}).sortColumn;
@@ -28,10 +26,7 @@ export const userCount = state => {
 };
 export const exerciseCount = state => {
   const summary = state.pageState.contentScopeSummary;
-  if (
-    summary.kind === ContentNodeKinds.TOPIC ||
-    summary.kind === CoreConstants.ContentNodeKinds.CHANNEL
-  ) {
+  if (summary.kind === ContentNodeKinds.TOPIC || summary.kind === ContentNodeKinds.CHANNEL) {
     return ReportUtils.countNodes(summary.progress, ReportUtils.onlyExercises);
   } else if (summary.kind === ContentNodeKinds.EXERCISE) {
     return 1;
@@ -48,10 +43,7 @@ export const exerciseProgress = state => {
 };
 export const contentCount = state => {
   const summary = state.pageState.contentScopeSummary;
-  if (
-    summary.kind === ContentNodeKinds.TOPIC ||
-    summary.kind === CoreConstants.ContentNodeKinds.CHANNEL
-  ) {
+  if (summary.kind === ContentNodeKinds.TOPIC || summary.kind === ContentNodeKinds.CHANNEL) {
     return ReportUtils.countNodes(summary.progress, ReportUtils.onlyContent);
   } else if (summary.kind !== ContentNodeKinds.EXERCISE) {
     return 1;
@@ -70,16 +62,16 @@ export const contentProgress = state => {
 function _genRow(state, item) {
   const row = {};
 
-  if (state.pageState.viewBy === ReportConstants.ViewBy.LEARNER) {
+  if (state.pageState.viewBy === ViewBy.LEARNER) {
     // LEARNERS
-    row.kind = CoreConstants.USER;
+    row.kind = USER;
     row.id = item.id;
     row.title = item.fullName;
     row.groupName = item.groupName;
     row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
 
     // for root list (of channels) we don't currently calculate progress
-    if (state.pageName !== CoachConstants.PageNames.LEARNER_LIST) {
+    if (state.pageName !== PageNames.LEARNER_LIST) {
       // for learners, the exercise counts are the global values
       row.exerciseProgress = ReportUtils.calcProgress(
         item.progress,
@@ -94,7 +86,7 @@ function _genRow(state, item) {
         1
       );
     }
-  } else if (state.pageState.viewBy === ReportConstants.ViewBy.CHANNEL) {
+  } else if (state.pageState.viewBy === ViewBy.CHANNEL) {
     row.id = item.id;
     row.title = item.title;
   } else {
@@ -104,7 +96,7 @@ function _genRow(state, item) {
     row.contentId = item.contentId;
     row.title = item.title;
 
-    if (state.pageState.viewBy === ReportConstants.ViewBy.CONTENT) {
+    if (state.pageState.viewBy === ViewBy.CONTENT) {
       // for content items, set exercise counts and progress appropriately
       if (item.kind === ContentNodeKinds.TOPIC) {
         row.exerciseCount = ReportUtils.countNodes(item.progress, ReportUtils.onlyExercises);
@@ -146,14 +138,14 @@ function _genRow(state, item) {
 
 export const standardDataTable = state => {
   const data = state.pageState.tableData.map(item => _genRow(state, item));
-  if (state.pageState.sortOrder !== ReportConstants.SortOrders.NONE) {
+  if (state.pageState.sortOrder !== SortOrders.NONE) {
     data.sort(ReportUtils.genCompareFunc(state.pageState.sortColumn, state.pageState.sortOrder));
   }
   if (state.pageState.showRecentOnly) {
     return data.filter(
       row =>
         Boolean(row.lastActive) &&
-        differenceInDays(now(), row.lastActive) <= ReportConstants.RECENCY_THRESHOLD_IN_DAYS
+        differenceInDays(now(), row.lastActive) <= RECENCY_THRESHOLD_IN_DAYS
     );
   }
   return data;

@@ -4,7 +4,7 @@
     <div class="breadcrumbs">
       <k-breadcrumbs
         :items="breadcrumbs"
-        :showAllCrumbs="true"
+        :showSingleItem="true"
       />
     </div>
 

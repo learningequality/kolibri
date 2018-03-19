@@ -1,25 +1,18 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import assert from 'assert';
-import AuthMessage from '../../src/views/auth-message.vue';
-import { shallow } from 'avoriaz';
+import AuthMessage from '../../src/views/auth-message';
+import { shallow } from '@vue/test-utils';
 
 function makeWrapper(options) {
   return shallow(AuthMessage, options);
 }
 
+// prettier-ignore
 function getElements(wrapper) {
   return {
-    headerText: () =>
-      wrapper
-        .first('.auth-message h1')
-        .text()
-        .trim(),
-    detailsText: () =>
-      wrapper
-        .first('.auth-message p')
-        .text()
-        .trim(),
+    headerText: () => wrapper.find('.auth-message h1').text().trim(),
+    detailsText: () => wrapper.find('.auth-message p').text().trim(),
   };
 }
 
@@ -52,9 +45,7 @@ describe('auth message component', () => {
         details: 'Cannot be used by device owner',
       },
     });
-
     const { headerText, detailsText } = getElements(wrapper);
-
     assert.equal(headerText(), 'Signed in as device owner');
     assert.equal(detailsText(), 'Cannot be used by device owner');
   });
@@ -65,9 +56,7 @@ describe('auth message component', () => {
         details: 'Must be device owner to manage content',
       },
     });
-
     const { headerText, detailsText } = getElements(wrapper);
-
     assert.equal(headerText(), 'Did you forget to sign in?');
     assert.equal(detailsText(), 'Must be device owner to manage content');
   });

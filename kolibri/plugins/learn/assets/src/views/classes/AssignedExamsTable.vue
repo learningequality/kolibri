@@ -61,7 +61,7 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -72,7 +72,7 @@
     name: 'assignedExamsTable',
     components: {
       contentIcon,
-      CoreTable,
+      coreTable,
       kRouterLink,
     },
     mixins: [responsiveWindow],
