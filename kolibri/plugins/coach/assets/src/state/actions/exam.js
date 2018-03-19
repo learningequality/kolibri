@@ -309,26 +309,18 @@ export function goToTopLevel(store) {
           channelsContent => {
             const subtopics = channelsContent.map(channel => {
               const subtopic = channel.topic;
-              let allExercisesWithinSubtopic = [];
-              channel.subtopics.forEach(subtopic => {
-                allExercisesWithinSubtopic = concat(
-                  allExercisesWithinSubtopic,
-                  subtopic.allExercisesWithinTopic
-                );
-              });
-              subtopic.allExercisesWithinTopic = allExercisesWithinSubtopic;
+              subtopic.allExercisesWithinTopic = channel.subtopics.reduce(
+                (acc, subtopic) => acc.concat(subtopic.allExercisesWithinTopic),
+                []
+              );
               return subtopic;
             });
 
-            let allExercisesWithinTopic = [];
-            subtopics.forEach(subtopic => {
-              allExercisesWithinTopic = concat(
-                allExercisesWithinTopic,
-                subtopic.allExercisesWithinTopic
-              );
-            });
             const topic = {
-              allExercisesWithinTopic,
+              allExercisesWithinTopic: subtopics.reduce(
+                (acc, subtopic) => acc.concat(subtopic.allExercisesWithinTopic),
+                []
+              ),
               id: null,
               title: allChannels,
             };

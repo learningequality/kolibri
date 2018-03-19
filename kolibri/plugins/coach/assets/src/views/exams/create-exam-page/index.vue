@@ -350,7 +350,9 @@
         } else {
           this.handleAddTopicExercises(allExercises, currentTopicTitle);
         }
-        this.setDummyChannelId(this.subtopics[0].id);
+        if (!this.dummyChannelId) {
+          this.setDummyChannelId(this.subtopics[0].id);
+        }
       },
       handleGoToTopic(topicId) {
         this.loading = true;
@@ -363,7 +365,9 @@
             this.loading = false;
           });
         }
-        this.setDummyChannelId(topicId);
+        if (!this.dummyChannelId) {
+          this.setDummyChannelId(topicId);
+        }
       },
       handleAddExercise(exercise) {
         this.selectionMade = true;
@@ -381,7 +385,9 @@
         this.selectionMade = true;
         allExercisesWithinTopic.forEach(exercise => this.addExercise(exercise));
         this.createSnackbar({ text: `${this.$tr('added')} ${topicTitle}`, autoDismiss: true });
-        this.setDummyChannelId(topicId);
+        if (!this.dummyChannelId) {
+          this.setDummyChannelId(topicId);
+        }
       },
       handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
         allExercisesWithinTopic.forEach(exercise => this.removeExercise(exercise));
