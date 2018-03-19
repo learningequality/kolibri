@@ -2,43 +2,49 @@
 
   <div>
 
-    <section>
-      <h1>{{ $tr('classPageHeader') }}</h1>
-      <p>{{ $tr('classPageSubheader') }}</p>
-    </section>
+    <auth-message
+      v-if="noClassesExist"
+      :header="$tr('noAssignedClassesHeader')"
+      :details="$tr('noAssignedClassesDetails')"
+    />
 
-    <core-table v-if="!noClassesExist">
-      <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
-      <thead slot="thead">
-        <tr>
-          <th class="core-table-icon-col"></th>
-          <th class="core-table-main-col">{{ $tr('classroomName') }}</th>
-          <th>{{ $tr('coachesColumnHeader') }}</th>
-          <th>{{ $tr('learnerColumnHeader') }}</th>
-        </tr>
-      </thead>
+    <template v-else>
+      <section>
+        <h1>{{ $tr('classPageHeader') }}</h1>
+        <p>{{ $tr('classPageSubheader') }}</p>
+      </section>
 
-      <tbody slot="tbody">
-        <tr
-          v-for="classroom in sortedClasses"
-          :key="classroom.id"
-        >
-          <td class="core-table-icon-col">
-            <content-icon :kind="CLASSROOM" />
-          </td>
-          <td class="core-table-main-col">
-            <k-router-link
-              :text="classroom.name"
-              :to="learnerPageLink(classroom.id)"
-            />
-          </td>
-          <td>{{ coachNames(classroom) }}</td>
-          <td>{{ classroom.learner_count }}</td>
-        </tr>
-      </tbody>
-    </core-table>
+      <core-table>
+        <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
+        <thead slot="thead">
+          <tr>
+            <th class="core-table-icon-col"></th>
+            <th class="core-table-main-col">{{ $tr('classroomName') }}</th>
+            <th>{{ $tr('coachesColumnHeader') }}</th>
+            <th>{{ $tr('learnerColumnHeader') }}</th>
+          </tr>
+        </thead>
 
-    <p v-else>{{ $tr('noClassesExist') }}</p>
+        <tbody slot="tbody">
+          <tr
+            v-for="classroom in sortedClasses"
+            :key="classroom.id"
+          >
+            <td class="core-table-icon-col">
+              <content-icon :kind="CLASSROOM" />
+            </td>
+            <td class="core-table-main-col">
+              <k-router-link
+                :text="classroom.name"
+                :to="learnerPageLink(classroom.id)"
+              />
+            </td>
+            <td>{{ coachNames(classroom) }}</td>
+            <td>{{ classroom.learner_count }}</td>
+          </tr>
+        </tbody>
+      </core-table>
+    </template>
 
   </div>
 
@@ -49,6 +55,7 @@
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import coreTable from 'kolibri.coreVue.components.coreTable';
+  import authMessage from 'kolibri.coreVue.components.authMessage';
   import ContentIcon from 'kolibri.coreVue.components.contentIcon';
   import { PageNames } from '../constants';
   import orderBy from 'lodash/orderBy';
@@ -64,6 +71,7 @@
   export default {
     name: 'classListPage',
     components: {
+      authMessage,
       coreTable,
       ContentIcon,
       kRouterLink,
@@ -103,7 +111,9 @@
       classPageSubheader: 'View learner progress and class performance',
       classroomName: 'Class name',
       tableCaption: 'List of classes',
-      noClassesExist: 'No classes exist',
+      noAssignedClassesHeader: "You aren't assigned to any classes",
+      noAssignedClassesDetails:
+        'To start coaching a class, please consult your Kolibri administrator',
       coachesColumnHeader: 'Coaches',
       learnerColumnHeader: 'Learners',
       classIconTableDescription: 'Class icon',

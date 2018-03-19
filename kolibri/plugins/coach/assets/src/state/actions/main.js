@@ -30,7 +30,7 @@ export function setClassState(store, classId = null) {
     .then(classrooms => {
       store.dispatch('SET_CLASS_INFO', {
         classId,
-        currentClassroom: classId && classrooms.find(classroom => classroom.id === classId),
+        currentClassroom: classId && classrooms.find(({ id }) => id === classId),
         classList: [...classrooms],
       });
     })
