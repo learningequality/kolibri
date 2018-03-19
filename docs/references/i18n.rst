@@ -130,7 +130,11 @@ And this command will upload the strings to Crowdin:
 
 The branch name will typically look something like: ``release-v0.8.x``
 
-Next, apply `translation memory <https://support.crowdin.com/translation-memory/#applying-translation-memory-via-pre-translation>`_ via the Crowdin UI to copy over perfect matches from previous releases for all languages. This could take some time.
+Next, apply `translation memory <https://support.crowdin.com/translation-memory/#applying-translation-memory-via-pre-translation>`_ via the Crowdin UI to copy over perfect matches from previous releases for all languages. Use settings like this:
+
+.. image:: ./translation-memory.png
+
+This could take some time.
 
 Now, some percentage of the newly updated strings should show as already having been translated in crowdin because the perfect matches were automatically copied over.
 
