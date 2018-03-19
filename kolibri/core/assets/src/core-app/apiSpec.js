@@ -56,6 +56,7 @@ import kSelect from '../views/k-select';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
+import contentRendererMixin from '../mixins/contentRenderer';
 import theme from '../styles/core-theme.styl';
 import definitions from '../styles/definitions.styl';
 import keenVars from '../keen-config/variables.scss';
@@ -145,6 +146,7 @@ export default {
       responsiveWindow,
       responsiveElement,
       languageSwitcherMixin,
+      contentRenderer: contentRendererMixin,
     },
   },
   resources,
