@@ -11,13 +11,13 @@
     >
 
       <template v-if="showCoachNav">
+        <top-nav class="top-nav" />
         <nav-title
           class="nav-title"
           :className="className"
           :username="usernameForCurrentScope"
           :classCoaches="classCoaches"
         />
-        <top-nav class="top-nav" />
       </template>
 
       <!-- TODO need a better solution for passing in authMessage -->
