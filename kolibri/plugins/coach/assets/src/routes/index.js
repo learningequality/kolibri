@@ -1,6 +1,6 @@
 import lessonsRoutes from './lessonsRoutes';
 import examRoutes from './examRoutes';
-import { showClassListPage } from '../state/actions/main';
+import { showClassListPage, shouldRedirectToClassRootPage } from '../state/actions/main';
 import { showGroupsPage } from '../state/actions/group';
 import {
   showLearnerChannelRoot,
@@ -20,6 +20,7 @@ import {
 } from '../state/actions/reports';
 import { PageNames } from '../constants';
 import store from 'kolibri.coreVue.vuex.store';
+import router from 'kolibri.coreVue.router';
 
 export default [
   ...lessonsRoutes,
@@ -28,7 +29,17 @@ export default [
     name: PageNames.CLASS_LIST,
     path: '/',
     handler: () => {
-      showClassListPage(store);
+      return shouldRedirectToClassRootPage().then(classId => {
+        if (classId) {
+          return router.replace({
+            name: PageNames.CLASS_ROOT,
+            params: {
+              classId,
+            },
+          });
+        }
+        return showClassListPage(store);
+      });
     },
   },
   {

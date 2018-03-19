@@ -7,6 +7,23 @@ const translator = createTranslator('classListTitles', {
   classListPageTitle: 'Classes',
 });
 
+/**
+ * Checks how many Classrooms the Coach user is assigned to and provides data to
+ * redirect to appropriate landing page. This function is run before the default
+ * handler for '/coach/'.
+ *
+ */
+export function shouldRedirectToClassRootPage() {
+  return ClassroomResource.getCollection()
+    .fetch()
+    .then(classrooms => {
+      if (classrooms.length === 1) {
+        return classrooms[0].id;
+      }
+      return false;
+    });
+}
+
 export function setClassState(store, classId = null) {
   return ClassroomResource.getCollection()
     .fetch()
