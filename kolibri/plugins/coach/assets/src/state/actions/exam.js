@@ -600,7 +600,7 @@ export function showExamReportDetailPage(
               const attemptLog = examAttempts.find(
                 log => log.item === question.itemId && log.content_id === question.contentId
               ) || {
-                interaction_history: '[]',
+                interaction_history: [],
                 correct: false,
                 noattempt: true,
               };
@@ -625,10 +625,10 @@ export function showExamReportDetailPage(
               itemId,
               questions,
               currentQuestion,
-              questionNumber,
+              questionNumber: Number(questionNumber),
               currentAttempt,
               exercise,
-              interactionIndex,
+              interactionIndex: Number(interactionIndex),
               currentInteraction,
               currentInteractionHistory,
               user,
