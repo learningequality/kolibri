@@ -1,8 +1,11 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from .constants import role_kinds
+
 from .models import Classroom
 from .models import Facility
 from .models import FacilityDataset
@@ -83,14 +86,10 @@ class ClassroomSerializer(serializers.ModelSerializer):
     coach_names = serializers.SerializerMethodField()
 
     def get_learner_count(self, instance):
-        # TODO get_members counts everybody; restrict to only learners
         return instance.get_members().count()
 
     def get_coach_names(self, instance):
-        # TODO this only filters members who have COACH role; not necessarily class coach
-        return instance.get_members() \
-            .filter(roles__kind=role_kinds.COACH) \
-            .values_list('full_name', flat=True)
+        return instance.get_coaches().values_list('full_name', flat=True)
 
     class Meta:
         model = Classroom
