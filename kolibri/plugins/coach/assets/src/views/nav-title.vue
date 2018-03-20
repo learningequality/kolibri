@@ -18,10 +18,10 @@
       {{ $tr('coachListLabel') }}
       <ul>
         <li
-          v-for="(coachName, idx) in classCoaches"
+          v-for="(coach, idx) in classCoaches"
           :key="idx"
         >
-          <span>{{ coachName }}</span>
+          <span>{{ coach.full_name }}</span>
         </li>
       </ul>
     </div>

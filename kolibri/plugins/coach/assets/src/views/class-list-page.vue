@@ -86,12 +86,13 @@
       learnerPageLink,
       // Duplicated in manage-classroom-page
       coachNames(classroom) {
-        const { coach_names } = classroom;
+        const { coaches } = classroom;
+        const coach_names = coaches.map(({ full_name }) => full_name);
         if (coach_names.length === 0) {
           return '–';
         }
         if (coach_names.length <= 2) {
-          return classroom.coach_names.join(', ');
+          return coach_names.join(', ');
         }
         return this.$tr('truncatedCoachNames', {
           name1: coach_names[0],

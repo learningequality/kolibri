@@ -16,7 +16,7 @@ export function classMemberCount(state) {
 
 export function classCoaches(state) {
   if (state.currentClassroom) {
-    return state.currentClassroom.coach_names;
+    return state.currentClassroom.coaches;
   }
   return [];
 }
