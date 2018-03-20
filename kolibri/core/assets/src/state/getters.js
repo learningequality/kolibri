@@ -7,7 +7,10 @@ function isAdmin(state) {
 }
 
 function isCoach(state) {
-  return state.core.session.kind.includes(UserKinds.COACH);
+  return (
+    state.core.session.kind.includes(UserKinds.COACH) ||
+    state.core.session.kind.includes(UserKinds.ASSIGNABLE_COACH)
+  );
 }
 
 function isLearner(state) {
