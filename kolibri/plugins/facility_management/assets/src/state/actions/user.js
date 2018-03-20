@@ -35,7 +35,7 @@ function setUserRole(user, role) {
         const userDupe = { ...user };
         // add role to user's attribute here to limit API call
         userDupe.roles.push(roleObject);
-        return user;
+        return userDupe;
       });
   }
 
