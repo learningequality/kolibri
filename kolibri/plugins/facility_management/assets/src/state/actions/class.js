@@ -1,4 +1,9 @@
-import { ClassroomResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
+import {
+  ClassroomResource,
+  MembershipResource,
+  FacilityUserResource,
+  RoleResource,
+} from 'kolibri.resources';
 import { samePageCheckGenerator, handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
@@ -74,7 +79,7 @@ export function deleteClass(store, id) {
     );
 }
 
-export function enrollUsersInClass(store, users) {
+export function enrollLearnersInClass(store, users) {
   const classId = store.state.pageState.class.id;
   // TODO no error handling
   return MembershipResource.createCollection(
@@ -84,6 +89,21 @@ export function enrollUsersInClass(store, users) {
     users.map(userId => ({
       collection: classId,
       user: userId,
+    }))
+  ).save();
+}
+
+export function assignCoachesToClass(store, coaches) {
+  const classId = store.state.pageState.class.id;
+  // TODO no error handling
+  return RoleResource.createCollection(
+    {
+      collection: classId,
+    },
+    coaches.map(userId => ({
+      collection: classId,
+      user: userId,
+      kind: UserKinds.COACH,
     }))
   ).save();
 }

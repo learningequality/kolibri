@@ -5,7 +5,7 @@ export {
   createClass,
   deleteClass,
   updateClass,
-  enrollUsersInClass,
+  enrollLearnersInClass,
   removeClassUser,
   showClassesPage,
   showClassEditPage,

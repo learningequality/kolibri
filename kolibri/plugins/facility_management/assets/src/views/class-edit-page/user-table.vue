@@ -1,4 +1,5 @@
 <template>
+
   <!-- TODO MOVE THIS COMPONENT OUT AFTER STRINGFREEZE -->
   <div>
     <core-table class="user-table">

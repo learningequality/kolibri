@@ -13,7 +13,7 @@
 
   import classEnrollPage from './class-enroll-page';
   import { PageNames } from '../constants';
-  import { enrollUsersInClass } from '../state/actions';
+  import { enrollLearnersInClass } from '../state/actions/class';
 
   export default {
     name: 'learnerClassEnrollmentPage',
@@ -23,7 +23,8 @@
     computed: {},
     methods: {
       enrollLearners(selectedUsers) {
-        this.enrollUsersInClass(selectedUsers).then(() => {
+        // do this in action?
+        this.enrollLearnersInClass(selectedUsers).then(() => {
           this.$router.push({ name: PageNames.CLASS_EDIT_MGMT_PAGE });
         });
       },
@@ -33,7 +34,7 @@
         className: state => state.pageState.class.name,
       },
       actions: {
-        enrollUsersInClass,
+        enrollLearnersInClass,
       },
     },
     $trs: {
