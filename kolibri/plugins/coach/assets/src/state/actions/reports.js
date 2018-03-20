@@ -393,13 +393,6 @@ export function setReportSorting(store, sortColumn, sortOrder) {
   store.dispatch('SET_REPORT_SORTING', sortColumn, sortOrder);
 }
 
-export function showRecentChannels(store, classId) {
-  store.dispatch('SET_PAGE_NAME', PageNames.RECENT_CHANNELS);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('recentChannelsPageTitle'));
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  _showChannelList(store, classId, null, true);
-}
-
 export function showRecentItemsForChannel(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', PageNames.RECENT_ITEMS_FOR_CHANNEL);
   store.dispatch('CORE_SET_TITLE', translator.$tr('recentItemsForChannelPageTitle'));
@@ -466,13 +459,17 @@ export function showRecentLearnerItemDetails(
   );
 }
 
-export function showTopicChannels(store, classId) {
+export function showChannelListForReports(store, classId, showRecentOnly) {
   clearReportSorting(store);
-  store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_CHANNELS);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('topicsReportAllChannelsPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_REPORT_CONTENT_SUMMARY', {});
-  _showChannelList(store, classId, null, false);
+  if (showRecentOnly) {
+    store.dispatch('SET_PAGE_NAME', PageNames.RECENT_CHANNELS);
+    store.dispatch('CORE_SET_TITLE', translator.$tr('recentChannelsPageTitle'));
+  } else {
+    store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_CHANNELS);
+    store.dispatch('CORE_SET_TITLE', translator.$tr('topicsReportAllChannelsPageTitle'));
+  }
+  _showChannelList(store, classId, null, showRecentOnly);
 }
 
 export function showTopicChannelRoot(store, classId, channelId) {

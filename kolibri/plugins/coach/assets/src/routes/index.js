@@ -8,14 +8,13 @@ import {
   showLearnerItemDetails,
   showLearnerItemList,
   showLearnerList,
-  showRecentChannels,
   showRecentItemsForChannel,
   showRecentLearnerItemDetails,
   showTopicChannelRoot,
-  showTopicChannels,
   showTopicItemList,
   showTopicLearnerItemDetails,
   showLearnerReportsForItem,
+  showChannelListForReports,
 } from '../state/actions/reports';
 import { PageNames } from '../constants';
 import store from 'kolibri.coreVue.vuex.store';
@@ -50,7 +49,8 @@ export default [
     name: PageNames.RECENT_CHANNELS,
     path: '/:classId/recent',
     handler: to => {
-      showRecentChannels(store, to.params.classId);
+      const showRecentOnly = true;
+      showChannelListForReports(store, to.params.classId, showRecentOnly);
     },
   },
   {
@@ -98,7 +98,8 @@ export default [
     name: PageNames.TOPIC_CHANNELS,
     path: '/:classId/topics',
     handler: to => {
-      showTopicChannels(store, to.params.classId);
+      const showRecentOnly = false;
+      showChannelListForReports(store, to.params.classId, showRecentOnly);
     },
   },
   {
