@@ -47,8 +47,6 @@ export function showClassAssignmentsPage(store, classId) {
       currentClassroom: {},
     },
   });
-  // Reset examAttemptLogs, so that it will not merge into another exam.
-  store.dispatch('SET_EXAM_ATTEMPT_LOGS', 'RESET_EXAM_LOGS');
   // Force fetch, so it doesn't re-use the assignments-less version in the cache
   return LearnerClassroomResource.getModel(classId)
     .fetch({}, true)
