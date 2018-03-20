@@ -9,6 +9,7 @@
       :selectedUsers="selectedUsers"
     />
 
+    <!-- TODO  move responsibility to other pages -->
     <h1>{{ $tr('selectLearners', { className }) }}</h1>
     <p>{{ $tr('showingAllUnassigned') }}</p>
 
@@ -74,7 +75,7 @@
 
 <script>
 
-  import { PageNames, Modals } from '../../constants';
+  import { Modals } from '../../constants';
   import { displayModal } from '../../state/actions';
   import differenceWith from 'lodash/differenceWith';
   // TODO move to higher level directory after string freeze
@@ -139,12 +140,6 @@
       showSelectedUsers: false,
     }),
     computed: {
-      isMobile() {
-        return this.windowSize.breakpoint <= 3;
-      },
-      numCols() {
-        return this.isMobile ? 1 : 2;
-      },
       usersNotInClass() {
         return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
       },
@@ -152,7 +147,7 @@
         return this.usersNotInClass.filter(user => this.selectedUsers.includes(user.id));
       },
       filteredUsers() {
-        const users = this.showSelectedUsers ? this.usersNotInClassSelected : this.usersNotInClass;
+        const users = this.usersNotInClass;
         return users.filter(user => {
           const searchTerms = this.filterInput
             .split(' ')
@@ -191,29 +186,8 @@
       visibleFilteredUsers() {
         return this.sortedFilteredUsers.slice(this.startRange, this.endRange);
       },
-      allVisibleFilteredUsersSelected() {
-        return this.visibleFilteredUsers.every(visibleUser =>
-          this.selectedUsers.includes(visibleUser.id)
-        );
-      },
-      editClassLink() {
-        return {
-          name: PageNames.CLASS_EDIT_MGMT_PAGE,
-          id: this.classId,
-        };
-      },
-      showCreateUserModal() {
-        return this.modalShown === Modals.CREATE_USER;
-      },
       showConfirmEnrollmentModal() {
         return this.modalShown === Modals.CONFIRM_ENROLLMENT;
-      },
-      selectAllIsChecked() {
-        return (
-          this.allVisibleFilteredUsersSelected &&
-          this.visibleFilteredUsers.length !== 0 &&
-          !this.showSelectedUsers
-        );
       },
       emptyMessage() {
         if (this.usersNotInClass.length === 0) {
@@ -230,45 +204,11 @@
         return '';
       },
     },
-    watch: {
-      // TODO to be removed
-      userJustCreated(user) {
-        this.selectedUsers.push(user.id);
-      },
-    },
     methods: {
       reducePageNum() {
         while (this.visibleFilteredUsers.length === 0 && this.pageNum > 1) {
           this.pageNum = this.pageNum - 1;
         }
-      },
-      isSelected(userId) {
-        return this.selectedUsers.includes(userId);
-      },
-      toggleSelection(userId) {
-        const index = this.selectedUsers.indexOf(userId);
-        if (index === -1) {
-          this.selectedUsers.push(userId);
-        } else {
-          this.selectedUsers.splice(index, 1);
-        }
-        this.reducePageNum();
-      },
-      toggleAllVisibleUsers(value) {
-        if (value) {
-          this.visibleFilteredUsers.forEach(visibleUser => {
-            if (!this.selectedUsers.includes(visibleUser.id)) {
-              this.selectedUsers.push(visibleUser.id);
-            }
-          });
-        } else {
-          this.visibleFilteredUsers.forEach(visibleUser => {
-            this.selectedUsers = this.selectedUsers.filter(
-              selectedUser => selectedUser !== visibleUser.id
-            );
-          });
-        }
-        this.reducePageNum();
       },
       goToPage(page) {
         this.pageNum = page;
@@ -279,9 +219,6 @@
           return Math.abs(this.pageNum - page) <= maxOnEachSide + 1;
         }
         return Math.abs(this.pageNum - page) <= maxOnEachSide;
-      },
-      openCreateUserModal() {
-        this.displayModal(Modals.CREATE_USER);
       },
       openConfirmEnrollmentModal() {
         this.displayModal(Modals.CONFIRM_ENROLLMENT);
@@ -294,7 +231,6 @@
         facilityUsers: state => state.pageState.facilityUsers,
         classUsers: state => state.pageState.classUsers,
         modalShown: state => state.pageState.modalShown,
-        userJustCreated: state => state.pageState.userJustCreated,
       },
       actions: { displayModal },
     },
