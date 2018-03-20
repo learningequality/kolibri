@@ -145,7 +145,7 @@
     },
     data() {
       return {
-        classCoachIsSelected: false,
+        classCoachIsSelected: true,
         newName: this.name,
         newUsername: this.username,
         newKind: null,
@@ -229,7 +229,7 @@
               roleUpdate.kind = UserKinds.COACH;
             }
           } else {
-            roleUpdate.kind = '';
+            roleUpdate.kind = this.newKind.value;
           }
           this.updateUser(this.id, {
             username: this.newUsername,

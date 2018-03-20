@@ -93,8 +93,6 @@ export function createUser(store, stateUserData) {
 export function updateUser(store, userId, userUpdates) {
   store.dispatch('SET_ERROR', '');
   store.dispatch('SET_BUSY', true);
-  const savedUserModel = FacilityUserResource.getModel(userId);
-  const savedUser = { ...savedUserModel.attributes };
 
   // explicit checks for the only values that can be changed
   const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);
@@ -115,35 +113,37 @@ export function updateUser(store, userId, userUpdates) {
   if (Object.getOwnPropertyNames(changedValues).length === 0) {
     displayModal(store, false);
   } else {
-    return savedUserModel.save(changedValues).then(
-      updatedUser => {
-        if (changedValues.role) {
-          if (currentUserId(store.state) === userId && isSuperuser(store.state)) {
-            // maintain superuser if updating self.
-            store.dispatch('UPDATE_CURRENT_USER_KIND', [
-              UserKinds.SUPERUSER,
-              changedValues.role.kind,
-            ]);
+    return FacilityUserResource.getModel(userId)
+      .save(changedValues)
+      .then(
+        updatedUser => {
+          if (changedValues.role) {
+            if (currentUserId(store.state) === userId && isSuperuser(store.state)) {
+              // maintain superuser if updating self.
+              store.dispatch('UPDATE_CURRENT_USER_KIND', [
+                UserKinds.SUPERUSER,
+                changedValues.role.kind,
+              ]);
+            }
+            return setUserRole(updatedUser, changedValues.role).then(userWithRole => {
+              // dispatch changes to store
+              store.dispatch('UPDATE_USERS', [_userState(userWithRole)]);
+              displayModal(store, false);
+            });
           }
-          return setUserRole(savedUser, changedValues.role).then(userWithRole => {
-            // dispatch changes to store
-            store.dispatch('UPDATE_USERS', [_userState(userWithRole)]);
-            displayModal(store, false);
-          });
+          // dispatch changes to store
+          store.dispatch('UPDATE_USERS', [_userState(updatedUser)]);
+          displayModal(store, false);
+        },
+        error => {
+          if (error.status.code === 400) {
+            store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
+          } else if (error.status.code === 403) {
+            store.dispatch('SET_ERROR', error.entity);
+          }
+          store.dispatch('SET_BUSY', false);
         }
-        // dispatch changes to store
-        store.dispatch('UPDATE_USERS', [_userState(updatedUser)]);
-        displayModal(store, false);
-      },
-      error => {
-        if (error.status.code === 400) {
-          store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
-        } else if (error.status.code === 403) {
-          store.dispatch('SET_ERROR', error.entity);
-        }
-        store.dispatch('SET_BUSY', false);
-      }
-    );
+      );
   }
 }
 
