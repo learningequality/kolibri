@@ -6,7 +6,7 @@ import {
   handleApiError,
 } from 'kolibri.coreVue.vuex.actions';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import { currentUserId } from 'kolibri.coreVue.vuex.getters';
+import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
 import { PageNames } from '../../constants';
 import { _userState, _managePageTitle } from './helpers/mappers';
 import preparePage from './helpers/preparePage';
@@ -17,35 +17,33 @@ import displayModal from './helpers/displayModal';
  * @param {Object} user
  * @param {string} user.id
  * @param {string} user.facility
- * @param {string} user.kind
- * Needed: id, facility, kind
+ * @param {string} user.roles
+ * Needed: id, facility, role
  */
-function setUserRole(user, kind) {
+function setUserRole(user, role) {
   function createNewUserRole() {
-    if (!kind || kind === UserKinds.LEARNER) {
+    if (role.kind === UserKinds.LEARNER) {
       return Promise.resolve(user);
     }
     return RoleResource.createModel({
       user: user.id,
-      collection: user.facility,
-      kind,
+      collection: role.collection || user.facility,
+      ...role,
     })
       .save()
-      .then(roleModel => {
+      .then(roleObject => {
+        const userDupe = { ...user };
         // add role to user's attribute here to limit API call
-        user.roles.push(roleModel);
+        userDupe.roles.push(roleObject);
         return user;
-      })
-      .catch(error => handleApiError(error));
+      });
   }
 
   if (user.roles.length) {
-    return Promise.all(user.roles.map(({ id }) => RoleResource.getModel(id).delete()))
-      .then(() => {
-        user.roles = [];
-        return createNewUserRole();
-      })
-      .catch(error => handleApiError(error));
+    return Promise.all(user.roles.map(({ id }) => RoleResource.getModel(id).delete())).then(() => {
+      user.roles = [];
+      return createNewUserRole();
+    });
   }
   return createNewUserRole();
   // roles exist. delete them, then create new one
@@ -76,8 +74,8 @@ export function createUser(store, stateUserData) {
         return userState;
       }
       // only runs if there's a role to be assigned
-      if (stateUserData.kind !== UserKinds.LEARNER) {
-        return setUserRole(userModel, stateUserData.kind).then(user => dispatchUser(user));
+      if (stateUserData.role.kind !== UserKinds.LEARNER) {
+        return setUserRole(userModel, stateUserData.role).then(user => dispatchUser(user));
       } else {
         // no role to assigned
         return dispatchUser(userModel);
@@ -110,34 +108,31 @@ export function updateUser(store, userId, userUpdates) {
   if (userUpdates.password && userUpdates.password !== origUserState.password) {
     changedValues.password = userUpdates.password;
   }
-  if (userUpdates.kind && userUpdates.kind !== origUserState.kind) {
-    changedValues.kind = userUpdates.kind;
+  if (userUpdates.role && userUpdates.role !== origUserState.role) {
+    changedValues.role = userUpdates.role;
   }
 
   if (Object.getOwnPropertyNames(changedValues).length === 0) {
     displayModal(store, false);
   } else {
     return savedUserModel.save(changedValues).then(
-      userWithAttrs => {
-        if (changedValues.kind) {
-          if (currentUserId(store.state) === userId) {
-            // keep superuser if present
-            const newCurrentUserKind = store.state.core.session.kind.filter(
-              kind => kind === UserKinds.SUPERUSER
-            );
-
-            newCurrentUserKind.push(changedValues.kind);
-
-            store.dispatch('UPDATE_CURRENT_USER_KIND', newCurrentUserKind);
+      updatedUser => {
+        if (changedValues.role) {
+          if (currentUserId(store.state) === userId && isSuperuser(store.state)) {
+            // maintain superuser if updating self.
+            store.dispatch('UPDATE_CURRENT_USER_KIND', [
+              UserKinds.SUPERUSER,
+              changedValues.role.kind,
+            ]);
           }
-          return setUserRole(savedUser, changedValues.kind).then(userWithRole => {
+          return setUserRole(savedUser, changedValues.role).then(userWithRole => {
+            // dispatch changes to store
             store.dispatch('UPDATE_USERS', [_userState(userWithRole)]);
             displayModal(store, false);
           });
         }
         // dispatch changes to store
-        store.dispatch('UPDATE_USERS', [_userState(userWithAttrs)]);
-
+        store.dispatch('UPDATE_USERS', [_userState(updatedUser)]);
         displayModal(store, false);
       },
       error => {

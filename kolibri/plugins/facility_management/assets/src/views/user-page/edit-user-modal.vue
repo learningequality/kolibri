@@ -88,6 +88,7 @@
 
   import { updateUser, displayModal } from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -208,17 +209,16 @@
       submitForm() {
         this.formSubmitted = true;
         if (this.formIsValid) {
-          const userUpdates = {};
-          if (this.newUsername !== this.username) {
-            userUpdates.username = this.newUsername;
-          }
-          if (this.newName !== this.name) {
-            userUpdates.full_name = this.newName;
-          }
-          if (this.newKind.value !== this.kind) {
-            userUpdates.kind = this.newKind.value;
-          }
-          this.updateUser(this.id, userUpdates);
+          this.updateUser(this.id, {
+            username: this.newUsername,
+            name: this.newName,
+            role: {
+              kind: this.newKind === UserKinds.LEARNER ? '' : this.newKind,
+              // import facilityId getter
+              // collection: this.isClassCoach ? '' : this.currentFacilityId,
+              collection: this.currentFacilityId,
+            },
+          });
           if (
             this.currentUserId === this.id &&
             this.currentUserKind !== UserKinds.SUPERUSER &&
@@ -241,6 +241,7 @@
         displayModal,
       },
       getters: {
+        currentFacilityId,
         currentUserId: state => state.core.session.user_id,
         currentUserKind: state => state.core.session.kind[0],
         error: state => state.pageState.error,

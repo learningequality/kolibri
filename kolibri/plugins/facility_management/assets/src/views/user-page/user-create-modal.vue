@@ -66,16 +66,16 @@
           <label>
             <k-radio-button
               :label="$tr('classCoachLabel')"
-              :radiovalue="false"
-              v-model="isFacilityCoach"
+              :radiovalue="true"
+              v-model="isClassCoach"
             />
             {{ $tr('classCoachDescription') }}
           </label>
           <label>
             <k-radio-button
               :label="$tr('facilityCoachLabel')"
-              :radiovalue="true"
-              v-model="isFacilityCoach"
+              :radiovalue="false"
+              v-model="isClassCoach"
             />
             {{ $tr('facilityCoachDescription') }}
           </label>
@@ -107,6 +107,7 @@
 
   import { createUser, displayModal } from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
@@ -158,7 +159,7 @@
           label: this.$tr('learner'),
           value: UserKinds.LEARNER,
         },
-        isFacilityCoach: false,
+        isClassCoach: false,
         errorMessage: '',
         submitting: false,
         nameBlurred: false,
@@ -240,7 +241,7 @@
         return [
           {
             label: this.$tr('learner'),
-            value: UserKinds.LEARNER,
+            value: '',
           },
           {
             label: this.$tr('coach'),
@@ -263,7 +264,11 @@
           const newUser = {
             username: this.username,
             full_name: this.fullName,
-            kind: this.kind.value,
+            role: {
+              kind: this.kind.value,
+              collection: this.currentFacilityId,
+              // collection: this.isClassCoach ? '' : this.currentFacilityId,
+            },
             password: this.password,
           };
           this.createUser(newUser).then(
@@ -301,7 +306,10 @@
       },
     },
     vuex: {
-      getters: { users: state => state.pageState.facilityUsers },
+      getters: {
+        users: state => state.pageState.facilityUsers,
+        currentFacilityId,
+      },
       actions: {
         createUser,
         displayModal,

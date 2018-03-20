@@ -18,7 +18,7 @@ function isUserLoggedIn(state) {
   return !state.core.session.kind.includes(UserKinds.ANONYMOUS);
 }
 
-function getUserRole(state) {
+function getUserKind(state) {
   if (isAdmin(state)) {
     return UserKinds.ADMIN;
   } else if (isCoach(state)) {
@@ -117,7 +117,7 @@ export {
   facilities,
   sessionTimeSpent,
   canManageContent,
-  getUserRole,
+  getUserKind,
   getUserPermissions,
   userHasPermissions,
   connected,
