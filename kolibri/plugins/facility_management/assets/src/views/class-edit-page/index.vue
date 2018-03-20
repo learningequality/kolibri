@@ -31,12 +31,12 @@
       <div class="enroll">
         <k-router-link
           :text="$tr('assignCoachesButtonLabel')"
-          :to="classEnrollLink(currentClass.id)"
+          :to="coachAssignmentLink(currentClass.id)"
           appearance="raised-button"
         />
         <k-router-link
           :text="$tr('enrollLearnerButtonLabel')"
-          :to="classEnrollLink(currentClass.id)"
+          :to="learnerEnrollmentLink(currentClass.id)"
           :primary="true"
           appearance="raised-button"
         />
@@ -86,13 +86,6 @@
   import userRemoveModal from './user-remove-modal';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
-  function classEnrollLink(classId) {
-    return {
-      name: PageNames.CLASS_ENROLL_MGMT_PAGE,
-      params: { classId },
-    };
-  }
-
   export default {
     // QUESTION update component name?
     name: 'classEnrollPage',
@@ -138,7 +131,18 @@
         this.userToBeRemoved = user;
         this.displayModal(Modals.REMOVE_USER);
       },
-      classEnrollLink,
+      learnerEnrollmentLink(classId) {
+        return {
+          name: PageNames.CLASS_ENROLL_LEARNER,
+          params: { classId },
+        };
+      },
+      coachAssignmentLink(classId) {
+        return {
+          name: PageNames.CLASS_ASSIGN_COACH,
+          params: { classId },
+        };
+      },
     },
     vuex: {
       getters: {

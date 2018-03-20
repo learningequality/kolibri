@@ -1,10 +1,17 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('facilityTitle')">
+  <core-base
+    :topLevelPageName="topLevelPageName"
+    :appBarTitle="appBarTitle"
+    :immersivePage="isImmersive"
+    immersivePageIcon="arrow_back"
+    :immersivePageRoute="appBarBackLink"
+  >
 
     <div v-if="isAdmin || isSuperuser">
       <div class="facility-management">
-        <top-nav />
+        <!-- QUESTION should we explicitly define this in every page? -->
+        <top-nav v-if="!isEnrollmentPage" />
         <component :is="currentPage" />
       </div>
     </div>
@@ -21,14 +28,6 @@
   import { PageNames } from '../constants';
   import { isAdmin, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
-  const pageNameComponentMap = {
-    [PageNames.CLASS_EDIT_MGMT_PAGE]: 'class-edit-page',
-    [PageNames.CLASS_ENROLL_MGMT_PAGE]: 'class-enroll-page',
-    [PageNames.CLASS_MGMT_PAGE]: 'manage-class-page',
-    [PageNames.DATA_EXPORT_PAGE]: 'data-page',
-    [PageNames.FACILITY_CONFIG_PAGE]: 'facilities-config-page',
-    [PageNames.USER_MGMT_PAGE]: 'user-page',
-  };
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import classEditPage from './class-edit-page';
   import classEnrollPage from './class-enroll-page';
@@ -40,6 +39,20 @@
   import manageClassPage from './manage-class-page';
   import topNav from './top-nav';
   import userPage from './user-page';
+
+  const classEnrollmentPages = [PageNames.CLASS_ENROLL_LEARNER, PageNames.CLASS_ASSIGN_COACH];
+
+  const pageNameComponentMap = {
+    [PageNames.CLASS_EDIT_MGMT_PAGE]: 'classEditPage',
+    [PageNames.CLASS_ENROLL_MGMT_PAGE]: 'classEnrollPage',
+    [PageNames.CLASS_MGMT_PAGE]: 'manageClassPage',
+    [PageNames.CLASS_ENROLL_LEARNER]: 'learnerClassEnrollmentPage',
+    [PageNames.CLASS_ASSIGN_COACH]: 'coachClassAssignmentPage',
+    [PageNames.DATA_EXPORT_PAGE]: 'dataPage',
+    [PageNames.FACILITY_CONFIG_PAGE]: 'facilitiesConfigPage',
+    [PageNames.USER_MGMT_PAGE]: 'userPage',
+  };
+
   export default {
     $trs: {
       facilityTitle: 'Facility',
@@ -66,10 +79,28 @@
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
       },
+      appBarTitle() {
+        if (this.isEnrollmentPage) {
+          return this.$tr('detailPageReturnPrompt');
+        }
+        return this.$tr('facilityTitle');
+      },
+      appBarBackLink() {
+        if (this.isEnrollmentPage) {
+          return {
+            name: PageNames.CLASS_EDIT_MGMT_PAGE,
+          };
+        }
+        return null;
+      },
+      isImmersive() {
+        return this.isEnrollmentPage;
+      },
     },
     vuex: {
       getters: {
         pageName: state => state.pageName,
+        isEnrollmentPage: state => classEnrollmentPages.includes(state.pageName),
         isAdmin,
         isSuperuser,
       },

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-
+    <class-enroll-page />
   </div>
 
 </template>
@@ -9,9 +9,13 @@
 
 <script>
 
+  import classEnrollPage from './class-enroll-page';
+
   export default {
     name: 'coachClassAssignmentPage',
-    components: {},
+    components: {
+      classEnrollPage,
+    },
     computed: {},
     methods: {},
     vuex: {
