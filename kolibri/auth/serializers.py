@@ -16,10 +16,17 @@ from .models import Role
 
 
 class RoleSerializer(serializers.ModelSerializer):
+    collection_parent = serializers.SerializerMethodField()
 
     class Meta:
         model = Role
-        fields = ('id', 'kind', 'collection', 'user')
+        fields = ('id', 'kind', 'collection', 'user', 'collection_parent',)
+
+    def get_collection_parent(self, instance):
+        if instance.collection.parent is not None:
+            return instance.collection.parent.id
+        else:
+            return None
 
 
 class FacilityUserSerializer(serializers.ModelSerializer):
