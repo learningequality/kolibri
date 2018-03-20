@@ -11,12 +11,11 @@ import {
   showRecentChannels,
   showRecentItemsForChannel,
   showRecentLearnerItemDetails,
-  showRecentLearnersForItem,
   showTopicChannelRoot,
   showTopicChannels,
   showTopicItemList,
   showTopicLearnerItemDetails,
-  showTopicLearnersForItem,
+  showLearnerReportsForItem,
 } from '../state/actions/reports';
 import { PageNames } from '../constants';
 import store from 'kolibri.coreVue.vuex.store';
@@ -65,7 +64,14 @@ export default [
     name: PageNames.RECENT_LEARNERS_FOR_ITEM,
     path: '/:classId/recent/:channelId/:contentId',
     handler: to => {
-      showRecentLearnersForItem(store, to.params.classId, to.params.channelId, to.params.contentId);
+      const showRecentOnly = true;
+      showLearnerReportsForItem(
+        store,
+        to.params.classId,
+        to.params.channelId,
+        to.params.contentId,
+        showRecentOnly
+      );
     },
   },
   {
@@ -113,7 +119,14 @@ export default [
     name: PageNames.TOPIC_LEARNERS_FOR_ITEM,
     path: '/:classId/topics/:channelId/item/:contentId',
     handler: to => {
-      showTopicLearnersForItem(store, to.params.classId, to.params.channelId, to.params.contentId);
+      const showRecentOnly = false;
+      showLearnerReportsForItem(
+        store,
+        to.params.classId,
+        to.params.channelId,
+        to.params.contentId,
+        showRecentOnly
+      );
     },
   },
   {

@@ -441,20 +441,6 @@ export function showRecentItemsForChannel(store, classId, channelId) {
   );
 }
 
-export function showRecentLearnersForItem(store, classId, channelId, contentId) {
-  store.dispatch('SET_PAGE_NAME', PageNames.RECENT_LEARNERS_FOR_ITEM);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('recentLearnerActivityReportPageTitle'));
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-
-  _showClassLearnerList(store, {
-    classId,
-    channelId,
-    contentScopeId: contentId,
-    userScopeId: classId,
-    showRecentOnly: true,
-  });
-}
-
 export function showRecentLearnerItemDetails(
   store,
   classId,
@@ -529,18 +515,22 @@ export function showTopicItemList(store, classId, channelId, topicId) {
   });
 }
 
-export function showTopicLearnersForItem(store, classId, channelId, contentId) {
+export function showLearnerReportsForItem(store, classId, channelId, contentId, showRecentOnly) {
   clearReportSorting(store);
-  store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_LEARNERS_FOR_ITEM);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('topicsLearnersReportForContentItemPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-
+  if (showRecentOnly) {
+    store.dispatch('SET_PAGE_NAME', PageNames.RECENT_LEARNERS_FOR_ITEM);
+    store.dispatch('CORE_SET_TITLE', translator.$tr('recentLearnerActivityReportPageTitle'));
+  } else {
+    store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_LEARNERS_FOR_ITEM);
+    store.dispatch('CORE_SET_TITLE', translator.$tr('topicsLearnersReportForContentItemPageTitle'));
+  }
   _showClassLearnerList(store, {
     classId,
     channelId,
     contentScopeId: contentId,
     userScopeId: classId,
-    showRecentOnly: false,
+    showRecentOnly,
   });
 }
 
