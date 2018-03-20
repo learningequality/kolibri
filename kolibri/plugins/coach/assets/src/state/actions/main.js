@@ -14,7 +14,7 @@ const translator = createTranslator('classListTitles', {
  *
  */
 export function shouldRedirectToClassRootPage() {
-  return ClassroomResource.getCollection()
+  return ClassroomResource.getCollection({ role: 'coach' })
     .fetch()
     ._promise.then(classrooms => {
       if (classrooms.length === 1) {
@@ -25,7 +25,7 @@ export function shouldRedirectToClassRootPage() {
 }
 
 export function setClassState(store, classId = null) {
-  return ClassroomResource.getCollection()
+  return ClassroomResource.getCollection({ role: 'coach' })
     .fetch()
     .then(classrooms => {
       store.dispatch('SET_CLASS_INFO', {
@@ -50,6 +50,7 @@ export function showClassListPage(store) {
     error => handleApiError(store, error)
   );
 }
+
 export function setSelectedAttemptLogIndex(store, index) {
   store.dispatch('SET_SELECTED_ATTEMPT_LOG_INDEX', index);
 }
