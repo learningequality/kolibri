@@ -10,8 +10,8 @@
         <tr>
           <th class="core-table-icon-col" v-if="selectable">
             <k-checkbox
-              @change="selectAll()"
-              :label="checkboxLabel"
+              @change="selectAll($event)"
+              :label="selectAllLabel"
               :showLabel="false"
               :checked="allAreSelected"
             />
@@ -33,8 +33,8 @@
         >
           <td class="core-table-icon-col" v-if="selectable">
             <k-checkbox
-              @change="selectUser(user.id)"
-              :label="checkboxLabel"
+              @change="selectUser(user.id, $event)"
+              :label="userCheckboxLabel"
               :showLabel="false"
               :checked="userIsSelected(user.id)"
             />
@@ -99,7 +99,11 @@
         default: false,
       },
       // TODO bring string into this component after stringfreeze
-      checkboxLabel: {
+      selectAllLabel: {
+        type: String,
+      },
+      // TODO bring string into this component after stringfreeze
+      userCheckboxLabel: {
         type: String,
       },
       // used for optional checkboxes
@@ -110,21 +114,23 @@
     },
     computed: {
       allAreSelected() {
-        const includedUsers = this.users.filter(user => this.value.includes(user.id));
-        return Boolean(includedUsers.length);
+        return this.users.every(user => this.value.includes(user.id));
       },
     },
     methods: {
       userIsSelected(id) {
         return this.value.includes(id);
       },
-      selectAll() {
-        this.$emit('change', Array.from(this.users));
+      selectAll(checked) {
+        return this.$emit('input', checked ? this.users.map(user => user.id) : []);
       },
-      selectUser(id) {
+      selectUser(id, checked) {
         const selected = Array.from(this.value);
-        selected.push(id);
-        this.$emit('change', selected);
+        if (checked) {
+          selected.push(id);
+          return this.$emit('input', selected);
+        }
+        return this.$emit('input', selected.filter(selectedId => selectedId !== id));
       },
     },
     vuex: {
