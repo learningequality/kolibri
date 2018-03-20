@@ -1,5 +1,4 @@
-// a name for every URL pattern
-const PageNames = {
+export const PageNames = {
   CLASS_MGMT_PAGE: 'CLASS_MGMT_PAGE',
   CLASS_EDIT_MGMT_PAGE: 'CLASS_EDIT_MGMT_PAGE',
   CLASS_ENROLL_LEARNER: 'CLASS_ENROLL_LEARNER',
@@ -10,7 +9,7 @@ const PageNames = {
 };
 
 // modal names
-const Modals = {
+export const Modals = {
   CREATE_CLASS: 'CREATE_CLASS',
   DELETE_CLASS: 'DELETE_CLASS',
   EDIT_CLASS_NAME: 'EDIT_CLASS_NAME',
@@ -22,7 +21,7 @@ const Modals = {
   DELETE_USER: 'DELETE_USER',
 };
 
-const defaultFacilityConfig = {
+export const defaultFacilityConfig = {
   learnerCanEditUsername: true,
   learnerCanEditName: true,
   learnerCanEditPassword: true,
@@ -31,10 +30,8 @@ const defaultFacilityConfig = {
   learnerCanLoginWithNoPassword: false,
 };
 
-const notificationTypes = {
+export const notificationTypes = {
   PAGELOAD_FAILURE: 'PAGELOAD_FAILURE',
   SAVE_FAILURE: 'SAVE_FAILURE',
   SAVE_SUCCESS: 'SAVE_SUCCESS',
 };
-
-export { PageNames, Modals, defaultFacilityConfig, notificationTypes };

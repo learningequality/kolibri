@@ -44,14 +44,14 @@
   const classEnrollmentPages = [PageNames.CLASS_ENROLL_LEARNER, PageNames.CLASS_ASSIGN_COACH];
 
   const pageNameComponentMap = {
-    [PageNames.CLASS_EDIT_MGMT_PAGE]: 'classEditPage',
-    [PageNames.CLASS_ENROLL_MGMT_PAGE]: 'classEnrollPage',
-    [PageNames.CLASS_MGMT_PAGE]: 'manageClassPage',
-    [PageNames.CLASS_ENROLL_LEARNER]: 'learnerClassEnrollmentPage',
-    [PageNames.CLASS_ASSIGN_COACH]: 'coachClassAssignmentPage',
-    [PageNames.DATA_EXPORT_PAGE]: 'dataPage',
-    [PageNames.FACILITY_CONFIG_PAGE]: 'facilitiesConfigPage',
-    [PageNames.USER_MGMT_PAGE]: 'userPage',
+    [PageNames.CLASS_EDIT_MGMT_PAGE]: classEditPage,
+    [PageNames.CLASS_ENROLL_MGMT_PAGE]: classEnrollPage,
+    [PageNames.CLASS_MGMT_PAGE]: manageClassPage,
+    [PageNames.CLASS_ENROLL_LEARNER]: learnerClassEnrollmentPage,
+    [PageNames.CLASS_ASSIGN_COACH]: coachClassAssignmentPage,
+    [PageNames.DATA_EXPORT_PAGE]: dataPage,
+    [PageNames.FACILITY_CONFIG_PAGE]: facilitiesConfigPage,
+    [PageNames.USER_MGMT_PAGE]: userPage,
   };
 
   export default {
@@ -64,16 +64,8 @@
     name: 'managementRoot',
     components: {
       authMessage,
-      classEditPage,
-      classEnrollPage,
-      coachClassAssignmentPage,
-      learnerClassEnrollmentPage,
       coreBase,
-      dataPage,
-      facilitiesConfigPage,
-      manageClassPage,
       topNav,
-      userPage,
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.MANAGE,
@@ -111,8 +103,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-</style>
+<style lang="stylus" scoped></style>
