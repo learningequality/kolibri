@@ -84,7 +84,7 @@
       value: {
         type: Array,
         default: null,
-      };
+      },
     },
     computed: {},
     methods: {},

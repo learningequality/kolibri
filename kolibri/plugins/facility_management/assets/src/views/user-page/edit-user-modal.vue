@@ -3,6 +3,7 @@
   <core-modal
     :title="$tr('editUser')"
     @cancel="displayModal(false)"
+    width="400px"
   >
     <form @submit.prevent="submitForm">
 
@@ -48,16 +49,16 @@
         <label>
           <k-radio-button
             :label="$tr('classCoachLabel')"
-            :radiovalue="false"
-            v-model="isFacilityCoach"
+            :radiovalue="true"
+            v-model="classCoachIsSelected"
           />
           {{ $tr('classCoachDescription') }}
         </label>
         <label>
           <k-radio-button
             :label="$tr('facilityCoachLabel')"
-            :radiovalue="true"
-            v-model="isFacilityCoach"
+            :radiovalue="false"
+            v-model="classCoachIsSelected"
           />
           {{ $tr('facilityCoachDescription') }}
         </label>
@@ -144,7 +145,7 @@
     },
     data() {
       return {
-        isFacilityCoach: false,
+        classCoachIsSelected: false,
         newName: this.name,
         newUsername: this.username,
         newKind: null,
@@ -203,7 +204,16 @@
       },
     },
     beforeMount() {
-      this.newKind = this.userKinds.find(kind => kind.value === this.kind);
+      const coachOption = this.userKinds[1];
+      if (this.kind === UserKinds.ASSIGNABLE_COACH) {
+        this.newKind = coachOption;
+        this.classCoachIsSelected = true;
+      } else if (this.kind === UserKinds.COACH) {
+        this.newKind = coachOption;
+        this.classCoachIsSelected = false;
+      } else {
+        this.newKind = this.userKinds.find(kind => kind.value === this.kind);
+      }
     },
     methods: {
       submitForm() {
@@ -213,10 +223,10 @@
         this.formSubmitted = true;
         if (this.formIsValid) {
           if (this.newKind.value === UserKinds.COACH) {
-            if (this.isFacilityCoach) {
-              roleUpdate.kind = UserKinds.COACH;
+            if (this.classCoachIsSelected) {
+              roleUpdate.kind = UserKinds.ASSIGNABLE_COACH;
             } else {
-              roleUpdate.kind = 'assignable_coach';
+              roleUpdate.kind = UserKinds.COACH;
             }
           } else {
             roleUpdate.kind = '';

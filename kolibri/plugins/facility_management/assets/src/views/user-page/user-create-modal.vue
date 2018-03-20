@@ -67,7 +67,7 @@
             <k-radio-button
               :label="$tr('classCoachLabel')"
               :radiovalue="true"
-              v-model="isClassCoach"
+              v-model="classCoachIsSelected"
             />
             {{ $tr('classCoachDescription') }}
           </label>
@@ -75,7 +75,7 @@
             <k-radio-button
               :label="$tr('facilityCoachLabel')"
               :radiovalue="false"
-              v-model="isClassCoach"
+              v-model="classCoachIsSelected"
             />
             {{ $tr('facilityCoachDescription') }}
           </label>
@@ -159,7 +159,7 @@
           label: this.$tr('learner'),
           value: UserKinds.LEARNER,
         },
-        isClassCoach: false,
+        classCoachIsSelected: false,
         errorMessage: '',
         submitting: false,
         nameBlurred: false,
@@ -170,6 +170,16 @@
       };
     },
     computed: {
+      newUserRole() {
+        if (this.coachIsSelected) {
+          if (this.classCoachIsSelected) {
+            return UserKinds.ASSIGNABLE_COACH;
+          }
+          return UserKinds.COACH;
+        }
+        // Admin or Learner
+        return this.kind.value;
+      },
       coachIsSelected() {
         return this.kind.value === UserKinds.COACH;
       },
@@ -185,7 +195,7 @@
         return Boolean(this.nameIsInvalidText);
       },
       usernameAlreadyExists() {
-        return this.users.findIndex(user => user.username === this.username) !== -1;
+        return this.facilityUsers.find(({ username }) => username === this.username);
       },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
@@ -241,7 +251,7 @@
         return [
           {
             label: this.$tr('learner'),
-            value: '',
+            value: UserKinds.LEARNER,
           },
           {
             label: this.$tr('coach'),
@@ -260,18 +270,15 @@
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
-          // TODO facility vs non facility coach logic
-          const newUser = {
+          this.createUser({
             username: this.username,
             full_name: this.fullName,
             role: {
-              kind: this.kind.value,
+              kind: this.newUserRole,
               collection: this.currentFacilityId,
-              // collection: this.isClassCoach ? '' : this.currentFacilityId,
             },
             password: this.password,
-          };
-          this.createUser(newUser).then(
+          }).then(
             () => {
               this.close();
             },
@@ -291,15 +298,10 @@
         }
       },
       focusOnInvalidField() {
-        if (this.nameIsInvalid) {
-          this.$refs.name.focus();
-        } else if (this.usernameIsInvalid) {
-          this.$refs.username.focus();
-        } else if (this.passwordIsInvalid) {
-          this.$refs.password.focus();
-        } else if (this.confirmedPasswordIsInvalid) {
-          this.$refs.confirmedPassword.focus();
-        }
+        this.nameIsInvalid && this.$refs.name.focus();
+        this.usernameIsInvalid && this.$refs.username.focus();
+        this.passwordIsInvalid && this.$refs.password.focus();
+        this.confirmedPasswordIsInvalid && this.$refs.confirmedPassword.focus();
       },
       close() {
         this.displayModal(false);
@@ -307,7 +309,7 @@
     },
     vuex: {
       getters: {
-        users: state => state.pageState.facilityUsers,
+        facilityUsers: state => state.pageState.facilityUsers,
         currentFacilityId,
       },
       actions: {
