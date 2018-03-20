@@ -2,39 +2,6 @@
 
   <div>
     <!-- TODO convert to template for reusability w/in respective pages -->
-    <k-grid class="top-buttons">
-      <k-grid-item
-        size="1"
-        :cols="numCols"
-        :class="{'align-center' : isMobile}"
-      >
-        <k-router-link
-          :text="$tr('backToClassDetails')"
-          :to="editClassLink"
-          :primary="false"
-          appearance="flat-button"
-          class="link-button"
-        />
-      </k-grid-item>
-      <k-grid-item
-        size="1"
-        :cols="numCols"
-        :class="isMobile ? 'align-center' : 'align-right'"
-      >
-        <k-button
-          :text="$tr('createNewUser')"
-          :primary="false"
-          @click="openCreateUserModal"
-        />
-        <k-button
-          :text="$tr('enrollSelectedUsers')"
-          :primary="true"
-          @click="openConfirmEnrollmentModal"
-          :disabled="selectedUsers.length === 0"
-        />
-      </k-grid-item>
-    </k-grid>
-
     <confirm-enrollment-modal
       v-if="showConfirmEnrollmentModal"
       :className="className"
@@ -52,7 +19,7 @@
     <div v-else>
 
       <div class="actions-header">
-
+        <!-- TODO align right -->
         <k-filter-textbox
           class="filter"
           :class="{ 'invisible' : showSelectedUsers }"
@@ -60,15 +27,6 @@
           v-model.trim="filterInput"
           @input="pageNum = 1"
         />
-        <div class="inline-block va-m">
-          <k-checkbox
-            v-show="!filterInput"
-            :label="`${$tr('selectedUsers')} (${selectedUsers.length})`"
-            :showLabel="true"
-            :checked="showSelectedUsers"
-            @change="showSelectedUsers = $event"
-          />
-        </div>
       </div>
       <core-table>
         <thead slot="thead">
@@ -148,6 +106,15 @@
     </div>
 
     <user-create-modal v-if="showCreateUserModal" />
+
+    <!-- TODO align right -->
+    <k-button
+      :text="$tr('enrollSelectedUsers')"
+      :primary="true"
+      @click="openConfirmEnrollmentModal"
+      :disabled="selectedUsers.length === 0"
+    />
+
 
   </div>
 
