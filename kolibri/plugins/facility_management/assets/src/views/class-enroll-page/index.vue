@@ -12,60 +12,51 @@
     <h1>{{ $tr('selectLearners', { className }) }}</h1>
     <p>{{ $tr('showingAllUnassigned') }}</p>
 
-    <p v-if="facilityUsers.length === 0">{{ $tr('noUsersExist') }}</p>
 
-    <p v-else-if="usersNotInClass.length === 0">{{ $tr('allUsersAlready') }}</p>
-
-    <div v-else>
-
-      <div class="actions-header">
-        <!-- TODO align right -->
-        <k-filter-textbox
-          class="filter"
-          :class="{ 'invisible' : showSelectedUsers }"
-          :placeholder="$tr('searchForUser')"
-          v-model.trim="filterInput"
-          @input="pageNum = 1"
-        />
-      </div>
-
-
-      <user-table
-        v-model="selectedUsers"
-        :users="visibleFilteredUsers"
-        :title="$tr('userTableLabel')"
-        :selectable="true"
-        :selectAllLabel="$tr('selectAllOnPage')"
-        :userCheckboxLabel="$tr('selectUser')"
-        :emptyMessage="$tr('noUsersMatch')"
+    <div class="actions-header">
+      <!-- TODO align right -->
+      <k-filter-textbox
+        class="filter"
+        :class="{ 'invisible' : showSelectedUsers }"
+        :placeholder="$tr('searchForUser')"
+        v-model.trim="filterInput"
+        @input="pageNum = 1"
       />
-
-      <div class="pagination-footer">
-        <span>
-          {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
-        </span>
-        <nav>
-          <ui-icon-button
-            type="primary"
-            :icon="isRtl? 'chevron_right' : 'chevron_left'"
-            :ariaLabel="$tr('previousResults')"
-            :disabled="pageNum === 1"
-            size="small"
-            @click="goToPage(pageNum - 1)"
-          />
-          <ui-icon-button
-            type="primary"
-            :icon="isRtl? 'chevron_left' : 'chevron_right'"
-            :ariaLabel="$tr('nextResults')"
-            :disabled="pageNum === numPages"
-            size="small"
-            @click="goToPage(pageNum + 1)"
-          />
-        </nav>
-      </div>
     </div>
 
-    <user-create-modal v-if="showCreateUserModal" />
+    <user-table
+      v-model="selectedUsers"
+      :users="visibleFilteredUsers"
+      :title="$tr('userTableLabel')"
+      :selectable="true"
+      :selectAllLabel="$tr('selectAllOnPage')"
+      :userCheckboxLabel="$tr('selectUser')"
+      :emptyMessage="$tr('noUsersMatch')"
+    />
+
+    <div class="pagination-footer">
+      <span>
+        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
+      </span>
+      <nav>
+        <ui-icon-button
+          type="primary"
+          :icon="isRtl? 'chevron_right' : 'chevron_left'"
+          :ariaLabel="$tr('previousResults')"
+          :disabled="pageNum === 1"
+          size="small"
+          @click="goToPage(pageNum - 1)"
+        />
+        <ui-icon-button
+          type="primary"
+          :icon="isRtl? 'chevron_left' : 'chevron_right'"
+          :ariaLabel="$tr('nextResults')"
+          :disabled="pageNum === numPages"
+          size="small"
+          @click="goToPage(pageNum + 1)"
+        />
+      </nav>
+    </div>
 
     <!-- TODO align right -->
     <k-button
@@ -93,29 +84,21 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import uiIcon from 'keen-ui/src/UiIcon';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
-  import userCreateModal from '../user-page/user-create-modal';
   import confirmEnrollmentModal from './confirm-enrollment-modal';
-  import userRole from '../user-role';
 
   export default {
     name: 'managementClassEnroll',
     components: {
       kButton,
-      kRouterLink,
       kCheckbox,
       uiIconButton,
-      uiIcon,
       kFilterTextbox,
       kGrid,
       kGridItem,
-      userCreateModal,
       confirmEnrollmentModal,
-      userRole,
       userTable,
     },
     mixins: [responsiveWindow],
@@ -233,11 +216,18 @@
         );
       },
       emptyMessage() {
+        if (this.usersNotInClass.length === 0) {
+          return this.$tr('allUsersAlready');
+        }
+        if (this.facilityUsers.length === 0) {
+          return this.$tr('noUsersExist');
+        }
         if (this.filteredUsers.length === 0 && this.filterInput !== '') {
           // TODO internationalize this
           return `${this.$tr('noUsersMatch')}: '${this.filterInput}'`;
         }
-        return this.$tr('noUsersExist');
+
+        return '';
       },
     },
     watch: {
