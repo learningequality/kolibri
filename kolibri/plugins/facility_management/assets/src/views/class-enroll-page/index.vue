@@ -28,52 +28,16 @@
           @input="pageNum = 1"
         />
       </div>
-      <core-table>
-        <thead slot="thead">
-          <tr>
-            <th class="core-table-checkbox-col">
-              <k-checkbox
-                :label="$tr('selectAllOnPage')"
-                :showLabel="false"
-                :checked="selectAllIsChecked"
-                :disabled="visibleFilteredUsers.length === 0 || showSelectedUsers"
-                @change="toggleAllVisibleUsers"
-              />
-            </th>
-            <th class="core-table-main-col">{{ $tr('username') }}</th>
-            <th>{{ $tr('role') }}</th>
-            <th>{{ $tr('name') }}</th>
-          </tr>
-        </thead>
 
-        <tbody
-          slot="tbody"
-          name="row"
-          is="transition-group"
-          class="core-table-rows-selectable"
-        >
 
-          <tr
-            v-for="learner in visibleFilteredUsers"
-            :class="isSelected(learner.id) ? 'core-table-row-selected' : ''"
-            @click="toggleSelection(learner.id)"
-            :key="learner.id"
-          >
-            <td class="core-table-checkbox-col">
-              <k-checkbox
-                :label="$tr('selectUser')"
-                :showLabel="false"
-                :checked="isSelected(learner.id)"
-                @change="toggleSelection(learner.id)"
-                @click.native.stop
-              />
-            </td>
-            <th class="core-table-main-col">{{ learner.username }}</th>
-            <td>{{ learner.kind }}</td>
-            <td>{{ learner.full_name }}</td>
-          </tr>
-        </tbody>
-      </core-table>
+      <user-table
+        v-model="selectedUsers"
+        :users="visibleFilteredUsers"
+        :title="$tr('userTableLabel')"
+        :selectable="true"
+        :selectAllLabel="$tr('selectAllOnPage')"
+        :userCheckboxLabel="$tr('selectUser')"
+      />
 
       <p v-if="filteredUsers.length === 0 && showSelectedUsers">{{ $tr('noUsersSelected') }}</p>
       <p v-if="filteredUsers.length === 0 && filterInput !== ''">
@@ -126,6 +90,8 @@
   import { PageNames, Modals } from '../../constants';
   import { displayModal } from '../../state/actions';
   import differenceWith from 'lodash/differenceWith';
+  // TODO move to higher level directory after string freeze
+  import userTable from '../class-edit-page/user-table';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -139,7 +105,6 @@
   import userCreateModal from '../user-page/user-create-modal';
   import confirmEnrollmentModal from './confirm-enrollment-modal';
   import userRole from '../user-role';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
 
   export default {
     name: 'managementClassEnroll',
@@ -155,7 +120,7 @@
       userCreateModal,
       confirmEnrollmentModal,
       userRole,
-      coreTable,
+      userTable,
     },
     mixins: [responsiveWindow],
     $trs: {
