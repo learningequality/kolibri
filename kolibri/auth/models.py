@@ -957,7 +957,7 @@ class Role(AbstractFacilityDataModel):
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
     collection = TreeForeignKey("Collection")
-    kind = models.CharField(max_length=20, choices=role_kinds.choices)
+    kind = models.CharField(max_length=26, choices=role_kinds.choices)
 
     class Meta:
         unique_together = (("user", "collection", "kind"),)
