@@ -11,7 +11,7 @@
           <th class="core-table-icon-col"></th>
           <th>{{ $tr('fullName') }}</th>
           <th>{{ $tr('username') }}</th>
-          <th class="remove-button-column">
+          <th v-if="removeUserClick" class="remove-button-column">
             <span class="visuallyhidden">{{ $tr('userActionsColumnHeader') }}</span>
           </th>
         </tr>
@@ -27,7 +27,7 @@
           </td>
           <td class="core-table-main-col">{{ user.full_name }}</td>
           <td>{{ user.username }}</td>
-          <td class="remove-button-column">
+          <td v-if="removeUserClick" class="remove-button-column">
             <k-button
               appearance="flat-button"
               @click="removeUserClick(user)"
@@ -72,12 +72,19 @@
         type: String,
         required: true,
       },
+      // used for optional remove column
       removeUserClick: {
         type: Function,
+        default: null,
       },
       emptyMessage: {
         type: String,
       },
+      // used for optional checkboxes
+      value: {
+        type: Array,
+        default: null,
+      };
     },
     computed: {},
     methods: {},

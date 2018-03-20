@@ -6,6 +6,7 @@
     :immersivePage="isImmersive"
     immersivePageIcon="arrow_back"
     :immersivePageRoute="appBarBackLink"
+    :immersivePagePrimary="true"
   >
 
     <div v-if="isAdmin || isSuperuser">
