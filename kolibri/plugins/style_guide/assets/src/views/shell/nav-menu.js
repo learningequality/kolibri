@@ -1,5 +1,10 @@
 import sortBy from 'lodash/sortBy';
 import flatten from 'lodash/flatten';
+
+import materialPage from '../content/material';
+import everyonePage from '../content/everyone';
+import writingPage from '../content/writing';
+
 import buttonsPage from '../content/buttons';
 import breadcrumbsPage from '../content/breadcrumbs';
 import navbarPage from '../content/navbar';
@@ -27,6 +32,32 @@ const homeRoute = [
 // Notes: This is view-agnostic; it doesn't make assumption on how it will be
 // rendered (whether it's a side-nav or a horizontal menu).
 const navMenu = [
+  {
+    sectionName: 'Patterns',
+    sectionItems: [
+      {
+        itemName: 'Material design',
+        itemRoute: {
+          path: `/patterns/material`,
+          component: materialPage,
+        },
+      },
+      {
+        itemName: 'Design for everyone',
+        itemRoute: {
+          path: `/patterns/everyone`,
+          component: everyonePage,
+        },
+      },
+      {
+        itemName: 'Writing style',
+        itemRoute: {
+          path: `/patterns/writing`,
+          component: writingPage,
+        },
+      },
+    ],
+  },
   {
     sectionName: 'Components',
     sectionItems: sortSectionItems([
