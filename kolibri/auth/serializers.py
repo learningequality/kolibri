@@ -14,6 +14,7 @@ from .models import LearnerGroup
 from .models import Membership
 from .models import Role
 
+
 class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -83,13 +84,13 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
 
 class ClassroomSerializer(serializers.ModelSerializer):
     learner_count = serializers.SerializerMethodField()
-    coach_names = serializers.SerializerMethodField()
+    coaches = serializers.SerializerMethodField()
 
     def get_learner_count(self, instance):
         return instance.get_members().count()
 
-    def get_coach_names(self, instance):
-        return instance.get_coaches().values_list('full_name', flat=True)
+    def get_coaches(self, instance):
+        return FacilityUserSerializer(instance.get_coaches(), many=True).data
 
     class Meta:
         model = Classroom
@@ -98,7 +99,7 @@ class ClassroomSerializer(serializers.ModelSerializer):
             'name',
             'parent',
             'learner_count',
-            'coach_names',
+            'coaches',
         )
 
         validators = [

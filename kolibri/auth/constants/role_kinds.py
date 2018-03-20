@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 ADMIN = "admin"
 COACH = "coach"
-ASSIGNABLE_COACH = "assignable_coach"
+ASSIGNABLE_COACH = "classroom assignable coach"
 
 choices = (
     (ADMIN, _("Admin")),
