@@ -32,23 +32,17 @@
         </tr>
       </thead>
       <tbody slot="tbody">
-        <template v-for="channel in standardDataTable">
-          <tr :key="channel.id">
-            <td class="core-table-icon-col">
-              <content-icon :kind="CHANNEL" />
-            </td>
-            <name-cell
-              :kind="CHANNEL"
-              :title="channel.title"
-              :link="reportLink(channel.id)"
-              :key="channel.id"
-            />
-            <activity-cell
-              :date="channel.lastActive"
-              :key="channel.id"
-            />
-          </tr>
-        </template>
+        <tr v-for="channel in standardDataTable" :key="channel.id">
+          <td class="core-table-icon-col">
+            <content-icon :kind="CHANNEL" />
+          </td>
+          <name-cell
+            :kind="CHANNEL"
+            :title="channel.title"
+            :link="reportLink(channel.id)"
+          />
+          <activity-cell :date="channel.lastActive" />
+        </tr>
       </tbody>
     </core-table>
   </div>
