@@ -9,6 +9,7 @@ from kolibri.auth.models import FacilityUser
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.logger.models import ExamLog
+from rest_framework.serializers import SerializerMethodField
 
 
 class NestedCollectionSerializer(serializers.ModelSerializer):
@@ -33,13 +34,17 @@ class NestedExamAssignmentSerializer(serializers.ModelSerializer):
 class ExamAssignmentCreationSerializer(serializers.ModelSerializer):
     assigned_by = serializers.PrimaryKeyRelatedField(read_only=False, queryset=FacilityUser.objects.all())
     collection = serializers.PrimaryKeyRelatedField(read_only=False, queryset=Collection.objects.all())
+    collection_kind = SerializerMethodField()
 
     class Meta:
         model = ExamAssignment
         fields = (
-            'id', 'exam', 'collection', 'assigned_by',
+            'id', 'exam', 'collection', 'assigned_by', 'collection_kind',
         )
-        read_only_fields = ('assigned_by',)
+        read_only_fields = ('assigned_by', 'exam', 'collection_kind')
+
+    def get_collection_kind(self, instance):
+        return instance.collection.kind
 
     def to_internal_value(self, data):
         # Make a new OrderedDict from the input, which could be an immutable QueryDict
@@ -63,7 +68,7 @@ class ExamAssignmentRetrieveSerializer(serializers.ModelSerializer):
 
 class ExamSerializer(serializers.ModelSerializer):
 
-    assignments = ExamAssignmentRetrieveSerializer(many=True, read_only=True)
+    assignments = ExamAssignmentCreationSerializer(many=True)
     question_sources = serializers.JSONField(default='[]')
     creator = serializers.PrimaryKeyRelatedField(read_only=False, queryset=FacilityUser.objects.all())
 
@@ -73,7 +78,6 @@ class ExamSerializer(serializers.ModelSerializer):
             'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
             'active', 'collection', 'archive', 'assignments', 'creator',
         )
-        read_only_fields = ('assignments',)
 
         validators = [
             UniqueTogetherValidator(
@@ -92,6 +96,51 @@ class ExamSerializer(serializers.ModelSerializer):
                 # Otherwise we are just updating the exam, so allow a partial update
                 self.partial = True
         return super(ExamSerializer, self).to_internal_value(data)
+
+    def create(self, validated_data):
+        assignees = validated_data.pop('assignments')
+        new_exam = Exam.objects.create(**validated_data)
+        # Create all of the new ExamAssignment
+        for assignee in assignees:
+            self._create_exam_assignment(
+                exam=new_exam,
+                collection=assignee['collection']
+            )
+        return new_exam
+
+    def _create_exam_assignment(self, **params):
+        return ExamAssignment.objects.create(
+            assigned_by=self.context['request'].user,
+            **params
+        )
+
+    def update(self, instance, validated_data):
+        # Update the scalar fields
+        instance.title = validated_data.get('title', instance.title)
+        instance.active = validated_data.get('active', instance.active)
+
+        # Add/delete any new/removed Assignments
+        if 'assignments' in validated_data:
+            assignees = validated_data.pop('assignments')
+            current_assignments = (instance.assignments).all()
+            current_group_ids = [x.collection.id for x in list(current_assignments)]
+            new_group_ids = [x['collection'].id for x in list(assignees)]
+
+            ids_to_add = set(new_group_ids) - set(current_group_ids)
+            for id in ids_to_add:
+                self._create_exam_assignment(
+                    exam=instance,
+                    collection=Collection.objects.get(id=id)
+                )
+
+            ids_to_delete = set(current_group_ids) - set(new_group_ids)
+            ExamAssignment.objects.filter(
+                exam_id=instance.id,
+                collection_id__in=ids_to_delete
+            ).delete()
+
+        instance.save()
+        return instance
 
 
 class UserExamSerializer(serializers.ModelSerializer):

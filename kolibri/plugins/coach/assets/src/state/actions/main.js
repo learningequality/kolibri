@@ -7,24 +7,17 @@ const translator = createTranslator('classListTitles', {
   classListPageTitle: 'Classes',
 });
 
-function _classState(classData) {
-  return {
-    id: classData.id,
-    name: classData.name,
-    memberCount: classData.learner_count,
-  };
-}
-
 export function setClassState(store, classId = null) {
   return ClassroomResource.getCollection()
     .fetch()
-    .then(classes => {
-      let className = null;
-      if (classId) {
-        className = classes.find(classroom => classroom.id === classId).name;
-      }
-      store.dispatch('SET_CLASS_INFO', classId, className, classes.map(_classState));
-    });
+    .then(classrooms => {
+      store.dispatch('SET_CLASS_INFO', {
+        classId,
+        currentClassroom: classId && classrooms.find(classroom => classroom.id === classId),
+        classList: [...classrooms],
+      });
+    })
+    .catch(error => handleApiError(store, error));
 }
 
 export function showClassListPage(store) {

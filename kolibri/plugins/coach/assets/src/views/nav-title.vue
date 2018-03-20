@@ -1,61 +1,55 @@
 <template>
 
-  <h1>
-    <span class="caret-after">
-      <k-router-link
-        :text="$tr('allClasses')"
-        :to="classListPage"
-      />
-    </span>
-    <span v-if="username">
-      <span class="caret-after">
-        <k-router-link :text="className" :to="classRootPage" />
-      </span>
-      <span>{{ username }}</span>
-    </span>
-    <span v-else>{{ className }}</span>
-  </h1>
+  <div>
+    <h1>
+      <template v-if="username">
+        {{ username }}
+      </template>
+      <template v-else-if="className">
+        {{ className }}
+      </template>
+      <template v-else>
+        {{ $tr('coachPageHeader') }}
+      </template>
+    </h1>
+
+    <!-- HACK: infer whether coaches should appear based on whether in a page for a user -->
+    <div v-if="classCoaches.length && !username">
+      {{ $tr('coachListLabel') }}
+      <ul>
+        <li
+          v-for="(coachName, idx) in classCoaches"
+          :key="idx"
+        >
+          <span>{{ coachName }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
 
 </template>
 
 
 <script>
 
-  import { PageNames } from '../constants';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-
   export default {
     name: 'navTitle',
     $trs: {
-      allClasses: 'All classes',
-    },
-    components: {
-      kRouterLink,
+      coachPageHeader: 'Classes',
+      coachListLabel: 'Coaches:',
     },
     props: {
       className: {
         type: String,
-        required: true,
-      },
-      classId: {
-        type: String,
-        required: true,
-      },
-      linkClass: {
-        type: Boolean,
-        default: true,
+        default: null,
       },
       username: {
         type: String,
         default: null,
       },
-    },
-    computed: {
-      classListPage() {
-        return { name: PageNames.CLASS_LIST };
-      },
-      classRootPage() {
-        return { name: PageNames.CLASS_ROOT, classId: this.classId };
+      classCoaches: {
+        type: Array,
+        default: () => [],
       },
     },
   };
@@ -65,11 +59,13 @@
 
 <style lang="stylus" scoped>
 
-  .caret-after
-    &:after
-      content: '\203A'
-      margin-right: 8px
-      margin-left: 8px
-      vertical-align: top
+  ul, li
+    margin: 0
+    padding: 0
+    display: inline
+    list-style-type: none
+
+  li:not(&:last-child)::after
+    content: ', '
 
 </style>

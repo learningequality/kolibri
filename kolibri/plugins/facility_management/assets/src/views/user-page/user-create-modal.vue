@@ -57,10 +57,29 @@
 
         <k-select
           :label="$tr('userType')"
-          :options="userKinds"
+          :options="userKindDropdownOptions"
           v-model="kind"
           class="kind-select"
         />
+
+        <fieldset v-if="coachIsSelected">
+          <label>
+            <k-radio-button
+              :label="$tr('classCoachLabel')"
+              :radiovalue="false"
+              v-model="isFacilityCoach"
+            />
+            {{ $tr('classCoachDescription') }}
+          </label>
+          <label>
+            <k-radio-button
+              :label="$tr('facilityCoachLabel')"
+              :radiovalue="true"
+              v-model="isFacilityCoach"
+            />
+            {{ $tr('facilityCoachDescription') }}
+          </label>
+        </fieldset>
       </section>
 
       <!-- Button Options at footer of modal -->
@@ -90,6 +109,7 @@
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kSelect from 'kolibri.coreVue.components.kSelect';
@@ -108,6 +128,11 @@
       learner: 'Learner',
       coach: 'Coach',
       admin: 'Admin',
+      coachSelectorHeader: 'Coach type',
+      classCoachLabel: 'Class coach',
+      classCoachDescription: "Can only instruct classes that they're assigned to",
+      facilityCoachLabel: 'Facility coach',
+      facilityCoachDescription: 'Can instruct all classes in your facility',
       usernameAlreadyExists: 'Username already exists',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       pwMismatchError: 'Passwords do not match',
@@ -117,6 +142,7 @@
     },
     components: {
       kButton,
+      kRadioButton,
       coreModal,
       kTextbox,
       uiAlert,
@@ -128,7 +154,11 @@
         username: '',
         password: '',
         confirmedPassword: '',
-        kind: {},
+        kind: {
+          label: this.$tr('learner'),
+          value: UserKinds.LEARNER,
+        },
+        isFacilityCoach: false,
         errorMessage: '',
         submitting: false,
         nameBlurred: false,
@@ -139,6 +169,9 @@
       };
     },
     computed: {
+      coachIsSelected() {
+        return this.kind.value === UserKinds.COACH;
+      },
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.fullName === '') {
@@ -203,7 +236,7 @@
           !this.confirmedPasswordIsInvalid
         );
       },
-      userKinds() {
+      userKindDropdownOptions() {
         return [
           {
             label: this.$tr('learner'),
@@ -220,19 +253,13 @@
         ];
       },
     },
-    beforeMount() {
-      Object.assign(this.$data, this.$options.data());
-      this.kind = {
-        label: this.$tr('learner'),
-        value: UserKinds.LEARNER,
-      };
-    },
     methods: {
       createNewUser() {
         this.errorMessage = '';
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
+          // TODO facility vs non facility coach logic
           const newUser = {
             username: this.username,
             full_name: this.fullName,

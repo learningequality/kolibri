@@ -27,8 +27,9 @@
       :initialSelectedCollectionIds="selectedCollectionIds"
       :classId="classId"
       :groups="learnerGroups"
-      @save="updateExamDetails"
+      @save="handleUpdateExamDetails"
       @cancel="setExamsModal(null)"
+      ref="detailsModal"
     />
 
     <assignment-copy-modal
@@ -38,7 +39,7 @@
       :assignmentQuestion="$tr('assignmentQuestion')"
       :classId="classId"
       :classList="classList"
-      @copy="copyExam"
+      @copy="handleCopyExam"
       @cancel="setExamsModal(null)"
     />
 
@@ -89,7 +90,7 @@
         return ExamModals;
       },
       selectedCollectionIds() {
-        return this.exam.assignments.map(assignment => assignment.collection.id);
+        return this.exam.assignments.map(assignment => assignment.collection);
       },
     },
     methods: {
@@ -100,12 +101,51 @@
           this.deactivateExam(this.exam.id);
         }
       },
+      handleUpdateExamDetails(details) {
+        const payload = {};
+        const assignmentsAreSame =
+          details.assignments.length === this.exam.assignments.length &&
+          details.assignments.every(assignment =>
+            Boolean(
+              this.exam.assignments.find(
+                origAssignment => (origAssignment.collection = assignment.collection)
+              )
+            )
+          );
+        if (!assignmentsAreSame) {
+          payload.assignments = details.assignments;
+        }
+        if (details.title !== this.exam.title) {
+          payload.title = details.title;
+        }
+        if (payload === {}) {
+          this.setExamsModal(null);
+          return;
+        }
+        this.updateExamDetails(this.exam.id, payload)
+          .then()
+          .catch(() => this.$refs.detailsModal.handleSubmitFailure());
+      },
+      handleCopyExam(selectedClassroomId, selectedCollectionIds) {
+        const title = this.$tr('copyOfExam', { examTitle: this.exam.title }).substring(0, 50);
+        const exam = {
+          collection: selectedClassroomId,
+          channel_id: this.exam.channel_id,
+          title,
+          question_count: this.exam.question_count,
+          question_sources: this.exam.question_sources,
+          seed: this.exam.seed,
+          assignments: selectedCollectionIds.map(id => ({ collection: id })),
+        };
+        this.copyExam(exam, this.className);
+      },
     },
     vuex: {
       getters: {
         exam: state => state.pageState.exam,
         examsModalSet: state => state.pageState.examsModalSet,
         classId: state => state.classId,
+        className: state => state.className,
         classList: state => state.classList,
         learnerGroups: state => state.pageState.learnerGroups,
       },
@@ -128,6 +168,7 @@
       deleteExamDescription: "Are you sure you want to delete '{ title }'?",
       editExamDetails: 'Edit exam details',
       saveExamError: 'There was a problem saving this exam',
+      copyOfExam: 'Copy of { examTitle }',
     },
   };
 

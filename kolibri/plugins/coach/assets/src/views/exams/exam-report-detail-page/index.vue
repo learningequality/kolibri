@@ -77,7 +77,12 @@
   import interactionList from '../../interaction-list';
   export default {
     name: 'coachExamDetailPage',
-    $trs: { backTo: 'Back to exam report for { title }' },
+    $trs: {
+      backTo: 'Back to exam report for { title }',
+      correctAnswer: 'Correct answer',
+      yourAnswer: 'Your answer',
+      correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
+    },
     components: {
       immersiveFullScreen,
       contentRenderer,
