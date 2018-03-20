@@ -10,6 +10,7 @@
       <h1>{{ $tr('topicsTitle') }}</h1>
       <p v-if="!standardDataTable.length">{{ $tr('noChannels') }}</p>
     </template>
+    <breadcrumbs />
     <core-table
       v-if="standardDataTable.length"
       :caption="$tr('channelList')"
@@ -63,9 +64,11 @@
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
   import alignMixin from './align-mixin';
+  import breadcrumbs from './breadcrumbs';
   export default {
     name: 'channelListPage',
     components: {
+      breadcrumbs,
       contentIcon,
       coreTable,
       headerCell,

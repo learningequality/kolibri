@@ -120,7 +120,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
     store.dispatch('SET_REPORT_PROPERTIES', {
       userScope: scope,
       userScopeId: scopeId,
-      userScopeName: userId ? user.username : className(store.state),
+      userScopeName: userId ? user.full_name : className(store.state),
       viewBy: ViewBy.CHANNEL,
       showRecentOnly,
     });
@@ -273,7 +273,7 @@ function _showContentList(store, options) {
         contentScopeId: options.contentScopeId,
         userScope: options.userScope,
         userScopeId: options.userScopeId,
-        userScopeName: isUser ? user.username : className(store.state),
+        userScopeName: isUser ? user.full_name : className(store.state),
         viewBy: ViewBy.CONTENT,
       });
       store.dispatch('CORE_SET_PAGE_LOADING', false);

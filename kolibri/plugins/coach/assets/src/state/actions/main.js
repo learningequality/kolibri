@@ -16,7 +16,7 @@ const translator = createTranslator('classListTitles', {
 export function shouldRedirectToClassRootPage() {
   return ClassroomResource.getCollection()
     .fetch()
-    .then(classrooms => {
+    ._promise.then(classrooms => {
       if (classrooms.length === 1) {
         return classrooms[0].id;
       }

@@ -7,20 +7,51 @@
 
 <script>
 
-  import find from 'lodash/find';
-  import { getChannels } from 'kolibri.coreVue.vuex.getters';
+  import { getChannels, getChannelObject } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
-  import { isTopicPage } from '../../state/getters/main';
+  import { isTopicPage, isLearnerPage, numberOfAssignedClassrooms } from '../../state/getters/main';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
     name: 'breadcrumbs',
-    $trs: { channels: 'Channels' },
+    $trs: {
+      allClassroomsText: 'Classes',
+      channels: 'Channels',
+      learners: 'Learners',
+    },
     components: { kBreadcrumbs },
     computed: {
       channelTitle() {
-        return find(this.channels, channel => channel.id === this.pageState.channelId).title;
+        return this.pageState.channelId
+          ? this.getChannelObject(this.pageState.channelId).title
+          : '';
+      },
+      classroomCrumbs() {
+        // Only show these first two crumbs if Coach is assigned to 2+ Classrooms
+        if (this.numberOfAssignedClassrooms < 2) {
+          return [];
+        }
+        const { name, id } = this.currentClassroom;
+        return [
+          {
+            text: this.$tr('allClassroomsText'),
+            link: { name: PageNames.CLASS_LIST },
+          },
+          {
+            text: name,
+            link: {
+              name: PageNames.CLASS_ROOT,
+              params: { classId: id },
+            },
+          },
+        ];
       },
       breadcrumbs() {
+        return [...this.classroomCrumbs, ...this.subPageCrumbs].filter(Boolean);
+      },
+      subPageCrumbs() {
+        if (this.isLearnerPage) {
+          return this.learnerPageCrumbs;
+        }
         if (this.pageName === PageNames.RECENT_ITEMS_FOR_CHANNEL) {
           return this.recentChannelItemsCrumbs;
         } else if (this.pageName === PageNames.RECENT_LEARNERS_FOR_ITEM) {
@@ -29,6 +60,31 @@
           return this.topicCrumbs;
         }
         return [];
+      },
+      learnerPageCrumbs() {
+        return [
+          {
+            text: this.$tr('learners'),
+            link: { name: PageNames.LEARNER_LIST },
+          },
+          this.currentLearnerForReport && {
+            text: this.currentLearnerForReport.name,
+            link: {
+              name: PageNames.LEARNER_CHANNELS,
+              params: {
+                userId: this.currentLearnerForReport.id,
+              },
+            },
+          },
+          // Crumbs for all preceding topics
+          ...(this.currentLearnerReportContentNode
+            ? this.learnerReportAncestorCrumbs(this.currentLearnerReportContentNode.ancestors)
+            : []),
+          // Crumb for the current Topic or Leaf Node
+          this.currentLearnerReportContentNode && {
+            text: this.currentLearnerReportContentNode.name,
+          },
+        ];
       },
       recentChannelItemsCrumbs() {
         return [
@@ -103,13 +159,61 @@
         ];
       },
     },
+    methods: {
+      learnerReportAncestorCrumbs(ancestors) {
+        if (!ancestors || ancestors.length === 0) {
+          return [];
+        }
+        const [channel, ...topics] = ancestors;
+        return [
+          {
+            text: channel.title,
+            link: {
+              name: PageNames.LEARNER_CHANNEL_ROOT,
+              params: {
+                channelId: channel.id,
+              },
+            },
+          },
+          ...topics.map(topic => ({
+            text: topic.title,
+            link: {
+              name: PageNames.LEARNER_ITEM_LIST,
+              params: {
+                topicId: topic.id,
+              },
+            },
+          })),
+        ];
+      },
+    },
     vuex: {
       getters: {
         channels: getChannels,
         classId: state => state.classId,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
+        currentClassroom: state => state.currentClassroom,
         isTopicPage,
+        isLearnerPage,
+        getChannelObject,
+        numberOfAssignedClassrooms,
+        currentLearnerForReport(state) {
+          if (state.pageState.userScope === 'user') {
+            return {
+              name: state.pageState.userScopeName,
+              id: state.pageState.userScopeId,
+            };
+          }
+        },
+        currentLearnerReportContentNode(state) {
+          if (state.pageState.contentScope) {
+            return {
+              name: state.pageState.contentScopeSummary.title,
+              ancestors: state.pageState.contentScopeSummary.ancestors,
+            };
+          }
+        },
       },
     },
   };
