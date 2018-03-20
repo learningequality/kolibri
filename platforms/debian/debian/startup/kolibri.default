@@ -1,9 +1,7 @@
 # 1. Set the default values
 
 KOLIBRI_USER="kolibri"
-# This cannot have ~ until 0.8 where user home expansion is implemented
-# therefore leave it to its default until then
-# export KOLIBRI_HOME="~/.kolibri"
+KOLIBRI_HOME="~/.kolibri"
 KOLIBRI_LISTEN_PORT="8080"
 KOLIBRI_COMMAND="kolibri"
 DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
@@ -37,4 +35,4 @@ export KOLIBRI_USER
 export KOLIBRI_LISTEN
 export KOLIBRI_COMMAND
 export DJANGO_SETTINGS_MODULE
-# export KOLIBRI_HOME
+export KOLIBRI_HOME

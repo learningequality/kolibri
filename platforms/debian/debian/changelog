@@ -1,3 +1,28 @@
+kolibri-source (0.8.0-0ubuntu1) trusty; urgency=medium
+
+  * Final 0.8.0 release
+  * Added patch for dbbackup crash when upgrading with "~" in KOLIBRI_HOME
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 19 Mar 2018 19:00:28 +0100
+
+kolibri-source (0.8.0~b4-0ubuntu2) trusty; urgency=medium
+
+  * Fix attempt for replacing * with 0 in parse_version compat
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 15 Mar 2018 00:31:11 +0100
+
+kolibri-source (0.8.0~b4-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 14 Mar 2018 19:30:18 +0100
+
+kolibri-source (0.8.0~b3-0ubuntu1) trusty; urgency=medium
+
+  * New upstream beta
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 13 Mar 2018 18:57:18 +0100
+
 kolibri-source (0.7.2-0ubuntu3) trusty; urgency=medium
 
   * Fix environment preservation inside system service for Ubuntu 14.04
