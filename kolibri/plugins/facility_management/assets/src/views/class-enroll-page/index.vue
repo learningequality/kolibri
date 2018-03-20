@@ -9,16 +9,9 @@
       :selectedUsers="selectedUsers"
     />
 
-    <!-- TODO  move responsibility to other pages -->
-    <h1>{{ $tr('selectLearners', { className }) }}</h1>
-    <p>{{ $tr('showingAllUnassigned') }}</p>
-
-
     <div class="actions-header">
       <!-- TODO align right -->
       <k-filter-textbox
-        class="filter"
-        :class="{ 'invisible' : showSelectedUsers }"
         :placeholder="$tr('searchForUser')"
         v-model.trim="filterInput"
         @input="pageNum = 1"
@@ -61,7 +54,7 @@
 
     <!-- TODO align right -->
     <k-button
-      :text="$tr('enrollSelectedUsers')"
+      :text="$tr('confirmSelectionButtonLabel')"
       :primary="true"
       @click="openConfirmEnrollmentModal"
       :disabled="selectedUsers.length === 0"
@@ -104,20 +97,12 @@
     },
     mixins: [responsiveWindow],
     $trs: {
-      // TODO kill
-      backToClassDetails: 'Back to class details',
-      // TODO kill
-      enrollSelectedUsers: 'Review & save',
       confirmSelectionButtonLabel: 'Confirm',
-      selectLearners: 'Select users to enroll in {className}',
-      showingAllUnassigned: 'Showing all users currently not enrolled in this class',
       searchForUser: 'Search for a user',
-      createNewUser: 'New user account',
       userIconColumnHeader: 'User Icon',
       name: 'Full name',
       username: 'Username',
       userTableLabel: 'User List',
-      selectedUsers: 'Show selected users',
       role: 'Role',
       // TODO clarify empty state messages after string freeze
       noUsersExist: 'No users exist',
@@ -137,7 +122,6 @@
       perPage: 10,
       pageNum: 1,
       selectedUsers: [],
-      showSelectedUsers: false,
     }),
     computed: {
       usersNotInClass() {
@@ -243,41 +227,13 @@
 
   @require '~kolibri.styles.definitions'
 
-  .align-right
-    text-align: right
-
-  .align-center
-    text-align: center
-
-  .link-button
-    text-decoration: none
-
-  .top-buttons
-    position: relative
-
   nav
     display: inline-block
 
-  .pagination-footer
+  .actions-header
     text-align: right
 
-  .inline-block
-    display: inline-block
-
-  .invisible
-    visibility: hidden
-
-  .row-enter-active, .row-leave-active
-    transition: all 0.25s ease
-
-  .row-enter, .row-leave-active
-    opacity: 0
-    transform: scale3d(1, 0.5, 1)
-
-  .filter
-    margin-right: 16px
-
-  .va-m
-    vertical-align: middle
+  .pagination-footer
+    text-align: right
 
 </style>
