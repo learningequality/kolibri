@@ -189,13 +189,7 @@ export function showClassEditPage(store, classId) {
   );
 }
 
-export function showClassEnrollPage(store, classId) {
-  // TODO localize this title
-  preparePage(store.dispatch, {
-    name: PageNames.CLASS_ENROLL_MGMT_PAGE,
-    title: 'Classes',
-  });
-
+function showClassEnrollPage(store, classId) {
   // all users in facility
   const userPromise = FacilityUserResource.getCollection().fetch({}, true);
   // current class
@@ -205,7 +199,7 @@ export function showClassEnrollPage(store, classId) {
     member_of: classId,
   }).fetch({}, true);
 
-  ConditionalPromise.all([userPromise, classPromise, classUsersPromise]).only(
+  return ConditionalPromise.all([userPromise, classPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
     ([facilityUsers, classroom, classUsers]) => {
       const pageState = {
@@ -222,4 +216,25 @@ export function showClassEnrollPage(store, classId) {
       handleApiError(store, error);
     }
   );
+}
+
+export function showLearnerClassEnrollmentPage(store, classId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  return showClassEnrollPage(store, classId).then(() => {
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ENROLL_LEARNER);
+    // // TODO localize title
+    // preparePage(store.dispatch, {
+    //   name: PageNames.CLASS_ENROLL_LEARNER,
+    //   title: 'Classes - Learner Enrollment',
+    //   isAsync: false,
+    // });
+  });
+}
+export function showCoachClassAssignmentPage(store, classId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  return showClassEnrollPage(store, classId).then(() => {
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ASSIGN_COACH);
+  });
 }
