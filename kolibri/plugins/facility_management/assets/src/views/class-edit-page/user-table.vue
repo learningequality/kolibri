@@ -52,7 +52,7 @@
           </td>
           <td>{{ user.username }}</td>
           <td v-if="$scopedSlots.action" class="user-action-button">
-            <slot name="action" user="user"></slot>
+            <slot name="action" :user="user"></slot>
           </td>
         </tr>
       </tbody>
