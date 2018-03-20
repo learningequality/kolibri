@@ -2,7 +2,7 @@ import sortBy from 'lodash/sortBy';
 import flatten from 'lodash/flatten';
 
 import materialPage from '../content/material';
-import everyonePage from '../content/everyone';
+import inclusivePage from '../content/inclusive';
 import writingPage from '../content/writing';
 
 import buttonsPage from '../content/buttons';
@@ -36,17 +36,10 @@ const navMenu = [
     sectionName: 'Patterns',
     sectionItems: [
       {
-        itemName: 'Material design',
+        itemName: 'Design for inclusive',
         itemRoute: {
-          path: `/patterns/material`,
-          component: materialPage,
-        },
-      },
-      {
-        itemName: 'Design for everyone',
-        itemRoute: {
-          path: `/patterns/everyone`,
-          component: everyonePage,
+          path: `/patterns/inclusive`,
+          component: inclusivePage,
         },
       },
       {
@@ -54,6 +47,13 @@ const navMenu = [
         itemRoute: {
           path: `/patterns/writing`,
           component: writingPage,
+        },
+      },
+      {
+        itemName: 'Material design',
+        itemRoute: {
+          path: `/patterns/material`,
+          component: materialPage,
         },
       },
     ],
