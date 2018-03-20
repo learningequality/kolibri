@@ -37,12 +37,8 @@
         :selectable="true"
         :selectAllLabel="$tr('selectAllOnPage')"
         :userCheckboxLabel="$tr('selectUser')"
+        :emptyMessage="$tr('noUsersMatch')"
       />
-
-      <p v-if="filteredUsers.length === 0 && showSelectedUsers">{{ $tr('noUsersSelected') }}</p>
-      <p v-if="filteredUsers.length === 0 && filterInput !== ''">
-        {{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong>
-      </p>
 
       <div class="pagination-footer">
         <span>
@@ -139,6 +135,7 @@
       userTableLabel: 'User List',
       selectedUsers: 'Show selected users',
       role: 'Role',
+      // TODO clarify empty state messages after string freeze
       noUsersExist: 'No users exist',
       noUsersSelected: 'No users are selected',
       noUsersMatch: 'No users match',
@@ -234,6 +231,13 @@
           this.visibleFilteredUsers.length !== 0 &&
           !this.showSelectedUsers
         );
+      },
+      emptyMessage() {
+        if (this.filteredUsers.length === 0 && this.filterInput !== '') {
+          // TODO internationalize this
+          return `${this.$tr('noUsersMatch')}: '${this.filterInput}'`;
+        }
+        return this.$tr('noUsersExist');
       },
     },
     watch: {
