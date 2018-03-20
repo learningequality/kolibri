@@ -9,9 +9,11 @@
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
+          <th class="core-table-icon-col"></th>
           <th>{{ $tr('fullName') }}</th>
+          <th>{{ $tr('role') }}</th>
           <th>{{ $tr('username') }}</th>
-          <th v-if="removeUserClick" class="remove-button-column">
+          <th class="user-action-button">
             <span class="visuallyhidden">{{ $tr('userActionsColumnHeader') }}</span>
           </th>
         </tr>
@@ -22,17 +24,17 @@
           v-for="user in users"
           :key="user.id"
         >
+          <td class="core-table-icon-col"></td>
           <td class="core-table-icon-col">
             <ui-icon icon="person" />
           </td>
           <td class="core-table-main-col">{{ user.full_name }}</td>
+          <td>
+            <user-role :role="user.kind" :omitLearner="true" />
+          </td>
           <td>{{ user.username }}</td>
-          <td v-if="removeUserClick" class="remove-button-column">
-            <k-button
-              appearance="flat-button"
-              @click="removeUserClick(user)"
-              :text="$tr('remove')"
-            />
+          <td>
+            <slot name="action" :user="user"></slot>
           </td>
         </tr>
       </tbody>
@@ -53,14 +55,14 @@
 <script>
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import userRole from '../user-role';
   import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
     name: 'userTable',
     components: {
       coreTable,
-      kButton,
+      userRole,
       UiIcon,
     },
     props: {
@@ -72,13 +74,12 @@
         type: String,
         required: true,
       },
-      // used for optional remove column
-      removeUserClick: {
-        type: Function,
-        default: null,
-      },
       emptyMessage: {
         type: String,
+      },
+      selectable: {
+        type: Boolean,
+        defaul: false,
       },
       // used for optional checkboxes
       value: {
@@ -123,7 +124,7 @@
     text-align: center
     font-weight: bold
 
-  .remove-button-column
+  .user-action-button
     text-align: right
 
 </style>

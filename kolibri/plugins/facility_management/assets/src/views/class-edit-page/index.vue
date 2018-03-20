@@ -63,14 +63,28 @@
       :title="$tr('coachTableTitle')"
       :users="[]"
       :emptyMessage="$tr('noCoachesInClassMessge')"
-    />
+    >
+      <!-- Don't need template in Vue 2.5+ -->
+      <template slot="action" slot-scope="userRow">
+        <k-button
+          :text="$tr('remove')"
+          @click="openRemoveUserModal(userRow.user)"
+        />
+      </template>
+    </user-table>
 
     <user-table
       :title="$tr('learnerTableTitle')"
       :users="classUsers"
-      :removeUserClick="openRemoveUserModal"
       :emptyMessage="$tr('noLearnersInClassMessage')"
-    />
+    >
+      <template slot="action" slot-scope="userRow">
+        <k-button
+          :text="$tr('remove')"
+          @click="openRemoveUserModal(userRow.user)"
+        />
+      </template>
+    </user-table>
   </div>
 
 </template>
@@ -85,6 +99,7 @@
   import classRenameModal from './class-rename-modal';
   import userRemoveModal from './user-remove-modal';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
     // QUESTION update component name?
@@ -117,6 +132,7 @@
       classRenameModal,
       userRemoveModal,
       kRouterLink,
+      kButton,
     },
     data: () => ({
       userToBeRemoved: null,

@@ -9,7 +9,6 @@ export {
   removeClassUser,
   showClassesPage,
   showClassEditPage,
-  showClassEnrollPage,
 } from './class';
 
 export { createUser, updateUser, deleteUser, showUserPage } from './user';
