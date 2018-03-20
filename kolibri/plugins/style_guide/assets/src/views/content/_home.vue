@@ -48,7 +48,7 @@
 
 <script>
 
-  import pageTemplate from '../../shell/page-template';
+  import pageTemplate from '../shell/page-template';
 
   export default {
     components: {
