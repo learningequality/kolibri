@@ -189,9 +189,10 @@ export function showClassEditPage(store, classId) {
   );
 }
 
-function showClassEnrollPage(store, classId) {
+export function showLearnerClassEnrollmentPage(store, classId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   // all users in facility
-  const userPromise = FacilityUserResource.getCollection().fetch({}, true);
+  const userPromise = FacilityUserResource.getCollection().fetch();
   // current class
   const classPromise = ClassroomResource.getModel(classId).fetch();
   // users in current class
@@ -202,39 +203,49 @@ function showClassEnrollPage(store, classId) {
   return ConditionalPromise.all([userPromise, classPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
     ([facilityUsers, classroom, classUsers]) => {
-      const pageState = {
+      store.dispatch('SET_PAGE_STATE', {
         facilityUsers: facilityUsers.map(_userState),
         classUsers: classUsers.map(_userState),
         class: classroom,
         modalShown: false,
-        userJustCreated: null,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
+      });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ENROLL_LEARNER);
     },
     error => {
       handleApiError(store, error);
     }
   );
 }
-
-export function showLearnerClassEnrollmentPage(store, classId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  return showClassEnrollPage(store, classId).then(() => {
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ENROLL_LEARNER);
-    // // TODO localize title
-    // preparePage(store.dispatch, {
-    //   name: PageNames.CLASS_ENROLL_LEARNER,
-    //   title: 'Classes - Learner Enrollment',
-    //   isAsync: false,
-    // });
-  });
-}
 export function showCoachClassAssignmentPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  return showClassEnrollPage(store, classId).then(() => {
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ASSIGN_COACH);
-  });
+  // all users in facility
+  const userPromise = FacilityUserResource.getCollection().fetch();
+  // current class
+  const classPromise = ClassroomResource.getModel(classId).fetch();
+
+  return ConditionalPromise.all([userPromise, classPromise]).only(
+    samePageCheckGenerator(store),
+    ([facilityUsers, classroom]) => {
+      store.dispatch('SET_PAGE_STATE', {
+        // facilityUsers now only contains users that are eligible for coachdom
+        // TODO rename
+        facilityUsers: facilityUsers
+          .filter(user =>
+            user.roles.some(role => {
+              return role.kind === UserKinds.ASSIGNABLE_COACH || role.kind === UserKinds.COACH;
+            })
+          )
+          .map(_userState),
+        classUsers: classroom.coaches.map(_userState),
+        class: classroom,
+        modalShown: false,
+      });
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ASSIGN_COACH);
+    },
+    error => {
+      handleApiError(store, error);
+    }
+  );
 }
