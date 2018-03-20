@@ -3,10 +3,17 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
-0.8.0 (unreleased)
-------------------
+0.8.0
+-----
 
- - TBA
+ - Added support for assigning content using 'Lessons'
+ - Updated default landing pages in Learn and Coach
+ - Added 'change password' functionality to 'Profile' page
+ - Updates to text consistency
+ - Languages: English, Spanish, Arabic, Farsi, Urdu, French, Haitian Creole, and Burmese
+ - Various bug fixes
+
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.8.0+label%3Achangelog>`_ of changes on Github.
 
 
 0.7.2
