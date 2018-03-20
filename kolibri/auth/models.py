@@ -333,6 +333,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
             logging.error("TypeError while validating model before checking permissions: {}".format(e.args))
             return False  # if the data provided does not fit the Model, don't continue checking
         except ValidationError as e:
+            logging.error(e)
             return False  # if the data does not validate, don't continue checking
         # now that we have an instance, defer to the permission-checking method that works with instances
         return self.can_create_instance(instance)

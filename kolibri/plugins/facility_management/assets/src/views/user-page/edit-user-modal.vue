@@ -207,17 +207,24 @@
     },
     methods: {
       submitForm() {
+        const roleUpdate = {
+          collection: this.currentFacilityId,
+        };
         this.formSubmitted = true;
         if (this.formIsValid) {
+          if (this.newKind.value === UserKinds.COACH) {
+            if (this.isFacilityCoach) {
+              roleUpdate.kind = UserKinds.COACH;
+            } else {
+              roleUpdate.kind = 'assignable_coach';
+            }
+          } else {
+            roleUpdate.kind = '';
+          }
           this.updateUser(this.id, {
             username: this.newUsername,
             name: this.newName,
-            role: {
-              kind: this.newKind === UserKinds.LEARNER ? '' : this.newKind,
-              // import facilityId getter
-              // collection: this.isClassCoach ? '' : this.currentFacilityId,
-              collection: this.currentFacilityId,
-            },
+            role: roleUpdate,
           });
           if (
             this.currentUserId === this.id &&

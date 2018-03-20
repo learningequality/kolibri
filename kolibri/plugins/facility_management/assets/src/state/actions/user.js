@@ -28,7 +28,7 @@ function setUserRole(user, role) {
     return RoleResource.createModel({
       user: user.id,
       collection: role.collection || user.facility,
-      ...role,
+      kind: role.kind,
     })
       .save()
       .then(roleObject => {
