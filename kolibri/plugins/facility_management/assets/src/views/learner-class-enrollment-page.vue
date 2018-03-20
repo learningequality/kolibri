@@ -1,6 +1,8 @@
 <template>
 
   <div>
+    <h1>{{ $tr('pageHeader', {className}) }}</h1>
+    <p>{{ $tr('pageSubheader') }}</p>
     <class-enroll-page />
   </div>
 
@@ -19,7 +21,9 @@
     computed: {},
     methods: {},
     vuex: {
-      getters: {},
+      getters: {
+        className: state => state.pageState.class.name,
+      },
       actions: {},
     },
     $trs: {
