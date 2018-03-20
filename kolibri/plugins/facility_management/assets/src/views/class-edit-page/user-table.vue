@@ -18,7 +18,7 @@
           </th>
           <th class="core-table-icon-col"></th>
           <th>{{ $tr('fullName') }}</th>
-          <th>{{ $tr('role') }}</th>
+          <th class="visuallyhidden">{{ $tr('role') }}</th>
           <th>{{ $tr('username') }}</th>
           <th v-if="$scopedSlots.action" class="user-action-button">
             <span class="visuallyhidden">{{ $tr('userActionsColumnHeader') }}</span>
@@ -43,9 +43,12 @@
           <td class="core-table-icon-col">
             <ui-icon icon="person" />
           </td>
-          <td class="core-table-main-col">{{ user.full_name }}</td>
           <td>
+            {{ user.full_name }}
             <user-role :role="user.kind" :omitLearner="true" />
+          </td>
+          <td class="visuallyhidden">
+            {{ user.kind }}
           </td>
           <td>{{ user.username }}</td>
           <td v-if="$scopedSlots.action" class="user-action-button">
