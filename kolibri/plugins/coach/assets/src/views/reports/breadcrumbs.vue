@@ -9,7 +9,12 @@
 
   import { getChannels, getChannelObject } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../../constants';
-  import { isTopicPage, isLearnerPage, numberOfAssignedClassrooms } from '../../state/getters/main';
+  import {
+    isTopicPage,
+    isRecentPage,
+    isLearnerPage,
+    numberOfAssignedClassrooms,
+  } from '../../state/getters/main';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   export default {
     name: 'breadcrumbs',
@@ -39,11 +44,22 @@
           {
             text: name,
             link: {
-              name: PageNames.CLASS_ROOT,
+              name: this.rootPageName,
               params: { classId: id },
             },
           },
         ];
+      },
+      rootPageName() {
+        if (this.isLearnerPage) {
+          return PageNames.LEARNER_LIST;
+        }
+        if (this.isRecentPage) {
+          return PageNames.RECENT_CHANNELS;
+        }
+        if (this.isTopicPage) {
+          return PageNames.TOPIC_CHANNELS;
+        }
       },
       breadcrumbs() {
         return [...this.classroomCrumbs, ...this.subPageCrumbs].filter(Boolean);
@@ -52,16 +68,16 @@
         if (this.isLearnerPage) {
           return this.learnerPageCrumbs;
         }
-        if (this.pageName === PageNames.RECENT_ITEMS_FOR_CHANNEL) {
-          return this.recentChannelItemsCrumbs;
-        } else if (this.pageName === PageNames.RECENT_LEARNERS_FOR_ITEM) {
+        if (this.isRecentPage) {
           return this.recentItemCrumbs;
-        } else if (this.isTopicPage) {
+        }
+        if (this.isTopicPage) {
           return this.topicCrumbs;
         }
         return [];
       },
       learnerPageCrumbs() {
+        if (!this.isLearnerPage) return [];
         return [
           {
             text: this.$tr('learners'),
@@ -86,19 +102,9 @@
           },
         ];
       },
-      recentChannelItemsCrumbs() {
-        return [
-          {
-            text: this.$tr('channels'),
-            link: {
-              name: PageNames.RECENT_CHANNELS,
-              params: { classId: this.classId },
-            },
-          },
-          { text: this.channelTitle },
-        ];
-      },
       recentItemCrumbs() {
+        if (!this.isRecentPage) return [];
+        const { title } = this.pageState.contentScopeSummary || {};
         return [
           {
             text: this.$tr('channels'),
@@ -107,7 +113,7 @@
               params: { classId: this.classId },
             },
           },
-          {
+          this.channelTitle && {
             text: this.channelTitle,
             link: {
               name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
@@ -117,10 +123,12 @@
               },
             },
           },
-          { text: this.pageState.contentScopeSummary.title },
-        ];
+          title && { text: title },
+        ].filter(Boolean);
       },
       topicCrumbs() {
+        if (!this.isTopicPage) return [];
+        const { ancestors = [], title } = this.pageState.contentScopeSummary;
         return [
           // link to the root channels page
           {
@@ -131,7 +139,7 @@
             },
           },
           // links to each ancestor
-          ...this.pageState.contentScopeSummary.ancestors.map((item, index) => {
+          ...ancestors.map((item, index) => {
             const breadcrumb = { text: item.title };
             if (index) {
               breadcrumb.link = {
@@ -155,8 +163,8 @@
             return breadcrumb;
           }),
           // current item
-          { text: this.pageState.contentScopeSummary.title },
-        ];
+          title && { text: this.pageState.contentScopeSummary.title },
+        ].filter(Boolean);
       },
     },
     methods: {
@@ -196,7 +204,8 @@
         currentClassroom: state => state.currentClassroom,
         isTopicPage,
         isLearnerPage,
-        getChannelObject,
+        isRecentPage,
+        getChannelObject: state => getChannelObject.bind(null, state),
         numberOfAssignedClassrooms,
         currentLearnerForReport(state) {
           if (state.pageState.userScope === 'user') {

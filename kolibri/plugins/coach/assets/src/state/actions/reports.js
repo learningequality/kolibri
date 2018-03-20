@@ -485,6 +485,7 @@ export function showTopicChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_CHANNELS);
   store.dispatch('CORE_SET_TITLE', translator.$tr('topicsReportAllChannelsPageTitle'));
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_REPORT_CONTENT_SUMMARY', {});
   _showChannelList(store, classId, null, false);
 }
 
