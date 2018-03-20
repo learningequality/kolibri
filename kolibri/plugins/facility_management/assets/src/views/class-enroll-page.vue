@@ -2,13 +2,6 @@
 
   <div>
     <!-- TODO convert to template for reusability w/in respective pages -->
-    <confirm-enrollment-modal
-      v-if="showConfirmEnrollmentModal"
-      :className="className"
-      :classId="classId"
-      :selectedUsers="selectedUsers"
-    />
-
     <div class="actions-header">
       <!-- TODO align right -->
       <k-filter-textbox
@@ -18,47 +11,49 @@
       />
     </div>
 
-    <user-table
-      v-model="selectedUsers"
-      :users="visibleFilteredUsers"
-      :title="$tr('userTableLabel')"
-      :selectable="true"
-      :selectAllLabel="$tr('selectAllOnPage')"
-      :userCheckboxLabel="$tr('selectUser')"
-      :emptyMessage="$tr('noUsersMatch')"
-    />
+    <form @submit.prevent="$emit('submit', selectedUsers)">
+      <user-table
+        v-model="selectedUsers"
+        :users="visibleFilteredUsers"
+        :title="$tr('userTableLabel')"
+        :selectable="true"
+        :selectAllLabel="$tr('selectAllOnPage')"
+        :userCheckboxLabel="$tr('selectUser')"
+        :emptyMessage="$tr('noUsersMatch')"
+      />
 
-    <div class="pagination-footer">
-      <span>
-        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
-      </span>
-      <nav>
-        <ui-icon-button
-          type="primary"
-          :icon="isRtl? 'chevron_right' : 'chevron_left'"
-          :ariaLabel="$tr('previousResults')"
-          :disabled="pageNum === 1"
-          size="small"
-          @click="goToPage(pageNum - 1)"
-        />
-        <ui-icon-button
-          type="primary"
-          :icon="isRtl? 'chevron_left' : 'chevron_right'"
-          :ariaLabel="$tr('nextResults')"
-          :disabled="pageNum === numPages"
-          size="small"
-          @click="goToPage(pageNum + 1)"
-        />
-      </nav>
-    </div>
+      <div class="pagination-footer">
+        <span>
+          {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
+        </span>
+        <nav>
+          <ui-icon-button
+            type="primary"
+            :icon="isRtl? 'chevron_right' : 'chevron_left'"
+            :ariaLabel="$tr('previousResults')"
+            :disabled="pageNum === 1"
+            size="small"
+            @click="goToPage(pageNum - 1)"
+          />
+          <ui-icon-button
+            type="primary"
+            :icon="isRtl? 'chevron_left' : 'chevron_right'"
+            :ariaLabel="$tr('nextResults')"
+            :disabled="pageNum === numPages"
+            size="small"
+            @click="goToPage(pageNum + 1)"
+          />
+        </nav>
+      </div>
 
-    <!-- TODO align right -->
-    <k-button
-      :text="$tr('confirmSelectionButtonLabel')"
-      :primary="true"
-      @click="openConfirmEnrollmentModal"
-      :disabled="selectedUsers.length === 0"
-    />
+      <!-- TODO align right -->
+      <k-button
+        :text="$tr('confirmSelectionButtonLabel')"
+        :primary="true"
+        type="submit"
+        :disabled="selectedUsers.length === 0"
+      />
+    </form>
 
 
   </div>
@@ -68,11 +63,10 @@
 
 <script>
 
-  import { Modals } from '../../constants';
-  import { displayModal } from '../../state/actions';
+  import { Modals } from './../constants';
   import differenceWith from 'lodash/differenceWith';
   // TODO move to higher level directory after string freeze
-  import userTable from '../class-edit-page/user-table';
+  import userTable from './class-edit-page/user-table';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -81,7 +75,6 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
-  import confirmEnrollmentModal from './confirm-enrollment-modal';
 
   export default {
     name: 'managementClassEnroll',
@@ -92,7 +85,6 @@
       kFilterTextbox,
       kGrid,
       kGridItem,
-      confirmEnrollmentModal,
       userTable,
     },
     mixins: [responsiveWindow],
@@ -126,9 +118,6 @@
     computed: {
       usersNotInClass() {
         return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
-      },
-      usersNotInClassSelected() {
-        return this.usersNotInClass.filter(user => this.selectedUsers.includes(user.id));
       },
       filteredUsers() {
         const users = this.usersNotInClass;
@@ -204,19 +193,12 @@
         }
         return Math.abs(this.pageNum - page) <= maxOnEachSide;
       },
-      openConfirmEnrollmentModal() {
-        this.displayModal(Modals.CONFIRM_ENROLLMENT);
-      },
     },
     vuex: {
       getters: {
-        classId: state => state.pageState.class.id,
-        className: state => state.pageState.class.name,
         facilityUsers: state => state.pageState.facilityUsers,
         classUsers: state => state.pageState.classUsers,
-        modalShown: state => state.pageState.modalShown,
       },
-      actions: { displayModal },
     },
   };
 

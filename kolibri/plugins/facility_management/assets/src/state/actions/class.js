@@ -74,7 +74,8 @@ export function deleteClass(store, id) {
     );
 }
 
-export function enrollUsersInClass(store, classId, users) {
+export function enrollUsersInClass(store, users) {
+  const classId = store.state.pageState.class.id;
   // TODO no error handling
   return MembershipResource.createCollection(
     {
