@@ -27,6 +27,9 @@ export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
 
   // When FacilityUser is only a Learner or New User (i.e. no current Role)
   if (!currentFacilityRole) {
+    if (newRoleKind === UserKinds.LEARNER) {
+      return Promise.resolve();
+    }
     return createFacilityRole();
   }
 
@@ -36,7 +39,7 @@ export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
       RoleResource.getModel(currentFacilityRole.id).delete(),
       // Manually have to delete all Roles downstream in Classrooms
       map(filter(roles, { collection_parent: facility, kind: UserKinds.COACH }), role =>
-        role.delete()
+        RoleResource.getModel(role.id).delete()
       ),
     ];
     return Promise.all(roleDeletionPromises);
