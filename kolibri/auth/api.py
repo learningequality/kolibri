@@ -193,11 +193,24 @@ class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet)
     filter_fields = ['user', 'collection', 'user_ids', ]
 
 
-class RoleViewSet(viewsets.ModelViewSet):
+class RoleFilter(FilterSet):
+    user_ids = CharFilter(method="filter_user_ids")
+
+    def filter_user_ids(self, queryset, name, value):
+        return queryset.filter(user_id__in=value.split(','))
+
+    class Meta:
+        model = Role
+        fields = ["user", "collection", "kind", "user_ids", ]
+
+
+class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
+    filter_class = RoleFilter
+    filter_fields = ['user', 'collection', 'kind', 'user_ids', ]
 
 
 class FacilityViewSet(viewsets.ModelViewSet):
