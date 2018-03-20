@@ -1,5 +1,5 @@
 <template>
-
+  <!-- TODO MOVE THIS COMPONENT OUT AFTER STRINGFREEZE -->
   <div>
     <core-table class="user-table">
       <caption class="title">
@@ -8,12 +8,19 @@
 
       <thead slot="thead">
         <tr>
-          <th class="core-table-icon-col"></th>
+          <th class="core-table-icon-col" v-if="selectable">
+            <k-checkbox
+              @change="selectAll()"
+              :label="checkboxLabel"
+              :showLabel="false"
+              :checked="allAreSelected"
+            />
+          </th>
           <th class="core-table-icon-col"></th>
           <th>{{ $tr('fullName') }}</th>
           <th>{{ $tr('role') }}</th>
           <th>{{ $tr('username') }}</th>
-          <th class="user-action-button">
+          <th v-if="$scopedSlots.action" class="user-action-button">
             <span class="visuallyhidden">{{ $tr('userActionsColumnHeader') }}</span>
           </th>
         </tr>
@@ -24,7 +31,15 @@
           v-for="user in users"
           :key="user.id"
         >
-          <td class="core-table-icon-col"></td>
+          <td class="core-table-icon-col" v-if="selectable">
+            <k-checkbox
+              @change="selectUser(user.id)"
+              :label="checkboxLabel"
+              :showLabel="false"
+              :checked="userIsSelected(user.id)"
+            />
+
+          </td>
           <td class="core-table-icon-col">
             <ui-icon icon="person" />
           </td>
@@ -33,8 +48,8 @@
             <user-role :role="user.kind" :omitLearner="true" />
           </td>
           <td>{{ user.username }}</td>
-          <td>
-            <slot name="action" :user="user"></slot>
+          <td v-if="$scopedSlots.action" class="user-action-button">
+            <slot name="action" user="user"></slot>
           </td>
         </tr>
       </tbody>
@@ -55,6 +70,7 @@
 <script>
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import userRole from '../user-role';
   import UiIcon from 'keen-ui/src/UiIcon';
 
@@ -62,6 +78,7 @@
     name: 'userTable',
     components: {
       coreTable,
+      kCheckbox,
       userRole,
       UiIcon,
     },
@@ -79,7 +96,11 @@
       },
       selectable: {
         type: Boolean,
-        defaul: false,
+        default: false,
+      },
+      // TODO bring string into this component after stringfreeze
+      checkboxLabel: {
+        type: String,
       },
       // used for optional checkboxes
       value: {
@@ -87,8 +108,25 @@
         default: null,
       },
     },
-    computed: {},
-    methods: {},
+    computed: {
+      allAreSelected() {
+        const includedUsers = this.users.filter(user => this.value.includes(user.id));
+        return Boolean(includedUsers.length);
+      },
+    },
+    methods: {
+      userIsSelected(id) {
+        return this.value.includes(id);
+      },
+      selectAll() {
+        this.$emit('change', Array.from(this.users));
+      },
+      selectUser(id) {
+        const selected = Array.from(this.value);
+        selected.push(id);
+        this.$emit('change', selected);
+      },
+    },
     vuex: {
       getters: {},
       actions: {},
