@@ -24,6 +24,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from .constants import collection_kinds
+from .constants import role_kinds
 from .filters import HierarchyRelationsFilter
 from .models import Classroom
 from .models import Collection
@@ -235,8 +236,17 @@ class ClassroomFilter(FilterSet):
     role = CharFilter(method="filter_has_role_for")
 
     def filter_has_role_for(self, queryset, name, value):
+        requesting_user = get_user(self.request)
+        if requesting_user.is_superuser:
+            return queryset
+
+        # filter queryset by admin role and coach role
         return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            source_user=get_user(self.request),
+            source_user=requesting_user,
+            role_kind=role_kinds.ADMIN,
+            descendant_collection=F("id"),
+        ) | HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            source_user=requesting_user,
             role_kind=value,
             descendant_collection=F("id"),
         )
