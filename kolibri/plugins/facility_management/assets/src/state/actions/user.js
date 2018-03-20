@@ -1,5 +1,4 @@
-/* eslint-env node */
-import { FacilityUserResource, RoleResource } from 'kolibri.resources';
+import { FacilityUserResource } from 'kolibri.resources';
 import {
   samePageCheckGenerator,
   kolibriLogout,
@@ -11,6 +10,7 @@ import { PageNames } from '../../constants';
 import { _userState, _managePageTitle } from './helpers/mappers';
 import preparePage from './helpers/preparePage';
 import displayModal from './helpers/displayModal';
+import { updateFacilityLevelRoles } from './rolesActions';
 
 /**
  * Does a POST request to assign a user role (only used in this file)
@@ -21,33 +21,10 @@ import displayModal from './helpers/displayModal';
  * Needed: id, facility, role
  */
 function setUserRole(user, role) {
-  function createNewUserRole() {
-    if (role.kind === UserKinds.LEARNER) {
-      return Promise.resolve(user);
-    }
-    return RoleResource.createModel({
-      user: user.id,
-      collection: role.collection || user.facility,
-      kind: role.kind,
-    })
-      .save()
-      .then(roleObject => {
-        const userDupe = { ...user };
-        // add role to user's attribute here to limit API call
-        userDupe.roles.push(roleObject);
-        return userDupe;
-      });
-  }
-
-  if (user.roles.length) {
-    return Promise.all(user.roles.map(({ id }) => RoleResource.getModel(id).delete())).then(() => {
-      user.roles = [];
-      return createNewUserRole();
-    });
-  }
-  return createNewUserRole();
-  // roles exist. delete them, then create new one
-  // no role exists,
+  return updateFacilityLevelRoles(user, role.kind).then(() => {
+    // Force refresh the User to get updated roles
+    return FacilityUserResource.getModel(user.id).fetch({}, true);
+  });
 }
 
 /**
