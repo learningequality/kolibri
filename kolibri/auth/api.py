@@ -358,8 +358,8 @@ class SessionViewSet(viewsets.ViewSet):
                     session['kind'].append('admin')
                 elif role.kind == 'coach':
                     session['kind'].append('coach')
-                elif role.kind == 'assignable_coach':
-                    session['kind'].append('assignable_coach')
+                elif role.kind == 'classroom assignable coach':
+                    session['kind'].append('classroom assignable coach')
 
         if user.is_superuser:
             session['kind'].insert(0, 'superuser')
