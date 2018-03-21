@@ -82,10 +82,10 @@
         return null;
       },
       genExamLink(exam) {
-        if (!exam.active && exam.progress.closed) {
-          return examReportViewerLink(exam.id);
+        if (exam.active && !exam.progress.closed) {
+          return examViewerLink(exam.id);
         }
-        return examViewerLink(exam.id);
+        return examReportViewerLink(exam.id);
       },
     },
     $trs: {

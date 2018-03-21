@@ -561,6 +561,10 @@ export function showExamReportDetailPage(
       );
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => handleApiError(store, error)
+    () =>
+      router.replace({
+        name: PageNames.EXAM_REPORT,
+        params: { classId, examId },
+      })
   );
 }

@@ -405,7 +405,7 @@ export function calcQuestionsAnswered(attemptLogs) {
   return questionsAnswered;
 }
 
-export function showExamReport(store, examId, questionNumber, questionInteraction) {
+export function showExamReport(store, classId, examId, questionNumber, questionInteraction) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_REPORT_VIEWER);
 
@@ -429,7 +429,11 @@ export function showExamReport(store, examId, questionNumber, questionInteractio
       );
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => handleApiError(store, error)
+    () =>
+      router.replace({
+        name: ClassesPageNames.CLASS_ASSIGNMENTS,
+        params: { classId },
+      })
   );
 }
 export function showExam(store, examId, questionNumber) {
