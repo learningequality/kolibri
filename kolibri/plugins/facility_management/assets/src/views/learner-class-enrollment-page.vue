@@ -3,7 +3,7 @@
   <div>
     <h1>{{ $tr('pageHeader', {className}) }}</h1>
     <p>{{ $tr('pageSubheader') }}</p>
-    <class-enroll-page @submit="enrollLearners" />
+    <class-enroll-form @submit="enrollLearners" />
   </div>
 
 </template>
@@ -11,14 +11,14 @@
 
 <script>
 
-  import classEnrollPage from './class-enroll-page';
+  import classEnrollForm from './class-enroll-form';
   import { PageNames } from '../constants';
   import { enrollLearnersInClass } from '../state/actions/class';
 
   export default {
     name: 'learnerClassEnrollmentPage',
     components: {
-      classEnrollPage,
+      classEnrollForm,
     },
     computed: {},
     methods: {

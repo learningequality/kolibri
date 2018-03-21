@@ -19,7 +19,7 @@
         :selectable="true"
         :selectAllLabel="$tr('selectAllOnPage')"
         :userCheckboxLabel="$tr('selectUser')"
-        :emptyMessage="$tr('noUsersMatch')"
+        :emptyMessage="emptyMessage"
       />
 
       <div class="pagination-footer">

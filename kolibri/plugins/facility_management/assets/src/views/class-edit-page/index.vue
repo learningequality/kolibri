@@ -103,7 +103,7 @@
 
   export default {
     // QUESTION update component name?
-    name: 'classEnrollPage',
+    name: 'classEnrollForm',
     $trs: {
       // TODO kill
       enrollUsers: 'Enroll users ',

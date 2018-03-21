@@ -31,7 +31,6 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import classEditPage from './class-edit-page';
-  import classEnrollPage from './class-enroll-page';
   import coachClassAssignmentPage from './coach-class-assignment-page';
   import learnerClassEnrollmentPage from './learner-class-enrollment-page';
   import coreBase from 'kolibri.coreVue.components.coreBase';
@@ -45,7 +44,6 @@
 
   const pageNameComponentMap = {
     [PageNames.CLASS_EDIT_MGMT_PAGE]: classEditPage,
-    [PageNames.CLASS_ENROLL_MGMT_PAGE]: classEnrollPage,
     [PageNames.CLASS_MGMT_PAGE]: manageClassPage,
     [PageNames.CLASS_ENROLL_LEARNER]: learnerClassEnrollmentPage,
     [PageNames.CLASS_ASSIGN_COACH]: coachClassAssignmentPage,
