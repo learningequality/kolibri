@@ -139,7 +139,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
 
   return Promise.all(promises).then(([allChannelLastActive, , user]) => {
     const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
-    store.dispatch('SET_REPORT_SORTING', defaultSortCol, SortOrders.DESCENDING);
+    setReportSorting(store, defaultSortCol, SortOrders.DESCENDING);
     store.dispatch('SET_REPORT_PROPERTIES', {
       userScope: scope,
       userScopeId: scopeId,
@@ -289,7 +289,7 @@ function _showContentList(store, options) {
   }
   Promise.all(promises).then(
     ([, , , user]) => {
-      store.dispatch('SET_REPORT_SORTING', TableColumns.NAME, SortOrders.DESCENDING);
+      setReportSorting(store, TableColumns.NAME, SortOrders.DESCENDING);
       store.dispatch('SET_REPORT_PROPERTIES', {
         channelId: options.channelId,
         contentScope: options.contentScope,
@@ -322,7 +322,7 @@ function _showClassLearnerList(store, options) {
   ];
   Promise.all(promises).then(
     () => {
-      store.dispatch('SET_REPORT_SORTING', TableColumns.NAME, SortOrders.DESCENDING);
+      setReportSorting(store, TableColumns.NAME, SortOrders.DESCENDING);
       store.dispatch('SET_REPORT_PROPERTIES', {
         channelId: options.channelId,
         contentScope: contentScope,
@@ -443,7 +443,7 @@ export function showRecentItemsForChannel(store, classId, channelId) {
             viewBy: ViewBy.RECENT,
             showRecentOnly: true,
           });
-          store.dispatch('SET_REPORT_SORTING', TableColumns.DATE, SortOrders.DESCENDING);
+          setReportSorting(store, TableColumns.DATE, SortOrders.DESCENDING);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', translator.$tr('recentPageTitle'));
@@ -534,7 +534,7 @@ export function showLearnerList(store, classId) {
   Promise.all(promises).then(
     ([userData, groupData]) => {
       store.dispatch('SET_REPORT_TABLE_DATA', _rootLearnerReportState(userData, groupData));
-      store.dispatch('SET_REPORT_SORTING', TableColumns.NAME, SortOrders.DESCENDING);
+      setReportSorting(store, TableColumns.NAME, SortOrders.DESCENDING);
       store.dispatch('SET_REPORT_CONTENT_SUMMARY', {});
       store.dispatch('SET_REPORT_PROPERTIES', {
         contentScope: ContentScopes.ALL,
