@@ -39,13 +39,12 @@
       />
 
       <k-select
-        class="kind-select"
         :label="$tr('userType')"
         :options="userKinds"
         v-model="newKind"
       />
 
-      <fieldset v-if="coachIsSelected">
+      <fieldset class="coach-selector" v-if="coachIsSelected">
         <label>
           <k-radio-button
             :label="$tr('classCoachLabel')"
@@ -272,7 +271,10 @@
 
 <style lang="stylus" scoped>
 
-  .kind-select
-    margin-bottom: 32px
+.coach-selector
+  margin-bottom: 3em
+  margin: 0
+  padding: 0
+  border: none
 
 </style>
