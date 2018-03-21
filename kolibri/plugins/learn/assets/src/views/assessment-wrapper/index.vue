@@ -357,12 +357,12 @@ oriented data synchronization.
         this.correct = 0;
         this.itemError = false;
         this.setItemId();
-        this.createAttemptLog();
+        this.callCreateAttemptLog();
       },
-      initMasteryLog() {
+      callInitMasteryLog() {
         this.initMasteryLog(this.masterySpacingTime, this.masteryModel);
       },
-      createAttemptLog() {
+      callCreateAttemptLog() {
         this.ready = false;
         this.createAttemptLog(this.itemId);
         this.ready = true;
@@ -373,7 +373,7 @@ oriented data synchronization.
       },
       sessionInitialized() {
         if (this.isUserLoggedIn) {
-          this.initMasteryLog();
+          this.callInitMasteryLog();
         } else {
           this.createDummyMasteryLog();
         }
