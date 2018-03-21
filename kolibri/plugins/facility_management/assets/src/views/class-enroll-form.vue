@@ -172,11 +172,11 @@
         return this.modalShown === Modals.CONFIRM_ENROLLMENT;
       },
       emptyMessage() {
-        if (this.usersNotInClass.length === 0) {
-          return this.$tr('allUsersAlready');
-        }
         if (this.facilityUsers.length === 0) {
           return this.$tr('noUsersExist');
+        }
+        if (this.usersNotInClass.length === 0) {
+          return this.$tr('allUsersAlready');
         }
         if (this.filteredUsers.length === 0 && this.filterInput !== '') {
           // TODO internationalize this
