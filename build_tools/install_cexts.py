@@ -97,7 +97,7 @@ def parse_package_page(files, pk_version):
                 file_name[1] != pk_version or
                 file_name[2][2:] == '26' or
                 'macosx' in file_name[4].split('.')[0] or
-                '64' in file_name[4].split('.')[0]):
+                'win_amd64' in file_name[4].split('.')[0]):
 
             continue
 
