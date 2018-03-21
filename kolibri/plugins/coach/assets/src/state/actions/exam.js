@@ -5,9 +5,7 @@ import {
   ExamResource,
   ExamLogResource,
   FacilityUserResource,
-  ExamAttemptLogResource,
 } from 'kolibri.resources';
-import concat from 'lodash/concat';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import {
@@ -19,7 +17,7 @@ import {
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
 import { setClassState } from './main';
-import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
+import { getExamReport } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { createTranslator } from 'kolibri.utils.i18n';
 
@@ -27,6 +25,7 @@ const translator = createTranslator('coachExamPageTitles', {
   coachExamListPageTitle: 'Exams',
   coachExamCreationPageTitle: 'Create new exam',
   coachExamReportDetailPageTitle: 'Exam Report Detail',
+  examReportTitle: '{examTitle} report',
 });
 
 const allChannels = createTranslator('allChannels', {
@@ -541,107 +540,26 @@ export function showExamReportDetailPage(
   questionNumber,
   interactionIndex
 ) {
+  // idk what this is for
   if (store.state.pageName !== PageNames.EXAM_REPORT_DETAIL) {
     store.dispatch('CORE_SET_PAGE_LOADING', true);
     store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT_DETAIL);
   }
-  const examPromise = ExamResource.getModel(examId).fetch();
-  const examLogPromise = ExamLogResource.getCollection({
-    exam: examId,
-    user: userId,
-  }).fetch();
-  const attemptLogPromise = ExamAttemptLogResource.getCollection({
-    exam: examId,
-    user: userId,
-  }).fetch();
-  const userPromise = FacilityUserResource.getModel(userId).fetch();
-  ConditionalPromise.all([
-    attemptLogPromise,
-    examPromise,
-    userPromise,
-    examLogPromise,
-    setClassState(store, classId),
-  ]).only(
-    samePageCheckGenerator(store),
-    ([examAttempts, exam, user, examLogs]) => {
-      const examLog = examLogs[0] || {};
-      const seed = exam.seed;
-      const questionSources = exam.question_sources;
-
-      const questionList = createQuestionList(questionSources);
-
-      if (!questionList[questionNumber]) {
-        // Illegal question number!
-        handleError(store, `Question number ${questionNumber} is not valid for this exam`);
-      } else {
-        const contentPromise = ContentNodeResource.getCollection({
-          ids: questionSources.map(item => item.exercise_id),
-        }).fetch();
-
-        contentPromise.only(
-          samePageCheckGenerator(store),
-          contentNodes => {
-            const contentNodeMap = {};
-
-            contentNodes.forEach(node => {
-              contentNodeMap[node.pk] = node;
-            });
-
-            const questions = questionList.map(question => ({
-              itemId: selectQuestionFromExercise(
-                question.assessmentItemIndex,
-                seed,
-                contentNodeMap[question.contentId]
-              ),
-              contentId: question.contentId,
-            }));
-
-            const allQuestions = questions.map((question, index) => {
-              const attemptLog = examAttempts.find(
-                log => log.item === question.itemId && log.content_id === question.contentId
-              ) || {
-                interaction_history: [],
-                correct: false,
-                noattempt: true,
-              };
-              return Object.assign(
-                {
-                  questionNumber: index + 1,
-                },
-                attemptLog
-              );
-            });
-
-            allQuestions.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
-
-            const currentQuestion = questions[questionNumber];
-            const itemId = currentQuestion.itemId;
-            const exercise = contentNodeMap[currentQuestion.contentId];
-            const currentAttempt = allQuestions[questionNumber];
-            const currentInteractionHistory = currentAttempt.interaction_history;
-            const currentInteraction = currentInteractionHistory[interactionIndex];
-            store.dispatch('SET_PAGE_STATE', {
-              exam: _examState(exam),
-              itemId,
-              questions,
-              currentQuestion,
-              questionNumber: Number(questionNumber),
-              currentAttempt,
-              exercise,
-              interactionIndex: Number(interactionIndex),
-              currentInteraction,
-              currentInteractionHistory,
-              user,
-              examAttempts: allQuestions,
-              examLog,
-            });
-            store.dispatch('CORE_SET_ERROR', null);
-            store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamReportDetailPageTitle'));
-            store.dispatch('CORE_SET_PAGE_LOADING', false);
-          },
-          error => handleApiError(store, error)
-        );
-      }
+  const examReportPromise = getExamReport(store, examId, userId, questionNumber, interactionIndex);
+  const setClassStatePromise = setClassState(store, classId);
+  ConditionalPromise.all([examReportPromise, setClassStatePromise]).then(
+    ([examReport]) => {
+      store.dispatch('SET_PAGE_STATE', examReport);
+      store.dispatch('SET_TOOLBAR_ROUTE', { name: PageNames.EXAM_REPORT });
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamReportDetailPageTitle'));
+      store.dispatch(
+        'SET_TOOLBAR_TITLE',
+        translator.$tr('examReportTitle', {
+          examTitle: examReport.exam.title,
+        })
+      );
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => handleApiError(store, error)
   );

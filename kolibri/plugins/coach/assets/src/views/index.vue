@@ -71,6 +71,7 @@
     ...resourceUserPages,
     LessonsPageNames.CONTENT_PREVIEW,
     LessonsPageNames.RESOURCE_CLASSROOM_REPORT,
+    PageNames.EXAM_REPORT_DETAIL,
   ];
 
   const pageNameToComponentMap = {
@@ -152,11 +153,18 @@
           if (resourceUserPages.includes(this.pageName)) {
             return this.$tr('resourceUserPageToolbarHeader');
           }
+          if (resourceUserPages.includes(this.pageName)) {
+            return this.$tr('resourceUserPageToolbarHeader');
+          }
         }
         return this.$tr('coachToolbarHeader');
       },
       immersivePageIcon() {
-        const backButtonPages = [LessonsPageNames.CONTENT_PREVIEW, ...resourceUserPages];
+        const backButtonPages = [
+          LessonsPageNames.CONTENT_PREVIEW,
+          ...resourceUserPages,
+          PageNames.EXAM_REPORT_DETAIL,
+        ];
         if (backButtonPages.includes(this.pageName)) {
           return 'arrow_back';
         }
@@ -164,7 +172,10 @@
       },
       immersivePagePrimary() {
         // TODO going to need to set a backgrund color
-        if (this.pageName === LessonsPageNames.CONTENT_PREVIEW) {
+        if (
+          this.pageName === LessonsPageNames.CONTENT_PREVIEW ||
+          this.pageName === PageNames.EXAM_REPORT_DETAIL
+        ) {
           return false;
         }
         return true;

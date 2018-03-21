@@ -85,9 +85,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  .attempt-log-list
-    background-color: $core-bg-light
-
   .header
     margin: 0
     padding-left: 20px

@@ -53,6 +53,8 @@
               :itemId="itemId"
               :assessment="true"
               :allowHints="false"
+              :showCorrectAnswer="true"
+              :interactive="false"
             />
           </k-grid-item>
         </k-grid>

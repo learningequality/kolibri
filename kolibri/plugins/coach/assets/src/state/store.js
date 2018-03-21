@@ -86,4 +86,7 @@ export const mutations = {
   SET_BUSY(state, isBusy) {
     state.pageState.busy = isBusy;
   },
+  SET_TOOLBAR_TITLE(state, title) {
+    state.pageState.toolbarTitle = title;
+  },
 };

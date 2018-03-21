@@ -58,7 +58,6 @@
   @require '~kolibri.styles.definitions'
 
   .attempt-box
-    background-color: $core-bg-light
     border-radius: 10px
     height: 60px
     width: 60px

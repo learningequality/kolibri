@@ -3,7 +3,7 @@
   <div class="interaction-list">
     <!--TODO-->
     <template v-if="interactions.length">
-      <h3 class="header">{{ $tr('questionHeader', {questionNumber: attemptNumber }) }}</h3>
+      <h4 class="header">{{ $tr('questionHeader', {questionNumber: attemptNumber }) }}</h4>
       <p>{{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}</p>
     </template>
 
@@ -66,10 +66,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  .interaction-list
-    background-color: $core-bg-light
-    padding-left: 20px
 
   .header
     margin-top: 0

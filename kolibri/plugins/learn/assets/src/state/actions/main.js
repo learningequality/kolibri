@@ -404,6 +404,9 @@ export function calcQuestionsAnswered(attemptLogs) {
   return questionsAnswered;
 }
 
+export function showExamReport(store, examId, questionNumber) {
+  console.log('wip');
+}
 export function showExam(store, examId, questionNumber) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
