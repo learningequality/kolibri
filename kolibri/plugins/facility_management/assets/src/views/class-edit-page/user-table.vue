@@ -118,7 +118,7 @@
     },
     computed: {
       allAreSelected() {
-        return this.users.every(user => this.value.includes(user.id));
+        return this.users.every(user => this.value.includes(user.id)) && Boolean(this.users.length);
       },
     },
     methods: {
