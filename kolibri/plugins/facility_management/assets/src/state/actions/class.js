@@ -275,11 +275,16 @@ export function showCoachClassAssignmentPage(store, classId) {
         // facilityUsers now only contains users that are eligible for coachdom
         // TODO rename
         facilityUsers: facilityUsers
-          .filter(user =>
-            user.roles.some(role => {
-              return role.kind === UserKinds.ASSIGNABLE_COACH || role.kind === UserKinds.COACH;
-            })
-          )
+          // filter out users who are not eligible to be coaches
+          .filter(user => {
+            const eligibleRoles = [
+              UserKinds.ASSIGNABLE_COACH,
+              UserKinds.COACH,
+              UserKinds.ADMIN,
+              UserKinds.SUPERUSER,
+            ];
+            return user.roles.some(({ kind }) => eligibleRoles.includes(kind));
+          })
           .map(_userState),
         classUsers: classroom.coaches.map(_userState),
         class: classroom,
