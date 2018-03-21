@@ -131,7 +131,7 @@
         required: true,
       },
       completionTimestamp: {
-        type: String,
+        type: Date,
         required: false,
         default: null,
       },

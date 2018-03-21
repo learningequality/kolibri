@@ -13,7 +13,7 @@ import {
   handleApiError,
   samePageCheckGenerator,
 } from 'kolibri.coreVue.vuex.actions';
-import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
+import { createQuestionList, selectQuestionFromExercise, getExamReport } from 'kolibri.utils.exams';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames, ClassesPageNames } from '../../constants';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
@@ -32,6 +32,7 @@ const translator = createTranslator('topicTreeExplorationPageTitles', {
   searchPageTitle: 'Search',
   examsListPageTitle: 'Exams',
   currentExamPageTitle: '{ currentExamTitle} - { currentChannelTitle }',
+  examReportTitle: '{examTitle} report',
 });
 
 /**
@@ -404,8 +405,32 @@ export function calcQuestionsAnswered(attemptLogs) {
   return questionsAnswered;
 }
 
-export function showExamReport(store, examId, questionNumber) {
-  console.log('wip');
+export function showExamReport(store, examId, questionNumber, questionInteraction) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_REPORT_VIEWER);
+
+  const userId = currentUserId(store.state);
+  const examReportPromise = getExamReport(
+    store,
+    examId,
+    userId,
+    questionNumber,
+    questionInteraction
+  );
+  ConditionalPromise.all([examReportPromise]).then(
+    ([examReport]) => {
+      store.dispatch('SET_PAGE_STATE', examReport);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch(
+        'CORE_SET_TITLE',
+        translator.$tr('examReportTitle', {
+          examTitle: examReport.exam.title,
+        })
+      );
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    error => handleApiError(store, error)
+  );
 }
 export function showExam(store, examId, questionNumber) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);

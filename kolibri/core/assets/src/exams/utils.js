@@ -97,6 +97,9 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
             const currentAttempt = allQuestions[questionNumber];
             const currentInteractionHistory = currentAttempt.interaction_history;
             const currentInteraction = currentInteractionHistory[interactionIndex];
+            if (examLog.completion_timestamp) {
+              examLog.completion_timestamp = new Date(examLog.completion_timestamp);
+            }
             const payload = {
               exam,
               itemId,

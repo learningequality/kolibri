@@ -70,6 +70,7 @@
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   import examPage from './exam-page';
+  import examReportViewer from './exam-report-viewer';
   import totalPoints from './total-points';
   import AllClassesPage from './classes/AllClassesPage';
   import ClassAssignmentsPage from './classes/ClassAssignmentsPage';
@@ -89,13 +90,17 @@
     [PageNames.CONTENT_UNAVAILABLE]: contentUnavailablePage,
     [PageNames.SEARCH]: searchPage,
     [ClassesPageNames.EXAM_VIEWER]: examPage,
+    [ClassesPageNames.EXAM_REPORT_VIEWER]: examReportViewer,
     [ClassesPageNames.ALL_CLASSES]: AllClassesPage,
     [ClassesPageNames.CLASS_ASSIGNMENTS]: ClassAssignmentsPage,
     [ClassesPageNames.LESSON_PLAYLIST]: LessonPlaylistPage,
     [ClassesPageNames.LESSON_RESOURCE_VIEWER]: LessonResourceViewer,
   };
 
-  const immersivePages = [ClassesPageNames.LESSON_RESOURCE_VIEWER];
+  const immersivePages = [
+    ClassesPageNames.LESSON_RESOURCE_VIEWER,
+    ClassesPageNames.EXAM_REPORT_VIEWER,
+  ];
 
   export default {
     name: 'learn',
@@ -104,6 +109,7 @@
       recommended: 'Recommended',
       channels: 'Channels',
       classes: 'Classes',
+      examReportTitle: '{examTitle} report',
     },
     components: {
       coreBase,
@@ -132,6 +138,12 @@
           if (this.content) {
             return this.content.title;
           }
+        } else if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
+          if (this.exam) {
+            return this.$tr('examReportTitle', {
+              examTitle: this.exam.title,
+            });
+          }
         }
         return this.$tr('learnTitle');
       },
@@ -143,16 +155,26 @@
           return {
             name: ClassesPageNames.LESSON_PLAYLIST,
           };
+        } else if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
+          return {
+            name: ClassesPageNames.CLASS_ASSIGNMENTS,
+          };
         }
       },
       immersivePageIsPrimary() {
-        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+        if (
+          this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER ||
+          this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER
+        ) {
           return false;
         }
         return true;
       },
       immersivePageIcon() {
-        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+        if (
+          this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER ||
+          this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER
+        ) {
           return 'arrow_back';
         }
         return null;
@@ -206,6 +228,7 @@
         searchTerm: state => state.pageState.searchTerm,
         isUserLoggedIn,
         content: state => state.pageState.content,
+        exam: state => state.pageState.exam,
       },
     },
   };

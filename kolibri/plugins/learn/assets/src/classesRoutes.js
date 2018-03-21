@@ -50,10 +50,10 @@ export default [
   },
   {
     name: ClassesPageNames.EXAM_REPORT_VIEWER,
-    path: '/classes/:classId/examReport/:examId/:questionNumber/',
+    path: '/classes/:classId/examReport/:examId/:questionNumber/:questionInteraction',
     handler: toRoute => {
-      const { examId, questionNumber } = toRoute.params;
-      showExamReport(store, examId, questionNumber);
+      const { examId, questionNumber, questionInteraction } = toRoute.params;
+      showExamReport(store, examId, questionNumber, questionInteraction);
     },
   },
 ];
