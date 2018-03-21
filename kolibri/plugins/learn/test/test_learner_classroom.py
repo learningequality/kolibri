@@ -1,17 +1,20 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
+
 from django.core.urlresolvers import reverse
+from rest_framework.test import APITestCase
+
 from kolibri.auth.models import Classroom
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 from kolibri.auth.models import LearnerGroup
 from kolibri.auth.test.helpers import provision_device
-from kolibri.core.lessons.models import Lesson
-from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
-from rest_framework.test import APITestCase
+from kolibri.core.lessons.models import Lesson
+from kolibri.core.lessons.models import LessonAssignment
+from kolibri.logger.models import ExamLog
 
 
 class LearnerClassroomTestCase(APITestCase):
@@ -84,6 +87,60 @@ class LearnerClassroomTestCase(APITestCase):
         self.client.login(username='learner', password='password')
         get_response = self.client.get(reverse(self.basename + '-detail', kwargs={'pk': self.own_classroom.id}))
         self.assertEqual(len(get_response.data['assignments']['exams']), 1)
+
+    def test_correct_number_of_attempted_exams(self):
+        # One active exam and two inactive exams, but one attempted
+        exam_1 = Exam.objects.create(
+            title='Exam',
+            channel_id='abc',
+            collection=self.own_classroom,
+            question_count=10,
+            creator=self.coach_user,
+            active=True,
+        )
+        exam_2 = Exam.objects.create(
+            title='Inactive Exam',
+            channel_id='abc',
+            collection=self.own_classroom,
+            question_count=10,
+            creator=self.coach_user,
+            active=False,
+        )
+        exam_3 = Exam.objects.create(
+            title='Inactive Attempted Exam',
+            channel_id='abc',
+            collection=self.own_classroom,
+            question_count=10,
+            creator=self.coach_user,
+            active=False,
+        )
+        lgroup = LearnerGroup.objects.create(
+            name='Learner Group',
+            parent=self.own_classroom,
+        )
+        lgroup.add_learner(self.learner_user)
+        ExamAssignment.objects.create(
+            exam=exam_1,
+            collection=lgroup,
+            assigned_by=self.coach_user,
+        )
+        ExamAssignment.objects.create(
+            exam=exam_2,
+            collection=lgroup,
+            assigned_by=self.coach_user,
+        )
+        ExamAssignment.objects.create(
+            exam=exam_3,
+            collection=lgroup,
+            assigned_by=self.coach_user,
+        )
+        ExamLog.objects.create(
+            exam=exam_3,
+            user=self.learner_user,
+        )
+        self.client.login(username='learner', password='password')
+        get_response = self.client.get(reverse(self.basename + '-detail', kwargs={'pk': self.own_classroom.id}))
+        self.assertEqual(len(get_response.data['assignments']['exams']), 2)
 
     def test_correct_number_of_lessons(self):
         # One active and inactive lesson
