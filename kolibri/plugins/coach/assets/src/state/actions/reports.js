@@ -50,6 +50,29 @@ const RecentReportResource = new RecentReportResourceConstructor();
 const ContentSummaryResource = new ContentSummaryResourceConstructor();
 const ContentReportResource = new ContentReportResourceConstructor();
 
+const pageNameToTitleMap = {
+  [PageNames.LEARNER_CHANNELS]: 'learnersReportAllChannelsPageTitle',
+  [PageNames.LEARNER_CHANNEL_ROOT]: 'learnersReportForChannelPageTitle',
+  [PageNames.LEARNER_ITEM_DETAILS]: 'learnersItemDetailsReportPageTitle',
+  [PageNames.LEARNER_ITEM_LIST]: 'learnersReportForContentItemsPageTitle',
+  [PageNames.LEARNER_LIST]: 'learnersReportPageTitle',
+  [PageNames.RECENT_CHANNELS]: 'recentChannelsPageTitle',
+  [PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recentItemsForChannelPageTitle',
+  [PageNames.RECENT_LEARNERS_FOR_ITEM]: 'recentLearnerActivityReportPageTitle',
+  [PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'recentActivityLearnerDetailsReportPageTitle',
+  [PageNames.TOPIC_CHANNELS]: 'topicsReportAllChannelsPageTitle',
+  [PageNames.TOPIC_CHANNEL_ROOT]: 'topicsForChannelReportPageTitle',
+  [PageNames.TOPIC_ITEM_LIST]: 'topicsContentItemsReportPageTitle',
+  [PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'topicsLearnersReportForContentItemPageTitle',
+  [PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'topicsLearnerDetailReportPageTitle',
+};
+
+function preparePageNameAndTitle(store, pageName) {
+  store.dispatch('SET_PAGE_NAME', pageName);
+  store.dispatch('CORE_SET_TITLE', translator.$tr(pageNameToTitleMap[pageName]));
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+}
+
 /**
  * Helper function for _showChannelList
  * @param {object} channel - to get recentActivity for
@@ -394,9 +417,7 @@ export function setReportSorting(store, sortColumn, sortOrder) {
 }
 
 export function showRecentItemsForChannel(store, classId, channelId) {
-  store.dispatch('SET_PAGE_NAME', PageNames.RECENT_ITEMS_FOR_CHANNEL);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('recentItemsForChannelPageTitle'));
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  preparePageNameAndTitle(store, PageNames.RECENT_ITEMS_FOR_CHANNEL);
   const channelPromise = ChannelResource.getModel(channelId).fetch();
 
   Promise.all([channelPromise, setClassState(store, classId)]).then(
@@ -444,10 +465,8 @@ export function showRecentLearnerItemDetails(
   interactionIndex
 ) {
   if (store.state.pageName !== PageNames.RECENT_LEARNER_ITEM_DETAILS) {
-    store.dispatch('SET_PAGE_NAME', PageNames.RECENT_LEARNER_ITEM_DETAILS);
-    store.dispatch('CORE_SET_PAGE_LOADING', true);
+    preparePageNameAndTitle(store, PageNames.RECENT_LEARNER_ITEM_DETAILS);
   }
-  store.dispatch('CORE_SET_TITLE', translator.$tr('recentActivityLearnerDetailsReportPageTitle'));
   showExerciseDetailView(
     store,
     classId,
@@ -461,27 +480,17 @@ export function showRecentLearnerItemDetails(
 
 export function showChannelListForReports(store, classId, showRecentOnly) {
   clearReportSorting(store);
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  if (showRecentOnly) {
-    store.dispatch('SET_PAGE_NAME', PageNames.RECENT_CHANNELS);
-    store.dispatch('CORE_SET_TITLE', translator.$tr('recentChannelsPageTitle'));
-  } else {
-    store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_CHANNELS);
-    store.dispatch('CORE_SET_TITLE', translator.$tr('topicsReportAllChannelsPageTitle'));
-  }
+  const pageName = showRecentOnly ? PageNames.RECENT_CHANNELS : PageNames.TOPIC_CHANNELS;
+  preparePageNameAndTitle(store, pageName);
   _showChannelList(store, classId, null, showRecentOnly);
 }
 
 export function showLearnerReportsForItem(store, classId, channelId, contentId, showRecentOnly) {
   clearReportSorting(store);
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  if (showRecentOnly) {
-    store.dispatch('SET_PAGE_NAME', PageNames.RECENT_LEARNERS_FOR_ITEM);
-    store.dispatch('CORE_SET_TITLE', translator.$tr('recentLearnerActivityReportPageTitle'));
-  } else {
-    store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_LEARNERS_FOR_ITEM);
-    store.dispatch('CORE_SET_TITLE', translator.$tr('topicsLearnersReportForContentItemPageTitle'));
-  }
+  const pageName = showRecentOnly
+    ? PageNames.RECENT_LEARNERS_FOR_ITEM
+    : PageNames.TOPIC_LEARNERS_FOR_ITEM;
+  preparePageNameAndTitle(store, pageName);
   _showClassLearnerList(store, {
     classId,
     channelId,
@@ -501,10 +510,8 @@ export function showTopicLearnerItemDetails(
   interactionIndex
 ) {
   if (store.state.pageName !== PageNames.TOPIC_LEARNER_ITEM_DETAILS) {
-    store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_LEARNER_ITEM_DETAILS);
-    store.dispatch('CORE_SET_PAGE_LOADING', true);
+    preparePageNameAndTitle(store, PageNames.TOPIC_LEARNER_ITEM_DETAILS);
   }
-  store.dispatch('CORE_SET_TITLE', translator.$tr('topicsLearnerDetailReportPageTitle'));
   showExerciseDetailView(
     store,
     classId,
@@ -517,10 +524,7 @@ export function showTopicLearnerItemDetails(
 }
 
 export function showLearnerList(store, classId) {
-  store.dispatch('SET_PAGE_NAME', PageNames.LEARNER_LIST);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportPageTitle'));
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-
+  preparePageNameAndTitle(store, PageNames.LEARNER_LIST);
   const promises = [
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
@@ -547,33 +551,30 @@ export function showLearnerList(store, classId) {
 }
 
 export function showLearnerChannels(store, classId, userId) {
-  store.dispatch('SET_PAGE_NAME', PageNames.LEARNER_CHANNELS);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportAllChannelsPageTitle'));
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  preparePageNameAndTitle(store, PageNames.LEARNER_CHANNELS);
   _showChannelList(store, classId, userId, false);
 }
 
 export function showChannelRootReport(store, classId, channelId, userId) {
   let scopeOptions;
+  let pageName;
   clearReportSorting(store);
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
   // For a single Learner
   if (userId) {
-    store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportForChannelPageTitle'));
-    store.dispatch('CORE_SET_PAGE_LOADING', true);
+    pageName = PageNames.LEARNER_CHANNEL_ROOT;
     scopeOptions = {
       userScope: UserScopes.USER,
       userScopeId: userId,
     };
   } else {
     // For the entire Classroom
-    store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_CHANNEL_ROOT);
-    store.dispatch('CORE_SET_TITLE', translator.$tr('topicsForChannelReportPageTitle'));
+    pageName = PageNames.TOPIC_CHANNEL_ROOT;
     scopeOptions = {
       userScope: UserScopes.CLASSROOM,
       userScopeId: classId,
     };
   }
+  preparePageNameAndTitle(store, pageName);
   return ChannelResource.getModel(channelId)
     .fetch()
     .then(
@@ -595,25 +596,24 @@ export function showItemListReports(store, classId, channelId, topicId, userId) 
   clearReportSorting(store);
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   let scopeOptions;
+  let pageName;
 
   // For single Learner
   if (userId) {
-    store.dispatch('SET_PAGE_NAME', PageNames.LEARNER_ITEM_LIST);
-    store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportForContentItemsPageTitle'));
+    pageName = PageNames.LEARNER_ITEM_LIST;
     scopeOptions = {
       userScope: UserScopes.USER,
       userScopeId: userId,
     };
   } else {
     // For entire Classroom
-    store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_ITEM_LIST);
-    store.dispatch('CORE_SET_TITLE', translator.$tr('topicsContentItemsReportPageTitle'));
+    pageName = PageNames.TOPIC_ITEM_LIST;
     scopeOptions = {
       userScope: UserScopes.CLASSROOM,
       userScopeId: classId,
     };
   }
-
+  preparePageNameAndTitle(store, pageName);
   _showContentList(store, {
     classId,
     channelId,
@@ -634,10 +634,8 @@ export function showLearnerItemDetails(
   interactionIndex
 ) {
   if (store.state.pageName !== PageNames.LEARNER_ITEM_DETAILS) {
-    store.dispatch('SET_PAGE_NAME', PageNames.LEARNER_ITEM_DETAILS);
-    store.dispatch('CORE_SET_PAGE_LOADING', true);
+    preparePageNameAndTitle(store, PageNames.LEARNER_ITEM_DETAILS);
   }
-  store.dispatch('CORE_SET_TITLE', translator.$tr('learnersItemDetailsReportPageTitle'));
   showExerciseDetailView(
     store,
     classId,
