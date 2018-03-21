@@ -266,7 +266,7 @@ export function showCoachClassAssignmentPage(store, classId) {
   // all users in facility
   const userPromise = FacilityUserResource.getCollection().fetch();
   // current class
-  const classPromise = ClassroomResource.getModel(classId).fetch();
+  const classPromise = ClassroomResource.getModel(classId).fetch({}, true);
 
   return ConditionalPromise.all([userPromise, classPromise]).only(
     samePageCheckGenerator(store),
