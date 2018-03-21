@@ -108,7 +108,7 @@ export function assignCoachesToClass(store, coaches) {
   ).save();
 }
 
-export function removeClassUser(store, classId, userId) {
+export function removeClassLearner(store, classId, userId) {
   if (!classId || !userId) {
     // if no id passed, abort the function
     return;
@@ -121,7 +121,31 @@ export function removeClassUser(store, classId, userId) {
     .delete()
     .then(
       () => {
-        store.dispatch('DELETE_CLASS_USER', userId);
+        store.dispatch('DELETE_CLASS_LEARNER', userId);
+        displayModal(store, false);
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
+}
+
+export function removeClassCoach(store, classId, userId) {
+  // TODO class id should be accessible from state.
+  if (!classId || !userId) {
+    // if no id passed, abort the function
+    return;
+  }
+  // TODO use a getModel with role id? should be available. Might have to undo mappers
+  // fetch the membership model with this classId and userId.
+  return RoleResource.getCollection({
+    user: userId,
+    collection: classId,
+  })
+    .delete()
+    .then(
+      () => {
+        store.dispatch('DELETE_CLASS_COACH', userId);
         displayModal(store, false);
       },
       error => {

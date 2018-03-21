@@ -6,7 +6,7 @@ export {
   deleteClass,
   updateClass,
   enrollLearnersInClass,
-  removeClassUser,
+  removeClassLearner,
   showClassesPage,
   showClassEditPage,
 } from './class';

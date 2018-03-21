@@ -53,6 +53,7 @@
 
     <user-remove-modal
       v-if="modalShown===Modals.REMOVE_USER"
+      @confirm="removalAction(userToBeRemoved.id, currentClass.id)"
       :classname="currentClass.name"
       :classid="currentClass.id"
       :username="userToBeRemoved.username"
@@ -68,7 +69,7 @@
       <template slot="action" slot-scope="userRow">
         <k-button
           :text="$tr('remove')"
-          @click="openRemoveUserModal(userRow.user)"
+          @click="confirmRemoval(userRow.user, removeClassCoach)"
         />
       </template>
     </user-table>
@@ -81,7 +82,7 @@
       <template slot="action" slot-scope="userRow">
         <k-button
           :text="$tr('remove')"
-          @click="openRemoveUserModal(userRow.user)"
+          @click="confirmRemoval(userRow.user, removeClassLearner)"
         />
       </template>
     </user-table>
@@ -94,6 +95,7 @@
 
   import userTable from './user-table';
   import { PageNames, Modals } from '../../constants';
+  import { removeClassLearner, removeClassCoach } from '../../state/actions/class';
   import { displayModal } from '../../state/actions';
   import classRenameModal from './class-rename-modal';
   import userRemoveModal from './user-remove-modal';
@@ -124,6 +126,7 @@
     data() {
       return {
         userToBeRemoved: null,
+        removalAction: null,
       };
     },
     computed: {
@@ -142,8 +145,9 @@
       },
     },
     methods: {
-      openRemoveUserModal(user) {
+      confirmRemoval(user, removalAction) {
         this.userToBeRemoved = user;
+        this.removalAction = removalAction;
         this.displayModal(Modals.REMOVE_USER);
       },
     },
@@ -157,6 +161,8 @@
       },
       actions: {
         displayModal,
+        removeClassLearner,
+        removeClassCoach,
       },
     },
   };
