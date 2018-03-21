@@ -65,7 +65,7 @@
           return 1;
         }
         if (this.examStartedNotCompleted(exam)) {
-          return exam.progress.score / exam.question_count;
+          return exam.progress.answer_count / exam.question_count;
         }
         return 0;
       },
