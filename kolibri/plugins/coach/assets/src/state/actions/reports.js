@@ -472,23 +472,6 @@ export function showChannelListForReports(store, classId, showRecentOnly) {
   _showChannelList(store, classId, null, showRecentOnly);
 }
 
-export function showTopicItemList(store, classId, channelId, topicId) {
-  clearReportSorting(store);
-  store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_ITEM_LIST);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('topicsContentItemsReportPageTitle'));
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-
-  _showContentList(store, {
-    classId,
-    channelId,
-    contentScope: ContentScopes.ROOT,
-    contentScopeId: topicId,
-    userScope: UserScopes.CLASSROOM,
-    userScopeId: classId,
-    showRecentOnly: false,
-  });
-}
-
 export function showLearnerReportsForItem(store, classId, channelId, contentId, showRecentOnly) {
   clearReportSorting(store);
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -608,18 +591,36 @@ export function showChannelRootReport(store, classId, channelId, userId) {
     );
 }
 
-export function showLearnerItemList(store, classId, userId, channelId, topicId) {
-  store.dispatch('SET_PAGE_NAME', PageNames.LEARNER_ITEM_LIST);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportForContentItemsPageTitle'));
+export function showItemListReports(store, classId, channelId, topicId, userId) {
+  clearReportSorting(store);
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+  let scopeOptions;
+
+  // For single Learner
+  if (userId) {
+    store.dispatch('SET_PAGE_NAME', PageNames.LEARNER_ITEM_LIST);
+    store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportForContentItemsPageTitle'));
+    scopeOptions = {
+      userScope: UserScopes.USER,
+      userScopeId: userId,
+    };
+  } else {
+    // For entire Classroom
+    store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_ITEM_LIST);
+    store.dispatch('CORE_SET_TITLE', translator.$tr('topicsContentItemsReportPageTitle'));
+    scopeOptions = {
+      userScope: UserScopes.CLASSROOM,
+      userScopeId: classId,
+    };
+  }
+
   _showContentList(store, {
     classId,
     channelId,
     contentScope: ContentScopes.TOPIC,
     contentScopeId: topicId,
-    userScope: UserScopes.USER,
-    userScopeId: userId,
     showRecentOnly: false,
+    ...scopeOptions,
   });
 }
 

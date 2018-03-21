@@ -6,13 +6,12 @@ import {
   showChannelListForReports,
   showLearnerReportsForItem,
   showChannelRootReport,
+  showItemListReports,
   showLearnerChannels,
   showLearnerItemDetails,
-  showLearnerItemList,
   showLearnerList,
   showRecentItemsForChannel,
   showRecentLearnerItemDetails,
-  showTopicItemList,
   showTopicLearnerItemDetails,
 } from '../state/actions/reports';
 import { PageNames } from '../constants';
@@ -112,7 +111,7 @@ export default [
     name: PageNames.TOPIC_ITEM_LIST,
     path: '/:classId/topics/:channelId/topic/:topicId',
     handler: to => {
-      showTopicItemList(store, to.params.classId, to.params.channelId, to.params.topicId);
+      showItemListReports(store, to.params.classId, to.params.channelId, to.params.topicId);
     },
   },
   {
@@ -174,12 +173,12 @@ export default [
     name: PageNames.LEARNER_ITEM_LIST,
     path: '/:classId/learners/:userId/:channelId/topic/:topicId',
     handler: to => {
-      showLearnerItemList(
+      showItemListReports(
         store,
         to.params.classId,
-        to.params.userId,
         to.params.channelId,
-        to.params.topicId
+        to.params.topicId,
+        to.params.userId
       );
     },
   },
