@@ -51,7 +51,7 @@
       :classes="classes"
     />
 
-    <user-remove-modal
+    <user-remove-confirmation-modal
       v-if="modalShown===Modals.REMOVE_USER"
       @confirm="removalAction(currentClass.id, userToBeRemoved.id)"
       :classname="currentClass.name"
@@ -96,7 +96,7 @@
   import { removeClassLearner, removeClassCoach } from '../../state/actions/class';
   import { displayModal } from '../../state/actions';
   import classRenameModal from './class-rename-modal';
-  import userRemoveModal from './user-remove-modal';
+  import userRemoveConfirmationModal from './user-remove-confirmation-modal';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kButton from 'kolibri.coreVue.components.kButton';
 
@@ -117,7 +117,7 @@
     components: {
       userTable,
       classRenameModal,
-      userRemoveModal,
+      userRemoveConfirmationModal,
       kRouterLink,
       kButton,
     },
