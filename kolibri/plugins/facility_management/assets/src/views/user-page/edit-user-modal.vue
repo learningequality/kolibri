@@ -271,10 +271,10 @@
 
 <style lang="stylus" scoped>
 
-.coach-selector
-  margin-bottom: 3em
-  margin: 0
-  padding: 0
-  border: none
+  .coach-selector
+    margin-bottom: 3em
+    margin: 0
+    padding: 0
+    border: none
 
 </style>
