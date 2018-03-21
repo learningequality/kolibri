@@ -3,18 +3,17 @@ import examRoutes from './examRoutes';
 import { showClassListPage, shouldRedirectToClassRootPage } from '../state/actions/main';
 import { showGroupsPage } from '../state/actions/group';
 import {
-  showLearnerChannelRoot,
+  showChannelListForReports,
+  showLearnerReportsForItem,
+  showChannelRootReport,
   showLearnerChannels,
   showLearnerItemDetails,
   showLearnerItemList,
   showLearnerList,
   showRecentItemsForChannel,
   showRecentLearnerItemDetails,
-  showTopicChannelRoot,
   showTopicItemList,
   showTopicLearnerItemDetails,
-  showLearnerReportsForItem,
-  showChannelListForReports,
 } from '../state/actions/reports';
 import { PageNames } from '../constants';
 import store from 'kolibri.coreVue.vuex.store';
@@ -106,7 +105,7 @@ export default [
     name: PageNames.TOPIC_CHANNEL_ROOT,
     path: '/:classId/topics/:channelId',
     handler: to => {
-      showTopicChannelRoot(store, to.params.classId, to.params.channelId);
+      showChannelRootReport(store, to.params.classId, to.params.channelId);
     },
   },
   {
@@ -168,7 +167,7 @@ export default [
     name: PageNames.LEARNER_CHANNEL_ROOT,
     path: '/:classId/learners/:userId/:channelId',
     handler: to => {
-      showLearnerChannelRoot(store, to.params.classId, to.params.userId, to.params.channelId);
+      showChannelRootReport(store, to.params.classId, to.params.channelId, to.params.userId);
     },
   },
   {

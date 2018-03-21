@@ -472,29 +472,6 @@ export function showChannelListForReports(store, classId, showRecentOnly) {
   _showChannelList(store, classId, null, showRecentOnly);
 }
 
-export function showTopicChannelRoot(store, classId, channelId) {
-  clearReportSorting(store);
-  store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_CHANNEL_ROOT);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('topicsForChannelReportPageTitle'));
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-
-  const channelPromise = ChannelResource.getModel(channelId).fetch();
-  channelPromise.then(
-    channelData => {
-      _showContentList(store, {
-        classId,
-        channelId,
-        contentScope: ContentScopes.ROOT,
-        contentScopeId: channelData.root,
-        userScope: UserScopes.CLASSROOM,
-        userScopeId: classId,
-        showRecentOnly: false,
-      });
-    },
-    error => handleError(store, error)
-  );
-}
-
 export function showTopicItemList(store, classId, channelId, topicId) {
   clearReportSorting(store);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_ITEM_LIST);
@@ -593,26 +570,42 @@ export function showLearnerChannels(store, classId, userId) {
   _showChannelList(store, classId, userId, false);
 }
 
-export function showLearnerChannelRoot(store, classId, userId, channelId) {
-  store.dispatch('SET_PAGE_NAME', PageNames.LEARNER_CHANNEL_ROOT);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportForChannelPageTitle'));
+export function showChannelRootReport(store, classId, channelId, userId) {
+  let scopeOptions;
+  clearReportSorting(store);
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-
-  const channelPromise = ChannelResource.getModel(channelId).fetch();
-  channelPromise.then(
-    channelData => {
-      _showContentList(store, {
-        classId,
-        channelId,
-        contentScope: ContentScopes.ROOT,
-        contentScopeId: channelData.root,
-        userScope: UserScopes.USER,
-        userScopeId: userId,
-        showRecentOnly: false,
-      });
-    },
-    error => handleError(store, error)
-  );
+  // For a single Learner
+  if (userId) {
+    store.dispatch('CORE_SET_TITLE', translator.$tr('learnersReportForChannelPageTitle'));
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+    scopeOptions = {
+      userScope: UserScopes.USER,
+      userScopeId: userId,
+    };
+  } else {
+    // For the entire Classroom
+    store.dispatch('SET_PAGE_NAME', PageNames.TOPIC_CHANNEL_ROOT);
+    store.dispatch('CORE_SET_TITLE', translator.$tr('topicsForChannelReportPageTitle'));
+    scopeOptions = {
+      userScope: UserScopes.CLASSROOM,
+      userScopeId: classId,
+    };
+  }
+  return ChannelResource.getModel(channelId)
+    .fetch()
+    .then(
+      channel => {
+        _showContentList(store, {
+          classId,
+          channelId,
+          contentScope: ContentScopes.ROOT,
+          contentScopeId: channel.root,
+          showRecentOnly: false,
+          ...scopeOptions,
+        });
+      },
+      error => handleError(store, error)
+    );
 }
 
 export function showLearnerItemList(store, classId, userId, channelId, topicId) {
