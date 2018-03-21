@@ -140,6 +140,8 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
   return Promise.all(promises).then(([allChannelLastActive, , user]) => {
     const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
     setReportSorting(store, defaultSortCol, SortOrders.DESCENDING);
+    // HACK: need to append this to make pageState more consistent between pages
+    store.dispatch('SET_REPORT_CONTENT_SUMMARY', {});
     store.dispatch('SET_REPORT_PROPERTIES', {
       showRecentOnly,
       userScope,
