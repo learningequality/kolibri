@@ -5,7 +5,6 @@ import {
   RoleResource,
 } from 'kolibri.resources';
 import { samePageCheckGenerator, handleApiError } from 'kolibri.coreVue.vuex.actions';
-import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { PageNames } from '../../constants';
