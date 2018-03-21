@@ -7,6 +7,6 @@ export function userMatchesFilter(user, searchFilter) {
   return searchTerms.every(term => fullName.includes(term) || username.includes(term));
 }
 
-export function filterAndSortUsers(users, pred) {
-  return orderBy(users.filter(pred), [user => user.username.toUpperCase()], ['asc']);
+export function filterAndSortUsers(users, pred, sortByKey = 'username') {
+  return orderBy(users.filter(pred), [user => user[sortByKey].toUpperCase()], ['asc']);
 }

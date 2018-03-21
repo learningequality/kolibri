@@ -1,5 +1,4 @@
 import { PageNames } from '../../constants';
-
 import { _managePageTitle } from './helpers/mappers';
 import preparePage from './helpers/preparePage';
 

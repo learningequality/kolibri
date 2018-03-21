@@ -7,24 +7,34 @@ const translator = createTranslator('classListTitles', {
   classListPageTitle: 'Classes',
 });
 
-function _classState(classData) {
-  return {
-    id: classData.id,
-    name: classData.name,
-    memberCount: classData.learner_count,
-  };
+/**
+ * Checks how many Classrooms the Coach user is assigned to and provides data to
+ * redirect to appropriate landing page. This function is run before the default
+ * handler for '/coach/'.
+ *
+ */
+export function shouldRedirectToClassRootPage() {
+  return ClassroomResource.getCollection({ role: 'coach' })
+    .fetch()
+    ._promise.then(classrooms => {
+      if (classrooms.length === 1) {
+        return classrooms[0].id;
+      }
+      return false;
+    });
 }
 
 export function setClassState(store, classId = null) {
-  return ClassroomResource.getCollection()
+  return ClassroomResource.getCollection({ role: 'coach' })
     .fetch()
-    .then(classes => {
-      let className = null;
-      if (classId) {
-        className = classes.find(classroom => classroom.id === classId).name;
-      }
-      store.dispatch('SET_CLASS_INFO', classId, className, classes.map(_classState));
-    });
+    .then(classrooms => {
+      store.dispatch('SET_CLASS_INFO', {
+        classId,
+        currentClassroom: classId && classrooms.find(({ id }) => id === classId),
+        classList: [...classrooms],
+      });
+    })
+    .catch(error => handleApiError(store, error));
 }
 
 export function showClassListPage(store) {
@@ -40,6 +50,7 @@ export function showClassListPage(store) {
     error => handleApiError(store, error)
   );
 }
+
 export function setSelectedAttemptLogIndex(store, index) {
   store.dispatch('SET_SELECTED_ATTEMPT_LOG_INDEX', index);
 }

@@ -18,7 +18,7 @@
         <k-button
           :text="$tr('remove')"
           :primary="true"
-          @click="userRemove"
+          @click="confirmRemoval"
         />
       </div>
 
@@ -30,7 +30,7 @@
 
 <script>
 
-  import { removeClassUser, displayModal } from '../../state/actions';
+  import { displayModal } from '../../state/actions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
 
@@ -56,18 +56,10 @@
         type: String,
         required: true,
       },
-      classid: {
-        type: String,
-        required: true,
-      },
-      userid: {
-        type: String,
-        required: true,
-      },
     },
     methods: {
-      userRemove() {
-        this.removeClassUser(this.classid, this.userid);
+      confirmRemoval() {
+        this.$emit('confirm');
       },
       close() {
         this.displayModal(false);
@@ -75,7 +67,6 @@
     },
     vuex: {
       actions: {
-        removeClassUser,
         displayModal,
       },
     },

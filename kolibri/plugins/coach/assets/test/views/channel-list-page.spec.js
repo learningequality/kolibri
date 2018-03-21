@@ -50,7 +50,7 @@ function makeWrapper(options = {}, state) {
   });
   return mount(ChannelListPage, {
     ...options,
-    stubs: ['report-subheading', 'name-cell'],
+    stubs: ['report-subheading', 'name-cell', 'breadcrumbs'],
     store,
   });
 }
