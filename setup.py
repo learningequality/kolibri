@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import logging
 import os
@@ -29,11 +31,6 @@ def read_file(fname):
 dist_name = 'kolibri'
 
 readme = read_file('README.rst')
-doclink = """
-Documentation
--------------
-
-The full documentation is at `http://kolibri.rtfd.org <http://kolibri.rtfd.org>`_."""
 
 # Default description of the distributed package
 description = ("""Kolibri education platform for offline environments""")
@@ -152,9 +149,7 @@ setup(
     name=dist_name,
     version=kolibri.__version__,
     description=description,
-    long_description="{readme}\n\n{doclink}".format(
-        readme=readme, doclink=doclink
-    ),
+    long_description=readme,
     author='Learning Equality',
     author_email='info@learningequality.org',
     url='https://github.com/learningequality/kolibri',

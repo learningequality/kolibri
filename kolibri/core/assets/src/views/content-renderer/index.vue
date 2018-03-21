@@ -25,6 +25,7 @@
         :thumbnailFiles="thumbnailFiles"
         :interactive="interactive"
         :lang="lang"
+        :showCorrectAnswer="showCorrectAnswer"
         ref="contentView"
       />
     </template>
@@ -109,6 +110,10 @@
         type: Object,
         default: () => defaultLanguage,
         validator: languageValidator,
+      },
+      showCorrectAnswer: {
+        type: Boolean,
+        default: false,
       },
     },
     data: () => ({
