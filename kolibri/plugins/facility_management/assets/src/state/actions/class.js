@@ -194,6 +194,7 @@ export function showClassEditPage(store, classId) {
     currentClass: classroom,
     classes: classrooms,
     classLearners: facilityUsers.map(_userStateForClassEditPage),
+    classCoaches: classroom.coaches.map(_userStateForClassEditPage),
   });
 
   ConditionalPromise.all(promises).only(

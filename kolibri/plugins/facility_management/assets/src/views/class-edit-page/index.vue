@@ -61,7 +61,7 @@
 
     <user-table
       :title="$tr('coachTableTitle')"
-      :users="[]"
+      :users="classCoaches"
       :emptyMessage="$tr('noCoachesInClassMessge')"
     >
       <!-- Don't need template in Vue 2.5+ -->
@@ -163,6 +163,7 @@
     vuex: {
       getters: {
         classLearners: state => state.pageState.classLearners,
+        classCoaches: state => state.pageState.classCoaches,
         classes: state => state.pageState.classes,
         currentClass: state => state.pageState.currentClass,
         modalShown: state => state.pageState.modalShown,
