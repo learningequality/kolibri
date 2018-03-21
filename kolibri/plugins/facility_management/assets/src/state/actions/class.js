@@ -178,29 +178,6 @@ export function showClassesPage(store) {
 }
 
 export function showClassEditPage(store, classId) {
-  /*
-   * TODO inline this
-   * This mostly duplicates _userState but searches Roles array for an exact match
-   * on the classId, and not for any Role object.
-   */
-  function _userStateForClassEditPage(apiUserData) {
-    const matchingRole = apiUserData.roles.find(
-      r =>
-        String(r.collection) === String(classId) ||
-        String(r.collection) === String(currentFacilityId(store.state)) ||
-        r.kind === UserKinds.ADMIN ||
-        r.kind === UserKinds.SUPERUSER
-    );
-
-    return {
-      id: apiUserData.id,
-      facility_id: apiUserData.facility,
-      username: apiUserData.username,
-      full_name: apiUserData.full_name,
-      kind: matchingRole ? matchingRole.kind : UserKinds.LEARNER,
-    };
-  }
-
   // TODO localize this title
   preparePage(store.dispatch, {
     name: PageNames.CLASS_EDIT_MGMT_PAGE,
@@ -217,8 +194,8 @@ export function showClassEditPage(store, classId) {
     modalShown: false,
     currentClass: classroom,
     classes: classrooms,
-    classLearners: facilityUsers.map(_userStateForClassEditPage),
-    classCoaches: classroom.coaches.map(_userStateForClassEditPage),
+    classLearners: facilityUsers.map(_userState),
+    classCoaches: classroom.coaches.map(_userState),
   });
 
   ConditionalPromise.all(promises).only(
