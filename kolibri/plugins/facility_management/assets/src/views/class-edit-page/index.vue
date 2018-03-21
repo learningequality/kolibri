@@ -31,12 +31,12 @@
       <div class="enroll">
         <k-router-link
           :text="$tr('assignCoachesButtonLabel')"
-          :to="coachAssignmentLink(currentClass.id)"
+          :to="coachAssignmentLink"
           appearance="raised-button"
         />
         <k-router-link
           :text="$tr('enrollLearnerButtonLabel')"
-          :to="learnerEnrollmentLink(currentClass.id)"
+          :to="learnerEnrollmentLink"
           :primary="true"
           appearance="raised-button"
         />
@@ -94,7 +94,6 @@
 
   import userTable from './user-table';
   import { PageNames, Modals } from '../../constants';
-  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { displayModal } from '../../state/actions';
   import classRenameModal from './class-rename-modal';
   import userRemoveModal from './user-remove-modal';
@@ -105,27 +104,15 @@
     // QUESTION update component name?
     name: 'classEnrollForm',
     $trs: {
-      // TODO kill
-      enrollUsers: 'Enroll users ',
       enrollLearnerButtonLabel: 'Enroll learners',
       assignCoachesButtonLabel: 'Assign coaches',
-      // TODO kill
-      tableTitle: 'Manage users in this class',
       coachEnrollmentPageTitle: 'Manage class coaches and learners',
-      // TODO kill | deprecated
-      users: 'Users',
       coachTableTitle: 'Coaches',
       learnerTableTitle: 'Learners',
       noCoachesInClassMessge: "You don't have any assigned coaches",
       noLearnersInClassMessage: "You don't have any enrolled learners",
-      userIconColumnHeader: 'User icon',
-      fullName: 'Full name',
-      username: 'Username',
-      role: 'Role',
-      userActionsColumnHeader: 'Actions',
       remove: 'Remove',
       noUsersExist: 'No users in this class',
-      userActions: 'User management actions',
     },
     components: {
       userTable,
@@ -134,30 +121,30 @@
       kRouterLink,
       kButton,
     },
-    data: () => ({
-      userToBeRemoved: null,
-    }),
+    data() {
+      return {
+        userToBeRemoved: null,
+      };
+    },
     computed: {
-      LEARNER: () => UserKinds.LEARNER,
-      COACH: () => UserKinds.COACH,
-      Modals: () => Modals,
+      Modals() {
+        return Modals;
+      },
+      learnerEnrollmentLink() {
+        return {
+          name: PageNames.CLASS_ENROLL_LEARNER,
+        };
+      },
+      coachAssignmentLink() {
+        return {
+          name: PageNames.CLASS_ASSIGN_COACH,
+        };
+      },
     },
     methods: {
       openRemoveUserModal(user) {
         this.userToBeRemoved = user;
         this.displayModal(Modals.REMOVE_USER);
-      },
-      learnerEnrollmentLink(classId) {
-        return {
-          name: PageNames.CLASS_ENROLL_LEARNER,
-          params: { classId },
-        };
-      },
-      coachAssignmentLink(classId) {
-        return {
-          name: PageNames.CLASS_ASSIGN_COACH,
-          params: { classId },
-        };
       },
     },
     vuex: {
@@ -167,7 +154,6 @@
         classes: state => state.pageState.classes,
         currentClass: state => state.pageState.currentClass,
         modalShown: state => state.pageState.modalShown,
-        noUsersInClass: state => state.pageState.classLearners.length === 0,
       },
       actions: {
         displayModal,
