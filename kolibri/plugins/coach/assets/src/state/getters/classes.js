@@ -1,5 +1,7 @@
+const getCurrentClassroom = state => state.classList.find(({ id }) => id === state.classId);
+
 export function className(state) {
-  const cls = state.classList.find(thisClass => thisClass.id === state.classId);
+  const cls = getCurrentClassroom(state);
   if (cls) {
     return cls.name;
   }
@@ -7,9 +9,9 @@ export function className(state) {
 }
 
 export function classMemberCount(state) {
-  const cls = state.classList.find(thisClass => thisClass.id === state.classId);
+  const cls = getCurrentClassroom(state);
   if (cls) {
-    return cls.memberCount;
+    return cls.learner_count;
   }
   return 0;
 }

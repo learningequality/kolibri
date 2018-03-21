@@ -97,7 +97,7 @@
         return TableColumns;
       },
       noProgressText() {
-        return this.$tr('noRecentProgress', { RECENCY_THRESHOLD_IN_DAYS });
+        return this.$tr('noRecentProgress', { treshold: RECENCY_THRESHOLD_IN_DAYS });
       },
     },
     methods: {
