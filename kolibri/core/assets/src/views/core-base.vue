@@ -6,7 +6,7 @@
 
       <immersive-toolbar
         v-if="immersivePage"
-        :appBarTitle="appBarTitle"
+        :appBarTitle="toolbarTitle || appBarTitle"
         :icon="immersivePageIcon"
         :route="immersivePageRoute"
         :primary="immersivePagePrimary"
@@ -17,7 +17,7 @@
       <template v-else>
         <app-bar
           class="app-bar align-to-parent"
-          :title="appBarTitle"
+          :title="toolbarTitle || appBarTitle"
           :height="headerHeight"
           :navShown="navShown"
           @toggleSideNav="navShown=!navShown"
@@ -132,6 +132,7 @@
         loading: state => state.core.loading,
         // set document title (window name)
         documentTitle: state => state.core.title,
+        toolbarTitle: state => state.pageState.toolbarTitle,
       },
     },
     data: () => ({ navShown: false }),

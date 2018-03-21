@@ -24,21 +24,20 @@
 
 <script>
 
-  import { PageNames } from '../../../constants';
+  import { ClassesPageNames } from '../constants';
   import examReport from 'kolibri.coreVue.components.examReport';
 
   export default {
-    name: 'coachExamDetailPage',
+    name: 'learnExamReportViewer',
     components: {
       examReport,
     },
     computed: {
       backPageLink() {
         return {
-          name: PageNames.EXAM_REPORT,
+          name: ClassesPageNames.CLASS_ASSIGNMENTS,
           params: {
             classId: this.classId,
-            examId: this.exam.id,
           },
         };
       },
@@ -52,12 +51,11 @@
       },
       navigateTo(question, interaction) {
         this.$router.push({
-          name: PageNames.EXAM_REPORT_DETAIL,
+          name: ClassesPageNames.EXAM_REPORT_VIEWER,
           params: {
             classId: this.classId,
-            userId: this.userId,
-            interaction,
-            question,
+            questionInteraction: interaction,
+            questionNumber: question,
             examId: this.exam.id,
           },
         });
@@ -65,7 +63,7 @@
     },
     vuex: {
       getters: {
-        classId: state => state.classId,
+        classId: state => state.pageState.exam.collection,
         examAttempts: state => state.pageState.examAttempts,
         exam: state => state.pageState.exam,
         userName: state => state.pageState.user.full_name,

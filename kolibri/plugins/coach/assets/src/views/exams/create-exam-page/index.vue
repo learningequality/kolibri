@@ -135,7 +135,7 @@
   import {
     goToTopic,
     goToTopLevel,
-    createExam,
+    createExamAndRoute,
     addExercise,
     removeExercise,
     setExamsModal,
@@ -143,7 +143,6 @@
   } from '../../../state/actions/exam';
   import { className } from '../../../state/getters/main';
   import { Modals as ExamModals } from '../../../constants/examConstants';
-  import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -193,7 +192,6 @@
       removed: 'Removed',
       selected:
         '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
-      duplicateTitle: 'An exam with that title already exists',
       name: 'Name',
     },
     data() {
@@ -217,22 +215,10 @@
       numCols() {
         return this.windowSize.breakpoint > 3 ? 2 : 1;
       },
-      duplicateTitle() {
-        const index = this.exams.findIndex(
-          exam => exam.title.toUpperCase() === this.inputTitle.toUpperCase()
-        );
-        if (index === -1) {
-          return false;
-        }
-        return true;
-      },
       titleIsInvalidText() {
         if (this.titleBlurred || this.previewOrSubmissionAttempt) {
           if (this.inputTitle === '') {
             return this.$tr('examRequiresTitle');
-          }
-          if (this.duplicateTitle) {
-            return this.$tr('duplicateTitle');
           }
         }
         return '';
@@ -364,7 +350,9 @@
         } else {
           this.handleAddTopicExercises(allExercises, currentTopicTitle);
         }
-        this.setDummyChannelId(this.subtopics[0].id);
+        if (!this.dummyChannelId) {
+          this.setDummyChannelId(this.subtopics[0].id);
+        }
       },
       handleGoToTopic(topicId) {
         this.loading = true;
@@ -377,7 +365,9 @@
             this.loading = false;
           });
         }
-        this.setDummyChannelId(topicId);
+        if (!this.dummyChannelId) {
+          this.setDummyChannelId(topicId);
+        }
       },
       handleAddExercise(exercise) {
         this.selectionMade = true;
@@ -395,7 +385,9 @@
         this.selectionMade = true;
         allExercisesWithinTopic.forEach(exercise => this.addExercise(exercise));
         this.createSnackbar({ text: `${this.$tr('added')} ${topicTitle}`, autoDismiss: true });
-        this.setDummyChannelId(topicId);
+        if (!this.dummyChannelId) {
+          this.setDummyChannelId(topicId);
+        }
       },
       handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
         allExercisesWithinTopic.forEach(exercise => this.removeExercise(exercise));
@@ -415,20 +407,16 @@
           this.focusOnInvalidField();
         } else {
           this.submitting = true;
-          const classCollection = {
-            id: this.classId,
-            name: this.className,
-            kind: CollectionKinds.CLASSROOM,
-          };
-          const examObj = {
-            classId: this.classId,
+          const exam = {
+            collection: this.classId,
+            channel_id: this.dummyChannelId,
             title: this.inputTitle,
-            numQuestions: this.inputNumQuestions,
-            questionSources: this.questionSources,
+            question_count: this.inputNumQuestions,
+            question_sources: this.questionSources,
             seed: this.seed,
-            channelId: this.dummyChannelId,
+            assignments: [{ collection: this.classId }],
           };
-          this.createExam(classCollection, examObj);
+          this.createExamAndRoute(exam);
         }
       },
       focusOnInvalidField() {
@@ -464,12 +452,11 @@
         exercises: state => state.pageState.exercises,
         selectedExercises: state => state.pageState.selectedExercises,
         examsModalSet: state => state.pageState.examsModalSet,
-        exams: state => state.pageState.exams,
       },
       actions: {
         goToTopic,
         goToTopLevel,
-        createExam,
+        createExamAndRoute,
         addExercise,
         removeExercise,
         setExamsModal,

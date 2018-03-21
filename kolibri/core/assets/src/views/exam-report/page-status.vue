@@ -93,7 +93,6 @@
   @require '~kolibri.styles.definitions'
 
   .page-status
-    background-color: $core-bg-light
     height: 130px
 
   .user-name-container

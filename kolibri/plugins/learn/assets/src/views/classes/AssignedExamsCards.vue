@@ -13,7 +13,7 @@
       class="content-card"
       v-for="exam in exams"
       :key="exam.id"
-      :link="examViewerLink(exam.id)"
+      :link="genExamLink(exam)"
       :showContentIcon="false"
       :title="exam.title"
       :subtitle="genExamSubtitle(exam) "
@@ -30,7 +30,7 @@
 
   import ContentCard from '../content-card';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { examViewerLink } from './classPageLinks';
+  import { examViewerLink, examReportViewerLink } from './classPageLinks';
 
   export default {
     name: 'assignedExamsCards',
@@ -65,7 +65,7 @@
           return 1;
         }
         if (this.examStartedNotCompleted(exam)) {
-          return exam.progress.score / exam.question_count;
+          return exam.progress.answer_count / exam.question_count;
         }
         return 0;
       },
@@ -81,7 +81,12 @@
         }
         return null;
       },
-      examViewerLink,
+      genExamLink(exam) {
+        if (exam.active && !exam.progress.closed) {
+          return examViewerLink(exam.id);
+        }
+        return examReportViewerLink(exam.id);
+      },
     },
     $trs: {
       examsHeader: 'Exams',
