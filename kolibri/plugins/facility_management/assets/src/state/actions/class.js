@@ -159,11 +159,11 @@ export function showClassEditPage(store, classId) {
    * This mostly duplicates _userState but searches Roles array for an exact match
    * on the classId, and not for any Role object.
    */
-  function _userStateForClassEditPage(facilityId, classId, apiUserData) {
+  function _userStateForClassEditPage(apiUserData) {
     const matchingRole = apiUserData.roles.find(
       r =>
         String(r.collection) === String(classId) ||
-        String(r.collection) === String(facilityId) ||
+        String(r.collection) === String(currentFacilityId(store.state)) ||
         r.kind === UserKinds.ADMIN ||
         r.kind === UserKinds.SUPERUSER
     );
@@ -193,9 +193,7 @@ export function showClassEditPage(store, classId) {
     modalShown: false,
     currentClass: classroom,
     classes: classrooms,
-    classUsers: facilityUsers.map(
-      _userStateForClassEditPage.bind(null, currentFacilityId(store.state), classId)
-    ),
+    classLearners: facilityUsers.map(_userStateForClassEditPage),
   });
 
   ConditionalPromise.all(promises).only(

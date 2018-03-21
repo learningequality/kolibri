@@ -75,7 +75,7 @@
 
     <user-table
       :title="$tr('learnerTableTitle')"
-      :users="classUsers"
+      :users="classLearners"
       :emptyMessage="$tr('noLearnersInClassMessage')"
     >
       <template slot="action" slot-scope="userRow">
@@ -162,11 +162,11 @@
     },
     vuex: {
       getters: {
-        classUsers: state => state.pageState.classUsers,
+        classLearners: state => state.pageState.classLearners,
         classes: state => state.pageState.classes,
         currentClass: state => state.pageState.currentClass,
         modalShown: state => state.pageState.modalShown,
-        noUsersInClass: state => state.pageState.classUsers.length === 0,
+        noUsersInClass: state => state.pageState.classLearners.length === 0,
       },
       actions: {
         displayModal,
