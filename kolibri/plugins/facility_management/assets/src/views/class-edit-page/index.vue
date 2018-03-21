@@ -55,9 +55,7 @@
       v-if="modalShown===Modals.REMOVE_USER"
       @confirm="removalAction(currentClass.id, userToBeRemoved.id)"
       :classname="currentClass.name"
-      :classid="currentClass.id"
       :username="userToBeRemoved.username"
-      :userid="userToBeRemoved.id"
     />
 
     <user-table
