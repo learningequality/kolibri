@@ -3,7 +3,11 @@
   <div>
     <h1>{{ $tr('pageHeader', {className}) }}</h1>
     <p>{{ $tr('pageSubheader') }}</p>
-    <class-enroll-form @submit="enrollLearners" />
+    <class-enroll-form
+      @submit="enrollLearners"
+      :facilityUsers="facilityUsers"
+      :classUsers="classUsers"
+    />
   </div>
 
 </template>
@@ -32,6 +36,8 @@
     vuex: {
       getters: {
         className: state => state.pageState.class.name,
+        facilityUsers: state => state.pageState.facilityUsers,
+        classUsers: state => state.pageState.classUsers,
       },
       actions: {
         enrollLearnersInClass,

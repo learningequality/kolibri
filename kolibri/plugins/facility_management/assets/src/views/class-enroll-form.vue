@@ -108,6 +108,16 @@
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
     },
+    props: {
+      facilityUsers: {
+        type: Array,
+        required: true,
+      },
+      classUsers: {
+        type: Array,
+        required: true,
+      },
+    },
     data: () => ({
       filterInput: '',
       perPage: 10,
@@ -191,12 +201,6 @@
           return Math.abs(this.pageNum - page) <= maxOnEachSide + 1;
         }
         return Math.abs(this.pageNum - page) <= maxOnEachSide;
-      },
-    },
-    vuex: {
-      getters: {
-        facilityUsers: state => state.pageState.facilityUsers,
-        classUsers: state => state.pageState.classUsers,
       },
     },
   };
