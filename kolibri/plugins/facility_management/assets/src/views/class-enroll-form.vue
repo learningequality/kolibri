@@ -22,37 +22,37 @@
         :emptyMessage="emptyMessage"
       />
 
-      <div class="pagination-footer">
+      <nav>
         <span>
           {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
         </span>
-        <nav>
-          <ui-icon-button
-            type="primary"
-            :icon="isRtl? 'chevron_right' : 'chevron_left'"
-            :ariaLabel="$tr('previousResults')"
-            :disabled="pageNum === 1"
-            size="small"
-            @click="goToPage(pageNum - 1)"
-          />
-          <ui-icon-button
-            type="primary"
-            :icon="isRtl? 'chevron_left' : 'chevron_right'"
-            :ariaLabel="$tr('nextResults')"
-            :disabled="pageNum === numPages"
-            size="small"
-            @click="goToPage(pageNum + 1)"
-          />
-        </nav>
+        <ui-icon-button
+          type="primary"
+          :icon="isRtl? 'chevron_right' : 'chevron_left'"
+          :ariaLabel="$tr('previousResults')"
+          :disabled="pageNum === 1"
+          size="small"
+          @click="goToPage(pageNum - 1)"
+        />
+        <ui-icon-button
+          type="primary"
+          :icon="isRtl? 'chevron_left' : 'chevron_right'"
+          :ariaLabel="$tr('nextResults')"
+          :disabled="pageNum === numPages"
+          size="small"
+          @click="goToPage(pageNum + 1)"
+        />
+      </nav>
+
+      <div class="footer">
+        <k-button
+          :text="$tr('confirmSelectionButtonLabel')"
+          :primary="true"
+          type="submit"
+          :disabled="selectedUsers.length === 0"
+        />
       </div>
 
-      <!-- TODO align right -->
-      <k-button
-        :text="$tr('confirmSelectionButtonLabel')"
-        :primary="true"
-        type="submit"
-        :disabled="selectedUsers.length === 0"
-      />
     </form>
 
   </div>
@@ -212,13 +212,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  nav
-    display: inline-block
-
-  .actions-header
-    text-align: right
-
-  .pagination-footer
+  .actions-header, .footer, nav
     text-align: right
 
 </style>
