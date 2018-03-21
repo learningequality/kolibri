@@ -121,6 +121,7 @@
 
     <p>
       Icons and phrases that might not be globally understood should be avoided.
+      Also, beware of using terms like 'left' and 'right' in RTL languages.
     </p>
 
     <p>

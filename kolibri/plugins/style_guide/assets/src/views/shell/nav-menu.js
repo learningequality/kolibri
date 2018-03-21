@@ -1,7 +1,8 @@
 import sortBy from 'lodash/sortBy';
 import flatten from 'lodash/flatten';
 
-import materialPage from '../content/material';
+import home from '../content/_home';
+
 import inclusivePage from '../content/inclusive';
 import writingPage from '../content/writing';
 
@@ -13,8 +14,6 @@ import radioButtonsPage from '../content/radio-buttons';
 import textFieldsPage from '../content/text-fields';
 import filtersPage from '../content/filters';
 import dropdownMenusPage from '../content/dropdown-menus';
-
-import home from '../content/_home';
 
 function sortSectionItems(items) {
   return sortBy(items, [item => item.itemName]);
@@ -36,7 +35,7 @@ const navMenu = [
     sectionName: 'Patterns',
     sectionItems: [
       {
-        itemName: 'Design for inclusive',
+        itemName: 'Inclusive design',
         itemRoute: {
           path: `/patterns/inclusive`,
           component: inclusivePage,
@@ -47,13 +46,6 @@ const navMenu = [
         itemRoute: {
           path: `/patterns/writing`,
           component: writingPage,
-        },
-      },
-      {
-        itemName: 'Material design',
-        itemRoute: {
-          path: `/patterns/material`,
-          component: materialPage,
         },
       },
     ],

@@ -16,7 +16,9 @@
     </ul>
     <p>
       As a matter of practice, we should by default <em>always</em>
-      follow the guide.
+      follow the guide. Therefore, it's best to keep the guidance
+      in here as minimal as possible to give ourselves the flexibility
+      to deal with unexpected situations.
     </p>
     <h2>Exceptions to the rules</h2>
     <p>
@@ -33,12 +35,16 @@
       guide in order to improve the user experience, and this is OK.
       Deviations from the guide should be intentional and explicit.
     </p>
+    <h2>Changes to the guide</h2>
     <p>
-      If we notice that we are often deviating, or the guide does not
-      handle a common pattern, we should update the patterns or
-      components in the guide. These changes should be done
-      holistically, changing the guide and the affected parts of the
-      application in one pull request.
+      This is intended to be a <em>living</em> style guide. The guide should match
+      the <em>current state</em> of Kolibri, not what we aspire it to be.
+    </p>
+    <p>
+      If we notice that we are often deviating from some guidance, or that the guide
+      does not handle a common pattern, we should update the patterns or components
+      in the guide and the application simultaneously. In general, consistency is
+      preferred over piece-meal improvements.
     </p>
 
   </page-template>
