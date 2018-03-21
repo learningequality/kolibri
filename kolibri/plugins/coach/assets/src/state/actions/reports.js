@@ -125,11 +125,11 @@ function _channelReportState(data) {
 }
 
 function _showChannelList(store, classId, userId = null, showRecentOnly = false) {
-  const scope = userId ? UserScopes.USER : UserScopes.CLASSROOM;
-  const scopeId = userId || classId;
+  const userScope = userId ? UserScopes.USER : UserScopes.CLASSROOM;
+  const userScopeId = userId || classId;
 
   const promises = [
-    getAllChannelsLastActivePromise(getChannels(store.state), scope, scopeId),
+    getAllChannelsLastActivePromise(getChannels(store.state), userScope, userScopeId),
     setClassState(store, classId),
   ];
 
@@ -141,11 +141,11 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
     const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
     setReportSorting(store, defaultSortCol, SortOrders.DESCENDING);
     store.dispatch('SET_REPORT_PROPERTIES', {
-      userScope: scope,
-      userScopeId: scopeId,
+      showRecentOnly,
+      userScope,
+      userScopeId,
       userScopeName: userId ? user.full_name : className(store.state),
       viewBy: ViewBy.CHANNEL,
-      showRecentOnly,
     });
     store.dispatch('SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
     store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -327,11 +327,11 @@ function _showClassLearnerList(store, options) {
         channelId: options.channelId,
         contentScope: contentScope,
         contentScopeId: options.contentScopeId,
+        showRecentOnly: options.showRecentOnly,
         userScope: userScope,
         userScopeId: options.userScopeId,
         userScopeName: className(store.state),
         viewBy: ViewBy.LEARNER,
-        showRecentOnly: options.showRecentOnly,
       });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
@@ -437,11 +437,11 @@ export function showRecentItemsForChannel(store, classId, channelId) {
           store.dispatch('SET_REPORT_TABLE_DATA', _recentReportState(reports));
           store.dispatch('SET_REPORT_PROPERTIES', {
             channelId,
+            showRecentOnly: true,
             userScope: UserScopes.CLASSROOM,
             userScopeId: classId,
             userScopeName: className(store.state),
             viewBy: ViewBy.RECENT,
-            showRecentOnly: true,
           });
           setReportSorting(store, TableColumns.DATE, SortOrders.DESCENDING);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -538,11 +538,11 @@ export function showLearnerList(store, classId) {
       store.dispatch('SET_REPORT_CONTENT_SUMMARY', {});
       store.dispatch('SET_REPORT_PROPERTIES', {
         contentScope: ContentScopes.ALL,
+        showRecentOnly: false,
         userScope: UserScopes.CLASSROOM,
         userScopeId: classId,
         userScopeName: className(store.state),
         viewBy: ViewBy.LEARNER,
-        showRecentOnly: false,
       });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
@@ -593,11 +593,9 @@ export function showChannelRootReport(store, classId, channelId, userId) {
 }
 
 export function showItemListReports(store, classId, channelId, topicId, userId) {
-  clearReportSorting(store);
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
   let scopeOptions;
   let pageName;
-
+  clearReportSorting(store);
   // For single Learner
   if (userId) {
     pageName = PageNames.LEARNER_ITEM_LIST;
