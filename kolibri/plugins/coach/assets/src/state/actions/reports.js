@@ -455,29 +455,6 @@ export function showRecentItemsForChannel(store, classId, channelId) {
   );
 }
 
-export function showRecentLearnerItemDetails(
-  store,
-  classId,
-  userId,
-  channelId,
-  contentId,
-  questionNumber,
-  interactionIndex
-) {
-  if (store.state.pageName !== PageNames.RECENT_LEARNER_ITEM_DETAILS) {
-    preparePageNameAndTitle(store, PageNames.RECENT_LEARNER_ITEM_DETAILS);
-  }
-  showExerciseDetailView(
-    store,
-    classId,
-    userId,
-    channelId,
-    contentId,
-    questionNumber,
-    interactionIndex
-  );
-}
-
 export function showChannelListForReports(store, classId, showRecentOnly) {
   clearReportSorting(store);
   const pageName = showRecentOnly ? PageNames.RECENT_CHANNELS : PageNames.TOPIC_CHANNELS;
@@ -498,29 +475,6 @@ export function showLearnerReportsForItem(store, classId, channelId, contentId, 
     userScopeId: classId,
     showRecentOnly,
   });
-}
-
-export function showTopicLearnerItemDetails(
-  store,
-  classId,
-  userId,
-  channelId,
-  contentId,
-  questionNumber,
-  interactionIndex
-) {
-  if (store.state.pageName !== PageNames.TOPIC_LEARNER_ITEM_DETAILS) {
-    preparePageNameAndTitle(store, PageNames.TOPIC_LEARNER_ITEM_DETAILS);
-  }
-  showExerciseDetailView(
-    store,
-    classId,
-    userId,
-    channelId,
-    contentId,
-    questionNumber,
-    interactionIndex
-  );
 }
 
 export function showLearnerList(store, classId) {
@@ -575,6 +529,7 @@ export function showChannelRootReport(store, classId, channelId, userId) {
     };
   }
   preparePageNameAndTitle(store, pageName);
+  // NOTE: Almost exactly the same as showItemListReports, except for this API call
   return ChannelResource.getModel(channelId)
     .fetch()
     .then(
@@ -622,25 +577,23 @@ export function showItemListReports(store, classId, channelId, topicId, userId) 
   });
 }
 
-export function showLearnerItemDetails(
-  store,
-  classId,
-  userId,
-  channelId,
-  contentId,
-  questionNumber,
-  interactionIndex
-) {
-  if (store.state.pageName !== PageNames.LEARNER_ITEM_DETAILS) {
-    preparePageNameAndTitle(store, PageNames.LEARNER_ITEM_DETAILS);
+// Consolidates the duplicated logic for the item detail pages
+function _showItemDetailPage(pageName, ...args) {
+  const store = args[0];
+  if (store.state.pageName !== pageName) {
+    preparePageNameAndTitle(store, pageName);
   }
-  showExerciseDetailView(
-    store,
-    classId,
-    userId,
-    channelId,
-    contentId,
-    questionNumber,
-    interactionIndex
-  );
+  showExerciseDetailView(...args);
+}
+
+export function showLearnerItemDetails(...args) {
+  _showItemDetailPage(PageNames.LEARNER_ITEM_DETAILS, ...args);
+}
+
+export function showRecentLearnerItemDetails(...args) {
+  _showItemDetailPage(PageNames.RECENT_LEARNER_ITEM_DETAILS, ...args);
+}
+
+export function showTopicLearnerItemDetails(...args) {
+  _showItemDetailPage(PageNames.TOPIC_LEARNER_ITEM_DETAILS, ...args);
 }
