@@ -14,7 +14,6 @@
         <k-textbox
           ref="name"
           type="text"
-          class="user-field"
           :label="$tr('name')"
           :autofocus="true"
           :maxlength="120"
@@ -26,7 +25,6 @@
         <k-textbox
           ref="username"
           type="text"
-          class="user-field"
           :label="$tr('username')"
           :maxlength="30"
           :invalid="usernameIsInvalid"
@@ -37,7 +35,6 @@
         <k-textbox
           ref="password"
           type="password"
-          class="user-field"
           :label="$tr('password')"
           :invalid="passwordIsInvalid"
           :invalidText="passwordIsInvalidText"
@@ -47,7 +44,6 @@
         <k-textbox
           ref="confirmedPassword"
           type="password"
-          class="user-field"
           :label="$tr('reEnterPassword')"
           :invalid="confirmedPasswordIsInvalid"
           :invalidText="confirmedPasswordIsInvalidText"
@@ -59,10 +55,9 @@
           :label="$tr('userType')"
           :options="userKindDropdownOptions"
           v-model="kind"
-          class="kind-select"
         />
 
-        <fieldset v-if="coachIsSelected">
+        <fieldset class="coach-selector" v-if="coachIsSelected">
           <label>
             <k-radio-button
               :label="$tr('classCoachLabel')"
@@ -324,7 +319,10 @@
 
 <style lang="stylus" scoped>
 
-  .kind-select
+  .coach-selector
     margin-bottom: 3em
+    margin: 0
+    padding: 0
+    border: none
 
 </style>
