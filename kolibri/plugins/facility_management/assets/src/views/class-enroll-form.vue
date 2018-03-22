@@ -63,11 +63,11 @@
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
+  import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
 
   export default {
     name: 'managementClassEnroll',
@@ -123,22 +123,11 @@
         return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
       },
       filteredUsers() {
-        const users = this.usersNotInClass;
-        return users.filter(user => {
-          const searchTerms = this.filterInput
-            .split(' ')
-            .filter(Boolean)
-            .map(term => term.toLowerCase());
-          const fullName = user.full_name.toLowerCase();
-          const username = user.username.toLowerCase();
-          return searchTerms.every(term => fullName.includes(term) || username.includes(term));
-        });
+        return this.usersNotInClass.filter(user => userMatchesFilter(user, this.filterInput));
       },
       sortedFilteredUsers() {
-        return orderBy(
-          this.filteredUsers,
-          [user => user.username.toUpperCase(), user => user.full_name.toUpperCase()],
-          ['asc', 'asc']
+        return filterAndSortUsers(this.usersNotInClass, user =>
+          userMatchesFilter(user, this.filterInput)
         );
       },
       numFilteredUsers() {
@@ -172,7 +161,7 @@
         if (this.usersNotInClass.length === 0) {
           return this.$tr('allUsersAlready');
         }
-        if (this.filteredUsers.length === 0 && this.filterInput !== '') {
+        if (this.sortedFilteredUsers.length === 0 && this.filterInput !== '') {
           // TODO internationalize this
           return `${this.$tr('noUsersMatch')}: '${this.filterInput}'`;
         }
