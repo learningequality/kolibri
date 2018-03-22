@@ -130,8 +130,7 @@
       visibleUsers() {
         return filterAndSortUsers(
           this.facilityUsers,
-          user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user),
-          'full_name'
+          user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user)
         );
       },
       emptyMessage() {
