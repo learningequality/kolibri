@@ -352,6 +352,7 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_TITLE', contentNode.title);
         store.dispatch('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
+        return contentNode;
       },
       error => {
         return handleApiError(store, error);
