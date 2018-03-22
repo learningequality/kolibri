@@ -405,6 +405,13 @@ export function calcQuestionsAnswered(attemptLogs) {
   return questionsAnswered;
 }
 
+function _canViewExam(active, closed) {
+  return active && !closed;
+}
+function _canViewExamReport(active, closed) {
+  return !_canViewExam(active, closed);
+}
+
 export function showExamReport(store, classId, examId, questionNumber, questionInteraction) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_REPORT_VIEWER);
@@ -419,15 +426,22 @@ export function showExamReport(store, classId, examId, questionNumber, questionI
   );
   ConditionalPromise.all([examReportPromise]).then(
     ([examReport]) => {
-      store.dispatch('SET_PAGE_STATE', examReport);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch(
-        'CORE_SET_TITLE',
-        translator.$tr('examReportTitle', {
-          examTitle: examReport.exam.title,
-        })
-      );
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      if (_canViewExamReport(examReport.exam.active, examReport.examLog.closed)) {
+        store.dispatch('SET_PAGE_STATE', examReport);
+        store.dispatch('CORE_SET_ERROR', null);
+        store.dispatch(
+          'CORE_SET_TITLE',
+          translator.$tr('examReportTitle', {
+            examTitle: examReport.exam.title,
+          })
+        );
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      } else {
+        router.replace({
+          name: ClassesPageNames.CLASS_ASSIGNMENTS,
+          params: { classId },
+        });
+      }
     },
     () =>
       router.replace({
@@ -457,7 +471,7 @@ export function showExam(store, examId, questionNumber) {
     ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttemptLogs]) => {
-        if (exam.closed) {
+        if (!_canViewExam(exam.active, exam.closed)) {
           return router.getInstance().replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
         }
 
