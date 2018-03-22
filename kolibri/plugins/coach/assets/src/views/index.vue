@@ -153,9 +153,6 @@
           if (resourceUserPages.includes(this.pageName)) {
             return this.$tr('resourceUserPageToolbarHeader');
           }
-          if (resourceUserPages.includes(this.pageName)) {
-            return this.$tr('resourceUserPageToolbarHeader');
-          }
         }
         return this.$tr('coachToolbarHeader');
       },
