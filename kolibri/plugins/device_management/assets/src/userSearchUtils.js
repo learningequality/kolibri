@@ -8,5 +8,9 @@ export function userMatchesFilter(user, searchFilter) {
 }
 
 export function filterAndSortUsers(users, pred) {
-  return orderBy(users.filter(pred), [user => user.username.toUpperCase()], ['asc']);
+  return orderBy(
+    users.filter(pred),
+    [user => user.username.toUpperCase(), user => user.full_name.toUpperCase()],
+    ['asc', 'asc']
+  );
 }
