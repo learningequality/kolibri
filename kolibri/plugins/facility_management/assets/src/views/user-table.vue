@@ -2,9 +2,13 @@
 
   <div>
     <core-table class="user-table">
-      <caption class="title">
+      <caption v-if="title" class="title">
         {{ title }}
       </caption>
+      <caption v-else class="visuallyhidden">
+        {{ $tr('users') }}
+      </caption>
+
 
       <thead slot="thead">
         <tr>
@@ -92,7 +96,6 @@
       },
       title: {
         type: String,
-        required: true,
       },
       emptyMessage: {
         type: String,
