@@ -77,7 +77,7 @@
         </p>
         <div class="core-modal-buttons">
           <k-button
-            :text="$tr('goBack')"
+            :text="$tr('cancel')"
             appearance="flat-button"
             @click="toggleModal"
           />
@@ -117,7 +117,7 @@
         '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
       previousQuestion: 'Previous question',
       nextQuestion: 'Next question',
-      goBack: 'Go back',
+      cancel: 'Cancel',
       areYouSure: 'Are you sure you want to submit your exam?',
       unanswered:
         'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
