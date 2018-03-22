@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <form @submit.prevent="$emit('submit', selectedUsers)">
     <div class="actions-header">
       <k-filter-textbox
         :placeholder="$tr('searchForUser')"
@@ -9,51 +9,48 @@
       />
     </div>
 
-    <form @submit.prevent="$emit('submit', selectedUsers)">
-      <user-table
-        v-model="selectedUsers"
-        :users="visibleFilteredUsers"
-        :title="$tr('userTableLabel')"
-        :selectable="true"
-        :selectAllLabel="$tr('selectAllOnPage')"
-        :userCheckboxLabel="$tr('selectUser')"
-        :emptyMessage="emptyMessage"
+    <user-table
+      v-model="selectedUsers"
+      :users="visibleFilteredUsers"
+      :title="$tr('userTableLabel')"
+      :selectable="true"
+      :selectAllLabel="$tr('selectAllOnPage')"
+      :userCheckboxLabel="$tr('selectUser')"
+      :emptyMessage="emptyMessage"
+    />
+
+    <nav>
+      <span>
+        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
+      </span>
+      <ui-icon-button
+        type="primary"
+        :icon="isRtl? 'chevron_right' : 'chevron_left'"
+        :ariaLabel="$tr('previousResults')"
+        :disabled="pageNum === 1"
+        size="small"
+        @click="goToPage(pageNum - 1)"
       />
+      <ui-icon-button
+        type="primary"
+        :icon="isRtl? 'chevron_left' : 'chevron_right'"
+        :ariaLabel="$tr('nextResults')"
+        :disabled="pageNum === numPages"
+        size="small"
+        @click="goToPage(pageNum + 1)"
+      />
+    </nav>
 
-      <nav>
-        <span>
-          {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
-        </span>
-        <ui-icon-button
-          type="primary"
-          :icon="isRtl? 'chevron_right' : 'chevron_left'"
-          :ariaLabel="$tr('previousResults')"
-          :disabled="pageNum === 1"
-          size="small"
-          @click="goToPage(pageNum - 1)"
-        />
-        <ui-icon-button
-          type="primary"
-          :icon="isRtl? 'chevron_left' : 'chevron_right'"
-          :ariaLabel="$tr('nextResults')"
-          :disabled="pageNum === numPages"
-          size="small"
-          @click="goToPage(pageNum + 1)"
-        />
-      </nav>
+    <div class="footer">
+      <k-button
+        :text="$tr('confirmSelectionButtonLabel')"
+        :primary="true"
+        type="submit"
+        :disabled="selectedUsers.length === 0"
+      />
+    </div>
 
-      <div class="footer">
-        <k-button
-          :text="$tr('confirmSelectionButtonLabel')"
-          :primary="true"
-          type="submit"
-          :disabled="selectedUsers.length === 0"
-        />
-      </div>
-
-    </form>
-
-  </div>
+  </form>
 
 </template>
 
