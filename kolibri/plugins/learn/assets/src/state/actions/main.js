@@ -649,7 +649,10 @@ export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, curren
         // Add this attempt log to the Collection for future caching.
         examAttemptLogCollection.set(examAttemptLogModel);
         resolve();
-      })
+      }),
+    () => {
+      this.$router.replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
+    }
   );
 }
 
