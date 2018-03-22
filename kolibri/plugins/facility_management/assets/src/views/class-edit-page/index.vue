@@ -4,6 +4,7 @@
 
     <!-- TODO use grid -->
 
+    <!-- TODO use an icon button for click rather than a div. Accessibility -->
     <div
       id="name-edit-box"
       @click="displayModal(Modals.EDIT_CLASS_NAME)"
@@ -101,8 +102,8 @@
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    // QUESTION update component name?
-    name: 'classEnrollForm',
+    // TODO update component name after string freeze
+    name: 'classEnrollPage',
     $trs: {
       enrollLearnerButtonLabel: 'Enroll learners',
       assignCoachesButtonLabel: 'Assign coaches',

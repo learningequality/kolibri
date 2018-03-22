@@ -1,9 +1,7 @@
 <template>
 
   <div>
-    <!-- TODO convert to template for reusability w/in respective pages -->
     <div class="actions-header">
-      <!-- TODO align right -->
       <k-filter-textbox
         :placeholder="$tr('searchForUser')"
         v-model.trim="filterInput"
@@ -64,7 +62,6 @@
 
   import { Modals } from './../constants';
   import differenceWith from 'lodash/differenceWith';
-  // TODO move to higher level directory after string freeze
   import userTable from './user-table';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
