@@ -1,6 +1,5 @@
 <template>
 
-  <!-- TODO MOVE THIS COMPONENT OUT AFTER STRINGFREEZE -->
   <div>
     <core-table class="user-table">
       <caption class="title">
@@ -75,7 +74,7 @@
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import userRole from '../user-role';
+  import userRole from './user-role';
   import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {

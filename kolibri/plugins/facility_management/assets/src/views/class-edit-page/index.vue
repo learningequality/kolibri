@@ -91,7 +91,7 @@
 
 <script>
 
-  import userTable from './user-table';
+  import userTable from '../user-table';
   import { PageNames, Modals } from '../../constants';
   import { removeClassLearner, removeClassCoach } from '../../state/actions/class';
   import { displayModal } from '../../state/actions';

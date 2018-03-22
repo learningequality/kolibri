@@ -65,7 +65,7 @@
   import { Modals } from './../constants';
   import differenceWith from 'lodash/differenceWith';
   // TODO move to higher level directory after string freeze
-  import userTable from './class-edit-page/user-table';
+  import userTable from './user-table';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
