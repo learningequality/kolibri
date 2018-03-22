@@ -31,50 +31,20 @@
       />
     </div>
 
-    <core-table>
-      <caption class="visuallyhidden">{{ $tr('users') }}</caption>
-
-      <thead slot="thead" v-if="usersMatchFilter">
-        <tr>
-          <th class="core-table-icon-col"></th>
-          <th>{{ $tr('fullName') }}</th>
-          <th>
-            <span class="visuallyhidden">{{ $tr('role') }}</span>
-          </th>
-          <th>{{ $tr('username') }}</th>
-          <th>
-            <span class="visuallyhidden">{{ $tr('userActions') }}</span>
-          </th>
-        </tr>
-      </thead>
-
-      <tbody v-if="usersMatchFilter">
-        <tr v-for="user in visibleUsers" :key="user.id">
-          <td class="core-table-icon-col">
-            <ui-icon icon="person" />
-          </td>
-          <td class="core-table-main-col">{{ user.full_name }}</td>
-          <td>
-            <user-role :role="user.kind" :omitLearner="true" />
-          </td>
-          <td>{{ user.username }}</td>
-          <td>
-            <k-dropdown-menu
-              :text="$tr('manage')"
-              :options="manageUserOptions(user.id)"
-              :disabled="!userCanBeEdited(user)"
-              appearance="flat-button"
-              @select="handleManageUserSelection($event, user)"
-            />
-          </td>
-        </tr>
-      </tbody>
-
-    </core-table>
-
-    <p v-if="noUsersExist">{{ $tr('noUsersExist') }}</p>
-    <p v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</p>
-
+    <user-table
+      :users="visibleUsers"
+      :emptyMessage="emptyMessage"
+    >
+      <template slot="action" slot-scope="userRow">
+        <k-dropdown-menu
+          :text="$tr('manage')"
+          :options="manageUserOptions(userRow.user.id)"
+          :disabled="!userCanBeEdited(userRow.user)"
+          appearance="flat-button"
+          @select="handleManageUserSelection($event, userRow.user)"
+        />
+      </template>
+    </user-table>
 
     <!-- Modals -->
     <user-create-modal v-if="modalShown===Modals.CREATE_USER" />
@@ -108,7 +78,7 @@
 
 <script>
 
-  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import userTable from '../user-table';
   import UiIcon from 'keen-ui/src/UiIcon';
   import { Modals } from '../../constants';
   import { displayModal } from '../../state/actions';
@@ -139,7 +109,7 @@
       kDropdownMenu,
       userRole,
       kSelect,
-      coreTable,
+      userTable,
       UiIcon,
     },
     data: () => ({
@@ -157,21 +127,20 @@
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
         ];
       },
-      noUsersExist() {
-        return this.facilityUsers.length === 0;
-      },
-      allUsersFilteredOut() {
-        return !this.noUsersExist && this.visibleUsers.length === 0;
-      },
-      usersMatchFilter() {
-        return !this.noUsersExist && !this.allUsersFilteredOut;
-      },
       visibleUsers() {
         return filterAndSortUsers(
           this.facilityUsers,
           user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user),
           'full_name'
         );
+      },
+      emptyMessage() {
+        if (this.facilityUsers.length === 0) {
+          return this.$tr('noUsersExist');
+        } else if (this.visibleUsers.length === 0) {
+          return this.$tr('allUsersFilteredOut');
+        }
+        return '';
       },
     },
     beforeMount() {
