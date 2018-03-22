@@ -80,7 +80,7 @@
     $trs: {
       lastActive: 'Last active',
       lastActiveText: '{0, date, medium}',
-      na: '-',
+      na: '–',
       exerciseCountText:
         '{count, number, integer} {count, plural, one {exercise} other {exercises}}',
       contentCountText:

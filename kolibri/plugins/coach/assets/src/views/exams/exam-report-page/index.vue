@@ -213,7 +213,7 @@
     },
     $trs: {
       averageScore: 'Average score: {num, number, percent}',
-      noAverageScore: 'Average score: -',
+      noAverageScore: 'Average score: –',
       examReport: 'Exam report',
       completed: 'Completed',
       remaining: '{ num, number } {num, plural, one {question} other {questions}} remaining',
