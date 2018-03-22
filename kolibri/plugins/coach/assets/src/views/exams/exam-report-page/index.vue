@@ -33,14 +33,10 @@
         :key="i"
       >
         <h3>
-          {{ viewByGroups ? reportGrouping[0].group.name : $tr('allLearners') }}
+          {{ viewByGroups ? reportGrouping[0].group.name || $tr('ungrouped') : $tr('allLearners') }}
         </h3>
         <p class="average-score">
-          {{
-            getAverageScore(reportGrouping) ?
-              $tr('averageScore', { num: getAverageScore(reportGrouping) }) :
-              $tr('noAverageScore')
-          }}
+          {{ $tr('averageScore', { num: getAverageScore(reportGrouping) }) }}
         </p>
 
         <core-table>
@@ -112,6 +108,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { PageNames } from '../../../constants';
   import sumBy from 'lodash/sumBy';
+  import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import { USER, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
@@ -148,6 +145,12 @@
           reportGroupings = this.learnerGroups.map(group =>
             this.examTakers.filter(learner => learner.group.id === group.id)
           );
+          reportGroupings = orderBy(
+            reportGroupings,
+            [grouping => grouping[0].group.name.toUpperCase()],
+            ['asc']
+          );
+          reportGroupings.push(this.examTakers.filter(learner => !learner.group.id));
         } else {
           reportGroupings = [this.examTakers];
         }
@@ -197,7 +200,7 @@
       getAverageScore(learners) {
         const examsInProgress = learners.filter(learner => learner.progress !== undefined);
         const totalScores = sumBy(examsInProgress, 'score');
-        return totalScores / examsInProgress.length / this.exam.question_count;
+        return totalScores / examsInProgress.length / this.exam.question_count || 0;
       },
     },
     vuex: {
@@ -213,7 +216,6 @@
     },
     $trs: {
       averageScore: 'Average score: {num, number, percent}',
-      noAverageScore: 'Average score: –',
       examReport: 'Exam report',
       completed: 'Completed',
       remaining: '{ num, number } {num, plural, one {question} other {questions}} remaining',
@@ -229,11 +231,10 @@
       editDetails: 'Edit details',
       copyTo: 'Copy to',
       delete: 'Delete',
-
-      // TODO
       viewByGroups: 'View by groups',
       allLearners: 'All learners',
       started: 'Started',
+      ungrouped: 'Ungrouped',
     },
   };
 
