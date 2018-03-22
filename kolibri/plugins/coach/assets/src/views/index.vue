@@ -15,7 +15,6 @@
         <nav-title
           class="nav-title"
           :className="className"
-          :username="usernameForCurrentScope"
           :classCoaches="classCoaches"
         />
       </template>
@@ -32,7 +31,6 @@
 <script>
 
   import { PageNames } from '../constants';
-  import { UserScopes } from '../constants/reportConstants';
   import { className, classCoaches } from '../state/getters/classes';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
@@ -184,12 +182,6 @@
         }
         return true;
       },
-      usernameForCurrentScope() {
-        if (this.pageState.userScope === UserScopes.USER) {
-          return this.pageState.userScopeName;
-        }
-        return null;
-      },
     },
     vuex: {
       getters: {
@@ -203,7 +195,6 @@
         classList: state => state.classList,
         classId: state => state.classId,
         isLoading: state => state.core.loading,
-        pageState: state => state.pageState,
       },
     },
   };

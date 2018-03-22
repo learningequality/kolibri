@@ -1,21 +1,17 @@
 <template>
 
   <div>
-    <h1>
-      <template v-if="username">
-        {{ username }}
-      </template>
-      <template v-else-if="className">
+    <h2>
+      <template v-if="className">
         {{ className }}
       </template>
       <template v-else>
         {{ $tr('coachPageHeader') }}
       </template>
-    </h1>
+    </h2>
 
-    <!-- HACK: infer whether coaches should appear based on whether in a page for a user -->
-    <div v-if="classCoaches.length && !username">
-      {{ $tr('coachListLabel') }}
+    <div v-if="classCoaches.length">
+      <span>{{ $tr('coachListLabel') }}</span>
       <ul>
         <li
           v-for="(coach, idx) in classCoaches"
@@ -40,10 +36,6 @@
     },
     props: {
       className: {
-        type: String,
-        default: null,
-      },
-      username: {
         type: String,
         default: null,
       },
