@@ -2,13 +2,13 @@ from collections import OrderedDict
 
 from django.db.models import Sum
 from rest_framework import serializers
+from rest_framework.serializers import SerializerMethodField
 
 from kolibri.auth.models import Collection
 from kolibri.auth.models import FacilityUser
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.logger.models import ExamLog
-from rest_framework.serializers import SerializerMethodField
 
 
 class NestedCollectionSerializer(serializers.ModelSerializer):
@@ -33,17 +33,13 @@ class NestedExamAssignmentSerializer(serializers.ModelSerializer):
 class ExamAssignmentCreationSerializer(serializers.ModelSerializer):
     assigned_by = serializers.PrimaryKeyRelatedField(read_only=False, queryset=FacilityUser.objects.all())
     collection = serializers.PrimaryKeyRelatedField(read_only=False, queryset=Collection.objects.all())
-    collection_kind = SerializerMethodField()
 
     class Meta:
         model = ExamAssignment
         fields = (
-            'id', 'exam', 'collection', 'assigned_by', 'collection_kind',
+            'id', 'exam', 'collection', 'assigned_by',
         )
-        read_only_fields = ('assigned_by', 'exam', 'collection_kind')
-
-    def get_collection_kind(self, instance):
-        return instance.collection.kind
+        read_only_fields = ('assigned_by',)
 
     def to_internal_value(self, data):
         # Make a new OrderedDict from the input, which could be an immutable QueryDict
@@ -56,18 +52,30 @@ class ExamAssignmentRetrieveSerializer(serializers.ModelSerializer):
 
     assigned_by = serializers.PrimaryKeyRelatedField(read_only=True)
     collection = NestedCollectionSerializer(read_only=True)
+    collection_kind = SerializerMethodField()
+
+    def get_collection_kind(self, instance):
+        return instance.collection.kind
 
     class Meta:
         model = ExamAssignment
         fields = (
-            'id', 'exam', 'collection', 'assigned_by',
+            'id', 'exam', 'collection', 'assigned_by', 'collection_kind',
         )
-        read_only_fields = ('assigned_by', 'collection', )
+        read_only_fields = ('assigned_by', 'collection', 'collection_kind', )
+
+
+class ExamAssignmentNestedSerializer(ExamAssignmentRetrieveSerializer):
+
+    collection = serializers.PrimaryKeyRelatedField(read_only=False, queryset=Collection.objects.all())
+
+    class Meta(ExamAssignmentRetrieveSerializer.Meta):
+        read_only_fields = ('assigned_by', 'collection_kind', 'exam', )
 
 
 class ExamSerializer(serializers.ModelSerializer):
 
-    assignments = ExamAssignmentCreationSerializer(many=True)
+    assignments = ExamAssignmentNestedSerializer(many=True)
     question_sources = serializers.JSONField(default='[]')
     creator = serializers.PrimaryKeyRelatedField(read_only=False, queryset=FacilityUser.objects.all())
 
@@ -114,21 +122,18 @@ class ExamSerializer(serializers.ModelSerializer):
         # Add/delete any new/removed Assignments
         if 'assignments' in validated_data:
             assignees = validated_data.pop('assignments')
-            current_assignments = (instance.assignments).all()
-            current_group_ids = [x.collection.id for x in list(current_assignments)]
-            new_group_ids = [x['collection'].id for x in list(assignees)]
+            current_group_ids = set(instance.assignments.values_list('collection__id', flat=True))
+            new_group_ids = set(x['collection'].id for x in assignees)
 
-            ids_to_add = set(new_group_ids) - set(current_group_ids)
-            for id in ids_to_add:
+            for id in new_group_ids - current_group_ids:
                 self._create_exam_assignment(
                     exam=instance,
                     collection=Collection.objects.get(id=id)
                 )
 
-            ids_to_delete = set(current_group_ids) - set(new_group_ids)
             ExamAssignment.objects.filter(
                 exam_id=instance.id,
-                collection_id__in=ids_to_delete
+                collection_id__in=(current_group_ids - new_group_ids)
             ).delete()
 
         instance.save()
