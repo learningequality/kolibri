@@ -95,18 +95,17 @@ const fakeExamState = [
     questionCount: 100,
     questionSources: '',
     seed: 1234,
-    visibility: {
-      class: {
-        assignmentId: 'assignmentA',
+    assignments: [
+      {
+        id: 'assignmentA',
+        exam: '1',
         collection: {
           id: 'class_1',
           kind: 'classroom',
           name: 'class_1',
         },
-        examId: '1',
       },
-      groups: [],
-    },
+    ],
   },
   {
     id: '2',
@@ -118,29 +117,26 @@ const fakeExamState = [
     questionCount: 10,
     questionSources: '',
     seed: 4321,
-    visibility: {
-      class: undefined,
-      groups: [
-        {
-          assignmentId: 'assignmentB',
-          collection: {
-            id: 'group_1',
-            kind: 'learnergroup',
-            name: 'group_1',
-          },
-          examId: '2',
+    assignments: [
+      {
+        id: 'assignmentB',
+        exam: '2',
+        collection: {
+          id: 'group_1',
+          kind: 'learnergroup',
+          name: 'group_1',
         },
-        {
-          assignmentId: 'assignmentC',
-          collection: {
-            id: 'group_2',
-            kind: 'learnergroup',
-            name: 'group_2',
-          },
-          examId: '2',
+      },
+      {
+        id: 'assignmentC',
+        exam: '2',
+        collection: {
+          id: 'group_2',
+          kind: 'learnergroup',
+          name: 'group_2',
         },
-      ],
-    },
+      },
+    ],
   },
 ];
 
