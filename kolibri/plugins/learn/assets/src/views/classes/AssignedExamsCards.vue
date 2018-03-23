@@ -51,6 +51,12 @@
       EXAM: () => ContentNodeKinds.EXAM,
     },
     methods: {
+      canViewExam(exam) {
+        return exam.active && !exam.progress.closed;
+      },
+      canViewExamReport(exam) {
+        return !this.canViewExam(exam);
+      },
       examStarted(exam) {
         return exam.progress.answer_count > 0;
       },
@@ -59,15 +65,6 @@
       },
       examStartedNotSubmitted(exam) {
         return this.examStarted(exam) && !this.examSubmitted(exam);
-      },
-      examCompleted(exam) {
-        return exam.answer_count === exam.progress.question_count;
-      },
-      examNotStartedNotSubmitted(exam) {
-        return !this.examStarted(exam) && !this.examSubmitted(exam);
-      },
-      examCompletedNotSubmitted(exam) {
-        return this.examCompleted(exam) && !this.examSubmitted(exam);
       },
       getExamProgress(exam) {
         if (this.examSubmitted(exam)) {
@@ -91,12 +88,7 @@
         }
       },
       genExamLink(exam) {
-        if (
-          exam.active &&
-          (this.examNotStartedNotSubmitted(exam) ||
-            this.examStartedNotSubmitted(exam) ||
-            this.examCompletedNotSubmitted(exam))
-        ) {
+        if (this.canViewExam(exam)) {
           return examViewerLink(exam.id);
         }
         return examReportViewerLink(exam.id);
