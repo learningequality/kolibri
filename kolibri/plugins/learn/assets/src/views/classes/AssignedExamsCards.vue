@@ -31,7 +31,7 @@
   import ContentCard from '../content-card';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { examViewerLink, examReportViewerLink } from './classPageLinks';
-
+  import { canViewExam } from 'kolibri.utils.exams';
   export default {
     name: 'assignedExamsCards',
     components: {
@@ -51,12 +51,6 @@
       EXAM: () => ContentNodeKinds.EXAM,
     },
     methods: {
-      canViewExam(exam) {
-        return exam.active && !exam.progress.closed;
-      },
-      canViewExamReport(exam) {
-        return !this.canViewExam(exam);
-      },
       examStarted(exam) {
         return exam.progress.answer_count > 0;
       },
@@ -88,7 +82,7 @@
         }
       },
       genExamLink(exam) {
-        if (this.canViewExam(exam)) {
+        if (canViewExam(exam, exam.progress)) {
           return examViewerLink(exam.id);
         }
         return examReportViewerLink(exam.id);

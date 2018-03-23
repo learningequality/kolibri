@@ -44,8 +44,8 @@ export default [
     name: ClassesPageNames.EXAM_VIEWER,
     path: '/classes/:classId/exam/:examId/:questionNumber',
     handler: toRoute => {
-      const { examId, questionNumber } = toRoute.params;
-      showExam(store, examId, questionNumber);
+      const { classId, examId, questionNumber } = toRoute.params;
+      showExam(store, classId, examId, questionNumber);
     },
   },
   {

@@ -13,7 +13,13 @@ import {
   handleApiError,
   samePageCheckGenerator,
 } from 'kolibri.coreVue.vuex.actions';
-import { createQuestionList, selectQuestionFromExercise, getExamReport } from 'kolibri.utils.exams';
+import {
+  createQuestionList,
+  selectQuestionFromExercise,
+  getExamReport,
+  canViewExam,
+  canViewExamReport,
+} from 'kolibri.utils.exams';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames, ClassesPageNames } from '../../constants';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
@@ -405,13 +411,6 @@ export function calcQuestionsAnswered(attemptLogs) {
   return questionsAnswered;
 }
 
-function _canViewExam(active, closed) {
-  return active && !closed;
-}
-function _canViewExamReport(active, closed) {
-  return !_canViewExam(active, closed);
-}
-
 export function showExamReport(store, classId, examId, questionNumber, questionInteraction) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_REPORT_VIEWER);
@@ -426,7 +425,7 @@ export function showExamReport(store, classId, examId, questionNumber, questionI
   );
   ConditionalPromise.all([examReportPromise]).then(
     ([examReport]) => {
-      if (_canViewExamReport(examReport.exam.active, examReport.examLog.closed)) {
+      if (canViewExamReport(examReport.exam, examReport.examLog)) {
         store.dispatch('SET_PAGE_STATE', examReport);
         store.dispatch('CORE_SET_ERROR', null);
         store.dispatch(
@@ -450,7 +449,7 @@ export function showExamReport(store, classId, examId, questionNumber, questionI
       })
   );
 }
-export function showExam(store, examId, questionNumber) {
+export function showExam(store, classId, examId, questionNumber) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
   // Reset examAttemptLogs, so that it will not merge into another exam.
@@ -473,10 +472,6 @@ export function showExam(store, examId, questionNumber) {
     ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttemptLogs]) => {
-        if (!_canViewExam(exam.active, exam.closed)) {
-          return router.getInstance().replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
-        }
-
         const currentChannel = getChannelObject(store.state, exam.channel_id);
         if (!currentChannel) {
           return router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -485,27 +480,32 @@ export function showExam(store, examId, questionNumber) {
         // Local copy of exam attempt logs
         const attemptLogs = {};
 
-        if (userId) {
-          if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
-            store.dispatch('SET_EXAM_LOG', _examLoggingState(examLogs.find(log => !log.closed)));
-          } else {
-            ExamLogResource.createModel({ ...examParams, closed: false })
-              .save()
-              .then(newExamLog => {
-                store.dispatch('SET_EXAM_LOG', newExamLog);
-                return ExamLogResource.unCacheCollection(examParams);
-              });
-          }
-          // Sort through all the exam attempt logs retrieved and organize them into objects
-          // keyed first by content_id and then item id under that.
-          examAttemptLogs.forEach(log => {
-            const { content_id, item } = log;
-            if (!attemptLogs[content_id]) {
-              attemptLogs[content_id] = {};
-            }
-            attemptLogs[content_id][item] = { ...log };
-          });
+        if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
+          store.dispatch('SET_EXAM_LOG', _examLoggingState(examLogs.find(log => !log.closed)));
+        } else {
+          ExamLogResource.createModel({ ...examParams, closed: false })
+            .save()
+            .then(newExamLog => {
+              store.dispatch('SET_EXAM_LOG', newExamLog);
+              return ExamLogResource.unCacheCollection(examParams);
+            });
         }
+
+        if (!canViewExam(exam, store.state.examLog)) {
+          return router
+            .getInstance()
+            .replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS, params: { classId } });
+        }
+
+        // Sort through all the exam attempt logs retrieved and organize them into objects
+        // keyed first by content_id and then item id under that.
+        examAttemptLogs.forEach(log => {
+          const { content_id, item } = log;
+          if (!attemptLogs[content_id]) {
+            attemptLogs[content_id] = {};
+          }
+          attemptLogs[content_id][item] = { ...log };
+        });
 
         const seed = exam.seed;
         const questionSources = exam.question_sources;

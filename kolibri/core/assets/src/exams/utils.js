@@ -125,4 +125,18 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
   });
 }
 
-export { createQuestionList, selectQuestionFromExercise, getExamReport };
+function canViewExam(exam, examLog) {
+  return exam.active && !examLog.closed;
+}
+
+function canViewExamReport(exam, examLog) {
+  return !canViewExam(exam, examLog);
+}
+
+export {
+  createQuestionList,
+  selectQuestionFromExercise,
+  getExamReport,
+  canViewExam,
+  canViewExamReport,
+};

@@ -142,9 +142,9 @@
       reportGroupings() {
         let reportGroupings;
         if (this.viewByGroups) {
-          reportGroupings = this.learnerGroups.map(group =>
-            this.examTakers.filter(learner => learner.group.id === group.id)
-          );
+          reportGroupings = this.learnerGroups
+            .map(group => this.examTakers.filter(learner => learner.group.id === group.id))
+            .filter(grouping => grouping.length !== 0);
           reportGroupings = orderBy(
             reportGroupings,
             [grouping => grouping[0].group.name.toUpperCase()],
