@@ -19,6 +19,7 @@ function makeWrapper(options) {
     submitButton: () => wrapper.find('button[type="submit"]'),
     emitStub: () => sinon.stub(wrapper.vm, '$emit'),
     cancelButton: () => wrapper.find('button[name="cancel"]'),
+    form: () => wrapper.find('form')
   }
   return { wrapper, els };
 }
@@ -37,7 +38,7 @@ describe('AssignmentChangeStatusModal', () => {
     expect(wrapper.vm.activeIsSelected).to.be.false;
     // Clicking submit button doesn't propagate to form: may be bug with test-utils
     // els.submitButton().trigger('click');
-    wrapper.vm.changeStatus();
+    els.form().trigger('submit');
     sinon.assert.calledWith(emitStub, 'changeStatus', false);
   });
 
@@ -52,19 +53,19 @@ describe('AssignmentChangeStatusModal', () => {
     expect(wrapper.vm.activeIsSelected).to.be.false;
     els.activeRadio().trigger('change');
     expect(wrapper.vm.activeIsSelected).to.be.true;
-    wrapper.vm.changeStatus();
+    els.form().trigger('submit');
     sinon.assert.calledWith(emitStub, 'changeStatus', true);
   });
 
   it('if status has not changed, submitting form only closes modal', () => {
-    const { wrapper, els } = makeWrapper({
+    const { els } = makeWrapper({
       propsData: {
         ...defaultProps,
         active: false,
       },
     });
     const emitStub = els.emitStub();
-    wrapper.vm.changeStatus();
+    els.form().trigger('submit');
     sinon.assert.calledWith(emitStub, 'cancel');
   });
 

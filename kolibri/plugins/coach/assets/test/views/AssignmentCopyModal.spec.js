@@ -66,24 +66,16 @@ describe('AssignmentCopyModal', () => {
     const { wrapper, els } = makeWrapper({
       propsData: { ...defaultProps },
       store,
-      mocks: {
-        getLearnerGroupsForClassroom() {
-          return Promise.resolve(groups);
-        },
-      },
     });
-    // NOTE: clicking submit button does not trigger form's submit callback.
-    // Calling the method manually
-    // els.submitButton().trigger('click');
-    wrapper.vm.goToAvailableGroups();
-    return wrapper.vm.$nextTick(() => {
+    sinon.stub(wrapper.vm, 'getLearnerGroupsForClassroom').returns(Promise.resolve(groups));
+    return wrapper.vm.goToAvailableGroups().then(() => {
       expect(els.selectLearnerGroupForm().exists()).to.be.true;
-      // Explanations should reflect the selection of Class One
+      // Explanations should reflect the selection of Class Two (current class)
       // prettier-ignore
-      const explanation = els.selectLearnerGroupForm().find('p').text();
-      expect(explanation).to.equal(`Will be copied to 'Class One'`);
+      const explanation = wrapper.find('p').text();
+      expect(explanation).to.equal(`Will be copied to 'Class Two'`);
       // Recipient selector gets all of the groups
-      const recipientSelector = els.selectClassroomForm().find({ name: 'recipientSelector' });
+      const recipientSelector = els.selectLearnerGroupForm().find({ name: 'recipientSelector' });
       expect(recipientSelector.props().groups).to.deep.equal(groups);
     });
   });
@@ -92,18 +84,14 @@ describe('AssignmentCopyModal', () => {
     const { wrapper, els } = makeWrapper({
       propsData: { ...defaultProps },
       store,
-      mocks: {
-        getLearnerGroupsForClassroom() {
-          return Promise.resolve([]);
-        },
-      },
     });
+    sinon.stub(wrapper.vm, 'getLearnerGroupsForClassroom').returns(Promise.resolve([]));
     const emitStub = sinon.spy(wrapper.vm, '$emit');
-    wrapper.vm.goToAvailableGroups();
-    return wrapper.vm.$nextTick(() => {
-      els.submitButton().trigger('click');
+    return wrapper.vm.goToAvailableGroups().then(() => {
+      wrapper.update();
+      els.selectLearnerGroupForm().trigger('submit');
       // By default, this will copy the Assignment to the same class, and the entire class
-      sinon.assert.calledWith(emitStub, 'copy', 'class_1', []);
+      sinon.assert.calledWith(emitStub, 'copy', 'class_2', ['class_2']);
     });
   });
 
