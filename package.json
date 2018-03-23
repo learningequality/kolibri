@@ -66,6 +66,7 @@
     "autoprefixer": "^7.1.4",
     "buble": "^0.16.0",
     "buble-loader": "^0.4.1",
+    "chai": "^4.1.2",
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "css-loader": "^0.28.7",
