@@ -25,7 +25,7 @@
       </span>
       <ui-icon-button
         type="primary"
-        :icon="isRtl? 'chevron_right' : 'chevron_left'"
+        :icon="isRtl ? 'chevron_right' : 'chevron_left'"
         :ariaLabel="$tr('previousResults')"
         :disabled="pageNum === 1"
         size="small"
@@ -33,7 +33,7 @@
       />
       <ui-icon-button
         type="primary"
-        :icon="isRtl? 'chevron_left' : 'chevron_right'"
+        :icon="isRtl ? 'chevron_left' : 'chevron_right'"
         :ariaLabel="$tr('nextResults')"
         :disabled="pageNum === numPages"
         size="small"
