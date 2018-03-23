@@ -11,7 +11,7 @@
     </h2>
 
     <div v-if="classCoaches.length">
-      <span>{{ $tr('coachListLabel') }}</span>
+      <span> {{ $tr('coachListLabel') }} </span>
       <ul>
         <li
           v-for="(coach, idx) in classCoaches"
