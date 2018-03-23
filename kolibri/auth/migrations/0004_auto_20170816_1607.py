@@ -3,7 +3,9 @@
 from __future__ import unicode_literals
 
 import django.core.validators
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+
 from kolibri.auth.constants.role_kinds import ADMIN
 
 
@@ -69,7 +71,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(device_owner_to_super_user, migrations.RunPython.noop),
+        migrations.RunPython(device_owner_to_super_user, migrations.RunPython.noop, elidable=True),
         migrations.DeleteModel(
             name='DeviceOwner',
         ),
