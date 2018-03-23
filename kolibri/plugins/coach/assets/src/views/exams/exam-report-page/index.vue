@@ -37,9 +37,9 @@
         </h3>
         <p class="average-score">
           {{
-            getAverageScore(reportGrouping) === undefined ?
-              $tr('noAverageScore') :
-              $tr('averageScore', { num: getAverageScore(reportGrouping) })
+            getAverageScore(reportGrouping) >= 0 ?
+              $tr('averageScore', { num: getAverageScore(reportGrouping) }) :
+              $tr('noAverageScore')
           }}
         </p>
 
