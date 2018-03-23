@@ -22,10 +22,16 @@
           </th>
           <th class="core-table-icon-col"></th>
           <th>{{ $tr('fullName') }}</th>
-          <th class="visuallyhidden">{{ $tr('role') }}</th>
+          <th>
+            <span class="visuallyhidden">
+              {{ $tr('role') }}
+            </span>
+          </th>
           <th>{{ $tr('username') }}</th>
           <th v-if="$scopedSlots.action" class="user-action-button">
-            <span class="visuallyhidden">{{ $tr('userActionsColumnHeader') }}</span>
+            <span class="visuallyhidden">
+              {{ $tr('userActionsColumnHeader') }}
+            </span>
           </th>
         </tr>
       </thead>

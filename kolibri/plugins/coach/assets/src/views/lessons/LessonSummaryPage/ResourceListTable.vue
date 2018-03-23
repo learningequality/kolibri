@@ -3,8 +3,10 @@
   <core-table>
     <thead slot="thead">
       <tr>
-        <th class="visuallyhidden core-table-icon-col">
-          {{ $tr('resourceReorderColumnHeaderForTable') }}
+        <th class="core-table-icon-col">
+          <span class="visuallyhidden">
+            {{ $tr('resourceReorderColumnHeaderForTable') }}
+          </span>
         </th>
         <td class="core-table-icon-col">
           <!-- include header? -->
@@ -16,8 +18,10 @@
         <th>
           {{ $tr('resourceProgressColumnHeaderForTable') }}
         </th>
-        <th class="visuallyhidden">
-          {{ $tr('resourceRemovalColumnHeaderForTable') }}
+        <th>
+          <span class="visuallyhidden">
+            {{ $tr('resourceRemovalColumnHeaderForTable') }}
+          </span>
         </th>
       </tr>
     </thead>
