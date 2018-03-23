@@ -31,7 +31,7 @@
   import ContentCard from '../content-card';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { examViewerLink, examReportViewerLink } from './classPageLinks';
-
+  import { canViewExam } from 'kolibri.utils.exams';
   export default {
     name: 'assignedExamsCards',
     components: {
@@ -51,38 +51,38 @@
       EXAM: () => ContentNodeKinds.EXAM,
     },
     methods: {
-      examNotStarted(exam) {
-        return exam.progress.answer_count === null;
+      examStarted(exam) {
+        return exam.progress.answer_count > 0;
       },
-      examStartedNotCompleted(exam) {
-        return exam.progress.answer_count !== null && !exam.progress.closed;
-      },
-      examCompleted(exam) {
+      examSubmitted(exam) {
         return exam.progress.closed === true;
       },
+      examStartedNotSubmitted(exam) {
+        return this.examStarted(exam) && !this.examSubmitted(exam);
+      },
       getExamProgress(exam) {
-        if (this.examCompleted(exam)) {
+        if (this.examSubmitted(exam)) {
           return 1;
+        } else if (!this.examStarted(exam)) {
+          return 0;
+        } else if (this.examStartedNotSubmitted(exam)) {
+          // So it is not displayed as completed
+          return exam.progress.answer_count / exam.question_count - 0.01;
         }
-        if (this.examStartedNotCompleted(exam)) {
-          return exam.progress.answer_count / exam.question_count;
-        }
-        return 0;
       },
       genExamSubtitle(exam) {
-        if (this.examCompleted(exam)) {
+        if (this.examSubmitted(exam)) {
           return this.$tr('completed');
-        } else if (this.examNotStarted(exam)) {
+        } else if (!this.examStarted(exam)) {
           return this.$tr('notStarted');
-        } else if (this.examStartedNotCompleted(exam)) {
+        } else if (this.examStartedNotSubmitted(exam)) {
           return this.$tr('questionsLeft', {
             questionsLeft: exam.question_count - exam.progress.answer_count,
           });
         }
-        return null;
       },
       genExamLink(exam) {
-        if (exam.active && !exam.progress.closed) {
+        if (canViewExam(exam, exam.progress)) {
           return examViewerLink(exam.id);
         }
         return examReportViewerLink(exam.id);

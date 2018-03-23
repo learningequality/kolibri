@@ -72,6 +72,7 @@
     copyExam,
     deleteExam,
   } from '../../../state/actions/exam';
+  import xorWith from 'lodash/xorWith';
 
   export default {
     name: 'manageExamModals',
@@ -103,16 +104,14 @@
       },
       handleUpdateExamDetails(details) {
         const payload = {};
-        const assignmentsAreSame =
-          details.assignments.length === this.exam.assignments.length &&
-          details.assignments.every(assignment =>
-            Boolean(
-              this.exam.assignments.find(
-                origAssignment => (origAssignment.collection = assignment.collection)
-              )
-            )
-          );
-        if (!assignmentsAreSame) {
+        const origAssignments = this.exam.assignments.map(assignment => ({
+          collection: assignment.collection,
+        }));
+
+        if (
+          xorWith(details.assignments, origAssignments, (a, b) => a.collection === b.collection)
+            .length > 0
+        ) {
           payload.assignments = details.assignments;
         }
         if (details.title !== this.exam.title) {
