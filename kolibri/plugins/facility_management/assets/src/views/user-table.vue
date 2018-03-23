@@ -20,7 +20,7 @@
               :checked="allAreSelected"
             />
           </th>
-          <th class="core-table-icon-col"></th>
+          <th aria-hidden="true" class="core-table-icon-col"></th>
           <th>{{ $tr('fullName') }}</th>
           <th>
             <span class="visuallyhidden">
@@ -50,12 +50,17 @@
             />
 
           </td>
-          <td class="core-table-icon-col">
+          <td aria-hidden="true" class="core-table-icon-col">
             <ui-icon icon="person" />
           </td>
           <td>
             {{ user.full_name }}
-            <user-role class="role-badge" :role="user.kind" :omitLearner="true" />
+            <user-role
+              aria-hidden="true"
+              class="role-badge"
+              :role="user.kind"
+              :omitLearner="true"
+            />
           </td>
           <td class="visuallyhidden">
             {{ user.kind }}

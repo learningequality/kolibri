@@ -9,7 +9,9 @@
           </span>
         </th>
         <td class="core-table-icon-col">
-          <!-- include header? -->
+          <span class="visuallyhidden">
+            {{ $tr('resourceTypeColumnHeaderForTable') }}
+          </span>
         </td>
 
         <th class="core-table-main-col">
@@ -246,6 +248,7 @@
       resourceProgressMessage: '{completed, number}/{total, number} completed',
       resourceReorderColumnHeaderForTable:
         'Use buttons in this column to re-order resources in the lesson',
+      resourceTypeColumnHeaderForTable: 'Resource type',
       nameColumnHeaderForTable: 'Name',
       resourceProgressColumnHeaderForTable: 'Resource progress',
       resourceRemovalColumnHeaderForTable:
