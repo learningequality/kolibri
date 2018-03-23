@@ -3,14 +3,10 @@ import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import assert from 'assert';
 import sinon from 'sinon';
-import { mount } from 'avoriaz';
+import { mount } from '@vue/test-utils';
 import ChannelsGrid from '../../src/views/manage-content-page/channels-grid.vue';
-import DeleteChannelModal from '../../src/views/manage-content-page/delete-channel-modal.vue';
-import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import { manageContentPageState } from '../../src/state/wizardState';
 import mutations from '../../src/state/mutations';
-import SlottedDiv from '../../../../learn/assets/test/util/SlottedDiv.vue';
-import UiProgressLinear from 'keen-ui/src/UiProgressLinear.vue';
 
 function makeStore() {
   return new Vuex.Store({
@@ -26,8 +22,8 @@ function makeWrapper(options) {
   return mount(ChannelsGrid, {
     propsData: { ...props },
     store,
-    components: {
-      transition: SlottedDiv,
+    stubs: {
+      transition: '<div><slot></slot></div>',
     },
     vuex: {
       actions: {
@@ -39,10 +35,10 @@ function makeWrapper(options) {
 
 function getElements(wrapper) {
   return {
-    channelListItems: () => wrapper.find(ChannelListItem),
+    channelListItems: () => wrapper.findAll({ name: 'channelListItem' }),
     emptyState: () => wrapper.find('.no-channels'),
-    progressBar: () => wrapper.find(UiProgressLinear),
-    deleteChannelModal: () => wrapper.first(DeleteChannelModal),
+    progressBar: () => wrapper.find({ name: 'ui-progress-linear' }),
+    deleteChannelModal: () => wrapper.find({ name: 'deleteChannelModal' }),
   };
 }
 
@@ -76,7 +72,7 @@ describe('channelsGrid component', () => {
     const wrapper = makeWrapper({ store });
     const { emptyState } = getElements(wrapper);
     return wrapper.vm.$nextTick().then(() => {
-      assert(emptyState()[0].is('p'));
+      assert(emptyState().is('p'));
     });
   });
 
@@ -90,7 +86,7 @@ describe('channelsGrid component', () => {
         return wrapper.vm.$nextTick();
       })
       .then(() => {
-        assert(progressBar()[0].isVueComponent);
+        assert(progressBar().isVueComponent);
       });
   });
 
@@ -114,9 +110,9 @@ describe('channelsGrid component', () => {
     const wrapper = makeWrapper({ store });
     const { channelListItems } = getElements(wrapper);
     return wrapper.vm.$nextTick().then(() => {
-      const [ch1, ch2] = channelListItems();
-      assert.equal(ch1.getProp('channel').id, 'awesome_channel');
-      assert.equal(ch2.getProp('channel').id, 'beautiful_channel');
+      const items = channelListItems();
+      assert.equal(items.at(0).props().channel.id, 'awesome_channel');
+      assert.equal(items.at(1).props().channel.id, 'beautiful_channel');
     });
   });
 
@@ -129,8 +125,8 @@ describe('channelsGrid component', () => {
     return wrapper.vm
       .$nextTick()
       .then(() => {
-        const [ch1] = channelListItems();
-        const button = ch1.first('button');
+        const items = channelListItems();
+        const button = items.at(0).find('button');
         assert.equal(button.text().trim(), 'Delete');
         button.trigger('click');
         return wrapper.vm.$nextTick();
@@ -138,7 +134,7 @@ describe('channelsGrid component', () => {
       .then(() => {
         deleteModal = deleteChannelModal();
         assert(deleteModal.isVueComponent);
-        const deleteButton = deleteModal.first('button[name="confirm"]');
+        const deleteButton = deleteModal.find('button[name="confirm"]');
         assert.equal(deleteButton.text().trim(), 'Delete');
         deleteButton.trigger('click');
         return wrapper.vm.$nextTick();

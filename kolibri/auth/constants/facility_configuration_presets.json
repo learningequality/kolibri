@@ -1,6 +1,5 @@
 {
   "formal": {
-    "name": "Admin-managed",
     "mappings": {
       "learner_can_edit_username": false,
       "learner_can_edit_name": false,
@@ -11,7 +10,6 @@
     }
   },
   "nonformal": {
-    "name": "Self-managed",
     "default": true,
     "mappings": {
       "learner_can_edit_username": true,
@@ -23,7 +21,6 @@
     }
   },
   "informal": {
-    "name": "Informal and personal use",
     "mappings": {
       "learner_can_edit_username": true,
       "learner_can_edit_name": true,

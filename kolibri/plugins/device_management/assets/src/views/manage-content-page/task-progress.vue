@@ -2,18 +2,24 @@
 
   <div class="task-progress">
     <div class="progress-icon dtc">
-      <mat-svg
-        v-if="!taskHasFailed"
-        category="action"
-        name="autorenew"
-        class="inprogress"
-      />
-      <mat-svg
-        v-else
-        category="alert"
-        name="error"
-        class="error"
-      />
+      <transition name="fade" mode="out-in">
+        <mat-svg
+          v-if="taskHasFailed"
+          category="alert"
+          name="error"
+          class="error"
+        />
+        <mat-svg
+          v-else-if="taskHasCompleted"
+          category="action"
+          name="check_circle"
+          class="complete"
+        />
+        <ui-progress-circular
+          v-else
+          class="inprogress"
+        />
+      </transition>
     </div>
 
     <div class="progress-bar dtc">
@@ -36,8 +42,7 @@
       <k-button
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
-        :primary="false"
-        appearance="flat-button"
+        :primary="true"
         @click="endTask()"
         :disabled="uiBlocked"
       />
@@ -51,6 +56,7 @@
 <script>
 
   import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import UiProgressCircular from 'keen-ui/src/UiProgressCircular';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { cancelTask } from '../../state/actions/taskActions';
@@ -65,6 +71,7 @@
     name: 'taskProgress',
     components: {
       UiProgressLinear,
+      UiProgressCircular,
       kButton,
     },
     props: {
@@ -190,7 +197,9 @@
     text-align: center
     width: 5%
     .inprogress
-      fill: $core-status-progress
+      display: inline-block
+    .complete
+      fill: $core-status-correct
     .error
       fill: $core-text-error
 

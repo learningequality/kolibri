@@ -1,8 +1,8 @@
 /* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line no-unused-vars, import/no-unresolved
+import Vue from 'vue-test'; // eslint-disable-line
 import assert from 'assert';
 import elapsedTime from '../../src/views/elapsed-time';
-import { shallow } from 'avoriaz';
+import { shallow } from '@vue/test-utils';
 
 const DUMMY_CURRENT_DATE = new Date(2017, 0, 1, 1, 1, 1);
 
@@ -10,11 +10,9 @@ function makeWrapper(options) {
   return shallow(elapsedTime, options);
 }
 
+// prettier-ignore
 function getTimeText(wrapper) {
-  return wrapper
-    .first('span')
-    .text()
-    .trim();
+  return wrapper.find('span').text().trim();
 }
 
 describe('elapsed time component', () => {

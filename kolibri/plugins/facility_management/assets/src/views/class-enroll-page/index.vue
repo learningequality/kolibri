@@ -1,9 +1,12 @@
 <template>
 
   <div>
-    <div class="top-buttons pure-g">
-
-      <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1 align-center'">
+    <k-grid class="top-buttons">
+      <k-grid-item
+        size="1"
+        :cols="numCols"
+        :class="{'align-center' : isMobile}"
+      >
         <k-router-link
           :text="$tr('backToClassDetails')"
           :to="editClassLink"
@@ -11,10 +14,11 @@
           appearance="flat-button"
           class="link-button"
         />
-      </div>
-
-      <div
-        :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'"
+      </k-grid-item>
+      <k-grid-item
+        size="1"
+        :cols="numCols"
+        :class="isMobile ? 'align-center' : 'align-right'"
       >
         <k-button
           :text="$tr('createNewUser')"
@@ -27,9 +31,8 @@
           @click="openConfirmEnrollmentModal"
           :disabled="selectedUsers.length === 0"
         />
-      </div>
-
-    </div>
+      </k-grid-item>
+    </k-grid>
 
     <confirm-enrollment-modal
       v-if="showConfirmEnrollmentModal"
@@ -56,59 +59,62 @@
           v-model.trim="filterInput"
           @input="pageNum = 1"
         />
-        <div class="inline-block">
-          <ui-switch
-            name="showSelectedUsers"
-            :class="{ 'invisible' : filterInput }"
+        <div class="inline-block va-m">
+          <k-checkbox
+            v-show="!filterInput"
             :label="`${$tr('selectedUsers')} (${selectedUsers.length})`"
-            v-model="showSelectedUsers"
-            class="switch"
-            @input="pageNum = 1"
+            :showLabel="true"
+            :checked="showSelectedUsers"
+            @change="showSelectedUsers = $event"
           />
         </div>
       </div>
-      <table>
-        <thead>
+      <core-table>
+        <thead slot="thead">
           <tr>
-            <th class="col-checkbox">
+            <th class="core-table-checkbox-col">
               <k-checkbox
                 :label="$tr('selectAllOnPage')"
                 :showLabel="false"
                 :checked="selectAllIsChecked"
                 :disabled="visibleFilteredUsers.length === 0 || showSelectedUsers"
                 @change="toggleAllVisibleUsers"
-                class="inline-block check"
               />
             </th>
-            <th class="col-username">{{ $tr('username') }}</th>
-            <th class="col-role">{{ $tr('role') }}</th>
-            <th class="col-name">{{ $tr('name') }}</th>
+            <th class="core-table-main-col">{{ $tr('username') }}</th>
+            <th>{{ $tr('role') }}</th>
+            <th>{{ $tr('name') }}</th>
           </tr>
         </thead>
 
-        <tbody name="row" is="transition-group">
+        <tbody
+          slot="tbody"
+          name="row"
+          is="transition-group"
+          class="core-table-rows-selectable"
+        >
+
           <tr
             v-for="learner in visibleFilteredUsers"
-            :class="isSelected(learner.id) ? 'selectedrow' : ''"
+            :class="isSelected(learner.id) ? 'core-table-row-selected' : ''"
             @click="toggleSelection(learner.id)"
             :key="learner.id"
           >
-            <td class="col-checkbox">
+            <td class="core-table-checkbox-col">
               <k-checkbox
                 :label="$tr('selectUser')"
                 :showLabel="false"
                 :checked="isSelected(learner.id)"
                 @change="toggleSelection(learner.id)"
-                class="inline-block check"
                 @click.native.stop
               />
             </td>
-            <th class="col-username">{{ learner.username }}</th>
-            <td class="col-role">{{ learner.kind }}</td>
-            <td class="col-name">{{ learner.full_name }}</td>
+            <th class="core-table-main-col">{{ learner.username }}</th>
+            <td>{{ learner.kind }}</td>
+            <td>{{ learner.full_name }}</td>
           </tr>
         </tbody>
-      </table>
+      </core-table>
 
       <p v-if="filteredUsers.length === 0 && showSelectedUsers">{{ $tr('noUsersSelected') }}</p>
       <p v-if="filteredUsers.length === 0 && filterInput !== ''">
@@ -149,9 +155,11 @@
 
 <script>
 
-  import * as constants from '../../constants';
-  import * as actions from '../../state/actions';
+  import { PageNames, Modals } from '../../constants';
+  import { displayModal } from '../../state/actions';
   import differenceWith from 'lodash/differenceWith';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -162,8 +170,9 @@
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import userCreateModal from '../user-page/user-create-modal';
   import confirmEnrollmentModal from './confirm-enrollment-modal';
-  import uiSwitch from 'keen-ui/src/UiSwitch';
   import userRole from '../user-role';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
+
   export default {
     name: 'managementClassEnroll',
     components: {
@@ -173,10 +182,12 @@
       uiIconButton,
       uiIcon,
       kFilterTextbox,
+      kGrid,
+      kGridItem,
       userCreateModal,
       confirmEnrollmentModal,
-      uiSwitch,
       userRole,
+      coreTable,
     },
     mixins: [responsiveWindow],
     $trs: {
@@ -210,6 +221,12 @@
       showSelectedUsers: false,
     }),
     computed: {
+      isMobile() {
+        return this.windowSize.breakpoint <= 3;
+      },
+      numCols() {
+        return this.isMobile ? 1 : 2;
+      },
       usersNotInClass() {
         return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
       },
@@ -263,15 +280,15 @@
       },
       editClassLink() {
         return {
-          name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
+          name: PageNames.CLASS_EDIT_MGMT_PAGE,
           id: this.classId,
         };
       },
       showCreateUserModal() {
-        return this.modalShown === constants.Modals.CREATE_USER;
+        return this.modalShown === Modals.CREATE_USER;
       },
       showConfirmEnrollmentModal() {
-        return this.modalShown === constants.Modals.CONFIRM_ENROLLMENT;
+        return this.modalShown === Modals.CONFIRM_ENROLLMENT;
       },
       selectAllIsChecked() {
         return (
@@ -282,6 +299,7 @@
       },
     },
     watch: {
+      // TODO to be removed
       userJustCreated(user) {
         this.selectedUsers.push(user.id);
       },
@@ -331,10 +349,10 @@
         return Math.abs(this.pageNum - page) <= maxOnEachSide;
       },
       openCreateUserModal() {
-        this.displayModal(constants.Modals.CREATE_USER);
+        this.displayModal(Modals.CREATE_USER);
       },
       openConfirmEnrollmentModal() {
-        this.displayModal(constants.Modals.CONFIRM_ENROLLMENT);
+        this.displayModal(Modals.CONFIRM_ENROLLMENT);
       },
     },
     vuex: {
@@ -346,7 +364,7 @@
         modalShown: state => state.pageState.modalShown,
         userJustCreated: state => state.pageState.userJustCreated,
       },
-      actions: { displayModal: actions.displayModal },
+      actions: { displayModal },
     },
   };
 
@@ -356,18 +374,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  // based on material design data table spec
-  $table-row-selected = #F5F5F5
-  $table-row-hover = #EEEEEE
-
-  >>>.switch
-    margin-top: 20px
-    .ui-switch__track
-      z-index: 0
-
-    .ui-switch__thumb
-      z-index: 1
 
   .align-right
     text-align: right
@@ -381,33 +387,6 @@
   .top-buttons
     position: relative
 
-  table
-    width: 100%
-    word-break: break-all
-
-  th
-    text-align: left
-
-  td, th
-    padding: 0.5em
-
-
-  thead
-    color: $core-text-annotation
-    font-size: small
-
-  tbody
-    tr
-      cursor: pointer
-      &:hover
-        background-color: $table-row-hover
-
-  .selectedrow
-    background-color: $table-row-selected
-
-  .col-checkbox
-    width: 24px
-
   nav
     display: inline-block
 
@@ -420,9 +399,6 @@
   .invisible
     visibility: hidden
 
-  .check
-    margin-bottom: 0
-
   .row-enter-active, .row-leave-active
     transition: all 0.25s ease
 
@@ -432,5 +408,8 @@
 
   .filter
     margin-right: 16px
+
+  .va-m
+    vertical-align: middle
 
 </style>

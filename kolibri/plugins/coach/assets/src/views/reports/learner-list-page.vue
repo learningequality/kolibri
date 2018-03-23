@@ -14,9 +14,10 @@
 
     <p v-if="!standardDataTable.length">{{ $tr('noLearners') }}</p>
 
-    <report-table v-if="standardDataTable.length">
+    <core-table v-if="standardDataTable.length">
       <thead slot="thead">
         <tr>
+          <th class="core-table-icon-col"></th>
           <header-cell
             :align="alignStart"
             :text="$tr('name')"
@@ -46,6 +47,9 @@
       </thead>
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
+          <td class="core-table-icon-col">
+            <content-icon :kind="row.kind" />
+          </td>
           <name-cell
             :kind="row.kind"
             :title="row.title"
@@ -60,7 +64,7 @@
           <activity-cell v-if="!isRootLearnerPage" :date="row.lastActive" />
         </tr>
       </tbody>
-    </report-table>
+    </core-table>
 
   </div>
 
@@ -69,26 +73,25 @@
 
 <script>
 
-  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
-  import * as CoachConstants from '../../constants';
-  import * as reportGetters from '../../state/getters/reports';
-  import * as ReportConstants from '../../reportConstants';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { PageNames } from '../../constants';
+  import { exerciseCount, contentCount, standardDataTable } from '../../state/getters/reports';
+  import { TableColumns } from '../../constants/reportConstants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
-  import reportTable from './report-table';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import progressCell from './table-cells/progress-cell';
   import activityCell from './table-cells/activity-cell';
-
   import alignMixin from './align-mixin';
 
   export default {
     name: 'learnerReportPage',
     components: {
+      coreTable,
       contentIcon,
       breadcrumbs,
-      reportTable,
       headerCell,
       nameCell,
       progressCell,
@@ -103,29 +106,29 @@
       contentProgress: 'Resource progress',
       lastActivity: 'Last activity',
       exerciseCountText:
-        '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+        '{count, number, integer} {count, plural, one {exercise} other {exercises}}',
       contentCountText:
-        '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
-      noLearners: 'You do not have any learners registered yet',
+        '{count, number, integer} {count, plural, one {resource} other {resources}}',
+      noLearners: 'There are no learners enrolled in this class',
     },
     computed: {
       isExercisePage() {
-        return this.pageState.contentScopeSummary.kind === CoreConstants.ContentNodeKinds.EXERCISE;
+        return this.pageState.contentScopeSummary.kind === ContentNodeKinds.EXERCISE;
       },
       isRootLearnerPage() {
-        return this.pageName === CoachConstants.PageNames.LEARNER_LIST;
+        return this.pageName === PageNames.LEARNER_LIST;
       },
       TableColumns() {
-        return ReportConstants.TableColumns;
+        return TableColumns;
       },
     },
     methods: {
       genLink(row) {
         if (this.isExercisePage) {
           const targetName =
-            this.pageName === CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM
-              ? CoachConstants.PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT
-              : CoachConstants.PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT;
+            this.pageName === PageNames.RECENT_LEARNERS_FOR_ITEM
+              ? PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT
+              : PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT;
           return {
             name: targetName,
             params: {
@@ -137,7 +140,7 @@
           };
         } else if (this.isRootLearnerPage) {
           return {
-            name: CoachConstants.PageNames.LEARNER_CHANNELS,
+            name: PageNames.LEARNER_CHANNELS,
             params: {
               classId: this.classId,
               userId: row.id,
@@ -152,9 +155,9 @@
         classId: state => state.classId,
         pageState: state => state.pageState,
         pageName: state => state.pageName,
-        exerciseCount: reportGetters.exerciseCount,
-        contentCount: reportGetters.contentCount,
-        standardDataTable: reportGetters.standardDataTable,
+        exerciseCount,
+        contentCount,
+        standardDataTable,
       },
     },
   };

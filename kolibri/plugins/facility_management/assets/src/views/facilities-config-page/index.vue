@@ -67,13 +67,14 @@
 
 <script>
 
-  import * as actions from '../../state/actions';
   const settingsList = [
     'learnerCanEditUsername',
     'learnerCanEditName',
     'learnerCanSignUp',
     'learnerCanLoginWithNoPassword',
   ];
+
+  import { saveFacilityConfig, resetFacilityConfig } from '../../state/actions';
   import confirmResetModal from './confirm-reset-modal';
   import notifications from './config-page-notifications';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -128,8 +129,8 @@
             value: !this.settings[settingName],
           });
         },
-        saveFacilityConfig: actions.saveFacilityConfig,
-        resetFacilityConfig: actions.resetFacilityConfig,
+        saveFacilityConfig,
+        resetFacilityConfig,
         dismissNotification(store) {
           store.dispatch('CONFIG_PAGE_NOTIFY', null);
         },
@@ -142,6 +143,7 @@
       learnerCanEditUsername: 'Allow learners and coaches to edit their username',
       learnerCanSignUp: 'Allow learners to sign-up on this device',
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
+      showDownloadButtonInLearn: "Show 'download' button with content",
       pageDescription: 'Configure and change different facility settings here.',
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to default settings',

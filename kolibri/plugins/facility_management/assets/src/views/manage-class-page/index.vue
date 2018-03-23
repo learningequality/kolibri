@@ -21,39 +21,43 @@
     />
     <class-create-modal v-if="showCreateClassModal" :classes="sortedClasses" />
 
-    <div class="table-wrapper" v-if="!noClassesExist">
-      <table class="roster">
-        <caption class="visuallyhidden">{{ $tr('classes') }}</caption>
-        <thead class="table-header">
-          <tr>
-            <th scope="col" class="table-text">{{ $tr('className') }}</th>
-            <th scope="col" class="table-data">{{ $tr('members') }}</th>
-            <th scope="col">{{ $tr('actions') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="classModel in sortedClasses" :key="classModel.id">
-            <th scope="row" class="table-text">
-              <k-router-link
-                :text="classModel.name"
-                :to="classEditLink(classModel.id)"
-                class="table-name"
-              />
-            </th>
-            <td class="table-data">
-              {{ classModel.memberCount }}
-            </td>
-            <td class="table-btn">
-              <k-button
-                appearance="flat-button"
-                @click="openDeleteClassModal(classModel)"
-                :text="$tr('deleteClass')"
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <core-table v-if="!noClassesExist">
+      <caption class="visuallyhidden">{{ $tr('classes') }}</caption>
+      <thead slot="thead">
+        <tr>
+          <th class="core-table-icon-col"></th>
+          <th class="core-table-main-col">{{ $tr('className') }}</th>
+          <th>{{ $tr('members') }}</th>
+          <th>{{ $tr('actions') }}</th>
+        </tr>
+      </thead>
+      <tbody slot="tbody">
+        <tr
+          v-for="classModel in sortedClasses"
+          :key="classModel.id"
+        >
+          <td class="core-table-icon-col">
+            <ui-icon icon="business" />
+          </td>
+          <th class="core-table-main-col">
+            <k-router-link
+              :text="classModel.name"
+              :to="classEditLink(classModel.id)"
+            />
+          </th>
+          <td>
+            {{ classModel.memberCount }}
+          </td>
+          <td>
+            <k-button
+              appearance="flat-button"
+              @click="openDeleteClassModal(classModel)"
+              :text="$tr('deleteClass')"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </core-table>
 
     <p v-else>{{ $tr('noClassesExist') }}</p>
 
@@ -64,8 +68,10 @@
 
 <script>
 
-  import * as constants from '../../constants';
-  import * as actions from '../../state/actions';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import UiIcon from 'keen-ui/src/UiIcon';
+  import { Modals, PageNames } from '../../constants';
+  import { displayModal } from '../../state/actions';
   import orderBy from 'lodash/orderBy';
   import classCreateModal from './class-create-modal';
   import classDeleteModal from './class-delete-modal';
@@ -76,10 +82,12 @@
   export default {
     name: 'classPage',
     components: {
+      coreTable,
       classCreateModal,
       classDeleteModal,
       kButton,
       kRouterLink,
+      UiIcon,
     },
     mixins: [responsiveWindow],
     data: () => ({ currentClassDelete: null }),
@@ -88,10 +96,10 @@
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
       showDeleteClassModal() {
-        return this.modalShown === constants.Modals.DELETE_CLASS;
+        return this.modalShown === Modals.DELETE_CLASS;
       },
       showCreateClassModal() {
-        return this.modalShown === constants.Modals.CREATE_CLASS;
+        return this.modalShown === Modals.CREATE_CLASS;
       },
       noClassesExist() {
         return this.sortedClasses.length === 0;
@@ -100,16 +108,16 @@
     methods: {
       classEditLink(id) {
         return {
-          name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
+          name: PageNames.CLASS_EDIT_MGMT_PAGE,
           params: { id },
         };
       },
       openDeleteClassModal(classModel) {
         this.currentClassDelete = classModel;
-        this.displayModal(constants.Modals.DELETE_CLASS);
+        this.displayModal(Modals.DELETE_CLASS);
       },
       openCreateClassModal() {
-        this.displayModal(constants.Modals.CREATE_CLASS);
+        this.displayModal(Modals.CREATE_CLASS);
       },
     },
     vuex: {
@@ -117,7 +125,7 @@
         modalShown: state => state.pageState.modalShown,
         classes: state => state.pageState.classes,
       },
-      actions: { displayModal: actions.displayModal },
+      actions: { displayModal },
     },
     $trs: {
       allClasses: 'All classes',
@@ -137,29 +145,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-
-  .roster
-    width: 100%
-    border-spacing: 8px
-    border-collapse: separate
-
-  .table-wrapper
-    overflow-x: auto
-
-  thead th
-    color: $core-text-annotation
-    font-size: smaller
-    font-weight: normal
-
-  .table-text
-    text-align: left
-    width: 100%
-
-  .table-data
-    text-align: center
-
-  .table-btn
-    text-align: right
 
   .header
     position: relative

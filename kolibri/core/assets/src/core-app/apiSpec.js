@@ -37,7 +37,6 @@ import kButton from '../views/buttons-and-links/k-button';
 import kExternalLink from '../views/buttons-and-links/k-external-link';
 import kRouterLink from '../views/buttons-and-links/k-router-link';
 import kTextbox from '../views/k-textbox';
-import dropdownMenu from '../views/dropdown-menu';
 import kNavbar from '../views/k-navbar';
 import kNavbarLink from '../views/k-navbar/link';
 import logo from '../views/logo';
@@ -51,10 +50,13 @@ import kBreadcrumbs from '../views/k-breadcrumbs';
 import kCheckbox from '../views/k-checkbox';
 import kRadioButton from '../views/k-radio-button';
 import kFilterTextbox from '../views/k-filter-textbox';
+import kGrid from '../views/k-grid';
+import kGridItem from '../views/k-grid/item.vue';
 import kSelect from '../views/k-select';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
+import contentRendererMixin from '../mixins/contentRenderer';
 import theme from '../styles/core-theme.styl';
 import definitions from '../styles/definitions.styl';
 import keenVars from '../keen-config/variables.scss';
@@ -73,6 +75,12 @@ import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
 import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
+import coreTable from '../views/core-table';
+import kDropdownMenu from '../views/k-dropdown-menu';
+// webpack optimization
+import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
+import CoreInfoIcon from '../views/CoreInfoIcon';
+import * as contentNode from '../utils/contentNodeUtils';
 
 export default {
   client,
@@ -110,7 +118,6 @@ export default {
       kExternalLink,
       kRouterLink,
       kTextbox,
-      dropdownMenu,
       kNavbar,
       kNavbarLink,
       languageSwitcherList,
@@ -123,17 +130,23 @@ export default {
       kCheckbox,
       kRadioButton,
       kFilterTextbox,
+      kGrid,
+      kGridItem,
       kSelect,
       uiAlert,
       appBar,
       coreSnackbar,
       customUiMenu,
+      coreTable,
+      kDropdownMenu,
+      CoreInfoIcon,
     },
     router,
     mixins: {
       responsiveWindow,
       responsiveElement,
       languageSwitcherMixin,
+      contentRenderer: contentRendererMixin,
     },
   },
   resources,
@@ -141,9 +154,11 @@ export default {
     theme,
     definitions,
     keenVars,
+    buttonAndLinkStyles,
   },
   urls,
   utils: {
+    contentNode,
     browser,
     exams,
     validators,

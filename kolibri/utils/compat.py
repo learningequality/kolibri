@@ -1,7 +1,9 @@
 """
 Compatibility layer for Python 2+3
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import sys
 
@@ -59,6 +61,8 @@ class VersionCompat:
         # Remove leading 0's
         self.tpl_or_version = map(lambda s: s.lstrip("0"), self.tpl_or_version)
         self.tpl_or_version = map(lambda s: s or "0", self.tpl_or_version)
+        # Replace * with 0 because * seems to appear for instance as 0.8.*
+        self.tpl_or_version = map(lambda s: s.replace("*", "0"), self.tpl_or_version)
         # When map returns a map object in Python 3...
         self.tpl_or_version = tuple(self.tpl_or_version)
 

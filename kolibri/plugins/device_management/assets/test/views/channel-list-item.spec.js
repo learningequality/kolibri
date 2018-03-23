@@ -4,7 +4,7 @@ import Vuex from 'vuex';
 import sinon from 'sinon';
 import assert from 'assert';
 import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
-import { mount } from 'avoriaz';
+import { mount } from '@vue/test-utils';
 import { defaultChannel } from '../utils/data';
 
 function makeStore() {
@@ -12,7 +12,7 @@ function makeStore() {
     state: {
       pageState: {
         taskList: [],
-        channelList: [{ id: 'installed', name: 'Installed Channel', version: 11 }],
+        channelList: [{ id: 'installed', name: 'Installed Channel', version: 11, available: true }],
       },
     },
     mutations: {
@@ -42,15 +42,15 @@ function makeWrapper(options = {}) {
 // prettier-ignore
 function getElements(wrapper) {
   return {
-    resourcesSizeText: () => wrapper.first('.resources-size').text().trim(),
+    resourcesSizeText: () => wrapper.find('.resources-size').text().trim(),
     resourcesSize: () => wrapper.find('.resources-size'),
     onDevice: () => wrapper.find('.on-device'),
     deleteButton: () => wrapper.find('button[name="delete"]'),
     selectButton: () => wrapper.find('button[name="select"]'),
-    title: () => wrapper.first('.title').text().trim(),
-    version: () => wrapper.first('.version').text().trim(),
-    description: () => wrapper.first('.description').text().trim(),
-    thumbnail: () => wrapper.first('.thumbnail'),
+    title: () => wrapper.find('.title').text().trim(),
+    version: () => wrapper.find('.version').text().trim(),
+    description: () => wrapper.find('.description').text().trim(),
+    thumbnail: () => wrapper.find('.thumbnail'),
     addTaskMutation: (task) => wrapper.vm.$store.dispatch('addTask', task),
   };
 }
@@ -90,7 +90,7 @@ describe('channelListItem', () => {
         wrapper.setProps({ thumbnail: fakeImage });
         const { thumbnail } = getElements(wrapper);
         const thumb = thumbnail();
-        assert.equal(thumb.first('img').getAttribute('src'), fakeImage);
+        assert.equal(thumb.find('img').attributes().src, fakeImage);
         assert(!thumb.contains('svg'));
       }
       testAll(test);
@@ -139,7 +139,7 @@ describe('channelListItem', () => {
     function test(wrapper) {
       const { resourcesSizeText, onDevice } = getElements(wrapper);
       assert.equal(resourcesSizeText(), '90 MB');
-      assert.deepEqual(onDevice(), []);
+      assert(!onDevice().exists());
     }
     test(manageWrapper);
     test(exportWrapper);
@@ -150,12 +150,11 @@ describe('channelListItem', () => {
     const { deleteButton, selectButton } = getElements(wrapper);
     const emitSpy = sinon.spy(wrapper.vm, '$emit');
     // Select button is not shown
-    assert.deepEqual(selectButton(), []);
-    deleteButton()[0].trigger('click');
-    return wrapper.vm.$nextTick().then(() => {
-      sinon.assert.calledOnce(emitSpy);
-      sinon.assert.calledWith(emitSpy, 'clickdelete');
-    });
+    assert(!selectButton().exists());
+    // prettier-ignore
+    deleteButton().trigger('click');
+    sinon.assert.calledOnce(emitSpy);
+    sinon.assert.calledWith(emitSpy, 'clickdelete');
   });
 
   it('in MANAGE mode only, delete button is disabled when tasks in queue', () => {
@@ -163,7 +162,8 @@ describe('channelListItem', () => {
     const { deleteButton, addTaskMutation } = getElements(wrapper);
     addTaskMutation({ id: 'task_1' });
     return wrapper.vm.$nextTick().then(() => {
-      assert.equal(deleteButton()[0].getAttribute('disabled'), 'disabled');
+      // prettier-ignore
+      assert.equal(deleteButton().attributes().disabled, 'disabled');
     });
   });
 
@@ -171,11 +171,10 @@ describe('channelListItem', () => {
     function test(wrapper) {
       const emitSpy = sinon.spy(wrapper.vm, '$emit');
       const { selectButton } = getElements(wrapper);
-      selectButton()[0].trigger('click');
-      return wrapper.vm.$nextTick().then(() => {
-        sinon.assert.calledOnce(emitSpy);
-        sinon.assert.calledWith(emitSpy, 'clickselect');
-      });
+      // prettier-ignore
+      selectButton().trigger('click');
+      sinon.assert.calledOnce(emitSpy);
+      sinon.assert.calledWith(emitSpy, 'clickselect');
     }
     return Promise.all([test(importWrapper), test(exportWrapper)]);
   });
@@ -185,7 +184,8 @@ describe('channelListItem', () => {
       const { selectButton, addTaskMutation } = getElements(wrapper);
       addTaskMutation({ id: 'task_1' });
       return wrapper.vm.$nextTick().then(() => {
-        assert.equal(selectButton()[0].getAttribute('disabled'), 'disabled');
+        // prettier-ignore
+        assert.equal(selectButton().attributes().disabled, 'disabled');
       });
     }
     return Promise.all([test(importWrapper), test(exportWrapper)]);
@@ -195,13 +195,13 @@ describe('channelListItem', () => {
     function posTest(wrapper) {
       wrapper.setProps({ onDevice: true });
       const { onDevice, resourcesSize } = getElements(wrapper);
-      assert(onDevice()[0].is('div'));
-      assert.deepEqual(resourcesSize(), []);
+      assert(onDevice().exists());
+      assert(!resourcesSize().exists());
     }
     function negTest(wrapper) {
       wrapper.setProps({ onDevice: true });
       const { onDevice } = getElements(wrapper);
-      assert.deepEqual(onDevice(), []);
+      assert(!onDevice().exists());
     }
     posTest(importWrapper);
     negTest(exportWrapper);
@@ -212,7 +212,7 @@ describe('channelListItem', () => {
     const wrapper = importWrapper;
     wrapper.setProps({ onDevice: false });
     const { onDevice, resourcesSize } = getElements(wrapper);
-    assert.deepEqual(onDevice(), []);
-    assert.deepEqual(resourcesSize(), []);
+    assert(!onDevice().exists());
+    assert(!resourcesSize().exists());
   });
 });

@@ -17,9 +17,10 @@
       </ul>
     </div>
 
-    <report-table>
+    <core-table>
       <thead slot="thead">
         <tr>
+          <th class="core-table-icon-col"></th>
           <header-cell
             :text="$tr('name')"
             :align="alignStart"
@@ -46,6 +47,9 @@
       </thead>
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
+          <td class="core-table-icon-col">
+            <content-icon :kind="row.kind" />
+          </td>
           <name-cell :kind="row.kind" :title="row.title" :link="genRowLink(row)">
             {{ $tr('exerciseCountText', {count: row.exerciseCount}) }}
             •
@@ -56,7 +60,7 @@
           <activity-cell :date="row.lastActive" />
         </tr>
       </tbody>
-    </report-table>
+    </core-table>
 
   </div>
 
@@ -65,13 +69,13 @@
 
 <script>
 
-  import * as CoachConstants from '../../constants';
-  import * as CoreConstants from 'kolibri.coreVue.vuex.constants';
-  import * as reportGetters from '../../state/getters/reports';
-  import * as reportConstants from '../../reportConstants';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import { TopicReports, LearnerReports, PageNames } from '../../constants';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { exerciseCount, contentCount, standardDataTable } from '../../state/getters/reports';
+  import { TableColumns } from '../../constants/reportConstants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
-  import reportTable from './report-table';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import progressCell from './table-cells/progress-cell';
@@ -80,11 +84,11 @@
   import alignMixin from './align-mixin';
 
   export default {
-    name: 'itemReportPage',
+    name: 'itemListPage',
     components: {
+      coreTable,
       contentIcon,
       breadcrumbs,
-      reportTable,
       headerCell,
       nameCell,
       progressCell,
@@ -97,21 +101,21 @@
       avgContentProgress: 'Avg. resource progress',
       lastActivity: 'Last activity',
       exerciseCountText:
-        '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+        '{count, number, integer} {count, plural, one {exercise} other {exercises}}',
       contentCountText:
-        '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+        '{count, number, integer} {count, plural, one {resource} other {resources}}',
     },
     computed: {
       tableColumns() {
-        return reportConstants.TableColumns;
+        return TableColumns;
       },
     },
     methods: {
       genRowLink(row) {
-        if (CoachConstants.TopicReports.includes(this.pageName)) {
-          if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+        if (TopicReports.includes(this.pageName)) {
+          if (row.kind === ContentNodeKinds.TOPIC) {
             return {
-              name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+              name: PageNames.TOPIC_ITEM_LIST,
               params: {
                 classId: this.classId,
                 channelId: this.pageState.channelId,
@@ -120,26 +124,26 @@
             };
           }
           return {
-            name: CoachConstants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
+            name: PageNames.TOPIC_LEARNERS_FOR_ITEM,
             params: {
               classId: this.classId,
               channelId: this.pageState.channelId,
               contentId: row.id,
             },
           };
-        } else if (CoachConstants.LearnerReports.includes(this.pageName)) {
-          if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
+        } else if (LearnerReports.includes(this.pageName)) {
+          if (row.kind === ContentNodeKinds.TOPIC) {
             return {
-              name: CoachConstants.PageNames.LEARNER_ITEM_LIST,
+              name: PageNames.LEARNER_ITEM_LIST,
               params: {
                 classId: this.classId,
                 channelId: this.pageState.channelId,
                 topicId: row.id,
               },
             };
-          } else if (row.kind === CoreConstants.ContentNodeKinds.EXERCISE) {
+          } else if (row.kind === ContentNodeKinds.EXERCISE) {
             return {
-              name: CoachConstants.PageNames.LEARNER_ITEM_DETAILS_ROOT,
+              name: PageNames.LEARNER_ITEM_DETAILS_ROOT,
               params: {
                 classId: this.classId,
                 channelId: this.pageState.channelId,
@@ -156,9 +160,9 @@
         classId: state => state.classId,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
-        exerciseCount: reportGetters.exerciseCount,
-        contentCount: reportGetters.contentCount,
-        standardDataTable: reportGetters.standardDataTable,
+        exerciseCount,
+        contentCount,
+        standardDataTable,
       },
     },
   };

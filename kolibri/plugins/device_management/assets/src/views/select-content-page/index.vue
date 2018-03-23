@@ -101,7 +101,10 @@
   import subpageContainer from '../containers/subpage-container';
   import { channelIsInstalled, wizardState, nodeTransferCounts } from '../../state/getters';
   import isEmpty from 'lodash/isEmpty';
-  import { getAvailableSpaceOnDrive } from '../../state/actions/selectContentActions';
+  import {
+    getAvailableSpaceOnDrive,
+    updateTreeViewTopic,
+  } from '../../state/actions/selectContentActions';
   import {
     downloadChannelMetadata,
     transferChannelContent,
@@ -167,6 +170,10 @@
         this.showUpdateProgressBar = true;
         return this.downloadChannelMetadata().then(() => {
           this.showUpdateProgressBar = false;
+          // Update the topic in case content names have changed
+          this.updateTreeViewTopic(this.topicNode);
+          // Update total Channel resource counts
+          this.updateResourceCounts();
         });
       },
       startTransferringContent() {
@@ -193,12 +200,21 @@
         selectedItems: state => wizardState(state).nodesForTransfer || {},
         transferType: state => wizardState(state).transferType,
         wizardStatus: state => wizardState(state).status,
+        topicNode: state => wizardState(state).currentTopicNode,
       },
       actions: {
         downloadChannelMetadata,
         getAvailableSpaceOnDrive,
         transferChannelContent,
         waitForTaskToComplete,
+        updateTreeViewTopic,
+        updateResourceCounts(store) {
+          const { transferredChannel, availableChannels } = wizardState(store.state);
+          const updatedChannel = availableChannels.find(
+            channel => channel.id === transferredChannel.id
+          );
+          store.dispatch('SET_TRANSFERRED_CHANNEL', updatedChannel);
+        },
       },
     },
     $trs: {

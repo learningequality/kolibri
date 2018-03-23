@@ -27,21 +27,21 @@ help:
 	@echo "lint: check Python style with flake8"
 	@echo "test: run tests quickly with the default Python"
 	@echo "test-all: run tests on every Python version with Tox"
+	@echo "test-namespaced-packages: verify that we haven't fetched anything namespaced into kolibri/dist"
 	@echo "coverage: run tests, recording and printing out Python code coverage"
-	@echo "docs: generate all documentation"
-	@echo "docs-user: generate just the user docs"
-	@echo "docs-developer: generate just developer and API docs"
+	@echo "docs: generate developer documentation"
 	@echo ""
 	@echo "Internationalization"
 	@echo "--------------------"
 	@echo ""
-	@echo "makemessages: collects messages marked for translation in code+docs"
-	@echo "compilemessages: compiles message sources (run this to see changes locally)"
-	@echo "syncmessages: uploads and downloads contents from CrowdIn"
-	@echo "uploadmessages: uploads output of makemessages to CrowdIn"
-	@echo "downloadmessages: fetches new translations from CrowdIn"
+	@echo "translation-extract: extract all strings from application (both front- and back-end)"
+	@echo "translation-crowdin-upload branch=<crowdin-branch>: upload strings to Crowdin"
+	@echo "translation-crowdin-download branch=<crowdin-branch>: download strings from Crowdin and compile"
+	@echo "translation-crowdin-install: installs the Crowdin CLI"
+	@echo "translation-django-compilemessages: compiles .po files to .mo files for Django"
 
-clean: clean-build clean-pyc clean-docs clean-assets
+
+clean: clean-build clean-pyc clean-assets
 
 clean-assets:
 	yarn run clean
@@ -68,10 +68,9 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 clean-docs:
-	rm -f docs-developer/py_modules/kolibri*rst
-	rm -f docs-developer/py_modules/modules.rst
+	rm -f docs/py_modules/kolibri*rst
+	rm -f docs/py_modules/modules.rst
 	$(MAKE) -C docs clean
-	$(MAKE) -C docs-developer clean
 
 lint:
 	flake8 kolibri
@@ -91,18 +90,29 @@ coverage:
 	coverage run --source kolibri setup.py test
 	coverage report -m
 
-docs-developer: clean-docs
-	sphinx-apidoc -d 10 -H "Python Reference" -o docs-developer/py_modules/ kolibri kolibri/test kolibri/deployment/ kolibri/dist/
-	$(MAKE) -C docs-developer html
-
-docs-user: clean-docs
+docs: clean-docs
+	sphinx-apidoc -d 10 -H "Python Reference" -o docs/py_modules/ kolibri kolibri/test kolibri/deployment/ kolibri/dist/
 	$(MAKE) -C docs html
-
-docs: docs-user docs-developer
 
 release:
 	@ls -l dist/
-	@echo "\nDo you want to upload everything in dist/*?\n\n CTRL+C to exit."
+	@echo "Release process documentation:"
+	@echo ""
+	@echo "http://kolibri-dev.readthedocs.io/en/develop/references/release_process.html"
+	@echo ""
+	@echo ""
+	@echo "Quick check list:"
+	@echo ""
+	@echo "1. Release notes?"
+	@echo "2. Downloaded CrowdIn translations?"
+	@echo "3. Pushed CrowdIn translations to repo?"
+	@echo "4. Version info as tag and in kolibri.VERSION?"
+	@echo "5. Did you do a signed commit and push to Github?"
+	@echo "6. Check that the .whl and .tar.gz dists work?"
+	@echo ""
+	@echo "Do you want to upload everything in dist/*?"
+	@echo ""
+	@echo "CTRL+C to exit. ENTER to continue."
 	@read __
 	twine upload -s dist/*
 
@@ -113,10 +123,14 @@ test-namespaced-packages:
 	! find kolibri/dist -mindepth 1 -maxdepth 1 -type d -not -name __pycache__ -not -name cext -not -name py2only -exec ls {}/__init__.py \; 2>&1 | grep  "No such file"
 
 staticdeps:
+	test "${SKIP_PY_CHECK}" = "1" || python --version 2>&1 | grep -q 2.7 || ( echo "Only intended to run on Python 2.7" && exit 1 )
 	rm -rf kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
 	pip install -t kolibri/dist -r "requirements.txt"
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	# Remove unnecessary python2-syntax'ed file
+	# https://github.com/learningequality/kolibri/issues/3152
+	rm -f kolibri/dist/kolibri_exercise_perseus_plugin/static/mathjax/kathjax.py
 	python build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
 	make test-namespaced-packages
 
@@ -141,7 +155,7 @@ buildconfig:
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: writeversion staticdeps staticdeps-cext buildconfig assets compilemessages
+dist: writeversion staticdeps staticdeps-cext buildconfig assets translation-django-compilemessages
 	python setup.py sdist --format=gztar --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
 	ls -l dist
@@ -149,26 +163,22 @@ dist: writeversion staticdeps staticdeps-cext buildconfig assets compilemessages
 pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed -s 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
-makedocsmessages:
-	make -C docs/ gettext
-	cd docs && sphinx-intl update -p _build/locale -l en
+translation-extract: assets
+	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
 
-makemessages: assets makedocsmessages
-	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*' --ignore 'docs/conf.py'
+translation-django-compilemessages:
+	# Change working directory to kolibri/ such that compilemessages
+	# finds only the .po files nested there.
+	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
 
-compilemessages:
-	python -m kolibri manage compilemessages
+translation-crowdin-install:
+	@`[ -f build_tools/crowdin-cli.jar ]` && echo "Found crowdin-cli.jar" || wget -O build_tools/crowdin-cli.jar https://storage.googleapis.com/le-downloads/crowdin-cli/crowdin-cli.jar
 
-syncmessages: ensurecrowdinclient uploadmessages downloadmessages
+translation-crowdin-upload:
+	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml upload sources -b ${branch}
 
-ensurecrowdinclient:
-	@`[ -f crowdin-cli.jar ]` && echo "Found crowdin-cli.jar" || wget https://storage.googleapis.com/le-downloads/crowdin-cli/crowdin-cli.jar
-
-uploadmessages:
-	java -jar crowdin-cli.jar upload sources -b `git symbolic-ref HEAD | xargs basename`
-
-downloadmessages:
-	java -jar crowdin-cli.jar download -b `git symbolic-ref HEAD | xargs basename`
+translation-crowdin-download:
+	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${branch}
 
 dockerenvclean:
 	docker container prune -f

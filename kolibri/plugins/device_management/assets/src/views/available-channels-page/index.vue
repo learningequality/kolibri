@@ -14,11 +14,11 @@
           <p>{{ $tr('channelsAvailable', { channels: numberOfAvailableChannels }) }}</p>
         </div>
         <div class="filters dib">
-          <ui-select
+          <k-select
             :options="languageFilterOptions"
             v-model="languageFilter"
             :label="$tr('languageFilterLabel')"
-            class="language-filter dib"
+            :inline="true"
           />
           <k-filter-textbox
             :placeholder="$tr('titleFilterPlaceholder')"
@@ -81,7 +81,7 @@
 <script>
 
   import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
-  import UiSelect from 'keen-ui/src/UiSelect';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   import channelListItem from '../manage-content-page/channel-list-item';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
@@ -109,12 +109,11 @@
       kFilterTextbox,
       subpageContainer,
       UiProgressLinear,
-      UiSelect,
+      kSelect,
     },
     data() {
       return {
-        // Initialized with this filter, but localized label is added after mount
-        languageFilter: { value: 'ALL' },
+        languageFilter: {},
         titleFilter: '',
         showTokenModal: false,
       };
@@ -191,7 +190,7 @@
         };
       },
     },
-    mounted() {
+    beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
     },
     methods: {
@@ -242,7 +241,7 @@
       exportToDisk: 'Export to {driveName}',
       importFromDisk: 'Import from {driveName}',
       kolibriCentralServer: 'Kolibri Studio',
-      languageFilterLabel: 'Language:',
+      languageFilterLabel: 'Language',
       titleFilterPlaceholder: 'Search for a channel…',
       yourChannels: 'Your channels',
       channelTokenButtonLabel: 'Try adding a token',
@@ -278,9 +277,6 @@
     width: 70%
     vertical-align: top
     margin: 16px 0
-
-  .language-filter
-    width: 45%
 
   .title-filter
     width: 50%

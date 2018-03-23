@@ -76,7 +76,7 @@ const generateIntlItems = language => {
    *     require.ensure(
    *       ['intl/locale-data/jsonp/sw-TZ.js'],
    *       function(require) {
-   *         resolve(require('intl/locale-data/jsonp/sw-TZ.js'));
+   *         resolve(() => require('intl/locale-data/jsonp/sw-TZ.js'));
    *       }
    *     );
    *   });
@@ -96,7 +96,7 @@ const generateIntlItems = language => {
         require.ensure(
           ['intl/locale-data/jsonp/${language_code}${language_script_string}${language_territory_string}.js'],
           function(require) {
-            resolve(require('intl/locale-data/jsonp/${language_code}${language_script_string}${language_territory_string}.js'));
+            resolve(() => require('intl/locale-data/jsonp/${language_code}${language_script_string}${language_territory_string}.js'));
           }
         );
       });`;
@@ -108,7 +108,7 @@ const intlFooter = `
         require.ensure(
           ['intl/locale-data/jsonp/en.js'],
           function(require) {
-            resolve(require('intl/locale-data/jsonp/en.js'));
+            resolve(() => require('intl/locale-data/jsonp/en.js'));
           }
         );
       });

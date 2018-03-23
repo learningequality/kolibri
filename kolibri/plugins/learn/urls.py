@@ -1,7 +1,9 @@
+from django.conf.urls import include
 from django.conf.urls import url
-
-from . import views
+from .views import LearnView
+from .api_urls import urlpatterns
 
 urlpatterns = [
-    url('^$', views.LearnView.as_view(), name='learn'),
+    url('^api/', include(urlpatterns)),
+    url('^$', LearnView.as_view(), name='learn'),
 ]

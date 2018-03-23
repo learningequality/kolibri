@@ -1,5 +1,6 @@
 // a name for every URL pattern
-const PageNames = {
+export const PageNames = {
+  ROOT: 'ROOT',
   TOPICS_ROOT: 'TOPICS_ROOT',
   TOPICS_CHANNEL: 'TOPICS_CHANNEL',
   TOPICS_TOPIC: 'TOPICS_TOPIC',
@@ -18,18 +19,24 @@ const PageNames = {
 };
 
 // switch between modes
-const PageModes = {
+export const PageModes = {
   TOPICS: 'TOPICS',
   RECOMMENDED: 'RECOMMENDED',
   SEARCH: 'SEARCH',
   EXAM: 'EXAM',
 };
 
-const RecommendedPages = [
+export const RecommendedPages = [
   PageNames.RECOMMENDED_POPULAR,
   PageNames.RECOMMENDED_RESUME,
   PageNames.RECOMMENDED_NEXT_STEPS,
   PageNames.RECOMMENDED_FEATURED,
 ];
 
-export { PageNames, PageModes, RecommendedPages };
+export const ClassesPageNames = {
+  ALL_CLASSES: 'ALL_CLASSES',
+  CLASS_ASSIGNMENTS: 'CLASS_ASSIGNMENTS',
+  LESSON_PLAYLIST: 'LESSON_PLAYLIST',
+  EXAM_VIEWER: 'EXAM_VIEWER',
+  LESSON_RESOURCE_VIEWER: 'LESSON_RESOURCE_VIEWER',
+};

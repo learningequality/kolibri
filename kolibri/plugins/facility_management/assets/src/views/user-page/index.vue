@@ -29,53 +29,50 @@
         v-model="searchFilter"
         class="user-filter"
       />
-
     </div>
 
-    <hr>
-
-    <table class="roster">
-
+    <core-table>
       <caption class="visuallyhidden">{{ $tr('users') }}</caption>
 
       <!-- Table Headers -->
-      <thead v-if="usersMatchFilter">
+      <thead slot="thead" v-if="usersMatchFilter">
         <tr>
-          <th class="col-header table-username" scope="col"> {{ $tr('username') }} </th>
-          <th class="col-header" scope="col">
+          <th class="core-table-icon-col"></th>
+          <th class="core-table-main-col">{{ $tr('username') }}</th>
+          <th>
             <span class="visuallyhidden">{{ $tr('kind') }}</span>
           </th>
-          <th class="col-header" scope="col"> {{ $tr('fullName') }} </th>
-          <th class="col-header" scope="col"></th>
+          <th>{{ $tr('fullName') }}</th>
+          <th></th>
         </tr>
       </thead>
 
       <!-- Table body -->
       <tbody v-if="usersMatchFilter">
         <tr v-for="user in visibleUsers" :key="user.id">
+          <td class="core-table-icon-col">
+            <ui-icon icon="person" />
+          </td>
           <!-- Username field -->
-          <th class="table-cell table-username" scope="col">
-            {{ user.username }}
-          </th>
+          <th class="core-table-main-col">{{ user.username }}</th>
 
           <!-- Logic for role tags -->
-          <td class="table-cell table-role">
+          <td>
             <user-role :role="user.kind" :omitLearner="true" />
           </td>
 
           <!-- Full Name field -->
-          <td scope="row" class="table-cell">
-            <span class="table-name">
-              {{ user.full_name }}
-            </span>
+          <td>
+            <span>{{ user.full_name }}</span>
           </td>
 
           <!-- Edit field -->
-          <td class="table-cell">
-            <dropdown-menu
-              :name="$tr('manage')"
+          <td>
+            <k-dropdown-menu
+              :text="$tr('manage')"
               :options="manageUserOptions(user.id)"
               :disabled="!canEditUser(user)"
+              appearance="flat-button"
               @select="handleManageUserSelection($event, user)"
             />
           </td>
@@ -83,7 +80,7 @@
         </tr>
       </tbody>
 
-    </table>
+    </core-table>
 
     <p v-if="noUsersExist">{{ $tr('noUsersExist') }}</p>
     <p v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</p>
@@ -121,8 +118,10 @@
 
 <script>
 
-  import * as constants from '../../constants';
-  import * as actions from '../../state/actions';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import UiIcon from 'keen-ui/src/UiIcon';
+  import { Modals } from '../../constants';
+  import { displayModal } from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import userCreateModal from './user-create-modal';
   import editUserModal from './edit-user-modal';
@@ -130,7 +129,7 @@
   import deleteUserModal from './delete-user-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
-  import dropdownMenu from 'kolibri.coreVue.components.dropdownMenu';
+  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import userRole from '../user-role';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
@@ -145,9 +144,11 @@
       deleteUserModal,
       kButton,
       kFilterTextbox,
-      dropdownMenu,
+      kDropdownMenu,
       userRole,
       kSelect,
+      coreTable,
+      UiIcon,
     },
     data: () => ({
       searchFilter: '',
@@ -191,16 +192,16 @@
         );
       },
       showEditUserModal() {
-        return this.modalShown === constants.Modals.EDIT_USER;
+        return this.modalShown === Modals.EDIT_USER;
       },
       showResetUserPasswordModal() {
-        return this.modalShown === constants.Modals.RESET_USER_PASSWORD;
+        return this.modalShown === Modals.RESET_USER_PASSWORD;
       },
       showDeleteUserModal() {
-        return this.modalShown === constants.Modals.DELETE_USER;
+        return this.modalShown === Modals.DELETE_USER;
       },
       showCreateUserModal() {
-        return this.modalShown === constants.Modals.CREATE_USER;
+        return this.modalShown === Modals.CREATE_USER;
       },
     },
     beforeMount() {
@@ -220,15 +221,15 @@
       handleManageUserSelection(selection, user) {
         this.selectedUser = user;
         if (selection.label === this.$tr('editUser')) {
-          this.displayModal(constants.Modals.EDIT_USER);
+          this.displayModal(Modals.EDIT_USER);
         } else if (selection.label === this.$tr('resetUserPassword')) {
-          this.displayModal(constants.Modals.RESET_USER_PASSWORD);
+          this.displayModal(Modals.RESET_USER_PASSWORD);
         } else if (selection.label === this.$tr('deleteUser')) {
-          this.displayModal(constants.Modals.DELETE_USER);
+          this.displayModal(Modals.DELETE_USER);
         }
       },
       openCreateUserModal() {
-        this.displayModal(constants.Modals.CREATE_USER);
+        this.displayModal(Modals.CREATE_USER);
       },
       canEditUser(user) {
         if (!this.isSuperuser) {
@@ -245,11 +246,11 @@
         isSuperuser,
       },
       actions: {
-        displayModal: actions.displayModal,
+        displayModal,
       },
     },
     $trs: {
-      filterUserType: 'User kind',
+      filterUserType: 'User type',
       searchText: 'Search for a user...',
       allUsers: 'All',
       admins: 'Admins',
@@ -282,6 +283,9 @@
   // height of elements in toolbar,  based off of icon-button height
   $toolbar-height = 38px
 
+  .toolbar
+    margin-bottom: 32px
+
   .toolbar:after
     content: ''
     display: table
@@ -293,42 +297,6 @@
 
   .header h1
     display: inline-block
-
-  hr
-    background-color: $core-text-annotation
-    height: 1px
-    border: none
-
-  tr
-    text-align: left
-
-  .roster
-    min-width: 600px
-
-  th
-    text-align: inherit
-
-  .col-header
-    padding-bottom: (1.2 * $row-padding)
-    color: $core-text-annotation
-    font-weight: normal
-    font-size: 80%
-    width: 30%
-
-  .table-cell
-    font-weight: normal // compensates for <th> cells
-    padding-bottom: $row-padding
-    color: $core-text-default
-
-  .table-name
-    $line-height = 1em
-    line-height: $line-height
-    max-height: ($line-height * 2)
-    display: inline-block
-    padding-right: 1em
-
-  .role-header
-    display: none
 
   .user-roster
     overflow-x: auto

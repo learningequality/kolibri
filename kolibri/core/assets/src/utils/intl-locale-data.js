@@ -6,52 +6,58 @@
 */
 module.exports = function(locale) {
   switch (locale) {
+    case 'ar':
+      return new Promise(function(resolve) {
+        require.ensure(['intl/locale-data/jsonp/ar.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/ar.js'));
+        });
+      });
     case 'en':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/en.js'], function(require) {
-          resolve(require('intl/locale-data/jsonp/en.js'));
-        });
-      });
-    case 'sw-TZ':
-      return new Promise(function(resolve) {
-        require.ensure(['intl/locale-data/jsonp/sw-TZ.js'], function(require) {
-          resolve(require('intl/locale-data/jsonp/sw-TZ.js'));
+          resolve(() => require('intl/locale-data/jsonp/en.js'));
         });
       });
     case 'es-ES':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/es-ES.js'], function(require) {
-          resolve(require('intl/locale-data/jsonp/es-ES.js'));
-        });
-      });
-    case 'fr-FR':
-      return new Promise(function(resolve) {
-        require.ensure(['intl/locale-data/jsonp/fr-FR.js'], function(require) {
-          resolve(require('intl/locale-data/jsonp/fr-FR.js'));
-        });
-      });
-    case 'ar':
-      return new Promise(function(resolve) {
-        require.ensure(['intl/locale-data/jsonp/ar.js'], function(require) {
-          resolve(require('intl/locale-data/jsonp/ar.js'));
+          resolve(() => require('intl/locale-data/jsonp/es-ES.js'));
         });
       });
     case 'fa':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/fa.js'], function(require) {
-          resolve(require('intl/locale-data/jsonp/fa.js'));
+          resolve(() => require('intl/locale-data/jsonp/fa.js'));
+        });
+      });
+    case 'fr-FR':
+      return new Promise(function(resolve) {
+        require.ensure(['intl/locale-data/jsonp/fr-FR.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/fr-FR.js'));
+        });
+      });
+    case 'fr-HT':
+      return new Promise(function(resolve) {
+        require.ensure(['intl/locale-data/jsonp/fr-HT.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/fr-HT.js'));
+        });
+      });
+    case 'my':
+      return new Promise(function(resolve) {
+        require.ensure(['intl/locale-data/jsonp/my.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/my.js'));
         });
       });
     case 'ur-PK':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/ur-PK.js'], function(require) {
-          resolve(require('intl/locale-data/jsonp/ur-PK.js'));
+          resolve(() => require('intl/locale-data/jsonp/ur-PK.js'));
         });
       });
     default:
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/en.js'], function(require) {
-          resolve(require('intl/locale-data/jsonp/en.js'));
+          resolve(() => require('intl/locale-data/jsonp/en.js'));
         });
       });
   }

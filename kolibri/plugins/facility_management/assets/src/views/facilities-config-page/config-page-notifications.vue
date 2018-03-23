@@ -50,7 +50,7 @@
     },
     $trs: {
       saveFailure: 'There was a problem saving your settings',
-      saveSuccess: 'Facility settings updated!',
+      saveSuccess: 'Facility settings updated',
       pageloadFailure: 'There was a problem loading your settings',
     },
   };

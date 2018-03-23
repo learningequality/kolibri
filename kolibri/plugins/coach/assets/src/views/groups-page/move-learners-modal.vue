@@ -56,7 +56,7 @@
     $trs: {
       moveLearners: 'Move learners',
       moveLearnerCount:
-        'Move {count, number, integer} {count, plural, one {learner} other {learners}} to:',
+        'Move {count, number, integer} {count, plural, one {learner} other {learners}} to',
       ungrouped: 'Ungrouped',
       cancel: 'Cancel',
       move: 'Move',

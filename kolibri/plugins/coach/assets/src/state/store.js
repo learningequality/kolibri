@@ -1,23 +1,27 @@
 import Vue from 'kolibri.lib.vue';
+import * as lessonsMutations from './mutations/lessonsMutations';
 
 export const initialState = {
   pageName: '',
   pageState: {},
   classId: null,
+  className: null,
   classList: [],
   busy: false,
 };
 
 export const mutations = {
   // coach-wide
+  ...lessonsMutations,
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
   SET_PAGE_NAME(state, pageName) {
     state.pageName = pageName;
   },
-  SET_CLASS_INFO(state, classId, classList) {
+  SET_CLASS_INFO(state, classId, className, classList) {
     state.classId = classId;
+    state.className = className;
     state.classList = classList;
   },
 
@@ -32,6 +36,7 @@ export const mutations = {
     Vue.set(state.pageState, 'contentScopeId', options.contentScopeId);
     Vue.set(state.pageState, 'userScope', options.userScope);
     Vue.set(state.pageState, 'userScopeId', options.userScopeId);
+    Vue.set(state.pageState, 'userScopeName', options.userScopeName);
     Vue.set(state.pageState, 'viewBy', options.viewBy);
     Vue.set(state.pageState, 'showRecentOnly', options.showRecentOnly);
   },
@@ -70,11 +75,11 @@ export const mutations = {
   SET_EXAMS(state, exams) {
     state.pageState.exams = exams;
   },
-  SET_EXAM_MODAL(state, modalName) {
-    state.pageState.examModalShown = modalName;
+  SET_EXAMS_MODAL(state, modalName) {
+    state.pageState.examsModalSet = modalName;
   },
   // etc
-  SET_SELETED_ATTEMPTLOG_INDEX(state, attemptLog) {
+  SET_SELECTED_ATTEMPT_LOG_INDEX(state, attemptLog) {
     state.pageState.selectedAttemptLogIndex = attemptLog;
   },
 

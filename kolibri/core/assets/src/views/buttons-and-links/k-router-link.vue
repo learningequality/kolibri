@@ -1,8 +1,7 @@
 <template>
 
-  <router-link :class="buttonClasses" :to="to">
-    {{ text }}
-  </router-link>
+  <!-- no extra whitespace inside link -->
+  <router-link :class="buttonClasses" :to="to">{{ text }}</router-link>
 
 </template>
 

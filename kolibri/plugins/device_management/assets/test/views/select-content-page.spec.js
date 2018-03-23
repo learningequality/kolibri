@@ -3,7 +3,7 @@ import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import assert from 'assert';
-import { mount } from 'avoriaz';
+import { mount } from '@vue/test-utils';
 import SelectContentPage from '../../src/views/select-content-page';
 import { defaultChannel, contentNodeGranularPayload } from '../utils/data';
 import { wizardState } from '../../src/state/getters';
@@ -26,6 +26,7 @@ function makeStore() {
             ...defaultChannel,
             on_device_file_size: 2200000000,
             on_device_resources: 2000,
+            available: true,
           },
         ],
         taskList: [],
@@ -45,6 +46,7 @@ function makeWrapper(options) {
   return mount(SelectContentPage, {
     propsData: props,
     store: store || makeStore(),
+    stubs: ['content-tree-viewer'],
     router,
   });
 }
@@ -52,18 +54,18 @@ function makeWrapper(options) {
 // prettier-ignore
 function getElements(wrapper) {
   return {
-    description: () => wrapper.first('.description').text().trim(),
+    description: () => wrapper.find('.description').text().trim(),
     notificationsSection: () => wrapper.find('section.notifications'),
-    onDeviceRows: () => wrapper.find('tr.on-device td'),
+    onDeviceRows: () => wrapper.findAll('tr.on-device td'),
     resourcesSize: () => wrapper.find(SelectedResourcesSize),
-    thumbnail: () => wrapper.first('.thumbnail'),
-    title: () => wrapper.first('.title').text().trim(),
-    totalSizeRows: () => wrapper.find('tr.total-size td'),
+    thumbnail: () => wrapper.find('.thumbnail'),
+    title: () => wrapper.find('.title').text().trim(),
+    totalSizeRows: () => wrapper.findAll('tr.total-size td'),
     treeView: () => wrapper.find('section.resources-tree-view'),
     updateSection: () => wrapper.find('.updates-available'),
     updateButton: () => wrapper.find('button[name="update"]'),
-    version: () => wrapper.first('.version').text().trim(),
-    versionAvailable: () => wrapper.first('.updates-available span').text().trim(),
+    version: () => wrapper.find('.version').text().trim(),
+    versionAvailable: () => wrapper.find('.updates-available span').text().trim(),
   };
 }
 
@@ -87,35 +89,27 @@ describe('selectContentPage', () => {
     updateMetaChannel(store, { thumbnail: fakeImage });
     const wrapper = makeWrapper({ store });
     const { thumbnail, version, title, description } = getElements(wrapper);
-    assert.equal(
-      thumbnail()
-        .first('img')
-        .getAttribute('src'),
-      fakeImage
-    );
+    // prettier-ignore
+    assert.equal(thumbnail().find('img').attributes().src, fakeImage);
     assert.equal(title(), 'Channel Title');
     assert.equal(version(), 'Version 20');
     assert.equal(description(), 'An awesome channel');
   });
 
-  xit('if there is no thumbnail, it shows a placeholder', () => {});
-
-  xit('if channel is unlisted, shows an icon', () => {});
-
   it('shows the total size of the channel', () => {
     const wrapper = makeWrapper({ store });
     const { totalSizeRows } = getElements(wrapper);
     const rows = totalSizeRows();
-    assert.equal(rows[1].text(), '5,000');
-    assert.equal(rows[2].text(), '4 GB');
+    assert.equal(rows.at(1).text(), '5,000');
+    assert.equal(rows.at(2).text(), '4 GB');
   });
 
   it('if resources are on the device, it shows the total size of those', () => {
     const wrapper = makeWrapper({ store });
     const { onDeviceRows } = getElements(wrapper);
     const rows = onDeviceRows();
-    assert.equal(rows[1].text(), '2,000');
-    assert.equal(rows[2].text(), '2 GB');
+    assert.equal(rows.at(1).text(), '2,000');
+    assert.equal(rows.at(2).text(), '2 GB');
   });
 
   it('if channel is not on device, it shows size and resources as 0', () => {
@@ -123,16 +117,16 @@ describe('selectContentPage', () => {
     const wrapper = makeWrapper({ store });
     const { onDeviceRows } = getElements(wrapper);
     const rows = onDeviceRows();
-    assert.equal(rows[1].text(), '0');
-    assert.equal(rows[2].text(), '0 B');
+    assert.equal(rows.at(1).text(), '0');
+    assert.equal(rows.at(2).text(), '0 B');
   });
 
   it('if a new version is available, a update notification and button appear', () => {
     updateMetaChannel(store, { version: 1000 });
     const wrapper = makeWrapper({ store });
     const { updateSection, notificationsSection, versionAvailable } = getElements(wrapper);
-    assert(updateSection()[0].is('div'));
-    assert(notificationsSection()[0].is('section'));
+    assert.equal(updateSection().exists(), true);
+    assert(notificationsSection().is('section'));
     // { useGrouping: false } intl option not working, but probably won't see such a large number
     assert.equal(versionAvailable(), 'Version 1,000 available');
   });
@@ -146,10 +140,8 @@ describe('selectContentPage', () => {
     const wrapper = makeWrapper({ store });
     const { updateButton } = getElements(wrapper);
     const stub = sinon.stub(wrapper.vm, 'downloadChannelMetadata').returns(Promise.resolve());
-    updateButton()[0].trigger('click');
-    return wrapper.vm.$nextTick().then(() => {
-      sinon.assert.called(stub);
-    });
+    updateButton().trigger('click');
+    sinon.assert.called(stub);
   });
 
   it('in REMOTEIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
@@ -158,37 +150,16 @@ describe('selectContentPage', () => {
     const wrapper = makeWrapper({ store });
     const { updateButton } = getElements(wrapper);
     const stub = sinon.stub(wrapper.vm, 'downloadChannelMetadata').returns(Promise.resolve());
-    updateButton()[0].trigger('click');
-    return wrapper.vm.$nextTick().then(() => {
-      sinon.assert.calledWith(stub);
-    });
+    updateButton().trigger('click');
+    sinon.assert.calledWith(stub);
   });
-
-  xit('if in LOCALEXPORT, the "channel up-to-date" is not shown', () => {});
 
   it('if a new version is not available, then no notification/button appear', () => {
     updateMetaChannel(store, { version: 20 });
     const wrapper = makeWrapper({ store });
-    const { updateSection, notificationsSection } = getElements(wrapper);
-    assert(notificationsSection()[0].isEmpty());
-    assert.deepEqual(updateSection(), []);
+    const { updateSection } = getElements(wrapper);
+    // isEmpty seems to not work if child is not rendered via v-if
+    // assert.equal(notificationsSection().isEmpty(), true);
+    assert.equal(updateSection().exists(), false);
   });
-
-  xit('if on-device info is not ready, then the size display and tree view are not shown', () => {});
-
-  xit('if on-device info is ready, then the size display and tree view are shown', () => {});
-
-  xit('the correct props are passed to the selected resources size component', () => {
-    const wrapper = makeWrapper({ store });
-    const { resourcesSize } = getElements(wrapper);
-    const props = resourcesSize()[0].vm.$props;
-    assert.deepEqual(props, {
-      mode: 'import',
-      fileSize: 10000000000,
-      resourceCount: 5000,
-      spaceOnDrive: 1000,
-    });
-  });
-
-  xit('when there is an error, a ui-alert appears', () => {});
 });

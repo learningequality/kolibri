@@ -4,10 +4,11 @@
 
     <breadcrumbs />
     <h1>{{ $tr('title') }}</h1>
-    <p v-if="!standardDataTable.length">{{ $tr('noRecentProgress', { threshold }) }}</p>
-    <report-table v-if="standardDataTable.length">
+    <p v-if="!standardDataTable.length">{{ noProgressText }}</p>
+    <core-table v-if="standardDataTable.length">
       <thead slot="thead">
         <tr>
+          <th class="core-table-icon-col"></th>
           <header-cell
             :text="$tr('name')"
             :align="alignStart"
@@ -29,6 +30,9 @@
       </thead>
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
+          <td class="core-table-icon-col">
+            <content-icon :kind="row.kind" />
+          </td>
           <name-cell
             :kind="row.kind"
             :title="row.title"
@@ -41,7 +45,7 @@
           <activity-cell :date="row.lastActive" />
         </tr>
       </tbody>
-    </report-table>
+    </core-table>
 
 
   </div>
@@ -51,24 +55,24 @@
 
 <script>
 
-  import * as CoachConstants from '../../constants';
-  import * as reportConstants from '../../reportConstants';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import { PageNames } from '../../constants';
+  import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import * as mainGetters from '../../state/getters/main';
   import * as reportGetters from '../../state/getters/reports';
   import breadcrumbs from './breadcrumbs';
-  import reportTable from './report-table';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import alignMixin from './align-mixin';
   export default {
     name: 'coachRecentReports',
     components: {
+      coreTable,
       breadcrumbs,
-      reportTable,
       headerCell,
       nameCell,
       activityCell,
@@ -90,10 +94,10 @@
     },
     computed: {
       tableColumns() {
-        return reportConstants.TableColumns;
+        return TableColumns;
       },
-      threshold() {
-        return reportConstants.RECENCY_THRESHOLD_IN_DAYS;
+      noProgressText() {
+        return this.$tr('noRecentProgress', { RECENCY_THRESHOLD_IN_DAYS });
       },
     },
     methods: {
@@ -117,7 +121,7 @@
       },
       genLink(row) {
         return {
-          name: CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM,
+          name: PageNames.RECENT_LEARNERS_FOR_ITEM,
           params: {
             classId: this.classId,
             channelId: this.pageState.channelId,

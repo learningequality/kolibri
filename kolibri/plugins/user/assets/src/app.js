@@ -1,11 +1,15 @@
 import KolibriApp from 'kolibri_app';
 import RootVue from './views';
-import { showSignInPage, showSignUpPage, showProfilePage } from './state/actions';
+import {
+  showSignInPage,
+  showSignUpPage,
+  showProfilePage,
+  setFacilitiesAndConfig,
+} from './state/actions';
 import initialState from './state/initialState';
 import mutations from './state/mutations';
 import { PageNames } from './constants';
 import store from 'kolibri.coreVue.vuex.store';
-import { getFacilityConfig } from 'kolibri.coreVue.vuex.actions';
 import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 import router from 'kolibri.coreVue.router';
 
@@ -73,7 +77,7 @@ const routes = [
 
 class UserModule extends KolibriApp {
   get stateSetters() {
-    return [getFacilityConfig];
+    return [setFacilitiesAndConfig];
   }
   get routes() {
     return routes;

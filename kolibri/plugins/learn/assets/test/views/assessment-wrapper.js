@@ -3,7 +3,7 @@
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
-import Vue from 'vue-test';
+import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import assessmentWrapper from '../../src/views/assessment-wrapper';
 

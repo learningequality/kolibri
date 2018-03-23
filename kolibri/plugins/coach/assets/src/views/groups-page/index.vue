@@ -1,15 +1,18 @@
 <template>
 
   <div>
-    <h1 :class="{header: sortedGroups.length}">{{ $tr('classGroups') }}</h1>
-    
-    <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>   
-    
-    <k-button
-      :text="$tr('newGroup')"
-      :primary="true"
-      @click="openCreateGroupModal"
-    />
+    <section>
+      <h1 :class="{header: sortedGroups.length}">{{ $tr('classGroups') }}</h1>
+
+      <span v-if="!sortedGroups.length">{{ $tr('noGroups') }}</span>
+
+      <k-button
+        class="new-group-button"
+        :text="$tr('newGroup')"
+        :primary="true"
+        @click="openCreateGroupModal"
+      />
+    </section>
 
     <create-group-modal
       v-if="showCreateGroupModal"
@@ -60,7 +63,7 @@
 
 <script>
 
-  import * as groupActions from '../../state/actions/group';
+  import { displayModal } from '../../state/actions/group';
   import { GroupModals } from '../../constants';
   import differenceWith from 'lodash/differenceWith';
   import orderBy from 'lodash/orderBy';
@@ -78,7 +81,7 @@
       classGroups: 'Class groups',
       newGroup: 'New group',
       ungrouped: 'Ungrouped',
-      noGroups: 'You do not have any groups created yet',
+      noGroups: 'You do not have any groups',
     },
     components: {
       kButton,
@@ -161,7 +164,7 @@
         groups: state => state.pageState.groups,
         groupModalShown: state => state.pageState.groupModalShown,
       },
-      actions: { displayModal: groupActions.displayModal },
+      actions: { displayModal },
     },
   };
 
@@ -170,7 +173,8 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
+  .new-group-button
+    float: right
 
   .header
     display: inline-block

@@ -78,7 +78,10 @@ matrix:
         - TRAVIS_NODE_VERSION="6"
 
 before_install:
-  - git describe --tags
+  - git fetch
+  - git describe --tags --always
+  # Required until this is fixed: https://github.com/travis-ci/travis-ci/issues/9112
+  - sudo apt-get update --option Acquire::Retries=100 --option Acquire::http::Timeout="60"
   - pip install -U pip codecov tox
   - . $HOME/.nvm/nvm.sh
   - nvm install $TRAVIS_NODE_VERSION

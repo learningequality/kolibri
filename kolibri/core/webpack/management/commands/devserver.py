@@ -1,4 +1,6 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import atexit
 import logging
@@ -9,6 +11,7 @@ from threading import Thread
 
 from django.contrib.staticfiles.management.commands.runserver import Command as RunserverCommand
 from django.core.management.base import CommandError
+
 from kolibri.content.utils.annotation import update_channel_metadata
 
 logger = logging.getLogger(__name__)
@@ -37,13 +40,6 @@ class Command(RunserverCommand):
             help='Tells Django runserver to spawn a webpack watch subprocess.',
         )
         parser.add_argument(
-            '--lint',
-            action='store_true',
-            dest='lint',
-            default=False,
-            help='Tells Django runserver to run the linting option on webpack subprocess.',
-        )
-        parser.add_argument(
             '--karma',
             action='store_true',
             dest='karma',
@@ -54,7 +50,7 @@ class Command(RunserverCommand):
     def handle(self, *args, **options):
 
         if options["webpack"]:
-            self.spawn_webpack(lint=options["lint"])
+            self.spawn_webpack()
         if options["karma"]:
             self.spawn_karma()
 
@@ -62,12 +58,11 @@ class Command(RunserverCommand):
 
         return super(Command, self).handle(*args, **options)
 
-    def spawn_webpack(self, lint):
+    def spawn_webpack(self):
         self.spawn_subprocess(
             "webpack_process",
             self.start_webpack,
-            self.kill_webpack_process,
-            lint=lint)
+            self.kill_webpack_process)
 
     def spawn_karma(self):
         self.spawn_subprocess("karma_process", self.start_karma,
@@ -98,15 +93,9 @@ class Command(RunserverCommand):
 
     def start_webpack(self, lint=False):
 
-        if lint:
-            cli_command = 'yarn run watch -- --lint'
-            logger.info(
-                'Starting webpack process with linting from Django runserver command'
-            )
-        else:
-            cli_command = 'yarn run watch'
-            logger.info(
-                'Starting webpack process from Django runserver command')
+        cli_command = 'yarn run watch'
+        logger.info(
+            'Starting webpack process from Django runserver command')
 
         self.webpack_process = subprocess.Popen(
             cli_command,

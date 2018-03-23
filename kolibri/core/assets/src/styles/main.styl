@@ -30,13 +30,14 @@ html
   text-size-adjust: 100%
   box-sizing: border-box
   // from normalize v5
-  line-height: 1.15
+  line-height: 1.3
 
 html, body
   height:100%
   color: $core-text-default
   background-color: $core-bg-canvas
   letter-spacing: 0.01em
+  overflow-y: scroll // fixes #3318
 
 // https://purecss.io/grids/#using-grids-with-custom-fonts
 html, button, input, select, textarea, .pure-g [class *= 'pure-u']
@@ -143,4 +144,3 @@ button
 
 .rtl-icon
   transform: scaleX(-1)
-
