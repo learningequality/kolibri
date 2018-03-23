@@ -8,6 +8,7 @@ from rest_framework.test import APITestCase
 from .. import models
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
+from kolibri.auth.models import LearnerGroup
 from kolibri.auth.test.helpers import provision_device
 
 DUMMY_PASSWORD = "password"
@@ -105,8 +106,121 @@ class ExamAPITestCase(APITestCase):
             "question_count": 1,
             "active": True,
             "collection": self.facility.id,
-        })
+            "assignments": [],
+        }, format="json")
         self.assertEqual(response.status_code, 201)
+
+    def test_logged_in_admin_exam_create_with_assignments(self):
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(reverse("exam-list"), {
+            "title": "title next",
+            "channel_id": "test",
+            "question_count": 1,
+            "active": True,
+            "collection": self.facility.id,
+            "assignments": [{
+                "collection": self.facility.id,
+            }],
+        }, format="json")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(models.ExamAssignment.objects.get(collection=self.facility).exam, models.Exam.objects.get(title="title next"))
+
+    def test_logged_in_admin_exam_update_no_assignments(self):
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(reverse("exam-list"), {
+            "title": "title next",
+            "channel_id": "test",
+            "question_count": 1,
+            "active": True,
+            "collection": self.facility.id,
+            "assignments": [{
+                "collection": self.facility.id,
+            }],
+        }, format="json")
+        exam_id = models.Exam.objects.get(title="title next").id
+        response = self.client.put(reverse("exam-detail", kwargs={'pk': exam_id}), {
+            "title": "title next",
+            "channel_id": "test",
+            "question_count": 1,
+            "active": True,
+            "collection": self.facility.id,
+            "assignments": [],
+            "creator": self.admin.id,
+        }, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(models.Exam.objects.get(title="title next").assignments.count(), 0)
+
+    def test_logged_in_admin_exam_update_different_assignments(self):
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(reverse("exam-list"), {
+            "title": "title next",
+            "channel_id": "test",
+            "question_count": 1,
+            "active": True,
+            "collection": self.facility.id,
+            "assignments": [{
+                "collection": self.facility.id,
+            }],
+        }, format="json")
+        exam_id = models.Exam.objects.get(title="title next").id
+        group = LearnerGroup.objects.create(name="test", parent=self.facility)
+        response = self.client.put(reverse("exam-detail", kwargs={'pk': exam_id}), {
+            "title": "title next",
+            "channel_id": "test",
+            "question_count": 1,
+            "active": True,
+            "collection": self.facility.id,
+            "assignments": [{
+                "collection": group.id,
+            }],
+            "creator": self.admin.id,
+        }, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(models.Exam.objects.get(title="title next").assignments.count(), 1)
+        self.assertEqual(models.Exam.objects.get(title="title next").assignments.first().collection, group)
+
+    def test_logged_in_admin_exam_update_additional_assignments(self):
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(reverse("exam-list"), {
+            "title": "title next",
+            "channel_id": "test",
+            "question_count": 1,
+            "active": True,
+            "collection": self.facility.id,
+            "assignments": [{
+                "collection": self.facility.id,
+            }],
+        }, format="json")
+        exam_id = models.Exam.objects.get(title="title next").id
+        group = LearnerGroup.objects.create(name="test", parent=self.facility)
+        response = self.client.put(reverse("exam-detail", kwargs={'pk': exam_id}), {
+            "title": "title next",
+            "channel_id": "test",
+            "question_count": 1,
+            "active": True,
+            "collection": self.facility.id,
+            "assignments": [
+                {
+                    "collection": group.id,
+                },
+                {
+                    "collection": self.facility.id,
+                }
+            ],
+            "creator": self.admin.id,
+        }, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(models.Exam.objects.get(title="title next").assignments.count(), 2)
+        self.assertIn(models.Exam.objects.get(title="title next").assignments.first().collection, [group, self.facility])
+        self.assertIn(models.Exam.objects.get(title="title next").assignments.last().collection, [group, self.facility])
 
     def test_logged_in_user_exam_no_create(self):
 
@@ -122,7 +236,8 @@ class ExamAPITestCase(APITestCase):
             "question_count": 1,
             "active": True,
             "collection": self.facility.id,
-        })
+            "assignments": [],
+        }, format="json")
         self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_exam_update(self):
