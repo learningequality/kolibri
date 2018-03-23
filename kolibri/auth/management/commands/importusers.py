@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 from django.db import transaction
 
+from kolibri.auth.models import Classroom
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 
@@ -24,13 +25,25 @@ def infer_facility(user, default_facility):
         try:
             # Try lookup by id first, then name
             return Facility.objects.get(pk=user['facility'])
-        except Facility.DoesNotExist:
+        except (Facility.DoesNotExist, ValueError):
             try:
                 return Facility.objects.get(name=user['facility'])
             except Facility.DoesNotExist:
                 raise CommandError('Facility matching identifier {facility} was not found'.format(facility=user['facility']))
     else:
         return default_facility
+
+def infer_and_create_class(user, facility):
+    if 'class' in user and user['class']:
+        try:
+            # Try lookup by id first, then name
+            classroom = Classroom.objects.get(pk=user['class'], parent=facility)
+        except (Classroom.DoesNotExist, ValueError):
+            try:
+                classroom = Classroom.objects.get(name=user['class'], parent=facility)
+            except Classroom.DoesNotExist:
+                classroom = Classroom.objects.create(name=user['class'], parent=facility)
+        return classroom
 
 def create_user(i, user, default_facility=None):
     validate_username(user)
@@ -42,13 +55,16 @@ def create_user(i, user, default_facility=None):
         return False
 
     facility = infer_facility(user, default_facility)
+    classroom = infer_and_create_class(user, facility)
     try:
         username = user['username']
-        FacilityUser.objects.get(username=username, facility=facility)
+        user_obj = FacilityUser.objects.get(username=username, facility=facility)
         logging.warn('Tried to create a user with the username {username} in facility {facility}, but one already exists'.format(
             username=username,
             facility=facility
         ))
+        if classroom:
+            classroom.add_member(user_obj)
         return False
     except FacilityUser.DoesNotExist:
         new_user = FacilityUser.objects.create(
@@ -59,6 +75,8 @@ def create_user(i, user, default_facility=None):
         password = user.get('password', DEFAULT_PASSWORD)
         new_user.set_password(password)
         new_user.save()
+        if classroom:
+            classroom.add_member(new_user)
         logging.info('User created with username {username} in facility {facility} with password {password}'.format(
             username=username,
             facility=facility,
@@ -72,11 +90,11 @@ class Command(BaseCommand):
     them on a specified or the default facility.
 
     Requires CSV file data in this form:
-    <full_name>,<username>,<password>,<facility>
+    <full_name>,<username>,<password>,<facility>,<class>
 
     Less information can be passed if the headers are specified:
-    full_name,username,password
-    <full_name>,<username>,<password>
+    full_name,username,password,class
+    <full_name>,<username>,<password>,<class>
 
     Or in a different order:
     username,full_name
@@ -99,7 +117,10 @@ class Command(BaseCommand):
         else:
             default_facility = Facility.get_default_facility()
 
-        fieldnames = ['full_name', 'username', 'password', 'facility']
+        if not default_facility:
+            raise CommandError('No default facility exists, please make sure to provision this device before running this command')
+
+        fieldnames = ['full_name', 'username', 'password', 'facility', 'class']
         with open(options['filepath']) as f:
             header = next(csv.reader(f, strict=True))
             if all(col in fieldnames for col in header):
