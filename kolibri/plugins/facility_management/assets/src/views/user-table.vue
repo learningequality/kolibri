@@ -1,11 +1,14 @@
 <template>
 
-  <!-- TODO MOVE THIS COMPONENT OUT AFTER STRINGFREEZE -->
   <div>
     <core-table class="user-table">
-      <caption class="title">
+      <caption v-if="title" class="title">
         {{ title }}
       </caption>
+      <caption v-else class="visuallyhidden">
+        {{ $tr('users') }}
+      </caption>
+
 
       <thead slot="thead">
         <tr>
@@ -46,7 +49,7 @@
           </td>
           <td>
             {{ user.full_name }}
-            <user-role :role="user.kind" :omitLearner="true" />
+            <user-role class="role-badge" :role="user.kind" :omitLearner="true" />
           </td>
           <td class="visuallyhidden">
             {{ user.kind }}
@@ -75,7 +78,7 @@
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import userRole from '../user-role';
+  import userRole from './user-role';
   import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
@@ -93,7 +96,6 @@
       },
       title: {
         type: String,
-        required: true,
       },
       emptyMessage: {
         type: String,
@@ -174,5 +176,8 @@
 
   .user-action-button
     text-align: right
+
+  .role-badge
+    margin-left: 8px
 
 </style>

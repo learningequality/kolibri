@@ -1,5 +1,3 @@
-import orderBy from 'lodash/orderBy';
-
 export function userMatchesFilter(user, searchFilter) {
   const searchTerms = searchFilter.split(/\s+/).map(val => val.toLowerCase());
   const fullName = user.full_name.toLowerCase();
@@ -8,5 +6,12 @@ export function userMatchesFilter(user, searchFilter) {
 }
 
 export function filterAndSortUsers(users, pred, sortByKey = 'username') {
-  return orderBy(users.filter(pred), [user => user[sortByKey].toUpperCase()], ['asc']);
+  return users.filter(pred).sort(
+    // use 'search' option to ignore case rather than use locale defaults
+    (a, b) => {
+      return String(a[sortByKey]).localeCompare(String(b[sortByKey]), 'default', {
+        usage: 'search',
+      });
+    }
+  );
 }

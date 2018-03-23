@@ -62,7 +62,7 @@
             <k-radio-button
               :label="$tr('classCoachLabel')"
               :radiovalue="true"
-              v-model="classCoachIsSelected"
+              v-model="classCoach"
             />
             {{ $tr('classCoachDescription') }}
           </label>
@@ -70,7 +70,7 @@
             <k-radio-button
               :label="$tr('facilityCoachLabel')"
               :radiovalue="false"
-              v-model="classCoachIsSelected"
+              v-model="classCoach"
             />
             {{ $tr('facilityCoachDescription') }}
           </label>
@@ -154,7 +154,7 @@
           label: this.$tr('learner'),
           value: UserKinds.LEARNER,
         },
-        classCoachIsSelected: false,
+        classCoach: true,
         errorMessage: '',
         submitting: false,
         nameBlurred: false,
@@ -167,7 +167,7 @@
     computed: {
       newUserRole() {
         if (this.coachIsSelected) {
-          if (this.classCoachIsSelected) {
+          if (this.classCoach) {
             return UserKinds.ASSIGNABLE_COACH;
           }
           return UserKinds.COACH;

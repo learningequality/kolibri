@@ -1,9 +1,7 @@
 <template>
 
-  <div>
-    <!-- TODO convert to template for reusability w/in respective pages -->
+  <form @submit.prevent="$emit('submit', selectedUsers)">
     <div class="actions-header">
-      <!-- TODO align right -->
       <k-filter-textbox
         :placeholder="$tr('searchForUser')"
         v-model.trim="filterInput"
@@ -11,51 +9,48 @@
       />
     </div>
 
-    <form @submit.prevent="$emit('submit', selectedUsers)">
-      <user-table
-        v-model="selectedUsers"
-        :users="visibleFilteredUsers"
-        :title="$tr('userTableLabel')"
-        :selectable="true"
-        :selectAllLabel="$tr('selectAllOnPage')"
-        :userCheckboxLabel="$tr('selectUser')"
-        :emptyMessage="emptyMessage"
+    <user-table
+      v-model="selectedUsers"
+      :users="visibleFilteredUsers"
+      :title="$tr('userTableLabel')"
+      :selectable="true"
+      :selectAllLabel="$tr('selectAllOnPage')"
+      :userCheckboxLabel="$tr('selectUser')"
+      :emptyMessage="emptyMessage"
+    />
+
+    <nav>
+      <span>
+        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
+      </span>
+      <ui-icon-button
+        type="primary"
+        :icon="isRtl ? 'chevron_right' : 'chevron_left'"
+        :ariaLabel="$tr('previousResults')"
+        :disabled="pageNum === 1"
+        size="small"
+        @click="goToPage(pageNum - 1)"
       />
+      <ui-icon-button
+        type="primary"
+        :icon="isRtl ? 'chevron_left' : 'chevron_right'"
+        :ariaLabel="$tr('nextResults')"
+        :disabled="pageNum === numPages"
+        size="small"
+        @click="goToPage(pageNum + 1)"
+      />
+    </nav>
 
-      <nav>
-        <span>
-          {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
-        </span>
-        <ui-icon-button
-          type="primary"
-          :icon="isRtl? 'chevron_right' : 'chevron_left'"
-          :ariaLabel="$tr('previousResults')"
-          :disabled="pageNum === 1"
-          size="small"
-          @click="goToPage(pageNum - 1)"
-        />
-        <ui-icon-button
-          type="primary"
-          :icon="isRtl? 'chevron_left' : 'chevron_right'"
-          :ariaLabel="$tr('nextResults')"
-          :disabled="pageNum === numPages"
-          size="small"
-          @click="goToPage(pageNum + 1)"
-        />
-      </nav>
+    <div class="footer">
+      <k-button
+        :text="$tr('confirmSelectionButtonLabel')"
+        :primary="true"
+        type="submit"
+        :disabled="selectedUsers.length === 0"
+      />
+    </div>
 
-      <div class="footer">
-        <k-button
-          :text="$tr('confirmSelectionButtonLabel')"
-          :primary="true"
-          type="submit"
-          :disabled="selectedUsers.length === 0"
-        />
-      </div>
-
-    </form>
-
-  </div>
+  </form>
 
 </template>
 
@@ -64,16 +59,15 @@
 
   import { Modals } from './../constants';
   import differenceWith from 'lodash/differenceWith';
-  // TODO move to higher level directory after string freeze
-  import userTable from './class-edit-page/user-table';
+  import userTable from './user-table';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import orderBy from 'lodash/orderBy';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
+  import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
 
   export default {
     name: 'managementClassEnroll',
@@ -129,22 +123,11 @@
         return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
       },
       filteredUsers() {
-        const users = this.usersNotInClass;
-        return users.filter(user => {
-          const searchTerms = this.filterInput
-            .split(' ')
-            .filter(Boolean)
-            .map(term => term.toLowerCase());
-          const fullName = user.full_name.toLowerCase();
-          const username = user.username.toLowerCase();
-          return searchTerms.every(term => fullName.includes(term) || username.includes(term));
-        });
+        return this.usersNotInClass.filter(user => userMatchesFilter(user, this.filterInput));
       },
       sortedFilteredUsers() {
-        return orderBy(
-          this.filteredUsers,
-          [user => user.username.toUpperCase(), user => user.full_name.toUpperCase()],
-          ['asc', 'asc']
+        return filterAndSortUsers(this.usersNotInClass, user =>
+          userMatchesFilter(user, this.filterInput)
         );
       },
       numFilteredUsers() {
@@ -172,13 +155,13 @@
         return this.modalShown === Modals.CONFIRM_ENROLLMENT;
       },
       emptyMessage() {
-        if (this.usersNotInClass.length === 0) {
-          return this.$tr('allUsersAlready');
-        }
         if (this.facilityUsers.length === 0) {
           return this.$tr('noUsersExist');
         }
-        if (this.filteredUsers.length === 0 && this.filterInput !== '') {
+        if (this.usersNotInClass.length === 0) {
+          return this.$tr('allUsersAlready');
+        }
+        if (this.sortedFilteredUsers.length === 0 && this.filterInput !== '') {
           // TODO internationalize this
           return `${this.$tr('noUsersMatch')}: '${this.filterInput}'`;
         }
