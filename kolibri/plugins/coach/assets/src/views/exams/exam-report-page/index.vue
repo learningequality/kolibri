@@ -36,7 +36,11 @@
           {{ viewByGroups ? reportGrouping[0].group.name || $tr('ungrouped') : $tr('allLearners') }}
         </h3>
         <p class="average-score">
-          {{ $tr('averageScore', { num: getAverageScore(reportGrouping) }) }}
+          {{
+            getAverageScore(reportGrouping) === undefined ?
+              $tr('noAverageScore') :
+              $tr('averageScore', { num: getAverageScore(reportGrouping) })
+          }}
         </p>
 
         <core-table>
@@ -200,7 +204,7 @@
       getAverageScore(learners) {
         const examsInProgress = learners.filter(learner => learner.progress !== undefined);
         const totalScores = sumBy(examsInProgress, 'score');
-        return totalScores / examsInProgress.length / this.exam.question_count || 0;
+        return totalScores / examsInProgress.length / this.exam.question_count;
       },
     },
     vuex: {
@@ -216,6 +220,7 @@
     },
     $trs: {
       averageScore: 'Average score: {num, number, percent}',
+      noAverageScore: 'Average score: –',
       examReport: 'Exam report',
       completed: 'Completed',
       remaining: '{ num, number } {num, plural, one {question} other {questions}} remaining',
