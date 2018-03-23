@@ -5,9 +5,13 @@ export function userMatchesFilter(user, searchFilter) {
   return searchTerms.every(term => fullName.includes(term) || username.includes(term));
 }
 
-export function filterAndSortUsers(users, pred) {
+export function filterAndSortUsers(users, pred, sortByKey = 'username') {
   return users.filter(pred).sort(
     // use 'search' option to ignore case rather than use locale defaults
-    (user1, user2) => user1.localeCompare(user2, null, { usage: 'search' })
+    (a, b) => {
+      return a[sortByKey].localeCompare(b[sortByKey], 'default', {
+        usage: 'search',
+      });
+    }
   );
 }
