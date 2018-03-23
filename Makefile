@@ -82,6 +82,7 @@ test-all:
 	tox
 
 assets:
+	pip install -e .
 	yarn install
 	yarn run build
 
