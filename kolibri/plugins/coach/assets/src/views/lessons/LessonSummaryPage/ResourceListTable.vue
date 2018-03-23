@@ -3,11 +3,15 @@
   <core-table>
     <thead slot="thead">
       <tr>
-        <th class="visuallyhidden core-table-icon-col">
-          {{ $tr('resourceReorderColumnHeaderForTable') }}
+        <th class="core-table-icon-col">
+          <span class="visuallyhidden">
+            {{ $tr('resourceReorderColumnHeaderForTable') }}
+          </span>
         </th>
         <td class="core-table-icon-col">
-          <!-- include header? -->
+          <span class="visuallyhidden">
+            {{ $tr('resourceTypeColumnHeaderForTable') }}
+          </span>
         </td>
 
         <th class="core-table-main-col">
@@ -16,8 +20,10 @@
         <th>
           {{ $tr('resourceProgressColumnHeaderForTable') }}
         </th>
-        <th class="visuallyhidden">
-          {{ $tr('resourceRemovalColumnHeaderForTable') }}
+        <th>
+          <span class="visuallyhidden">
+            {{ $tr('resourceRemovalColumnHeaderForTable') }}
+          </span>
         </th>
       </tr>
     </thead>
@@ -242,6 +248,7 @@
       resourceProgressMessage: '{completed, number}/{total, number} completed',
       resourceReorderColumnHeaderForTable:
         'Use buttons in this column to re-order resources in the lesson',
+      resourceTypeColumnHeaderForTable: 'Resource type',
       nameColumnHeaderForTable: 'Name',
       resourceProgressColumnHeaderForTable: 'Resource progress',
       resourceRemovalColumnHeaderForTable:
