@@ -103,7 +103,7 @@ function _contentSessionModel(store) {
 }
 
 function _sessionState(data) {
-  const state = {
+  return {
     id: data.id,
     username: data.username,
     full_name: data.full_name,
@@ -113,7 +113,6 @@ function _sessionState(data) {
     error: data.error,
     can_manage_content: data.can_manage_content,
   };
-  return state;
 }
 
 function _masteryLogModel(store) {

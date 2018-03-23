@@ -453,6 +453,8 @@ export function showExamReport(store, classId, examId, questionNumber, questionI
 export function showExam(store, examId, questionNumber) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
+  // Reset examAttemptLogs, so that it will not merge into another exam.
+  store.dispatch('RESET_EXAM_ATTEMPT_LOGS');
   const userId = currentUserId(store.state);
   const examParams = { user: userId, exam: examId };
 

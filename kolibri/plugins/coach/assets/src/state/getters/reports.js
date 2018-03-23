@@ -3,7 +3,7 @@ import { PageNames } from '../../constants';
 import { ContentNodeKinds, USER } from 'kolibri.coreVue.vuex.constants';
 import { now } from 'kolibri.utils.serverClock';
 import * as ReportUtils from './reportUtils';
-import { classMemberCount } from './main';
+import { classMemberCount } from './classes';
 import differenceInDays from 'date-fns/difference_in_days';
 import logger from 'kolibri.lib.logging';
 

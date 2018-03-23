@@ -54,7 +54,7 @@
       </thead>
       <tbody slot="tbody" class="core-table-rows-selectable">
         <tr
-          v-for="user in group.users"
+          v-for="user in sortedGroupUsers"
           :key="user.id"
           :class="isSelected(user.id) ? 'core-table-row-selected' : ''"
           @click="toggleSelection(user.id)"
@@ -89,6 +89,7 @@
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
+  import sortBy from 'lodash/sortBy';
 
   export default {
     name: 'groupSection',
@@ -136,6 +137,9 @@
       return { selectedUsers: [] };
     },
     computed: {
+      sortedGroupUsers() {
+        return sortBy(this.group.users, user => user.full_name.toLowerCase());
+      },
       isSmall() {
         return this.elSize.width < 700;
       },

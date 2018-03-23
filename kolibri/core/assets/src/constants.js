@@ -4,6 +4,7 @@ const UserKinds = {
   LEARNER: 'learner',
   SUPERUSER: 'superuser',
   ANONYMOUS: 'anonymous',
+  ASSIGNABLE_COACH: 'classroom assignable coach',
 };
 
 const CollectionKinds = {
