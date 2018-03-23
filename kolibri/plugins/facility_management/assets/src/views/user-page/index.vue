@@ -147,8 +147,14 @@
     },
     methods: {
       userMatchesRole(user) {
-        const { value } = this.roleFilter;
-        return value === ALL_FILTER || user.kind === value;
+        const { value: filterKind } = this.roleFilter;
+        if (filterKind === ALL_FILTER) {
+          return true;
+        }
+        if (user.kind === UserKinds.ASSIGNABLE_COACH) {
+          return filterKind === UserKinds.COACH;
+        }
+        return filterKind === user.kind;
       },
       manageUserOptions(userId) {
         return [
