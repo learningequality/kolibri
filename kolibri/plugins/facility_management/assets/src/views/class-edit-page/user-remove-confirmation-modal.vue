@@ -3,25 +3,23 @@
   <core-modal
     :title="$tr('modalTitle')"
     :hasError="false"
+    @enter="confirmRemoval"
     @cancel="close"
   >
-    <div>
-      <p>{{ $tr('confirmation', { username: username, classname: classname }) }}</p>
-      <p>{{ $tr('description') }}</p>
+    <p>{{ $tr('confirmation', { username: username, classname: classname }) }}</p>
+    <p>{{ $tr('description') }}</p>
 
-      <div class="core-modal-buttons">
-        <k-button
-          :text="$tr('cancel')"
-          appearance="flat-button"
-          @click="close"
-        />
-        <k-button
-          :text="$tr('remove')"
-          :primary="true"
-          @click="confirmRemoval"
-        />
-      </div>
-
+    <div class="core-modal-buttons">
+      <k-button
+        :text="$tr('cancel')"
+        appearance="flat-button"
+        @click="close"
+      />
+      <k-button
+        :text="$tr('remove')"
+        :primary="true"
+        @click="confirmRemoval"
+      />
     </div>
   </core-modal>
 
