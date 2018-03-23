@@ -9,7 +9,7 @@ export function filterAndSortUsers(users, pred, sortByKey = 'username') {
   return users.filter(pred).sort(
     // use 'search' option to ignore case rather than use locale defaults
     (a, b) => {
-      return a[sortByKey].localeCompare(b[sortByKey], 'default', {
+      return String(a[sortByKey]).localeCompare(String(b[sortByKey]), 'default', {
         usage: 'search',
       });
     }
