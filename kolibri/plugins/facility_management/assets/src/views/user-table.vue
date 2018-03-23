@@ -49,7 +49,7 @@
           </td>
           <td>
             {{ user.full_name }}
-            <user-role :role="user.kind" :omitLearner="true" />
+            <user-role class="role-badge" :role="user.kind" :omitLearner="true" />
           </td>
           <td class="visuallyhidden">
             {{ user.kind }}
@@ -176,5 +176,8 @@
 
   .user-action-button
     text-align: right
+
+  .role-badge
+    margin-left: 8px
 
 </style>
