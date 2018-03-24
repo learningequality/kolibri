@@ -145,7 +145,7 @@
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { pageMode } from '../state/getters';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
+  import { isUserLoggedIn, facilityConfig } from 'kolibri.coreVue.vuex.getters';
   import { updateContentNodeProgress } from '../state/actions/main';
   import pageHeader from './page-header';
   import contentCardGroupCarousel from './content-card-group-carousel';
@@ -187,7 +187,7 @@
     }),
     computed: {
       canDownload() {
-        if (this.content) {
+        if (this.facilityConfig.showDownloadButtonInLearn && this.content) {
           return (
             this.downloadableFiles.length &&
             this.content.kind !== ContentNodeKinds.EXERCISE &&
@@ -290,6 +290,7 @@
         sessionProgress: state => state.core.logging.session.progress,
         pageMode,
         isUserLoggedIn,
+        facilityConfig,
       },
       actions: {
         initSessionAction,

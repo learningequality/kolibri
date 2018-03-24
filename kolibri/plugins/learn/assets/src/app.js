@@ -9,6 +9,7 @@ import {
   showTopicsTopic,
   showTopicsChannel,
   showTopicsContent,
+  setFacilitiesAndConfig,
 } from './state/actions/main';
 import {
   showLearn,
@@ -124,7 +125,7 @@ const routes = [
 
 class LearnModule extends KolibriApp {
   get stateSetters() {
-    return [prepareLearnApp];
+    return [prepareLearnApp, setFacilitiesAndConfig];
   }
   get routes() {
     return routes;

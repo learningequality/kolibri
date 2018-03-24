@@ -251,7 +251,7 @@ function getFacilities(store) {
 function getFacilityConfig(store, facilityId = currentFacilityId(store.state)) {
   const currentFacility = facilities(store.state).find(facility => facility.id === facilityId);
   let datasetPromise;
-  if (currentFacility && currentFacility.dataset) {
+  if (currentFacility && typeof currentFacility.dataset === 'object') {
     datasetPromise = Promise.resolve([currentFacility.dataset]);
   } else {
     datasetPromise = FacilityDatasetResource.getCollection({

@@ -12,6 +12,8 @@ import {
   handleError,
   handleApiError,
   samePageCheckGenerator,
+  getFacilities,
+  getFacilityConfig,
 } from 'kolibri.coreVue.vuex.actions';
 import {
   createQuestionList,
@@ -683,4 +685,10 @@ export function closeExam(store) {
     .catch(error => {
       handleApiError(store, error);
     });
+}
+
+export function setFacilitiesAndConfig(store) {
+  return getFacilities(store).then(() => {
+    return getFacilityConfig(store);
+  });
 }

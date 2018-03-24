@@ -115,6 +115,7 @@ class FacilityDataset(FacilityDataSyncableModel):
     learner_can_sign_up = models.BooleanField(default=True)
     learner_can_delete_account = models.BooleanField(default=True)
     learner_can_login_with_no_password = models.BooleanField(default=False)
+    show_download_button_in_learn = models.BooleanField(default=True)
 
     def __str__(self):
         facilities = self.collection_set.filter(kind=collection_kinds.FACILITY)
