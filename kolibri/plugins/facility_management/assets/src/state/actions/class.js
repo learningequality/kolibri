@@ -11,6 +11,7 @@ import { PageNames } from '../../constants';
 import { _userState } from './helpers/mappers';
 import displayModal from './helpers/displayModal';
 import preparePage from './helpers/preparePage';
+import { filterAndSortUsers } from '../../userSearchUtils';
 
 /**
  * Do a POST to create new class
@@ -193,8 +194,8 @@ export function showClassEditPage(store, classId) {
     modalShown: false,
     currentClass: classroom,
     classes: classrooms,
-    classLearners: facilityUsers.map(_userState),
-    classCoaches: classroom.coaches.map(_userState),
+    classLearners: filterAndSortUsers(facilityUsers).map(_userState),
+    classCoaches: filterAndSortUsers(classroom.coaches).map(_userState),
   });
 
   ConditionalPromise.all(promises).only(
