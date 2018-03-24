@@ -1,11 +1,8 @@
 const getCurrentClassroom = state => state.classList.find(({ id }) => id === state.classId);
+import { filterAndSortUsers } from '../../../../../facility_management/assets/src/userSearchUtils';
 
 export function className(state) {
-  const cls = getCurrentClassroom(state);
-  if (cls) {
-    return cls.name;
-  }
-  return '';
+  return state.class;
 }
 
 export function classMemberCount(state) {
@@ -17,8 +14,5 @@ export function classMemberCount(state) {
 }
 
 export function classCoaches(state) {
-  if (state.currentClassroom) {
-    return state.currentClassroom.coaches;
-  }
-  return [];
+  return filterAndSortUsers(state.classCoaches, () => true, 'full_name');
 }

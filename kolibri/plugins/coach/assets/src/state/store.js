@@ -25,6 +25,7 @@ export const mutations = {
     state.currentClassroom = currentClassroom;
     state.classId = classId;
     state.className = currentClassroom ? currentClassroom.name : '';
+    state.classCoaches = currentClassroom ? currentClassroom.coaches : [];
     state.classList = classList;
   },
 

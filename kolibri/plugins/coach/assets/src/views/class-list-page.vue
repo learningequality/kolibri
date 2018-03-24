@@ -60,6 +60,7 @@
   import { PageNames } from '../constants';
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import { filterAndSortUsers } from '../../../../facility_management/assets/src/userSearchUtils';
 
   function learnerPageLink(classId) {
     return {
@@ -87,7 +88,9 @@
       // Duplicated in manage-classroom-page
       coachNames(classroom) {
         const { coaches } = classroom;
-        const coach_names = coaches.map(({ full_name }) => full_name);
+        const coach_names = filterAndSortUsers(coaches, () => true, 'full_name').map(
+          ({ full_name }) => full_name
+        );
         if (coach_names.length === 0) {
           return '–';
         }
