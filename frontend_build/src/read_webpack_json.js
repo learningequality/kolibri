@@ -1,9 +1,8 @@
 var temp = require('temp').track();
 var fs = require('fs');
 var execSync = require('child_process').execSync;
-var path = require('path')
-var webpack_json = path.resolve(path.dirname(__filename), '../../build_tools/webpack_json.py')
-
+var path = require('path');
+var webpack_json = path.resolve(path.dirname(__filename), '../../build_tools/webpack_json.py');
 
 module.exports = function() {
   // the temporary path where the webpack_json json is stored
