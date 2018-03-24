@@ -459,7 +459,7 @@ export function createLesson(store, classId, payload) {
   return new Promise((resolve, reject) => {
     return LessonResource.createModel({
       ...payload,
-      resources: [],
+      lesson_resources: [],
       collection: classId,
     })
       .save()
