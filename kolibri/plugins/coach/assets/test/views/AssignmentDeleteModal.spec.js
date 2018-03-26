@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
+import { expect } from 'chai';
 import { mount } from '@vue/test-utils';
-import sinon from 'sinon';
 import AssignmentDeleteModal from '../../src/views/assignments/AssignmentDeleteModal';
 
 const defaultProps = {
@@ -24,19 +24,17 @@ describe('AssignmentDeleteModal', () => {
     const { wrapper, els } = makeWrapper({
       propsData: { ...defaultProps },
     });
-    const emitSpy = sinon.spy(wrapper.vm, '$emit');
     // Again, clicking the submit button does not propagate to form, so doing a hack
     // els.submitButton().trigger('click');
     els.form().trigger('submit');
-    sinon.assert.calledWith(emitSpy, 'delete');
+    expect(wrapper.emitted().delete.length).to.equal(1);
   });
 
   it('clicking cancel causes a "cancel" event to be emitted', () => {
     const { wrapper, els } = makeWrapper({
       propsData: { ...defaultProps },
     });
-    const emitSpy = sinon.spy(wrapper.vm, '$emit');
     els.cancelButton().trigger('click');
-    sinon.assert.calledWith(emitSpy, 'cancel');
+    expect(wrapper.emitted().cancel.length).to.equal(1);
   });
 });

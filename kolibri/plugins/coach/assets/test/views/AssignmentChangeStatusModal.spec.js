@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import { expect } from 'chai';
-import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
 import AssignmentChangeStatusModal from '../../src/views/assignments/AssignmentChangeStatusModal';
 
@@ -17,7 +16,6 @@ function makeWrapper(options) {
     activeRadio: () => wrapper.findAll('input[type="radio"]').at(0),
     inactiveRadio: () => wrapper.findAll('input[type="radio"]').at(1),
     submitButton: () => wrapper.find('button[type="submit"]'),
-    emitStub: () => sinon.stub(wrapper.vm, '$emit'),
     cancelButton: () => wrapper.find('button[name="cancel"]'),
     form: () => wrapper.find('form')
   }
@@ -32,14 +30,13 @@ describe('AssignmentChangeStatusModal', () => {
         active: true,
       },
     });
-    const emitStub = els.emitStub();
     expect(wrapper.vm.activeIsSelected).to.be.true;
     els.inactiveRadio().trigger('change');
     expect(wrapper.vm.activeIsSelected).to.be.false;
     // Clicking submit button doesn't propagate to form: may be bug with test-utils
     // els.submitButton().trigger('click');
     els.form().trigger('submit');
-    sinon.assert.calledWith(emitStub, 'changeStatus', false);
+    expect(wrapper.emitted().changeStatus[0][0]).to.be.false;
   });
 
   it('if status is changed from inactive to active, submitting form emits a "changestatus" event', () => {
@@ -49,32 +46,29 @@ describe('AssignmentChangeStatusModal', () => {
         active: false,
       },
     });
-    const emitStub = els.emitStub();
     expect(wrapper.vm.activeIsSelected).to.be.false;
     els.activeRadio().trigger('change');
     expect(wrapper.vm.activeIsSelected).to.be.true;
     els.form().trigger('submit');
-    sinon.assert.calledWith(emitStub, 'changeStatus', true);
+    expect(wrapper.emitted().changeStatus[0][0]).to.be.true;
   });
 
   it('if status has not changed, submitting form only closes modal', () => {
-    const { els } = makeWrapper({
+    const { wrapper, els } = makeWrapper({
       propsData: {
         ...defaultProps,
         active: false,
       },
     });
-    const emitStub = els.emitStub();
     els.form().trigger('submit');
-    sinon.assert.calledWith(emitStub, 'cancel');
+    expect(wrapper.emitted().cancel.length).to.equal(1);
   });
 
   it('pressing "cancel" closes the modal', () => {
-    const { els } = makeWrapper({
+    const { wrapper, els } = makeWrapper({
       propsData: { ...defaultProps },
     });
-    const emitStub = els.emitStub();
     els.cancelButton().trigger('click');
-    sinon.assert.calledWith(emitStub, 'cancel');
+    expect(wrapper.emitted().cancel.length).to.equal(1);
   });
 });

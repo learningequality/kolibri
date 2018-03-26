@@ -86,12 +86,11 @@ describe('AssignmentCopyModal', () => {
       store,
     });
     sinon.stub(wrapper.vm, 'getLearnerGroupsForClassroom').returns(Promise.resolve([]));
-    const emitStub = sinon.spy(wrapper.vm, '$emit');
     return wrapper.vm.goToAvailableGroups().then(() => {
       wrapper.update();
       els.selectLearnerGroupForm().trigger('submit');
       // By default, this will copy the Assignment to the same class, and the entire class
-      sinon.assert.calledWith(emitStub, 'copy', 'class_2', ['class_2']);
+      expect(wrapper.emitted().copy[0]).to.deep.equal(['class_2', ['class_2']]);
     });
   });
 
