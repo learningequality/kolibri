@@ -35,22 +35,6 @@ const translator = createTranslator('topicTreeExplorationPageTitles', {
   currentExamPageTitle: '{ currentExamTitle} - { currentChannelTitle }',
 });
 
-/**
- * Vuex State Mappers
- *
- * The methods below help map data from
- * the API to state in the Vuex store
- */
-
-function normalizeProgress(data) {
-  if (!data.progress_fraction) {
-    return 0.0;
-  } else if (data.progress_fraction > 1.0) {
-    return 1.0;
-  }
-  return data.progress_fraction;
-}
-
 // adds progress, thumbnail, and breadcrumbs. normalizes pk/id and kind
 function normalizeContentNode(node, ancestors = []) {
   const normalized = {
@@ -60,7 +44,7 @@ function normalizeContentNode(node, ancestors = []) {
     kind: node.parent ? node.kind : ContentNodeKinds.CHANNEL,
     thumbnail: getContentNodeThumbnail(node) || undefined,
     breadcrumbs: tail(ancestors),
-    progress: normalizeProgress(node),
+    progress: Math.min(node.progress_fraction || 0, 1.0),
   };
   delete normalized.pk;
   return normalized;
