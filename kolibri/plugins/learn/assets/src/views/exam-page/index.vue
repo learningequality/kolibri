@@ -15,7 +15,7 @@
               {{
                 $tr(
                   'questionsAnswered',
-                  { numAnswered: questionsAnswered, numTotal: exam.questionCount }
+                  { numAnswered: questionsAnswered, numTotal: exam.question_count }
                 )
               }}
             </p>
@@ -57,7 +57,7 @@
                   :text="$tr('previousQuestion')"
                 />
                 <k-button
-                  :disabled="questionNumber===exam.questionCount-1"
+                  :disabled="questionNumber===exam.question_count-1"
                   @click="goToQuestion(questionNumber + 1)"
                   :text="$tr('nextQuestion')"
                 />
@@ -159,7 +159,7 @@
         };
       },
       questionsUnanswered() {
-        return this.exam.questionCount - this.questionsAnswered;
+        return this.exam.question_count - this.questionsAnswered;
       },
     },
     created() {

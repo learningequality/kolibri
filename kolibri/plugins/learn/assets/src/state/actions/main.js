@@ -81,21 +81,6 @@ function _collectionState(data) {
   );
 }
 
-function _examState(data) {
-  const state = {
-    id: data.id,
-    title: data.title,
-    channelId: data.channel_id,
-    active: data.active,
-    archive: data.archive,
-    closed: data.closed,
-    answerCount: data.answer_count,
-    questionCount: data.question_count,
-    score: data.score,
-  };
-  return state;
-}
-
 function _examLoggingState(data) {
   const state = {
     id: data.id,
@@ -488,7 +473,7 @@ export function showExam(store, examId, questionNumber) {
                 );
 
                 const pageState = {
-                  exam: _examState(exam),
+                  exam,
                   itemId,
                   questions,
                   currentQuestion,
