@@ -23,6 +23,7 @@ import router from 'kolibri.coreVue.router';
 import seededShuffle from 'kolibri.lib.seededshuffle';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
+import tail from 'lodash';
 
 const translator = createTranslator('topicTreeExplorationPageTitles', {
   topicsForChannelPageTitle: 'Topics - { currentChannelTitle }',
@@ -41,14 +42,6 @@ const translator = createTranslator('topicTreeExplorationPageTitles', {
  * the API to state in the Vuex store
  */
 
-function _crumbState(ancestors) {
-  // skip the root node
-  return ancestors.slice(1).map(ancestor => ({
-    id: ancestor.pk,
-    title: ancestor.title,
-  }));
-}
-
 function normalizeProgress(data) {
   if (!data.progress_fraction) {
     return 0.0;
@@ -64,7 +57,7 @@ function _topicState(data, ancestors = []) {
     title: data.title,
     description: data.description,
     thumbnail: getContentNodeThumbnail(data) || undefined,
-    breadcrumbs: _crumbState(ancestors),
+    breadcrumbs: tail(ancestors),
     parent: data.parent,
     kind: data.parent ? data.kind : ContentNodeKinds.CHANNEL,
     progress: normalizeProgress(data),
@@ -82,7 +75,7 @@ export function contentState(data, nextContent, ancestors = []) {
     available: data.available,
     files: data.files,
     progress: normalizeProgress(data),
-    breadcrumbs: _crumbState(ancestors),
+    breadcrumbs: tail(ancestors),
     content_id: data.content_id,
     next_content: nextContent,
     author: data.author,
