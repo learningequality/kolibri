@@ -5,7 +5,7 @@ export function userMatchesFilter(user, searchFilter) {
   return searchTerms.every(term => fullName.includes(term) || username.includes(term));
 }
 
-export function filterAndSortUsers(users, pred, sortByKey = 'username') {
+export function filterAndSortUsers(users, pred = () => true, sortByKey = 'full_name') {
   return users.filter(pred).sort(
     // use 'search' option to ignore case rather than use locale defaults
     (a, b) => {
