@@ -35,7 +35,7 @@ describe('AssignmentDetailsModal', () => {
     const expected = {
       title: 'Lesson 1',
       description: 'The first lesson',
-      lesson_assignments: [],
+      assignments: [],
     };
     els.titleField().vm.$emit('input', 'Lesson 1');
     els.descriptionField().vm.$emit('input', 'The first lesson');
@@ -75,7 +75,7 @@ describe('AssignmentDetailsModal', () => {
       const expected = {
         title: 'Old Lesson V2',
         description: props.initialDescription,
-        lesson_assignments: [],
+        assignments: [],
       };
       els.titleField().vm.$emit('input', 'Old Lesson V2');
       els.form().trigger('submit');
@@ -89,7 +89,7 @@ describe('AssignmentDetailsModal', () => {
       const expected = {
         title: props.initialTitle,
         description: 'Its da remix',
-        lesson_assignments: [],
+        assignments: [],
       };
       els.descriptionField().vm.$emit('input', 'Its da remix');
       els.form().trigger('submit');
