@@ -188,7 +188,7 @@ describe('channelListItem', () => {
     function posTest(wrapper) {
       wrapper.setProps({ onDevice: true });
       const { onDevice, resourcesSize } = getElements(wrapper);
-      expect(onDevice().exists()).to.be.true
+      expect(onDevice().exists()).to.be.true;
       expect(resourcesSize().exists()).to.be.false;
     }
     function negTest(wrapper) {
