@@ -77,8 +77,7 @@ export function updateContentNodeProgress(channelId, contentId, progressFraction
    * to cache bust the model (and hence the entire collection), because some progress was
    * made on this ContentNode.
    */
-  const model = ContentNodeResource.getModel(contentId);
-  model.set({ progress_fraction: progressFraction });
+  ContentNodeResource.getModel(contentId).set({ progress_fraction: progressFraction });
 }
 
 export function setAndCheckChannels(store) {
@@ -103,11 +102,8 @@ export function setAndCheckChannels(store) {
  */
 
 export function showRoot(store) {
-  if (store.state.learnAppState.memberships.length) {
-    router.replace({ name: ClassesPageNames.ALL_CLASSES });
-  } else {
-    router.replace({ name: PageNames.TOPICS_ROOT });
-  }
+  const { memberships } = store.state.learnAppState;
+  router.replace({ name: memberships.length > 0 ? ClassesPageNames : PageNames.TOPICS_ROOT });
 }
 
 export function showChannels(store) {
@@ -129,8 +125,7 @@ export function showChannels(store) {
             node.thumbnail = channel.thumbnail;
             return node;
           });
-          const pageState = { rootNodes };
-          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('SET_PAGE_STATE', { rootNodes });
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
         });
@@ -144,12 +139,7 @@ export function showChannels(store) {
 
 export function showTopicsTopic(store, id, isRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  if (isRoot) {
-    store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
-  } else {
-    store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_TOPIC);
-  }
-
+  store.dispatch('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
   const promises = [
     ContentNodeResource.getModel(id).fetch(), // the topic
     ContentNodeResource.getCollection({ parent: id }).fetch(), // the topic's children
@@ -165,24 +155,20 @@ export function showTopicsTopic(store, id, isRoot = false) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      const topicContents = _collectionState(children);
       const pageState = {
         isRoot,
         channel: currentChannel,
         topic: normalizeContentNode(topic, ancestors),
-        contents: topicContents,
+        contents: _collectionState(children),
       };
-      pageState.channel = currentChannel;
       if (isRoot) {
         topic.description = currentChannel.description;
       }
-      pageState.topic = normalizeContentNode(topic, ancestors);
-
       store.dispatch('SET_PAGE_STATE', pageState);
 
       // Only load subtopic progress if the user is logged in
       if (isUserLoggedIn(store.state)) {
-        const subtopicIds = topicContents
+        const subtopicIds = children
           .filter(({ kind }) => kind === ContentNodeKinds.TOPIC)
           .map(({ id }) => id);
 
@@ -232,16 +218,13 @@ export function showTopicsContent(store, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
 
-  const contentPromise = ContentNodeResource.getModel(id).fetch();
-  const nextContentPromise = ContentNodeResource.fetchNextContent(id);
-  const channelsPromise = setChannelInfo(store);
-  const ancestorsPromise = ContentNodeResource.fetchAncestors(id);
-  ConditionalPromise.all([
-    contentPromise,
-    nextContentPromise,
-    ancestorsPromise,
-    channelsPromise,
-  ]).only(
+  const promises = [
+    ContentNodeResource.getModel(id).fetch(),
+    ContentNodeResource.fetchNextContent(id),
+    ContentNodeResource.fetchAncestors(id),
+    setChannelInfo(store),
+  ];
+  ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([content, nextContent, ancestors]) => {
       const currentChannel = getChannelObject(store.state, content.channel_id);
@@ -249,17 +232,16 @@ export function showTopicsContent(store, id) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      const pageState = {
+      store.dispatch('SET_PAGE_STATE', {
         content: contentState(content, nextContent, ancestors),
         channel: currentChannel,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
+      });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch(
         'CORE_SET_TITLE',
         translator.$tr('currentContentForChannelPageTitle', {
-          currentContentTitle: pageState.content.title,
+          currentContentTitle: content.title,
           currentChannelTitle: currentChannel.title,
         })
       );
@@ -272,23 +254,16 @@ export function showTopicsContent(store, id) {
 
 export function triggerSearch(store, searchTerm) {
   if (!searchTerm) {
-    const searchState = {
-      searchTerm,
-      topics: [],
-      contents: [],
-    };
-    store.dispatch('SET_PAGE_STATE', searchState);
-    return;
+    return clearSearch(store, searchTerm);
   }
 
-  const contentCollection = ContentNodeResource.getPagedCollection({ search: searchTerm });
-  const searchResultsPromise = contentCollection.fetch();
-
-  searchResultsPromise
+  return ContentNodeResource.getPagedCollection({ search: searchTerm })
+    .fetch()
     .then(results => {
-      const searchState = { searchTerm };
-      searchState.contents = _collectionState(results);
-      store.dispatch('SET_PAGE_STATE', searchState);
+      store.dispatch('SET_PAGE_STATE', {
+        searchTerm,
+        content: _collectionState(results),
+      });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
     .catch(error => {
@@ -296,11 +271,11 @@ export function triggerSearch(store, searchTerm) {
     });
 }
 
-export function clearSearch(store) {
+export function clearSearch(store, searchTerm = '') {
   store.dispatch('SET_PAGE_STATE', {
     topics: [],
     contents: [],
-    searchTerm: '',
+    searchTerm,
   });
 }
 
@@ -559,12 +534,13 @@ export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, curren
 }
 
 export function closeExam(store) {
-  const examLog = Object.assign({}, store.state.examLog, {
-    completion_timestamp: now(),
-  });
-  examLog.closed = true;
+  const { examLog } = store.state;
   return ExamLogResource.getModel(examLog.id)
-    .save(examLog)
+    .save({
+      ...examLog,
+      completion_timestamp: now(),
+      closed: true,
+    })
     .then(UserExamResource.clearCache())
     .catch(error => {
       handleApiError(store, error);
