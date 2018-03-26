@@ -87,7 +87,6 @@ describe('AssignmentCopyModal', () => {
     });
     sinon.stub(wrapper.vm, 'getLearnerGroupsForClassroom').returns(Promise.resolve([]));
     return wrapper.vm.goToAvailableGroups().then(() => {
-      wrapper.update();
       els.selectLearnerGroupForm().trigger('submit');
       // By default, this will copy the Assignment to the same class, and the entire class
       expect(wrapper.emitted().copy[0]).to.deep.equal(['class_2', ['class_2']]);

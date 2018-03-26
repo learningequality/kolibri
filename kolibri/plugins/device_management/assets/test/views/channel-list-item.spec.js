@@ -86,7 +86,7 @@ describe('channelListItem', () => {
 
     it('shows the thumbnail using encoded string', () => {
       function test(wrapper) {
-        wrapper.setProps({ thumbnail: fakeImage });
+        wrapper.setProps({ channel: { ...defaultChannel, thumbnail: fakeImage } });
         const { thumbnail } = getElements(wrapper);
         const thumb = thumbnail();
         expect(thumb.find('img').attributes().src).to.equal(fakeImage);
@@ -107,9 +107,9 @@ describe('channelListItem', () => {
     });
   });
 
-  xit('shows an icon if the channel is unlisted', () => {});
-
   it('if the channel is installed, the version number is of the installed channel', () => {
+    // NOTE: need to call $forceUpdate after using .setProps()
+    // see https://github.com/vuejs/vue-test-utils/issues/480
     importWrapper.setProps({
       onDevice: true,
       channel: {
@@ -117,18 +117,20 @@ describe('channelListItem', () => {
         version: 20,
       },
     });
+    importWrapper.vm.$forceUpdate();
     const { version } = getElements(importWrapper);
     expect(version()).to.equal('Version 11');
   });
 
   it('if the channel is not installed, the version number is of the remote channel', () => {
     importWrapper.setProps({
-      onDevice: true,
+      onDevice: false,
       channel: {
         id: 'not_installed',
         version: 20,
       },
     });
+    importWrapper.vm.$forceUpdate();
     const { version } = getElements(importWrapper);
     expect(version()).to.equal('Version 20');
   });
