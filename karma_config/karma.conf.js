@@ -50,7 +50,7 @@ module.exports = function(config) {
     frameworks: ['mocha'],
     reporters: ['mocha'],
     mochaReporter: {
-      showDiff: true
+      showDiff: true,
     },
     // list of files / patterns to load
     files: [
