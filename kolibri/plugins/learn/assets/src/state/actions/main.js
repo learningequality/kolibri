@@ -81,14 +81,6 @@ function _collectionState(data) {
   );
 }
 
-function _examLoggingState(data) {
-  const state = {
-    id: data.id,
-    closed: data.closed,
-  };
-  return state;
-}
-
 /**
  * Cache utility functions
  *
@@ -400,7 +392,7 @@ export function showExam(store, examId, questionNumber) {
 
         if (userId) {
           if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
-            store.dispatch('SET_EXAM_LOG', _examLoggingState(examLogs.find(log => !log.closed)));
+            store.dispatch('SET_EXAM_LOG', examLogs.find(log => !log.closed));
           } else {
             ExamLogResource.createModel({ ...examParams, closed: false })
               .save()
