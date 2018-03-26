@@ -51,51 +51,34 @@ function normalizeProgress(data) {
   return data.progress_fraction;
 }
 
-function _topicState(data, ancestors = []) {
-  return {
-    id: data.pk,
-    title: data.title,
-    description: data.description,
-    thumbnail: getContentNodeThumbnail(data) || undefined,
+// adds progress, thumbnail, and breadcrumbs. normalizes pk/id and kind
+function normalizeContentNode(node, ancestors = []) {
+  const normalized = {
+    ...node,
+    // TODO change serializer to use ID
+    id: node.pk,
+    kind: node.parent ? node.kind : ContentNodeKinds.CHANNEL,
+    thumbnail: getContentNodeThumbnail(node) || undefined,
     breadcrumbs: tail(ancestors),
-    parent: data.parent,
-    kind: data.parent ? data.kind : ContentNodeKinds.CHANNEL,
-    progress: normalizeProgress(data),
-    channel_id: data.channel_id,
+    progress: normalizeProgress(node),
   };
+  delete normalized.pk;
+  return normalized;
 }
 
-export function contentState(data, nextContent, ancestors = []) {
+export function contentState(data, next_content = [], ancestors = []) {
   return {
-    id: data.pk,
-    title: data.title,
-    kind: data.kind,
-    description: data.description,
-    thumbnail: getContentNodeThumbnail(data) || undefined,
-    available: data.available,
-    files: data.files,
-    progress: normalizeProgress(data),
-    breadcrumbs: tail(ancestors),
-    content_id: data.content_id,
-    next_content: nextContent,
-    author: data.author,
-    license_name: data.license_name,
-    license_description: data.license_description,
-    license_owner: data.license_owner,
-    parent: data.parent,
-    lang: data.lang,
-    channel_id: data.channel_id,
+    next_content,
+    ...normalizeContentNode(data, ancestors),
     ...assessmentMetaDataState(data),
   };
 }
 
 function _collectionState(data) {
-  return data.map(item => {
-    if (item.kind === ContentNodeKinds.TOPIC) {
-      return _topicState(item);
-    }
-    return contentState(item);
-  });
+  return data.map(
+    item =>
+      item.kind === ContentNodeKinds.TOPICS ? normalizeContentNode(item) : contentState(item)
+  );
 }
 
 function _examState(data) {
@@ -225,14 +208,14 @@ export function showTopicsTopic(store, id, isRoot = false) {
       const pageState = {
         isRoot,
         channel: currentChannel,
-        topic: _topicState(topic, ancestors),
+        topic: normalizeContentNode(topic, ancestors),
         contents: topicContents,
       };
       pageState.channel = currentChannel;
       if (isRoot) {
         topic.description = currentChannel.description;
       }
-      pageState.topic = _topicState(topic, ancestors);
+      pageState.topic = normalizeContentNode(topic, ancestors);
 
       store.dispatch('SET_PAGE_STATE', pageState);
 
