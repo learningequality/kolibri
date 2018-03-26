@@ -62,7 +62,7 @@
     "vuex": "^1.0.0"
   },
   "devDependencies": {
-    "@vue/test-utils": "^1.0.0-beta.12",
+    "@vue/test-utils": "^1.0.0-beta.13",
     "autoprefixer": "^7.1.4",
     "buble": "^0.16.0",
     "buble-loader": "^0.4.1",

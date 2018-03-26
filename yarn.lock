@@ -15,9 +15,9 @@
   dependencies:
     samsam "1.3.0"
 
-"@vue/test-utils@^1.0.0-beta.12":
-  version "1.0.0-beta.12"
-  resolved "https://registry.yarnpkg.com/@vue/test-utils/-/test-utils-1.0.0-beta.12.tgz#c020d5e7566d176a654e44c88d303743ad19b3cf"
+"@vue/test-utils@^1.0.0-beta.13":
+  version "1.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/@vue/test-utils/-/test-utils-1.0.0-beta.13.tgz#309dc50d2a55ac9facf781f62bbd236475ba5033"
   dependencies:
     lodash "^4.17.4"
 
