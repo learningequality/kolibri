@@ -9,7 +9,6 @@ export function classAssignmentsLink(classId) {
   };
 }
 
-// TODO update with the new Lesson Resource Viewer Page
 export function lessonResourceViewerLink(resourceNumber) {
   return {
     name: ClassesPageNames.LESSON_RESOURCE_VIEWER,
