@@ -12,13 +12,16 @@ system/windows.py
 
 etc..
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import sys
 
 import six
-from django.conf import settings
+
+from .conf import KOLIBRI_HOME
 
 
 def _posix_pid_exists(pid):
@@ -129,7 +132,7 @@ class _WindowsNullDevice:
     def write(self, s):
         pass
 
-def get_free_space(path=settings.KOLIBRI_HOME):
+def get_free_space(path=KOLIBRI_HOME):
     if sys.platform.startswith('win'):
         import ctypes
 
