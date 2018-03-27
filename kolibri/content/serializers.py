@@ -319,12 +319,14 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
     total_resources = serializers.SerializerMethodField()
     on_device_resources = serializers.SerializerMethodField()
     importable = serializers.SerializerMethodField()
+    has_coach_content = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentNode
         fields = (
             'id',
             'available',
+            'has_coach_content',
             'importable',
             'kind',
             'on_device_resources',
@@ -381,6 +383,9 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             if not importable:
                 break
         return importable
+
+    def get_has_coach_content(self, instance):
+        return False
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):
