@@ -64,21 +64,21 @@
     <template v-for="(contents, channelId) in featured" v-if="contents.length">
       <!-- TODO: RTL - Do not interpolate strings -->
       <content-card-group-header
-        :key="channelId"
+        :key="`${channelId}-header`"
         :header="$tr('featuredSectionHeader', { channelTitle: getChannelTitle(channelId) })"
         :viewMorePageLink="featuredPageLink(channelId)"
         :showViewMore="contents.length > trimContent(contents).length"
       />
       <content-card-group-grid
         v-if="isMobile"
-        :key="channelId"
+        :key="`${channelId}-groupgrid`"
         :genContentLink="genContentLink"
         :contents="trimContent(contents)"
         :showContentKindFilter="false"
       />
       <content-card-group-carousel
         v-else
-        :key="channelId"
+        :key="`${channelId}-carousel`"
         :genContentLink="genContentLink"
         :contents="trimContent(contents)"
       />
