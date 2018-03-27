@@ -23,7 +23,7 @@ import router from 'kolibri.coreVue.router';
 import seededShuffle from 'kolibri.lib.seededshuffle';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-import tail from 'lodash';
+import tail from 'lodash/tail';
 
 const translator = createTranslator('topicTreeExplorationPageTitles', {
   topicsForChannelPageTitle: 'Topics - { currentChannelTitle }',
@@ -43,7 +43,7 @@ function normalizeContentNode(node, ancestors = []) {
     id: node.pk,
     kind: node.parent ? node.kind : ContentNodeKinds.CHANNEL,
     thumbnail: getContentNodeThumbnail(node) || undefined,
-    breadcrumbs: tail(ancestors),
+    breadcrumbs: tail(ancestors).map(bc => ({ id: bc.pk, ...bc })),
     progress: Math.min(node.progress_fraction || 0, 1.0),
   };
   delete normalized.pk;
@@ -103,7 +103,9 @@ export function setAndCheckChannels(store) {
 
 export function showRoot(store) {
   const { memberships } = store.state.learnAppState;
-  router.replace({ name: memberships.length > 0 ? ClassesPageNames : PageNames.TOPICS_ROOT });
+  router.replace({
+    name: memberships.length > 0 ? ClassesPageNames.ALL_CLASSES : PageNames.TOPICS_ROOT,
+  });
 }
 
 export function showChannels(store) {
