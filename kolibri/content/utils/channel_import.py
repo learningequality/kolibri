@@ -1,16 +1,23 @@
 import logging as logger
-
 from django.apps import apps
 from kolibri.content.apps import KolibriContentConfig
 from kolibri.content.legacy_models import License
-from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION, ChannelMetadata, ContentNode, ContentTag, File, Language, LocalFile
+from kolibri.content.models import CONTENT_SCHEMA_VERSION
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.models import ContentNode
+from kolibri.content.models import ContentTag
+from kolibri.content.models import File
+from kolibri.content.models import Language
+from kolibri.content.models import LocalFile
+from kolibri.content.models import NO_VERSION
 from kolibri.utils.time import local_now
 from sqlalchemy.exc import SQLAlchemyError
-
-from .annotation import recurse_availability_up_tree, set_leaf_node_availability_from_local_file_availability
+from .annotation import recurse_availability_up_tree
+from .annotation import set_leaf_node_availability_from_local_file_availability
 from .channels import read_channel_metadata_from_db_file
 from .paths import get_content_database_file_path
-from .sqlalchemybridge import Bridge, ClassNotFoundError
+from .sqlalchemybridge import Bridge
+from .sqlalchemybridge import ClassNotFoundError
 
 logging = logger.getLogger(__name__)
 
