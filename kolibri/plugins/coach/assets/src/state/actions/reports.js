@@ -384,6 +384,8 @@ export function showExerciseDetailView(
           const currentInteractionHistory = currentAttemptLog.interaction_history || [];
           Object.assign(exercise, { ancestors });
           const pageState = {
+            // hack, allows caryover of custom state
+            ...store.state.pageState,
             // because this is info returned from a collection
             user,
             exercise,
@@ -395,8 +397,6 @@ export function showExerciseDetailView(
             summaryLog: summaryLog[0],
             channelId, // not really needed
             attemptLogIndex,
-            // hack, allows caryover of custom state
-            ...store.state.pageState,
           };
 
           store.dispatch('SET_PAGE_STATE', pageState);
