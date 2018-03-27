@@ -484,10 +484,9 @@ export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, curren
   UserExamResource.clearCache();
 
   store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
-    // prettier-ignore
-    [contentId]: ({
+    [contentId]: {
       [itemId]: currentAttemptLog,
-    })
+    },
   });
   const pageState = Object.assign(store.state.pageState);
   pageState.currentAttempt = currentAttemptLog;
@@ -513,10 +512,9 @@ export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, curren
       new Promise(resolve => {
         const log = Object.assign({}, newExamAttemptLog);
         store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
-          // prettier-ignore
-          [contentId]: ({
-          [itemId]: log,
-        })
+          [contentId]: {
+            [itemId]: log,
+          },
         });
         const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
         store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
