@@ -295,7 +295,10 @@ export function showCreateExamPage(store, classId) {
 // TODO: Optimize
 export function goToTopLevel(store) {
   return new Promise((resolve, reject) => {
-    const channelPromise = ChannelResource.getCollection({ available: true }).fetch();
+    const channelPromise = ChannelResource.getCollection({
+      available: true,
+      has_exercise: true,
+    }).fetch();
 
     ConditionalPromise.all([channelPromise]).only(
       samePageCheckGenerator(store),
@@ -310,7 +313,7 @@ export function goToTopLevel(store) {
               const subtopic = channel.topic;
               subtopic.allExercisesWithinTopic = channel.subtopics.reduce(
                 (acc, subtopic) => acc.concat(subtopic.allExercisesWithinTopic),
-                []
+                channel.exercises
               );
               return subtopic;
             });
