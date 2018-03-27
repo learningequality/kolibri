@@ -500,7 +500,7 @@ export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, curren
     item: itemId,
   });
   const attributes = Object.assign({}, currentAttemptLog);
-  attributes.user = store.state.core.session.user_id;
+  attributes.user = currentUserId(store.state);
   attributes.examlog = store.state.examLog.id;
   // If the above findModel returned no matching model, then we can do
   // getModel to get the new model instead.
@@ -521,7 +521,7 @@ export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, curren
         const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
         store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
         const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
-          user: store.state.core.session.user_id,
+          user: currentUserId(store.state),
           exam: store.state.pageState.exam.id,
         });
         // Add this attempt log to the Collection for future caching.
