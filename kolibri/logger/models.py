@@ -5,27 +5,29 @@ to store details of user interactions with content, a summary of those
 interactions, interactions with the software in general, as well as user
 feedback on the content and the software.
 """
-
 from __future__ import unicode_literals
 
 from datetime import timedelta
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 from jsonfield import JSONField
+from morango.query import SyncableModelQuerySet
+
+from .permissions import AnyoneCanWriteAnonymousLogs
 from kolibri.auth.constants import role_kinds
-from kolibri.auth.models import AbstractFacilityDataModel, Facility, FacilityUser
+from kolibri.auth.models import AbstractFacilityDataModel
+from kolibri.auth.models import Facility
+from kolibri.auth.models import FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
 from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.models import UUIDField
 from kolibri.core.exams.models import Exam
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
-from morango.query import SyncableModelQuerySet
-
-from .permissions import AnyoneCanWriteAnonymousLogs
 
 
 class BaseLogQuerySet(SyncableModelQuerySet):
@@ -98,7 +100,7 @@ class ContentSessionLog(BaseLogModel):
     start_timestamp = DateTimeTzField()
     end_timestamp = DateTimeTzField(blank=True, null=True)
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
-    progress = models.FloatField(default=0, validators=[MinValueValidator(0)])
+    progress = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(1.0)])
     kind = models.CharField(max_length=200)
     extra_fields = JSONField(default={}, blank=True)
 
@@ -117,7 +119,7 @@ class ContentSummaryLog(BaseLogModel):
     end_timestamp = DateTimeTzField(blank=True, null=True)
     completion_timestamp = DateTimeTzField(blank=True, null=True)
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
-    progress = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(1)])
+    progress = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(1.0)])
     kind = models.CharField(max_length=200)
     extra_fields = JSONField(default={}, blank=True)
 
