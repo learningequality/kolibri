@@ -383,21 +383,23 @@ export function showExerciseDetailView(
           const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
           const currentInteractionHistory = currentAttemptLog.interaction_history || [];
           Object.assign(exercise, { ancestors });
-          const pageState = {
-            // because this is info returned from a collection
-            user,
-            exercise,
-            attemptLogs,
-            currentAttemptLog,
-            interactionIndex,
-            currentInteractionHistory,
-            currentInteraction: currentInteractionHistory[interactionIndex],
-            summaryLog: summaryLog[0],
-            channelId, // not really needed
-            attemptLogIndex,
+          const pageState = Object.assign(
             // hack, allows caryover of custom state
-            ...store.state.pageState,
-          };
+            { ...store.state.pageState },
+            {
+              // because this is info returned from a collection
+              user,
+              exercise,
+              attemptLogs,
+              currentAttemptLog,
+              interactionIndex,
+              currentInteractionHistory,
+              currentInteraction: currentInteractionHistory[interactionIndex],
+              summaryLog: summaryLog[0],
+              channelId, // not really needed
+              attemptLogIndex,
+            }
+          );
 
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
