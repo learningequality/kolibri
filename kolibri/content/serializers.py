@@ -320,49 +320,67 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
     on_device_resources = serializers.SerializerMethodField()
     importable = serializers.SerializerMethodField()
 
-    def get_total_resources(self, obj):
-        total_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(renderable_contentnodes_q_filter).distinct().count()
-
-        return total_resources
-
-    def get_on_device_resources(self, obj):
-        available_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(
-            renderable_contentnodes_q_filter).filter(available=True).distinct().count()
-
-        return available_resources
-
-    def get_importable(self, obj):
-        if 'request' not in self.context or not self.context['request'].query_params.get('importing_from_drive_id', None) or obj.kind == content_kinds.TOPIC:
-            return True
-        else:
-            drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
-            datafolder = cache.get(drive_id, None)
-
-            if datafolder is None:
-                drives = get_mounted_drives_with_channel_info()
-                if drive_id in drives:
-                    datafolder = drives[drive_id].datafolder
-                    cache.set(drive_id, datafolder, 60)  # cache the datafolder for 1 minute
-                else:
-                    raise serializers.ValidationError(
-                        'The external drive with given drive id does not exist.')
-
-            files = obj.files.all()
-            if not files.exists():
-                return False
-
-            importable = True
-            for f in files:
-                # If one of the files under the node is unavailable on the external drive, mark the node as unimportable
-                file_path = get_content_storage_file_path(f.local_file.get_filename(), datafolder)
-                importable = importable and os.path.exists(file_path)
-            return importable
-
     class Meta:
         model = ContentNode
         fields = (
-            'pk', 'title', 'available', 'kind', 'total_resources', 'on_device_resources', 'importable',
+            'id',
+            'available',
+            'importable',
+            'kind',
+            'on_device_resources',
+            'pk',  # TODO remove once UI uses 'id' exclusively
+            'title',
+            'total_resources',
         )
+
+    def get_total_resources(self, instance):
+        return instance.get_descendants(include_self=True) \
+            .exclude(kind=content_kinds.TOPIC) \
+            .filter(renderable_contentnodes_q_filter) \
+            .distinct() \
+            .count()
+
+    def get_on_device_resources(self, instance):
+        return instance.get_descendants(include_self=True) \
+            .exclude(kind=content_kinds.TOPIC) \
+            .filter(renderable_contentnodes_q_filter) \
+            .filter(available=True) \
+            .distinct() \
+            .count()
+
+    def get_importable(self, instance):
+        drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
+
+        # If node is from a remote source, assume it is importable.
+        # Topics are annotated as importable by default, but client may disable importing
+        # of the topic if it determines that the entire topic sub-tree is already on the device.
+        if drive_id is None or instance.kind == content_kinds.TOPIC:
+            return True
+
+        # If non-topic ContentNode has no files, then it is not importable.
+        content_files = instance.files.all()
+        if not content_files.exists():
+            return False
+
+        # Inspecting the external drive's files
+        datafolder = cache.get(drive_id, None)
+
+        if datafolder is None:
+            drive_ids = get_mounted_drives_with_channel_info()
+            if drive_id in drive_ids:
+                datafolder = drive_ids[drive_id].datafolder
+                cache.set(drive_id, datafolder, 60)  # cache the datafolder for 1 minute
+            else:
+                raise serializers.ValidationError('The external drive with given drive id {} does not exist.'.format(drive_id))
+
+        importable = True
+        for f in content_files:
+            # Node is importable only if all of its Files are on the external drive
+            file_path = get_content_storage_file_path(f.local_file.get_filename(), datafolder)
+            importable = importable and os.path.exists(file_path)
+            if not importable:
+                break
+        return importable
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):
