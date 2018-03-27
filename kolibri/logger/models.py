@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 from datetime import timedelta
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -104,6 +105,12 @@ class ContentSessionLog(BaseLogModel):
     kind = models.CharField(max_length=200)
     extra_fields = JSONField(default={}, blank=True)
 
+    def save(self, *args, **kwargs):
+        if self.progress < 0 or self.progress > 1.0:
+            raise ValidationError("Progress out of range (0-1)")
+
+        super(ContentSessionLog, self).save(*args, **kwargs)
+
 
 class ContentSummaryLog(BaseLogModel):
     """
@@ -125,6 +132,12 @@ class ContentSummaryLog(BaseLogModel):
 
     def calculate_source_id(self):
         return self.content_id
+
+    def save(self, *args, **kwargs):
+        if self.progress < 0 or self.progress > 1.0:
+            raise ValidationError("Progress out of range (0-1)")
+
+        super(ContentSummaryLog, self).save(*args, **kwargs)
 
 
 class UserSessionLog(BaseLogModel):
