@@ -349,27 +349,25 @@ export function showExam(store, examId, questionNumber) {
         // Local copy of exam attempt logs
         const attemptLogs = {};
 
-        if (userId) {
-          if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
-            store.dispatch('SET_EXAM_LOG', examLogs.find(log => !log.closed));
-          } else {
-            ExamLogResource.createModel({ ...examParams, closed: false })
-              .save()
-              .then(newExamLog => {
-                store.dispatch('SET_EXAM_LOG', newExamLog);
-                return ExamLogResource.unCacheCollection(examParams);
-              });
-          }
-          // Sort through all the exam attempt logs retrieved and organize them into objects
-          // keyed first by content_id and then item id under that.
-          examAttemptLogs.forEach(log => {
-            const { content_id, item } = log;
-            if (!attemptLogs[content_id]) {
-              attemptLogs[content_id] = {};
-            }
-            attemptLogs[content_id][item] = { ...log };
-          });
+        if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
+          store.dispatch('SET_EXAM_LOG', examLogs.find(log => !log.closed));
+        } else {
+          ExamLogResource.createModel({ ...examParams, closed: false })
+            .save()
+            .then(newExamLog => {
+              store.dispatch('SET_EXAM_LOG', newExamLog);
+              return ExamLogResource.unCacheCollection(examParams);
+            });
         }
+        // Sort through all the exam attempt logs retrieved and organize them into objects
+        // keyed first by content_id and then item id under that.
+        examAttemptLogs.forEach(log => {
+          const { content_id, item } = log;
+          if (!attemptLogs[content_id]) {
+            attemptLogs[content_id] = {};
+          }
+          attemptLogs[content_id][item] = { ...log };
+        });
 
         const seed = exam.seed;
         const questionSources = exam.question_sources;
