@@ -18,7 +18,8 @@ import {
   showFeaturedPage,
   showLearnContent,
 } from './state/actions/recommended';
-import { initialState, mutations } from './state/store';
+import mutations from './state/mutations';
+import initialState from './state/initialState';
 import { PageNames } from './constants';
 import classesRoutes from './classesRoutes';
 import store from 'kolibri.coreVue.vuex.store';
