@@ -191,6 +191,8 @@
           this.$refs.titleField.focus();
         }
       },
+      // NOTE: this method is not used inside the method, but may be called
+      // from a parent component
       handleSubmitFailure() {
         this.formIsSubmitted = false;
         this.showServerError = true;
