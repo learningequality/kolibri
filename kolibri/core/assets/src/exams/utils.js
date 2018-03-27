@@ -74,18 +74,30 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
             }));
 
             const allQuestions = questions.map((question, index) => {
-              const attemptLog = examAttempts.find(
+              const attemptLog = examAttempts.filter(
                 log => log.item === question.itemId && log.content_id === question.contentId
-              ) || {
-                interaction_history: [],
-                correct: false,
-                noattempt: true,
-              };
+              );
+              let examAttempLog = attemptLog[0];
+              if (attemptLog.length > 1) {
+                let completionTimeStamp = attemptLog.map(function(att) {
+                  return att.completion_timestamp;
+                });
+                examAttempLog = attemptLog.find(
+                  log => log.completion_timestamp === completionTimeStamp.sort().reverse()[0]
+                );
+              }
+              if (!examAttempLog) {
+                examAttempLog = {
+                  interaction_history: [],
+                  correct: false,
+                  noattempt: true,
+                };
+              }
               return Object.assign(
                 {
                   questionNumber: index + 1,
                 },
-                attemptLog
+                examAttempLog
               );
             });
 

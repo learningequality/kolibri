@@ -23,16 +23,7 @@ class ExamLogSerializer(KolibriModelSerializer):
         return obj.exam.question_count
 
     def get_score(self, obj):
-        item_list = []
-        for i in obj.attemptlogs.values('item'):
-            if i.get('item') not in item_list:
-                item_list.append(i.get('item'))
-        item_counter = .0
-        for i in item_list:
-            item = obj.attemptlogs.filter(item=i).aggregate(Sum('correct')).get('correct__sum')
-            if item:
-                item_counter += 1        
-        return item_counter
+        return obj.attemptlogs.values_list('item').order_by('completion_timestamp').distinct().aggregate(Sum('correct')).get('correct__sum')
 
     class Meta:
         model = ExamLog
