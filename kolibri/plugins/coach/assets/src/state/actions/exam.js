@@ -328,6 +328,7 @@ export function goToTopLevel(store) {
             };
             store.dispatch('SET_TOPIC', topic);
             store.dispatch('SET_SUBTOPICS', subtopics);
+            store.dispatch('SET_EXERCISES', []);
             resolve();
           },
           error => reject(error)
