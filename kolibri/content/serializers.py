@@ -1,12 +1,10 @@
 import os
-
 from django.core.cache import cache
 from django.db.models import Manager
 from django.db.models import Sum
 from django.db.models.query import RawQuerySet
 from le_utils.constants import content_kinds
 from rest_framework import serializers
-
 from kolibri.content.models import AssessmentMetaData
 from kolibri.content.models import ChannelMetadata
 from kolibri.content.models import ContentNode
@@ -270,6 +268,31 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     files = FileSerializer(many=True, read_only=True)
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
     lang = LanguageSerializer()
+    has_coach_content = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ContentNode
+        fields = (
+            'id',
+            'assessmentmetadata',
+            'author',
+            'available',
+            'channel_id',
+            'content_id',
+            'description',
+            'files',
+            'has_coach_content',
+            'kind',
+            'lang',
+            'license_description',
+            'license_name',
+            'license_owner',
+            'parent',
+            'pk',  # TODO remove after UI standardizes on 'id'
+            'sort_order',
+            'title',
+        )
+        list_serializer_class = ContentNodeListSerializer
 
     def __new__(cls, *args, **kwargs):
         # This is overwritten to provide a ListClassSerializer for many=True
@@ -304,15 +327,8 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         value['progress_fraction'] = progress_fraction
         return value
 
-    class Meta:
-        model = ContentNode
-        fields = (
-            'pk', 'content_id', 'title', 'description', 'kind', 'available', 'sort_order', 'license_owner',
-            'license_name', 'license_description', 'files', 'parent', 'author',
-            'assessmentmetadata', 'lang', 'channel_id',
-        )
-
-        list_serializer_class = ContentNodeListSerializer
+    def get_has_coach_content(self, instance):
+        return False
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
