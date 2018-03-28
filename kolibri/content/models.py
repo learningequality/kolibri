@@ -30,7 +30,7 @@ V040BETA3 = 'v0.4.0-beta3'
 
 NO_VERSION = 'unversioned'
 
-CONTENT_SCHEMA_VERSION = '1'
+CONTENT_SCHEMA_VERSION = '2'
 
 class UUIDField(models.CharField):
     """
@@ -95,8 +95,8 @@ class ContentNode(MPTTModel):
     has_prerequisite = models.ManyToManyField('self', related_name='prerequisite_for', symmetrical=False, blank=True)
     related = models.ManyToManyField('self', symmetrical=True, blank=True)
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
-
     title = models.CharField(max_length=200)
+    coach_content = models.BooleanField(default=False)
 
     # the content_id is used for tracking a user's interaction with a piece of
     # content, in the face of possibly many copies of that content. When a user

@@ -309,7 +309,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'sort_order', 'license_owner',
             'license_name', 'license_description', 'files', 'parent', 'author',
-            'assessmentmetadata', 'lang', 'channel_id',
+            'assessmentmetadata', 'lang', 'channel_id', 'coach_content',
         )
 
         list_serializer_class = ContentNodeListSerializer
@@ -361,7 +361,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentNode
         fields = (
-            'pk', 'title', 'available', 'kind', 'total_resources', 'on_device_resources', 'importable',
+            'pk', 'title', 'available', 'kind', 'total_resources', 'on_device_resources', 'importable', 'coach_content'
         )
 
 
