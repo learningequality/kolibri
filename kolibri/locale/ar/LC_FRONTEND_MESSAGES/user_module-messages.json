@@ -7,7 +7,7 @@
     "signedOutSnackbar.dismiss": "رفض",
     "userPlugin.userProfileTitle": "الملف الشخصي",
     "profilePage.genericError": "حصل خطأ",
-    "profilePage.success": "تم تحديث تفاصيل الملف الشخصي!",
+    "profilePage.success": "تم تحديث تفاصيل الملف الشخصي",
     "profilePage.username": "اسم المستخدم",
     "profilePage.name": "الاسم الكامل",
     "profilePage.updateProfile": "حفظ التغييرات",
@@ -38,7 +38,7 @@
     "signUpPage.password": "كلمة المرور",
     "signUpPage.reEnterPassword": "إعادة إدخال كلمة المرور",
     "signUpPage.passwordMatchError": "كلمتا المرور غير متطابقتين",
-    "signUpPage.genericError": "حصل خطأ أثناء التسجيل!",
+    "signUpPage.genericError": "حدث خطأ أثناء التسجيل",
     "signUpPage.usernameAlphaNumError": "إسم المستخدم يمكن أن يحتوي فقط على أحرف وأرقام ومحارف سفلية",
     "signUpPage.usernameAlreadyExistsError": "يوجد بالفعل حساب بهذا الاسم",
     "signUpPage.logIn": "تسجيل الدخول",
@@ -57,5 +57,8 @@
     "signInPage.signInError": "خطأ في اسم المستخدم أو كلمة المرور",
     "signInPage.poweredBy": " كوليبري {version}",
     "signInPage.required": "هذا الحقل مطلوب",
-    "signInPage.requiredForCoachesAdmins": "كلمة المرور مطلوبة بالنسبة للمدربين والمشرفين"
+    "signInPage.requiredForCoachesAdmins": "كلمة المرور مطلوبة بالنسبة للمدربين والمشرفين",
+    "facilityModal.facilitySelectionPrompt": "إلى أي مرفق تعليمي ترغب بتسجيل الدخول؟",
+    "facilityModal.submitFacilitySelectionButtonPrompt": "إختَر",
+    "facilityModal.facilitySelectionModalHeader": "إختر مرفقاً تعليمياً"
 }

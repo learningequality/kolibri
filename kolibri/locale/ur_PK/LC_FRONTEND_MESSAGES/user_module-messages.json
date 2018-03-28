@@ -7,7 +7,7 @@
     "signedOutSnackbar.dismiss": "برخاست",
     "userPlugin.userProfileTitle": "پروفائل",
     "profilePage.genericError": "کچھ غلط ہو گیا",
-    "profilePage.success": "پروفائل کی تفصیلات اپ ڈیٹ ہوگیں ہیں!",
+    "profilePage.success": "پروفائل کی تفصیلات کی اپ ڈیٹ ہوگئی",
     "profilePage.username": "صارف\/یوزر کا نام",
     "profilePage.name": "مکمل نام",
     "profilePage.updateProfile": "تبدیلیاں محفوظ کریں",
@@ -38,7 +38,7 @@
     "signUpPage.password": "پاس ورڈ",
     "signUpPage.reEnterPassword": "پاس ورڈ پھر درج کریں",
     "signUpPage.passwordMatchError": "پاس ورڈز مشابہت نہیں رکھتے",
-    "signUpPage.genericError": "سائن اپ کے دوران کچ غلط ہوگیا!",
+    "signUpPage.genericError": "سائن اپ کے دوران کچ غلط ہوگیا",
     "signUpPage.usernameAlphaNumError": "صارف\/یوزر کا نام میں صرف حروف،نمبرز اور انڈر سکور سے ہونے چاہیے",
     "signUpPage.usernameAlreadyExistsError": "اس نام سے ایک اکاؤنٹ پہلے ہی موجود ہے ۔",
     "signUpPage.logIn": "سائن ان کریں",
@@ -57,5 +57,8 @@
     "signInPage.signInError": "غلط یوزر\/صارف کا نام یا پاس ورڈ",
     "signInPage.poweredBy": "کولیبری {version}",
     "signInPage.required": "يہ خانہ بھرنا ضروری ہے",
-    "signInPage.requiredForCoachesAdmins": "منتظمین اور اساتزہ کے لیے پاس ورڈ کی ضرورت ہے"
+    "signInPage.requiredForCoachesAdmins": "منتظمین اور اساتزہ کے لیے پاس ورڈ کی ضرورت ہے",
+    "facilityModal.facilitySelectionPrompt": "آپ کس سہولت سے سائن ان کرنا چاہتے ہیں?",
+    "facilityModal.submitFacilitySelectionButtonPrompt": "منتخب کریں",
+    "facilityModal.facilitySelectionModalHeader": "تعلیمی ادارہ منتخب کریں"
 }
