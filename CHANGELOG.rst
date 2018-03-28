@@ -6,16 +6,15 @@ Changes are ordered reverse-chronologically.
 0.9.0
 -----
 
- - "Teacher" renamed to "Coach"
- - Classes can be assigned any number of coaches
- - Configurable facility selection upon login
- - Fix wrong question count when answering exams
- - Fix bugs in exam creation, reports and data export
- - Fix bugs in coach reports
- - Fix ``server.log`` on Windows
- - Function to clone exam papers - not available to students :)
- - Recognizable logo for switching language
-
+ - Consistent usage of 'coach' terminology
+ - Added class-scoped coaches
+ - Support for multi-facility selection on login
+ - Fixed wrong question count when answering exams
+ - Various bug fixes in exam creation, reports and data export
+ - Various bug fixes in coach reports
+ - Fixed logging on Windows
+ - Added ability for coaches to make copies of exams
+ - Added icon next to language-switching functionality
 
 See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.8.0+label%3Achangelog>`_ of changes on Github.
 
