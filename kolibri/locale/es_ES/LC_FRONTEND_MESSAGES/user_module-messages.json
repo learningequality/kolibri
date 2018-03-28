@@ -7,7 +7,7 @@
     "signedOutSnackbar.dismiss": "Descartar",
     "userPlugin.userProfileTitle": "Perfil",
     "profilePage.genericError": "Vaya, algo ha fallado",
-    "profilePage.success": "Perfil actualizado",
+    "profilePage.success": "Detalles del perfil actualizados",
     "profilePage.username": "Nombre de usuario",
     "profilePage.name": "Nombre completo",
     "profilePage.updateProfile": "Guardar cambios",
@@ -57,5 +57,8 @@
     "signInPage.signInError": "Nombre de usuario o contraseña\nincorrectos",
     "signInPage.poweredBy": "Kolibri {version}",
     "signInPage.required": "Este campo es obligatorio",
-    "signInPage.requiredForCoachesAdmins": "Contraseña es necesaria para tutores y administradores"
+    "signInPage.requiredForCoachesAdmins": "Contraseña es necesaria para tutores y administradores",
+    "facilityModal.facilitySelectionPrompt": "¿Iniciar sesión para cual centro educativo?",
+    "facilityModal.submitFacilitySelectionButtonPrompt": "Seleccionar",
+    "facilityModal.facilitySelectionModalHeader": "Seleccionar centro educativo"
 }
