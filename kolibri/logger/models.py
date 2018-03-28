@@ -106,7 +106,7 @@ class ContentSessionLog(BaseLogModel):
     extra_fields = JSONField(default={}, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.progress < 0 or self.progress > 1.0:
+        if self.progress < 0 or self.progress > 1.01:
             raise ValidationError("Progress out of range (0-1)")
 
         super(ContentSessionLog, self).save(*args, **kwargs)
@@ -134,7 +134,7 @@ class ContentSummaryLog(BaseLogModel):
         return self.content_id
 
     def save(self, *args, **kwargs):
-        if self.progress < 0 or self.progress > 1.0:
+        if self.progress < 0 or self.progress > 1.01:
             raise ValidationError("Progress out of range (0-1)")
 
         super(ContentSummaryLog, self).save(*args, **kwargs)
