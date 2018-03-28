@@ -182,16 +182,40 @@ class ContentNodeAPITestCase(APITestCase):
         content.ContentNode.objects.all().update(available=False)
         response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
-            response.data, {
-                "pk": c1_id, "title": "root", "kind": "topic", "available": False,
-                "total_resources": 1, "on_device_resources": 0, "importable": True, "children": [
+            response.data,
+            {
+                "pk": c1_id,
+                "title": "root",
+                "kind": "topic",
+                "available": False,
+                "total_resources": 1,
+                "on_device_resources": 0,
+                "coach_content": False,
+                "importable": True,
+                "children": [
                     {
-                        "pk": c2_id, "title": "c1", "kind": "video", "available": False,
-                        "total_resources": 1, "on_device_resources": 0, "importable": True
+                        "pk": c2_id,
+                        "title": "c1",
+                        "kind": "video",
+                        "available": False,
+                        "total_resources": 1,
+                        "on_device_resources": 0,
+                        "importable": True,
+                        "coach_content": False,
                     },
                     {
-                        "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
-                        "total_resources": 0, "on_device_resources": 0, "importable": True}]})
+                        "pk": c3_id,
+                        "title": "c2",
+                        "kind": "topic",
+                        "available": False,
+                        "total_resources": 0,
+                        "on_device_resources": 0,
+                        "importable": True,
+                        "coach_content": False,
+                    }
+                ]
+            }
+        )
 
     @mock.patch('kolibri.content.serializers.get_mounted_drives_with_channel_info')
     def test_contentnode_granular_local_import(self, drive_mock):
@@ -209,27 +233,55 @@ class ContentNodeAPITestCase(APITestCase):
             reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"importing_from_drive_id": "123"})
         self.assertEqual(
             response.data, {
-                "pk": c1_id, "title": "root", "kind": "topic", "available": False,
-                "total_resources": 1, "on_device_resources": 0, "importable": True,
+                "pk": c1_id,
+                "title": "root",
+                "kind": "topic",
+                "available": False,
+                "total_resources": 1,
+                "on_device_resources": 0,
+                "importable": True,
+                "coach_content": False,
                 "children": [
                     {
-                        "pk": c2_id, "title": "c1", "kind": "video", "available": False,
-                        "total_resources": 1, "on_device_resources": 0, "importable": False
+                        "pk": c2_id,
+                        "title": "c1",
+                        "kind": "video",
+                        "available": False,
+                        "total_resources": 1,
+                        "on_device_resources": 0,
+                        "importable": False,
+                        "coach_content": False,
                     },
                     {
-                        "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
-                        "total_resources": 0, "on_device_resources": 0, "importable": True
-                    }]
-            })
+                        "pk": c3_id,
+                        "title": "c2",
+                        "kind": "topic",
+                        "available": False,
+                        "total_resources": 0,
+                        "on_device_resources": 0,
+                        "importable": True,
+                        "coach_content": False,
+                    }
+                ]
+            }
+        )
 
     def test_contentnode_granular_export_available(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
             response.data, {
-                "pk": c1_id, "title": "c1", "kind": "video", "available": True,
-                "total_resources": 1, "on_device_resources": 1, "importable": True,
-                "children": []})
+                "pk": c1_id,
+                "title": "c1",
+                "kind": "video",
+                "available": True,
+                "total_resources": 1,
+                "on_device_resources": 1,
+                "importable": True,
+                "children": [],
+                "coach_content": False
+            }
+        )
 
     def test_contentnode_granular_export_unavailable(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
@@ -237,9 +289,17 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
             response.data, {
-                "pk": c1_id, "title": "c1", "kind": "video", "available": False,
-                "total_resources": 1, "on_device_resources": 0, "importable": True,
-                "children": []})
+                "pk": c1_id,
+                "title": "c1",
+                "kind": "video",
+                "available": False,
+                "total_resources": 1,
+                "on_device_resources": 0,
+                "importable": True,
+                "children": [],
+                "coach_content": False,
+            }
+        )
 
     def test_contentnodefilesize_resourcenode(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
