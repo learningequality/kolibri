@@ -9,8 +9,10 @@ Changes are ordered reverse-chronologically.
  - Consistent usage of 'coach' terminology
  - Added class-scoped coaches
  - Support for multi-facility selection on login
- - Fixed wrong question count when answering exams
- - Various bug fixes in exam creation, reports and data export
+ - Cross-channel exams
+ - Show correct and submitted answers in exam reports
+ - Added learner exam reports
+ - Various bug fixes in exam creation and reports
  - Various bug fixes in coach reports
  - Fixed logging on Windows
  - Added ability for coaches to make copies of exams
