@@ -268,7 +268,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     files = FileSerializer(many=True, read_only=True)
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
     lang = LanguageSerializer()
-    has_coach_content = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentNode
@@ -281,7 +280,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             'content_id',
             'description',
             'files',
-            'has_coach_content',
             'kind',
             'lang',
             'license_description',
@@ -327,22 +325,17 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         value['progress_fraction'] = progress_fraction
         return value
 
-    def get_has_coach_content(self, instance):
-        return False
-
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
     total_resources = serializers.SerializerMethodField()
     on_device_resources = serializers.SerializerMethodField()
     importable = serializers.SerializerMethodField()
-    has_coach_content = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentNode
         fields = (
             'id',
             'available',
-            'has_coach_content',
             'importable',
             'kind',
             'on_device_resources',
@@ -399,9 +392,6 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             if not importable:
                 break
         return importable
-
-    def get_has_coach_content(self, instance):
-        return False
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):
