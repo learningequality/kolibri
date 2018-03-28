@@ -330,13 +330,10 @@ mappings = {
 
 
 def initialize_import_manager(channel_id):
-
     channel_metadata = read_channel_metadata_from_db_file(get_content_database_file_path(channel_id))
-
     min_version = getattr(channel_metadata, 'min_schema_version', NO_VERSION)
-
-    ImportClass = mappings.get(min_version)
-
+    # Need to have a default ImportClass for older schemas
+    ImportClass = mappings.get(min_version, ChannelImport)
     return ImportClass(channel_id)
 
 
