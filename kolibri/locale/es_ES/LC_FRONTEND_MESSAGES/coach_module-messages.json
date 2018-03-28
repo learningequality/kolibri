@@ -175,7 +175,7 @@
     "learnerReportPage.lastActivity": "Actividad más reciente",
     "learnerReportPage.exerciseCountText": "{count, number, integer} {count, plural, one {ejercicio} other {ejercicios}}",
     "learnerReportPage.contentCountText": "{count, number, integer} {count, plural, one {material} other {materiales}}",
-    "learnerReportPage.noLearners": "Hay no hay estudiantes en esta clase",
+    "learnerReportPage.noLearners": "No hay estudiantes en esta clase",
     "progressIndicator.completed": "completado por {0, number, integer} estudiantes",
     "progressIndicator.pct": "{0, number, percent}",
     "headerCell.ascending": "(orden ascendente)",

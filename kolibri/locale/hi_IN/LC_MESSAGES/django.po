@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-02-23 17:34-0800\n"
-"PO-Revision-Date: 2018-03-28 13:14-0400\n"
+"PO-Revision-Date: 2018-03-28 19:33-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Hindi\n"
 "Language: hi_IN\n"
@@ -95,7 +95,7 @@ msgstr "Kolibri उपयोग करने के लिए, हम Firefox �
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:31
 msgid "You can also try updating your current browser."
-msgstr ""
+msgstr "आप अपने वर्तमान ब्राउज़र को अद्यतन बनानेका प्रयास भी कर सकते हैं ।"
 
 #: kolibri/plugins/device_management/kolibri_plugin.py:30
 msgid "Device"
@@ -107,7 +107,7 @@ msgstr "कोई नेटवर्क त्रुटि थी ।"
 
 #: kolibri/tasks/api.py:33
 msgid "There was a disk access error."
-msgstr ""
+msgstr "वहा डिस्क तक पहुंच पाने में त्रुटि थी ।"
 
 #: kolibri/tasks/api.py:35
 msgid "There was an unknown error."
