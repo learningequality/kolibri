@@ -82,9 +82,9 @@
     "selectDriveModal.problemFindingLocalDrives": "مشکلی در پیدا کردن درایو محلی بوجود آمد.",
     "selectDriveModal.selectDrive": "انتخاب درایو",
     "selectDriveModal.selectExportDestination": "انتخاب محل خروجی",
-    "wizardDriveList.drivesFound": "درایوها پیدا شدند",
-    "wizardDriveList.noImportableDrives": "هیچ درایوی با محتوای Kolibri به سرور متصل نیست",
-    "wizardDriveList.noExportableDrives": "هیچ درایوی که بشود در آن ذخیره کرد به سرور متصل نیست",
+    "driveList.drivesFound": "درایوها پیدا شدند",
+    "driveList.noImportableDrives": "هیچ درایوی با محتوای Kolibri به سرور متصل نیست",
+    "driveList.noExportableDrives": "هیچ درایوی که بشود در آن ذخیره کرد به سرور متصل نیست",
     "taskProgress.importingContent": "در حال وارد کردنِ محتوا…",
     "taskProgress.exportingContent": "در حال صدورِ محتوا…",
     "taskProgress.finished": "تمام شد! بر روی گزینه «بستن» کلیک کنید تا تغییرات را ببینید.",
@@ -108,7 +108,7 @@
     "availableChannelsPage.exportToDisk": "در {driveName} خروجی گرفته شود",
     "availableChannelsPage.importFromDisk": "از {driveName} وارد شود",
     "availableChannelsPage.kolibriCentralServer": "استودیو Kolibri",
-    "availableChannelsPage.languageFilterLabel": "زبان:",
+    "availableChannelsPage.languageFilterLabel": "زبان",
     "availableChannelsPage.titleFilterPlaceholder": "جستجو برای کانال…",
     "availableChannelsPage.yourChannels": "کانال‌های شما",
     "availableChannelsPage.channelTokenButtonLabel": "سعی در اضافه کردن یک علامت رمز",
@@ -131,7 +131,7 @@
     "deleteChannelModal.title": "حذف کانال",
     "deleteChannelModal.cancelButtonLabel": "لغو",
     "deleteChannelModal.confirmButtonLabel": "حذف",
-    "deviceManagementTopNav.contentLabel": "محتوا",
-    "deviceManagementTopNav.permissionsLabel": "مجوزها و دسترسی‌ها",
-    "deviceManagementTopNav.infoLabel": "اطلاعات"
+    "deviceTopNav.contentLabel": "محتوا",
+    "deviceTopNav.permissionsLabel": "مجوزها و دسترسی‌ها",
+    "deviceTopNav.infoLabel": "اطلاعات"
 }
