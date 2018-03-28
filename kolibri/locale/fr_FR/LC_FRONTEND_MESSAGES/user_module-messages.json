@@ -7,7 +7,7 @@
     "signedOutSnackbar.dismiss": "Rejeter",
     "userPlugin.userProfileTitle": "Profil",
     "profilePage.genericError": "Une erreur s'est produite",
-    "profilePage.success": "Détails du profil mis à jour!",
+    "profilePage.success": "Détails du profil mis à jour",
     "profilePage.username": "Nom d'utilisateur",
     "profilePage.name": "Nom complet",
     "profilePage.updateProfile": "Enregistrer les modifications",
@@ -38,7 +38,7 @@
     "signUpPage.password": "Mot de passe",
     "signUpPage.reEnterPassword": "Resaisir le mot de passe",
     "signUpPage.passwordMatchError": "Les mots de passe ne correspondent pas",
-    "signUpPage.genericError": "Une erreur s'est produite lors de l'inscription!",
+    "signUpPage.genericError": "Une erreur s'est produite lors de l'inscription",
     "signUpPage.usernameAlphaNumError": "Le nom d’utilisateur ne peut contenir que des lettres, chiffres et caractères de soulignement",
     "signUpPage.usernameAlreadyExistsError": "Un compte avec ce nom d'utilisateur existe déjà",
     "signUpPage.logIn": "Se connecter",
@@ -57,5 +57,8 @@
     "signInPage.signInError": "Nom d'utilisateur ou mot de passe incorrect",
     "signInPage.poweredBy": "Kolibri {version}",
     "signInPage.required": "Ce champ est obligatoire",
-    "signInPage.requiredForCoachesAdmins": "Le mot de passe est requis pour les enseignants et les administrateurs"
+    "signInPage.requiredForCoachesAdmins": "Le mot de passe est requis pour les enseignants et les administrateurs",
+    "facilityModal.facilitySelectionPrompt": "À quelle établissement voulez-vous vous connecter ?",
+    "facilityModal.submitFacilitySelectionButtonPrompt": "Sélectionner",
+    "facilityModal.facilitySelectionModalHeader": "Sélectionner un institut"
 }
