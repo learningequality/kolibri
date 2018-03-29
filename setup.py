@@ -12,9 +12,6 @@ from pip.req import parse_requirements
 from setuptools import setup
 from setuptools.command.install_scripts import install_scripts
 
-# Notice that we dare do this during setup.py -- this enforces a special
-# restraint on module initialization, namely that it shouldn't do anything
-# that depends on an installed environment.
 import kolibri
 from kolibri import dist as kolibri_dist
 
@@ -164,7 +161,7 @@ setup(
     tests_require=['pytest', 'tox', 'flake8'],
     license='MIT',
     zip_safe=False,
-    keywords='kolibri',
+    keywords=['education', 'offline', 'kolibri'],
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
