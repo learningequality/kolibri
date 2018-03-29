@@ -160,7 +160,7 @@ dist: writeversion staticdeps staticdeps-cext buildconfig assets translation-dja
 	ls -l dist
 
 pex: writeversion
-	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed -s 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
+	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
 translation-extract: assets
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
@@ -184,8 +184,8 @@ dockerenvclean:
 	docker image prune -f
 
 dockerenvbuild: writeversion
-	docker image build -t "learningequality/kolibri:$$(cat kolibri/VERSION | sed -s 's/+/_/g')" -t learningequality/kolibri:latest .
+	docker image build -t "learningequality/kolibri:$$(cat kolibri/VERSION | sed 's/+/_/g')" -t learningequality/kolibri:latest .
 
 dockerenvdist: writeversion
-	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri:$$(cat kolibri/VERSION | sed -s 's/+/_/g')"
+	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri:$$(cat kolibri/VERSION | sed 's/+/_/g')"
 
