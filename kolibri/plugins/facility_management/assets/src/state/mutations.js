@@ -27,8 +27,11 @@ export function DELETE_CLASS(state, id) {
   state.pageState.classes = state.pageState.classes.filter(classModel => classModel.id !== id);
 }
 
-export function DELETE_CLASS_USER(state, id) {
-  state.pageState.classUsers = state.pageState.classUsers.filter(user => user.id !== id);
+export function DELETE_CLASS_LEARNER(state, id) {
+  state.pageState.classLearners = state.pageState.classLearners.filter(user => user.id !== id);
+}
+export function DELETE_CLASS_COACH(state, id) {
+  state.pageState.classCoaches = state.pageState.classCoaches.filter(user => user.id !== id);
 }
 
 // user mutations

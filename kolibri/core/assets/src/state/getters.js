@@ -7,7 +7,10 @@ export function isAdmin(state) {
 }
 
 export function isCoach(state) {
-  return state.core.session.kind.includes(UserKinds.COACH);
+  return (
+    state.core.session.kind.includes(UserKinds.COACH) ||
+    state.core.session.kind.includes(UserKinds.ASSIGNABLE_COACH)
+  );
 }
 
 export function isLearner(state) {
@@ -18,7 +21,7 @@ export function isUserLoggedIn(state) {
   return !state.core.session.kind.includes(UserKinds.ANONYMOUS);
 }
 
-export function getUserRole(state) {
+export function getUserKind(state) {
   if (isAdmin(state)) {
     return UserKinds.ADMIN;
   } else if (isCoach(state)) {

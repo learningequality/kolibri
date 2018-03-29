@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-22 18:11-0800\n"
-"PO-Revision-Date: 2018-03-12 01:50-0400\n"
+"POT-Creation-Date: 2018-02-23 17:34-0800\n"
+"PO-Revision-Date: 2018-03-28 13:11-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -14,26 +14,26 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: fr\n"
-"X-Crowdin-File: /release-v0.8.x/django.po\n"
+"X-Crowdin-File: /release-v0.9.x/django.po\n"
 
-#: kolibri/auth/constants/collection_kinds.py:12
-#: kolibri/plugins/management/kolibri_plugin.py:29
+#: kolibri/auth/constants/collection_kinds.py:14
+#: kolibri/plugins/facility_management/kolibri_plugin.py:30
 msgid "Facility"
 msgstr "Institut"
 
-#: kolibri/auth/constants/collection_kinds.py:13
+#: kolibri/auth/constants/collection_kinds.py:15
 msgid "Classroom"
 msgstr "Salle de classe"
 
-#: kolibri/auth/constants/collection_kinds.py:14
+#: kolibri/auth/constants/collection_kinds.py:16
 msgid "Learner group"
 msgstr "Groupe d'élèves"
 
-#: kolibri/auth/constants/role_kinds.py:10
+#: kolibri/auth/constants/role_kinds.py:12
 msgid "Admin"
 msgstr "Administrateur"
 
-#: kolibri/auth/constants/role_kinds.py:11
+#: kolibri/auth/constants/role_kinds.py:13
 msgid "Coach"
 msgstr "Encadreur"
 
@@ -57,15 +57,19 @@ msgstr "nom complet"
 msgid "date joined"
 msgstr "date d'inscription"
 
-#: kolibri/auth/serializers.py:31
+#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
 msgid "An account with that username already exists"
 msgstr "Un compte avec ce nom d'utilisateur existe déjà"
 
-#: kolibri/content/api.py:355
+#: kolibri/content/api.py:74
+msgid "Content"
+msgstr "Contenu"
+
+#: kolibri/content/api.py:363
 msgid "The requested channel does not exist on the content server"
 msgstr "La chaîne demandée n’existe pas sur le contenu du serveur"
 
-#: kolibri/content/models.py:183
+#: kolibri/content/models.py:187
 msgid "Unknown format"
 msgstr "Format inconnu"
 
@@ -92,6 +96,10 @@ msgstr "Pour utiliser Kolibri, nous recommandons d’utiliser Firefox ou Chrome.
 #: kolibri/core/templates/kolibri/unsupported_browser.html:31
 msgid "You can also try updating your current browser."
 msgstr "Vous pouvez aussi essayer de mettre à jour votre navigateur actuel."
+
+#: kolibri/plugins/device_management/kolibri_plugin.py:30
+msgid "Device"
+msgstr "Appareil"
 
 #: kolibri/tasks/api.py:31
 msgid "There was a network error."

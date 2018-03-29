@@ -12,13 +12,16 @@ system/windows.py
 
 etc..
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import sys
 
 import six
-from django.conf import settings
+
+from .conf import KOLIBRI_HOME
 
 
 def _posix_pid_exists(pid):
@@ -113,8 +116,9 @@ def _windows_become_daemon(our_home_dir='.', out_log=None, err_log=None, umask=0
     os.chdir(our_home_dir)
     os.umask(umask)
     sys.stdin.close()
-    sys.stdout.close()
-    sys.stderr.close()
+    old_stderr = sys.stderr
+    old_stdout = sys.stdout
+
     if err_log:
         sys.stderr = open(err_log, 'a', buffering)
     else:
@@ -124,12 +128,19 @@ def _windows_become_daemon(our_home_dir='.', out_log=None, err_log=None, umask=0
     else:
         sys.stdout = _WindowsNullDevice()
 
+    # Redirect stderr and stdout
+    os.dup2(sys.stderr.fileno(), old_stderr.fileno())
+    os.dup2(sys.stdout.fileno(), old_stdout.fileno())
+
+    old_stderr.flush()
+    old_stdout.flush()
+
 class _WindowsNullDevice:
     "A writeable object that writes to nowhere -- like /dev/null."
     def write(self, s):
         pass
 
-def get_free_space(path=settings.KOLIBRI_HOME):
+def get_free_space(path=KOLIBRI_HOME):
     if sys.platform.startswith('win'):
         import ctypes
 

@@ -18,42 +18,58 @@ object, which grants the user a role with respect to the ``Collection`` and all 
 object also stores the "kind" of the role (currently, one of "admin" or "coach"), which affects what permissions the
 user gains through the ``Role``.
 """
-
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import logging as logger
 
 import six
-from django.contrib.auth.models import AbstractBaseUser, AnonymousUser, UserManager
+from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.models import UserManager
 from django.core import validators
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from kolibri.auth.constants.morango_scope_definitions import FULL_FACILITY, SINGLE_USER
-from kolibri.core.errors import KolibriValidationError
-from kolibri.core.fields import DateTimeTzField
-from kolibri.utils.time import local_now
 from morango.certificates import Certificate
 from morango.manager import SyncableModelManager
 from morango.models import SyncableModel
-from morango.utils.morango_mptt import MorangoMPTTModel, MorangoMPTTTreeManager
+from morango.utils.morango_mptt import MorangoMPTTModel
+from morango.utils.morango_mptt import MorangoMPTTTreeManager
 from mptt.models import TreeForeignKey
 
-from .constants import collection_kinds, facility_presets, role_kinds
-from .errors import (
-    InvalidRoleKind, UserDoesNotHaveRoleError, UserHasRoleOnlyIndirectlyThroughHierarchyError, UserIsMemberOnlyIndirectlyThroughHierarchyError,
-    UserIsNotFacilityUser, UserIsNotMemberError
-)
+from .constants import collection_kinds
+from .constants import facility_presets
+from .constants import role_kinds
+from .errors import InvalidRoleKind
+from .errors import UserDoesNotHaveRoleError
+from .errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
+from .errors import UserIsMemberOnlyIndirectlyThroughHierarchyError
+from .errors import UserIsNotFacilityUser
+from .errors import UserIsNotMemberError
 from .filters import HierarchyRelationsFilter
-from .permissions.auth import (
-    AllCanReadFacilityDataset, AnonUserCanReadFacilities, CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups,
-    CollectionSpecificRoleBasedPermissions, FacilityAdminCanEditForOwnFacilityDataset
-)
-from .permissions.base import BasePermissions, RoleBasedPermissions
-from .permissions.general import IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
+from .permissions.auth import AllCanReadFacilityDataset
+from .permissions.auth import AnonUserCanReadFacilities
+from .permissions.auth import CoachesCanManageGroupsForTheirClasses
+from .permissions.auth import CoachesCanManageMembershipsForTheirGroups
+from .permissions.auth import CollectionSpecificRoleBasedPermissions
+from .permissions.auth import FacilityAdminCanEditForOwnFacilityDataset
+from .permissions.base import BasePermissions
+from .permissions.base import RoleBasedPermissions
+from .permissions.general import IsAdminForOwnFacility
+from .permissions.general import IsFromSameFacility
+from .permissions.general import IsOwn
+from .permissions.general import IsSelf
+from kolibri.auth.constants.morango_scope_definitions import FULL_FACILITY
+from kolibri.auth.constants.morango_scope_definitions import SINGLE_USER
+from kolibri.core.errors import KolibriValidationError
+from kolibri.core.fields import DateTimeTzField
+from kolibri.utils.time import local_now
 
 logging = logger.getLogger(__name__)
 
@@ -99,6 +115,7 @@ class FacilityDataset(FacilityDataSyncableModel):
     learner_can_sign_up = models.BooleanField(default=True)
     learner_can_delete_account = models.BooleanField(default=True)
     learner_can_login_with_no_password = models.BooleanField(default=False)
+    show_download_button_in_learn = models.BooleanField(default=True)
 
     def __str__(self):
         facilities = self.collection_set.filter(kind=collection_kinds.FACILITY)
@@ -317,6 +334,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
             logging.error("TypeError while validating model before checking permissions: {}".format(e.args))
             return False  # if the data provided does not fit the Model, don't continue checking
         except ValidationError as e:
+            logging.error(e)
             return False  # if the data does not validate, don't continue checking
         # now that we have an instance, defer to the permission-checking method that works with instances
         return self.can_create_instance(instance)
@@ -750,6 +768,16 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
             ancestor_collection=self,
         )
 
+    def get_coaches(self):
+        """
+        Returns users who have the coach role for this immediate collection.
+        """
+        return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
+            source_user=F("id"),
+            ancestor_collection=self,
+            role_kind=role_kinds.COACH,
+        )
+
     def add_role(self, user, role_kind):
         """
         Create a ``Role`` associating the provided user with this collection, with the specified kind of role.
@@ -930,7 +958,7 @@ class Role(AbstractFacilityDataModel):
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
     collection = TreeForeignKey("Collection")
-    kind = models.CharField(max_length=20, choices=role_kinds.choices)
+    kind = models.CharField(max_length=26, choices=role_kinds.choices)
 
     class Meta:
         unique_together = (("user", "collection", "kind"),)

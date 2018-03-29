@@ -1,60 +1,30 @@
-/* eslint-env node */
-import { FacilityUserResource, RoleResource } from 'kolibri.resources';
-
+import { FacilityUserResource } from 'kolibri.resources';
 import {
   samePageCheckGenerator,
   kolibriLogout,
   handleApiError,
 } from 'kolibri.coreVue.vuex.actions';
-
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-
-import { currentUserId } from 'kolibri.coreVue.vuex.getters';
-
+import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
 import { PageNames } from '../../constants';
-
 import { _userState, _managePageTitle } from './helpers/mappers';
 import preparePage from './helpers/preparePage';
 import displayModal from './helpers/displayModal';
+import { updateFacilityLevelRoles } from './rolesActions';
 
 /**
  * Does a POST request to assign a user role (only used in this file)
  * @param {Object} user
  * @param {string} user.id
  * @param {string} user.facility
- * @param {string} user.kind
- * Needed: id, facility, kind
+ * @param {string} user.roles
+ * Needed: id, facility, role
  */
-function setUserRole(user, kind) {
-  function createNewUserRole() {
-    if (!kind || kind === UserKinds.LEARNER) {
-      return Promise.resolve(user);
-    }
-    return RoleResource.createModel({
-      user: user.id,
-      collection: user.facility,
-      kind,
-    })
-      .save()
-      .then(roleModel => {
-        // add role to user's attribute here to limit API call
-        user.roles.push(roleModel);
-        return user;
-      })
-      .catch(error => handleApiError(error));
-  }
-
-  if (user.roles.length) {
-    return Promise.all(user.roles.map(({ id }) => RoleResource.getModel(id).delete()))
-      .then(() => {
-        user.roles = [];
-        return createNewUserRole();
-      })
-      .catch(error => handleApiError(error));
-  }
-  return createNewUserRole();
-  // roles exist. delete them, then create new one
-  // no role exists,
+function setUserRole(user, role) {
+  return updateFacilityLevelRoles(user, role.kind).then(() => {
+    // Force refresh the User to get updated roles
+    return FacilityUserResource.getModel(user.id).fetch({}, true);
+  });
 }
 
 /**
@@ -81,8 +51,8 @@ export function createUser(store, stateUserData) {
         return userState;
       }
       // only runs if there's a role to be assigned
-      if (stateUserData.kind !== UserKinds.LEARNER) {
-        return setUserRole(userModel, stateUserData.kind).then(user => dispatchUser(user));
+      if (stateUserData.role.kind !== UserKinds.LEARNER) {
+        return setUserRole(userModel, stateUserData.role).then(user => dispatchUser(user));
       } else {
         // no role to assigned
         return dispatchUser(userModel);
@@ -100,8 +70,6 @@ export function createUser(store, stateUserData) {
 export function updateUser(store, userId, userUpdates) {
   store.dispatch('SET_ERROR', '');
   store.dispatch('SET_BUSY', true);
-  const savedUserModel = FacilityUserResource.getModel(userId);
-  const savedUser = { ...savedUserModel.attributes };
 
   // explicit checks for the only values that can be changed
   const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);
@@ -115,45 +83,44 @@ export function updateUser(store, userId, userUpdates) {
   if (userUpdates.password && userUpdates.password !== origUserState.password) {
     changedValues.password = userUpdates.password;
   }
-  if (userUpdates.kind && userUpdates.kind !== origUserState.kind) {
-    changedValues.kind = userUpdates.kind;
+  if (userUpdates.role && userUpdates.role !== origUserState.role) {
+    changedValues.role = userUpdates.role;
   }
 
   if (Object.getOwnPropertyNames(changedValues).length === 0) {
     displayModal(store, false);
   } else {
-    return savedUserModel.save(changedValues).then(
-      userWithAttrs => {
-        if (changedValues.kind) {
-          if (currentUserId(store.state) === userId) {
-            // keep superuser if present
-            const newCurrentUserKind = store.state.core.session.kind.filter(
-              kind => kind === UserKinds.SUPERUSER
-            );
-
-            newCurrentUserKind.push(changedValues.kind);
-
-            store.dispatch('UPDATE_CURRENT_USER_KIND', newCurrentUserKind);
+    return FacilityUserResource.getModel(userId)
+      .save(changedValues)
+      .then(
+        updatedUser => {
+          if (changedValues.role) {
+            if (currentUserId(store.state) === userId && isSuperuser(store.state)) {
+              // maintain superuser if updating self.
+              store.dispatch('UPDATE_CURRENT_USER_KIND', [
+                UserKinds.SUPERUSER,
+                changedValues.role.kind,
+              ]);
+            }
+            return setUserRole(updatedUser, changedValues.role).then(userWithRole => {
+              // dispatch changes to store
+              store.dispatch('UPDATE_USERS', [_userState(userWithRole)]);
+              displayModal(store, false);
+            });
           }
-          return setUserRole(savedUser, changedValues.kind).then(userWithRole => {
-            store.dispatch('UPDATE_USERS', [_userState(userWithRole)]);
-            displayModal(store, false);
-          });
+          // dispatch changes to store
+          store.dispatch('UPDATE_USERS', [_userState(updatedUser)]);
+          displayModal(store, false);
+        },
+        error => {
+          if (error.status.code === 400) {
+            store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
+          } else if (error.status.code === 403) {
+            store.dispatch('SET_ERROR', error.entity);
+          }
+          store.dispatch('SET_BUSY', false);
         }
-        // dispatch changes to store
-        store.dispatch('UPDATE_USERS', [_userState(userWithAttrs)]);
-
-        displayModal(store, false);
-      },
-      error => {
-        if (error.status.code === 400) {
-          store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
-        } else if (error.status.code === 403) {
-          store.dispatch('SET_ERROR', error.entity);
-        }
-        store.dispatch('SET_BUSY', false);
-      }
-    );
+      );
   }
 }
 

@@ -20,7 +20,14 @@
           v-if="icon"
         />
 
-        <div class="ui-menu-option-text">{{ label }}</div>
+        <!-- if anything in the dropdown menu has an icon, then we are
+        going to add padding to make all the items align -->
+        <div
+          class="ui-menu-option-text"
+          :class="{ 'ui-menu-option-text-lp': !icon }"
+        >
+          {{ label }}
+        </div>
 
         <div class="ui-menu-option-secondary-text" v-if="secondaryText">
           {{ secondaryText }}
@@ -157,6 +164,10 @@
       flex-shrink: 0;
       font-size: rem-calc(13px);
       margin-left: rem-calc(4px);
+  }
+
+  .ui-menu-option-text-lp {
+    padding-left: 40px
   }
 
 </style>

@@ -1,16 +1,17 @@
-import { ClassroomResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
-
+import {
+  ClassroomResource,
+  MembershipResource,
+  FacilityUserResource,
+  RoleResource,
+} from 'kolibri.resources';
 import { samePageCheckGenerator, handleApiError } from 'kolibri.coreVue.vuex.actions';
-import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-
 import { PageNames } from '../../constants';
-
-import { _classState, _userState } from './helpers/mappers';
+import { _userState } from './helpers/mappers';
 import displayModal from './helpers/displayModal';
 import preparePage from './helpers/preparePage';
+import { filterAndSortUsers } from '../../userSearchUtils';
 
 /**
  * Do a POST to create new class
@@ -23,9 +24,8 @@ export function createClass(store, name) {
   })
     .save()
     .then(
-      classModel => {
-        // dispatch newly created class
-        store.dispatch('ADD_CLASS', _classState(classModel));
+      classroom => {
+        store.dispatch('ADD_CLASS', classroom);
         displayModal(store, false);
       },
       error => {
@@ -47,8 +47,8 @@ export function updateClass(store, id, updateData) {
   ClassroomResource.getModel(id)
     .save(updateData)
     .then(
-      response => {
-        store.dispatch('UPDATE_CLASS', id, response);
+      classroom => {
+        store.dispatch('UPDATE_CLASS', id, classroom);
         displayModal(store, false);
       },
       error => {
@@ -66,7 +66,7 @@ export function deleteClass(store, id) {
     // if no id passed, abort the function
     return;
   }
-  ClassroomResource.getModel(id)
+  return ClassroomResource.getModel(id)
     .delete()
     .then(
       () => {
@@ -79,7 +79,8 @@ export function deleteClass(store, id) {
     );
 }
 
-export function enrollUsersInClass(store, classId, users) {
+export function enrollLearnersInClass(store, users) {
+  const classId = store.state.pageState.class.id;
   // TODO no error handling
   return MembershipResource.createCollection(
     {
@@ -92,41 +93,81 @@ export function enrollUsersInClass(store, classId, users) {
   ).save();
 }
 
-export function removeClassUser(store, classId, userId) {
+export function assignCoachesToClass(store, coaches) {
+  const classId = store.state.pageState.class.id;
+  // TODO no error handling
+  return RoleResource.createCollection(
+    {
+      collection: classId,
+    },
+    coaches.map(userId => ({
+      collection: classId,
+      user: userId,
+      kind: UserKinds.COACH,
+    }))
+  ).save();
+}
+
+export function removeClassLearner(store, classId, userId) {
   if (!classId || !userId) {
     // if no id passed, abort the function
     return;
   }
   // fetch the membership model with this classId and userId.
-  const MembershipCollection = MembershipResource.getCollection({
+  return MembershipResource.getCollection({
     user: userId,
     collection: classId,
-  });
+  })
+    .delete()
+    .then(
+      () => {
+        store.dispatch('DELETE_CLASS_LEARNER', userId);
+        displayModal(store, false);
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
+}
 
-  MembershipCollection.delete().then(
-    () => {
-      store.dispatch('DELETE_CLASS_USER', userId);
-      displayModal(store, false);
-    },
-    error => {
-      handleApiError(store, error);
-    }
-  );
+export function removeClassCoach(store, classId, userId) {
+  // TODO class id should be accessible from state.
+  if (!classId || !userId) {
+    // if no id passed, abort the function
+    return;
+  }
+  // TODO use a getModel with role id? should be available. Might have to undo mappers
+  // fetch the membership model with this classId and userId.
+  return RoleResource.getCollection({
+    user: userId,
+    collection: classId,
+  })
+    .delete()
+    .then(
+      () => {
+        store.dispatch('DELETE_CLASS_COACH', userId);
+        displayModal(store, false);
+      },
+      error => {
+        handleApiError(store, error);
+      }
+    );
 }
 
 export function showClassesPage(store) {
+  // TODO localize this title
   preparePage(store.dispatch, {
     name: PageNames.CLASS_MGMT_PAGE,
     title: 'Classes',
   });
-  ClassroomResource.getCollection()
+  return ClassroomResource.getCollection()
     .fetch({}, true)
     .only(
       samePageCheckGenerator(store),
-      classes => {
+      classrooms => {
         store.dispatch('SET_PAGE_STATE', {
           modalShown: false,
-          classes: classes.map(_classState),
+          classes: [...classrooms],
         });
         store.dispatch('CORE_SET_PAGE_LOADING', false);
       },
@@ -137,29 +178,7 @@ export function showClassesPage(store) {
 }
 
 export function showClassEditPage(store, classId) {
-  /*
-   * TODO inline this
-   * This mostly duplicates _userState but searches Roles array for an exact match
-   * on the classId, and not for any Role object.
-   */
-  function _userStateForClassEditPage(facilityId, classId, apiUserData) {
-    const matchingRole = apiUserData.roles.find(
-      r =>
-        String(r.collection) === String(classId) ||
-        String(r.collection) === String(facilityId) ||
-        r.kind === UserKinds.ADMIN ||
-        r.kind === UserKinds.SUPERUSER
-    );
-
-    return {
-      id: apiUserData.id,
-      facility_id: apiUserData.facility,
-      username: apiUserData.username,
-      full_name: apiUserData.full_name,
-      kind: matchingRole ? matchingRole.kind : UserKinds.LEARNER,
-    };
-  }
-
+  // TODO localize this title
   preparePage(store.dispatch, {
     name: PageNames.CLASS_EDIT_MGMT_PAGE,
     title: 'Edit Class',
@@ -175,9 +194,8 @@ export function showClassEditPage(store, classId) {
     modalShown: false,
     currentClass: classroom,
     classes: classrooms,
-    classUsers: facilityUsers.map(
-      _userStateForClassEditPage.bind(null, currentFacilityId(store.state), classId)
-    ),
+    classLearners: filterAndSortUsers(facilityUsers).map(_userState),
+    classCoaches: filterAndSortUsers(classroom.coaches).map(_userState),
   });
 
   ConditionalPromise.all(promises).only(
@@ -192,14 +210,10 @@ export function showClassEditPage(store, classId) {
   );
 }
 
-export function showClassEnrollPage(store, classId) {
-  preparePage(store.dispatch, {
-    name: PageNames.CLASS_ENROLL_MGMT_PAGE,
-    title: 'Classes',
-  });
-
+export function showLearnerClassEnrollmentPage(store, classId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   // all users in facility
-  const userPromise = FacilityUserResource.getCollection().fetch({}, true);
+  const userPromise = FacilityUserResource.getCollection().fetch();
   // current class
   const classPromise = ClassroomResource.getModel(classId).fetch();
   // users in current class
@@ -207,18 +221,54 @@ export function showClassEnrollPage(store, classId) {
     member_of: classId,
   }).fetch({}, true);
 
-  ConditionalPromise.all([userPromise, classPromise, classUsersPromise]).only(
+  return ConditionalPromise.all([userPromise, classPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
     ([facilityUsers, classroom, classUsers]) => {
-      const pageState = {
+      store.dispatch('SET_PAGE_STATE', {
         facilityUsers: facilityUsers.map(_userState),
         classUsers: classUsers.map(_userState),
         class: classroom,
         modalShown: false,
-        userJustCreated: null,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
+      });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ENROLL_LEARNER);
+    },
+    error => {
+      handleApiError(store, error);
+    }
+  );
+}
+export function showCoachClassAssignmentPage(store, classId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  // all users in facility
+  const userPromise = FacilityUserResource.getCollection().fetch();
+  // current class
+  const classPromise = ClassroomResource.getModel(classId).fetch({}, true);
+
+  return ConditionalPromise.all([userPromise, classPromise]).only(
+    samePageCheckGenerator(store),
+    ([facilityUsers, classroom]) => {
+      store.dispatch('SET_PAGE_STATE', {
+        // facilityUsers now only contains users that are eligible for coachdom
+        // TODO rename
+        facilityUsers: facilityUsers
+          // filter out users who are not eligible to be coaches
+          .filter(user => {
+            const eligibleRoles = [
+              UserKinds.ASSIGNABLE_COACH,
+              UserKinds.COACH,
+              UserKinds.ADMIN,
+              UserKinds.SUPERUSER,
+            ];
+            return user.roles.some(({ kind }) => eligibleRoles.includes(kind));
+          })
+          .map(_userState),
+        classUsers: classroom.coaches.map(_userState),
+        class: classroom,
+        modalShown: false,
+      });
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ASSIGN_COACH);
     },
     error => {
       handleApiError(store, error);

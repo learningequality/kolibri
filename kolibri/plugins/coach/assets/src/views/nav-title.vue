@@ -1,61 +1,47 @@
 <template>
 
-  <h1>
-    <span class="caret-after">
-      <k-router-link
-        :text="$tr('allClasses')"
-        :to="classListPage"
-      />
-    </span>
-    <span v-if="username">
-      <span class="caret-after">
-        <k-router-link :text="className" :to="classRootPage" />
-      </span>
-      <span>{{ username }}</span>
-    </span>
-    <span v-else>{{ className }}</span>
-  </h1>
+  <div>
+    <h2>
+      <template v-if="className">
+        {{ className }}
+      </template>
+      <template v-else>
+        {{ $tr('coachPageHeader') }}
+      </template>
+    </h2>
+
+    <div v-if="classCoaches.length">
+      <span> {{ $tr('coachListLabel') }} </span>
+      <ul>
+        <li
+          v-for="(coach, idx) in classCoaches"
+          :key="idx"
+        >
+          <span>{{ coach.full_name }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
 
 </template>
 
 
 <script>
 
-  import { PageNames } from '../constants';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-
   export default {
     name: 'navTitle',
     $trs: {
-      allClasses: 'All classes',
-    },
-    components: {
-      kRouterLink,
+      coachPageHeader: 'Classes',
+      coachListLabel: 'Coaches:',
     },
     props: {
       className: {
         type: String,
-        required: true,
-      },
-      classId: {
-        type: String,
-        required: true,
-      },
-      linkClass: {
-        type: Boolean,
-        default: true,
-      },
-      username: {
-        type: String,
         default: null,
       },
-    },
-    computed: {
-      classListPage() {
-        return { name: PageNames.CLASS_LIST };
-      },
-      classRootPage() {
-        return { name: PageNames.CLASS_ROOT, classId: this.classId };
+      classCoaches: {
+        type: Array,
+        default: () => [],
       },
     },
   };
@@ -65,11 +51,13 @@
 
 <style lang="stylus" scoped>
 
-  .caret-after
-    &:after
-      content: '\203A'
-      margin-right: 8px
-      margin-left: 8px
-      vertical-align: top
+  ul, li
+    margin: 0
+    padding: 0
+    display: inline
+    list-style-type: none
+
+  li:not(&:last-child)::after
+    content: ', '
 
 </style>

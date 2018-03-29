@@ -1,13 +1,8 @@
-/* eslint-disable prefer-arrow-callback */
 import { convertKeysToCamelCase, convertKeysToSnakeCase } from 'kolibri.coreVue.vuex.mappers';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
-
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
-
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-
 import { PageNames, defaultFacilityConfig, notificationTypes } from '../../constants';
-
 import preparePage from './helpers/preparePage';
 
 // Utility that wraps the ubiquitous "don't resolve if not on same page" logic.

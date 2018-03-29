@@ -115,24 +115,13 @@ class PluginBaseLoadsApp(Exception):
     pass
 
 
-def _get_kolibri_home():
-    """
-    This is preferred to be called through a function as KOLIBRI_HOME is
-    redefined during tests.
-
-    NEEDS TO BE FURTHER CLEANED UP AND CENTRALIZED.
-
-    Please do not expand use of this function to other modules.
-    """
-    return os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"]))
-
-
 def version_file():
     """
     During test runtime, this path may differ because KOLIBRI_HOME is
     regenerated
     """
-    return os.path.join(_get_kolibri_home(), '.data_version')
+    from .conf import KOLIBRI_HOME
+    return os.path.join(KOLIBRI_HOME, '.data_version')
 
 
 def initialize(debug=False):
@@ -151,7 +140,7 @@ def initialize(debug=False):
     else:
         # Do this here so that we can fix any issues with our configuration file before
         # we attempt to setup django.
-        from kolibri.utils.conf import autoremove_unavailable_plugins, enable_default_plugins
+        from .conf import autoremove_unavailable_plugins, enable_default_plugins
         autoremove_unavailable_plugins()
 
         version = open(version_file(), "r").read()

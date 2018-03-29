@@ -7,7 +7,7 @@
     "signedOutSnackbar.dismiss": "رَد کردن",
     "userPlugin.userProfileTitle": "پروفایل (مشخصات)",
     "profilePage.genericError": "مشکلی به وجود آمد",
-    "profilePage.success": "جزییات مشخصات یا پروفایل به‌روز شد!",
+    "profilePage.success": "جزییات مشخصات یا پروفایل به‌روز شد",
     "profilePage.username": "نام کاربری",
     "profilePage.name": "نام کامل",
     "profilePage.updateProfile": "ذخیره‌ی تغییرات",
@@ -38,7 +38,7 @@
     "signUpPage.password": "رمز عبور",
     "signUpPage.reEnterPassword": "رمز عبور را دوباره وارد کنید",
     "signUpPage.passwordMatchError": "رمزهای عبور مطابقت ندارند",
-    "signUpPage.genericError": "مشکلی در طولِ زمان ثبت‌نام به وجود آمد!",
+    "signUpPage.genericError": "مشکلی در طولِ زمان ثبت‌نام به وجود آمد",
     "signUpPage.usernameAlphaNumError": "نام کاربری فقط می‌تواند شامل حروف و اعداد و زیرین‌خط یا آندِرلاین باشد",
     "signUpPage.usernameAlreadyExistsError": "یک حساب کاربری با این نام کاربری از قبل وجود دارد",
     "signUpPage.logIn": "ورود",
@@ -57,5 +57,8 @@
     "signInPage.signInError": "نام کاربری یا رمز عبور نادرست است",
     "signInPage.poweredBy": "Kolibri {version}",
     "signInPage.required": "پُر کردن این قسمت ضروری است",
-    "signInPage.requiredForCoachesAdmins": "رمز عبور برای آموزگاران، مربیان و مدیران لازم است"
+    "signInPage.requiredForCoachesAdmins": "رمز عبور برای آموزگاران، مربیان و مدیران لازم است",
+    "facilityModal.facilitySelectionPrompt": "به کدام مرکز می‌خواهید وارد شوید؟",
+    "facilityModal.submitFacilitySelectionButtonPrompt": "انتخاب",
+    "facilityModal.facilitySelectionModalHeader": "انتخاب مرکز"
 }

@@ -10,6 +10,7 @@
     <content-renderer
       class="content"
       :class="{perseus: isPerseusExercise}"
+      :showCorrectAnswer="true"
       :id="content.pk"
       :itemId="selectedQuestion"
       :allowHints="false"
@@ -20,7 +21,6 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :interactive="false"
-      :assessment="true"
     />
   </section>
 

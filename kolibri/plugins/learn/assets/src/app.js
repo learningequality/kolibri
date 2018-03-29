@@ -4,10 +4,11 @@ import initialState from './state/initialState';
 import mutations from './state/mutations';
 import prepareLearnApp from './state/prepareLearnApp';
 import routes from './routes';
+import { setFacilitiesAndConfig } from './state/actions/main';
 
 class LearnModule extends KolibriApp {
   get stateSetters() {
-    return [prepareLearnApp];
+    return [prepareLearnApp, setFacilitiesAndConfig];
   }
   get routes() {
     return routes;

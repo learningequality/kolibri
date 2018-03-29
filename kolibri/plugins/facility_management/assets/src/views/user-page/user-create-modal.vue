@@ -14,7 +14,6 @@
         <k-textbox
           ref="name"
           type="text"
-          class="user-field"
           :label="$tr('name')"
           :autofocus="true"
           :maxlength="120"
@@ -26,7 +25,6 @@
         <k-textbox
           ref="username"
           type="text"
-          class="user-field"
           :label="$tr('username')"
           :maxlength="30"
           :invalid="usernameIsInvalid"
@@ -37,7 +35,6 @@
         <k-textbox
           ref="password"
           type="password"
-          class="user-field"
           :label="$tr('password')"
           :invalid="passwordIsInvalid"
           :invalidText="passwordIsInvalidText"
@@ -47,7 +44,6 @@
         <k-textbox
           ref="confirmedPassword"
           type="password"
-          class="user-field"
           :label="$tr('reEnterPassword')"
           :invalid="confirmedPasswordIsInvalid"
           :invalidText="confirmedPasswordIsInvalidText"
@@ -57,10 +53,28 @@
 
         <k-select
           :label="$tr('userType')"
-          :options="userKinds"
+          :options="userKindDropdownOptions"
           v-model="kind"
-          class="kind-select"
         />
+
+        <fieldset class="coach-selector" v-if="coachIsSelected">
+          <label>
+            <k-radio-button
+              :label="$tr('classCoachLabel')"
+              :radiovalue="true"
+              v-model="classCoach"
+            />
+            {{ $tr('classCoachDescription') }}
+          </label>
+          <label>
+            <k-radio-button
+              :label="$tr('facilityCoachLabel')"
+              :radiovalue="false"
+              v-model="classCoach"
+            />
+            {{ $tr('facilityCoachDescription') }}
+          </label>
+        </fieldset>
       </section>
 
       <!-- Button Options at footer of modal -->
@@ -88,8 +102,10 @@
 
   import { createUser, displayModal } from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kSelect from 'kolibri.coreVue.components.kSelect';
@@ -108,6 +124,11 @@
       learner: 'Learner',
       coach: 'Coach',
       admin: 'Admin',
+      coachSelectorHeader: 'Coach type',
+      classCoachLabel: 'Class coach',
+      classCoachDescription: "Can only instruct classes that they're assigned to",
+      facilityCoachLabel: 'Facility coach',
+      facilityCoachDescription: 'Can instruct all classes in your facility',
       usernameAlreadyExists: 'Username already exists',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       pwMismatchError: 'Passwords do not match',
@@ -117,6 +138,7 @@
     },
     components: {
       kButton,
+      kRadioButton,
       coreModal,
       kTextbox,
       uiAlert,
@@ -128,7 +150,11 @@
         username: '',
         password: '',
         confirmedPassword: '',
-        kind: {},
+        kind: {
+          label: this.$tr('learner'),
+          value: UserKinds.LEARNER,
+        },
+        classCoach: true,
         errorMessage: '',
         submitting: false,
         nameBlurred: false,
@@ -139,6 +165,19 @@
       };
     },
     computed: {
+      newUserRole() {
+        if (this.coachIsSelected) {
+          if (this.classCoach) {
+            return UserKinds.ASSIGNABLE_COACH;
+          }
+          return UserKinds.COACH;
+        }
+        // Admin or Learner
+        return this.kind.value;
+      },
+      coachIsSelected() {
+        return this.kind.value === UserKinds.COACH;
+      },
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.fullName === '') {
@@ -151,7 +190,7 @@
         return Boolean(this.nameIsInvalidText);
       },
       usernameAlreadyExists() {
-        return this.users.findIndex(user => user.username === this.username) !== -1;
+        return this.facilityUsers.find(({ username }) => username === this.username);
       },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
@@ -203,7 +242,7 @@
           !this.confirmedPasswordIsInvalid
         );
       },
-      userKinds() {
+      userKindDropdownOptions() {
         return [
           {
             label: this.$tr('learner'),
@@ -220,26 +259,21 @@
         ];
       },
     },
-    beforeMount() {
-      Object.assign(this.$data, this.$options.data());
-      this.kind = {
-        label: this.$tr('learner'),
-        value: UserKinds.LEARNER,
-      };
-    },
     methods: {
       createNewUser() {
         this.errorMessage = '';
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
-          const newUser = {
+          this.createUser({
             username: this.username,
             full_name: this.fullName,
-            kind: this.kind.value,
+            role: {
+              kind: this.newUserRole,
+              collection: this.currentFacilityId,
+            },
             password: this.password,
-          };
-          this.createUser(newUser).then(
+          }).then(
             () => {
               this.close();
             },
@@ -259,22 +293,20 @@
         }
       },
       focusOnInvalidField() {
-        if (this.nameIsInvalid) {
-          this.$refs.name.focus();
-        } else if (this.usernameIsInvalid) {
-          this.$refs.username.focus();
-        } else if (this.passwordIsInvalid) {
-          this.$refs.password.focus();
-        } else if (this.confirmedPasswordIsInvalid) {
-          this.$refs.confirmedPassword.focus();
-        }
+        this.nameIsInvalid && this.$refs.name.focus();
+        this.usernameIsInvalid && this.$refs.username.focus();
+        this.passwordIsInvalid && this.$refs.password.focus();
+        this.confirmedPasswordIsInvalid && this.$refs.confirmedPassword.focus();
       },
       close() {
         this.displayModal(false);
       },
     },
     vuex: {
-      getters: { users: state => state.pageState.facilityUsers },
+      getters: {
+        facilityUsers: state => state.pageState.facilityUsers,
+        currentFacilityId,
+      },
       actions: {
         createUser,
         displayModal,
@@ -287,7 +319,10 @@
 
 <style lang="stylus" scoped>
 
-  .kind-select
+  .coach-selector
     margin-bottom: 3em
+    margin: 0
+    padding: 0
+    border: none
 
 </style>

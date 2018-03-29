@@ -83,6 +83,9 @@ import coachContentLabel from '../views/coach-content-label';
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
 import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
+import attemptLogList from '../views/attempt-log-list';
+import interactionList from '../views/interaction-list';
+import examReport from '../views/exam-report';
 
 export default {
   client,
@@ -143,6 +146,9 @@ export default {
       coreTable,
       kDropdownMenu,
       CoreInfoIcon,
+      attemptLogList,
+      interactionList,
+      examReport,
     },
     router,
     mixins: {
