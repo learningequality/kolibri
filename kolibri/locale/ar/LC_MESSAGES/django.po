@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-22 18:11-0800\n"
-"PO-Revision-Date: 2018-03-12 01:49-0400\n"
+"POT-Creation-Date: 2018-02-23 17:34-0800\n"
+"PO-Revision-Date: 2018-03-28 13:12-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Arabic\n"
 "Language: ar_SA\n"
@@ -14,26 +14,26 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: ar\n"
-"X-Crowdin-File: /release-v0.8.x/django.po\n"
+"X-Crowdin-File: /release-v0.9.x/django.po\n"
 
-#: kolibri/auth/constants/collection_kinds.py:12
-#: kolibri/plugins/management/kolibri_plugin.py:29
+#: kolibri/auth/constants/collection_kinds.py:14
+#: kolibri/plugins/facility_management/kolibri_plugin.py:30
 msgid "Facility"
 msgstr "مرفق تعليمي"
 
-#: kolibri/auth/constants/collection_kinds.py:13
+#: kolibri/auth/constants/collection_kinds.py:15
 msgid "Classroom"
 msgstr "الفصل"
 
-#: kolibri/auth/constants/collection_kinds.py:14
+#: kolibri/auth/constants/collection_kinds.py:16
 msgid "Learner group"
 msgstr "مجموعة متعلمين"
 
-#: kolibri/auth/constants/role_kinds.py:10
+#: kolibri/auth/constants/role_kinds.py:12
 msgid "Admin"
 msgstr "مشرف"
 
-#: kolibri/auth/constants/role_kinds.py:11
+#: kolibri/auth/constants/role_kinds.py:13
 msgid "Coach"
 msgstr "مدرب"
 
@@ -57,15 +57,19 @@ msgstr "الاسم الكامل"
 msgid "date joined"
 msgstr "تاريخ الانضمام"
 
-#: kolibri/auth/serializers.py:31
+#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
 msgid "An account with that username already exists"
 msgstr "يوجد بالفعل حساب بهذا الاسم"
 
-#: kolibri/content/api.py:355
+#: kolibri/content/api.py:74
+msgid "Content"
+msgstr "المحتوى"
+
+#: kolibri/content/api.py:363
 msgid "The requested channel does not exist on the content server"
 msgstr "القناة المطلوبة غير موجودة على خادم المحتوى"
 
-#: kolibri/content/models.py:183
+#: kolibri/content/models.py:187
 msgid "Unknown format"
 msgstr "صيغة غير معروفة"
 
@@ -92,6 +96,10 @@ msgstr "لاستخدام كوليبري، ننصح باستخدام متصفح �
 #: kolibri/core/templates/kolibri/unsupported_browser.html:31
 msgid "You can also try updating your current browser."
 msgstr "يمكنك أيضاً محاولة تحديث متصفحك الحالي."
+
+#: kolibri/plugins/device_management/kolibri_plugin.py:30
+msgid "Device"
+msgstr "الجهاز"
 
 #: kolibri/tasks/api.py:31
 msgid "There was a network error."
