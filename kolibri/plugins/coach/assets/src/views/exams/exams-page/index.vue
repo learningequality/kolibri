@@ -48,7 +48,7 @@
             />
           </td>
 
-          <td> {{ genRecipientsString(exam.visibility) }} </td>
+          <td> {{ genRecipientsString(exam.assignments) }} </td>
 
           <td>
             <status-icon :active="exam.active" />
@@ -81,7 +81,7 @@
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import StatusIcon from '../../assignments/StatusIcon';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'coachExamsPage',
@@ -157,13 +157,14 @@
           params: { examId },
         };
       },
-      genRecipientsString(examVisibility) {
-        if (examVisibility.class) {
+      genRecipientsString(assignments) {
+        if (!assignments.length) {
+          return this.$tr('nobody');
+        } else if (assignments[0].collection_kind === CollectionKinds.CLASSROOM) {
           return this.$tr('entireClass');
-        } else if (examVisibility.groups.length) {
-          return this.$tr('groups', { count: examVisibility.groups.length });
+        } else if (assignments[0].collection_kind === CollectionKinds.LEARNERGROUP) {
+          return this.$tr('groups', { count: assignments.length });
         }
-        return this.$tr('nobody');
       },
     },
     vuex: {

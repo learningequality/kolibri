@@ -82,9 +82,9 @@
     "selectDriveModal.problemFindingLocalDrives": "حصلت مشكلة أثناء العثور على محركات الأقراص المحلية.",
     "selectDriveModal.selectDrive": "حدد محرك الأقراص",
     "selectDriveModal.selectExportDestination": "حدد وجهة التصدير",
-    "wizardDriveList.drivesFound": "تم العثور على محرك أقراص",
-    "wizardDriveList.noImportableDrives": "لا توجد محركات أقراص بمحتوى كوليبيري متصلة بالمخدّم",
-    "wizardDriveList.noExportableDrives": "لا توجد محركات أقراص يمكن الكتابة عليها متصلة بالمخدّم",
+    "driveList.drivesFound": "تم العثور على محرك أقراص",
+    "driveList.noImportableDrives": "لا توجد محركات أقراص بمحتوى كوليبيري متصلة بالمخدّم",
+    "driveList.noExportableDrives": "لا توجد محركات أقراص يمكن الكتابة عليها متصلة بالمخدّم",
     "taskProgress.importingContent": "إستيراد المحتوى…",
     "taskProgress.exportingContent": "تصدير المحتوى…",
     "taskProgress.finished": "انتهى! أنقر على الزر \"إغلاق\" لمشاهدة التغييرات.",
@@ -108,7 +108,7 @@
     "availableChannelsPage.exportToDisk": "التصدير إلى {driveName}",
     "availableChannelsPage.importFromDisk": "استيراد من {driveName}",
     "availableChannelsPage.kolibriCentralServer": "استوديو كوليبري",
-    "availableChannelsPage.languageFilterLabel": "اللغة:",
+    "availableChannelsPage.languageFilterLabel": "اللغة",
     "availableChannelsPage.titleFilterPlaceholder": "البحث عن قناة…",
     "availableChannelsPage.yourChannels": "قنواتك",
     "availableChannelsPage.channelTokenButtonLabel": "حاول إضافة رمز",
@@ -131,7 +131,7 @@
     "deleteChannelModal.title": "حذف القناة",
     "deleteChannelModal.cancelButtonLabel": "إلغاء",
     "deleteChannelModal.confirmButtonLabel": "حذف",
-    "deviceManagementTopNav.contentLabel": "المحتوى",
-    "deviceManagementTopNav.permissionsLabel": "الأذونات",
-    "deviceManagementTopNav.infoLabel": "معلومات"
+    "deviceTopNav.contentLabel": "المحتوى",
+    "deviceTopNav.permissionsLabel": "الأذونات",
+    "deviceTopNav.infoLabel": "معلومات"
 }

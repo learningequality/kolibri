@@ -203,6 +203,9 @@ export const coreMutations = {
   CORE_SET_SNACKBAR_TEXT(state, text) {
     state.core.snackbarOptions.text = text;
   },
+  RESET_EXAM_ATTEMPT_LOGS(state) {
+    state.examAttemptLogs = {};
+  },
 };
 
 const store = new Vuex.Store({});

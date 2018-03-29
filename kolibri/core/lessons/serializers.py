@@ -1,15 +1,17 @@
 from collections import OrderedDict
+
+from rest_framework.serializers import JSONField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
-from rest_framework.serializers import JSONField
 from rest_framework.serializers import SerializerMethodField
 from rest_framework.serializers import ValidationError
-from kolibri.auth.serializers import ClassroomSerializer
-from kolibri.auth.models import Collection
-from kolibri.auth.models import FacilityUser
-from kolibri.content.models import ContentNode
+
 from .models import Lesson
 from .models import LessonAssignment
+from kolibri.auth.models import Collection
+from kolibri.auth.models import FacilityUser
+from kolibri.auth.serializers import ClassroomSerializer
+from kolibri.content.models import ContentNode
 
 
 class LessonAssignmentSerializer(ModelSerializer):
@@ -58,6 +60,10 @@ class LessonSerializer(ModelSerializer):
         # Validates that every ContentNode passed into resources is actually installed
         # on the server. NOTE that this could cause problems if content is deleted from
         # device.
+        if resources == '[]':
+            # If no value is passed to resources, 'resources' will default to '[]'
+            # Set to empty list so we can iterate properly
+            resources = []
         try:
             for resource in resources:
                 ContentNode.objects.get(
@@ -109,21 +115,18 @@ class LessonSerializer(ModelSerializer):
         # Add/delete any new/removed Assignments
         if 'lesson_assignments' in validated_data:
             assignees = validated_data.pop('lesson_assignments')
-            current_assignments = (instance.lesson_assignments).all()
-            current_group_ids = [x.collection.id for x in list(current_assignments)]
-            new_group_ids = [x['collection'].id for x in list(assignees)]
+            current_group_ids = set(instance.lesson_assignments.values_list('collection__id', flat=True))
+            new_group_ids = set(x['collection'].id for x in assignees)
 
-            ids_to_add = set(new_group_ids) - set(current_group_ids)
-            for id in ids_to_add:
+            for id in set(new_group_ids) - set(current_group_ids):
                 self._create_lesson_assignment(
                     lesson=instance,
                     collection=Collection.objects.get(id=id)
                 )
 
-            ids_to_delete = set(current_group_ids) - set(new_group_ids)
             LessonAssignment.objects.filter(
                 lesson_id=instance.id,
-                collection_id__in=ids_to_delete
+                collection_id__in=(set(current_group_ids) - set(new_group_ids))
             ).delete()
 
         instance.save()

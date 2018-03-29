@@ -82,9 +82,9 @@
     "selectDriveModal.problemFindingLocalDrives": "مقامی ڈرائیوز کو تلاش کرنے میں ایک مسئلہ تھا ۔.",
     "selectDriveModal.selectDrive": "ایک ڈرائیو منتخب کریں",
     "selectDriveModal.selectExportDestination": "درامد کے لیے ایک منزل منتخب کریں",
-    "wizardDriveList.drivesFound": " ڈرائیوز مل گیں",
-    "wizardDriveList.noImportableDrives": "کولیبری مواد کی کوئی ڈرائیوز سرور سے جڑی ہوئی نہیں ہیں",
-    "wizardDriveList.noExportableDrives": "سرور سے جڑی ہوی کوئی ڈرائیوز نہیں جو لکھی جا سکیں",
+    "driveList.drivesFound": " ڈرائیوز مل گیں",
+    "driveList.noImportableDrives": "کولیبری مواد کی کوئی ڈرائیوز سرور سے جڑی ہوئی نہیں ہیں",
+    "driveList.noExportableDrives": "سرور سے جڑی ہوی کوئی ڈرائیوز نہیں جو لکھی جا سکیں",
     "taskProgress.importingContent": "مواد درآمد ہورہا ہے…",
     "taskProgress.exportingContent": "مواد برآمد ہورہا ہے…",
     "taskProgress.finished": "ختم ہوگیا ہے! تبدیلیاں دیکھنے کے لیے \"بند\" کا بٹن دبائیں.",
@@ -108,7 +108,7 @@
     "availableChannelsPage.exportToDisk": "کو برآمد کریں {driveName}",
     "availableChannelsPage.importFromDisk": "سے درآمد کریں {driveName}",
     "availableChannelsPage.kolibriCentralServer": "کولبری سٹوڈیو",
-    "availableChannelsPage.languageFilterLabel": "زبان:",
+    "availableChannelsPage.languageFilterLabel": "زبان",
     "availableChannelsPage.titleFilterPlaceholder": "ایک چینل تلاش کریں…",
     "availableChannelsPage.yourChannels": "آپ کے چینلز",
     "availableChannelsPage.channelTokenButtonLabel": "ایک ٹوکن شامل کرنے کی کوشش کریں",
@@ -131,7 +131,7 @@
     "deleteChannelModal.title": "چینل حذف کریں",
     "deleteChannelModal.cancelButtonLabel": "منسوخ کریں",
     "deleteChannelModal.confirmButtonLabel": "مٹادیں",
-    "deviceManagementTopNav.contentLabel": "مواد",
-    "deviceManagementTopNav.permissionsLabel": "اجازتیں",
-    "deviceManagementTopNav.infoLabel": "معلومات"
+    "deviceTopNav.contentLabel": "مواد",
+    "deviceTopNav.permissionsLabel": "اجازتیں",
+    "deviceTopNav.infoLabel": "معلومات"
 }

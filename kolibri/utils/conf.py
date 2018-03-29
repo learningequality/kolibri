@@ -23,13 +23,16 @@ import json
 import logging
 import os
 
-from kolibri.utils.compat import module_exists
+from .compat import module_exists
+
 
 logger = logging.getLogger(__name__)
 
 with open(os.path.join(os.path.dirname(__file__), 'KOLIBRI_CORE_JS_NAME')) as f:
     KOLIBRI_CORE_JS_NAME = f.read().strip()
 
+#: Absolute path of the main user data directory.
+#: Will be created automatically if it doesn't exist.
 KOLIBRI_HOME = os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"]))
 
 # Creating KOLIBRI_HOME atm. has to happen here as for instance utils.cli is not

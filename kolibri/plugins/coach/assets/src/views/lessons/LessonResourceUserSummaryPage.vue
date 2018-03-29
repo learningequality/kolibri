@@ -26,6 +26,7 @@
       />
     </section>
 
+    <!-- TODO consolidate with facility_management user-list -->
     <section>
       <core-table v-if="userData.length">
         <thead>
@@ -100,7 +101,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="user in sortedUsers"
+            v-for="user in users"
             :key="user.id"
           >
             <td class="core-table-icon-col">
@@ -159,6 +160,8 @@
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  // TODO add to core
+  import { filterAndSortUsers } from '../../../../../facility_management/assets/src/userSearchUtils';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../constants/lessonsConstants';
 
@@ -199,12 +202,10 @@
         return this.invert ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
       },
       sortedUsers() {
-        const sorted = Array.from(this.userData).sort((s1, s2) => {
-          const first = String(s1[this.sortBy]);
-          const second = String(s2[this.sortBy]);
-          return first.localeCompare(second);
-        });
-        return this.invert ? sorted.reverse() : sorted;
+        return filterAndSortUsers(this.userData, () => true, this.sortBy);
+      },
+      users() {
+        return this.invert ? Array.from(this.sortedUsers).reverse() : this.sortedUsers;
       },
     },
     methods: {

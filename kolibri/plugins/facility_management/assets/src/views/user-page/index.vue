@@ -10,7 +10,7 @@
     <div class="toolbar">
       <div class="create">
         <k-button
-          @click="openCreateUserModal"
+          @click="displayModal(Modals.CREATE_USER)"
           :text="$tr('addNew')"
           :primary="true"
         />
@@ -31,66 +31,26 @@
       />
     </div>
 
-    <core-table>
-      <caption class="visuallyhidden">{{ $tr('users') }}</caption>
-
-      <!-- Table Headers -->
-      <thead slot="thead" v-if="usersMatchFilter">
-        <tr>
-          <th class="core-table-icon-col"></th>
-          <th class="core-table-main-col">{{ $tr('username') }}</th>
-          <th>
-            <span class="visuallyhidden">{{ $tr('kind') }}</span>
-          </th>
-          <th>{{ $tr('fullName') }}</th>
-          <th></th>
-        </tr>
-      </thead>
-
-      <!-- Table body -->
-      <tbody v-if="usersMatchFilter">
-        <tr v-for="user in visibleUsers" :key="user.id">
-          <td class="core-table-icon-col">
-            <ui-icon icon="person" />
-          </td>
-          <!-- Username field -->
-          <th class="core-table-main-col">{{ user.username }}</th>
-
-          <!-- Logic for role tags -->
-          <td>
-            <user-role :role="user.kind" :omitLearner="true" />
-          </td>
-
-          <!-- Full Name field -->
-          <td>
-            <span>{{ user.full_name }}</span>
-          </td>
-
-          <!-- Edit field -->
-          <td>
-            <k-dropdown-menu
-              :text="$tr('manage')"
-              :options="manageUserOptions(user.id)"
-              :disabled="!canEditUser(user)"
-              appearance="flat-button"
-              @select="handleManageUserSelection($event, user)"
-            />
-          </td>
-
-        </tr>
-      </tbody>
-
-    </core-table>
-
-    <p v-if="noUsersExist">{{ $tr('noUsersExist') }}</p>
-    <p v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</p>
-
+    <user-table
+      :users="visibleUsers"
+      :emptyMessage="emptyMessage"
+    >
+      <template slot="action" slot-scope="userRow">
+        <k-dropdown-menu
+          :text="$tr('manage')"
+          :options="manageUserOptions(userRow.user.id)"
+          :disabled="!userCanBeEdited(userRow.user)"
+          appearance="flat-button"
+          @select="handleManageUserSelection($event, userRow.user)"
+        />
+      </template>
+    </user-table>
 
     <!-- Modals -->
-    <user-create-modal v-if="showCreateUserModal" />
+    <user-create-modal v-if="modalShown===Modals.CREATE_USER" />
 
     <edit-user-modal
-      v-if="showEditUserModal"
+      v-if="modalShown===Modals.EDIT_USER"
       :id="selectedUser.id"
       :name="selectedUser.full_name"
       :username="selectedUser.username"
@@ -98,14 +58,14 @@
     />
 
     <reset-user-password-modal
-      v-if="showResetUserPasswordModal"
+      v-if="modalShown===Modals.RESET_USER_PASSWORD"
       :id="selectedUser.id"
       :name="selectedUser.full_name"
       :username="selectedUser.username"
     />
 
     <delete-user-modal
-      v-if="showDeleteUserModal"
+      v-if="modalShown===Modals.DELETE_USER"
       :id="selectedUser.id"
       :name="selectedUser.full_name"
       :username="selectedUser.username"
@@ -118,7 +78,7 @@
 
 <script>
 
-  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import userTable from '../user-table';
   import UiIcon from 'keen-ui/src/UiIcon';
   import { Modals } from '../../constants';
   import { displayModal } from '../../state/actions';
@@ -135,6 +95,8 @@
   import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import kSelect from 'kolibri.coreVue.components.kSelect';
 
+  const ALL_FILTER = 'all';
+
   export default {
     name: 'userPage',
     components: {
@@ -147,7 +109,7 @@
       kDropdownMenu,
       userRole,
       kSelect,
-      coreTable,
+      userTable,
       UiIcon,
     },
     data: () => ({
@@ -156,52 +118,28 @@
       selectedUser: null,
     }),
     computed: {
+      Modals: () => Modals,
       userKinds() {
         return [
-          {
-            label: this.$tr('allUsers'),
-            value: 'all',
-          },
-          {
-            label: this.$tr('learners'),
-            value: UserKinds.LEARNER,
-          },
-          {
-            label: this.$tr('coaches'),
-            value: UserKinds.COACH,
-          },
-          {
-            label: this.$tr('admins'),
-            value: UserKinds.ADMIN,
-          },
+          { label: this.$tr('allUsers'), value: ALL_FILTER },
+          { label: this.$tr('learners'), value: UserKinds.LEARNER },
+          { label: this.$tr('coaches'), value: UserKinds.COACH },
+          { label: this.$tr('admins'), value: UserKinds.ADMIN },
         ];
-      },
-      noUsersExist() {
-        return this.users.length === 0;
-      },
-      allUsersFilteredOut() {
-        return !this.noUsersExist && this.visibleUsers.length === 0;
-      },
-      usersMatchFilter() {
-        return !this.noUsersExist && !this.allUsersFilteredOut;
       },
       visibleUsers() {
         return filterAndSortUsers(
-          this.users,
+          this.facilityUsers,
           user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user)
         );
       },
-      showEditUserModal() {
-        return this.modalShown === Modals.EDIT_USER;
-      },
-      showResetUserPasswordModal() {
-        return this.modalShown === Modals.RESET_USER_PASSWORD;
-      },
-      showDeleteUserModal() {
-        return this.modalShown === Modals.DELETE_USER;
-      },
-      showCreateUserModal() {
-        return this.modalShown === Modals.CREATE_USER;
+      emptyMessage() {
+        if (this.facilityUsers.length === 0) {
+          return this.$tr('noUsersExist');
+        } else if (this.visibleUsers.length === 0) {
+          return this.$tr('allUsersFilteredOut');
+        }
+        return '';
       },
     },
     beforeMount() {
@@ -209,38 +147,39 @@
     },
     methods: {
       userMatchesRole(user) {
-        return this.roleFilter.value === 'all' || user.kind === this.roleFilter.value;
+        const { value: filterKind } = this.roleFilter;
+        if (filterKind === ALL_FILTER) {
+          return true;
+        }
+        if (user.kind === UserKinds.ASSIGNABLE_COACH) {
+          return filterKind === UserKinds.COACH;
+        }
+        return filterKind === user.kind;
       },
       manageUserOptions(userId) {
         return [
-          { label: this.$tr('editUser') },
-          { label: this.$tr('resetUserPassword') },
-          { label: this.$tr('deleteUser'), disabled: userId === this.currentUserId },
+          { label: this.$tr('editUser'), value: Modals.EDIT_USER },
+          { label: this.$tr('resetUserPassword'), value: Modals.RESET_USER_PASSWORD },
+          {
+            label: this.$tr('deleteUser'),
+            value: Modals.DELETE_USER,
+            disabled: userId === this.currentUserId,
+          },
         ];
       },
       handleManageUserSelection(selection, user) {
         this.selectedUser = user;
-        if (selection.label === this.$tr('editUser')) {
-          this.displayModal(Modals.EDIT_USER);
-        } else if (selection.label === this.$tr('resetUserPassword')) {
-          this.displayModal(Modals.RESET_USER_PASSWORD);
-        } else if (selection.label === this.$tr('deleteUser')) {
-          this.displayModal(Modals.DELETE_USER);
-        }
+        this.displayModal(selection.value);
       },
-      openCreateUserModal() {
-        this.displayModal(Modals.CREATE_USER);
-      },
-      canEditUser(user) {
-        if (!this.isSuperuser) {
-          return !user.is_superuser;
-        }
-        return true;
+      userCanBeEdited(user) {
+        // If logged-in user is a superuser, then they can edit anybody (including other SUs).
+        // Otherwise, only non-SUs can be edited.
+        return this.isSuperuser || !user.is_superuser;
       },
     },
     vuex: {
       getters: {
-        users: state => state.pageState.facilityUsers,
+        facilityUsers: state => state.pageState.facilityUsers,
         modalShown: state => state.pageState.modalShown,
         currentUserId,
         isSuperuser,
@@ -251,7 +190,7 @@
     },
     $trs: {
       filterUserType: 'User type',
-      searchText: 'Search for a user...',
+      searchText: 'Search for a user…',
       allUsers: 'All',
       admins: 'Admins',
       coaches: 'Coaches',
@@ -259,7 +198,7 @@
       addNew: 'Add New',
       fullName: 'Full name',
       users: 'Users',
-      kind: 'Role',
+      role: 'Role',
       username: 'Username',
       edit: 'Edit',
       noUsersExist: 'No users exist',
@@ -268,6 +207,7 @@
       editUser: 'Edit',
       resetUserPassword: 'Reset password',
       deleteUser: 'Delete',
+      userActions: 'User management actions',
     },
   };
 
@@ -275,13 +215,6 @@
 
 
 <style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  // Padding height that separates rows from eachother
-  $row-padding = 1.5em
-  // height of elements in toolbar,  based off of icon-button height
-  $toolbar-height = 38px
 
   .toolbar
     margin-bottom: 32px

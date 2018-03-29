@@ -37,6 +37,7 @@
         :options="userMenuOptions"
         :raised="true"
         :containFocus="true"
+        :hasIcons="true"
         @select="optionSelected"
         @close="userMenuDropdownIsOpen = false"
       >
@@ -70,6 +71,7 @@
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
   import languageSwitcherModal from './language-switcher/modal';
+
   export default {
     name: 'appBar',
     components: {
@@ -115,6 +117,7 @@
         const changeLanguage = {
           id: 'language',
           label: this.$tr('languageSwitchMenuOption'),
+          icon: 'language',
         };
         if (this.isUserLoggedIn) {
           return [
@@ -203,6 +206,7 @@
 
   .role
     font-size: small
+    font-weight: bold
     margin-bottom: 8px
 
   // Will display icon in app bar if variables are defined

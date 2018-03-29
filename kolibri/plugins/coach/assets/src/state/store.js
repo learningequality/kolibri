@@ -7,6 +7,8 @@ export const initialState = {
   classId: null,
   className: null,
   classList: [],
+  classCoaches: [],
+  currentClassroom: {},
   busy: false,
 };
 
@@ -19,9 +21,11 @@ export const mutations = {
   SET_PAGE_NAME(state, pageName) {
     state.pageName = pageName;
   },
-  SET_CLASS_INFO(state, classId, className, classList) {
+  SET_CLASS_INFO(state, { classId, classList, currentClassroom }) {
+    state.currentClassroom = currentClassroom;
     state.classId = classId;
-    state.className = className;
+    state.className = currentClassroom ? currentClassroom.name : '';
+    state.classCoaches = currentClassroom ? currentClassroom.coaches : [];
     state.classList = classList;
   },
 
@@ -85,5 +89,8 @@ export const mutations = {
 
   SET_BUSY(state, isBusy) {
     state.pageState.busy = isBusy;
+  },
+  SET_TOOLBAR_TITLE(state, title) {
+    state.pageState.toolbarTitle = title;
   },
 };

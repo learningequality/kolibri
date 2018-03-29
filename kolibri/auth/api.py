@@ -24,6 +24,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from .constants import collection_kinds
+from .constants import role_kinds
 from .filters import HierarchyRelationsFilter
 from .models import Classroom
 from .models import Collection
@@ -192,11 +193,24 @@ class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet)
     filter_fields = ['user', 'collection', 'user_ids', ]
 
 
-class RoleViewSet(viewsets.ModelViewSet):
+class RoleFilter(FilterSet):
+    user_ids = CharFilter(method="filter_user_ids")
+
+    def filter_user_ids(self, queryset, name, value):
+        return queryset.filter(user_id__in=value.split(','))
+
+    class Meta:
+        model = Role
+        fields = ["user", "collection", "kind", "user_ids", ]
+
+
+class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
+    filter_class = RoleFilter
+    filter_fields = ['user', 'collection', 'kind', 'user_ids', ]
 
 
 class FacilityViewSet(viewsets.ModelViewSet):
@@ -230,11 +244,37 @@ class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PublicFacilitySerializer
 
 
+class ClassroomFilter(FilterSet):
+
+    role = CharFilter(method="filter_has_role_for")
+
+    def filter_has_role_for(self, queryset, name, value):
+        requesting_user = get_user(self.request)
+        if requesting_user.is_superuser:
+            return queryset
+
+        # filter queryset by admin role and coach role
+        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            source_user=requesting_user,
+            role_kind=role_kinds.ADMIN,
+            descendant_collection=F("id"),
+        ) | HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            source_user=requesting_user,
+            role_kind=value,
+            descendant_collection=F("id"),
+        )
+
+    class Meta:
+        model = Classroom
+        fields = ['role', ]
+
+
 class ClassroomViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Classroom.objects.all()
     serializer_class = ClassroomSerializer
+    filter_class = ClassroomFilter
 
 
 class LearnerGroupViewSet(viewsets.ModelViewSet):
@@ -341,6 +381,8 @@ class SessionViewSet(viewsets.ViewSet):
                     session['kind'].append('admin')
                 elif role.kind == 'coach':
                     session['kind'].append('coach')
+                elif role.kind == 'classroom assignable coach':
+                    session['kind'].append('classroom assignable coach')
 
         if user.is_superuser:
             session['kind'].insert(0, 'superuser')

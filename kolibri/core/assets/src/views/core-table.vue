@@ -37,6 +37,8 @@
   .core-table
     width: 100%
     font-size: 14px
+    // without this, we get inconsistent column widths
+    table-layout: fixed
 
   >>>thead
     border-bottom: solid 1px $core-grey

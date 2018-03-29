@@ -33,15 +33,9 @@
         :key="i"
       >
         <h3>
-          {{ viewByGroups ? reportGrouping[0].group.name : $tr('allLearners') }}
+          {{ viewByGroups ? reportGrouping[0].group.name || $tr('ungrouped') : $tr('allLearners') }}
         </h3>
-        <p class="average-score">
-          {{
-            getAverageScore(reportGrouping) ?
-              $tr('averageScore', { num: getAverageScore(reportGrouping) }) :
-              $tr('noAverageScore')
-          }}
-        </p>
+        <p class="average-score">{{ getAverageScore(reportGrouping) }}</p>
 
         <core-table>
           <caption class="visuallyhidden">{{ $tr('examReport') }}</caption>
@@ -112,6 +106,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { PageNames } from '../../../constants';
   import sumBy from 'lodash/sumBy';
+  import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import { USER, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
@@ -145,9 +140,15 @@
       reportGroupings() {
         let reportGroupings;
         if (this.viewByGroups) {
-          reportGroupings = this.learnerGroups.map(group =>
-            this.examTakers.filter(learner => learner.group.id === group.id)
+          reportGroupings = this.learnerGroups
+            .map(group => this.examTakers.filter(learner => learner.group.id === group.id))
+            .filter(grouping => grouping.length !== 0);
+          reportGroupings = orderBy(
+            reportGroupings,
+            [grouping => grouping[0].group.name.toUpperCase()],
+            ['asc']
           );
+          reportGroupings.push(this.examTakers.filter(learner => !learner.group.id));
         } else {
           reportGroupings = [this.examTakers];
         }
@@ -197,7 +198,10 @@
       getAverageScore(learners) {
         const examsInProgress = learners.filter(learner => learner.progress !== undefined);
         const totalScores = sumBy(examsInProgress, 'score');
-        return totalScores / examsInProgress.length / this.exam.question_count;
+        const averageScore = totalScores / examsInProgress.length / this.exam.question_count;
+        return averageScore >= 0
+          ? this.$tr('averageScore', { num: averageScore })
+          : this.$tr('noAverageScore');
       },
     },
     vuex: {
@@ -213,7 +217,7 @@
     },
     $trs: {
       averageScore: 'Average score: {num, number, percent}',
-      noAverageScore: 'Average score: -',
+      noAverageScore: 'Average score: –',
       examReport: 'Exam report',
       completed: 'Completed',
       remaining: '{ num, number } {num, plural, one {question} other {questions}} remaining',
@@ -229,11 +233,10 @@
       editDetails: 'Edit details',
       copyTo: 'Copy to',
       delete: 'Delete',
-
-      // TODO
       viewByGroups: 'View by groups',
       allLearners: 'All learners',
       started: 'Started',
+      ungrouped: 'Ungrouped',
     },
   };
 

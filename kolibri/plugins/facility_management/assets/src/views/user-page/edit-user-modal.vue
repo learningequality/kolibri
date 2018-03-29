@@ -3,6 +3,7 @@
   <core-modal
     :title="$tr('editUser')"
     @cancel="displayModal(false)"
+    width="400px"
   >
     <form @submit.prevent="submitForm">
 
@@ -38,11 +39,29 @@
       />
 
       <k-select
-        class="kind-select"
         :label="$tr('userType')"
         :options="userKinds"
         v-model="newKind"
       />
+
+      <fieldset class="coach-selector" v-if="coachIsSelected">
+        <label>
+          <k-radio-button
+            :label="$tr('classCoachLabel')"
+            :radiovalue="true"
+            v-model="classCoachIsSelected"
+          />
+          {{ $tr('classCoachDescription') }}
+        </label>
+        <label>
+          <k-radio-button
+            :label="$tr('facilityCoachLabel')"
+            :radiovalue="false"
+            v-model="classCoachIsSelected"
+          />
+          {{ $tr('facilityCoachDescription') }}
+        </label>
+      </fieldset>
 
       <div class="core-modal-buttons">
         <k-button
@@ -69,12 +88,14 @@
 
   import { updateUser, displayModal } from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
 
   export default {
     name: 'editUserModal',
@@ -90,6 +111,10 @@
       cancel: 'Cancel',
       required: 'This field is required',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      classCoachLabel: 'Class coach',
+      classCoachDescription: "Can only instruct classes that they're assigned to",
+      facilityCoachLabel: 'Facility coach',
+      facilityCoachDescription: 'Can instruct all classes in your facility',
     },
     components: {
       kButton,
@@ -97,6 +122,7 @@
       kTextbox,
       kSelect,
       uiAlert,
+      kRadioButton,
     },
     props: {
       id: {
@@ -118,6 +144,7 @@
     },
     data() {
       return {
+        classCoachIsSelected: true,
         newName: this.name,
         newUsername: this.username,
         newKind: null,
@@ -127,6 +154,9 @@
       };
     },
     computed: {
+      coachIsSelected() {
+        return this.newKind.value === UserKinds.COACH;
+      },
       userKinds() {
         return [
           {
@@ -173,23 +203,38 @@
       },
     },
     beforeMount() {
-      this.newKind = this.userKinds.find(kind => kind.value === this.kind);
+      const coachOption = this.userKinds[1];
+      if (this.kind === UserKinds.ASSIGNABLE_COACH) {
+        this.newKind = coachOption;
+        this.classCoachIsSelected = true;
+      } else if (this.kind === UserKinds.COACH) {
+        this.newKind = coachOption;
+        this.classCoachIsSelected = false;
+      } else {
+        this.newKind = this.userKinds.find(kind => kind.value === this.kind);
+      }
     },
     methods: {
       submitForm() {
+        const roleUpdate = {
+          collection: this.currentFacilityId,
+        };
         this.formSubmitted = true;
         if (this.formIsValid) {
-          const userUpdates = {};
-          if (this.newUsername !== this.username) {
-            userUpdates.username = this.newUsername;
+          if (this.newKind.value === UserKinds.COACH) {
+            if (this.classCoachIsSelected) {
+              roleUpdate.kind = UserKinds.ASSIGNABLE_COACH;
+            } else {
+              roleUpdate.kind = UserKinds.COACH;
+            }
+          } else {
+            roleUpdate.kind = this.newKind.value;
           }
-          if (this.newName !== this.name) {
-            userUpdates.full_name = this.newName;
-          }
-          if (this.newKind.value !== this.kind) {
-            userUpdates.kind = this.newKind.value;
-          }
-          this.updateUser(this.id, userUpdates);
+          this.updateUser(this.id, {
+            username: this.newUsername,
+            name: this.newName,
+            role: roleUpdate,
+          });
           if (
             this.currentUserId === this.id &&
             this.currentUserKind !== UserKinds.SUPERUSER &&
@@ -212,6 +257,7 @@
         displayModal,
       },
       getters: {
+        currentFacilityId,
         currentUserId: state => state.core.session.user_id,
         currentUserKind: state => state.core.session.kind[0],
         error: state => state.pageState.error,
@@ -225,7 +271,10 @@
 
 <style lang="stylus" scoped>
 
-  .kind-select
-    margin-bottom: 32px
+  .coach-selector
+    margin-bottom: 3em
+    margin: 0
+    padding: 0
+    border: none
 
 </style>
