@@ -24,9 +24,9 @@
             <code v-if="parsePropDefault(prop.value.type, prop.value.default)">
               {{ parsePropDefault(prop.value.type, prop.value.default) }}
             </code>
-            <template v-else>-</template>
+            <template v-else>–</template>
           </td>
-          <td>{{ prop.description ? prop.description : '-' }}</td>
+          <td>{{ prop.description || '–' }}</td>
         </tr>
       </table>
     </p>
@@ -40,7 +40,7 @@
         </tr>
         <tr v-for="(event, i) in api.events" :key="i">
           <td>{{ event.name }}</td>
-          <td>{{ event.description ? event.description : '-' }}</td>
+          <td>{{ event.description || '–' }}</td>
         </tr>
       </table>
     </p>
@@ -54,7 +54,7 @@
         </tr>
         <tr v-for="(slot, i) in api.slots" :key="i">
           <td>{{ slot.name }}</td>
-          <td>{{ slot.description ? slot.description : '-' }}</td>
+          <td>{{ slot.description || '–' }}</td>
         </tr>
       </table>
     </p>
@@ -68,7 +68,7 @@
         </tr>
         <tr v-for="(method, i) in api.methods" :key="i">
           <td><code>{{ method.name }}</code></td>
-          <td>{{ method.description ? method.description : '-' }}</td>
+          <td>{{ method.description || '–' }}</td>
         </tr>
       </table>
     </p>

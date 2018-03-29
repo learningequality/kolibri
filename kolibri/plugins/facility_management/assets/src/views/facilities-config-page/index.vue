@@ -72,6 +72,7 @@
     'learnerCanEditName',
     'learnerCanSignUp',
     'learnerCanLoginWithNoPassword',
+    'showDownloadButtonInLearn',
   ];
 
   import { saveFacilityConfig, resetFacilityConfig } from '../../state/actions';

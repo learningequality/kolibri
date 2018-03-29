@@ -20,10 +20,10 @@ class ExamLogSerializer(KolibriModelSerializer):
     score = serializers.SerializerMethodField()
 
     def get_progress(self, obj):
-        return obj.attemptlogs.count()
+        return obj.exam.question_count
 
     def get_score(self, obj):
-        return obj.attemptlogs.aggregate(Sum('correct')).get('correct__sum')
+        return obj.attemptlogs.values_list('item').order_by('completion_timestamp').distinct().aggregate(Sum('correct')).get('correct__sum')
 
     class Meta:
         model = ExamLog

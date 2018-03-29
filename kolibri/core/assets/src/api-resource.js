@@ -702,6 +702,8 @@ export class Resource {
     }
     const cacheKey = this.cacheKey(model.attributes, filteredResourceIds);
     this.models[cacheKey] = model;
+    // invalidate cache because this new model may be included in a collection
+    this.collections = {};
     return model;
   }
 

@@ -54,8 +54,8 @@
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import attemptSummary from './attempt-summary';
-  import attemptLogList from '../../attempt-log-list';
-  import interactionList from '../../interaction-list';
+  import attemptLogList from 'kolibri.coreVue.components.attemptLogList';
+  import interactionList from 'kolibri.coreVue.components.interactionList';
   export default {
     name: 'learnerExerciseReport',
     $trs: { backPrompt: 'Back to { backTitle }' },

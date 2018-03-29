@@ -5,7 +5,12 @@ import RootVue from './views';
 
 import { PageNames } from './constants';
 
-import { showClassesPage, showClassEditPage, showClassEnrollPage } from './state/actions/class';
+import {
+  showClassesPage,
+  showClassEditPage,
+  showLearnerClassEnrollmentPage,
+  showCoachClassAssignmentPage,
+} from './state/actions/class';
 import { showUserPage } from './state/actions/user';
 import { showDataPage } from './state/actions/data';
 import { showFacilityConfigPage } from './state/actions/facilityConfig';
@@ -29,10 +34,17 @@ const routes = [
     },
   },
   {
-    name: PageNames.CLASS_ENROLL_MGMT_PAGE,
-    path: '/classes/:id/enroll',
+    name: PageNames.CLASS_ENROLL_LEARNER,
+    path: '/classes/:id/learner-enrollment/',
     handler: toRoute => {
-      showClassEnrollPage(store, toRoute.params.id);
+      showLearnerClassEnrollmentPage(store, toRoute.params.id);
+    },
+  },
+  {
+    name: PageNames.CLASS_ASSIGN_COACH,
+    path: '/classes/:id/coach-assignment/',
+    handler: toRoute => {
+      showCoachClassAssignmentPage(store, toRoute.params.id);
     },
   },
   {

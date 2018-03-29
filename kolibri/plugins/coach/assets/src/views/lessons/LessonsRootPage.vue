@@ -161,7 +161,10 @@
         return this.$tr('numberOfGroups', { count: numOfAssignments });
       },
       handleDetailsModalContinue(payload) {
-        this.createLesson(this.classId, payload)
+        this.createLesson(this.classId, {
+          ...payload,
+          lesson_assignments: payload.assignments,
+        })
           .then()
           .catch(() => this.$refs.detailsModal.handleSubmitFailure());
       },

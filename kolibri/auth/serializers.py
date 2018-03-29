@@ -1,18 +1,32 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from .constants import role_kinds
-from .models import Classroom, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
+from .models import Classroom
+from .models import Facility
+from .models import FacilityDataset
+from .models import FacilityUser
+from .models import LearnerGroup
+from .models import Membership
+from .models import Role
 
 
 class RoleSerializer(serializers.ModelSerializer):
+    collection_parent = serializers.SerializerMethodField()
 
     class Meta:
         model = Role
-        fields = ('id', 'kind', 'collection', 'user')
+        fields = ('id', 'kind', 'collection', 'user', 'collection_parent',)
+
+    def get_collection_parent(self, instance):
+        if instance.collection.parent is not None:
+            return instance.collection.parent.id
+        else:
+            return None
 
 
 class FacilityUserSerializer(serializers.ModelSerializer):
@@ -57,10 +71,11 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
         model = FacilityDataset
         fields = ('id', 'learner_can_edit_username', 'learner_can_edit_name', 'learner_can_edit_password',
                   'learner_can_sign_up', 'learner_can_delete_account', 'learner_can_login_with_no_password',
-                  'description', 'location')
+                  'show_download_button_in_learn', 'description', 'location')
 
 
 class FacilitySerializer(serializers.ModelSerializer):
+    dataset = FacilityDatasetSerializer(read_only=True)
 
     class Meta:
         model = Facility
@@ -77,21 +92,23 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
 
 class ClassroomSerializer(serializers.ModelSerializer):
     learner_count = serializers.SerializerMethodField()
-    coach_count = serializers.SerializerMethodField()
-    admin_count = serializers.SerializerMethodField()
+    coaches = serializers.SerializerMethodField()
 
-    def get_learner_count(self, target_node):
-        return target_node.get_members().count()
+    def get_learner_count(self, instance):
+        return instance.get_members().count()
 
-    def get_coach_count(self, target_node):
-        return Role.objects.filter(collection=target_node, kind=role_kinds.COACH).count()
-
-    def get_admin_count(self, target_node):
-        return Role.objects.filter(collection=target_node, kind=role_kinds.ADMIN).count()
+    def get_coaches(self, instance):
+        return FacilityUserSerializer(instance.get_coaches(), many=True).data
 
     class Meta:
         model = Classroom
-        fields = ('id', 'name', 'parent', 'learner_count', 'coach_count', 'admin_count')
+        fields = (
+            'id',
+            'name',
+            'parent',
+            'learner_count',
+            'coaches',
+        )
 
         validators = [
             UniqueTogetherValidator(

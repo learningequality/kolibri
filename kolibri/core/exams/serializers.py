@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from django.db.models import Sum
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.serializers import SerializerMethodField
 
 from kolibri.auth.models import Collection
 from kolibri.auth.models import FacilityUser
@@ -52,18 +52,30 @@ class ExamAssignmentRetrieveSerializer(serializers.ModelSerializer):
 
     assigned_by = serializers.PrimaryKeyRelatedField(read_only=True)
     collection = NestedCollectionSerializer(read_only=True)
+    collection_kind = SerializerMethodField()
+
+    def get_collection_kind(self, instance):
+        return instance.collection.kind
 
     class Meta:
         model = ExamAssignment
         fields = (
-            'id', 'exam', 'collection', 'assigned_by',
+            'id', 'exam', 'collection', 'assigned_by', 'collection_kind',
         )
-        read_only_fields = ('assigned_by', 'collection', )
+        read_only_fields = ('assigned_by', 'collection', 'collection_kind', )
+
+
+class ExamAssignmentNestedSerializer(ExamAssignmentRetrieveSerializer):
+
+    collection = serializers.PrimaryKeyRelatedField(read_only=False, queryset=Collection.objects.all())
+
+    class Meta(ExamAssignmentRetrieveSerializer.Meta):
+        read_only_fields = ('assigned_by', 'collection_kind', 'exam', )
 
 
 class ExamSerializer(serializers.ModelSerializer):
 
-    assignments = ExamAssignmentRetrieveSerializer(many=True, read_only=True)
+    assignments = ExamAssignmentNestedSerializer(many=True)
     question_sources = serializers.JSONField(default='[]')
     creator = serializers.PrimaryKeyRelatedField(read_only=False, queryset=FacilityUser.objects.all())
 
@@ -73,14 +85,6 @@ class ExamSerializer(serializers.ModelSerializer):
             'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
             'active', 'collection', 'archive', 'assignments', 'creator',
         )
-        read_only_fields = ('assignments',)
-
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Exam.objects.all(),
-                fields=('collection', 'title')
-            )
-        ]
 
     def to_internal_value(self, data):
         # Make a new OrderedDict from the input, which could be an immutable QueryDict
@@ -92,6 +96,48 @@ class ExamSerializer(serializers.ModelSerializer):
                 # Otherwise we are just updating the exam, so allow a partial update
                 self.partial = True
         return super(ExamSerializer, self).to_internal_value(data)
+
+    def create(self, validated_data):
+        assignees = validated_data.pop('assignments')
+        new_exam = Exam.objects.create(**validated_data)
+        # Create all of the new ExamAssignment
+        for assignee in assignees:
+            self._create_exam_assignment(
+                exam=new_exam,
+                collection=assignee['collection']
+            )
+        return new_exam
+
+    def _create_exam_assignment(self, **params):
+        return ExamAssignment.objects.create(
+            assigned_by=self.context['request'].user,
+            **params
+        )
+
+    def update(self, instance, validated_data):
+        # Update the scalar fields
+        instance.title = validated_data.get('title', instance.title)
+        instance.active = validated_data.get('active', instance.active)
+
+        # Add/delete any new/removed Assignments
+        if 'assignments' in validated_data:
+            assignees = validated_data.pop('assignments')
+            current_group_ids = set(instance.assignments.values_list('collection__id', flat=True))
+            new_group_ids = set(x['collection'].id for x in assignees)
+
+            for id in new_group_ids - current_group_ids:
+                self._create_exam_assignment(
+                    exam=instance,
+                    collection=Collection.objects.get(id=id)
+                )
+
+            ExamAssignment.objects.filter(
+                exam_id=instance.id,
+                collection_id__in=(current_group_ids - new_group_ids)
+            ).delete()
+
+        instance.save()
+        return instance
 
 
 class UserExamSerializer(serializers.ModelSerializer):

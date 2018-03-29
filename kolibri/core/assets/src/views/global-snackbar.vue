@@ -26,14 +26,15 @@
     },
     computed: {
       key() {
-        const unique = Object.assign({}, this.snackbarOptions);
+        const options = Object.assign({}, this.snackbarOptions);
         // The forceReuse option is used to force the reuse of the snackbar
         // This is helpful when we want to just update the text but not re-run the transition
         // This is used in the disconnected snackbar
-        if (this.snackbarOptions.forceReuse) {
-          unique.text = '';
+        if (options.forceReuse) {
+          options.text = '';
+          return JSON.stringify(options);
         }
-        return JSON.stringify(unique);
+        return JSON.stringify(options) + new Date();
       },
     },
     methods: {

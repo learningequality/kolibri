@@ -2,6 +2,7 @@ from django.db import models
 from jsonfield import JSONField
 
 from .permissions import UserCanReadExamAssignmentData
+from .permissions import UserCanReadExamData
 from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import AbstractFacilityDataModel
 from kolibri.auth.models import Collection
@@ -21,7 +22,7 @@ class Exam(AbstractFacilityDataModel):
         can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
         can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
         can_be_deleted_by=(role_kinds.ADMIN, role_kinds.COACH),
-    )
+    ) | UserCanReadExamData()
 
     title = models.CharField(max_length=200)
     # The channel this Exam is associated with.
