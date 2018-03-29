@@ -3,18 +3,15 @@ To run this test, type this in command line <kolibri manage test -- kolibri.cont
 """
 import datetime
 from collections import namedtuple
-
 import mock
 import requests
+import kolibri.content.serializers
+from rest_framework import status
+from rest_framework.test import APITestCase
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.test import TestCase
-from le_utils.constants import content_kinds
-from rest_framework import status
-from rest_framework.test import APITestCase
-
-import kolibri.content.serializers
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 from kolibri.auth.test.helpers import provision_device
@@ -22,6 +19,7 @@ from kolibri.content import models as content
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.logger.models import ContentSummaryLog
+from le_utils.constants import content_kinds
 
 DUMMY_PASSWORD = "password"
 
@@ -424,6 +422,26 @@ class ContentNodeAPITestCase(APITestCase):
         content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
         response = self.client.get(reverse("channel-list"), {"file_sizes": True})
         self.assertEqual(response.data[0]["on_device_file_size"], 0)
+
+    def test_channelmetadata_has_exercises_filter(self):
+        # Has nothing else for that matter...
+        no_exercise_channel = content.ContentNode.objects.create(
+            pk="6a406ac66b224106aa2e93f73a94333d",
+            channel_id="f8ec4a5d14cd4716890999da596032d2",
+            content_id="ded4a083e75f4689b386fd2b706e792a",
+            kind="topic",
+            title="no exercise channel",
+        )
+        content.ChannelMetadata.objects.create(
+            id="63acff41781543828861ade41dbdd7ff",
+            name="no exercise channel metadata",
+            root=no_exercise_channel,
+        )
+        no_filter_response = self.client.get(reverse("channel-list"))
+        self.assertEqual(len(no_filter_response.data), 2)
+        with_filter_response = self.client.get(reverse("channel-list"), {"has_exercise": True})
+        self.assertEqual(len(with_filter_response.data), 1)
+        self.assertEqual(no_filter_response.data[0]["name"], "testing")
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
