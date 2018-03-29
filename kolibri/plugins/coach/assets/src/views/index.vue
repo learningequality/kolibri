@@ -11,12 +11,12 @@
     >
 
       <template v-if="showCoachNav">
-        <nav-title
-          :className="className"
-          :classId="classId"
-          :username="usernameForCurrentScope"
-        />
         <top-nav class="top-nav" />
+        <nav-title
+          class="nav-title"
+          :className="className"
+          :classCoaches="classCoaches"
+        />
       </template>
 
       <!-- TODO need a better solution for passing in authMessage -->
@@ -31,8 +31,7 @@
 <script>
 
   import { PageNames } from '../constants';
-  import { UserScopes } from '../constants/reportConstants';
-  import { className } from '../state/getters/main';
+  import { className, classCoaches } from '../state/getters/classes';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
@@ -71,6 +70,7 @@
     ...resourceUserPages,
     LessonsPageNames.CONTENT_PREVIEW,
     LessonsPageNames.RESOURCE_CLASSROOM_REPORT,
+    PageNames.EXAM_REPORT_DETAIL,
   ];
 
   const pageNameToComponentMap = {
@@ -112,6 +112,9 @@
       selectPageToolbarHeader: 'Select resources',
       resourceUserPageToolbarHeader: 'Lesson Report Details',
       previewContentPageToolbarHeader: 'Preview resources',
+      noAssignmentErrorHeader: "You aren't assigned to any classes",
+      noAssignmentErrorSubheader:
+        'To start coaching a class, please consult your Kolibri administrator',
     },
     components: {
       authMessage,
@@ -156,7 +159,11 @@
         return this.$tr('coachToolbarHeader');
       },
       immersivePageIcon() {
-        const backButtonPages = [LessonsPageNames.CONTENT_PREVIEW, ...resourceUserPages];
+        const backButtonPages = [
+          LessonsPageNames.CONTENT_PREVIEW,
+          ...resourceUserPages,
+          PageNames.EXAM_REPORT_DETAIL,
+        ];
         if (backButtonPages.includes(this.pageName)) {
           return 'arrow_back';
         }
@@ -164,16 +171,13 @@
       },
       immersivePagePrimary() {
         // TODO going to need to set a backgrund color
-        if (this.pageName === LessonsPageNames.CONTENT_PREVIEW) {
+        if (
+          this.pageName === LessonsPageNames.CONTENT_PREVIEW ||
+          this.pageName === PageNames.EXAM_REPORT_DETAIL
+        ) {
           return false;
         }
         return true;
-      },
-      usernameForCurrentScope() {
-        if (this.pageState.userScope === UserScopes.USER) {
-          return this.pageState.userScopeName;
-        }
-        return null;
       },
     },
     vuex: {
@@ -184,10 +188,10 @@
         isCoach,
         isSuperuser,
         className,
+        classCoaches,
         classList: state => state.classList,
         classId: state => state.classId,
         isLoading: state => state.core.loading,
-        pageState: state => state.pageState,
       },
     },
   };
@@ -198,6 +202,9 @@
 <style lang="stylus" scoped>
 
   .top-nav
+    margin-bottom: 32px
+
+  .nav-title
     margin-bottom: 32px
 
 </style>

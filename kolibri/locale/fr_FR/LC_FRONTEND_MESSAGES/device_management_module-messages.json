@@ -82,9 +82,9 @@
     "selectDriveModal.problemFindingLocalDrives": "Un problème est survenu pour trouver des lecteurs locaux.",
     "selectDriveModal.selectDrive": "Sélectionnez un lecteur",
     "selectDriveModal.selectExportDestination": "Sélectionnez une destination d’exportation",
-    "wizardDriveList.drivesFound": "Disques trouvés",
-    "wizardDriveList.noImportableDrives": "Aucun disque avec le contenu Kolibri n’est connecté au serveur",
-    "wizardDriveList.noExportableDrives": "Aucun disque sur lequel on peut écrire n'est connecté au serveur",
+    "driveList.drivesFound": "Disques trouvés",
+    "driveList.noImportableDrives": "Aucun disque avec le contenu Kolibri n’est connecté au serveur",
+    "driveList.noExportableDrives": "Aucun disque sur lequel on peut écrire n'est connecté au serveur",
     "taskProgress.importingContent": "Importation du contenu…",
     "taskProgress.exportingContent": "Exportation du contenu…",
     "taskProgress.finished": "Terminé ! Cliquez sur le bouton « Fermer » pour voir les modifications.",
@@ -108,7 +108,7 @@
     "availableChannelsPage.exportToDisk": "Exporter vers {driveName}",
     "availableChannelsPage.importFromDisk": "Importer à partir de {driveName}",
     "availableChannelsPage.kolibriCentralServer": "Kolibri Studio",
-    "availableChannelsPage.languageFilterLabel": "Langue:",
+    "availableChannelsPage.languageFilterLabel": "Langue",
     "availableChannelsPage.titleFilterPlaceholder": "Rechercher une chaîne…",
     "availableChannelsPage.yourChannels": "Vos chaînes",
     "availableChannelsPage.channelTokenButtonLabel": "Essayer d’ajouter un jeton",
@@ -131,7 +131,7 @@
     "deleteChannelModal.title": "Supprimer la chaîne",
     "deleteChannelModal.cancelButtonLabel": "Annuler",
     "deleteChannelModal.confirmButtonLabel": "Supprimer",
-    "deviceManagementTopNav.contentLabel": "Contenu",
-    "deviceManagementTopNav.permissionsLabel": "Autorisations",
-    "deviceManagementTopNav.infoLabel": "Information"
+    "deviceTopNav.contentLabel": "Contenu",
+    "deviceTopNav.permissionsLabel": "Autorisations",
+    "deviceTopNav.infoLabel": "Information"
 }

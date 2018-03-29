@@ -104,12 +104,12 @@ class LearnerClassroomSerializer(ModelSerializer):
             lesson_assignments__collection__in=learner_groups,
             collection=instance,
             is_active=True,
-        )
+        ).distinct()
 
         filtered_exams = Exam.objects.filter(
             assignments__collection__in=learner_groups,
             collection=instance,
-        ).filter(Q(active=True) | Q(examlogs__user=current_user))
+        ).filter(Q(active=True) | Q(examlogs__user=current_user)).distinct()
 
         return {
             'lessons': LessonProgressSerializer(

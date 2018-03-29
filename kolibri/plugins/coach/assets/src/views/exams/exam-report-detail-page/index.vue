@@ -1,68 +1,23 @@
 <template>
 
-  <immersive-full-screen
+  <exam-report
+    :examAttempts="examAttempts"
+    :exam="exam"
+    :userName="userName"
+    :userId="userId"
+    :currentAttempt="currentAttempt"
+    :currentInteractionHistory="currentInteractionHistory"
+    :currentInteraction="currentInteraction"
+    :selectedInteractionIndex="selectedInteractionIndex"
+    :questionNumber="questionNumber"
+    :exercise="exercise"
+    :itemId="itemId"
+    :completionTimestamp="completionTimestamp"
+    :closed="closed"
     :backPageLink="backPageLink"
-    :backPageText="$tr('backTo', { title: exam.title })"
-  >
-    <template>
-      <div class="summary-container">
-        <page-status
-          :contentName="exam.title"
-          :userName="userName"
-          :questions="examAttempts"
-          :completionTimestamp="completionTimestamp"
-          :completed="closed"
-        />
-      </div>
-      <div class="details-container">
-        <div class="attempt-log-container">
-          <attempt-log-list
-            :attemptLogs="examAttempts"
-            :selectedQuestionNumber="questionNumber"
-            @select="navigateToAttempt"
-          />
-        </div>
-        <div class="exercise-container">
-          <interaction-list
-            :interactions="currentInteractionHistory"
-            :attemptNumber="currentAttempt.questionNumber"
-            :selectedInteractionIndex="selectedInteractionIndex"
-            @select="navigateToInteraction"
-          />
-
-          <content-renderer
-            v-if="currentInteraction"
-            :id="exercise.pk"
-            :itemId="itemId"
-            :allowHints="false"
-            :kind="exercise.kind"
-            :files="exercise.files"
-            :contentId="exercise.content_id"
-            :channelId="channelId"
-            :available="exercise.available"
-            :answerState="currentInteraction.answer"
-            :extraFields="exercise.extra_fields"
-            :interactive="false"
-            :assessment="true"
-          />
-          <content-renderer
-            v-else
-            :id="exercise.pk"
-            :itemId="itemId"
-            :allowHints="false"
-            :kind="exercise.kind"
-            :files="exercise.files"
-            :contentId="exercise.content_id"
-            :channelId="channelId"
-            :available="exercise.available"
-            :extraFields="exercise.extra_fields"
-            :interactive="false"
-            :assessment="true"
-          />
-        </div>
-      </div>
-    </template>
-  </immersive-full-screen>
+    :navigateToQuestion="navigateToQuestion"
+    :navigateToQuestionAttempt="navigateToQuestionAttempt"
+  />
 
 </template>
 
@@ -70,20 +25,12 @@
 <script>
 
   import { PageNames } from '../../../constants';
-  import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
-  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import pageStatus from './page-status';
-  import attemptLogList from '../../attempt-log-list';
-  import interactionList from '../../interaction-list';
+  import examReport from 'kolibri.coreVue.components.examReport';
+
   export default {
     name: 'coachExamDetailPage',
-    $trs: { backTo: 'Back to exam report for { title }' },
     components: {
-      immersiveFullScreen,
-      contentRenderer,
-      pageStatus,
-      attemptLogList,
-      interactionList,
+      examReport,
     },
     computed: {
       backPageLink() {
@@ -91,24 +38,22 @@
           name: PageNames.EXAM_REPORT,
           params: {
             classId: this.classId,
-            channelId: this.channelId,
             examId: this.exam.id,
           },
         };
       },
     },
     methods: {
-      navigateToAttempt(questionNumber) {
+      navigateToQuestion(questionNumber) {
         this.navigateTo(questionNumber, 0);
       },
-      navigateToInteraction(interaction) {
+      navigateToQuestionAttempt(interaction) {
         this.navigateTo(this.questionNumber, interaction);
       },
       navigateTo(question, interaction) {
         this.$router.push({
           name: PageNames.EXAM_REPORT_DETAIL,
           params: {
-            channelId: this.channelId,
             classId: this.classId,
             userId: this.userId,
             interaction,
@@ -120,7 +65,6 @@
     },
     vuex: {
       getters: {
-        channelId: state => state.pageState.channelId,
         classId: state => state.classId,
         examAttempts: state => state.pageState.examAttempts,
         exam: state => state.pageState.exam,
@@ -142,34 +86,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  $container-side-padding = 15px
-
-  .summary-container
-    padding-top: $container-side-padding
-    padding-left: $container-side-padding
-    padding-right: $container-side-padding
-    height: 15%
-
-  .details-container
-    width: 100%
-    height: 85%
-    padding-top: $container-side-padding
-    clearfix()
-
-  .attempt-log-container
-    width: 30%
-    height: 100%
-    overflow-y: auto
-    float: left
-
-  .exercise-container
-    width: 70%
-    height: 100%
-    padding: $containerSidePadding
-    float: left
-
-</style>
+<style lang="stylus" scoped></style>

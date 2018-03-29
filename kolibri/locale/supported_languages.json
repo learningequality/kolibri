@@ -26,15 +26,16 @@
     "english_name": "French"
   },
   {
-    "language_code": "fr",
-    "territory_code": "ht",
-    "language_name": "Kreyòl ayisyen",
-    "english_name": "Haitian Creole"
+    "language_code": "hi",
+    "territory_code": "in",
+    "language_name": "हिंदी (भारत)",
+    "english_name": "Hindi"
   },
   {
-    "language_code": "my",
-    "language_name": "ဗမာစာ",
-    "english_name": "Burmese"
+    "language_code": "sw",
+    "territory_code": "tz",
+    "language_name": "Kiswahili",
+    "english_name": "Swahili"
   },
   {
     "language_code": "ur",

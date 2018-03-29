@@ -136,7 +136,7 @@
         return {
           title: this.title,
           description: this.description,
-          lesson_assignments: this.selectedCollectionIds.map(groupId => ({ collection: groupId })),
+          assignments: this.selectedCollectionIds.map(groupId => ({ collection: groupId })),
         };
       },
       titleIsInvalidText() {

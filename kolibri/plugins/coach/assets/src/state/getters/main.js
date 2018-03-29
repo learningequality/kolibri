@@ -1,31 +1,17 @@
-import * as Constants from '../../constants';
+import { RecentReports, TopicReports, LearnerReports } from '../../constants';
 
-function className(state) {
-  const cls = state.classList.find(thisClass => thisClass.id === state.classId);
-  if (cls) {
-    return cls.name;
-  }
-  return '';
+export function isRecentPage(state) {
+  return RecentReports.includes(state.pageName);
 }
 
-function classMemberCount(state) {
-  const cls = state.classList.find(thisClass => thisClass.id === state.classId);
-  if (cls) {
-    return cls.memberCount;
-  }
-  return 0;
+export function isTopicPage(state) {
+  return TopicReports.includes(state.pageName);
 }
 
-function isRecentPage(state) {
-  return Constants.RecentReports.includes(state.pageName);
+export function isLearnerPage(state) {
+  return LearnerReports.includes(state.pageName);
 }
 
-function isTopicPage(state) {
-  return Constants.TopicReports.includes(state.pageName);
+export function numberOfAssignedClassrooms(state) {
+  return state.classList.length;
 }
-
-function isLearnerPage(state) {
-  return Constants.LearnerReports.includes(state.pageName);
-}
-
-export { className, classMemberCount, isRecentPage, isTopicPage, isLearnerPage };

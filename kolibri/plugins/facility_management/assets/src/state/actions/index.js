@@ -5,11 +5,10 @@ export {
   createClass,
   deleteClass,
   updateClass,
-  enrollUsersInClass,
-  removeClassUser,
+  enrollLearnersInClass,
+  removeClassLearner,
   showClassesPage,
   showClassEditPage,
-  showClassEnrollPage,
 } from './class';
 
 export { createUser, updateUser, deleteUser, showUserPage } from './user';

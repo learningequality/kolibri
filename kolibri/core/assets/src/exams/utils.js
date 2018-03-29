@@ -1,5 +1,14 @@
 import seededShuffle from 'seededshuffle';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
+import {
+  ExamResource,
+  ExamLogResource,
+  FacilityUserResource,
+  ExamAttemptLogResource,
+  ContentNodeResource,
+} from 'kolibri.resources';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 
 function createQuestionList(questionSources) {
   return questionSources.reduce(
@@ -19,4 +28,122 @@ function selectQuestionFromExercise(index, seed, contentNode) {
   return seededShuffle.shuffle(assessmentmetadata.assessmentIds, seed, true)[index];
 }
 
-export { createQuestionList, selectQuestionFromExercise };
+// idk the best place to place this function
+function getExamReport(store, examId, userId, questionNumber = 0, interactionIndex = 0) {
+  return new Promise((resolve, reject) => {
+    const examPromise = ExamResource.getModel(examId).fetch();
+    const examLogPromise = ExamLogResource.getCollection({
+      exam: examId,
+      user: userId,
+    }).fetch();
+    const attemptLogPromise = ExamAttemptLogResource.getCollection({
+      exam: examId,
+      user: userId,
+    }).fetch();
+    const userPromise = FacilityUserResource.getModel(userId).fetch();
+
+    ConditionalPromise.all([examPromise, examLogPromise, attemptLogPromise, userPromise]).only(
+      samePageCheckGenerator(store),
+      ([exam, examLogs, examAttempts, user]) => {
+        const examLog = examLogs[0] || {};
+        const seed = exam.seed;
+        const questionSources = exam.question_sources;
+
+        const questionList = createQuestionList(questionSources);
+
+        const contentPromise = ContentNodeResource.getCollection({
+          ids: questionSources.map(item => item.exercise_id),
+        }).fetch();
+
+        contentPromise.only(
+          samePageCheckGenerator(store),
+          contentNodes => {
+            const contentNodeMap = {};
+
+            contentNodes.forEach(node => {
+              contentNodeMap[node.pk] = node;
+            });
+
+            const questions = questionList.map(question => ({
+              itemId: selectQuestionFromExercise(
+                question.assessmentItemIndex,
+                seed,
+                contentNodeMap[question.contentId]
+              ),
+              contentId: question.contentId,
+            }));
+
+            const allQuestions = questions.map((question, index) => {
+              const attemptLog = examAttempts.filter(
+                log => log.item === question.itemId && log.content_id === question.contentId
+              );
+              let examAttemptLog = attemptLog[0]
+                ? attemptLog[0]
+                : { interaction_history: [], correct: false, noattempt: true };
+              if (attemptLog.length > 1) {
+                let completionTimeStamp = attemptLog.map(function(att) {
+                  return att.completion_timestamp;
+                });
+                examAttemptLog = attemptLog.find(
+                  log => log.completion_timestamp === completionTimeStamp.sort().reverse()[0]
+                );
+              }
+              return Object.assign(
+                {
+                  questionNumber: index + 1,
+                },
+                examAttemptLog
+              );
+            });
+
+            allQuestions.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
+
+            const currentQuestion = questions[questionNumber];
+            const itemId = currentQuestion.itemId;
+            const exercise = contentNodeMap[currentQuestion.contentId];
+            const currentAttempt = allQuestions[questionNumber];
+            const currentInteractionHistory = currentAttempt.interaction_history;
+            const currentInteraction = currentInteractionHistory[interactionIndex];
+            if (examLog.completion_timestamp) {
+              examLog.completion_timestamp = new Date(examLog.completion_timestamp);
+            }
+            const payload = {
+              exam,
+              itemId,
+              questions,
+              currentQuestion,
+              questionNumber: Number(questionNumber),
+              currentAttempt,
+              exercise,
+              interactionIndex: Number(interactionIndex),
+              currentInteraction,
+              currentInteractionHistory,
+              user,
+              examAttempts: allQuestions,
+              examLog,
+            };
+            resolve(payload);
+          },
+          error => reject(error)
+        );
+      },
+      error => reject(error)
+    );
+  });
+}
+
+function canViewExam(exam, examLog) {
+  return exam.active && !examLog.closed;
+}
+
+function canViewExamReport(exam, examLog) {
+  return !canViewExam(exam, examLog);
+}
+
+export {
+  createQuestionList,
+  selectQuestionFromExercise,
+  getExamReport,
+  canViewExam,
+  canViewExamReport,
+};

@@ -29,10 +29,27 @@ class ExamFilter(FilterSet):
         model = models.Exam
         fields = ['collection', ]
 
+def _ensure_raw_dict(d):
+    if hasattr(d, "dict"):
+        d = d.dict()
+    return dict(d)
+
+
+class ExamPermissions(KolibriAuthPermissions):
+    # Overrides the default validator to sanitize the Exam POST Payload
+    # before validation
+    def validator(self, request, view, datum):
+        model = view.get_serializer_class().Meta.model
+        validated_data = view.get_serializer().to_internal_value(_ensure_raw_dict(datum))
+        # Cannot have create assignments without creating the Exam first,
+        # so this doesn't try to validate the Exam with a non-empty assignments list
+        validated_data.pop('assignments')
+        return request.user.can_create(model, validated_data)
+
 class ExamViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ExamSerializer
     pagination_class = OptionalPageNumberPagination
-    permission_classes = (KolibriAuthPermissions,)
+    permission_classes = (ExamPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     filter_class = ExamFilter
 

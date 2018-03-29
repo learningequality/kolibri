@@ -3,6 +3,25 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.9.0
+-----
+
+ - Consistent usage of 'coach' terminology
+ - Added class-scoped coaches
+ - Support for multi-facility selection on login
+ - Cross-channel exams
+ - Show correct and submitted answers in exam reports
+ - Added learner exam reports
+ - Various bug fixes in exam creation and reports
+ - Various bug fixes in coach reports
+ - Fixed logging on Windows
+ - Added ability for coaches to make copies of exams
+ - Added icon next to language-switching functionality
+ - Languages: English, Arabic, Farsi, French, Hindi, Spanish, Swahili, and Urdu
+
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.8.0+label%3Achangelog>`_ of changes on Github.
+
+
 0.8.0
 -----
 

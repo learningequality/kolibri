@@ -52,13 +52,10 @@ export function genCompareFunc(sortColumn, sortOrder) {
       return flipped(-1);
     }
     // standard comparisons
-    if (a[key] > b[key]) {
-      return flipped(1);
-    }
-    if (a[key] < b[key]) {
-      return flipped(-1);
-    }
-    // they must be equal
-    return 0;
+    return flipped(
+      String(a[key]).localeCompare(String(b[key]), 'default', {
+        usage: 'search',
+      })
+    );
   };
 }
