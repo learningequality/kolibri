@@ -15,9 +15,12 @@ def tidy_progress_range(apps, schema_editor):
     # Not knowing how floating points will behave in the local database,
     # 1.0 might become bigger than 1.0!!
     ContentSessionLog.objects.filter(progress__lt=0).update(progress=0.0)
-    ContentSessionLog.objects.filter(progress__gt=1).update(progress=1.0)
     ContentSummaryLog.objects.filter(progress__lt=0).update(progress=0.0)
     ContentSummaryLog.objects.filter(progress__gt=1).update(progress=1.0)
+
+
+def reverse(apps, schema_editor):
+    return
 
 
 class Migration(migrations.Migration):
@@ -27,5 +30,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(tidy_progress_range),
+        migrations.RunPython(tidy_progress_range, reverse_code=reverse),
     ]

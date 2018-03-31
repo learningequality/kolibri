@@ -101,13 +101,13 @@ class ContentSessionLog(BaseLogModel):
     start_timestamp = DateTimeTzField()
     end_timestamp = DateTimeTzField(blank=True, null=True)
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
-    progress = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(1.0)])
+    progress = models.FloatField(default=0, validators=[MinValueValidator(0)])
     kind = models.CharField(max_length=200)
     extra_fields = JSONField(default={}, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.progress < 0 or self.progress > 1.01:
-            raise ValidationError("Progress out of range (0-1)")
+        if self.progress < 0:
+            raise ValidationError("Progress out of range (<0)")
 
         super(ContentSessionLog, self).save(*args, **kwargs)
 
@@ -126,7 +126,7 @@ class ContentSummaryLog(BaseLogModel):
     end_timestamp = DateTimeTzField(blank=True, null=True)
     completion_timestamp = DateTimeTzField(blank=True, null=True)
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
-    progress = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(1.0)])
+    progress = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(1.01)])
     kind = models.CharField(max_length=200)
     extra_fields = JSONField(default={}, blank=True)
 
@@ -135,7 +135,7 @@ class ContentSummaryLog(BaseLogModel):
 
     def save(self, *args, **kwargs):
         if self.progress < 0 or self.progress > 1.01:
-            raise ValidationError("Progress out of range (0-1)")
+            raise ValidationError("Content summary progress out of range (0-1)")
 
         super(ContentSummaryLog, self).save(*args, **kwargs)
 
