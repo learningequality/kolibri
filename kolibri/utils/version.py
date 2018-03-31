@@ -101,7 +101,10 @@ package foo that depended on kolibri, and kolibri is installed as a dependency
 while foo is installing, then foo won't be able to access kolibri before after
 setuptools has completed installation of everything.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import datetime
 import logging
@@ -301,7 +304,12 @@ def get_prerelease_version(version):
         if git_version[3] == 'final' and version[3] != 'final':
             raise AssertionError(
                 "You have added a final tag without bumping kolibri.VERSION, " +
-                "OR you need to make a new alpha0 tag. Current tag: {}".format(git_version)
+                "OR you need to make a new alpha0 tag. Current tag: {}".format(git_version) +
+                "\n\n"
+                "Often, this is because of missing tag information, try "
+                "running:\n"
+                "\n"
+                "   git fetch <upstream>"
             )
 
         return (
