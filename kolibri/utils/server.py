@@ -136,7 +136,7 @@ def run_server(port):
     cherrypy.config.update({
         "environment": "production",
         "tools.gzip.on": True,
-        "tools.gzip.mime_types": ["text/*", "application/*"],
+        "tools.gzip.mime_types": ["text/*", "application/javascript"],
         })
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
