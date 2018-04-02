@@ -23,7 +23,7 @@ var server = new WebpackDevServer(compiler, {
   historyApiFallback: false,
 
   // Set this if you want to enable gzip compression for assets
-  compress: false,
+  compress: true,
 
   // webpack-dev-middleware options
   watchOptions: {

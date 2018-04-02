@@ -86,6 +86,7 @@ LOCALE_PATHS += [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'kolibri.core.device.middleware.KolibriLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
