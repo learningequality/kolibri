@@ -1,8 +1,7 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
-import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
-import assert from 'assert';
+import { expect } from 'chai';
 import ContentNodeRow from '../../src/views/select-content-page/content-node-row.vue';
 import { makeNode } from '../utils/data';
 import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -37,22 +36,20 @@ describe('contentNodeRow component', () => {
   it('shows the correct title', () => {
     const wrapper = makeWrapper();
     const { titleText } = getElements(wrapper);
-    assert.equal(titleText(), 'Awesome Content');
+    expect(titleText()).to.equal('Awesome Content');
   });
 
   it('shows the correct message', () => {
     const wrapper = makeWrapper();
     const { messageText } = getElements(wrapper);
-    assert.equal(messageText(), 'HELLO');
+    expect(messageText()).to.equal('HELLO');
   });
 
   it('when node is a topic, title is a button that emits "clicktopic" event', () => {
     const wrapper = makeWrapper();
     const { goToTopicButton } = getElements(wrapper);
-    const emitSpy = sinon.spy(wrapper.vm, '$emit');
     goToTopicButton().trigger('click');
-    sinon.assert.calledOnce(emitSpy);
-    sinon.assert.calledWith(emitSpy, 'clicktopic', wrapper.vm.node);
+    expect(wrapper.emitted().clicktopic).to.deep.equal([[wrapper.vm.node]]);
   });
 
   it('when node is not a topic, title is just text', () => {
@@ -62,31 +59,29 @@ describe('contentNodeRow component', () => {
       }),
     });
     const { goToTopicButton, titleText } = getElements(wrapper);
-    assert.equal(goToTopicButton().exists(), false);
-    assert.equal(titleText(), 'node_1');
+    expect(goToTopicButton().exists()).to.be.false;
+    expect(titleText()).to.equal('node_1');
   });
 
   it('when node is disabled, title is just text', () => {
     const wrapper = makeWrapper({ disabled: true });
     const { goToTopicButton, titleText } = getElements(wrapper);
-    assert.equal(goToTopicButton()[0], undefined);
-    assert.equal(titleText(), 'Awesome Content');
+    expect(goToTopicButton()[0]).to.equal(undefined);
+    expect(titleText()).to.equal('Awesome Content');
   });
 
   it('when checkbox is changed, it emits a "changeselection" event', () => {
     const wrapper = makeWrapper();
     const { checkbox } = getElements(wrapper);
-    const emitSpy = sinon.spy(wrapper.vm, '$emit');
     // have to "click" the inner checkbox to trigger "change" on whole component
     checkbox().trigger('click');
-    sinon.assert.calledOnce(emitSpy);
-    sinon.assert.calledWith(emitSpy, 'changeselection', wrapper.vm.node);
+    expect(wrapper.emitted().changeselection).to.deep.equal([[wrapper.vm.node]]);
   });
 
   it('when props.disabled, the checkbox is disabled', () => {
     const wrapper = makeWrapper({ disabled: true });
     const { checkbox } = getElements(wrapper);
-    assert.equal(checkbox().attributes().disabled, 'disabled');
+    expect(checkbox().attributes().disabled).to.equal('disabled');
   });
 
   it('when props.checked, the checkbox is checked', () => {
@@ -96,7 +91,7 @@ describe('contentNodeRow component', () => {
     });
     // For some reason, the HTML for the actual checkbox does not have checked attribute
     const { kCheckbox } = getElements(wrapper);
-    assert.equal(kCheckbox().props().checked, true);
+    expect(kCheckbox().props().checked).to.be.true;
   });
 
   it('when props.determinate, the checkbox is indeterminate', () => {
@@ -106,6 +101,6 @@ describe('contentNodeRow component', () => {
       indeterminate: true,
     });
     const { kCheckbox } = getElements(wrapper);
-    assert.equal(kCheckbox().props().indeterminate, true);
+    expect(kCheckbox().props().indeterminate).to.be.true;
   });
 });
