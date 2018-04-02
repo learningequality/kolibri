@@ -24,5 +24,5 @@ tzlocal==1.5.1
 pytz==2018.3
 python-dateutil==2.7.2
 ifcfg==0.14
-sqlalchemy==1.2.4
+sqlalchemy==1.2.6
 user-agents==1.1.0
