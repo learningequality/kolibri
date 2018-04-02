@@ -19,6 +19,7 @@
 
       <div class="core-modal-buttons">
         <k-button
+          name="cancel"
           :text="$tr('cancel')"
           appearance="flat-button"
           @click="closeModal()"

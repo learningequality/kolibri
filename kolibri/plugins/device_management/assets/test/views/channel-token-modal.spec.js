@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
-import assert from 'assert';
 import { mount } from '@vue/test-utils';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
 import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -17,7 +17,6 @@ function getElements(wrapper) {
     tokenTextbox: () => wrapper.find(kTextbox),
     networkErrorAlert: () => wrapper.find(UiAlert),
     lookupTokenStub: () => sinon.stub(wrapper.vm, 'lookupToken'),
-    $emitSpy: () => sinon.stub(wrapper.vm, '$emit'),
   };
 }
 
@@ -29,11 +28,10 @@ describe('channelTokenModal component', () => {
   });
 
   it('pressing "cancel" emits a close modal event', () => {
-    const emitSpy = sinon.spy(wrapper.vm, '$emit');
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
     return wrapper.vm.$nextTick().then(() => {
-      sinon.assert.calledWith(emitSpy, 'closemodal');
+      expect(wrapper.emitted().closemodal.length).to.equal(1);
     });
   });
 
@@ -42,20 +40,20 @@ describe('channelTokenModal component', () => {
       const textbox = getElements(wrapper).tokenTextbox();
       textbox.vm.$emit('input', token);
       return wrapper.vm.$nextTick().then(() => {
-        assert.equal(textbox.props().value, token.trim());
+        expect(textbox.props().value).to.equal(token.trim());
       });
     }
 
     function assertTextboxInvalid(wrapper) {
       const textbox = getElements(wrapper).tokenTextbox();
-      assert.equal(textbox.props().invalid, true);
-      assert.equal(textbox.props().invalidText, 'Check whether you entered token correctly');
+      expect(textbox.props().invalid).to.be.true;
+      expect(textbox.props().invalidText).to.equal('Check whether you entered token correctly');
     }
 
     it('if user has not interacted with the form, then no validation messages appear', () => {
       const { tokenTextbox, networkErrorAlert } = getElements(wrapper);
-      assert.equal(tokenTextbox().props().invalid, false);
-      assert(!networkErrorAlert().exists());
+      expect(tokenTextbox().props().invalid).to.be.false;
+      expect(networkErrorAlert().exists()).to.be.false;
     });
 
     it('disables the form while waiting for a response from the server', () => {
@@ -71,16 +69,15 @@ describe('channelTokenModal component', () => {
           wrapper.vm.submitForm();
         })
         .then(() => {
-          assert.equal(disabledSpy.firstCall.args[0], true);
-          assert.equal(disabledSpy.firstCall.args[1], false);
+          expect(disabledSpy.firstCall.args[0]).to.be.true;
+          expect(disabledSpy.firstCall.args[1]).to.be.false;
         });
     });
 
     it('emits a "channel found" event  if token lookup is successful', () => {
       const tokenPayload = { id: 'toka-toka-token' };
-      const { lookupTokenStub, $emitSpy } = getElements(wrapper);
+      const { lookupTokenStub } = getElements(wrapper);
       const lookupStub = lookupTokenStub();
-      const emitSpy = $emitSpy();
       lookupStub.returns(Promise.resolve([tokenPayload]));
       return inputToken(wrapper, 'toka-toka-token')
         .then(() => {
@@ -88,7 +85,7 @@ describe('channelTokenModal component', () => {
         })
         .then(() => {
           sinon.assert.calledWith(lookupStub, 'toka-toka-token');
-          sinon.assert.calledWith(emitSpy, 'channelfound', tokenPayload);
+          expect(wrapper.emitted().channelfound).to.deep.equal([[tokenPayload]]);
         });
     });
 
@@ -119,9 +116,8 @@ describe('channelTokenModal component', () => {
 
     it('if the token does not point to a channel (404 code), shows a validation message', () => {
       const tokenPayload = { status: { code: 404 } };
-      const { lookupTokenStub, $emitSpy } = getElements(wrapper);
+      const { lookupTokenStub } = getElements(wrapper);
       const lookupStub = lookupTokenStub();
-      const emitSpy = $emitSpy();
       lookupStub.returns(Promise.reject(tokenPayload));
       return inputToken(wrapper, 'toka-toka-token')
         .then(() => {
@@ -129,17 +125,16 @@ describe('channelTokenModal component', () => {
         })
         .then(() => {
           sinon.assert.calledWith(lookupStub, 'toka-toka-token');
-          sinon.assert.notCalled(emitSpy);
+          expect(wrapper.emittedByOrder().length).to.equal(0);
           assertTextboxInvalid(wrapper);
         });
     });
 
     it('shows an ui-alert error if there is a generic network error (other error code)', () => {
       const tokenPayload = { status: { code: 500 } };
-      const { tokenTextbox, networkErrorAlert, lookupTokenStub, $emitSpy } = getElements(wrapper);
+      const { tokenTextbox, networkErrorAlert, lookupTokenStub } = getElements(wrapper);
       const textbox = tokenTextbox();
       const lookupStub = lookupTokenStub();
-      const emitSpy = $emitSpy();
       lookupStub.returns(Promise.reject(tokenPayload));
       return inputToken(wrapper, 'toka-toka-token')
         .then(() => {
@@ -147,9 +142,9 @@ describe('channelTokenModal component', () => {
         })
         .then(() => {
           sinon.assert.calledWith(lookupStub, 'toka-toka-token');
-          sinon.assert.notCalled(emitSpy);
-          assert.equal(textbox.props().invalid, false);
-          assert(networkErrorAlert().isVueInstance());
+          expect(wrapper.emittedByOrder().length).to.equal(0);
+          expect(textbox.props().invalid).to.be.false;
+          expect(networkErrorAlert().isVueInstance()).to.be.true;
         });
     });
   });
