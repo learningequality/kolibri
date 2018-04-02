@@ -46,13 +46,13 @@ describe('channelTokenModal component', () => {
 
     function assertTextboxInvalid(wrapper) {
       const textbox = getElements(wrapper).tokenTextbox();
-      expect(textbox.props().invalid).to.equal(true);
+      expect(textbox.props().invalid).to.be.true;
       expect(textbox.props().invalidText).to.equal('Check whether you entered token correctly');
     }
 
     it('if user has not interacted with the form, then no validation messages appear', () => {
       const { tokenTextbox, networkErrorAlert } = getElements(wrapper);
-      expect(tokenTextbox().props().invalid).to.equal(false);
+      expect(tokenTextbox().props().invalid).to.be.false;
       expect(networkErrorAlert().exists()).to.be.false;
     });
 
@@ -69,8 +69,8 @@ describe('channelTokenModal component', () => {
           wrapper.vm.submitForm();
         })
         .then(() => {
-          expect(disabledSpy.firstCall.args[0]).to.equal(true);
-          expect(disabledSpy.firstCall.args[1]).to.equal(false);
+          expect(disabledSpy.firstCall.args[0]).to.be.true;
+          expect(disabledSpy.firstCall.args[1]).to.be.false;
         });
     });
 
@@ -143,7 +143,7 @@ describe('channelTokenModal component', () => {
         .then(() => {
           sinon.assert.calledWith(lookupStub, 'toka-toka-token');
           expect(wrapper.emittedByOrder().length).to.equal(0);
-          expect(textbox.props().invalid).to.equal(false);
+          expect(textbox.props().invalid).to.be.false;
           expect(networkErrorAlert().isVueInstance()).to.be.true;
         });
     });

@@ -58,7 +58,7 @@ describe('selectedResourcesSize component', () => {
       fileSize: 0,
     });
     const { button } = getElements(wrapper);
-    expect(button().props().disabled).to.equal(true);
+    expect(button().props().disabled).to.be.true;
   });
 
   it('confirmation button is disabled when remaining space is zero', () => {
@@ -68,7 +68,7 @@ describe('selectedResourcesSize component', () => {
       spaceOnDrive: 9,
     });
     const { button } = getElements(wrapper);
-    expect(button().props().disabled).to.equal(true);
+    expect(button().props().disabled).to.be.true;
   });
 
   it('when button is clicked, it emits an "clickconfirm" event', () => {
@@ -84,7 +84,7 @@ describe('selectedResourcesSize component', () => {
       fileSize: 10,
     });
     const { button } = getElements(wrapper);
-    expect(button().props().disabled).to.equal(false);
+    expect(button().props().disabled).to.be.false;
   });
 
   it('shows the "remaining space message"', () => {

@@ -59,7 +59,7 @@ describe('contentNodeRow component', () => {
       }),
     });
     const { goToTopicButton, titleText } = getElements(wrapper);
-    expect(goToTopicButton().exists()).to.equal(false);
+    expect(goToTopicButton().exists()).to.be.false;
     expect(titleText()).to.equal('node_1');
   });
 
@@ -91,7 +91,7 @@ describe('contentNodeRow component', () => {
     });
     // For some reason, the HTML for the actual checkbox does not have checked attribute
     const { kCheckbox } = getElements(wrapper);
-    expect(kCheckbox().props().checked).to.equal(true);
+    expect(kCheckbox().props().checked).to.be.true;
   });
 
   it('when props.determinate, the checkbox is indeterminate', () => {
@@ -101,6 +101,6 @@ describe('contentNodeRow component', () => {
       indeterminate: true,
     });
     const { kCheckbox } = getElements(wrapper);
-    expect(kCheckbox().props().indeterminate).to.equal(true);
+    expect(kCheckbox().props().indeterminate).to.be.true;
   });
 });
