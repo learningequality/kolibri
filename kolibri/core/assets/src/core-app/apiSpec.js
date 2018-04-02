@@ -77,6 +77,8 @@ import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
 import coreTable from '../views/core-table';
 import kDropdownMenu from '../views/k-dropdown-menu';
+import coachContentLabel from '../views/coach-content-label';
+
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -107,6 +109,7 @@ export default {
       mappers,
     },
     components: {
+      coachContentLabel,
       contentRenderer,
       downloadButton,
       loadingSpinner,

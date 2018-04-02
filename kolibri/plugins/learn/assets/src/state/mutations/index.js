@@ -1,21 +1,6 @@
-import * as constants from '../constants';
-import * as classesMutations from './mutations/classesMutations';
+import * as classesMutations from './classesMutations';
 
-export const initialState = {
-  pageName: constants.PageNames.TOPICS_CHANNEL,
-  pageState: {
-    topics: [],
-    contents: [],
-    searchTerm: '',
-  },
-  learnAppState: {
-    memberships: [],
-  },
-  examLog: {},
-  examAttemptLogs: {},
-};
-
-export const mutations = {
+export default {
   ...classesMutations,
   SET_PAGE_NAME(state, name) {
     state.pageName = name;

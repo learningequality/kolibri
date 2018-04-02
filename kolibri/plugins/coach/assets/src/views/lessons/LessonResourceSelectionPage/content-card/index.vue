@@ -41,10 +41,8 @@
 
 <script>
 
-  import values from 'lodash/values';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { validateLinkObject } from 'kolibri.utils.validators';
+  import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import cardThumbnail from './card-thumbnail';
 
   const defaultDescriptionLimit = 140;
@@ -71,9 +69,7 @@
       kind: {
         type: String,
         required: true,
-        validator(value) {
-          return values(ContentNodeKinds).includes(value);
-        },
+        validator: validateContentNodeKind,
       },
       link: {
         type: Object,

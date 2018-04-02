@@ -162,13 +162,13 @@ export function showFeaturedPage(store, channelId) {
 export function showLearnContent(store, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.RECOMMENDED_CONTENT);
-  const contentPromise = ContentNodeResource.getModel(id).fetch();
-  const recommendedPromise = ContentNodeResource.getCollection({
-    recommendations_for: id,
-  }).fetch();
-  const channelsPromise = setChannelInfo(store);
-  const nextContentPromise = ContentNodeResource.fetchNextContent(id);
-  ConditionalPromise.all([contentPromise, nextContentPromise, channelsPromise]).only(
+  const promises = [
+    ContentNodeResource.getModel(id).fetch(),
+    ContentNodeResource.fetchNextContent(id),
+    setChannelInfo(store),
+  ];
+  const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
+  ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([content, nextContent]) => {
       const pageState = {
@@ -194,11 +194,10 @@ export function showLearnContent(store, id) {
   recommendedPromise.only(
     samePageCheckGenerator(store),
     recommended => {
-      const pageState = {
+      store.dispatch('SET_PAGE_STATE', {
         content: store.state.pageState.content,
         recommended: recommended.map(contentState),
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
+      });
       store.dispatch('CORE_SET_ERROR', null);
     },
     error => {

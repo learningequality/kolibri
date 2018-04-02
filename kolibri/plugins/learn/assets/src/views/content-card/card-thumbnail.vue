@@ -60,10 +60,9 @@
 
 <script>
 
-  import values from 'lodash/values';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
+  import { validateContentNodeKind } from 'kolibri.utils.validators';
 
   export default {
     name: 'cardThumbnail',
@@ -79,9 +78,7 @@
       kind: {
         type: String,
         required: true,
-        validator(value) {
-          return values(ContentNodeKinds).includes(value);
-        },
+        validator: validateContentNodeKind,
       },
       // If true, shows the content icon on the upper left of the thumbnail
       showContentIcon: {

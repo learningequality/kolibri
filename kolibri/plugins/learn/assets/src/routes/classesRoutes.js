@@ -1,11 +1,11 @@
-import { ClassesPageNames } from './constants';
+import { ClassesPageNames } from '../constants';
 import {
   showAllClassesPage,
   showClassAssignmentsPage,
   showLessonPlaylist,
   showLessonResourceViewer,
-} from './state/actions/classesActions';
-import { showExam, showExamReport } from './state/actions/main';
+} from '../state/actions/classesActions';
+import { showExam, showExamReport } from '../state/actions/main';
 import store from 'kolibri.coreVue.vuex.store';
 
 export default [

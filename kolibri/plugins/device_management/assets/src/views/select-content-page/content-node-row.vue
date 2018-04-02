@@ -1,17 +1,19 @@
 <template>
 
-  <div class="row">
-    <k-checkbox
-      class="checkbox display-cell"
-      :label="node.title"
-      :showLabel="false"
-      :checked="checked"
-      :indeterminate="indeterminate"
-      :disabled="disabled"
-      @change="$emit('changeselection', node)"
-    />
+  <tr>
+    <td class="core-table-checkbox-col">
+      <k-checkbox
+        class="checkbox display-cell"
+        :label="node.title"
+        :showLabel="false"
+        :checked="checked"
+        :indeterminate="indeterminate"
+        :disabled="disabled"
+        @change="$emit('changeselection', node)"
+      />
+    </td>
 
-    <div class="title display-cell">
+    <td class="title display-cell core-table-main-col">
       <content-icon
         class="icon"
         :kind="node.kind"
@@ -26,12 +28,12 @@
       <span v-else>
         {{ node.title }}
       </span>
-    </div>
+    </td>
 
-    <div class="message display-cell">
+    <td class="message display-cell">
       {{ message }}
-    </div>
-  </div>
+    </td>
+  </tr>
 
 </template>
 
@@ -86,11 +88,6 @@
 
 
 <style lang="stylus" scoped>
-
-  .row
-    display: table
-    width: 100%
-    vertical-align: middle
 
   .display-cell
     display: table-cell

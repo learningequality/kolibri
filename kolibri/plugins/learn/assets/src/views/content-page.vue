@@ -69,8 +69,8 @@
         {{ $tr('author', {author: content.author}) }}
       </p>
 
-      <p v-if="content.license">
-        {{ $tr('license', {license: content.license}) }}
+      <p v-if="content.license_name">
+        {{ $tr('license', {license: content.license_name}) }}
 
         <template v-if="content.license_description">
           <ui-icon-button
