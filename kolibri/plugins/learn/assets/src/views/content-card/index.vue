@@ -24,8 +24,8 @@
       </p>
       <coach-content-label
         class="coach-content-label"
-        v-if="coachContentIndicator"
-        :value="30"
+        v-if="coachContentsCount"
+        :value="coachContentsCount"
       />
     </div>
   </router-link>
@@ -68,9 +68,11 @@
         type: Boolean,
         default: true,
       },
-      coachContentIndicator: {
-        type: [Boolean, Number],
-        default: true,
+      // coach_content will be `False` if not coach_content, `True` if coach content leaf node
+      // and an integer if a topic (will be falsy 0 if no coach contents in topic)
+      coachContentsCount: {
+        type: Number,
+        default: 0,
       },
       progress: {
         type: Number,

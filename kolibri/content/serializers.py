@@ -264,6 +264,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
 
 class ContentNodeSerializer(serializers.ModelSerializer):
+    coach_content = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
@@ -277,6 +278,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             'author',
             'available',
             'channel_id',
+            'coach_content',
             'content_id',
             'description',
             'files',
@@ -324,6 +326,9 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         value = super(ContentNodeSerializer, self).to_representation(instance)
         value['progress_fraction'] = progress_fraction
         return value
+
+    def get_coach_content(self, instance):
+        return 30
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
