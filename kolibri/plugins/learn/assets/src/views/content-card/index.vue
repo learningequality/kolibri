@@ -22,6 +22,11 @@
       >
         {{ subtitle }}
       </p>
+      <coach-content-label
+        class="coach-content-label"
+        v-if="coachContentIndicator"
+        :value="30"
+      />
     </div>
   </router-link>
 
@@ -33,10 +38,12 @@
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import cardThumbnail from './card-thumbnail';
   import shavedText from './shaved-text';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
 
   export default {
     components: {
       cardThumbnail,
+      coachContentLabel,
       shavedText,
     },
     props: {
@@ -59,6 +66,10 @@
       },
       showContentIcon: {
         type: Boolean,
+        default: true,
+      },
+      coachContentIndicator: {
+        type: [Boolean, Number],
         default: true,
       },
       progress: {
@@ -96,6 +107,9 @@
 
   @require '~kolibri.styles.definitions'
   @require './card.styl'
+
+  .coach-content-label
+    padding: 8px 0
 
   .card
     text-decoration: none
