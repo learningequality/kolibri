@@ -137,7 +137,7 @@ def run_server(port):
         "environment": "production",
         "tools.gzip.on": True,
         "tools.gzip.mime_types": ["text/*", "application/javascript"],
-        })
+    })
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
     serve_static_dir(settings.CONTENT_DATABASE_DIR,
