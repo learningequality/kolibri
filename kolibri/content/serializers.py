@@ -328,10 +328,11 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         return value
 
     def get_num_coach_content(self, instance):
-        return 0
+        return 1
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
+    num_coach_content = serializers.SerializerMethodField()
     total_resources = serializers.SerializerMethodField()
     on_device_resources = serializers.SerializerMethodField()
     importable = serializers.SerializerMethodField()
@@ -343,6 +344,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             'available',
             'importable',
             'kind',
+            'num_coach_content',
             'on_device_resources',
             'pk',  # TODO remove once UI uses 'id' exclusively
             'title',
@@ -363,6 +365,9 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             .filter(available=True) \
             .distinct() \
             .count()
+
+    def get_num_coach_content(self, instance):
+        return 1
 
     def get_importable(self, instance):
         drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
