@@ -63,6 +63,7 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
             channelTitle: channelObject.title,
             resourceTitle: contentNode.title,
             resourceKind: contentNode.kind,
+            contentNode: { ...contentNode },
             userData,
           });
           store.dispatch('CORE_SET_TITLE', contentNode.title);

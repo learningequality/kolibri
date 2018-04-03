@@ -1,6 +1,6 @@
 <template>
 
-  <div class="coach-content-label">
+  <div v-if="value > 0">
     <mat-svg
       category="maps"
       name="local_library"
