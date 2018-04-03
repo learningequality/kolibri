@@ -6,7 +6,7 @@
       name="local_library"
       class="coach-icon"
     />
-    <span v-if="value===true">
+    <span v-if="value===1">
       {{ $tr('coachLabel') }}
     </span>
     <span v-else>
@@ -23,8 +23,8 @@
     name: 'coachContentLabel',
     props: {
       value: {
-        type: [Boolean, Number],
-        default: true,
+        type: Number,
+        default: 0,
       },
     },
     $trs: {

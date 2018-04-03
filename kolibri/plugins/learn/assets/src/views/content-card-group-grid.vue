@@ -29,6 +29,7 @@
       :thumbnail="content.thumbnail"
       :kind="content.kind"
       :progress="content.progress"
+      :numCoachContent="content.num_coach_content"
       :link="genContentLink(content.id, content.kind)"
     />
 
