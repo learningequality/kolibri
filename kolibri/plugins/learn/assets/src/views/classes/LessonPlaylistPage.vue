@@ -27,6 +27,7 @@
         :kind="c.kind"
         :link="lessonResourceViewerLink(idx)"
         :progress="c.progress_fraction"
+        :numCoachContent="c.num_coach_content"
         :thumbnail="getContentNodeThumbnail(c)"
         :title="c.title"
       />
