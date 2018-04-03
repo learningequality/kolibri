@@ -1,8 +1,8 @@
-import { ClassesPageNames } from '../../constants';
-import { LearnerClassroomResource, LearnerLessonResource } from '../../apiResources';
 import { ContentNodeResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { handleApiError } from 'kolibri.coreVue.vuex.actions';
+import { LearnerClassroomResource, LearnerLessonResource } from '../../apiResources';
+import { ClassesPageNames } from '../../constants';
 
 const translator = createTranslator('classesPageTitles', {
   allClasses: 'All classes',

@@ -5,11 +5,11 @@ import {
   setChannelInfo,
   handleApiError,
 } from 'kolibri.coreVue.vuex.actions';
-import { PageNames } from '../../constants';
-import { contentState, setAndCheckChannels } from './main';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniqBy from 'lodash/uniqBy';
 import { createTranslator } from 'kolibri.utils.i18n';
+import { PageNames } from '../../constants';
+import { contentState, setAndCheckChannels } from './main';
 
 const translator = createTranslator('learnerRecommendationPageTitles', {
   popularPageTitle: 'Popular',

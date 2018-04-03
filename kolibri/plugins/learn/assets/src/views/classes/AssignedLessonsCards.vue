@@ -27,8 +27,8 @@
 
 <script>
 
-  import ContentCard from '../content-card';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import ContentCard from '../content-card';
   import { lessonPlaylistLink } from './classPageLinks';
 
   export default {

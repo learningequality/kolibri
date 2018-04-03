@@ -13,10 +13,10 @@
 
 <script>
 
+  import languageSwitcherList from 'kolibri.coreVue.components.languageSwitcherList';
   import { submitDefaultLanguage } from '../../../state/actions/forms';
 
   import onboardingForm from '../onboarding-form';
-  import languageSwitcherList from 'kolibri.coreVue.components.languageSwitcherList';
 
   export default {
     name: 'defaultLanguageForm',

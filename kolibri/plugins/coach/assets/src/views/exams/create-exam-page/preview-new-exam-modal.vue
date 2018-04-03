@@ -19,9 +19,10 @@
 
 <script>
 
+  import kButton from 'kolibri.coreVue.components.kButton';
   import { setExamsModal } from '../../../state/actions/exam';
   import previewExamModal from '../exams-page/preview-exam-modal';
-  import kButton from 'kolibri.coreVue.components.kButton';
+
   export default {
     name: 'previewNewExamModal',
     $trs: { randomize: 'Randomize questions' },

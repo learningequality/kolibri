@@ -1,5 +1,5 @@
-import { UserKinds, MaxPointsPerContent } from '../constants';
 import some from 'lodash/some';
+import { UserKinds, MaxPointsPerContent } from '../constants';
 
 // ROLES
 export function isAdmin(state) {

@@ -46,13 +46,13 @@
 
 <script>
 
-  import { refreshChannelList } from '../../state/actions/manageContentActions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
-  import deleteChannelModal from './delete-channel-modal';
-  import channelListItem from './channel-list-item';
+  import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
   import { installedChannelsWithResources } from '../../state/getters';
+  import deleteChannelModal from './delete-channel-modal';
+  import channelListItem from './channel-list-item';
 
   export default {
     name: 'channelsGrid',

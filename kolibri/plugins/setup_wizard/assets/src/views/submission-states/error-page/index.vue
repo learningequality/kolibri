@@ -25,8 +25,8 @@
 
 <script>
 
-  import submissionStatePage from '../submission-state-page';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import submissionStatePage from '../submission-state-page';
 
   export default {
     name: 'onboardingErrorPage',

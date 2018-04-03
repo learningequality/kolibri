@@ -69,6 +69,8 @@
       12 columns, 24px gutter
 */
 
+import { throttle } from 'frame-throttle';
+
 /* module internal state */
 
 const windowListeners = [];
@@ -146,8 +148,6 @@ function windowMetrics() {
     range: getRange(breakpoint),
   };
 }
-
-import { throttle } from 'frame-throttle';
 
 const windowResizeHandler = throttle(() => {
   const metrics = windowMetrics();

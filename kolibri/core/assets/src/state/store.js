@@ -1,6 +1,6 @@
-import { UserKinds } from '../constants';
 import Vuex from 'vuex';
 import Vue from 'vue';
+import { UserKinds } from '../constants';
 
 Vue.use(Vuex);
 

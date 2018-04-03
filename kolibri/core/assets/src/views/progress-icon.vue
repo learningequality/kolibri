@@ -25,6 +25,7 @@
 
   import uiIcon from 'keen-ui/src/UiIcon';
   import uiTooltip from 'keen-ui/src/UiTooltip';
+
   export default {
     name: 'progressIcon',
     $trs: {

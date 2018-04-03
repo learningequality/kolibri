@@ -22,9 +22,9 @@
 
 <script>
 
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { submitFacilityName } from '../../../state/actions/forms';
 
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import onboardingForm from '../onboarding-form';
 
   export default {

@@ -50,10 +50,10 @@
 
 <script>
 
-  import { updateUserProfilePassword } from '../../state/actions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import { updateUserProfilePassword } from '../../state/actions';
 
   export default {
     name: 'changeUserPasswordModal',

@@ -7,7 +7,6 @@ import {
   facilities,
 } from 'kolibri.coreVue.vuex.getters';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
-import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
@@ -23,9 +22,10 @@ import {
 import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import intervalTimer from '../timer';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import { createTranslator } from 'kolibri.utils.i18n';
+import intervalTimer from '../timer';
+import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
 
 const name = 'coreTitles';
 

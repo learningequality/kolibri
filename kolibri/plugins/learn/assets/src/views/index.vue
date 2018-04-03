@@ -54,21 +54,21 @@
 
 <script>
 
-  import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import coreBase from 'kolibri.coreVue.components.coreBase';
+  import kNavbar from 'kolibri.coreVue.components.kNavbar';
+  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
+  import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import channelsPage from './channels-page';
   import topicsPage from './topics-page';
   import contentPage from './content-page';
   import recommendedPage from './recommended-page';
   import recommendedSubpage from './recommended-subpage';
   import contentUnavailablePage from './content-unavailable-page';
-  import coreBase from 'kolibri.coreVue.components.coreBase';
   import breadcrumbs from './breadcrumbs';
   import searchPage from './search-page';
-  import kNavbar from 'kolibri.coreVue.components.kNavbar';
-  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   import examPage from './exam-page';
   import examReportViewer from './exam-report-viewer';
   import totalPoints from './total-points';

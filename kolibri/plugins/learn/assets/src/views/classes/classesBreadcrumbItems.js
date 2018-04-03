@@ -1,5 +1,5 @@
-import { ClassesPageNames } from '../../constants';
 import { createTranslator } from 'kolibri.utils.i18n';
+import { ClassesPageNames } from '../../constants';
 import { classAssignmentsLink, lessonPlaylistLink } from './classPageLinks';
 
 const translator = createTranslator('classesBreadcrumbItems', {

@@ -32,9 +32,10 @@
 
 <script>
 
-  import { PageNames } from '../constants';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
+  import { PageNames } from '../constants';
+
   export default {
     name: 'topNav',
     $trs: {

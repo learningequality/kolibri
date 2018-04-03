@@ -2,8 +2,8 @@ import sumBy from 'lodash/sumBy';
 import map from 'lodash/fp/map';
 import partition from 'lodash/partition';
 import find from 'lodash/find';
-import { selectedNodes, inExportMode } from '../getters';
 import { ContentNodeGranularResource } from 'kolibri.resources';
+import { selectedNodes, inExportMode } from '../getters';
 
 const pluckPks = map('pk');
 

@@ -9,8 +9,8 @@
 
 <script>
 
-  import { PageNames, LearnerReports } from '../../../constants';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
+  import { PageNames, LearnerReports } from '../../../constants';
   import learnerExerciseReport from './learner-exercise-report';
 
   export default {

@@ -101,10 +101,10 @@
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import { resourceUserSummaryLink } from '../lessonsRouterUtils';
   import { createSnackbar, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
-  import { saveLessonResources } from '../../../state/actions/lessons';
   import debounce from 'lodash/debounce';
+  import { resourceUserSummaryLink } from '../lessonsRouterUtils';
+  import { saveLessonResources } from '../../../state/actions/lessons';
 
   const removalSnackbarTime = 5000;
 

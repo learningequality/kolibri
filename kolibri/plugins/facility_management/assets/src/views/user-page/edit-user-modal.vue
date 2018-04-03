@@ -86,7 +86,6 @@
 
 <script>
 
-  import { updateUser, displayModal } from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
@@ -96,6 +95,7 @@
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import { updateUser, displayModal } from '../../state/actions';
 
   export default {
     name: 'editUserModal',

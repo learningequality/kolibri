@@ -39,11 +39,11 @@
 
 <script>
 
+  import kButton from 'kolibri.coreVue.components.kButton';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
   import MetadataArea from './MetadataArea';
   import SelectOptions from './SelectOptions';
-  import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
     name: 'lessonContentPreviewPage',

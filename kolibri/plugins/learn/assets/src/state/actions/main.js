@@ -23,7 +23,6 @@ import {
   canViewExamReport,
 } from 'kolibri.utils.exams';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { PageNames, ClassesPageNames } from '../../constants';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { now } from 'kolibri.utils.serverClock';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
@@ -32,6 +31,7 @@ import seededShuffle from 'kolibri.lib.seededshuffle';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import tail from 'lodash/tail';
+import { PageNames, ClassesPageNames } from '../../constants';
 
 const translator = createTranslator('topicTreeExplorationPageTitles', {
   topicsForChannelPageTitle: 'Topics - { currentChannelTitle }',

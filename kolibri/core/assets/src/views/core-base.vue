@@ -56,13 +56,13 @@
 <script>
 
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
-  import immersiveToolbar from './immersive-toolbar';
-  import globalSnackbar from './global-snackbar';
-  import appBody from './app-body';
   import values from 'lodash/values';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import appBar from 'kolibri.coreVue.components.appBar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
+  import appBody from './app-body';
+  import globalSnackbar from './global-snackbar';
+  import immersiveToolbar from './immersive-toolbar';
 
   export default {
     name: 'coreBase',

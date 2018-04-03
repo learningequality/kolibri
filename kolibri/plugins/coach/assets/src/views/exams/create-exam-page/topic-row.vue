@@ -39,6 +39,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+
   export default {
     name: 'topicRow',
     $trs: {

@@ -71,6 +71,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+
   export default {
     name: 'attemptSummary',
     $trs: {

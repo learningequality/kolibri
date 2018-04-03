@@ -79,14 +79,14 @@
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import { Modals, PageNames } from '../../constants';
-  import { displayModal } from '../../state/actions';
   import orderBy from 'lodash/orderBy';
-  import classCreateModal from './class-create-modal';
-  import classDeleteModal from './class-delete-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import { Modals, PageNames } from '../../constants';
+  import { displayModal } from '../../state/actions';
+  import classCreateModal from './class-create-modal';
+  import classDeleteModal from './class-delete-modal';
 
   function classEditLink(classId) {
     return {

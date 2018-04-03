@@ -41,10 +41,12 @@
 <script>
 
   import logger from 'kolibri.lib.logging';
-  const logging = logger.getLogger(__filename);
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import uiAlert from 'keen-ui/src/UiAlert';
   import { defaultLanguage, languageValidator } from 'kolibri.utils.i18n';
+
+  const logging = logger.getLogger(__filename);
+
   export default {
     name: 'contentRender',
     $trs: {

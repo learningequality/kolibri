@@ -85,10 +85,10 @@
 
 <script>
 
-  import bytesForHumans from './bytesForHumans';
-  import { channelIsInstalled } from '../../state/getters';
   import kButton from 'kolibri.coreVue.components.kButton';
   import UiIcon from 'keen-ui/src/UiIcon';
+  import { channelIsInstalled } from '../../state/getters';
+  import bytesForHumans from './bytesForHumans';
 
   const Modes = {
     IMPORT: 'IMPORT',
