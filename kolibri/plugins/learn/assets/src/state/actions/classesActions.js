@@ -10,6 +10,8 @@ const translator = createTranslator('classesPageTitles', {
   lessonContents: 'Lesson contents',
 });
 
+// WARNING: Only call  _after_ to allow the previous page (often `content-page`)
+// to finish destruction with the expected state in place
 function preparePage(store, params) {
   const { pageName, title, initialState } = params;
   store.dispatch('SET_PAGE_NAME', pageName);
@@ -24,6 +26,8 @@ export function showAllClassesPage(store) {
   return LearnerClassroomResource.getCollection({ no_assignments: true })
     .fetch()
     ._promise.then(classrooms => {
+      // set pageState _after_ to allow the previous page (often `content-page`)
+      // to finish destruction with the expected state in place
       preparePage(store, {
         pageName: ClassesPageNames.ALL_CLASSES,
         title: translator.$tr('allClasses'),
@@ -46,6 +50,8 @@ export function showClassAssignmentsPage(store, classId) {
   return LearnerClassroomResource.getModel(classId)
     .fetch({}, true)
     ._promise.then(classroom => {
+      // set pageState _after_ to allow the previous page (often `content-page`)
+      // to finish destruction with the expected state in place
       preparePage(store, {
         pageName: ClassesPageNames.CLASS_ASSIGNMENTS,
         title: translator.$tr('classAssignments'),
@@ -74,6 +80,8 @@ export function showLessonPlaylist(store, { lessonId }) {
   return LearnerLessonResource.getModel(lessonId)
     .fetch({}, true)
     ._promise.then(lesson => {
+      // set pageState _after_ to allow the previous page (often `content-page`)
+      // to finish destruction with the expected state in place
       preparePage(store, {
         pageName: ClassesPageNames.LESSON_PLAYLIST,
         title: translator.$tr('lessonContents'),
@@ -107,6 +115,8 @@ export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
   return LearnerLessonResource.getModel(lessonId)
     .fetch({}, true)
     ._promise.then(lesson => {
+      // set pageState _after_ to allow the previous page (often `content-page`)
+      // to finish destruction with the expected state in place
       preparePage(store, {
         pageName: ClassesPageNames.LESSON_RESOURCE_VIEWER,
         initialState: {
