@@ -15,21 +15,22 @@ function preparePage(store, params) {
   store.dispatch('SET_PAGE_NAME', pageName);
   store.dispatch('CORE_SET_TITLE', title || '');
   store.dispatch('SET_PAGE_STATE', initialState);
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
 }
 
 // Shows a list of all the Classrooms a Learner is enrolled in
 export function showAllClassesPage(store) {
-  preparePage(store, {
-    pageName: ClassesPageNames.ALL_CLASSES,
-    title: translator.$tr('allClasses'),
-    initialState: {
-      classrooms: [],
-    },
-  });
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+
   return LearnerClassroomResource.getCollection({ no_assignments: true })
     .fetch()
     ._promise.then(classrooms => {
+      preparePage(store, {
+        pageName: ClassesPageNames.ALL_CLASSES,
+        title: translator.$tr('allClasses'),
+        initialState: {
+          classrooms: [],
+        },
+      });
       store.dispatch('SET_LEARNER_CLASSROOMS', classrooms);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
@@ -40,17 +41,18 @@ export function showAllClassesPage(store) {
 
 // For a given Classroom, shows a list of all Exams and Lessons assigned to the Learner
 export function showClassAssignmentsPage(store, classId) {
-  preparePage(store, {
-    pageName: ClassesPageNames.CLASS_ASSIGNMENTS,
-    title: translator.$tr('classAssignments'),
-    initialState: {
-      currentClassroom: {},
-    },
-  });
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   // Force fetch, so it doesn't re-use the assignments-less version in the cache
   return LearnerClassroomResource.getModel(classId)
     .fetch({}, true)
     ._promise.then(classroom => {
+      preparePage(store, {
+        pageName: ClassesPageNames.CLASS_ASSIGNMENTS,
+        title: translator.$tr('classAssignments'),
+        initialState: {
+          currentClassroom: {},
+        },
+      });
       store.dispatch('SET_CURRENT_CLASSROOM', classroom);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
@@ -67,17 +69,19 @@ function getAllLessonContentNodes(lessonResources) {
 
 // For a given Lesson, shows a "playlist" of all the resources in the Lesson
 export function showLessonPlaylist(store, { lessonId }) {
-  preparePage(store, {
-    pageName: ClassesPageNames.LESSON_PLAYLIST,
-    title: translator.$tr('lessonContents'),
-    initialState: {
-      currentLesson: {},
-      contentNodes: [],
-    },
-  });
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+
   return LearnerLessonResource.getModel(lessonId)
     .fetch({}, true)
     ._promise.then(lesson => {
+      preparePage(store, {
+        pageName: ClassesPageNames.LESSON_PLAYLIST,
+        title: translator.$tr('lessonContents'),
+        initialState: {
+          currentLesson: {},
+          contentNodes: [],
+        },
+      });
       store.dispatch('SET_CURRENT_LESSON', lesson);
       return getAllLessonContentNodes(lesson.resources);
     })
@@ -99,17 +103,18 @@ export function showLessonPlaylist(store, { lessonId }) {
  *
  */
 export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
-  preparePage(store, {
-    pageName: ClassesPageNames.LESSON_RESOURCE_VIEWER,
-    initialState: {
-      currentLesson: {},
-      // To match expected shape for content-page
-      content: {},
-    },
-  });
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   return LearnerLessonResource.getModel(lessonId)
     .fetch({}, true)
     ._promise.then(lesson => {
+      preparePage(store, {
+        pageName: ClassesPageNames.LESSON_RESOURCE_VIEWER,
+        initialState: {
+          currentLesson: {},
+          // To match expected shape for content-page
+          content: {},
+        },
+      });
       const index = Number(resourceNumber);
       store.dispatch('SET_CURRENT_LESSON', lesson);
       const currentResource = lesson.resources[index];
