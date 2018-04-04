@@ -275,6 +275,7 @@ export function showCreateExamPage(store, classId) {
     subtopics: [],
     exercises: [],
     selectedExercises: [],
+    exerciseContentNodes: [],
     examsModalSet: false,
   });
 

@@ -75,6 +75,9 @@ export const mutations = {
   },
   SET_SELECTED_EXERCISES(state, selectedExercises) {
     state.pageState.selectedExercises = selectedExercises;
+    state.pageState.exerciseContentNodes = state.pageState.exerciseContentNodes.concat(
+      selectedExercises
+    );
   },
   SET_EXAMS(state, exams) {
     state.pageState.exams = exams;
