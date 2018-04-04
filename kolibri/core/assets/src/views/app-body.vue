@@ -2,7 +2,12 @@
 
   <!-- class unused, used as identifier when debugging from DOM -->
   <div class="app-body" :style="contentStyle">
-    <loading-spinner v-if="loading" />
+    <ui-progress-linear
+      v-if="loading"
+      class="loading-bar"
+      :style="{ top: padding === 32 ? '64px' : '56px' }"
+      :color="secondaryLoadingBar ? 'black' : 'primary'"
+    />
     <template v-else>
       <error-box v-if="error" />
       <slot></slot>
@@ -14,13 +19,13 @@
 
 <script>
 
-  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import errorBox from './error-box';
 
   export default {
     name: 'appBody',
     components: {
-      loadingSpinner,
+      uiProgressLinear,
       errorBox,
     },
     props: {
@@ -39,6 +44,10 @@
         type: Number,
         required: false,
         default: 0,
+      },
+      secondaryLoadingBar: {
+        type: Boolean,
+        required: true,
       },
     },
     computed: {
@@ -69,5 +78,10 @@
     right: 0
     position: absolute
     overflow-x: hidden
+
+  .loading-bar
+    position: fixed
+    right: 0
+    left: 0
 
 </style>

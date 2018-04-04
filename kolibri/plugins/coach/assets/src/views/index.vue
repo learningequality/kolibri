@@ -191,7 +191,6 @@
         classCoaches,
         classList: state => state.classList,
         classId: state => state.classId,
-        isLoading: state => state.core.loading,
       },
     },
   };

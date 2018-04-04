@@ -2,7 +2,7 @@
 
   <div>
     <!-- temporary hack, resolves flicker when using other templates -->
-    <template v-if="!loading && navBarNeeded">
+    <template v-if="navBarNeeded">
 
       <immersive-toolbar
         v-if="immersivePage"
@@ -42,6 +42,7 @@
       :bottomGap="bottomMargin"
       :class="`gutter-${windowSize.gutterWidth}`"
       :padding="mobile ? 16 : 32"
+      :secondaryLoadingBar="immersivePage && !immersivePagePrimary"
     >
       <slot></slot>
     </app-body>
@@ -128,8 +129,6 @@
     },
     vuex: {
       getters: {
-        // used to toggle app bar appearance
-        loading: state => state.core.loading,
         // set document title (window name)
         documentTitle: state => state.core.title,
         toolbarTitle: state => state.pageState.toolbarTitle,
