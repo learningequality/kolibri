@@ -3,8 +3,8 @@ import urls from 'kolibri.urls';
 import { ContentNodeGranularResource } from 'kolibri.resources';
 import { ContentWizardPages, TransferTypes } from '../../constants';
 import { channelIsInstalled, wizardState } from '../getters';
-import { downloadChannelMetadata } from './contentTransferActions';
 import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
+import { downloadChannelMetadata } from './contentTransferActions';
 
 /**
  * Transitions the import/export wizard to the 'select-content-page'

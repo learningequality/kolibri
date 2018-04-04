@@ -26,14 +26,14 @@
 
 <script>
 
-  import { PageNames } from '../constants';
   import { isAdmin, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
+  import coreBase from 'kolibri.coreVue.components.coreBase';
+  import { PageNames } from '../constants';
   import classEditPage from './class-edit-page';
   import coachClassAssignmentPage from './coach-class-assignment-page';
   import learnerClassEnrollmentPage from './learner-class-enrollment-page';
-  import coreBase from 'kolibri.coreVue.components.coreBase';
   import dataPage from './data-page';
   import facilitiesConfigPage from './facilities-config-page';
   import manageClassPage from './manage-class-page';

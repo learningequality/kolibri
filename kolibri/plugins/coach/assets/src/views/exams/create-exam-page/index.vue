@@ -129,20 +129,6 @@
 
 <script>
 
-  import topicRow from './topic-row';
-  import exerciseRow from './exercise-row';
-  import previewNewExamModal from './preview-new-exam-modal';
-  import {
-    goToTopic,
-    goToTopLevel,
-    createExamAndRoute,
-    addExercise,
-    removeExercise,
-    setExamsModal,
-    setSelectedExercises,
-  } from '../../../state/actions/exam';
-  import { className } from '../../../state/getters/classes';
-  import { Modals as ExamModals } from '../../../constants/examConstants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -157,6 +143,20 @@
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import flatMap from 'lodash/flatMap';
+  import { Modals as ExamModals } from '../../../constants/examConstants';
+  import { className } from '../../../state/getters/classes';
+  import {
+    goToTopic,
+    goToTopLevel,
+    createExamAndRoute,
+    addExercise,
+    removeExercise,
+    setExamsModal,
+    setSelectedExercises,
+  } from '../../../state/actions/exam';
+  import previewNewExamModal from './preview-new-exam-modal';
+  import exerciseRow from './exercise-row';
+  import topicRow from './topic-row';
 
   export default {
     name: 'createExamPage',

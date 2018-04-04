@@ -161,8 +161,8 @@
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   // TODO add to core
-  import { filterAndSortUsers } from '../../../../../facility_management/assets/src/userSearchUtils';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { filterAndSortUsers } from '../../../../../facility_management/assets/src/userSearchUtils';
   import { LessonsPageNames } from '../../constants/lessonsConstants';
 
   export default {

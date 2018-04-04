@@ -60,18 +60,18 @@
   import CoreTable from 'kolibri.coreVue.components.coreTable';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
-  import contentNodeRow from './content-node-row';
-  import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
+  import last from 'lodash/last';
+  import every from 'lodash/every';
+  import omit from 'lodash/omit';
+  import { wizardState, inExportMode } from '../../state/getters';
   import {
     addNodeForTransfer,
     removeNodeForTransfer,
   } from '../../state/actions/contentTreeViewerActions';
-  import { wizardState, inExportMode } from '../../state/getters';
-  import last from 'lodash/last';
-  import every from 'lodash/every';
-  import omit from 'lodash/omit';
   import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
   import { TransferTypes } from '../../constants';
+  import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
+  import contentNodeRow from './content-node-row';
 
   // Removes annotations (except path) added to nodes in ContentTreeViewer before putting in store.
   function sanitizeNode(node) {

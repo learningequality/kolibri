@@ -1,11 +1,11 @@
 import logger from 'kolibri.lib.logging';
-import ConditionalPromise from './conditionalPromise';
 import find from 'lodash/find';
 import matches from 'lodash/matches';
 import isEqual from 'lodash/isEqual';
-import cloneDeep from './cloneDeep';
 import urls from 'kolibri.urls';
 import client from 'kolibri.client';
+import cloneDeep from './cloneDeep';
+import ConditionalPromise from './conditionalPromise';
 
 export const logging = logger.getLogger(__filename);
 

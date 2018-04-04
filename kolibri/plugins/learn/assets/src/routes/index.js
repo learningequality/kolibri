@@ -1,3 +1,4 @@
+import store from 'kolibri.coreVue.vuex.store';
 import {
   showRoot,
   showChannels,
@@ -16,7 +17,6 @@ import {
   showLearnContent,
 } from '../state/actions/recommended';
 import { PageNames } from '../constants';
-import store from 'kolibri.coreVue.vuex.store';
 import classesRoutes from './classesRoutes';
 
 export default [

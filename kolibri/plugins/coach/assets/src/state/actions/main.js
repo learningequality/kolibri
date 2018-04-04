@@ -1,7 +1,7 @@
-import { PageNames } from '../../constants';
 import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { ClassroomResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
+import { PageNames } from '../../constants';
 
 const translator = createTranslator('classListTitles', {
   classListPageTitle: 'Classes',

@@ -124,6 +124,10 @@
 
 <script>
 
+  import FullVue from 'vue/dist/vue.common';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import componentDocs from '../../shell/component-docs';
   import vueExample from '../../shell/vue-example';
   import pageTemplate from '../../shell/page-template';
@@ -134,10 +138,6 @@
   import kRouterLinkApi from '!vue-doc!kolibri.coreVue.components.kRouterLink';
   import kExternalLinkApi from '!vue-doc!kolibri.coreVue.components.kExternalLink';
 
-  import FullVue from 'vue/dist/vue.common';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   FullVue.component('k-button', kButton);
   FullVue.component('k-router-link', kRouterLink);
   FullVue.component('k-external-link', kExternalLink);

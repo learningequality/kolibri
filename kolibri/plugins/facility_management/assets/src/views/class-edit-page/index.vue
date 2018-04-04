@@ -92,14 +92,14 @@
 
 <script>
 
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import userTable from '../user-table';
   import { PageNames, Modals } from '../../constants';
   import { removeClassLearner, removeClassCoach } from '../../state/actions/class';
   import { displayModal } from '../../state/actions';
   import classRenameModal from './class-rename-modal';
   import userRemoveConfirmationModal from './user-remove-confirmation-modal';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
     // TODO update component name after string freeze

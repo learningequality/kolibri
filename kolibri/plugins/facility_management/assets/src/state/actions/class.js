@@ -8,10 +8,10 @@ import { samePageCheckGenerator, handleApiError } from 'kolibri.coreVue.vuex.act
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { PageNames } from '../../constants';
+import { filterAndSortUsers } from '../../userSearchUtils';
 import { _userState } from './helpers/mappers';
 import displayModal from './helpers/displayModal';
 import preparePage from './helpers/preparePage';
-import { filterAndSortUsers } from '../../userSearchUtils';
 
 /**
  * Do a POST to create new class

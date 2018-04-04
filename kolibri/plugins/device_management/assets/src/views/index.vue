@@ -18,8 +18,8 @@
 
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
-  import { PageNames } from '../constants';
   import coreBase from 'kolibri.coreVue.components.coreBase';
+  import { PageNames } from '../constants';
   import topNavigation from './device-top-nav';
   import manageContentPage from './manage-content-page';
   import managePermissionsPage from './manage-permissions-page';

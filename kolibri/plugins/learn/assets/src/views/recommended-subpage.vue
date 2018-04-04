@@ -15,10 +15,10 @@
 
 <script>
 
+  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { PageNames } from '../constants';
   import contentCardGroupGrid from './content-card-group-grid';
   import contentCardGroupHeader from './content-card-group-header';
-  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
 
   export default {
     name: 'recommendedSubpage',

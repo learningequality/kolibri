@@ -55,19 +55,19 @@
 <script>
 
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
+  import authMessage from 'kolibri.coreVue.components.authMessage';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import { refreshTaskList, cancelTask } from '../../state/actions/taskActions';
   import { transitionWizardPage } from '../../state/actions/contentWizardActions';
   import { ContentWizardPages } from '../../constants';
-  import authMessage from 'kolibri.coreVue.components.authMessage';
-  import channelsGrid from './channels-grid';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import availableChannelsPage from '../available-channels-page';
-  import selectImportSource from './wizards/select-import-source-modal';
   import subpageContainer from '../containers/subpage-container';
-  import taskProgress from './task-progress';
-  import selectDriveModal from './wizards/select-drive-modal';
   import selectContentPage from '../select-content-page';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
+  import channelsGrid from './channels-grid';
+  import selectImportSource from './wizards/select-import-source-modal';
+  import taskProgress from './task-progress';
+  import selectDriveModal from './wizards/select-drive-modal';
 
   const pageNameComponentMap = {
     [ContentWizardPages.SELECT_IMPORT_SOURCE]: selectImportSource,

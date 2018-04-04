@@ -1,8 +1,8 @@
 import { RemoteChannelResource } from 'kolibri.resources';
-import { ContentWizardPages, TransferTypes } from '../../constants';
-import { driveChannelList, installedChannelList, wizardState } from '../getters';
 import router from 'kolibri.coreVue.router';
 import differenceBy from 'lodash/differenceBy';
+import { ContentWizardPages, TransferTypes } from '../../constants';
+import { driveChannelList, installedChannelList, wizardState } from '../getters';
 
 /**
  * Prepares the Available Channels Page for import/export flows

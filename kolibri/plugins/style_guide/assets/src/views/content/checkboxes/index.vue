@@ -44,6 +44,8 @@
 
 <script>
 
+  import FullVue from 'vue/dist/vue.common';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import componentDocs from '../../shell/component-docs';
   import vueExample from '../../shell/vue-example';
   import pageTemplate from '../../shell/page-template';
@@ -52,8 +54,6 @@
   import example from 'raw-loader!./example.html';
   import kCheckboxApi from '!vue-doc!kolibri.coreVue.components.kCheckbox';
 
-  import FullVue from 'vue/dist/vue.common';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   FullVue.component('k-checkbox', kCheckbox);
 
   export default {

@@ -1,4 +1,6 @@
-import KolibriApp from 'kolibri_app';
+import store from 'kolibri.coreVue.vuex.store';
+import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
+import router from 'kolibri.coreVue.router';
 import RootVue from './views';
 import {
   showSignInPage,
@@ -9,9 +11,7 @@ import {
 import initialState from './state/initialState';
 import mutations from './state/mutations';
 import { PageNames } from './constants';
-import store from 'kolibri.coreVue.vuex.store';
-import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
-import router from 'kolibri.coreVue.router';
+import KolibriApp from 'kolibri_app';
 
 const routes = [
   {

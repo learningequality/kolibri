@@ -70,11 +70,11 @@
 <script>
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
-  import { TopicReports, LearnerReports, PageNames } from '../../constants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import { TopicReports, LearnerReports, PageNames } from '../../constants';
   import { exerciseCount, contentCount, standardDataTable } from '../../state/getters/reports';
   import { TableColumns } from '../../constants/reportConstants';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';

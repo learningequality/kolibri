@@ -24,8 +24,8 @@
 
 <script>
 
-  import { PageNames } from '../../../constants';
   import examReport from 'kolibri.coreVue.components.examReport';
+  import { PageNames } from '../../../constants';
 
   export default {
     name: 'coachExamDetailPage',

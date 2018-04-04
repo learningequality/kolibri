@@ -82,13 +82,13 @@
 
   import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
   import kSelect from 'kolibri.coreVue.components.kSelect';
-  import channelListItem from '../manage-content-page/channel-list-item';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import uniqBy from 'lodash/uniqBy';
   import channelTokenModal from '../available-channels-page/channel-token-modal';
   import subpageContainer from '../containers/subpage-container';
-  import uniqBy from 'lodash/uniqBy';
+  import channelListItem from '../manage-content-page/channel-list-item';
   import {
     installedChannelList,
     installedChannelsWithResources,

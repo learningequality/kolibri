@@ -30,8 +30,8 @@
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
-  import userGrid from './user-grid';
   import subpageContainer from '../containers/subpage-container';
+  import userGrid from './user-grid';
 
   export default {
     name: 'deviceManagementPage',

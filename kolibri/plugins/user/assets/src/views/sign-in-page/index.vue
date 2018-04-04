@@ -110,7 +110,6 @@
 <script>
 
   import { kolibriLogin } from 'kolibri.coreVue.vuex.actions';
-  import { PageNames } from '../../constants';
   import { facilityConfig } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
@@ -121,6 +120,7 @@
   import logo from 'kolibri.coreVue.components.logo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import { PageNames } from '../../constants';
   import languageSwitcherFooter from '../language-switcher-footer';
   import facilityModal from './facility-modal';
 

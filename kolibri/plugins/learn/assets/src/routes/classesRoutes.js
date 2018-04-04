@@ -1,3 +1,4 @@
+import store from 'kolibri.coreVue.vuex.store';
 import { ClassesPageNames } from '../constants';
 import {
   showAllClassesPage,
@@ -6,7 +7,6 @@ import {
   showLessonResourceViewer,
 } from '../state/actions/classesActions';
 import { showExam, showExamReport } from '../state/actions/main';
-import store from 'kolibri.coreVue.vuex.store';
 
 export default [
   {

@@ -57,11 +57,11 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import driveList from './drive-list';
   import { refreshDriveList } from '../../../state/actions/taskActions';
   import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
   import { wizardState } from '../../../state/getters';
   import { TransferTypes } from '../../../constants';
+  import driveList from './drive-list';
 
   export default {
     name: 'selectDriveModal',

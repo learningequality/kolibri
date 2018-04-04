@@ -35,6 +35,7 @@
   import contentCard from './content-card';
   import contentCardGroupGrid from './content-card-group-grid';
   import searchBox from './search-box';
+
   export default {
     name: 'searchPage',
     $trs: {

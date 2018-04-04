@@ -15,9 +15,9 @@
 
 <script>
 
-  import classEnrollForm from './class-enroll-form';
   import { PageNames } from '../constants';
   import { enrollLearnersInClass } from '../state/actions/class';
+  import classEnrollForm from './class-enroll-form';
 
   export default {
     name: 'learnerClassEnrollmentPage',
