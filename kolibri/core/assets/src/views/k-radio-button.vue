@@ -8,7 +8,7 @@
 
     <label class="tr">
       <!-- TODO no block level within label -->
-      <div class="input-section" :class="{ 'active': isActive }">
+      <div class="input-section">
         <input
           ref="kRadioInput"
           type="radio"
@@ -28,13 +28,15 @@
           v-if="isCurrentlySelected"
           category="toggle"
           name="radio_button_checked"
-          class="selected"
+          class="radio-bubble selected"
+          :class="{ 'active': isActive }"
         />
         <mat-svg
           v-else
           category="toggle"
           name="radio_button_unchecked"
-          class="unselected"
+          class="radio-bubble unselected"
+          :class="{ 'active': isActive }"
         />
       </div>
 
@@ -184,9 +186,8 @@
   .unselected
     fill: $core-text-annotation
 
-  .active
-    .selected
-      outline: $core-outline
+  .radio-bubble.active
+    outline: $core-outline
 
   .text
     display: table-cell
