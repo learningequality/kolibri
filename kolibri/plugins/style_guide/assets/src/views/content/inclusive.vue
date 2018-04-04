@@ -10,8 +10,7 @@
       audience, in the broadest sense of the word 'accessible'. It should run on
       wide variety of devices, render correctly on a wide variety of screen sizes
       and assistive technologies, be understandable to people from a wide variety
-      of backgrounds, and be usable by people with a wide variety of abilities and
-      disabilities.
+      of backgrounds, and be usable by people with diverse abilities.
     </p>
 
     <p>
@@ -53,8 +52,8 @@
     <h2>Keyboard navigation</h2>
 
     <p>
-      Every interaction that can be performed with a mouse or touchscreen should be
-      accessible with only the keyboard. As much as possible, we should follow best
+      Every interaction that can be performed with a mouse or touchscreen should also
+      be accessible by using the keyboard. As much as possible, we should follow best
       practices including:
     </p>
 
@@ -82,7 +81,7 @@
       Like with keyboard navigation, using the built-in components is a good way to
       ensure compatibility with screen readers. However, it's also critical to test
       all new functionality. See this
-      <a href="https://github.com/learningequality/ka-lite/wiki/Accessibility-Resources-(Tools)">
+      <a href="https://github.com/learningequality/kolibri/wiki/Accessibility-Resources-(Tools)">
       comprehensive list of A11y testing tools</a>.
     </p>
 
@@ -91,12 +90,15 @@
     </p>
 
     <ul>
-      <li>Use ARIA attributes when the HTML semantics are not sufficient</li>
+      <li>
+        Use ARIA attributes when appropriate. (In general, this is <em>only</em>
+        when using semantically correct HTML is not possible.)
+      </li>
       <li>
         Nest header tags properly: <code>H1</code>, <code>H2</code>,
         <code>H3</code>, etc...
       </li>
-      <li><code>alt</code> text on headers</li>
+      <li><code>alt</code> text on images</li>
     </ul>
 
     <h2>Color and contrast</h2>
@@ -115,7 +117,7 @@
       strings, numbers, dates, and times, this means "wrapping" the messages such
       that they can be mapped to messages in other languages using the
       <a href="https://formatjs.io/guides/message-syntax/">ICU message syntax</a>.
-      See our <a href="kolibri-dev.readthedocs.io/en/develop/references/i18n.html">
+      See our <a href="https://kolibri-dev.readthedocs.io/en/develop/references/i18n.html">
       developer docs</a> for more information.
     </p>
 
