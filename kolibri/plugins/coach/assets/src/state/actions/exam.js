@@ -484,15 +484,20 @@ export function showExamReportPage(store, classId, examId) {
       const examsPromise = ExamResource.getCollection({
         collection: classId,
       }).fetch({}, true);
+      const contentNodesPromise = ContentNodeResource.getCollection({
+        ids: exam.question_sources.map(({ exercise_id }) => exercise_id),
+        fields: ['id', 'num_coach_contents'],
+      }).fetch();
       ConditionalPromise.all([
         examLogPromise,
         facilityUserPromise,
         groupPromise,
         examsPromise,
+        contentNodesPromise,
         setClassState(store, classId),
       ]).only(
         samePageCheckGenerator(store),
-        ([examLogs, facilityUsers, learnerGroups, exams]) => {
+        ([examLogs, facilityUsers, learnerGroups, exams, contentNodes]) => {
           const examTakers = facilityUsers.map(user => {
             const examTakenByUser =
               examLogs.find(examLog => String(examLog.user) === user.id) || {};
@@ -513,6 +518,7 @@ export function showExamReportPage(store, classId, examId) {
             examsModalSet: null,
             exams,
             learnerGroups,
+            exerciseContentNodes: [...contentNodes],
           });
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', exam.title);
