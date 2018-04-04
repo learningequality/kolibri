@@ -5,8 +5,9 @@
     :class="{ 'k-radio-disabled': disabled }"
     @click="select"
   >
-    <div class="tr">
 
+    <label class="tr">
+      <!-- TODO no block level within label -->
       <div class="k-radio" :class="{ 'k-radio-active': isActive }">
         <input
           ref="kRadioInput"
@@ -35,12 +36,20 @@
           name="radio_button_unchecked"
           class="k-radio-unselected"
         />
-
       </div>
 
-      <label :for="id" class="k-radio-label" @click.prevent>{{ label }}</label>
+      <p class="k-radio-text">
+        <span class="k-radio-label">
+          {{ label }}
+        </span>
 
-    </div>
+        <span class="k-radio-description">
+          {{ description }}
+        </span>
+      </p>
+
+    </label>
+
   </div>
 
 </template>
@@ -60,6 +69,10 @@
       label: {
         type: String,
         required: true,
+      },
+      description: {
+        type: String,
+        required: false,
       },
       /**
        * v-model value
@@ -175,12 +188,19 @@
     .k-radio-selected
       outline: $core-outline
 
-  .k-radio-label
+  .k-radio-text
     display: table-cell
     padding-left: 8px
     cursor: pointer
+    // user-select: none // why?
+
+  .k-radio-label
     line-height: 24px
-    user-select: none
+
+  .k-radio-description
+    display: block
+    color: $core-text-annotation
+    font-size: 12px
 
   .k-radio-disabled
     svg
@@ -189,7 +209,11 @@
     .k-radio, .k-radio-input, .k-radio-label
       cursor: default
 
-    .k-radio-label
+    .k-radio-text
+      color: $core-text-disabled
+
+    .k-radio-description
+      // need it more specific
       color: $core-text-disabled
 
 </style>
