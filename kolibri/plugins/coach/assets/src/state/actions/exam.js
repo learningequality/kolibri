@@ -59,6 +59,7 @@ function _topicState(topic) {
   return {
     id: topic.pk,
     title: topic.title,
+    num_coach_contents: topic.num_coach_contents,
   };
 }
 
@@ -72,6 +73,7 @@ function _exerciseState(exercise) {
     id: exercise.pk,
     title: exercise.title,
     numAssessments,
+    num_coach_contents: exercise.num_coach_contents,
   };
 }
 
@@ -343,7 +345,7 @@ export function getAllExercisesWithinTopic(store, topicId) {
   return new Promise((resolve, reject) => {
     const exercisesPromise = ContentNodeResource.getDescendantsCollection(topicId, {
       descendant_kind: ContentNodeKinds.EXERCISE,
-      fields: ['pk', 'title', 'assessmentmetadata'],
+      fields: ['pk', 'title', 'assessmentmetadata', 'num_coach_contents'],
     }).fetch();
 
     ConditionalPromise.all([exercisesPromise]).only(
@@ -366,12 +368,12 @@ function fetchTopic(store, topicId) {
     const subtopicsPromise = ContentNodeResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.TOPIC,
-      fields: ['pk', 'title', 'ancestors'],
+      fields: ['pk', 'title', 'ancestors', 'num_coach_contents'],
     }).fetch();
     const exercisesPromise = ContentNodeResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.EXERCISE,
-      fields: ['pk', 'title', 'assessmentmetadata'],
+      fields: ['pk', 'title', 'assessmentmetadata', 'num_coach_contents'],
     }).fetch();
 
     ConditionalPromise.all([
