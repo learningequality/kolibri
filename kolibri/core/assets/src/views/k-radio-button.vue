@@ -1,18 +1,18 @@
 <template>
 
   <div
-    class="k-radio-container"
-    :class="{ 'k-radio-disabled': disabled }"
+    class="container"
+    :class="{ 'disabled': disabled }"
     @click="select"
   >
 
     <label class="tr">
       <!-- TODO no block level within label -->
-      <div class="k-radio" :class="{ 'k-radio-active': isActive }">
+      <div class="input-section" :class="{ 'active': isActive }">
         <input
           ref="kRadioInput"
           type="radio"
-          class="k-radio-input"
+          class="input"
           :id="id"
           :value="radiovalue"
           :disabled="disabled"
@@ -28,22 +28,22 @@
           v-if="isCurrentlySelected"
           category="toggle"
           name="radio_button_checked"
-          class="k-radio-selected"
+          class="selected"
         />
         <mat-svg
           v-else
           category="toggle"
           name="radio_button_unchecked"
-          class="k-radio-unselected"
+          class="unselected"
         />
       </div>
 
-      <p class="k-radio-text">
-        <span class="k-radio-label">
+      <p class="text">
+        <span class="label">
           {{ label }}
         </span>
 
-        <span class="k-radio-description">
+        <span class="description">
           {{ description }}
         </span>
       </p>
@@ -119,7 +119,7 @@
         return this.radiovalue.toString() === this.model.toString();
       },
       id() {
-        return `k-radio-${this._uid}`;
+        return `${this._uid}`;
       },
     },
 
@@ -154,7 +154,7 @@
 
   $radio-height = 24px
 
-  .k-radio-container
+  .container
     display: table
     margin-top: 8px
     margin-bottom: 8px
@@ -162,7 +162,7 @@
   .tr
     display: table-row
 
-  .k-radio
+  .input-section
     display: table-cell
     position: relative
     vertical-align: top
@@ -170,7 +170,7 @@
     height: $radio-height
     cursor: pointer
 
-  .k-radio-input
+  .input
     position: absolute
     top: 50%
     left: 50%
@@ -178,41 +178,41 @@
     opacity: 0
     cursor: pointer
 
-  .k-radio-selected
+  .selected
     fill: $core-action-normal
 
-  .k-radio-unselected
+  .unselected
     fill: $core-text-annotation
 
-  .k-radio-active
-    .k-radio-selected
+  .active
+    .selected
       outline: $core-outline
 
-  .k-radio-text
+  .text
     display: table-cell
     padding-left: 8px
     cursor: pointer
     // user-select: none // why?
 
-  .k-radio-label
+  .label
     line-height: 24px
 
-  .k-radio-description
+  .description
     display: block
     color: $core-text-annotation
     font-size: 12px
 
-  .k-radio-disabled
+  .disabled
     svg
       fill: $core-grey-300
 
-    .k-radio, .k-radio-input, .k-radio-label
+    .input-section, .input, .label
       cursor: default
 
-    .k-radio-text
+    .text
       color: $core-text-disabled
 
-    .k-radio-description
+    .description
       // need it more specific
       color: $core-text-disabled
 
