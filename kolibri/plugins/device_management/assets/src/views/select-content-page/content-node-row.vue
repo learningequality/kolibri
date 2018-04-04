@@ -30,7 +30,7 @@
       </span>
       <coach-content-label
         class="coach-content-label"
-        :value="node.num_coach_content"
+        :value="node.num_coach_contents"
       />
 
     </td>

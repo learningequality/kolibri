@@ -70,7 +70,7 @@
           </div>
           <coach-content-label
             class="coach-content-label"
-            :value="getCachedResource(resourceId).num_coach_content"
+            :value="getCachedResource(resourceId).num_coach_contents"
           />
         </td>
         <td>

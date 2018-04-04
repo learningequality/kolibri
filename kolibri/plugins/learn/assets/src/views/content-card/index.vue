@@ -24,8 +24,8 @@
       </p>
       <coach-content-label
         class="coach-content-label"
-        v-if="numCoachContent > 0"
-        :value="numCoachContent"
+        v-if="numCoachContents > 0"
+        :value="numCoachContents"
       />
     </div>
   </router-link>
@@ -71,7 +71,7 @@
       // ContentNode.coach_content will be `0` if not a coach content leaf node,
       // or a topic without coach content. It will be a positive integer if a topic
       // with coach content, and `1` if a coach content leaf node.
-      numCoachContent: {
+      numCoachContents: {
         type: Number,
         default: 0,
       },

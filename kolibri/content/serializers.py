@@ -264,7 +264,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
 
 class ContentNodeSerializer(serializers.ModelSerializer):
-    num_coach_content = serializers.SerializerMethodField()
+    num_coach_contents = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
@@ -286,7 +286,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             'license_description',
             'license_name',
             'license_owner',
-            'num_coach_content',
+            'num_coach_contents',
             'parent',
             'pk',  # TODO remove after UI standardizes on 'id'
             'sort_order',
@@ -327,12 +327,12 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         value['progress_fraction'] = progress_fraction
         return value
 
-    def get_num_coach_content(self, instance):
+    def get_num_coach_contents(self, instance):
         return 1
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
-    num_coach_content = serializers.SerializerMethodField()
+    num_coach_contents = serializers.SerializerMethodField()
     total_resources = serializers.SerializerMethodField()
     on_device_resources = serializers.SerializerMethodField()
     importable = serializers.SerializerMethodField()
@@ -344,7 +344,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             'available',
             'importable',
             'kind',
-            'num_coach_content',
+            'num_coach_contents',
             'on_device_resources',
             'pk',  # TODO remove once UI uses 'id' exclusively
             'title',
@@ -366,7 +366,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             .distinct() \
             .count()
 
-    def get_num_coach_content(self, instance):
+    def get_num_coach_contents(self, instance):
         return 1
 
     def get_importable(self, instance):

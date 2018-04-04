@@ -18,7 +18,7 @@
           <dd>
             <coach-content-label
               class="coach-content-label"
-              :value="contentNode.num_coach_content"
+              :value="contentNode.num_coach_contents"
             />
           </dd>
         </dl>

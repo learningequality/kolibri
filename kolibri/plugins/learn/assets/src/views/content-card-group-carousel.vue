@@ -34,7 +34,7 @@
           :thumbnail="content.thumbnail"
           :kind="content.kind"
           :progress="content.progress"
-          :numCoachContent="content.num_coach_content"
+          :numCoachContents="content.num_coach_contents"
           :link="genContentLink(content.id, content.kind)"
         />
       </transition-group>

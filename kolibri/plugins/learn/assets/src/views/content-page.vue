@@ -6,7 +6,7 @@
     <page-header :title="content.title" dir="auto" class="ta-l" />
     <coach-content-label
       class="coach-content-label"
-      :value="content.num_coach_content"
+      :value="content.num_coach_contents"
     />
 
     <content-renderer
