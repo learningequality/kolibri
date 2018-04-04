@@ -104,11 +104,11 @@ oriented data synchronization.
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import seededShuffle from 'kolibri.lib.seededshuffle';
   import { now } from 'kolibri.utils.serverClock';
-  import { updateContentNodeProgress } from '../../state/actions/main';
-  import exerciseAttempts from './exercise-attempts';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import { updateContentNodeProgress } from '../../state/actions/main';
+  import exerciseAttempts from './exercise-attempts';
 
   export default {
     name: 'assessmentWrapper',

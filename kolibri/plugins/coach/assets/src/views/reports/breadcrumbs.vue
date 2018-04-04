@@ -8,6 +8,7 @@
 <script>
 
   import { getChannels, getChannelObject } from 'kolibri.coreVue.vuex.getters';
+  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { PageNames } from '../../constants';
   import {
     isTopicPage,
@@ -15,7 +16,7 @@
     isLearnerPage,
     numberOfAssignedClassrooms,
   } from '../../state/getters/main';
-  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
+
   export default {
     name: 'breadcrumbs',
     $trs: {

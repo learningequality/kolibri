@@ -1,5 +1,5 @@
-import { Resource } from '../api-resource';
 import logger from 'kolibri.lib.logging';
+import { Resource } from '../api-resource';
 
 const logging = logger.getLogger(__filename);
 

@@ -15,7 +15,7 @@
               {{
                 $tr(
                   'questionsAnswered',
-                  { numAnswered: questionsAnswered, numTotal: exam.questionCount }
+                  { numAnswered: questionsAnswered, numTotal: exam.question_count }
                 )
               }}
             </p>
@@ -57,7 +57,7 @@
                   :text="$tr('previousQuestion')"
                 />
                 <k-button
-                  :disabled="questionNumber===exam.questionCount-1"
+                  :disabled="questionNumber===exam.question_count-1"
                   @click="goToQuestion(questionNumber + 1)"
                   :text="$tr('nextQuestion')"
                 />
@@ -96,18 +96,19 @@
 
 <script>
 
-  import { ClassesPageNames } from '../../constants';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
-  import { setAndSaveCurrentExamAttemptLog, closeExam } from '../../state/actions/main';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
   import throttle from 'lodash/throttle';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import answerHistory from './answer-history';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import { setAndSaveCurrentExamAttemptLog, closeExam } from '../../state/actions/main';
+  import { ClassesPageNames } from '../../constants';
+  import answerHistory from './answer-history';
+
   export default {
     name: 'examPage',
     $trs: {
@@ -159,7 +160,7 @@
         };
       },
       questionsUnanswered() {
-        return this.exam.questionCount - this.questionsAnswered;
+        return this.exam.question_count - this.questionsAnswered;
       },
     },
     created() {

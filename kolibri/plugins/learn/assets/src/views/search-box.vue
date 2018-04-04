@@ -46,8 +46,8 @@
 
 <script>
 
-  import { PageNames } from '../constants';
   import uiIconButton from 'keen-ui/src/UiIconButton';
+  import { PageNames } from '../constants';
 
   export default {
     name: 'searchBox',

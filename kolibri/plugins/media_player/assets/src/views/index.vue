@@ -48,13 +48,13 @@
 
   import vue from 'kolibri.lib.vue';
   import videojs from 'video.js';
-  import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
   import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
   import ScreenFull from 'screenfull';
+  import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import audioIconPoster from './audio-icon-poster.svg';
 
   const GlobalLangCode = vue.locale;

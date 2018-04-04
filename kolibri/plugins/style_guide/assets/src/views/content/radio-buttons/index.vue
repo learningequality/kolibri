@@ -35,6 +35,8 @@
 
 <script>
 
+  import FullVue from 'vue/dist/vue.common';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import componentDocs from '../../shell/component-docs';
   import vueExample from '../../shell/vue-example';
   import pageTemplate from '../../shell/page-template';
@@ -42,8 +44,6 @@
   import example from 'raw-loader!./example.html';
   import kRadioButtonApi from '!vue-doc!kolibri.coreVue.components.kRadioButton';
 
-  import FullVue from 'vue/dist/vue.common';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   FullVue.component('k-radio-button', kRadioButton);
 
   export default {

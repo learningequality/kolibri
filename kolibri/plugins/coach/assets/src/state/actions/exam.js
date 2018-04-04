@@ -15,11 +15,11 @@ import {
   samePageCheckGenerator,
 } from 'kolibri.coreVue.vuex.actions';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { PageNames } from '../../constants';
-import { setClassState } from './main';
 import { getExamReport } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { createTranslator } from 'kolibri.utils.i18n';
+import { PageNames } from '../../constants';
+import { setClassState } from './main';
 
 const translator = createTranslator('coachExamPageTitles', {
   coachExamListPageTitle: 'Exams',

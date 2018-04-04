@@ -57,6 +57,7 @@
 
 <script>
 
+  import xorWith from 'lodash/xorWith';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import previewExamModal from '../exams-page/preview-exam-modal';
   import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
@@ -72,7 +73,6 @@
     copyExam,
     deleteExam,
   } from '../../../state/actions/exam';
-  import xorWith from 'lodash/xorWith';
 
   export default {
     name: 'manageExamModals',

@@ -19,6 +19,7 @@
   import { PageNames } from '../constants';
   import pageHeader from './page-header';
   import contentCardGroupGrid from './content-card-group-grid';
+
   export default {
     name: 'channelsPage',
     $trs: {

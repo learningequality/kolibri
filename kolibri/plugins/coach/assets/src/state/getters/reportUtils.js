@@ -1,5 +1,5 @@
-import { TableColumns, SortOrders } from '../../constants/reportConstants';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import { TableColumns, SortOrders } from '../../constants/reportConstants';
 
 /* given an array of objects sum the keys on those that pass the filter */
 function _sumOfKeys(array, key, filter = () => true) {

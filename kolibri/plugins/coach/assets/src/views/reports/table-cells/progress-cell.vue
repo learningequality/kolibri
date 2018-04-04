@@ -21,6 +21,7 @@
 <script>
 
   import progressBar from 'kolibri.coreVue.components.progressBar';
+
   export default {
     name: 'progressIndicator',
     $trs: {

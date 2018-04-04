@@ -2,6 +2,16 @@ import { handleError, handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { getChannels } from 'kolibri.coreVue.vuex.getters';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import { now } from 'kolibri.utils.serverClock';
+import {
+  AttemptLogResource,
+  ChannelResource,
+  ContentNodeResource,
+  FacilityUserResource,
+  ContentSummaryLogResource,
+  LearnerGroupResource,
+} from 'kolibri.resources';
+import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
 import {
   ContentScopes,
@@ -12,21 +22,11 @@ import {
   ViewBy,
 } from '../../constants/reportConstants';
 import { className } from '../getters/classes';
-import { setClassState } from './main';
-import { now } from 'kolibri.utils.serverClock';
-import {
-  AttemptLogResource,
-  ChannelResource,
-  ContentNodeResource,
-  FacilityUserResource,
-  ContentSummaryLogResource,
-  LearnerGroupResource,
-} from 'kolibri.resources';
 import RecentReportResourceConstructor from '../../apiResources/recentReport';
 import UserReportResource from '../../apiResources/userReport';
 import ContentSummaryResourceConstructor from '../../apiResources/contentSummary';
 import ContentReportResourceConstructor from '../../apiResources/contentReport';
-import { createTranslator } from 'kolibri.utils.i18n';
+import { setClassState } from './main';
 
 const translator = createTranslator('coachReportPageTitles', {
   recentChannelsPageTitle: 'Recent - All channels',

@@ -1,9 +1,9 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
-import bytesForHumans from '../../views/manage-content-page/bytesForHumans';
 import { samePageCheckGenerator, handleApiError } from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { canManageContent } from 'kolibri.coreVue.vuex.getters';
+import bytesForHumans from '../../views/manage-content-page/bytesForHumans';
 
 /* Function to fetch device info from the backend
  * and resolve validated data

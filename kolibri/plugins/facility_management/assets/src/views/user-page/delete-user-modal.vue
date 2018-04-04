@@ -29,9 +29,9 @@
 
 <script>
 
-  import { deleteUser, displayModal } from '../../state/actions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import { deleteUser, displayModal } from '../../state/actions';
 
   export default {
     name: 'deleteUserModal',

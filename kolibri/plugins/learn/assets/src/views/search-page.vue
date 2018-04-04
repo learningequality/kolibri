@@ -2,7 +2,7 @@
 
   <div>
 
-    <h3>Search</h3>
+    <h3>{{ $tr('searchPageHeader') }}</h3>
 
     <search-box />
 
@@ -35,9 +35,11 @@
   import contentCard from './content-card';
   import contentCardGroupGrid from './content-card-group-grid';
   import searchBox from './search-box';
+
   export default {
     name: 'searchPage',
     $trs: {
+      searchPageHeader: 'Search',
       noSearch: 'Search by typing something in the search box above',
       showingResultsFor: 'Search results for "{searchTerm}"',
       noResultsMsg: 'No results for "{searchTerm}"',

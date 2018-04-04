@@ -74,14 +74,14 @@
 <script>
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
-  import { PageNames } from '../../../constants';
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import StatusIcon from '../../assignments/StatusIcon';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
+  import StatusIcon from '../../assignments/StatusIcon';
+  import { PageNames } from '../../../constants';
 
   export default {
     name: 'coachExamsPage',

@@ -59,11 +59,11 @@
 
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import pageStatus from './page-status';
   import attemptLogList from 'kolibri.coreVue.components.attemptLogList';
   import interactionList from 'kolibri.coreVue.components.interactionList';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import pageStatus from './page-status';
 
   export default {
     name: 'examReport',

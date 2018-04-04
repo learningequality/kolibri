@@ -1,3 +1,5 @@
+import store from 'kolibri.coreVue.vuex.store';
+import router from 'kolibri.coreVue.router';
 import {
   showLessonResourceContentPreview,
   showLessonResourceSelectionRootPage,
@@ -11,8 +13,6 @@ import {
   showLessonResourceUserSummaryPage,
 } from '../state/actions/lessonReportsActions';
 import { LessonsPageNames } from '../constants/lessonsConstants';
-import store from 'kolibri.coreVue.vuex.store';
-import router from 'kolibri.coreVue.router';
 
 // Redirect to the Lessons List of a different classroom if
 // classroom switcher is used in e.g. a Lesson Summary page
