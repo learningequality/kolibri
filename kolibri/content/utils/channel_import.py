@@ -1,23 +1,26 @@
 import logging as logger
+
 from django.apps import apps
-from kolibri.content.apps import KolibriContentConfig
-from kolibri.content.legacy_models import License
-from kolibri.content.models import CONTENT_SCHEMA_VERSION
-from kolibri.content.models import ChannelMetadata
-from kolibri.content.models import ContentNode
-from kolibri.content.models import ContentTag
-from kolibri.content.models import File
-from kolibri.content.models import Language
-from kolibri.content.models import LocalFile
-from kolibri.content.models import NO_VERSION
-from kolibri.utils.time import local_now
 from sqlalchemy.exc import SQLAlchemyError
+
 from .annotation import recurse_availability_up_tree
 from .annotation import set_leaf_node_availability_from_local_file_availability
 from .channels import read_channel_metadata_from_db_file
 from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge
 from .sqlalchemybridge import ClassNotFoundError
+from kolibri.content.apps import KolibriContentConfig
+from kolibri.content.legacy_models import License
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.models import CONTENT_SCHEMA_VERSION
+from kolibri.content.models import ContentNode
+from kolibri.content.models import ContentTag
+from kolibri.content.models import File
+from kolibri.content.models import Language
+from kolibri.content.models import LocalFile
+from kolibri.content.models import NO_VERSION
+from kolibri.content.models import VERSION_1
+from kolibri.utils.time import local_now
 
 logging = logger.getLogger(__name__)
 
@@ -332,15 +335,37 @@ class NoVersionChannelImport(ChannelImport):
 
 mappings = {
     NO_VERSION: NoVersionChannelImport,
+    VERSION_1: ChannelImport,
     CONTENT_SCHEMA_VERSION: ChannelImport,
 }
 
 
+class FutureSchemaError(Exception):
+    pass
+
+
+class InvalidSchemaVersionError(Exception):
+    pass
+
 def initialize_import_manager(channel_id):
     channel_metadata = read_channel_metadata_from_db_file(get_content_database_file_path(channel_id))
     min_version = getattr(channel_metadata, 'min_schema_version', NO_VERSION)
-    # Need to have a default ImportClass for older schemas
-    ImportClass = mappings.get(min_version, ChannelImport)
+    try:
+        ImportClass = mappings.get(min_version)
+    except KeyError as e:
+        try:
+            version_number = int(min_version)
+            if version_number > int(CONTENT_SCHEMA_VERSION):
+                raise FutureSchemaError('Tried to import schema version, {version}, which is not supported by this version of Kolibri.'.format(
+                    version=min_version,
+                ))
+            else:
+                # If it's a valid integer, but there is no schema for it, then something really weird is going on
+                raise InvalidSchemaVersionError()
+        except (ValueError, InvalidSchemaVersionError):
+            raise InvalidSchemaVersionError('Tried to import invalid schema version {version}'.format(
+                version=min_version,
+            ))
     return ImportClass(channel_id)
 
 

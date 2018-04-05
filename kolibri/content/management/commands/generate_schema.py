@@ -5,10 +5,13 @@ import pickle
 from django.apps import apps
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
-from kolibri.content.utils.sqlalchemybridge import SCHEMA_PATH_TEMPLATE, get_default_db_string
-from sqlalchemy import MetaData, create_engine
+from sqlalchemy import create_engine
+from sqlalchemy import MetaData
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
+
+from kolibri.content.utils.sqlalchemybridge import get_default_db_string
+from kolibri.content.utils.sqlalchemybridge import SCHEMA_PATH_TEMPLATE
 
 DATA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../../fixtures/{name}_content_data.json')
 
@@ -19,6 +22,8 @@ class Command(BaseCommand):
     versions the CONTENT_DB_SCHEMA version should have been incremented.
     It also produces a data dump of the content test fixture that fits to this database schema,
     so that we can use it for testing purposes.
+
+    Note: this command requires an empty, but migrated, database to work properly.
     """
 
     def add_arguments(self, parser):

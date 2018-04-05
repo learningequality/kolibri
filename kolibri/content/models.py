@@ -3,6 +3,31 @@ This is one of the Kolibri core components, the abstract layer of all contents.
 To access it, please use the public APIs in api.py
 
 The ONLY public object is ContentNode
+
+Developer note: If you modify the schema here, it has implications for the content
+import pipeline, including Kolibri Studio where the imported content databases
+are created.
+
+As such, if models or fields are added or removed, the CONTENT_SCHEMA_VERSION
+value must be incremented, with an additional constant added for the previous
+version. e.g. when the CONTENT_SCHEMA_VERSION is incremented from '2' to '3'
+a new constant VERSION_2 = '2', should be added.
+
+In addition, the new constant should be added to the mappings dict in
+./utils/channel_import.py with an appropriate ChannelImport class associated. If the
+new schema requires inference of the field when it is missing from old databases
+(i.e. it does not have a default value, or cannot be null or blank), then the
+ChannelImport classes must be updated to infer this data from old databases.
+
+A pickled SQLAlchemy schema for the new schema must also be generated using the
+generate_schema management command. This must be generated using an empty, migrated database.
+The 'version' parameter passed to the command should be the value of e.g. VERSION_2.
+All pickled schema should be registered in the CONTENT_DB_SCHEMA_VERSIONS list in
+./utils/sqlalchemybridge.py e.g. VERSION_2 should be added to the list.
+
+The channel import test classes for this schema should also be added in
+./test/test_channel_import.py - it should inherit from the NaiveImportTestCase, and set the
+name property to e.g. VERSION_2.
 """
 from __future__ import print_function
 
@@ -15,12 +40,15 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
 from jsonfield import JSONField
-from kolibri.core.fields import DateTimeTzField
-from le_utils.constants import content_kinds, file_formats, format_presets
+from le_utils.constants import content_kinds
+from le_utils.constants import file_formats
+from le_utils.constants import format_presets
 from le_utils.constants.languages import LANGUAGE_DIRECTIONS
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.models import MPTTModel
+from mptt.models import TreeForeignKey
 
 from .utils import paths
+from kolibri.core.fields import DateTimeTzField
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
@@ -29,6 +57,8 @@ V020BETA1 = 'v0.2.0-beta1'
 V040BETA3 = 'v0.4.0-beta3'
 
 NO_VERSION = 'unversioned'
+
+VERSION_1 = '1'
 
 CONTENT_SCHEMA_VERSION = '2'
 

@@ -3,19 +3,28 @@ import os
 import pickle
 
 from django.core.management import call_command
-from django.test import TestCase, TransactionTestCase
-
-from kolibri.content import models as content
-from kolibri.content.models import NO_VERSION, V020BETA1, V040BETA3, ChannelMetadata, ContentNode
-from kolibri.content.utils.channel_import import ChannelImport, mappings, import_channel_from_local_db
-from kolibri.content.utils.sqlalchemybridge import get_default_db_string
-
-from mock import patch, MagicMock, Mock, call
-
+from django.test import TestCase
+from django.test import TransactionTestCase
+from mock import call
+from mock import MagicMock
+from mock import Mock
+from mock import patch
 from sqlalchemy import create_engine
 
 from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
+from kolibri.content import models as content
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.models import CONTENT_SCHEMA_VERSION
+from kolibri.content.models import ContentNode
+from kolibri.content.models import NO_VERSION
+from kolibri.content.models import V020BETA1
+from kolibri.content.models import V040BETA3
+from kolibri.content.models import VERSION_1
+from kolibri.content.utils.channel_import import ChannelImport
+from kolibri.content.utils.channel_import import import_channel_from_local_db
+from kolibri.content.utils.channel_import import mappings
+from kolibri.content.utils.sqlalchemybridge import get_default_db_string
 
 @patch('kolibri.content.utils.channel_import.Bridge')
 @patch('kolibri.content.utils.channel_import.ChannelImport.find_unique_tree_id')
@@ -327,9 +336,8 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
     # When incrementing content schema versions, this should be incremented to the new version
     # A new TestCase for importing for this old version should then be subclassed from this TestCase
     # See 'NoVersionImportTestCase' below for an example
-    #
-    # TODO: rtibbles Revert this change that only tests unversioned import
-    name = NO_VERSION
+
+    name = CONTENT_SCHEMA_VERSION
 
     legacy_schema = None
 
@@ -390,17 +398,26 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
         super(NaiveImportTestCase, cls).tearDownClass()
 
 
-# class NoVersionImportTestCase(NaiveImportTestCase):
-#     """
-#     Integration test for import from no version import
-#     """
-
-#     name = NO_VERSION
-
-
-class NoVersionv020ImportTestCase(NaiveImportTestCase):
+class Version1ImportTestCase(NaiveImportTestCase):
     """
     Integration test for import from no version import
+    """
+
+    name = VERSION_1
+
+
+class NoVersionImportTestCase(NaiveImportTestCase):
+    """
+    Integration test for import from no version import
+    """
+
+    name = NO_VERSION
+
+
+class NoVersionv020ImportTestCase(NoVersionImportTestCase):
+    """
+    Integration test for import from no version import
+    for legacy schema 0.2.0beta1
     """
 
     legacy_schema = V020BETA1
@@ -413,6 +430,7 @@ class NoVersionv020ImportTestCase(NaiveImportTestCase):
 class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
     """
     Integration test for import from no version import
+    for legacy schema 0.4.0beta3
     """
 
     legacy_schema = V040BETA3

@@ -3,14 +3,21 @@ import logging as logger
 import os
 
 from django.conf import settings
-from kolibri.content.apps import KolibriContentConfig
-from kolibri.content.models import ChannelMetadata, ContentNode, File, LocalFile
 from le_utils.constants import content_kinds
-from sqlalchemy import and_, exists, func, select
+from sqlalchemy import and_
+from sqlalchemy import exists
+from sqlalchemy import func
+from sqlalchemy import select
 
 from .channels import get_channel_ids_for_content_database_dir
-from .paths import get_content_file_name, get_content_storage_file_path
+from .paths import get_content_file_name
+from .paths import get_content_storage_file_path
 from .sqlalchemybridge import Bridge
+from kolibri.content.apps import KolibriContentConfig
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.models import ContentNode
+from kolibri.content.models import File
+from kolibri.content.models import LocalFile
 
 logging = logger.getLogger(__name__)
 
@@ -24,12 +31,15 @@ def update_channel_metadata():
     scan through the settings.CONTENT_DATABASE_DIR folder for all channel content databases,
     and pull the data from each database if we have not already imported it.
     """
-    from .channel_import import import_channel_from_local_db
+    from .channel_import import import_channel_from_local_db, InvalidSchemaVersionError, FutureSchemaError
     channel_ids = get_channel_ids_for_content_database_dir(settings.CONTENT_DATABASE_DIR)
     for channel_id in channel_ids:
         if not ChannelMetadata.objects.filter(id=channel_id).exists():
-            import_channel_from_local_db(channel_id)
-            set_availability(channel_id)
+            try:
+                import_channel_from_local_db(channel_id)
+                set_availability(channel_id)
+            except (InvalidSchemaVersionError, FutureSchemaError):
+                logging.warning("Tried to import channel {channel_id}, but database file was incompatible".format(channel_id=channel_id))
 
 
 def set_leaf_node_availability_from_local_file_availability():
