@@ -1,58 +1,50 @@
 <template>
 
-  <div class="container">
+  <!-- HTML makes clicking label apply to input by default -->
+  <label class="k-radio-button">
+    <!-- v-model listens for @input event by default -->
+    <!-- @input has compatibility issues for input of type radio -->
+    <!-- Here, manually listen for @change (no compatibility issues) -->
+    <input
+      ref="input"
+      type="radio"
+      class="input"
+      :id="id"
+      :checked="isChecked"
+      :value="radiovalue"
+      :disabled="disabled"
+      :autofocus="autofocus"
+      @focus="active = true"
+      @blur="active = false"
+      @change="update($event)"
+    >
+    <!-- the radio buttons the user sees -->
+    <mat-svg
+      v-if="isChecked"
+      category="toggle"
+      name="radio_button_checked"
+      :class="['checked', {disabled, active}]"
+    />
+    <mat-svg
+      v-else
+      category="toggle"
+      name="radio_button_unchecked"
+      :class="['unchecked', {disabled, active}
+      ]"
+    />
 
-    <!-- HTML makes clicking label apply to input by default -->
-    <label class="tr">
-      <span class="input-section">
-        <!-- v-model listens for @input event by default -->
-        <!-- @input has compatibility issues for input of type radio -->
-        <!-- Here, manually listen for @change (no compatibility issues) -->
-        <input
-          ref="input"
-          type="radio"
-          class="input"
-          :id="id"
-          :checked="isChecked"
-          :value="radiovalue"
-          :disabled="disabled"
-          :autofocus="autofocus"
-          @focus="active = true"
-          @blur="active = false"
-          @change="update($event)"
-        >
-
-        <mat-svg
-          v-if="isChecked"
-          category="toggle"
-          name="radio_button_checked"
-          :class="['checked', {disabled, active}]"
-        />
-        <mat-svg
-          v-else
-          category="toggle"
-          name="radio_button_unchecked"
-          :class="['unchecked', {disabled, active}
-          ]"
-        />
+    <span :class="['text', { disabled}]">
+      {{ label }}
+      <span
+        v-if="description"
+        :class="['description', { disabled}]"
+      >
+        {{ description }}
       </span>
+    </span>
 
-      <span :class="['text', { disabled }]">
-        <span class="label">
-          {{ label }}
-        </span>
 
-        <span
-          v-if="description"
-          :class="['description', { disabled}]"
-        >
-          {{ description }}
-        </span>
-      </span>
-
-    </label>
-
-  </div>
+  </label>
 
 </template>
 
@@ -72,6 +64,9 @@
         type: String,
         required: true,
       },
+      /**
+       * Description for Label
+       */
       description: {
         type: String,
         required: false,
@@ -143,33 +138,29 @@
 
   $radio-height = 24px
 
-  .container
-    display: table
-    margin-top: 8px
-    margin-bottom: 8px
-
-  label
+  .k-radio-button
+    // give conditional classes higher priority
     &.disabled
       cursor: default
-    cursor: pointer
-
-  .tr
-    display: table-row
-
-  .input-section
-    display: table-cell
     position: relative
-    vertical-align: top
+    cursor: pointer
+    display:block
+    margin-top: 8px
+    margin-bottom: 8px
+    line-height: $radio-height
+
   .input
-    // using this rather than appearance:none because ie compatibility
+    // use opacity, not appearance:none because ie compatibility
     opacity: 0
+    // bring the invible HTML element on top of our custom radio-button
     position: absolute
     width: $radio-height
     height: $radio-height
+
   .checked, .unchecked
-    // give conditional classes higher priority
-    // setting opacity to 0 hides input's default outline
+    vertical-align: top
     &.active
+      // setting opacity to 0 hides input's default outline
       outline: $core-outline
     &.disabled
       fill: $core-grey-300
@@ -178,16 +169,14 @@
   .unchecked
     fill: $core-text-annotation
 
-  .text
+
+  .text, .description
     &.disabled
       color: $core-text-disabled
-    display: table-cell
-    padding-left: 8px
-  .label
-    line-height: 24px
+  .text
+    display: inline-block
+    margin-left: 8px
   .description
-    &.disabled
-      color: inherit
     display: block
     color: $core-text-annotation
     font-size: 12px
