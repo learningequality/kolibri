@@ -2,6 +2,7 @@ from functools import reduce
 from dateutil.parser import parse
 from django.db.models import Case, Count, F, IntegerField, Manager, Max, Sum, When
 from kolibri.auth.models import FacilityUser
+from kolibri.content.serializers import ContentNodeSerializer
 from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog
 from kolibri.core.lessons.models import Lesson
@@ -196,7 +197,6 @@ class ContentReportListSerializer(serializers.ListSerializer):
 
 
 class ContentReportSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ContentNode
         fields = (
@@ -216,6 +216,7 @@ class ContentReportSerializer(serializers.ModelSerializer):
         value = super(ContentReportSerializer, self).to_representation(instance)
         value['progress'] = progress
         value['last_active'] = last_active
+        value['num_coach_contents'] = ContentNodeSerializer(instance).data['num_coach_contents']
         return value
 
 

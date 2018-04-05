@@ -50,7 +50,12 @@
           <td class="core-table-icon-col">
             <content-icon :kind="row.kind" />
           </td>
-          <name-cell :kind="row.kind" :title="row.title" :link="genRowLink(row)">
+          <name-cell
+            :kind="row.kind"
+            :title="row.title"
+            :link="genRowLink(row)"
+            :numCoachContents="row.num_coach_contents"
+          >
             {{ $tr('exerciseCountText', {count: row.exerciseCount}) }}
             •
             {{ $tr('contentCountText', {count: row.contentCount}) }}

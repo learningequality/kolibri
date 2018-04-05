@@ -164,6 +164,7 @@ function _contentReportState(data) {
     kind: row.kind,
     lastActive: row.last_active,
     id: row.pk,
+    num_coach_contents: row.num_coach_contents,
     progress: row.progress.map(progressData => ({
       kind: progressData.kind,
       nodeCount: progressData.node_count,
@@ -178,6 +179,7 @@ function _recentReportState(data) {
     return [];
   }
   return data.map(row => ({
+    num_coach_contents: row.num_coach_contents,
     contentId: row.content_id,
     kind: row.kind,
     lastActive: row.last_active,
@@ -229,6 +231,7 @@ function _contentSummaryState(data) {
   }
   const kind = !data.ancestors.length ? ContentNodeKinds.CHANNEL : data.kind;
   return {
+    num_coach_contents: data.num_coach_contents,
     ancestors: data.ancestors.map(item => ({
       id: item.pk,
       title: item.title,

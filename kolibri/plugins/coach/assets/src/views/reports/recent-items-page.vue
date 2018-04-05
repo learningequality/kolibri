@@ -37,6 +37,7 @@
             :kind="row.kind"
             :title="row.title"
             :link="genLink(row)"
+            :numCoachContents="row.num_coach_contents"
           />
           <td>
             <progress-bar :showPercentage="false" :progress="row.contentProgress" />
@@ -98,7 +99,7 @@
         return TableColumns;
       },
       noProgressText() {
-        return this.$tr('noRecentProgress', { treshold: RECENCY_THRESHOLD_IN_DAYS });
+        return this.$tr('noRecentProgress', { threshold: RECENCY_THRESHOLD_IN_DAYS });
       },
     },
     methods: {

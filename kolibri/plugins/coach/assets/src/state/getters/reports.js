@@ -91,6 +91,7 @@ function _genRow(state, item) {
     row.title = item.title;
   } else {
     // CONTENT NODES
+    row.num_coach_contents = item.num_coach_contents;
     row.kind = item.kind;
     row.id = item.id;
     row.contentId = item.contentId;
