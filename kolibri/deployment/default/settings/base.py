@@ -12,17 +12,17 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import io
 import json
 import os
 
 import pytz
+from django.conf import locale
 from tzlocal import get_localzone
 
 import kolibri
 from kolibri.utils import conf
 from kolibri.utils import i18n
-
-from django.conf import locale
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # import kolibri, so we can get the path to the module.
@@ -159,7 +159,7 @@ CENTRAL_CONTENT_DOWNLOAD_BASE_URL = os.environ.get('CENTRAL_CONTENT_DOWNLOAD_BAS
 # https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # http://helpsharepointvision.nevron.com/Culture_Table.html
 
-with open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json")) as f:
+with io.open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json"), encoding="utf-8") as f:
     LANGUAGES = i18n.parse_supported_languages(json.load(f))
 
 # Haitian Creole is not supported out-of-the-box by Django
