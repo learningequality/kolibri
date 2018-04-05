@@ -17,8 +17,8 @@
           :value="radiovalue"
           :disabled="disabled"
           :autofocus="autofocus"
-          @focus="isActive = true"
-          @blur="isActive = false"
+          @focus="active = true"
+          @blur="active = false"
           @change="update($event)"
         >
 
@@ -26,13 +26,13 @@
           v-if="isChecked"
           category="toggle"
           name="radio_button_checked"
-          :class="['checked', {disabled, active: isActive}]"
+          :class="['checked', {disabled, active}]"
         />
         <mat-svg
           v-else
           category="toggle"
           name="radio_button_unchecked"
-          :class="['unchecked', {disabled, 'active': isActive}
+          :class="['unchecked', {disabled, active}
           ]"
         />
       </span>
@@ -106,7 +106,7 @@
       },
     },
     data: () => ({
-      isActive: false,
+      active: false,
     }),
     computed: {
       isChecked() {
