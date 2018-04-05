@@ -150,6 +150,9 @@
     margin-top: 8px
     margin-bottom: 8px
 
+  label
+    cursor: pointer
+
   .tr
     display: table-row
 
@@ -157,19 +160,16 @@
     display: table-cell
     position: relative
     vertical-align: top
-    width: $radio-height
-    height: $radio-height
-    cursor: pointer
 
   .input
-    position: absolute
-    top: 50%
-    left: 50%
-    transform: translate(-50%, -50%)
+    // using this rather than appearance:none because ie compatibility
     opacity: 0
-    cursor: pointer
+    position: absolute
+    width: $radio-height
+    height: $radio-height
 
   .radio-bubble
+    // setting opacity to 0 hides input's default outline
     &.active
       outline: $core-outline
     &.selected
@@ -181,8 +181,6 @@
   .text
     display: table-cell
     padding-left: 8px
-    cursor: pointer
-    // user-select: none // why?
 
   .label
     line-height: 24px
@@ -193,11 +191,11 @@
     font-size: 12px
 
   .disabled
+    label
+      cursor: default
+
     svg
       fill: $core-grey-300
-
-    .input-section, .input, .label
-      cursor: default
 
     .text
       color: $core-text-disabled
