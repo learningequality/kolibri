@@ -3,14 +3,14 @@
   <div
     class="container"
     :class="{ 'disabled': disabled }"
-    @click="select"
   >
 
+    <!-- HTML makes clicking label apply to input by default -->
     <label class="tr">
       <!-- TODO no block level within label -->
       <div class="input-section">
         <input
-          ref="kRadioInput"
+          ref="input"
           type="radio"
           class="input"
           :id="id"
@@ -20,9 +20,7 @@
           :autofocus="autofocus"
           @focus="isActive = true"
           @blur="isActive = false"
-          @change="emitChange"
-          v-model="model"
-          @click.stop="select"
+          @change="update($event)"
         >
 
         <mat-svg
@@ -110,14 +108,6 @@
       isActive: false,
     }),
     computed: {
-      model: {
-        get() {
-          return this.value;
-        },
-        set(val) {
-          this.$emit('input', val);
-        },
-      },
       isChecked() {
         return this.radiovalue.toString() === this.value.toString();
       },
@@ -128,22 +118,17 @@
 
     methods: {
       focus() {
-        this.$refs.kRadioInput.focus();
+        this.$refs.input.focus();
       },
-      select() {
-        if (!this.disabled) {
-          this.focus();
-          this.model = this.radiovalue;
-          this.emitChange();
-        }
-      },
-      emitChange(event) {
-        if (this.model !== this.radiovalue) {
-          /**
-           * Emits change event
-           */
-          this.$emit('change', this.model, event);
-        }
+      update(event) {
+        /**
+         * Emits change event
+         */
+        this.$emit('change', this.isChecked, event);
+
+        // emitting input, resolves browser compatibility issues
+        // with v-model's @input default and <input type=radio>
+        this.$emit('input', this.radiovalue);
       },
     },
   };
@@ -181,14 +166,14 @@
     opacity: 0
     cursor: pointer
 
-  .selected
-    fill: $core-action-normal
+  .radio-bubble
+    &.active
+      outline: $core-outline
+    &.selected
+      fill: $core-action-normal
+    &.unselected
+      fill: $core-text-annotation
 
-  .unselected
-    fill: $core-text-annotation
-
-  .radio-bubble.active
-    outline: $core-outline
 
   .text
     display: table-cell
