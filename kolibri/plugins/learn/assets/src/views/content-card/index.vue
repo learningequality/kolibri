@@ -24,7 +24,6 @@
       </p>
       <coach-content-label
         class="coach-content-label"
-        v-if="numCoachContents > 0"
         :value="numCoachContents"
       />
     </div>
@@ -36,9 +35,9 @@
 <script>
 
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import cardThumbnail from './card-thumbnail';
   import shavedText from './shaved-text';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
 
   export default {
     components: {
