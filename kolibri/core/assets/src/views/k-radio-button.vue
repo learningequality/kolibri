@@ -39,10 +39,10 @@
         v-if="description"
         :class="['description', { disabled}]"
       >
+        <br>
         {{ description }}
       </span>
     </span>
-
 
   </label>
 
@@ -175,9 +175,9 @@
       color: $core-text-disabled
   .text
     display: inline-block
-    margin-left: 8px
+    padding-left: 8px
+    max-width: 'calc(100% - %s)' % $radio-height // stylus specific
   .description
-    display: block
     color: $core-text-annotation
     font-size: 12px
 
