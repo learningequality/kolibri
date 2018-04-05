@@ -9,6 +9,9 @@
     <label class="tr">
       <!-- TODO no block level within label -->
       <div class="input-section">
+        <!-- v-model listens for @input event by default -->
+        <!-- @input has compatibility issues for input of type radio -->
+        <!-- Here, manually listen for @change (no compatibility issues) -->
         <input
           ref="input"
           type="radio"
@@ -76,14 +79,14 @@
         required: false,
       },
       /**
-       * v-model value
+       * v-model value - the data that is currently assigned
        */
       value: {
         type: [String, Number, Boolean],
         required: true,
       },
       /**
-       * Unique value of the particular radio
+       * Unique value of the particular radio - the data that this button can assign
        */
       radiovalue: {
         type: [String, Number, Boolean],
