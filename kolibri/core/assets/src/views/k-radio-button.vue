@@ -29,15 +29,14 @@
       v-else
       category="toggle"
       name="radio_button_unchecked"
-      :class="['unchecked', {disabled, active}
-      ]"
+      :class="['unchecked', {disabled, active}]"
     />
 
-    <span :class="['text', { disabled}]">
+    <span :class="['text', {disabled}]">
       {{ label }}
       <span
         v-if="description"
-        :class="['description', { disabled}]"
+        :class="['description', {disabled}]"
       >
         <br>
         {{ description }}
