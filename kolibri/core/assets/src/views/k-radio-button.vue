@@ -1,9 +1,6 @@
 <template>
 
-  <div
-    class="container"
-    :class="{ 'disabled': disabled }"
-  >
+  <div class="container">
 
     <!-- HTML makes clicking label apply to input by default -->
     <label class="tr">
@@ -29,24 +26,26 @@
           v-if="isChecked"
           category="toggle"
           name="radio_button_checked"
-          class="radio-bubble selected"
-          :class="{ 'active': isActive }"
+          :class="['checked', {disabled, active: isActive}]"
         />
         <mat-svg
           v-else
           category="toggle"
           name="radio_button_unchecked"
-          class="radio-bubble unselected"
-          :class="{ 'active': isActive }"
+          :class="['unchecked', {disabled, 'active': isActive}
+          ]"
         />
       </span>
 
-      <span class="text">
+      <span :class="['text', { disabled }]">
         <span class="label">
           {{ label }}
         </span>
 
-        <span class="description">
+        <span
+          v-if="description"
+          :class="['description', { disabled}]"
+        >
           {{ description }}
         </span>
       </span>
@@ -150,6 +149,8 @@
     margin-bottom: 8px
 
   label
+    &.disabled
+      cursor: default
     cursor: pointer
 
   .tr
@@ -159,48 +160,36 @@
     display: table-cell
     position: relative
     vertical-align: top
-
   .input
     // using this rather than appearance:none because ie compatibility
     opacity: 0
     position: absolute
     width: $radio-height
     height: $radio-height
-
-  .radio-bubble
+  .checked, .unchecked
+    // give conditional classes higher priority
     // setting opacity to 0 hides input's default outline
     &.active
       outline: $core-outline
-    &.selected
-      fill: $core-action-normal
-    &.unselected
-      fill: $core-text-annotation
-
+    &.disabled
+      fill: $core-grey-300
+  .checked
+    fill: $core-action-normal
+  .unchecked
+    fill: $core-text-annotation
 
   .text
+    &.disabled
+      color: $core-text-disabled
     display: table-cell
     padding-left: 8px
-
   .label
     line-height: 24px
-
   .description
+    &.disabled
+      color: inherit
     display: block
     color: $core-text-annotation
     font-size: 12px
-
-  .disabled
-    label
-      cursor: default
-
-    svg
-      fill: $core-grey-300
-
-    .text
-      color: $core-text-disabled
-
-    .description
-      // need it more specific
-      color: $core-text-disabled
 
 </style>
