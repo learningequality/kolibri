@@ -228,7 +228,7 @@
           }
           this.updateUser(this.id, {
             username: this.newUsername,
-            name: this.newName,
+            full_name: this.newName,
             role: roleUpdate,
           });
           if (
