@@ -190,6 +190,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "total_resources": 1,
                 "on_device_resources": 0,
                 "importable": True,
+                "num_coach_contents": 0,
                 "children": [
                     {
                         "pk": c2_id,
@@ -200,6 +201,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "total_resources": 1,
                         "on_device_resources": 0,
                         "importable": True,
+                        "num_coach_contents": 0,
                     },
                     {
                         "pk": c3_id,
@@ -210,6 +212,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "total_resources": 0,
                         "on_device_resources": 0,
                         "importable": True,
+                        "num_coach_contents": 0,
                     }
                 ]
             }
@@ -239,6 +242,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "total_resources": 1,
                 "on_device_resources": 0,
                 "importable": True,
+                "num_coach_contents": 0,
                 "children": [
                     {
                         "pk": c2_id,
@@ -249,6 +253,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "total_resources": 1,
                         "on_device_resources": 0,
                         "importable": False,
+                        "num_coach_contents": 0,
                     },
                     {
                         "pk": c3_id,
@@ -259,6 +264,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "total_resources": 0,
                         "on_device_resources": 0,
                         "importable": True,
+                        "num_coach_contents": 0,
                     }
                 ]
             }
@@ -278,6 +284,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "on_device_resources": 1,
                 "importable": True,
                 "children": [],
+                "num_coach_contents": 0,
             }
         )
 
@@ -296,6 +303,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "on_device_resources": 0,
                 "importable": True,
                 "children": [],
+                "num_coach_contents": 0,
             }
         )
 

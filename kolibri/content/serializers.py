@@ -328,7 +328,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         return value
 
     def get_num_coach_contents(self, instance):
-        return 1
+        return 0
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
@@ -367,7 +367,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             .count()
 
     def get_num_coach_contents(self, instance):
-        return 1
+        return 0
 
     def get_importable(self, instance):
         drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
