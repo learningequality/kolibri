@@ -1,5 +1,11 @@
 import sortBy from 'lodash/sortBy';
 import flatten from 'lodash/flatten';
+
+import home from '../content/_home';
+
+import inclusivePage from '../content/inclusive';
+import writingPage from '../content/writing';
+
 import buttonsPage from '../content/buttons';
 import breadcrumbsPage from '../content/breadcrumbs';
 import navbarPage from '../content/navbar';
@@ -8,8 +14,6 @@ import radioButtonsPage from '../content/radio-buttons';
 import textFieldsPage from '../content/text-fields';
 import filtersPage from '../content/filters';
 import dropdownMenusPage from '../content/dropdown-menus';
-
-import home from '../content/_home';
 
 function sortSectionItems(items) {
   return sortBy(items, [item => item.itemName]);
@@ -27,6 +31,25 @@ const homeRoute = [
 // Notes: This is view-agnostic; it doesn't make assumption on how it will be
 // rendered (whether it's a side-nav or a horizontal menu).
 const navMenu = [
+  {
+    sectionName: 'Patterns',
+    sectionItems: [
+      {
+        itemName: 'Inclusive design',
+        itemRoute: {
+          path: `/patterns/inclusive`,
+          component: inclusivePage,
+        },
+      },
+      {
+        itemName: 'Writing style',
+        itemRoute: {
+          path: `/patterns/writing`,
+          component: writingPage,
+        },
+      },
+    ],
+  },
   {
     sectionName: 'Components',
     sectionItems: sortSectionItems([
