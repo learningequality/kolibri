@@ -14,6 +14,7 @@
           type="radio"
           class="input"
           :id="id"
+          :checked="isChecked"
           :value="radiovalue"
           :disabled="disabled"
           :autofocus="autofocus"
@@ -25,7 +26,7 @@
         >
 
         <mat-svg
-          v-if="isCurrentlySelected"
+          v-if="isChecked"
           category="toggle"
           name="radio_button_checked"
           class="radio-bubble selected"
@@ -117,8 +118,8 @@
           this.$emit('input', val);
         },
       },
-      isCurrentlySelected() {
-        return this.radiovalue.toString() === this.model.toString();
+      isChecked() {
+        return this.radiovalue.toString() === this.value.toString();
       },
       id() {
         return `${this._uid}`;
