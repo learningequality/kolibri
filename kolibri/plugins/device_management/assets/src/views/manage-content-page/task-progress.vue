@@ -15,9 +15,10 @@
           name="check_circle"
           class="complete"
         />
-        <ui-progress-circular
+        <k-indeterminate-circular-indicator
           v-else
           class="inprogress"
+          :delay="false"
         />
       </transition>
     </div>
@@ -26,11 +27,13 @@
       <div class="task-stage">
         {{ stageText }}
       </div>
-      <ui-progress-linear
-        class="progress-linear"
+      <k-indeterminate-linear-indicator
+        v-if="taskIsPreparing"
+        :delay="false"
+      />
+      <k-determinate-linear-indicator
+        v-else
         :progress="formattedPercentage"
-        :type="progressBarType"
-        color="primary"
       />
     </div>
 
@@ -55,8 +58,9 @@
 
 <script>
 
-  import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
-  import UiProgressCircular from 'keen-ui/src/UiProgressCircular';
+  import kIndeterminateLinearIndicator from 'kolibri.coreVue.components.kIndeterminateLinearIndicator';
+  import kDeterminateLinearIndicator from 'kolibri.coreVue.components.kDeterminateLinearIndicator';
+  import kIndeterminateCircularIndicator from 'kolibri.coreVue.components.kIndeterminateCircularIndicator';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { cancelTask } from '../../state/actions/taskActions';
@@ -70,8 +74,9 @@
   export default {
     name: 'taskProgress',
     components: {
-      UiProgressLinear,
-      UiProgressCircular,
+      kIndeterminateLinearIndicator,
+      kDeterminateLinearIndicator,
+      kIndeterminateCircularIndicator,
       kButton,
     },
     props: {
@@ -152,9 +157,6 @@
           return this.formattedPercentage.toFixed(1) + '%';
         }
         return '';
-      },
-      progressBarType() {
-        return this.taskIsPreparing ? 'indeterminate' : 'determinate';
       },
     },
     methods: {

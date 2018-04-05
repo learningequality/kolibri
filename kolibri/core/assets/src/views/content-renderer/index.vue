@@ -5,29 +5,34 @@
       {{ $tr('rendererNotAvailable') }}
     </ui-alert>
     <template v-else-if="available">
-      <loading-spinner id="spinner" v-if="!currentViewClass" />
-      <component
-        v-else
-        :is="currentViewClass"
-        @startTracking="startTracking"
-        @stopTracking="stopTracking"
-        @updateProgress="updateProgress"
-        @answerGiven="answerGiven"
-        @hintTaken="hintTaken"
-        @itemError="itemError"
-        @interaction="interaction"
-        :files="availableFiles"
-        :defaultFile="defaultFile"
-        :itemId="itemId"
-        :answerState="answerState"
-        :allowHints="allowHints"
-        :supplementaryFiles="supplementaryFiles"
-        :thumbnailFiles="thumbnailFiles"
-        :interactive="interactive"
-        :lang="lang"
-        :showCorrectAnswer="showCorrectAnswer"
-        ref="contentView"
-      />
+      <transition mode="out-in">
+        <k-indeterminate-circular-indicator
+          v-if="!currentViewClass"
+          :delay="false"
+        />
+        <component
+          v-else
+          :is="currentViewClass"
+          @startTracking="startTracking"
+          @stopTracking="stopTracking"
+          @updateProgress="updateProgress"
+          @answerGiven="answerGiven"
+          @hintTaken="hintTaken"
+          @itemError="itemError"
+          @interaction="interaction"
+          :files="availableFiles"
+          :defaultFile="defaultFile"
+          :itemId="itemId"
+          :answerState="answerState"
+          :allowHints="allowHints"
+          :supplementaryFiles="supplementaryFiles"
+          :thumbnailFiles="thumbnailFiles"
+          :interactive="interactive"
+          :lang="lang"
+          :showCorrectAnswer="showCorrectAnswer"
+          ref="contentView"
+        />
+      </transition>
     </template>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
@@ -41,7 +46,8 @@
 <script>
 
   import logger from 'kolibri.lib.logging';
-  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import kIndeterminateCircularIndicator from 'kolibri.coreVue.components.kIndeterminateCircularIndicator';
+
   import uiAlert from 'keen-ui/src/UiAlert';
   import { defaultLanguage, languageValidator } from 'kolibri.utils.i18n';
 
@@ -54,7 +60,7 @@
       rendererNotAvailable: 'Kolibri is unable to render this content',
     },
     components: {
-      loadingSpinner,
+      kIndeterminateCircularIndicator,
       uiAlert,
     },
     props: {

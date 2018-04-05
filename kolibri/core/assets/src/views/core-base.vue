@@ -42,7 +42,6 @@
       :bottomGap="bottomMargin"
       :class="`gutter-${windowSize.gutterWidth}`"
       :padding="mobile ? 16 : 32"
-      :secondaryLoadingBar="immersivePage && !immersivePagePrimary"
     >
       <slot></slot>
     </app-body>

@@ -28,10 +28,9 @@
         </div>
       </div>
 
-      <ui-progress-linear
+      <k-indeterminate-circular-indicator
         v-if="channelsAreLoading"
-        type="indefinite"
-        color="primary"
+        :delay="false"
       />
 
       <!-- Similar code in channels-grid -->
@@ -80,7 +79,7 @@
 
 <script>
 
-  import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import kIndeterminateCircularIndicator from 'kolibri.coreVue.components.kIndeterminateCircularIndicator';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
@@ -108,7 +107,7 @@
       kButton,
       kFilterTextbox,
       subpageContainer,
-      UiProgressLinear,
+      kIndeterminateCircularIndicator,
       kSelect,
     },
     data() {

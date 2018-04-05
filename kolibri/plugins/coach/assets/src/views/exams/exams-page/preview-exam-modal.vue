@@ -12,7 +12,10 @@
       @click="close"
     />
     <transition mode="out-in">
-      <ui-progress-linear v-if="loading" />
+      <k-indeterminate-circular-indicator
+        v-if="loading"
+        :delay="false"
+      />
       <div v-else>
         <div>
           <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
@@ -74,7 +77,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
-  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import kIndeterminateCircularIndicator from 'kolibri.coreVue.components.kIndeterminateCircularIndicator';
   import { setExamsModal } from '../../../state/actions/exam';
 
   export default {
@@ -92,7 +95,7 @@
       kButton,
       kGrid,
       kGridItem,
-      uiProgressLinear,
+      kIndeterminateCircularIndicator,
     },
     props: {
       examQuestionSources: {

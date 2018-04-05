@@ -47,7 +47,11 @@
 
       <div>
         <transition name="fade" mode="out-in">
-          <ui-progress-linear v-if="loading" key="progress" />
+          <k-indeterminate-circular-indicator
+            v-if="loading"
+            key="progress"
+            :delay="false"
+          />
 
           <core-table
             v-else
@@ -135,7 +139,7 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
-  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import kIndeterminateCircularIndicator from 'kolibri.coreVue.components.kIndeterminateCircularIndicator';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import shuffle from 'lodash/shuffle';
   import orderBy from 'lodash/orderBy';
@@ -161,7 +165,7 @@
   export default {
     name: 'createExamPage',
     components: {
-      uiProgressLinear,
+      kIndeterminateCircularIndicator,
       kButton,
       kTextbox,
       kGrid,
