@@ -58,22 +58,18 @@
         />
 
         <fieldset class="coach-selector" v-if="coachIsSelected">
-          <label>
-            <k-radio-button
-              :label="$tr('classCoachLabel')"
-              :radiovalue="true"
-              v-model="classCoach"
-            />
-            {{ $tr('classCoachDescription') }}
-          </label>
-          <label>
-            <k-radio-button
-              :label="$tr('facilityCoachLabel')"
-              :radiovalue="false"
-              v-model="classCoach"
-            />
-            {{ $tr('facilityCoachDescription') }}
-          </label>
+          <k-radio-button
+            :label="$tr('classCoachLabel')"
+            :description="$tr('classCoachDescription')"
+            :radiovalue="true"
+            v-model="classCoach"
+          />
+          <k-radio-button
+            :label="$tr('facilityCoachLabel')"
+            :description="$tr('facilityCoachDescription')"
+            :radiovalue="false"
+            v-model="classCoach"
+          />
         </fieldset>
       </section>
 
