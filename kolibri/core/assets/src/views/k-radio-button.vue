@@ -7,8 +7,7 @@
 
     <!-- HTML makes clicking label apply to input by default -->
     <label class="tr">
-      <!-- TODO no block level within label -->
-      <div class="input-section">
+      <span class="input-section">
         <!-- v-model listens for @input event by default -->
         <!-- @input has compatibility issues for input of type radio -->
         <!-- Here, manually listen for @change (no compatibility issues) -->
@@ -40,9 +39,9 @@
           class="radio-bubble unselected"
           :class="{ 'active': isActive }"
         />
-      </div>
+      </span>
 
-      <p class="text">
+      <span class="text">
         <span class="label">
           {{ label }}
         </span>
@@ -50,7 +49,7 @@
         <span class="description">
           {{ description }}
         </span>
-      </p>
+      </span>
 
     </label>
 
