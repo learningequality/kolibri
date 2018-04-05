@@ -2,11 +2,10 @@ import fnmatch
 import logging as logger
 import os
 
-from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
-from kolibri.utils.uuids import is_valid_uuid
-
 from .paths import get_content_database_folder_path
 from .sqlalchemybridge import Bridge
+from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
+from kolibri.utils.uuids import is_valid_uuid
 
 logging = logger.getLogger(__name__)
 
@@ -59,6 +58,11 @@ def read_channel_metadata_from_db_file(channeldbpath):
     ChannelMetadataClass = source.get_class(ChannelMetadata)
 
     source_channel_metadata = source.session.query(ChannelMetadataClass).all()[0]
+
+    # Use the inferred version from the SQLAlchemy Bridge object, and set it as additional
+    # metadata on the channel data
+
+    source_channel_metadata.inferred_schema_version = source.schema_version
 
     source.end()
 

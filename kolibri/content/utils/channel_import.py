@@ -19,7 +19,10 @@ from kolibri.content.models import File
 from kolibri.content.models import Language
 from kolibri.content.models import LocalFile
 from kolibri.content.models import NO_VERSION
+from kolibri.content.models import V020BETA1
+from kolibri.content.models import V040BETA3
 from kolibri.content.models import VERSION_1
+from kolibri.content.models import VERSION_2
 from kolibri.utils.time import local_now
 
 logging = logger.getLogger(__name__)
@@ -333,10 +336,16 @@ class NoVersionChannelImport(ChannelImport):
         return license.license_description
 
 
+# Dict that maps from schema versions to ChannelImport classes
+# The channel import class defines all the operations required in order to import data
+# from a content database with this content schema, into the schema being used by this
+# version of Kolibri. When a new schema version is added
 mappings = {
+    V020BETA1: NoVersionChannelImport,
+    V040BETA3: NoVersionChannelImport,
     NO_VERSION: NoVersionChannelImport,
     VERSION_1: ChannelImport,
-    CONTENT_SCHEMA_VERSION: ChannelImport,
+    VERSION_2: ChannelImport,
 }
 
 
@@ -347,22 +356,27 @@ class FutureSchemaError(Exception):
 class InvalidSchemaVersionError(Exception):
     pass
 
+
 def initialize_import_manager(channel_id):
     channel_metadata = read_channel_metadata_from_db_file(get_content_database_file_path(channel_id))
-    min_version = getattr(channel_metadata, 'min_schema_version', NO_VERSION)
+    # For old versions of content databases, we can only infer the schema version
+    min_version = getattr(channel_metadata, 'min_schema_version', getattr(channel_metadata, 'inferred_schema_version'))
+
     try:
         ImportClass = mappings.get(min_version)
-    except KeyError as e:
+    except KeyError:
         try:
             version_number = int(min_version)
             if version_number > int(CONTENT_SCHEMA_VERSION):
                 raise FutureSchemaError('Tried to import schema version, {version}, which is not supported by this version of Kolibri.'.format(
                     version=min_version,
                 ))
-            else:
-                # If it's a valid integer, but there is no schema for it, then something really weird is going on
-                raise InvalidSchemaVersionError()
-        except (ValueError, InvalidSchemaVersionError):
+            elif version_number < int(CONTENT_SCHEMA_VERSION):
+                # If it's a valid integer, but there is no schema for it, then we have stopped supporting this version
+                raise InvalidSchemaVersionError('Tried to import unsupported schema version {version}'.format(
+                    version=min_version,
+                ))
+        except ValueError:
             raise InvalidSchemaVersionError('Tried to import invalid schema version {version}'.format(
                 version=min_version,
             ))

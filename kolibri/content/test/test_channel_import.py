@@ -23,7 +23,8 @@ from kolibri.content.models import V040BETA3
 from kolibri.content.models import VERSION_1
 from kolibri.content.utils.channel_import import ChannelImport
 from kolibri.content.utils.channel_import import import_channel_from_local_db
-from kolibri.content.utils.channel_import import mappings
+from kolibri.content.utils.channels import read_channel_metadata_from_db_file
+from kolibri.content.utils.paths import get_content_database_file_path
 from kolibri.content.utils.sqlalchemybridge import get_default_db_string
 
 @patch('kolibri.content.utils.channel_import.Bridge')
@@ -377,11 +378,12 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
 
         with patch('kolibri.content.utils.sqlalchemybridge.get_engine', new=self.get_engine):
 
-            channel_import = mappings[self.name]('6199dde695db4ee4ab392222d5af1e5c')
+            channel_metadata = read_channel_metadata_from_db_file(get_content_database_file_path('6199dde695db4ee4ab392222d5af1e5c'))
 
-            channel_import.import_channel_data()
+            # Double check that we have actually created a valid content db that is recognized as having that schema
+            assert channel_metadata.inferred_schema_version == self.schema_name
 
-            channel_import.end()
+            import_channel_from_local_db('6199dde695db4ee4ab392222d5af1e5c')
 
     def get_engine(self, connection_string):
         if connection_string == get_default_db_string():
