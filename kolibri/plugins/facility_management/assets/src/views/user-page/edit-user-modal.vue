@@ -110,6 +110,7 @@
       save: 'Save',
       cancel: 'Cancel',
       required: 'This field is required',
+      usernameAlreadyExists: 'Username already exists',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
@@ -184,10 +185,21 @@
       nameIsInvalid() {
         return Boolean(this.nameIsInvalidText);
       },
+      usernameAlreadyExists() {
+        return this.facilityUsers.find(
+          ({ username }) => username.toLowerCase() === this.newUsername.toLowerCase()
+        );
+      },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
+          if (this.username.toLowerCase() === this.newUsername.toLowerCase()) {
+            return '';
+          }
           if (this.newUsername === '') {
             return this.$tr('required');
+          }
+          if (this.usernameAlreadyExists) {
+            return this.$tr('usernameAlreadyExists');
           }
           if (!validateUsername(this.newUsername)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
@@ -260,6 +272,7 @@
         currentFacilityId,
         currentUserId: state => state.core.session.user_id,
         currentUserKind: state => state.core.session.kind[0],
+        facilityUsers: state => state.pageState.facilityUsers,
         error: state => state.pageState.error,
         isBusy: state => state.pageState.isBusy,
       },
