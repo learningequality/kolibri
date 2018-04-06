@@ -78,9 +78,9 @@ describe('showSelectContentPage action', () => {
     ChannelResource.__resetMocks();
     ContentNodeGranularResource.__resetMocks();
     TaskResource.__resetMocks();
-    TaskResource.startRemoteChannelImport.reset();
-    TaskResource.startDiskChannelImport.reset();
-    TaskResource.cancelTask.reset();
+    TaskResource.startRemoteChannelImport.resetHistory();
+    TaskResource.startDiskChannelImport.resetHistory();
+    TaskResource.cancelTask.resetHistory();
   });
 
   function setUpStateForTransferType(transferType) {

@@ -80,7 +80,7 @@ describe('transitionWizardPage action', () => {
 
   afterEach(() => {
     showSelectContentPageStub.restore();
-    TaskResource.localDrives.reset();
+    TaskResource.localDrives.resetHistory();
   });
 
   it('REMOTEIMPORT flow correctly updates wizardState', () => {
