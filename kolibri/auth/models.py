@@ -476,7 +476,10 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
             raise ValueError('The given username must be set')
         if 'facility' not in extra_fields:
             extra_fields['facility'] = Facility.get_default_facility()
-        user = self.model(username=username, **extra_fields)
+        if self.filter(username__iexact=username, facility=extra_fields['facility']).exists():
+            raise ValidationError(_('An account with that username already exists'))
+        user = self.model(username=username, password=password, **extra_fields)
+        user.full_clean()
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -489,8 +492,12 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         # get the default facility
         facility = Facility.get_default_facility()
 
+        if self.filter(username__iexact=username, facility=facility).exists():
+            raise ValidationError(_('An account with that username already exists'))
+
         # create the new account in that facility
-        superuser = FacilityUser(username=username, facility=facility)
+        superuser = FacilityUser(username=username, password=password, facility=facility)
+        superuser.full_clean()
         superuser.set_password(password)
         superuser.save()
 

@@ -3,6 +3,7 @@ import logging as logger
 from functools import partial
 from itertools import starmap
 
+from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 from django.db import transaction
@@ -56,8 +57,8 @@ def create_user(i, user, default_facility=None):
 
     facility = infer_facility(user, default_facility)
     classroom = infer_and_create_class(user, facility)
+    username = user['username']
     try:
-        username = user['username']
         user_obj = FacilityUser.objects.get(username=username, facility=facility)
         logging.warn('Tried to create a user with the username {username} in facility {facility}, but one already exists'.format(
             username=username,
@@ -67,22 +68,32 @@ def create_user(i, user, default_facility=None):
             classroom.add_member(user_obj)
         return False
     except FacilityUser.DoesNotExist:
-        new_user = FacilityUser.objects.create(
-            full_name=user.get('full_name', ''),
-            username=username,
-            facility=facility,
-        )
-        password = user.get('password', DEFAULT_PASSWORD)
-        new_user.set_password(password)
-        new_user.save()
-        if classroom:
-            classroom.add_member(new_user)
-        logging.info('User created with username {username} in facility {facility} with password {password}'.format(
-            username=username,
-            facility=facility,
-            password=password,
-        ))
-        return True
+        password = user.get('password', DEFAULT_PASSWORD) or DEFAULT_PASSWORD
+        try:
+            new_user = FacilityUser.objects.create_user(
+                full_name=user.get('full_name', ''),
+                username=username,
+                facility=facility,
+                password=password,
+            )
+            if classroom:
+                classroom.add_member(new_user)
+            logging.info('User created with username {username} in facility {facility} with password {password}'.format(
+                username=username,
+                facility=facility,
+                password=password,
+            ))
+            return True
+        except ValidationError as e:
+            logging.error('User not created with username {username} in facility {facility} with password {password}'.format(
+                username=username,
+                facility=facility,
+                password=password,
+            ))
+            for key, error in e.message_dict.items():
+                logging.error('{key}: {error}'.format(key=key, error=error[0]))
+            return False
+
 
 class Command(BaseCommand):
     help = """
