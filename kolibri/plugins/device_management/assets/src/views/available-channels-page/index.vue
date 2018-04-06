@@ -28,7 +28,7 @@
         </div>
       </div>
 
-      <k-indeterminate-circular-indicator
+      <k-indeterminate-linear-indicator
         v-if="channelsAreLoading"
         :delay="false"
       />
@@ -79,7 +79,7 @@
 
 <script>
 
-  import kIndeterminateCircularIndicator from 'kolibri.coreVue.components.kIndeterminateCircularIndicator';
+  import kIndeterminateLinearIndicator from 'kolibri.coreVue.components.kIndeterminateLinearIndicator';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
@@ -107,7 +107,7 @@
       kButton,
       kFilterTextbox,
       subpageContainer,
-      kIndeterminateCircularIndicator,
+      kIndeterminateLinearIndicator,
       kSelect,
     },
     data() {

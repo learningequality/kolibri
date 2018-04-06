@@ -111,7 +111,7 @@ var parseBundlePlugin = function(data) {
         minify: {
           zindex: false,
           // prevent renaming keyframes
-          reduceIdents: false
+          reduceIdents: false,
         },
       }),
       // BundleTracker creates stats about our built files which we can then pass to Django to
