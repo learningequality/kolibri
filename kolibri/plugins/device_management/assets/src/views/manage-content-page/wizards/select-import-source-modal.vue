@@ -75,7 +75,7 @@
       continue: 'Continue',
       network: 'Kolibri Studio',
       localDrives: 'Attached drive or memory card',
-      title: 'Import from where?',
+      title: 'Import from',
     },
     methods: {
       goForward() {
