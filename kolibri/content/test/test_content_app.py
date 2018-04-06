@@ -203,6 +203,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "on_device_resources": 0,
                         "importable": True,
                         "coach_content": False,
+                        "num_coach_contents": 0,
                     },
                     {
                         "pk": c3_id,
@@ -214,6 +215,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "on_device_resources": 0,
                         "importable": True,
                         "coach_content": False,
+                        "num_coach_contents": 0,
                     }
                 ]
             }
@@ -256,6 +258,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "on_device_resources": 0,
                         "importable": False,
                         "coach_content": False,
+                        "num_coach_contents": 0,
                     },
                     {
                         "pk": c3_id,
@@ -267,6 +270,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "on_device_resources": 0,
                         "importable": True,
                         "coach_content": False,
+                        "num_coach_contents": 0,
                     }
                 ]
             }
@@ -286,7 +290,8 @@ class ContentNodeAPITestCase(APITestCase):
                 "on_device_resources": 1,
                 "importable": True,
                 "children": [],
-                "coach_content": False
+                "coach_content": False,
+                "num_coach_contents": 0,
             }
         )
 
@@ -306,6 +311,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "importable": True,
                 "children": [],
                 "coach_content": False,
+                "num_coach_contents": 0,
             }
         )
 
