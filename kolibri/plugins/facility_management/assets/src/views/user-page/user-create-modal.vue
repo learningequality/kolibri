@@ -191,7 +191,9 @@
         return Boolean(this.nameIsInvalidText);
       },
       usernameAlreadyExists() {
-        return this.facilityUsers.find(({ username }) => username === this.username);
+        return this.facilityUsers.find(
+          ({ username }) => username.toLowerCase() === this.username.toLowerCase()
+        );
       },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
