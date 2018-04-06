@@ -55,7 +55,7 @@ class KolibriReportPermissions(permissions.BasePermission):
             return False
 
 
-class UserReportViewSet(viewsets.ModelViewSet):
+class UserReportViewSet(viewsets.ReadOnlyModelViewSet):
 
     permission_classes = (KolibriReportPermissions,)
     pagination_class = OptionalPageNumberPagination
@@ -66,7 +66,7 @@ class UserReportViewSet(viewsets.ModelViewSet):
         return get_members_or_user(self.kwargs['collection_kind'], self.kwargs['collection_id'])
 
 
-class ContentReportViewSet(viewsets.ModelViewSet):
+class ContentReportViewSet(viewsets.ReadOnlyModelViewSet):
 
     permission_classes = (KolibriReportPermissions,)
     pagination_class = OptionalPageNumberPagination

@@ -108,6 +108,7 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
               examLog.completion_timestamp = new Date(examLog.completion_timestamp);
             }
             const payload = {
+              exerciseContentNodes: [...contentNodes],
               exam,
               itemId,
               questions,

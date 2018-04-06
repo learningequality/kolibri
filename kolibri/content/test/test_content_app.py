@@ -191,6 +191,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "on_device_resources": 0,
                 "coach_content": False,
                 "importable": True,
+                "num_coach_contents": 0,
                 "children": [
                     {
                         "pk": c2_id,
@@ -243,6 +244,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "on_device_resources": 0,
                 "importable": True,
                 "coach_content": False,
+                "num_coach_contents": 0,
                 "children": [
                     {
                         "pk": c2_id,

@@ -28,6 +28,11 @@
       <span v-else>
         {{ node.title }}
       </span>
+      <coach-content-label
+        class="coach-content-label"
+        :value="node.num_coach_contents"
+      />
+
     </td>
 
     <td class="message display-cell">
@@ -41,6 +46,7 @@
 <script>
 
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -48,6 +54,7 @@
   export default {
     name: 'contentNodeRow',
     components: {
+      coachContentLabel,
       contentIcon,
       kButton,
       kCheckbox,
@@ -88,6 +95,11 @@
 
 
 <style lang="stylus" scoped>
+
+  .coach-content-label
+    display: inline-block
+    vertical-align: bottom
+    margin-left: 16px
 
   .display-cell
     display: table-cell

@@ -4,6 +4,10 @@
 
     <!-- TODO: RTL - Remove ta-l -->
     <page-header :title="content.title" dir="auto" class="ta-l" />
+    <coach-content-label
+      class="coach-content-label"
+      :value="content.num_coach_contents"
+    />
 
     <content-renderer
       v-if="!content.assessment"
@@ -145,6 +149,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn, facilityConfig } from 'kolibri.coreVue.vuex.getters';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import downloadButton from 'kolibri.coreVue.components.downloadButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
@@ -171,6 +176,7 @@
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
     },
     components: {
+      coachContentLabel,
       pageHeader,
       contentCardGroupCarousel,
       contentRenderer,
@@ -305,6 +311,12 @@
 
 
 <style lang="stylus" scoped>
+
+  .coach-content-label
+    margin: 8px 0
+
+  .content-renderer
+    margin-top: 24px
 
   .float
     float: right
