@@ -139,9 +139,16 @@ export const coreMutations = {
     state.core.logging.attempt.interaction_history.push(action);
   },
   UPDATE_LOGGING_MASTERY(state, currentTime, correct, firstAttempt, hinted) {
+    // Check interaction history for any errors
+    let interactionHistory = state.core.logging.attempt.interaction_history;
+    let itemHasError = interactionHistory.some(interaction => interaction.type === 'error');
+
     if (firstAttempt) {
       state.core.logging.mastery.totalattempts += 1;
-      state.core.logging.mastery.pastattempts.unshift({ correct, hinted });
+
+      if (!itemHasError) {
+        state.core.logging.mastery.pastattempts.unshift({ correct, hinted });
+      }
     }
     state.core.logging.mastery.end_timestamp = currentTime;
   },

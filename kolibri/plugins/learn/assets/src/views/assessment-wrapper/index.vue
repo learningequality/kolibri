@@ -389,7 +389,7 @@ oriented data synchronization.
         if (this.firstAttemptAtQuestion) {
           this.updateAttemptLogMasteryLog({
             correct: 1,
-            complete: this.complete,
+            complete: false,
             firstAttempt: true,
           });
           this.firstAttemptAtQuestion = false;
