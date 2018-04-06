@@ -1,13 +1,19 @@
 <template>
 
   <td scope="row" class="core-table-main-col">
-    <div class="wrapper">
-      <k-router-link v-if="link" :text="title" :to="link" class="link" />
-      <span v-else>{{ title }}</span>
+    <div class="title">
+      <div>
+        <k-router-link v-if="link" :text="title" :to="link" class="link" />
+        <span v-else>{{ title }}</span>
+      </div>
+      <div>
+        <slot name="details"></slot>
+      </div>
     </div>
-    <div class="wrapper">
-      <slot name="details"></slot>
-    </div>
+    <coach-content-label
+      class="coach-content-label"
+      :value="numCoachContents"
+    />
   </td>
 
 </template>
@@ -16,12 +22,17 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
     name: 'nameCell',
-    components: { contentIcon, kRouterLink },
+    components: {
+      coachContentLabel,
+      contentIcon,
+      kRouterLink,
+    },
     props: {
       kind: {
         type: String,
@@ -35,6 +46,10 @@
         type: Object,
         validator: validateLinkObject,
       },
+      numCoachContents: {
+        type: Number,
+        default: 0,
+      },
     },
   };
 
@@ -43,6 +58,12 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
+  .title
+    display: inline-block
+
+  .coach-content-label
+    display: inline-block
+    vertical-align: bottom
+    margin-left: 8px
 
 </style>

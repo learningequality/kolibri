@@ -264,6 +264,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
 
 class ContentNodeSerializer(serializers.ModelSerializer):
+    num_coach_contents = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
@@ -277,6 +278,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             'author',
             'available',
             'channel_id',
+            'coach_content',
             'content_id',
             'description',
             'files',
@@ -285,6 +287,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             'license_description',
             'license_name',
             'license_owner',
+            'num_coach_contents',
             'parent',
             'pk',  # TODO remove after UI standardizes on 'id'
             'sort_order',
@@ -325,8 +328,17 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         value['progress_fraction'] = progress_fraction
         return value
 
+    def get_num_coach_contents(self, instance):
+        # TODO return 0 by default if user is logged in as Learner
+        if instance.kind == content_kinds.TOPIC:
+            # get_descendants is weird for channels
+            return instance.get_descendants().filter(coach_content=True).count()
+        else:
+            return 1 if instance.coach_content else 0
+
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
+    num_coach_contents = serializers.SerializerMethodField()
     total_resources = serializers.SerializerMethodField()
     on_device_resources = serializers.SerializerMethodField()
     importable = serializers.SerializerMethodField()
@@ -336,8 +348,10 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'available',
+            'coach_content',
             'importable',
             'kind',
+            'num_coach_contents',
             'on_device_resources',
             'pk',  # TODO remove once UI uses 'id' exclusively
             'title',
@@ -358,6 +372,12 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             .filter(available=True) \
             .distinct() \
             .count()
+
+    def get_num_coach_contents(self, instance):
+        if instance.kind == content_kinds.TOPIC:
+            return instance.get_descendants().filter(coach_content=True).count()
+        else:
+            return 1 if instance.coach_content else 0
 
     def get_importable(self, instance):
         drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)

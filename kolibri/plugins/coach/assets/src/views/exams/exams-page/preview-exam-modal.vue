@@ -36,6 +36,10 @@
                       { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
                     )"
                   />
+                  <coach-content-label
+                    class="coach-content-label"
+                    :value="numCoachContents(exercise)"
+                  />
                 </li>
               </ol>
             </div>
@@ -67,8 +71,10 @@
 
 <script>
 
+  import find from 'lodash/find';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -87,6 +93,7 @@
       exercise: 'Exercise { num }',
     },
     components: {
+      coachContentLabel,
       coreModal,
       contentRenderer,
       kButton,
@@ -147,6 +154,9 @@
       this.setExercises();
     },
     methods: {
+      numCoachContents(exercise) {
+        return find(this.exerciseContentNodes, { id: exercise.exercise_id }).num_coach_contents;
+      },
       setExercises() {
         this.loading = true;
         ContentNodeResource.getCollection({
@@ -187,7 +197,14 @@
         return this.questions.filter(q => q.contentId === exerciseId);
       },
     },
-    vuex: { actions: { setExamsModal } },
+    vuex: {
+      actions: {
+        setExamsModal,
+      },
+      getters: {
+        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
+      },
+    },
   };
 
 </script>
@@ -196,6 +213,9 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  .coach-content-label
+    display: inline-block
 
   .exam-preview-container
     padding-top: 1em

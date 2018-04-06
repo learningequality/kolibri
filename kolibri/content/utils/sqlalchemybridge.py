@@ -4,14 +4,20 @@ import pickle
 
 from django.apps import apps
 from django.conf import settings
-from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION, V020BETA1, V040BETA3
-from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS, START_PRAGMAS
-from sqlalchemy import ColumnDefault, create_engine, event
+from sqlalchemy import ColumnDefault
+from sqlalchemy import create_engine
+from sqlalchemy import event
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
-from .check_schema_db import DBSchemaError, db_matches_schema
+from .check_schema_db import db_matches_schema
+from .check_schema_db import DBSchemaError
+from kolibri.content.models import CONTENT_DB_SCHEMA_VERSIONS
+from kolibri.content.models import CONTENT_SCHEMA_VERSION
+from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
+from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
 
 def set_sqlite_connection_pragma(dbapi_connection, connection_record):
@@ -23,13 +29,6 @@ def set_sqlite_connection_pragma(dbapi_connection, connection_record):
 logger = logging.getLogger(__name__)
 
 BASES = {}
-
-CONTENT_DB_SCHEMA_VERSIONS = [
-    CONTENT_SCHEMA_VERSION,
-    NO_VERSION,
-    V040BETA3,
-    V020BETA1,
-]
 
 class ClassNotFoundError(Exception):
     pass
@@ -183,6 +182,7 @@ class Bridge(object):
                 self.session, self.engine = make_session(self.connection_string)
                 try:
                     db_matches_schema(self.Base, self.session)
+                    self.schema_version = version
                     break
                 except DBSchemaError as e:
                     logging.debug(e)

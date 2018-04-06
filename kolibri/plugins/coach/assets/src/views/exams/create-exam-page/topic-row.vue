@@ -12,11 +12,17 @@
       />
     </th>
     <td class="core-table-main-col">
-      <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }" />
-      <button v-if="topicHasExercises" class="title" @click="$emit('goToTopic', topicId)">
-        {{ topicTitle }}
-      </button>
-      <span v-else class="disabled">{{ topicTitle }}</span>
+      <div class="topic-title">
+        <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }" />
+        <button v-if="topicHasExercises" class="title" @click="$emit('goToTopic', topicId)">
+          {{ topicTitle }}
+        </button>
+        <span v-else class="disabled">{{ topicTitle }}</span>
+      </div>
+      <coach-content-label
+        class="coach-content-label"
+        :value="numCoachContents"
+      />
     </td>
     <td>
       <template v-if="!noExercisesWithinTopicSelected">
@@ -36,6 +42,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -48,6 +55,7 @@
       selectTopic: 'Select topic',
     },
     components: {
+      coachContentLabel,
       contentIcon,
       kButton,
       kCheckbox,
@@ -60,6 +68,10 @@
       topicTitle: {
         type: String,
         required: true,
+      },
+      numCoachContents: {
+        type: Number,
+        default: 0,
       },
       selectedExercises: {
         type: Array,
@@ -125,6 +137,14 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  .topic-title
+    display: inline-block
+
+  .coach-content-label
+    display: inline-block
+    vertical-align: bottom
+    margin-left: 8px
 
   .title
     padding: 0

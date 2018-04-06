@@ -59,6 +59,7 @@ function _topicState(topic) {
   return {
     id: topic.pk,
     title: topic.title,
+    num_coach_contents: topic.num_coach_contents,
   };
 }
 
@@ -72,6 +73,7 @@ function _exerciseState(exercise) {
     id: exercise.pk,
     title: exercise.title,
     numAssessments,
+    num_coach_contents: exercise.num_coach_contents,
   };
 }
 
@@ -273,6 +275,7 @@ export function showCreateExamPage(store, classId) {
     subtopics: [],
     exercises: [],
     selectedExercises: [],
+    exerciseContentNodes: [],
     examsModalSet: false,
   });
 
@@ -343,7 +346,7 @@ export function getAllExercisesWithinTopic(store, topicId) {
   return new Promise((resolve, reject) => {
     const exercisesPromise = ContentNodeResource.getDescendantsCollection(topicId, {
       descendant_kind: ContentNodeKinds.EXERCISE,
-      fields: ['pk', 'title', 'assessmentmetadata'],
+      fields: ['pk', 'title', 'assessmentmetadata', 'num_coach_contents'],
     }).fetch();
 
     ConditionalPromise.all([exercisesPromise]).only(
@@ -366,12 +369,12 @@ function fetchTopic(store, topicId) {
     const subtopicsPromise = ContentNodeResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.TOPIC,
-      fields: ['pk', 'title', 'ancestors'],
+      fields: ['pk', 'title', 'ancestors', 'num_coach_contents'],
     }).fetch();
     const exercisesPromise = ContentNodeResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.EXERCISE,
-      fields: ['pk', 'title', 'assessmentmetadata'],
+      fields: ['pk', 'title', 'assessmentmetadata', 'num_coach_contents'],
     }).fetch();
 
     ConditionalPromise.all([
@@ -482,15 +485,20 @@ export function showExamReportPage(store, classId, examId) {
       const examsPromise = ExamResource.getCollection({
         collection: classId,
       }).fetch({}, true);
+      const contentNodesPromise = ContentNodeResource.getCollection({
+        ids: exam.question_sources.map(({ exercise_id }) => exercise_id),
+        fields: ['id', 'num_coach_contents'],
+      }).fetch();
       ConditionalPromise.all([
         examLogPromise,
         facilityUserPromise,
         groupPromise,
         examsPromise,
+        contentNodesPromise,
         setClassState(store, classId),
       ]).only(
         samePageCheckGenerator(store),
-        ([examLogs, facilityUsers, learnerGroups, exams]) => {
+        ([examLogs, facilityUsers, learnerGroups, exams, contentNodes]) => {
           const examTakers = facilityUsers.map(user => {
             const examTakenByUser =
               examLogs.find(examLog => String(examLog.user) === user.id) || {};
@@ -511,6 +519,7 @@ export function showExamReportPage(store, classId, examId) {
             examsModalSet: null,
             exams,
             learnerGroups,
+            exerciseContentNodes: [...contentNodes],
           });
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', exam.title);

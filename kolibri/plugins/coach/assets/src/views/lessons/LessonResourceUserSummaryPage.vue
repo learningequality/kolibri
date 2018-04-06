@@ -15,6 +15,12 @@
           <dd>
             {{ channelTitle }}
           </dd>
+          <dd>
+            <coach-content-label
+              class="coach-content-label"
+              :value="contentNode.num_coach_contents"
+            />
+          </dd>
         </dl>
       </div>
 
@@ -158,6 +164,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import progressBar from 'kolibri.coreVue.components.progressBar';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   // TODO add to core
@@ -168,6 +175,7 @@
   export default {
     name: 'lessonResourceUserSummaryPage',
     components: {
+      coachContentLabel,
       contentIcon,
       coreTable,
       progressBar,
@@ -228,6 +236,7 @@
         resourceKind: state => state.pageState.resourceKind,
         channelTitle: state => state.pageState.channelTitle,
         userData: state => state.pageState.userData,
+        contentNode: state => state.pageState.contentNode,
       },
       actions: {},
     },
@@ -252,6 +261,8 @@
 
   @require '~kolibri.styles.definitions'
 
+  .coach-content-label
+    padding: 8px 0
 
   .kind-icon
     display: inline-block

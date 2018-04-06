@@ -29,6 +29,7 @@
       :thumbnail="content.thumbnail"
       :kind="content.kind"
       :progress="content.progress"
+      :numCoachContents="content.num_coach_contents"
       :link="genContentLink(content.id, content.kind)"
     />
 
@@ -46,6 +47,17 @@
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentCard from './content-card';
+
+  const ALL_FILTER = 'all';
+
+  const kindFilterToLabelMap = {
+    [ContentNodeKinds.TOPIC]: 'topics',
+    [ContentNodeKinds.EXERCISE]: 'exercises',
+    [ContentNodeKinds.VIDEO]: 'videos',
+    [ContentNodeKinds.AUDIO]: 'audio',
+    [ContentNodeKinds.DOCUMENT]: 'documents',
+    [ContentNodeKinds.HTML5]: 'html5',
+  };
 
   export default {
     name: 'contentCardGroupGrid',
@@ -95,59 +107,26 @@
       isMobile() {
         return this.windowSize.breakpoint <= 1;
       },
+      allFilter() {
+        return { label: this.$tr('all'), value: ALL_FILTER };
+      },
       contentKindFilterOptions() {
-        return [
-          {
-            label: this.$tr('all'),
-            value: 'all',
-          },
-          {
-            label: this.$tr('topics'),
-            value: ContentNodeKinds.TOPIC,
-            disabled: !this.resultsIncludeContentKind(ContentNodeKinds.TOPIC),
-          },
-          {
-            label: this.$tr('exercises'),
-            value: ContentNodeKinds.EXERCISE,
-            disabled: !this.resultsIncludeContentKind(ContentNodeKinds.EXERCISE),
-          },
-          {
-            label: this.$tr('videos'),
-            value: ContentNodeKinds.VIDEO,
-            disabled: !this.resultsIncludeContentKind(ContentNodeKinds.VIDEO),
-          },
-          {
-            label: this.$tr('audio'),
-            value: ContentNodeKinds.AUDIO,
-            disabled: !this.resultsIncludeContentKind(ContentNodeKinds.AUDIO),
-          },
-          {
-            label: this.$tr('documents'),
-            value: ContentNodeKinds.DOCUMENT,
-            disabled: !this.resultsIncludeContentKind(ContentNodeKinds.DOCUMENT),
-          },
-          {
-            label: this.$tr('html5'),
-            value: ContentNodeKinds.HTML5,
-            disabled: !this.resultsIncludeContentKind(ContentNodeKinds.HTML5),
-          },
-        ];
+        const options = Object.keys(kindFilterToLabelMap).map(kind => ({
+          label: this.$tr(kindFilterToLabelMap[kind]),
+          value: kind,
+          disabled: !this.resultsIncludeContentKind(kind),
+        }));
+        return [this.allFilter, ...options];
       },
       channelFilterOptions() {
-        const channelOptions = this.channels.map(channel => {
+        const options = this.channels.map(channel => {
           return {
             label: channel.title,
             value: channel.id,
             disabled: !this.resultsIncludeChannel(channel.id),
           };
         });
-        return [
-          {
-            label: this.$tr('all'),
-            value: 'all',
-          },
-          ...channelOptions,
-        ];
+        return [this.allFilter, ...options];
       },
     },
     beforeMount() {
@@ -155,18 +134,18 @@
       this.channelFilterSelection = this.channelFilterOptions[0];
     },
     methods: {
-      resultsIncludeContentKind(kind) {
-        return some(this.contents, content => content.kind === kind);
+      resultsIncludeContentKind(kindFilter) {
+        return some(this.contents, { kind: kindFilter });
       },
       resultsIncludeChannel(channelId) {
-        return some(this.contents, content => content.channel_id === channelId);
+        return some(this.contents, { channel_id: channelId });
       },
       showContentCard(content) {
+        const kindFilter = this.contentKindFilterSelection.value;
+        const channelFilter = this.channelFilterSelection.value;
         return (
-          (this.contentKindFilterSelection.value === 'all' ||
-            this.contentKindFilterSelection.value === content.kind) &&
-          (this.channelFilterSelection.value === 'all' ||
-            this.channelFilterSelection.value === content.channel_id)
+          (kindFilter === ALL_FILTER || kindFilter === content.kind) &&
+          (channelFilter === ALL_FILTER || channelFilter === content.channel_id)
         );
       },
     },

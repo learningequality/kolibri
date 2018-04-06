@@ -273,7 +273,7 @@ export function triggerSearch(store, searchTerm) {
     .then(results => {
       store.dispatch('SET_PAGE_STATE', {
         searchTerm,
-        content: _collectionState(results),
+        contents: _collectionState(results),
       });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     })

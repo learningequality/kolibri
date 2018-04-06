@@ -11,6 +11,7 @@
             :link="nextResourceLink"
             :progress="nextLessonResource.progress_fraction"
             :thumbnail="getContentNodeThumbnail(nextLessonResource)"
+            :numCoachContents="nextLessonResource.num_coach_contents"
             :title="nextLessonResource.title"
           />
         </template>
