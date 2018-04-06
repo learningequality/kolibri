@@ -151,6 +151,11 @@ class ContentNodeAPITestCase(APITestCase):
 
     def setUp(self):
         provision_device()
+        self.facility = Facility.objects.create(name='facility')
+        self.admin = FacilityUser.objects.create(username='admin', facility=self.facility)
+        self.admin.set_password(DUMMY_PASSWORD)
+        self.admin.save()
+        self.facility.add_admin(self.admin)
 
     def _reverse_channel_url(self, pattern_name, kwargs={}):
         """Helper method to reverse a URL using the current channel ID"""
@@ -583,6 +588,17 @@ class ContentNodeAPITestCase(APITestCase):
         with mock.patch.object(cache, 'set') as mock_cache_set:
             self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
             self.assertFalse(mock_cache_set.called)
+
+    def test_filtering_coach_content_anon(self):
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"by_role": True})
+        expected_output = content.ContentNode.objects.exclude(coach_content=True).exclude(available=False).count()  # coach_content node should NOT be returned
+        self.assertEqual(len(response.data), expected_output)
+
+    def test_filtering_coach_content_admin(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"by_role": True})
+        expected_output = content.ContentNode.objects.exclude(available=False).count()  # coach_content node should be returned
+        self.assertEqual(len(response.data), expected_output)
 
     def _setup_lesson(self):
         facility = Facility.objects.create(name="MyFac")
