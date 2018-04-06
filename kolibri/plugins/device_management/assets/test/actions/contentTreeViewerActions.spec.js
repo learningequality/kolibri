@@ -84,7 +84,7 @@ describe('contentTreeViewer actions', () => {
   });
 
   afterEach(() => {
-    ContentNodeGranularResource.getFileSizes.reset();
+    ContentNodeGranularResource.getFileSizes.resetHistory();
   });
 
   function addFileSizes(node) {
