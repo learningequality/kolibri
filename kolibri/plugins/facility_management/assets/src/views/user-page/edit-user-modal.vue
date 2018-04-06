@@ -186,15 +186,17 @@
         return Boolean(this.nameIsInvalidText);
       },
       usernameAlreadyExists() {
+        // Just return if it's the same username with a different case
+        if (this.username.toLowerCase() === this.newUsername.toLowerCase()) {
+          return false;
+        }
+
         return this.facilityUsers.find(
           ({ username }) => username.toLowerCase() === this.newUsername.toLowerCase()
         );
       },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
-          if (this.username.toLowerCase() === this.newUsername.toLowerCase()) {
-            return '';
-          }
           if (this.newUsername === '') {
             return this.$tr('required');
           }
