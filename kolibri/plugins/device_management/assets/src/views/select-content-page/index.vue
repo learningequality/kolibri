@@ -3,6 +3,7 @@
   <immersive-full-screen
     :backPageText="$tr('selectContent')"
     :backPageLink="goBackLink"
+    :showLink="!taskInProgress"
   >
     <subpage-container withSideMargin>
       <task-progress

@@ -2,7 +2,7 @@
 
   <div class="whole-page">
     <div class="top-bar">
-      <router-link class="back-btn" :to="backPageLink">
+      <router-link v-if="showLink" class="back-btn" :to="backPageLink">
         <mat-svg
           class="back svg-back"
           category="navigation"
@@ -34,6 +34,10 @@
       },
       backPageText: {
         type: String,
+      },
+      showLink: {
+        type: Boolean,
+        default: true,
       },
     },
   };
