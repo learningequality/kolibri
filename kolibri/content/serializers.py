@@ -329,7 +329,12 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         return value
 
     def get_num_coach_contents(self, instance):
-        return 0
+        # TODO return 0 by default if user is logged in as Learner
+        if instance.kind == content_kinds.TOPIC:
+            # get_descendants is weird for channels
+            return instance.get_descendants().filter(coach_content=True).count()
+        else:
+            return 1 if instance.coach_content else 0
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
@@ -369,7 +374,10 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             .count()
 
     def get_num_coach_contents(self, instance):
-        return 0
+        if instance.kind == content_kinds.TOPIC:
+            return instance.get_descendants().filter(coach_content=True).count()
+        else:
+            return 1 if instance.coach_content else 0
 
     def get_importable(self, instance):
         drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
