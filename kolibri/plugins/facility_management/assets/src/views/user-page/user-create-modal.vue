@@ -61,13 +61,13 @@
           <k-radio-button
             :label="$tr('classCoachLabel')"
             :description="$tr('classCoachDescription')"
-            :radiovalue="true"
+            :value="true"
             v-model="classCoach"
           />
           <k-radio-button
             :label="$tr('facilityCoachLabel')"
             :description="$tr('facilityCoachDescription')"
-            :radiovalue="false"
+            :value="false"
             v-model="classCoach"
           />
         </fieldset>

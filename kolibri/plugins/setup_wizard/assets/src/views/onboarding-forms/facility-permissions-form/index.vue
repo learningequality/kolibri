@@ -73,7 +73,7 @@
         ref="first-button"
         class="permission-preset-radio-button"
         v-model="selectedPreset"
-        radiovalue="nonformal"
+        value="nonformal"
         :label="$tr('selfManagedSetupTitle')"
         :description="$tr('selfManagedSetupDescription')"
       />
@@ -81,7 +81,7 @@
       <k-radio-button
         class="permission-preset-radio-button"
         v-model="selectedPreset"
-        radiovalue="formal"
+        value="formal"
         :label="$tr('adminManagedSetupTitle')"
         :description="$tr('adminManagedSetupDescription')"
       />
@@ -89,7 +89,7 @@
       <k-radio-button
         class="permission-preset-radio-button"
         v-model="selectedPreset"
-        radiovalue="informal"
+        value="informal"
         :label="$tr('informalSetupTitle')"
         :description="$tr('informalSetupDescription')"
       />

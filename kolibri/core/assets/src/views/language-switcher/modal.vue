@@ -9,7 +9,7 @@
       <k-radio-button
         v-for="language in languageOptions"
         :key="language.id"
-        :radiovalue="language.id"
+        :value="language.id"
         :label="language.lang_name"
         v-model="selectedLanguage"
       />

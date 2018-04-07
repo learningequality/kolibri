@@ -12,7 +12,7 @@
           <k-radio-button
             :key="classroom.id"
             :label="classroomLabel(classroom)"
-            :radiovalue="classroom.id"
+            :value="classroom.id"
             v-model="selectedClassroomId"
           />
         </template>

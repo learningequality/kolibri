@@ -11,7 +11,7 @@
       class="input"
       :id="id"
       :checked="isChecked"
-      :value="radiovalue"
+      :value="value"
       :disabled="disabled"
       :autofocus="autofocus"
       @focus="active = true"
@@ -54,6 +54,9 @@
    */
   export default {
     name: 'kRadioButton',
+    model: {
+      prop: 'currentValue',
+    },
     props: {
       /**
        * Label
@@ -70,16 +73,16 @@
         required: false,
       },
       /**
-       * v-model value - the data that is currently assigned
+       * Value that is currently assigned via v-model
        */
-      value: {
+      currentValue: {
         type: [String, Number, Boolean],
         required: true,
       },
       /**
-       * Unique value of the particular radio - the data that this button can assign
+       * Unique value of this particular radio button
        */
-      radiovalue: {
+      value: {
         type: [String, Number, Boolean],
         required: true,
       },
@@ -103,7 +106,7 @@
     }),
     computed: {
       isChecked() {
-        return this.radiovalue.toString() === this.value.toString();
+        return this.value.toString() === this.currentValue.toString();
       },
       id() {
         return `${this._uid}`;
@@ -122,7 +125,7 @@
 
         // emitting input, resolves browser compatibility issues
         // with v-model's @input default and <input type=radio>
-        this.$emit('input', this.radiovalue);
+        this.$emit('input', this.value);
       },
     },
   };
