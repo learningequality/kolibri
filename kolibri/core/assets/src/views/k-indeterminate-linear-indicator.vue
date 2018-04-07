@@ -20,8 +20,7 @@
     props: {
       delay: {
         type: Boolean,
-        required: false,
-        default: false,
+        required: true,
       },
     },
   };
@@ -35,8 +34,8 @@
 
   .k-indeterminate-linear-indicator
     animation: fadeIn
-    animation-fill-mode: both
-    animation-duration: 1s
+    animation-fill-mode: backwards
+    animation-duration: 0s
 
   .k-indeterminate-linear-indicator.ui-progress-linear
     background-color: rgba($core-loading, 0.4)

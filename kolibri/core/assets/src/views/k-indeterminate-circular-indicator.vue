@@ -20,8 +20,7 @@
     props: {
       delay: {
         type: Boolean,
-        required: false,
-        default: false,
+        required: true,
       },
     },
   };
@@ -36,8 +35,8 @@
   .k-indeterminate-circular-indicator
     margin: 0 auto
     animation: fadeIn
-    animation-fill-mode: both
-    animation-duration: 1s
+    animation-fill-mode: backwards
+    animation-duration: 0s
 
     >>>.ui-progress-circular__indeterminate-path
       stroke: $core-loading
