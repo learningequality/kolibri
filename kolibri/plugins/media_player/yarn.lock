@@ -27,7 +27,7 @@ for-each@^0.3.2:
   dependencies:
     is-function "~1.0.0"
 
-global@4.3.2, global@~4.3.0:
+global@4.3.2, global@^4.3.1, global@~4.3.0:
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/global/-/global-4.3.2.tgz#e76989268a6c74c38908b1305b10fc0e394e9d0f"
   dependencies:
@@ -83,22 +83,22 @@ tsml@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/tsml/-/tsml-1.0.1.tgz#89f8218b9d9e257f47d7f6b56d01c5a4d2c68fc3"
 
-video.js@6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/video.js/-/video.js-6.1.0.tgz#e184965fbe47ae8e59e72df39f48fe859a4d885c"
+video.js@6.8.0:
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/video.js/-/video.js-6.8.0.tgz#c3cff35d483595e22efc294ba2e720198151f9c9"
   dependencies:
     babel-runtime "^6.9.2"
     global "4.3.2"
     safe-json-parse "4.0.0"
     tsml "1.0.1"
-    videojs-font "2.0.0"
+    videojs-font "2.1.0"
     videojs-ie8 "1.1.2"
-    videojs-vtt.js "0.12.3"
+    videojs-vtt.js "0.12.6"
     xhr "2.4.0"
 
-videojs-font@2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/videojs-font/-/videojs-font-2.0.0.tgz#af7461ef9d4b95e0334bffb78b2f2ff0364a9034"
+videojs-font@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/videojs-font/-/videojs-font-2.1.0.tgz#a25930a67f6c9cfbf2bb88dacb8c6b451f093379"
 
 videojs-ie8@1.1.2:
   version "1.1.2"
@@ -106,9 +106,11 @@ videojs-ie8@1.1.2:
   dependencies:
     es5-shim "^4.5.1"
 
-videojs-vtt.js@0.12.3:
-  version "0.12.3"
-  resolved "https://registry.yarnpkg.com/videojs-vtt.js/-/videojs-vtt.js-0.12.3.tgz#5ec6606844544790a795e8e396e3f2ab3649a2d6"
+videojs-vtt.js@0.12.6:
+  version "0.12.6"
+  resolved "https://registry.yarnpkg.com/videojs-vtt.js/-/videojs-vtt.js-0.12.6.tgz#e078600bda899eaa6f9c3307134cd0c811947b8e"
+  dependencies:
+    global "^4.3.1"
 
 xhr@2.4.0:
   version "2.4.0"
