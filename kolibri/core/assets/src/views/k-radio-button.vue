@@ -1,7 +1,7 @@
 <template>
 
   <!-- HTML makes clicking label apply to input by default -->
-  <label class="k-radio-button">
+  <label :class="['k-radio-button', {disabled}]">
     <!-- v-model listens for @input event by default -->
     <!-- @input has compatibility issues for input of type radio -->
     <!-- Here, manually listen for @change (no compatibility issues) -->
@@ -32,13 +32,12 @@
       :class="['unchecked', {disabled, active}]"
     />
 
-    <span :class="['text', {disabled}]">
+    <span class="text">
       {{ label }}
       <span
         v-if="description"
         :class="['description', {disabled}]"
       >
-        <br>
         {{ description }}
       </span>
     </span>
@@ -64,7 +63,7 @@
         required: true,
       },
       /**
-       * Description for Label
+       * Description for label
        */
       description: {
         type: String,
@@ -138,46 +137,53 @@
   $radio-height = 24px
 
   .k-radio-button
-    // give conditional classes higher priority
     &.disabled
-      cursor: default
+      color: $core-text-disabled
+    &:not(.disabled)
+      cursor: pointer
     position: relative
-    cursor: pointer
     display:block
     margin-top: 8px
     margin-bottom: 8px
-    line-height: $radio-height
+
+  .input, .text
+    // consistent look in inline and block displays
+    vertical-align: top
 
   .input
     // use opacity, not appearance:none because ie compatibility
     opacity: 0
-    // bring the invible HTML element on top of our custom radio-button
-    position: absolute
     width: $radio-height
     height: $radio-height
 
   .checked, .unchecked
-    vertical-align: top
     &.active
       // setting opacity to 0 hides input's default outline
       outline: $core-outline
     &.disabled
       fill: $core-grey-300
+    // lay our custom radio buttons on top of the actual element
+    width: $radio-height
+    height: $radio-height
+    position: absolute
+    left: 0
+    top:0
   .checked
     fill: $core-action-normal
   .unchecked
     fill: $core-text-annotation
 
-
   .text, .description
-    &.disabled
-      color: $core-text-disabled
-  .text
     display: inline-block
+  .text
     padding-left: 8px
+    line-height: $radio-height
     max-width: 'calc(100% - %s)' % $radio-height // stylus specific
   .description
-    color: $core-text-annotation
+    &:not(.disabled)
+      color: $core-text-annotation
+    width:100%
+    line-height: normal
     font-size: 12px
 
 </style>
