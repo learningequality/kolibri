@@ -456,7 +456,6 @@ export function showExam(store, classId, examId, questionNumber) {
           const contentPromise = ContentNodeResource.getCollection({
             in_exam: exam.id,
           }).fetch();
-
           contentPromise.only(
             samePageCheckGenerator(store),
             contentNodes => {
