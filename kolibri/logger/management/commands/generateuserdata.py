@@ -1,14 +1,22 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import csv
+import logging
 import os
 import random
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from kolibri.auth.test.helpers import create_superuser, provision_device
+
+from kolibri.auth.test.helpers import create_superuser
+from kolibri.auth.test.helpers import provision_device
 from kolibri.content.models import ChannelMetadata
 from kolibri.logger.utils import user_data as utils
+
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -47,12 +55,12 @@ class Command(BaseCommand):
 
         # Device needs to be provisioned before adding superusers
         if no_onboarding:
-            print('Provisioning device. Onboarding will be skipped after starting server.')
+            logger.info('Provisioning device. Onboarding will be skipped after starting server.')
             provision_device()
 
         for facility in facilities:
             if no_onboarding:
-                print('Creating superuser "superuser" with password "password" at facility {facility}.'.format(facility=facility.name))
+                logger.info('Creating superuser "superuser" with password "password" at facility {facility}.'.format(facility=facility.name))
                 create_superuser(facility=facility)
 
             classrooms = utils.get_or_create_classrooms(
