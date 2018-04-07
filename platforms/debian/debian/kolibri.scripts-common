@@ -303,4 +303,8 @@ kolibri_preinst()
 kolibri_prerm()
 {
     stop_kolibri_service
+
+    # Removes .pyc files in the Kolibri directory
+    # so that the Kolibri package can be completely removed later.
+    py3clean -p kolibri
 }
