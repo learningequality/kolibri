@@ -380,8 +380,8 @@ status.codes = {
     server.STATUS_FAILED_TO_START:
         'Failed to start (check log file: {0})'.format(server.DAEMON_LOG),
     server.STATUS_UNCLEAN_SHUTDOWN: 'Unclean shutdown',
-    server.STATUS_UNKNOWN_INSTANCE: 'Unknown KA Lite running on port',
-    server.STATUS_SERVER_CONFIGURATION_ERROR: 'KA Lite server configuration error',
+    server.STATUS_UNKNOWN_INSTANCE: 'Unknown Kolibri running on port',
+    server.STATUS_SERVER_CONFIGURATION_ERROR: 'Kolibri server configuration error',
     server.STATUS_PID_FILE_READ_ERROR: 'Could not read PID file',
     server.STATUS_PID_FILE_INVALID: 'Invalid PID file',
     server.STATUS_UNKNOWN: 'Could not determine status',
