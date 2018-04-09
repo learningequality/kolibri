@@ -187,6 +187,7 @@ class ContentNodeAPITestCase(APITestCase):
         c2_id = content.ContentNode.objects.get(title="c1").id
         c3_id = content.ContentNode.objects.get(title="c2").id
         content.ContentNode.objects.all().update(available=False)
+        # import ipdb; ipdb.set_trace()
         response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
             response.data,
@@ -200,7 +201,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "on_device_resources": 0,
                 "coach_content": False,
                 "importable": True,
-                "num_coach_contents": 0,
+                "num_coach_contents": 1,
                 "children": [
                     {
                         "pk": c2_id,
@@ -224,7 +225,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "on_device_resources": 0,
                         "importable": True,
                         "coach_content": False,
-                        "num_coach_contents": 0,
+                        "num_coach_contents": 1,
                     }
                 ]
             }
@@ -255,7 +256,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "on_device_resources": 0,
                 "importable": True,
                 "coach_content": False,
-                "num_coach_contents": 0,
+                "num_coach_contents": 1,
                 "children": [
                     {
                         "pk": c2_id,
@@ -279,7 +280,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "on_device_resources": 0,
                         "importable": True,
                         "coach_content": False,
-                        "num_coach_contents": 0,
+                        "num_coach_contents": 1,
                     }
                 ]
             }
