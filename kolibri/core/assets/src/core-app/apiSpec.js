@@ -84,6 +84,7 @@ import * as contentNode from '../utils/contentNodeUtils';
 import attemptLogList from '../views/attempt-log-list';
 import interactionList from '../views/interaction-list';
 import examReport from '../views/exam-report';
+import textTruncator from '../views/text-truncator';
 import * as client from './client';
 import urls from './urls';
 
@@ -149,6 +150,7 @@ export default {
       attemptLogList,
       interactionList,
       examReport,
+      textTruncator,
     },
     router,
     mixins: {

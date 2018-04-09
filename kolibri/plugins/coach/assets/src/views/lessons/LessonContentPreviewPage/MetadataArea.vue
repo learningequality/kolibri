@@ -64,6 +64,7 @@
 
   const dataRequired = ['title'];
   const completionDataRequired = ['m', 'n'];
+  import markdownIt from 'markdown-it';
 
   export default {
     name: 'metadataArea',
@@ -108,7 +109,10 @@
         return false;
       },
       description() {
-        return this.content.description;
+        if (this.content) {
+          const md = new markdownIt('zero', { breaks: true });
+          return md.render(this.content.description);
+        }
       },
       author() {
         return this.content.author;
