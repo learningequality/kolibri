@@ -3,23 +3,26 @@ To run this test, type this in command line <kolibri manage test -- kolibri.cont
 """
 import datetime
 from collections import namedtuple
+
 import mock
 import requests
-import kolibri.content.serializers
-from rest_framework import status
-from rest_framework.test import APITestCase
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.test import TestCase
+from le_utils.constants import content_kinds
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+import kolibri.content.serializers
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 from kolibri.auth.test.helpers import provision_device
 from kolibri.content import models as content
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSummaryLog
-from le_utils.constants import content_kinds
 
 DUMMY_PASSWORD = "password"
 
@@ -579,6 +582,29 @@ class ContentNodeAPITestCase(APITestCase):
         with mock.patch.object(cache, 'set') as mock_cache_set:
             self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
             self.assertFalse(mock_cache_set.called)
+
+    def test_in_lesson_filter(self):
+        facility = Facility.objects.create(name="MyFac")
+        admin = FacilityUser.objects.create(username="admin", facility=facility)
+        admin.set_password(DUMMY_PASSWORD)
+        admin.save()
+        lesson = Lesson.objects.create(
+            title="title",
+            is_active=True,
+            collection=facility,
+            created_by=admin,
+            resources=[
+                {
+                  "contentnode_id": "c391bfeec8a458f89f013cf1ca9cf33a",
+                  "content_id": "content",
+                  "channel_id": "channel"
+                }
+            ]
+        )
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": lesson.id})
+        expected_output = content.ContentNode.objects.get(title='c3c1').id
+        self.assertEqual(len(response.data), len(lesson.resources))
+        self.assertEqual(response.data[0]['id'], expected_output)
 
     def tearDown(self):
         """
