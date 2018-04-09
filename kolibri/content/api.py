@@ -87,7 +87,7 @@ class ContentNodeFilter(IdFilter):
     next_steps = CharFilter(method="filter_next_steps")
     popular = CharFilter(method="filter_popular")
     resume = CharFilter(method="filter_resume")
-    kind = ChoiceFilter(method="filter_kind", choices=(content_kinds.choices + ('content', _('Content'))))
+    kind = ChoiceFilter(method="filter_kind", choices=(content_kinds.choices + (('content', _('Content')),)))
     in_lesson = CharFilter(method="filter_in_lesson")
 
     class Meta:
