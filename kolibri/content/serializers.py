@@ -332,7 +332,11 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         # TODO return 0 by default if user is logged in as Learner
         if instance.kind == content_kinds.TOPIC:
             # get_descendants is weird for channels
-            return instance.get_descendants().filter(coach_content=True).count()
+            return instance.get_descendants() \
+                .filter(coach_content=True, available=True) \
+                .exclude(kind=content_kinds.TOPIC) \
+                .distinct() \
+                .count()
         else:
             return 1 if instance.coach_content else 0
 
@@ -375,7 +379,11 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
 
     def get_num_coach_contents(self, instance):
         if instance.kind == content_kinds.TOPIC:
-            return instance.get_descendants().filter(coach_content=True).count()
+            return instance.get_descendants() \
+                .filter(coach_content=True, available=True) \
+                .exclude(kind=content_kinds.TOPIC) \
+                .distinct() \
+                .count()
         else:
             return 1 if instance.coach_content else 0
 
