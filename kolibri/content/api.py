@@ -221,6 +221,13 @@ class ContentNodeFilter(IdFilter):
         return queryset.filter(kind=value).order_by("lft")
 
     def filter_in_lesson(self, queryset, name, value):
+        """
+        Show only content associated with this lesson
+
+        :param queryset: all content nodes
+        :param value: id of target lesson
+        :return: content nodes for this lesson
+        """
         resources = Lesson.objects.get(id=value).resources
         contentnode_id_list = [node['contentnode_id'] for node in resources]
         return queryset.filter(pk__in=contentnode_id_list)
