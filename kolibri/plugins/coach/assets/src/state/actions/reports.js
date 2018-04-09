@@ -137,22 +137,27 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
     promises.push(FacilityUserResource.getModel(userId).fetch());
   }
 
-  return Promise.all(promises).then(([allChannelLastActive, , user]) => {
-    const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
-    setReportSorting(store, defaultSortCol, SortOrders.DESCENDING);
-    // HACK: need to append this to make pageState more consistent between pages
-    store.dispatch('SET_REPORT_CONTENT_SUMMARY', {});
-    store.dispatch('SET_REPORT_PROPERTIES', {
-      showRecentOnly,
-      userScope,
-      userScopeId,
-      userScopeName: userId ? user.full_name : className(store.state),
-      viewBy: ViewBy.CHANNEL,
-    });
-    store.dispatch('SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('CORE_SET_ERROR', null);
-  });
+  return Promise.all(promises).then(
+    ([allChannelLastActive, , user]) => {
+      const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
+      setReportSorting(store, defaultSortCol, SortOrders.DESCENDING);
+      // HACK: need to append this to make pageState more consistent between pages
+      store.dispatch('SET_REPORT_CONTENT_SUMMARY', {});
+      store.dispatch('SET_REPORT_PROPERTIES', {
+        showRecentOnly,
+        userScope,
+        userScopeId,
+        userScopeName: userId ? user.full_name : className(store.state),
+        viewBy: ViewBy.CHANNEL,
+      });
+      store.dispatch('SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+    },
+    error => {
+      handleApiError(store, error);
+    }
+  );
 }
 
 function _contentReportState(data) {
