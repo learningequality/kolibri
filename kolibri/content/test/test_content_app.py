@@ -588,23 +588,22 @@ class ContentNodeAPITestCase(APITestCase):
         admin = FacilityUser.objects.create(username="admin", facility=facility)
         admin.set_password(DUMMY_PASSWORD)
         admin.save()
+        nodes = []
+        nodes.append(content.ContentNode.objects.get(title='c3c1'))
+        nodes.append(content.ContentNode.objects.get(title='c2c3'))
+        nodes.append(content.ContentNode.objects.get(title='c2c2'))
+        json_resource = [{"contentnode_id": node.id, "content_id": node.content_id, "channel_id": node.channel_id} for node in nodes]
         lesson = Lesson.objects.create(
             title="title",
             is_active=True,
             collection=facility,
             created_by=admin,
-            resources=[
-                {
-                  "contentnode_id": "c391bfeec8a458f89f013cf1ca9cf33a",
-                  "content_id": "content",
-                  "channel_id": "channel"
-                }
-            ]
+            resources=json_resource
         )
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": lesson.id})
-        expected_output = content.ContentNode.objects.get(title='c3c1').id
         self.assertEqual(len(response.data), len(lesson.resources))
-        self.assertEqual(response.data[0]['id'], expected_output)
+        for counter, node in enumerate(nodes):
+            self.assertEqual(response.data[counter]['id'], node.id)
 
     def tearDown(self):
         """
