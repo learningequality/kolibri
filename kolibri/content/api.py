@@ -228,14 +228,17 @@ class ContentNodeFilter(IdFilter):
         :param value: id of target lesson
         :return: content nodes for this lesson
         """
-        resources = Lesson.objects.get(id=value).resources
-        contentnode_id_list = [node['contentnode_id'] for node in resources]
-        # adapted from https://codybonney.com/creating-a-queryset-from-a-list-while-preserving-order-using-django/
-        clauses = ' '.join(["WHEN {}.id='{}' THEN {}".format(models.ContentNode._meta.db_table,
-                                                             pk, i) for i, pk in enumerate(contentnode_id_list)])
-        ordering = 'CASE {} END'.format(clauses)
-        return queryset.filter(pk__in=contentnode_id_list) \
-                       .extra(select={'ordering': ordering}, order_by=('ordering',))
+        try:
+            resources = Lesson.objects.get(id=value).resources
+            contentnode_id_list = [node['contentnode_id'] for node in resources]
+            # adapted from https://codybonney.com/creating-a-queryset-from-a-list-while-preserving-order-using-django/
+            clauses = ' '.join(["WHEN {}.id='{}' THEN {}".format(models.ContentNode._meta.db_table,
+                                                                 pk, i) for i, pk in enumerate(contentnode_id_list)])
+            ordering = 'CASE {} END'.format(clauses)
+            return queryset.filter(pk__in=contentnode_id_list) \
+                           .extra(select={'ordering': ordering}, order_by=('ordering',))
+        except (Lesson.DoesNotExist, ValueError):  # also handles invalid uuid
+            queryset.none()
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):

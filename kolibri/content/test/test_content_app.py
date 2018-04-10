@@ -583,7 +583,7 @@ class ContentNodeAPITestCase(APITestCase):
             self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
             self.assertFalse(mock_cache_set.called)
 
-    def test_in_lesson_filter(self):
+    def _setup_lesson(self):
         facility = Facility.objects.create(name="MyFac")
         admin = FacilityUser.objects.create(username="admin", facility=facility)
         admin.set_password(DUMMY_PASSWORD)
@@ -600,10 +600,25 @@ class ContentNodeAPITestCase(APITestCase):
             created_by=admin,
             resources=json_resource
         )
+        return lesson, nodes
+
+    def test_in_lesson_filter(self):
+        lesson, nodes = self._setup_lesson()
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": lesson.id})
         self.assertEqual(len(response.data), len(lesson.resources))
         for counter, node in enumerate(nodes):
             self.assertEqual(response.data[counter]['id'], node.id)
+
+    def test_in_lesson_filter_invalid_value(self):
+        self._setup_lesson()
+
+        # request with invalid uuid
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": '123'})
+        self.assertEqual(len(response.data), 0)
+
+        # request with valid uuid
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": '47385a6d4df3426db38ad0d20e113dce'})
+        self.assertEqual(len(response.data), 0)
 
     def tearDown(self):
         """
