@@ -250,9 +250,12 @@ class ContentNodeFilter(IdFilter):
         :param value: id of target exam
         :return: content nodes for this exam
         """
-        question_sources = Exam.objects.get(id=value).question_sources
-        exercise_id_list = [node['exercise_id'] for node in question_sources]
-        return queryset.filter(pk__in=exercise_id_list)
+        try:
+            question_sources = Exam.objects.get(id=value).question_sources
+            exercise_id_list = [node['exercise_id'] for node in question_sources]
+            return queryset.filter(pk__in=exercise_id_list)
+        except (Exam.DoesNotExist, ValueError):  # also handles invalid uuid
+            return queryset.none()
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
