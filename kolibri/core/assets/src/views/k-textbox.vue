@@ -160,6 +160,6 @@
     max-width: 400px
 
   .mh
-    min-height: 75px
+    min-height: 72px
 
 </style>

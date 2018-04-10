@@ -10,7 +10,10 @@
     <div class="wrapper-table">
       <div class="main-row">
         <div class="main-cell">
-          <logo class="logo" />
+          <logo
+            class="logo"
+            :style="logoStyle"
+          />
           <h1>{{ $tr('signInToKolibri') }}</h1>
           <form class="login-form" ref="form" @submit.prevent="signIn">
             <ui-alert
@@ -67,25 +70,17 @@
                 v-model="password"
               />
             </transition>
-            <k-button
-              class="login-btn"
-              type="submit"
-              :text="$tr('signIn')"
-              :primary="true"
-              :disabled="busy"
-            />
+            <div>
+              <k-button
+                class="login-btn"
+                type="submit"
+                :text="$tr('signIn')"
+                :primary="true"
+                :disabled="busy"
+              />
+            </div>
           </form>
 
-          <p>{{ $tr('noAccount') }}</p>
-          <div>
-            <k-router-link
-              v-if="canSignUp"
-              :text="$tr('createAccount')"
-              :to="signUpPage"
-              :primary="false"
-              appearance="raised-button"
-            />
-          </div>
           <div>
             <k-external-link
               :text="$tr('accessAsGuest')"
@@ -94,6 +89,16 @@
               appearance="flat-button"
             />
           </div>
+          <p class="no-account">
+            {{ $tr('noAccount') }}
+            <k-router-link
+              v-if="canSignUp"
+              :text="$tr('createAccount')"
+              :to="signUpPage"
+              :primary="false"
+              appearance="basic-link"
+            />
+          </p>
           <p class="version">{{ versionMsg }}</p>
         </div>
       </div>
@@ -120,6 +125,7 @@
   import logo from 'kolibri.coreVue.components.logo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { PageNames } from '../../constants';
   import languageSwitcherFooter from '../language-switcher-footer';
   import facilityModal from './facility-modal';
@@ -133,9 +139,9 @@
       username: 'Username',
       password: 'Password',
       enterPassword: 'Enter password',
-      noAccount: `Don't have an account?`,
-      createAccount: 'Create account',
-      accessAsGuest: 'Access as guest',
+      noAccount: `New to Kolibri?`,
+      createAccount: 'Create an account',
+      accessAsGuest: 'Continue as guest',
       signInError: 'Incorrect username or password',
       poweredBy: 'Kolibri {version}',
       required: 'This field is required',
@@ -152,6 +158,7 @@
       uiAlert,
       languageSwitcherFooter,
     },
+    mixins: [responsiveWindow],
     data() {
       return {
         username: '',
@@ -226,6 +233,13 @@
       needPasswordField() {
         const isSimpleButHasError = this.simpleSignIn && this.hasServerError;
         return !this.simpleSignIn || isSimpleButHasError;
+      },
+      logoStyle() {
+        const CRITICAL_ACTIONS_HEIGHT = 345; // title + form + action buttons
+        const height = Math.max(this.windowSize.height - CRITICAL_ACTIONS_HEIGHT - 32, 0);
+        return {
+          height: `${height}px`,
+        };
       },
     },
     watch: {
@@ -397,8 +411,9 @@
     height: 100%
 
   .logo
+    max-height: 80px
+    min-height: 32px
     margin-top: 16px
-    width: 60px
 
   .login-form
     width: 70%
@@ -408,7 +423,6 @@
     margin: auto
 
   .login-btn
-    display: block
     width: calc(100% - 16px)
 
   .version
@@ -452,5 +466,12 @@
 
   .textbox-leave
     transform: opacity 0
+
+  h1
+    font-size: 1.17em
+
+  .no-account
+    font-size: smaller
+    margin-top: 0
 
 </style>
