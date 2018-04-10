@@ -1,10 +1,12 @@
 import os
+
 from django.core.cache import cache
 from django.db.models import Manager
 from django.db.models import Sum
 from django.db.models.query import RawQuerySet
 from le_utils.constants import content_kinds
 from rest_framework import serializers
+
 from kolibri.content.models import AssessmentMetaData
 from kolibri.content.models import ChannelMetadata
 from kolibri.content.models import ContentNode
@@ -329,16 +331,20 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         return value
 
     def get_num_coach_contents(self, instance):
-        # TODO return 0 by default if user is logged in as Learner
-        if instance.kind == content_kinds.TOPIC:
-            # get_descendants is weird for channels
-            return instance.get_descendants() \
-                .filter(coach_content=True, available=True) \
-                .exclude(kind=content_kinds.TOPIC) \
-                .distinct() \
-                .count()
-        else:
-            return 1 if instance.coach_content else 0
+        user = self.context["request"].user
+        if user.is_facility_user:  # exclude anon users
+            if user.roles.exists() or user.is_superuser:  # must have coach role or higher
+                if instance.kind == content_kinds.TOPIC:
+                    return instance.get_descendants() \
+                        .filter(coach_content=True, available=True) \
+                        .exclude(kind=content_kinds.TOPIC) \
+                        .distinct() \
+                        .count()
+                else:
+                    return 1 if instance.coach_content else 0
+
+        # all other conditions return 0
+        return 0
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
@@ -378,7 +384,6 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             .count()
 
     def get_num_coach_contents(self, instance):
-        # TODO return 0 by default if user is logged in as a Learner
         if instance.kind == content_kinds.TOPIC:
             return instance.get_descendants() \
                 .filter(coach_content=True, available=True) \
