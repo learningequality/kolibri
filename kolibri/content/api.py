@@ -25,7 +25,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from .utils.search import fuzz
-from kolibri.auth.models import AnonymousUser
 from kolibri.content import models
 from kolibri.content import serializers
 from kolibri.content.permissions import CanManageContent
@@ -233,10 +232,10 @@ class ContentNodeFilter(IdFilter):
         :return: content nodes filtered by coach_content if appropiate
         """
         user = self.request.user
-        if isinstance(user, AnonymousUser) or not user.roles.exists():
-            if not user.is_superuser:
-                return queryset.exclude(coach_content=True)
-        return queryset
+        if user.is_facility_user:  # exclude anon users
+            if user.roles.exists() or user.is_superuser:  # must have coach role or higher
+                return queryset
+        return queryset.exclude(coach_content=True)
 
     def filter_in_lesson(self, queryset, name, value):
         """
