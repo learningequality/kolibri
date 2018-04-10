@@ -28,7 +28,6 @@ import * as store from '../state/store';
 import * as mappers from '../state/mappers';
 import contentRenderer from '../views/content-renderer';
 import downloadButton from '../views/content-renderer/download-button';
-import loadingSpinner from '../views/loading-spinner';
 import progressBar from '../views/progress-bar';
 import contentIcon from '../views/content-icon';
 import progressIcon from '../views/progress-icon';
@@ -84,6 +83,9 @@ import * as contentNode from '../utils/contentNodeUtils';
 import attemptLogList from '../views/attempt-log-list';
 import interactionList from '../views/interaction-list';
 import examReport from '../views/exam-report';
+import kLinearLoader from '../views/k-linear-loader';
+import kCircularLoader from '../views/k-circular-loader';
+
 import * as client from './client';
 import urls from './urls';
 
@@ -112,7 +114,6 @@ export default {
       coachContentLabel,
       contentRenderer,
       downloadButton,
-      loadingSpinner,
       progressBar,
       contentIcon,
       progressIcon,
@@ -149,6 +150,8 @@ export default {
       attemptLogList,
       interactionList,
       examReport,
+      kLinearLoader,
+      kCircularLoader,
     },
     router,
     mixins: {
