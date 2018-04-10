@@ -8,95 +8,95 @@
     />
 
     <div class="wrapper-table">
-      <div class="main-row"><div id="main-cell">
-        <logo class="logo" />
-        <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
-        <form class="login-form" ref="form" @submit.prevent="signIn">
-          <ui-alert
-            v-if="invalidCredentials"
-            type="error"
-            class="alert"
-            :dismissible="false"
-          >
-            {{ $tr('signInError') }}
-          </ui-alert>
-          <transition name="textbox">
-            <k-textbox
-              ref="username"
-              id="username"
-              autocomplete="username"
-              :autofocus="!hasMultipleFacilities"
-              :label="$tr('username')"
-              :invalid="usernameIsInvalid"
-              :invalidText="usernameIsInvalidText"
-              @blur="handleUsernameBlur"
-              @input="showDropdown = true"
-              @keydown="handleKeyboardNav"
-              v-model="username"
-            />
-          </transition>
-          <transition name="list">
-            <ul
-              v-if="simpleSignIn && suggestions.length"
-              v-show="showDropdown"
-              class="suggestions"
+      <div class="main-row">
+        <div class="main-cell">
+          <logo class="logo" />
+          <h1>{{ $tr('signInToKolibri') }}</h1>
+          <form class="login-form" ref="form" @submit.prevent="signIn">
+            <ui-alert
+              v-if="invalidCredentials"
+              type="error"
+              :dismissible="false"
             >
-              <ui-autocomplete-suggestion
-                v-for="(suggestion, i) in suggestions"
-                :key="i"
-                :suggestion="suggestion"
-                :class="{ highlighted: highlightedIndex === i }"
-                @click.native="fillUsername(suggestion)"
+              {{ $tr('signInError') }}
+            </ui-alert>
+            <transition name="textbox">
+              <k-textbox
+                ref="username"
+                id="username"
+                autocomplete="username"
+                :autofocus="!hasMultipleFacilities"
+                :label="$tr('username')"
+                :invalid="usernameIsInvalid"
+                :invalidText="usernameIsInvalidText"
+                @blur="handleUsernameBlur"
+                @input="showDropdown = true"
+                @keydown="handleKeyboardNav"
+                v-model="username"
               />
-            </ul>
-          </transition>
-          <transition name="textbox">
-            <k-textbox
-              v-if="needPasswordField"
-              ref="password"
-              id="password"
-              type="password"
-              autocomplete="current-password"
-              :label="$tr('password')"
-              :autofocus="simpleSignIn"
-              :invalid="passwordIsInvalid"
-              :invalidText="passwordIsInvalidText"
-              :floatingLabel="!autoFilledByChromeAndNotEdited"
-              @blur="passwordBlurred = true"
-              @input="handlePasswordChanged"
-              v-model="password"
+            </transition>
+            <transition name="list">
+              <ul
+                v-if="simpleSignIn && suggestions.length"
+                v-show="showDropdown"
+                class="suggestions"
+              >
+                <ui-autocomplete-suggestion
+                  v-for="(suggestion, i) in suggestions"
+                  :key="i"
+                  :suggestion="suggestion"
+                  :class="{ highlighted: highlightedIndex === i }"
+                  @click.native="fillUsername(suggestion)"
+                />
+              </ul>
+            </transition>
+            <transition name="textbox">
+              <k-textbox
+                v-if="needPasswordField"
+                ref="password"
+                id="password"
+                type="password"
+                autocomplete="current-password"
+                :label="$tr('password')"
+                :autofocus="simpleSignIn"
+                :invalid="passwordIsInvalid"
+                :invalidText="passwordIsInvalidText"
+                :floatingLabel="!autoFilledByChromeAndNotEdited"
+                @blur="passwordBlurred = true"
+                @input="handlePasswordChanged"
+                v-model="password"
+              />
+            </transition>
+            <k-button
+              class="login-btn"
+              type="submit"
+              :text="$tr('signIn')"
+              :primary="true"
+              :disabled="busy"
             />
-          </transition>
-          <k-button
-            class="login-btn"
-            type="submit"
-            :text="$tr('signIn')"
-            :primary="true"
-            :disabled="busy"
-          />
-        </form>
-        <div class="divider"></div>
+          </form>
 
-        <p class="login-text no-account">{{ $tr('noAccount') }}</p>
-        <div>
-          <k-router-link
-            v-if="canSignUp"
-            :text="$tr('createAccount')"
-            :to="signUpPage"
-            :primary="false"
-            appearance="raised-button"
-          />
+          <p>{{ $tr('noAccount') }}</p>
+          <div>
+            <k-router-link
+              v-if="canSignUp"
+              :text="$tr('createAccount')"
+              :to="signUpPage"
+              :primary="false"
+              appearance="raised-button"
+            />
+          </div>
+          <div>
+            <k-external-link
+              :text="$tr('accessAsGuest')"
+              href="/learn"
+              :primary="false"
+              appearance="flat-button"
+            />
+          </div>
+          <p class="version">{{ versionMsg }}</p>
         </div>
-        <div>
-          <k-external-link
-            :text="$tr('accessAsGuest')"
-            href="/learn"
-            :primary="false"
-            appearance="flat-button"
-          />
-        </div>
-        <p class="login-text version">{{ versionMsg }}</p>
-      </div></div>
+      </div>
       <div class="footer-row">
         <language-switcher-footer class="footer-cell" />
       </div>
@@ -128,6 +128,7 @@
     name: 'signInPage',
     $trs: {
       kolibri: 'Kolibri',
+      signInToKolibri: 'Sign into Kolibri',
       signIn: 'Sign in',
       username: 'Username',
       password: 'Password',
@@ -378,42 +379,11 @@
 
   @require '~kolibri.styles.definitions'
 
-  $login-text = #D8D8D8
-
-  #main-cell >>>
-    .ui-
-      &textbox__
-        &label-text
-          color: $login-text
-        &input
-          border-bottom-color: $login-text
-          color: $login-text
-          &:autofill
-            background-color: transparent
-
-    .button.secondary.raised
-      background-color: $core-text-default
-      color: $core-grey
-
-      &:hover
-        background-color: #0E0E0E
-
-    .button.secondary.flat
-      color: $core-grey
-      font-weight: normal
-
-      &:hover
-        background: none
-
-  .fh
-    height: 100%
-
   .fh
     height: 100%
 
   .wrapper-table
     text-align: center
-    background-color: #201A21
     width: 100%
     height: 100%
     display: table
@@ -421,23 +391,14 @@
   .main-row
     display: table-row
 
-  #main-cell
-    background: linear-gradient(rgba(0, 0, 0, 0.7),
-                rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center
-    background-size: cover
+  .main-cell
     display: table-cell
     vertical-align: middle
     height: 100%
 
   .logo
-    margin-top: 36px
-    width: 120px
-
-  .login-text
-    color: $login-text
-
-  .title
-    font-size: 1.3em
+    margin-top: 16px
+    width: 60px
 
   .login-form
     width: 70%
@@ -448,51 +409,37 @@
 
   .login-btn
     display: block
-    width: 100%
-
-  .divider
-    margin: auto
-    margin-top: 48px
-    margin-bottom: 36px
-    width: 100%
-    max-width: 412px
-    height: 1px
-    background-color: $core-text-annotation
+    width: calc(100% - 16px)
 
   .version
     font-size: 0.8em
-    margin-top: 36px
-    margin-bottom: 36px
+    margin-top: 24px
+    margin-bottom: 24px
 
   .footer-row
     display: table-row
-    background-color: $core-bg-canvas
+    background-color: $core-bg-light
 
   .footer-cell
     display: table-cell
     vertical-align: middle
-    min-height: 50px
-    padding: 18px
-
-  .sign-in-error
-    color: $core-text-error
+    min-height: 56px
+    padding: 16px
 
   .suggestions
     background-color: white
     box-shadow: 1px 2px 8px darken(white, 10%)
-    color: $core-text-default
-    display: block
     list-style-type: none
     margin: 0
     width: 100%
     padding: 0
     z-index: 8
     // Move up snug against the textbox
-    margin-top: -1em
+    margin-top: -2em
     position: absolute
 
   .highlighted
-    background-color: rgba(black, 0.10)
+    background-color: $core-grey
 
   .textbox-enter-active
     transition: opacity 0.5s
@@ -505,9 +452,5 @@
 
   .textbox-leave
     transform: opacity 0
-
-  .alert
-    // Needed since alert has transparent background-color
-    background-color: white
 
 </style>
