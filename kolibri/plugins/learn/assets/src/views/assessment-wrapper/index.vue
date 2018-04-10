@@ -388,7 +388,7 @@ oriented data synchronization.
         this.complete = true;
         if (this.firstAttemptAtQuestion) {
           this.updateAttemptLogMasteryLog({
-            correct: 1,
+            correct: 0,
             complete: this.complete,
             firstAttempt: true,
           });
@@ -396,6 +396,7 @@ oriented data synchronization.
         } else {
           this.updateAttemptLogMasteryLog({ complete: this.complete });
         }
+        this.saveAttemptLogMasterLog();
       },
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);
