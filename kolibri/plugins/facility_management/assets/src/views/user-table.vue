@@ -91,6 +91,7 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import userRole from './user-role';
   import UiIcon from 'keen-ui/src/UiIcon';
+  import difference from 'lodash/difference';
 
   export default {
     name: 'userTable',
@@ -131,7 +132,7 @@
     },
     computed: {
       allAreSelected() {
-        return this.users.every(user => this.value.includes(user.id)) && Boolean(this.users.length);
+        return Boolean(this.users.length) && this.users.every(user => this.value.includes(user.id));
       },
     },
     methods: {
@@ -139,7 +140,11 @@
         return this.value.includes(id);
       },
       selectAll(checked) {
-        return this.$emit('input', checked ? this.users.map(user => user.id) : []);
+        const currentUsers = this.users.map(user => user.id);
+        if (checked) {
+          return this.$emit('input', [...this.value, ...currentUsers]);
+        }
+        return this.$emit('input', difference(this.value, currentUsers));
       },
       selectUser(id, checked) {
         const selected = Array.from(this.value);
