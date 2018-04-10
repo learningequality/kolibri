@@ -626,7 +626,7 @@ class ContentNodeAPITestCase(APITestCase):
         admin = FacilityUser.objects.create(username="admin", facility=facility)
         admin.set_password(DUMMY_PASSWORD)
         admin.save()
-        node = content.ContentNode.objects.get(title='c3c1').id
+        node = content.ContentNode.objects.get(title='c3c1')
         exam = Exam.objects.create(
             title="title",
             channel_id="test",
