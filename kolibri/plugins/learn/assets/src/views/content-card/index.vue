@@ -95,9 +95,9 @@
     computed: {
       maxTitleHeight() {
         if (this.subtitle) {
-          return this.isMobile ? 20 : 40;
+          return this.isMobile ? 40 : 40;
         }
-        return this.isMobile ? 40 : 60;
+        return this.isMobile ? 52 : 60;
       },
     },
   };
@@ -156,6 +156,8 @@
     .thumbnail
       position: absolute
     .text
-      margin-left: $thumb-width-mobile + 16
+      margin-left: $thumb-width-mobile
+    .subtitle
+      bottom: 17px
 
 </style>

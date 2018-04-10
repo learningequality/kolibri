@@ -1,6 +1,8 @@
 <template>
 
-  <div :title="tooltip">{{ title }}</div>
+  <div>
+    <div :title="tooltip" ref="title">{{ title }}</div>
+  </div>
 
 </template>
 
@@ -42,7 +44,7 @@
     watch: {
       elSize: {
         handler() {
-          shave(this.$el, this.maxHeight);
+          shave(this.$refs.title, this.maxHeight);
           this.$nextTick(() => {
             this.hasTooltip = Boolean(this.$el.querySelector('.js-shave'));
           });
