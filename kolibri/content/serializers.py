@@ -332,10 +332,9 @@ class ContentNodeSerializer(serializers.ModelSerializer):
 
     def get_num_coach_contents(self, instance):
         user = self.context["request"].user
-        if user.is_facility_user:  # must be facility user
+        if user.is_facility_user:  # exclude anon users
             if user.roles.exists() or user.is_superuser:  # must have coach role or higher
                 if instance.kind == content_kinds.TOPIC:
-                    # get_descendants is weird for channels
                     return instance.get_descendants() \
                         .filter(coach_content=True, available=True) \
                         .exclude(kind=content_kinds.TOPIC) \
@@ -385,21 +384,14 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             .count()
 
     def get_num_coach_contents(self, instance):
-        user = self.context["request"].user
-        if user.is_facility_user:  # must be facility user
-            if user.roles.exists() or user.is_superuser:  # must have coach role or higher
-                if instance.kind == content_kinds.TOPIC:
-                    # get_descendants is weird for channels
-                    return instance.get_descendants() \
-                        .filter(coach_content=True, available=True) \
-                        .exclude(kind=content_kinds.TOPIC) \
-                        .distinct() \
-                        .count()
-                else:
-                    return 1 if instance.coach_content else 0
-
-        # all other conditions return 0
-        return 0
+        if instance.kind == content_kinds.TOPIC:
+            return instance.get_descendants() \
+                .filter(coach_content=True, available=True) \
+                .exclude(kind=content_kinds.TOPIC) \
+                .distinct() \
+                .count()
+        else:
+            return 1 if instance.coach_content else 0
 
     def get_importable(self, instance):
         drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
