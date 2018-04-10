@@ -155,7 +155,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
       store.dispatch('CORE_SET_ERROR', null);
     },
     error => {
-      handleApiError(store, error);
+      handleError(store, '');
     }
   );
 }
@@ -311,7 +311,9 @@ function _showContentList(store, options) {
       });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => handleError(store, error)
+    error => {
+      handleError(store, '');
+    }
   );
 }
 
@@ -413,7 +415,7 @@ export function showExerciseDetailView(
         });
       },
       error => {
-        handleApiError(store, error);
+        handleError(store, '');
       }
     );
 }
@@ -553,7 +555,7 @@ export function showChannelRootReport(store, classId, channelId, userId) {
           ...scopeOptions,
         });
       },
-      error => handleError(store, error)
+      error => handleError(store, '')
     );
 }
 

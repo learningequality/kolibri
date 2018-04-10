@@ -76,7 +76,9 @@ export function showGroupsPage(store, classId) {
         error => handleError(store, error)
       );
     },
-    error => handleError(store, error)
+    error => {
+      handleError(store, '');
+    }
   );
 }
 

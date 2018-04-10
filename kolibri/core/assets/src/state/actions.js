@@ -162,7 +162,9 @@ function _channelListState(data) {
  */
 
 function handleError(store, errorString) {
-  store.dispatch('CORE_SET_ERROR', errorString);
+  if (!errorString) {
+    store.dispatch('CORE_SET_ERROR', errorString);
+  }
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_TITLE', translator.$tr('errorPageTitle'));
 }
