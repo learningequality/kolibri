@@ -8,12 +8,12 @@
       <p>{{ modalDescription }}</p>
       <k-radio-button
         :label="$tr('activeOption')"
-        :radiovalue="true"
+        :value="true"
         v-model="activeIsSelected"
       />
       <k-radio-button
         :label="$tr('inactiveOption')"
-        :radiovalue="false"
+        :value="false"
         v-model="activeIsSelected"
       />
 

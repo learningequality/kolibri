@@ -9,7 +9,7 @@
         v-model="selectedFacility"
         :key="facility.id"
         :label="facility.name"
-        :radiovalue="facility.id"
+        :value="facility.id"
       />
       <div class="core-modal-buttons">
         <k-button

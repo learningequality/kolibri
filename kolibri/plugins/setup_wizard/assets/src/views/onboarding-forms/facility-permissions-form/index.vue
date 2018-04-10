@@ -69,42 +69,30 @@
       @submit="setPermissions"
     >
 
-      <label class="permission-preset">
-        <k-radio-button
-          ref="first-button"
-          class="permission-preset-radio-button"
-          v-model="selectedPreset"
-          radiovalue="nonformal"
-          :label="$tr('selfManagedSetupTitle')"
-        />
-        <span class="permission-preset-description">
-          {{ $tr('selfManagedSetupDescription') }}
-        </span>
-      </label>
+      <k-radio-button
+        ref="first-button"
+        class="permission-preset-radio-button"
+        v-model="selectedPreset"
+        value="nonformal"
+        :label="$tr('selfManagedSetupTitle')"
+        :description="$tr('selfManagedSetupDescription')"
+      />
 
-      <label class="permission-preset">
-        <k-radio-button
-          class="permission-preset-radio-button"
-          v-model="selectedPreset"
-          radiovalue="formal"
-          :label="$tr('adminManagedSetupTitle')"
-        />
-        <span class="permission-preset-description">
-          {{ $tr('adminManagedSetupDescription') }}
-        </span>
-      </label>
+      <k-radio-button
+        class="permission-preset-radio-button"
+        v-model="selectedPreset"
+        value="formal"
+        :label="$tr('adminManagedSetupTitle')"
+        :description="$tr('adminManagedSetupDescription')"
+      />
 
-      <label class="permission-preset">
-        <k-radio-button
-          class="permission-preset-radio-button"
-          v-model="selectedPreset"
-          radiovalue="informal"
-          :label="$tr('informalSetupTitle')"
-        />
-        <span class="permission-preset-description">
-          {{ $tr('informalSetupDescription') }}
-        </span>
-      </label>
+      <k-radio-button
+        class="permission-preset-radio-button"
+        v-model="selectedPreset"
+        value="informal"
+        :label="$tr('informalSetupTitle')"
+        :description="$tr('informalSetupDescription')"
+      />
 
       <k-button
         slot="footer"
@@ -210,18 +198,6 @@
 
   .permission-preset
     cursor: pointer
-
-    &-radio-button
-      margin: 0
-      margin-top: 16px
-      font-size: 14px
-      font-weight: bold
-
-    &-description
-      color: $core-text-annotation
-      font-size: 12px
-      display: inline-block
-      margin-left: $margin-of-radio-button-text
 
     &-modal
       &-dismiss-button
