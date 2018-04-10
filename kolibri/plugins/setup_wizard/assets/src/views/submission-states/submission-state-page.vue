@@ -1,7 +1,7 @@
 <template>
 
   <div class="submission-state-page">
-    <k-indeterminate-circular-indicator
+    <k-circular-loader
       class="submission-state-page-spinner"
       :delay="false"
     />
@@ -21,11 +21,11 @@
 
 <script>
 
-  import kIndeterminateCircularIndicator from 'kolibri.coreVue.components.kIndeterminateCircularIndicator';
+  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
 
   export default {
     name: 'submissionStatePage',
-    components: { kIndeterminateCircularIndicator },
+    components: { kCircularLoader },
     props: {
       header: {
         type: String,

@@ -1,7 +1,7 @@
 <template>
 
   <ui-progress-circular
-    class="k-indeterminate-circular-indicator"
+    class="k-circular-loader"
     :class="{ delay }"
   />
 
@@ -13,7 +13,7 @@
   import UiProgressCircular from 'keen-ui/src/UiProgressCircular';
 
   export default {
-    name: 'kIndeterminateCircularIndicator',
+    name: 'kCircularLoader',
     components: {
       UiProgressCircular,
     },
@@ -32,7 +32,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  .k-indeterminate-circular-indicator
+  .k-circular-loader
     margin: 0 auto
     animation: fadeIn
     animation-fill-mode: backwards

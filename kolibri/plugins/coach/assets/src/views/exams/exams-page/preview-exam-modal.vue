@@ -12,7 +12,7 @@
       @click="close"
     />
     <transition mode="out-in">
-      <k-indeterminate-circular-indicator
+      <k-circular-loader
         v-if="loading"
         :delay="false"
       />
@@ -77,7 +77,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
-  import kIndeterminateCircularIndicator from 'kolibri.coreVue.components.kIndeterminateCircularIndicator';
+  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
   import { setExamsModal } from '../../../state/actions/exam';
 
   export default {
@@ -95,7 +95,7 @@
       kButton,
       kGrid,
       kGridItem,
-      kIndeterminateCircularIndicator,
+      kCircularLoader,
     },
     props: {
       examQuestionSources: {

@@ -9,8 +9,9 @@
         {{ $tr('emptyChannelListMessage') }}
       </p>
 
-      <k-indeterminate-linear-indicator
+      <k-linear-loader
         v-else-if="channelsLoading"
+        type="indeterminate"
         :delay="false"
       />
 
@@ -46,7 +47,7 @@
 <script>
 
   import kButton from 'kolibri.coreVue.components.kButton';
-  import kIndeterminateLinearIndicator from 'kolibri.coreVue.components.kIndeterminateLinearIndicator';
+  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
   import { installedChannelsWithResources } from '../../state/getters';
@@ -57,7 +58,7 @@
     name: 'channelsGrid',
     components: {
       channelListItem,
-      kIndeterminateLinearIndicator,
+      kLinearLoader,
       deleteChannelModal,
       kButton,
     },

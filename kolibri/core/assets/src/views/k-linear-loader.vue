@@ -1,8 +1,10 @@
 <template>
 
   <ui-progress-linear
-    class="k-indeterminate-linear-indicator"
+    class="k-linear-loader"
     :class="{ delay }"
+    :type="progress ? 'determinate' : 'indeterminate'"
+    :progress="progress"
   />
 
 </template>
@@ -13,7 +15,7 @@
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
 
   export default {
-    name: 'kIndeterminateLinearIndicator',
+    name: 'kLinearLoader',
     components: {
       uiProgressLinear,
     },
@@ -21,6 +23,17 @@
       delay: {
         type: Boolean,
         required: true,
+      },
+      type: {
+        type: String,
+        required: true,
+        validator(val) {
+          return val === 'determinate' || val === 'indeterminate';
+        },
+      },
+      progress: {
+        type: Number,
+        required: false,
       },
     },
   };
@@ -32,15 +45,15 @@
 
   @require '~kolibri.styles.definitions'
 
-  .k-indeterminate-linear-indicator
+  .k-linear-loader
     animation: fadeIn
     animation-fill-mode: backwards
     animation-duration: 0s
 
-  .k-indeterminate-linear-indicator.ui-progress-linear
+  .k-linear-loader.ui-progress-linear
     background-color: rgba($core-loading, 0.4)
 
-  .k-indeterminate-linear-indicator
+  .k-linear-loader
     >>>.ui-progress-linear__progress-bar
       background-color: $core-loading
 

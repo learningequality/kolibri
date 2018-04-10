@@ -2,8 +2,8 @@
 
   <div ref="wrapper" class="wrapper">
     <div v-show="loading" class="fill-space">
-      <k-indeterminate-circular-indicator
-        class="loading-indicator"
+      <k-circular-loader
+        class="loader"
         :delay="true"
       />
     </div>
@@ -53,7 +53,7 @@
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
-  import kIndeterminateCircularIndicator from 'kolibri.coreVue.components.kIndeterminateCircularIndicator';
+  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
   import ScreenFull from 'screenfull';
@@ -91,7 +91,7 @@
       sourceError: 'No compatible source was found for this media',
       encryptionError: 'The media is encrypted and we do not have the keys to decrypt it',
     },
-    components: { kIndeterminateCircularIndicator },
+    components: { kCircularLoader },
 
     mixins: [ResponsiveElement, contentRendererMixin],
 
@@ -394,7 +394,7 @@
     width: 100%
     height: 100%
 
-  .loading-indicator
+  .loader
     position: absolute
     top: 50%
     left: 50%

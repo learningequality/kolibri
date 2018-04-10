@@ -6,7 +6,7 @@
     </ui-alert>
     <template v-else-if="available">
       <transition mode="out-in">
-        <k-indeterminate-circular-indicator
+        <k-circular-loader
           v-if="!currentViewClass"
           :delay="false"
         />
@@ -46,7 +46,7 @@
 <script>
 
   import logger from 'kolibri.lib.logging';
-  import kIndeterminateCircularIndicator from 'kolibri.coreVue.components.kIndeterminateCircularIndicator';
+  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
 
   import uiAlert from 'keen-ui/src/UiAlert';
   import { defaultLanguage, languageValidator } from 'kolibri.utils.i18n';
@@ -60,7 +60,7 @@
       rendererNotAvailable: 'Kolibri is unable to render this content',
     },
     components: {
-      kIndeterminateCircularIndicator,
+      kCircularLoader,
       uiAlert,
     },
     props: {

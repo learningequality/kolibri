@@ -41,7 +41,6 @@
       :topGap="headerHeight"
       :bottomGap="bottomMargin"
       :class="`gutter-${windowSize.gutterWidth}`"
-      :padding="mobile ? 16 : 32"
     >
       <slot></slot>
     </app-body>

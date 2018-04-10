@@ -47,7 +47,7 @@
 
       <div>
         <transition name="fade" mode="out-in">
-          <k-indeterminate-circular-indicator
+          <k-circular-loader
             v-if="loading"
             key="progress"
             :delay="false"
@@ -139,7 +139,7 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
-  import kIndeterminateCircularIndicator from 'kolibri.coreVue.components.kIndeterminateCircularIndicator';
+  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import shuffle from 'lodash/shuffle';
   import orderBy from 'lodash/orderBy';
@@ -165,7 +165,7 @@
   export default {
     name: 'createExamPage',
     components: {
-      kIndeterminateCircularIndicator,
+      kCircularLoader,
       kButton,
       kTextbox,
       kGrid,

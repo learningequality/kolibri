@@ -83,9 +83,8 @@ import * as contentNode from '../utils/contentNodeUtils';
 import attemptLogList from '../views/attempt-log-list';
 import interactionList from '../views/interaction-list';
 import examReport from '../views/exam-report';
-import kIndeterminateLinearIndicator from '../views/k-indeterminate-linear-indicator';
-import kDeterminateLinearIndicator from '../views/k-determinate-linear-indicator';
-import kIndeterminateCircularIndicator from '../views/k-indeterminate-circular-indicator';
+import kLinearLoader from '../views/k-linear-loader';
+import kCircularLoader from '../views/k-circular-loader';
 
 import * as client from './client';
 import urls from './urls';
@@ -151,9 +150,8 @@ export default {
       attemptLogList,
       interactionList,
       examReport,
-      kIndeterminateLinearIndicator,
-      kDeterminateLinearIndicator,
-      kIndeterminateCircularIndicator,
+      kLinearLoader,
+      kCircularLoader,
     },
     router,
     mixins: {

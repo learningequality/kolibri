@@ -2,10 +2,11 @@
 
   <!-- class unused, used as identifier when debugging from DOM -->
   <div class="app-body" :style="contentStyle">
-    <k-indeterminate-linear-indicator
+    <k-linear-loader
       v-if="loading"
-      class="toolbar-loading-indicator"
-      :style="{ top: padding === 32 ? '64px' : '56px' }"
+      class="toolbar-loader"
+      :style="{ top: isMobile ? '56px' : '64px' }"
+      type="indeterminate"
       :delay="false"
     />
     <template v-else>
@@ -19,21 +20,18 @@
 
 <script>
 
-  import kIndeterminateLinearIndicator from 'kolibri.coreVue.components.kIndeterminateLinearIndicator';
-
+  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import errorBox from './error-box';
 
   export default {
     name: 'appBody',
     components: {
       errorBox,
-      kIndeterminateLinearIndicator,
+      kLinearLoader,
     },
+    mixins: [responsiveWindow],
     props: {
-      padding: {
-        type: Number,
-        required: true,
-      },
       // reserve space at the top for appbar
       topGap: {
         type: Number,
@@ -48,6 +46,12 @@
       },
     },
     computed: {
+      isMobile() {
+        return this.windowSize.breakpoint < 2;
+      },
+      padding() {
+        return this.isMobile ? 16 : 32;
+      },
       contentStyle() {
         return {
           top: `${this.topGap}px`,
@@ -76,7 +80,7 @@
     position: absolute
     overflow-x: hidden
 
-  .toolbar-loading-indicator
+  .toolbar-loader
     position: fixed
     right: 0
     left: 0
