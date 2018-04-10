@@ -31,6 +31,7 @@ from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
 from kolibri.content.utils.paths import get_channel_lookup_url
 from kolibri.core.lessons.models import Lesson
+from kolibri.core.exams.models import Exam
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
 
@@ -89,6 +90,7 @@ class ContentNodeFilter(IdFilter):
     resume = CharFilter(method="filter_resume")
     kind = ChoiceFilter(method="filter_kind", choices=(content_kinds.choices + (('content', _('Content')),)))
     in_lesson = CharFilter(method="filter_in_lesson")
+    in_exam = CharFilter(method="filter_in_exam")
 
     class Meta:
         model = models.ContentNode
@@ -239,6 +241,18 @@ class ContentNodeFilter(IdFilter):
                            .extra(select={'ordering': ordering}, order_by=('ordering',))
         except (Lesson.DoesNotExist, ValueError):  # also handles invalid uuid
             queryset.none()
+
+    def filter_in_exam(self, queryset, name, value):
+        """
+        Show only content associated with this exam
+
+        :param queryset: all content nodes
+        :param value: id of target exam
+        :return: content nodes for this exam
+        """
+        question_sources = Exam.objects.get(id=value).question_sources
+        exercise_id_list = [node['exercise_id'] for node in question_sources]
+        return queryset.filter(pk__in=exercise_id_list)
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
