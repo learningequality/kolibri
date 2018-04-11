@@ -3,14 +3,21 @@ import logging as logger
 import os
 
 from django.conf import settings
-from kolibri.content.apps import KolibriContentConfig
-from kolibri.content.models import ChannelMetadata, ContentNode, File, LocalFile
 from le_utils.constants import content_kinds
-from sqlalchemy import and_, exists, func, select
+from sqlalchemy import and_
+from sqlalchemy import exists
+from sqlalchemy import func
+from sqlalchemy import select
 
 from .channels import get_channel_ids_for_content_database_dir
-from .paths import get_content_file_name, get_content_storage_file_path
+from .paths import get_content_file_name
+from .paths import get_content_storage_file_path
 from .sqlalchemybridge import Bridge
+from kolibri.content.apps import KolibriContentConfig
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.models import ContentNode
+from kolibri.content.models import File
+from kolibri.content.models import LocalFile
 
 logging = logger.getLogger(__name__)
 
@@ -92,16 +99,17 @@ def set_local_file_availability_from_disk(checksums=None):
 
     if checksums is None:
         logging.info('Setting availability of LocalFile objects based on disk availability')
-        files = bridge.session.query(LocalFileClass).all()
+        files = bridge.session.query(LocalFileClass.id, LocalFileClass.available, LocalFileClass.extension).all()
     elif type(checksums) == list:
         logging.info('Setting availability of {number} LocalFile objects based on disk availability'.format(number=len(checksums)))
-        files = bridge.session.query(LocalFileClass).filter(LocalFileClass.id.in_(checksums)).all()
+        files = bridge.session.query(LocalFileClass.id, LocalFileClass.available, LocalFileClass.extension).filter(LocalFileClass.id.in_(checksums)).all()
     else:
         logging.info('Setting availability of LocalFile object with checksum {checksum} based on disk availability'.format(checksum=checksums))
         files = [bridge.session.query(LocalFileClass).get(checksums)]
 
     checksums_to_update = [
-        file.id for file in files if os.path.exists(get_content_storage_file_path(get_content_file_name(file)))
+        # Only update if the file exists, *and* the localfile is set as unavailable.
+        file.id for file in files if os.path.exists(get_content_storage_file_path(get_content_file_name(file))) and not file.available
     ]
 
     bridge.end()

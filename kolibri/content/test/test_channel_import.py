@@ -3,19 +3,26 @@ import os
 import pickle
 
 from django.core.management import call_command
-from django.test import TestCase, TransactionTestCase
-
-from kolibri.content import models as content
-from kolibri.content.models import NO_VERSION, V020BETA1, V040BETA3, ChannelMetadata, ContentNode
-from kolibri.content.utils.channel_import import ChannelImport, mappings, import_channel_from_local_db
-from kolibri.content.utils.sqlalchemybridge import get_default_db_string
-
-from mock import patch, MagicMock, Mock, call
-
+from django.test import TestCase
+from django.test import TransactionTestCase
+from mock import call
+from mock import MagicMock
+from mock import Mock
+from mock import patch
 from sqlalchemy import create_engine
 
 from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
+from kolibri.content import models as content
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.models import ContentNode
+from kolibri.content.models import NO_VERSION
+from kolibri.content.models import V020BETA1
+from kolibri.content.models import V040BETA3
+from kolibri.content.utils.channel_import import ChannelImport
+from kolibri.content.utils.channel_import import import_channel_from_local_db
+from kolibri.content.utils.channel_import import mappings
+from kolibri.content.utils.sqlalchemybridge import get_default_db_string
 
 @patch('kolibri.content.utils.channel_import.Bridge')
 @patch('kolibri.content.utils.channel_import.ChannelImport.find_unique_tree_id')
@@ -285,10 +292,9 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
 
 class MaliciousDatabaseTestCase(TestCase):
 
-    @patch('kolibri.content.utils.channel_import.set_leaf_node_availability_from_local_file_availability')
-    @patch('kolibri.content.utils.channel_import.recurse_availability_up_tree')
+    @patch('kolibri.content.utils.channel_import.set_availability')
     @patch('kolibri.content.utils.channel_import.initialize_import_manager')
-    def test_non_existent_root_node(self, initialize_manager_mock, recurse_mock, leaf_mock):
+    def test_non_existent_root_node(self, initialize_manager_mock, availability_mock):
         import_mock = MagicMock()
         initialize_manager_mock.return_value = import_mock
         channel_id = '6199dde695db4ee4ab392222d5af1e5c'
