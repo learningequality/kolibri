@@ -14,6 +14,7 @@ import radioButtonsPage from '../content/radio-buttons';
 import textFieldsPage from '../content/text-fields';
 import filtersPage from '../content/filters';
 import dropdownMenusPage from '../content/dropdown-menus';
+import loadersPage from '../content/loaders';
 
 function sortSectionItems(items) {
   return sortBy(items, [item => item.itemName]);
@@ -107,6 +108,13 @@ const navMenu = [
         itemRoute: {
           path: `/components/dropdown-menus`,
           component: dropdownMenusPage,
+        },
+      },
+      {
+        itemName: 'Loaders',
+        itemRoute: {
+          path: `/components/loaders`,
+          component: loadersPage,
         },
       },
     ]),
