@@ -81,24 +81,23 @@
             </div>
           </form>
 
+          <k-router-link
+            v-if="canSignUp"
+            class="create-button"
+            :text="$tr('createAccount')"
+            :to="signUpPage"
+            :primary="true"
+            appearance="flat-button"
+          />
           <div>
             <k-external-link
+              class="guest-button"
               :text="$tr('accessAsGuest')"
               href="/learn"
-              :primary="false"
-              appearance="flat-button"
+              :primary="true"
+              appearance="flat-link"
             />
           </div>
-          <p class="no-account">
-            {{ $tr('noAccount') }}
-            <k-router-link
-              v-if="canSignUp"
-              :text="$tr('createAccount')"
-              :to="signUpPage"
-              :primary="false"
-              appearance="basic-link"
-            />
-          </p>
           <p class="version">{{ versionMsg }}</p>
         </div>
       </div>
@@ -139,7 +138,6 @@
       username: 'Username',
       password: 'Password',
       enterPassword: 'Enter password',
-      noAccount: `New to Kolibri?`,
       createAccount: 'Create an account',
       accessAsGuest: 'Continue as guest',
       signInError: 'Incorrect username or password',
@@ -412,7 +410,7 @@
 
   .logo
     max-height: 80px
-    min-height: 32px
+    min-height: 24px
     margin-top: 16px
 
   .login-form
@@ -470,8 +468,10 @@
   h1
     font-size: 1.17em
 
-  .no-account
-    font-size: smaller
-    margin-top: 0
+  .create-button
+    margin-top: 16px
+
+  .guest-button
+    font-size: 14px
 
 </style>
