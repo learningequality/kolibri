@@ -166,7 +166,7 @@ describe('selectDriveModal component', () => {
   it('when a drive is selected, "Continue" button is enabled', () => {
     const wrapper = makeWrapper({ store });
     const { continueButton, writableImportableRadio } = getElements(wrapper);
-    writableImportableRadio().trigger('click');
+    writableImportableRadio().trigger('change');
     return wrapper.vm.$nextTick().then(() => {
       assert.equal(continueButton().attributes().disabled, undefined);
     });
@@ -176,7 +176,7 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     const transitionStub = sinon.stub(wrapper.vm, 'transitionWizardPage');
     const { continueButton, writableImportableRadio } = getElements(wrapper);
-    writableImportableRadio().trigger('click');
+    writableImportableRadio().trigger('change');
     return wrapper.vm.$nextTick().then(() => {
       continueButton().trigger('click');
       // same parameters for import or export flow

@@ -1,47 +1,48 @@
 <template>
 
-  <div
-    class="k-radio-container"
-    :class="{ 'k-radio-disabled': disabled }"
-    @click="select"
-  >
-    <div class="tr">
+  <!-- HTML makes clicking label apply to input by default -->
+  <label :class="['k-radio-button', {disabled}]">
+    <!-- v-model listens for @input event by default -->
+    <!-- @input has compatibility issues for input of type radio -->
+    <!-- Here, manually listen for @change (no compatibility issues) -->
+    <input
+      ref="input"
+      type="radio"
+      class="input"
+      :id="id"
+      :checked="isChecked"
+      :value="value"
+      :disabled="disabled"
+      :autofocus="autofocus"
+      @focus="active = true"
+      @blur="active = false"
+      @change="update($event)"
+    >
+    <!-- the radio buttons the user sees -->
+    <mat-svg
+      v-if="isChecked"
+      category="toggle"
+      name="radio_button_checked"
+      :class="['checked', {disabled, active}]"
+    />
+    <mat-svg
+      v-else
+      category="toggle"
+      name="radio_button_unchecked"
+      :class="['unchecked', {disabled, active}]"
+    />
 
-      <div class="k-radio" :class="{ 'k-radio-active': isActive }">
-        <input
-          ref="kRadioInput"
-          type="radio"
-          class="k-radio-input"
-          :id="id"
-          :value="radiovalue"
-          :disabled="disabled"
-          :autofocus="autofocus"
-          @focus="isActive = true"
-          @blur="isActive = false"
-          @change="emitChange"
-          v-model="model"
-          @click.stop="select"
-        >
+    <span class="text">
+      {{ label }}
+      <span
+        v-if="description"
+        :class="['description', {disabled}]"
+      >
+        {{ description }}
+      </span>
+    </span>
 
-        <mat-svg
-          v-if="isCurrentlySelected"
-          category="toggle"
-          name="radio_button_checked"
-          class="k-radio-selected"
-        />
-        <mat-svg
-          v-else
-          category="toggle"
-          name="radio_button_unchecked"
-          class="k-radio-unselected"
-        />
-
-      </div>
-
-      <label :for="id" class="k-radio-label" @click.prevent>{{ label }}</label>
-
-    </div>
-  </div>
+  </label>
 
 </template>
 
@@ -53,6 +54,9 @@
    */
   export default {
     name: 'kRadioButton',
+    model: {
+      prop: 'currentValue',
+    },
     props: {
       /**
        * Label
@@ -62,16 +66,23 @@
         required: true,
       },
       /**
-       * v-model value
+       * Description for label
        */
-      value: {
+      description: {
+        type: String,
+        required: false,
+      },
+      /**
+       * Value that is currently assigned via v-model
+       */
+      currentValue: {
         type: [String, Number, Boolean],
         required: true,
       },
       /**
-       * Unique value of the particular radio
+       * Unique value of this particular radio button
        */
-      radiovalue: {
+      value: {
         type: [String, Number, Boolean],
         required: true,
       },
@@ -91,43 +102,30 @@
       },
     },
     data: () => ({
-      isActive: false,
+      active: false,
     }),
     computed: {
-      model: {
-        get() {
-          return this.value;
-        },
-        set(val) {
-          this.$emit('input', val);
-        },
-      },
-      isCurrentlySelected() {
-        return this.radiovalue.toString() === this.model.toString();
+      isChecked() {
+        return this.value.toString() === this.currentValue.toString();
       },
       id() {
-        return `k-radio-${this._uid}`;
+        return `${this._uid}`;
       },
     },
 
     methods: {
       focus() {
-        this.$refs.kRadioInput.focus();
+        this.$refs.input.focus();
       },
-      select() {
-        if (!this.disabled) {
-          this.focus();
-          this.model = this.radiovalue;
-          this.emitChange();
-        }
-      },
-      emitChange(event) {
-        if (this.model !== this.radiovalue) {
-          /**
-           * Emits change event
-           */
-          this.$emit('change', this.model, event);
-        }
+      update(event) {
+        /**
+         * Emits change event
+         */
+        this.$emit('change', this.isChecked, event);
+
+        // emitting input, resolves browser compatibility issues
+        // with v-model's @input default and <input type=radio>
+        this.$emit('input', this.value);
       },
     },
   };
@@ -141,55 +139,54 @@
 
   $radio-height = 24px
 
-  .k-radio-container
-    display: table
+  .k-radio-button
+    &.disabled
+      color: $core-text-disabled
+    &:not(.disabled)
+      cursor: pointer
+    position: relative
+    display:block
     margin-top: 8px
     margin-bottom: 8px
 
-  .tr
-    display: table-row
-
-  .k-radio
-    display: table-cell
-    position: relative
+  .input, .text
+    // consistent look in inline and block displays
     vertical-align: top
+
+  .input
+    // use opacity, not appearance:none because ie compatibility
+    opacity: 0
     width: $radio-height
     height: $radio-height
-    cursor: pointer
 
-  .k-radio-input
+  .checked, .unchecked
+    &.active
+      // setting opacity to 0 hides input's default outline
+      outline: $core-outline
+    &.disabled
+      fill: $core-grey-300
+    // lay our custom radio buttons on top of the actual element
+    width: $radio-height
+    height: $radio-height
     position: absolute
-    top: 50%
-    left: 50%
-    transform: translate(-50%, -50%)
-    opacity: 0
-    cursor: pointer
-
-  .k-radio-selected
+    left: 0
+    top:0
+  .checked
     fill: $core-action-normal
-
-  .k-radio-unselected
+  .unchecked
     fill: $core-text-annotation
 
-  .k-radio-active
-    .k-radio-selected
-      outline: $core-outline
-
-  .k-radio-label
-    display: table-cell
+  .text, .description
+    display: inline-block
+  .text
     padding-left: 8px
-    cursor: pointer
-    line-height: 24px
-    user-select: none
-
-  .k-radio-disabled
-    svg
-      fill: $core-grey-300
-
-    .k-radio, .k-radio-input, .k-radio-label
-      cursor: default
-
-    .k-radio-label
-      color: $core-text-disabled
+    line-height: $radio-height
+    max-width: 'calc(100% - %s)' % $radio-height // stylus specific
+  .description
+    &:not(.disabled)
+      color: $core-text-annotation
+    width:100%
+    line-height: normal
+    font-size: 12px
 
 </style>

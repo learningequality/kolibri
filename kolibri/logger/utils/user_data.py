@@ -1,15 +1,29 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import datetime
+import logging
 import random
 
-from django.db.models import Max, Min, Sum
+from django.db.models import Max
+from django.db.models import Min
+from django.db.models import Sum
 from django.db.models.query import F
-from kolibri.auth.filters import HierarchyRelationsFilter
-from kolibri.auth.models import Classroom, Facility, FacilityUser
-from kolibri.content.models import ContentNode
-from kolibri.logger.models import AttemptLog, ContentSessionLog, ContentSummaryLog, MasteryLog
 from le_utils.constants import content_kinds
+
+from kolibri.auth.filters import HierarchyRelationsFilter
+from kolibri.auth.models import Classroom
+from kolibri.auth.models import Facility
+from kolibri.auth.models import FacilityUser
+from kolibri.content.models import ContentNode
+from kolibri.logger.models import AttemptLog
+from kolibri.logger.models import ContentSessionLog
+from kolibri.logger.models import ContentSummaryLog
+from kolibri.logger.models import MasteryLog
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_or_create_facilities(**options):
@@ -29,7 +43,7 @@ def get_or_create_classrooms(**options):
     n_on_device = Classroom.objects.filter(parent=facility).count()
     n_to_create = n_classes - n_on_device
     if n_to_create > 0:
-        print('Generating {n} classroom object(s) for facility: {name}'.format(
+        logger.info('Generating {n} classroom object(s) for facility: {name}'.format(
             n=n_to_create,
             name=facility.name,
         ))
@@ -60,7 +74,7 @@ def get_or_create_classroom_users(**options):
     # Only generate new users if there are fewer users than requested.
     n_to_create = n_users - n_in_classroom
     if n_to_create > 0:
-        print('Generating {n} user object(s) for class: {classroom} in facility: {facility}'.format(
+        logger.info('Generating {n} user object(s) for class: {classroom} in facility: {facility}'.format(
             n=n_to_create,
             classroom=classroom,
             facility=facility,
@@ -97,7 +111,7 @@ def add_channel_activity_for_user(**options): # noqa: max-complexity=16
     channel_id = channel.id
     default_channel_content = ContentNode.objects.exclude(kind=content_kinds.TOPIC).filter(channel_id=channel_id)
 
-    print('Generating {i} user interaction(s) for user: {user} for channel: {channel}'.format(
+    logger.debug('Generating {i} user interaction(s) for user: {user} for channel: {channel}'.format(
         i=n_content_items,
         user=user,
         channel=channel.name
