@@ -20,18 +20,13 @@
       <div v-if="message" class="message">
         {{ message }}
       </div>
-      <p class="description">
-        <!-- eslint-disable -->
-        <span :class="truncatedClass">{{ descriptionHead }}<span class="visuallyhidden">{{ descriptionTail }}</span></span>
-        <!-- eslint-enable -->
-        <k-button
-          v-if="descriptionIsTooLong"
-          @click.stop.prevent="descriptionExpanded=!descriptionExpanded"
-          appearance="basic-link"
-          :text="!descriptionExpanded ? $tr('viewMoreButtonPrompt') : $tr('viewLessButtonPrompt')"
-        />
 
-      </p>
+      <text-truncator
+        :text="description"
+        :maxHeight="40"
+        :showViewMore="true"
+        class="description"
+      />
     </div>
 
   </router-link>
@@ -41,17 +36,15 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import textTruncator from 'kolibri.coreVue.components.textTruncator';
   import cardThumbnail from './card-thumbnail';
-
-  const defaultDescriptionLimit = 140;
 
   export default {
     name: 'lessonContentCard',
     components: {
       cardThumbnail,
-      kButton,
+      textTruncator,
     },
     props: {
       title: {
@@ -80,34 +73,6 @@
         type: String,
         default: '',
       },
-    },
-    data() {
-      return {
-        descriptionExpanded: false,
-      };
-    },
-    computed: {
-      descriptionHead() {
-        if (this.descriptionExpanded) {
-          return this.description;
-        }
-        return this.description.slice(0, defaultDescriptionLimit);
-      },
-      descriptionTail() {
-        return this.description.slice(defaultDescriptionLimit);
-      },
-      descriptionIsTooLong() {
-        return this.description.length > defaultDescriptionLimit;
-      },
-      truncatedClass() {
-        return {
-          truncated: this.descriptionIsTooLong && !this.descriptionExpanded,
-        };
-      },
-    },
-    $trs: {
-      viewMoreButtonPrompt: 'View more',
-      viewLessButtonPrompt: 'View less',
     },
   };
 
@@ -165,10 +130,6 @@
 
   .description
     font-size: 12px
-
-  .truncated::after
-    content: '\2026\0020'
-    display: inline
 
   .message
     color: $core-text-default
