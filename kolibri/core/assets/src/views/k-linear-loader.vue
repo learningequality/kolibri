@@ -14,16 +14,25 @@
 
   import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
 
+  /**
+   * Used to show determinate or indeterminate loading
+   */
   export default {
     name: 'kLinearLoader',
     components: {
       uiProgressLinear,
     },
     props: {
+      /**
+       * Whether there should be a delay before the loader displays
+       */
       delay: {
         type: Boolean,
         required: true,
       },
+      /**
+       * Determinate or indeterminate
+       */
       type: {
         type: String,
         required: true,
@@ -31,9 +40,13 @@
           return val === 'determinate' || val === 'indeterminate';
         },
       },
+      /**
+       * If type is determinate, a number between 0 - 100
+       */
       progress: {
         type: Number,
         required: false,
+        default: 0,
       },
     },
   };
