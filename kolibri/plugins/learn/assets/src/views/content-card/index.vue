@@ -95,7 +95,7 @@
     computed: {
       maxTitleHeight() {
         if (this.subtitle) {
-          return this.isMobile ? 40 : 40;
+          return 40;
         }
         return this.isMobile ? 52 : 60;
       },

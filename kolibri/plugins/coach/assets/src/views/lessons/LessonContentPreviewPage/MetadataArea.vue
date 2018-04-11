@@ -61,10 +61,10 @@
 <script>
 
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import markdownIt from 'markdown-it';
 
   const dataRequired = ['title'];
   const completionDataRequired = ['m', 'n'];
-  import markdownIt from 'markdown-it';
 
   export default {
     name: 'metadataArea',
