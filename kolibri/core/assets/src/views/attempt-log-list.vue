@@ -43,6 +43,7 @@
           <coach-content-label
             class="coach-content-label"
             :value="numCoachContents(attemptLog.questionNumber)"
+            :isTopic="false"
           />
         </li>
       </template>

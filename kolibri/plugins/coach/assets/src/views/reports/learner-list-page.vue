@@ -11,7 +11,10 @@
         />
         {{ pageState.contentScopeSummary.title }}
       </h1>
-      <coach-content-label :value="pageState.contentScopeSummary.num_coach_contents" />
+      <coach-content-label
+        :isTopic="isTopic(pageState.contentScopeSummary)"
+        :value="pageState.contentScopeSummary.num_coach_contents"
+      />
     </template>
     <h1 v-else>{{ $tr('learners') }}</h1>
 
@@ -130,6 +133,9 @@
       },
     },
     methods: {
+      isTopic(row) {
+        return row.kind === ContentNodeKinds.TOPIC;
+      },
       genLink(row) {
         if (this.isExercisePage) {
           const targetName =

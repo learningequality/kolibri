@@ -31,6 +31,7 @@
       <coach-content-label
         class="coach-content-label"
         :value="node.num_coach_contents"
+        :isTopic="isTopic"
       />
 
     </td>
@@ -82,6 +83,9 @@
       },
     },
     computed: {
+      isTopic() {
+        return this.node.kind === ContentNodeKinds.TOPIC;
+      },
       showButton() {
         return !this.disabled && this.node.kind === ContentNodeKinds.TOPIC;
       },

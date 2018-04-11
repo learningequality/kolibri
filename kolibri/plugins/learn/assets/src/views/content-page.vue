@@ -7,6 +7,7 @@
     <coach-content-label
       class="coach-content-label"
       :value="content.num_coach_contents"
+      :isTopic="isTopic"
     />
 
     <content-renderer
@@ -192,6 +193,9 @@
       licenceDescriptionIsVisible: false,
     }),
     computed: {
+      isTopic() {
+        return this.content.kind === ContentNodeKinds.TOPIC;
+      },
       canDownload() {
         if (this.facilityConfig.showDownloadButtonInLearn && this.content) {
           return (
