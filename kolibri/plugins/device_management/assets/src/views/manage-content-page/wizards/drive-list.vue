@@ -16,8 +16,8 @@
         v-for="drive in drives"
         :key="drive.id"
         :label="enabledDriveLabel(drive)"
-        :radiovalue="drive.id"
-        :value="value"
+        :value="drive.id"
+        :currentValue="value"
         @change="$emit('input', drive.id)"
       />
     </div>

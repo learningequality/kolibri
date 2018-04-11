@@ -1,8 +1,7 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
-import sinon from 'sinon';
-import assert from 'assert';
+import { expect } from 'chai';
 import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import { mount } from '@vue/test-utils';
 import { defaultChannel } from '../utils/data';
@@ -78,20 +77,20 @@ describe('channelListItem', () => {
     it('shows the channel title, version, and description', () => {
       function test(wrapper) {
         const { title, version, description } = getElements(wrapper);
-        assert.equal(title(), 'Channel Title');
-        assert.equal(version(), 'Version 20');
-        assert.equal(description(), 'An awesome channel');
+        expect(title()).to.equal('Channel Title');
+        expect(version()).to.equal('Version 20');
+        expect(description()).to.equal('An awesome channel');
       }
       testAll(test);
     });
 
     it('shows the thumbnail using encoded string', () => {
       function test(wrapper) {
-        wrapper.setProps({ thumbnail: fakeImage });
+        wrapper.setProps({ channel: { ...defaultChannel, thumbnail: fakeImage } });
         const { thumbnail } = getElements(wrapper);
         const thumb = thumbnail();
-        assert.equal(thumb.find('img').attributes().src, fakeImage);
-        assert(!thumb.contains('svg'));
+        expect(thumb.find('img').attributes().src).to.equal(fakeImage);
+        expect(thumb.contains('svg')).to.be.false;
       }
       testAll(test);
     });
@@ -101,16 +100,16 @@ describe('channelListItem', () => {
         const { thumbnail } = getElements(wrapper);
         wrapper.setProps({ channel: { ...defaultChannel, thumbnail: '' } });
         const thumb = thumbnail();
-        assert(thumb.contains('svg'));
-        assert(!thumb.contains('img'));
+        expect(thumb.contains('svg')).to.be.true;
+        expect(thumb.contains('img')).to.be.false;
       }
       testAll(test);
     });
   });
 
-  xit('shows an icon if the channel is unlisted', () => {});
-
   it('if the channel is installed, the version number is of the installed channel', () => {
+    // NOTE: need to call $forceUpdate after using .setProps()
+    // see https://github.com/vuejs/vue-test-utils/issues/480
     importWrapper.setProps({
       onDevice: true,
       channel: {
@@ -118,28 +117,30 @@ describe('channelListItem', () => {
         version: 20,
       },
     });
+    importWrapper.vm.$forceUpdate();
     const { version } = getElements(importWrapper);
-    assert.equal(version(), 'Version 11');
+    expect(version()).to.equal('Version 11');
   });
 
   it('if the channel is not installed, the version number is of the remote channel', () => {
     importWrapper.setProps({
-      onDevice: true,
+      onDevice: false,
       channel: {
         id: 'not_installed',
         version: 20,
       },
     });
+    importWrapper.vm.$forceUpdate();
     const { version } = getElements(importWrapper);
-    assert.equal(version(), 'Version 20');
+    expect(version()).to.equal('Version 20');
   });
 
   it('in MANAGE/EXPORT shows the on-device file sizes of Resources', () => {
     // ...and does not show the "On Device" indicator
     function test(wrapper) {
       const { resourcesSizeText, onDevice } = getElements(wrapper);
-      assert.equal(resourcesSizeText(), '90 MB');
-      assert(!onDevice().exists());
+      expect(resourcesSizeText()).to.equal('90 MB');
+      expect(onDevice().exists()).to.be.false;
     }
     test(manageWrapper);
     test(exportWrapper);
@@ -148,13 +149,10 @@ describe('channelListItem', () => {
   it('in MANAGE mode only, clicking "delete" triggers a "clickdelete" event', () => {
     const wrapper = manageWrapper;
     const { deleteButton, selectButton } = getElements(wrapper);
-    const emitSpy = sinon.spy(wrapper.vm, '$emit');
     // Select button is not shown
-    assert(!selectButton().exists());
-    // prettier-ignore
+    expect(selectButton().exists()).to.be.false;
     deleteButton().trigger('click');
-    sinon.assert.calledOnce(emitSpy);
-    sinon.assert.calledWith(emitSpy, 'clickdelete');
+    expect(wrapper.emitted().clickdelete.length).to.equal(1);
   });
 
   it('in MANAGE mode only, delete button is disabled when tasks in queue', () => {
@@ -163,18 +161,15 @@ describe('channelListItem', () => {
     addTaskMutation({ id: 'task_1' });
     return wrapper.vm.$nextTick().then(() => {
       // prettier-ignore
-      assert.equal(deleteButton().attributes().disabled, 'disabled');
+      expect(deleteButton().attributes().disabled).to.equal('disabled');
     });
   });
 
   it('in IMPORT/EXPORT mode, clicking "select" triggers a "clickselect" event', () => {
     function test(wrapper) {
-      const emitSpy = sinon.spy(wrapper.vm, '$emit');
       const { selectButton } = getElements(wrapper);
-      // prettier-ignore
       selectButton().trigger('click');
-      sinon.assert.calledOnce(emitSpy);
-      sinon.assert.calledWith(emitSpy, 'clickselect');
+      expect(wrapper.emitted().clickselect.length).to.equal(1);
     }
     return Promise.all([test(importWrapper), test(exportWrapper)]);
   });
@@ -185,7 +180,7 @@ describe('channelListItem', () => {
       addTaskMutation({ id: 'task_1' });
       return wrapper.vm.$nextTick().then(() => {
         // prettier-ignore
-        assert.equal(selectButton().attributes().disabled, 'disabled');
+        expect(selectButton().attributes().disabled).to.equal('disabled');
       });
     }
     return Promise.all([test(importWrapper), test(exportWrapper)]);
@@ -195,13 +190,13 @@ describe('channelListItem', () => {
     function posTest(wrapper) {
       wrapper.setProps({ onDevice: true });
       const { onDevice, resourcesSize } = getElements(wrapper);
-      assert(onDevice().exists());
-      assert(!resourcesSize().exists());
+      expect(onDevice().exists()).to.be.true;
+      expect(resourcesSize().exists()).to.be.false;
     }
     function negTest(wrapper) {
       wrapper.setProps({ onDevice: true });
       const { onDevice } = getElements(wrapper);
-      assert(!onDevice().exists());
+      expect(onDevice().exists()).to.be.false;
     }
     posTest(importWrapper);
     negTest(exportWrapper);
@@ -212,7 +207,7 @@ describe('channelListItem', () => {
     const wrapper = importWrapper;
     wrapper.setProps({ onDevice: false });
     const { onDevice, resourcesSize } = getElements(wrapper);
-    assert(!onDevice().exists());
-    assert(!resourcesSize().exists());
+    expect(onDevice().exists()).to.be.false;
+    expect(resourcesSize().exists()).to.be.false;
   });
 });

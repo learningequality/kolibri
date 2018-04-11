@@ -7,12 +7,12 @@
     <!-- Classroom Selection Form -->
     <div v-if="stage===Stages.SELECT_CLASSROOM">
       <p>{{ copyExplanation }}</p>
-      <form @submit.prevent="goToAvailableGroups()">
+      <form id="select-classroom" @submit.prevent="goToAvailableGroups()">
         <template v-for="classroom in availableClassrooms">
           <k-radio-button
             :key="classroom.id"
             :label="classroomLabel(classroom)"
-            :radiovalue="classroom.id"
+            :value="classroom.id"
             v-model="selectedClassroomId"
           />
         </template>
@@ -36,7 +36,10 @@
     <div v-else>
       <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>
       <p>{{ assignmentQuestion }}</p>
-      <form @submit.prevent="$emit('copy', selectedClassroomId, selectedCollectionIds)">
+      <form
+        id="select-learnergroup"
+        @submit.prevent="$emit('copy', selectedClassroomId, selectedCollectionIds)"
+      >
         <recipient-selector
           v-model="selectedCollectionIds"
           :groups="availableGroups"
@@ -134,6 +137,9 @@
       this.selectedClassroomId = this.classId;
     },
     methods: {
+      getLearnerGroupsForClassroom(classroomId) {
+        return LearnerGroupResource.getCollection({ parent: classroomId }).fetch();
+      },
       goToAvailableGroups() {
         // Do nothing if user presses Continue more than once
         if (this.blockControls) {
@@ -142,8 +148,7 @@
         this.blockControls = true;
         // Select Entire Classroom by default
         this.selectedCollectionIds = [this.selectedClassroomId];
-        return LearnerGroupResource.getCollection({ parent: this.selectedClassroomId })
-          .fetch()
+        return this.getLearnerGroupsForClassroom(this.selectedClassroomId)
           .then(groups => {
             this.availableGroups = groups;
             this.stage = Stages.SELECT_GROUPS;
