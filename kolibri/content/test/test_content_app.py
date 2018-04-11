@@ -21,8 +21,8 @@ from kolibri.auth.test.helpers import provision_device
 from kolibri.content import models as content
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
-from kolibri.core.lessons.models import Lesson
 from kolibri.core.exams.models import Exam
+from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSummaryLog
 
 DUMMY_PASSWORD = "password"
@@ -200,7 +200,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "on_device_resources": 0,
                 "coach_content": False,
                 "importable": True,
-                "num_coach_contents": 1,
+                "num_coach_contents": 0,
                 "children": [
                     {
                         "pk": c2_id,
@@ -224,7 +224,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "on_device_resources": 0,
                         "importable": True,
                         "coach_content": False,
-                        "num_coach_contents": 1,
+                        "num_coach_contents": 0,
                     }
                 ]
             }
@@ -255,7 +255,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "on_device_resources": 0,
                 "importable": True,
                 "coach_content": False,
-                "num_coach_contents": 1,
+                "num_coach_contents": 0,
                 "children": [
                     {
                         "pk": c2_id,
@@ -279,7 +279,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "on_device_resources": 0,
                         "importable": True,
                         "coach_content": False,
-                        "num_coach_contents": 1,
+                        "num_coach_contents": 0,
                     }
                 ]
             }
