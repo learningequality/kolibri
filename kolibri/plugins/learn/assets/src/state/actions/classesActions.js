@@ -91,7 +91,7 @@ export function showLessonPlaylist(store, { lessonId }) {
         },
       });
       store.dispatch('SET_CURRENT_LESSON', lesson);
-      return getAllLessonContentNodes(lesson.resources);
+      return ContentNodeResource.getCollection({ in_lesson: lesson.id }).fetch();
     })
     .then(contentNodes => {
       store.dispatch('SET_LESSON_CONTENTNODES', contentNodes);
