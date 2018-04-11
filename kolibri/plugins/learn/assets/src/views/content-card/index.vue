@@ -11,8 +11,8 @@
       dir="auto"
     >
       <h3 class="title">
-        <shaved-text
-          :title="title"
+        <text-truncator
+          :text="title"
           :maxHeight="maxTitleHeight"
         />
       </h3>
@@ -38,14 +38,14 @@
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import textTruncator from 'kolibri.coreVue.components.textTruncator';
   import cardThumbnail from './card-thumbnail';
-  import shavedText from './shaved-text';
 
   export default {
     components: {
       cardThumbnail,
       coachContentLabel,
-      shavedText,
+      textTruncator,
     },
     props: {
       title: {
@@ -100,9 +100,9 @@
       },
       maxTitleHeight() {
         if (this.subtitle) {
-          return this.isMobile ? 20 : 40;
+          return 40;
         }
-        return this.isMobile ? 40 : 60;
+        return this.isMobile ? 52 : 60;
       },
     },
   };
@@ -161,6 +161,8 @@
     .thumbnail
       position: absolute
     .text
-      margin-left: $thumb-width-mobile + 16
+      margin-left: $thumb-width-mobile
+    .subtitle
+      bottom: 17px
 
 </style>

@@ -83,6 +83,7 @@ import * as contentNode from '../utils/contentNodeUtils';
 import attemptLogList from '../views/attempt-log-list';
 import interactionList from '../views/interaction-list';
 import examReport from '../views/exam-report';
+import textTruncator from '../views/text-truncator';
 import kLinearLoader from '../views/k-linear-loader';
 import kCircularLoader from '../views/k-circular-loader';
 
@@ -150,6 +151,7 @@ export default {
       attemptLogList,
       interactionList,
       examReport,
+      textTruncator,
       kLinearLoader,
       kCircularLoader,
     },
