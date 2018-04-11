@@ -43,7 +43,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         return super(FacilityUserSerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
-        if FacilityUser.objects.exclude(id__exact=instance.id).filter(username__iexact=validated_data['username']).exists():
+        if validated_data.get('username') and FacilityUser.objects.exclude(id__exact=instance.id).filter(username__iexact=validated_data['username']).exists():
             raise serializers.ValidationError(_('An account with that username already exists'))
         return super(FacilityUserSerializer, self).update(instance, validated_data)
 
