@@ -7,6 +7,9 @@
     <text-truncator
       v-if="topic.description"
       :text="topic.description"
+      :maxHeight="50"
+      :showTooltip="false"
+      :showViewMore="true"
       dir="auto"
       class="page-description ta-l"
     />

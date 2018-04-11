@@ -1,22 +1,31 @@
 <template>
 
-  <p>
-    <!-- eslint-disable -->
-    <span :class="truncatedClass">{{ textHead }}<span class="visuallyhidden">{{ textTail }}</span></span>
-    <!-- eslint-enable -->
-    <k-button
-      v-if="textIsTooLong"
-      @click.stop.prevent="textExpanded=!textExpanded"
-      appearance="basic-link"
-      :text="!textExpanded ? $tr('viewMoreButtonPrompt') : $tr('viewLessButtonPrompt')"
-    />
-  </p>
+  <div>
+    <div v-if="viewAllText">{{ text }}</div>
+    <div
+      v-else
+      ref="shaveEl"
+      :title="tooltipText"
+    >
+      {{ text }}
+    </div>
+    <div class="ar">
+      <k-button
+        v-if="showViewMore && (textIsTruncated || viewAllText)"
+        appearance="basic-link"
+        :text="viewAllText ? $tr('viewLessButtonPrompt') : $tr('viewMoreButtonPrompt')"
+        @click.stop.prevent="viewAllText =! viewAllText"
+      />
+    </div>
+  </div>
 
 </template>
 
 
 <script>
 
+  import shave from 'shave';
+  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
@@ -24,39 +33,53 @@
     components: {
       kButton,
     },
+    mixins: [responsiveElement],
     props: {
       text: {
         type: String,
         required: true,
       },
-      textCharLimit: {
+      maxHeight: {
         type: Number,
+        required: true,
+        validator(value) {
+          return value > 0;
+        },
+      },
+      showTooltip: {
+        type: Boolean,
         required: false,
-        default: 140,
+        default: true,
+      },
+      showViewMore: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
     data() {
       return {
-        textExpanded: false,
+        textIsTruncated: false,
+        viewAllText: false,
       };
     },
     computed: {
-      textHead() {
-        if (this.textExpanded) {
-          return this.text;
+      tooltipText() {
+        if (!this.showTooltip || this.showViewMore || !this.textIsTruncated) {
+          return null;
         }
-        return this.text.slice(0, this.textCharLimit);
+        return this.text;
       },
-      textTail() {
-        return this.text.slice(this.textCharLimit);
-      },
-      textIsTooLong() {
-        return this.text.length > this.textCharLimit;
-      },
-      truncatedClass() {
-        return {
-          truncated: this.textIsTooLong && !this.textExpanded,
-        };
+    },
+    watch: {
+      elSize: {
+        handler() {
+          shave(this.$refs.shaveEl, this.maxHeight);
+          this.$nextTick(() => {
+            this.textIsTruncated = Boolean(this.$el.querySelector('.js-shave'));
+          });
+        },
+        deep: true,
       },
     },
     $trs: {
@@ -70,10 +93,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
-  .truncated::after
-    content: '\2026\0020'
-    display: inline
+  .ar
+    text-align: right
 
 </style>

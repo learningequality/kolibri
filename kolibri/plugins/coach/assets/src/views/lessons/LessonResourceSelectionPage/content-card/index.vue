@@ -23,6 +23,8 @@
 
       <text-truncator
         :text="description"
+        :maxHeight="40"
+        showViewMore="true"
         class="description"
       />
     </div>

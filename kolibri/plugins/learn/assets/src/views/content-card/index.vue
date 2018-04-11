@@ -11,8 +11,8 @@
       dir="auto"
     >
       <h3 class="title">
-        <shaved-text
-          :title="title"
+        <text-truncator
+          :text="title"
           :maxHeight="maxTitleHeight"
         />
       </h3>
@@ -36,14 +36,14 @@
 
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import textTruncator from 'kolibri.coreVue.components.textTruncator';
   import cardThumbnail from './card-thumbnail';
-  import shavedText from './shaved-text';
 
   export default {
     components: {
       cardThumbnail,
       coachContentLabel,
-      shavedText,
+      textTruncator,
     },
     props: {
       title: {
