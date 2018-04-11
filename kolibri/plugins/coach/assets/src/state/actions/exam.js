@@ -486,7 +486,7 @@ export function showExamReportPage(store, classId, examId) {
         collection: classId,
       }).fetch({}, true);
       const contentNodesPromise = ContentNodeResource.getCollection({
-        ids: exam.question_sources.map(({ exercise_id }) => exercise_id),
+        in_exam: exam.id,
         fields: ['id', 'num_coach_contents'],
       }).fetch();
       ConditionalPromise.all([

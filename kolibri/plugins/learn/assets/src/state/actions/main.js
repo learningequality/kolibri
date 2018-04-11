@@ -451,7 +451,7 @@ export function showExam(store, classId, examId, questionNumber) {
           handleError(store, `Question number ${questionNumber} is not valid for this exam`);
         } else {
           const contentPromise = ContentNodeResource.getCollection({
-            ids: questionSources.map(item => item.exercise_id),
+            in_exam: exam.id,
           }).fetch();
 
           contentPromise.only(

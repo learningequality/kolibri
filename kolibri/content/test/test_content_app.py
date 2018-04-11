@@ -22,6 +22,7 @@ from kolibri.content import models as content
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.lessons.models import Lesson
+from kolibri.core.exams.models import Exam
 from kolibri.logger.models import ContentSummaryLog
 
 DUMMY_PASSWORD = "password"
@@ -618,6 +619,43 @@ class ContentNodeAPITestCase(APITestCase):
 
         # request with valid uuid
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": '47385a6d4df3426db38ad0d20e113dce'})
+        self.assertEqual(len(response.data), 0)
+
+    def _setup_exam(self):
+        facility = Facility.objects.create(name="MyFac")
+        admin = FacilityUser.objects.create(username="admin", facility=facility)
+        admin.set_password(DUMMY_PASSWORD)
+        admin.save()
+        node = content.ContentNode.objects.get(title='c3c1')
+        exam = Exam.objects.create(
+            title="title",
+            channel_id="test",
+            question_count=1,
+            active=True,
+            collection=facility,
+            creator=admin,
+            question_sources=[
+                {"exercise_id": node.id, "number_of_questions": 6}
+            ]
+        )
+
+        return exam, node
+
+    def test_in_exam_filter(self):
+        exam, node = self._setup_exam()
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": exam.id})
+        self.assertEqual(len(response.data), len(exam.question_sources))
+        self.assertEqual(response.data[0]['id'], node.id)
+
+    def test_in_exam_filter_invalid_value(self):
+        self._setup_exam()
+
+        # request with invalid uuid
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": '123'})
+        self.assertEqual(len(response.data), 0)
+
+        # request with valid uuid
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": '47385a6d4df3426db38ad0d20e113dce'})
         self.assertEqual(len(response.data), 0)
 
     def tearDown(self):
