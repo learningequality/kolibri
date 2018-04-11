@@ -14,7 +14,7 @@
         v-if="showViewMore && (textIsTruncated || viewAllText)"
         appearance="basic-link"
         :text="viewAllText ? $tr('viewLessButtonPrompt') : $tr('viewMoreButtonPrompt')"
-        @click.stop.prevent="viewAllText =! viewAllText"
+        @click.stop.prevent="viewAllText = !viewAllText"
       />
     </div>
   </div>
