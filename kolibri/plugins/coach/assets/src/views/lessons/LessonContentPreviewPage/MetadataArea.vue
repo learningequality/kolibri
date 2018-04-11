@@ -8,6 +8,10 @@
     <h1 class="header primary-data">
       {{ content.title }}
     </h1>
+    <coach-content-label
+      :value="content.num_coach_contents"
+      :isTopic="false"
+    />
 
     <dl>
       <div class="primary-data" v-if="completionRequirements">
@@ -60,6 +64,7 @@
 
 <script>
 
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
 
   const dataRequired = ['title'];
@@ -76,6 +81,7 @@
       copyrightHolderDataHeader: 'Copyright holder',
     },
     components: {
+      coachContentLabel,
       InfoIcon,
     },
     props: {
