@@ -384,10 +384,17 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             .count()
 
     def get_num_coach_contents(self, instance):
+        # If for exporting, only show what is available on server. For importing,
+        # show all of the coach contents in the topic.
+        for_export = self.context['request'].query_params.get('for_export', None)
+        get_available = True if for_export else False
         if instance.kind == content_kinds.TOPIC:
-            return instance.get_descendants() \
-                .filter(coach_content=True, available=True) \
-                .exclude(kind=content_kinds.TOPIC) \
+            queryset = instance.get_descendants().filter(coach_content=True)
+
+            if get_available:
+                queryset = queryset.filter(available=True)
+
+            return queryset.exclude(kind=content_kinds.TOPIC) \
                 .distinct() \
                 .count()
         else:
