@@ -89,6 +89,7 @@ class ContentNodeFilter(IdFilter):
     popular = CharFilter(method="filter_popular")
     resume = CharFilter(method="filter_resume")
     kind = ChoiceFilter(method="filter_kind", choices=(content_kinds.choices + (('content', _('Content')),)))
+    by_role = BooleanFilter(method="filter_by_role")
     in_lesson = CharFilter(method="filter_in_lesson")
     in_exam = CharFilter(method="filter_in_exam")
 
@@ -221,6 +222,20 @@ class ContentNodeFilter(IdFilter):
         if value == 'content':
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
+
+    def filter_by_role(self, queryset, name, value):
+        """
+        Show coach_content if they have coach role or higher.
+
+        :param queryset: all content nodes for this channel
+        :param value: 'boolean'
+        :return: content nodes filtered by coach_content if appropiate
+        """
+        user = self.request.user
+        if user.is_facility_user:  # exclude anon users
+            if user.roles.exists() or user.is_superuser:  # must have coach role or higher
+                return queryset
+        return queryset.exclude(coach_content=True)
 
     def filter_in_lesson(self, queryset, name, value):
         """
