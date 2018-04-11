@@ -30,8 +30,10 @@ from kolibri.content import serializers
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
 from kolibri.content.utils.paths import get_channel_lookup_url
+from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
+
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +87,8 @@ class ContentNodeFilter(IdFilter):
     next_steps = CharFilter(method="filter_next_steps")
     popular = CharFilter(method="filter_popular")
     resume = CharFilter(method="filter_resume")
-    kind = ChoiceFilter(method="filter_kind", choices=(content_kinds.choices + ('content', _('Content'))))
+    kind = ChoiceFilter(method="filter_kind", choices=(content_kinds.choices + (('content', _('Content')),)))
+    in_lesson = CharFilter(method="filter_in_lesson")
 
     class Meta:
         model = models.ContentNode
@@ -216,6 +219,26 @@ class ContentNodeFilter(IdFilter):
         if value == 'content':
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
+
+    def filter_in_lesson(self, queryset, name, value):
+        """
+        Show only content associated with this lesson
+
+        :param queryset: all content nodes
+        :param value: id of target lesson
+        :return: content nodes for this lesson
+        """
+        try:
+            resources = Lesson.objects.get(id=value).resources
+            contentnode_id_list = [node['contentnode_id'] for node in resources]
+            # adapted from https://codybonney.com/creating-a-queryset-from-a-list-while-preserving-order-using-django/
+            clauses = ' '.join(["WHEN {}.id='{}' THEN {}".format(models.ContentNode._meta.db_table,
+                                                                 pk, i) for i, pk in enumerate(contentnode_id_list)])
+            ordering = 'CASE {} END'.format(clauses)
+            return queryset.filter(pk__in=contentnode_id_list) \
+                           .extra(select={'ordering': ordering}, order_by=('ordering',))
+        except (Lesson.DoesNotExist, ValueError):  # also handles invalid uuid
+            queryset.none()
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):

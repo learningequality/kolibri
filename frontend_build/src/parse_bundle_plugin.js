@@ -108,7 +108,11 @@ var parseBundlePlugin = function(data) {
     plugins: [
       new ExtractTextPlugin('[name]' + data.version + '.css'),
       new WebpackRTLPlugin({
-        minify: { zindex: false },
+        minify: {
+          zindex: false,
+          // prevent renaming keyframes
+          reduceIdents: false,
+        },
       }),
       // BundleTracker creates stats about our built files which we can then pass to Django to
       // allow our template tags to load the correct frontend files.

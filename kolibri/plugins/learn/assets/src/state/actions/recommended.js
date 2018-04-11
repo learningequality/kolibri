@@ -49,6 +49,7 @@ function _mapContentSet(contentSet) {
 }
 
 function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, channelId = null) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   // promise that resolves with content array, already mapped to state
   const pagePrep = Promise.all([
     getContentPromise(store.state, channelId),
