@@ -228,6 +228,7 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
           content_id: node.content_id,
           channel_id: node.channel_id,
           description: node.description,
+          num_coach_contents: node.num_coach_contents,
           title: node.title,
           thumbnail: getContentNodeThumbnail(node),
           kind: node.kind,

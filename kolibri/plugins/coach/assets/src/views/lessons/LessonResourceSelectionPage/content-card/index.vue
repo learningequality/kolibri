@@ -32,6 +32,11 @@
         />
 
       </p>
+      <coach-content-label
+        class="coach-content-label"
+        :value="numCoachContents"
+        :isTopic="isTopic"
+      />
     </div>
 
   </router-link>
@@ -42,6 +47,8 @@
 <script>
 
   import kButton from 'kolibri.coreVue.components.kButton';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import cardThumbnail from './card-thumbnail';
 
@@ -51,6 +58,7 @@
     name: 'lessonContentCard',
     components: {
       cardThumbnail,
+      coachContentLabel,
       kButton,
     },
     props: {
@@ -76,6 +84,13 @@
         required: true,
         validator: validateLinkObject,
       },
+      // ContentNode.coach_content will be `0` if not a coach content leaf node,
+      // or a topic without coach content. It will be a positive integer if a topic
+      // with coach content, and `1` if a coach content leaf node.
+      numCoachContents: {
+        type: Number,
+        default: 0,
+      },
       message: {
         type: String,
         default: '',
@@ -87,6 +102,9 @@
       };
     },
     computed: {
+      isTopic() {
+        return this.kind === ContentNodeKinds.TOPIC;
+      },
       descriptionHead() {
         if (this.descriptionExpanded) {
           return this.description;
@@ -118,6 +136,9 @@
 
   @require '~kolibri.styles.definitions'
   @require './card.styl'
+
+  .coach-content-label
+    padding: 8px 0
 
   .content-card
     text-decoration: none
