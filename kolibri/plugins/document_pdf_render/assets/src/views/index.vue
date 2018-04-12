@@ -18,7 +18,6 @@
 
     <ui-icon-button
       class="doc-viewer-controls button-zoom-in"
-      :class="{'short-display': shortDisplay}"
       aria-controls="pdf-container"
       icon="add"
       size="large"
@@ -26,19 +25,19 @@
     />
     <ui-icon-button
       class="doc-viewer-controls button-zoom-out"
-      :class="{'short-display': shortDisplay}"
       aria-controls="pdf-container"
       icon="remove"
       size="large"
       @click="zoomOut"
     />
 
-    <div ref="pdfContainer" id="pdf-container" @scroll="checkPages">
-      <progress-bar
+    <div ref="pdfContainer" class="pdf-container" @scroll="checkPages">
+      <k-linear-loader
         v-if="documentLoading"
         class="progress-bar"
-        :showPercentage="true"
-        :progress="progress"
+        :delay="false"
+        :type="progress > 0 ? 'determinate' : 'indeterminate'"
+        :progress="progress * 100"
       />
       <page-component
         class="pdf-page-container"
@@ -62,7 +61,7 @@
   import PDFJSLib from 'pdfjs-dist';
   import ScreenFull from 'screenfull';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import progressBar from 'kolibri.coreVue.components.progressBar';
+  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -90,19 +89,21 @@
     name: 'pdfRender',
     components: {
       kButton,
-      progressBar,
+      kLinearLoader,
       uiIconButton,
       pageComponent,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
       isFullscreen: false,
-      progress: 0,
+      progress: null,
       scale: null,
       timeout: null,
       totalPages: null,
       pageHeight: null,
       pageWidth: null,
+      firstPageHeight: null,
+      firstPageWidth: null,
       pdfPages: [],
     }),
     computed: {
@@ -114,9 +115,6 @@
       },
       mimicFullscreen() {
         return !this.fullscreenAllowed && this.isFullscreen;
-      },
-      shortDisplay() {
-        return this.elSize.height === minViewerHeight;
       },
       minViewerHeight() {
         return `min-height: ${minViewerHeight}px`;
@@ -136,6 +134,13 @@
         const firstChange = oldScale === null;
 
         if (!noChange && !firstChange) {
+          const position = this.$refs.pdfContainer.scrollTop / this.$refs.pdfContainer.scrollHeight;
+          this.pageHeight = this.firstPageHeight * newScale;
+          this.pageWidth = this.firstPageWidth * newScale;
+          this.$nextTick(() => {
+            this.$refs.pdfContainer.scrollTop = this.$refs.pdfContainer.scrollHeight * position;
+          });
+
           // remove all rendered/rendering pages
           Object.keys(this.pdfPages).forEach(pageNum => {
             this.hidePage(Number(pageNum));
@@ -169,7 +174,9 @@
         return this.getPage(1).then(firstPage => {
           const pageMargin = 5;
           const pdfPageWidth = firstPage.view[2];
-          const isDesktop = this.windowSize.breakpoint >= 5;
+          this.firstPageWidth = firstPage.view[2];
+          this.firstPageHeight = firstPage.view[3];
+          const isDesktop = this.windowSize.breakpoint > 3;
 
           if (isDesktop) {
             // if desktop, use default page's default scale size
@@ -192,6 +199,7 @@
     mounted() {
       // Retrieve the document and its corresponding object
       this.prepComponentData.then(() => {
+        this.progress = 1;
         this.$emit('startTracking');
         this.checkPages();
         // Automatically master after the targetTime, convert seconds -> milliseconds
@@ -221,10 +229,10 @@
         }
       },
       zoomIn: throttle(function() {
-        this.scale += scaleIncrement;
+        this.scale = Math.min(scaleIncrement * 15, this.scale + scaleIncrement);
       }, renderDebounceTime),
       zoomOut: throttle(function() {
-        this.scale -= scaleIncrement;
+        this.scale = Math.max(scaleIncrement, this.scale - scaleIncrement);
       }, renderDebounceTime),
       getPage(pageNum) {
         return this.pdfDocument.getPage(pageNum);
@@ -271,6 +279,9 @@
           const pagesToDisplay = [];
           let i, display;
           for (i = 1; i <= this.totalPages; i++) {
+            // Referenced in the style
+            const PAGE_PADDING = 5;
+            cumulativeHeight += PAGE_PADDING;
             // If the current cumulativeHeight (which marks the beginning of this page)
             // is higher than top and less than bottom, then this page
             // should be displayed
@@ -366,7 +377,7 @@
     &-controls
       position: absolute
 
-  #pdf-container
+  .pdf-container
     height: 100%
     overflow-y: scroll
     text-align: center
@@ -388,16 +399,9 @@
       &-in, &-out
         right: ($keen-button-height / 2)
       &-in
-        bottom: $keen-button-height * 2.5
-      &-out
-        bottom: $keen-button-height
-
-      // Align to top when there's a chance bottom-aligned controls are below the fold
-      &-in.short-display
         top: $keen-button-height
-      &-out.short-display
+      &-out
         top: $keen-button-height * 2.5
-
 
   .progress-bar
     top: 50%

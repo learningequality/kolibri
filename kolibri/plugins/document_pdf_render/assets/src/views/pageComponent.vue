@@ -4,7 +4,7 @@
     class="pdf-page-container"
     :style="{ height: pageHeight + 'px', width: pageWidth + 'px' }"
   >
-    <span class="pdf-page-loading"> {{ $formatNumber(pageNum) }}</span>
+    <span class="pdf-page-loading">{{ $formatNumber(pageNum) }}</span>
     <canvas
       v-show="active"
       class="canvas"
@@ -81,8 +81,10 @@
       },
       setPageDimensions() {
         // Set height and width based on the the pdfPage information and the scale
-        this.height = this.pdfPage.view[3] * this.scale;
-        this.width = this.pdfPage.view[2] * this.scale;
+        if (this.pdfPage) {
+          this.height = this.pdfPage.view[3] * this.scale;
+          this.width = this.pdfPage.view[2] * this.scale;
+        }
       },
       renderPage(newVal, oldVal) {
         if (typeof newVal === 'number' && typeof oldVal === 'number' && newVal !== oldVal) {
