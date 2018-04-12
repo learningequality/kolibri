@@ -172,6 +172,9 @@ def initialize(debug=False):
             )
             update()
 
+        # load morango fixtures needed for certificate related operations
+        call_command("loaddata", "scopedefinitions")
+
 def _migrate_databases():
     """
     Try to migrate all active databases. This should not be called unless Django has
