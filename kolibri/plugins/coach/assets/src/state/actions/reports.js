@@ -1,3 +1,4 @@
+import find from 'lodash/find';
 import { handleError, handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { getChannels } from 'kolibri.coreVue.vuex.getters';
@@ -108,13 +109,16 @@ function getAllChannelsLastActivePromise(channels, userScope, userScopeId) {
   return Promise.all(promises);
 }
 
-function _channelReportState(data) {
+function _channelReportState(data, channelRootNodes = []) {
   if (!data) {
     return [];
   }
   return data.map(row => ({
     lastActive: row.last_active,
     id: row.channelId,
+    // merge ChannelMetdata with ContentNode to get num_coach_contents
+    num_coach_contents:
+      (find(channelRootNodes, { id: row.channelId }) || {}).num_coach_contents || 0,
     progress: row.progress.map(progressData => ({
       kind: progressData.kind,
       nodeCount: progressData.node_count,
@@ -128,8 +132,11 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
   const userScope = userId ? UserScopes.USER : UserScopes.CLASSROOM;
   const userScopeId = userId || classId;
 
+  const channels = getChannels(store.state);
   const promises = [
-    getAllChannelsLastActivePromise(getChannels(store.state), userScope, userScopeId),
+    getAllChannelsLastActivePromise(channels, userScope, userScopeId),
+    // Get the ContentNode for the ChannelRoot for getting num_coach_contents
+    ContentNodeResource.getCollection({ ids: channels.map(({ root_id }) => root_id) }).fetch(),
     setClassState(store, classId),
   ];
 
@@ -137,7 +144,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
     promises.push(FacilityUserResource.getModel(userId).fetch());
   }
 
-  return Promise.all(promises).then(([allChannelLastActive, , user]) => {
+  return Promise.all(promises).then(([allChannelLastActive, channelRootNodes, , user]) => {
     const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
     setReportSorting(store, defaultSortCol, SortOrders.DESCENDING);
     // HACK: need to append this to make pageState more consistent between pages
@@ -149,7 +156,10 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
       userScopeName: userId ? user.full_name : className(store.state),
       viewBy: ViewBy.CHANNEL,
     });
-    store.dispatch('SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
+    store.dispatch(
+      'SET_REPORT_TABLE_DATA',
+      _channelReportState(allChannelLastActive, channelRootNodes)
+    );
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('CORE_SET_ERROR', null);
   });

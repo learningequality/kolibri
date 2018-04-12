@@ -55,7 +55,7 @@
     },
     computed: {
       isTopic() {
-        return this.kind === ContentNodeKinds.TOPIC;
+        return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
       },
     },
   };

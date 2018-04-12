@@ -90,6 +90,7 @@ function _genRow(state, item) {
   } else if (state.pageState.viewBy === ViewBy.CHANNEL) {
     row.id = item.id;
     row.title = item.title;
+    row.num_coach_contents = item.num_coach_contents;
   } else {
     // CONTENT NODES
     row.num_coach_contents = item.num_coach_contents;

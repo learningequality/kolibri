@@ -41,6 +41,7 @@
             :kind="CHANNEL"
             :title="channel.title"
             :link="reportLink(channel.id)"
+            :numCoachContents="channel.num_coach_contents"
           />
           <activity-cell :date="channel.lastActive" />
         </tr>
