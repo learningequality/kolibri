@@ -217,21 +217,13 @@ class ChannelImport(object):
         data_to_insert = []
         merge = model in merge_models
         for record in table_mapper(SourceRecord):
+            if self.is_cancelled():
+                raise ImportCancelError('Channel import was cancelled')
             data = {
                 str(column): row_mapper(record, column) for column in columns if row_mapper(record, column) is not None
             }
             if merge:
-                # Models that should be merged (see list above) need to be individually merged into the session
-                # as SQL Alchemy ORM does not support INSERT ... ON DUPLICATE KEY UPDATE style queries,
-                # as not available in SQLite, only MySQL as far as I can tell:
-                # http://hackthology.com/how-to-compile-mysqls-on-duplicate-key-update-in-sql-alchemy.html
-                RowEntry = self.destination.session.query(DestinationRecord).get(data[model._meta.pk.name])
-                if RowEntry:
-                    for key, value in data.items():
-                        setattr(RowEntry, key, value)
-                else:
-                    RowEntry = DestinationRecord(**data)
-                self.destination.session.merge(RowEntry)
+                self.merge_record(data, model, DestinationRecord)
             else:
                 data_to_insert.append(data)
             unflushed_rows += 1
@@ -244,6 +236,19 @@ class ChannelImport(object):
         if not merge and data_to_insert:
             self.destination.session.bulk_insert_mappings(DestinationRecord, data_to_insert)
         return unflushed_rows
+
+    def merge_record(self, data, model, DestinationRecord):
+        # Models that should be merged (see list above) need to be individually merged into the session
+        # as SQL Alchemy ORM does not support INSERT ... ON DUPLICATE KEY UPDATE style queries,
+        # as not available in SQLite, only MySQL as far as I can tell:
+        # http://hackthology.com/how-to-compile-mysqls-on-duplicate-key-update-in-sql-alchemy.html
+        RowEntry = self.destination.session.query(DestinationRecord).get(data[model._meta.pk.name])
+        if RowEntry:
+            for key, value in data.items():
+                setattr(RowEntry, key, value)
+        else:
+            RowEntry = DestinationRecord(**data)
+        self.destination.session.merge(RowEntry)
 
     def check_and_delete_existing_channel(self):
         try:
@@ -263,7 +268,19 @@ class ChannelImport(object):
                               'version {new_channel_version}').format(
                     channel_version=existing_channel.version, channel_id=self.channel_id, new_channel_version=self.channel_version))
                 return False
-            ChannelMetadata.objects.get(id=self.channel_id).delete_content_tree_and_files()
+            if self.is_cancelled():
+                raise ImportCancelError('Channel import was cancelled')
+            root_id = ChannelMetadata.objects.get(pk=self.channel_id).root_id
+            ContentNodeClass = self.destination.get_class(ContentNode)
+            root_node = self.destination.session.query(ContentNodeClass).get(root_id)
+            # We set cascade behaviour on relationships on the default database
+            # So calling delete on the root node of a channel will delete everything else
+            self.destination.session.delete(root_node)
+            # Deletion/cascade is not enacted on the session until we call flush
+            # Note: as this function is generally called inside a explicitly managed
+            # transaction, this will not be committed to the database unless the entire
+            # update operation succeeds.
+            self.destination.session.flush()
         return True
 
     def is_cancelled(self):

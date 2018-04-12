@@ -108,8 +108,11 @@ class Command(AsyncCommand):
                         filetransfer.cancel()
                         break
                     progress_update(len(chunk), progress_extra_data)
-
-                import_channel_by_id(channel_id, cancel_check=self.is_cancelled)
+                try:
+                    import_channel_by_id(channel_id, self.is_cancelled)
+                except channel_import.ImportCancelError:
+                    # This will only occur if is_cancelled is True.
+                    pass
                 if self.is_cancelled():
                     try:
                         os.remove(dest)
