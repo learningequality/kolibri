@@ -99,7 +99,8 @@
         return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
       },
       maxTitleHeight() {
-        if (this.subtitle) {
+        // Add room if there is a subtitle, or the coach content icon appears
+        if (this.subtitle || this.numCoachContents > 0) {
           return 40;
         }
         return this.isMobile ? 52 : 60;
@@ -116,6 +117,8 @@
   @require './card.styl'
 
   .coach-content-label
+    position: absolute
+    bottom: 0
     padding: 8px 0
 
   .card
