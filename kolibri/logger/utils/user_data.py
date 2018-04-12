@@ -227,7 +227,8 @@ def add_channel_activity_for_user(**options): # noqa: max-complexity=16
 
             # Get the list of assessment item ids from the assessment meta data
             assessment_item_ids = random_node.assessmentmetadata.first().assessment_item_ids
-
+            if not assessment_item_ids:
+                continue
             for i, session_log in enumerate(reversed(session_logs)):
                 # Always make students get 5 attempts correct in the most recent session
                 # if the exercise is complete
