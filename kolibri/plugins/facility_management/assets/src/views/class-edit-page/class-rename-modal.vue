@@ -84,7 +84,8 @@
     },
     computed: {
       duplicateName() {
-        if (this.name === this.classname) {
+        // if same name, different case
+        if (this.name.toUpperCase() === this.classname.toUpperCase()) {
           return false;
         }
         const index = this.classes.findIndex(
