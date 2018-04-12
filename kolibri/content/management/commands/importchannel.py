@@ -17,9 +17,9 @@ DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
 
 
-def import_channel_by_id(channel_id):
+def import_channel_by_id(channel_id, cancel_check):
     try:
-        channel_import.import_channel_from_local_db(channel_id)
+        channel_import.import_channel_from_local_db(channel_id, cancel_check=cancel_check)
     except channel_import.InvalidSchemaVersionError:
         raise CommandError(
             "Database file had an invalid database schema, the file may be corrupted or have been modified.")
