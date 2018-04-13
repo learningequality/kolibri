@@ -1,6 +1,7 @@
 import { ContentWizardPages as PageNames, TransferTypes } from '../../constants';
 import { showAvailableChannelsPage } from './availableChannelsActions';
-import { showSelectContentPage } from './selectContentActions';
+import { loadChannelMetaData, showSelectContentPage } from './selectContentActions';
+import { cancelTask } from './taskActions';
 
 /**
  * State machine for the Import/Export wizards.
@@ -70,7 +71,21 @@ export function transitionWizardPage(store, transition, params) {
   // Forward with params: { channel }
   if (wizardPage === PageNames.AVAILABLE_CHANNELS && transition === FORWARD) {
     store.dispatch('SET_TRANSFERRED_CHANNEL', params.channel);
+    return loadChannelMetaData(store);
+  }
+
+  // At LOADING_CHANNEL_METADATA
+  // Forward
+  if (wizardPage === PageNames.LOADING_CHANNEL_METADATA && transition === FORWARD) {
     return showSelectContentPage(store);
+  }
+
+  // At LOADING_CHANNEL_METADATA
+  // Backward
+  if (wizardPage === PageNames.LOADING_CHANNEL_METADATA && transition === BACKWARD) {
+    return cancelTask(store, store.state.pageState.taskList[0].id).then(() => {
+      store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
+    });
   }
 
   // AT SELECT_CONTENT, going backwards

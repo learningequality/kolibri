@@ -74,6 +74,7 @@
     [ContentWizardPages.SELECT_DRIVE]: selectDriveModal,
     [ContentWizardPages.AVAILABLE_CHANNELS]: availableChannelsPage,
     [ContentWizardPages.SELECT_CONTENT]: selectContentPage,
+    [ContentWizardPages.LOADING_CHANNEL_METADATA]: selectContentPage,
   };
 
   const POLL_DELAY = 1000;
