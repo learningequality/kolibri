@@ -64,7 +64,7 @@ class DateTimeTZFieldTestCase(TestCase):
 
 
 @unittest.skipIf(sys.platform.startswith("win"), "can't run on Windows")
-@unittest.skip("Test will be run manually for now because it will greatly increase testing times.")
+@unittest.skipIf(not os.environ.get('TRAVIS_TAG'), "This test will only be run during tagged builds.")
 class EcosystemTestCase(TestCase):
 
     def setUp(self):
