@@ -5,6 +5,7 @@ import Vuex from 'vuex';
 import sinon from 'sinon';
 import { TaskResource, RemoteChannelResource } from 'kolibri.resources';
 import { transitionWizardPage } from '../../src/state/actions/contentWizardActions';
+import { ContentWizardPages } from '../../src/constants';
 import { availableChannels, wizardState } from '../../src/state/getters';
 import mutations from '../../src/state/mutations';
 import * as selectContentActions from '../../src/state/actions/selectContentActions';
@@ -58,9 +59,11 @@ function makeStore() {
 
 describe('transitionWizardPage action', () => {
   // Tests import/export workflow from ManageContentPage to the SelectContentPage
-  // Covers integrations with showAvailableChannelsPage and showSelectContentPage
+  // Covers integrations with showAvailableChannelsPage, loadChannelMetaData
+  // and showSelectContentPage
   let store;
   let showSelectContentPageStub;
+  let loadChannelMetaDataStub;
 
   const pageName = () => wizardState(store.state).pageName;
   const transferType = () => wizardState(store.state).transferType;
@@ -73,12 +76,15 @@ describe('transitionWizardPage action', () => {
   beforeEach(() => {
     store = makeStore();
 
-    showSelectContentPageStub = sinon
-      .stub(selectContentActions, 'showSelectContentPage')
+    loadChannelMetaDataStub = sinon
+      .stub(selectContentActions, 'loadChannelMetaData')
       .returns(Promise.resolve());
+
+    showSelectContentPageStub = sinon.stub(selectContentActions, 'showSelectContentPage');
   });
 
   afterEach(() => {
+    loadChannelMetaDataStub.restore();
     showSelectContentPageStub.restore();
     TaskResource.localDrives.resetHistory();
   });
@@ -111,11 +117,16 @@ describe('transitionWizardPage action', () => {
         sinon.assert.calledOnce(fetchSpy);
         expect(availableChannels(store.state)).to.deep.equal(publicChannels);
 
-        // STEP 3 - pick first channel -> SELECT_CONTENT
+        // STEP 3 - pick first channel -> LOADING_CHANNEL_METADATA
         return transitionWizardPage(store, 'forward', {
           channel: {
             id: 'public_channel_1',
           },
+        }).then(() => {
+          sinon.assert.calledOnce(loadChannelMetaDataStub);
+          store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.LOADING_CHANNEL_METADATA);
+          // STEP 4 - LOADING_CHANNEL_METADATA -> SELECT CONTENT PAGE
+          return transitionWizardPage(store, 'forward');
         });
       })
       .then(() => {
@@ -151,8 +162,13 @@ describe('transitionWizardPage action', () => {
         expect(selectedDrive()).to.deep.equal(selectedUsbDrive);
         expect(availableChannels(store.state)).to.deep.equal(selectedUsbDrive.metadata.channels);
 
-        // STEP 4 - pick the first channel -> go to "select content" page
-        return transitionWizardPage(store, 'forward', { channel });
+        // STEP 4 - pick the first channel -> go to loading channel metadata
+        return transitionWizardPage(store, 'forward', { channel }).then(() => {
+          sinon.assert.calledOnce(loadChannelMetaDataStub);
+          store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.LOADING_CHANNEL_METADATA);
+          // STEP 5 - pick the first channel -> go to "select content" page
+          return transitionWizardPage(store, 'forward');
+        });
       })
       .then(() => {
         sinon.assert.calledOnce(showSelectContentPageStub);
@@ -180,8 +196,13 @@ describe('transitionWizardPage action', () => {
         expect(pageName()).to.equal('AVAILABLE_CHANNELS');
         expect(availableChannels(store.state)).to.deep.equal(installedChannels);
 
-        // STEP 3 - pick a channel -> SELECT_CONTENT
-        return transitionWizardPage(store, 'forward', { channel });
+        // STEP 3 - pick the first channel -> go to loading channel metadata
+        return transitionWizardPage(store, 'forward', { channel }).then(() => {
+          sinon.assert.calledOnce(loadChannelMetaDataStub);
+          store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.LOADING_CHANNEL_METADATA);
+          // STEP 4 - pick the first channel -> go to "select content" page
+          return transitionWizardPage(store, 'forward');
+        });
       })
       .then(() => {
         sinon.assert.calledOnce(showSelectContentPageStub);
