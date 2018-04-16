@@ -14,11 +14,7 @@ import requests
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 os.environ.setdefault(
-    "BUILD_TIME_PLUGINS", os.path.join(os.path.dirname(__file__), "default_plugins.txt")
-)
-
-os.environ.setdefault(
-    "RUN_TIME_PLUGINS", os.path.join(os.path.dirname(__file__), "default_plugins.txt")
+    "RUN_TIME_PLUGINS", os.path.realpath(os.path.join(os.path.dirname(__file__), "default_plugins.txt"))
 )
 
 plugins_cache = {}
@@ -52,22 +48,6 @@ def set_default_settings_module():
             f.write(default_settings_template.format(path=default_settings_path))
 
 
-def set_build_time_plugins():
-    if "BUILD_TIME_PLUGINS" in os.environ and os.environ["BUILD_TIME_PLUGINS"]:
-        build_plugins = load_plugins_from_file(os.environ["BUILD_TIME_PLUGINS"])
-        # For now, we still need to enable these plugins in order to build them
-        # When the build system has been decoupled, this list of plugins can be used for that instead
-        # Import CLI to set kolibri defaults
-        from kolibri.utils import cli  # noqa
-        from kolibri.utils import conf
-        print("Setting build time plugins to:")
-        for build_plugin in build_plugins:
-            print(build_plugin)
-        print("### End build plugins ###")
-        conf.config['INSTALLED_APPS'] = build_plugins
-        conf.save()
-
-
 run_time_plugin_template = "plugins = {plugins}\n"
 
 def set_run_time_plugins():
@@ -83,6 +63,5 @@ def set_run_time_plugins():
 
 
 if __name__ == "__main__":
-    set_build_time_plugins()
     set_default_settings_module()
     set_run_time_plugins()
