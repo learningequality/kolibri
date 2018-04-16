@@ -186,10 +186,6 @@
     text-align: left
     font-weight: bold
 
-  .empty-message
-    text-align: center
-    font-weight: bold
-
   .user-action-button
     text-align: right
 
