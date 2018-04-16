@@ -170,6 +170,10 @@
         this.firstRemovalTitle = this.resourceTitle(resourceId);
         this.removeFromWorkingResources(resourceId);
 
+        // Duplicate data so that hideCallback doesn't rely on state getters
+        const resourcesToCommit = Array.from(this.workingResources);
+        const lessonIdToCommit = this.lessonId;
+
         this.createSnackbar({
           text: this.removalMessage,
           duration: removalSnackbarTime,
@@ -179,17 +183,16 @@
             this.setWorkingResources(this.workingResourcesBackup);
             this.clearSnackbar();
           },
+          // can be called from anywhere within coach plugin, can't rely on state as the component
+          // loses access to state when not mounted
           hideCallback: () => {
             if (this.workingResourcesBackup) {
               // snackbar might carryover to another page (like select)
               this.workingResourcesBackup = this.workingResources;
             }
-            this.autoSave(Array.from(this.workingResources));
+            this.debouncedSaveLessonResources(lessonIdToCommit, resourcesToCommit);
           },
         });
-      },
-      autoSave(resources) {
-        return this.debouncedSaveLessonResources(this.lessonId, resources);
       },
       moveUpOne(oldIndex) {
         this.shiftOne(oldIndex, oldIndex - 1);
@@ -198,14 +201,13 @@
         this.shiftOne(oldIndex, oldIndex + 1);
       },
       shiftOne(oldIndex, newIndex) {
-        // TODO measure performance, see if worth keeping over generalized shiftMany
         const resources = [...this.workingResources];
         const oldResourceId = resources[newIndex];
         resources[newIndex] = resources[oldIndex];
         resources[oldIndex] = oldResourceId;
 
         this.setWorkingResources(resources);
-        this.autoSave(resources);
+        this.debouncedSaveLessonResources(this.lessonId, resources);
 
         this.createSnackbar({
           text: this.$tr('resourceReorderConfirmationMessage'),

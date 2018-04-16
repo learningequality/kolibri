@@ -251,7 +251,8 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
 }
 
 function getResourceCache(store, resourceIds) {
-  const { resourceCache } = store.state.pageState;
+  // duplicate data to remove reliance on pageState throughout the entire method
+  const { resourceCache } = Object.assign({}, store.state.pageState);
   const nonCachedResourceIds = [];
 
   if (resourceCache) {
