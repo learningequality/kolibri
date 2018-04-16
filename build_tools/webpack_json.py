@@ -17,7 +17,7 @@ logging.StreamHandler(sys.stdout)
 logger.setLevel(logging.INFO)
 
 os.environ.setdefault(
-    "BUILD_TIME_PLUGINS", os.path.realpath(os.path.join(os.path.dirname(__file__), "default_plugins.txt"))
+    "BUILD_TIME_PLUGINS", os.path.realpath(os.path.join(os.path.dirname(__file__), "build_plugins.txt"))
 )
 
 def validate_modules(build_list):
@@ -34,22 +34,18 @@ def main():
     logger.setLevel(logging.INFO)
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-i', '--input_file', help='the filepath to which you\'d like to run plugins from', type=str, default=None)
-    parser.add_argument('-b', '--build_list', help='provide a space separated list of plugins you\'d like to run', type=str, nargs='*', default=None)
+    parser.add_argument('--plugin_file', help='the filepath to which you\'d like to run plugins from', type=str, default=None)
+    parser.add_argument('--plugins', help='provide a space separated list of plugins you\'d like to run', type=str, nargs='*', default=None)
     parser.add_argument('-o', '--output_file', type=str, default=None, dest="output_file")
     args = parser.parse_args()
     build_list = []
 
-    if args.input_file:
-        load_plugins_from_file(args.input_file)
-    elif args.build_list:
-        build_list = args.build_list
-    else:
-        if "BUILD_TIME_PLUGINS" in os.environ and os.environ["BUILD_TIME_PLUGINS"]:
-            build_list = load_plugins_from_file(os.environ["BUILD_TIME_PLUGINS"])
-
-    if 'kolibri.core' not in build_list:
-            build_list.append('kolibri.core')
+    if args.plugin_file:
+        build_list = load_plugins_from_file(args.plugin_file)
+    elif args.plugins:
+        build_list = args.plugins
+    elif "BUILD_TIME_PLUGINS" in os.environ and os.environ["BUILD_TIME_PLUGINS"]:
+        build_list = load_plugins_from_file(os.environ["BUILD_TIME_PLUGINS"])
 
     logger.info("Gathering relevant modules from {}".format(build_list))
     initialize(build_list)

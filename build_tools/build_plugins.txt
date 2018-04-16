@@ -1,0 +1,12 @@
+kolibri.core
+kolibri.plugins.device_management
+kolibri.plugins.facility_management
+kolibri.plugins.learn
+kolibri.plugins.document_pdf_render
+kolibri.plugins.html5_app_renderer
+kolibri.plugins.media_player
+kolibri.plugins.setup_wizard
+kolibri.plugins.coach
+kolibri.plugins.user
+kolibri_exercise_perseus_plugin
+kolibri.plugins.style_guide
