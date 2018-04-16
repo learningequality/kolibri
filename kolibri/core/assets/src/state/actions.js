@@ -198,7 +198,7 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
       } else if (isCoach(store.state)) {
         /* Even more hacky solution to redirect a coach to Coach tab on login*/
         redirectBrowser(window.location.origin + coachURL);
-      }else {
+      } else {
         redirectBrowser();
       }
     })
