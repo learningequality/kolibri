@@ -416,9 +416,18 @@ class NoVersionv020ImportTestCase(NaiveImportTestCase):
         p = content.Language.objects.get(lang_code="en")
         self.assertEqual(str(p), '')
 
+    @classmethod
+    def tearDownClass(cls):
+        super(NoVersionv020ImportTestCase, cls).tearDownClass()
+
+
 class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
     """
     Integration test for import from no version import
     """
 
     legacy_schema = V040BETA3
+
+    @classmethod
+    def tearDownClass(cls):
+        super(NoVersionv020ImportTestCase, cls).tearDownClass()
