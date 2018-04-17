@@ -40,12 +40,18 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             on_device_resources = descendants.exclude(kind=content_kinds.TOPIC).filter(available=True).count()
             on_device_file_size = local_files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
 
+            num_coach_contents = ContentNodeGranularSerializer(
+                instance.root,
+                context={'request': self.context['request'], 'for_export': True}
+            ).data['num_coach_contents']
+
             value.update(
                 {
                     "total_resources": total_resources,
                     "total_file_size": total_file_size,
                     "on_device_resources": on_device_resources,
-                    "on_device_file_size": on_device_file_size
+                    "on_device_file_size": on_device_file_size,
+                    "num_coach_contents": num_coach_contents,
                 })
 
         return value
@@ -387,6 +393,9 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         # If for exporting, only show what is available on server. For importing,
         # show all of the coach contents in the topic.
         for_export = self.context['request'].query_params.get('for_export', None)
+        # HACK to enable setting for_export either through Request or using
+        # in ChannelMetadataSerializer
+        for_export = for_export or self.context.get('for_export', None)
         get_available = True if for_export else False
         if instance.kind == content_kinds.TOPIC:
             queryset = instance.get_descendants().filter(coach_content=True)
