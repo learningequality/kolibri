@@ -1,13 +1,13 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue';
 import Vuex from 'vuex';
-import assert from 'assert';
-import coreStore from '../../src/state/store';
-import * as coreActions from '../../src/state/actions';
-import * as constants from '../../src/constants';
 import sinon from 'sinon';
 import urls from 'kolibri.urls';
 import { SessionResource, AttemptLogResource } from 'kolibri.resources';
+import coreStore from '../../src/state/store';
+import * as coreActions from '../../src/state/actions';
+import * as constants from '../../src/constants';
 import * as browser from '../../src/utils/browser';
 import ConditionalPromise from '../../src/conditionalPromise';
 
@@ -51,6 +51,7 @@ describe('Vuex store/actions for core module', () => {
     it('successful login', done => {
       urls['kolibri:facilitymanagementplugin:facility_management'] = () => '';
       urls['kolibri:devicemanagementplugin:device_management'] = () => '';
+      urls['kolibri:coach:coach'] = () => '';
       Object.assign(SessionResource, {
         createModel: () => ({
           save: () =>
