@@ -8,9 +8,6 @@ from customize_build import load_plugins_from_file
 
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins.registry import initialize
-from kolibri.utils.env import set_env
-
-set_env()
 
 logger = logging.getLogger(__name__)
 logging.StreamHandler(sys.stdout)
@@ -63,5 +60,4 @@ def main():
 
 
 if __name__ == '__main__':
-    set_env()
     main()
