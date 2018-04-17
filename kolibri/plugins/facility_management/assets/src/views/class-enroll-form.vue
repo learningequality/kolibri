@@ -9,10 +9,11 @@
       />
     </div>
 
+    <h2>{{ $tr('userTableLabel') }}</h2>
+
     <user-table
       v-model="selectedUsers"
       :users="visibleFilteredUsers"
-      :title="$tr('userTableLabel')"
       :selectable="true"
       :selectAllLabel="$tr('selectAllOnPage')"
       :userCheckboxLabel="$tr('selectUser')"

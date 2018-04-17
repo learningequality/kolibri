@@ -59,8 +59,9 @@
       :username="userToBeRemoved.username"
     />
 
+    <h3 class="section-header">{{ $tr('coachTableTitle') }}</h3>
+
     <user-table
-      :title="$tr('coachTableTitle')"
       :users="classCoaches"
       :emptyMessage="$tr('noCoachesInClassMessge')"
     >
@@ -73,8 +74,9 @@
       </template>
     </user-table>
 
+    <h3 class="section-header">{{ $tr('learnerTableTitle') }}</h3>
+
     <user-table
-      :title="$tr('learnerTableTitle')"
       :users="classLearners"
       :emptyMessage="$tr('noLearnersInClassMessage')"
     >
@@ -212,6 +214,10 @@
 
   .header
     font-weight: normal
+
+  .section-header
+    margin-top: 32px
+    font-size: 18px
 
   .user-roster
     overflow-x: auto

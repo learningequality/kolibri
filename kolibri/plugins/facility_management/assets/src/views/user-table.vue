@@ -1,14 +1,7 @@
 <template>
 
   <div>
-    <core-table class="user-table">
-      <caption v-if="title" class="title">
-        {{ title }}
-      </caption>
-      <caption v-else class="visuallyhidden">
-        {{ $tr('users') }}
-      </caption>
-
+    <core-table>
 
       <thead slot="thead">
         <tr>
@@ -160,7 +153,6 @@
       actions: {},
     },
     $trs: {
-      users: 'Users',
       coachTableTitle: 'Coaches',
       learnerTableTitle: 'Learners',
       fullName: 'Full name',
@@ -178,13 +170,8 @@
 
 <style lang="stylus" scoped>
 
-  .title, .empty-message
+  .empty-message
     margin-bottom: 16px
-
-  .title
-    font-size: 24px
-    text-align: left
-    font-weight: bold
 
   .user-action-button
     text-align: right
