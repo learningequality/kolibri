@@ -141,7 +141,6 @@
     setExamsModal,
     setSelectedExercises,
   } from '../../../state/actions/exam';
-  import { className } from '../../../state/getters/classes';
   import { Modals as ExamModals } from '../../../constants/examConstants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -446,7 +445,6 @@
     vuex: {
       getters: {
         classId: state => state.classId,
-        className,
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,
