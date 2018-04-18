@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import assert from 'assert';
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import { mount } from '@vue/test-utils';
@@ -86,21 +86,21 @@ describe('selectDriveModal component', () => {
     setTransferType('localimport');
     const wrapper = makeWrapper({ store });
     const { titleText } = getElements(wrapper);
-    assert.equal(titleText(), 'Select a drive');
+    expect(titleText()).to.equal('Select a drive');
   });
 
   it('when exporting, shows the correct title', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
     const { titleText } = getElements(wrapper);
-    assert.equal(titleText(), 'Select an export destination');
+    expect(titleText()).to.equal('Select an export destination');
   });
 
   it('when drive list is loading, show a message', () => {
     const wrapper = makeWrapper({ store });
     return wrapper.vm.$nextTick().then(() => {
       const alert = wrapper.find(UiAlert);
-      assert.equal(alert.text().trim(), 'Finding local drives…');
+      expect(alert.text().trim()).to.equal('Finding local drives…');
     });
   });
 
@@ -113,8 +113,8 @@ describe('selectDriveModal component', () => {
         return wrapper.vm.$nextTick();
       })
       .then(() => {
-        assert(driveListContainer().is('div'));
-        assert.equal(driveListLoading().exists(), false);
+        expect(driveListContainer().is('div')).to.be.true;
+        expect(driveListLoading().exists()).to.be.false;
       });
   });
 
@@ -122,17 +122,17 @@ describe('selectDriveModal component', () => {
     setTransferType('localimport');
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio, noContentRadio } = getElements(wrapper);
-    assert(writableImportableRadio().is('input'));
-    assert.equal(noContentRadio().exists(), false);
+    expect(writableImportableRadio().is('input')).to.be.true;
+    expect(noContentRadio().exists()).to.be.false;
   });
 
   it('in export mode, drive-list only shows drives that are writable', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio, noContentRadio, unwritableRadio } = getElements(wrapper);
-    assert(writableImportableRadio().is('input'));
-    assert(noContentRadio().is('input'));
-    assert.equal(unwritableRadio().exists(), false);
+    expect(writableImportableRadio().is('input')).to.be.true;
+    expect(noContentRadio().is('input')).to.be.true;
+    expect(unwritableRadio().exists()).to.be.false;
   });
 
   it('in import mode, if there are no drives with content, there is an empty state', () => {
@@ -143,7 +143,7 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     const driveListText = wrapper.find(UiAlert);
     const expectedMessage = 'No drives with Kolibri content are connected to the server';
-    assert.equal(driveListText.text().trim(), expectedMessage);
+    expect(driveListText.text().trim()).to.equal(expectedMessage);
   });
 
   it('in export mode, if there are no writable drives, there is an empty state', () => {
@@ -154,13 +154,13 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     const driveListText = wrapper.find(UiAlert);
     const expectedMessage = 'No drives that can be written to are connected to the server';
-    assert.equal(driveListText.text().trim(), expectedMessage);
+    expect(driveListText.text().trim()).to.equal(expectedMessage);
   });
 
   it('when no drive is selected, "Continue" button is disabled', () => {
     const wrapper = makeWrapper({ store });
     const { continueButton } = getElements(wrapper);
-    assert.equal(continueButton().attributes().disabled, 'disabled');
+    expect(continueButton().attributes().disabled).to.equal('disabled');
   });
 
   it('when a drive is selected, "Continue" button is enabled', () => {
@@ -168,7 +168,7 @@ describe('selectDriveModal component', () => {
     const { continueButton, writableImportableRadio } = getElements(wrapper);
     writableImportableRadio().trigger('change');
     return wrapper.vm.$nextTick().then(() => {
-      assert.equal(continueButton().attributes().disabled, undefined);
+      expect(continueButton().attributes().disabled).to.equal(undefined);
     });
   });
 
