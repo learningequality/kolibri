@@ -103,7 +103,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { resourceUserSummaryLink } from '../lessonsRouterUtils';
   import { createSnackbar, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
-  import { saveLessonResources } from '../../../state/actions/lessons';
+  import { saveLessonResources, updateCurrentLesson } from '../../../state/actions/lessons';
 
   const removalSnackbarTime = 5000;
 
@@ -167,7 +167,7 @@
         this.firstRemovalTitle = this.resourceTitle(resourceId);
         this.removeFromWorkingResources(resourceId);
 
-        this.saveLessonResources(this.lessonId, this.workingResources);
+        this.autoSave(this.lessonId, this.workingResources);
 
         this.createSnackbar({
           text: this.removalMessage,
@@ -176,7 +176,7 @@
           actionText: this.$tr('undoActionPrompt'),
           actionCallback: () => {
             this.setWorkingResources(this.workingResourcesBackup);
-            this.saveLessonResources(this.lessonId, this.workingResources);
+            this.autoSave(this.lessonId, this.workingResources);
             this.clearSnackbar();
           },
           hideCallback: () => {
@@ -200,11 +200,20 @@
         resources[oldIndex] = oldResourceId;
 
         this.setWorkingResources(resources);
-        this.saveLessonResources(this.lessonId, resources);
+        this.autoSave(this.lessonId, resources);
 
         this.createSnackbar({
           text: this.$tr('resourceReorderConfirmationMessage'),
           autoDismiss: true,
+        });
+      },
+      autoSave(id, resources) {
+        this.saveLessonResources(id, resources).catch(() => {
+          this.updateCurrentLesson(id).then(currentLesson => {
+            this.setWorkingResources(
+              currentLesson.resources.map(resourceObj => resourceObj.contentnode_id)
+            );
+          });
         });
       },
     },
@@ -227,6 +236,7 @@
       },
       actions: {
         saveLessonResources,
+        updateCurrentLesson,
         createSnackbar,
         clearSnackbar,
         removeFromWorkingResources(store, resourceId) {
