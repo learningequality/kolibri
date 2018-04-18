@@ -59,7 +59,7 @@
       </template>
     </user-table>
 
-    <k-grid>
+    <k-grid class="top-margin">
       <k-grid-item size="3" cols="4">
         <h2>{{ $tr('learnerTableTitle') }}</h2>
       </k-grid-item>
@@ -190,6 +190,9 @@
 
   .right
     text-align: right
+
+  .top-margin
+    margin-top: 24px
 
   // overwrite global styling
   // TODO - find a better way of doing this
