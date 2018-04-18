@@ -4,29 +4,21 @@
 
     <!-- TODO use grid -->
 
-    <!-- TODO use an icon button for click rather than a div. Accessibility -->
-    <div
-      id="name-edit-box"
-      @click="displayModal(Modals.EDIT_CLASS_NAME)"
-    >
-      <div
-        id="edit-name"
-        class="name-edit"
-      >
+    <div>
+      <h1 class="title-header">
         {{ currentClass.name }}
-      </div>
-      <mat-svg
-        id="edit-icon"
-        class="name-edit"
-        category="image"
-        name="edit"
-        aria-hidden="true"
+      </h1>
+      <ui-icon-button
+        icon="mode_edit"
+        type="secondary"
+        color="primary"
+        class="edit-button"
+        :ariaLabel="$tr('edit')"
+        @click="displayModal(Modals.EDIT_CLASS_NAME)"
       />
     </div>
 
-    <h2 class="header">
-      {{ $tr('coachEnrollmentPageTitle') }}
-    </h2>
+    <p>{{ $tr('coachEnrollmentPageTitle') }}</p>
 
     <div class="toolbar">
       <div class="enroll">
@@ -100,6 +92,7 @@
   import { displayModal } from '../../state/actions';
   import classRenameModal from './class-rename-modal';
   import userRemoveConfirmationModal from './user-remove-confirmation-modal';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kButton from 'kolibri.coreVue.components.kButton';
 
@@ -116,11 +109,13 @@
       noLearnersInClassMessage: "You don't have any enrolled learners",
       remove: 'Remove',
       noUsersExist: 'No users in this class',
+      edit: 'Edit class name',
     },
     components: {
       userTable,
       classRenameModal,
       userRemoveConfirmationModal,
+      uiIconButton,
       kRouterLink,
       kButton,
     },
@@ -175,49 +170,18 @@
 
   @require '~kolibri.styles.definitions'
 
-  .toolbar
-    margin-bottom: 32px
-
-  .searchbar
-    margin-top: 5px
-
-  #name-edit-box
-    display: inline-block
-    cursor: pointer
-    margin: 15px 0 5px
-
-  .name-edit
-    float: left
-
-  #edit-name
-    font-size: 1.5em
-    font-weight: bold
-
-  #edit-icon
-    fill: $core-action-normal
-    margin: 2px 0 0 5px
-
-  .toolbar:after
-    content: ''
-    display: table
-    clear: both
-
-  .enroll-user-button
-    width: 100%
-
-  .enroll
-    float: right
-
-  .empty-list
-    color: $core-text-annotation
-    margin-left: 10px
-
-  .header
-    font-weight: normal
-
   .section-header
     margin-top: 32px
     font-size: 18px
+
+  .title-header
+    display: inline-block
+
+  .edit-button
+    display: inline-block
+    position: relative
+    left: 10px
+    top: -4px
 
   .user-roster
     overflow-x: auto
