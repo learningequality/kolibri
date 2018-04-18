@@ -82,7 +82,7 @@
         <td>
           <k-button
             :text="$tr('resourceRemovalButtonLabel')"
-            @click="stageRemoval(resourceId)"
+            @click="removeResource(resourceId)"
             appearance="flat-button"
           />
         </td>
@@ -104,11 +104,8 @@
   import { resourceUserSummaryLink } from '../lessonsRouterUtils';
   import { createSnackbar, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { saveLessonResources } from '../../../state/actions/lessons';
-  import debounce from 'lodash/debounce';
 
   const removalSnackbarTime = 5000;
-
-  const saveDebounceTime = 6000;
 
   export default {
     name: 'resourceListTable',
@@ -166,13 +163,11 @@
           total: this.totalLearners,
         });
       },
-      stageRemoval(resourceId) {
+      removeResource(resourceId) {
         this.firstRemovalTitle = this.resourceTitle(resourceId);
         this.removeFromWorkingResources(resourceId);
 
-        // Duplicate data so that hideCallback doesn't rely on state getters
-        const resourcesToCommit = Array.from(this.workingResources);
-        const lessonIdToCommit = this.lessonId;
+        this.saveLessonResources(this.lessonId, this.workingResources);
 
         this.createSnackbar({
           text: this.removalMessage,
@@ -181,16 +176,14 @@
           actionText: this.$tr('undoActionPrompt'),
           actionCallback: () => {
             this.setWorkingResources(this.workingResourcesBackup);
+            this.saveLessonResources(this.lessonId, this.workingResources);
             this.clearSnackbar();
           },
-          // can be called from anywhere within coach plugin, can't rely on state as the component
-          // loses access to state when not mounted
           hideCallback: () => {
             if (this.workingResourcesBackup) {
               // snackbar might carryover to another page (like select)
               this.workingResourcesBackup = this.workingResources;
             }
-            this.debouncedSaveLessonResources(lessonIdToCommit, resourcesToCommit);
           },
         });
       },
@@ -207,7 +200,7 @@
         resources[oldIndex] = oldResourceId;
 
         this.setWorkingResources(resources);
-        this.debouncedSaveLessonResources(this.lessonId, resources);
+        this.saveLessonResources(this.lessonId, resources);
 
         this.createSnackbar({
           text: this.$tr('resourceReorderConfirmationMessage'),
@@ -233,7 +226,7 @@
         },
       },
       actions: {
-        debouncedSaveLessonResources: debounce(saveLessonResources, saveDebounceTime),
+        saveLessonResources,
         createSnackbar,
         clearSnackbar,
         removeFromWorkingResources(store, resourceId) {
