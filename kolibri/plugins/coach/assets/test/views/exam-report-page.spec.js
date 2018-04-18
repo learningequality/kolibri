@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import assert from 'assert';
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import { mount } from '@vue/test-utils';
@@ -11,7 +11,7 @@ function makeWrapper(options = {}) {
 
 function getElements(wrapper) {
   return {
-    averageScore: () => wrapper.find('.average-score'),
+    averageScoreText: () => wrapper.find('.average-score').text(),
     tableRows: () => wrapper.findAll('tbody > tr'),
   };
 }
@@ -42,13 +42,8 @@ describe('exam report page', () => {
       { progress: undefined, group: {}, score: undefined },
     ];
     const wrapper = makeWrapper({ store: new Vuex.Store({ state }) });
-    const { averageScore } = getElements(wrapper);
-    assert(
-      !averageScore()
-        .text()
-        .trim()
-        .endsWith('%')
-    );
+    const { averageScoreText } = getElements(wrapper);
+    expect(averageScoreText().endsWith('%')).to.be.false;
   });
 
   it('average score is shown if at least one exam in progress', () => {
@@ -59,13 +54,8 @@ describe('exam report page', () => {
       { progress: undefined, group: {}, score: undefined },
     ];
     const wrapper = makeWrapper({ store: new Vuex.Store({ state }) });
-    const { averageScore } = getElements(wrapper);
-    assert(
-      averageScore()
-        .text()
-        .trim()
-        .endsWith('%')
-    );
+    const { averageScoreText } = getElements(wrapper);
+    expect(averageScoreText().endsWith('%')).to.be.true;
   });
 
   it('shows correct scores for exam takers', () => {
@@ -77,8 +67,8 @@ describe('exam report page', () => {
     const wrapper = makeWrapper({ store: new Vuex.Store({ state }) });
     const { tableRows } = getElements(wrapper);
     // score is properly formatted
-    assert.equal(getTextInScoreColumn(tableRows().at(0)).trim(), '50%');
+    expect(getTextInScoreColumn(tableRows().at(0)).trim()).to.equal('50%');
     // emdash
-    assert.equal(getTextInScoreColumn(tableRows().at(1)).trim(), '–');
+    expect(getTextInScoreColumn(tableRows().at(1)).trim()).to.equal('–');
   });
 });
