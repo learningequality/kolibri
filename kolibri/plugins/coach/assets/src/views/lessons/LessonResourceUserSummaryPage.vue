@@ -28,7 +28,7 @@
 
     <!-- TODO consolidate with facility_management user-list -->
     <section>
-      <core-table v-if="userData.length">
+      <core-table>
         <thead>
           <tr>
             <th class="visuallyhidden core-table-icon-col">
@@ -141,7 +141,7 @@
         </tbody>
       </core-table>
 
-      <p v-else>
+      <p v-if="!userData.length">
         {{ $tr('userTableEmptyMessage') }}
       </p>
 
