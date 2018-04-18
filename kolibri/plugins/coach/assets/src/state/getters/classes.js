@@ -2,7 +2,7 @@ const getCurrentClassroom = state => state.classList.find(({ id }) => id === sta
 import { filterAndSortUsers } from '../../../../../facility_management/assets/src/userSearchUtils';
 
 export function className(state) {
-  return state.class;
+  return state.className;
 }
 
 export function classMemberCount(state) {
