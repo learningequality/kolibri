@@ -1,8 +1,6 @@
 <template>
 
-  <div class="user-roster">
-
-    <!-- TODO use grid -->
+  <div>
 
     <div>
       <h1 class="title-header">
@@ -20,22 +18,6 @@
 
     <p>{{ $tr('coachEnrollmentPageTitle') }}</p>
 
-    <div class="toolbar">
-      <div class="enroll">
-        <k-router-link
-          :text="$tr('assignCoachesButtonLabel')"
-          :to="coachAssignmentLink"
-          appearance="raised-button"
-        />
-        <k-router-link
-          :text="$tr('enrollLearnerButtonLabel')"
-          :to="learnerEnrollmentLink"
-          :primary="true"
-          appearance="raised-button"
-        />
-      </div>
-    </div>
-
     <!-- Modals -->
     <class-rename-modal
       v-if="modalShown===Modals.EDIT_CLASS_NAME"
@@ -43,15 +25,26 @@
       :classid="currentClass.id"
       :classes="classes"
     />
-
     <user-remove-confirmation-modal
       v-if="modalShown===Modals.REMOVE_USER"
       @confirm="removalAction(currentClass.id, userToBeRemoved.id)"
       :classname="currentClass.name"
       :username="userToBeRemoved.username"
     />
+    <!-- /Modals -->
 
-    <h3 class="section-header">{{ $tr('coachTableTitle') }}</h3>
+    <k-grid>
+      <k-grid-item size="3" cols="4">
+        <h2>{{ $tr('coachTableTitle') }}</h2>
+      </k-grid-item>
+      <k-grid-item size="1" cols="4" class="right">
+        <k-router-link
+          :text="$tr('assignCoachesButtonLabel')"
+          :to="coachAssignmentLink"
+          appearance="raised-button"
+        />
+      </k-grid-item>
+    </k-grid>
 
     <user-table
       :users="classCoaches"
@@ -66,7 +59,19 @@
       </template>
     </user-table>
 
-    <h3 class="section-header">{{ $tr('learnerTableTitle') }}</h3>
+    <k-grid>
+      <k-grid-item size="3" cols="4">
+        <h2>{{ $tr('learnerTableTitle') }}</h2>
+      </k-grid-item>
+      <k-grid-item size="1" cols="4" class="right">
+        <k-router-link
+          :text="$tr('enrollLearnerButtonLabel')"
+          :to="learnerEnrollmentLink"
+          :primary="true"
+          appearance="raised-button"
+        />
+      </k-grid-item>
+    </k-grid>
 
     <user-table
       :users="classLearners"
@@ -93,6 +98,8 @@
   import classRenameModal from './class-rename-modal';
   import userRemoveConfirmationModal from './user-remove-confirmation-modal';
   import uiIconButton from 'keen-ui/src/UiIconButton';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kButton from 'kolibri.coreVue.components.kButton';
 
@@ -116,6 +123,8 @@
       classRenameModal,
       userRemoveConfirmationModal,
       uiIconButton,
+      kGrid,
+      kGridItem,
       kRouterLink,
       kButton,
     },
@@ -170,10 +179,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  .section-header
-    margin-top: 32px
-    font-size: 18px
-
   .title-header
     display: inline-block
 
@@ -183,8 +188,12 @@
     left: 10px
     top: -4px
 
-  .user-roster
-    overflow-x: auto
-    overflow-y: hidden
+  .right
+    text-align: right
+
+  // overwrite global styling
+  // TODO - find a better way of doing this
+  .gutter-24 [class *= 'pure-u'], .gutter-16 [class *= 'pure-u']
+    padding: 0
 
 </style>
