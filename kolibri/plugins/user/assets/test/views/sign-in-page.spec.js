@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import assert from 'assert';
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import SignInPage from '../../src/views/sign-in-page';
@@ -14,6 +14,6 @@ function makeWrapper() {
 describe('signInPage component', () => {
   it('smoke test', () => {
     const wrapper = makeWrapper();
-    assert(wrapper.exists());
+    expect(wrapper.isVueInstance()).to.be.true;
   });
 });
