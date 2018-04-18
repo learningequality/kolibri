@@ -3,10 +3,11 @@
   <core-modal
     :title="$tr('deleteUser')"
     @cancel="closeModal()"
+    @enter="handleDeleteUser()"
   >
     <p>{{ $tr('confirmation', { username: username }) }}</p>
     <p>{{ $tr('warning', { username: username }) }}</p>
-  
+
     <div class="core-modal-buttons">
       <k-button
         :text="$tr('cancel')"

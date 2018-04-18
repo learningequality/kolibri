@@ -4,6 +4,7 @@
     :title="$tr('modalTitle')"
     :hasError="false"
     @cancel="close"
+    @enter="classDelete"
   >
     <div>
       <p>{{ $tr('confirmation', { classname: classname }) }}</p>

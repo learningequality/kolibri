@@ -3,6 +3,7 @@
   <core-modal
     :title="$tr('niceWork')"
     @cancel="closePopover"
+    @enter="closePopover"
   >
 
     <div class="progress-icon">
