@@ -1,14 +1,14 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
-import assert from 'assert';
 import { mount } from '@vue/test-utils';
+import sinon from 'sinon';
 import SelectContentPage from '../../src/views/select-content-page';
 import { defaultChannel, contentNodeGranularPayload } from '../utils/data';
 import { wizardState } from '../../src/state/getters';
 import SelectedResourcesSize from '../../src/views/select-content-page/selected-resources-size';
-import sinon from 'sinon';
 import { importExportWizardState } from '../../src/state/wizardState';
 
 SelectContentPage.vuex.actions.getAvailableSpaceOnDrive = () => {};

@@ -1,18 +1,18 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
-import assert from 'assert';
 import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
-import AvailableChannelsPage from '../../src/views/available-channels-page';
-import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import kSelect from 'kolibri.coreVue.components.kSelect';
 import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
 import ImmersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
+import cloneDeep from 'lodash/cloneDeep';
+import AvailableChannelsPage from '../../src/views/available-channels-page';
+import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
 import { importExportWizardState } from '../../src/state/wizardState';
-import cloneDeep from 'lodash/cloneDeep';
 
 const router = new VueRouter({
   routes: [{ path: '', name: 'wizardtransition' }],

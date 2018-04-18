@@ -11,9 +11,9 @@ if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
   require('intl/locale-data/jsonp/en.js');
 }
 
-import Mediator from '../src/core-app/mediator';
 import Vue from 'kolibri.lib.vue';
 import vueintl from 'vue-intl';
+import Mediator from '../src/core-app/mediator';
 
 Vue.use(vueintl, { defaultLocale: 'en-us' });
 

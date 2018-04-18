@@ -1,11 +1,11 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import sinon from 'sinon';
-import assert from 'assert';
+import { mount } from '@vue/test-utils';
 import ConfigPage from '../../src/views/facilities-config-page';
 import confirmResetModal from '../../src/views/facilities-config-page/confirm-reset-modal';
-import { mount } from '@vue/test-utils';
 
 function makeWrapper(propsData = {}) {
   const store = new Vuex.Store({

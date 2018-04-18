@@ -2,9 +2,9 @@
 import Vue from 'vue-test'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import { expect } from 'chai';
+import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
 import ContentNodeRow from '../../src/views/select-content-page/content-node-row.vue';
 import { makeNode } from '../utils/data';
-import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
 
 const defaultProps = {
   node: {

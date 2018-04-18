@@ -1,13 +1,13 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
-import assert from 'assert';
 import sinon from 'sinon';
 import router from 'kolibri.coreVue.router';
+import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import { showSelectContentPage } from '../../src/state/actions/selectContentActions';
 import mutations from '../../src/state/mutations';
 import { wizardState } from '../../src/state/getters';
-import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import { mockResource } from 'testUtils'; // eslint-disable-line
 import { importExportWizardState } from '../../src/state/wizardState';
 import { defaultChannel } from '../utils/data';

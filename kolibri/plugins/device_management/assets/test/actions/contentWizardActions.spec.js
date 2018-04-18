@@ -1,13 +1,13 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
-import assert from 'assert';
 import sinon from 'sinon';
+import { TaskResource, RemoteChannelResource } from 'kolibri.resources';
 import { transitionWizardPage } from '../../src/state/actions/contentWizardActions';
 import { availableChannels, wizardState } from '../../src/state/getters';
 import mutations from '../../src/state/mutations';
 import * as selectContentActions from '../../src/state/actions/selectContentActions';
-import { TaskResource, RemoteChannelResource } from 'kolibri.resources';
 import { mockResource } from 'testUtils'; // eslint-disable-line
 import { importExportWizardState } from '../../src/state/wizardState';
 

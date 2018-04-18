@@ -1,11 +1,10 @@
 /* eslint-env mocha */
 import assert from 'assert';
 import sinon from 'sinon';
+import { mockResource } from 'testUtils'; // eslint-disable-line import/no-unresolved
+import { MembershipResource } from 'kolibri.resources';
 import prepareLearnApp from '../../src/state/prepareLearnApp';
 import makeStore from '../util/makeStore';
-import { mockResource } from 'testUtils'; // eslint-disable-line import/no-unresolved
-
-import { MembershipResource } from 'kolibri.resources';
 
 mockResource(MembershipResource);
 

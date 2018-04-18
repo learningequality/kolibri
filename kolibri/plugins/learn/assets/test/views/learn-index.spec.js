@@ -1,10 +1,10 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
-import assert from 'assert';
+import { mount } from '@vue/test-utils';
 import LearnIndex from '../../src/views/index.vue';
 import makeStore from '../util/makeStore';
-import { mount } from '@vue/test-utils';
 
 const router = new VueRouter({
   routes: [

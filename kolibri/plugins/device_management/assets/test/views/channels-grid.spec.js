@@ -1,7 +1,7 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
-import assert from 'assert';
 import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
 import ChannelsGrid from '../../src/views/manage-content-page/channels-grid.vue';

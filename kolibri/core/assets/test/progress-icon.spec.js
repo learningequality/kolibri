@@ -1,10 +1,10 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
-import ProgressIcon from '../src/views/progress-icon';
 import { mount } from '@vue/test-utils';
 import UiTooltip from 'keen-ui/src/UiTooltip';
 import UiIcon from 'keen-ui/src/UiIcon';
-import assert from 'assert';
+import ProgressIcon from '../src/views/progress-icon';
 
 function testIcon(wrapper, expected) {
   const { iconType, text } = expected;

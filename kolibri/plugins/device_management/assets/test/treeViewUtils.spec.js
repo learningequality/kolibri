@@ -1,9 +1,9 @@
 /* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line
 import assert from 'assert';
+import Vue from 'vue-test'; // eslint-disable-line
+import pick from 'lodash/pick';
 import { annotateNode } from '../src/views/select-content-page/treeViewUtils';
 import { makeNode } from './utils/data';
-import pick from 'lodash/pick';
 
 function simplePath(pks) {
   return pks.map(makeNode);

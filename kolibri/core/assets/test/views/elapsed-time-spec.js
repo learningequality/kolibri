@@ -1,8 +1,8 @@
 /* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line
 import assert from 'assert';
-import elapsedTime from '../../src/views/elapsed-time';
+import Vue from 'vue-test'; // eslint-disable-line
 import { shallow } from '@vue/test-utils';
+import elapsedTime from '../../src/views/elapsed-time';
 
 const DUMMY_CURRENT_DATE = new Date(2017, 0, 1, 1, 1, 1);
 

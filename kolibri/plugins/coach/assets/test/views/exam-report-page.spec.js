@@ -1,9 +1,9 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
-import assert from 'assert';
-import ExamReportPage from '../../src/views/exams/exam-report-page';
 import { mount } from '@vue/test-utils';
+import ExamReportPage from '../../src/views/exams/exam-report-page';
 
 function makeWrapper(options = {}) {
   return mount(ExamReportPage, { ...options, stubs: ['kRouterLink', 'assignmentSummary'] });

@@ -13,10 +13,10 @@ import {
   reconnectTime,
 } from 'kolibri.coreVue.vuex.getters';
 
+import { setUpVueIntl } from 'kolibri.utils.i18n';
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
-import { setUpVueIntl } from 'kolibri.utils.i18n';
 
 describe('HeartBeat', function() {
   // TODO: Make this more general so it is set up for all tests

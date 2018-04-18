@@ -1,11 +1,11 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
-import assert from 'assert';
 import sinon from 'sinon';
+import { mount } from '@vue/test-utils';
 import ChannelListPage from '../../src/views/reports/channel-list-page';
 import { ViewBy } from '../../src/constants/reportConstants';
-import { mount } from '@vue/test-utils';
 
 const initialState = () => ({
   classId: '',

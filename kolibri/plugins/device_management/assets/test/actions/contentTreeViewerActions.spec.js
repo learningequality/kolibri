@@ -1,12 +1,12 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
-import assert from 'assert';
 import sinon from 'sinon';
 import omit from 'lodash/fp/omit';
 import { mockResource } from 'testUtils'; // eslint-disable-line
-import mutations from '../../src/state/mutations';
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
+import mutations from '../../src/state/mutations';
 import {
   addNodeForTransfer,
   removeNodeForTransfer,

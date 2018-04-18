@@ -1,13 +1,13 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
-import assert from 'assert';
 import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
-import SelectDriveModal from '../../src/views/manage-content-page/wizards/select-drive-modal';
-import { wizardState } from '../../src/state/getters';
 import coreModal from 'kolibri.coreVue.components.coreModal';
 import UiAlert from 'keen-ui/src/UiAlert';
+import SelectDriveModal from '../../src/views/manage-content-page/wizards/select-drive-modal';
+import { wizardState } from '../../src/state/getters';
 
 SelectDriveModal.vuex.actions.refreshDriveList = () => Promise.resolve();
 

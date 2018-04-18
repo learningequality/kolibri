@@ -1,17 +1,17 @@
 /* eslint-env mocha */
+import assert from 'assert';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
-import assert from 'assert';
 import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
+import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+import omit from 'lodash/omit';
 import ContentTreeViewer from '../../src/views/select-content-page/content-tree-viewer.vue';
 import ContentNodeRow from '../../src/views/select-content-page/content-node-row.vue';
-import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
 import { importExportWizardState } from '../../src/state/wizardState';
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
 import mutations from '../../src/state/mutations';
-import omit from 'lodash/omit';
 
 function simplePath(pks) {
   return pks.map(makeNode);

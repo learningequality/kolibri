@@ -1,9 +1,9 @@
 /* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line
-import contentRenderer from '../src/views/content-renderer';
-import { mount } from '@vue/test-utils';
 import assert from 'assert';
+import Vue from 'vue-test'; // eslint-disable-line
+import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
+import contentRenderer from '../src/views/content-renderer';
 
 describe('contentRenderer Component', () => {
   const defaultFiles = [

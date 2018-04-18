@@ -1,8 +1,8 @@
 /* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line
-import DownloadButton from '../src/views/content-renderer/download-button.vue';
-import { mount } from '@vue/test-utils';
 import assert from 'assert';
+import Vue from 'vue-test'; // eslint-disable-line
+import { mount } from '@vue/test-utils';
+import DownloadButton from '../src/views/content-renderer/download-button.vue';
 
 describe('download-button Component', function() {
   const samplesFiles = [
