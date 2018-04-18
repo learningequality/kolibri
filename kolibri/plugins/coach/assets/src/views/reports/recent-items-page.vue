@@ -4,8 +4,8 @@
 
     <breadcrumbs />
     <h1>{{ $tr('title') }}</h1>
-    <p v-if="!standardDataTable.length">{{ noProgressText }}</p>
-    <core-table v-if="standardDataTable.length">
+
+    <core-table>
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
@@ -47,6 +47,9 @@
       </tbody>
     </core-table>
 
+    <p v-if="!standardDataTable.length">
+      {{ noProgressText }}
+    </p>
 
   </div>
 
@@ -97,7 +100,7 @@
         return TableColumns;
       },
       noProgressText() {
-        return this.$tr('noRecentProgress', { treshold: RECENCY_THRESHOLD_IN_DAYS });
+        return this.$tr('noRecentProgress', { threshold: RECENCY_THRESHOLD_IN_DAYS });
       },
     },
     methods: {
