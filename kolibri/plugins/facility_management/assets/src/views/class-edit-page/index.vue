@@ -54,6 +54,7 @@
       <template slot="action" slot-scope="userRow">
         <k-button
           :text="$tr('remove')"
+          appearance="flat-button"
           @click="confirmRemoval(userRow.user, removeClassCoach)"
         />
       </template>
@@ -80,6 +81,7 @@
       <template slot="action" slot-scope="userRow">
         <k-button
           :text="$tr('remove')"
+          appearance="flat-button"
           @click="confirmRemoval(userRow.user, removeClassLearner)"
         />
       </template>
