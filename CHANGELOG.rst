@@ -3,6 +3,19 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.9.1
+-----
+
+ - Fixed regression that caused very slow imports of large channels
+ - Adds new 'import users' command to the command-line
+ - Various consistency and layout updates
+ - Exercises with an error no longer count as 'correct'
+ - Fixed issue with password-less sign-on
+ - Various other fixes
+
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.1+label%3Achangelog>`_ of changes on Github.
+
+
 0.9.0
 -----
 
