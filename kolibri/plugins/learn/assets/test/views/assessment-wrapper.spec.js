@@ -73,7 +73,7 @@ describe('assessmentWrapper Component', function() {
                   .concat(Array(numCorrect).fill({ correct: 1 }))
                   .concat(Array(totalattempts - m).fill({ correct: 0 }));
                 this.vm = createComponent(totalattempts, pastattempts, masteryModel);
-                expect(this.vm.exerciseProgress).to.equal(numCorrect / m)
+                expect(this.vm.exerciseProgress).to.equal(numCorrect / m);
               });
               /* eslint-enable no-loop-func */
             }
