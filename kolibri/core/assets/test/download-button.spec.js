@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import assert from 'assert';
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import DownloadButton from '../src/views/content-renderer/download-button.vue';
@@ -26,7 +26,7 @@ describe('download-button Component', function() {
             files: samplesFiles,
           },
         });
-        assert.equal(wrapper.vm.fileOptions.length, samplesFiles.length);
+        expect(wrapper.vm.fileOptions.length).to.equal(samplesFiles.length);
       });
     });
   });
