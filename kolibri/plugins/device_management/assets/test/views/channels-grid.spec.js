@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import assert from 'assert';
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import sinon from 'sinon';
@@ -72,7 +72,7 @@ describe('channelsGrid component', () => {
     const wrapper = makeWrapper({ store });
     const { emptyState } = getElements(wrapper);
     return wrapper.vm.$nextTick().then(() => {
-      assert(emptyState().is('p'));
+      expect(emptyState().is('p')).to.be.true;
     });
   });
 
@@ -86,7 +86,7 @@ describe('channelsGrid component', () => {
         return wrapper.vm.$nextTick();
       })
       .then(() => {
-        assert(progressBar().isVueComponent);
+        expect(progressBar().isVueInstance()).to.be.true;
       });
   });
 
@@ -111,8 +111,8 @@ describe('channelsGrid component', () => {
     const { channelListItems } = getElements(wrapper);
     return wrapper.vm.$nextTick().then(() => {
       const items = channelListItems();
-      assert.equal(items.at(0).props().channel.id, 'awesome_channel');
-      assert.equal(items.at(1).props().channel.id, 'beautiful_channel');
+      expect(items.at(0).props().channel.id).to.equal('awesome_channel');
+      expect(items.at(1).props().channel.id).to.equal('beautiful_channel');
     });
   });
 
@@ -127,15 +127,15 @@ describe('channelsGrid component', () => {
       .then(() => {
         const items = channelListItems();
         const button = items.at(0).find('button');
-        assert.equal(button.text().trim(), 'Delete');
+        expect(button.text().trim()).to.equal('Delete');
         button.trigger('click');
         return wrapper.vm.$nextTick();
       })
       .then(() => {
         deleteModal = deleteChannelModal();
-        assert(deleteModal.isVueComponent);
+        expect(deleteModal.isVueInstance()).to.be.true;
         const deleteButton = deleteModal.find('button[name="confirm"]');
-        assert.equal(deleteButton.text().trim(), 'Delete');
+        expect(deleteButton.text().trim()).to.equal('Delete');
         deleteButton.trigger('click');
         return wrapper.vm.$nextTick();
       })

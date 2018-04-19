@@ -101,7 +101,7 @@ describe('HeartBeat', function() {
       this.heartBeat.monitorDisconnect();
     });
     it('should set connected to false', function() {
-      expect(connected(this.store.state)).to.equal(false);
+      expect(connected(this.store.state)).to.be.false;
     });
     it('should set reconnectTime to not null', function() {
       expect(reconnectTime(this.store.state)).to.not.equal(null);

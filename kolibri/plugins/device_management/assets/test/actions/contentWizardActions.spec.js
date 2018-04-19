@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import assert from 'assert';
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import sinon from 'sinon';
@@ -98,18 +98,18 @@ describe('transitionWizardPage action', () => {
 
     // STEP 1 - click "import" -> SELECT_IMPORT_SOURCE
     transitionWizardPage(store, 'forward', { import: true });
-    assert.equal(pageName(), 'SELECT_IMPORT_SOURCE');
+    expect(pageName()).to.equal('SELECT_IMPORT_SOURCE');
 
     // STEP 2 - choose "internet" from options -> AVAILABLE_CHANNELS
     return transitionWizardPage(store, 'forward', { source: 'network' })
       .then(() => {
-        assert.equal(pageName(), 'AVAILABLE_CHANNELS');
-        assert.equal(transferType(), 'remoteimport');
+        expect(pageName()).to.equal('AVAILABLE_CHANNELS');
+        expect(transferType()).to.equal('remoteimport');
 
         // Calls from inside showAvailableChannelsPage
         sinon.assert.calledOnce(RemoteChannelResource.getCollection);
         sinon.assert.calledOnce(fetchSpy);
-        assert.deepEqual(availableChannels(store.state), publicChannels);
+        expect(availableChannels(store.state)).to.deep.equal(publicChannels);
 
         // STEP 3 - pick first channel -> SELECT_CONTENT
         return transitionWizardPage(store, 'forward', {
@@ -137,19 +137,19 @@ describe('transitionWizardPage action', () => {
 
     // STEP 1 - click "import" -> SELECT_IMPORT_SOURCE
     transitionWizardPage(store, 'forward', { import: true });
-    assert.equal(pageName(), 'SELECT_IMPORT_SOURCE');
+    expect(pageName()).to.equal('SELECT_IMPORT_SOURCE');
 
     // STEP 2 - choose "usb drive" from options -> SELECT_DRIVE
     transitionWizardPage(store, 'forward', { source: 'local' });
-    assert.equal(pageName(), 'SELECT_DRIVE');
-    assert.equal(transferType(), 'localimport');
+    expect(pageName()).to.equal('SELECT_DRIVE');
+    expect(transferType()).to.equal('localimport');
 
     // STEP 3 - choose "drive_2" -> AVAILABLE_CHANNELS
     return transitionWizardPage(store, 'forward', { driveId: 'drive_2' })
       .then(() => {
-        assert.equal(pageName(), 'AVAILABLE_CHANNELS');
-        assert.deepEqual(selectedDrive(), selectedUsbDrive);
-        assert.deepEqual(availableChannels(store.state), selectedUsbDrive.metadata.channels);
+        expect(pageName()).to.equal('AVAILABLE_CHANNELS');
+        expect(selectedDrive()).to.deep.equal(selectedUsbDrive);
+        expect(availableChannels(store.state)).to.deep.equal(selectedUsbDrive.metadata.channels);
 
         // STEP 4 - pick the first channel -> go to "select content" page
         return transitionWizardPage(store, 'forward', { channel });
@@ -171,14 +171,14 @@ describe('transitionWizardPage action', () => {
 
     // STEP 1 - click "export" -> SELECT_DRIVE
     transitionWizardPage(store, 'forward', { import: false });
-    assert.equal(pageName(), 'SELECT_DRIVE');
-    assert.equal(transferType(), 'localexport');
+    expect(pageName()).to.equal('SELECT_DRIVE');
+    expect(transferType()).to.equal('localexport');
 
     // STEP 2 - choose "drive_1" -> AVAILABLE_CHANNELS
     return transitionWizardPage(store, 'forward', { driveId: 'drive_1' })
       .then(() => {
-        assert.equal(pageName(), 'AVAILABLE_CHANNELS');
-        assert.deepEqual(availableChannels(store.state), installedChannels);
+        expect(pageName()).to.equal('AVAILABLE_CHANNELS');
+        expect(availableChannels(store.state)).to.deep.equal(installedChannels);
 
         // STEP 3 - pick a channel -> SELECT_CONTENT
         return transitionWizardPage(store, 'forward', { channel });
@@ -228,7 +228,7 @@ describe('transitionWizardPage action', () => {
     };
     store.state.pageState.wizardState = { ...initial };
     return transitionWizardPage(store, 'backward').then(() => {
-      assert.deepEqual(wizardState(store.state), expected);
+      expect(wizardState(store.state)).to.deep.equal(expected);
     });
   });
 });

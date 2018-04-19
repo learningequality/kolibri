@@ -969,7 +969,7 @@ describe('Model', function() {
     });
     describe('synced property', function() {
       it('should be false', function() {
-        expect(this.model.synced).to.equal(false);
+        expect(this.model.synced).to.be.false;
       });
     });
     describe('promises property', function() {

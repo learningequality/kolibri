@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import assert from 'assert';
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import sinon from 'sinon';
@@ -155,7 +155,7 @@ describe('showSelectContentPage action', () => {
     it('errors from startDiskChannelImport are handled', () => {
       TaskResource.startDiskChannelImport.returns(Promise.reject());
       return showSelectContentPage(store).then(() => {
-        assert.equal(wizardState(store.state).status, 'CONTENT_DB_LOADING_ERROR');
+        expect(wizardState(store.state).status).to.equal('CONTENT_DB_LOADING_ERROR');
       });
     });
   });
@@ -189,7 +189,7 @@ describe('showSelectContentPage action', () => {
     it('errors from startRemoteChannelImport are handled', () => {
       TaskResource.startRemoteChannelImport.returns(Promise.reject());
       return showSelectContentPage(store).then(() => {
-        assert.equal(wizardState(store.state).status, 'CONTENT_DB_LOADING_ERROR');
+        expect(wizardState(store.state).status).to.equal('CONTENT_DB_LOADING_ERROR');
       });
     });
   });

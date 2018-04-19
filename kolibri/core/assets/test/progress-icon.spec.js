@@ -22,7 +22,7 @@ describe('ProgressIcon Component', () => {
       },
     });
     const tooltip = wrapper.find(UiTooltip);
-    expect(wrapper.contains(UiIcon)).to.equal(false);
+    expect(wrapper.contains(UiIcon)).to.be.false;
     // Tooltip is still around, just nothing to trigger it.
     expect(tooltip.text().trim()).to.equal('Completed');
   });
