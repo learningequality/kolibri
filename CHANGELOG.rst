@@ -11,6 +11,7 @@ Changes are ordered reverse-chronologically.
  - Various consistency and layout updates
  - Exercises with an error no longer count as 'correct'
  - Fixed issue with password-less sign-on
+ - Fixed issue with editing lessons
  - Various other fixes
 
 See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.1+label%3Achangelog>`_ of changes on Github.
