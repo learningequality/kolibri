@@ -16,7 +16,7 @@
         :primary="true"
       />
     </div>
-    <core-table v-if="!noClassesExist">
+    <core-table>
       <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
       <thead slot="thead">
         <tr>
@@ -58,7 +58,7 @@
       </tbody>
     </core-table>
 
-    <p v-else>{{ $tr('noClassesExist') }}</p>
+    <p v-if="noClassesExist">{{ $tr('noClassesExist') }}</p>
 
     <class-delete-modal
       v-if="modalShown===Modals.DELETE_CLASS"

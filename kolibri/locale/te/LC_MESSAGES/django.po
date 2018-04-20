@@ -1,0 +1,115 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-02-23 17:34-0800\n"
+"PO-Revision-Date: 2018-04-19 20:08-0400\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Telugu\n"
+"Language: te_IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: te\n"
+"X-Crowdin-File: /release-v0.9.x/django.po\n"
+
+#: kolibri/auth/constants/collection_kinds.py:14
+#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "సదుపాయం"
+
+#: kolibri/auth/constants/collection_kinds.py:15
+msgid "Classroom"
+msgstr "తరగతిగది"
+
+#: kolibri/auth/constants/collection_kinds.py:16
+msgid "Learner group"
+msgstr "విద్యార్థుల సమూహం"
+
+#: kolibri/auth/constants/role_kinds.py:12
+msgid "Admin"
+msgstr "నిర్వాహకుడు"
+
+#: kolibri/auth/constants/role_kinds.py:13
+msgid "Coach"
+msgstr "శిక్షకుడు"
+
+#: kolibri/auth/models.py:210
+msgid "username"
+msgstr "వినియోగదారు పేరు"
+
+#: kolibri/auth/models.py:212
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr "ఆవశ్యకం. 30 లేదా దానికంటే తక్కువ అక్షరాలు ఉండాలి. అక్షరాలు మరియు అంకెలు మాత్రమే"
+
+#: kolibri/auth/models.py:216
+msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
+msgstr "చెల్లుబాటయ్యే వినియోగదారు పేరుని నమోదు చేయండి. ఈ విలువ కేవలం అక్షరాలు, నంబర్‌లు మరియు అండర్‌స్కోర్‌లను కలిగి ఉండవచ్చు."
+
+#: kolibri/auth/models.py:220
+msgid "full name"
+msgstr "పూర్తి పేరు"
+
+#: kolibri/auth/models.py:221
+msgid "date joined"
+msgstr "చేరిన తేదీ"
+
+#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+msgid "An account with that username already exists"
+msgstr "ఈ వినియోగదారు పేరుతో ఒక ఖాతా ఇప్పటికే ఉనికిలో ఉంది"
+
+#: kolibri/content/api.py:74
+msgid "Content"
+msgstr "కంటెంట్"
+
+#: kolibri/content/api.py:363
+msgid "The requested channel does not exist on the content server"
+msgstr "కావలసిన ఛానల్ కంటెంట్ సర్వర్‌లో లేదు"
+
+#: kolibri/content/models.py:187
+msgid "Unknown format"
+msgstr "తెలియని రకం"
+
+#: kolibri/core/device/serializers.py:44
+msgid "Language is not supported by Kolibri"
+msgstr "Kolibri భాషకి మద్దతు ఇవ్వదు"
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr "Kolibri"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "మద్దతు లేని బ్రౌజర్"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "క్షమించండి, మీ బ్రౌజర్ సంస్కరణకి మద్దతు లేదు."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "Kolibriని ఉపయోగించేందుకు, Firefox లేదా Chrome ఉపయోగించాలని మేం సిఫార్సు చేస్తున్నాం."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "మీరు మీ ప్రస్తుత బ్రౌజర్‌ని నవీకరించి కూడా ప్రయత్నించవచ్చు."
+
+#: kolibri/plugins/device_management/kolibri_plugin.py:30
+msgid "Device"
+msgstr "పరికరం"
+
+#: kolibri/tasks/api.py:31
+msgid "There was a network error."
+msgstr "నెట్‌వర్క్ లోపం ఏర్పడింది."
+
+#: kolibri/tasks/api.py:33
+msgid "There was a disk access error."
+msgstr "డిస్క్ యాక్సెస్ లోపం ఏర్పడింది."
+
+#: kolibri/tasks/api.py:35
+msgid "There was an unknown error."
+msgstr "తెలియని దోషం ఏర్పడింది."
+

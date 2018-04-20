@@ -36,7 +36,7 @@
       </k-grid-item>
     </k-grid>
 
-    <core-table v-if="group.users.length">
+    <core-table>
       <thead slot="thead">
         <tr>
           <th class="core-table-checkbox-col">
@@ -73,7 +73,11 @@
         </tr>
       </tbody>
     </core-table>
-    <p v-else>{{ $tr('noLearners') }}</p>
+
+    <p v-if="!group.users.length">
+      {{ $tr('noLearners') }}
+    </p>
+
   </div>
 
 </template>
