@@ -37,6 +37,11 @@
     "english_name": "Marathi"
   },
   {
+    "language_code": "nyn",
+    "language_name": "Chinyanja",
+    "english_name": "Chichewa/Chewa/Nyanja"
+  },
+  {
     "language_code": "pt",
     "territory_code": "br",
     "language_name": "Português",
@@ -63,10 +68,5 @@
     "territory_code": "pk",
     "language_name": "اُردو (پاکستان)‏",
     "english_name": "Urdu (Pakistani)"
-  },
-  {
-    "language_code": "nyn",
-    "language_name": "Chewa",
-    "english_name": "Chewa"
   }
 ]
