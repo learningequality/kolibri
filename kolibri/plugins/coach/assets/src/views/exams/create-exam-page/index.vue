@@ -150,7 +150,6 @@
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import flatMap from 'lodash/flatMap';
   import { Modals as ExamModals } from '../../../constants/examConstants';
-  import { className } from '../../../state/getters/classes';
   import {
     goToTopic,
     goToTopLevel,
