@@ -3,6 +3,7 @@
   <core-modal
     :title="$tr('title')"
     @cancel="handleClickCancel()"
+    @enter="handleClickConfirm()"
   >
     <p>{{ $tr('confirmationQuestion', { channelTitle }) }}</p>
 

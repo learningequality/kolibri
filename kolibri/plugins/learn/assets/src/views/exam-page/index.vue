@@ -70,6 +70,7 @@
         v-if="submitModalOpen"
         :title="$tr('submitExam')"
         @cancel="toggleModal"
+        @enter="finishExam"
       >
         <p>{{ $tr('areYouSure') }}</p>
         <p v-if="questionsUnanswered">
