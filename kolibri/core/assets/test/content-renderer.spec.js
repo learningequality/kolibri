@@ -1,9 +1,9 @@
 /* eslint-env mocha */
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
-import contentRenderer from '../src/views/content-renderer';
 import { mount } from '@vue/test-utils';
-import assert from 'assert';
 import sinon from 'sinon';
+import contentRenderer from '../src/views/content-renderer';
 
 describe('contentRenderer Component', () => {
   const defaultFiles = [
@@ -27,7 +27,7 @@ describe('contentRenderer Component', () => {
         const wrapper = mount(contentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
         });
-        assert.equal(wrapper.vm.availableFiles.length, expected);
+        expect(wrapper.vm.availableFiles.length).to.equal(expected);
       }
 
       it('should be 1 when there is one available file', () => {
@@ -66,7 +66,7 @@ describe('contentRenderer Component', () => {
         const wrapper = mount(contentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
         });
-        assert.equal(wrapper.vm.defaultFile, expected);
+        expect(wrapper.vm.defaultFile).to.equal(expected);
       }
 
       it('should be the file when there is one available file', () => {
@@ -83,7 +83,7 @@ describe('contentRenderer Component', () => {
         const wrapper = mount(contentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
         });
-        assert.equal(wrapper.vm.extension, expected);
+        expect(wrapper.vm.extension).to.equal(expected);
       }
 
       it("should be the file's extension when there is one available file", () => {
@@ -119,7 +119,7 @@ describe('contentRenderer Component', () => {
               propsData: props,
             });
             return Vue.nextTick().then(() => {
-              assert.deepEqual(wrapper.vm.currentViewClass, dummyComponent);
+              expect(wrapper.vm.currentViewClass).to.deep.equal(dummyComponent);
             });
           });
 
@@ -132,7 +132,7 @@ describe('contentRenderer Component', () => {
               propsData: props,
             });
             return Vue.nextTick().then(() => {
-              assert.ok(wrapper.vm.initSession.calledOnce);
+              sinon.assert.calledOnce(wrapper.vm.initSession);
             });
           });
         });
@@ -158,7 +158,7 @@ describe('contentRenderer Component', () => {
             // 'created' hook runs it once. Running it here again for testing.
             // TODO Look into how to do this without calling the method directly
             return wrapper.vm.updateRendererComponent().then(() => {
-              assert.equal(wrapper.vm.noRendererAvailable, true);
+              expect(wrapper.vm.noRendererAvailable).to.be.true;
             });
           });
         });
@@ -174,7 +174,7 @@ describe('contentRenderer Component', () => {
           });
           // 'created' hook runs it once. Running it here again for testing.
           return wrapper.vm.updateRendererComponent().then(component => {
-            assert.equal(component, null);
+            expect(component).to.equal(null);
           });
         });
       });

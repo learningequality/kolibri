@@ -1,12 +1,12 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
-import assert from 'assert';
-import Breadcrumbs from '../../src/views/breadcrumbs';
+import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
+import { expect } from 'chai';
 import { mount } from '@vue/test-utils';
+import Breadcrumbs from '../../src/views/breadcrumbs';
 import makeStore from '../util/makeStore';
 import { PageNames } from '../../src/constants';
-import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
 
 const router = new VueRouter({
   routes: [
@@ -44,7 +44,7 @@ describe('learn page breadcrumbs', () => {
       const store = makeStore({ pageName: PageNames.RECOMMENDED });
       const wrapper = makeWrapper({ store });
       const { breadcrumbs } = getElements(wrapper);
-      assert.equal(breadcrumbs().exists(), false);
+      expect(breadcrumbs().exists()).to.be.false;
     });
 
     it('shows correct breadcrumbs when on a Recommended Content Item', () => {
@@ -55,11 +55,11 @@ describe('learn page breadcrumbs', () => {
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
       const bcs = breadcrumbItems();
-      assert.equal(bcs.length, 2);
-      assert.equal(bcs[0].link.name, PageNames.RECOMMENDED);
+      expect(bcs.length).to.equal(2);
+      expect(bcs[0].link.name).to.equal(PageNames.RECOMMENDED);
       // Content Item has no link, just text
-      assert.equal(bcs[1].link, undefined);
-      assert.equal(bcs[1].text, 'Recommended Content Item');
+      expect(bcs[1].link).to.equal(undefined);
+      expect(bcs[1].text).to.equal('Recommended Content Item');
     });
   });
 
@@ -68,7 +68,7 @@ describe('learn page breadcrumbs', () => {
       const store = makeStore({ pageName: PageNames.TOPICS_ROOT });
       const wrapper = makeWrapper({ store });
       const { breadcrumbs } = getElements(wrapper);
-      assert.equal(breadcrumbs().exists(), false);
+      expect(breadcrumbs().exists()).to.be.false;
     });
 
     it('shows correct breadcrumbs at a Channel', () => {
@@ -79,10 +79,10 @@ describe('learn page breadcrumbs', () => {
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
       const bcs = breadcrumbItems();
-      assert.equal(bcs.length, 2);
-      assert.equal(bcs[0].link.name, PageNames.TOPICS_ROOT);
-      assert.equal(bcs[1].link, undefined);
-      assert.equal(bcs[1].text, 'Recommended Channel');
+      expect(bcs.length).to.equal(2);
+      expect(bcs[0].link.name).to.equal(PageNames.TOPICS_ROOT);
+      expect(bcs[1].link).to.equal(undefined);
+      expect(bcs[1].text).to.equal('Recommended Channel');
     });
 
     it('shows correct breadcrumbs at a non-Channel Topic', () => {
@@ -98,21 +98,21 @@ describe('learn page breadcrumbs', () => {
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
       const bcs = breadcrumbItems();
-      assert.equal(bcs.length, 4);
+      expect(bcs.length).to.equal(4);
       // All Channels Link
-      assert.equal(bcs[0].link.name, PageNames.TOPICS_ROOT);
-      assert.equal(bcs[0].text, 'Channels');
+      expect(bcs[0].link.name).to.equal(PageNames.TOPICS_ROOT);
+      expect(bcs[0].text).to.equal('Channels');
       // Parent Channel Link
-      assert.equal(bcs[1].link.name, PageNames.TOPICS_CHANNEL);
-      assert.equal(bcs[1].link.params.channel_id, 'another_channel');
-      assert.equal(bcs[1].text, 'Another Recommended Channel');
+      expect(bcs[1].link.name).to.equal(PageNames.TOPICS_CHANNEL);
+      expect(bcs[1].link.params.channel_id).to.equal('another_channel');
+      expect(bcs[1].text).to.equal('Another Recommended Channel');
       // Previous Topic Link
-      assert.equal(bcs[2].link.name, PageNames.TOPICS_TOPIC);
-      assert.equal(bcs[2].link.params.id, 'previous_topic');
-      assert.equal(bcs[2].text, 'Previous Topic');
+      expect(bcs[2].link.name).to.equal(PageNames.TOPICS_TOPIC);
+      expect(bcs[2].link.params.id).to.equal('previous_topic');
+      expect(bcs[2].text).to.equal('Previous Topic');
       // Topic
-      assert.equal(bcs[3].link, undefined);
-      assert.equal(bcs[3].text, 'Recommended Topic');
+      expect(bcs[3].link).to.equal(undefined);
+      expect(bcs[3].text).to.equal('Recommended Topic');
     });
 
     it('shows correct breadcrumbs at a Content Item', () => {
@@ -128,21 +128,24 @@ describe('learn page breadcrumbs', () => {
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
       const bcs = breadcrumbItems();
-      assert.equal(bcs.length, 4);
+      expect(bcs.length).to.equal(4);
       // All Channels Link
-      assert.equal(bcs[0].link.name, PageNames.TOPICS_ROOT);
-      assert.equal(bcs[0].text, 'Channels');
+      expect(bcs[0].link.name).to.equal(PageNames.TOPICS_ROOT);
+      expect(bcs[0].text).to.equal('Channels');
       // Channel Link
-      assert.equal(bcs[1].link.name, PageNames.TOPICS_CHANNEL);
-      assert.equal(bcs[1].link.params.channel_id, 'another_channel');
-      assert.equal(bcs[1].text, 'Another Recommended Channel');
+      expect(bcs[1].link.name).to.equal(PageNames.TOPICS_CHANNEL);
+      expect(bcs[1].link.params.channel_id).to.equal('another_channel');
+      expect(bcs[1].text).to.equal('Another Recommended Channel');
       // Previous Topic link
-      assert.equal(bcs[2].link.name, PageNames.TOPICS_TOPIC);
-      assert.equal(bcs[2].link.params.id, 'previous_topic');
-      assert.equal(bcs[2].text, 'Previous Topic');
+      expect(bcs[2].link.name).to.equal(PageNames.TOPICS_TOPIC);
+      expect(bcs[2].link.params.id).to.equal('previous_topic');
+      expect(bcs[2].text).to.equal('Previous Topic');
       // Content Item
-      assert.equal(bcs[3].link, undefined);
-      assert.equal(bcs[3].text, 'Recommended Item');
+      expect(bcs[3].link).to.equal(undefined);
+      expect(bcs[3].text).to.equal('Recommended Item');
     });
   });
+
+  // Not tested
+  // breadcrumbs in Lessons Mode
 });

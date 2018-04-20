@@ -1,14 +1,14 @@
 /* eslint-env mocha */
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
-import assert from 'assert';
 import { mount } from '@vue/test-utils';
+import sinon from 'sinon';
 import SelectContentPage from '../../src/views/select-content-page';
 import { defaultChannel, contentNodeGranularPayload } from '../utils/data';
 import { wizardState } from '../../src/state/getters';
 import SelectedResourcesSize from '../../src/views/select-content-page/selected-resources-size';
-import sinon from 'sinon';
 import { importExportWizardState } from '../../src/state/wizardState';
 
 SelectContentPage.vuex.actions.getAvailableSpaceOnDrive = () => {};
@@ -90,26 +90,26 @@ describe('selectContentPage', () => {
     const wrapper = makeWrapper({ store });
     const { thumbnail, version, title, description } = getElements(wrapper);
     // prettier-ignore
-    assert.equal(thumbnail().find('img').attributes().src, fakeImage);
-    assert.equal(title(), 'Channel Title');
-    assert.equal(version(), 'Version 20');
-    assert.equal(description(), 'An awesome channel');
+    expect(thumbnail().find('img').attributes().src).to.equal(fakeImage);
+    expect(title()).to.equal('Channel Title');
+    expect(version()).to.equal('Version 20');
+    expect(description()).to.equal('An awesome channel');
   });
 
   it('shows the total size of the channel', () => {
     const wrapper = makeWrapper({ store });
     const { totalSizeRows } = getElements(wrapper);
     const rows = totalSizeRows();
-    assert.equal(rows.at(1).text(), '5,000');
-    assert.equal(rows.at(2).text(), '4 GB');
+    expect(rows.at(1).text()).to.equal('5,000');
+    expect(rows.at(2).text()).to.equal('4 GB');
   });
 
   it('if resources are on the device, it shows the total size of those', () => {
     const wrapper = makeWrapper({ store });
     const { onDeviceRows } = getElements(wrapper);
     const rows = onDeviceRows();
-    assert.equal(rows.at(1).text(), '2,000');
-    assert.equal(rows.at(2).text(), '2 GB');
+    expect(rows.at(1).text()).to.equal('2,000');
+    expect(rows.at(2).text()).to.equal('2 GB');
   });
 
   it('if channel is not on device, it shows size and resources as 0', () => {
@@ -117,18 +117,18 @@ describe('selectContentPage', () => {
     const wrapper = makeWrapper({ store });
     const { onDeviceRows } = getElements(wrapper);
     const rows = onDeviceRows();
-    assert.equal(rows.at(1).text(), '0');
-    assert.equal(rows.at(2).text(), '0 B');
+    expect(rows.at(1).text()).to.equal('0');
+    expect(rows.at(2).text()).to.equal('0 B');
   });
 
   it('if a new version is available, a update notification and button appear', () => {
     updateMetaChannel(store, { version: 1000 });
     const wrapper = makeWrapper({ store });
     const { updateSection, notificationsSection, versionAvailable } = getElements(wrapper);
-    assert.equal(updateSection().exists(), true);
-    assert(notificationsSection().is('section'));
+    expect(updateSection().exists()).to.be.true;
+    expect(notificationsSection().is('section')).to.be.true;
     // { useGrouping: false } intl option not working, but probably won't see such a large number
-    assert.equal(versionAvailable(), 'Version 1,000 available');
+    expect(versionAvailable()).to.equal('Version 1,000 available');
   });
 
   it('in LOCALIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
@@ -157,9 +157,8 @@ describe('selectContentPage', () => {
   it('if a new version is not available, then no notification/button appear', () => {
     updateMetaChannel(store, { version: 20 });
     const wrapper = makeWrapper({ store });
-    const { updateSection } = getElements(wrapper);
-    // isEmpty seems to not work if child is not rendered via v-if
-    // assert.equal(notificationsSection().isEmpty(), true);
-    assert.equal(updateSection().exists(), false);
+    const { updateSection, notificationsSection } = getElements(wrapper);
+    expect(notificationsSection().isEmpty()).to.be.true;
+    expect(updateSection().exists()).to.be.false;
   });
 });

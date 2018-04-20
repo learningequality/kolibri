@@ -3,9 +3,9 @@ import Vue from 'vue-test'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
 import kTextbox from 'kolibri.coreVue.components.kTextbox';
 import UiAlert from 'keen-ui/src/UiAlert';
+import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
 
 function makeWrapper() {
   return mount(ChannelTokenModal);
