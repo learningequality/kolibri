@@ -1,48 +1,22 @@
 <template>
 
-  <div class="user-roster">
+  <div>
 
-    <!-- TODO use grid -->
-
-    <!-- TODO use an icon button for click rather than a div. Accessibility -->
-    <div
-      id="name-edit-box"
-      @click="displayModal(Modals.EDIT_CLASS_NAME)"
-    >
-      <div
-        id="edit-name"
-        class="name-edit"
-      >
+    <div>
+      <h1 class="title-header">
         {{ currentClass.name }}
-      </div>
-      <mat-svg
-        id="edit-icon"
-        class="name-edit"
-        category="image"
-        name="edit"
-        aria-hidden="true"
+      </h1>
+      <ui-icon-button
+        icon="mode_edit"
+        type="secondary"
+        color="primary"
+        class="edit-button"
+        :ariaLabel="$tr('edit')"
+        @click="displayModal(Modals.EDIT_CLASS_NAME)"
       />
     </div>
 
-    <h2 class="header">
-      {{ $tr('coachEnrollmentPageTitle') }}
-    </h2>
-
-    <div class="toolbar">
-      <div class="enroll">
-        <k-router-link
-          :text="$tr('assignCoachesButtonLabel')"
-          :to="coachAssignmentLink"
-          appearance="raised-button"
-        />
-        <k-router-link
-          :text="$tr('enrollLearnerButtonLabel')"
-          :to="learnerEnrollmentLink"
-          :primary="true"
-          appearance="raised-button"
-        />
-      </div>
-    </div>
+    <p>{{ $tr('coachEnrollmentPageTitle') }}</p>
 
     <!-- Modals -->
     <class-rename-modal
@@ -51,16 +25,28 @@
       :classid="currentClass.id"
       :classes="classes"
     />
-
     <user-remove-confirmation-modal
       v-if="modalShown===Modals.REMOVE_USER"
       @confirm="removalAction(currentClass.id, userToBeRemoved.id)"
       :classname="currentClass.name"
       :username="userToBeRemoved.username"
     />
+    <!-- /Modals -->
+
+    <k-grid>
+      <k-grid-item size="3" cols="4">
+        <h2>{{ $tr('coachTableTitle') }}</h2>
+      </k-grid-item>
+      <k-grid-item size="1" cols="4" class="right">
+        <k-router-link
+          :text="$tr('assignCoachesButtonLabel')"
+          :to="coachAssignmentLink"
+          appearance="raised-button"
+        />
+      </k-grid-item>
+    </k-grid>
 
     <user-table
-      :title="$tr('coachTableTitle')"
       :users="classCoaches"
       :emptyMessage="$tr('noCoachesInClassMessge')"
     >
@@ -68,19 +54,34 @@
       <template slot="action" slot-scope="userRow">
         <k-button
           :text="$tr('remove')"
+          appearance="flat-button"
           @click="confirmRemoval(userRow.user, removeClassCoach)"
         />
       </template>
     </user-table>
 
+    <k-grid class="top-margin">
+      <k-grid-item size="3" cols="4">
+        <h2>{{ $tr('learnerTableTitle') }}</h2>
+      </k-grid-item>
+      <k-grid-item size="1" cols="4" class="right">
+        <k-router-link
+          :text="$tr('enrollLearnerButtonLabel')"
+          :to="learnerEnrollmentLink"
+          :primary="true"
+          appearance="raised-button"
+        />
+      </k-grid-item>
+    </k-grid>
+
     <user-table
-      :title="$tr('learnerTableTitle')"
       :users="classLearners"
       :emptyMessage="$tr('noLearnersInClassMessage')"
     >
       <template slot="action" slot-scope="userRow">
         <k-button
           :text="$tr('remove')"
+          appearance="flat-button"
           @click="confirmRemoval(userRow.user, removeClassLearner)"
         />
       </template>
@@ -92,8 +93,11 @@
 
 <script>
 
+  import uiIconButton from 'keen-ui/src/UiIconButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import userTable from '../user-table';
   import { PageNames, Modals } from '../../constants';
   import { removeClassLearner, removeClassCoach } from '../../state/actions/class';
@@ -114,11 +118,15 @@
       noLearnersInClassMessage: "You don't have any enrolled learners",
       remove: 'Remove',
       noUsersExist: 'No users in this class',
+      edit: 'Edit class name',
     },
     components: {
       userTable,
       classRenameModal,
       userRemoveConfirmationModal,
+      uiIconButton,
+      kGrid,
+      kGridItem,
       kRouterLink,
       kButton,
     },
@@ -173,48 +181,24 @@
 
   @require '~kolibri.styles.definitions'
 
-  .toolbar
-    margin-bottom: 32px
-
-  .searchbar
-    margin-top: 5px
-
-  #name-edit-box
+  .title-header
     display: inline-block
-    cursor: pointer
-    margin: 15px 0 5px
 
-  .name-edit
-    float: left
+  .edit-button
+    display: inline-block
+    position: relative
+    left: 10px
+    top: -4px
 
-  #edit-name
-    font-size: 1.5em
-    font-weight: bold
+  .right
+    text-align: right
 
-  #edit-icon
-    fill: $core-action-normal
-    margin: 2px 0 0 5px
+  .top-margin
+    margin-top: 24px
 
-  .toolbar:after
-    content: ''
-    display: table
-    clear: both
-
-  .enroll-user-button
-    width: 100%
-
-  .enroll
-    float: right
-
-  .empty-list
-    color: $core-text-annotation
-    margin-left: 10px
-
-  .header
-    font-weight: normal
-
-  .user-roster
-    overflow-x: auto
-    overflow-y: hidden
+  // overwrite global styling
+  // TODO - find a better way of doing this
+  .gutter-24 [class *= 'pure-u'], .gutter-16 [class *= 'pure-u']
+    padding: 0
 
 </style>

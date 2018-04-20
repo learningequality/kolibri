@@ -2,10 +2,7 @@
 
   <div>
 
-    <div v-if="visibleUsers.length === 0">
-      {{ $tr('noUsersMatching', { searchFilter }) }}
-    </div>
-    <core-table v-else>
+    <core-table>
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
@@ -40,6 +37,11 @@
         </tr>
       </tbody>
     </core-table>
+
+    <p v-if="!visibleUsers.length">
+      {{ $tr('noUsersMatching', { searchFilter }) }}
+    </p>
+
   </div>
 
 </template>

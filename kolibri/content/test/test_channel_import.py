@@ -451,4 +451,4 @@ class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(NoVersionv040ImportTestCase, cls).tearDownClass()
+        super(NoVersionv020ImportTestCase, cls).tearDownClass()

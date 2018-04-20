@@ -175,7 +175,6 @@
       },
       getters: {
         lessons: state => state.pageState.lessons,
-        className: state => state.className,
         classId: state => state.classId,
         learnerGroups: state => state.pageState.learnerGroups,
       },

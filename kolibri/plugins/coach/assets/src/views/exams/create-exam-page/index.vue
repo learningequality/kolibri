@@ -452,7 +452,6 @@
     vuex: {
       getters: {
         classId: state => state.classId,
-        className,
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,

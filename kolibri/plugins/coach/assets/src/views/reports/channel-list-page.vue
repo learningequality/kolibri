@@ -1,20 +1,16 @@
 <template>
 
   <div>
+
     <breadcrumbs />
     <template v-if="showRecentOnly">
       <h1>{{ $tr('recentTitle') }}</h1>
       <p v-if="standardDataTable.length">{{ $tr('showingRecent', { threshold }) }}</p>
-      <p v-else>{{ $tr('noRecent', { threshold }) }}</p>
     </template>
     <template v-else>
       <h1>{{ $tr('topicsTitle') }}</h1>
-      <p v-if="!standardDataTable.length">{{ $tr('noChannels') }}</p>
     </template>
-    <core-table
-      v-if="standardDataTable.length"
-      :caption="$tr('channelList')"
-    >
+    <core-table :caption="$tr('channelList')">
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
@@ -46,6 +42,12 @@
         </tr>
       </tbody>
     </core-table>
+
+    <template v-if="!standardDataTable.length">
+      <p v-if="showRecentOnly">{{ $tr('noRecent', { threshold }) }}</p>
+      <p v-else>{{ $tr('noChannels') }}</p>
+    </template>
+
   </div>
 
 </template>

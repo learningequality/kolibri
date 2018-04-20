@@ -15,9 +15,7 @@
     </template>
     <h1 v-else>{{ $tr('learners') }}</h1>
 
-    <p v-if="!standardDataTable.length">{{ $tr('noLearners') }}</p>
-
-    <core-table v-if="standardDataTable.length">
+    <core-table>
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
@@ -68,6 +66,8 @@
         </tr>
       </tbody>
     </core-table>
+
+    <p v-if="!standardDataTable.length">{{ $tr('noLearners') }}</p>
 
   </div>
 
