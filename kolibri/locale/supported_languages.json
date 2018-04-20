@@ -17,7 +17,7 @@
   {
     "language_code": "fa",
     "language_name": "فارسی",
-    "english_name": "Farsi"
+    "english_name": "Farsi (Persian)"
   },
   {
     "language_code": "fr",
@@ -32,10 +32,36 @@
     "english_name": "Hindi"
   },
   {
+    "language_code": "mr",
+    "language_name": "मराठी",
+    "english_name": "Marathi"
+  },
+  {
+    "language_code": "ny",
+    "language_name": "chiCheŵa",
+    "english_name": "Chichewa (Chewa)"
+  },
+  {
+    "language_code": "pt",
+    "territory_code": "br",
+    "language_name": "Português",
+    "english_name": "Portuguese"
+  },
+  {
     "language_code": "sw",
     "territory_code": "tz",
     "language_name": "Kiswahili",
     "english_name": "Swahili"
+  },
+  {
+    "language_code": "ta",
+    "language_name": "தமிழ்",
+    "english_name": "Tamil"
+  },
+  {
+    "language_code": "te",
+    "language_name": "తెలుగు",
+    "english_name": "Telugu"
   },
   {
     "language_code": "ur",
