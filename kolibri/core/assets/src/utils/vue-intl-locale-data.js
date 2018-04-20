@@ -48,12 +48,6 @@ module.exports = function(locale) {
           resolve(require('vue-intl/locale-data/mr.js'));
         });
       });
-    case 'nyn':
-      return new Promise(function(resolve) {
-        require.ensure(['vue-intl/locale-data/nyn.js'], function(require) {
-          resolve(require('vue-intl/locale-data/nyn.js'));
-        });
-      });
     case 'pt-BR':
       return new Promise(function(resolve) {
         require.ensure(['vue-intl/locale-data/pt.js'], function(require) {
