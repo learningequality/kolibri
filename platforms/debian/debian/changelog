@@ -1,3 +1,9 @@
+kolibri-source (0.9.0-0ubuntu3) trusty; urgency=medium
+
+  * Add Python 3.6 support
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Wed, 11 Apr 2018 20:51:22 +0000
+
 kolibri-source (0.9.0-0ubuntu2) trusty; urgency=medium
 
   * Fix the error that Kolibri directories cannot be removed completely
