@@ -17,7 +17,7 @@ Changes are ordered reverse-chronologically.
  - Fixed logging on Windows
  - Added ability for coaches to make copies of exams
  - Added icon next to language-switching functionality
- - Languages: English, Arabic, Farsi, French, Hindi, Spanish, Swahili, and Urdu
+ - Languages: English, Arabic, Farsi, French, Hindi, Marathi, Portuguese, Spanish, Swahili, Tamil, Telugu, and Urdu
 
 See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.0+label%3Achangelog>`_ of changes on Github.
 
