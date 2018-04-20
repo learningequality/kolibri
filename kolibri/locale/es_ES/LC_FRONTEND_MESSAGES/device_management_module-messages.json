@@ -8,7 +8,7 @@
     "bytesForHumansStrings.fileSizeInMegabytes": "{n, number, integer} MB",
     "bytesForHumansStrings.fileSizeInGigabytes": "{n, number, integer} GB",
     "deviceManagementRoot.deviceManagementTitle": "Dispositivo",
-    "welcomeModal.welcomeModalHeader": "¡Bienvenido a Kolibri!",
+    "welcomeModal.welcomeModalHeader": "¡Te damos la bienvenida a Kolibri!",
     "welcomeModal.welcomeModalContentDescription": "La primera cosa que debes hacer es importar contenido desde esa pestaña.",
     "welcomeModal.welcomeModalPermissionsDescription": "La cuenta de administrador que creaste durante la instalación tiene permisos especiales para hacer esto. Para más detalles consultar la pestaña Permisos.",
     "welcomeModal.welcomeButtonDismissText": "Aceptar",

@@ -36,16 +36,40 @@ module.exports = function(locale) {
           resolve(require('vue-intl/locale-data/fr.js'));
         });
       });
-    case 'fr-HT':
+    case 'hi-IN':
       return new Promise(function(resolve) {
-        require.ensure(['vue-intl/locale-data/fr.js'], function(require) {
-          resolve(require('vue-intl/locale-data/fr.js'));
+        require.ensure(['vue-intl/locale-data/hi.js'], function(require) {
+          resolve(require('vue-intl/locale-data/hi.js'));
         });
       });
-    case 'my':
+    case 'mr':
       return new Promise(function(resolve) {
-        require.ensure(['vue-intl/locale-data/my.js'], function(require) {
-          resolve(require('vue-intl/locale-data/my.js'));
+        require.ensure(['vue-intl/locale-data/mr.js'], function(require) {
+          resolve(require('vue-intl/locale-data/mr.js'));
+        });
+      });
+    case 'pt-BR':
+      return new Promise(function(resolve) {
+        require.ensure(['vue-intl/locale-data/pt.js'], function(require) {
+          resolve(require('vue-intl/locale-data/pt.js'));
+        });
+      });
+    case 'sw-TZ':
+      return new Promise(function(resolve) {
+        require.ensure(['vue-intl/locale-data/sw.js'], function(require) {
+          resolve(require('vue-intl/locale-data/sw.js'));
+        });
+      });
+    case 'ta':
+      return new Promise(function(resolve) {
+        require.ensure(['vue-intl/locale-data/ta.js'], function(require) {
+          resolve(require('vue-intl/locale-data/ta.js'));
+        });
+      });
+    case 'te':
+      return new Promise(function(resolve) {
+        require.ensure(['vue-intl/locale-data/te.js'], function(require) {
+          resolve(require('vue-intl/locale-data/te.js'));
         });
       });
     case 'ur-PK':
