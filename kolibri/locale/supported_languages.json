@@ -63,5 +63,10 @@
     "territory_code": "pk",
     "language_name": "اُردو (پاکستان)‏",
     "english_name": "Urdu (Pakistani)"
+  },
+  {
+    "language_code": "nyn",
+    "language_name": "Chewa",
+    "english_name": "Chewa"
   }
 ]
