@@ -174,7 +174,7 @@ EXTRA_LANG_INFO = {
     'nyn': {
         'bidi': False,
         'code': 'nyn',
-        'name': 'Chichewa (Chewa)',
+        'name': 'Chichewa, Chewa, Nyanja',
         'name_local': 'chinyanja',
     },
 }
