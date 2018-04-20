@@ -35,7 +35,7 @@
     "facilityNameForm.facilityNamingFormHeader": "Kipe jina Kituo chako",
     "facilityNameForm.facilityNamingFormDescription": "\"Kituo\" ni mahali ambapo unaiweka Kolibri, kama vile shule au kituo cha mafunzo",
     "facilityNameForm.facilityNameFieldLabel": "Jina la kituo",
-    "facilityNameForm.facilityNameFieldEmptyErrorMessage": "Kituo hakipaswi kuwa wazi",
+    "facilityNameForm.facilityNameFieldEmptyErrorMessage": "Kituo hakipaswi kuachwa wazi",
     "facilityNameForm.facilityNameFieldMaxLengthReached": "Jina la kituo haliwezi kuwa na zaidi ya herufi 100",
     "defaultLanguageForm.languageFormHeader": "Tafadhali chagua lugha-msingi ya Kolibri",
     "progressToolbar.progressIndicator": "Hatua {currentStep, number} of {totalSteps, number}",
