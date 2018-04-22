@@ -68,8 +68,9 @@ class ChannelImport(object):
         },
     }
 
-    def __init__(self, channel_id):
+    def __init__(self, channel_id, channel_version=None):
         self.channel_id = channel_id
+        self.channel_version = channel_version
 
         self.source = Bridge(sqlite_file_path=get_content_database_file_path(channel_id))
 
@@ -354,16 +355,30 @@ def initialize_import_manager(channel_id):
 
     ImportClass = mappings.get(min_version)
 
-    return ImportClass(channel_id)
+    return ImportClass(channel_id, channel_version=channel_metadata.version)
 
 
 def import_channel_from_local_db(channel_id):
     import_manager = initialize_import_manager(channel_id)
 
-    if ChannelMetadata.objects.filter(id=channel_id).exists():
-        # We have already imported this channel in some way, so let's clean up first.
-        logging.info('Channel {channel_id} already exists in database, cleaning up ContentNodes'.format(channel_id=channel_id))
-        ChannelMetadata.objects.get(id=channel_id).delete_content_tree_and_files()
+    try:
+        existing_channel = ChannelMetadata.objects.get(id=channel_id)
+    except ChannelMetadata.DoesNotExist:
+        existing_channel = None
+
+    if existing_channel:
+        if existing_channel.version < import_manager.channel_version:
+            # We have an older version of this channel, so let's clean out the old stuff first
+            logging.info(('Older version {channel_version} of channel {channel_id} already exists in database; removing old entries ' +
+                          'so we can upgrade to version {new_channel_version}').format(
+                channel_version=existing_channel.version, channel_id=channel_id, new_channel_version=import_manager.channel_version))
+            existing_channel.delete_content_tree_and_files()
+        else:
+            # We have previously loaded this channel, with the same or newer version, so our work here is done
+            logging.warn(('Version {channel_version} of channel {channel_id} already exists in database; cancelling import of ' +
+                          'version {new_channel_version}').format(
+                channel_version=existing_channel.version, channel_id=channel_id, new_channel_version=import_manager.channel_version))
+            return
 
     import_manager.import_channel_data()
 
