@@ -23,6 +23,12 @@ from ..models import LearnerGroup
 from ..models import Role
 from .sync_utils import multiple_kolibri_servers
 
+try:
+    import psycopg2
+    PSYCOPG_EXISTS = True
+except ImportError:
+    PSYCOPG_EXISTS = False
+
 
 class FacilityDatasetCertificateTestCase(TestCase):
 
@@ -51,7 +57,6 @@ class DateTimeTZFieldTestCase(TestCase):
         self.controller = MorangoProfileController('facilitydata')
         InstanceIDModel.get_or_create_current_instance()
 
-    @unittest.skipIf(os.environ.get('TOX_ENV') == 'postgres', "Skipping testing on postgres because sql is not compatible.")
     def test_deserializing_field(self):
         facility = Facility.objects.create(name="hallo")
         FacilityUser.objects.create(username='jamie', facility=facility)
@@ -68,7 +73,44 @@ class DateTimeTZFieldTestCase(TestCase):
 class EcosystemTestCase(TestCase):
 
     def setUp(self):
-        pass
+
+        if PSYCOPG_EXISTS:
+            conn = psycopg2.connect("dbname=postgres user=postgres")
+            conn.autocommit = True
+
+            with conn.cursor() as cursor:
+                cursor.execute("create database eco_test1;")
+                cursor.execute("create database eco_test2;")
+                cursor.execute("create database eco_test3;")
+
+                cursor.execute("create database eco2_test1;")
+                cursor.execute("create database eco2_test2;")
+                cursor.execute("create database eco2_test3;")
+                cursor.execute("create database eco2_test4;")
+                cursor.execute("create database eco2_test5;")
+
+            conn.close()
+
+    def tearDown(self):
+
+        if PSYCOPG_EXISTS:
+            conn = psycopg2.connect("dbname=postgres user=postgres")
+            conn.autocommit = True
+
+            with conn.cursor() as cursor:
+                # close all idle connections to the test databases
+                cursor.execute("""select pg_terminate_backend(pid) from pg_stat_activity where datname LIKE 'eco%';""")
+                cursor.execute("drop database eco_test1;")
+                cursor.execute("drop database eco_test2;")
+                cursor.execute("drop database eco_test3;")
+
+                cursor.execute("drop database eco2_test1;")
+                cursor.execute("drop database eco2_test2;")
+                cursor.execute("drop database eco2_test3;")
+                cursor.execute("drop database eco2_test4;")
+                cursor.execute("drop database eco2_test5;")
+
+            conn.close()
 
     def _data(self, *args, **kwargs):
         return kwargs

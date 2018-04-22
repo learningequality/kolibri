@@ -10,6 +10,7 @@ import uuid
 
 import requests
 import sh
+from django.db import connection
 from django.db import connections
 from django.utils.functional import wraps
 from requests.exceptions import RequestException
@@ -27,18 +28,21 @@ class KolibriServer(object):
 
     _pre_migrated_db_dir = None
 
-    def __init__(self, autostart=True):
+    def __init__(self, autostart=True, pre_migrate=True, settings='kolibri.deployment.default.settings.base', db_name=None):
         self.env = os.environ.copy()
         self.env["KOLIBRI_HOME"] = tempfile.mkdtemp()
+        self.env["DJANGO_SETTINGS_MODULE"] = settings
+        self.env["POSTGRES_DB"] = db_name
         self.db_path = os.path.join(self.env['KOLIBRI_HOME'], "db.sqlite3")
         self.db_alias = uuid.uuid4().hex
         self.port = get_free_tcp_port()
         self.base_url = "http://127.0.0.1:{}/".format(self.port)
         if autostart:
-            self.start()
+            self.start(pre_migrate=pre_migrate)
 
-    def start(self):
-        KolibriServer.get_pre_migrated_database(self.env['KOLIBRI_HOME'])
+    def start(self, pre_migrate=True):
+        if pre_migrate:
+            KolibriServer.get_pre_migrated_database(self.env['KOLIBRI_HOME'])
         self._instance = sh.kolibri.start(port=self.port, foreground=True, _bg=True, _env=self.env)
         self._wait_for_server_start()
 
@@ -87,14 +91,35 @@ class multiple_kolibri_servers(object):
     def __enter__(self):
 
         # spin up the servers
-        self.servers = [KolibriServer() for i in range(self.server_count)]
+        if 'sqlite' in connection.vendor:
 
-        # calculate the DATABASE settings
-        connections.databases = {server.db_alias: {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": server.db_path,
-            "OPTIONS": {"timeout": 100}}
-            for server in self.servers}
+            self.servers = [KolibriServer() for i in range(self.server_count)]
+
+            # calculate the DATABASE settings
+            connections.databases = {server.db_alias: {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": server.db_path,
+                "OPTIONS": {"timeout": 100}}
+                for server in self.servers}
+
+        if 'postgresql' in connection.vendor:
+
+            if self.server_count == 3:
+                self.servers = [KolibriServer(pre_migrate=False,
+                                              settings='kolibri.deployment.default.settings.postgres_test',
+                                              db_name="eco_test" + str(i+1)) for i in range(self.server_count)]
+
+            if self.server_count == 5:
+                self.servers = [KolibriServer(pre_migrate=False,
+                                              settings='kolibri.deployment.default.settings.postgres_test',
+                                              db_name="eco2_test" + str(i+1)) for i in range(self.server_count)]
+
+            # calculate the DATABASE settings
+            connections.databases = {server.db_alias: {
+                "ENGINE": "django.db.backends.postgresql",
+                "USER": "postgres",
+                "NAME": server.env["POSTGRES_DB"]}
+                for server in self.servers}
 
         return self.servers
 
