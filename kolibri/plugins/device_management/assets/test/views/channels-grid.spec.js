@@ -82,7 +82,7 @@ describe('channelsGrid component', () => {
     return wrapper.vm
       .$nextTick()
       .then(() => {
-        wrapper.setData({ channelsLoading: true });
+        store.dispatch('SET_CHANNEL_LIST_LOADING', true);
         return wrapper.vm.$nextTick();
       })
       .then(() => {

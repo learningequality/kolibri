@@ -15,3 +15,7 @@ export function SET_CONTENT_PAGE_TASKS(state, taskList) {
 export function SET_CHANNEL_LIST(state, channelList) {
   state.pageState.channelList = channelList;
 }
+
+export function SET_CHANNEL_LIST_LOADING(state, channelListLoading) {
+  state.pageState.channelListLoading = channelListLoading;
+}

@@ -10,7 +10,7 @@
       </p>
 
       <ui-progress-linear
-        v-else-if="channelsLoading"
+        v-else-if="installedChannelListLoading"
         type="indefinite"
         color="primary"
       />
@@ -52,7 +52,7 @@
   import deleteChannelModal from './delete-channel-modal';
   import channelListItem from './channel-list-item';
   import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
-  import { installedChannelsWithResources } from '../../state/getters';
+  import { installedChannelsWithResources, installedChannelListLoading } from '../../state/getters';
 
   export default {
     name: 'channelsGrid',
@@ -64,7 +64,6 @@
     },
     data: () => ({
       selectedChannelId: null,
-      channelsLoading: true,
     }),
     computed: {
       channelIsSelected() {
@@ -77,16 +76,11 @@
         return '';
       },
       noChannelsToShow() {
-        return this.sortedChannels.length === 0 && !this.channelsLoading;
+        return this.sortedChannels.length === 0 && !this.installedChannelListLoading;
       },
       sortedChannels() {
         return this.installedChannelsWithResources.slice().sort((c1, c2) => c1.name > c2.name);
       },
-    },
-    created() {
-      this.refreshChannelList().then(() => {
-        this.channelsLoading = false;
-      });
     },
     methods: {
       handleDeleteChannel() {
@@ -100,6 +94,7 @@
     vuex: {
       getters: {
         installedChannelsWithResources,
+        installedChannelListLoading,
         pageState: state => state.pageState,
       },
       actions: {
