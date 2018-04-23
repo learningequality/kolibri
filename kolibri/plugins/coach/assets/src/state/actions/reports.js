@@ -155,7 +155,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
       store.dispatch('CORE_SET_ERROR', null);
     },
     error => {
-      handleError(store, '');
+      handleError(store, error);
     }
   );
 }
@@ -312,7 +312,7 @@ function _showContentList(store, options) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      handleError(store, '');
+      handleError(store, error);
     }
   );
 }
@@ -415,7 +415,7 @@ export function showExerciseDetailView(
         });
       },
       error => {
-        handleError(store, '');
+        handleError(store, error);
       }
     );
 }

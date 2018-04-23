@@ -162,7 +162,8 @@ function _channelListState(data) {
  */
 
 function handleError(store, errorString) {
-  if (!errorString) {
+  const errorCodes = [401, 403, 407];
+  if (errorCodes.indexOf(errorString.status.code) < 0) {
     store.dispatch('CORE_SET_ERROR', errorString);
   }
   store.dispatch('CORE_SET_PAGE_LOADING', false);
