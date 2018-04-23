@@ -51,7 +51,7 @@
     },
     methods: {
       genContentLink(contentId, contentKind) {
-        if (contentKind === ContentNodeKinds.TOPIC) {
+        if (contentKind === ContentNodeKinds.TOPIC || contentKind === ContentNodeKinds.CHANNEL) {
           return {
             name: PageNames.TOPICS_TOPIC,
             params: {

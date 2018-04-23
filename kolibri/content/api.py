@@ -30,8 +30,8 @@ from kolibri.content import serializers
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
 from kolibri.content.utils.paths import get_channel_lookup_url
-from kolibri.core.lessons.models import Lesson
 from kolibri.core.exams.models import Exam
+from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
 
@@ -110,9 +110,7 @@ class ContentNodeFilter(IdFilter):
         if not fuzzed_tokens[0]:
             return []
         token_queries = [reduce(lambda x, y: x | y, [Q(stemmed_metaphone__contains=token) for token in tokens]) for tokens in fuzzed_tokens]
-        return queryset.filter(
-            Q(parent__isnull=False),
-            reduce(lambda x, y: x & y, token_queries))
+        return queryset.filter(reduce(lambda x, y: x & y, token_queries))
 
     def filter_recommendations_for(self, queryset, name, value):
         """
