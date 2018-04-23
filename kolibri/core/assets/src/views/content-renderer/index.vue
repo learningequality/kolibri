@@ -30,6 +30,7 @@
           :interactive="interactive"
           :lang="lang"
           :showCorrectAnswer="showCorrectAnswer"
+          :containerStyle="containerStyle"
           ref="contentView"
         />
       </transition>
@@ -122,6 +123,10 @@
       showCorrectAnswer: {
         type: Boolean,
         default: false,
+      },
+      containerStyle: {
+        type: Object,
+        required: false,
       },
     },
     data: () => ({

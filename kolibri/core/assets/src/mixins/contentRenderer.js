@@ -97,5 +97,9 @@ export default {
       type: Boolean,
       default: false,
     },
+    containerStyle: {
+      type: Object,
+      required: false,
+    },
   },
 };
