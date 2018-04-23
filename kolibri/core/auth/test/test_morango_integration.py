@@ -1,7 +1,7 @@
 """
 Tests related specifically to integration with Morango.
 """
-import os
+# import os
 import sys
 import unittest
 import uuid
@@ -69,7 +69,7 @@ class DateTimeTZFieldTestCase(TestCase):
 
 
 @unittest.skipIf(sys.platform.startswith("win"), "can't run on Windows")
-@unittest.skipIf(not os.environ.get('TRAVIS_TAG'), "This test will only be run during tagged builds.")
+# @unittest.skipIf(not os.environ.get('TRAVIS_TAG'), "This test will only be run during tagged builds.")
 class EcosystemTestCase(TestCase):
 
     def setUp(self):
