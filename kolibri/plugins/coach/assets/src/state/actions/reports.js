@@ -555,7 +555,7 @@ export function showChannelRootReport(store, classId, channelId, userId) {
           ...scopeOptions,
         });
       },
-      error => handleError(store, '')
+      error => handleError(store, error)
     );
 }
 

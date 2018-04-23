@@ -162,7 +162,7 @@ function _channelListState(data) {
  */
 
 function handleError(store, errorString) {
-  const errorCodes = [401, 403, 407];
+  const authErrorCodes = [401, 403, 407];
   if (errorCodes.indexOf(errorString.status.code) < 0) {
     store.dispatch('CORE_SET_ERROR', errorString);
   }
