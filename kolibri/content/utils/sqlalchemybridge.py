@@ -4,14 +4,22 @@ import pickle
 
 from django.apps import apps
 from django.conf import settings
-from kolibri.content.models import CONTENT_SCHEMA_VERSION, NO_VERSION, V020BETA1, V040BETA3
-from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS, START_PRAGMAS
-from sqlalchemy import ColumnDefault, create_engine, event
+from sqlalchemy import ColumnDefault
+from sqlalchemy import create_engine
+from sqlalchemy import event
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
-from .check_schema_db import DBSchemaError, db_matches_schema
+from .check_schema_db import db_matches_schema
+from .check_schema_db import DBSchemaError
+from kolibri.content.models import CONTENT_SCHEMA_VERSION
+from kolibri.content.models import NO_VERSION
+from kolibri.content.models import V020BETA1
+from kolibri.content.models import V040BETA3
+from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
+from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
 
 def set_sqlite_connection_pragma(dbapi_connection, connection_record):
@@ -46,7 +54,7 @@ def get_engine(connection_string):
     engine = create_engine(
         connection_string,
         echo=False,
-        connect_args={'check_same_thread': False},
+        connect_args={'check_same_thread': False} if connection_string.startswith('sqlite') else {},
         poolclass=NullPool,
         convert_unicode=True,
     )
