@@ -1,16 +1,11 @@
 /* eslint-env mocha */
-// The following two rules are disabled so that we can use anonymous functions with mocha
-// This allows the test instance to be properly referenced with `this`
-/* eslint prefer-arrow-callback: "off", func-names: "off" */
-
-import assert from 'assert';
+import { expect } from 'chai';
 import sinon from 'sinon';
+import * as Resources from '../src/api-resource';
 
 if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
   global.Intl = require('intl');
 }
-
-import * as Resources from '../src/api-resource';
 
 describe('Resource', function() {
   beforeEach(function() {
@@ -22,27 +17,27 @@ describe('Resource', function() {
   });
   describe('collections property', function() {
     it('should be empty object', function() {
-      assert.deepEqual(this.resource.collections, {});
+      expect(this.resource.collections).to.deep.equal({});
     });
   });
   describe('models property', function() {
     it('should be empty object', function() {
-      assert.deepEqual(this.resource.models, {});
+      expect(this.resource.models).to.deep.equal({});
     });
   });
   describe('resourceName method', function() {
     it('should throw a ReferenceError', function() {
-      assert.throws(Resources.Resource.resourceName, ReferenceError);
+      expect(Resources.Resource.resourceName).to.throw(ReferenceError);
     });
   });
   describe('static idKey method', function() {
     it('should be "id" by default', function() {
-      assert.equal(Resources.Resource.idKey(), 'id');
+      expect(Resources.Resource.idKey()).to.equal('id');
     });
   });
   describe('idKey property', function() {
     it('should be "id" by default', function() {
-      assert.equal(this.resource.idKey, 'id');
+      expect(this.resource.idKey).to.equal('id');
     });
   });
   describe('name property', function() {
@@ -51,60 +46,60 @@ describe('Resource', function() {
       Resources.Resource.resourceName = function() {
         return testName;
       };
-      assert.equal(this.resource.name, testName);
+      expect(this.resource.name).to.equal(testName);
     });
   });
   describe('getModel method', function() {
     it('should return a model instance', function() {
-      assert.ok(this.resource.getModel('test') instanceof Resources.Model);
+      expect(this.resource.getModel('test')).to.be.instanceof(Resources.Model);
     });
     it('should return an existing model from the cache', function() {
       const testModel = new Resources.Model(this.modelData, {}, this.resource);
       this.resource.addModel(testModel);
-      assert.equal(this.resource.getModel('test'), testModel);
+      expect(this.resource.getModel('test')).to.equal(testModel);
     });
     it('should call create model if the model is not in the cache', function() {
       const spy = sinon.spy(this.resource, 'createModel');
       this.resource.getModel('test');
-      assert.ok(spy.calledOnce);
+      sinon.assert.calledOnce(spy);
     });
   });
   describe('createModel method', function() {
     it('should return a model instance', function() {
-      assert.ok(this.resource.createModel(this.modelData) instanceof Resources.Model);
+      expect(this.resource.createModel(this.modelData)).to.be.instanceof(Resources.Model);
     });
     it('should call add model', function() {
       const spy = sinon.spy(this.resource, 'addModel');
       this.resource.createModel(this.modelData);
-      assert.ok(spy.calledOnce);
+      sinon.assert.calledOnce(spy);
     });
   });
   describe('addModel method', function() {
     it('should return a model instance', function() {
-      assert.ok(this.resource.addModel(this.modelData) instanceof Resources.Model);
+      expect(this.resource.addModel(this.modelData)).to.be.instanceof(Resources.Model);
     });
     it('should call createModel if passed an object', function() {
       const spy = sinon.spy(this.resource, 'createModel');
       this.resource.addModel(this.modelData);
-      assert.ok(spy.calledOnce);
+      sinon.assert.calledOnce(spy);
     });
     it('should not call createModel if passed a Model', function() {
       const spy = sinon.spy(this.resource, 'createModel');
       this.resource.addModel(new Resources.Model(this.modelData, {}, this.resource));
-      assert.ok(!spy.called);
+      sinon.assert.notCalled(spy);
     });
     it('should add a model to the cache if no id', function() {
       this.resource.addModel(new Resources.Model({ data: 'data' }, {}, this.resource));
-      assert.equal(1, Object.keys(this.resource.models).length);
+      expect(Object.keys(this.resource.models)).to.have.lengthOf(1);
     });
     it('should not return the added model from the cache if no id', function() {
       this.resource.addModel(new Resources.Model({ data: 'data' }, {}, this.resource));
       const model = this.resource.getModel(undefined);
-      assert.ok(!model.attributes.data);
+      expect(model.attributes.data).to.be.undefined;
     });
     it('should add a model to the cache if it has an id', function() {
       const model = this.resource.addModel(new Resources.Model({ id: 'test' }, {}, this.resource));
-      assert.equal(model, this.resource.models[Object.keys(this.resource.models)[0]]);
+      expect(this.resource.models[Object.keys(this.resource.models)[0]]).to.equal(model);
     });
     it('should update the model in the cache if a model with matching id is found', function() {
       const model = new Resources.Model({ id: 'test' }, {}, this.resource);
@@ -112,8 +107,8 @@ describe('Resource', function() {
       this.resource.addModel(
         new Resources.Model({ id: 'test', example: 'prop' }, {}, this.resource)
       );
-      assert.equal(1, Object.keys(this.resource.models).length);
-      assert.equal(model.attributes.example, 'prop');
+      expect(Object.keys(this.resource.models)).to.have.lengthOf(1);
+      expect(model.attributes.example).to.equal('prop');
     });
   });
   describe('removeModel method', function() {
@@ -121,7 +116,7 @@ describe('Resource', function() {
       const model = new Resources.Model({ id: 'test' }, {}, this.resource);
       this.resource.addModel(model);
       this.resource.removeModel(model);
-      assert.equal(Object.keys(this.resource.models).length, 0);
+      expect(this.resource.models).to.be.empty;
     });
   });
   describe('unCacheModel method', function() {
@@ -129,7 +124,7 @@ describe('Resource', function() {
       const id = 'test';
       this.resource.addModel({ id });
       this.resource.unCacheModel(id);
-      assert.equal(this.resource.getModel(id).synced, false);
+      expect(this.resource.getModel(id).synced).to.be.false;
     });
   });
   describe('clearCache method', function() {
@@ -137,47 +132,50 @@ describe('Resource', function() {
       const id = 'test';
       this.resource.models[id] = {};
       this.resource.clearCache();
-      assert.deepEqual(this.resource.models, {});
+      expect(this.resource.models).to.deep.equal({});
     });
     it('should set the collections property of the Resource to an empty object', function() {
       const id = 'test';
       this.resource.collections[id] = {};
       this.resource.clearCache();
-      assert.deepEqual(this.resource.collections, {});
+      expect(this.resource.collections).to.deep.equal({});
     });
   });
   describe('getCollection method', function() {
     it('should return a collection instance', function() {
-      assert.ok(this.resource.getCollection({}) instanceof Resources.Collection);
+      expect(this.resource.getCollection({})).to.be.instanceof(Resources.Collection);
     });
     it('should return an existing collection from the cache', function() {
       const testCollection = new Resources.Collection({}, {}, [], this.resource);
       this.resource.collections['{}'] = testCollection;
-      assert.equal(this.resource.getCollection({}), testCollection);
+      expect(this.resource.getCollection({})).to.equal(testCollection);
     });
     it('should call create collection if the collection is not in the cache', function() {
       const spy = sinon.spy(this.resource, 'createCollection');
       this.resource.getCollection({});
-      assert.ok(spy.calledOnce);
+      sinon.assert.calledOnce(spy);
     });
   });
   describe('createCollection method', function() {
     it('should return a collection instance', function() {
-      assert.ok(this.resource.createCollection({}) instanceof Resources.Collection);
+      expect(this.resource.createCollection({})).to.be.instanceof(Resources.Collection);
     });
     it('should add the collection to the cache', function() {
       this.resource.createCollection({});
-      assert.equal(Object.keys(this.resource.collections).length, 1);
+      expect(Object.keys(this.resource.collections)).to.have.lengthOf(1);
     });
   });
   describe('filterAndCheckResourceIds method', function() {
     it('should return an empty object when there are no resourceIds', function() {
-      assert.deepEqual(this.resource.filterAndCheckResourceIds({ test: 'test' }), {});
+      expect(this.resource.filterAndCheckResourceIds({ test: 'test' })).to.deep.equal({});
     });
     it('should throw a TypeError when resourceIds are missing', function() {
       const stub = sinon.stub(Resources.Resource, 'resourceIdentifiers');
       stub.returns(['thisisatest']);
-      assert.throws(() => this.resource.filterAndCheckResourceIds({ test: 'test' }));
+      function testCall() {
+        this.resource.filterAndCheckResourceIds({ test: 'test' });
+      }
+      expect(testCall).to.throw(TypeError);
       stub.restore();
     });
     it('should return an object with only resourceIds', function() {
@@ -187,8 +185,8 @@ describe('Resource', function() {
         test: 'test',
         thisisatest: 'testtest',
       });
-      assert.equal(Object.keys(filtered).length, 1);
-      assert.equal(filtered.thisisatest, 'testtest');
+      expect(Object.keys(filtered)).to.have.lengthOf(1);
+      expect(filtered.thisisatest).to.equal('testtest');
       stub.restore();
     });
   });
@@ -237,47 +235,47 @@ describe('Collection', function() {
   describe('constructor set properties:', function() {
     describe('resource property', function() {
       it('should be the passed in resource', function() {
-        assert.equal(this.resource, this.collection.resource);
+        expect(this.resource).to.equal(this.collection.resource);
       });
     });
     describe('getParams property', function() {
       it('should be the passed in params', function() {
-        assert.equal(this.params, this.collection.getParams);
+        expect(this.params).to.equal(this.collection.getParams);
       });
     });
     describe('models property', function() {
       it('should be an array of length 1', function() {
-        assert.equal(this.collection.models.length, 1);
+        expect(this.collection.models).to.have.lengthOf(1);
       });
     });
     describe('_model_map property', function() {
       it('should have one entry', function() {
-        assert.equal(Object.keys(this.collection._model_map).length, 1);
+        expect(Object.keys(this.collection._model_map)).to.have.lengthOf(1);
       });
     });
     describe('synced property', function() {
       it('should be false', function() {
-        assert.equal(this.collection.synced, false);
+        expect(this.collection.synced).to.be.false;
       });
     });
     describe('promises property', function() {
       it('should be an empty array', function() {
-        assert.deepEqual(this.collection.promises, []);
+        expect(this.collection.promises).to.deep.equal([]);
       });
     });
     describe('addModel method', function() {
       it('should be called once', function() {
-        assert.ok(this.addModelStub.calledOnce);
+        sinon.assert.calledOnce(this.addModelStub);
       });
     });
   });
   describe('constructor method', function() {
     describe('if resource is undefined', function() {
       it('should throw a TypeError', function() {
-        assert.throws(
-          () => new Resources.Collection(this.resourceIds, this.params, this.data),
-          TypeError
-        );
+        function testCall() {
+          new Resources.Collection(this.resourceIds, this.params, this.data);
+        }
+        expect(testCall).to.throw(TypeError);
       });
     });
     describe('if data is passed in', function() {
@@ -289,8 +287,8 @@ describe('Collection', function() {
           this.data,
           this.resource
         );
-        assert.ok(testCollection);
-        assert.ok(spy.calledOnce);
+        expect(testCollection).to.be.ok;
+        sinon.assert.calledOnce(spy);
         Resources.Collection.prototype.set.restore();
       });
       it('should call the set method with the data', function() {
@@ -301,8 +299,8 @@ describe('Collection', function() {
           this.data,
           this.resource
         );
-        assert.ok(testCollection);
-        assert.ok(spy.calledWithExactly(this.data));
+        expect(testCollection).to.be.ok;
+        sinon.assert.calledWithExactly(spy, this.data);
         Resources.Collection.prototype.set.restore();
       });
     });
@@ -315,8 +313,8 @@ describe('Collection', function() {
           undefined,
           this.resource
         );
-        assert.ok(testCollection);
-        assert.ok(spy.calledOnce);
+        expect(testCollection).to.be.ok;
+        sinon.assert.calledOnce(spy);
         Resources.Collection.prototype.set.restore();
       });
       it('should call the set method with an empty array', function() {
@@ -327,8 +325,8 @@ describe('Collection', function() {
           undefined,
           this.resource
         );
-        assert.ok(testCollection);
-        assert.ok(spy.calledWithExactly([]));
+        expect(testCollection).to.be.ok;
+        sinon.assert.calledWithExactly(spy, []);
         Resources.Collection.prototype.set.restore();
       });
     });
@@ -338,10 +336,10 @@ describe('Collection', function() {
       this.collection.clearCache();
     });
     it('should set models to an empty array', function() {
-      assert.deepEqual(this.collection.models, []);
+      expect(this.collection.models).to.deep.equal([]);
     });
     it('should set _model_map to an empty object', function() {
-      assert.deepEqual(this.collection._model_map, {});
+      expect(this.collection._model_map).to.deep.equal({});
     });
   });
   describe('fetch method', function() {
@@ -350,7 +348,7 @@ describe('Collection', function() {
         this.collection.synced = true;
         const promise = this.collection.fetch();
         promise.then(result => {
-          assert.deepEqual(result, this.data);
+          expect(result).to.deep.equal(this.data);
           done();
         });
       });
@@ -375,42 +373,42 @@ describe('Collection', function() {
           it('should call the client once', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.ok(this.client.calledOnce);
+              sinon.assert.calledOnce(this.client);
               done();
             });
           });
           it('should call clearCache once', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.ok(this.clearCacheSpy.calledOnce);
+              sinon.assert.calledOnce(this.clearCacheSpy);
               done();
             });
           });
           it('should call set once', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.ok(this.setSpy.calledOnce);
+              sinon.assert.calledOnce(this.setSpy);
               done();
             });
           });
           it('should call set with the response entity', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.ok(this.setSpy.calledWithExactly(this.response.entity));
+              sinon.assert.calledWithExactly(this.setSpy, this.response.entity);
               done();
             });
           });
           it('should set synced to true', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.ok(this.collection.synced);
+              expect(this.collection.synced).to.be.true;
               done();
             });
           });
           it('should leave no promises in promises property', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.deepEqual(this.collection.promises, []);
+              expect(this.collection.promises).to.deep.equal([]);
               done();
             });
           });
@@ -418,7 +416,7 @@ describe('Collection', function() {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
               this.collection.models.forEach(model => {
-                assert.ok(model.synced);
+                expect(model.synced).to.be.true;
               });
               done();
             });
@@ -442,35 +440,35 @@ describe('Collection', function() {
           it('should call the client once', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.ok(this.client.calledOnce);
+              sinon.assert.calledOnce(this.client);
               done();
             });
           });
           it('should call clearCache once', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.ok(this.clearCacheSpy.calledOnce);
+              sinon.assert.calledOnce(this.clearCacheSpy);
               done();
             });
           });
           it('should call set once', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.ok(this.setSpy.calledOnce);
+              sinon.assert.calledOnce(this.setSpy);
               done();
             });
           });
           it('should call set with the response entity results', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.ok(this.setSpy.calledWithExactly(this.response.entity.results));
+              sinon.assert.calledWithExactly(this.setSpy, this.response.entity.results);
               done();
             });
           });
           it('should set synced to true', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.ok(this.collection.synced);
+              expect(this.collection.synced).to.be.true;
               done();
             });
           });
@@ -478,7 +476,7 @@ describe('Collection', function() {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
               this.collection.models.forEach(model => {
-                assert.ok(model.synced);
+                expect(model.synced).to.be.true;
               });
               done();
             });
@@ -486,21 +484,21 @@ describe('Collection', function() {
           it('should set the pageCount property to 1', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.equal(this.collection.pageCount, 1);
+              expect(this.collection.pageCount).to.equal(1);
               done();
             });
           });
           it('should set the hasNext property to false', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.equal(this.collection.hasNext, false);
+              expect(this.collection.hasNext).to.be.false;
               done();
             });
           });
           it('should set the hasPrev property to false', function(done) {
             this.collection.synced = false;
             this.collection.fetch().then(() => {
-              assert.equal(this.collection.hasPrev, false);
+              expect(this.collection.hasPrev).to.be.false;
               done();
             });
           });
@@ -519,14 +517,14 @@ describe('Collection', function() {
           it('should call the client once', function(done) {
             this.collection.synced = false;
             this.collection.fetch().catch(() => {
-              assert.ok(this.client.calledOnce);
+              sinon.assert.calledOnce(this.client);
               done();
             });
           });
           it('should call logging.debug once', function(done) {
             this.collection.synced = false;
             this.collection.fetch().catch(() => {
-              assert.ok(this.logstub.calledOnce);
+              sinon.assert.calledOnce(this.logstub);
               done();
             });
           });
@@ -546,21 +544,21 @@ describe('Collection', function() {
         it('should call logging.error once', function(done) {
           this.collection.synced = false;
           this.collection.fetch().catch(() => {
-            assert.ok(this.logstub.calledOnce);
+            sinon.assert.calledOnce(this.logstub);
             done();
           });
         });
         it('should return the error', function(done) {
           this.collection.synced = false;
           this.collection.fetch().catch(error => {
-            assert.equal(error, this.response);
+            expect(error).to.equal(this.response);
             done();
           });
         });
         it('should leave no promises in promises property', function(done) {
           this.collection.synced = false;
           this.collection.fetch().catch(() => {
-            assert.deepEqual(this.collection.promises, []);
+            expect(this.collection.promises).to.deep.equal([]);
             done();
           });
         });
@@ -574,7 +572,7 @@ describe('Collection', function() {
         this.resource.client = this.client;
         this.collection.synced = true;
         this.collection.fetch({}, true).then(() => {
-          assert.ok(this.client.calledOnce);
+          sinon.assert.calledOnce(this.client);
           done();
         });
       });
@@ -586,7 +584,7 @@ describe('Collection', function() {
         this.client.returns(new Promise(() => {}));
         this.collection.synced = false;
         const promise = this.collection.fetch();
-        assert.deepEqual(this.collection.promises, [promise]);
+        expect(this.collection.promises).to.deep.equal([promise]);
       });
     });
     describe('if called twice', function() {
@@ -597,7 +595,7 @@ describe('Collection', function() {
         this.collection.synced = false;
         const promise1 = this.collection.fetch();
         const promise2 = this.collection.fetch();
-        assert.deepEqual(this.collection.promises, [promise1, promise2]);
+        expect(this.collection.promises).to.deep.equal([promise1, promise2]);
       });
     });
   });
@@ -607,7 +605,7 @@ describe('Collection', function() {
         this.collection.synced = true;
         const promise = this.collection.save();
         promise.catch(error => {
-          assert.equal(error, 'Cannot update collections, only create them');
+          expect(error).to.equal('Cannot update collections, only create them');
           done();
         });
       });
@@ -632,35 +630,35 @@ describe('Collection', function() {
           it('should call the client once', function(done) {
             this.collection.synced = false;
             this.collection.save().then(() => {
-              assert.ok(this.client.calledOnce);
+              sinon.assert.calledOnce(this.client);
               done();
             });
           });
           it('should call set once', function(done) {
             this.collection.synced = false;
             this.collection.save().then(() => {
-              assert.ok(this.setSpy.calledOnce);
+              sinon.assert.calledOnce(this.setSpy);
               done();
             });
           });
           it('should call set with the response entity', function(done) {
             this.collection.synced = false;
             this.collection.save().then(() => {
-              assert.ok(this.setSpy.calledWithExactly(this.response.entity));
+              sinon.assert.calledWithExactly(this.setSpy, this.response.entity);
               done();
             });
           });
           it('should set synced to true', function(done) {
             this.collection.synced = false;
             this.collection.save().then(() => {
-              assert.ok(this.collection.synced);
+              expect(this.collection.synced).to.be.true;
               done();
             });
           });
           it('should leave no promises in promises property', function(done) {
             this.collection.synced = false;
             this.collection.save().then(() => {
-              assert.deepEqual(this.collection.promises, []);
+              expect(this.collection.promises).to.deep.equal([]);
               done();
             });
           });
@@ -668,7 +666,7 @@ describe('Collection', function() {
             this.collection.synced = false;
             this.collection.save().then(() => {
               this.collection.models.forEach(model => {
-                assert.ok(model.synced);
+                expect(model.synced).to.be.true;
               });
               done();
             });
@@ -688,14 +686,14 @@ describe('Collection', function() {
           it('should call the client once', function(done) {
             this.collection.synced = false;
             this.collection.save().catch(() => {
-              assert.ok(this.client.calledOnce);
+              sinon.assert.calledOnce(this.client);
               done();
             });
           });
           it('should call logging.debug once', function(done) {
             this.collection.synced = false;
             this.collection.save().catch(() => {
-              assert.ok(this.logstub.calledOnce);
+              sinon.assert.calledOnce(this.logstub);
               done();
             });
           });
@@ -715,21 +713,21 @@ describe('Collection', function() {
         it('should call logging.error once', function(done) {
           this.collection.synced = false;
           this.collection.save().catch(() => {
-            assert.ok(this.logstub.calledOnce);
+            sinon.assert.calledOnce(this.logstub);
             done();
           });
         });
         it('should return the error', function(done) {
           this.collection.synced = false;
           this.collection.save().catch(error => {
-            assert.equal(error, this.response);
+            expect(error).to.equal(this.response);
             done();
           });
         });
         it('should leave no promises in promises property', function(done) {
           this.collection.synced = false;
           this.collection.save().catch(() => {
-            assert.deepEqual(this.collection.promises, []);
+            expect(this.collection.promises).to.deep.equal([]);
             done();
           });
         });
@@ -742,7 +740,7 @@ describe('Collection', function() {
         this.client.returns(new Promise(() => {}));
         this.collection.synced = false;
         const promise = this.collection.save();
-        assert.deepEqual(this.collection.promises, [promise]);
+        expect(this.collection.promises).to.deep.equal([promise]);
       });
     });
     describe('if called twice', function() {
@@ -753,7 +751,7 @@ describe('Collection', function() {
         this.collection.synced = false;
         const promise1 = this.collection.save();
         const promise2 = this.collection.save();
-        assert.deepEqual(this.collection.promises, [promise1, promise2]);
+        expect(this.collection.promises).to.deep.equal([promise1, promise2]);
       });
     });
   });
@@ -763,8 +761,7 @@ describe('Collection', function() {
         this.collection.getParams = {};
         const promise = this.collection.delete();
         promise.catch(error => {
-          assert.equal(
-            error,
+          expect(error).to.equal(
             'Can not delete unfiltered collection (collection without any GET params'
           );
           done();
@@ -790,39 +787,41 @@ describe('Collection', function() {
         });
         it('should call the client once', function(done) {
           this.collection.delete().then(() => {
-            assert.ok(this.client.calledOnce);
+            sinon.assert.calledOnce(this.client);
             done();
           });
         });
         it('should call the client with the DELETE method', function(done) {
           this.collection.delete().then(() => {
-            assert.equal(this.client.args[0][0].method, 'DELETE');
+            expect(this.client.args[0][0].method).to.equal('DELETE');
             done();
           });
         });
         it('should call removeCollection on the resource', function(done) {
           this.collection.delete().then(() => {
-            assert.ok(this.resource.removeCollection.calledWithExactly(this.collection));
+            sinon.assert.calledWithExactly(this.resource.removeCollection, this.collection);
             done();
           });
         });
         it('should leave no promises in promises property', function(done) {
           this.collection.delete().then(() => {
-            assert.deepEqual(this.collection.promises, []);
+            expect(this.collection.promises).to.deep.equal([]);
             done();
           });
         });
         it('should set every model deleted to true', function(done) {
           this.collection.delete().then(() => {
             this.collection.models.forEach(model => {
-              assert.ok(model.deleted);
+              expect(model.deleted).to.be.true;
             });
             done();
           });
         });
         it('should call removeModel for every Model in the collection', function(done) {
           this.collection.delete().then(() => {
-            assert.equal(this.resource.removeCollection.callCount, this.collection.models.length);
+            expect(this.resource.removeCollection.callCount).to.equal(
+              this.collection.models.length
+            );
             done();
           });
         });
@@ -841,19 +840,19 @@ describe('Collection', function() {
         it('should call logging.error once', function(done) {
           this.collection.synced = false;
           this.collection.delete().catch(() => {
-            assert.ok(this.logstub.calledOnce);
+            sinon.assert.calledOnce(this.logstub);
             done();
           });
         });
         it('should return the error', function(done) {
           this.collection.delete().catch(error => {
-            assert.equal(error, this.response);
+            expect(error).to.equal(this.response);
             done();
           });
         });
         it('should leave no promises in promises property', function(done) {
           this.collection.delete().catch(() => {
-            assert.deepEqual(this.collection.promises, []);
+            expect(this.collection.promises).to.deep.equal([]);
             done();
           });
         });
@@ -866,7 +865,7 @@ describe('Collection', function() {
         this.client.returns(new Promise(() => {}));
         this.collection.synced = false;
         const promise = this.collection.delete();
-        assert.deepEqual(this.collection.promises, [promise]);
+        expect(this.collection.promises).to.deep.equal([promise]);
       });
     });
     describe('if called twice', function() {
@@ -877,7 +876,7 @@ describe('Collection', function() {
         this.collection.synced = false;
         const promise1 = this.collection.delete();
         const promise2 = this.collection.delete();
-        assert.deepEqual(this.collection.promises, [promise1, promise2]);
+        expect(this.collection.promises).to.deep.equal([promise1, promise2]);
       });
     });
   });
@@ -890,12 +889,12 @@ describe('Collection', function() {
       it('should add an entry to the models property', function() {
         this.collection.models = [];
         this.collection.set(this.model);
-        assert.deepEqual(this.collection.models, [this.setModel]);
+        expect(this.collection.models).to.deep.equal([this.setModel]);
       });
       it('should add an entry to the _model_map property', function() {
         this.collection._model_map = {};
         this.collection.set(this.model);
-        assert.deepEqual(this.collection._model_map, {
+        expect(this.collection._model_map).to.deep.equal({
           [this.model.id]: this.setModel,
         });
       });
@@ -904,35 +903,35 @@ describe('Collection', function() {
       it('should add them to the models property', function() {
         this.collection.models = [];
         this.collection.set([this.model]);
-        assert.deepEqual(this.collection.models, [this.setModel]);
+        expect(this.collection.models).to.deep.equal([this.setModel]);
       });
       it('should add them to the _model_map property', function() {
         this.collection._model_map = {};
         this.collection.set([this.model]);
-        assert.deepEqual(this.collection._model_map, {
+        expect(this.collection._model_map).to.deep.equal({
           [this.model.id]: this.setModel,
         });
       });
       it('should add only one entry per id to the models property', function() {
         this.collection.models = [];
         this.collection.set([this.model, this.model]);
-        assert.deepEqual(this.collection.models, [this.setModel]);
+        expect(this.collection.models).to.deep.equal([this.setModel]);
       });
       it('should add only one entry per id to the _model_map property', function() {
         this.collection._model_map = {};
         this.collection.set([this.model, this.model]);
-        assert.deepEqual(this.collection._model_map, {
+        expect(this.collection._model_map).to.deep.equal({
           [this.model.id]: this.setModel,
         });
       });
       describe('that have no ids', function() {
-        it(' should not overwrite each other in the model cache', function() {
+        it('should not overwrite each other in the model cache', function() {
           const idLessModel1 = { test: 'testing' };
           const idLessModel2 = { test: 'testing1' };
           this.collection._model_map = {};
           this.collection.models = [];
           this.collection.set([idLessModel1, idLessModel2]);
-          assert.equal(this.collection.models.length, 2);
+          expect(this.collection.models).to.have.lengthOf(2);
         });
       });
     });
@@ -960,60 +959,72 @@ describe('Model', function() {
   describe('constructor set properties:', function() {
     describe('resource property', function() {
       it('should be the passed in resource', function() {
-        assert.equal(this.resource, this.model.resource);
+        expect(this.resource).to.equal(this.model.resource);
       });
     });
     describe('attributes property', function() {
       it('should be the data', function() {
-        assert.deepEqual(this.model.attributes, this.data);
+        expect(this.model.attributes).to.deep.equal(this.data);
       });
     });
     describe('synced property', function() {
       it('should be false', function() {
-        assert.equal(this.model.synced, false);
+        expect(this.model.synced).to.be.false;
       });
     });
     describe('promises property', function() {
       it('should be an empty array', function() {
-        assert.deepEqual(this.model.promises, []);
+        expect(this.model.promises).to.deep.equal([]);
       });
     });
   });
   describe('constructor method', function() {
     describe('if resource is undefined', function() {
       it('should throw a TypeError', function() {
-        assert.throws(() => new Resources.Model(this.data, {}), TypeError);
+        function testCall() {
+          new Resources.Model(this.data, {});
+        }
+        expect(testCall).to.throw(TypeError);
       });
     });
     describe('if data is passed in', function() {
       it('should call the set method once', function() {
         const spy = sinon.spy(Resources.Model.prototype, 'set');
         const testModel = new Resources.Model(this.data, {}, this.resource);
-        assert.ok(testModel);
-        assert.ok(spy.calledOnce);
+        expect(testModel).to.be.ok;
+        sinon.assert.calledOnce(spy);
         Resources.Model.prototype.set.restore();
       });
       it('should call the set method with the data', function() {
         const spy = sinon.spy(Resources.Model.prototype, 'set');
         const testModel = new Resources.Model(this.data, {}, this.resource);
-        assert.ok(testModel);
-        assert.ok(spy.calledWithExactly(this.data));
+        expect(testModel).to.be.ok;
+        sinon.assert.calledWithExactly(spy, this.data);
         Resources.Model.prototype.set.restore();
       });
     });
     describe('if undefined data is passed in', function() {
       it('should throw a TypeError', function() {
-        assert.throws(() => new Resources.Model(undefined, {}, this.resource), TypeError);
+        function testCall() {
+          new Resources.Model(undefined, {}, this.resource);
+        }
+        expect(testCall).to.throw(TypeError);
       });
     });
     describe('if null data is passed in', function() {
       it('should throw a TypeError', function() {
-        assert.throws(() => new Resources.Model(null, {}, this.resource), TypeError);
+        function testCall() {
+          new Resources.Model(null, {}, this.resource);
+        }
+        expect(testCall).to.throw(TypeError);
       });
     });
     describe('if no data is passed in', function() {
       it('should throw a TypeError', function() {
-        assert.throws(() => new Resources.Model({}, {}, this.resource), TypeError);
+        function testCall() {
+          new Resources.Model({}, {}, this.resource);
+        }
+        expect(testCall).to.throw(TypeError);
       });
     });
   });
@@ -1023,7 +1034,7 @@ describe('Model', function() {
         this.model.synced = true;
         const promise = this.model.fetch();
         promise.then(result => {
-          assert.deepEqual(result, this.data);
+          expect(result).to.deep.equal(this.data);
           done();
         });
       });
@@ -1043,35 +1054,35 @@ describe('Model', function() {
         it('should call the client once', function(done) {
           this.model.synced = false;
           this.model.fetch().then(() => {
-            assert.ok(this.client.calledOnce);
+            sinon.assert.calledOnce(this.client);
             done();
           });
         });
         it('should call set once', function(done) {
           this.model.synced = false;
           this.model.fetch().then(() => {
-            assert.ok(this.setSpy.calledOnce);
+            sinon.assert.calledOnce(this.setSpy);
             done();
           });
         });
         it('should call set with the response entity', function(done) {
           this.model.synced = false;
           this.model.fetch().then(() => {
-            assert.ok(this.setSpy.calledWithExactly(this.response.entity));
+            sinon.assert.calledWithExactly(this.setSpy, this.response.entity);
             done();
           });
         });
         it('should set synced to true', function(done) {
           this.model.synced = false;
           this.model.fetch().then(() => {
-            assert.ok(this.model.synced);
+            expect(this.model.synced).to.be.true;
             done();
           });
         });
         it('should leave no promises in promises property', function(done) {
           this.model.synced = false;
           this.model.fetch().then(() => {
-            assert.deepEqual(this.model.promises, []);
+            expect(this.model.promises).to.deep.equal([]);
             done();
           });
         });
@@ -1090,21 +1101,21 @@ describe('Model', function() {
         it('should call logging.error once', function(done) {
           this.model.synced = false;
           this.model.fetch().catch(() => {
-            assert.ok(this.logstub.calledOnce);
+            sinon.assert.calledOnce(this.logstub);
             done();
           });
         });
         it('should return the error', function(done) {
           this.model.synced = false;
           this.model.fetch().catch(error => {
-            assert.equal(error, this.response);
+            expect(error).to.equal(this.response);
             done();
           });
         });
         it('should leave no promises in promises property', function(done) {
           this.model.synced = false;
           this.model.fetch().catch(() => {
-            assert.deepEqual(this.model.promises, []);
+            expect(this.model.promises).to.deep.equal([]);
             done();
           });
         });
@@ -1118,7 +1129,7 @@ describe('Model', function() {
         this.resource.client = this.client;
         this.model.synced = true;
         this.model.fetch({}, true).then(() => {
-          assert.ok(this.client.calledOnce);
+          sinon.assert.calledOnce(this.client);
           done();
         });
       });
@@ -1131,7 +1142,7 @@ describe('Model', function() {
         this.resource.client = this.client;
         this.model.synced = false;
         const promise = this.model.fetch();
-        assert.deepEqual(this.model.promises, [promise]);
+        expect(this.model.promises).to.deep.equal([promise]);
       });
     });
     describe('if called twice', function() {
@@ -1143,7 +1154,7 @@ describe('Model', function() {
         this.model.synced = false;
         const promise1 = this.model.fetch();
         const promise2 = this.model.fetch();
-        assert.deepEqual(this.model.promises, [promise1, promise2]);
+        expect(this.model.promises).to.deep.equal([promise1, promise2]);
       });
     });
   });
@@ -1153,7 +1164,7 @@ describe('Model', function() {
         this.model.synced = true;
         const promise = this.model.save(this.model.attributes);
         promise.then(result => {
-          assert.deepEqual(result, this.data);
+          expect(result).to.deep.equal(this.data);
           done();
         });
       });
@@ -1169,7 +1180,7 @@ describe('Model', function() {
         this.client.returns(Promise.resolve(this.response));
         this.resource.client = this.client;
         this.model.save(payload).then(() => {
-          assert.ok(this.client.calledOnce);
+          sinon.assert.calledOnce(this.client);
           done();
         });
       });
@@ -1183,7 +1194,7 @@ describe('Model', function() {
         this.client.returns(Promise.resolve(this.response));
         this.resource.client = this.client;
         this.model.save(payload).then(() => {
-          assert.equal(this.model.attributes.somethingNew, 'new');
+          expect(this.model.attributes.somethingNew).to.equal('new');
           done();
         });
       });
@@ -1204,35 +1215,35 @@ describe('Model', function() {
         it('should call the client once', function(done) {
           this.model.synced = false;
           this.model.save(this.payload).then(() => {
-            assert.ok(this.client.calledOnce);
+            sinon.assert.calledOnce(this.client);
             done();
           });
         });
         it('should call set twice', function(done) {
           this.model.synced = false;
           this.model.save(this.payload).then(() => {
-            assert.ok(this.setSpy.calledTwice);
+            sinon.assert.calledTwice(this.setSpy);
             done();
           });
         });
         it('should call set with the response entity', function(done) {
           this.model.synced = false;
           this.model.save(this.payload).then(() => {
-            assert.ok(this.setSpy.calledWithExactly(this.response.entity));
+            sinon.assert.calledWithExactly(this.setSpy, this.response.entity);
             done();
           });
         });
         it('should set synced to true', function(done) {
           this.model.synced = false;
           this.model.save(this.payload).then(() => {
-            assert.ok(this.model.synced);
+            expect(this.model.synced).to.be.true;
             done();
           });
         });
         it('should leave no promises in promises property', function(done) {
           this.model.synced = false;
           this.model.save(this.payload).then(() => {
-            assert.deepEqual(this.model.promises, []);
+            expect(this.model.promises).to.deep.equal([]);
             done();
           });
         });
@@ -1251,21 +1262,21 @@ describe('Model', function() {
         it('should call logging.error once', function(done) {
           this.model.synced = false;
           this.model.save().catch(() => {
-            assert.ok(this.logstub.calledOnce);
+            sinon.assert.calledOnce(this.logstub);
             done();
           });
         });
         it('should return the error', function(done) {
           this.model.synced = false;
           this.model.save().catch(error => {
-            assert.equal(error, this.response);
+            expect(error).to.equal(this.response);
             done();
           });
         });
         it('should leave no promises in promises property', function(done) {
           this.model.synced = false;
           this.model.save().catch(() => {
-            assert.deepEqual(this.model.promises, []);
+            expect(this.model.promises).to.deep.equal([]);
             done();
           });
         });
@@ -1281,7 +1292,7 @@ describe('Model', function() {
           this.model = new Resources.Model(this.payload, {}, this.resource);
           this.model.synced = false;
           this.model.save(this.payload).then(() => {
-            assert.equal(typeof this.client.args[0].method, 'undefined');
+            expect(typeof this.client.args[0].method).to.equal('undefined');
             done();
           });
         });
@@ -1297,7 +1308,7 @@ describe('Model', function() {
             this.model.synced = false;
             this.resource.addModel = sinon.spy();
             this.model.save(this.payload).then(() => {
-              assert.ok(this.resource.addModel.calledWithExactly(this.model));
+              sinon.assert.calledWithExactly(this.resource.addModel, this.model);
               done();
             });
           });
@@ -1312,7 +1323,7 @@ describe('Model', function() {
           this.resource.client = this.client;
           this.model.synced = false;
           this.model.save(this.payload).then(() => {
-            assert.equal(this.client.args[0][0].method, 'PATCH');
+            expect(this.client.args[0][0].method).to.equal('PATCH');
             done();
           });
         });
@@ -1325,7 +1336,7 @@ describe('Model', function() {
         this.client.returns(new Promise(() => {}));
         this.model.synced = false;
         const promise = this.model.save({});
-        assert.deepEqual(this.model.promises, [promise]);
+        expect(this.model.promises).to.deep.equal([promise]);
       });
     });
     describe('if called twice', function() {
@@ -1336,7 +1347,7 @@ describe('Model', function() {
         this.model.synced = false;
         const promise1 = this.model.save({});
         const promise2 = this.model.save({});
-        assert.deepEqual(this.model.promises, [promise1, promise2]);
+        expect(this.model.promises).to.deep.equal([promise1, promise2]);
       });
     });
   });
@@ -1352,31 +1363,31 @@ describe('Model', function() {
         });
         it('should call the client once', function(done) {
           this.model.delete().then(() => {
-            assert.ok(this.client.calledOnce);
+            sinon.assert.calledOnce(this.client);
             done();
           });
         });
         it('should call the client with the DELETE method', function(done) {
           this.model.delete().then(() => {
-            assert.equal(this.client.args[0][0].method, 'DELETE');
+            expect(this.client.args[0][0].method).to.equal('DELETE');
             done();
           });
         });
         it('should call removeModel on the resource', function(done) {
           this.model.delete().then(() => {
-            assert.ok(this.resource.removeModel.calledWithExactly(this.model));
+            sinon.assert.calledWithExactly(this.resource.removeModel, this.model);
             done();
           });
         });
         it('should resolve the id of the model', function(done) {
           this.model.delete().then(id => {
-            assert.equal(this.model.id, id);
+            expect(this.model.id).to.equal(id);
             done();
           });
         });
         it('should leave no promises in promises property', function(done) {
           this.model.delete().then(() => {
-            assert.deepEqual(this.model.promises, []);
+            expect(this.model.promises).to.deep.equal([]);
             done();
           });
         });
@@ -1394,19 +1405,19 @@ describe('Model', function() {
         });
         it('should call logging.error once', function(done) {
           this.model.delete().catch(() => {
-            assert.ok(this.logstub.calledOnce);
+            sinon.assert.calledOnce(this.logstub);
             done();
           });
         });
         it('should return the error', function(done) {
           this.model.delete().catch(error => {
-            assert.equal(error, this.response);
+            expect(error).to.equal(this.response);
             done();
           });
         });
         it('should leave no promises in promises property', function(done) {
           this.model.delete().catch(() => {
-            assert.deepEqual(this.model.promises, []);
+            expect(this.model.promises).to.deep.equal([]);
             done();
           });
         });
@@ -1421,7 +1432,7 @@ describe('Model', function() {
         this.resource.client = this.client;
         this.model = new Resources.Model(this.payload, {}, this.resource);
         this.model.delete().catch(error => {
-          assert.ok(error);
+          expect(error).to.be.ok;
           done();
         });
       });
@@ -1432,7 +1443,7 @@ describe('Model', function() {
         this.client = sinon.stub();
         this.client.returns(new Promise(() => {}));
         const promise = this.model.delete();
-        assert.deepEqual(this.model.promises, [promise]);
+        expect(this.model.promises).to.deep.equal([promise]);
       });
     });
     describe('if called twice', function() {
@@ -1442,23 +1453,23 @@ describe('Model', function() {
         this.client.returns(new Promise(() => {}));
         const promise1 = this.model.delete();
         const promise2 = this.model.delete();
-        assert.deepEqual(this.model.promises, [promise1, promise2]);
+        expect(this.model.promises).to.deep.equal([promise1, promise2]);
       });
     });
   });
   describe('set method', function() {
     it('should add new attributes', function() {
       this.model.set({ new: 'new' });
-      assert.equal(this.model.attributes.new, 'new');
+      expect(this.model.attributes.new).to.equal('new');
     });
     it('should overwrite previous attributes', function() {
       this.model.attributes.new = 'old';
       this.model.set({ new: 'new' });
-      assert.equal(this.model.attributes.new, 'new');
+      expect(this.model.attributes.new).to.equal('new');
     });
     it('should coerce and id to a string', function() {
       this.model.set({ id: 123 });
-      assert.equal(this.model.attributes.id, '123');
+      expect(this.model.attributes.id).to.equal('123');
     });
   });
 });

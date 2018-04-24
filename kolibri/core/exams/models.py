@@ -9,6 +9,7 @@ from kolibri.auth.models import Collection
 from kolibri.auth.models import FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
 
+
 class Exam(AbstractFacilityDataModel):
     """
     This class stores metadata about teacher created exams to test current student knowledge.
@@ -29,12 +30,12 @@ class Exam(AbstractFacilityDataModel):
     channel_id = models.CharField(max_length=32)
     # Number of total questions this exam has
     question_count = models.IntegerField()
-    # JSON blob describing content ids for the assessments this exam draws from, and how many
+    # JSON blob describing exercise node pks for the assessments this exam draws from, and how many
     # questions each assessment contributes to the exam. e.g.:
     #
     # [
-    #     {"exercise_id": <content_id1>, "number_of_questions": 6},
-    #     {"exercise_id": <content_id2>, "number_of_questions": 5}
+    #     {"exercise_id": <exercise_pk1>, "number_of_questions": 6},
+    #     {"exercise_id": <exercise_pk2>, "number_of_questions": 5}
     # ]
     question_sources = JSONField(default=[], blank=True)
     # The random seed we use to decide which questions are in the exam

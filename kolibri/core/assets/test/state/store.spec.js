@@ -1,13 +1,13 @@
 /* eslint-env mocha */
+import { expect } from 'chai';
 import Vue from 'vue';
 import Vuex from 'vuex';
-import assert from 'assert';
-import coreStore from '../../src/state/store';
-import * as coreActions from '../../src/state/actions';
-import * as constants from '../../src/constants';
 import sinon from 'sinon';
 import urls from 'kolibri.urls';
 import { SessionResource, AttemptLogResource } from 'kolibri.resources';
+import coreStore from '../../src/state/store';
+import * as coreActions from '../../src/state/actions';
+import * as constants from '../../src/constants';
 import * as browser from '../../src/utils/browser';
 import ConditionalPromise from '../../src/conditionalPromise';
 
@@ -20,18 +20,18 @@ describe('Vuex store/actions for core module', () => {
     it('handleError action updates core state', () => {
       const store = coreStore.factory();
       coreActions.handleError(store, 'catastrophic failure');
-      assert.equal(store.state.core.error, 'catastrophic failure');
-      assert.equal(store.state.core.loading, false);
-      assert.equal(store.state.core.title, errorMessage);
+      expect(store.state.core.error).to.equal('catastrophic failure');
+      expect(store.state.core.loading).to.be.false;
+      expect(store.state.core.title).to.equal(errorMessage);
     });
 
     it('handleApiError action updates core state', () => {
       const store = coreStore.factory();
       const apiError = { message: 'Too Bad' };
       coreActions.handleApiError(store, apiError);
-      assert(store.state.core.error.match(/Too Bad/));
-      assert.equal(store.state.core.loading, false);
-      assert.equal(store.state.core.title, errorMessage);
+      expect(store.state.core.error.match(/Too Bad/)).to.have.lengthOf(1);
+      expect(store.state.core.loading).to.be.false;
+      expect(store.state.core.title).to.equal(errorMessage);
     });
   });
 
@@ -51,6 +51,7 @@ describe('Vuex store/actions for core module', () => {
     it('successful login', done => {
       urls['kolibri:facilitymanagementplugin:facility_management'] = () => '';
       urls['kolibri:devicemanagementplugin:device_management'] = () => '';
+      urls['kolibri:coach:coach'] = () => '';
       Object.assign(SessionResource, {
         createModel: () => ({
           save: () =>
@@ -65,9 +66,9 @@ describe('Vuex store/actions for core module', () => {
 
       function runAssertions() {
         const { session } = store.state.core;
-        assert.equal(session.id, '123');
-        assert.equal(session.username, 'e_fermi');
-        assert.deepEqual(session.kind, ['cool-guy-user']);
+        expect(session.id).to.equal('123');
+        expect(session.username).to.equal('e_fermi');
+        expect(session.kind).to.deep.equal(['cool-guy-user']);
         sinon.assert.called(assignStub);
       }
 
@@ -87,7 +88,7 @@ describe('Vuex store/actions for core module', () => {
       coreActions
         .kolibriLogin(store, {})
         .then(() => {
-          assert.equal(store.state.core.loginError, constants.LoginErrors.INVALID_CREDENTIALS);
+          expect(store.state.core.loginError).to.equal(constants.LoginErrors.INVALID_CREDENTIALS);
         })
         .then(done, done);
     });
@@ -130,8 +131,8 @@ describe('Vuex core logging actions', () => {
       store.state.core.logging.attempt.id = 'assertion';
       externalResolve(firstState);
       promise.then(() => {
-        assert.equal(store.state.core.logging.attempt.id, 'assertion');
-        assert.equal(store.state.core.logging.attempt.item, 'second');
+        expect(store.state.core.logging.attempt.id).to.equal('assertion');
+        expect(store.state.core.logging.attempt.item).to.equal('second');
         done();
       });
     });

@@ -47,7 +47,11 @@
 
       <div>
         <transition name="fade" mode="out-in">
-          <ui-progress-linear v-if="loading" key="progress" />
+          <k-circular-loader
+            v-if="loading"
+            key="progress"
+            :delay="false"
+          />
 
           <core-table
             v-else
@@ -137,7 +141,7 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
-  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import shuffle from 'lodash/shuffle';
   import orderBy from 'lodash/orderBy';
@@ -146,7 +150,6 @@
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import flatMap from 'lodash/flatMap';
   import { Modals as ExamModals } from '../../../constants/examConstants';
-  import { className } from '../../../state/getters/classes';
   import {
     goToTopic,
     goToTopLevel,
@@ -163,7 +166,7 @@
   export default {
     name: 'createExamPage',
     components: {
-      uiProgressLinear,
+      kCircularLoader,
       kButton,
       kTextbox,
       kGrid,
@@ -448,7 +451,6 @@
     vuex: {
       getters: {
         classId: state => state.classId,
-        className,
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,

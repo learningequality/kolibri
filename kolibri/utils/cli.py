@@ -7,27 +7,19 @@ import logging  # noqa
 import os  # noqa
 import signal  # noqa
 import sys  # noqa
-
-from . import env
-
-# Setup the environment before loading anything else from the application
-# TODO: This should perhaps be moved to kolibri.__init__
-env.set_env()
-
-import kolibri  # noqa
-import django  # noqa
-
-from django.core.management import call_command  # noqa
-from django.core.exceptions import AppRegistryNotReady  # noqa
-from django.db.utils import DatabaseError  # noqa
 from sqlite3 import DatabaseError as SQLite3DatabaseError  # noqa
+
+import django  # noqa
+from django.core.exceptions import AppRegistryNotReady  # noqa
+from django.core.management import call_command  # noqa
+from django.db.utils import DatabaseError  # noqa
 from docopt import docopt  # noqa
 
-from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
-
+import kolibri  # noqa
 from . import server  # noqa
-from .system import become_daemon  # noqa
 from .sanity_checks import check_other_kolibri_running  # noqa
+from .system import become_daemon  # noqa
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
 
 USAGE = """
 Kolibri

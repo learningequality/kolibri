@@ -8,7 +8,7 @@
     <k-radio-button
       v-for="group in groupsExcludingCurrent"
       :key="group.id"
-      :radiovalue="group.id"
+      :value="group.id"
       :label="group.name"
       v-model="groupSelected"
     />
@@ -16,7 +16,7 @@
     <div v-if="!isUngrouped">
       <hr>
       <k-radio-button
-        radiovalue="ungrouped"
+        value="ungrouped"
         :label="$tr('ungrouped')"
         v-model="groupSelected"
       />

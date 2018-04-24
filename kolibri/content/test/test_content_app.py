@@ -3,23 +3,27 @@ To run this test, type this in command line <kolibri manage test -- kolibri.cont
 """
 import datetime
 from collections import namedtuple
+
 import mock
 import requests
-import kolibri.content.serializers
-from rest_framework import status
-from rest_framework.test import APITestCase
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.test import TestCase
+from le_utils.constants import content_kinds
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+import kolibri.content.serializers
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 from kolibri.auth.test.helpers import provision_device
 from kolibri.content import models as content
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.exams.models import Exam
+from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSummaryLog
-from le_utils.constants import content_kinds
 
 DUMMY_PASSWORD = "password"
 
@@ -147,6 +151,11 @@ class ContentNodeAPITestCase(APITestCase):
 
     def setUp(self):
         provision_device()
+        self.facility = Facility.objects.create(name='facility')
+        self.admin = FacilityUser.objects.create(username='admin', facility=self.facility)
+        self.admin.set_password(DUMMY_PASSWORD)
+        self.admin.save()
+        self.facility.add_admin(self.admin)
 
     def _reverse_channel_url(self, pattern_name, kwargs={}):
         """Helper method to reverse a URL using the current channel ID"""
@@ -579,6 +588,91 @@ class ContentNodeAPITestCase(APITestCase):
         with mock.patch.object(cache, 'set') as mock_cache_set:
             self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
             self.assertFalse(mock_cache_set.called)
+
+    def test_filtering_coach_content_anon(self):
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"by_role": True})
+        expected_output = content.ContentNode.objects.exclude(coach_content=True).exclude(available=False).count()  # coach_content node should NOT be returned
+        self.assertEqual(len(response.data), expected_output)
+
+    def test_filtering_coach_content_admin(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"by_role": True})
+        expected_output = content.ContentNode.objects.exclude(available=False).count()  # coach_content node should be returned
+        self.assertEqual(len(response.data), expected_output)
+
+    def _setup_lesson(self):
+        facility = Facility.objects.create(name="MyFac")
+        admin = FacilityUser.objects.create(username="admin", facility=facility)
+        admin.set_password(DUMMY_PASSWORD)
+        admin.save()
+        nodes = []
+        nodes.append(content.ContentNode.objects.get(title='c3c1'))
+        nodes.append(content.ContentNode.objects.get(title='c2c3'))
+        nodes.append(content.ContentNode.objects.get(title='c2c2'))
+        json_resource = [{"contentnode_id": node.id, "content_id": node.content_id, "channel_id": node.channel_id} for node in nodes]
+        lesson = Lesson.objects.create(
+            title="title",
+            is_active=True,
+            collection=facility,
+            created_by=admin,
+            resources=json_resource
+        )
+        return lesson, nodes
+
+    def test_in_lesson_filter(self):
+        lesson, nodes = self._setup_lesson()
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": lesson.id})
+        self.assertEqual(len(response.data), len(lesson.resources))
+        for counter, node in enumerate(nodes):
+            self.assertEqual(response.data[counter]['id'], node.id)
+
+    def test_in_lesson_filter_invalid_value(self):
+        self._setup_lesson()
+
+        # request with invalid uuid
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": '123'})
+        self.assertEqual(len(response.data), 0)
+
+        # request with valid uuid
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": '47385a6d4df3426db38ad0d20e113dce'})
+        self.assertEqual(len(response.data), 0)
+
+    def _setup_exam(self):
+        facility = Facility.objects.create(name="MyFac")
+        admin = FacilityUser.objects.create(username="admin", facility=facility)
+        admin.set_password(DUMMY_PASSWORD)
+        admin.save()
+        node = content.ContentNode.objects.get(title='c3c1')
+        exam = Exam.objects.create(
+            title="title",
+            channel_id="test",
+            question_count=1,
+            active=True,
+            collection=facility,
+            creator=admin,
+            question_sources=[
+                {"exercise_id": node.id, "number_of_questions": 6}
+            ]
+        )
+
+        return exam, node
+
+    def test_in_exam_filter(self):
+        exam, node = self._setup_exam()
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": exam.id})
+        self.assertEqual(len(response.data), len(exam.question_sources))
+        self.assertEqual(response.data[0]['id'], node.id)
+
+    def test_in_exam_filter_invalid_value(self):
+        self._setup_exam()
+
+        # request with invalid uuid
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": '123'})
+        self.assertEqual(len(response.data), 0)
+
+        # request with valid uuid
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": '47385a6d4df3426db38ad0d20e113dce'})
+        self.assertEqual(len(response.data), 0)
 
     def tearDown(self):
         """

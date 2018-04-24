@@ -61,6 +61,7 @@
 <script>
 
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import markdownIt from 'markdown-it';
 
   const dataRequired = ['title'];
   const completionDataRequired = ['m', 'n'];
@@ -108,7 +109,10 @@
         return false;
       },
       description() {
-        return this.content.description;
+        if (this.content) {
+          const md = new markdownIt('zero', { breaks: true });
+          return md.render(this.content.description);
+        }
       },
       author() {
         return this.content.author;

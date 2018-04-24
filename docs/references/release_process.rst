@@ -81,8 +81,6 @@ Edit the VERSION file
 
 Current practice is to bump ``kolibri.VERSION`` before tagging a release. You are allowed to have a newer version in ``kolibri.VERSION``, but you are not allowed to add the tag before actually bumping ``kolibri.VERSION``.
 
-Current practice is to bump ``kolibri.VERSION`` before tagging a release. You are allowed to have a newer version in ``kolibri.VERSION``, but you are not allowed to add the tag before actually bumping ``kolibri.VERSION``.
-
 Select a release series number and initial version number::
 
     $ SERIES=0.1.x

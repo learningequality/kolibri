@@ -12,6 +12,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase as BaseTestCase
 
 from .. import models
+from ..constants import role_kinds
 from .helpers import create_superuser
 from .helpers import provision_device
 
@@ -324,8 +325,8 @@ class LoginLogoutTestCase(APITestCase):
     def test_session_return_admin_and_coach_kind(self):
         self.client.post(reverse('session-list'), data={"username": self.admin.username, "password": "bar", "facility": self.facility.id})
         response = self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))
-        self.assertTrue(response.data['kind'][0], 'admin')
-        self.assertTrue(response.data['kind'][1], 'coach')
+        self.assertIn(role_kinds.ADMIN, response.data['kind'])
+        self.assertIn(role_kinds.COACH, response.data['kind'])
 
     def test_session_return_anon_kind(self):
         response = self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))

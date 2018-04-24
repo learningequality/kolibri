@@ -86,6 +86,7 @@ LOCALE_PATHS += [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'kolibri.core.device.middleware.KolibriLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -162,7 +163,7 @@ CENTRAL_CONTENT_DOWNLOAD_BASE_URL = os.environ.get('CENTRAL_CONTENT_DOWNLOAD_BAS
 with io.open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json"), encoding="utf-8") as f:
     LANGUAGES = i18n.parse_supported_languages(json.load(f))
 
-# Haitian Creole is not supported out-of-the-box by Django
+# Some languages are not supported out-of-the-box by Django
 # Here, we use the language code in Intl.js
 EXTRA_LANG_INFO = {
     'fr-ht': {
@@ -170,6 +171,12 @@ EXTRA_LANG_INFO = {
         'code': 'fr-ht',
         'name': 'Haitian Creole',
         'name_local': 'Kreyòl ayisyen',
+    },
+    'nyn': {
+        'bidi': False,
+        'code': 'nyn',
+        'name': 'Chichewa, Chewa, Nyanja',
+        'name_local': 'chinyanja',
     },
 }
 locale.LANG_INFO.update(EXTRA_LANG_INFO)

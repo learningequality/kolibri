@@ -67,7 +67,7 @@ class Command(AsyncCommand):
         parser.add_argument(
             "--include-unrenderable-content",
             action='store_false',
-            default=True,
+            default=False,
             dest="renderable_only",
             help="Import all content, not just that which this Kolibri instance can render"
         )

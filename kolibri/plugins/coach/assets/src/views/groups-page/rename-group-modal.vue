@@ -83,7 +83,8 @@
     },
     computed: {
       duplicateName() {
-        if (this.name === this.groupName) {
+        // if same name, different case
+        if (this.name.toUpperCase() === this.groupName.toUpperCase()) {
           return false;
         }
         const index = this.groups.findIndex(

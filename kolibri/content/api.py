@@ -30,8 +30,11 @@ from kolibri.content import serializers
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
 from kolibri.content.utils.paths import get_channel_lookup_url
+from kolibri.core.exams.models import Exam
+from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
+
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +88,10 @@ class ContentNodeFilter(IdFilter):
     next_steps = CharFilter(method="filter_next_steps")
     popular = CharFilter(method="filter_popular")
     resume = CharFilter(method="filter_resume")
-    kind = ChoiceFilter(method="filter_kind", choices=(content_kinds.choices + ('content', _('Content'))))
+    kind = ChoiceFilter(method="filter_kind", choices=(content_kinds.choices + (('content', _('Content')),)))
+    by_role = BooleanFilter(method="filter_by_role")
+    in_lesson = CharFilter(method="filter_in_lesson")
+    in_exam = CharFilter(method="filter_in_exam")
 
     class Meta:
         model = models.ContentNode
@@ -104,9 +110,7 @@ class ContentNodeFilter(IdFilter):
         if not fuzzed_tokens[0]:
             return []
         token_queries = [reduce(lambda x, y: x | y, [Q(stemmed_metaphone__contains=token) for token in tokens]) for tokens in fuzzed_tokens]
-        return queryset.filter(
-            Q(parent__isnull=False),
-            reduce(lambda x, y: x & y, token_queries))
+        return queryset.filter(reduce(lambda x, y: x & y, token_queries))
 
     def filter_recommendations_for(self, queryset, name, value):
         """
@@ -216,6 +220,55 @@ class ContentNodeFilter(IdFilter):
         if value == 'content':
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
+
+    def filter_by_role(self, queryset, name, value):
+        """
+        Show coach_content if they have coach role or higher.
+
+        :param queryset: all content nodes for this channel
+        :param value: 'boolean'
+        :return: content nodes filtered by coach_content if appropiate
+        """
+        user = self.request.user
+        if user.is_facility_user:  # exclude anon users
+            if user.roles.exists() or user.is_superuser:  # must have coach role or higher
+                return queryset
+        return queryset.exclude(coach_content=True)
+
+    def filter_in_lesson(self, queryset, name, value):
+        """
+        Show only content associated with this lesson
+
+        :param queryset: all content nodes
+        :param value: id of target lesson
+        :return: content nodes for this lesson
+        """
+        try:
+            resources = Lesson.objects.get(id=value).resources
+            contentnode_id_list = [node['contentnode_id'] for node in resources]
+            # adapted from https://codybonney.com/creating-a-queryset-from-a-list-while-preserving-order-using-django/
+            clauses = ' '.join(["WHEN {}.id='{}' THEN {}".format(models.ContentNode._meta.db_table,
+                                                                 pk, i) for i, pk in enumerate(contentnode_id_list)])
+            ordering = 'CASE {} END'.format(clauses)
+            return queryset.filter(pk__in=contentnode_id_list) \
+                           .extra(select={'ordering': ordering}, order_by=('ordering',))
+        except (Lesson.DoesNotExist, ValueError):  # also handles invalid uuid
+            queryset.none()
+
+    def filter_in_exam(self, queryset, name, value):
+        """
+        Show only content associated with this exam
+
+        :param queryset: all content nodes
+        :param value: id of target exam
+        :return: content nodes for this exam
+        """
+        try:
+            question_sources = Exam.objects.get(id=value).question_sources
+            exercise_id_list = [node['exercise_id'] for node in question_sources]
+            return queryset.filter(pk__in=exercise_id_list)
+        except (Exam.DoesNotExist, ValueError):  # also handles invalid uuid
+            return queryset.none()
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):

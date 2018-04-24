@@ -9,14 +9,14 @@
       <k-radio-button
         :label="$tr('network')"
         v-model="source"
-        radiovalue="network"
+        value="network"
         :disabled="disableUi || kolibriStudioIsOffline"
         :autofocus="!kolibriStudioIsOffline"
       />
       <k-radio-button
         :label="$tr('localDrives')"
         v-model="source"
-        radiovalue="local"
+        value="local"
         :disabled="disableUi"
       />
     </div>
