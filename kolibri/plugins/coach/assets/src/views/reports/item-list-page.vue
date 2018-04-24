@@ -66,6 +66,9 @@
         </tr>
       </tbody>
     </core-table>
+    <p v-if="!standardDataTable.length">
+      {{ $tr('noItems') }}
+    </p>
 
   </div>
 
@@ -109,6 +112,7 @@
         '{count, number, integer} {count, plural, one {exercise} other {exercises}}',
       contentCountText:
         '{count, number, integer} {count, plural, one {resource} other {resources}}',
+      noItems: 'No Items',
     },
     computed: {
       tableColumns() {
