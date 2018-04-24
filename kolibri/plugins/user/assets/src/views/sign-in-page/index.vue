@@ -10,95 +10,97 @@
     <div class="wrapper-table">
       <div class="main-row">
         <div class="main-cell">
-          <logo
-            class="logo"
-            :style="logoStyle"
-          />
-          <h1>{{ $tr('signInToKolibri') }}</h1>
-          <form class="login-form" ref="form" @submit.prevent="signIn">
-            <ui-alert
-              v-if="invalidCredentials"
-              type="error"
-              :dismissible="false"
-            >
-              {{ $tr('signInError') }}
-            </ui-alert>
-            <transition name="textbox">
-              <k-textbox
-                ref="username"
-                id="username"
-                autocomplete="username"
-                :autofocus="!hasMultipleFacilities"
-                :label="$tr('username')"
-                :invalid="usernameIsInvalid"
-                :invalidText="usernameIsInvalidText"
-                @blur="handleUsernameBlur"
-                @input="showDropdown = true"
-                @keydown="handleKeyboardNav"
-                v-model="username"
-              />
-            </transition>
-            <transition name="list">
-              <ul
-                v-if="simpleSignIn && suggestions.length"
-                v-show="showDropdown"
-                class="suggestions"
+          <div class="box">
+            <logo
+              class="logo"
+              :style="logoStyle"
+            />
+            <h1>{{ $tr('signInToKolibri') }}</h1>
+            <form class="login-form" ref="form" @submit.prevent="signIn">
+              <ui-alert
+                v-if="invalidCredentials"
+                type="error"
+                :dismissible="false"
               >
-                <ui-autocomplete-suggestion
-                  v-for="(suggestion, i) in suggestions"
-                  :key="i"
-                  :suggestion="suggestion"
-                  :class="{ highlighted: highlightedIndex === i }"
-                  @click.native="fillUsername(suggestion)"
+                {{ $tr('signInError') }}
+              </ui-alert>
+              <transition name="textbox">
+                <k-textbox
+                  ref="username"
+                  id="username"
+                  autocomplete="username"
+                  :autofocus="!hasMultipleFacilities"
+                  :label="$tr('username')"
+                  :invalid="usernameIsInvalid"
+                  :invalidText="usernameIsInvalidText"
+                  @blur="handleUsernameBlur"
+                  @input="showDropdown = true"
+                  @keydown="handleKeyboardNav"
+                  v-model="username"
                 />
-              </ul>
-            </transition>
-            <transition name="textbox">
-              <k-textbox
-                v-if="needPasswordField"
-                ref="password"
-                id="password"
-                type="password"
-                autocomplete="current-password"
-                :label="$tr('password')"
-                :autofocus="simpleSignIn"
-                :invalid="passwordIsInvalid"
-                :invalidText="passwordIsInvalidText"
-                :floatingLabel="!autoFilledByChromeAndNotEdited"
-                @blur="passwordBlurred = true"
-                @input="handlePasswordChanged"
-                v-model="password"
-              />
-            </transition>
+              </transition>
+              <transition name="list">
+                <ul
+                  v-if="simpleSignIn && suggestions.length"
+                  v-show="showDropdown"
+                  class="suggestions"
+                >
+                  <ui-autocomplete-suggestion
+                    v-for="(suggestion, i) in suggestions"
+                    :key="i"
+                    :suggestion="suggestion"
+                    :class="{ highlighted: highlightedIndex === i }"
+                    @click.native="fillUsername(suggestion)"
+                  />
+                </ul>
+              </transition>
+              <transition name="textbox">
+                <k-textbox
+                  v-if="needPasswordField"
+                  ref="password"
+                  id="password"
+                  type="password"
+                  autocomplete="current-password"
+                  :label="$tr('password')"
+                  :autofocus="simpleSignIn"
+                  :invalid="passwordIsInvalid"
+                  :invalidText="passwordIsInvalidText"
+                  :floatingLabel="!autoFilledByChromeAndNotEdited"
+                  @blur="passwordBlurred = true"
+                  @input="handlePasswordChanged"
+                  v-model="password"
+                />
+              </transition>
+              <div>
+                <k-button
+                  class="login-btn"
+                  type="submit"
+                  :text="$tr('signIn')"
+                  :primary="true"
+                  :disabled="busy"
+                />
+              </div>
+            </form>
+
+            <k-router-link
+              v-if="canSignUp"
+              class="create-button"
+              :text="$tr('createAccount')"
+              :to="signUpPage"
+              :primary="true"
+              appearance="flat-button"
+            />
             <div>
-              <k-button
-                class="login-btn"
-                type="submit"
-                :text="$tr('signIn')"
+              <k-external-link
+                class="guest-button"
+                :text="$tr('accessAsGuest')"
+                href="/learn"
                 :primary="true"
-                :disabled="busy"
+                appearance="basic-link"
               />
             </div>
-          </form>
-
-          <k-router-link
-            v-if="canSignUp"
-            class="create-button"
-            :text="$tr('createAccount')"
-            :to="signUpPage"
-            :primary="true"
-            appearance="flat-button"
-          />
-          <div>
-            <k-external-link
-              class="guest-button"
-              :text="$tr('accessAsGuest')"
-              href="/learn"
-              :primary="true"
-              appearance="flat-link"
-            />
+            <p class="version">{{ versionMsg }}</p>
           </div>
-          <p class="version">{{ versionMsg }}</p>
         </div>
       </div>
       <div class="footer-row">
@@ -402,11 +404,24 @@
 
   .main-row
     display: table-row
+    background-image: url(./background.svg)
+    background-repeat: no-repeat
+    background-size: cover
+    background-position: center
+    text-align: center
 
   .main-cell
     display: table-cell
     vertical-align: middle
     height: 100%
+
+  .box
+    width: 300px
+    background-color: $core-bg-light
+    margin: 0 auto
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2),
+                0 1px 1px 0 rgba(0, 0, 0, 0.14),
+                0 2px 1px -1px rgba(0, 0, 0, 0.12)
 
   .logo
     max-height: 80px
@@ -427,6 +442,7 @@
     font-size: 0.8em
     margin-top: 24px
     margin-bottom: 24px
+    padding-bottom: 16px
 
   .footer-row
     display: table-row
