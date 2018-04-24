@@ -29,6 +29,10 @@ export function installedChannelList(state) {
   return state.pageState.channelList;
 }
 
+export function installedChannelListLoading(state) {
+  return state.pageState.channelListLoading;
+}
+
 // Channels that are installed & also "available"
 export function installedChannelsWithResources(state) {
   return state.pageState.channelList.filter(channel => channel.available);

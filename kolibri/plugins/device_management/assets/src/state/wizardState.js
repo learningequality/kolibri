@@ -2,6 +2,7 @@
 export function manageContentPageState() {
   return {
     channelList: [],
+    channelListLoading: false,
     taskList: [],
     wizardState: importExportWizardState(),
   };
