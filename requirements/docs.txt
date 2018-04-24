@@ -1,5 +1,5 @@
 -r base.txt
 
 # These are for building the docs
-sphinx
+sphinx==1.7.2
 sphinx_rtd_theme

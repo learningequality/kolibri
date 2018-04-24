@@ -6,10 +6,12 @@ import { canManageContent } from 'kolibri.coreVue.vuex.getters';
  *
  */
 export function refreshChannelList(store) {
+  store.dispatch('SET_CHANNEL_LIST_LOADING', true);
   return ChannelResource.getCollection()
     .fetch({ file_sizes: true }, true)
     .then(channels => {
       store.dispatch('SET_CHANNEL_LIST', channels);
+      store.dispatch('SET_CHANNEL_LIST_LOADING', false);
     });
 }
 
