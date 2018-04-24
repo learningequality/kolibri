@@ -121,43 +121,27 @@
     },
     methods: {
       genRowLink(row) {
+        const rowIsTopic = row.kind === ContentNodeKinds.TOPIC;
+        const params = {
+          classId: this.classId,
+          channelId: this.pageState.channelId,
+          [rowIsTopic ? 'topicId' : 'contentId']: row.id,
+        };
         if (TopicReports.includes(this.pageName)) {
-          if (row.kind === ContentNodeKinds.TOPIC) {
-            return {
-              name: PageNames.TOPIC_ITEM_LIST,
-              params: {
-                classId: this.classId,
-                channelId: this.pageState.channelId,
-                topicId: row.id,
-              },
-            };
-          }
           return {
-            name: PageNames.TOPIC_LEARNERS_FOR_ITEM,
-            params: {
-              classId: this.classId,
-              channelId: this.pageState.channelId,
-              contentId: row.id,
-            },
+            name: rowIsTopic ? PageNames.TOPIC_ITEM_LIST : PageNames.TOPIC_LEARNERS_FOR_ITEM,
+            params,
           };
         } else if (LearnerReports.includes(this.pageName)) {
-          if (row.kind === ContentNodeKinds.TOPIC) {
+          if (rowIsTopic) {
             return {
               name: PageNames.LEARNER_ITEM_LIST,
-              params: {
-                classId: this.classId,
-                channelId: this.pageState.channelId,
-                topicId: row.id,
-              },
+              params,
             };
           } else if (row.kind === ContentNodeKinds.EXERCISE) {
             return {
               name: PageNames.LEARNER_ITEM_DETAILS_ROOT,
-              params: {
-                classId: this.classId,
-                channelId: this.pageState.channelId,
-                contentId: row.id,
-              },
+              params,
             };
           }
         }
