@@ -1,4 +1,4 @@
-import { handleError, handleApiError } from 'kolibri.coreVue.vuex.actions';
+import { handleError, handleApiError, handleCoachPageError } from 'kolibri.coreVue.vuex.actions';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { getChannels } from 'kolibri.coreVue.vuex.getters';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -155,7 +155,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
       store.dispatch('CORE_SET_ERROR', null);
     },
     error => {
-      handleError(store, error);
+      handleCoachPageError(store, error);
     }
   );
 }
@@ -312,7 +312,7 @@ function _showContentList(store, options) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      handleError(store, error);
+      handleCoachPageError(store, error);
     }
   );
 }
@@ -415,7 +415,7 @@ export function showExerciseDetailView(
         });
       },
       error => {
-        handleError(store, error);
+        handleCoachPageError(store, error);
       }
     );
 }
@@ -555,7 +555,7 @@ export function showChannelRootReport(store, classId, channelId, userId) {
           ...scopeOptions,
         });
       },
-      error => handleError(store, error)
+      error => handleCoachPageError(store, error)
     );
 }
 

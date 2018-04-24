@@ -162,16 +162,22 @@ function _channelListState(data) {
  */
 
 function handleError(store, errorString) {
-  const authErrorCodes = [401, 403, 407];
-  if (errorCodes.indexOf(errorString.status.code) < 0) {
-    store.dispatch('CORE_SET_ERROR', errorString);
-  }
+  store.dispatch('CORE_SET_ERROR', errorString);
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_TITLE', translator.$tr('errorPageTitle'));
 }
 
 function handleApiError(store, errorObject) {
   handleError(store, JSON.stringify(errorObject, null, '\t'));
+}
+
+function handleCoachPageError(store, errorObject) {
+  const authErrorCodes = [401, 403, 404, 407];
+  if (authErrorCodes.indexOf(errorObject.status.code) < 0) {
+    handleError(store, errorObject);
+  } else {
+    handleError(store, '');
+  }
 }
 
 /**
@@ -760,6 +766,7 @@ function clearSnackbar(store) {
 export {
   handleError,
   handleApiError,
+  handleCoachPageError,
   kolibriLogin,
   kolibriLogout,
   getCurrentSession,
