@@ -17,8 +17,9 @@ var base_config = require('./webpack.config.base');
 var _ = require('lodash');
 var extract$trs = require('./extract_$trs');
 var merge = require('webpack-merge');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 var WebpackRTLPlugin = require('webpack-rtl-plugin');
+var { VueLoaderPlugin } = require('vue-loader');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle
@@ -106,7 +107,11 @@ var parseBundlePlugin = function(data) {
       modules: [path.join(data.plugin_path, 'node_modules')],
     },
     plugins: [
-      new ExtractTextPlugin('[name]' + data.version + '.css'),
+      new VueLoaderPlugin(),
+      new MiniCssExtractPlugin({
+        filename: '[name]' + data.version + '.css',
+        chunkFilename: '[name]' + data.version + '[id].css',
+      }),
       new WebpackRTLPlugin({
         minify: {
           zindex: false,
