@@ -414,6 +414,23 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
 
     legacy_schema = None
 
+    def test_no_update_old_version(self):
+        channel = ChannelMetadata.objects.first()
+        channel.version += 1
+        channel_version = channel.version
+        channel.save()
+        self.set_content_fixture()
+        channel.refresh_from_db()
+        self.assertEqual(channel.version, channel_version)
+
+    def test_localfile_available_remain_after_import(self):
+        local_file = LocalFile.objects.get(pk='9f9438fe6b0d42dd8e913d7d04cfb2b2')
+        local_file.available = True
+        local_file.save()
+        self.set_content_fixture()
+        local_file.refresh_from_db()
+        self.assertTrue(local_file.available)
+
     def residual_object_deleted(self, Model):
         # Checks that objects previously associated with a channel are deleted on channel upgrade
         obj = Model.objects.first()
@@ -423,6 +440,10 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
             obj.id = uuid.uuid4().hex
             obj.save()
             obj_id = obj.id
+            channel = ChannelMetadata.objects.first()
+            # Decrement current channel version to ensure reimport
+            channel.version -= 1
+            channel.save()
             self.set_content_fixture()
             with self.assertRaises(Model.DoesNotExist):
                 assert Model.objects.get(pk=obj_id)
@@ -432,9 +453,6 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
 
     def test_residual_assessmentmetadata_deleted_after_reimport(self):
         self.residual_object_deleted(AssessmentMetaData)
-
-    def test_residual_channelmetadata_deleted_after_reimport(self):
-        self.residual_object_deleted(ChannelMetadata)
 
     def test_residual_contentnode_deleted_after_reimport(self):
         root_node = ChannelMetadata.objects.first().root
@@ -446,6 +464,10 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
             channel_id=root_node.channel_id,
         )
         obj_id = obj.id
+        channel = ChannelMetadata.objects.first()
+        # Decrement current channel version to ensure reimport
+        channel.version -= 1
+        channel.save()
         self.set_content_fixture()
         with self.assertRaises(ContentNode.DoesNotExist):
             assert ContentNode.objects.get(pk=obj_id)
@@ -466,14 +488,6 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
     def test_long_descriptions(self):
         self.assertEqual(ContentNode.objects.get(id="32a941fb77c2576e8f6b294cde4c3b0c").license_description, self.longdescription)
         self.assertEqual(ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").description, self.longdescription)
-
-    def test_localfile_available_remain_after_import(self):
-        local_file = LocalFile.objects.get(pk='9f9438fe6b0d42dd8e913d7d04cfb2b2')
-        local_file.available = True
-        local_file.save()
-        self.set_content_fixture()
-        local_file.refresh_from_db()
-        self.assertTrue(local_file.available)
 
 
 class Version1ImportTestCase(NaiveImportTestCase):
