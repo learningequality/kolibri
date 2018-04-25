@@ -4,7 +4,7 @@ import logger from 'kolibri.lib.logging';
 import { LearnerGroupResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
-import { setClassState } from './main';
+import { setClassState, handleCoachPageError } from './main';
 
 const logging = logger.getLogger(__filename);
 
@@ -77,7 +77,7 @@ export function showGroupsPage(store, classId) {
       );
     },
     error => {
-      handleError(store, '');
+      handleCoachPageError(store, error);
     }
   );
 }
