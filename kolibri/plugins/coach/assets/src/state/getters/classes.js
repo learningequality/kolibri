@@ -3,7 +3,7 @@ import { filterAndSortUsers } from '../../../../../facility_management/assets/sr
 const getCurrentClassroom = state => state.classList.find(({ id }) => id === state.classId);
 
 export function className(state) {
-  return state.class;
+  return state.className;
 }
 
 export function classMemberCount(state) {

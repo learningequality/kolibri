@@ -3,9 +3,7 @@
 {% load kolibri_tags %}
 {% load cache %}
 {% block content %}
-  {% cache 500 facility_collection_bootstrap %}
-    {% kolibri_bootstrap_collection 'facility' 'FacilityResource' %}
-  {% endcache %}
+  {% kolibri_bootstrap_collection 'facility' 'FacilityResource' %}
   {% user_async_assets %}
   {% user_assets %}
 {% endblock %}

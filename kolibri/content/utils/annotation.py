@@ -102,16 +102,17 @@ def set_local_file_availability_from_disk(checksums=None):
 
     if checksums is None:
         logging.info('Setting availability of LocalFile objects based on disk availability')
-        files = bridge.session.query(LocalFileClass).all()
+        files = bridge.session.query(LocalFileClass.id, LocalFileClass.available, LocalFileClass.extension).all()
     elif type(checksums) == list:
         logging.info('Setting availability of {number} LocalFile objects based on disk availability'.format(number=len(checksums)))
-        files = bridge.session.query(LocalFileClass).filter(LocalFileClass.id.in_(checksums)).all()
+        files = bridge.session.query(LocalFileClass.id, LocalFileClass.available, LocalFileClass.extension).filter(LocalFileClass.id.in_(checksums)).all()
     else:
         logging.info('Setting availability of LocalFile object with checksum {checksum} based on disk availability'.format(checksum=checksums))
         files = [bridge.session.query(LocalFileClass).get(checksums)]
 
     checksums_to_update = [
-        file.id for file in files if os.path.exists(get_content_storage_file_path(get_content_file_name(file)))
+        # Only update if the file exists, *and* the localfile is set as unavailable.
+        file.id for file in files if os.path.exists(get_content_storage_file_path(get_content_file_name(file))) and not file.available
     ]
 
     bridge.end()

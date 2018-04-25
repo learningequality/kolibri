@@ -83,7 +83,7 @@
          * Emitted when the button is triggered
          */
         this.$emit('click', event);
-        this.$refs.button.blur();
+        this.$refs.button && this.$refs.button.blur();
       },
     },
   };

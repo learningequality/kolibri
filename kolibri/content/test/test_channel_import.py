@@ -295,10 +295,9 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
 
 class MaliciousDatabaseTestCase(TestCase):
 
-    @patch('kolibri.content.utils.channel_import.set_leaf_node_availability_from_local_file_availability')
-    @patch('kolibri.content.utils.channel_import.recurse_availability_up_tree')
+    @patch('kolibri.content.utils.channel_import.set_availability')
     @patch('kolibri.content.utils.channel_import.initialize_import_manager')
-    def test_non_existent_root_node(self, initialize_manager_mock, recurse_mock, leaf_mock):
+    def test_non_existent_root_node(self, initialize_manager_mock, availability_mock):
         import_mock = MagicMock()
         initialize_manager_mock.return_value = import_mock
         channel_id = '6199dde695db4ee4ab392222d5af1e5c'
@@ -407,6 +406,10 @@ class Version1ImportTestCase(NaiveImportTestCase):
 
     name = VERSION_1
 
+    @classmethod
+    def tearDownClass(cls):
+        super(Version1ImportTestCase, cls).tearDownClass()
+
 
 class NoVersionImportTestCase(NaiveImportTestCase):
     """
@@ -414,6 +417,10 @@ class NoVersionImportTestCase(NaiveImportTestCase):
     """
 
     name = NO_VERSION
+
+    @classmethod
+    def tearDownClass(cls):
+        super(NoVersionImportTestCase, cls).tearDownClass()
 
 
 class NoVersionv020ImportTestCase(NoVersionImportTestCase):
@@ -429,6 +436,11 @@ class NoVersionv020ImportTestCase(NoVersionImportTestCase):
         p = content.Language.objects.get(lang_code="en")
         self.assertEqual(str(p), '')
 
+    @classmethod
+    def tearDownClass(cls):
+        super(NoVersionv020ImportTestCase, cls).tearDownClass()
+
+
 class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
     """
     Integration test for import from no version import
@@ -436,3 +448,7 @@ class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
     """
 
     legacy_schema = V040BETA3
+
+    @classmethod
+    def tearDownClass(cls):
+        super(NoVersionv020ImportTestCase, cls).tearDownClass()

@@ -2,9 +2,9 @@
 
   <div>
     <k-radio-button
-      :radiovalue="true"
+      :value="true"
       :label="$tr('entireClass')"
-      :value="entireClassIsSelected"
+      :currentValue="entireClassIsSelected"
       @change="selectEntireClass()"
       :disabled="disabled"
     />

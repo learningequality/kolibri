@@ -197,6 +197,7 @@
       "rght": 10,
       "description": "balbla5",
       "available": true,
+      "coach_content": true,
       "lft": 9,
       "sort_order": null,
       "level": 2,

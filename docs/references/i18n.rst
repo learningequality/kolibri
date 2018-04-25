@@ -186,6 +186,31 @@ The language must be described using the following keys, with everything in lowe
     "english_name": "<Optional: Language name in English>"
   }
 
+For the language names, consult:
+
+1. Primarily, `ISO 639 codes <https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>`_
+2. `Backup reference <http://helpsharepointvision.nevron.com/Culture_Table.html>`_
+
 Any time a language is added to supported languages the command ``yarn run generate-locale-data`` must be run, and the resulting file changes committed to the code base.
 
 If a language is added that is not part of the natively supported languages for Django, then a Django mo file must be compiled for that language using ``make translation-django-compilemessages``, and the resulting mo file committed to the code base.
+
+Other complexities
+~~~~~~~~~~~~~~~~~~
+
+You may also need to update a few other files to get things to work. In particular:
+
+* the language and territory codes need to match a code defined in the `Intl polyfill <https://github.com/andyearnshaw/Intl.js/tree/master/locale-data/jsonp>`_.
+* you may need to update the ``crowdin.yaml`` config file to map Crowdin's language codes to Intl's language codes
+* In some cases, the language doesn't exist in Django. In these situations, the language needs to be added to ``EXTRA_LANG_INFO`` in ``base.py``.
+
+
+Updating the Perseus plugin
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `perseus exercise plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`_ has its own translated files that also need to be updated when a new language is added:
+
+ * Manually download the JSON files for each langage from Crowdin, and add them to the Perseus locale directories with language codes that match Kolibri's locale folder
+ * Increment the Perseus version number and publish the new version to PyPi
+ * Increment the ``requirements/base.txt`` file with Perseus's new version number
+

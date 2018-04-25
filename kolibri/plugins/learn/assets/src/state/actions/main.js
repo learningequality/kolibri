@@ -127,7 +127,7 @@ export function showChannels(store) {
         return;
       }
       const channelRootIds = channels.map(channel => channel.root);
-      ContentNodeResource.getCollection({ ids: channelRootIds })
+      ContentNodeResource.getCollection({ ids: channelRootIds, by_role: true })
         .fetch()
         .then(channelCollection => {
           // we want them to be in the same order as the channels list
@@ -153,7 +153,10 @@ export function showTopicsTopic(store, id, isRoot = false) {
   store.dispatch('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
   const promises = [
     ContentNodeResource.getModel(id).fetch(), // the topic
-    ContentNodeResource.getCollection({ parent: id }).fetch(), // the topic's children
+    ContentNodeResource.getCollection({
+      parent: id,
+      by_role: true,
+    }).fetch(), // the topic's children
     ContentNodeResource.fetchAncestors(id), // the topic's ancestors
     setChannelInfo(store),
   ];
@@ -451,9 +454,8 @@ export function showExam(store, classId, examId, questionNumber) {
           handleError(store, `Question number ${questionNumber} is not valid for this exam`);
         } else {
           const contentPromise = ContentNodeResource.getCollection({
-            ids: questionSources.map(item => item.exercise_id),
+            in_exam: exam.id,
           }).fetch();
-
           contentPromise.only(
             samePageCheckGenerator(store),
             contentNodes => {

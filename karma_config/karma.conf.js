@@ -48,7 +48,10 @@ module.exports = function(config) {
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['mocha'],
-
+    reporters: ['mocha'],
+    mochaReporter: {
+      showDiff: true,
+    },
     // list of files / patterns to load
     files: [
       './karma_config/globals.js',
@@ -67,11 +70,6 @@ module.exports = function(config) {
       'kolibri/**/assets/test/**/*.js': ['webpack', 'sourcemap'],
       'kolibri/**/assets/**/*.spec.js': ['webpack', 'sourcemap'],
     },
-
-    // test results reporter to use
-    // possible values: 'dots', 'progress'
-    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['spec'],
 
     // web server port
     port: 9876,

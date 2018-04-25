@@ -329,7 +329,7 @@ class SessionViewSet(viewsets.ViewSet):
             login(request, user)
             # Success!
             return Response(self.get_session(request))
-        elif not password and FacilityUser.objects.filter(username=username, facility=facility_id).exists():
+        elif not password and FacilityUser.objects.filter(username__iexact=username, facility=facility_id).exists():
             # Password was missing, but username is valid, prompt to give password
             return Response({
                 "message": "Please provide password for user",
@@ -366,7 +366,8 @@ class SessionViewSet(viewsets.ViewSet):
                    'full_name': user.full_name,
                    'user_id': user.id,
                    'can_manage_content': user.can_manage_content}
-        roles = Role.objects.filter(user_id=user.id)
+
+        roles = list(Role.objects.filter(user_id=user.id).values_list('kind', flat=True).distinct())
 
         if len(roles) is 0:
             session.update({'facility_id': user.facility_id,
@@ -374,15 +375,8 @@ class SessionViewSet(viewsets.ViewSet):
                             'error': '200'})
         else:
             session.update({'facility_id': user.facility_id,
-                            'kind': [],
+                            'kind': roles,
                             'error': '200'})
-            for role in roles:
-                if role.kind == 'admin':
-                    session['kind'].append('admin')
-                elif role.kind == 'coach':
-                    session['kind'].append('coach')
-                elif role.kind == 'classroom assignable coach':
-                    session['kind'].append('classroom assignable coach')
 
         if user.is_superuser:
             session['kind'].insert(0, 'superuser')

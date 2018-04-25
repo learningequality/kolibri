@@ -3,8 +3,7 @@ import logging as logger
 from django.apps import apps
 from sqlalchemy.exc import SQLAlchemyError
 
-from .annotation import recurse_availability_up_tree
-from .annotation import set_leaf_node_availability_from_local_file_availability
+from .annotation import set_availability
 from .channels import read_channel_metadata_from_db_file
 from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge
@@ -62,10 +61,20 @@ class ChannelImport(object):
     # Both can be used simultaneously.
     #
     # See NoVersionChannelImport for an annotated example.
-    schema_mapping = {}
 
-    def __init__(self, channel_id):
+    # Need this on the base mapping because every tree in exported channel databases has an id of 1,
+    # as it is the only tree in the db
+    schema_mapping = {
+        ContentNode: {
+            'per_row': {
+                'tree_id': 'get_tree_id',
+            },
+        },
+    }
+
+    def __init__(self, channel_id, channel_version=None):
         self.channel_id = channel_id
+        self.channel_version = channel_version
 
         self.source = Bridge(sqlite_file_path=get_content_database_file_path(channel_id))
 
@@ -80,6 +89,9 @@ class ChannelImport(object):
 
         # Get the next available tree_id in our database
         self.tree_id = self.find_unique_tree_id()
+
+    def get_tree_id(self, source_object):
+        return self.tree_id
 
     def get_all_destination_tree_ids(self):
         ContentNodeRecord = self.destination.get_class(ContentNode)
@@ -296,9 +308,6 @@ class NoVersionChannelImport(ChannelImport):
     def infer_channel_id_from_source(self, source_object):
         return self.channel_id
 
-    def get_tree_id(self, source_object):
-        return self.tree_id
-
     def generate_local_file_from_file(self, SourceRecord):
         SourceRecord = self.source.get_class(File)
         checksum_record = set()
@@ -380,23 +389,36 @@ def initialize_import_manager(channel_id):
             raise InvalidSchemaVersionError('Tried to import invalid schema version {version}'.format(
                 version=min_version,
             ))
-    return ImportClass(channel_id)
+    return ImportClass(channel_id, channel_version=channel_metadata.version)
 
 
 def import_channel_from_local_db(channel_id):
     import_manager = initialize_import_manager(channel_id)
 
-    if ChannelMetadata.objects.filter(id=channel_id).exists():
-        # We have already imported this channel in some way, so let's clean up first.
-        logging.info('Channel {channel_id} already exists in database, cleaning up ContentNodes'.format(channel_id=channel_id))
-        ChannelMetadata.objects.get(id=channel_id).delete_content_tree_and_files()
+    try:
+        existing_channel = ChannelMetadata.objects.get(id=channel_id)
+    except ChannelMetadata.DoesNotExist:
+        existing_channel = None
+
+    if existing_channel:
+        if existing_channel.version < import_manager.channel_version:
+            # We have an older version of this channel, so let's clean out the old stuff first
+            logging.info(('Older version {channel_version} of channel {channel_id} already exists in database; removing old entries ' +
+                          'so we can upgrade to version {new_channel_version}').format(
+                channel_version=existing_channel.version, channel_id=channel_id, new_channel_version=import_manager.channel_version))
+            existing_channel.delete_content_tree_and_files()
+        else:
+            # We have previously loaded this channel, with the same or newer version, so our work here is done
+            logging.warn(('Version {channel_version} of channel {channel_id} already exists in database; cancelling import of ' +
+                          'version {new_channel_version}').format(
+                channel_version=existing_channel.version, channel_id=channel_id, new_channel_version=import_manager.channel_version))
+            return
 
     import_manager.import_channel_data()
 
     import_manager.end()
 
-    set_leaf_node_availability_from_local_file_availability()
-    recurse_availability_up_tree(channel_id)
+    set_availability(channel_id)
 
     channel = ChannelMetadata.objects.get(id=channel_id)
     channel.last_updated = local_now()

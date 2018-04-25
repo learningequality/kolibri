@@ -22,24 +22,33 @@ const translator = createTranslator('learnerRecommendationPageTitles', {
 
 // User-agnostic recommendations
 function _getPopular() {
-  return ContentNodeResource.getCollection({ popular: 'true' }).fetch();
+  return ContentNodeResource.getCollection({ popular: 'true', by_role: true }).fetch();
 }
 
 function _getFeatured(state, channelId) {
-  return ContentNodeResource.getAllContentCollection({ channel_id: channelId }).fetch();
+  return ContentNodeResource.getAllContentCollection({
+    channel_id: channelId,
+    by_role: true,
+  }).fetch();
 }
 
 // User-specific recommendations
 function _getNextSteps(state) {
   if (isUserLoggedIn(state)) {
-    return ContentNodeResource.getCollection({ next_steps: currentUserId(state) }).fetch();
+    return ContentNodeResource.getCollection({
+      next_steps: currentUserId(state),
+      by_role: true,
+    }).fetch();
   }
   return Promise.resolve([]);
 }
 
 function _getResume(state) {
   if (isUserLoggedIn(state)) {
-    return ContentNodeResource.getCollection({ resume: currentUserId(state) }).fetch();
+    return ContentNodeResource.getCollection({
+      resume: currentUserId(state),
+      by_role: true,
+    }).fetch();
   }
   return Promise.resolve([]);
 }
@@ -49,6 +58,7 @@ function _mapContentSet(contentSet) {
 }
 
 function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, channelId = null) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   // promise that resolves with content array, already mapped to state
   const pagePrep = Promise.all([
     getContentPromise(store.state, channelId),
@@ -167,7 +177,10 @@ export function showLearnContent(store, id) {
     ContentNodeResource.fetchNextContent(id),
     setChannelInfo(store),
   ];
-  const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
+  const recommendedPromise = ContentNodeResource.getCollection({
+    recommendations_for: id,
+    by_role: true,
+  }).fetch();
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([content, nextContent]) => {
