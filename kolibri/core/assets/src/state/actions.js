@@ -171,15 +171,6 @@ function handleApiError(store, errorObject) {
   handleError(store, JSON.stringify(errorObject, null, '\t'));
 }
 
-function handleCoachPageError(store, errorObject) {
-  const authErrorCodes = [401, 403, 404, 407];
-  if (authErrorCodes.indexOf(errorObject.status.code) < 0) {
-    handleError(store, errorObject);
-  } else {
-    handleError(store, '');
-  }
-}
-
 /**
  * Signs in user.
  *
@@ -766,7 +757,6 @@ function clearSnackbar(store) {
 export {
   handleError,
   handleApiError,
-  handleCoachPageError,
   kolibriLogin,
   kolibriLogout,
   getCurrentSession,
