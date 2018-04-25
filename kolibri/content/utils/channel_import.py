@@ -34,11 +34,17 @@ merge_models = [
     Language,
 ]
 
+
+class ImportCancelError(Exception):
+    pass
+
+
 def column_not_auto_integer_pk(column):
     """
     A check for whether a column is an auto incrementing integer used for a primary key.
     """
     return not (column.autoincrement == 'auto' and column.primary_key and column.type.python_type is int)
+
 
 class ChannelImport(object):
     """
@@ -70,11 +76,18 @@ class ChannelImport(object):
                 'tree_id': 'get_tree_id',
             },
         },
+        LocalFile: {
+            'per_row': {
+                'available': 'get_none',
+            },
+        },
     }
 
-    def __init__(self, channel_id, channel_version=None):
+    def __init__(self, channel_id, channel_version=None, cancel_check=None):
         self.channel_id = channel_id
         self.channel_version = channel_version
+
+        self.cancel_check = cancel_check
 
         self.source = Bridge(sqlite_file_path=get_content_database_file_path(channel_id))
 
@@ -92,6 +105,9 @@ class ChannelImport(object):
 
     def get_tree_id(self, source_object):
         return self.tree_id
+
+    def get_none(self, source_object):
+        return None
 
     def get_all_destination_tree_ids(self):
         ContentNodeRecord = self.destination.get_class(ContentNode)
@@ -208,7 +224,13 @@ class ChannelImport(object):
                 # as SQL Alchemy ORM does not support INSERT ... ON DUPLICATE KEY UPDATE style queries,
                 # as not available in SQLite, only MySQL as far as I can tell:
                 # http://hackthology.com/how-to-compile-mysqls-on-duplicate-key-update-in-sql-alchemy.html
-                self.destination.session.merge(DestinationRecord(**data))
+                RowEntry = self.destination.session.query(DestinationRecord).get(data[model._meta.pk.name])
+                if RowEntry:
+                    for key, value in data.items():
+                        setattr(RowEntry, key, value)
+                else:
+                    RowEntry = DestinationRecord(**data)
+                self.destination.session.merge(RowEntry)
             else:
                 data_to_insert.append(data)
             unflushed_rows += 1
@@ -222,20 +244,47 @@ class ChannelImport(object):
             self.destination.session.bulk_insert_mappings(DestinationRecord, data_to_insert)
         return unflushed_rows
 
+    def check_and_delete_existing_channel(self):
+        try:
+            existing_channel = ChannelMetadata.objects.get(id=self.channel_id)
+        except ChannelMetadata.DoesNotExist:
+            existing_channel = None
+        if existing_channel:
+
+            if existing_channel.version < self.channel_version:
+                # We have an older version of this channel, so let's clean out the old stuff first
+                logging.info(('Older version {channel_version} of channel {channel_id} already exists in database; removing old entries ' +
+                              'so we can upgrade to version {new_channel_version}').format(
+                    channel_version=existing_channel.version, channel_id=self.channel_id, new_channel_version=self.channel_version))
+            else:
+                # We have previously loaded this channel, with the same or newer version, so our work here is done
+                logging.warn(('Version {channel_version} of channel {channel_id} already exists in database; cancelling import of ' +
+                              'version {new_channel_version}').format(
+                    channel_version=existing_channel.version, channel_id=self.channel_id, new_channel_version=self.channel_version))
+                return False
+            ChannelMetadata.objects.get(id=self.channel_id).delete_content_tree_and_files()
+        return True
+
+    def is_cancelled(self):
+        if callable(self.cancel_check):
+            return self.cancel_check()
+        return bool(self.cancel_check)
+
     def import_channel_data(self):
 
         unflushed_rows = 0
 
         try:
-            for model in self.content_models:
-                mapping = self.schema_mapping.get(model, {})
-                row_mapper = self.generate_row_mapper(mapping.get('per_row'))
-                table_mapper = self.generate_table_mapper(mapping.get('per_table'))
-                logging.info('Importing {model} data'.format(model=model.__name__))
-                unflushed_rows = self.table_import(model, row_mapper, table_mapper, unflushed_rows)
-            self.destination.session.commit()
+            if self.check_and_delete_existing_channel():
+                for model in self.content_models:
+                    mapping = self.schema_mapping.get(model, {})
+                    row_mapper = self.generate_row_mapper(mapping.get('per_row'))
+                    table_mapper = self.generate_table_mapper(mapping.get('per_table'))
+                    logging.info('Importing {model} data'.format(model=model.__name__))
+                    unflushed_rows = self.table_import(model, row_mapper, table_mapper, unflushed_rows)
+                self.destination.session.commit()
 
-        except SQLAlchemyError as e:
+        except (SQLAlchemyError, ImportCancelError) as e:
             # Rollback the transaction if any error occurs during the transaction
             self.destination.session.rollback()
             # Reraise the exception to prevent other errors occuring due to the non-completion
@@ -302,9 +351,6 @@ class NoVersionChannelImport(ChannelImport):
 
     licenses = {}
 
-    def get_none(self, source_object):
-        return None
-
     def infer_channel_id_from_source(self, source_object):
         return self.channel_id
 
@@ -366,7 +412,7 @@ class InvalidSchemaVersionError(Exception):
     pass
 
 
-def initialize_import_manager(channel_id):
+def initialize_import_manager(channel_id, cancel_check=None):
     channel_metadata = read_channel_metadata_from_db_file(get_content_database_file_path(channel_id))
     # For old versions of content databases, we can only infer the schema version
     min_version = getattr(channel_metadata, 'min_schema_version', getattr(channel_metadata, 'inferred_schema_version'))
@@ -389,30 +435,11 @@ def initialize_import_manager(channel_id):
             raise InvalidSchemaVersionError('Tried to import invalid schema version {version}'.format(
                 version=min_version,
             ))
-    return ImportClass(channel_id, channel_version=channel_metadata.version)
+    return ImportClass(channel_id, channel_version=channel_metadata.version, cancel_check=cancel_check)
 
 
-def import_channel_from_local_db(channel_id):
-    import_manager = initialize_import_manager(channel_id)
-
-    try:
-        existing_channel = ChannelMetadata.objects.get(id=channel_id)
-    except ChannelMetadata.DoesNotExist:
-        existing_channel = None
-
-    if existing_channel:
-        if existing_channel.version < import_manager.channel_version:
-            # We have an older version of this channel, so let's clean out the old stuff first
-            logging.info(('Older version {channel_version} of channel {channel_id} already exists in database; removing old entries ' +
-                          'so we can upgrade to version {new_channel_version}').format(
-                channel_version=existing_channel.version, channel_id=channel_id, new_channel_version=import_manager.channel_version))
-            existing_channel.delete_content_tree_and_files()
-        else:
-            # We have previously loaded this channel, with the same or newer version, so our work here is done
-            logging.warn(('Version {channel_version} of channel {channel_id} already exists in database; cancelling import of ' +
-                          'version {new_channel_version}').format(
-                channel_version=existing_channel.version, channel_id=channel_id, new_channel_version=import_manager.channel_version))
-            return
+def import_channel_from_local_db(channel_id, cancel_check=None):
+    import_manager = initialize_import_manager(channel_id, cancel_check=cancel_check)
 
     import_manager.import_channel_data()
 

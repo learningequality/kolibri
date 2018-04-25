@@ -109,9 +109,8 @@ class Command(AsyncCommand):
                         break
                     progress_update(len(chunk), progress_extra_data)
 
-                if not self.is_cancelled():
-                    import_channel_by_id(channel_id)
-                else:
+                import_channel_by_id(channel_id, cancel_check=self.is_cancelled)
+                if self.is_cancelled():
                     try:
                         os.remove(dest)
                     except IOError:

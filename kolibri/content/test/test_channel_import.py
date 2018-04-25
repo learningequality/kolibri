@@ -17,6 +17,7 @@ from kolibri.content import models as content
 from kolibri.content.models import ChannelMetadata
 from kolibri.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.content.models import ContentNode
+from kolibri.content.models import LocalFile
 from kolibri.content.models import NO_VERSION
 from kolibri.content.models import V020BETA1
 from kolibri.content.models import V040BETA3
@@ -224,9 +225,9 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         model_mock = MagicMock()
+        model_mock._meta.pk.name = 'test_attr'
         merge_models.append(model_mock)
         channel_import.table_import(model_mock, lambda x, y: 'test_val', lambda x: [{}]*100, 0)
-        channel_import.destination.session.merge.assert_has_calls([call(record_mock(**{'test_attr': 'test_val'}))]*100)
         channel_import.destination.session.flush.assert_not_called()
 
     @patch('kolibri.content.utils.channel_import.merge_models', new=[])
@@ -237,9 +238,9 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         model_mock = Mock()
+        model_mock._meta.pk.name = 'test_attr'
         merge_models.append(model_mock)
         channel_import.table_import(model_mock, lambda x, y: 'test_val', lambda x: [{}]*10000, 0)
-        channel_import.destination.session.merge.assert_has_calls([call(record_mock(**{'test_attr': 'test_val'}))]*10000)
         channel_import.destination.session.flush.assert_called_once_with()
 
 
@@ -261,11 +262,13 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
         }
         with patch.object(channel_import, 'generate_row_mapper'),\
             patch.object(channel_import, 'generate_table_mapper'),\
-                patch.object(channel_import, 'table_import'):
+                patch.object(channel_import, 'table_import'),\
+                patch.object(channel_import, 'check_and_delete_existing_channel'):
             channel_import.import_channel_data()
             channel_import.generate_row_mapper.assert_called_once_with(mapping_mock.get('per_row'))
             channel_import.generate_table_mapper.assert_called_once_with(mapping_mock.get('per_table'))
             channel_import.table_import.assert_called_once()
+            channel_import.check_and_delete_existing_channel.assert_called_once()
             channel_import.destination.session.commit.assert_called_once_with()
 
     def test_end(self, apps_mock, tree_id_mock, BridgeMock):
@@ -423,6 +426,14 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
     def test_long_descriptions(self):
         self.assertEqual(ContentNode.objects.get(id="32a941fb77c2576e8f6b294cde4c3b0c").license_description, self.longdescription)
         self.assertEqual(ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").description, self.longdescription)
+
+    def test_localfile_available_remain_after_import(self):
+        local_file = LocalFile.objects.get(pk='9f9438fe6b0d42dd8e913d7d04cfb2b2')
+        local_file.available = True
+        local_file.save()
+        self.set_content_fixture()
+        local_file.refresh_from_db()
+        self.assertTrue(local_file.available)
 
 
 class Version1ImportTestCase(NaiveImportTestCase):
