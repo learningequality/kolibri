@@ -329,7 +329,7 @@ class SessionViewSet(viewsets.ViewSet):
             login(request, user)
             # Success!
             return Response(self.get_session(request))
-        elif not password and FacilityUser.objects.filter(username=username, facility=facility_id).exists():
+        elif not password and FacilityUser.objects.filter(username__iexact=username, facility=facility_id).exists():
             # Password was missing, but username is valid, prompt to give password
             return Response({
                 "message": "Please provide password for user",
