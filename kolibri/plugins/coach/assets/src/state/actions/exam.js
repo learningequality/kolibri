@@ -22,22 +22,28 @@ import { PageNames } from '../../constants';
 import { setClassState, handleCoachPageError } from './main';
 
 const translator = createTranslator('coachExamPageTitles', {
+  allChannels: 'All channels',
   coachExamListPageTitle: 'Exams',
   coachExamCreationPageTitle: 'Create new exam',
   coachExamReportDetailPageTitle: 'Exam Report Detail',
   examReportTitle: '{examTitle} report',
 });
 
-const allChannels = createTranslator('allChannels', {
-  allChannels: 'All channels',
-}).$tr('allChannels');
+const snackbarTranslator = createTranslator('examPageSnackbarTexts', {
+  changesToExamSaved: 'Changes to exam saved',
+  copiedExamToClass: 'Copied exam to { className }',
+  examDeleted: 'Exam deleted',
+  examIsNowActive: 'Exam is now active',
+  examIsNowInactive: 'Exam is now inactive',
+  newExamCreated: 'New exam created',
+});
 
 function _currentTopicState(topic, ancestors = []) {
   return {
     id: topic.id,
     title: topic.title,
     breadcrumbs: [
-      { id: null, title: allChannels },
+      { id: null, title: translator.$tr('allChannels') },
       ...ancestors,
       { id: topic.id, title: topic.title },
     ],
@@ -133,9 +139,7 @@ export function activateExam(store, examId) {
         setExamsModal(store, false);
 
         createSnackbar(store, {
-          text: createTranslator('examActivateSnackbar', {
-            examIsNowActive: 'Exam is now active',
-          }).$tr('examIsNowActive'),
+          text: snackbarTranslator.$tr('examIsNowActive'),
           autoDismiss: true,
         });
       },
@@ -156,9 +160,7 @@ export function deactivateExam(store, examId) {
         setExamsModal(store, false);
 
         createSnackbar(store, {
-          text: createTranslator('examDeactivateSnackbar', {
-            examIsNowInactive: 'Exam is now inactive',
-          }).$tr('examIsNowInactive'),
+          text: snackbarTranslator.$tr('examIsNowInactive'),
           autoDismiss: true,
         });
       },
@@ -173,9 +175,7 @@ export function copyExam(store, exam, className) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       setExamsModal(store, false);
       createSnackbar(store, {
-        text: createTranslator('copyExam', {
-          copiedExamToClass: 'Copied exam to { className }',
-        }).$tr('copiedExamToClass', { className }),
+        text: snackbarTranslator.$tr('copiedExamToClass', { className }),
         autoDismiss: true,
       });
     },
@@ -197,9 +197,7 @@ export function updateExamDetails(store, examId, payload) {
           store.dispatch('SET_EXAMS', exams);
           setExamsModal(store, false);
           createSnackbar(store, {
-            text: createTranslator('editExamDetailsSnackbar', {
-              changesToExamSaved: 'Changes to exam saved',
-            }).$tr('changesToExamSaved'),
+            text: snackbarTranslator.$tr('changesToExamSaved'),
             autoDismiss: true,
           });
           store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -224,9 +222,7 @@ export function deleteExam(store, examId) {
 
         router.replace({ name: PageNames.EXAMS });
         createSnackbar(store, {
-          text: createTranslator('examDeleted', {
-            examDeleted: 'Exam deleted',
-          }).$tr('examDeleted'),
+          text: snackbarTranslator.$tr('examDeleted'),
           autoDismiss: true,
         });
         setExamsModal(store, false);
@@ -304,7 +300,7 @@ export function goToTopLevel(store) {
                 []
               ),
               id: null,
-              title: allChannels,
+              title: translator.$tr('allChannels'),
             };
             store.dispatch('SET_TOPIC', topic);
             store.dispatch('SET_SUBTOPICS', subtopics);
@@ -427,9 +423,7 @@ export function createExamAndRoute(store, exam) {
     () => {
       router.getInstance().push({ name: PageNames.EXAMS });
       createSnackbar(store, {
-        text: createTranslator('newExamCreated', {
-          newExamCreated: 'New exam created',
-        }).$tr('newExamCreated'),
+        text: snackbarTranslator.$tr('newExamCreated'),
         autoDismiss: true,
       });
     },
