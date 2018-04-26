@@ -126,20 +126,20 @@ export function setExamsModal(store, modalName) {
   store.dispatch('SET_EXAMS_MODAL', modalName);
 }
 
-export function activateExam(store, examId) {
+function updateExamStatus(store, examId, isActive) {
   return ExamResource.getModel(examId)
-    .save({ active: true })
+    .save({ active: isActive })
     .then(
       () => {
         const exams = store.state.pageState.exams;
         const examIndex = exams.findIndex(exam => exam.id === examId);
-        exams[examIndex].active = true;
+        exams[examIndex].active = isActive;
 
         store.dispatch('SET_EXAMS', exams);
         setExamsModal(store, false);
 
         createSnackbar(store, {
-          text: snackbarTranslator.$tr('examIsNowActive'),
+          text: snackbarTranslator.$tr(isActive ? 'examIsNowActive' : 'examIsNowInactive'),
           autoDismiss: true,
         });
       },
@@ -147,25 +147,12 @@ export function activateExam(store, examId) {
     );
 }
 
+export function activateExam(store, examId) {
+  return updateExamStatus(store, examId, true);
+}
+
 export function deactivateExam(store, examId) {
-  return ExamResource.getModel(examId)
-    .save({ active: false })
-    .then(
-      () => {
-        const exams = store.state.pageState.exams;
-        const examIndex = exams.findIndex(exam => exam.id === examId);
-        exams[examIndex].active = false;
-
-        store.dispatch('SET_EXAMS', exams);
-        setExamsModal(store, false);
-
-        createSnackbar(store, {
-          text: snackbarTranslator.$tr('examIsNowInactive'),
-          autoDismiss: true,
-        });
-      },
-      error => handleError(store, error)
-    );
+  return updateExamStatus(store, examId, false);
 }
 
 export function copyExam(store, exam, className) {
