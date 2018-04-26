@@ -100,13 +100,13 @@ module.exports = {
         test: /\.js$/,
         enforce: 'pre',
         use: eslintLoader,
-        exclude: /node_modules/,
+        // Without this exclude, VueLoader will add this linting into the
+        // chained loaders after svg-inline-loader has been run
+        // The output of svg-inline-loader violates our max attribute per
+        // line vue template rules, which triggers an autofix, and
+        // permanently saves the files with the injected svg.
+        exclude: /(node_modules|\.vue)/,
       },
-      // {
-      //   test: /\.styl$/,
-      //   enforce: 'pre',
-      //   loader: 'stylint-loader',
-      // },
       // Transpilation and code loading rules
       {
         test: /\.vue$/,
