@@ -34,6 +34,7 @@ import tail from 'lodash/tail';
 import { PageNames, ClassesPageNames } from '../../constants';
 
 const translator = createTranslator('topicTreeExplorationPageTitles', {
+  allChannels: 'All channels',
   topicsForChannelPageTitle: 'Topics - { currentChannelTitle }',
   currentTopicForChannelPageTitle: '{ currentTopicTitle } - { currentChannelTitle }',
   currentContentForChannelPageTitle: '{ currentContentTitle } - { currentChannelTitle }',
@@ -120,6 +121,7 @@ export function showRoot(store) {
 export function showChannels(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_ROOT);
+  store.dispatch('CORE_SET_TITLE', translator.$tr('allChannels'));
 
   setAndCheckChannels(store).then(
     channels => {
