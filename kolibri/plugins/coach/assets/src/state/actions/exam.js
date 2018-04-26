@@ -107,13 +107,11 @@ export function showExamsPage(store, classId) {
   return ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([exams]) => {
-      const pageState = {
+      store.dispatch('SET_PAGE_STATE', {
         exams: _examsState(exams),
         examsModalSet: false,
         busy: false,
-      };
-
-      store.dispatch('SET_PAGE_STATE', pageState);
+      });
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamListPageTitle'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -131,13 +129,8 @@ function updateExamStatus(store, examId, isActive) {
     .save({ active: isActive })
     .then(
       () => {
-        const exams = store.state.pageState.exams;
-        const examIndex = exams.findIndex(exam => exam.id === examId);
-        exams[examIndex].active = isActive;
-
-        store.dispatch('SET_EXAMS', exams);
+        store.dispatch('SET_EXAM_STATUS', { examId, isActive });
         setExamsModal(store, false);
-
         createSnackbar(store, {
           text: snackbarTranslator.$tr(isActive ? 'examIsNowActive' : 'examIsNowInactive'),
           autoDismiss: true,

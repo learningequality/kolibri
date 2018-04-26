@@ -96,4 +96,11 @@ export const mutations = {
   SET_TOOLBAR_TITLE(state, title) {
     state.pageState.toolbarTitle = title;
   },
+  SET_EXAM_STATUS(state, payload) {
+    const { examId, isActive } = payload;
+    const exams = [...state.pageState.exams];
+    const examIndex = exams.findIndex(exam => exam.id === examId);
+    exams[examIndex].active = isActive;
+    state.pageState.exams = exams;
+  },
 };
