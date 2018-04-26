@@ -32,45 +32,22 @@ const allChannels = createTranslator('allChannels', {
   allChannels: 'All channels',
 }).$tr('allChannels');
 
-function _breadcrumbState(topic) {
-  return {
-    id: topic.pk,
-    title: topic.title,
-  };
-}
-
-function _breadcrumbsState(topics) {
-  return topics.map(topic => _breadcrumbState(topic));
-}
-
 function _currentTopicState(topic, ancestors = []) {
-  let breadcrumbs = Array.from(ancestors);
-  breadcrumbs.push({ pk: topic.pk, title: topic.title });
-  breadcrumbs.unshift({ pk: null, title: allChannels });
-  breadcrumbs = _breadcrumbsState(breadcrumbs);
   return {
-    id: topic.pk,
+    id: topic.id,
     title: topic.title,
-    breadcrumbs,
+    breadcrumbs: [
+      { id: null, title: allChannels },
+      ...ancestors,
+      { id: topic.id, title: topic.title },
+    ],
   };
-}
-
-function _topicState(topic) {
-  return {
-    id: topic.pk,
-    title: topic.title,
-    num_coach_contents: topic.num_coach_contents,
-  };
-}
-
-function _topicsState(topics) {
-  return topics.map(topic => _topicState(topic));
 }
 
 function _exerciseState(exercise) {
   const numAssessments = assessmentMetaDataState(exercise).assessmentIds.length;
   return {
-    id: exercise.pk,
+    id: exercise.id,
     title: exercise.title,
     numAssessments,
     num_coach_contents: exercise.num_coach_contents,
@@ -346,7 +323,7 @@ export function getAllExercisesWithinTopic(store, topicId) {
   return new Promise((resolve, reject) => {
     const exercisesPromise = ContentNodeResource.getDescendantsCollection(topicId, {
       descendant_kind: ContentNodeKinds.EXERCISE,
-      fields: ['pk', 'title', 'assessmentmetadata', 'num_coach_contents'],
+      fields: ['id', 'title', 'assessmentmetadata', 'num_coach_contents'],
     }).fetch();
 
     ConditionalPromise.all([exercisesPromise]).only(
@@ -369,12 +346,12 @@ function fetchTopic(store, topicId) {
     const subtopicsPromise = ContentNodeResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.TOPIC,
-      fields: ['pk', 'title', 'ancestors', 'num_coach_contents'],
+      fields: ['id', 'title', 'ancestors', 'num_coach_contents'],
     }).fetch();
     const exercisesPromise = ContentNodeResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.EXERCISE,
-      fields: ['pk', 'title', 'assessmentmetadata', 'num_coach_contents'],
+      fields: ['id', 'title', 'assessmentmetadata', 'num_coach_contents'],
     }).fetch();
 
     ConditionalPromise.all([
@@ -387,7 +364,7 @@ function fetchTopic(store, topicId) {
       ([topicModel, subtopicsCollection, exercisesCollection, ancestors]) => {
         const topic = _currentTopicState(topicModel, ancestors);
         const exercises = _exercisesState(exercisesCollection);
-        let subtopics = _topicsState(subtopicsCollection);
+        let subtopics = [...subtopicsCollection];
 
         const subtopicsExercisesPromises = subtopics.map(subtopic =>
           getAllExercisesWithinTopic(store, subtopic.id)
