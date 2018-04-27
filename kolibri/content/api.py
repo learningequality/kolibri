@@ -4,8 +4,10 @@ from random import sample
 
 import requests
 from django.core.cache import cache
+from django.db.models import Case
 from django.db.models import Q
 from django.db.models import Sum
+from django.db.models import When
 from django.db.models.aggregates import Count
 from django.http import Http404
 from django.utils.translation import ugettext as _
@@ -246,12 +248,9 @@ class ContentNodeFilter(IdFilter):
         try:
             resources = Lesson.objects.get(id=value).resources
             contentnode_id_list = [node['contentnode_id'] for node in resources]
-            # adapted from https://codybonney.com/creating-a-queryset-from-a-list-while-preserving-order-using-django/
-            clauses = ' '.join(["WHEN {}.id='{}' THEN {}".format(models.ContentNode._meta.db_table,
-                                                                 pk, i) for i, pk in enumerate(contentnode_id_list)])
-            ordering = 'CASE {} END'.format(clauses)
-            return queryset.filter(pk__in=contentnode_id_list) \
-                           .extra(select={'ordering': ordering}, order_by=('ordering',))
+            # the order_by will order according to the position in the list
+            id_order = Case(*[When(id=ident, then=pos) for pos, ident in enumerate(contentnode_id_list)])
+            return queryset.filter(pk__in=contentnode_id_list).order_by(id_order)
         except (Lesson.DoesNotExist, ValueError):  # also handles invalid uuid
             queryset.none()
 
