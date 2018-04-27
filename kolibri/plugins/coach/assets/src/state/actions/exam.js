@@ -19,7 +19,7 @@ import { getExamReport } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
-import { setClassState } from './main';
+import { setClassState, handleCoachPageError } from './main';
 
 const translator = createTranslator('coachExamPageTitles', {
   coachExamListPageTitle: 'Exams',
@@ -531,12 +531,7 @@ export function showExamReportPage(store, classId, examId) {
       );
     },
     error => {
-      if (error.status.code === 404) {
-        // TODO: route to 404 page
-        router.replace({ name: PageNames.EXAMS });
-      } else {
-        handleApiError(store, error);
-      }
+      handleCoachPageError(store, error);
     }
   );
 }

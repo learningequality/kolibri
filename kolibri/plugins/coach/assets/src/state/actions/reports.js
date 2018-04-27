@@ -463,7 +463,7 @@ export function showRecentItemsForChannel(store, classId, channelId) {
         error => handleApiError(store, error)
       );
     },
-    error => handleApiError(store, error)
+    error => handleCoachPageError(store, error)
   );
 }
 
