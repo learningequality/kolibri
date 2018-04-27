@@ -3,6 +3,12 @@ import { showAvailableChannelsPage } from './availableChannelsActions';
 import { loadChannelMetaData, showSelectContentPage } from './selectContentActions';
 import { cancelTask } from './taskActions';
 
+export const CANCEL = 'cancel';
+export const FORWARD = 'forward';
+export const BACKWARD = 'backward';
+export const LOCAL_DRIVE = 'local';
+export const KOLIBRI_STUDIO = 'network';
+
 /**
  * State machine for the Import/Export wizards.
  * Only handles forward, backward, and cancel transitions.
@@ -15,11 +21,6 @@ import { cancelTask } from './taskActions';
  */
 export function transitionWizardPage(store, transition, params) {
   const wizardPage = store.state.pageState.wizardState.pageName;
-  const CANCEL = 'cancel';
-  const FORWARD = 'forward';
-  const BACKWARD = 'backward';
-  const LOCAL_DRIVE = 'local';
-  const KOLIBRI_STUDIO = 'network';
 
   function _updatePageName(pageName) {
     store.dispatch('SET_WIZARD_PAGENAME', pageName);

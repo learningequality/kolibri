@@ -5,7 +5,7 @@ import { ContentWizardPages, TransferTypes } from '../../constants';
 import { channelIsInstalled, wizardState } from '../getters';
 import { navigateToTopicUrl, navigateToChannelMetaDataLoading } from '../../wizardTransitionRoutes';
 import { downloadChannelMetadata } from './contentTransferActions';
-import { transitionWizardPage } from './contentWizardActions';
+import { transitionWizardPage, FORWARD } from './contentWizardActions';
 
 /**
  * Transitions the import/export wizard to the 'load-channel-metadata' interstitial state
@@ -42,7 +42,7 @@ export function loadChannelMetaData(store) {
         version: transferredChannel.version,
         public: transferredChannel.public,
       });
-      transitionWizardPage(store, 'forward');
+      transitionWizardPage(store, FORWARD);
     })
     .catch(({ errorType }) => {
       store.dispatch('SET_WIZARD_STATUS', errorType);

@@ -2,7 +2,7 @@ import get from 'lodash/get';
 import router from 'kolibri.coreVue.router';
 import store from 'kolibri.coreVue.vuex.store';
 import { ContentWizardPages } from './constants';
-import { transitionWizardPage } from './state/actions/contentWizardActions';
+import { transitionWizardPage, BACKWARD, CANCEL } from './state/actions/contentWizardActions';
 import { updateTreeViewTopic } from './state/actions/selectContentActions';
 
 export const WizardTransitions = {
@@ -88,7 +88,7 @@ export default [
         pageName === ContentWizardPages.SELECT_CONTENT ||
         pageName === ContentWizardPages.LOADING_CHANNEL_METADATA
       ) {
-        return transitionWizardPage(store, 'backward');
+        return transitionWizardPage(store, BACKWARD);
       }
     },
   },
@@ -98,7 +98,7 @@ export default [
     path: '',
     handler: ({ params }) => {
       if (params.transition === 'cancel') {
-        transitionWizardPage(store, 'cancel');
+        transitionWizardPage(store, CANCEL);
       }
     },
   },
