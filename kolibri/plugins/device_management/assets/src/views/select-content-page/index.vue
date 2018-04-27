@@ -10,16 +10,18 @@
         type="UPDATING_CHANNEL"
         status="QUEUED"
         :percentage="0"
-        :showButtons="false"
-        :cancellable="false"
+        :showButtons="true"
+        :cancellable="true"
+        @cleartask="returnToChannelsList"
         id="updatingchannel"
       />
       <task-progress
         v-else-if="taskInProgress"
         type="DOWNLOADING_CHANNEL_CONTENTS"
         v-bind="firstTask"
-        :showButtons="false"
-        :cancellable="false"
+        :showButtons="true"
+        :cancellable="true"
+        @cleartask="returnToChannelsList"
       />
 
       <section class="notifications">
@@ -107,6 +109,7 @@
     transferChannelContent,
     waitForTaskToComplete,
   } from '../../state/actions/contentTransferActions';
+  import { transitionWizardPage } from '../../state/actions/contentWizardActions';
   import taskProgress from '../manage-content-page/task-progress';
   import { WizardTransitions } from '../../wizardTransitionRoutes';
   import { PageNames, TaskStatuses } from '../../constants';
@@ -186,6 +189,9 @@
             this.contentTransferError = true;
           });
       },
+      returnToChannelsList() {
+        this.transitionWizardPage('backward');
+      },
     },
     vuex: {
       getters: {
@@ -208,6 +214,7 @@
         transferChannelContent,
         waitForTaskToComplete,
         updateTreeViewTopic,
+        transitionWizardPage,
         updateResourceCounts(store) {
           const { transferredChannel, availableChannels } = wizardState(store.state);
           const updatedChannel = availableChannels.find(
