@@ -1,18 +1,21 @@
 """
 Tests for `kolibri` module.
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import copy
 import logging
 import os
 from functools import wraps
 
-import kolibri
 import pytest
+from mock import patch
+
+import kolibri
 from kolibri.core.deviceadmin.tests.test_dbrestore import is_sqlite_settings
 from kolibri.utils import cli
-from mock import patch
 
 logger = logging.getLogger(__name__)
 
@@ -234,6 +237,7 @@ def test_update(update, version_file=None, orig_version=None):
     update.assert_called_once()
 
 
+@pytest.mark.django_db
 @patch('kolibri.utils.cli.update')
 @patch('kolibri.core.deviceadmin.utils.dbbackup')
 def test_update_no_version_change(dbbackup, update, orig_version=None):
