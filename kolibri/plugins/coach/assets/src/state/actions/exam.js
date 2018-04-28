@@ -531,7 +531,12 @@ export function showExamReportPage(store, classId, examId) {
       );
     },
     error => {
-      handleCoachPageError(store, error);
+      if (error.status.code === 404) {
+        // TODO: route to 404 page
+        router.replace({ name: PageNames.EXAMS });
+      } else {
+        handleCoachPageError(store, error);
+      }
     }
   );
 }
