@@ -38,7 +38,6 @@
     <div v-else>
       {{ $tr('msgNotAvailable') }}
     </div>
-    <slot></slot>
   </div>
 
 </template>
@@ -227,14 +226,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  .content-renderer
-    height: 100%
-
-  #spinner
-    height: 160px
-
-</style>
+<style lang="stylus" scoped></style>

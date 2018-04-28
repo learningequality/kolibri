@@ -4,10 +4,41 @@
     ref="pdfRenderer"
     class="pdf-renderer"
     :class="{ 'mimic-fullscreen': mimicFullscreen }"
+    :style="recycleListStyle"
     allowfullscreen
   >
+    <k-linear-loader
+      v-if="documentLoading"
+      class="progress-bar"
+      :delay="false"
+      :type="progress > 0 ? 'determinate' : 'indeterminate'"
+      :progress="progress * 100"
+    />
 
-    <template v-if="!documentLoading">
+    <template v-else>
+      <recycle-list
+        ref="recycleList"
+        :items="pdfPages"
+        :itemHeight="pageHeight + 16"
+        :emitUpdate="true"
+        :style="{ height: `${elSize.height}px` }"
+        class="pdf-container"
+        keyField="index"
+        @update="handleUpdate"
+      >
+        <template slot-scope="{ item }">
+          <pdf-page
+            :pdfPage="item.page"
+            :key="item.index"
+            :pageNum="item.index + 1"
+            :pageReady="item.resolved"
+            :scale="scale"
+            :defaultHeight="pageHeight"
+            :defaultWidth="pageWidth"
+          />
+        </template>
+      </recycle-list>
+
       <ui-icon-button
         class="controls button-fullscreen"
         aria-controls="pdf-container"
@@ -16,7 +47,6 @@
         size="large"
         @click="toggleFullscreen"
       />
-
       <ui-icon-button
         class="controls button-zoom-in"
         aria-controls="pdf-container"
@@ -32,39 +62,6 @@
         @click="zoomOut"
       />
     </template>
-
-    <div class="pdf-container">
-      <k-linear-loader
-        v-if="documentLoading"
-        class="progress-bar"
-        :delay="false"
-        :type="progress > 0 ? 'determinate' : 'indeterminate'"
-        :progress="progress * 100"
-      />
-      <recycle-list
-        v-else
-        :style="recycleListStyle"
-        ref="recycleList"
-        :items="pdfPages"
-        :itemHeight="pageHeight + 16"
-        :emitUpdate="true"
-        keyField="index"
-        @update="handleScroll"
-      >
-        <template slot-scope="{ item }">
-          <pdf-page
-            :pdfPage="item.page"
-            :key="item.index"
-            :pageNum="item.index + 1"
-            :pageReady="item.resolved"
-            :scale="scale"
-            :defaultHeight="pageHeight"
-            :defaultWidth="pageWidth"
-          />
-        </template>
-      </recycle-list>
-
-    </div>
   </div>
 
 </template>
@@ -123,8 +120,7 @@
       firstPageHeight: null,
       firstPageWidth: null,
       pdfPages: [],
-      recycleListMounted: false,
-      firstScroll: true,
+      recycleListIsMounted: false,
     }),
     computed: {
       fullscreenAllowed() {
@@ -161,20 +157,18 @@
         const noChange = newScale === oldScale;
         const firstChange = oldScale === null;
         if (!noChange && !firstChange) {
-          // get current pos
-          const relativePos = this.calculateRelativePosition();
           this.pageHeight = this.firstPageHeight * newScale;
           this.pageWidth = this.firstPageWidth * newScale;
-          this.$nextTick()
-            .then(() => {
-              this.forceUpdateRecycleList();
-            })
-            .then(() => {
-              this.scrollTo(relativePos);
-            });
+          this.$nextTick(() => {
+            this.forceUpdateRecycleList();
+          });
         }
       },
-      height: 'updatePosition',
+      height() {
+        if (this.recycleListIsMounted) {
+          this.debounceForceUpdateRecycleList();
+        }
+      },
     },
     created() {
       if (this.fullscreenAllowed) {
@@ -233,7 +227,6 @@
       // Retrieve the document and its corresponding object
       this.prepComponentData.then(() => {
         this.progress = 1;
-        this.updatePosition();
         this.$emit('startTracking');
         // Automatically master after the targetTime, convert seconds -> milliseconds
         this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
@@ -271,51 +264,68 @@
           });
         }
       },
-      handleScroll: debounce(function(start, end) {
-        this.recycleListMounted = true;
+      // handle the recycle list update event
+      handleUpdate: debounce(function(start, end) {
+        // check if this is the first update event
+        if (!this.recycleListIsMounted) {
+          this.recycleListIsMounted = true;
+          // save height
+          this.recycleListHeight = this.calculateRecycleListHeight();
+          // scroll to saved position
+          this.scrollTo(this.getSavedPosition());
+          return;
+        }
+
+        // check if height has changed indicating a change in scale
+        // in that case we need to scroll to correct place that is saved
+        const currentRecycleListHeight = this.calculateRecycleListHeight();
+        if (this.recycleListHeight !== currentRecycleListHeight) {
+          this.recycleListHeight = currentRecycleListHeight;
+          this.scrollTo(this.getSavedPosition());
+        } else {
+          // TODO: there is a miscalculation that causes a wrong position change on scale
+          this.savePosition(this.calculatePosition());
+          // update progress after we determine which pages to render
+          this.updateProgress();
+        }
         const startIndex = Math.floor(start) + 1;
         const endIndex = Math.ceil(end) + 1;
         for (let i = startIndex; i <= endIndex; i++) {
           this.showPage(i);
         }
+      }, renderDebounceTime),
 
-        // update progress after we determine which pages to render
-        this.updateProgress();
-
-        // Save position in local storage but skip first update event which sets the position to 0
-        if (this.progress === 1 && !this.firstScroll) {
-          Lockr.set(this.pdfPositionKey, this.calculateRelativePosition());
-        }
-        if (this.firstScroll) {
-          this.updatePosition();
-          this.firstScroll = false;
-        }
-      }, renderDebounceTime),
-      zoomIn: throttle(function() {
-        // limit zoom in
-        this.scale = Math.min(scaleIncrement * 15, this.scale + scaleIncrement);
-      }, renderDebounceTime),
-      zoomOut: throttle(function() {
-        this.scale = Math.max(scaleIncrement, this.scale - scaleIncrement);
-      }, renderDebounceTime),
-      calculateRelativePosition() {
+      zoomIn() {
+        this.setScale(Math.min(scaleIncrement * 15, this.scale + scaleIncrement));
+      },
+      zoomOut() {
+        this.setScale(Math.max(scaleIncrement, this.scale - scaleIncrement));
+      },
+      setScale: throttle(function(scaleValue) {
+        this.scale = scaleValue;
+      }, 500),
+      calculatePosition() {
         return this.$refs.recycleList.$el.scrollTop / this.$refs.recycleList.$el.scrollHeight;
       },
-      updatePosition() {
-        if (this.recycleListMounted) {
-          this.forceUpdateRecycleList();
-          this.$nextTick().then(() => {
-            this.scrollTo(Lockr.get(this.pdfPositionKey));
-          });
-        }
+      savePosition(val) {
+        Lockr.set(this.pdfPositionKey, val);
+      },
+      getSavedPosition() {
+        return Lockr.get(this.pdfPositionKey) || 0;
       },
       scrollTo(relativePosition) {
         this.$refs.recycleList.$el.scrollTop =
           this.$refs.recycleList.$el.scrollHeight * relativePosition;
       },
-      forceUpdateRecycleList: debounce(function() {
-        this.$refs.recycleList.updateVisibleItems({ checkItem: false });
+      calculateRecycleListHeight() {
+        return this.$refs.recycleList.$el.scrollHeight;
+      },
+      debounceForceUpdateRecycleList: debounce(function() {
+        this.forceUpdateRecycleList();
       }, renderDebounceTime),
+      forceUpdateRecycleList() {
+        this.$refs.recycleList.updateVisibleItems({ checkItem: false });
+      },
       updateProgress() {
         this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);
       },
@@ -349,6 +359,7 @@
 
   .pdf-renderer
     position: relative
+    background-color: $core-text-default
 
   .pdf-renderer:fullscreen
     width: 100%
@@ -370,15 +381,11 @@
 
   .controls
     position: absolute
-
-  .pdf-container
-    text-align: center
-    background-color: $core-text-default
-
-  .controls
     z-index: 6 // material spec - snackbar and FAB
 
-  .button-fullscreen, .button-zoom-in, .button-zoom-out
+  .button-fullscreen,
+  .button-zoom-in,
+  .button-zoom-out
     right: 32px
 
   .button-fullscreen
