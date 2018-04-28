@@ -113,14 +113,14 @@ class ContentNodeFilter(IdFilter):
         # remove duplicate content items based on content_id
         content_id_set = set()
         id_list = []
-        for id_pair in matches.values('content_id', 'id')[:30]:
+        for id_pair in matches.values('content_id', 'id'):
             if id_pair['content_id'] in content_id_set:
                 pass
             else:
                 content_id_set.add(id_pair['content_id'])
                 id_list.append(id_pair['id'])
 
-        return matches.filter(id__in=id_list)
+        return matches.filter(id__in=id_list[:30])
 
     def filter_recommendations_for(self, queryset, name, value):
         """
