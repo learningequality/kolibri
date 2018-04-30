@@ -15,6 +15,7 @@ from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
 from kolibri.content import models as content
 from kolibri.content.models import ChannelMetadata
+from kolibri.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.content.models import ContentNode
 from kolibri.content.models import NO_VERSION
 from kolibri.content.models import V020BETA1
@@ -319,28 +320,22 @@ SCHEMA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{nam
 
 DATA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{name}_content_data.json')
 
-class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
-    """
-    Integration test for naive import - this is run using a TransactionTestCase,
+
+class ContentImportTestBase(TransactionTestCase):
+    """This is run using a TransactionTestCase,
     as by default, Django runs each test inside an atomic context in order to easily roll back
     any changes to the DB. However, as we are setting things in the Django DB using SQLAlchemy
     these changes are not caught by this atomic context, and data will persist across tests.
     In order to deal with this, we call an explicit db flush at the end of every test case,
     both this flush and the SQLAlchemy insertions can cause issues with the atomic context used
-    by Django.
-    """
-
-    # When incrementing content schema versions, this should be incremented to the new version
-    # A new TestCase for importing for this old version should then be subclassed from this TestCase
-    # See 'NoVersionImportTestCase' below for an example
-    #
-    # TODO: rtibbles Revert this change that only tests unversioned import
-    name = NO_VERSION
-
-    legacy_schema = None
+    by Django."""
 
     @property
     def schema_name(self):
+        return self.legacy_schema or self.name
+
+    @property
+    def data_name(self):
         return self.legacy_schema or self.name
 
     def setUp(self):
@@ -349,7 +344,7 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
         except (IOError, EOFError):
             print('No content schema and/or data for {name}'.format(name=self.schema_name))
 
-        super(NaiveImportTestCase, self).setUp()
+        super(ContentImportTestBase, self).setUp()
 
     def set_content_fixture(self):
         self.content_engine = create_engine('sqlite:///:memory:', convert_unicode=True)
@@ -357,7 +352,7 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
         with open(SCHEMA_PATH_TEMPLATE.format(name=self.schema_name), 'rb') as f:
             metadata = pickle.load(f)
 
-        with open(DATA_PATH_TEMPLATE.format(name=self.schema_name), 'r') as f:
+        with open(DATA_PATH_TEMPLATE.format(name=self.data_name), 'r') as f:
             data = json.load(f)
 
         metadata.bind = self.content_engine
@@ -388,12 +383,44 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
 
     def tearDown(self):
         call_command('flush', interactive=False)
-        super(NaiveImportTestCase, self).tearDown()
+        super(ContentImportTestBase, self).tearDown()
 
     @classmethod
     def tearDownClass(cls):
         django_connection_engine().dispose()
-        super(NaiveImportTestCase, cls).tearDownClass()
+        super(ContentImportTestBase, cls).tearDownClass()
+
+
+class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
+    """
+    Integration test for naive import
+    """
+
+    # When incrementing content schema versions, this should be incremented to the new version
+    # A new TestCase for importing for this old version should then be subclassed from this TestCase
+    # See 'NoVersionImportTestCase' below for an example
+    #
+    # TODO: rtibbles Revert this change that only tests unversioned import
+    name = NO_VERSION
+
+    legacy_schema = None
+
+
+class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase):
+    """
+    When using Postgres, char limits on fields are enforced strictly. This was causing errors importing as described in:
+    https://github.com/learningequality/kolibri/issues/3600
+    """
+
+    name = CONTENT_SCHEMA_VERSION
+    legacy_schema = None
+    data_name = "longdescriptions"
+
+    longdescription = "soverylong" * 45
+
+    def test_long_descriptions(self):
+        self.assertEqual(ContentNode.objects.get(id="32a941fb77c2576e8f6b294cde4c3b0c").license_description, self.longdescription)
+        self.assertEqual(ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").description, self.longdescription)
 
 
 # class NoVersionImportTestCase(NaiveImportTestCase):
