@@ -15,12 +15,15 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
 from jsonfield import JSONField
-from kolibri.core.fields import DateTimeTzField
-from le_utils.constants import content_kinds, file_formats, format_presets
+from le_utils.constants import content_kinds
+from le_utils.constants import file_formats
+from le_utils.constants import format_presets
 from le_utils.constants.languages import LANGUAGE_DIRECTIONS
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.models import MPTTModel
+from mptt.models import TreeForeignKey
 
 from .utils import paths
+from kolibri.core.fields import DateTimeTzField
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
@@ -91,7 +94,7 @@ class ContentNode(MPTTModel):
     id = UUIDField(primary_key=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     license_name = models.CharField(max_length=50, null=True, blank=True)
-    license_description = models.CharField(max_length=400, null=True, blank=True)
+    license_description = models.TextField(null=True, blank=True)
     has_prerequisite = models.ManyToManyField('self', related_name='prerequisite_for', symmetrical=False, blank=True)
     related = models.ManyToManyField('self', symmetrical=True, blank=True)
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
@@ -106,7 +109,7 @@ class ContentNode(MPTTModel):
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField(db_index=True)
 
-    description = models.CharField(max_length=400, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
     license_owner = models.CharField(max_length=200, blank=True)
     author = models.CharField(max_length=200, blank=True)
