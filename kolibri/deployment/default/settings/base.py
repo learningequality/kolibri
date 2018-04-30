@@ -127,10 +127,22 @@ WSGI_APPLICATION = 'kolibri.deployment.default.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
+_db_engine = os.environ.get('KOLIBRI_DB_ENGINE', 'sqlite3')
+if _db_engine == "sqlite3":
+    _db_name = os.path.join(KOLIBRI_HOME, os.environ.get('KOLIBRI_DB_NAME', 'db.sqlite3'))
+elif _db_engine == "postgresql":
+    _db_name = os.environ.get('KOLIBRI_DB_NAME', 'kolibri')
+_db_password = os.environ.get('KOLIBRI_DB_PASSWORD', '')
+_db_user = os.environ.get('KOLIBRI_DB_USER', 'postgres')
+_db_host = os.environ.get('KOLIBRI_DB_HOST', '')
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(KOLIBRI_HOME, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.{engine}'.format(engine=_db_engine),
+        'NAME': _db_name,
+        'PASSWORD': _db_password,
+        'USER': _db_user,
+        'HOST': _db_host,
         'OPTIONS': {
             'timeout': 100,
         }
