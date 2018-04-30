@@ -1,4 +1,4 @@
-import { handleError, handleApiError } from 'kolibri.coreVue.vuex.actions';
+import { handleError } from 'kolibri.coreVue.vuex.actions';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { getChannels } from 'kolibri.coreVue.vuex.getters';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
