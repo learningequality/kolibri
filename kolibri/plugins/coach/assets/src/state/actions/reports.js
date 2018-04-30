@@ -460,7 +460,7 @@ export function showRecentItemsForChannel(store, classId, channelId) {
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', translator.$tr('recentPageTitle'));
         },
-        error => handleApiError(store, error)
+        error => handleCoachPageError(store, error)
       );
     },
     error => handleCoachPageError(store, error)
