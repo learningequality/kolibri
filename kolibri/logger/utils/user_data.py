@@ -365,4 +365,3 @@ def create_lessons_for_classroom(**options):
             date_created=now
 
         )
-
