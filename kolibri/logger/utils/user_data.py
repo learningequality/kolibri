@@ -344,7 +344,7 @@ def create_lessons_for_classroom(**options):
 
     for l in range(lessons):
 
-        channel = random.choice(options['channels'])
+        channel = random.choice(channels)
         channel_content = ContentNode.objects.filter(channel_id=channel.id)
         # don't add more than 10 resources per Lesson:
         n_content_items = min(random.randint(0, channel_content.count() - 1), 10)
