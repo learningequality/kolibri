@@ -1,10 +1,13 @@
 """
 Helper functions for use across the user/auth/permission-related tests.
 """
-
-from ..models import FacilityUser, Facility, Classroom, LearnerGroup, FacilityDataset
-
-from kolibri.core.device.models import DevicePermissions, DeviceSettings
+from ..models import Classroom
+from ..models import Facility
+from ..models import FacilityDataset
+from ..models import FacilityUser
+from ..models import LearnerGroup
+from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import DeviceSettings
 
 
 def create_superuser(facility, username="superuser"):
@@ -20,6 +23,14 @@ def provision_device():
         DeviceSettings.objects.update(is_provisioned=True)
     else:
         DeviceSettings.objects.create(is_provisioned=True)
+
+
+def setup_device():
+    # Test helper to return a facility and superuser
+    facility = Facility.objects.create(name="Test")
+    superuser = create_superuser(facility)
+    provision_device()
+    return facility, superuser
 
 
 def create_dummy_facility_data(allow_sign_ups=False, classroom_count=2, learnergroup_count=2):

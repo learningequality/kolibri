@@ -1,18 +1,18 @@
 /* eslint-env mocha */
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
-import assert from 'assert';
 import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
-import AvailableChannelsPage from '../../src/views/available-channels-page';
-import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import kSelect from 'kolibri.coreVue.components.kSelect';
 import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
 import ImmersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
+import cloneDeep from 'lodash/cloneDeep';
+import AvailableChannelsPage from '../../src/views/available-channels-page';
+import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
 import { importExportWizardState } from '../../src/state/wizardState';
-import cloneDeep from 'lodash/cloneDeep';
 
 const router = new VueRouter({
   routes: [{ path: '', name: 'wizardtransition' }],
@@ -107,7 +107,7 @@ function getElements(wrapper) {
 function testChannelVisibility(wrapper, visibilities) {
   const channels = getElements(wrapper).channelListItems();
   visibilities.forEach((v, i) => {
-    assert.equal(channels.at(i).isVisible(), v);
+    expect(channels.at(i).isVisible()).to.equal(v);
   });
 }
 
@@ -125,7 +125,7 @@ describe('availableChannelsPage', () => {
   it('back button link is correct', () => {
     const wrapper = makeWrapper();
     const { wholePageBackLink } = getElements(wrapper);
-    assert.deepEqual(wholePageBackLink(), {
+    expect(wholePageBackLink()).to.deep.equal({
       name: 'wizardtransition',
       path: '',
       params: {
@@ -142,14 +142,14 @@ describe('availableChannelsPage', () => {
     // prettier-ignore
     const button = unlistedChannelsSection().at(0).find('button');
     button.trigger('click');
-    assert(channelTokenModal().isVueComponent);
+    expect(channelTokenModal().isVueInstance()).to.be.true;
   });
 
   it('in LOCALIMPORT and LOCALEXPORT mode, the unlisted channel button is not available', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
     const { unlistedChannelsSection } = getElements(wrapper);
-    assert.equal(unlistedChannelsSection().length, 0);
+    expect(unlistedChannelsSection().length).to.equal(0);
   });
 
   it('in LOCALEXPORT mode, the back link text and title are correct', () => {
@@ -160,8 +160,8 @@ describe('availableChannelsPage', () => {
     };
     const wrapper = makeWrapper({ store });
     const { wholePageBackText, titleText } = getElements(wrapper);
-    assert.equal(wholePageBackText(), 'Export to SANDISK (F:)');
-    assert.equal(titleText(), 'Your channels');
+    expect(wholePageBackText()).to.equal('Export to SANDISK (F:)');
+    expect(titleText()).to.equal('Your channels');
   });
 
   it('in LOCALIMPORT mode, the back link text and title are correct', () => {
@@ -172,16 +172,16 @@ describe('availableChannelsPage', () => {
     };
     const wrapper = makeWrapper({ store });
     const { wholePageBackText, titleText } = getElements(wrapper);
-    assert.equal(wholePageBackText(), 'Import from SANDISK (G:)');
-    assert.equal(titleText(), 'SANDISK (G:)');
+    expect(wholePageBackText()).to.equal('Import from SANDISK (G:)');
+    expect(titleText()).to.equal('SANDISK (G:)');
   });
 
   it('in REMOTEIMPORT mode, the back link text and title are correct', () => {
     setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
     const { wholePageBackText, titleText } = getElements(wrapper);
-    assert.equal(wholePageBackText(), 'Kolibri Studio');
-    assert.equal(titleText(), 'Channels');
+    expect(wholePageBackText()).to.equal('Kolibri Studio');
+    expect(titleText()).to.equal('Channels');
   });
 
   it('in LOCALEXPORT shows the correct number of channels available message', () => {
@@ -189,23 +189,23 @@ describe('availableChannelsPage', () => {
     store.state.pageState.wizardState.availableChannels = [...channelsOnDevice];
     const wrapper = makeWrapper({ store });
     const { channelsAvailableText, noChannels } = getElements(wrapper);
-    assert.equal(channelsAvailableText(), '2 channels available');
-    assert(!noChannels().exists());
+    expect(channelsAvailableText()).to.equal('2 channels available');
+    expect(noChannels().exists()).to.be.false;
   });
 
   it('in REMOTEIMPORT/LOCALIMPORT shows the correct number of channels available message', () => {
     setTransferType('localimport');
     const wrapper = makeWrapper({ store });
     const { channelsAvailableText, noChannels } = getElements(wrapper);
-    assert.equal(channelsAvailableText(), '4 channels available');
-    assert(!noChannels().exists());
+    expect(channelsAvailableText()).to.equal('4 channels available');
+    expect(noChannels().exists()).to.be.false;
   });
 
   it('if there are no channels, then filters do not appear', () => {
     store.state.pageState.wizardState.availableChannels = [];
     const wrapper = makeWrapper({ store });
     const { filters } = getElements(wrapper);
-    assert(!filters().exists());
+    expect(filters().exists()).to.be.false;
   });
 
   it('in LOCALIMPORT/REMOTEIMPORT, channel item (not) on device has the correct props', () => {
@@ -213,27 +213,27 @@ describe('availableChannelsPage', () => {
     const { channelListItems } = getElements(wrapper);
     const channels = channelListItems();
     const channelNProps = n => channels.at(n).props();
-    assert.equal(channelNProps(0).mode, 'IMPORT');
-    assert.equal(channelNProps(0).onDevice, true);
-    assert.equal(channelNProps(1).onDevice, false);
-    assert.equal(channelNProps(2).onDevice, false);
-    assert.equal(channelNProps(3).onDevice, true);
+    expect(channelNProps(0).mode).to.equal('IMPORT');
+    expect(channelNProps(0).onDevice).to.be.true;
+    expect(channelNProps(1).onDevice).to.be.false;
+    expect(channelNProps(2).onDevice).to.be.false;
+    expect(channelNProps(3).onDevice).to.be.true;
   });
 
   it('IN LOCALEXPORT, with no filters, all channels (with resources) appear', () => {
     setTransferType('localexport');
     store.state.pageState.wizardState.availableChannels = [...channelsOnDevice];
     const wrapper = makeWrapper({ store });
-    assert.equal(wrapper.vm.titleFilter, '');
-    assert.equal(wrapper.vm.languageFilter.value, 'ALL');
+    expect(wrapper.vm.titleFilter).to.equal('');
+    expect(wrapper.vm.languageFilter.value).to.equal('ALL');
     testChannelVisibility(wrapper, [true, false, false, true]);
   });
 
   it('IN LOCALIMPORT/REMOTEIMPORT, with no filters, all appear', () => {
     setTransferType('localimport');
     const wrapper = makeWrapper({ store });
-    assert.equal(wrapper.vm.titleFilter, '');
-    assert.equal(wrapper.vm.languageFilter.value, 'ALL');
+    expect(wrapper.vm.titleFilter).to.equal('');
+    expect(wrapper.vm.languageFilter.value).to.equal('ALL');
     testChannelVisibility(wrapper, [true, true, true, true]);
   });
 
@@ -246,7 +246,7 @@ describe('availableChannelsPage', () => {
       { label: 'English', value: 'en' },
       { label: 'German', value: 'de' },
     ];
-    assert.deepEqual(languageFilter().props().options, expected);
+    expect(languageFilter().props().options).to.deep.equal(expected);
   });
 
   it('with language filter, the correct channels appear', () => {
@@ -268,7 +268,7 @@ describe('availableChannelsPage', () => {
     // Can't trigger 'input' event; need to set new value manually
     filter.vm.model = 'bir ch';
     return wrapper.vm.$nextTick().then(() => {
-      assert.equal(wrapper.vm.titleFilter, 'bir ch');
+      expect(wrapper.vm.titleFilter).to.equal('bir ch');
       testChannelVisibility(wrapper, [false, true, false, false]);
     });
   });

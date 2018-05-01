@@ -18,7 +18,7 @@ function showNotification(store, notificationType) {
   store.dispatch('CONFIG_PAGE_NOTIFY', notificationType);
 }
 
-function showFacilityConfigPage(store) {
+export function showFacilityConfigPage(store) {
   const FACILITY_ID = store.state.core.session.facility_id;
   preparePage(store.dispatch, {
     name: PageNames.FACILITY_CONFIG_PAGE,
@@ -53,7 +53,7 @@ function showFacilityConfigPage(store) {
     });
 }
 
-function saveFacilityConfig(store) {
+export function saveFacilityConfig(store) {
   showNotification(store, null);
   const { facilityDatasetId, settings } = store.state.pageState;
   const resourceRequests = [
@@ -70,9 +70,7 @@ function saveFacilityConfig(store) {
     });
 }
 
-function resetFacilityConfig(store) {
+export function resetFacilityConfig(store) {
   store.dispatch('CONFIG_PAGE_MODIFY_ALL_SETTINGS', defaultFacilityConfig);
   return saveFacilityConfig(store);
 }
-
-export { resetFacilityConfig, saveFacilityConfig, showFacilityConfigPage };

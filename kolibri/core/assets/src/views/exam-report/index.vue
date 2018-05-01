@@ -22,7 +22,7 @@
         <h3>{{ $tr('question', {questionNumber: questionNumber + 1}) }}</h3>
 
         <k-checkbox
-          label="Show correct answer"
+          :label="$tr('showCorrectAnswerLabel')"
           :checked="showCorrectAnswer"
           @change="toggleShowCorrectAnswer"
         />
@@ -73,6 +73,7 @@
       yourAnswer: 'Your answer',
       correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
       question: 'Question { questionNumber, number }',
+      showCorrectAnswerLabel: 'Show correct answer',
     },
     components: {
       immersiveFullScreen,

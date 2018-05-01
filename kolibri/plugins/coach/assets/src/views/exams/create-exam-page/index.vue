@@ -150,7 +150,6 @@
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import flatMap from 'lodash/flatMap';
   import { Modals as ExamModals } from '../../../constants/examConstants';
-  import { className } from '../../../state/getters/classes';
   import {
     goToTopic,
     goToTopLevel,
@@ -452,7 +451,6 @@
     vuex: {
       getters: {
         classId: state => state.classId,
-        className,
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,

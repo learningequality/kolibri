@@ -89,7 +89,7 @@
         <td>
           <k-button
             :text="$tr('resourceRemovalButtonLabel')"
-            @click="stageRemoval(resourceId)"
+            @click="removeResource(resourceId)"
             appearance="flat-button"
           />
         </td>
@@ -110,13 +110,10 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import { createSnackbar, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
-  import debounce from 'lodash/debounce';
   import { resourceUserSummaryLink } from '../lessonsRouterUtils';
-  import { saveLessonResources } from '../../../state/actions/lessons';
+  import { saveLessonResources, updateCurrentLesson } from '../../../state/actions/lessons';
 
   const removalSnackbarTime = 5000;
-
-  const saveDebounceTime = 6000;
 
   export default {
     name: 'resourceListTable',
@@ -175,9 +172,11 @@
           total: this.totalLearners,
         });
       },
-      stageRemoval(resourceId) {
+      removeResource(resourceId) {
         this.firstRemovalTitle = this.resourceTitle(resourceId);
         this.removeFromWorkingResources(resourceId);
+
+        this.autoSave(this.lessonId, this.workingResources);
 
         this.createSnackbar({
           text: this.removalMessage,
@@ -186,6 +185,7 @@
           actionText: this.$tr('undoActionPrompt'),
           actionCallback: () => {
             this.setWorkingResources(this.workingResourcesBackup);
+            this.autoSave(this.lessonId, this.workingResources);
             this.clearSnackbar();
           },
           hideCallback: () => {
@@ -193,12 +193,8 @@
               // snackbar might carryover to another page (like select)
               this.workingResourcesBackup = this.workingResources;
             }
-            this.autoSave(Array.from(this.workingResources));
           },
         });
-      },
-      autoSave(resources) {
-        return this.debouncedSaveLessonResources(this.lessonId, resources);
       },
       moveUpOne(oldIndex) {
         this.shiftOne(oldIndex, oldIndex - 1);
@@ -207,18 +203,26 @@
         this.shiftOne(oldIndex, oldIndex + 1);
       },
       shiftOne(oldIndex, newIndex) {
-        // TODO measure performance, see if worth keeping over generalized shiftMany
         const resources = [...this.workingResources];
         const oldResourceId = resources[newIndex];
         resources[newIndex] = resources[oldIndex];
         resources[oldIndex] = oldResourceId;
 
         this.setWorkingResources(resources);
-        this.autoSave(resources);
+        this.autoSave(this.lessonId, resources);
 
         this.createSnackbar({
           text: this.$tr('resourceReorderConfirmationMessage'),
           autoDismiss: true,
+        });
+      },
+      autoSave(id, resources) {
+        this.saveLessonResources(id, resources).catch(() => {
+          this.updateCurrentLesson(id).then(currentLesson => {
+            this.setWorkingResources(
+              currentLesson.resources.map(resourceObj => resourceObj.contentnode_id)
+            );
+          });
         });
       },
     },
@@ -245,7 +249,8 @@
         },
       },
       actions: {
-        debouncedSaveLessonResources: debounce(saveLessonResources, saveDebounceTime),
+        saveLessonResources,
+        updateCurrentLesson,
         createSnackbar,
         clearSnackbar,
         removeFromWorkingResources(store, resourceId) {

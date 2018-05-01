@@ -1,0 +1,115 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-02-23 17:34-0800\n"
+"PO-Revision-Date: 2018-04-10 17:38-0400\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Tamil\n"
+"Language: ta_IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: ta\n"
+"X-Crowdin-File: /release-v0.9.x/django.po\n"
+
+#: kolibri/auth/constants/collection_kinds.py:14
+#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "மய்யம்"
+
+#: kolibri/auth/constants/collection_kinds.py:15
+msgid "Classroom"
+msgstr "வகுப்பறை"
+
+#: kolibri/auth/constants/collection_kinds.py:16
+msgid "Learner group"
+msgstr "பழகுநர் குழு"
+
+#: kolibri/auth/constants/role_kinds.py:12
+msgid "Admin"
+msgstr "நிர்வாகி"
+
+#: kolibri/auth/constants/role_kinds.py:13
+msgid "Coach"
+msgstr "பயிற்சியாளர்"
+
+#: kolibri/auth/models.py:210
+msgid "username"
+msgstr "பயனர் பெயர்"
+
+#: kolibri/auth/models.py:212
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr "தேவைப்படும். 30 எழுத்துக்குறிகள் அல்லது அதற்கும் குறைவான. எழுத்துக்கள் அல்லது எண்கள் மட்டுமே"
+
+#: kolibri/auth/models.py:216
+msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
+msgstr "செல்லுபடியாகும் பயனர்பெயரை உள்ளிடவும். இந்த மதிப்பு எழுத்துக்கள், எண்கள் மற்றும் அடிக்கோடுகள் கொண்டிருக்கலாம்."
+
+#: kolibri/auth/models.py:220
+msgid "full name"
+msgstr "முழுப்பெயர்"
+
+#: kolibri/auth/models.py:221
+msgid "date joined"
+msgstr "சேர்ந்த தேதி"
+
+#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+msgid "An account with that username already exists"
+msgstr "அந்த பயனர் பெயர் ஏற்கனவே உள்ளது"
+
+#: kolibri/content/api.py:74
+msgid "Content"
+msgstr "உள்ளடக்கம்"
+
+#: kolibri/content/api.py:363
+msgid "The requested channel does not exist on the content server"
+msgstr "கோரப்பட்ட தடம் வழங்கி உள்ளடக்கத்தில் இல்லை"
+
+#: kolibri/content/models.py:187
+msgid "Unknown format"
+msgstr "அறியாத வடிவமைப்பு"
+
+#: kolibri/core/device/serializers.py:44
+msgid "Language is not supported by Kolibri"
+msgstr "இந்த மொழி மூலம் கோளிப்பிரி ஆதரிக்கப்படவில்லை"
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr "கோழிப்பிரி"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "ஆதரிக்கப்படாத உலாவி"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "மன்னிக்கவும், உங்கள் உலாவியின் பதிப்பு ஆதரிக்கப்படவில்லை."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "கோழிப்பிரியை பயன்படுத்த, Firefox அல்லது Chrome பயன்படுத்த வேண்டும் என்று பரிந்துரைக்கிறோம்."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "நீங்கள் உங்கள் தற்போதைய உலாவியில் புதுப்பிக்கும் முயற்சி செய்யலாம்."
+
+#: kolibri/plugins/device_management/kolibri_plugin.py:30
+msgid "Device"
+msgstr "கருவி"
+
+#: kolibri/tasks/api.py:31
+msgid "There was a network error."
+msgstr "ஒரு பிணைய பிழை ஏற்பட்டது."
+
+#: kolibri/tasks/api.py:33
+msgid "There was a disk access error."
+msgstr "வட்டு அணுகல் பிழை ஏற்பட்டுள்ளது."
+
+#: kolibri/tasks/api.py:35
+msgid "There was an unknown error."
+msgstr "அறியாத பிழை ஏற்பட்டது."
+

@@ -3,6 +3,7 @@ import {
   currentUserId,
   isSuperuser,
   isAdmin,
+  isCoach,
   currentFacilityId,
   facilities,
 } from 'kolibri.coreVue.vuex.getters';
@@ -187,12 +188,16 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
       store.dispatch('CORE_SET_SESSION', _sessionState(session));
       const facilityURL = urls['kolibri:facilitymanagementplugin:facility_management']();
       const deviceURL = urls['kolibri:devicemanagementplugin:device_management']();
+      const coachURL = urls['kolibri:coach:coach']();
       if (isFirstDeviceSignIn) {
         // Hacky way to redirect to content import page after completing setup wizard
         redirectBrowser(`${window.location.origin}${deviceURL}#/welcome`);
       } else if (isSuperuser(store.state) || isAdmin(store.state)) {
         /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
         redirectBrowser(window.location.origin + facilityURL);
+      } else if (isCoach(store.state)) {
+        /* Even more hacky solution to redirect a coach to Coach tab on login*/
+        redirectBrowser(window.location.origin + coachURL);
       } else {
         redirectBrowser();
       }
