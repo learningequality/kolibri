@@ -16,13 +16,13 @@ import json
 import os
 
 import pytz
+from django.conf import locale
 from tzlocal import get_localzone
 
 import kolibri
 from kolibri.utils import conf
 from kolibri.utils import i18n
-
-from django.conf import locale
+from kolibri.utils import options
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # import kolibri, so we can get the path to the module.
@@ -38,6 +38,8 @@ KOLIBRI_HOME = conf.KOLIBRI_HOME
 LOCALE_PATHS = [
     os.path.join(KOLIBRI_MODULE_PATH, "locale"),
 ]
+
+OPTIONS = options.get_options_from_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -126,25 +128,38 @@ WSGI_APPLICATION = 'kolibri.deployment.default.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(KOLIBRI_HOME, 'db.sqlite3'),
-        'OPTIONS': {
-            'timeout': 100,
+if OPTIONS.get("DATABASE_ENGINE") == "sqlite":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(KOLIBRI_HOME, OPTIONS.get('DATABASE_NAME') or 'db.sqlite3'),
+            'OPTIONS': {
+                'timeout': 100,
+            }
         }
-    },
-}
+    }
+elif OPTIONS.get("DATABASE_ENGINE") == "postgres":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': OPTIONS['DATABASE_NAME'],
+            'PASSWORD': OPTIONS.get('DATABASE_PASSWORD') or '',
+            'USER': OPTIONS.get('DATABASE_USER') or '',
+            'HOST': OPTIONS.get('DATABASE_HOST') or '',
+        }
+    }
 
 # Content directories and URLs for channel metadata and content files
 
+_content_root = os.path.join(KOLIBRI_HOME, OPTIONS.get('CONTENT_ROOT') or 'content')
+
 # Directory and URL for storing content databases for channel data
-CONTENT_DATABASE_DIR = os.path.join(KOLIBRI_HOME, 'content', 'databases')
+CONTENT_DATABASE_DIR = os.path.join(_content_root, 'databases')
 if not os.path.exists(CONTENT_DATABASE_DIR):
     os.makedirs(CONTENT_DATABASE_DIR)
 
 # Directory and URL for storing de-duped content files for all channels
-CONTENT_STORAGE_DIR = os.path.join(KOLIBRI_HOME, 'content', 'storage')
+CONTENT_STORAGE_DIR = os.path.join(_content_root, 'storage')
 if not os.path.exists(CONTENT_STORAGE_DIR):
     os.makedirs(CONTENT_STORAGE_DIR)
 
