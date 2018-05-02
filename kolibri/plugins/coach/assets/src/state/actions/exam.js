@@ -124,7 +124,7 @@ export function setExamsModal(store, modalName) {
   store.dispatch('SET_EXAMS_MODAL', modalName);
 }
 
-function updateExamStatus(store, examId, isActive) {
+function updateExamStatus(store, { examId, isActive }) {
   return ExamResource.getModel(examId)
     .save({ active: isActive })
     .then(
@@ -141,11 +141,11 @@ function updateExamStatus(store, examId, isActive) {
 }
 
 export function activateExam(store, examId) {
-  return updateExamStatus(store, examId, true);
+  return updateExamStatus(store, { examId, isActive: true });
 }
 
 export function deactivateExam(store, examId) {
-  return updateExamStatus(store, examId, false);
+  return updateExamStatus(store, { examId, isActive: false });
 }
 
 export function copyExam(store, exam, className) {
@@ -209,10 +209,6 @@ export function deleteExam(store, examId) {
       },
       error => handleError(store, error)
     );
-}
-
-export function previewExam(store) {
-  setExamsModal(store, false);
 }
 
 /**
