@@ -1,0 +1,115 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-02-23 17:34-0800\n"
+"PO-Revision-Date: 2018-04-19 20:08-0400\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Portuguese, Brazilian\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: pt-BR\n"
+"X-Crowdin-File: /release-v0.9.x/django.po\n"
+
+#: kolibri/auth/constants/collection_kinds.py:14
+#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "Instituição"
+
+#: kolibri/auth/constants/collection_kinds.py:15
+msgid "Classroom"
+msgstr "Classe"
+
+#: kolibri/auth/constants/collection_kinds.py:16
+msgid "Learner group"
+msgstr "Grupo de alunos"
+
+#: kolibri/auth/constants/role_kinds.py:12
+msgid "Admin"
+msgstr "Administrador"
+
+#: kolibri/auth/constants/role_kinds.py:13
+msgid "Coach"
+msgstr "Professor"
+
+#: kolibri/auth/models.py:210
+msgid "username"
+msgstr "nome de usuário"
+
+#: kolibri/auth/models.py:212
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr "Obrigatório. 30 caracteres ou menos. Apenas letras e números"
+
+#: kolibri/auth/models.py:216
+msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
+msgstr "Digite um nome de usuário válido, contendo apenas letras, números e sublinhados."
+
+#: kolibri/auth/models.py:220
+msgid "full name"
+msgstr "nome completo"
+
+#: kolibri/auth/models.py:221
+msgid "date joined"
+msgstr "data do cadastro"
+
+#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+msgid "An account with that username already exists"
+msgstr "Já existe uma conta com esse nome de usuário"
+
+#: kolibri/content/api.py:74
+msgid "Content"
+msgstr "Conteúdo"
+
+#: kolibri/content/api.py:363
+msgid "The requested channel does not exist on the content server"
+msgstr "O canal solicitado não existe no servidor de conteúdos"
+
+#: kolibri/content/models.py:187
+msgid "Unknown format"
+msgstr "Formato desconhecido"
+
+#: kolibri/core/device/serializers.py:44
+msgid "Language is not supported by Kolibri"
+msgstr "Kolibri ainda não está disponível neste idioma"
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr "Kolibri"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "Navegador incompatível"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "Desculpe, esta versão do seu navegador não é compatível."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "Para usar Kolibri, recomendamos utilizar Firefox ou Chrome."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "Você também pode tentar atualizar seu navegador."
+
+#: kolibri/plugins/device_management/kolibri_plugin.py:30
+msgid "Device"
+msgstr "Dispositivo"
+
+#: kolibri/tasks/api.py:31
+msgid "There was a network error."
+msgstr "Ocorreu um erro de rede."
+
+#: kolibri/tasks/api.py:33
+msgid "There was a disk access error."
+msgstr "Houve um erro ao acessar o disco."
+
+#: kolibri/tasks/api.py:35
+msgid "There was an unknown error."
+msgstr "Ocorreu um erro desconhecido."
+

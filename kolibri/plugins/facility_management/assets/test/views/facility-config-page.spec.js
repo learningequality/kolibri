@@ -2,10 +2,10 @@
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import sinon from 'sinon';
-import assert from 'assert';
+import { expect } from 'chai';
+import { mount } from '@vue/test-utils';
 import ConfigPage from '../../src/views/facilities-config-page';
 import confirmResetModal from '../../src/views/facilities-config-page/confirm-reset-modal';
-import { mount } from '@vue/test-utils';
 
 function makeWrapper(propsData = {}) {
   const store = new Vuex.Store({
@@ -42,19 +42,19 @@ function getElements(wrapper) {
 describe('facility config page view', () => {
   function assertModalIsUp(wrapper) {
     const { confirmResetModal } = getElements(wrapper);
-    assert(confirmResetModal().exists());
+    expect(confirmResetModal().exists()).to.be.true;
   }
 
   function assertModalIsDown(wrapper) {
     const { confirmResetModal } = getElements(wrapper);
-    assert(!confirmResetModal().exists());
+    expect(!confirmResetModal().exists()).to.be.true;
   }
 
   it('clicking checkboxes dispatches a modify action', () => {
     const wrapper = makeWrapper();
     const { checkbox } = getElements(wrapper);
     checkbox().trigger('click');
-    assert.deepEqual(wrapper.vm.$store.state.TEST_DROPBOX, {
+    expect(wrapper.vm.$store.state.TEST_DROPBOX).to.deep.equal({
       name: 'learnerCanEditUsername',
       value: true,
     });

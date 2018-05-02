@@ -1,8 +1,8 @@
 /* eslint-env mocha */
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
-import assert from 'assert';
-import elapsedTime from '../../src/views/elapsed-time';
 import { shallow } from '@vue/test-utils';
+import elapsedTime from '../../src/views/elapsed-time';
 
 const DUMMY_CURRENT_DATE = new Date(2017, 0, 1, 1, 1, 1);
 
@@ -19,7 +19,7 @@ describe('elapsed time component', () => {
   it('should show display a "–" if no date is passed in', () => {
     const wrapper = makeWrapper({ propsData: {} });
     const timeText = getTimeText(wrapper);
-    assert.equal(timeText, '–');
+    expect(timeText).to.equal('–');
   });
   it('should use seconds if the date passed in 1 second ago', () => {
     const date1SecondAgo = new Date(DUMMY_CURRENT_DATE);
@@ -33,7 +33,7 @@ describe('elapsed time component', () => {
       now: DUMMY_CURRENT_DATE,
     });
     const timeText = getTimeText(wrapper);
-    assert.equal(/second/.test(timeText), true);
+    expect(/second/.test(timeText)).to.be.true;
   });
 
   it('should use minutes if the date passed in is 60 seconds ago', () => {
@@ -48,7 +48,7 @@ describe('elapsed time component', () => {
       now: DUMMY_CURRENT_DATE,
     });
     const timeText = getTimeText(wrapper);
-    assert.equal(/minute/.test(timeText), true);
+    expect(/minute/.test(timeText)).to.be.true;
   });
 
   it('should use minutes if the date passed in is 1 minute ago', () => {
@@ -63,7 +63,7 @@ describe('elapsed time component', () => {
       now: DUMMY_CURRENT_DATE,
     });
     const timeText = getTimeText(wrapper);
-    assert.equal(/minute/.test(timeText), true);
+    expect(/minute/.test(timeText)).to.be.true;
   });
 
   it('should use hours if the date passed is 60 minutes ago', () => {
@@ -78,7 +78,7 @@ describe('elapsed time component', () => {
       now: DUMMY_CURRENT_DATE,
     });
     const timeText = getTimeText(wrapper);
-    assert.equal(/hour/.test(timeText), true);
+    expect(/hour/.test(timeText)).to.be.true;
   });
 
   it('should use hours if the date passed is 1 hour ago', () => {
@@ -93,7 +93,7 @@ describe('elapsed time component', () => {
       now: DUMMY_CURRENT_DATE,
     });
     const timeText = getTimeText(wrapper);
-    assert.equal(/hour/.test(timeText), true);
+    expect(/hour/.test(timeText)).to.be.true;
   });
 
   it('should use days if the date passed is 24 hours ago', () => {
@@ -108,7 +108,7 @@ describe('elapsed time component', () => {
       now: DUMMY_CURRENT_DATE,
     });
     const timeText = getTimeText(wrapper);
-    assert.equal(/day/.test(timeText), true);
+    expect(/day/.test(timeText)).to.be.true;
   });
 
   it('should use days if the date passed is 1 day ago', () => {
@@ -123,7 +123,7 @@ describe('elapsed time component', () => {
       now: DUMMY_CURRENT_DATE,
     });
     const timeText = getTimeText(wrapper);
-    assert.equal(/day/.test(timeText), true);
+    expect(/day/.test(timeText)).to.be.true;
   });
 
   it('should use months if the date passed is 4 weeks ago', () => {
@@ -138,7 +138,7 @@ describe('elapsed time component', () => {
       now: DUMMY_CURRENT_DATE,
     });
     const timeText = getTimeText(wrapper);
-    assert.equal(/month/.test(timeText), true);
+    expect(/month/.test(timeText)).to.be.true;
   });
 
   it('should use months if the date passed is 1 month ago', () => {
@@ -153,7 +153,7 @@ describe('elapsed time component', () => {
       now: DUMMY_CURRENT_DATE,
     });
     const timeText = getTimeText(wrapper);
-    assert.equal(/month/.test(timeText), true);
+    expect(/month/.test(timeText)).to.be.true;
   });
 
   it('should use years if the date passed is 12 months ago', () => {
@@ -168,7 +168,7 @@ describe('elapsed time component', () => {
       now: DUMMY_CURRENT_DATE,
     });
     const timeText = getTimeText(wrapper);
-    assert.equal(/year/.test(timeText), true);
+    expect(/year/.test(timeText)).to.be.true;
   });
 
   it('should use years if the date passed is 1 year ago', () => {
@@ -183,6 +183,6 @@ describe('elapsed time component', () => {
       now: DUMMY_CURRENT_DATE,
     });
     const timeText = getTimeText(wrapper);
-    assert.equal(/year/.test(timeText), true);
+    expect(/year/.test(timeText)).to.be.true;
   });
 });

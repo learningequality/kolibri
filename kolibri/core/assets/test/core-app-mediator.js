@@ -1,19 +1,14 @@
 /* eslint-env mocha */
-// The following two rules are disabled so that we can use anonymous functions with mocha
-// This allows the test instance to be properly referenced with `this`
-/* eslint prefer-arrow-callback: "off", func-names: "off" */
-
-import assert from 'assert';
+import { expect } from 'chai';
+import Vue from 'kolibri.lib.vue';
+import vueintl from 'vue-intl';
 import sinon from 'sinon';
+import Mediator from '../src/core-app/mediator';
 
 if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
   global.Intl = require('intl');
   require('intl/locale-data/jsonp/en.js');
 }
-
-import Mediator from '../src/core-app/mediator';
-import Vue from 'kolibri.lib.vue';
-import vueintl from 'vue-intl';
 
 Vue.use(vueintl, { defaultLocale: 'en-us' });
 
@@ -26,35 +21,35 @@ describe('Mediator', function() {
   });
   describe('kolibriModule registry', function() {
     it('should be empty', function() {
-      assert.deepEqual(this.mediator._kolibriModuleRegistry, {});
+      expect(this.mediator._kolibriModuleRegistry).to.deep.equal({});
     });
   });
   describe('callback buffer', function() {
     it('should be empty', function() {
-      assert.deepEqual(this.mediator._callbackBuffer, {});
+      expect(this.mediator._callbackBuffer).to.deep.equal({});
     });
   });
   describe('callback registry', function() {
     it('should be empty', function() {
-      assert.deepEqual(this.mediator._callbackRegistry, {});
+      expect(this.mediator._callbackRegistry).to.deep.equal({});
     });
   });
   describe('async callback registry', function() {
     it('should be empty', function() {
-      assert.deepEqual(this.mediator._asyncCallbackRegistry, {});
+      expect(this.mediator._asyncCallbackRegistry).to.deep.equal({});
     });
   });
   describe('event dispatcher', function() {
     it('should be a Vue object', function() {
-      assert(this.mediator._eventDispatcher.$on instanceof Function);
-      assert(this.mediator._eventDispatcher.$emit instanceof Function);
-      assert(this.mediator._eventDispatcher.$once instanceof Function);
-      assert(this.mediator._eventDispatcher.$off instanceof Function);
+      expect(this.mediator._eventDispatcher.$on).to.be.instanceOf(Function);
+      expect(this.mediator._eventDispatcher.$emit).to.be.instanceOf(Function);
+      expect(this.mediator._eventDispatcher.$once).to.be.instanceOf(Function);
+      expect(this.mediator._eventDispatcher.$off).to.be.instanceOf(Function);
     });
   });
   describe('language asset registry', function() {
     it('should be empty', function() {
-      assert.deepEqual(this.mediator._languageAssetRegistry, {});
+      expect(this.mediator._languageAssetRegistry).to.deep.equal({});
     });
   });
   describe('registerKolibriModuleSync method', function() {
@@ -77,32 +72,31 @@ describe('Mediator', function() {
         this.mediator.registerKolibriModuleSync(this.kolibriModule);
       });
       it('should call the _registerMultipleEvents method', function() {
-        assert(this._registerMultipleEvents.called);
+        expect(this._registerMultipleEvents.called).to.be.true;
       });
       it('should pass the kolibriModule to the _registerMultipleEvents method', function() {
-        assert(this._registerMultipleEvents.calledWith(this.kolibriModule));
+        expect(this._registerMultipleEvents.calledWith(this.kolibriModule)).to.be.true;
       });
       it('should call the _registerOneTimeEvents method', function() {
-        assert(this._registerOneTimeEvents.called);
+        expect(this._registerOneTimeEvents.called).to.be.true;
       });
       it('should pass the kolibriModule to the _registerOneTimeEvents method', function() {
-        assert(this._registerOneTimeEvents.calledWith(this.kolibriModule));
+        expect(this._registerOneTimeEvents.calledWith(this.kolibriModule)).to.be.true;
       });
       it('should call the emit method', function() {
-        assert(this.emit.called);
+        expect(this.emit.called).to.be.true;
       });
       it('should pass the kolibriModule to the emit method', function() {
-        assert(this.emit.calledWith('kolibri_register', this.kolibriModule));
+        expect(this.emit.calledWith('kolibri_register', this.kolibriModule)).to.be.true;
       });
       it('should call the _executeCallbackBuffer method', function() {
-        assert(this._executeCallbackBuffer.called);
+        expect(this._executeCallbackBuffer.called).to.be.true;
       });
       it('should call pass the kolibriModule to the _executeCallbackBuffer method', function() {
-        assert(this._executeCallbackBuffer.calledWith(this.kolibriModule));
+        expect(this._executeCallbackBuffer.calledWith(this.kolibriModule)).to.be.true;
       });
       it('should put the kolibriModule into the kolibriModule registry', function() {
-        assert.deepEqual(
-          this.mediator._kolibriModuleRegistry[this.kolibriModule.name],
+        expect(this.mediator._kolibriModuleRegistry[this.kolibriModule.name]).to.deep.equal(
           this.kolibriModule
         );
       });
@@ -115,38 +109,38 @@ describe('Mediator', function() {
         } catch (e) {} // eslint-disable-line no-empty
       });
       it('should raise an error', function() {
-        assert.throws(function() {
+        function testCall() {
           this.mediator.registerKolibriModuleSync(this.kolibriModule);
-        }, TypeError);
+        }
+        expect(testCall).to.throw(TypeError);
       });
       it('should call the _registerMultipleEvents method', function() {
-        assert(this._registerMultipleEvents.called);
+        expect(this._registerMultipleEvents.called).to.be.true;
       });
       it('should pass the kolibriModule to the _registerMultipleEvents method', function() {
-        assert(this._registerMultipleEvents.calledWith(this.kolibriModule));
+        expect(this._registerMultipleEvents.calledWith(this.kolibriModule)).to.be.true;
       });
       it('should call the _registerOneTimeEvents method', function() {
-        assert(this._registerOneTimeEvents.called);
+        expect(this._registerOneTimeEvents.called).to.be.true;
       });
       it('should pass the kolibriModule to the _registerOneTimeEvents method', function() {
-        assert(this._registerOneTimeEvents.calledWith(this.kolibriModule));
+        expect(this._registerOneTimeEvents.calledWith(this.kolibriModule)).to.be.true;
       });
       it('should not call the trigger method', function() {
-        assert(!this.emit.called);
+        expect(!this.emit.called).to.be.true;
       });
       it('should not call the _executeCallbackBuffer method', function() {
-        assert(!this._executeCallbackBuffer.called);
+        expect(!this._executeCallbackBuffer.called).to.be.true;
       });
       it('should leave the kolibriModule registry empty', function() {
-        assert.deepEqual(this.mediator._kolibriModuleRegistry, {});
+        expect(this.mediator._kolibriModuleRegistry).to.deep.equal({});
       });
     });
   });
   describe('_registerEvents method', function() {
     it('should not throw a TypeError due to incorrect assignment of this when the eventListenerMethod is called', function() {
-      // eslint-disable-line max-len
       const self = this;
-      assert.doesNotThrow(function() {
+      function testCall() {
         self.mediator._registerEvents(
           {
             name: 'test',
@@ -157,7 +151,8 @@ describe('Mediator', function() {
           'events',
           self.mediator._registerRepeatedEventListener
         );
-      }, TypeError);
+      }
+      expect(testCall).to.not.throw();
     });
   });
   describe('_registerMultipleEvents method', function() {
@@ -178,7 +173,7 @@ describe('Mediator', function() {
         this.mediator._registerMultipleEvents(this.kolibriModule);
       });
       it('should not call listener registration', function() {
-        assert(!this._registerRepeatedEventListener.called);
+        expect(!this._registerRepeatedEventListener.called).to.be.true;
       });
     });
     describe('called with valid input with event object', function() {
@@ -195,11 +190,14 @@ describe('Mediator', function() {
         delete this.kolibriModule;
       });
       it('should call listener registration', function() {
-        assert(this._registerRepeatedEventListener.called);
+        expect(this._registerRepeatedEventListener.called).to.be.true;
       });
       it('should pass event, kolibriModule, and method to listener registration', function() {
-        assert(
-          this._registerRepeatedEventListener.calledWith('event', this.kolibriModule, 'method')
+        sinon.assert.calledWith(
+          this._registerRepeatedEventListener,
+          'event',
+          this.kolibriModule,
+          'method'
         );
       });
     });
@@ -215,23 +213,27 @@ describe('Mediator', function() {
         delete this.kolibriModule;
       });
       it('should call listener registration', function() {
-        assert(this._registerRepeatedEventListener.called);
+        expect(this._registerRepeatedEventListener.called).to.be.true;
       });
       it('should pass event, kolibriModule, and method to listener registration', function() {
-        assert(
-          this._registerRepeatedEventListener.calledWith('event', this.kolibriModule, 'method')
+        sinon.assert.calledWith(
+          this._registerRepeatedEventListener,
+          'event',
+          this.kolibriModule,
+          'method'
         );
       });
     });
     describe('called with invalid input', function() {
       it('should throw a TypeError', function() {
-        assert.throws(function() {
+        function testCall() {
           this.mediator._registerMultipleEvents(undefined);
-        }, TypeError);
+        }
+        expect(testCall).to.throw(TypeError);
       });
     });
   });
-  describe(' _registerOneTimeEvents method', function() {
+  describe('_registerOneTimeEvents method', function() {
     beforeEach(function() {
       this._registerOneTimeEventListener = sinon.stub(
         this.mediator,
@@ -249,7 +251,7 @@ describe('Mediator', function() {
         this.mediator._registerOneTimeEvents(this.kolibriModule);
       });
       it('should not call listener registration', function() {
-        assert(!this._registerOneTimeEventListener.called);
+        expect(!this._registerOneTimeEventListener.called).to.be.true;
       });
     });
     describe('called with valid input with event object', function() {
@@ -264,11 +266,14 @@ describe('Mediator', function() {
         delete this.kolibriModule;
       });
       it('should call listener registration', function() {
-        assert(this._registerOneTimeEventListener.called);
+        expect(this._registerOneTimeEventListener.called).to.be.true;
       });
       it('should pass event, kolibriModule, and method to listener registration', function() {
-        assert(
-          this._registerOneTimeEventListener.calledWith('event', this.kolibriModule, 'method')
+        sinon.assert.calledWith(
+          this._registerOneTimeEventListener,
+          'event',
+          this.kolibriModule,
+          'method'
         );
       });
     });
@@ -286,19 +291,23 @@ describe('Mediator', function() {
         delete this.kolibriModule;
       });
       it('should call listener registration', function() {
-        assert(this._registerOneTimeEventListener.called);
+        expect(this._registerOneTimeEventListener.called).to.be.true;
       });
       it('should pass event, kolibriModule, and method to listener registration', function() {
-        assert(
-          this._registerOneTimeEventListener.calledWith('event', this.kolibriModule, 'method')
+        sinon.assert.calledWith(
+          this._registerOneTimeEventListener,
+          'event',
+          this.kolibriModule,
+          'method'
         );
       });
     });
     describe('called with invalid input', function() {
       it('should throw a TypeError', function() {
-        assert.throws(function() {
+        function testCall() {
           this.mediator._registerOneTimeEvents(undefined);
-        }, TypeError);
+        }
+        expect(testCall).to.throw(TypeError);
       });
     });
   });
@@ -314,10 +323,10 @@ describe('Mediator', function() {
       this.stub.restore();
     });
     it('should call _registerEventListener method', function() {
-      assert(this.stub.called);
+      expect(this.stub.called).to.be.true;
     });
     it('should pass three args to _registerEventListener method', function() {
-      assert(this.stub.calledWith(this.event, this.kolibriModule, this.method));
+      expect(this.stub.calledWith(this.event, this.kolibriModule, this.method)).to.be.true;
     });
   });
   describe('_registerOneTimeEventListener method', function() {
@@ -332,18 +341,19 @@ describe('Mediator', function() {
     it('should call _registerEventListener method', function() {
       this.stub = sinon.stub(this.mediator, '_registerEventListener');
       this.mediator._registerOneTimeEventListener(this.event, this.kolibriModule, this.method);
-      assert(this.stub.called);
+      expect(this.stub.called).to.be.true;
     });
     it('should pass three args to _registerEventListener method', function() {
       this.stub = sinon.stub(this.mediator, '_registerEventListener');
       this.mediator._registerOneTimeEventListener(this.event, this.kolibriModule, this.method);
-      assert(this.stub.calledWith(this.event, this.kolibriModule, this.method));
+      expect(this.stub.calledWith(this.event, this.kolibriModule, this.method)).to.be.true;
     });
     it('should properly invoke the listenToOnce with this set to the Mediator event object', function() {
       const self = this;
-      assert.doesNotThrow(function() {
+      function testCall() {
         self.mediator._registerOneTimeEventListener(self.event, self.kolibriModule, self.method);
-      });
+      }
+      expect(testCall).not.to.throw();
     });
   });
   describe('_registerEventListener method', function() {
@@ -355,13 +365,13 @@ describe('Mediator', function() {
       this.mediator._registerEventListener(this.event, this.kolibriModule, this.method, this.spy);
     });
     it('should put a callback  in the callback registry', function() {
-      assert(this.mediator._callbackRegistry.test.event.method instanceof Function);
+      expect(this.mediator._callbackRegistry.test.event.method instanceof Function).to.be.true;
     });
     it('should call listen method', function() {
-      assert(this.spy.called);
+      expect(this.spy.called).to.be.true;
     });
     it('should pass at least one arg to listen method', function() {
-      assert(this.spy.calledWith(this.event));
+      expect(this.spy.calledWith(this.event)).to.be.true;
     });
   });
   describe('stopListening method', function() {
@@ -377,7 +387,7 @@ describe('Mediator', function() {
     describe('when no callback registered', function() {
       it('should not call stopListening when no callback registered', function() {
         this.mediator.stopListening(this.event, this.kolibriModule, this.method);
-        assert(!this.stub.called);
+        expect(!this.stub.called).to.be.true;
       });
     });
     describe('when callback is registered', function() {
@@ -390,15 +400,15 @@ describe('Mediator', function() {
         this.mediator.stopListening(this.event, this.kolibriModule, this.method);
       });
       it('should call $off', function() {
-        assert(this.stub.called);
+        expect(this.stub.called).to.be.true;
       });
       it('should pass two args to $off method', function() {
-        assert(this.stub.calledWith(this.event, this.callback));
+        expect(this.stub.calledWith(this.event, this.callback)).to.be.true;
       });
       it('should remove the callback from the registry', function() {
         const registry = this.mediator._callbackRegistry;
         const callback = registry[this.kolibriModule.name][this.event][this.method];
-        assert(typeof callback === 'undefined');
+        expect(typeof callback === 'undefined').to.be.true;
       });
     });
   });
@@ -419,13 +429,13 @@ describe('Mediator', function() {
       this.mediator._executeCallbackBuffer(this.kolibriModule);
     });
     it('should call the callback ', function() {
-      assert(this.spy.called);
+      expect(this.spy.called).to.be.true;
     });
     it('should pass the args to the callback ', function() {
-      assert.deepEqual(this.spy.lastCall.args, this.args);
+      expect(this.spy.lastCall.args).to.deep.equal(this.args);
     });
     it('should remove the entry from callback registry', function() {
-      assert(typeof this.mediator._callbackBuffer.test === 'undefined');
+      expect(typeof this.mediator._callbackBuffer.test === 'undefined').to.be.true;
     });
   });
   describe('registerKolibriModuleAsync method', function() {
@@ -450,22 +460,23 @@ describe('Mediator', function() {
       this.stub.restore();
     });
     it('should add create a callback buffer for the kolibriModule', function() {
-      assert(typeof this.mediator._callbackBuffer[this.kolibriModuleName] !== 'undefined');
+      expect(typeof this.mediator._callbackBuffer[this.kolibriModuleName] !== 'undefined').to.be
+        .true;
     });
     it('should put two entries in the async callback registry', function() {
-      assert.equal(this.mediator._asyncCallbackRegistry[this.kolibriModuleName].length, 2);
+      expect(this.mediator._asyncCallbackRegistry[this.kolibriModuleName].length).to.equal(2);
     });
     it('should put a callback  in each entry in the async callback registry', function() {
       const registry = this.mediator._asyncCallbackRegistry;
-      assert(registry[this.kolibriModuleName][0].callback instanceof Function);
-      assert(registry[this.kolibriModuleName][1].callback instanceof Function);
+      expect(registry[this.kolibriModuleName][0].callback instanceof Function).to.be.true;
+      expect(registry[this.kolibriModuleName][1].callback instanceof Function).to.be.true;
     });
     it('should call $on twice', function() {
-      assert(this.stub.calledTwice);
+      expect(this.stub.calledTwice).to.be.true;
     });
     it('should pass both events to $on', function() {
-      assert(this.stub.calledWith('event'));
-      assert(this.stub.calledWith('once'));
+      expect(this.stub.calledWith('event')).to.be.true;
+      expect(this.stub.calledWith('once')).to.be.true;
     });
     describe('async callbacks', function() {
       beforeEach(function() {
@@ -473,10 +484,10 @@ describe('Mediator', function() {
         this.mediator._asyncCallbackRegistry[this.kolibriModuleName][0].callback(this.args);
       });
       it('should add an entry to the callback buffer when called', function() {
-        assert.equal(this.mediator._callbackBuffer[this.kolibriModuleName].length, 1);
+        expect(this.mediator._callbackBuffer[this.kolibriModuleName].length).to.equal(1);
       });
       it('should add args in the callback buffer when called', function() {
-        assert.deepEqual(this.mediator._callbackBuffer[this.kolibriModuleName].args, this.arg);
+        expect(this.mediator._callbackBuffer[this.kolibriModuleName].args).to.deep.equal(this.arg);
       });
     });
   });
@@ -500,13 +511,14 @@ describe('Mediator', function() {
       this.stub.restore();
     });
     it('should clear the callbacks', function() {
-      assert(typeof this.mediator._asyncCallbackRegistry[this.kolibriModule.name] === 'undefined');
+      expect(typeof this.mediator._asyncCallbackRegistry[this.kolibriModule.name] === 'undefined')
+        .to.be.true;
     });
     it('should call $off once', function() {
-      assert(this.stub.calledOnce);
+      expect(this.stub.calledOnce).to.be.true;
     });
     it('should call $off with two args', function() {
-      assert(this.stub.calledWith(this.event, this.callback));
+      expect(this.stub.calledWith(this.event, this.callback)).to.be.true;
     });
   });
   describe('emit method', function() {
@@ -518,14 +530,14 @@ describe('Mediator', function() {
     });
     it('should call the event dispatcher $emit', function() {
       this.mediator.emit();
-      assert(this.stub.called);
+      expect(this.stub.called).to.be.true;
     });
     it('should proxy all arguments to the event dispatcher $emit', function() {
       const arg1 = 'this';
       const arg2 = 'that';
       const arg3 = ['four'];
       this.mediator.emit(arg1, arg2, arg3);
-      assert(this.stub.alwaysCalledWith(arg1, arg2, arg3));
+      expect(this.stub.alwaysCalledWith(arg1, arg2, arg3)).to.be.true;
     });
   });
   describe('registerLanguageAssets method', function() {
@@ -542,11 +554,11 @@ describe('Mediator', function() {
     });
     it('should call Vue.registerMessages once', function() {
       this.mediator.registerLanguageAssets(moduleName, language, messageMap);
-      assert(this.spy.calledOnce);
+      expect(this.spy.calledOnce).to.be.true;
     });
     it('should call Vue.registerMessages with arguments language and messageMap', function() {
       this.mediator.registerLanguageAssets(moduleName, language, messageMap);
-      assert(this.spy.calledWithExactly(language, messageMap));
+      expect(this.spy.calledWithExactly(language, messageMap)).to.be.true;
     });
   });
 });
