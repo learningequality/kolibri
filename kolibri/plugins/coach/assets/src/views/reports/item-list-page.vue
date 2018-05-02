@@ -67,7 +67,7 @@
       </tbody>
     </core-table>
     <p v-if="!standardDataTable.length">
-      {{ $tr('noItems') }}
+      {{ $tr('emptyTableMessage') }}
     </p>
 
   </div>
@@ -112,7 +112,7 @@
         '{count, number, integer} {count, plural, one {exercise} other {exercises}}',
       contentCountText:
         '{count, number, integer} {count, plural, one {resource} other {resources}}',
-      noItems: 'No Items',
+      emptyTableMessage: 'No exercises or resources in this topic',
     },
     computed: {
       tableColumns() {
