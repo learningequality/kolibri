@@ -342,7 +342,7 @@ def create_lessons_for_classroom(**options):
             coach = random.choice(members)
             facility.add_coach(coach)
 
-    for l in range(lessons):
+    for lesson in range(lessons):
 
         channel = random.choice(channels)
         channel_content = ContentNode.objects.filter(channel_id=channel.id)
@@ -357,7 +357,7 @@ def create_lessons_for_classroom(**options):
             lesson_content.append(content)
 
         Lesson.objects.create(
-            title='Lesson {}-{a}'.format(l, a=random.choice('ABCDEF')),
+            title='Lesson {}-{a}'.format(lesson, a=random.choice('ABCDEF')),
             resources=lesson_content,
             is_active=True,
             collection=classroom,
