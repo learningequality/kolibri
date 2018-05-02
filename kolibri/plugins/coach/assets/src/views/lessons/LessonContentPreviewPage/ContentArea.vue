@@ -21,11 +21,6 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :interactive="false"
-      :containerStyle="{
-        'height': 'calc(100vh - 350px)',
-        'max-height': '100vh',
-        'min-height': '300px',
-      }"
     />
   </section>
 

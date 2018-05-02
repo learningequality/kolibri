@@ -11,6 +11,7 @@
           :delay="false"
         />
         <component
+          class="content-renderer-component"
           v-else
           :is="currentViewClass"
           @startTracking="startTracking"
@@ -30,7 +31,6 @@
           :interactive="interactive"
           :lang="lang"
           :showCorrectAnswer="showCorrectAnswer"
-          :containerStyle="containerStyle"
           ref="contentView"
         />
       </transition>
@@ -122,10 +122,6 @@
       showCorrectAnswer: {
         type: Boolean,
         default: false,
-      },
-      containerStyle: {
-        type: Object,
-        required: false,
       },
     },
     data: () => ({

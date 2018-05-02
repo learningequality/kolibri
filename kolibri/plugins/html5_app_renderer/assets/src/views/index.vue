@@ -1,9 +1,9 @@
 <template>
 
   <div
-    ref="container"
-    class="container"
-    :class="{ 'container-mimic-fullscreen': mimicFullscreen }"
+    ref="html5Renderer"
+    class="html5-renderer"
+    :class="{ 'mimic-fullscreen': mimicFullscreen }"
     allowfullscreen
   >
     <k-button
@@ -12,7 +12,13 @@
       @click="toggleFullscreen"
       :primary="true"
     />
-    <iframe ref="sandbox" class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
+    <iframe
+      class="iframe"
+      sandbox="allow-scripts"
+      frameBorder="0"
+      :src="rooturl"
+    >
+    </iframe>
   </div>
 
 </template>
@@ -63,12 +69,12 @@
       toggleFullscreen() {
         if (this.isFullscreen) {
           if (this.fullscreenAllowed) {
-            ScreenFull.toggle(this.$refs.container);
+            ScreenFull.toggle(this.$refs.html5Renderer);
           }
           this.isFullscreen = false;
         } else {
           if (this.fullscreenAllowed) {
-            ScreenFull.toggle(this.$refs.container);
+            ScreenFull.toggle(this.$refs.html5Renderer);
           }
           this.isFullscreen = true;
         }
@@ -90,12 +96,10 @@
     left: 50%
     transform: translateX(-50%)
 
-  .container
+  .html5-renderer
     position: relative
     text-align: center
-    height: 100vh
-    max-height: calc(100vh - 24em)
-    min-height: 400px
+    height: 500px
     overflow-x: auto
     &:fullscreen
       width: 100%
@@ -103,7 +107,7 @@
       min-height: inherit
       max-height: inherit
 
-  .container-mimic-fullscreen
+  .mimic-fullscreen
     position: fixed
     top: 0
     right: 0
@@ -115,7 +119,7 @@
     width: 100%
     height: 100%
 
-  .sandbox
+  .iframe
     height: 100%
     width: 100%
 

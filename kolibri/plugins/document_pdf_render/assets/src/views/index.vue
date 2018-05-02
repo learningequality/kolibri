@@ -4,7 +4,6 @@
     ref="pdfRenderer"
     class="pdf-renderer"
     :class="{ 'mimic-fullscreen': mimicFullscreen }"
-    :style="recycleListStyle"
     allowfullscreen
   >
     <k-linear-loader
@@ -143,12 +142,6 @@
       },
       height() {
         return this.elSize.height;
-      },
-      recycleListStyle() {
-        if (this.isFullscreen) {
-          return { ...this.containerStyle, height: '100vh' };
-        }
-        return this.containerStyle;
       },
     },
     watch: {
@@ -359,6 +352,7 @@
 
   .pdf-renderer
     position: relative
+    height: 500px
     background-color: $core-text-default
 
   .pdf-renderer:fullscreen

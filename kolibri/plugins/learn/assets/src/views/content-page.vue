@@ -12,7 +12,6 @@
     <template v-if="!content.assessment">
       <content-renderer
         class="content-renderer"
-        :containerStyle="containerStyle"
         @sessionInitialized="setWasIncomplete"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
@@ -193,18 +192,6 @@
       licenceDescriptionIsVisible: false,
     }),
     computed: {
-      containerStyle() {
-        if (
-          this.content.kind === ContentNodeKinds.DOCUMENT ||
-          this.content.kind === ContentNodeKinds.HTML5
-        ) {
-          return {
-            'max-height': '100vh',
-            'min-height': '300px',
-            height: '50vh',
-          };
-        }
-      },
       canDownload() {
         if (this.facilityConfig.showDownloadButtonInLearn && this.content) {
           return (
