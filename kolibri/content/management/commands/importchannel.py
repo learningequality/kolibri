@@ -1,11 +1,13 @@
 import logging as logger
 import os
 
-from django.conf import settings
 from django.core.management.base import CommandError
-from kolibri.tasks.management.commands.base import AsyncCommand
 
-from ...utils import channel_import, paths, transfer
+from ...utils import channel_import
+from ...utils import paths
+from ...utils import transfer
+from kolibri.tasks.management.commands.base import AsyncCommand
+from kolibri.utils import conf
 
 logging = logger.getLogger(__name__)
 
@@ -34,7 +36,7 @@ class Command(AsyncCommand):
             help="Download the database for the given channel_id."
         )
 
-        default_studio_url = settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL
+        default_studio_url = conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL']
         network_subparser.add_argument(
             "--baseurl",
             type=str,

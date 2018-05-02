@@ -4,6 +4,8 @@ import re
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
+from kolibri.utils import conf
+
 try:
     from urlparse import urljoin
 except ImportError:
@@ -68,7 +70,7 @@ def get_content_storage_file_path(filename, datafolder=None):
 
 def get_content_url(baseurl=None):
     return urljoin(
-        baseurl or settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL,
+        baseurl or conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'],
         "content/",
     )
 
@@ -98,7 +100,7 @@ def get_channel_lookup_url(identifier=None, base_url=None):
     if identifier:
         studio_url += "/lookup/{}".format(identifier)
     return urljoin(
-        base_url or settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL,
+        base_url or conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'],
         studio_url
     )
 
