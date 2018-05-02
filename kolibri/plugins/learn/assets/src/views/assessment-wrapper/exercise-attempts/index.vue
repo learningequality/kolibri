@@ -5,7 +5,7 @@
       class="answer"
       v-for="(item, index) in itemsToRender"
       :style="styleForIndex(index, item.originalIndex)"
-      :key="item.originalIndex"
+      :key="`answer-${item.originalIndex}`"
     >
       <transition name="fade">
         <answer-icon :answer="item.answer" />
@@ -15,7 +15,7 @@
       class="placeholder"
       v-for="i in numSpaces"
       :class="{ 'placeholder-first': i === 1 }"
-      :key="i"
+      :key="`placeholder-${i}`"
     ></div>
   </div>
 

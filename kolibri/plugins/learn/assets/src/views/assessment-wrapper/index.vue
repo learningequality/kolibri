@@ -36,7 +36,7 @@ oriented data synchronization.
       />
     </div>
 
-    <div>
+    <div class="attemptprogress-container">
       <transition mode="out-in">
         <k-button
           :text="$tr('check')"
@@ -58,26 +58,25 @@ oriented data synchronization.
         />
       </transition>
       <slot></slot>
-    </div>
-
-    <div class="attemptprogress-container" :class="{ mobile: isMobile }">
-      <p class="message">
-        {{ $tr('goal', {count: totalCorrectRequiredM}) }}
-      </p>
-      <exercise-attempts
-        class="attemptprogress"
-        :waitingForAttempt="firstAttemptAtQuestion"
-        :numSpaces="attemptsWindowN"
-        :log="recentAttempts"
-      />
-      <p class="status">
-        <span class="try-again" v-if="!correct && !firstAttemptAtQuestion && !hintWasTaken">
-          {{ $tr('tryAgain') }}
-        </span>
-        <span class="correct" v-if="correct && !firstAttemptAtQuestion && !hintWasTaken">
-          {{ $tr('correct') }}
-        </span>
-      </p>
+      <div class="ib">
+        <p class="message">
+          {{ $tr('goal', {count: totalCorrectRequiredM}) }}
+        </p>
+        <exercise-attempts
+          class="attemptprogress"
+          :waitingForAttempt="firstAttemptAtQuestion"
+          :numSpaces="attemptsWindowN"
+          :log="recentAttempts"
+        />
+        <p class="status">
+          <span class="try-again" v-if="!correct && !firstAttemptAtQuestion && !hintWasTaken">
+            {{ $tr('tryAgain') }}
+          </span>
+          <span class="correct" v-if="correct && !firstAttemptAtQuestion && !hintWasTaken">
+            {{ $tr('correct') }}
+          </span>
+        </p>
+      </div>
     </div>
   </div>
 
@@ -86,7 +85,6 @@ oriented data synchronization.
 
 <script>
 
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import {
     initMasteryLog,
@@ -118,7 +116,6 @@ oriented data synchronization.
       kButton,
       uiAlert,
     },
-    mixins: [responsiveWindow],
     $trs: {
       goal:
         'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',
@@ -225,9 +222,6 @@ oriented data synchronization.
       },
       success() {
         return this.exerciseProgress === 1;
-      },
-      isMobile() {
-        return this.windowSize.breakpoint <= 1;
       },
     },
     watch: { exerciseProgress: 'updateExerciseProgressMethod' },
@@ -461,8 +455,6 @@ oriented data synchronization.
   .attemptprogress-container
     position: relative
     margin-top: 8px
-
-  .attemptprogress-container.mobile
     font-size: smaller
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), 0 3px 6px rgba(0, 0, 0, 0.6)
     background-color: $core-bg-light
@@ -478,7 +470,7 @@ oriented data synchronization.
     left: 0
 
   .question-btn
-    margin-left: 1.5em
+    min-width: 140px
 
   // checkAnswer btn animation
   .shaking
@@ -496,5 +488,8 @@ oriented data synchronization.
       transform: translate3d(-4px, 0, 0)
     40%, 60%
       transform: translate3d(4px, 0, 0)
+
+  .ib
+    display: inline-block
 
 </style>
