@@ -51,11 +51,10 @@ function _currentTopicState(topic, ancestors = []) {
 }
 
 function _exerciseState(exercise) {
-  const numAssessments = assessmentMetaDataState(exercise).assessmentIds.length;
   return {
     id: exercise.id,
     title: exercise.title,
-    numAssessments,
+    numAssessments: assessmentMetaDataState(exercise).assessmentIds.length,
     num_coach_contents: exercise.num_coach_contents,
   };
 }
@@ -415,35 +414,21 @@ export function showExamReportPage(store, classId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT);
 
-  const examPromise = ExamResource.getModel(examId).fetch();
-  ConditionalPromise.all([examPromise]).only(
+  ConditionalPromise.all([ExamResource.getModel(examId).fetch()]).only(
     samePageCheckGenerator(store),
     ([exam]) => {
-      const examLogPromise = ExamLogResource.getCollection({
-        exam: examId,
-        collection: classId,
-      }).fetch();
-      const facilityUserPromise = FacilityUserResource.getCollection({
-        member_of: classId,
-      }).fetch();
-      const groupPromise = LearnerGroupResource.getCollection({
-        parent: classId,
-      }).fetch();
-      const examsPromise = ExamResource.getCollection({
-        collection: classId,
-      }).fetch({}, true);
-      const contentNodesPromise = ContentNodeResource.getCollection({
-        in_exam: exam.id,
-        fields: ['id', 'num_coach_contents'],
-      }).fetch();
-      ConditionalPromise.all([
-        examLogPromise,
-        facilityUserPromise,
-        groupPromise,
-        examsPromise,
-        contentNodesPromise,
+      const promises = [
+        ExamLogResource.getCollection({ exam: examId, collection: classId }).fetch(),
+        FacilityUserResource.getCollection({ member_of: classId }).fetch(),
+        LearnerGroupResource.getCollection({ parent: classId }).fetch(),
+        ExamResource.getCollection({ collection: classId }).fetch({}, true),
+        ContentNodeResource.getCollection({
+          in_exam: exam.id,
+          fields: ['id', 'num_coach_contents'],
+        }).fetch(),
         setClassState(store, classId),
-      ]).only(
+      ];
+      ConditionalPromise.all(promises).only(
         samePageCheckGenerator(store),
         ([examLogs, facilityUsers, learnerGroups, exams, contentNodes]) => {
           const examTakers = facilityUsers.map(user => {
@@ -505,9 +490,11 @@ export function showExamReportDetailPage(
     store.dispatch('CORE_SET_PAGE_LOADING', true);
     store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT_DETAIL);
   }
-  const examReportPromise = getExamReport(store, examId, userId, questionNumber, interactionIndex);
-  const setClassStatePromise = setClassState(store, classId);
-  ConditionalPromise.all([examReportPromise, setClassStatePromise]).then(
+  const promises = [
+    getExamReport(store, examId, userId, questionNumber, interactionIndex),
+    setClassState(store, classId),
+  ];
+  ConditionalPromise.all(promises).then(
     ([examReport]) => {
       store.dispatch('SET_PAGE_STATE', examReport);
       store.dispatch('SET_TOOLBAR_ROUTE', { name: PageNames.EXAM_REPORT });
