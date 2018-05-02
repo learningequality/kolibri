@@ -24,7 +24,7 @@ import logging
 import os
 
 from .compat import module_exists
-
+from .options import read_options_file
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +43,9 @@ if not os.path.exists(KOLIBRI_HOME):
     if not os.path.exists(parent):
         raise RuntimeError("The parent of your KOLIBRI_HOME does not exist: {}".format(parent))
     os.mkdir(KOLIBRI_HOME)
+
+# read the config file options in here so they can be accessed from a standard location
+OPTIONS = read_options_file(KOLIBRI_HOME)
 
 #: Set defaults before updating the dict
 config = {}

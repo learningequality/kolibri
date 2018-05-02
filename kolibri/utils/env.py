@@ -3,8 +3,6 @@ import os
 import sys
 from distutils import util
 
-from .options import update_env_from_options_file
-
 logger = logging.getLogger(__name__)
 
 
@@ -78,6 +76,3 @@ def set_env():
     os.environ.setdefault(
         "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
     )
-
-    # read the options.ini file and update environment variables as needed
-    update_env_from_options_file(os.path.join(os.environ["KOLIBRI_HOME"], "options.ini"))

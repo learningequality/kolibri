@@ -28,6 +28,7 @@ from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
 from . import server  # noqa
 from .system import become_daemon  # noqa
 from .sanity_checks import check_other_kolibri_running  # noqa
+from .conf import OPTIONS  # noqa
 
 USAGE = """
 Kolibri
@@ -79,10 +80,9 @@ Environment:
    - Default: "kolibri.deployment.default.settings.base"
 
   KOLIBRI_HOME
-   - Where Kolibri will store its data and configuration files. If you are using
-     an external drive
+   - Where Kolibri will store its data and configuration files.
 
-  KOLIBRI_LISTEN_PORT
+  KOLIBRI_HTTP_LISTEN_PORT
    - Default: 8080
 
 """
@@ -264,7 +264,7 @@ def start(port=None, daemon=True):
     # https://github.com/learningequality/kolibri/issues/1615
     update()
 
-    # In case that some tests run start() function only
+    # In case some tests run start() function only
     if not isinstance(port, int):
         port = _get_port(port)
 
@@ -577,14 +577,7 @@ def parse_args(args=None):
 
 
 def _get_port(port):
-    port = int(port) if port else None
-    if port is None:
-        try:
-            port = int(os.environ['KOLIBRI_LISTEN_PORT'])
-        except ValueError:
-            logger.error("Invalid KOLIBRI_LISTEN_PORT, must be an integer")
-            raise
-    return port
+    return int(port) if port else OPTIONS["Deployment"]['HTTP_LISTEN_PORT']
 
 
 def main(args=None):  # noqa: max-complexity=13

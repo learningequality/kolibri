@@ -22,7 +22,6 @@ from tzlocal import get_localzone
 import kolibri
 from kolibri.utils import conf
 from kolibri.utils import i18n
-from kolibri.utils import options
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # import kolibri, so we can get the path to the module.
@@ -38,8 +37,6 @@ KOLIBRI_HOME = conf.KOLIBRI_HOME
 LOCALE_PATHS = [
     os.path.join(KOLIBRI_MODULE_PATH, "locale"),
 ]
-
-OPTIONS = options.get_options_from_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -128,30 +125,30 @@ WSGI_APPLICATION = 'kolibri.deployment.default.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-if OPTIONS.get("DATABASE_ENGINE") == "sqlite":
+if conf.OPTIONS['Database']["DATABASE_ENGINE"] == "sqlite":
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(KOLIBRI_HOME, OPTIONS.get('DATABASE_NAME') or 'db.sqlite3'),
+            'NAME': os.path.join(KOLIBRI_HOME, conf.OPTIONS['Database']['DATABASE_NAME'] or 'db.sqlite3'),
             'OPTIONS': {
                 'timeout': 100,
             }
         }
     }
-elif OPTIONS.get("DATABASE_ENGINE") == "postgres":
+elif conf.OPTIONS['Database']['DATABASE_ENGINE'] == "postgres":
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': OPTIONS['DATABASE_NAME'],
-            'PASSWORD': OPTIONS.get('DATABASE_PASSWORD') or '',
-            'USER': OPTIONS.get('DATABASE_USER') or '',
-            'HOST': OPTIONS.get('DATABASE_HOST') or '',
+            'NAME': conf.OPTIONS['Database']['DATABASE_NAME'],
+            'PASSWORD': conf.OPTIONS['Database']['DATABASE_PASSWORD'],
+            'USER': conf.OPTIONS['Database']['DATABASE_USER'],
+            'HOST': conf.OPTIONS['Database']['DATABASE_HOST'],
         }
     }
 
 # Content directories and URLs for channel metadata and content files
 
-_content_root = os.path.join(KOLIBRI_HOME, OPTIONS.get('CONTENT_ROOT') or 'content')
+_content_root = os.path.join(KOLIBRI_HOME, conf.OPTIONS['Paths']['CONTENT_DIR'])
 
 # Directory and URL for storing content databases for channel data
 CONTENT_DATABASE_DIR = os.path.join(_content_root, 'databases')
