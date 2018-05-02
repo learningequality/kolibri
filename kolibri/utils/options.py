@@ -48,10 +48,10 @@ option_spec = {
         },
     },
     "Deployment": {
-        "HTTP_LISTEN_PORT": {
+        "HTTP_PORT": {
             "type": "integer",
             "default": 8080,
-            "envvars": ("KOLIBRI_HTTP_LISTEN_PORT", "KOLIBRI_LISTEN_PORT"),
+            "envvars": ("KOLIBRI_HTTP_PORT", "KOLIBRI_LISTEN_PORT"),
         },
         "RUN_MODE": {
             "type": "string",

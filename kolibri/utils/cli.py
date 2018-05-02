@@ -82,7 +82,7 @@ Environment:
   KOLIBRI_HOME
    - Where Kolibri will store its data and configuration files.
 
-  KOLIBRI_HTTP_LISTEN_PORT
+  KOLIBRI_HTTP_PORT
    - Default: 8080
 
 """
@@ -577,7 +577,7 @@ def parse_args(args=None):
 
 
 def _get_port(port):
-    return int(port) if port else OPTIONS["Deployment"]['HTTP_LISTEN_PORT']
+    return int(port) if port else OPTIONS["Deployment"]['HTTP_PORT']
 
 
 def main(args=None):  # noqa: max-complexity=13
