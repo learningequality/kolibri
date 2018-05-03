@@ -1,6 +1,5 @@
 import logging.config
 import os
-import sys
 
 from configobj import ConfigObj
 from configobj import flatten_errors
@@ -159,7 +158,7 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
                 logger.error("Error processing {file} under section [{section}] for option {option}: {error}"
                              .format(file=ini_path, section=section, option=optname, error=error))
         logger.critical("Aborting: Could not process options config (see errors above for more details)")
-        sys.exit(1)
+        raise SystemExit(1)
 
     # loop over any extraneous options and warn the user that we're ignoring them
     for sections, name in get_extra_values(conf):
