@@ -400,6 +400,7 @@
     width: 100%
     height: 100%
     display: table
+    background-color: $core-bg-light
 
   .main-row
     display: table-row
