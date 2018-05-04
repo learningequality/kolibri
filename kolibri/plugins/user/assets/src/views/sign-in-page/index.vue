@@ -223,8 +223,7 @@
         return Boolean(this.passwordMissing || this.invalidCredentials);
       },
       needPasswordField() {
-        const isSimpleButHasError = this.simpleSignIn && this.hasServerError;
-        return !this.simpleSignIn || isSimpleButHasError;
+        return !this.simpleSignIn || this.hasServerError;
       },
     },
     watch: {
