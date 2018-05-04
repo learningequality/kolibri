@@ -22,57 +22,39 @@ import { PageNames } from '../../constants';
 import { setClassState, handleCoachPageError } from './main';
 
 const translator = createTranslator('coachExamPageTitles', {
+  allChannels: 'All channels',
   coachExamListPageTitle: 'Exams',
   coachExamCreationPageTitle: 'Create new exam',
   coachExamReportDetailPageTitle: 'Exam Report Detail',
   examReportTitle: '{examTitle} report',
 });
 
-const allChannels = createTranslator('allChannels', {
-  allChannels: 'All channels',
-}).$tr('allChannels');
-
-function _breadcrumbState(topic) {
-  return {
-    id: topic.pk,
-    title: topic.title,
-  };
-}
-
-function _breadcrumbsState(topics) {
-  return topics.map(topic => _breadcrumbState(topic));
-}
+const snackbarTranslator = createTranslator('examPageSnackbarTexts', {
+  changesToExamSaved: 'Changes to exam saved',
+  copiedExamToClass: 'Copied exam to { className }',
+  examDeleted: 'Exam deleted',
+  examIsNowActive: 'Exam is now active',
+  examIsNowInactive: 'Exam is now inactive',
+  newExamCreated: 'New exam created',
+});
 
 function _currentTopicState(topic, ancestors = []) {
-  let breadcrumbs = Array.from(ancestors);
-  breadcrumbs.push({ pk: topic.pk, title: topic.title });
-  breadcrumbs.unshift({ pk: null, title: allChannels });
-  breadcrumbs = _breadcrumbsState(breadcrumbs);
   return {
-    id: topic.pk,
+    id: topic.id,
     title: topic.title,
-    breadcrumbs,
+    breadcrumbs: [
+      { id: null, title: translator.$tr('allChannels') },
+      ...ancestors,
+      { id: topic.id, title: topic.title },
+    ],
   };
-}
-
-function _topicState(topic) {
-  return {
-    id: topic.pk,
-    title: topic.title,
-    num_coach_contents: topic.num_coach_contents,
-  };
-}
-
-function _topicsState(topics) {
-  return topics.map(topic => _topicState(topic));
 }
 
 function _exerciseState(exercise) {
-  const numAssessments = assessmentMetaDataState(exercise).assessmentIds.length;
   return {
-    id: exercise.pk,
+    id: exercise.id,
     title: exercise.title,
-    numAssessments,
+    numAssessments: assessmentMetaDataState(exercise).assessmentIds.length,
     num_coach_contents: exercise.num_coach_contents,
   };
 }
@@ -124,13 +106,11 @@ export function showExamsPage(store, classId) {
   return ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([exams]) => {
-      const pageState = {
+      store.dispatch('SET_PAGE_STATE', {
         exams: _examsState(exams),
         examsModalSet: false,
         busy: false,
-      };
-
-      store.dispatch('SET_PAGE_STATE', pageState);
+      });
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamListPageTitle'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -143,22 +123,15 @@ export function setExamsModal(store, modalName) {
   store.dispatch('SET_EXAMS_MODAL', modalName);
 }
 
-export function activateExam(store, examId) {
+function updateExamStatus(store, { examId, isActive }) {
   return ExamResource.getModel(examId)
-    .save({ active: true })
+    .save({ active: isActive })
     .then(
       () => {
-        const exams = store.state.pageState.exams;
-        const examIndex = exams.findIndex(exam => exam.id === examId);
-        exams[examIndex].active = true;
-
-        store.dispatch('SET_EXAMS', exams);
+        store.dispatch('SET_EXAM_STATUS', { examId, isActive });
         setExamsModal(store, false);
-
         createSnackbar(store, {
-          text: createTranslator('examActivateSnackbar', {
-            examIsNowActive: 'Exam is now active',
-          }).$tr('examIsNowActive'),
+          text: snackbarTranslator.$tr(isActive ? 'examIsNowActive' : 'examIsNowInactive'),
           autoDismiss: true,
         });
       },
@@ -166,27 +139,12 @@ export function activateExam(store, examId) {
     );
 }
 
+export function activateExam(store, examId) {
+  return updateExamStatus(store, { examId, isActive: true });
+}
+
 export function deactivateExam(store, examId) {
-  return ExamResource.getModel(examId)
-    .save({ active: false })
-    .then(
-      () => {
-        const exams = store.state.pageState.exams;
-        const examIndex = exams.findIndex(exam => exam.id === examId);
-        exams[examIndex].active = false;
-
-        store.dispatch('SET_EXAMS', exams);
-        setExamsModal(store, false);
-
-        createSnackbar(store, {
-          text: createTranslator('examDeactivateSnackbar', {
-            examIsNowInactive: 'Exam is now inactive',
-          }).$tr('examIsNowInactive'),
-          autoDismiss: true,
-        });
-      },
-      error => handleError(store, error)
-    );
+  return updateExamStatus(store, { examId, isActive: false });
 }
 
 export function copyExam(store, exam, className) {
@@ -196,9 +154,7 @@ export function copyExam(store, exam, className) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       setExamsModal(store, false);
       createSnackbar(store, {
-        text: createTranslator('copyExam', {
-          copiedExamToClass: 'Copied exam to { className }',
-        }).$tr('copiedExamToClass', { className }),
+        text: snackbarTranslator.$tr('copiedExamToClass', { className }),
         autoDismiss: true,
       });
     },
@@ -220,9 +176,7 @@ export function updateExamDetails(store, examId, payload) {
           store.dispatch('SET_EXAMS', exams);
           setExamsModal(store, false);
           createSnackbar(store, {
-            text: createTranslator('editExamDetailsSnackbar', {
-              changesToExamSaved: 'Changes to exam saved',
-            }).$tr('changesToExamSaved'),
+            text: snackbarTranslator.$tr('changesToExamSaved'),
             autoDismiss: true,
           });
           store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -247,19 +201,13 @@ export function deleteExam(store, examId) {
 
         router.replace({ name: PageNames.EXAMS });
         createSnackbar(store, {
-          text: createTranslator('examDeleted', {
-            examDeleted: 'Exam deleted',
-          }).$tr('examDeleted'),
+          text: snackbarTranslator.$tr('examDeleted'),
           autoDismiss: true,
         });
         setExamsModal(store, false);
       },
       error => handleError(store, error)
     );
-}
-
-export function previewExam(store) {
-  setExamsModal(store, false);
 }
 
 /**
@@ -327,7 +275,7 @@ export function goToTopLevel(store) {
                 []
               ),
               id: null,
-              title: allChannels,
+              title: translator.$tr('allChannels'),
             };
             store.dispatch('SET_TOPIC', topic);
             store.dispatch('SET_SUBTOPICS', subtopics);
@@ -346,7 +294,7 @@ export function getAllExercisesWithinTopic(store, topicId) {
   return new Promise((resolve, reject) => {
     const exercisesPromise = ContentNodeResource.getDescendantsCollection(topicId, {
       descendant_kind: ContentNodeKinds.EXERCISE,
-      fields: ['pk', 'title', 'assessmentmetadata', 'num_coach_contents'],
+      fields: ['id', 'title', 'assessmentmetadata', 'num_coach_contents'],
     }).fetch();
 
     ConditionalPromise.all([exercisesPromise]).only(
@@ -369,12 +317,12 @@ function fetchTopic(store, topicId) {
     const subtopicsPromise = ContentNodeResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.TOPIC,
-      fields: ['pk', 'title', 'ancestors', 'num_coach_contents'],
+      fields: ['id', 'title', 'ancestors', 'num_coach_contents'],
     }).fetch();
     const exercisesPromise = ContentNodeResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.EXERCISE,
-      fields: ['pk', 'title', 'assessmentmetadata', 'num_coach_contents'],
+      fields: ['id', 'title', 'assessmentmetadata', 'num_coach_contents'],
     }).fetch();
 
     ConditionalPromise.all([
@@ -387,7 +335,7 @@ function fetchTopic(store, topicId) {
       ([topicModel, subtopicsCollection, exercisesCollection, ancestors]) => {
         const topic = _currentTopicState(topicModel, ancestors);
         const exercises = _exercisesState(exercisesCollection);
-        let subtopics = _topicsState(subtopicsCollection);
+        let subtopics = [...subtopicsCollection];
 
         const subtopicsExercisesPromises = subtopics.map(subtopic =>
           getAllExercisesWithinTopic(store, subtopic.id)
@@ -450,9 +398,7 @@ export function createExamAndRoute(store, exam) {
     () => {
       router.getInstance().push({ name: PageNames.EXAMS });
       createSnackbar(store, {
-        text: createTranslator('newExamCreated', {
-          newExamCreated: 'New exam created',
-        }).$tr('newExamCreated'),
+        text: snackbarTranslator.$tr('newExamCreated'),
         autoDismiss: true,
       });
     },
@@ -468,35 +414,21 @@ export function showExamReportPage(store, classId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT);
 
-  const examPromise = ExamResource.getModel(examId).fetch();
-  ConditionalPromise.all([examPromise]).only(
+  ConditionalPromise.all([ExamResource.getModel(examId).fetch()]).only(
     samePageCheckGenerator(store),
     ([exam]) => {
-      const examLogPromise = ExamLogResource.getCollection({
-        exam: examId,
-        collection: classId,
-      }).fetch();
-      const facilityUserPromise = FacilityUserResource.getCollection({
-        member_of: classId,
-      }).fetch();
-      const groupPromise = LearnerGroupResource.getCollection({
-        parent: classId,
-      }).fetch();
-      const examsPromise = ExamResource.getCollection({
-        collection: classId,
-      }).fetch({}, true);
-      const contentNodesPromise = ContentNodeResource.getCollection({
-        in_exam: exam.id,
-        fields: ['id', 'num_coach_contents'],
-      }).fetch();
-      ConditionalPromise.all([
-        examLogPromise,
-        facilityUserPromise,
-        groupPromise,
-        examsPromise,
-        contentNodesPromise,
+      const promises = [
+        ExamLogResource.getCollection({ exam: examId, collection: classId }).fetch(),
+        FacilityUserResource.getCollection({ member_of: classId }).fetch(),
+        LearnerGroupResource.getCollection({ parent: classId }).fetch(),
+        ExamResource.getCollection({ collection: classId }).fetch({}, true),
+        ContentNodeResource.getCollection({
+          in_exam: exam.id,
+          fields: ['id', 'num_coach_contents'],
+        }).fetch(),
         setClassState(store, classId),
-      ]).only(
+      ];
+      ConditionalPromise.all(promises).only(
         samePageCheckGenerator(store),
         ([examLogs, facilityUsers, learnerGroups, exams, contentNodes]) => {
           const examTakers = facilityUsers.map(user => {
@@ -558,9 +490,11 @@ export function showExamReportDetailPage(
     store.dispatch('CORE_SET_PAGE_LOADING', true);
     store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT_DETAIL);
   }
-  const examReportPromise = getExamReport(store, examId, userId, questionNumber, interactionIndex);
-  const setClassStatePromise = setClassState(store, classId);
-  ConditionalPromise.all([examReportPromise, setClassStatePromise]).then(
+  const promises = [
+    getExamReport(store, examId, userId, questionNumber, interactionIndex),
+    setClassState(store, classId),
+  ];
+  ConditionalPromise.all(promises).then(
     ([examReport]) => {
       store.dispatch('SET_PAGE_STATE', examReport);
       store.dispatch('SET_TOOLBAR_ROUTE', { name: PageNames.EXAM_REPORT });
