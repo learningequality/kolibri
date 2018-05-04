@@ -5,6 +5,7 @@ import requests
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.validators import URLValidator
+from django.urls import reverse
 from django.utils.six.moves import input
 from morango.certificates import Certificate
 from morango.certificates import Filter
@@ -34,7 +35,7 @@ class Command(AsyncCommand):
 
     def get_dataset_id(self, base_url, dataset_id):
         # get list of facilities and if more than 1, display all choices to user
-        facility_url = urljoin(base_url, 'api/public/v1/facility/')
+        facility_url = urljoin(base_url, reverse('publicfacility'))
         facility_resp = requests.get(facility_url)
         facility_resp.raise_for_status()
         facilities = facility_resp.json()
