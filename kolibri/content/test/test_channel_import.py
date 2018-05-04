@@ -1,6 +1,7 @@
 import json
 import os
 import pickle
+import uuid
 
 from django.core.management import call_command
 from django.test import TestCase
@@ -14,9 +15,11 @@ from sqlalchemy import create_engine
 from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
 from kolibri.content import models as content
+from kolibri.content.models import AssessmentMetaData
 from kolibri.content.models import ChannelMetadata
 from kolibri.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.content.models import ContentNode
+from kolibri.content.models import File
 from kolibri.content.models import LocalFile
 from kolibri.content.models import NO_VERSION
 from kolibri.content.models import V020BETA1
@@ -410,6 +413,42 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
     name = CONTENT_SCHEMA_VERSION
 
     legacy_schema = None
+
+    def residual_object_deleted(self, Model):
+        # Checks that objects previously associated with a channel are deleted on channel upgrade
+        obj = Model.objects.first()
+        # older databases may not import data for all models so if this is None, ignore
+        if obj is not None:
+            # Set id to a new UUID so that it does an insert at save
+            obj.id = uuid.uuid4().hex
+            obj.save()
+            obj_id = obj.id
+            self.set_content_fixture()
+            with self.assertRaises(Model.DoesNotExist):
+                assert Model.objects.get(pk=obj_id)
+
+    def test_residual_file_deleted_after_reimport(self):
+        self.residual_object_deleted(File)
+
+    def test_residual_assessmentmetadata_deleted_after_reimport(self):
+        self.residual_object_deleted(AssessmentMetaData)
+
+    def test_residual_channelmetadata_deleted_after_reimport(self):
+        self.residual_object_deleted(ChannelMetadata)
+
+    def test_residual_contentnode_deleted_after_reimport(self):
+        root_node = ChannelMetadata.objects.first().root
+        obj = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            parent=root_node,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+        )
+        obj_id = obj.id
+        self.set_content_fixture()
+        with self.assertRaises(ContentNode.DoesNotExist):
+            assert ContentNode.objects.get(pk=obj_id)
 
 
 class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase):

@@ -77,6 +77,8 @@ class ChannelImport(object):
                 'tree_id': 'get_tree_id',
             },
         },
+        # This is set so that we ignore any information coming from the content database about availability
+        # because it is always set to False.
         LocalFile: {
             'per_row': {
                 'available': 'get_none',
