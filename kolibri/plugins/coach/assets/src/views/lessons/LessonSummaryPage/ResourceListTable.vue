@@ -71,6 +71,7 @@
           <coach-content-label
             class="coach-content-label"
             :value="getCachedResource(resourceId).num_coach_contents"
+            :isTopic="false"
           />
         </td>
         <td>

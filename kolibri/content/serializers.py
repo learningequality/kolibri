@@ -15,6 +15,7 @@ from kolibri.content.models import Language
 from kolibri.content.models import LocalFile
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
+from kolibri.content.utils.import_export_content import get_num_coach_contents
 from kolibri.content.utils.paths import get_content_storage_file_path
 
 
@@ -40,12 +41,15 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             on_device_resources = descendants.exclude(kind=content_kinds.TOPIC).filter(available=True).count()
             on_device_file_size = local_files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
 
+            num_coach_contents = get_num_coach_contents(instance.root)
+
             value.update(
                 {
                     "total_resources": total_resources,
                     "total_file_size": total_file_size,
                     "on_device_resources": on_device_resources,
-                    "on_device_file_size": on_device_file_size
+                    "on_device_file_size": on_device_file_size,
+                    "num_coach_contents": num_coach_contents,
                 })
 
         return value
@@ -334,15 +338,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         if user.is_facility_user:  # exclude anon users
             if user.roles.exists() or user.is_superuser:  # must have coach role or higher
-                if instance.kind == content_kinds.TOPIC:
-                    return instance.get_descendants() \
-                        .filter(coach_content=True, available=True) \
-                        .exclude(kind=content_kinds.TOPIC) \
-                        .distinct() \
-                        .count()
-                else:
-                    return 1 if instance.coach_content else 0
-
+                return get_num_coach_contents(instance)
         # all other conditions return 0
         return 0
 
@@ -384,14 +380,10 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             .count()
 
     def get_num_coach_contents(self, instance):
-        if instance.kind == content_kinds.TOPIC:
-            return instance.get_descendants() \
-                .filter(coach_content=True, available=True) \
-                .exclude(kind=content_kinds.TOPIC) \
-                .distinct() \
-                .count()
-        else:
-            return 1 if instance.coach_content else 0
+        # If for exporting, only show what is available on server. For importing,
+        # show all of the coach contents in the topic.
+        for_export = self.context['request'].query_params.get('for_export', None)
+        return get_num_coach_contents(instance, filter_available=for_export)
 
     def get_importable(self, instance):
         drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)

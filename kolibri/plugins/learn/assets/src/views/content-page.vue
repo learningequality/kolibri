@@ -6,7 +6,8 @@
     <page-header :title="content.title" dir="auto" class="ta-l" />
     <coach-content-label
       class="coach-content-label"
-      :value="content.num_coach_contents"
+      :value="content.coach_content ? 1 : 0"
+      :isTopic="isTopic"
     />
 
     <content-renderer
@@ -192,6 +193,9 @@
       licenceDescriptionIsVisible: false,
     }),
     computed: {
+      isTopic() {
+        return this.content.kind === ContentNodeKinds.TOPIC;
+      },
       canDownload() {
         if (this.facilityConfig.showDownloadButtonInLearn && this.content) {
           return (

@@ -1,3 +1,4 @@
+import find from 'lodash/find';
 import { handleError } from 'kolibri.coreVue.vuex.actions';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { getChannels } from 'kolibri.coreVue.vuex.getters';
@@ -108,13 +109,16 @@ function getAllChannelsLastActivePromise(channels, userScope, userScopeId) {
   return Promise.all(promises);
 }
 
-function _channelReportState(data) {
+function _channelReportState(data, channelRootNodes = []) {
   if (!data) {
     return [];
   }
   return data.map(row => ({
     lastActive: row.last_active,
     id: row.channelId,
+    // merge ChannelMetdata with ContentNode to get num_coach_contents
+    num_coach_contents:
+      (find(channelRootNodes, { id: row.channelId }) || {}).num_coach_contents || 0,
     progress: row.progress.map(progressData => ({
       kind: progressData.kind,
       nodeCount: progressData.node_count,
@@ -128,8 +132,11 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
   const userScope = userId ? UserScopes.USER : UserScopes.CLASSROOM;
   const userScopeId = userId || classId;
 
+  const channels = getChannels(store.state);
   const promises = [
-    getAllChannelsLastActivePromise(getChannels(store.state), userScope, userScopeId),
+    getAllChannelsLastActivePromise(channels, userScope, userScopeId),
+    // Get the ContentNode for the ChannelRoot for getting num_coach_contents
+    ContentNodeResource.getCollection({ ids: channels.map(({ root_id }) => root_id) }).fetch(),
     setClassState(store, classId),
   ];
 

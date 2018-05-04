@@ -25,6 +25,7 @@
       <coach-content-label
         class="coach-content-label"
         :value="numCoachContents"
+        :isTopic="isTopic"
       />
     </div>
   </router-link>
@@ -35,6 +36,7 @@
 <script>
 
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import textTruncator from 'kolibri.coreVue.components.textTruncator';
   import cardThumbnail from './card-thumbnail';
@@ -93,8 +95,12 @@
       },
     },
     computed: {
+      isTopic() {
+        return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
+      },
       maxTitleHeight() {
-        if (this.subtitle) {
+        // Add room if there is a subtitle, or the coach content icon appears
+        if (this.subtitle || this.numCoachContents > 0) {
           return 40;
         }
         return this.isMobile ? 52 : 60;
@@ -111,6 +117,8 @@
   @require './card.styl'
 
   .coach-content-label
+    position: absolute
+    bottom: 0
     padding: 8px 0
 
   .card

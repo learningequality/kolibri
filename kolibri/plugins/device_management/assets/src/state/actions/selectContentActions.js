@@ -59,6 +59,9 @@ export function updateTreeViewTopic(store, topic) {
   if (transferType === TransferTypes.LOCALIMPORT) {
     fetchArgs.importing_from_drive_id = selectedDrive.id;
   }
+  if (transferType === TransferTypes.LOCALEXPORT) {
+    fetchArgs.for_export = 'true';
+  }
   return (
     ContentNodeGranularResource.getModel(topic.pk)
       // Need to force fetch, since cached values are used even with different

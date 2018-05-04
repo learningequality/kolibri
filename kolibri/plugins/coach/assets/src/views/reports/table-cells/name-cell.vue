@@ -13,6 +13,7 @@
     <coach-content-label
       class="coach-content-label"
       :value="numCoachContents"
+      :isTopic="isTopic"
     />
   </td>
 
@@ -25,6 +26,7 @@
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'nameCell',
@@ -49,6 +51,11 @@
       numCoachContents: {
         type: Number,
         default: 0,
+      },
+    },
+    computed: {
+      isTopic() {
+        return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
       },
     },
   };

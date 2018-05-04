@@ -6,7 +6,7 @@
       name="local_library"
       class="coach-icon"
     />
-    <span v-if="value===1">
+    <span v-if="!isTopic">
       {{ $tr('coachLabel') }}
     </span>
     <span v-else>
@@ -25,6 +25,11 @@
       value: {
         type: Number,
         default: 0,
+      },
+      // Show number next to label if a topic, otherwise show simple label
+      isTopic: {
+        type: Boolean,
+        default: false,
       },
     },
     $trs: {
