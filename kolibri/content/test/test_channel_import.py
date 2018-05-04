@@ -436,6 +436,10 @@ class Version1ImportTestCase(NaiveImportTestCase):
     def tearDownClass(cls):
         super(Version1ImportTestCase, cls).tearDownClass()
 
+    @classmethod
+    def setUpClass(cls):
+        super(Version1ImportTestCase, cls).setUpClass()
+
 
 class NoVersionImportTestCase(NaiveImportTestCase):
     """
@@ -447,6 +451,10 @@ class NoVersionImportTestCase(NaiveImportTestCase):
     @classmethod
     def tearDownClass(cls):
         super(NoVersionImportTestCase, cls).tearDownClass()
+
+    @classmethod
+    def setUpClass(cls):
+        super(NoVersionImportTestCase, cls).setUpClass()
 
 
 class NoVersionv020ImportTestCase(NoVersionImportTestCase):
@@ -466,6 +474,10 @@ class NoVersionv020ImportTestCase(NoVersionImportTestCase):
     def tearDownClass(cls):
         super(NoVersionv020ImportTestCase, cls).tearDownClass()
 
+    @classmethod
+    def setUpClass(cls):
+        super(NoVersionv020ImportTestCase, cls).setUpClass()
+
 
 class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
     """
@@ -478,3 +490,7 @@ class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
     @classmethod
     def tearDownClass(cls):
         super(NoVersionv020ImportTestCase, cls).tearDownClass()
+
+    @classmethod
+    def setUpClass(cls):
+        super(NoVersionv040ImportTestCase, cls).setUpClass()

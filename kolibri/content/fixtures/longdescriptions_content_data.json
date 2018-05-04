@@ -113,7 +113,8 @@
       "stemmed_metaphone": "",
       "title": "root",
       "license_owner": "",
-      "tree_id": 1
+      "tree_id": 1,
+      "coach_content": false
     },
     {
       "author": "",
@@ -134,7 +135,8 @@
       "stemmed_metaphone": "",
       "title": "c1",
       "license_owner": "",
-      "tree_id": 1
+      "tree_id": 1,
+      "coach_content": false
     },
     {
       "author": "",
@@ -155,7 +157,8 @@
       "stemmed_metaphone": "",
       "title": "c2",
       "license_owner": "",
-      "tree_id": 1
+      "tree_id": 1,
+      "coach_content": false
     },
     {
       "author": "",
@@ -176,7 +179,8 @@
       "stemmed_metaphone": "",
       "title": "c2c1",
       "license_owner": "",
-      "tree_id": 1
+      "tree_id": 1,
+      "coach_content": false
     },
     {
       "author": "",
@@ -197,7 +201,8 @@
       "stemmed_metaphone": "",
       "title": "c2c2",
       "license_owner": "",
-      "tree_id": 1
+      "tree_id": 1,
+      "coach_content": false
     },
     {
       "author": "",
@@ -218,7 +223,8 @@
       "stemmed_metaphone": "",
       "title": "c2c3",
       "license_owner": "",
-      "tree_id": 1
+      "tree_id": 1,
+      "coach_content": false
     },
     {
       "author": "",
@@ -239,7 +245,8 @@
       "stemmed_metaphone": "",
       "title": "no_license",
       "license_owner": "",
-      "tree_id": 1
+      "tree_id": 1,
+      "coach_content": false
     }
   ],
   "content_contentnode_tags": [
@@ -318,7 +325,7 @@
       "file_size": null,
       "id": "e00699f859624e0f875ac6fe1e13d648",
       "available": true,
-      "extension": ""
+      "extension": "mp4"
     },
     {
       "file_size": null,
