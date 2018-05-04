@@ -6,16 +6,20 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.validators import URLValidator
 from django.utils.six.moves import input
-from kolibri.auth.constants.morango_scope_definitions import FULL_FACILITY
-from kolibri.auth.models import FacilityUser
-from kolibri.core.device.models import DevicePermissions, DeviceSettings
-from kolibri.core.device.utils import device_provisioned
-from kolibri.tasks.management.commands.base import AsyncCommand
-from morango.certificates import Certificate, Filter, ScopeDefinition
+from morango.certificates import Certificate
+from morango.certificates import Filter
+from morango.certificates import ScopeDefinition
 from morango.controller import MorangoProfileController
 from morango.models import InstanceIDModel
 from requests.exceptions import ConnectionError
 from six.moves.urllib.parse import urljoin
+
+from kolibri.auth.constants.morango_scope_definitions import FULL_FACILITY
+from kolibri.auth.models import FacilityUser
+from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.utils import device_provisioned
+from kolibri.tasks.management.commands.base import AsyncCommand
 
 
 class Command(AsyncCommand):
@@ -30,7 +34,7 @@ class Command(AsyncCommand):
 
     def get_dataset_id(self, base_url, dataset_id):
         # get list of facilities and if more than 1, display all choices to user
-        facility_url = urljoin(base_url, 'api/facility/')
+        facility_url = urljoin(base_url, 'api/public/v1/facility/')
         facility_resp = requests.get(facility_url)
         facility_resp.raise_for_status()
         facilities = facility_resp.json()
