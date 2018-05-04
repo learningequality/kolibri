@@ -5,11 +5,13 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from kolibri.auth.models import Classroom, Facility, FacilityUser
+from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 
 n_users = 2
 n_classes = 2
 n_facilities = 2
+n_lessons = 2
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
 CONTENT_DATABASE_DIR_TEMP = tempfile.mkdtemp()
@@ -26,7 +28,8 @@ class GenerateUserDataTest(TestCase):
     def setUpTestData(cls):
         # To save testing time, only run the management command once
         # Then make assertions in separate tests to isolate failures
-        call_command('generateuserdata', users=n_users, classes=n_classes, facilities=n_facilities)
+        call_command('generateuserdata', users=n_users, classes=n_classes, facilities=n_facilities,
+                     num_lessons=n_lessons)
 
     def test_facilities_created(self):
         self.assertEqual(Facility.objects.count(), n_facilities)
@@ -44,3 +47,6 @@ class GenerateUserDataTest(TestCase):
     def test_summary_logs_for_each_user(self):
         for user in FacilityUser.objects.all():
             self.assertTrue(ContentSummaryLog.objects.filter(user=user).exists())
+
+    def test_lessons_created(self):
+        self.assertEqual(Lesson.objects.count(), n_lessons * n_classes * n_facilities)
