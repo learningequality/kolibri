@@ -7,11 +7,17 @@ import {
 import { samePageCheckGenerator, handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
 import { filterAndSortUsers } from '../../userSearchUtils';
 import { _userState } from './helpers/mappers';
 import displayModal from './helpers/displayModal';
 import preparePage from './helpers/preparePage';
+
+const translator = createTranslator('classPageTitles', {
+  showClassesPage: 'Classes',
+  editClassesPage: 'Edit Class',
+});
 
 /**
  * Do a POST to create new class
@@ -155,10 +161,9 @@ export function removeClassCoach(store, classId, userId) {
 }
 
 export function showClassesPage(store) {
-  // TODO localize this title
   preparePage(store.dispatch, {
     name: PageNames.CLASS_MGMT_PAGE,
-    title: 'Classes',
+    title: translator.$tr('showClassesPage'),
   });
   return ClassroomResource.getCollection()
     .fetch({}, true)
@@ -178,10 +183,9 @@ export function showClassesPage(store) {
 }
 
 export function showClassEditPage(store, classId) {
-  // TODO localize this title
   preparePage(store.dispatch, {
     name: PageNames.CLASS_EDIT_MGMT_PAGE,
-    title: 'Edit Class',
+    title: translator.$tr('editClassesPage'),
   });
 
   const promises = [
