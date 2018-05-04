@@ -11,6 +11,7 @@ from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
+from six import string_types
 
 from .client import get_client
 from kolibri.content.permissions import CanManageContent
@@ -302,7 +303,7 @@ class TasksViewSet(viewsets.ViewSet):
         if 'task_id' not in request.data:
             raise serializers.ValidationError(
                 "The 'task_id' field is required.")
-        if type(request.data['task_id']) is not str:
+        if not isinstance(request.data['task_id'], string_types):
             raise serializers.ValidationError(
                 "The 'task_id' should be a string.")
 
