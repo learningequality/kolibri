@@ -28,7 +28,7 @@ class KolibriServer(object):
 
     _pre_migrated_db_dir = None
 
-    def __init__(self, autostart=True, pre_migrate=True, settings='kolibri.deployment.default.settings.base', db_name=None):
+    def __init__(self, autostart=True, pre_migrate=True, settings='kolibri.deployment.default.settings.base', db_name='default'):
         self.env = os.environ.copy()
         self.env["KOLIBRI_HOME"] = tempfile.mkdtemp()
         self.env["DJANGO_SETTINGS_MODULE"] = settings
