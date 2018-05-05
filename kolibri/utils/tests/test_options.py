@@ -117,3 +117,39 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
         with pytest.raises(SystemExit):
             options.read_options_file(settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
         assert 'value "penguin" is unacceptable' in LOG_LOGGER[-2][1]
+
+
+def test_option_writing():
+    """
+    Checks that options can be written to a dummy options.ini file, validated, and then read back.
+    """
+    _OLD_CONTENT_DIR = "/mycontentdir"
+    _NEW_CONTENT_DIR = "/goodnessme"
+    _HTTP_PORT_GOOD = 7007
+    _HTTP_PORT_BAD = "abba"
+
+    _, tmp_ini_path = tempfile.mkstemp(prefix='options', suffix='.ini')
+    with open(tmp_ini_path, "w") as f:
+        f.write("\n".join([
+            "[Paths]",
+            "CONTENT_DIR = {dir}".format(dir=_OLD_CONTENT_DIR),
+            "[Deployment]",
+            "HTTP_PORT = {port}".format(port=_HTTP_PORT_GOOD),
+        ]))
+
+    # check that values are set correctly to begin with
+    OPTIONS = options.read_options_file(settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
+    assert OPTIONS["Paths"]["CONTENT_DIR"] == _OLD_CONTENT_DIR
+    assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_GOOD
+
+    # change the content directory to something new
+    options.update_options_file("Paths", "CONTENT_DIR", _NEW_CONTENT_DIR, settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
+
+    # try changing the port to something bad, which should throw an error
+    with pytest.raises(ValueError):
+        options.update_options_file("Deployment", "HTTP_PORT", _HTTP_PORT_BAD, settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
+
+    # check that the properly validated option was set correctly, and the invalid one wasn't
+    OPTIONS = options.read_options_file(settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
+    assert OPTIONS["Paths"]["CONTENT_DIR"] == _NEW_CONTENT_DIR
+    assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_GOOD

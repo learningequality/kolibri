@@ -60,11 +60,11 @@ option_spec = {
 }
 
 
-def get_logging_config(KOLIBRI_HOME):
+def get_logger(KOLIBRI_HOME):
     """
     We define a minimal default logger config here, since we can't yet load up Django settings.
     """
-    return {
+    config = {
         'version': 1,
         'disable_existing_loggers': False,
         'formatters': {
@@ -97,6 +97,9 @@ def get_logging_config(KOLIBRI_HOME):
         }
     }
 
+    logging.config.dictConfig(config)
+    return logging.getLogger(__name__)
+
 
 def get_configspec():
     """
@@ -120,9 +123,7 @@ def get_configspec():
 
 def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
 
-    # load up and configure the logger
-    logging.config.dictConfig(get_logging_config(KOLIBRI_HOME))
-    logger = logging.getLogger(__name__)
+    logger = get_logger(KOLIBRI_HOME)
 
     ini_path = os.path.join(KOLIBRI_HOME, ini_filename)
 
@@ -181,3 +182,26 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
     conf.validate(Validator())
 
     return conf
+
+
+def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):
+
+    logger = get_logger(KOLIBRI_HOME)
+
+    # load the current conf from disk into memory
+    conf = read_options_file(KOLIBRI_HOME, ini_filename=ini_filename)
+
+    # update the requested option value
+    conf[section][key] = value
+
+    # check for any errors with the provided value, and abort
+    validation = conf.validate(Validator(), preserve_errors=True)
+    if validation is not True:
+        error = validation.get(section, {}).get(key) or "unknown error"
+        raise ValueError("Unable to set {key} in {file}: {error}".format(key=key, file=ini_filename, error=error))
+
+    # write the settings file back to disk
+    conf.write()
+
+    logger.warning("Options file {file} has been updated; server restart is required before change will take effect."
+                   .format(file=conf.filename))
