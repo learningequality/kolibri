@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'django_filters',
     'kolibri.auth.apps.KolibriAuthConfig',
     'kolibri.content',
+    'kolibri.deployment',
     'kolibri.logger',
     'kolibri.tasks.apps.KolibriTasksConfig',
     'kolibri.core.deviceadmin',
