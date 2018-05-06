@@ -6,7 +6,6 @@ from django.core.management.base import CommandError
 from ...utils import channel_import
 from ...utils import paths
 from ...utils import transfer
-from kolibri.tasks.management.commands.base import AsyncCommand
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
