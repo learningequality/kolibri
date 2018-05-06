@@ -17,8 +17,8 @@ from docopt import docopt  # noqa
 
 import kolibri  # noqa
 from . import server  # noqa
-from .sanity_checks import check_other_kolibri_running  # noqa
 from .conf import OPTIONS  # noqa
+from .sanity_checks import check_other_kolibri_running  # noqa
 from .system import become_daemon  # noqa
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
 
@@ -131,7 +131,7 @@ def initialize(debug=False):
         _first_run()
     else:
         # Do this here so that we can fix any issues with our configuration file before
-        # we attempt to setup django.
+        # we attempt to set up django.
         from .conf import autoremove_unavailable_plugins, enable_default_plugins
         autoremove_unavailable_plugins()
 
@@ -166,6 +166,7 @@ def initialize(debug=False):
 
         # load morango fixtures needed for certificate related operations
         call_command("loaddata", "scopedefinitions")
+
 
 def _migrate_databases():
     """

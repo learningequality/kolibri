@@ -44,9 +44,6 @@ if not os.path.exists(KOLIBRI_HOME):
         raise RuntimeError("The parent of your KOLIBRI_HOME does not exist: {}".format(parent))
     os.mkdir(KOLIBRI_HOME)
 
-# read the config file options in here so they can be accessed from a standard location
-OPTIONS = read_options_file(KOLIBRI_HOME)
-
 #: Set defaults before updating the dict
 config = {}
 
@@ -155,3 +152,7 @@ def enable_default_plugins():
 
     if changed:
         save()
+
+
+# read the config file options in here so they can be accessed from a standard location
+OPTIONS = read_options_file(KOLIBRI_HOME)

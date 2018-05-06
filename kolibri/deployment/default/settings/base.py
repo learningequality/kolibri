@@ -148,19 +148,6 @@ elif conf.OPTIONS['Database']['DATABASE_ENGINE'] == "postgres":
         }
     }
 
-# Content directories and URLs for channel metadata and content files
-
-_content_root = os.path.join(KOLIBRI_HOME, conf.OPTIONS['Paths']['CONTENT_DIR'])
-
-# Directory and URL for storing content databases for channel data
-CONTENT_DATABASE_DIR = os.path.join(_content_root, 'databases')
-if not os.path.exists(CONTENT_DATABASE_DIR):
-    os.makedirs(CONTENT_DATABASE_DIR)
-
-# Directory and URL for storing de-duped content files for all channels
-CONTENT_STORAGE_DIR = os.path.join(_content_root, 'storage')
-if not os.path.exists(CONTENT_STORAGE_DIR):
-    os.makedirs(CONTENT_STORAGE_DIR)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
