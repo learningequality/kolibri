@@ -96,6 +96,9 @@ class Command(BaseCommand):
         if subprocess is None:
             raise CommandError("This command requires a functioning 'subprocess' module. Aborting...")
 
+        if os.name == 'nt':
+            raise CommandError("This command does not currently support Windows. Aborting...")
+
         if subprocess.call(["which", "nginx"]) != 0:
             raise CommandError("This command requires Nginx to be installed. Aborting...")
 
