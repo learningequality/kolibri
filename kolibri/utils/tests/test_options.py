@@ -137,19 +137,21 @@ def test_option_writing():
             "HTTP_PORT = {port}".format(port=_HTTP_PORT_GOOD),
         ]))
 
-    # check that values are set correctly to begin with
-    OPTIONS = options.read_options_file(settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
-    assert OPTIONS["Paths"]["CONTENT_DIR"] == _OLD_CONTENT_DIR
-    assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_GOOD
+    with mock.patch.dict(os.environ, {'KOLIBRI_HTTP_PORT': '', 'KOLIBRI_LISTEN_PORT': ''}):
 
-    # change the content directory to something new
-    options.update_options_file("Paths", "CONTENT_DIR", _NEW_CONTENT_DIR, settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
+        # check that values are set correctly to begin with
+        OPTIONS = options.read_options_file(settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
+        assert OPTIONS["Paths"]["CONTENT_DIR"] == _OLD_CONTENT_DIR
+        assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_GOOD
 
-    # try changing the port to something bad, which should throw an error
-    with pytest.raises(ValueError):
-        options.update_options_file("Deployment", "HTTP_PORT", _HTTP_PORT_BAD, settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
+        # change the content directory to something new
+        options.update_options_file("Paths", "CONTENT_DIR", _NEW_CONTENT_DIR, settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
 
-    # check that the properly validated option was set correctly, and the invalid one wasn't
-    OPTIONS = options.read_options_file(settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
-    assert OPTIONS["Paths"]["CONTENT_DIR"] == _NEW_CONTENT_DIR
-    assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_GOOD
+        # try changing the port to something bad, which should throw an error
+        with pytest.raises(ValueError):
+            options.update_options_file("Deployment", "HTTP_PORT", _HTTP_PORT_BAD, settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
+
+        # check that the properly validated option was set correctly, and the invalid one wasn't
+        OPTIONS = options.read_options_file(settings.KOLIBRI_HOME, ini_filename=tmp_ini_path)
+        assert OPTIONS["Paths"]["CONTENT_DIR"] == _NEW_CONTENT_DIR
+        assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_GOOD
