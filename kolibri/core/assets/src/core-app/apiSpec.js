@@ -12,12 +12,15 @@
 // N.B. You cannot use keys that require quotation marks in this object.
 // e.g. 'content-icon' (although this can be used as a value in module).
 
-import logging from '../logging';
 import vue from 'vue';
 import vuex from 'vuex';
+import seededshuffle from 'seededshuffle';
+import uiAlert from 'keen-ui/src/UiAlert';
+import tetherDrop from 'tether-drop';
+import tetherTooltip from 'tether-tooltip';
+import logging from '../logging';
 import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
-import seededshuffle from 'seededshuffle';
 import * as constants from '../constants';
 import * as getters from '../state/getters';
 import * as actions from '../state/actions';
@@ -25,7 +28,6 @@ import * as store from '../state/store';
 import * as mappers from '../state/mappers';
 import contentRenderer from '../views/content-renderer';
 import downloadButton from '../views/content-renderer/download-button';
-import loadingSpinner from '../views/loading-spinner';
 import progressBar from '../views/progress-bar';
 import contentIcon from '../views/content-icon';
 import progressIcon from '../views/progress-icon';
@@ -64,19 +66,16 @@ import * as exams from '../exams/utils';
 import * as validators from '../validators';
 import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
-import urls from './urls';
-import * as client from './client';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
-import uiAlert from 'keen-ui/src/UiAlert';
-import tetherDrop from 'tether-drop';
-import tetherTooltip from 'tether-tooltip';
 import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
 import customUiMenu from '../views/custom-ui-menu';
 import heartbeat from '../heartbeat';
 import coreTable from '../views/core-table';
 import kDropdownMenu from '../views/k-dropdown-menu';
+import coachContentLabel from '../views/coach-content-label';
+
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -84,6 +83,12 @@ import * as contentNode from '../utils/contentNodeUtils';
 import attemptLogList from '../views/attempt-log-list';
 import interactionList from '../views/interaction-list';
 import examReport from '../views/exam-report';
+import textTruncator from '../views/text-truncator';
+import kLinearLoader from '../views/k-linear-loader';
+import kCircularLoader from '../views/k-circular-loader';
+
+import * as client from './client';
+import urls from './urls';
 
 export default {
   client,
@@ -107,9 +112,9 @@ export default {
       mappers,
     },
     components: {
+      coachContentLabel,
       contentRenderer,
       downloadButton,
-      loadingSpinner,
       progressBar,
       contentIcon,
       progressIcon,
@@ -146,6 +151,9 @@ export default {
       attemptLogList,
       interactionList,
       examReport,
+      textTruncator,
+      kLinearLoader,
+      kCircularLoader,
     },
     router,
     mixins: {

@@ -25,10 +25,11 @@
 
 <script>
 
-  import { displayModal, deleteGroup } from '../../state/actions/group';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import { displayModal, deleteGroup } from '../../state/actions/group';
+
   export default {
     name: 'deleteGroupModal',
     $trs: {

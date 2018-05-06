@@ -42,15 +42,16 @@
 
 <script>
 
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import {
     displayModal,
     addUsersToGroup,
     removeUsersFromGroup,
     moveUsersBetweenGroups,
   } from '../../state/actions/group';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+
   export default {
     name: 'moveLearnersModal',
     $trs: {

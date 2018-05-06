@@ -44,8 +44,8 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
   import { RemoteChannelResource } from 'kolibri.resources';
+  import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
 
   export default {
     name: 'selectImportSourceModal',
@@ -75,7 +75,7 @@
       continue: 'Continue',
       network: 'Kolibri Studio',
       localDrives: 'Attached drive or memory card',
-      title: 'Import from where?',
+      title: 'Import from',
     },
     methods: {
       goForward() {

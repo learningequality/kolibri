@@ -1,17 +1,19 @@
 <template>
 
-  <div class="row">
-    <k-checkbox
-      class="checkbox display-cell"
-      :label="node.title"
-      :showLabel="false"
-      :checked="checked"
-      :indeterminate="indeterminate"
-      :disabled="disabled"
-      @change="$emit('changeselection', node)"
-    />
+  <tr>
+    <td class="core-table-checkbox-col">
+      <k-checkbox
+        class="checkbox display-cell"
+        :label="node.title"
+        :showLabel="false"
+        :checked="checked"
+        :indeterminate="indeterminate"
+        :disabled="disabled"
+        @change="$emit('changeselection', node)"
+      />
+    </td>
 
-    <div class="title display-cell">
+    <td class="title display-cell core-table-main-col">
       <content-icon
         class="icon"
         :kind="node.kind"
@@ -26,12 +28,18 @@
       <span v-else>
         {{ node.title }}
       </span>
-    </div>
+      <coach-content-label
+        class="coach-content-label"
+        :value="node.num_coach_contents"
+        :isTopic="isTopic"
+      />
 
-    <div class="message display-cell">
+    </td>
+
+    <td class="message display-cell">
       {{ message }}
-    </div>
-  </div>
+    </td>
+  </tr>
 
 </template>
 
@@ -39,6 +47,7 @@
 <script>
 
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -46,6 +55,7 @@
   export default {
     name: 'contentNodeRow',
     components: {
+      coachContentLabel,
       contentIcon,
       kButton,
       kCheckbox,
@@ -73,6 +83,9 @@
       },
     },
     computed: {
+      isTopic() {
+        return this.node.kind === ContentNodeKinds.TOPIC;
+      },
       showButton() {
         return !this.disabled && this.node.kind === ContentNodeKinds.TOPIC;
       },
@@ -87,10 +100,10 @@
 
 <style lang="stylus" scoped>
 
-  .row
-    display: table
-    width: 100%
-    vertical-align: middle
+  .coach-content-label
+    display: inline-block
+    vertical-align: bottom
+    margin-left: 16px
 
   .display-cell
     display: table-cell

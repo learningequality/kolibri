@@ -57,6 +57,7 @@
 
 <script>
 
+  import xorWith from 'lodash/xorWith';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import previewExamModal from '../exams-page/preview-exam-modal';
   import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
@@ -72,7 +73,6 @@
     copyExam,
     deleteExam,
   } from '../../../state/actions/exam';
-  import xorWith from 'lodash/xorWith';
 
   export default {
     name: 'manageExamModals',
@@ -164,9 +164,9 @@
       changeExamStatusDescription: 'Learners can only see active exams',
       copyExamTitle: 'Copy exam',
       copyExplanation: 'Copy this exam to',
-      assignmentQuestion: 'Who should this exam be assigned to?',
+      assignmentQuestion: 'Assign exam to',
       deleteExamTitle: 'Delete exam',
-      deleteExamDescription: "Are you sure you want to delete '{ title }'?",
+      deleteExamDescription: "Delete '{ title }'?",
       editExamDetails: 'Edit exam details',
       saveExamError: 'There was a problem saving this exam',
       copyOfExam: 'Copy of { examTitle }',

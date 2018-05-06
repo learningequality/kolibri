@@ -89,6 +89,8 @@ kolibri/content/content_db/*.sqlite3
 
 # virtual environment
 venv/
+.python-version
+.envrc
 
 # leftover from hack day - want to ensure people don't check these in
 kolibri/plugins/learn/assets/src/demo/

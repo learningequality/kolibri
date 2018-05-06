@@ -1,7 +1,7 @@
 /* eslint-env mocha */
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
-import assert from 'assert';
 import { mount } from '@vue/test-utils';
 import SignUpPage from '../../src/views/sign-up-page';
 import makeStore from '../util/makeStore';
@@ -16,6 +16,6 @@ function makeWrapper() {
 describe('signUpPage component', () => {
   it('smoke test', () => {
     const wrapper = makeWrapper();
-    assert(wrapper.isVueComponent);
+    expect(wrapper.isVueInstance()).to.be.true;
   });
 });

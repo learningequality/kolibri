@@ -14,10 +14,8 @@ from sqlalchemy.pool import NullPool
 
 from .check_schema_db import db_matches_schema
 from .check_schema_db import DBSchemaError
+from kolibri.content.models import CONTENT_DB_SCHEMA_VERSIONS
 from kolibri.content.models import CONTENT_SCHEMA_VERSION
-from kolibri.content.models import NO_VERSION
-from kolibri.content.models import V020BETA1
-from kolibri.content.models import V040BETA3
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
@@ -31,13 +29,6 @@ def set_sqlite_connection_pragma(dbapi_connection, connection_record):
 logger = logging.getLogger(__name__)
 
 BASES = {}
-
-CONTENT_DB_SCHEMA_VERSIONS = [
-    CONTENT_SCHEMA_VERSION,
-    NO_VERSION,
-    V040BETA3,
-    V020BETA1,
-]
 
 class ClassNotFoundError(Exception):
     pass
@@ -191,6 +182,7 @@ class Bridge(object):
                 self.session, self.engine = make_session(self.connection_string)
                 try:
                     db_matches_schema(self.Base, self.session)
+                    self.schema_version = version
                     break
                 except DBSchemaError as e:
                     logging.debug(e)

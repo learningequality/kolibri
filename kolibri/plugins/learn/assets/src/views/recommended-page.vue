@@ -64,21 +64,21 @@
     <template v-for="(contents, channelId) in featured" v-if="contents.length">
       <!-- TODO: RTL - Do not interpolate strings -->
       <content-card-group-header
-        :key="channelId"
+        :key="`${channelId}-header`"
         :header="$tr('featuredSectionHeader', { channelTitle: getChannelTitle(channelId) })"
         :viewMorePageLink="featuredPageLink(channelId)"
         :showViewMore="contents.length > trimContent(contents).length"
       />
       <content-card-group-grid
         v-if="isMobile"
-        :key="channelId"
+        :key="`${channelId}-groupgrid`"
         :genContentLink="genContentLink"
         :contents="trimContent(contents)"
         :showContentKindFilter="false"
       />
       <content-card-group-carousel
         v-else
-        :key="channelId"
+        :key="`${channelId}-carousel`"
         :genContentLink="genContentLink"
         :contents="trimContent(contents)"
       />
@@ -91,12 +91,12 @@
 
 <script>
 
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../constants';
   import contentCardGroupCarousel from './content-card-group-carousel';
   import contentCardGroupGrid from './content-card-group-grid';
   import contentCardGroupHeader from './content-card-group-header';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import { getChannels } from 'kolibri.coreVue.vuex.getters';
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;

@@ -1,5 +1,5 @@
-import ContentRendererModule from 'content_renderer_module';
 import PDFComponent from './views/index';
+import ContentRendererModule from 'content_renderer_module';
 
 class DocumentPDFModule extends ContentRendererModule {
   get rendererComponent() {

@@ -52,10 +52,10 @@
 
 <script>
 
-  import { updateUser, displayModal } from '../../state/actions';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import { updateUser, displayModal } from '../../state/actions';
 
   export default {
     name: 'resetUserPasswordModal',

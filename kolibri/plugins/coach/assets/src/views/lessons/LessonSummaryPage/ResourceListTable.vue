@@ -58,14 +58,21 @@
           <content-icon :kind="resourceKind(resourceId)" />
         </td>
         <td>
-          <k-router-link
-            :to="resourceUserSummaryLink(resourceId)"
-            :text="resourceTitle(resourceId)"
+          <div class="resource-title">
+            <k-router-link
+              :to="resourceUserSummaryLink(resourceId)"
+              :text="resourceTitle(resourceId)"
+            />
+            <p class="channel-title">
+              <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
+              {{ resourceChannelTitle(resourceId) }}
+            </p>
+          </div>
+          <coach-content-label
+            class="coach-content-label"
+            :value="getCachedResource(resourceId).num_coach_contents"
+            :isTopic="false"
           />
-          <p class="channel-title">
-            <dfn class="visuallyhidden"> {$tr('parentChannelLabel')} </dfn>
-            {{ resourceChannelTitle(resourceId) }}
-          </p>
         </td>
         <td>
           <progress-bar
@@ -101,8 +108,9 @@
   import progressBar from 'kolibri.coreVue.components.progressBar';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import { resourceUserSummaryLink } from '../lessonsRouterUtils';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import { createSnackbar, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import { resourceUserSummaryLink } from '../lessonsRouterUtils';
   import { saveLessonResources, updateCurrentLesson } from '../../../state/actions/lessons';
 
   const removalSnackbarTime = 5000;
@@ -110,6 +118,7 @@
   export default {
     name: 'resourceListTable',
     components: {
+      coachContentLabel,
       uiIconButton,
       kButton,
       kRouterLink,
@@ -224,6 +233,11 @@
         // consider loading this async?
         resourceContentNodes: state => state.pageState.resourceCache,
         totalLearners: state => state.pageState.lessonReport.total_learners,
+        getCachedResource(state) {
+          return function getter(resourceId) {
+            return state.pageState.resourceCache[resourceId] || {};
+          };
+        },
         numLearnersCompleted(state) {
           return function counter(contentNodeId) {
             const report =
@@ -273,6 +287,14 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  .resource-title
+    display: inline-block
+    width: 75%
+
+  .coach-content-label
+    display: inline-block
+    vertical-align: top
 
   .position-adjustment-button
     display: block

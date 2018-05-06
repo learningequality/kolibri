@@ -5,13 +5,14 @@ import {
   RoleResource,
 } from 'kolibri.resources';
 import { samePageCheckGenerator, handleApiError } from 'kolibri.coreVue.vuex.actions';
+import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { PageNames } from '../../constants';
+import { filterAndSortUsers } from '../../userSearchUtils';
 import { _userState } from './helpers/mappers';
 import displayModal from './helpers/displayModal';
 import preparePage from './helpers/preparePage';
-import { filterAndSortUsers } from '../../userSearchUtils';
 
 /**
  * Do a POST to create new class
@@ -160,7 +161,8 @@ export function showClassesPage(store) {
     name: PageNames.CLASS_MGMT_PAGE,
     title: 'Classes',
   });
-  return ClassroomResource.getCollection()
+  const facilityId = currentFacilityId(store.state);
+  return ClassroomResource.getCollection({ parent: facilityId })
     .fetch({}, true)
     .only(
       samePageCheckGenerator(store),
@@ -183,11 +185,11 @@ export function showClassEditPage(store, classId) {
     name: PageNames.CLASS_EDIT_MGMT_PAGE,
     title: 'Edit Class',
   });
-
+  const facilityId = currentFacilityId(store.state);
   const promises = [
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
     ClassroomResource.getModel(classId).fetch(),
-    ClassroomResource.getCollection().fetch({}, true),
+    ClassroomResource.getCollection({ parent: facilityId }).fetch({}, true),
   ];
 
   const transformResults = ([facilityUsers, classroom, classrooms]) => ({
@@ -212,8 +214,9 @@ export function showClassEditPage(store, classId) {
 
 export function showLearnerClassEnrollmentPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+  const facilityId = currentFacilityId(store.state);
   // all users in facility
-  const userPromise = FacilityUserResource.getCollection().fetch();
+  const userPromise = FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
   // current class
   const classPromise = ClassroomResource.getModel(classId).fetch();
   // users in current class
@@ -240,8 +243,9 @@ export function showLearnerClassEnrollmentPage(store, classId) {
 }
 export function showCoachClassAssignmentPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+  const facilityId = currentFacilityId(store.state);
   // all users in facility
-  const userPromise = FacilityUserResource.getCollection().fetch();
+  const userPromise = FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
   // current class
   const classPromise = ClassroomResource.getModel(classId).fetch({}, true);
 

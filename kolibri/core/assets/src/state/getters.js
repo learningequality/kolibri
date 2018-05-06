@@ -1,27 +1,27 @@
-import { UserKinds, MaxPointsPerContent } from '../constants';
 import some from 'lodash/some';
+import { UserKinds, MaxPointsPerContent } from '../constants';
 
 // ROLES
-function isAdmin(state) {
+export function isAdmin(state) {
   return state.core.session.kind.includes(UserKinds.ADMIN);
 }
 
-function isCoach(state) {
+export function isCoach(state) {
   return (
     state.core.session.kind.includes(UserKinds.COACH) ||
     state.core.session.kind.includes(UserKinds.ASSIGNABLE_COACH)
   );
 }
 
-function isLearner(state) {
+export function isLearner(state) {
   return state.core.session.kind.includes(UserKinds.LEARNER);
 }
 
-function isUserLoggedIn(state) {
+export function isUserLoggedIn(state) {
   return !state.core.session.kind.includes(UserKinds.ANONYMOUS);
 }
 
-function getUserKind(state) {
+export function getUserKind(state) {
   if (isAdmin(state)) {
     return UserKinds.ADMIN;
   } else if (isCoach(state)) {
@@ -33,98 +33,75 @@ function getUserKind(state) {
 }
 
 // PERMISSIONS
-function canManageContent(state) {
+export function canManageContent(state) {
   return state.core.session.can_manage_content;
 }
-function isSuperuser(state) {
+
+export function isSuperuser(state) {
   return state.core.session.kind.includes(UserKinds.SUPERUSER);
 }
-function getUserPermissions(state) {
+
+export function getUserPermissions(state) {
   const permissions = {};
   permissions.can_manage_content = state.core.session.can_manage_content;
   return permissions;
 }
 
-function userHasPermissions(state) {
+export function userHasPermissions(state) {
   return some(getUserPermissions(state));
 }
 
-function currentFacilityId(state) {
+export function currentFacilityId(state) {
   return state.core.session.facility_id;
 }
 
-function currentUserId(state) {
+export function currentUserId(state) {
   return state.core.session.user_id;
 }
 
-function facilityConfig(state) {
+export function facilityConfig(state) {
   return state.core.facilityConfig;
 }
 
-function facilities(state) {
+export function facilities(state) {
   return state.core.facilities;
 }
 
-function getChannels(state) {
+export function getChannels(state) {
   return state.core.channels.list;
 }
 
 /*
  * Not actually a getter, as it is not pure, defined here for convenience and use in actions
  */
-function getChannelObject(state, channelId) {
+export function getChannelObject(state, channelId) {
   return getChannels(state).find(channel => channel.id === channelId);
 }
 
-function totalPoints(state) {
+export function totalPoints(state) {
   return state.core.totalProgress * MaxPointsPerContent;
 }
 
-function contentPoints(state) {
+export function contentPoints(state) {
   return Math.floor(state.core.logging.summary.progress) * MaxPointsPerContent;
 }
 
-function sessionTimeSpent(state) {
+export function sessionTimeSpent(state) {
   return state.core.logging.session.time_spent;
 }
 
-function connected(state) {
+export function connected(state) {
   return state.core.connection.connected;
 }
 
-function reconnectTime(state) {
+export function reconnectTime(state) {
   return state.core.connection.reconnectTime;
 }
 
-function snackbarIsVisible(state) {
+export function snackbarIsVisible(state) {
   return state.core.snackbarIsVisible;
 }
 
-function snackbarOptions(state) {
+export function snackbarOptions(state) {
   return state.core.snackbarOptions;
 }
-
-export {
-  isUserLoggedIn,
-  isSuperuser,
-  isAdmin,
-  isCoach,
-  isLearner,
-  getChannels,
-  getChannelObject,
-  currentFacilityId,
-  totalPoints,
-  contentPoints,
-  currentUserId,
-  facilityConfig,
-  facilities,
-  sessionTimeSpent,
-  canManageContent,
-  getUserKind,
-  getUserPermissions,
-  userHasPermissions,
-  connected,
-  reconnectTime,
-  snackbarIsVisible,
-  snackbarOptions,
-};

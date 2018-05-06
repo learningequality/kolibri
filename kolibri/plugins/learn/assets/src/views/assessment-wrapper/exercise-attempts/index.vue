@@ -25,6 +25,7 @@
 <script>
 
   import answerIcon from './answer-icon';
+
   export default {
     components: { answerIcon },
     props: {

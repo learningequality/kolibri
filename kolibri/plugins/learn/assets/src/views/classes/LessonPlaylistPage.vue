@@ -27,6 +27,7 @@
         :kind="c.kind"
         :link="lessonResourceViewerLink(idx)"
         :progress="c.progress_fraction"
+        :numCoachContents="c.coach_content ? 1 : 0"
         :thumbnail="getContentNodeThumbnail(c)"
         :title="c.title"
       />
@@ -44,10 +45,10 @@
 
   import sumBy from 'lodash/sumBy';
   import ProgressIcon from 'kolibri.coreVue.components.progressIcon';
-  import ContentCard from '../content-card';
   import ContentIcon from 'kolibri.coreVue.components.contentIcon';
-  import { lessonResourceViewerLink } from './classPageLinks';
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
+  import ContentCard from '../content-card';
+  import { lessonResourceViewerLink } from './classPageLinks';
 
   export default {
     name: 'lessonPlaylistPage',

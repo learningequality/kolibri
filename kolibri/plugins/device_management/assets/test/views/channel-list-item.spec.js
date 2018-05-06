@@ -2,8 +2,8 @@
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import { expect } from 'chai';
-import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import { mount } from '@vue/test-utils';
+import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import { defaultChannel } from '../utils/data';
 
 function makeStore() {

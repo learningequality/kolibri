@@ -94,13 +94,10 @@
 
   import kButton from 'kolibri.coreVue.components.kButton';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
-  import selectedResourcesSize from './selected-resources-size';
-  import contentTreeViewer from './content-tree-viewer';
-  import channelContentsSummary from './channel-contents-summary';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import isEmpty from 'lodash/isEmpty';
   import subpageContainer from '../containers/subpage-container';
   import { channelIsInstalled, wizardState, nodeTransferCounts } from '../../state/getters';
-  import isEmpty from 'lodash/isEmpty';
   import {
     getAvailableSpaceOnDrive,
     updateTreeViewTopic,
@@ -113,6 +110,9 @@
   import taskProgress from '../manage-content-page/task-progress';
   import { WizardTransitions } from '../../wizardTransitionRoutes';
   import { PageNames, TaskStatuses } from '../../constants';
+  import channelContentsSummary from './channel-contents-summary';
+  import contentTreeViewer from './content-tree-viewer';
+  import selectedResourcesSize from './selected-resources-size';
 
   export default {
     name: 'selectContentPage',

@@ -199,12 +199,17 @@
       });
     },
     beforeDestroy() {
+      this.updateProgress();
+
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
-      this.updateProgress();
-      this.pdfDocument.cleanup();
-      this.pdfDocument.destroy();
+
+      if (this.pdfDocument) {
+        this.pdfDocument.cleanup();
+        this.pdfDocument.destroy();
+      }
+
       this.$emit('stopTracking');
     },
     methods: {
@@ -255,52 +260,55 @@
       },
       // debouncing so we're not de/re-render many pages unnecessarily
       checkPages: debounce(function() {
-        // Calculate the position of the visible top and the bottom of the pdfContainer
-        const top = this.$refs.pdfContainer.scrollTop;
-        const bottom = top + this.$refs.pdfContainer.clientHeight;
-        // Then work out which pages are visible to the user as a consequence
-        // Loop through all pages, show ones that are in the display window, hide ones that aren't
-        let cumulativeHeight = 0;
-        const pagesToDisplay = [];
-        let i, display;
-        for (i = 1; i <= this.totalPages; i++) {
-          // If the current cumulativeHeight (which marks the beginning of this page)
-          // is higher than top and less than bottom, then this page
-          // should be displayed
-          display = false;
-          const pageHeight = this.$refs[this.pageRef(i)][0].pageHeight;
-          // Top of page is in the middle of the viewport
-          if (cumulativeHeight >= top && cumulativeHeight <= bottom) {
-            display = true;
+        // Ensure that the component is mounted before doing anything
+        if (this.$refs.pdfContainer) {
+          // Calculate the position of the visible top and the bottom of the pdfContainer
+          const top = this.$refs.pdfContainer.scrollTop;
+          const bottom = top + this.$refs.pdfContainer.clientHeight;
+          // Then work out which pages are visible to the user as a consequence
+          // Loop through all pages, show ones that are in the display window, hide ones that aren't
+          let cumulativeHeight = 0;
+          const pagesToDisplay = [];
+          let i, display;
+          for (i = 1; i <= this.totalPages; i++) {
+            // If the current cumulativeHeight (which marks the beginning of this page)
+            // is higher than top and less than bottom, then this page
+            // should be displayed
+            display = false;
+            const pageHeight = this.$refs[this.pageRef(i)][0].pageHeight;
+            // Top of page is in the middle of the viewport
+            if (cumulativeHeight >= top && cumulativeHeight <= bottom) {
+              display = true;
+            }
+            // Page top and bottom wrap the viewport
+            if (cumulativeHeight <= top && cumulativeHeight + pageHeight >= bottom) {
+              display = true;
+            }
+            cumulativeHeight += pageHeight;
+            // Bottom of page is in the middle of the viewport
+            if (cumulativeHeight >= top && cumulativeHeight <= bottom) {
+              display = true;
+            }
+            pagesToDisplay.push(display);
           }
-          // Page top and bottom wrap the viewport
-          if (cumulativeHeight <= top && cumulativeHeight + pageHeight >= bottom) {
-            display = true;
+          for (i = 1; i <= this.totalPages; i++) {
+            // Render pages conditionally on pagesToDisplay, taking into account the display window
+            if (
+              pagesToDisplay
+                .slice(
+                  Math.max(0, i - 1 - pageDisplayWindow),
+                  Math.min(pagesToDisplay.length, i - 1 + pageDisplayWindow)
+                )
+                .some(trueOrFalse => trueOrFalse)
+            ) {
+              this.showPage(i);
+            } else {
+              this.hidePage(i);
+            }
           }
-          cumulativeHeight += pageHeight;
-          // Bottom of page is in the middle of the viewport
-          if (cumulativeHeight >= top && cumulativeHeight <= bottom) {
-            display = true;
-          }
-          pagesToDisplay.push(display);
+          // update progress after we determine which pages to render
+          this.updateProgress();
         }
-        for (i = 1; i <= this.totalPages; i++) {
-          // Render pages conditionally on pagesToDisplay, taking into account the display window
-          if (
-            pagesToDisplay
-              .slice(
-                Math.max(0, i - 1 - pageDisplayWindow),
-                Math.min(pagesToDisplay.length, i - 1 + pageDisplayWindow)
-              )
-              .some(trueOrFalse => trueOrFalse)
-          ) {
-            this.showPage(i);
-          } else {
-            this.hidePage(i);
-          }
-        }
-        // update progress after we determine which pages to render
-        this.updateProgress();
       }, renderDebounceTime),
       updateProgress() {
         this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);

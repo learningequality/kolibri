@@ -1,12 +1,12 @@
 import logger from 'kolibri.lib.logging';
 import { currentUserId, connected, reconnectTime } from 'kolibri.coreVue.vuex.getters';
 import store from 'kolibri.coreVue.vuex.store';
-import { SIGNED_OUT_DUE_TO_INACTIVITY } from './constants';
 import Lockr from 'lockr';
 import urls from 'kolibri.urls';
-import baseClient from './core-app/baseClient';
 import mime from 'rest/interceptor/mime';
 import interceptor from 'rest/interceptor';
+import baseClient from './core-app/baseClient';
+import { SIGNED_OUT_DUE_TO_INACTIVITY } from './constants';
 import errorCodes from './disconnectionErrorCodes';
 import {
   createTryingToReconnectSnackbar,

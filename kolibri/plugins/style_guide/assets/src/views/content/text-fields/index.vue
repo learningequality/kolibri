@@ -129,6 +129,8 @@
 
 <script>
 
+  import FullVue from 'vue/dist/vue.common';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import componentDocs from '../../shell/component-docs';
   import vueExample from '../../shell/vue-example';
   import pageTemplate from '../../shell/page-template';
@@ -136,8 +138,6 @@
   import example from 'raw-loader!./example.html';
   import kTextboxApi from '!vue-doc!kolibri.coreVue.components.kTextbox';
 
-  import FullVue from 'vue/dist/vue.common';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
   FullVue.component('k-textbox', kTextbox);
 
   export default {

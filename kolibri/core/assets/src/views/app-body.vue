@@ -2,7 +2,13 @@
 
   <!-- class unused, used as identifier when debugging from DOM -->
   <div class="app-body" :style="contentStyle">
-    <loading-spinner v-if="loading" />
+    <k-linear-loader
+      v-if="loading"
+      class="toolbar-loader"
+      :style="{ top: isMobile ? '56px' : '64px' }"
+      type="indeterminate"
+      :delay="false"
+    />
     <template v-else>
       <error-box v-if="error" />
       <slot></slot>
@@ -14,20 +20,18 @@
 
 <script>
 
-  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import errorBox from './error-box';
 
   export default {
     name: 'appBody',
     components: {
-      loadingSpinner,
       errorBox,
+      kLinearLoader,
     },
+    mixins: [responsiveWindow],
     props: {
-      padding: {
-        type: Number,
-        required: true,
-      },
       // reserve space at the top for appbar
       topGap: {
         type: Number,
@@ -42,6 +46,12 @@
       },
     },
     computed: {
+      isMobile() {
+        return this.windowSize.breakpoint < 2;
+      },
+      padding() {
+        return this.isMobile ? 16 : 32;
+      },
       contentStyle() {
         return {
           top: `${this.topGap}px`,
@@ -69,5 +79,10 @@
     right: 0
     position: absolute
     overflow-x: hidden
+
+  .toolbar-loader
+    position: fixed
+    right: 0
+    left: 0
 
 </style>

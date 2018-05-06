@@ -58,6 +58,11 @@
         <div class="description">
           {{ channel.description || $tr('defaultDescription') }}
         </div>
+
+        <coach-content-label
+          :value="channel.num_coach_contents"
+          :isTopic="true"
+        />
       </div>
 
     </div>
@@ -85,10 +90,11 @@
 
 <script>
 
-  import bytesForHumans from './bytesForHumans';
-  import { channelIsInstalled } from '../../state/getters';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import UiIcon from 'keen-ui/src/UiIcon';
+  import { channelIsInstalled } from '../../state/getters';
+  import bytesForHumans from './bytesForHumans';
 
   const Modes = {
     IMPORT: 'IMPORT',
@@ -99,6 +105,7 @@
   export default {
     name: 'channelListItem',
     components: {
+      coachContentLabel,
       kButton,
       UiIcon,
     },

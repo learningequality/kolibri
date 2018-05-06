@@ -113,7 +113,6 @@
 
 <script>
 
-  import { updateUserProfile, resetProfileState } from '../../state/actions';
   import {
     facilityConfig,
     isSuperuser,
@@ -133,8 +132,9 @@
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
   import uiAlert from 'keen-ui/src/UiAlert';
-  import changeUserPasswordModal from './change-user-password-modal';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { updateUserProfile, resetProfileState } from '../../state/actions';
+  import changeUserPasswordModal from './change-user-password-modal';
 
   export default {
     name: 'profilePage',

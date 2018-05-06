@@ -10,8 +10,8 @@ class MockResource {
   }
 
   __resetMocks() {
-    this.getCollection.reset();
-    this.getModel.reset();
+    this.getCollection.resetHistory();
+    this.getModel.resetHistory();
   }
 
   __getFetchable(payload, willReject = false) {

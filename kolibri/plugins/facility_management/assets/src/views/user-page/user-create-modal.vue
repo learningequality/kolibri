@@ -96,7 +96,6 @@
 
 <script>
 
-  import { createUser, displayModal } from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
@@ -106,6 +105,8 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import { createUser, displayModal } from '../../state/actions';
+
   export default {
     name: 'userCreateModal',
     $trs: {
@@ -186,7 +187,9 @@
         return Boolean(this.nameIsInvalidText);
       },
       usernameAlreadyExists() {
-        return this.facilityUsers.find(({ username }) => username === this.username);
+        return this.facilityUsers.find(
+          ({ username }) => username.toLowerCase() === this.username.toLowerCase()
+        );
       },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {

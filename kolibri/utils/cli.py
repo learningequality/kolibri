@@ -7,28 +7,20 @@ import logging  # noqa
 import os  # noqa
 import signal  # noqa
 import sys  # noqa
-
-from . import env
-
-# Setup the environment before loading anything else from the application
-# TODO: This should perhaps be moved to kolibri.__init__
-env.set_env()
-
-import kolibri  # noqa
-import django  # noqa
-
-from django.core.management import call_command  # noqa
-from django.core.exceptions import AppRegistryNotReady  # noqa
-from django.db.utils import DatabaseError  # noqa
 from sqlite3 import DatabaseError as SQLite3DatabaseError  # noqa
+
+import django  # noqa
+from django.core.exceptions import AppRegistryNotReady  # noqa
+from django.core.management import call_command  # noqa
+from django.db.utils import DatabaseError  # noqa
 from docopt import docopt  # noqa
 
-from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
-
+import kolibri  # noqa
 from . import server  # noqa
-from .system import become_daemon  # noqa
 from .sanity_checks import check_other_kolibri_running  # noqa
 from .conf import OPTIONS  # noqa
+from .system import become_daemon  # noqa
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
 
 USAGE = """
 Kolibri
@@ -171,6 +163,9 @@ def initialize(debug=False):
                 )
             )
             update()
+
+        # load morango fixtures needed for certificate related operations
+        call_command("loaddata", "scopedefinitions")
 
 def _migrate_databases():
     """
@@ -380,8 +375,8 @@ status.codes = {
     server.STATUS_FAILED_TO_START:
         'Failed to start (check log file: {0})'.format(server.DAEMON_LOG),
     server.STATUS_UNCLEAN_SHUTDOWN: 'Unclean shutdown',
-    server.STATUS_UNKNOWN_INSTANCE: 'Unknown KA Lite running on port',
-    server.STATUS_SERVER_CONFIGURATION_ERROR: 'KA Lite server configuration error',
+    server.STATUS_UNKNOWN_INSTANCE: 'Unknown Kolibri running on port',
+    server.STATUS_SERVER_CONFIGURATION_ERROR: 'Kolibri server configuration error',
     server.STATUS_PID_FILE_READ_ERROR: 'Could not read PID file',
     server.STATUS_PID_FILE_INVALID: 'Invalid PID file',
     server.STATUS_UNKNOWN: 'Could not determine status',

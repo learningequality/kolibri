@@ -4,6 +4,11 @@
 
     <!-- TODO: RTL - Remove ta-l -->
     <page-header :title="content.title" dir="auto" class="ta-l" />
+    <coach-content-label
+      class="coach-content-label"
+      :value="content.coach_content ? 1 : 0"
+      :isTopic="isTopic"
+    />
 
     <content-renderer
       v-if="!content.assessment"
@@ -69,8 +74,8 @@
         {{ $tr('author', {author: content.author}) }}
       </p>
 
-      <p v-if="content.license">
-        {{ $tr('license', {license: content.license}) }}
+      <p v-if="content.license_name">
+        {{ $tr('license', {license: content.license_name}) }}
 
         <template v-if="content.license_description">
           <ui-icon-button
@@ -142,22 +147,23 @@
     startTrackingProgress as startTracking,
     stopTrackingProgress as stopTracking,
   } from 'kolibri.coreVue.vuex.actions';
-  import { PageNames, PageModes, ClassesPageNames } from '../constants';
-  import { pageMode } from '../state/getters';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn, facilityConfig } from 'kolibri.coreVue.vuex.getters';
-  import { updateContentNodeProgress } from '../state/actions/main';
-  import pageHeader from './page-header';
-  import contentCardGroupCarousel from './content-card-group-carousel';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import downloadButton from 'kolibri.coreVue.components.downloadButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import markdownIt from 'markdown-it';
+  import { PageNames, PageModes, ClassesPageNames } from '../constants';
+  import { pageMode } from '../state/getters';
+  import { updateContentNodeProgress } from '../state/actions/main';
+  import pageHeader from './page-header';
+  import contentCardGroupCarousel from './content-card-group-carousel';
   import assessmentWrapper from './assessment-wrapper';
   import pointsPopup from './points-popup';
   import pointsSlidein from './points-slidein';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
-  import markdownIt from 'markdown-it';
   import { lessonResourceViewerLink } from './classes/classPageLinks';
 
   export default {
@@ -171,6 +177,7 @@
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
     },
     components: {
+      coachContentLabel,
       pageHeader,
       contentCardGroupCarousel,
       contentRenderer,
@@ -186,6 +193,9 @@
       licenceDescriptionIsVisible: false,
     }),
     computed: {
+      isTopic() {
+        return this.content.kind === ContentNodeKinds.TOPIC;
+      },
       canDownload() {
         if (this.facilityConfig.showDownloadButtonInLearn && this.content) {
           return (
@@ -305,6 +315,12 @@
 
 
 <style lang="stylus" scoped>
+
+  .coach-content-label
+    margin: 8px 0
+
+  .content-renderer
+    margin-top: 24px
 
   .float
     float: right

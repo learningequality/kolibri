@@ -1,7 +1,18 @@
-import { handleError, handleApiError } from 'kolibri.coreVue.vuex.actions';
+import find from 'lodash/find';
+import { handleError } from 'kolibri.coreVue.vuex.actions';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { getChannels } from 'kolibri.coreVue.vuex.getters';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import { now } from 'kolibri.utils.serverClock';
+import {
+  AttemptLogResource,
+  ChannelResource,
+  ContentNodeResource,
+  FacilityUserResource,
+  ContentSummaryLogResource,
+  LearnerGroupResource,
+} from 'kolibri.resources';
+import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
 import {
   ContentScopes,
@@ -12,21 +23,11 @@ import {
   ViewBy,
 } from '../../constants/reportConstants';
 import { className } from '../getters/classes';
-import { setClassState } from './main';
-import { now } from 'kolibri.utils.serverClock';
-import {
-  AttemptLogResource,
-  ChannelResource,
-  ContentNodeResource,
-  FacilityUserResource,
-  ContentSummaryLogResource,
-  LearnerGroupResource,
-} from 'kolibri.resources';
 import RecentReportResourceConstructor from '../../apiResources/recentReport';
 import UserReportResource from '../../apiResources/userReport';
 import ContentSummaryResourceConstructor from '../../apiResources/contentSummary';
 import ContentReportResourceConstructor from '../../apiResources/contentReport';
-import { createTranslator } from 'kolibri.utils.i18n';
+import { setClassState, handleCoachPageError } from './main';
 
 const translator = createTranslator('coachReportPageTitles', {
   recentChannelsPageTitle: 'Recent - All channels',
@@ -108,13 +109,16 @@ function getAllChannelsLastActivePromise(channels, userScope, userScopeId) {
   return Promise.all(promises);
 }
 
-function _channelReportState(data) {
+function _channelReportState(data, channelRootNodes = []) {
   if (!data) {
     return [];
   }
   return data.map(row => ({
     lastActive: row.last_active,
     id: row.channelId,
+    // merge ChannelMetdata with ContentNode to get num_coach_contents
+    num_coach_contents:
+      (find(channelRootNodes, { id: row.channelId }) || {}).num_coach_contents || 0,
     progress: row.progress.map(progressData => ({
       kind: progressData.kind,
       nodeCount: progressData.node_count,
@@ -128,8 +132,11 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
   const userScope = userId ? UserScopes.USER : UserScopes.CLASSROOM;
   const userScopeId = userId || classId;
 
+  const channels = getChannels(store.state);
   const promises = [
-    getAllChannelsLastActivePromise(getChannels(store.state), userScope, userScopeId),
+    getAllChannelsLastActivePromise(channels, userScope, userScopeId),
+    // Get the ContentNode for the ChannelRoot for getting num_coach_contents
+    ContentNodeResource.getCollection({ ids: channels.map(({ root_id }) => root_id) }).fetch(),
     setClassState(store, classId),
   ];
 
@@ -137,22 +144,27 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
     promises.push(FacilityUserResource.getModel(userId).fetch());
   }
 
-  return Promise.all(promises).then(([allChannelLastActive, , user]) => {
-    const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
-    setReportSorting(store, defaultSortCol, SortOrders.DESCENDING);
-    // HACK: need to append this to make pageState more consistent between pages
-    store.dispatch('SET_REPORT_CONTENT_SUMMARY', {});
-    store.dispatch('SET_REPORT_PROPERTIES', {
-      showRecentOnly,
-      userScope,
-      userScopeId,
-      userScopeName: userId ? user.full_name : className(store.state),
-      viewBy: ViewBy.CHANNEL,
-    });
-    store.dispatch('SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('CORE_SET_ERROR', null);
-  });
+  return Promise.all(promises).then(
+    ([allChannelLastActive, , user]) => {
+      const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
+      setReportSorting(store, defaultSortCol, SortOrders.DESCENDING);
+      // HACK: need to append this to make pageState more consistent between pages
+      store.dispatch('SET_REPORT_CONTENT_SUMMARY', {});
+      store.dispatch('SET_REPORT_PROPERTIES', {
+        showRecentOnly,
+        userScope,
+        userScopeId,
+        userScopeName: userId ? user.full_name : className(store.state),
+        viewBy: ViewBy.CHANNEL,
+      });
+      store.dispatch('SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+    },
+    error => {
+      handleCoachPageError(store, error);
+    }
+  );
 }
 
 function _contentReportState(data) {
@@ -164,6 +176,7 @@ function _contentReportState(data) {
     kind: row.kind,
     lastActive: row.last_active,
     id: row.pk,
+    num_coach_contents: row.num_coach_contents,
     progress: row.progress.map(progressData => ({
       kind: progressData.kind,
       nodeCount: progressData.node_count,
@@ -178,6 +191,7 @@ function _recentReportState(data) {
     return [];
   }
   return data.map(row => ({
+    num_coach_contents: row.num_coach_contents,
     contentId: row.content_id,
     kind: row.kind,
     lastActive: row.last_active,
@@ -229,6 +243,7 @@ function _contentSummaryState(data) {
   }
   const kind = !data.ancestors.length ? ContentNodeKinds.CHANNEL : data.kind;
   return {
+    num_coach_contents: data.num_coach_contents,
     ancestors: data.ancestors.map(item => ({
       id: item.pk,
       title: item.title,
@@ -303,7 +318,9 @@ function _showContentList(store, options) {
       });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => handleError(store, error)
+    error => {
+      handleCoachPageError(store, error);
+    }
   );
 }
 
@@ -405,7 +422,7 @@ export function showExerciseDetailView(
         });
       },
       error => {
-        handleApiError(store, error);
+        handleCoachPageError(store, error);
       }
     );
 }
@@ -450,10 +467,10 @@ export function showRecentItemsForChannel(store, classId, channelId) {
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', translator.$tr('recentPageTitle'));
         },
-        error => handleApiError(store, error)
+        error => handleCoachPageError(store, error)
       );
     },
-    error => handleApiError(store, error)
+    error => handleCoachPageError(store, error)
   );
 }
 
@@ -545,7 +562,7 @@ export function showChannelRootReport(store, classId, channelId, userId) {
           ...scopeOptions,
         });
       },
-      error => handleError(store, error)
+      error => handleCoachPageError(store, error)
     );
 }
 

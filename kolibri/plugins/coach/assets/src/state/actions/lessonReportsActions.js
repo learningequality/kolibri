@@ -1,10 +1,10 @@
 import find from 'lodash/find';
 import { LessonResource, ContentNodeResource, LearnerGroupResource } from 'kolibri.resources';
+import { getChannelObject } from 'kolibri.coreVue.vuex.getters';
+import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import LessonReportResource from '../../apiResources/lessonReport';
 import UserReportResource from '../../apiResources/userReport';
 import { CollectionTypes, LessonsPageNames } from '../../constants/lessonsConstants';
-import { getChannelObject } from 'kolibri.coreVue.vuex.getters';
-import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { showExerciseDetailView } from './reports';
 
 /* Refreshes the Lesson Report (resource vs. fraction of learners-who-completed-it)
@@ -63,6 +63,7 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
             channelTitle: channelObject.title,
             resourceTitle: contentNode.title,
             resourceKind: contentNode.kind,
+            contentNode: { ...contentNode },
             userData,
           });
           store.dispatch('CORE_SET_TITLE', contentNode.title);

@@ -5,12 +5,19 @@ import {
 } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { handleApiError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
 import head from 'lodash/head';
+import { createTranslator } from 'kolibri.utils.i18n';
 
-function fetchFacilityUsers() {
-  return FacilityUserResource.getCollection().fetch();
+const translator = createTranslator('managePermissionsPageTitles', {
+  userPermissionsPageTitle: "{name}'s Device Permissions",
+});
+
+function fetchFacilityUsers(store) {
+  const facilityId = currentFacilityId(store.state);
+  return FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
 }
 
 function fetchDevicePermissions() {
@@ -60,9 +67,10 @@ function fetchUserPermissions(userId) {
  * @returns Promise<void>
  */
 export function showManagePermissionsPage(store) {
-  const promises = ConditionalPromise.all([fetchFacilityUsers(), fetchDevicePermissions()]).only(
-    samePageCheckGenerator(store)
-  )._promise;
+  const promises = ConditionalPromise.all([
+    fetchFacilityUsers(store),
+    fetchDevicePermissions(),
+  ]).only(samePageCheckGenerator(store))._promise;
   return promises
     .then(function onSuccess([users, permissions]) {
       store.dispatch('SET_PERMISSIONS_PAGE_STATE', {
@@ -88,7 +96,10 @@ export function showUserPermissionsPage(store, userId) {
   )._promise;
   return promise
     .then(function onUserSuccess([data]) {
-      store.dispatch('CORE_SET_TITLE', `${data.user.full_name}'s Device Permissions`);
+      store.dispatch(
+        'CORE_SET_TITLE',
+        translator.$tr('userPermissionsPageTitle', { name: data.user.full_name })
+      );
       return store.dispatch('SET_USER_PERMISSIONS_PAGE_STATE', data);
     })
     .catch(function onUserFailure(error) {

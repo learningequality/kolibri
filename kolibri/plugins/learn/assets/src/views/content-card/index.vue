@@ -11,8 +11,8 @@
       dir="auto"
     >
       <h3 class="title">
-        <shaved-text
-          :title="title"
+        <text-truncator
+          :text="title"
           :maxHeight="maxTitleHeight"
         />
       </h3>
@@ -22,6 +22,11 @@
       >
         {{ subtitle }}
       </p>
+      <coach-content-label
+        class="coach-content-label"
+        :value="numCoachContents"
+        :isTopic="isTopic"
+      />
     </div>
   </router-link>
 
@@ -30,16 +35,17 @@
 
 <script>
 
-  import values from 'lodash/values';
+  import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { validateLinkObject } from 'kolibri.utils.validators';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import textTruncator from 'kolibri.coreVue.components.textTruncator';
   import cardThumbnail from './card-thumbnail';
-  import shavedText from './shaved-text';
 
   export default {
     components: {
       cardThumbnail,
-      shavedText,
+      coachContentLabel,
+      textTruncator,
     },
     props: {
       title: {
@@ -57,13 +63,18 @@
       kind: {
         type: String,
         required: true,
-        validator(value) {
-          return values(ContentNodeKinds).includes(value);
-        },
+        validator: validateContentNodeKind,
       },
       showContentIcon: {
         type: Boolean,
         default: true,
+      },
+      // ContentNode.coach_content will be `0` if not a coach content leaf node,
+      // or a topic without coach content. It will be a positive integer if a topic
+      // with coach content, and `1` if a coach content leaf node.
+      numCoachContents: {
+        type: Number,
+        default: 0,
       },
       progress: {
         type: Number,
@@ -84,11 +95,15 @@
       },
     },
     computed: {
+      isTopic() {
+        return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
+      },
       maxTitleHeight() {
-        if (this.subtitle) {
-          return this.isMobile ? 20 : 40;
+        // Add room if there is a subtitle, or the coach content icon appears
+        if (this.subtitle || this.numCoachContents > 0) {
+          return 40;
         }
-        return this.isMobile ? 40 : 60;
+        return this.isMobile ? 52 : 60;
       },
     },
   };
@@ -100,6 +115,11 @@
 
   @require '~kolibri.styles.definitions'
   @require './card.styl'
+
+  .coach-content-label
+    position: absolute
+    bottom: 0
+    padding: 8px 0
 
   .card
     text-decoration: none
@@ -144,6 +164,8 @@
     .thumbnail
       position: absolute
     .text
-      margin-left: $thumb-width-mobile + 16
+      margin-left: $thumb-width-mobile
+    .subtitle
+      bottom: 17px
 
 </style>

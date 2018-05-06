@@ -41,6 +41,7 @@
           :kind="content.kind"
           :message="selectionMetadata(content.id)"
           :link="contentLink(content)"
+          :numCoachContents="content.num_coach_contents"
         />
       </li>
     </ul>
@@ -61,15 +62,15 @@
 <script>
 
   import uiToolbar from 'keen-ui/src/UiToolbar';
-  import contentCard from './content-card';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import searchTools from './searchTools';
-  import { saveLessonResources } from '../../../state/actions/lessons';
   import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
-  import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { saveLessonResources } from '../../../state/actions/lessons';
+  import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { lessonSummaryLink, topicListingLink } from '../lessonsRouterUtils';
+  import searchTools from './searchTools';
+  import contentCard from './content-card';
 
   export default {
     name: 'lessonResourceSelectionPage',

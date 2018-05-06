@@ -92,15 +92,15 @@
   import countBy from 'lodash/countBy';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import StatusIcon from '../assignments/StatusIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
-  import { lessonSummaryLink } from './lessonsRouterUtils';
+  import StatusIcon from '../assignments/StatusIcon';
   import { createLesson } from '../../state/actions/lessons';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
+  import { lessonSummaryLink } from './lessonsRouterUtils';
 
   export default {
     name: 'lessonsRootPage',

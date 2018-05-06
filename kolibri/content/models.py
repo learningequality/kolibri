@@ -3,6 +3,43 @@ This is one of the Kolibri core components, the abstract layer of all contents.
 To access it, please use the public APIs in api.py
 
 The ONLY public object is ContentNode
+
+Developer note: If you modify the schema here, it has implications for the content
+import pipeline, including Kolibri Studio where the imported content databases
+are created.
+
+Currently, Kolibri Studio has a modified copy of this models.py for generating backwards compatible
+content databases. Changes here should be propagated to that copy in order to allow for
+generation of databases with the changed schema.
+TODO: (rtibbles) achieve this by abstract base models that are instantiated in both applications.
+
+As such, if models or fields are added or removed, or their type is changed, the CONTENT_SCHEMA_VERSION
+value must be incremented, with an additional constant added for the new
+version. e.g. a new constant VERSION_3 = '3', should be added, and CONTENT_SCHEMA_VERSION set to
+VERSION_3.
+
+In addition, the new constant should be added to the mappings dict in
+./utils/channel_import.py with an appropriate ChannelImport class associated.
+The mappings dict is a dict of content schema versions, with an associated ChannelImport class
+that will allow proper import of that content database into the current content schema for Kolibri.
+
+If the new schema requires inference of the field when it is missing from old databases
+(i.e. it does not have a default value, or cannot be null or blank), then all the
+ChannelImport classes for previous versions must be updated to infer this data from old databases.
+
+A pickled SQLAlchemy schema for the new schema must also be generated using the
+generate_schema management command. This must be generated using an empty, migrated database.
+
+The 'version' parameter passed to the command should be the value of e.g. VERSION_3:
+
+    `kolibri manage generate_schema 3`
+
+All pickled schema should be registered in the CONTENT_DB_SCHEMA_VERSIONS list in
+this file e.g. VERSION_3 should be added to the list.
+
+The channel import test classes for the previous schema should also be added in
+./test/test_channel_import.py - it should inherit from the NaiveImportTestCase, and set the
+name property to the previous CONTENT_SCHEMA_VERSION e.g. VERSION_2.
 """
 from __future__ import print_function
 
@@ -15,12 +52,15 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
 from jsonfield import JSONField
-from kolibri.core.fields import DateTimeTzField
-from le_utils.constants import content_kinds, file_formats, format_presets
+from le_utils.constants import content_kinds
+from le_utils.constants import file_formats
+from le_utils.constants import format_presets
 from le_utils.constants.languages import LANGUAGE_DIRECTIONS
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.models import MPTTModel
+from mptt.models import TreeForeignKey
 
 from .utils import paths
+from kolibri.core.fields import DateTimeTzField
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
@@ -30,7 +70,22 @@ V040BETA3 = 'v0.4.0-beta3'
 
 NO_VERSION = 'unversioned'
 
-CONTENT_SCHEMA_VERSION = '1'
+VERSION_1 = '1'
+
+VERSION_2 = '2'
+
+# List of the content db schema versions, ordered from most recent to least recent.
+# When a new schema version is generated, it should be added here, at the top of the list.
+CONTENT_DB_SCHEMA_VERSIONS = [
+    VERSION_2,
+    VERSION_1,
+    NO_VERSION,
+    V040BETA3,
+    V020BETA1,
+]
+
+# The schema version for this version of Kolibri
+CONTENT_SCHEMA_VERSION = VERSION_2
 
 class UUIDField(models.CharField):
     """
@@ -91,12 +146,12 @@ class ContentNode(MPTTModel):
     id = UUIDField(primary_key=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     license_name = models.CharField(max_length=50, null=True, blank=True)
-    license_description = models.CharField(max_length=400, null=True, blank=True)
+    license_description = models.TextField(null=True, blank=True)
     has_prerequisite = models.ManyToManyField('self', related_name='prerequisite_for', symmetrical=False, blank=True)
     related = models.ManyToManyField('self', symmetrical=True, blank=True)
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
-
     title = models.CharField(max_length=200)
+    coach_content = models.BooleanField(default=False)
 
     # the content_id is used for tracking a user's interaction with a piece of
     # content, in the face of possibly many copies of that content. When a user
@@ -106,7 +161,7 @@ class ContentNode(MPTTModel):
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField(db_index=True)
 
-    description = models.CharField(max_length=400, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
     license_owner = models.CharField(max_length=200, blank=True)
     author = models.CharField(max_length=200, blank=True)

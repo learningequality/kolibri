@@ -37,6 +37,7 @@
             :kind="row.kind"
             :title="row.title"
             :link="genLink(row)"
+            :numCoachContents="row.num_coach_contents"
           />
           <td>
             <progress-bar :showPercentage="false" :progress="row.contentProgress" />
@@ -60,17 +61,18 @@
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import progressBar from 'kolibri.coreVue.components.progressBar';
   import { PageNames } from '../../constants';
   import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { classMemberCount } from '../../state/getters/classes';
   import * as reportGetters from '../../state/getters/reports';
   import breadcrumbs from './breadcrumbs';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
-  import progressBar from 'kolibri.coreVue.components.progressBar';
   import alignMixin from './align-mixin';
+
   export default {
     name: 'coachRecentReports',
     components: {

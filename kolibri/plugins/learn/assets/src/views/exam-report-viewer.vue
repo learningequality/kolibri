@@ -24,8 +24,8 @@
 
 <script>
 
-  import { ClassesPageNames } from '../constants';
   import examReport from 'kolibri.coreVue.components.examReport';
+  import { ClassesPageNames } from '../constants';
 
   export default {
     name: 'learnExamReportViewer',

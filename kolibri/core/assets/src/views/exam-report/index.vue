@@ -22,7 +22,7 @@
         <h3>{{ $tr('question', {questionNumber: questionNumber + 1}) }}</h3>
 
         <k-checkbox
-          label="Show correct answer"
+          :label="$tr('showCorrectAnswerLabel')"
           :checked="showCorrectAnswer"
           @change="toggleShowCorrectAnswer"
         />
@@ -59,11 +59,11 @@
 
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import pageStatus from './page-status';
   import attemptLogList from 'kolibri.coreVue.components.attemptLogList';
   import interactionList from 'kolibri.coreVue.components.interactionList';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import pageStatus from './page-status';
 
   export default {
     name: 'examReport',
@@ -73,6 +73,7 @@
       yourAnswer: 'Your answer',
       correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
       question: 'Question { questionNumber, number }',
+      showCorrectAnswerLabel: 'Show correct answer',
     },
     components: {
       immersiveFullScreen,

@@ -9,10 +9,10 @@
         {{ $tr('emptyChannelListMessage') }}
       </p>
 
-      <ui-progress-linear
+      <k-linear-loader
         v-else-if="installedChannelListLoading"
-        type="indefinite"
-        color="primary"
+        type="indeterminate"
+        :delay="false"
       />
 
       <div v-else>
@@ -46,19 +46,19 @@
 
 <script>
 
-  import { refreshChannelList } from '../../state/actions/manageContentActions';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
-  import deleteChannelModal from './delete-channel-modal';
-  import channelListItem from './channel-list-item';
+  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
+  import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
   import { installedChannelsWithResources, installedChannelListLoading } from '../../state/getters';
+  import deleteChannelModal from './delete-channel-modal';
+  import channelListItem from './channel-list-item';
 
   export default {
     name: 'channelsGrid',
     components: {
       channelListItem,
-      uiProgressLinear,
+      kLinearLoader,
       deleteChannelModal,
       kButton,
     },

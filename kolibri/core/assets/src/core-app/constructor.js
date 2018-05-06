@@ -6,10 +6,10 @@
 import vue from 'vue';
 import vuex from 'vuex';
 import router from 'vue-router';
+import merge from 'lodash/merge';
+import { setUpIntl } from '../utils/i18n';
 import Mediator from './mediator';
 import apiSpec from './apiSpec';
-import { setUpIntl } from '../utils/i18n';
-import merge from 'lodash/merge';
 
 /**
  * Array containing the names of all methods of the Mediator that

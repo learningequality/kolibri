@@ -67,6 +67,13 @@
 
 <script>
 
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import isEqual from 'lodash/isEqual';
+  import { saveFacilityConfig, resetFacilityConfig } from '../../state/actions';
+  import confirmResetModal from './confirm-reset-modal';
+  import notifications from './config-page-notifications';
+
   const settingsList = [
     'learnerCanEditUsername',
     'learnerCanEditName',
@@ -74,13 +81,6 @@
     'learnerCanLoginWithNoPassword',
     'showDownloadButtonInLearn',
   ];
-
-  import { saveFacilityConfig, resetFacilityConfig } from '../../state/actions';
-  import confirmResetModal from './confirm-reset-modal';
-  import notifications from './config-page-notifications';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import isEqual from 'lodash/isEqual';
 
   export default {
     name: 'facilityConfigPage',

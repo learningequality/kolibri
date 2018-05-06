@@ -8,6 +8,10 @@
     <h1 class="header primary-data">
       {{ content.title }}
     </h1>
+    <coach-content-label
+      :value="content.num_coach_contents"
+      :isTopic="false"
+    />
 
     <dl>
       <div class="primary-data" v-if="completionRequirements">
@@ -60,7 +64,9 @@
 
 <script>
 
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import markdownIt from 'markdown-it';
 
   const dataRequired = ['title'];
   const completionDataRequired = ['m', 'n'];
@@ -76,6 +82,7 @@
       copyrightHolderDataHeader: 'Copyright holder',
     },
     components: {
+      coachContentLabel,
       InfoIcon,
     },
     props: {
@@ -108,7 +115,10 @@
         return false;
       },
       description() {
-        return this.content.description;
+        if (this.content) {
+          const md = new markdownIt('zero', { breaks: true });
+          return md.render(this.content.description);
+        }
       },
       author() {
         return this.content.author;

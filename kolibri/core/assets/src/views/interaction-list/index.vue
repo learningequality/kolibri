@@ -28,6 +28,7 @@
 
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import interactionItem from './interaction-item';
+
   export default {
     name: 'coachExerciseQuestionAttempt',
     components: { interactionItem },

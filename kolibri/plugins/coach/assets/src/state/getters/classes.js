@@ -1,5 +1,6 @@
-const getCurrentClassroom = state => state.classList.find(({ id }) => id === state.classId);
 import { filterAndSortUsers } from '../../../../../facility_management/assets/src/userSearchUtils';
+
+const getCurrentClassroom = state => state.classList.find(({ id }) => id === state.classId);
 
 export function className(state) {
   return state.className;

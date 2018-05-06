@@ -3,13 +3,19 @@
   <div>
 
     <breadcrumbs />
-    <h1 v-if="!isRootLearnerPage">
-      <content-icon
-        :kind="pageState.contentScopeSummary.kind"
-        colorstyle="text-default"
+    <template v-if="!isRootLearnerPage">
+      <h1>
+        <content-icon
+          :kind="pageState.contentScopeSummary.kind"
+          colorstyle="text-default"
+        />
+        {{ pageState.contentScopeSummary.title }}
+      </h1>
+      <coach-content-label
+        :isTopic="isTopic(pageState.contentScopeSummary)"
+        :value="pageState.contentScopeSummary.num_coach_contents"
       />
-      {{ pageState.contentScopeSummary.title }}
-    </h1>
+    </template>
     <h1 v-else>{{ $tr('learners') }}</h1>
 
     <core-table>
@@ -75,10 +81,11 @@
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import { PageNames } from '../../constants';
   import { exerciseCount, contentCount, standardDataTable } from '../../state/getters/reports';
   import { TableColumns } from '../../constants/reportConstants';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
@@ -89,6 +96,7 @@
   export default {
     name: 'learnerReportPage',
     components: {
+      coachContentLabel,
       coreTable,
       contentIcon,
       breadcrumbs,
@@ -125,6 +133,9 @@
       },
     },
     methods: {
+      isTopic(row) {
+        return row.kind === ContentNodeKinds.TOPIC;
+      },
       genLink(row) {
         if (this.isExercisePage) {
           const targetName =

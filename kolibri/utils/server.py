@@ -109,7 +109,7 @@ def stop(pid=None, force=False):
     """
 
     if not force:
-        # Kill the KA lite server
+        # Kill the Kolibri server
         kill_pid(pid)
     else:
         try:
@@ -133,7 +133,11 @@ def run_server(port):
     from kolibri.deployment.default.wsgi import application
     cherrypy.tree.graft(application, "/")
 
-    cherrypy.config.update({"environment": "production"})
+    cherrypy.config.update({
+        "environment": "production",
+        "tools.gzip.on": True,
+        "tools.gzip.mime_types": ["text/*", "application/javascript"],
+    })
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
     serve_static_dir(settings.CONTENT_DATABASE_DIR,
@@ -253,7 +257,7 @@ def get_status():  # noqa: max-complexity=16
 
     try:
         # Timeout is 3 seconds, we don't want the status command to be slow
-        # TODO: Using 127.0.0.1 is a hardcode default from KA Lite, it could
+        # TODO: Using 127.0.0.1 is a hardcode default from Kolibri, it could
         # be configurable
         # TODO: HTTP might not be the protocol if server has SSL
         response = requests.get(

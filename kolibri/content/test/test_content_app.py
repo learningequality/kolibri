@@ -21,6 +21,8 @@ from kolibri.auth.test.helpers import provision_device
 from kolibri.content import models as content
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.exams.models import Exam
+from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSummaryLog
 
 DUMMY_PASSWORD = "password"
@@ -149,6 +151,11 @@ class ContentNodeAPITestCase(APITestCase):
 
     def setUp(self):
         provision_device()
+        self.facility = Facility.objects.create(name='facility')
+        self.admin = FacilityUser.objects.create(username='admin', facility=self.facility)
+        self.admin.set_password(DUMMY_PASSWORD)
+        self.admin.save()
+        self.facility.add_admin(self.admin)
 
     def _reverse_channel_url(self, pattern_name, kwargs={}):
         """Helper method to reverse a URL using the current channel ID"""
@@ -182,16 +189,46 @@ class ContentNodeAPITestCase(APITestCase):
         content.ContentNode.objects.all().update(available=False)
         response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
-            response.data, {
-                "pk": c1_id, "title": "root", "kind": "topic", "available": False,
-                "total_resources": 1, "on_device_resources": 0, "importable": True, "children": [
+            response.data,
+            {
+                "pk": c1_id,
+                "id": c1_id,
+                "title": "root",
+                "kind": "topic",
+                "available": False,
+                "total_resources": 1,
+                "on_device_resources": 0,
+                "coach_content": False,
+                "importable": True,
+                "num_coach_contents": 0,
+                "children": [
                     {
-                        "pk": c2_id, "title": "c1", "kind": "video", "available": False,
-                        "total_resources": 1, "on_device_resources": 0, "importable": True
+                        "pk": c2_id,
+                        "id": c2_id,
+                        "title": "c1",
+                        "kind": "video",
+                        "available": False,
+                        "total_resources": 1,
+                        "on_device_resources": 0,
+                        "importable": True,
+                        "coach_content": False,
+                        "num_coach_contents": 0,
                     },
                     {
-                        "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
-                        "total_resources": 0, "on_device_resources": 0, "importable": True}]})
+                        "pk": c3_id,
+                        "id": c3_id,
+                        "title": "c2",
+                        "kind": "topic",
+                        "available": False,
+                        "total_resources": 0,
+                        "on_device_resources": 0,
+                        "importable": True,
+                        "coach_content": False,
+                        "num_coach_contents": 0,
+                    }
+                ]
+            }
+        )
 
     @mock.patch('kolibri.content.serializers.get_mounted_drives_with_channel_info')
     def test_contentnode_granular_local_import(self, drive_mock):
@@ -209,27 +246,63 @@ class ContentNodeAPITestCase(APITestCase):
             reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"importing_from_drive_id": "123"})
         self.assertEqual(
             response.data, {
-                "pk": c1_id, "title": "root", "kind": "topic", "available": False,
-                "total_resources": 1, "on_device_resources": 0, "importable": True,
+                "pk": c1_id,
+                "id": c1_id,
+                "title": "root",
+                "kind": "topic",
+                "available": False,
+                "total_resources": 1,
+                "on_device_resources": 0,
+                "importable": True,
+                "coach_content": False,
+                "num_coach_contents": 0,
                 "children": [
                     {
-                        "pk": c2_id, "title": "c1", "kind": "video", "available": False,
-                        "total_resources": 1, "on_device_resources": 0, "importable": False
+                        "pk": c2_id,
+                        "id": c2_id,
+                        "title": "c1",
+                        "kind": "video",
+                        "available": False,
+                        "total_resources": 1,
+                        "on_device_resources": 0,
+                        "importable": False,
+                        "coach_content": False,
+                        "num_coach_contents": 0,
                     },
                     {
-                        "pk": c3_id, "title": "c2", "kind": "topic", "available": False,
-                        "total_resources": 0, "on_device_resources": 0, "importable": True
-                    }]
-            })
+                        "pk": c3_id,
+                        "id": c3_id,
+                        "title": "c2",
+                        "kind": "topic",
+                        "available": False,
+                        "total_resources": 0,
+                        "on_device_resources": 0,
+                        "importable": True,
+                        "coach_content": False,
+                        "num_coach_contents": 0,
+                    }
+                ]
+            }
+        )
 
     def test_contentnode_granular_export_available(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
             response.data, {
-                "pk": c1_id, "title": "c1", "kind": "video", "available": True,
-                "total_resources": 1, "on_device_resources": 1, "importable": True,
-                "children": []})
+                "pk": c1_id,
+                "id": c1_id,
+                "title": "c1",
+                "kind": "video",
+                "available": True,
+                "total_resources": 1,
+                "on_device_resources": 1,
+                "importable": True,
+                "children": [],
+                "coach_content": False,
+                "num_coach_contents": 0,
+            }
+        )
 
     def test_contentnode_granular_export_unavailable(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
@@ -237,9 +310,19 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
             response.data, {
-                "pk": c1_id, "title": "c1", "kind": "video", "available": False,
-                "total_resources": 1, "on_device_resources": 0, "importable": True,
-                "children": []})
+                "pk": c1_id,
+                "id": c1_id,
+                "title": "c1",
+                "kind": "video",
+                "available": False,
+                "total_resources": 1,
+                "on_device_resources": 0,
+                "importable": True,
+                "children": [],
+                "coach_content": False,
+                "num_coach_contents": 0,
+            }
+        )
 
     def test_contentnodefilesize_resourcenode(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
@@ -365,6 +448,26 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(reverse("channel-list"), {"file_sizes": True})
         self.assertEqual(response.data[0]["on_device_file_size"], 0)
 
+    def test_channelmetadata_has_exercises_filter(self):
+        # Has nothing else for that matter...
+        no_exercise_channel = content.ContentNode.objects.create(
+            pk="6a406ac66b224106aa2e93f73a94333d",
+            channel_id="f8ec4a5d14cd4716890999da596032d2",
+            content_id="ded4a083e75f4689b386fd2b706e792a",
+            kind="topic",
+            title="no exercise channel",
+        )
+        content.ChannelMetadata.objects.create(
+            id="63acff41781543828861ade41dbdd7ff",
+            name="no exercise channel metadata",
+            root=no_exercise_channel,
+        )
+        no_filter_response = self.client.get(reverse("channel-list"))
+        self.assertEqual(len(no_filter_response.data), 2)
+        with_filter_response = self.client.get(reverse("channel-list"), {"has_exercise": True})
+        self.assertEqual(len(with_filter_response.data), 1)
+        self.assertEqual(no_filter_response.data[0]["name"], "testing")
+
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
         self.assertEqual(len(response.data), 5)
@@ -485,6 +588,91 @@ class ContentNodeAPITestCase(APITestCase):
         with mock.patch.object(cache, 'set') as mock_cache_set:
             self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
             self.assertFalse(mock_cache_set.called)
+
+    def test_filtering_coach_content_anon(self):
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"by_role": True})
+        expected_output = content.ContentNode.objects.exclude(coach_content=True).exclude(available=False).count()  # coach_content node should NOT be returned
+        self.assertEqual(len(response.data), expected_output)
+
+    def test_filtering_coach_content_admin(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"by_role": True})
+        expected_output = content.ContentNode.objects.exclude(available=False).count()  # coach_content node should be returned
+        self.assertEqual(len(response.data), expected_output)
+
+    def _setup_lesson(self):
+        facility = Facility.objects.create(name="MyFac")
+        admin = FacilityUser.objects.create(username="admin", facility=facility)
+        admin.set_password(DUMMY_PASSWORD)
+        admin.save()
+        nodes = []
+        nodes.append(content.ContentNode.objects.get(title='c3c1'))
+        nodes.append(content.ContentNode.objects.get(title='c2c3'))
+        nodes.append(content.ContentNode.objects.get(title='c2c2'))
+        json_resource = [{"contentnode_id": node.id, "content_id": node.content_id, "channel_id": node.channel_id} for node in nodes]
+        lesson = Lesson.objects.create(
+            title="title",
+            is_active=True,
+            collection=facility,
+            created_by=admin,
+            resources=json_resource
+        )
+        return lesson, nodes
+
+    def test_in_lesson_filter(self):
+        lesson, nodes = self._setup_lesson()
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": lesson.id})
+        self.assertEqual(len(response.data), len(lesson.resources))
+        for counter, node in enumerate(nodes):
+            self.assertEqual(response.data[counter]['id'], node.id)
+
+    def test_in_lesson_filter_invalid_value(self):
+        self._setup_lesson()
+
+        # request with invalid uuid
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": '123'})
+        self.assertEqual(len(response.data), 0)
+
+        # request with valid uuid
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": '47385a6d4df3426db38ad0d20e113dce'})
+        self.assertEqual(len(response.data), 0)
+
+    def _setup_exam(self):
+        facility = Facility.objects.create(name="MyFac")
+        admin = FacilityUser.objects.create(username="admin", facility=facility)
+        admin.set_password(DUMMY_PASSWORD)
+        admin.save()
+        node = content.ContentNode.objects.get(title='c3c1')
+        exam = Exam.objects.create(
+            title="title",
+            channel_id="test",
+            question_count=1,
+            active=True,
+            collection=facility,
+            creator=admin,
+            question_sources=[
+                {"exercise_id": node.id, "number_of_questions": 6}
+            ]
+        )
+
+        return exam, node
+
+    def test_in_exam_filter(self):
+        exam, node = self._setup_exam()
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": exam.id})
+        self.assertEqual(len(response.data), len(exam.question_sources))
+        self.assertEqual(response.data[0]['id'], node.id)
+
+    def test_in_exam_filter_invalid_value(self):
+        self._setup_exam()
+
+        # request with invalid uuid
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": '123'})
+        self.assertEqual(len(response.data), 0)
+
+        # request with valid uuid
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": '47385a6d4df3426db38ad0d20e113dce'})
+        self.assertEqual(len(response.data), 0)
 
     def tearDown(self):
         """

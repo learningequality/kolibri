@@ -24,4 +24,4 @@ COPY . /kolibri
 
 VOLUME /kolibridist/  # for mounting the whl files into other docker containers
 # add buildkite pipeline specific installation here:
-CMD cd /kolibri && pip install -r requirements/dev.txt && pip install -r requirements/build.txt && yarn install && make dist pex && cp /kolibri/dist/* /kolibridist/
+CMD cd /kolibri && pip install -r requirements/dev.txt && pip install -r requirements/build.txt && pip install -e . && yarn install && make dist pex && cp /kolibri/dist/* /kolibridist/

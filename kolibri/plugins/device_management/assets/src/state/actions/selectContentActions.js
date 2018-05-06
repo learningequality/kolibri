@@ -3,8 +3,8 @@ import urls from 'kolibri.urls';
 import { ContentNodeGranularResource } from 'kolibri.resources';
 import { ContentWizardPages, TransferTypes } from '../../constants';
 import { channelIsInstalled, wizardState } from '../getters';
-import { downloadChannelMetadata } from './contentTransferActions';
 import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
+import { downloadChannelMetadata } from './contentTransferActions';
 
 /**
  * Transitions the import/export wizard to the 'select-content-page'
@@ -58,6 +58,9 @@ export function updateTreeViewTopic(store, topic) {
   const fetchArgs = {};
   if (transferType === TransferTypes.LOCALIMPORT) {
     fetchArgs.importing_from_drive_id = selectedDrive.id;
+  }
+  if (transferType === TransferTypes.LOCALEXPORT) {
+    fetchArgs.for_export = 'true';
   }
   return (
     ContentNodeGranularResource.getModel(topic.pk)

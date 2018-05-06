@@ -51,9 +51,9 @@
 
   import kButton from 'kolibri.coreVue.components.kButton';
   import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
-  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import coreTable from 'kolibri.coreVue.components.coreTable';
+  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
 
   export default {
     name: 'userGrid',

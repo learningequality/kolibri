@@ -42,7 +42,7 @@ describe('facility config page actions', () => {
   beforeEach(() => {
     FacilityResource.__resetMocks();
     FacilityDatasetResource.__resetMocks();
-    dispatchStub.reset();
+    dispatchStub.resetHistory();
     storeMock.state.pageState = {};
   });
 

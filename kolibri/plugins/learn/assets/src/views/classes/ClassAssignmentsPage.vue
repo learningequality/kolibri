@@ -22,7 +22,6 @@
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import AssignedExamsCards from './AssignedExamsCards';
-
   import AssignedLessonsCards from './AssignedLessonsCards';
 
   export default {

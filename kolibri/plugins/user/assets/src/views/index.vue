@@ -19,9 +19,9 @@
 
 <script>
 
-  import { PageNames } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import coreBase from 'kolibri.coreVue.components.coreBase';
+  import { PageNames } from '../constants';
   import signInPage from './sign-in-page';
   import signUpPage from './sign-up-page';
   import profilePage from './profile-page';

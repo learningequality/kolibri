@@ -12,7 +12,10 @@
       @click="close"
     />
     <transition mode="out-in">
-      <ui-progress-linear v-if="loading" />
+      <k-circular-loader
+        v-if="loading"
+        :delay="false"
+      />
       <div v-else>
         <div>
           <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
@@ -35,6 +38,11 @@
                       'question',
                       { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
                     )"
+                  />
+                  <coach-content-label
+                    class="coach-content-label"
+                    :value="numCoachContents(exercise)"
+                    :isTopic="false"
                   />
                 </li>
               </ol>
@@ -67,15 +75,18 @@
 
 <script>
 
-  import { setExamsModal } from '../../../state/actions/exam';
+  import find from 'lodash/find';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
-  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
+  import { setExamsModal } from '../../../state/actions/exam';
+
   export default {
     name: 'previewExamModal',
     $trs: {
@@ -86,12 +97,13 @@
       exercise: 'Exercise { num }',
     },
     components: {
+      coachContentLabel,
       coreModal,
       contentRenderer,
       kButton,
       kGrid,
       kGridItem,
-      uiProgressLinear,
+      kCircularLoader,
     },
     props: {
       examQuestionSources: {
@@ -146,6 +158,9 @@
       this.setExercises();
     },
     methods: {
+      numCoachContents(exercise) {
+        return find(this.exerciseContentNodes, { id: exercise.exercise_id }).num_coach_contents;
+      },
       setExercises() {
         this.loading = true;
         ContentNodeResource.getCollection({
@@ -186,7 +201,14 @@
         return this.questions.filter(q => q.contentId === exerciseId);
       },
     },
-    vuex: { actions: { setExamsModal } },
+    vuex: {
+      actions: {
+        setExamsModal,
+      },
+      getters: {
+        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
+      },
+    },
   };
 
 </script>
@@ -195,6 +217,9 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  .coach-content-label
+    display: inline-block
 
   .exam-preview-container
     padding-top: 1em

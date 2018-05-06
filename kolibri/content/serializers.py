@@ -15,6 +15,7 @@ from kolibri.content.models import Language
 from kolibri.content.models import LocalFile
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
+from kolibri.content.utils.import_export_content import get_num_coach_contents
 from kolibri.content.utils.paths import get_content_storage_file_path
 
 
@@ -40,12 +41,15 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             on_device_resources = descendants.exclude(kind=content_kinds.TOPIC).filter(available=True).count()
             on_device_file_size = local_files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
 
+            num_coach_contents = get_num_coach_contents(instance.root)
+
             value.update(
                 {
                     "total_resources": total_resources,
                     "total_file_size": total_file_size,
                     "on_device_resources": on_device_resources,
-                    "on_device_file_size": on_device_file_size
+                    "on_device_file_size": on_device_file_size,
+                    "num_coach_contents": num_coach_contents,
                 })
 
         return value
@@ -266,10 +270,36 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
 
 class ContentNodeSerializer(serializers.ModelSerializer):
+    num_coach_contents = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
     lang = LanguageSerializer()
+
+    class Meta:
+        model = ContentNode
+        fields = (
+            'id',
+            'assessmentmetadata',
+            'author',
+            'available',
+            'channel_id',
+            'coach_content',
+            'content_id',
+            'description',
+            'files',
+            'kind',
+            'lang',
+            'license_description',
+            'license_name',
+            'license_owner',
+            'num_coach_contents',
+            'parent',
+            'pk',  # TODO remove after UI standardizes on 'id'
+            'sort_order',
+            'title',
+        )
+        list_serializer_class = ContentNodeListSerializer
 
     def __new__(cls, *args, **kwargs):
         # This is overwritten to provide a ListClassSerializer for many=True
@@ -304,65 +334,90 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         value['progress_fraction'] = progress_fraction
         return value
 
-    class Meta:
-        model = ContentNode
-        fields = (
-            'pk', 'content_id', 'title', 'description', 'kind', 'available', 'sort_order', 'license_owner',
-            'license_name', 'license_description', 'files', 'parent', 'author',
-            'assessmentmetadata', 'lang', 'channel_id',
-        )
-
-        list_serializer_class = ContentNodeListSerializer
+    def get_num_coach_contents(self, instance):
+        user = self.context["request"].user
+        if user.is_facility_user:  # exclude anon users
+            if user.roles.exists() or user.is_superuser:  # must have coach role or higher
+                return get_num_coach_contents(instance)
+        # all other conditions return 0
+        return 0
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
+    num_coach_contents = serializers.SerializerMethodField()
     total_resources = serializers.SerializerMethodField()
     on_device_resources = serializers.SerializerMethodField()
     importable = serializers.SerializerMethodField()
 
-    def get_total_resources(self, obj):
-        total_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(renderable_contentnodes_q_filter).distinct().count()
-
-        return total_resources
-
-    def get_on_device_resources(self, obj):
-        available_resources = obj.get_descendants(include_self=True).exclude(kind=content_kinds.TOPIC).filter(
-            renderable_contentnodes_q_filter).filter(available=True).distinct().count()
-
-        return available_resources
-
-    def get_importable(self, obj):
-        if 'request' not in self.context or not self.context['request'].query_params.get('importing_from_drive_id', None) or obj.kind == content_kinds.TOPIC:
-            return True
-        else:
-            drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
-            datafolder = cache.get(drive_id, None)
-
-            if datafolder is None:
-                drives = get_mounted_drives_with_channel_info()
-                if drive_id in drives:
-                    datafolder = drives[drive_id].datafolder
-                    cache.set(drive_id, datafolder, 60)  # cache the datafolder for 1 minute
-                else:
-                    raise serializers.ValidationError(
-                        'The external drive with given drive id does not exist.')
-
-            files = obj.files.all()
-            if not files.exists():
-                return False
-
-            importable = True
-            for f in files:
-                # If one of the files under the node is unavailable on the external drive, mark the node as unimportable
-                file_path = get_content_storage_file_path(f.local_file.get_filename(), datafolder)
-                importable = importable and os.path.exists(file_path)
-            return importable
-
     class Meta:
         model = ContentNode
         fields = (
-            'pk', 'title', 'available', 'kind', 'total_resources', 'on_device_resources', 'importable',
+            'id',
+            'available',
+            'coach_content',
+            'importable',
+            'kind',
+            'num_coach_contents',
+            'on_device_resources',
+            'pk',  # TODO remove once UI uses 'id' exclusively
+            'title',
+            'total_resources',
         )
+
+    def get_total_resources(self, instance):
+        return instance.get_descendants(include_self=True) \
+            .exclude(kind=content_kinds.TOPIC) \
+            .filter(renderable_contentnodes_q_filter) \
+            .distinct() \
+            .count()
+
+    def get_on_device_resources(self, instance):
+        return instance.get_descendants(include_self=True) \
+            .exclude(kind=content_kinds.TOPIC) \
+            .filter(renderable_contentnodes_q_filter) \
+            .filter(available=True) \
+            .distinct() \
+            .count()
+
+    def get_num_coach_contents(self, instance):
+        # If for exporting, only show what is available on server. For importing,
+        # show all of the coach contents in the topic.
+        for_export = self.context['request'].query_params.get('for_export', None)
+        return get_num_coach_contents(instance, filter_available=for_export)
+
+    def get_importable(self, instance):
+        drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
+
+        # If node is from a remote source, assume it is importable.
+        # Topics are annotated as importable by default, but client may disable importing
+        # of the topic if it determines that the entire topic sub-tree is already on the device.
+        if drive_id is None or instance.kind == content_kinds.TOPIC:
+            return True
+
+        # If non-topic ContentNode has no files, then it is not importable.
+        content_files = instance.files.all()
+        if not content_files.exists():
+            return False
+
+        # Inspecting the external drive's files
+        datafolder = cache.get(drive_id, None)
+
+        if datafolder is None:
+            drive_ids = get_mounted_drives_with_channel_info()
+            if drive_id in drive_ids:
+                datafolder = drive_ids[drive_id].datafolder
+                cache.set(drive_id, datafolder, 60)  # cache the datafolder for 1 minute
+            else:
+                raise serializers.ValidationError('The external drive with given drive id {} does not exist.'.format(drive_id))
+
+        importable = True
+        for f in content_files:
+            # Node is importable only if all of its Files are on the external drive
+            file_path = get_content_storage_file_path(f.local_file.get_filename(), datafolder)
+            importable = importable and os.path.exists(file_path)
+            if not importable:
+                break
+        return importable
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):

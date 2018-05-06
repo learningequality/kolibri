@@ -1,9 +1,14 @@
-from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
-from kolibri.content.models import ChannelMetadata, ContentNode
-from kolibri.core.api import CSVModelViewSet
+import math
+
 from rest_framework import serializers
 
-from .models import ContentSessionLog, ContentSummaryLog
+from .models import ContentSessionLog
+from .models import ContentSummaryLog
+from kolibri.auth.api import KolibriAuthPermissions
+from kolibri.auth.api import KolibriAuthPermissionsFilter
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.models import ContentNode
+from kolibri.core.api import CSVModelViewSet
 
 
 class LogCSVSerializerBase(serializers.ModelSerializer):
@@ -42,10 +47,13 @@ class LogCSVSerializerBase(serializers.ModelSerializer):
             return ""
 
     def get_time_spent(self, obj):
-        return str("{:.1f}".format(round(obj.time_spent, 1)))
+        return "{:.1f}".format(round(obj.time_spent, 1))
 
     def get_progress(self, obj):
-        return str("{:.4f}".format(round(obj.progress, 4)))
+
+        return "{:.4f}".format(
+            math.floor(obj.progress * 10000.0) / 10000
+        )
 
 
 class ContentSummaryLogCSVSerializer(LogCSVSerializerBase):

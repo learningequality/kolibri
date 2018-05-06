@@ -2,14 +2,21 @@
 
   <div ref="wrapper" class="wrapper">
     <div v-show="loading" class="fill-space">
-      <loading-spinner />
+      <k-circular-loader
+        class="loader"
+        :delay="true"
+      />
     </div>
     <div
       v-show="!loading"
       class="fill-space"
       :class="{ 'mimic-fullscreen': mimicFullscreen }"
     >
-      <video v-if="isVideo" ref="player" class="video-js custom-skin">
+      <video
+        v-if="isVideo"
+        ref="player"
+        class="video-js custom-skin vjs-big-play-centered vjs-show-big-play-button-on-pause"
+      >
         <template v-for="video in videoSources">
           <source
             :src="video.storage_url"
@@ -48,13 +55,13 @@
 
   import vue from 'kolibri.lib.vue';
   import videojs from 'video.js';
-  import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
-  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
   import ScreenFull from 'screenfull';
+  import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import audioIconPoster from './audio-icon-poster.svg';
 
   const GlobalLangCode = vue.locale;
@@ -88,7 +95,7 @@
       sourceError: 'No compatible source was found for this media',
       encryptionError: 'The media is encrypted and we do not have the keys to decrypt it',
     },
-    components: { loadingSpinner },
+    components: { kCircularLoader },
 
     mixins: [ResponsiveElement, contentRendererMixin],
 
@@ -167,10 +174,10 @@
         const videojsConfig = {
           fluid: true,
           aspectRatio: '16:9',
-          autoplay: false,
+          autoplay: true,
           controls: true,
           textTrackDisplay: true,
-          bigPlayButton: false,
+          bigPlayButton: true,
           preload: 'metadata',
           playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
           controlBar: {
@@ -387,8 +394,15 @@
     max-height: 480px
 
   .fill-space
+    position: relative
     width: 100%
     height: 100%
+
+  .loader
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
 
   .mimic-fullscreen
     position: fixed
@@ -410,13 +424,15 @@
 
   /*!!rtl:begin:ignore*/
 
-  $dark-grey = #212121
-  $grey = #303030
-  $light-grey = #424242
-  $video-player-color = $dark-grey
+  /** COLOR PALLETTE **/
+  $video-player-color = #212121
+  // tint if $video-player-color = black-ish, shade if $video-player-color = white-ish
+  $video-player-color-2 = tint($video-player-color , 7%)
+  $video-player-color-3 = tint($video-player-color , 15%)
+  $video-player-font-color = white
   $video-player-accent-color = $core-action-normal
-  $video-player-font-size = 12px
 
+  $video-player-font-size = 12px
 
   /* Hide control bar when playing & inactive */
   >>>.vjs-has-started.vjs-playing.vjs-user-inactive
@@ -432,11 +448,11 @@
 
     font-size: $video-player-font-size
     font-family: $core-font
-    color: white
+    color: $video-player-font-color
 
     /* Sliders */
     .vjs-slider
-      background-color: $grey
+      background-color: $video-player-color-2
 
 
     /* Seek Bar */
@@ -452,7 +468,7 @@
 
         .vjs-load-progress
           div
-            background: $light-grey
+            background: $video-player-color-3
 
         .vjs-play-progress
           background-color: $video-player-accent-color
@@ -478,6 +494,8 @@
         .vjs-volume-vertical
           display: block
 
+    .vjs-volume-level
+      background-color: $video-player-font-color
 
     /* Buttons */
     .vjs-button
@@ -492,6 +510,20 @@
         line-height: $button-height-normal
         font-size: $button-font-size-normal
 
+    .vjs-big-play-button
+      background-color: $video-player-color
+      position: absolute
+      transform: translate(-50%, -50%)
+      top: 50%
+      left: 50%
+      margin: 0
+      border: none
+      border-radius: 50%
+      line-height:$button-height-normal * 2
+      height: $button-height-normal * 2
+      width: $button-height-normal * 2
+      font-size: $button-font-size-normal * 2
+
     .vjs-volume-panel
       margin-left: auto
 
@@ -500,18 +532,18 @@
       li
         padding: 8px
         font-size: $video-player-font-size
-        background-color:  $dark-grey
+        background-color: $video-player-color
 
         &:focus, &:hover
-          background-color: $light-grey
+          background-color:  $video-player-color-3
 
       li.vjs-selected
-        background-color: $grey
-        color: white
+        background-color: $video-player-color-2
+        color: $video-player-font-color
         font-weight: bold
 
         &:focus, &:hover
-          background-color: $light-grey
+          background-color: $video-player-color-3
 
     .vjs-menu-content
       font-family: $core-font
@@ -574,7 +606,7 @@
 
   /*** SMALL: < 480px ***/
   >>>.player-small
-    $button-height-small = 44px
+    $button-height-small = 40px
     $button-font-size-normal = 24px
 
 
@@ -598,7 +630,15 @@
       top: -75px
       background-color: $video-player-color
       border-radius: 50%
-      height: 48px
+      height: $button-height-small
+      width: $button-height-small
+
+    .vjs-big-play-button
+      display: none
+
+    &.vjs-show-big-play-button-on-pause
+      .vjs-big-play-button
+        display: none
 
     /* Play button in center. */
     .vjs-play-control

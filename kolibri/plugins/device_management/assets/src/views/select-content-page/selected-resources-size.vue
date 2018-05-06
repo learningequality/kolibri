@@ -44,9 +44,9 @@
 
 <script>
 
-  import bytesForHumans from '../manage-content-page/bytesForHumans';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'keen-ui/src/UiAlert.vue';
+  import bytesForHumans from '../manage-content-page/bytesForHumans';
 
   const RequiredNumber = { type: Number, required: true };
 

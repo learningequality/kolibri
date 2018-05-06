@@ -244,6 +244,7 @@ def test_update(update, version_file=None, orig_version=None):
     update.assert_called_once()
 
 
+@pytest.mark.django_db
 @patch('kolibri.utils.cli.update')
 @patch('kolibri.core.deviceadmin.utils.dbbackup')
 def test_update_no_version_change(dbbackup, update, orig_version=None):

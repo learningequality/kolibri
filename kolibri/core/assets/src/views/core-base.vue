@@ -2,7 +2,7 @@
 
   <div>
     <!-- temporary hack, resolves flicker when using other templates -->
-    <template v-if="!loading && navBarNeeded">
+    <template v-if="navBarNeeded">
 
       <immersive-toolbar
         v-if="immersivePage"
@@ -41,7 +41,6 @@
       :topGap="headerHeight"
       :bottomGap="bottomMargin"
       :class="`gutter-${windowSize.gutterWidth}`"
-      :padding="mobile ? 16 : 32"
     >
       <slot></slot>
     </app-body>
@@ -56,13 +55,13 @@
 <script>
 
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
-  import immersiveToolbar from './immersive-toolbar';
-  import globalSnackbar from './global-snackbar';
-  import appBody from './app-body';
   import values from 'lodash/values';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import appBar from 'kolibri.coreVue.components.appBar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
+  import appBody from './app-body';
+  import globalSnackbar from './global-snackbar';
+  import immersiveToolbar from './immersive-toolbar';
 
   export default {
     name: 'coreBase',
@@ -128,8 +127,6 @@
     },
     vuex: {
       getters: {
-        // used to toggle app bar appearance
-        loading: state => state.core.loading,
         // set document title (window name)
         documentTitle: state => state.core.title,
         toolbarTitle: state => state.pageState.toolbarTitle,

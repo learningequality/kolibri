@@ -35,8 +35,8 @@
 
 <script>
 
-  import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions/main';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions/main';
 
   import loadingPage from './submission-states/loading-page';
   import errorPage from './submission-states/error-page';

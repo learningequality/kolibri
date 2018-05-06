@@ -12,6 +12,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import io
 import json
 import os
 
@@ -85,6 +86,7 @@ LOCALE_PATHS += [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'kolibri.core.device.middleware.KolibriLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -167,7 +169,7 @@ if not os.path.exists(CONTENT_STORAGE_DIR):
 # https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # http://helpsharepointvision.nevron.com/Culture_Table.html
 
-with open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json")) as f:
+with io.open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json"), encoding="utf-8") as f:
     LANGUAGES = i18n.parse_supported_languages(json.load(f))
 
 # Some languages are not supported out-of-the-box by Django

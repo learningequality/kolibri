@@ -7,6 +7,8 @@ from ...utils import channel_import
 from ...utils import paths
 from ...utils import transfer
 from kolibri.tasks.management.commands.base import AsyncCommand
+from kolibri.core.errors import KolibriUpgradeError
+from kolibri.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
 
 logging = logger.getLogger(__name__)
@@ -14,6 +16,16 @@ logging = logger.getLogger(__name__)
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
+
+
+def import_channel_by_id(channel_id):
+    try:
+        channel_import.import_channel_from_local_db(channel_id)
+    except channel_import.InvalidSchemaVersionError:
+        raise CommandError(
+            "Database file had an invalid database schema, the file may be corrupted or have been modified.")
+    except channel_import.FutureSchemaError:
+        raise KolibriUpgradeError("Database file uses a future database schema that this version of Kolibri does not support.")
 
 
 class Command(AsyncCommand):
@@ -99,7 +111,7 @@ class Command(AsyncCommand):
                     progress_update(len(chunk), progress_extra_data)
 
                 if not self.is_cancelled():
-                    channel_import.import_channel_from_local_db(channel_id)
+                    import_channel_by_id(channel_id)
                 else:
                     try:
                         os.remove(dest)

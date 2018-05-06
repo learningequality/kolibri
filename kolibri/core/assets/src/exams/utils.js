@@ -52,7 +52,7 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
         const questionList = createQuestionList(questionSources);
 
         const contentPromise = ContentNodeResource.getCollection({
-          ids: questionSources.map(item => item.exercise_id),
+          in_exam: exam.id,
         }).fetch();
 
         contentPromise.only(
@@ -108,6 +108,7 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
               examLog.completion_timestamp = new Date(examLog.completion_timestamp);
             }
             const payload = {
+              exerciseContentNodes: [...contentNodes],
               exam,
               itemId,
               questions,

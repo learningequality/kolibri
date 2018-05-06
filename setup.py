@@ -15,9 +15,6 @@ except ImportError:  # for pip <= 9.0.3
 from setuptools import setup
 from setuptools.command.install_scripts import install_scripts
 
-# Notice that we dare do this during setup.py -- this enforces a special
-# restraint on module initialization, namely that it shouldn't do anything
-# that depends on an installed environment.
 import kolibri
 from kolibri import dist as kolibri_dist
 
@@ -167,12 +164,12 @@ setup(
     tests_require=['pytest', 'tox', 'flake8'],
     license='MIT',
     zip_safe=False,
-    keywords='kolibri',
+    keywords=['education', 'offline', 'kolibri'],
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
