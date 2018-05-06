@@ -2,7 +2,6 @@ import logging as logger
 import os
 import signal
 import tempfile
-import time
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -112,7 +111,11 @@ class Command(BaseCommand):
         # start things up!
         self.configure_nginx()
         self.start_nginx()
-        self.start_uwsgi()
+        self.start_uwsgi()  # this blocks until killed with CTRL-C
+
+        # clean things up!
+        self.unconfigure_nginx()
+        self.stop_nginx()
 
     def configure_nginx(self):
         self.stdout.write(self.style.WARNING('Creating a custom Nginx config pointing to uWSGI...'))
@@ -149,6 +152,3 @@ class Command(BaseCommand):
 
     def exit_gracefully(self, *args, **kwargs):
         self.stdout.write(self.style.NOTICE('Received interrupt! Cleaning up and exiting...'))
-        time.sleep(1)
-        self.unconfigure_nginx()
-        self.stop_nginx()
