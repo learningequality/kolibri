@@ -2,7 +2,7 @@ import fnmatch
 import logging as logger
 import os
 
-from .paths import get_content_database_folder_path
+from .paths import get_content_database_dir_path
 from .sqlalchemybridge import Bridge
 from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
 from kolibri.utils.uuids import is_valid_uuid
@@ -70,7 +70,7 @@ def read_channel_metadata_from_db_file(channeldbpath):
 
 def get_channels_for_data_folder(datafolder):
     channels = []
-    for path in enumerate_content_database_file_paths(get_content_database_folder_path(datafolder)):
+    for path in enumerate_content_database_file_paths(get_content_database_dir_path(datafolder)):
         channel = read_channel_metadata_from_db_file(path)
         channel_data = {
             "path": path,

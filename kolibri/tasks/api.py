@@ -2,7 +2,6 @@ import logging as logger
 import os
 
 from django.apps.registry import AppRegistryNotReady
-from django.conf import settings
 from django.core.management import call_command
 from django.utils.translation import gettext_lazy as _
 from iceqube.common.classes import State
@@ -17,6 +16,7 @@ from .client import get_client
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.paths import get_content_database_file_path
+from kolibri.utils import conf
 
 try:
     from django.apps import apps
@@ -65,7 +65,7 @@ class TasksViewSet(viewsets.ViewSet):
         except KeyError:
             raise serializers.ValidationError("The channel_id field is required.")
 
-        baseurl = request.data.get("baseurl", settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL)
+        baseurl = request.data.get("baseurl", conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'])
 
         job_metadata = {
             "type": "REMOTECHANNELIMPORT",
@@ -94,7 +94,7 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The channel_id field is required.")
 
         # optional arguments
-        baseurl = request.data.get("base_url", settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL)
+        baseurl = request.data.get("base_url", conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'])
         node_ids = request.data.get("node_ids", None)
         exclude_node_ids = request.data.get("exclude_node_ids", None)
 

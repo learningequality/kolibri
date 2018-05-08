@@ -1,20 +1,18 @@
+import hashlib
 import os
 import tempfile
-from django.test import TestCase
-from django.test import Client
-from django.test.utils import override_settings
-from kolibri.auth.test.helpers import provision_device
-import hashlib
 import zipfile
+
+from django.test import Client
+from django.test import TestCase
 
 from ..models import LocalFile
 from ..utils.paths import get_content_storage_file_path
+from kolibri.auth.test.helpers import provision_device
+from kolibri.utils.tests.helpers import override_option
 
-CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
 
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-)
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ZipContentTestCase(TestCase):
     """
     Testcase for zipcontent endpoint

@@ -1,5 +1,5 @@
 """
-Tests for `kolibri` module.
+Tests for `kolibri.utils.cli` module.
 """
 from __future__ import absolute_import
 from __future__ import print_function
@@ -16,6 +16,7 @@ from mock import patch
 import kolibri
 from kolibri.core.deviceadmin.tests.test_dbrestore import is_sqlite_settings
 from kolibri.utils import cli
+from kolibri.utils import options
 
 logger = logging.getLogger(__name__)
 
@@ -158,6 +159,7 @@ def test_kolibri_listen_port_env(monkeypatch):
     Starts and stops the server, mocking the actual server.start()
     Checks that the correct fallback port is used from the environment.
     """
+
     with patch('kolibri.content.utils.annotation.update_channel_metadata'):
         from kolibri.utils import server
 
@@ -168,8 +170,12 @@ def test_kolibri_listen_port_env(monkeypatch):
         monkeypatch.setattr(server, 'start', start_mock)
 
         test_port = 1234
-        # ENV VARS are always a string
-        os.environ['KOLIBRI_LISTEN_PORT'] = str(test_port)
+
+        os.environ['KOLIBRI_HTTP_PORT'] = str(test_port)
+
+        # force a reload of conf.OPTIONS so the environment variable will be read in
+        from kolibri.utils import conf
+        conf.OPTIONS.update(options.read_options_file(conf.KOLIBRI_HOME))
 
         server.start = start_mock
         cli.start(daemon=False)

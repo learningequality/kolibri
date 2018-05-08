@@ -3,20 +3,17 @@ import tempfile
 
 from django.core.management import call_command
 from django.test import TestCase
-from django.test.utils import override_settings
+
 from mock import call
 from mock import patch
 
 from kolibri.content.models import LocalFile
+from kolibri.utils.tests.helpers import override_option
 
-CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
-CONTENT_STORAGE_SOURCE_DIR = tempfile.mkdtemp()
 
 @patch('kolibri.content.management.commands.importchannel.channel_import.import_channel_from_local_db')
 @patch('kolibri.content.management.commands.importchannel.AsyncCommand.start_progress')
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-)
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ImportChannelTestCase(TestCase):
     """
     Test case for the importchannel management command.
@@ -54,7 +51,7 @@ class ImportChannelTestCase(TestCase):
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_dest_path, local_src_path]
         FileCopyMock.return_value.__iter__.return_value = ['one', 'two', 'three']
-        call_command("importchannel", "disk", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
+        call_command("importchannel", "disk", self.the_channel_id, tempfile.mkdtemp())
         # Check that is_cancelled was called
         is_cancelled_mock.assert_called_with()
         # Check that the FileCopy initiated
@@ -66,9 +63,7 @@ class ImportChannelTestCase(TestCase):
 
 
 @patch('kolibri.content.management.commands.importcontent.annotation')
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-)
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ImportContentTestCase(TestCase):
     """
     Test case for the importcontent management command.
@@ -149,7 +144,7 @@ class ImportContentTestCase(TestCase):
     def test_local_cancel_immediately(self, is_cancelled_mock, cancel_mock, FileCopyMock, annotation_mock):
         # Local version of test above
         FileCopyMock.return_value.__iter__.return_value = ['one', 'two', 'three']
-        call_command("importcontent", "disk", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
+        call_command("importcontent", "disk", self.the_channel_id, tempfile.mkdtemp())
         is_cancelled_mock.assert_has_calls([call(), call()])
         FileCopyMock.assert_not_called()
         cancel_mock.assert_called_with()
@@ -168,7 +163,7 @@ class ImportContentTestCase(TestCase):
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_dest_path, local_src_path]
         FileCopyMock.return_value.__iter__.return_value = ['one', 'two', 'three']
-        call_command("importcontent", "disk", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
+        call_command("importcontent", "disk", self.the_channel_id, tempfile.mkdtemp())
         is_cancelled_mock.assert_has_calls([call(), call(), call()])
         FileCopyMock.assert_called_with(local_src_path, local_dest_path)
         FileCopyMock.assert_has_calls([call().cancel()])
@@ -176,9 +171,7 @@ class ImportContentTestCase(TestCase):
         annotation_mock.set_availability.assert_called()
 
 
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-)
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ExportChannelTestCase(TestCase):
     """
     Test case for the exportchannel management command.
@@ -204,9 +197,7 @@ class ExportChannelTestCase(TestCase):
         self.assertFalse(os.path.exists(local_dest_path))
 
 
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-)
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ExportContentTestCase(TestCase):
     """
     Test case for the exportcontent management command.
@@ -221,7 +212,7 @@ class ExportContentTestCase(TestCase):
     def test_local_cancel_immediately(self, is_cancelled_mock, cancel_mock, FileCopyMock):
         # If cancel comes in before we do anything, make sure nothing happens!
         FileCopyMock.return_value.__iter__.return_value = ['one', 'two', 'three']
-        call_command("exportcontent", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
+        call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
         is_cancelled_mock.assert_has_calls([call(), call()])
         FileCopyMock.assert_not_called()
         cancel_mock.assert_called_with()
@@ -237,7 +228,7 @@ class ExportContentTestCase(TestCase):
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_src_path, local_dest_path]
         FileCopyMock.return_value.__iter__.return_value = ['one', 'two', 'three']
-        call_command("exportcontent", self.the_channel_id, CONTENT_STORAGE_SOURCE_DIR)
+        call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
         is_cancelled_mock.assert_has_calls([call(), call(), call()])
         FileCopyMock.assert_called_with(local_src_path, local_dest_path)
         FileCopyMock.assert_has_calls([call().cancel()])

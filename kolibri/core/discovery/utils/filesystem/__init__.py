@@ -52,7 +52,7 @@ def enumerate_mounted_disk_partitions():
             path=path,
             name=drive["name"],
             writable=os.access(path, os.W_OK),
-            datafolder=get_kolibri_data_folder_path(path),
+            datafolder=get_kolibri_data_dir_path(path),
             freespace=drive["freespace"],
             totalspace=drive["totalspace"],
             filesystem=drive["filesystem"],
@@ -63,7 +63,7 @@ def enumerate_mounted_disk_partitions():
     return drives
 
 
-def get_kolibri_data_folder_path(folder):
+def get_kolibri_data_dir_path(folder):
     """
     Constructs an export data folder path by concatenating the parent folder
     to the EXPORT_FOLDER_NAME folder name.
