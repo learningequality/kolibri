@@ -11,7 +11,6 @@ import os
 from functools import wraps
 
 import pytest
-from django.conf import settings
 from mock import patch
 
 import kolibri
@@ -176,7 +175,7 @@ def test_kolibri_listen_port_env(monkeypatch):
 
         # force a reload of conf.OPTIONS so the environment variable will be read in
         from kolibri.utils import conf
-        conf.OPTIONS.update(options.read_options_file(settings.KOLIBRI_HOME))
+        conf.OPTIONS.update(options.read_options_file(conf.KOLIBRI_HOME))
 
         server.start = start_mock
         cli.start(daemon=False)

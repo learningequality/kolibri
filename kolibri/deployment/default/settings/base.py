@@ -33,8 +33,6 @@ KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 
-KOLIBRI_HOME = conf.KOLIBRI_HOME
-
 LOCALE_PATHS = [
     os.path.join(KOLIBRI_MODULE_PATH, "locale"),
 ]
@@ -99,7 +97,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
 ]
 
-QUEUE_JOB_STORAGE_PATH = os.path.join(KOLIBRI_HOME, "job_storage.sqlite3")
+QUEUE_JOB_STORAGE_PATH = os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
 
 ROOT_URLCONF = 'kolibri.deployment.default.urls'
 
@@ -131,7 +129,7 @@ if conf.OPTIONS['Database']["DATABASE_ENGINE"] == "sqlite":
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(KOLIBRI_HOME, conf.OPTIONS['Database']['DATABASE_NAME'] or 'db.sqlite3'),
+            'NAME': os.path.join(conf.KOLIBRI_HOME, conf.OPTIONS['Database']['DATABASE_NAME'] or 'db.sqlite3'),
             'OPTIONS': {
                 'timeout': 100,
             }
@@ -202,7 +200,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(KOLIBRI_HOME, "static")
+STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
@@ -261,14 +259,14 @@ LOGGING = {
             'level': 'DEBUG',
             'filters': ['require_debug_true'],
             'class': 'logging.FileHandler',
-            'filename': os.path.join(KOLIBRI_HOME, 'debug.log'),
+            'filename': os.path.join(conf.KOLIBRI_HOME, 'debug.log'),
             'formatter': 'simple_date',
         },
         'file': {
             'level': 'INFO',
             'filters': [],
             'class': 'logging.FileHandler',
-            'filename': os.path.join(KOLIBRI_HOME, 'kolibri.log'),
+            'filename': os.path.join(conf.KOLIBRI_HOME, 'kolibri.log'),
             'formatter': 'simple_date',
         },
     },
