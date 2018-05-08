@@ -83,7 +83,7 @@ def get_or_create_classroom_users(**options):
             # Get the first base data that does not have a matching user already
             base_data = user_data[n_in_classroom + i]
             # Randomly create the name from 1 to 3 of the three user name fields
-            name = " ".join([base_data[key] for key in random.sample(user_data_name_fields, random.randint(1, 3))])
+            name = " ".join([base_data[key] for key in random.sample(user_data_name_fields, random.randint(1, 3)) if base_data[key]])
             user = FacilityUser.objects.create(
                 facility=facility,
                 full_name=name,
