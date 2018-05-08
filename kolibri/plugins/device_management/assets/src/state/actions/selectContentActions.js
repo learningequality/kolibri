@@ -3,22 +3,24 @@ import urls from 'kolibri.urls';
 import { ContentNodeGranularResource } from 'kolibri.resources';
 import { ContentWizardPages, TransferTypes } from '../../constants';
 import { channelIsInstalled, wizardState } from '../getters';
-import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
+import { navigateToTopicUrl, navigateToChannelMetaDataLoading } from '../../wizardTransitionRoutes';
 import { downloadChannelMetadata } from './contentTransferActions';
+import { transitionWizardPage, FORWARD } from './contentWizardActions';
 
 /**
- * Transitions the import/export wizard to the 'select-content-page'
+ * Transitions the import/export wizard to the 'load-channel-metadata' interstitial state
  *
  */
-export function showSelectContentPage(store) {
+export function loadChannelMetaData(store) {
   let dbPromise;
   const { transferredChannel } = wizardState(store.state);
   const channelOnDevice = channelIsInstalled(store.state)(transferredChannel.id);
-  store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.SELECT_CONTENT);
+  store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.LOADING_CHANNEL_METADATA);
+  navigateToChannelMetaDataLoading(transferredChannel.id);
 
   // Downloading the Content Metadata DB
   if (!channelOnDevice) {
-    // Update metadata when no content has been downloaded
+    // Update metadata when no content db has been downloaded
     dbPromise = downloadChannelMetadata(store);
   } else if (!channelOnDevice.available && channelOnDevice.version < transferredChannel.version) {
     // If channel _is_ on the device, but not "available" (i.e. no resources installed yet)
@@ -40,11 +42,21 @@ export function showSelectContentPage(store) {
         version: transferredChannel.version,
         public: transferredChannel.public,
       });
-      navigateToTopicUrl({ title: channel.name, pk: channel.root });
+      transitionWizardPage(store, FORWARD);
     })
     .catch(({ errorType }) => {
       store.dispatch('SET_WIZARD_STATUS', errorType);
     });
+}
+
+/**
+ * Transitions the import/export wizard to the 'select-content-page'
+ *
+ */
+export function showSelectContentPage(store) {
+  const { transferredChannel } = wizardState(store.state);
+  store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.SELECT_CONTENT);
+  navigateToTopicUrl({ title: transferredChannel.name, pk: transferredChannel.root });
 }
 
 /**

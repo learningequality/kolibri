@@ -42,7 +42,7 @@ def update_channel_metadata():
                 logging.warning("Tried to import channel {channel_id}, but database file was incompatible".format(channel_id=channel_id))
 
 
-def set_leaf_node_availability_from_local_file_availability():
+def set_leaf_node_availability_from_local_file_availability(channel_id):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeTable = bridge.get_table(ContentNode)
@@ -59,12 +59,18 @@ def set_leaf_node_availability_from_local_file_availability():
 
     connection.execute(FileTable.update().values(available=file_statement).execution_options(autocommit=True))
 
-    contentnode_statement = select([FileTable.c.contentnode_id]).where(
+    contentnode_statement = select([FileTable.c.contentnode_id]
+    ).where(
         and_(
             FileTable.c.available == True,  # noqa
             FileTable.c.supplementary == False
         )
-    ).where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
+    ).where(
+        and_(
+            ContentNodeTable.c.id == FileTable.c.contentnode_id,
+            ContentNodeTable.c.channel_id == channel_id,
+        )
+    )
 
     logging.info('Setting availability of non-topic ContentNode objects based on File availability')
 
@@ -171,5 +177,5 @@ def set_availability(channel_id, checksums=None):
     else:
         mark_local_files_as_available(checksums)
 
-    set_leaf_node_availability_from_local_file_availability()
+    set_leaf_node_availability_from_local_file_availability(channel_id)
     recurse_availability_up_tree(channel_id)

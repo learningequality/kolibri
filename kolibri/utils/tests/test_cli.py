@@ -180,14 +180,16 @@ def test_kolibri_listen_port_env(monkeypatch):
 
         server.start = start_mock
         cli.start(daemon=False)
-        with pytest.raises(SystemExit, code=0):
+        with pytest.raises(SystemExit) as excinfo:
             cli.stop()
+            assert excinfo.code == 0
 
         # Stop the server AGAIN, asserting that we can call the stop command
         # on an already stopped server and will be gracefully informed about
         # it.
-        with pytest.raises(SystemExit, code=0):
+        with pytest.raises(SystemExit) as excinfo:
             cli.stop()
+            assert excinfo.code == 0
         assert "Already stopped" in LOG_LOGGER[-1][1]
 
         def status_starting_up():
@@ -196,8 +198,9 @@ def test_kolibri_listen_port_env(monkeypatch):
         # Ensure that if a server is reported to be 'starting up', it doesn't
         # get killed while doing that.
         monkeypatch.setattr(server, 'get_status', status_starting_up)
-        with pytest.raises(SystemExit, code=server.STATUS_STARTING_UP):
+        with pytest.raises(SystemExit) as excinfo:
             cli.stop()
+            assert excinfo.code == server.STATUS_STARTING_UP
         assert "Not stopped" in LOG_LOGGER[-1][1]
 
 
@@ -259,10 +262,12 @@ def test_update_no_version_change(dbbackup, update, orig_version=None):
 
 def test_cli_usage():
     # Test the -h
-    with pytest.raises(SystemExit, code=0):
+    with pytest.raises(SystemExit) as excinfo:
         cli.main("-h")
-    with pytest.raises(SystemExit, code=0):
+        assert excinfo.code == 0
+    with pytest.raises(SystemExit) as excinfo:
         cli.main("--version")
+        assert excinfo.code == 0
 
 
 def test_cli_parsing():

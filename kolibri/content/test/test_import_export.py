@@ -3,6 +3,7 @@ import tempfile
 
 from django.core.management import call_command
 from django.test import TestCase
+
 from mock import call
 from mock import patch
 
@@ -40,7 +41,6 @@ class ImportChannelTestCase(TestCase):
         cancel_mock.assert_called_with()
         # Test that import channel cleans up database file if cancelled
         self.assertFalse(os.path.exists(local_path))
-        import_channel_mock.assert_not_called()
 
     @patch('kolibri.content.management.commands.importchannel.paths.get_content_database_file_path')
     @patch('kolibri.content.management.commands.importchannel.transfer.FileCopy')
@@ -60,7 +60,6 @@ class ImportChannelTestCase(TestCase):
         cancel_mock.assert_called_with()
         # Test that import channel cleans up database file if cancelled
         self.assertFalse(os.path.exists(local_dest_path))
-        import_channel_mock.assert_not_called()
 
 
 @patch('kolibri.content.management.commands.importcontent.annotation')
