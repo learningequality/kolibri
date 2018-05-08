@@ -77,7 +77,8 @@
 
   import { RecycleList } from 'vue-virtual-scroller';
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
-
+  // polyfill necessary for recycle list
+  import 'intersection-observer';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
