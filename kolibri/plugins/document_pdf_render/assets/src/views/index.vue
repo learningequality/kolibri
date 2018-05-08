@@ -31,9 +31,9 @@
             :key="item.index"
             :pageNum="item.index + 1"
             :pageReady="item.resolved"
-            :scale="scale"
-            :defaultHeight="pageHeight"
-            :defaultWidth="pageWidth"
+            :scale="scale || 1"
+            :defaultHeight="pageHeight || 0"
+            :defaultWidth="pageWidth || 0"
           />
         </template>
       </recycle-list>
@@ -136,7 +136,7 @@
         return this.totalPages * 30;
       },
       documentLoading() {
-        return this.progress !== 1;
+        return this.progress < 1;
       },
       pdfPositionKey() {
         return `pdfPosition-${this.files[0].id}`;
@@ -260,6 +260,10 @@
       },
       // handle the recycle list update event
       handleUpdate: debounce(function(start, end) {
+        // check that it is mounted
+        if (!this.$refs.recycleList || !this.$refs.recycleList.$el) {
+          return;
+        }
         // check if this is the first update event
         if (!this.recycleListIsMounted) {
           this.recycleListIsMounted = true;
