@@ -1,7 +1,14 @@
 <template>
 
   <div class="vab" v-if="value > 0">
-    <ui-icon icon="local_library" />
+    <ui-tooltip trigger="icon" position="top center">
+      {{ $tr('coachLabel') }}
+    </ui-tooltip>
+    <ui-icon
+      class="coach-mat-icon"
+      ref="icon"
+      icon="local_library"
+    />
     <span class="counter" v-if="isTopic">
       {{ value }}
     </span>
@@ -13,18 +20,20 @@
 <script>
 
   import UiIcon from 'keen-ui/src/UiIcon';
+  import UiTooltip from 'keen-ui/src/UiTooltip';
 
   export default {
     name: 'coachContentLabel',
     components: {
       UiIcon,
+      UiTooltip,
     },
     props: {
       value: {
         type: Number,
         default: 0,
       },
-      // Show number next to label if a topic, otherwise show simple label
+      // Show number next to label if a topic
       isTopic: {
         type: Boolean,
         default: false,
@@ -49,7 +58,7 @@
     font-size: 11px
     vertical-align: inherit
 
-  >>>.ui-icon
+  .coach-mat-icon.ui-icon
     font-size: 16px
     color: $core-status-progress
 
