@@ -121,11 +121,9 @@
       firstPageWidth: null,
       pdfPages: [],
       recycleListIsMounted: false,
+      fullscreenAllowed: false,
     }),
     computed: {
-      fullscreenAllowed() {
-        return ScreenFull.enabled;
-      },
       pdfURL() {
         return this.defaultFile.storage_url;
       },
@@ -165,11 +163,10 @@
       },
     },
     created() {
-      if (this.fullscreenAllowed) {
-        ScreenFull.onchange(() => {
-          this.isFullscreen = ScreenFull.isFullscreen;
-        });
-      }
+      this.fullscreenAllowed = ScreenFull.enabled;
+      ScreenFull.onchange(() => {
+        this.isFullscreen = ScreenFull.isFullscreen;
+      });
 
       const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
 
@@ -220,7 +217,10 @@
     mounted() {
       // Retrieve the document and its corresponding object
       this.prepComponentData.then(() => {
-        this.progress = 1;
+        // Progress is NaN if loadingProgress.total is undefined
+        if (isNaN(this.progress)) {
+          this.progress = 1;
+        }
         this.$emit('startTracking');
         // Automatically master after the targetTime, convert seconds -> milliseconds
         this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
@@ -329,7 +329,15 @@
       },
       toggleFullscreen() {
         if (this.fullscreenAllowed) {
+          const currentlyInFullscreen = this.isFullscreen;
           ScreenFull.toggle(this.$refs.pdfRenderer);
+          window.setTimeout(() => {
+            // check if fullscreen state did not change
+            if (this.isFullscreen === currentlyInFullscreen) {
+              this.fullscreenAllowed = false;
+              this.toggleFullscreen();
+            }
+          }, 100);
         } else {
           this.isFullscreen = !this.isFullscreen;
         }
@@ -400,5 +408,10 @@
     top: 50%
     margin: 0 auto
     max-width: 200px
+
+  // enable horizontal scrolling
+  >>>.recycle-list
+    .item-wrapper
+      overflow-x: auto
 
 </style>
