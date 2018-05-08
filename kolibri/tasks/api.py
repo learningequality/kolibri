@@ -3,7 +3,6 @@ import os
 
 from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
-from django.core.management import CommandError
 from django.utils.translation import gettext_lazy as _
 from iceqube.common.classes import State
 from iceqube.exceptions import UserCancelledError
