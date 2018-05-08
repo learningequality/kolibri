@@ -50,3 +50,7 @@ class GenerateUserDataTest(TestCase):
 
     def test_lessons_created(self):
         self.assertEqual(Lesson.objects.count(), n_lessons * n_classes * n_facilities)
+
+    def test_no_spacey_names(self):
+        for user in FacilityUser.objects.all():
+            self.assertEqual(user.full_name.strip(), user.full_name)
