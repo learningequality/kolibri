@@ -58,7 +58,11 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { refreshDriveList } from '../../../state/actions/taskActions';
-  import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
+  import {
+    transitionWizardPage,
+    FORWARD,
+    CANCEL,
+  } from '../../../state/actions/contentWizardActions';
   import { wizardState } from '../../../state/getters';
   import { TransferTypes } from '../../../constants';
   import driveList from './drive-list';
@@ -114,12 +118,12 @@
         return drive.writable;
       },
       goForward() {
-        this.transitionWizardPage('forward', {
+        this.transitionWizardPage(FORWARD, {
           driveId: this.selectedDriveId,
         });
       },
       cancel() {
-        this.transitionWizardPage('cancel');
+        this.transitionWizardPage(CANCEL);
       },
     },
     vuex: {

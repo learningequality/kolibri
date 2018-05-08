@@ -40,7 +40,7 @@ export function installedChannelsWithResources(state) {
 
 export function channelIsInstalled(state) {
   return function findChannel(channelId) {
-    return find(installedChannelList(state), { id: channelId, available: true });
+    return find(installedChannelList(state), { id: channelId });
   };
 }
 

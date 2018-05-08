@@ -45,7 +45,13 @@
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { RemoteChannelResource } from 'kolibri.resources';
-  import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
+  import {
+    transitionWizardPage,
+    FORWARD,
+    CANCEL,
+    LOCAL_DRIVE,
+    KOLIBRI_STUDIO,
+  } from '../../../state/actions/contentWizardActions';
 
   export default {
     name: 'selectImportSourceModal',
@@ -56,7 +62,7 @@
     },
     data() {
       return {
-        source: 'network',
+        source: KOLIBRI_STUDIO,
         disableUi: true,
         kolibriStudioIsOffline: false,
       };
@@ -64,7 +70,7 @@
     created() {
       RemoteChannelResource.getKolibriStudioStatus().then(({ entity }) => {
         if (entity.status === 'offline') {
-          this.source = 'local';
+          this.source = LOCAL_DRIVE;
           this.kolibriStudioIsOffline = true;
         }
         this.disableUi = false;
@@ -79,10 +85,10 @@
     },
     methods: {
       goForward() {
-        return this.transitionWizardPage('forward', { source: this.source });
+        return this.transitionWizardPage(FORWARD, { source: this.source });
       },
       cancel() {
-        return this.transitionWizardPage('cancel');
+        return this.transitionWizardPage(CANCEL);
       },
     },
     vuex: {
