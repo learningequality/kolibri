@@ -1,15 +1,8 @@
 <template>
 
-  <div v-if="value > 0">
-    <mat-svg
-      category="maps"
-      name="local_library"
-      class="coach-icon"
-    />
-    <span v-if="!isTopic">
-      {{ $tr('coachLabel') }}
-    </span>
-    <span v-else>
+  <div class="vab" v-if="value > 0">
+    <ui-icon icon="local_library" />
+    <span class="counter" v-if="isTopic">
       {{ value }}
     </span>
   </div>
@@ -19,8 +12,13 @@
 
 <script>
 
+  import UiIcon from 'keen-ui/src/UiIcon';
+
   export default {
     name: 'coachContentLabel',
+    components: {
+      UiIcon,
+    },
     props: {
       value: {
         type: Number,
@@ -44,9 +42,15 @@
 
   @require '~kolibri.styles.theme'
 
-  .coach-icon
-    fill: $core-status-progress
-    vertical-align: text-bottom
-    margin-right: 4px
+  .vab
+    vertical-align: bottom
+
+  .counter
+    font-size: 11px
+    vertical-align: inherit
+
+  >>>.ui-icon
+    font-size: 16px
+    color: $core-status-progress
 
 </style>
