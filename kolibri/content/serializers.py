@@ -222,11 +222,10 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # ensure that we are filtering by the parent only
         # this allows us to only cache results on the learn page
         from .api import ContentNodeFilter
-        pure_parent_query = "parent" in self.context['request'].GET and \
-            not any(field in self.context['request'].GET for field in ContentNodeFilter.Meta.fields if field != "parent")
+        parent_filter_only = set(self.context['request'].GET.keys()).intersection(ContentNodeFilter.Meta.fields) == set(['parent'])
 
         # Cache parent look ups only
-        if pure_parent_query:
+        if parent_filter_only:
             cache_key = 'contentnode_list_{parent}'.format(
                 parent=self.context['request'].GET.get('parent'))
 
@@ -263,7 +262,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # This has the happy side effect of not caching our dynamically calculated
         # recommendation queries, which might change for the same user over time
         # because they do not return topics
-        if topic_only and pure_parent_query:
+        if topic_only and parent_filter_only:
             cache.set(cache_key, result, 60 * 10)
 
         return result
