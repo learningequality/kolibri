@@ -385,13 +385,18 @@ class ExamAttemptLogAPITestCase(APITestCase):
         provision_device()
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
-        self.exam = Exam.objects.create(title="", channel_id="", question_count=0, collection=self.facility, creator=self.user2, active=True)
+        self.exam = Exam.objects.create(title="", channel_id="", question_count=1, collection=self.facility, creator=self.user2, active=True)
         self.examlog = ExamLog.objects.create(exam=self.exam, user=self.user1)
         [ExamAttemptLog.objects.create(
-            item="d4623921a2ef5ddaa39048c0f7a6fe06", examlog=self.examlog, user=self.user1,
-            content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex, start_timestamp=str(datetime.datetime.now()),
-            end_timestamp=str(datetime.datetime.now()), correct=0
-        ) for _ in range(3)]
+            item="d4623921a2ef5ddaa39048c0f7a6fe06",
+            examlog=self.examlog,
+            user=self.user1,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            start_timestamp=str(datetime.datetime.now().replace(minute=x, hour=x, second=x)),
+            end_timestamp=str(datetime.datetime.now().replace(minute=x, hour=x, second=x)),
+            correct=0
+        ) for x in range(3)]
 
         self.examattemptdata = {
             "item": "test",
