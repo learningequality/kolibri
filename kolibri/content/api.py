@@ -98,7 +98,7 @@ class ContentNodeFilter(IdFilter):
     class Meta:
         model = models.ContentNode
         fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related',
-                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind']
+                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind', 'by_role']
 
     def title_description_filter(self, queryset, name, value):
         """
