@@ -3,13 +3,12 @@
   <div
     ref="html5Renderer"
     class="html5-renderer"
-    :class="{ 'mimic-fullscreen': mimicFullscreen }"
     allowfullscreen
   >
     <k-button
       class="btn"
-      :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="toggleFullscreen"
+      :text="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+      @click="toggleFullscreen($refs.html5Renderer)"
       :primary="true"
     />
     <iframe
@@ -26,30 +25,23 @@
 
 <script>
 
-  import ScreenFull from 'screenfull';
   import kButton from 'kolibri.coreVue.components.kButton';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
+  import fullscreen from 'kolibri.coreVue.mixins.fullscreen';
 
   export default {
     name: 'html5Renderer',
     components: { kButton },
-    mixins: [contentRendererMixin],
+    mixins: [contentRendererMixin, fullscreen],
     props: {
       defaultFile: {
         type: Object,
         required: true,
       },
     },
-    data: () => ({ isFullscreen: false }),
     computed: {
       rooturl() {
         return this.defaultFile.storage_url;
-      },
-      fullscreenAllowed() {
-        return ScreenFull.enabled;
-      },
-      mimicFullscreen() {
-        return !this.fullscreenAllowed && this.isFullscreen;
       },
     },
     mounted() {
@@ -64,21 +56,6 @@
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
-    },
-    methods: {
-      toggleFullscreen() {
-        if (this.isFullscreen) {
-          if (this.fullscreenAllowed) {
-            ScreenFull.toggle(this.$refs.html5Renderer);
-          }
-          this.isFullscreen = false;
-        } else {
-          if (this.fullscreenAllowed) {
-            ScreenFull.toggle(this.$refs.html5Renderer);
-          }
-          this.isFullscreen = true;
-        }
-      },
     },
     $trs: {
       exitFullscreen: 'Exit fullscreen',
@@ -101,23 +78,6 @@
     text-align: center
     height: 500px
     overflow-x: auto
-    &:fullscreen
-      width: 100%
-      height: 100%
-      min-height: inherit
-      max-height: inherit
-
-  .mimic-fullscreen
-    position: fixed
-    top: 0
-    right: 0
-    bottom: 0
-    left: 0
-    z-index: 24
-    max-width: 100%
-    max-height: 100%
-    width: 100%
-    height: 100%
 
   .iframe
     height: 100%
