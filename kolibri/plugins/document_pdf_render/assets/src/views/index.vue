@@ -3,7 +3,6 @@
   <div
     ref="pdfRenderer"
     class="pdf-renderer"
-    :class="{ 'mimic-fullscreen': mimicFullscreen }"
     allowfullscreen
   >
     <k-linear-loader
@@ -41,10 +40,10 @@
       <ui-icon-button
         class="controls button-fullscreen"
         aria-controls="pdf-container"
-        :ariaLabel="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-        :icon="isFullscreen ? 'fullscreen_exit' : 'fullscreen'"
+        :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+        :icon="isInFullscreen ? 'fullscreen_exit' : 'fullscreen'"
         size="large"
-        @click="toggleFullscreen"
+        @click="toggleFullscreen($refs.pdfRenderer)"
       />
       <ui-icon-button
         class="controls button-zoom-in"
@@ -69,7 +68,6 @@
 <script>
 
   import PDFJSLib from 'pdfjs-dist';
-  import ScreenFull from 'screenfull';
   import Lockr from 'lockr';
 
   import throttle from 'lodash/throttle';
@@ -85,6 +83,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
   import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
+  import fullscreen from 'kolibri.coreVue.mixins.fullscreen';
 
   import uiIconButton from 'keen-ui/src/UiIconButton';
 
@@ -108,9 +107,8 @@
       pdfPage,
       RecycleList,
     },
-    mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
+    mixins: [responsiveWindow, responsiveElement, contentRendererMixin, fullscreen],
     data: () => ({
-      isFullscreen: false,
       progress: null,
       scale: null,
       timeout: null,
@@ -121,14 +119,10 @@
       firstPageWidth: null,
       pdfPages: [],
       recycleListIsMounted: false,
-      fullscreenAllowed: false,
     }),
     computed: {
       pdfURL() {
         return this.defaultFile.storage_url;
-      },
-      mimicFullscreen() {
-        return !this.fullscreenAllowed && this.isFullscreen;
       },
       targetTime() {
         return this.totalPages * 30;
@@ -163,11 +157,6 @@
       },
     },
     created() {
-      this.fullscreenAllowed = ScreenFull.enabled;
-      ScreenFull.onchange(() => {
-        this.isFullscreen = ScreenFull.isFullscreen;
-      });
-
       const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
 
       // pass callback to update loading bar
@@ -327,21 +316,6 @@
       updateProgress() {
         this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);
       },
-      toggleFullscreen() {
-        if (this.fullscreenAllowed) {
-          const currentlyInFullscreen = this.isFullscreen;
-          ScreenFull.toggle(this.$refs.pdfRenderer);
-          window.setTimeout(() => {
-            // check if fullscreen state did not change
-            if (this.isFullscreen === currentlyInFullscreen) {
-              this.fullscreenAllowed = false;
-              this.toggleFullscreen();
-            }
-          }, 100);
-        } else {
-          this.isFullscreen = !this.isFullscreen;
-        }
-      },
     },
     $trs: {
       exitFullscreen: 'Exit fullscreen',
@@ -367,24 +341,6 @@
     position: relative
     height: 500px
     background-color: $core-text-default
-
-  .pdf-renderer:fullscreen
-    width: 100%
-    height: 100%
-    min-height: inherit
-    max-height: inherit
-
-  .mimic-fullscreen
-    position: fixed
-    top: 0
-    right: 0
-    bottom: 0
-    left: 0
-    z-index: 24
-    max-width: 100%
-    max-height: 100%
-    width: 100%
-    height: 100%
 
   .controls
     position: absolute
