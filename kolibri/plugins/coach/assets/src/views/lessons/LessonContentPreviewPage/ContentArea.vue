@@ -79,15 +79,6 @@
 
   .content
     // NOTE stylus exclusive. Variable/calc interpolation
-    width: 100%
-    height: 100%
-    overflow-y: auto
-
-    // overwrite pdf display render styles
-    max-height: 100%
-    margin-left: 0
-    margin-right: 0
-
     &.perseus
       max-height: 'calc(100% - %s)' % $header-height
       overflow-x: hidden // .solutionarea's negative margin oversteps

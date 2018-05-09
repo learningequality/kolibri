@@ -25,16 +25,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession"
-    >
-      <k-button
-        :primary="true"
-        @click="nextContentClicked"
-        v-if="showNextBtn"
-        class="float"
-        :text="$tr('nextContent')"
-        alignment="right"
-      />
-    </content-renderer>
+    />
 
     <assessment-wrapper
       v-else
@@ -52,16 +43,16 @@
       :extraFields="content.extra_fields"
       :checkButtonIsPrimary="!showNextBtn"
       :initSession="initSession"
-    >
-      <k-button
-        :primary="true"
-        @click="nextContentClicked"
-        v-if="showNextBtn"
-        class="float"
-        :text="$tr('nextContent')"
-        alignment="right"
-      />
-    </assessment-wrapper>
+    />
+
+    <k-button
+      :primary="true"
+      @click="nextContentClicked"
+      v-if="showNextBtn"
+      class="float"
+      :text="$tr('nextContent')"
+      alignment="right"
+    />
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
     <!-- TODO: RTL - Remove ta-l -->
