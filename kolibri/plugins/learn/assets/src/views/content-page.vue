@@ -9,58 +9,49 @@
       :value="content.num_coach_contents"
     />
 
-    <template v-if="!content.assessment">
-      <content-renderer
-        class="content-renderer"
-        @sessionInitialized="setWasIncomplete"
-        @startTracking="startTracking"
-        @stopTracking="stopTracking"
-        @updateProgress="updateProgress"
-        :id="content.id"
-        :kind="content.kind"
-        :files="content.files"
-        :contentId="content.content_id"
-        :channelId="channelId"
-        :available="content.available"
-        :extraFields="content.extra_fields"
-        :initSession="initSession"
-      />
-      <k-button
-        :primary="true"
-        @click="nextContentClicked"
-        v-if="showNextBtn"
-        class="float"
-        :text="$tr('nextContent')"
-        alignment="right"
-      />
-    </template>
+    <content-renderer
+      v-if="!content.assessment"
+      class="content-renderer"
+      @sessionInitialized="setWasIncomplete"
+      @startTracking="startTracking"
+      @stopTracking="stopTracking"
+      @updateProgress="updateProgress"
+      :id="content.id"
+      :kind="content.kind"
+      :files="content.files"
+      :contentId="content.content_id"
+      :channelId="channelId"
+      :available="content.available"
+      :extraFields="content.extra_fields"
+      :initSession="initSession"
+    />
 
-    <template v-else>
-      <assessment-wrapper
-        class="content-renderer"
-        @sessionInitialized="setWasIncomplete"
-        @startTracking="startTracking"
-        @stopTracking="stopTracking"
-        @updateProgress="updateProgress"
-        :id="content.id"
-        :kind="content.kind"
-        :files="content.files"
-        :contentId="content.content_id"
-        :channelId="channelId"
-        :available="content.available"
-        :extraFields="content.extra_fields"
-        :checkButtonIsPrimary="!showNextBtn"
-        :initSession="initSession"
-      />
-      <k-button
-        :primary="true"
-        @click="nextContentClicked"
-        v-if="showNextBtn"
-        class="float"
-        :text="$tr('nextContent')"
-        alignment="right"
-      />
-    </template>
+    <assessment-wrapper
+      v-else
+      class="content-renderer"
+      @sessionInitialized="setWasIncomplete"
+      @startTracking="startTracking"
+      @stopTracking="stopTracking"
+      @updateProgress="updateProgress"
+      :id="content.id"
+      :kind="content.kind"
+      :files="content.files"
+      :contentId="content.content_id"
+      :channelId="channelId"
+      :available="content.available"
+      :extraFields="content.extra_fields"
+      :checkButtonIsPrimary="!showNextBtn"
+      :initSession="initSession"
+    />
+
+    <k-button
+      :primary="true"
+      @click="nextContentClicked"
+      v-if="showNextBtn"
+      class="float"
+      :text="$tr('nextContent')"
+      alignment="right"
+    />
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
     <!-- TODO: RTL - Remove ta-l -->
