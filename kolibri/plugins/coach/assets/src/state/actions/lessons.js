@@ -196,6 +196,7 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
       description: channel.description,
       title: channel.title,
       thumbnail: channel.thumbnail,
+      num_coach_contents: channel.num_coach_contents,
       kind: ContentNodeKinds.CHANNEL,
     };
   });
