@@ -30,22 +30,22 @@ Plugin classes can define url modules, and they will automatically be included.
 Place a url.py and have your plugin's definition class's ``url_module`` method
 return the module.
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
-from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
-from kolibri.content.utils import paths
-from kolibri.plugins.registry import get_urls as plugin_urls
 
 from .views import set_language
+from kolibri.content.utils import paths
+from kolibri.plugins.registry import get_urls as plugin_urls
 
 app_name = 'kolibri'
 
 
 urlpatterns = plugin_urls()
 
-urlpatterns += static(paths.get_content_storage_url("/"), document_root=settings.CONTENT_STORAGE_DIR)
-urlpatterns += static(paths.get_content_database_url("/"), document_root=settings.CONTENT_DATABASE_DIR)
+urlpatterns += static(paths.get_content_url("/"), document_root=paths.get_content_dir_path())
 
 urlpatterns += [url(r'^i18n/setlang/$', set_language, name='set_language')]

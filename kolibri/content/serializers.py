@@ -15,6 +15,7 @@ from kolibri.content.models import Language
 from kolibri.content.models import LocalFile
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
+from kolibri.content.utils.import_export_content import get_num_coach_contents
 from kolibri.content.utils.paths import get_content_storage_file_path
 
 
@@ -40,12 +41,15 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             on_device_resources = descendants.exclude(kind=content_kinds.TOPIC).filter(available=True).count()
             on_device_file_size = local_files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
 
+            num_coach_contents = get_num_coach_contents(instance.root)
+
             value.update(
                 {
                     "total_resources": total_resources,
                     "total_file_size": total_file_size,
                     "on_device_resources": on_device_resources,
-                    "on_device_file_size": on_device_file_size
+                    "on_device_file_size": on_device_file_size,
+                    "num_coach_contents": num_coach_contents,
                 })
 
         return value
@@ -218,11 +222,10 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # ensure that we are filtering by the parent only
         # this allows us to only cache results on the learn page
         from .api import ContentNodeFilter
-        pure_parent_query = "parent" in self.context['request'].GET and \
-            not any(field in self.context['request'].GET for field in ContentNodeFilter.Meta.fields if field != "parent")
+        parent_filter_only = set(self.context['request'].GET.keys()).intersection(ContentNodeFilter.Meta.fields) == set(['parent'])
 
         # Cache parent look ups only
-        if pure_parent_query:
+        if parent_filter_only:
             cache_key = 'contentnode_list_{parent}'.format(
                 parent=self.context['request'].GET.get('parent'))
 
@@ -259,7 +262,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # This has the happy side effect of not caching our dynamically calculated
         # recommendation queries, which might change for the same user over time
         # because they do not return topics
-        if topic_only and pure_parent_query:
+        if topic_only and parent_filter_only:
             cache.set(cache_key, result, 60 * 10)
 
         return result
@@ -334,15 +337,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         if user.is_facility_user:  # exclude anon users
             if user.roles.exists() or user.is_superuser:  # must have coach role or higher
-                if instance.kind == content_kinds.TOPIC:
-                    return instance.get_descendants() \
-                        .filter(coach_content=True, available=True) \
-                        .exclude(kind=content_kinds.TOPIC) \
-                        .distinct() \
-                        .count()
-                else:
-                    return 1 if instance.coach_content else 0
-
+                return get_num_coach_contents(instance)
         # all other conditions return 0
         return 0
 
@@ -384,14 +379,10 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             .count()
 
     def get_num_coach_contents(self, instance):
-        if instance.kind == content_kinds.TOPIC:
-            return instance.get_descendants() \
-                .filter(coach_content=True, available=True) \
-                .exclude(kind=content_kinds.TOPIC) \
-                .distinct() \
-                .count()
-        else:
-            return 1 if instance.coach_content else 0
+        # If for exporting, only show what is available on server. For importing,
+        # show all of the coach contents in the topic.
+        for_export = self.context['request'].query_params.get('for_export', None)
+        return get_num_coach_contents(instance, filter_available=for_export)
 
     def get_importable(self, instance):
         drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)

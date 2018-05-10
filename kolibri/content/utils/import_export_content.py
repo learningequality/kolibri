@@ -1,4 +1,5 @@
 from django.db.models import Sum
+from le_utils.constants import content_kinds
 
 from kolibri.content.models import ContentNode
 from kolibri.content.models import LocalFile
@@ -34,3 +35,29 @@ def get_files_to_transfer(channel_id, node_ids, exclude_node_ids, available, ren
     total_bytes_to_transfer = files_to_transfer.aggregate(Sum('file_size'))['file_size__sum'] or 0
 
     return files_to_transfer, total_bytes_to_transfer
+
+
+def _get_node_ids(node_ids):
+
+    return ContentNode.objects \
+        .filter(pk__in=node_ids) \
+        .get_descendants(include_self=True) \
+        .values_list('id', flat=True)
+
+
+def get_num_coach_contents(contentnode, filter_available=True):
+    """
+    Given a ContentNode model, return the number of Coach Contents underneath it
+    """
+    if contentnode.kind == content_kinds.TOPIC:
+        queryset = contentnode.get_descendants().filter(coach_content=True)
+
+        if filter_available:
+            queryset = queryset.filter(available=True)
+
+        return queryset \
+            .exclude(kind=content_kinds.TOPIC) \
+            .distinct() \
+            .count()
+    else:
+        return 1 if contentnode.coach_content else 0

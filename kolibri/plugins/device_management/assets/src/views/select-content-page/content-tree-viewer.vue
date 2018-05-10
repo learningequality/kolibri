@@ -205,5 +205,7 @@
 
   .select-all
     white-space: nowrap
+    .k-checkbox-container
+      margin-right: -70px
 
 </style>

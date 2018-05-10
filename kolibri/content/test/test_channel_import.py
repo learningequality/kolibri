@@ -1,6 +1,7 @@
 import json
 import os
 import pickle
+import uuid
 
 from django.core.management import call_command
 from django.test import TestCase
@@ -14,9 +15,12 @@ from sqlalchemy import create_engine
 from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
 from kolibri.content import models as content
+from kolibri.content.models import AssessmentMetaData
 from kolibri.content.models import ChannelMetadata
 from kolibri.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.content.models import ContentNode
+from kolibri.content.models import File
+from kolibri.content.models import LocalFile
 from kolibri.content.models import NO_VERSION
 from kolibri.content.models import V020BETA1
 from kolibri.content.models import V040BETA3
@@ -224,9 +228,9 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         model_mock = MagicMock()
+        model_mock._meta.pk.name = 'test_attr'
         merge_models.append(model_mock)
         channel_import.table_import(model_mock, lambda x, y: 'test_val', lambda x: [{}]*100, 0)
-        channel_import.destination.session.merge.assert_has_calls([call(record_mock(**{'test_attr': 'test_val'}))]*100)
         channel_import.destination.session.flush.assert_not_called()
 
     @patch('kolibri.content.utils.channel_import.merge_models', new=[])
@@ -237,9 +241,9 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         model_mock = Mock()
+        model_mock._meta.pk.name = 'test_attr'
         merge_models.append(model_mock)
         channel_import.table_import(model_mock, lambda x, y: 'test_val', lambda x: [{}]*10000, 0)
-        channel_import.destination.session.merge.assert_has_calls([call(record_mock(**{'test_attr': 'test_val'}))]*10000)
         channel_import.destination.session.flush.assert_called_once_with()
 
 
@@ -261,11 +265,13 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
         }
         with patch.object(channel_import, 'generate_row_mapper'),\
             patch.object(channel_import, 'generate_table_mapper'),\
-                patch.object(channel_import, 'table_import'):
+                patch.object(channel_import, 'table_import'),\
+                patch.object(channel_import, 'check_and_delete_existing_channel'):
             channel_import.import_channel_data()
             channel_import.generate_row_mapper.assert_called_once_with(mapping_mock.get('per_row'))
             channel_import.generate_table_mapper.assert_called_once_with(mapping_mock.get('per_table'))
             channel_import.table_import.assert_called_once()
+            channel_import.check_and_delete_existing_channel.assert_called_once()
             channel_import.destination.session.commit.assert_called_once_with()
 
     def test_end(self, apps_mock, tree_id_mock, BridgeMock):
@@ -295,9 +301,10 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
 
 class MaliciousDatabaseTestCase(TestCase):
 
-    @patch('kolibri.content.utils.channel_import.set_availability')
+    @patch('kolibri.content.utils.channel_import.set_leaf_node_availability_from_local_file_availability')
+    @patch('kolibri.content.utils.channel_import.recurse_availability_up_tree')
     @patch('kolibri.content.utils.channel_import.initialize_import_manager')
-    def test_non_existent_root_node(self, initialize_manager_mock, availability_mock):
+    def test_non_existent_root_node(self, initialize_manager_mock, recurse_mock, leaf_mock):
         import_mock = MagicMock()
         initialize_manager_mock.return_value = import_mock
         channel_id = '6199dde695db4ee4ab392222d5af1e5c'
@@ -322,27 +329,22 @@ SCHEMA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{nam
 
 DATA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{name}_content_data.json')
 
-class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
-    """
-    Integration test for naive import - this is run using a TransactionTestCase,
+
+class ContentImportTestBase(TransactionTestCase):
+    """This is run using a TransactionTestCase,
     as by default, Django runs each test inside an atomic context in order to easily roll back
     any changes to the DB. However, as we are setting things in the Django DB using SQLAlchemy
     these changes are not caught by this atomic context, and data will persist across tests.
     In order to deal with this, we call an explicit db flush at the end of every test case,
     both this flush and the SQLAlchemy insertions can cause issues with the atomic context used
-    by Django.
-    """
-
-    # When incrementing content schema versions, this should be incremented to the new version
-    # A new TestCase for importing for this old version should then be subclassed from this TestCase
-    # See 'NoVersionImportTestCase' below for an example
-
-    name = CONTENT_SCHEMA_VERSION
-
-    legacy_schema = None
+    by Django."""
 
     @property
     def schema_name(self):
+        return self.legacy_schema or self.name
+
+    @property
+    def data_name(self):
         return self.legacy_schema or self.name
 
     def setUp(self):
@@ -351,7 +353,7 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
         except (IOError, EOFError):
             print('No content schema and/or data for {name}'.format(name=self.schema_name))
 
-        super(NaiveImportTestCase, self).setUp()
+        super(ContentImportTestBase, self).setUp()
 
     def set_content_fixture(self):
         self.content_engine = create_engine('sqlite:///:memory:', convert_unicode=True)
@@ -359,7 +361,7 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
         with open(SCHEMA_PATH_TEMPLATE.format(name=self.schema_name), 'rb') as f:
             metadata = pickle.load(f)
 
-        with open(DATA_PATH_TEMPLATE.format(name=self.schema_name), 'r') as f:
+        with open(DATA_PATH_TEMPLATE.format(name=self.data_name), 'r') as f:
             data = json.load(f)
 
         metadata.bind = self.content_engine
@@ -391,12 +393,101 @@ class NaiveImportTestCase(ContentNodeTestBase, TransactionTestCase):
 
     def tearDown(self):
         call_command('flush', interactive=False)
-        super(NaiveImportTestCase, self).tearDown()
+        super(ContentImportTestBase, self).tearDown()
 
     @classmethod
     def tearDownClass(cls):
         django_connection_engine().dispose()
-        super(NaiveImportTestCase, cls).tearDownClass()
+        super(ContentImportTestBase, cls).tearDownClass()
+
+
+class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
+    """
+    Integration test for naive import
+    """
+
+    # When incrementing content schema versions, this should be incremented to the new version
+    # A new TestCase for importing for this old version should then be subclassed from this TestCase
+    # See 'NoVersionImportTestCase' below for an example
+
+    name = CONTENT_SCHEMA_VERSION
+
+    legacy_schema = None
+
+    def test_no_update_old_version(self):
+        channel = ChannelMetadata.objects.first()
+        channel.version += 1
+        channel_version = channel.version
+        channel.save()
+        self.set_content_fixture()
+        channel.refresh_from_db()
+        self.assertEqual(channel.version, channel_version)
+
+    def test_localfile_available_remain_after_import(self):
+        local_file = LocalFile.objects.get(pk='9f9438fe6b0d42dd8e913d7d04cfb2b2')
+        local_file.available = True
+        local_file.save()
+        self.set_content_fixture()
+        local_file.refresh_from_db()
+        self.assertTrue(local_file.available)
+
+    def residual_object_deleted(self, Model):
+        # Checks that objects previously associated with a channel are deleted on channel upgrade
+        obj = Model.objects.first()
+        # older databases may not import data for all models so if this is None, ignore
+        if obj is not None:
+            # Set id to a new UUID so that it does an insert at save
+            obj.id = uuid.uuid4().hex
+            obj.save()
+            obj_id = obj.id
+            channel = ChannelMetadata.objects.first()
+            # Decrement current channel version to ensure reimport
+            channel.version -= 1
+            channel.save()
+            self.set_content_fixture()
+            with self.assertRaises(Model.DoesNotExist):
+                assert Model.objects.get(pk=obj_id)
+
+    def test_residual_file_deleted_after_reimport(self):
+        self.residual_object_deleted(File)
+
+    def test_residual_assessmentmetadata_deleted_after_reimport(self):
+        self.residual_object_deleted(AssessmentMetaData)
+
+    def test_residual_contentnode_deleted_after_reimport(self):
+        root_node = ChannelMetadata.objects.first().root
+        obj = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            parent=root_node,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+        )
+        obj_id = obj.id
+        channel = ChannelMetadata.objects.first()
+        # Decrement current channel version to ensure reimport
+        channel.version -= 1
+        channel.save()
+        self.set_content_fixture()
+        with self.assertRaises(ContentNode.DoesNotExist):
+            assert ContentNode.objects.get(pk=obj_id)
+
+
+class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase):
+    """
+    When using Postgres, char limits on fields are enforced strictly. This was causing errors importing as described in:
+    https://github.com/learningequality/kolibri/issues/3600
+    """
+
+    name = CONTENT_SCHEMA_VERSION
+    legacy_schema = None
+    data_name = "longdescriptions"
+
+    longdescription = "soverylong" * 45
+
+    def test_long_descriptions(self):
+        self.assertEqual(ContentNode.objects.get(id="32a941fb77c2576e8f6b294cde4c3b0c").license_description, self.longdescription)
+        self.assertEqual(ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").description, self.longdescription)
 
 
 class Version1ImportTestCase(NaiveImportTestCase):
@@ -410,6 +501,10 @@ class Version1ImportTestCase(NaiveImportTestCase):
     def tearDownClass(cls):
         super(Version1ImportTestCase, cls).tearDownClass()
 
+    @classmethod
+    def setUpClass(cls):
+        super(Version1ImportTestCase, cls).setUpClass()
+
 
 class NoVersionImportTestCase(NaiveImportTestCase):
     """
@@ -421,6 +516,10 @@ class NoVersionImportTestCase(NaiveImportTestCase):
     @classmethod
     def tearDownClass(cls):
         super(NoVersionImportTestCase, cls).tearDownClass()
+
+    @classmethod
+    def setUpClass(cls):
+        super(NoVersionImportTestCase, cls).setUpClass()
 
 
 class NoVersionv020ImportTestCase(NoVersionImportTestCase):
@@ -440,6 +539,10 @@ class NoVersionv020ImportTestCase(NoVersionImportTestCase):
     def tearDownClass(cls):
         super(NoVersionv020ImportTestCase, cls).tearDownClass()
 
+    @classmethod
+    def setUpClass(cls):
+        super(NoVersionv020ImportTestCase, cls).setUpClass()
+
 
 class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
     """
@@ -452,3 +555,7 @@ class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
     @classmethod
     def tearDownClass(cls):
         super(NoVersionv020ImportTestCase, cls).tearDownClass()
+
+    @classmethod
+    def setUpClass(cls):
+        super(NoVersionv040ImportTestCase, cls).setUpClass()

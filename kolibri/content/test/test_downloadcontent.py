@@ -1,20 +1,22 @@
-import os
-import tempfile
 import hashlib
 import mimetypes
-from django.test import TestCase, Client
-from django.test.utils import override_settings
-from kolibri.content.models import File, ContentNode, LocalFile
-from kolibri.content.utils.paths import get_content_storage_file_path
+import os
+import tempfile
+
+from django.test import Client
+from django.test import TestCase
+from le_utils.constants import file_formats
+from le_utils.constants import format_presets
+
 from kolibri.auth.test.helpers import provision_device
-from le_utils.constants import file_formats, format_presets
+from kolibri.content.models import ContentNode
+from kolibri.content.models import File
+from kolibri.content.models import LocalFile
+from kolibri.content.utils.paths import get_content_storage_file_path
+from kolibri.utils.tests.helpers import override_option
 
-CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
 
-
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-)
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class DownloadContentTestCase(TestCase):
     """
     Test case for the downloadcontent endpoint.

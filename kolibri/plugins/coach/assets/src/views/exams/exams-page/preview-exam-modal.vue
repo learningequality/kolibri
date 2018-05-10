@@ -42,6 +42,7 @@
                   <coach-content-label
                     class="coach-content-label"
                     :value="numCoachContents(exercise)"
+                    :isTopic="false"
                   />
                 </li>
               </ol>

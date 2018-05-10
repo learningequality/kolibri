@@ -140,10 +140,7 @@ def run_server(port):
     })
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
-    serve_static_dir(settings.CONTENT_DATABASE_DIR,
-                     paths.get_content_database_url("/"))
-    serve_static_dir(settings.CONTENT_STORAGE_DIR,
-                     paths.get_content_storage_url("/"))
+    serve_static_dir(paths.get_content_dir_path(), paths.get_content_url("/"))
 
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()

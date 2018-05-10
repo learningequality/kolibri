@@ -94,7 +94,7 @@
     installedChannelsWithResources,
     wizardState,
   } from '../../state/getters';
-  import { transitionWizardPage } from '../../state/actions/contentWizardActions';
+  import { transitionWizardPage, FORWARD } from '../../state/actions/contentWizardActions';
   import { TransferTypes } from '../../constants';
 
   const ALL_FILTER = 'ALL';
@@ -199,7 +199,7 @@
         return Boolean(match);
       },
       goToChannel(channel) {
-        this.transitionWizardPage('forward', { channel });
+        this.transitionWizardPage(FORWARD, { channel });
       },
       showChannel(channel) {
         let languageMatches = true;

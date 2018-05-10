@@ -6,7 +6,8 @@
     <page-header :title="content.title" dir="auto" class="ta-l" />
     <coach-content-label
       class="coach-content-label"
-      :value="content.num_coach_contents"
+      :value="content.coach_content ? 1 : 0"
+      :isTopic="isTopic"
     />
 
     <content-renderer
@@ -24,16 +25,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession"
-    >
-      <k-button
-        :primary="true"
-        @click="nextContentClicked"
-        v-if="showNextBtn"
-        class="float"
-        :text="$tr('nextContent')"
-        alignment="right"
-      />
-    </content-renderer>
+    />
 
     <assessment-wrapper
       v-else
@@ -51,16 +43,16 @@
       :extraFields="content.extra_fields"
       :checkButtonIsPrimary="!showNextBtn"
       :initSession="initSession"
-    >
-      <k-button
-        :primary="true"
-        @click="nextContentClicked"
-        v-if="showNextBtn"
-        class="float"
-        :text="$tr('nextContent')"
-        alignment="right"
-      />
-    </assessment-wrapper>
+    />
+
+    <k-button
+      :primary="true"
+      @click="nextContentClicked"
+      v-if="showNextBtn"
+      class="float"
+      :text="$tr('nextContent')"
+      alignment="right"
+    />
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
     <!-- TODO: RTL - Remove ta-l -->
@@ -192,6 +184,9 @@
       licenceDescriptionIsVisible: false,
     }),
     computed: {
+      isTopic() {
+        return this.content.kind === ContentNodeKinds.TOPIC;
+      },
       canDownload() {
         if (this.facilityConfig.showDownloadButtonInLearn && this.content) {
           return (

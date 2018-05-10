@@ -247,6 +247,7 @@ class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
 class ClassroomFilter(FilterSet):
 
     role = CharFilter(method="filter_has_role_for")
+    parent = ModelChoiceFilter(queryset=Facility.objects.all())
 
     def filter_has_role_for(self, queryset, name, value):
         requesting_user = get_user(self.request)
@@ -266,7 +267,7 @@ class ClassroomFilter(FilterSet):
 
     class Meta:
         model = Classroom
-        fields = ['role', ]
+        fields = ['role', 'parent', ]
 
 
 class ClassroomViewSet(viewsets.ModelViewSet):

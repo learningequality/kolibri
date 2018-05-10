@@ -14,7 +14,7 @@ from rest_framework.test import APITestCase
 
 from kolibri.content.models import ChannelMetadata, ContentNode
 from kolibri.core.exams.models import Exam
-from kolibri.logger.models import ExamLog
+from kolibri.logger.models import ExamLog, ExamAttemptLog
 
 from .factory_logger import (
     FacilityUserFactory, ContentSessionLogFactory,
@@ -23,7 +23,7 @@ from .factory_logger import (
 )
 
 from ..models import ContentSessionLog, ContentSummaryLog, UserSessionLog
-from ..serializers import ContentSessionLogSerializer, ContentSummaryLogSerializer
+from ..serializers import ContentSessionLogSerializer, ContentSummaryLogSerializer, ExamLogSerializer
 from kolibri.auth.test.test_api import FacilityFactory, ClassroomFactory, LearnerGroupFactory, DUMMY_PASSWORD
 from kolibri.auth.test.helpers import create_superuser, provision_device
 
@@ -385,8 +385,18 @@ class ExamAttemptLogAPITestCase(APITestCase):
         provision_device()
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
-        self.exam = Exam.objects.create(title="", channel_id="", question_count=0, collection=self.facility, creator=self.user2, active=True)
+        self.exam = Exam.objects.create(title="", channel_id="", question_count=1, collection=self.facility, creator=self.user2, active=True)
         self.examlog = ExamLog.objects.create(exam=self.exam, user=self.user1)
+        [ExamAttemptLog.objects.create(
+            item="d4623921a2ef5ddaa39048c0f7a6fe06",
+            examlog=self.examlog,
+            user=self.user1,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            start_timestamp=str(datetime.datetime.now().replace(minute=x, hour=x, second=x)),
+            end_timestamp=str(datetime.datetime.now().replace(minute=x, hour=x, second=x)),
+            correct=0
+        ) for x in range(3)]
 
         self.examattemptdata = {
             "item": "test",
@@ -412,6 +422,10 @@ class ExamAttemptLogAPITestCase(APITestCase):
         self.examlog.save()
         response = self.client.post(reverse('examattemptlog-list'), data=self.examattemptdata)
         self.assertEqual(response.status_code, 403)
+
+    def test_examlog_attempt_get_progress(self):
+        exam_attempt_log_data = ExamLogSerializer(self.examlog).data
+        self.assertEqual(exam_attempt_log_data['progress'], 1)
 
     def tearDown(self):
         self.client.logout()

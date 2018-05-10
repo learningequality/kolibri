@@ -5,7 +5,7 @@ import {
   handleApiError,
 } from 'kolibri.coreVue.vuex.actions';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
+import { currentUserId, isSuperuser, currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import { PageNames } from '../../constants';
 import { _userState, _managePageTitle } from './helpers/mappers';
 import preparePage from './helpers/preparePage';
@@ -156,7 +156,9 @@ export function showUserPage(store) {
     title: _managePageTitle('Users'),
   });
 
-  FacilityUserResource.getCollection()
+  const facilityId = currentFacilityId(store.state);
+
+  FacilityUserResource.getCollection({ member_of: facilityId })
     .fetch({}, true)
     .only(
       samePageCheckGenerator(store),

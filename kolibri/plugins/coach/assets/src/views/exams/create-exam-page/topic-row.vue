@@ -22,6 +22,7 @@
       <coach-content-label
         class="coach-content-label"
         :value="numCoachContents"
+        :isTopic="true"
       />
     </td>
     <td>

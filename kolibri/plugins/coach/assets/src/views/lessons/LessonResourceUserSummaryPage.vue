@@ -19,6 +19,7 @@
             <coach-content-label
               class="coach-content-label"
               :value="contentNode.num_coach_contents"
+              :isTopic="false"
             />
           </dd>
         </dl>

@@ -41,6 +41,7 @@
           :kind="content.kind"
           :message="selectionMetadata(content.id)"
           :link="contentLink(content)"
+          :numCoachContents="content.num_coach_contents"
         />
       </li>
     </ul>
