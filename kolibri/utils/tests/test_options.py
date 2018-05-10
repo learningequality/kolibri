@@ -155,3 +155,24 @@ def test_option_writing():
         OPTIONS = options.read_options_file(conf.KOLIBRI_HOME, ini_filename=tmp_ini_path)
         assert OPTIONS["Paths"]["CONTENT_DIR"] == _NEW_CONTENT_DIR
         assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_GOOD
+
+
+def test_path_expansion():
+    """
+    Checks that options under [Path] have "~" expanded, and are relativized to the KOLIBRI_HOME directory.
+    """
+    KOLIBRI_HOME_TEMP = tempfile.mkdtemp()
+
+    _, tmp_ini_path = tempfile.mkstemp(prefix='options', suffix='.ini')
+
+    with mock.patch.dict(os.environ, {'KOLIBRI_CONTENT_DIR': "/absolute"}):
+        OPTIONS = options.read_options_file(KOLIBRI_HOME_TEMP, ini_filename=tmp_ini_path)
+        assert OPTIONS["Paths"]["CONTENT_DIR"] == "/absolute"
+
+    with mock.patch.dict(os.environ, {'KOLIBRI_CONTENT_DIR': "relative"}):
+        OPTIONS = options.read_options_file(KOLIBRI_HOME_TEMP, ini_filename=tmp_ini_path)
+        assert OPTIONS["Paths"]["CONTENT_DIR"] == os.path.join(KOLIBRI_HOME_TEMP, "relative")
+
+    with mock.patch.dict(os.environ, {'KOLIBRI_CONTENT_DIR': "~/homeiswherethecatis"}):
+        OPTIONS = options.read_options_file(KOLIBRI_HOME_TEMP, ini_filename=tmp_ini_path)
+        assert OPTIONS["Paths"]["CONTENT_DIR"] == os.path.expanduser("~/homeiswherethecatis")
