@@ -421,7 +421,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_channelmetadata_file_sizes_filter_has_total_file_size(self):
         content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
         response = self.client.get(reverse("channel-list"), {"file_sizes": True})
-        self.assertEqual(response.data[0]["total_file_size"], 2)
+        self.assertEqual(response.data[0]["total_file_size"], 3)
 
     def test_channelmetadata_file_sizes_filter_has_on_device_resources(self):
         response = self.client.get(reverse("channel-list"), {"file_sizes": True})
@@ -430,7 +430,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_channelmetadata_file_sizes_filter_has_on_device_file_size(self):
         content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
         response = self.client.get(reverse("channel-list"), {"file_sizes": True})
-        self.assertEqual(response.data[0]["on_device_file_size"], 2)
+        self.assertEqual(response.data[0]["on_device_file_size"], 3)
 
     def test_channelmetadata_file_sizes_filter_has_no_on_device_file_size(self):
         content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(available=True)
@@ -465,7 +465,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
-        self.assertEqual(len(response.data), 5)
+        self.assertEqual(len(response.data), 6)
 
     def test_file_retrieve(self):
         response = self.client.get(self._reverse_channel_url("file-detail", {'pk': "9f9438fe6b0d42dd8e913d7d04cfb2b1"}))

@@ -1,7 +1,9 @@
 import logging as logger
 import os
+from time import sleep
 
 from django.core.management.base import CommandError
+from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 
 from ...utils import annotation
@@ -147,34 +149,42 @@ class Command(AsyncCommand):
                     srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
                     filetransfer = transfer.FileCopy(srcpath, dest)
 
-                try:
+                finished = False
+                while not finished:
+                    try:
+                        with filetransfer:
+                            with self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
+                                for chunk in filetransfer:
+                                    if self.is_cancelled():
+                                        filetransfer.cancel()
+                                        finished = True
+                                        break
+                                    length = len(chunk)
+                                    overall_progress_update(length)
+                                    file_dl_progress_update(length)
 
-                    with filetransfer:
+                        file_checksums_to_annotate.append(f.id)
+                        finished = True
 
-                        with self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
+                    # When there is an Internet connection error, wait for 30 seconds to retry
+                    except ConnectionError:
+                        for i in range(30):
+                            if self.is_cancelled():
+                                self.cancel()
+                                finished = True
+                                break
+                            sleep(1)
 
-                            for chunk in filetransfer:
-                                if self.is_cancelled():
-                                    filetransfer.cancel()
-                                    break
-                                length = len(chunk)
-                                overall_progress_update(length)
-                                file_dl_progress_update(length)
-
-                    file_checksums_to_annotate.append(f.id)
-
-                except HTTPError:
-                    overall_progress_update(f.file_size)
-
-                except OSError:
-                    number_of_skipped_files += 1
-                    overall_progress_update(f.file_size)
+                    # When the file cannot be found on the server or disk, skip it
+                    except (HTTPError, OSError):
+                        number_of_skipped_files += 1
+                        overall_progress_update(f.file_size)
 
             annotation.set_availability(channel_id, file_checksums_to_annotate)
 
             if number_of_skipped_files > 0:
                 logging.warning(
-                    "{} files are skipped, because they are not found in the given external drive.".format(
+                    "{} files are skipped, because they do not exist.".format(
                         number_of_skipped_files))
 
             if self.is_cancelled():

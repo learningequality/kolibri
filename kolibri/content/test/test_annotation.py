@@ -200,10 +200,10 @@ class LocalFileByDisk(TransactionTestCase):
         set_local_file_availability_from_disk()
         self.assertEqual(LocalFile.objects.exclude(available=True).count(), 0)
 
-    @patch('kolibri.content.utils.annotation.get_content_storage_file_path', side_effect=[mock_content_file[1]]*2 + ['']*3)
+    @patch('kolibri.content.utils.annotation.get_content_storage_file_path', side_effect=[mock_content_file[1]]*3 + ['']*4)
     def test_set_all_files_two_exist(self, path_mock):
         set_local_file_availability_from_disk()
-        self.assertEqual(LocalFile.objects.filter(available=True).count(), 2)
+        self.assertEqual(LocalFile.objects.filter(available=True).count(), 3)
         self.assertEqual(LocalFile.objects.exclude(available=True).count(), 3)
 
     def tearDown(self):

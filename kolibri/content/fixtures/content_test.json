@@ -285,6 +285,19 @@
   {
     "fields": {
       "lang": 1,
+      "local_file": "6bdfea4a01830fdd4a585181c0b8068c",
+      "thumbnail": false,
+      "available": true,
+      "preset": "high_res_video",
+      "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
+      "supplementary": false
+    },
+    "pk": "6bdfea4a01830fdd4a585181c0b8068c",
+    "model": "content.file"
+  },
+  {
+    "fields": {
+      "lang": 1,
       "local_file": "9f9438fe6b0d42dd8e913d7d04cfb2b2",
       "thumbnail": false,
       "available": true,
@@ -354,6 +367,15 @@
       "extension": "mp4"
     },
     "pk": "9f9438fe6b0d42dd8e913d7d04cfb2b2",
+    "model": "content.localfile"
+  },
+  {
+    "fields": {
+      "file_size": null,
+      "available": true,
+      "extension": "mp4"
+    },
+    "pk": "6bdfea4a01830fdd4a585181c0b8068c",
     "model": "content.localfile"
   },
   {

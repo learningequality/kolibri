@@ -1,6 +1,7 @@
 import logging as logger
 import os
 import shutil
+
 import requests
 from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError
@@ -141,7 +142,10 @@ class FileDownload(Transfer):
         super(FileDownload, self).__init__(*args, **kwargs)
 
     def start(self):
-        assert not self.started, "File download has already been started, and cannot be started again"
+        # If a file download was stopped by Internet connection error,
+        # then reopen the temp file to write to it
+        if self.started:
+            self.dest_file_obj = open(self.dest_tmp, "ab")
 
         # initialize the requests session, with backoff-retries enabled
         self.session = requests.Session()

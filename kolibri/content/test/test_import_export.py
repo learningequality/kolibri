@@ -3,9 +3,9 @@ import tempfile
 
 from django.core.management import call_command
 from django.test import TestCase
-
 from mock import call
 from mock import patch
+from requests.exceptions import ConnectionError
 
 from kolibri.content.models import LocalFile
 from kolibri.utils.tests.helpers import override_option
@@ -168,6 +168,16 @@ class ImportContentTestCase(TestCase):
         FileCopyMock.assert_called_with(local_src_path, local_dest_path)
         FileCopyMock.assert_has_calls([call().cancel()])
         cancel_mock.assert_called_with()
+        annotation_mock.set_availability.assert_called()
+
+    @patch('kolibri.content.management.commands.importcontent.len')
+    @patch('kolibri.content.utils.transfer.Transfer.next', side_effect=ConnectionError)
+    @patch('kolibri.content.management.commands.importcontent.AsyncCommand.cancel')
+    @patch('kolibri.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, True, True, True])
+    def test_remote_cancel_during_connect_error(self, is_cancelled_mock, cancel_mock, next_mock, len_mock, annotation_mock):
+        call_command("importcontent", "network", self.the_channel_id, node_ids=['32a941fb77c2576e8f6b294cde4c3b0c'])
+        cancel_mock.assert_called_with()
+        len_mock.assert_not_called()
         annotation_mock.set_availability.assert_called()
 
 
