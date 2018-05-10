@@ -1,0 +1,115 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-02-23 17:34-0800\n"
+"PO-Revision-Date: 2018-05-10 13:33-0400\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Bengali\n"
+"Language: bn_BD\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: bn\n"
+"X-Crowdin-File: /release-v0.9.x/django.po\n"
+
+#: kolibri/auth/constants/collection_kinds.py:14
+#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "ফ্যাসিলিটি"
+
+#: kolibri/auth/constants/collection_kinds.py:15
+msgid "Classroom"
+msgstr "শ্রেণীকক্ষ"
+
+#: kolibri/auth/constants/collection_kinds.py:16
+msgid "Learner group"
+msgstr "শিক্ষার্থী দল"
+
+#: kolibri/auth/constants/role_kinds.py:12
+msgid "Admin"
+msgstr "অ্যাডমিন"
+
+#: kolibri/auth/constants/role_kinds.py:13
+msgid "Coach"
+msgstr "প্রশিক্ষক"
+
+#: kolibri/auth/models.py:210
+msgid "username"
+msgstr "ব্যবহারকারীর নাম"
+
+#: kolibri/auth/models.py:212
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr "সর্বাধিক ৩০টি অক্ষর ব্যবহার করা যাবে। শুধুমাত্র বর্ণ এবং সংখ্যা"
+
+#: kolibri/auth/models.py:216
+msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
+msgstr "একটি সঠিক ব্যবহারকারীর নাম লিখুন। এতে শুধুমাত্র বর্ণ, সংখ্যা ও আন্ডারস্কোর থাকতে পারে।"
+
+#: kolibri/auth/models.py:220
+msgid "full name"
+msgstr "পুরো নাম"
+
+#: kolibri/auth/models.py:221
+msgid "date joined"
+msgstr "যোগদানের তারিখ"
+
+#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+msgid "An account with that username already exists"
+msgstr "এই ব্যবহারকারী নামে একটি অ্যাকাউন্ট ইতিমধ্যেই রয়েছে"
+
+#: kolibri/content/api.py:74
+msgid "Content"
+msgstr "বিষয়বস্তু"
+
+#: kolibri/content/api.py:363
+msgid "The requested channel does not exist on the content server"
+msgstr "এই চ্যানেলটি বিষয়বস্তুর সার্ভারে নেই"
+
+#: kolibri/content/models.py:187
+msgid "Unknown format"
+msgstr "অজানা ফরম্যাট"
+
+#: kolibri/core/device/serializers.py:44
+msgid "Language is not supported by Kolibri"
+msgstr "ভাষাটি কলিব্রিতে ব্যবহারযোগ্য নয়"
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr "কলিব্রি"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "এই ব্রাউজারটি ব্যবহার করা যাবে না"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "দুঃখিত, আপনার ব্রাউজারের এই সংস্করণটি ব্যবহার করা যাবে না।"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "কলিব্রি ব্যবহারের জন্য আমরা ফায়ারফক্স এবং ক্রোম ব্যবহারের পরামর্শ দিই।"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "আপনার বর্তমান ব্রাউজারটি আপডেট করার চেষ্টাও করতে পারেন।"
+
+#: kolibri/plugins/device_management/kolibri_plugin.py:30
+msgid "Device"
+msgstr "ডিভাইস"
+
+#: kolibri/tasks/api.py:31
+msgid "There was a network error."
+msgstr "নেটওয়ার্কে সমস্যা হয়েছে।"
+
+#: kolibri/tasks/api.py:33
+msgid "There was a disk access error."
+msgstr "ডিস্ক অ্যাক্সেস করতে সমস্যা হচ্ছে।"
+
+#: kolibri/tasks/api.py:35
+msgid "There was an unknown error."
+msgstr "একটা অজানা সমস্যা হয়েছে।"
+
