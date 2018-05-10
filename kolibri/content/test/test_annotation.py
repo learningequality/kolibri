@@ -1,4 +1,5 @@
 import tempfile
+import uuid
 
 from django.core.management import call_command
 from django.test import TransactionTestCase
@@ -48,6 +49,17 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
         self.assertFalse(all(
             ContentNode.objects.exclude(
                 kind=content_kinds.TOPIC).exclude(id='32a941fb77c2576e8f6b294cde4c3b0c').values_list('available', flat=True)))
+
+    def test_other_channel_node_still_available(self):
+        test = ContentNode.objects.filter(kind=content_kinds.VIDEO).first()
+        test.id = uuid.uuid4().hex
+        test.channel_id = uuid.uuid4().hex
+        test.available = True
+        test.parent = None
+        test.save()
+        set_leaf_node_availability_from_local_file_availability(test_channel_id)
+        test.refresh_from_db()
+        self.assertTrue(test.available)
 
     def tearDown(self):
         call_command('flush', interactive=False)

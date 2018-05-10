@@ -181,7 +181,18 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
     # run validation once again to fill in any default values for options we deleted due to issues
     conf.validate(Validator())
 
+    # ensure all arguments under section "Paths" are fully resolved and expanded, relative to KOLIBRI_HOME
+    _expand_paths(KOLIBRI_HOME, conf.get("Paths", {}))
+
     return conf
+
+
+def _expand_paths(basepath, pathdict):
+    """
+    Resolve all paths in a dict, relative to a base path, and after expanding "~" into the user's home directory.
+    """
+    for key, path in pathdict.items():
+        pathdict[key] = os.path.join(basepath, os.path.expanduser(path))
 
 
 def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):

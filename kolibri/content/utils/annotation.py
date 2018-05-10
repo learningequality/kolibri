@@ -66,16 +66,17 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
             FileTable.c.supplementary == False
         )
     ).where(
-        and_(
-            ContentNodeTable.c.id == FileTable.c.contentnode_id,
-            ContentNodeTable.c.channel_id == channel_id,
-        )
+        ContentNodeTable.c.id == FileTable.c.contentnode_id,
     )
 
     logging.info('Setting availability of non-topic ContentNode objects based on File availability')
 
     connection.execute(ContentNodeTable.update().where(
-        ContentNodeTable.c.kind != content_kinds.TOPIC).values(available=exists(contentnode_statement)).execution_options(autocommit=True))
+        and_(
+            ContentNodeTable.c.kind != content_kinds.TOPIC,
+            ContentNodeTable.c.channel_id == channel_id,
+        )
+    ).values(available=exists(contentnode_statement)).execution_options(autocommit=True))
 
     bridge.end()
 
