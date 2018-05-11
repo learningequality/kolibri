@@ -30,6 +30,7 @@ Architecture: all
 Depends: python3 (<< 3.7),
          python3 (>= 3.4),
          python3-pkg-resources,
+         python3-distutils,
          adduser
 Recommends: python3-cryptography
 # Depends: ${python3:Depends}, ${misc:Depends}
