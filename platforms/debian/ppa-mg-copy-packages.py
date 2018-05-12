@@ -27,10 +27,10 @@ from launchpadlib.launchpad import Launchpad
 
 PPA_OWNER = 'learningequality'
 PPA_NAME = 'kolibri-proposed'
-PACKAGE_WHITELIST = ['kolibri']
+PACKAGE_WHITELIST = ['kolibri-source']
 
 SOURCE_SERIES = 'trusty'
-TARGET_SERIESES = ['trusty', 'xenial', 'artful', 'bionic', 'jessie']
+TARGET_SERIESES = ['trusty', 'xenial', 'artful', 'bionic']
 POCKET = 'Release'
 
 APP_NAME = 'ppa-kolibri-copy-packages'
