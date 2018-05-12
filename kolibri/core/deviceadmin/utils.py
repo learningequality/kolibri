@@ -6,15 +6,14 @@ import subprocess
 import sys
 from datetime import datetime
 
-# Import db instead of db.connections because we want to use an instance of
-# connections that might be updated from outside.
 from django import db
 from django.conf import settings
 
 import kolibri
-
-from ...utils import server
-from ...utils.conf import KOLIBRI_HOME
+from kolibri.utils import server
+from kolibri.utils.conf import KOLIBRI_HOME
+# Import db instead of db.connections because we want to use an instance of
+# connections that might be updated from outside.
 
 logger = logging.getLogger(__name__)
 
