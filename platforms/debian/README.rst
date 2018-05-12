@@ -99,6 +99,12 @@ Workflow
     git feature new-release
     git commit -m "My new debian release"
 
+    # 11. Push changes to kolibri-proposed PPA
+    dput ppa:learningequality/kolibri-proposed kolibri-source_<version>.changes
+
+    # 12. Once built (wait for about 10 minutes), you can copy the binary pkgs to the other dist names
+    ../../ppa-mg-copy-packages.py -v --debug
+
 
 Bootstrapping a simple build
 ----------------------------
