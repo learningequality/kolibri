@@ -1,8 +1,14 @@
 <template>
 
-  <core-base :topLevelPageName="DEVICE" :appBarTitle="$tr('deviceManagementTitle')">
+  <core-base
+    :topLevelPageName="DEVICE"
+    :appBarTitle="$tr('deviceManagementTitle')"
+  >
     <transition name="delay-entry">
-      <welcome-modal @closeModal="hideWelcomeModal" v-if="welcomeModalVisible" />
+      <welcome-modal
+        v-if="welcomeModalVisible"
+        @closeModal="hideWelcomeModal"
+      />
     </transition>
 
     <div>
@@ -28,10 +34,10 @@
   import welcomeModal from './welcome-modal';
 
   const pageNameComponentMap = {
-    [PageNames.MANAGE_CONTENT_PAGE]: 'manageContentPage',
-    [PageNames.MANAGE_PERMISSIONS_PAGE]: 'managePermissionsPage',
-    [PageNames.USER_PERMISSIONS_PAGE]: 'userPermissionsPage',
-    [PageNames.DEVICE_INFO_PAGE]: 'deviceInfoPage',
+    [PageNames.MANAGE_CONTENT_PAGE]: manageContentPage,
+    [PageNames.MANAGE_PERMISSIONS_PAGE]: managePermissionsPage,
+    [PageNames.USER_PERMISSIONS_PAGE]: userPermissionsPage,
+    [PageNames.DEVICE_INFO_PAGE]: deviceInfoPage,
   };
 
   export default {
@@ -39,11 +45,7 @@
     components: {
       coreBase,
       welcomeModal,
-      manageContentPage,
-      managePermissionsPage,
       topNavigation,
-      userPermissionsPage,
-      deviceInfoPage,
     },
     computed: {
       DEVICE: () => TopLevelPageNames.DEVICE,
@@ -73,10 +75,10 @@
 
 <style lang="stylus" scoped>
 
-  .delay-entry
-    &-enter
+  .delay-entry-enter
       opacity: 0
-    &-enter-active
+
+  .delay-entry-enter-active
       transition: opacity 0.75s
 
 </style>
