@@ -281,7 +281,7 @@ class ContentNodeFilter(IdFilter):
         # Also exclude topics that are 100% coach content
         def node_only_has_coach_content(contentnode):
             if (contentnode.kind == content_kinds.TOPIC):
-                return not node.get_descendants() \
+                return not contentnode.get_descendants() \
                     .exclude(kind=content_kinds.TOPIC) \
                     .exclude(coach_content=True) \
                     .exists()
