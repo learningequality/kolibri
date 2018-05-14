@@ -33,7 +33,18 @@ class Router {
         delete route.handler;
       }
     });
-    this._vueRouter = new VueRouter(Object.assign({ routes }));
+    this._vueRouter = new VueRouter(
+      Object.assign({
+        routes,
+        scrollBehavior(to, from, savedPosition) {
+          if (savedPosition) {
+            return savedPosition;
+          } else {
+            return { x: 0, y: 0 };
+          }
+        },
+      })
+    );
     this._vueRouter.beforeEach(this._hook.bind(this));
     return this.getInstance();
   }
