@@ -30,7 +30,7 @@ def get_content_dir_path(datafolder=None):
         "content",
     ) if datafolder else conf.OPTIONS["Paths"]["CONTENT_DIR"]
 
-def get_content_database_dir_path(datafolder=None):
+def get_content_database_dir_path(datafolder=None, external=False):
     """
     Returns the path to the content sqlite databases
     ($HOME/.kolibri/content/databases on POSIX systems, by default)
@@ -39,7 +39,7 @@ def get_content_database_dir_path(datafolder=None):
         get_content_dir_path(datafolder),
         "databases",
     )
-    if not os.path.isdir(path):
+    if not os.path.isdir(path) and not external:
         os.makedirs(path)
     return path
 
