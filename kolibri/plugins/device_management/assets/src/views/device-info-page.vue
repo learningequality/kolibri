@@ -12,7 +12,7 @@
           <th>
             {{ $tr('url', { count: info.urls.length }) }}
           </th>
-          <td>
+          <td class="urlSpace">
             <a
               v-for="(url, index) in info.urls"
               :key="index"
@@ -106,12 +106,14 @@
     padding-bottom: 24px
     padding-right: 24px
 
-  td
-    font-family: monospace
+  td:not(.urlSpace)
     padding-bottom: 24px
 
   .link
     display: block
     margin-bottom: 8px
+
+  .urlSpace
+    padding-bottom: 16px
 
 </style>
