@@ -5,6 +5,12 @@
     "english_name": "Arabic"
   },
   {
+    "language_code": "bn",
+    "territory_code": "bd",
+    "language_name": "বাংলা",
+    "english_name": "Bengali"
+  },
+  {
     "language_code": "en",
     "language_name": "English"
   },
@@ -68,5 +74,15 @@
     "territory_code": "pk",
     "language_name": "اُردو (پاکستان)‏",
     "english_name": "Urdu (Pakistani)"
+  },
+  {
+    "language_code": "yo",
+    "language_name": "Yorùbá",
+    "english_name": "Yoruba"
+  },
+  {
+    "language_code": "zu",
+    "language_name": "isiZulu",
+    "english_name": "Zulu"
   }
 ]

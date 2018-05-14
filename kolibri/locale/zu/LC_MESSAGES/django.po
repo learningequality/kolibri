@@ -1,0 +1,115 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-02-23 17:34-0800\n"
+"PO-Revision-Date: 2018-05-10 13:33-0400\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Zulu\n"
+"Language: zu_ZA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: zu\n"
+"X-Crowdin-File: /release-v0.9.x/django.po\n"
+
+#: kolibri/auth/constants/collection_kinds.py:14
+#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "Isikhungo"
+
+#: kolibri/auth/constants/collection_kinds.py:15
+msgid "Classroom"
+msgstr "Ikilasi"
+
+#: kolibri/auth/constants/collection_kinds.py:16
+msgid "Learner group"
+msgstr "Iqembu lomfundi"
+
+#: kolibri/auth/constants/role_kinds.py:12
+msgid "Admin"
+msgstr "Abalawuli"
+
+#: kolibri/auth/constants/role_kinds.py:13
+msgid "Coach"
+msgstr "Umqeqeshi"
+
+#: kolibri/auth/models.py:210
+msgid "username"
+msgstr "igama lomsebenzisi"
+
+#: kolibri/auth/models.py:212
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr "Okudingekayo. Izinhlamvu ezingu-30 noma ngaphansi. Izinhlamvu zamagama noma izinombolo kuphela"
+
+#: kolibri/auth/models.py:216
+msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
+msgstr "Faka igama lomsebenzisi elisebenzayo. Leli nani lingakhiwa ngezinhlamvu zamagama, izinombolo, kanye nezimpawu kuphela."
+
+#: kolibri/auth/models.py:220
+msgid "full name"
+msgstr "igama eliphelele"
+
+#: kolibri/auth/models.py:221
+msgid "date joined"
+msgstr "usuku ongene ngalo"
+
+#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+msgid "An account with that username already exists"
+msgstr "I-akhawunti enalelo gama lomsebenzini seyikhona"
+
+#: kolibri/content/api.py:74
+msgid "Content"
+msgstr "Okuqukethwe"
+
+#: kolibri/content/api.py:363
+msgid "The requested channel does not exist on the content server"
+msgstr "Ishaneli eceliwe ayikho ku-server yokuqukethwe"
+
+#: kolibri/content/models.py:187
+msgid "Unknown format"
+msgstr "Uhlelo olungaziwa"
+
+#: kolibri/core/device/serializers.py:44
+msgid "Language is not supported by Kolibri"
+msgstr "Ulimi alusekelwe ikolibri"
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr "Ikolibri"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "Isiphequluli esingasekelwe"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "Uxolo, isiphequluli sakho asisekelwe."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "Sincoma ukuthi usebenzise iFirefox noma iChrome ukuze usebenzise ikolibri."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "Ungazama nokubukeza isiphequluli sakho samanje."
+
+#: kolibri/plugins/device_management/kolibri_plugin.py:30
+msgid "Device"
+msgstr "Umshini"
+
+#: kolibri/tasks/api.py:31
+msgid "There was a network error."
+msgstr "Kube nephutha lokuxhumana."
+
+#: kolibri/tasks/api.py:33
+msgid "There was a disk access error."
+msgstr "Kube nephutha lokutholakala kwediski."
+
+#: kolibri/tasks/api.py:35
+msgid "There was an unknown error."
+msgstr "Kube nephutha elingaziwa."
+
