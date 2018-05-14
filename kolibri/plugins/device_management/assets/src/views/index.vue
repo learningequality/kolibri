@@ -3,6 +3,7 @@
   <core-base
     :topLevelPageName="DEVICE"
     :appBarTitle="$tr('deviceManagementTitle')"
+    :immersivePage="isImmersivePage"
   >
     <transition name="delay-entry">
       <welcome-modal
@@ -25,19 +26,23 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import coreBase from 'kolibri.coreVue.components.coreBase';
-  import { PageNames } from '../constants';
+  import { ContentWizardPages, PageNames } from '../constants';
   import topNavigation from './device-top-nav';
   import manageContentPage from './manage-content-page';
   import managePermissionsPage from './manage-permissions-page';
   import userPermissionsPage from './user-permissions-page';
   import deviceInfoPage from './device-info-page';
   import welcomeModal from './welcome-modal';
+  import availableChannelsPage from './available-channels-page';
+  import selectContentPage from './select-content-page';
 
   const pageNameComponentMap = {
     [PageNames.MANAGE_CONTENT_PAGE]: manageContentPage,
     [PageNames.MANAGE_PERMISSIONS_PAGE]: managePermissionsPage,
     [PageNames.USER_PERMISSIONS_PAGE]: userPermissionsPage,
     [PageNames.DEVICE_INFO_PAGE]: deviceInfoPage,
+    [ContentWizardPages.AVAILABLE_CHANNELS]: availableChannelsPage,
+    [ContentWizardPages.SELECT_CONTENT]: selectContentPage,
   };
 
   export default {
@@ -51,6 +56,12 @@
       DEVICE: () => TopLevelPageNames.DEVICE,
       currentPage() {
         return pageNameComponentMap[this.pageName];
+      },
+      isImmersivePage() {
+        return (
+          this.pageName === ContentWizardPages.AVAILABLE_CHANNELS ||
+          this.pageName === ContentWizardPages.SELECT_CONTENT
+        );
       },
     },
     vuex: {
