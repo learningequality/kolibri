@@ -11,6 +11,7 @@ tqdm==4.19.6                     # progress bars
 requests==2.18.4
 cherrypy==13.0.1  # Temporarily pinning this until CherryPy stops depending on namespaced package, see #2971 # pyup: <13.1.0
 iceqube==0.0.4
+futures==3.1.1
 porter2stemmer==1.0
 unicodecsv==0.14.1
 metafone==0.5
