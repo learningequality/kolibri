@@ -28,6 +28,7 @@
             :channel="channel"
             mode="MANAGE"
             @clickdelete="selectedChannelId=channel.id"
+            @import_more="handleImportMore"
           />
         </div>
       </div>
@@ -84,11 +85,14 @@
     },
     methods: {
       handleDeleteChannel() {
-        if (this.selectedChannelId !== null) {
+        if (this.channelIsSelected) {
           const channelId = this.selectedChannelId;
           this.selectedChannelId = null;
           this.triggerChannelDeleteTask(channelId);
         }
+      },
+      handleImportMore(channel) {
+        console.log(channel);
       },
     },
     vuex: {
@@ -116,8 +120,8 @@
   @require '~kolibri.styles.definitions'
 
   .channel-list-header
-    font-size: 0.85em
-    padding: 1em 0
+    font-size: 12px
+    padding: 16px 0
     color: $core-text-annotation
 
   .channel-list-item:first-of-type

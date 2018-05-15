@@ -75,12 +75,12 @@
         :text="$tr('selectButton')"
         :disabled="tasksInQueue"
       />
-      <k-button
+      <k-dropdown-menu
         v-if="inManageMode"
-        @click="$emit('clickdelete')"
-        name="delete"
-        :text="$tr('deleteButton')"
+        :text="$tr('manageChannelActions')"
         :disabled="tasksInQueue"
+        :options="manageChannelActions"
+        @select="handleManageChannelAction($event.value)"
       />
     </div>
   </div>
@@ -90,8 +90,9 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import UiIcon from 'keen-ui/src/UiIcon';
   import { channelIsInstalled } from '../../state/getters';
   import bytesForHumans from './bytesForHumans';
@@ -102,11 +103,17 @@
     MANAGE: 'MANAGE',
   };
 
+  const ChannelActions = {
+    DELETE_CHANNEL: 'DELETE_CHANNEL',
+    IMPORT_MORE_FROM_CHANNEL: 'IMPORT_MORE_FROM_CHANNEL',
+  };
+
   export default {
     name: 'channelListItem',
     components: {
       coachContentLabel,
       kButton,
+      kDropdownMenu,
       UiIcon,
     },
     props: {
@@ -127,6 +134,18 @@
       },
     },
     computed: {
+      manageChannelActions() {
+        return [
+          {
+            label: this.$tr('importMoreFromChannel'),
+            value: ChannelActions.IMPORT_MORE_FROM_CHANNEL,
+          },
+          {
+            label: this.$tr('deleteChannel'),
+            value: ChannelActions.DELETE_CHANNEL,
+          },
+        ];
+      },
       inImportMode() {
         return this.mode === Modes.IMPORT;
       },
@@ -154,6 +173,14 @@
         return this.channel.version;
       },
     },
+    methods: {
+      handleManageChannelAction(action) {
+        if (action === ChannelActions.DELETE_CHANNEL) {
+          return this.$emit('clickdelete');
+        }
+        return this.$emit('import_more', { ...this.channel });
+      },
+    },
     vuex: {
       getters: {
         pageState: ({ pageState }) => pageState,
@@ -161,11 +188,13 @@
       },
     },
     $trs: {
-      deleteButton: 'Delete',
+      defaultDescription: '(No description)',
+      deleteChannel: 'Delete',
+      importMoreFromChannel: 'Import more',
+      manageChannelActions: 'Actions',
       onYourDevice: 'On your device',
       selectButton: 'Select',
       version: 'Version {version}',
-      defaultDescription: '(No description)',
     },
   };
 
