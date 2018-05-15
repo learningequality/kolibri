@@ -149,7 +149,7 @@ class EcosystemTestCase(TestCase):
         return resp
 
     def assertServerQuerysetEqual(self, s1, s2):
-        syncable_models = _profile_models['facilitydata'].values()
+        syncable_models = list(_profile_models['facilitydata'].values())
         syncable_models.pop(0)  # remove FacilityDataset because __str__() does not point to correct db alias
         for klass in syncable_models:
             self.assertQuerysetEqual(klass.objects.using(s1.db_alias).all(),
