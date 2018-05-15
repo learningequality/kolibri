@@ -70,7 +70,7 @@ def read_channel_metadata_from_db_file(channeldbpath):
 
 def get_channels_for_data_folder(datafolder):
     channels = []
-    for path in enumerate_content_database_file_paths(get_content_database_dir_path(datafolder, external=True)):
+    for path in enumerate_content_database_file_paths(get_content_database_dir_path(datafolder)):
         channel = read_channel_metadata_from_db_file(path)
         channel_data = {
             "path": path,

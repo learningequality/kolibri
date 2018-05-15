@@ -30,7 +30,7 @@ def get_content_dir_path(datafolder=None):
         "content",
     ) if datafolder else conf.OPTIONS["Paths"]["CONTENT_DIR"]
 
-def get_content_database_dir_path(datafolder=None, external=False):
+def get_content_database_dir_path(datafolder=None):
     """
     Returns the path to the content sqlite databases
     ($HOME/.kolibri/content/databases on POSIX systems, by default)
@@ -39,8 +39,13 @@ def get_content_database_dir_path(datafolder=None, external=False):
         get_content_dir_path(datafolder),
         "databases",
     )
-    if not os.path.isdir(path) and not external:
-        os.makedirs(path)
+    if not os.path.isdir(path):
+        try:
+            os.makedirs(path)
+        # When importing from USB, it does not need to create a database
+        # directory under the external drives that are not writable.
+        except OSError:
+            pass
     return path
 
 def get_content_database_file_path(channel_id, datafolder=None):
