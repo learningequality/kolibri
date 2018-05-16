@@ -17,7 +17,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
-from porter2stemmer import Porter2Stemmer
 from rest_framework import mixins
 from rest_framework import pagination
 from rest_framework import viewsets
@@ -38,7 +37,6 @@ from kolibri.logger.models import ContentSummaryLog
 
 
 logger = logging.getLogger(__name__)
-stemmer = Porter2Stemmer()
 
 class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available")
@@ -123,10 +121,10 @@ class ContentNodeFilter(IdFilter):
             Q(description__icontains=value),
             # all words in description
             intersection([Q(description__icontains=w) for w in words]),
-            # any stemmed words in title
-            union([Q(title__icontains=stemmer.stem(w)) for w in words]),
-            # any stemmed words in description
-            union([Q(description__icontains=stemmer.stem(w)) for w in words]),
+            # any words in title
+            union([Q(title__icontains=w) for w in words]),
+            # any words in description
+            union([Q(description__icontains=w) for w in words]),
         ]
 
         results = []
