@@ -1,3 +1,4 @@
+import isEmpty from 'lodash/isEmpty';
 import { ContentWizardPages as PageNames, TransferTypes } from '../../constants';
 import { showAvailableChannelsPage } from './availableChannelsActions';
 import { loadChannelMetaData, showSelectContentPage } from './selectContentActions';
@@ -31,8 +32,11 @@ export function transitionWizardPage(store, transition, params) {
   }
 
   if (transition === CANCEL) {
+    store.dispatch('SET_TRANSFERRED_CHANNEL', {});
     return _updatePageName('');
   }
+
+  const { transferredChannel } = store.state.pageState.wizardState;
 
   // AT LANDING PAGE
   // Forward with params : { import : Boolean }
@@ -57,7 +61,12 @@ export function transitionWizardPage(store, transition, params) {
     }
     if (source === KOLIBRI_STUDIO) {
       _updateTransferType(TransferTypes.REMOTEIMPORT);
-      return showAvailableChannelsPage(store);
+      // From top-level import workflow
+      if (isEmpty(transferredChannel)) {
+        return showAvailableChannelsPage(store);
+      }
+      // From import-more-from-channel workflow
+      return loadChannelMetaData(store);
     }
   }
 
@@ -65,7 +74,12 @@ export function transitionWizardPage(store, transition, params) {
   // Forward with params : { driveId }
   if (wizardPage === PageNames.SELECT_DRIVE && transition === FORWARD) {
     store.dispatch('SET_SELECTED_DRIVE', params.driveId);
-    return showAvailableChannelsPage(store);
+    // From top-level import workflow
+    if (isEmpty(transferredChannel)) {
+      return showAvailableChannelsPage(store);
+    }
+    // From import-more-from-channel workflow
+    return loadChannelMetaData(store);
   }
 
   // At AVAILABLE_CHANNELS

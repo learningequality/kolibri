@@ -51,6 +51,7 @@
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
+  import { transitionWizardPage } from '../../state/actions/contentWizardActions';
   import { installedChannelsWithResources, installedChannelListLoading } from '../../state/getters';
   import deleteChannelModal from './delete-channel-modal';
   import channelListItem from './channel-list-item';
@@ -92,7 +93,8 @@
         }
       },
       handleImportMore(channel) {
-        console.log(channel);
+        this.setTransferredChannel(channel);
+        this.transitionWizardPage('forward', { import: true });
       },
     },
     vuex: {
@@ -104,6 +106,10 @@
       actions: {
         triggerChannelDeleteTask,
         refreshChannelList,
+        transitionWizardPage,
+        setTransferredChannel(store, channel) {
+          store.dispatch('SET_TRANSFERRED_CHANNEL', channel);
+        },
       },
     },
     $trs: {
