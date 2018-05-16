@@ -1,93 +1,88 @@
 <template>
 
-  <immersive-full-screen
-    :backPageText="$tr('selectContent')"
-    :backPageLink="goBackLink"
-  >
-    <subpage-container withSideMargin>
-      <task-progress
-        v-if="showUpdateProgressBar"
-        type="UPDATING_CHANNEL"
-        status="QUEUED"
-        :percentage="0"
-        :showButtons="true"
-        :cancellable="true"
-        @cleartask="returnToChannelsList"
-        id="updatingchannel"
-      />
-      <task-progress
-        v-else-if="taskInProgress"
-        type="DOWNLOADING_CHANNEL_CONTENTS"
-        v-bind="firstTask"
-        :showButtons="true"
-        :cancellable="true"
-        @cleartask="returnToChannelsList"
-      />
+  <div>
+    <task-progress
+      v-if="showUpdateProgressBar"
+      type="UPDATING_CHANNEL"
+      status="QUEUED"
+      :percentage="0"
+      :showButtons="true"
+      :cancellable="true"
+      @cleartask="returnToChannelsList"
+      id="updatingchannel"
+    />
+    <task-progress
+      v-else-if="taskInProgress"
+      type="DOWNLOADING_CHANNEL_CONTENTS"
+      v-bind="firstTask"
+      :showButtons="true"
+      :cancellable="true"
+      @cleartask="returnToChannelsList"
+    />
 
-      <section class="notifications">
-        <ui-alert
-          v-if="newVersionAvailable"
-          type="info"
-          :removeIcon="true"
-          :dismissible="false"
-        >
-          {{ $tr('newVersionAvailableNotification') }}
-        </ui-alert>
-      </section>
-
-      <section v-if="onDeviceInfoIsReady" class="updates">
-        <div
-          class="updates-available"
-          v-if="newVersionAvailable"
-        >
-          <span>
-            {{ $tr('newVersionAvailable', { version: channel.version }) }}
-          </span>
-          <k-button
-            :text="$tr('update')"
-            :primary="true"
-            name="update"
-            @click="updateChannelMetadata()"
-          />
-        </div>
-        <span v-else>{{ $tr('channelUpToDate') }}</span>
-      </section>
-
-      <channel-contents-summary
-        :channel="channel"
-        :channelOnDevice="channelOnDevice"
-      />
-
-      <!-- Assuming that if wizardState.status is truthy, it's an error -->
+    <section class="notifications">
       <ui-alert
-        v-if="wizardStatus!==''"
+        v-if="newVersionAvailable"
+        type="info"
+        :removeIcon="true"
+        :dismissible="false"
+      >
+        {{ $tr('newVersionAvailableNotification') }}
+      </ui-alert>
+    </section>
+
+    <section v-if="onDeviceInfoIsReady" class="updates">
+      <div
+        class="updates-available"
+        v-if="newVersionAvailable"
+      >
+        <span>
+          {{ $tr('newVersionAvailable', { version: channel.version }) }}
+        </span>
+        <k-button
+          :text="$tr('update')"
+          :primary="true"
+          name="update"
+          @click="updateChannelMetadata()"
+        />
+      </div>
+      <span v-else>{{ $tr('channelUpToDate') }}</span>
+    </section>
+
+    <channel-contents-summary
+      :channel="channel"
+      :channelOnDevice="channelOnDevice"
+    />
+
+    <!-- Assuming that if wizardState.status is truthy, it's an error -->
+    <ui-alert
+      v-if="wizardStatus!==''"
+      type="error"
+      :dismissible="false"
+    >
+      {{ $tr('problemFetchingChannel') }}
+    </ui-alert>
+
+    <template v-if="onDeviceInfoIsReady">
+      <ui-alert
+        v-if="contentTransferError"
         type="error"
         :dismissible="false"
       >
-        {{ $tr('problemFetchingChannel') }}
+        {{ $tr('problemTransferringContents') }}
       </ui-alert>
-
-      <template v-if="onDeviceInfoIsReady">
-        <ui-alert
-          v-if="contentTransferError"
-          type="error"
-          :dismissible="false"
-        >
-          {{ $tr('problemTransferringContents') }}
-        </ui-alert>
-        <!-- Contains size estimates + submit button -->
-        <selected-resources-size
-          :mode="mode"
-          :fileSize="nodeCounts.fileSize"
-          :resourceCount="nodeCounts.resources"
-          :spaceOnDrive="availableSpace"
-          @clickconfirm="startTransferringContent()"
-        />
-        <hr>
-        <content-tree-viewer />
-      </template>
-    </subpage-container>
-  </immersive-full-screen>
+      <!-- Contains size estimates + submit button -->
+      <selected-resources-size
+        :mode="mode"
+        :fileSize="nodeCounts.fileSize"
+        :resourceCount="nodeCounts.resources"
+        :spaceOnDrive="availableSpace"
+        @clickconfirm="startTransferringContent()"
+      />
+      <hr>
+      <content-tree-viewer />
+    </template>
+  </div>
 
 </template>
 

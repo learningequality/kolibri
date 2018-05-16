@@ -2,8 +2,10 @@
 
   <core-base
     :topLevelPageName="DEVICE"
-    :appBarTitle="$tr('deviceManagementTitle')"
-    :immersivePage="isImmersivePage"
+    :appBarTitle="currentPageAppBarTitle"
+    :immersivePage="currentPageIsImmersive"
+    :immersivePagePrimary="true"
+    :immersivePageRoute="exitWizardLink"
   >
     <transition name="delay-entry">
       <welcome-modal
@@ -13,7 +15,7 @@
     </transition>
 
     <div>
-      <top-navigation v-if="canManageContent" />
+      <top-navigation v-if="canManageContent && !currentPageIsImmersive" />
       <component :is="currentPage" />
     </div>
   </core-base>
@@ -57,11 +59,25 @@
       currentPage() {
         return pageNameComponentMap[this.pageName];
       },
-      isImmersivePage() {
+      currentPageIsImmersive() {
+        // TODO make user-permissions-page immersive too
         return (
           this.pageName === ContentWizardPages.AVAILABLE_CHANNELS ||
           this.pageName === ContentWizardPages.SELECT_CONTENT
         );
+      },
+      currentPageAppBarTitle() {
+        const trString =
+          {
+            [ContentWizardPages.AVAILABLE_CHANNELS]: 'availableChannelsTitle',
+            [ContentWizardPages.SELECT_CONTENT]: 'selectContentTitle',
+          }[this.pageName] || 'deviceManagementTitle';
+        return this.$tr(trString);
+      },
+      exitWizardLink() {
+        return {
+          name: PageNames.MANAGE_CONTENT_PAGE,
+        };
       },
     },
     vuex: {
@@ -77,7 +93,9 @@
       },
     },
     $trs: {
+      availableChannelsTitle: 'Available Channels',
       deviceManagementTitle: 'Device',
+      selectContentTitle: 'Select Content',
     },
   };
 

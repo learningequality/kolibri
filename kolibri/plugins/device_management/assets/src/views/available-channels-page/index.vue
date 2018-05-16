@@ -1,79 +1,74 @@
 <template>
 
-  <immersive-full-screen
-    :backPageText="backText"
-    :backPageLink="goBackLink"
-  >
-    <subpage-container withSideMargin>
-      <div
-        v-if="channelsAreAvailable"
-        class="top-matter"
-      >
-        <div class="channels dib">
-          <h1>{{ channelsTitle }}</h1>
-          <p>{{ $tr('channelsAvailable', { channels: numberOfAvailableChannels }) }}</p>
-        </div>
-        <div class="filters dib">
-          <k-select
-            :options="languageFilterOptions"
-            v-model="languageFilter"
-            :label="$tr('languageFilterLabel')"
-            :inline="true"
-          />
-          <k-filter-textbox
-            :placeholder="$tr('titleFilterPlaceholder')"
-            v-model="titleFilter"
-            class="title-filter"
-          />
-        </div>
+  <div>
+    <div
+      v-if="channelsAreAvailable"
+      class="top-matter"
+    >
+      <div class="channels dib">
+        <h1>{{ channelsTitle }}</h1>
+        <p>{{ $tr('channelsAvailable', { channels: numberOfAvailableChannels }) }}</p>
+      </div>
+      <div class="filters dib">
+        <k-select
+          :options="languageFilterOptions"
+          v-model="languageFilter"
+          :label="$tr('languageFilterLabel')"
+          :inline="true"
+        />
+        <k-filter-textbox
+          :placeholder="$tr('titleFilterPlaceholder')"
+          v-model="titleFilter"
+          class="title-filter"
+        />
+      </div>
+    </div>
+
+    <k-linear-loader
+      v-if="channelsAreLoading"
+      type="indeterminate"
+      :delay="false"
+    />
+
+    <!-- Similar code in channels-grid -->
+    <div v-if="channelsAreAvailable">
+      <div class="channel-list-header">
+        {{ $tr('channelHeader') }}
       </div>
 
-      <k-linear-loader
-        v-if="channelsAreLoading"
-        type="indeterminate"
-        :delay="false"
+      <div class="channels-list">
+        <channel-list-item
+          v-for="channel in availableChannels"
+          v-show="showChannel(channel)"
+          :channel="channel"
+          :key="channel.id"
+          :onDevice="channelIsOnDevice(channel)"
+          @clickselect="goToChannel(channel)"
+          class="channel-list-item"
+          :mode="channelListItemMode"
+        />
+      </div>
+    </div>
+
+    <section
+      class="unlisted-channels"
+      v-if="showUnlistedChannels"
+    >
+      <channel-token-modal
+        v-if="showTokenModal"
+        @closemodal="showTokenModal=false"
+        @channelfound="goToChannel"
       />
+      <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
 
-      <!-- Similar code in channels-grid -->
-      <div v-if="channelsAreAvailable">
-        <div class="channel-list-header">
-          {{ $tr('channelHeader') }}
-        </div>
-
-        <div class="channels-list">
-          <channel-list-item
-            v-for="channel in availableChannels"
-            v-show="showChannel(channel)"
-            :channel="channel"
-            :key="channel.id"
-            :onDevice="channelIsOnDevice(channel)"
-            @clickselect="goToChannel(channel)"
-            class="channel-list-item"
-            :mode="channelListItemMode"
-          />
-        </div>
-      </div>
-
-      <section
-        class="unlisted-channels"
-        v-if="showUnlistedChannels"
-      >
-        <channel-token-modal
-          v-if="showTokenModal"
-          @closemodal="showTokenModal=false"
-          @channelfound="goToChannel"
-        />
-        <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
-
-        <k-button
-          :text="$tr('channelTokenButtonLabel')"
-          appearance="basic-link"
-          name="showtokenmodal"
-          @click="showTokenModal=true"
-        />
-      </section>
-    </subpage-container>
-  </immersive-full-screen>
+      <k-button
+        :text="$tr('channelTokenButtonLabel')"
+        appearance="basic-link"
+        name="showtokenmodal"
+        @click="showTokenModal=true"
+      />
+    </section>
+  </div>
 
 </template>
 
