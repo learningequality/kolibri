@@ -320,7 +320,7 @@ class NoVersionChannelImport(ChannelImport):
         license = self.get_license(SourceRecord)
         if not license:
             return None
-        return license.license_description
+        return getattr(license, "license_description", "")
 
 
 mappings = {
