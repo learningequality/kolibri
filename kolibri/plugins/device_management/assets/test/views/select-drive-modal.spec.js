@@ -28,6 +28,7 @@ function makeStore() {
       pageState: {
         wizardState: {
           transferType: 'localimport',
+          transferredChannel: {},
           driveList: [
             {
               id: 'unwritable_drive',
@@ -37,8 +38,14 @@ function makeStore() {
             },
             {
               id: 'writable_importable_drive',
-              metadata: { channels: [{ id: 'channel_1' }] },
+              metadata: { channels: [{ id: 'channel_1', version: 1 }] },
               name: 'Writable and Importable',
+              writable: true,
+            },
+            {
+              id: 'incompatible_chanel_drive',
+              metadata: { channels: [{ id: 'channel_2', version: 1 }] },
+              name: 'Incompatible Channel',
               writable: true,
             },
             {
@@ -64,6 +71,7 @@ function getElements(wrapper) {
     writableImportableRadio: () => wrapper.find('input[value="writable_importable_drive"]'),
     noContentRadio: () => wrapper.find('input[value="no_content_drive"]'),
     unwritableRadio: () => wrapper.find('input[value="unwritable_drive"]'),
+    incompatibleRadio: () => wrapper.find('input[value="incompatible_chanel_drive"]'),
     cancelButton: () => wrapper.find('.core-modal-buttons button'),
     continueButton: () => wrapper.findAll('.core-modal-buttons button').at(1),
     UiAlerts: () => wrapper.find(UiAlert),
@@ -124,6 +132,32 @@ describe('selectDriveModal component', () => {
     const { writableImportableRadio, noContentRadio } = getElements(wrapper);
     expect(writableImportableRadio().is('input')).to.be.true;
     expect(noContentRadio().exists()).to.be.false;
+  });
+
+  it('in import more mode, drive-list only shows drives with a compatible channel', () => {
+    setTransferType('localimport');
+    const channel = {
+      id: 'channel_1',
+      version: 1,
+    };
+    store.state.pageState.wizardState.transferredChannel = { ...channel };
+    store.state.pageState.channelList = [{ ...channel }];
+    const wrapper = makeWrapper({ store });
+    const { writableImportableRadio } = getElements(wrapper);
+    expect(writableImportableRadio().is('input')).to.be.true;
+  });
+
+  it('in import more mode, drive-list hides drives with an incompatible channel', () => {
+    setTransferType('localimport');
+    const channel = {
+      id: 'channel_2',
+      version: 6,
+    };
+    store.state.pageState.wizardState.transferredChannel = { ...channel };
+    store.state.pageState.channelList = [{ ...channel }];
+    const wrapper = makeWrapper({ store });
+    const { incompatibleRadio } = getElements(wrapper);
+    expect(incompatibleRadio().exists()).to.be.false;
   });
 
   it('in export mode, drive-list only shows drives that are writable', () => {
