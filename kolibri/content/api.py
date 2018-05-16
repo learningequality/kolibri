@@ -17,6 +17,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
+from porter2stemmer import Porter2Stemmer
 from rest_framework import mixins
 from rest_framework import pagination
 from rest_framework import viewsets
@@ -37,7 +38,7 @@ from kolibri.logger.models import ContentSummaryLog
 
 
 logger = logging.getLogger(__name__)
-
+stemmer = Porter2Stemmer()
 
 class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available")
@@ -103,26 +104,55 @@ class ContentNodeFilter(IdFilter):
         Implement various filtering strategies in order to get a wide range of search results.
         """
 
-        # search the whole string in the title or description
-        query = Q(title__icontains=value) | Q(description__icontains=value)
+        # return the result of and-ing a list of queries
+        def intersection(queries):
+            return reduce(lambda x, y: x & y, queries)
 
-        # split string up by spaces and search each individual string in title or description
-        str_arr = value.split()
-        for string in str_arr:
-            query.add(Q(title__icontains=string) | Q(description__icontains=string), Q.OR)
-        matches = queryset.filter(query)
+        # return the result of or-ing a list of queries
+        def union(queries):
+            return reduce(lambda x, y: x | y, queries)
 
-        # remove duplicate content items based on content_id
-        content_id_set = set()
-        id_list = []
-        for id_pair in matches.values('content_id', 'id'):
-            if id_pair['content_id'] in content_id_set:
-                pass
-            else:
-                content_id_set.add(id_pair['content_id'])
-                id_list.append(id_pair['id'])
+        # queries ordered by relevance priority
+        words = value.split()
+        all_queries = [
+            # exact match in title
+            Q(title__icontains=value),
+            # all words in title
+            intersection([Q(title__icontains=w) for w in words]),
+            # exact match in description
+            Q(description__icontains=value),
+            # all words in description
+            intersection([Q(description__icontains=w) for w in words]),
+            # any stemmed words in title
+            union([Q(title__icontains=stemmer.stem(w)) for w in words]),
+            # any stemmed words in description
+            union([Q(description__icontains=stemmer.stem(w)) for w in words]),
+        ]
 
-        return matches.filter(id__in=id_list[:30])
+        results = []
+        content_ids = set()
+        MAX_RESULTS = 30
+        BUFFER_SIZE = MAX_RESULTS * 3  # grab some extras, but not too many
+
+        # iterate over each query type, and build up search results
+        for query in all_queries:
+            # in each pass, don't take any items already in the result set
+            matches = queryset.exclude(content_id__in=list(content_ids)).filter(query)[:BUFFER_SIZE]
+
+            for match in matches:
+                # filter the dupes
+                if match.content_id in content_ids:
+                    continue
+                # add new, unique results
+                content_ids.add(match.content_id)
+                results.append(match)
+
+                # bail out as soon as we reach the quota
+                if len(results) >= MAX_RESULTS:
+                    return results
+
+        # we've tried all the queries and still have fewer than MAX_RESULTS results
+        return results
 
     def filter_recommendations_for(self, queryset, name, value):
         """
