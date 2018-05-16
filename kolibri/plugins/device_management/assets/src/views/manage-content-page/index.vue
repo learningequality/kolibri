@@ -60,9 +60,7 @@
   import { refreshTaskList, cancelTask } from '../../state/actions/taskActions';
   import { transitionWizardPage, FORWARD } from '../../state/actions/contentWizardActions';
   import { ContentWizardPages } from '../../constants';
-  import availableChannelsPage from '../available-channels-page';
   import subpageContainer from '../containers/subpage-container';
-  import selectContentPage from '../select-content-page';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import channelsGrid from './channels-grid';
   import selectImportSource from './wizards/select-import-source-modal';
@@ -72,9 +70,6 @@
   const pageNameComponentMap = {
     [ContentWizardPages.SELECT_IMPORT_SOURCE]: selectImportSource,
     [ContentWizardPages.SELECT_DRIVE]: selectDriveModal,
-    [ContentWizardPages.AVAILABLE_CHANNELS]: availableChannelsPage,
-    [ContentWizardPages.SELECT_CONTENT]: selectContentPage,
-    [ContentWizardPages.LOADING_CHANNEL_METADATA]: selectContentPage,
   };
 
   const POLL_DELAY = 1000;

@@ -37,6 +37,7 @@ export function transitionWizardPage(store, transition, params) {
   }
 
   const { transferredChannel } = store.state.pageState.wizardState;
+  const { pageName } = store.state;
 
   // AT LANDING PAGE
   // Forward with params : { import : Boolean }
@@ -84,7 +85,7 @@ export function transitionWizardPage(store, transition, params) {
 
   // At AVAILABLE_CHANNELS
   // Forward with params: { channel }
-  if (wizardPage === PageNames.AVAILABLE_CHANNELS && transition === FORWARD) {
+  if (pageName === PageNames.AVAILABLE_CHANNELS && transition === FORWARD) {
     store.dispatch('SET_TRANSFERRED_CHANNEL', params.channel);
     return loadChannelMetaData(store);
   }
@@ -104,7 +105,7 @@ export function transitionWizardPage(store, transition, params) {
   }
 
   // AT SELECT_CONTENT, going backwards
-  if (wizardPage === PageNames.SELECT_CONTENT && transition === BACKWARD) {
+  if (pageName === PageNames.SELECT_CONTENT && transition === BACKWARD) {
     store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
     return Promise.resolve();
   }

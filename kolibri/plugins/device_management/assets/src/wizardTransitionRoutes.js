@@ -45,12 +45,6 @@ export default [
     path: '/content/wizard/topic',
     handler: ({ params, query }) => {
       let nextNode;
-      // Redirect to /content if coming into URL directly without initiating workflow
-      if (
-        get(store.state.pageState, 'wizardState.pageName') !== ContentWizardPages.SELECT_CONTENT
-      ) {
-        return router.replace('/content');
-      }
       if (!params.node) {
         nextNode = {
           // Works fine without title at the moment.

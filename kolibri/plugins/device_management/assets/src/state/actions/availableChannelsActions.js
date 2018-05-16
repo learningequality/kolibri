@@ -9,9 +9,8 @@ import { driveChannelList, installedChannelList, wizardState } from '../getters'
  *
  */
 export function showAvailableChannelsPage(store) {
-  router.push({
-    name: 'GOTO_AVAILABLE_CHANNELS_PAGE',
-  });
+  router.push({ name: 'GOTO_AVAILABLE_CHANNELS_PAGE' });
+  store.dispatch('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
   store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.AVAILABLE_CHANNELS);
   const { transferType, selectedDrive } = wizardState(store.state);
   const setAvailableChannels = store.dispatch.bind(null, 'SET_AVAILABLE_CHANNELS');

@@ -15,6 +15,7 @@ export function loadChannelMetaData(store) {
   let dbPromise;
   const { transferredChannel } = wizardState(store.state);
   const channelOnDevice = channelIsInstalled(store.state)(transferredChannel.id);
+  store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
   store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.LOADING_CHANNEL_METADATA);
   navigateToChannelMetaDataLoading(transferredChannel.id);
 
@@ -55,7 +56,7 @@ export function loadChannelMetaData(store) {
  */
 export function showSelectContentPage(store) {
   const { transferredChannel } = wizardState(store.state);
-  store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.SELECT_CONTENT);
+  store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
   navigateToTopicUrl({ title: transferredChannel.name, pk: transferredChannel.root });
 }
 
