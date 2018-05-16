@@ -32,6 +32,8 @@ def update_channel_metadata():
     If we are potentially moving from a version of Kolibri that did not import its content data,
     scan through the settings.CONTENT_DATABASE_DIR folder for all channel content databases,
     and pull the data from each database if we have not already imported it.
+    Additionally, fix any potential issues that might be in the current content database from bugs
+    in a previous version.
     """
     from .channel_import import import_channel_from_local_db
     channel_ids = get_channel_ids_for_content_database_dir(settings.CONTENT_DATABASE_DIR)
