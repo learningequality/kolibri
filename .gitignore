@@ -90,6 +90,7 @@ storage/*
 kolibri/content/content_db/*.sqlite3
 
 # virtual environment
+.env
 venv/
 
 # leftover from hack day - want to ensure people don't check these in
