@@ -123,16 +123,6 @@
       channelsAreLoading() {
         return this.wizardStatus === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
       },
-      backText() {
-        switch (this.transferType) {
-          case TransferTypes.LOCALEXPORT:
-            return this.$tr('exportToDisk', { driveName: this.selectedDrive.name });
-          case TransferTypes.LOCALIMPORT:
-            return this.$tr('importFromDisk', { driveName: this.selectedDrive.name });
-          default:
-            return this.$tr('kolibriCentralServer');
-        }
-      },
       channelsTitle() {
         switch (this.transferType) {
           case TransferTypes.LOCALEXPORT:
@@ -187,8 +177,19 @@
     },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
+      this.setPageTitle(this.backText(this.transferType));
     },
     methods: {
+      backText(transferType) {
+        switch (transferType) {
+          case TransferTypes.LOCALEXPORT:
+            return this.$tr('exportToDisk', { driveName: this.selectedDrive.name });
+          case TransferTypes.LOCALIMPORT:
+            return this.$tr('importFromDisk', { driveName: this.selectedDrive.name });
+          default:
+            return this.$tr('kolibriCentralServer');
+        }
+      },
       channelIsOnDevice(channel) {
         const match = this.installedChannelsWithResources.find(({ id }) => id === channel.id);
         return Boolean(match);
@@ -225,6 +226,9 @@
       },
       actions: {
         transitionWizardPage,
+        setPageTitle(store, newTitle) {
+          store.dispatch('SET_TOOLBAR_TITLE', newTitle);
+        },
       },
     },
     $trs: {

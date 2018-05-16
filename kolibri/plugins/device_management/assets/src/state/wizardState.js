@@ -1,6 +1,7 @@
 // Minimal state needed to render the manage content page
 export function manageContentPageState() {
   return {
+    toolbarTitle: '',
     channelList: [],
     channelListLoading: false,
     taskList: [],

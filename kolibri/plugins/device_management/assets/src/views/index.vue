@@ -67,12 +67,7 @@
         );
       },
       currentPageAppBarTitle() {
-        const trString =
-          {
-            [ContentWizardPages.AVAILABLE_CHANNELS]: 'availableChannelsTitle',
-            [ContentWizardPages.SELECT_CONTENT]: 'selectContentTitle',
-          }[this.pageName] || 'deviceManagementTitle';
-        return this.$tr(trString);
+        return this.toolbarTitle || this.$tr('deviceManagementTitle');
       },
       exitWizardLink() {
         return {
@@ -85,6 +80,7 @@
         pageName: ({ pageName }) => pageName,
         welcomeModalVisible: ({ welcomeModalVisible }) => welcomeModalVisible,
         canManageContent,
+        toolbarTitle: ({ pageState }) => pageState.toolbarTitle,
       },
       actions: {
         hideWelcomeModal(store) {

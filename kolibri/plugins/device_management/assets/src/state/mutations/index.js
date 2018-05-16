@@ -14,6 +14,9 @@ const mutations = {
   SET_WELCOME_MODAL_VISIBLE(state, visibility) {
     state.welcomeModalVisible = visibility;
   },
+  SET_TOOLBAR_TITLE(state, newTitle) {
+    state.pageState.toolbarTitle = newTitle;
+  },
 };
 
 export default {

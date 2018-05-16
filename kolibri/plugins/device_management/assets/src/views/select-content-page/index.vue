@@ -158,6 +158,9 @@
         return this.nodeTransferCounts(this.transferType);
       },
     },
+    beforeMount() {
+      this.setPageTitle(this.$tr('selectContent'));
+    },
     mounted() {
       this.getAvailableSpaceOnDrive();
     },
@@ -204,6 +207,9 @@
         topicNode: state => wizardState(state).currentTopicNode,
       },
       actions: {
+        setPageTitle(store, newTitle) {
+          store.dispatch('SET_TOOLBAR_TITLE', newTitle);
+        },
         downloadChannelMetadata,
         getAvailableSpaceOnDrive,
         transferChannelContent,
