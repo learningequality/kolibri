@@ -44,13 +44,13 @@ function getElements(wrapper) {
     resourcesSizeText: () => wrapper.find('.resources-size').text().trim(),
     resourcesSize: () => wrapper.find('.resources-size'),
     onDevice: () => wrapper.find('.on-device'),
-    deleteButton: () => wrapper.find('button[name="delete"]'),
     selectButton: () => wrapper.find('button[name="select"]'),
     title: () => wrapper.find('.title').text().trim(),
     version: () => wrapper.find('.version').text().trim(),
     description: () => wrapper.find('.description').text().trim(),
     thumbnail: () => wrapper.find('.thumbnail'),
     addTaskMutation: (task) => wrapper.vm.$store.dispatch('addTask', task),
+    dropdownMenu: () => wrapper.find({ name: 'kDropdownMenu' }),
   };
 }
 
@@ -148,20 +148,23 @@ describe('channelListItem', () => {
 
   it('in MANAGE mode only, clicking "delete" triggers a "clickdelete" event', () => {
     const wrapper = manageWrapper;
-    const { deleteButton, selectButton } = getElements(wrapper);
+    const { dropdownMenu, selectButton } = getElements(wrapper);
     // Select button is not shown
     expect(selectButton().exists()).to.be.false;
-    deleteButton().trigger('click');
-    expect(wrapper.emitted().clickdelete.length).to.equal(1);
+    return wrapper.vm.$nextTick().then(() => {
+      // HACK trigger an event from dropdown menu options, since the actual button is hard to target
+      dropdownMenu().vm.$emit('select', { value: 'DELETE_CHANNEL' });
+      expect(wrapper.emitted().clickdelete.length).to.equal(1);
+    });
   });
 
   it('in MANAGE mode only, delete button is disabled when tasks in queue', () => {
     const wrapper = manageWrapper;
-    const { deleteButton, addTaskMutation } = getElements(wrapper);
+    const { dropdownMenu, addTaskMutation } = getElements(wrapper);
     addTaskMutation({ id: 'task_1' });
     return wrapper.vm.$nextTick().then(() => {
       // prettier-ignore
-      expect(deleteButton().attributes().disabled).to.equal('disabled');
+      expect(dropdownMenu().props().disabled).to.be.true
     });
   });
 

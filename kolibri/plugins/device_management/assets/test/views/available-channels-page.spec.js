@@ -7,7 +7,6 @@ import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
 import kSelect from 'kolibri.coreVue.components.kSelect';
 import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
-import ImmersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
 import cloneDeep from 'lodash/cloneDeep';
 import AvailableChannelsPage from '../../src/views/available-channels-page';
 import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
@@ -99,8 +98,6 @@ function getElements(wrapper) {
     titleText: () => wrapper.find('.channels h1').text().trim(),
     titleFilter: () => wrapper.find(kFilterTextbox),
     unlistedChannelsSection: () => wrapper.findAll('section.unlisted-channels'),
-    wholePageBackLink: () => wrapper.find(ImmersiveFullScreen).props().backPageLink,
-    wholePageBackText: () => wrapper.find(ImmersiveFullScreen).props().backPageText,
   }
 }
 
@@ -121,18 +118,6 @@ describe('availableChannelsPage', () => {
   function setTransferType(transferType) {
     store.state.pageState.wizardState.transferType = transferType;
   }
-
-  it('back button link is correct', () => {
-    const wrapper = makeWrapper();
-    const { wholePageBackLink } = getElements(wrapper);
-    expect(wholePageBackLink()).to.deep.equal({
-      name: 'wizardtransition',
-      path: '',
-      params: {
-        transition: 'cancel',
-      },
-    });
-  });
 
   it('in REMOTEIMPORT mode, the unlisted channel button is available', () => {
     // ...and clicking it opens the channel token modal
@@ -159,8 +144,7 @@ describe('availableChannelsPage', () => {
       name: 'SANDISK (F:)',
     };
     const wrapper = makeWrapper({ store });
-    const { wholePageBackText, titleText } = getElements(wrapper);
-    expect(wholePageBackText()).to.equal('Export to SANDISK (F:)');
+    const { titleText } = getElements(wrapper);
     expect(titleText()).to.equal('Your channels');
   });
 
@@ -171,16 +155,14 @@ describe('availableChannelsPage', () => {
       name: 'SANDISK (G:)',
     };
     const wrapper = makeWrapper({ store });
-    const { wholePageBackText, titleText } = getElements(wrapper);
-    expect(wholePageBackText()).to.equal('Import from SANDISK (G:)');
+    const { titleText } = getElements(wrapper);
     expect(titleText()).to.equal('SANDISK (G:)');
   });
 
   it('in REMOTEIMPORT mode, the back link text and title are correct', () => {
     setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
-    const { wholePageBackText, titleText } = getElements(wrapper);
-    expect(wholePageBackText()).to.equal('Kolibri Studio');
+    const { titleText } = getElements(wrapper);
     expect(titleText()).to.equal('Channels');
   });
 

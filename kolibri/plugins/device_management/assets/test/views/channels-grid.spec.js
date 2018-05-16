@@ -126,9 +126,8 @@ describe('channelsGrid component', () => {
       .$nextTick()
       .then(() => {
         const items = channelListItems();
-        const button = items.at(0).find('button');
-        expect(button.text().trim()).to.equal('Delete');
-        button.trigger('click');
+        const dropdownMenu = items.at(0).find({ name: 'kDropdownMenu' });
+        dropdownMenu.vm.$emit('select', { value: 'DELETE_CHANNEL' });
         return wrapper.vm.$nextTick();
       })
       .then(() => {

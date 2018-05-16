@@ -7,7 +7,6 @@ import { TaskResource, RemoteChannelResource } from 'kolibri.resources';
 import {
   transitionWizardPage,
   FORWARD,
-  BACKWARD,
   LOCAL_DRIVE,
   KOLIBRI_STUDIO,
 } from '../../src/state/actions/contentWizardActions';
@@ -130,6 +129,8 @@ describe('transitionWizardPage action', () => {
           },
         }).then(() => {
           sinon.assert.calledOnce(loadChannelMetaDataStub);
+          // Manually update page name, since loadChannelMetadata is stubbed
+          store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
           store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.LOADING_CHANNEL_METADATA);
           // STEP 4 - LOADING_CHANNEL_METADATA -> SELECT CONTENT PAGE
           return transitionWizardPage(store, FORWARD);
@@ -171,6 +172,7 @@ describe('transitionWizardPage action', () => {
         // STEP 4 - pick the first channel -> go to loading channel metadata
         return transitionWizardPage(store, FORWARD, { channel }).then(() => {
           sinon.assert.calledOnce(loadChannelMetaDataStub);
+          store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
           store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.LOADING_CHANNEL_METADATA);
           // STEP 5 - pick the first channel -> go to "select content" page
           return transitionWizardPage(store, FORWARD);
@@ -205,6 +207,7 @@ describe('transitionWizardPage action', () => {
         // STEP 3 - pick the first channel -> go to loading channel metadata
         return transitionWizardPage(store, FORWARD, { channel }).then(() => {
           sinon.assert.calledOnce(loadChannelMetaDataStub);
+          store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
           store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.LOADING_CHANNEL_METADATA);
           // STEP 4 - pick the first channel -> go to "select content" page
           return transitionWizardPage(store, FORWARD);
@@ -213,49 +216,5 @@ describe('transitionWizardPage action', () => {
       .then(() => {
         sinon.assert.calledOnce(showSelectContentPageStub);
       });
-  });
-
-  it('in all modes, going back from SELECT_CONTENT to AVAILABLE_CHANNELS should reset parts of wizardState', () => {
-    // Putting unrealistic data into state to emphasize the generality of this behavior
-    const initial = {
-      currentTopicNode: {
-        id: 'currentTopicNode',
-      },
-      nodesForTransfer: {
-        included: [1, 2, 3],
-        omitted: [4, 5, 6],
-      },
-      pageName: 'SELECT_CONTENT',
-      availableSpace: 123123123,
-      availableChannels: ['a', 'b', 'c'],
-      driveList: ['c', 'd', 'e'],
-      selectedDrive: {
-        foo: 'bar',
-      },
-      transferType: 'intergalatic',
-      path: [{ bar: 'foo', baz: 'buzz' }],
-      status: 'awesome',
-      pathCache: { a: { b: 1 } },
-      transferredChannel: {
-        id: 'channelios',
-      },
-    };
-    const expected = {
-      ...initial,
-      currentTopicNode: {},
-      nodesForTransfer: {
-        included: [],
-        omitted: [],
-      },
-      pageName: 'AVAILABLE_CHANNELS',
-      path: [],
-      status: '',
-      pathCache: {},
-      transferredChannel: {},
-    };
-    store.state.pageState.wizardState = { ...initial };
-    return transitionWizardPage(store, BACKWARD).then(() => {
-      expect(wizardState(store.state)).to.deep.equal(expected);
-    });
   });
 });

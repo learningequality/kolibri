@@ -40,7 +40,7 @@ function makeWrapper(store) {
   return { wrapper, els };
 }
 
-describe.only('device management index page', () => {
+describe('device management index page', () => {
   let store;
 
   beforeEach(() => {
