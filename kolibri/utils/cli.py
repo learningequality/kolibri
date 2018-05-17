@@ -164,9 +164,6 @@ def initialize(debug=False):
             )
             update()
 
-        # load morango fixtures needed for certificate related operations
-        call_command("loaddata", "scopedefinitions")
-
 
 def _migrate_databases():
     """
@@ -176,6 +173,9 @@ def _migrate_databases():
     from django.conf import settings
     for database in settings.DATABASES:
         call_command("migrate", interactive=False, database=database)
+
+    # load morango fixtures needed for certificate related operations
+    call_command("loaddata", "scopedefinitions")
 
 
 def _first_run():

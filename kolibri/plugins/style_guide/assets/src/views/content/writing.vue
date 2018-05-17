@@ -4,7 +4,7 @@
     <h1>Writing style</h1>
 
     <p>
-      In general, we follow <a href="https://material.io/guidelines/style/writing.html">Material Design's writing guidelines</a>. Our slightly adapted version is below.
+      In general, we follow <a href="https://material.io/archive/guidelines/style/writing.html">Material Design's writing guidelines</a>. Our slightly adapted version is below.
     </p>
 
     <h2>Language &amp; tone</h2>

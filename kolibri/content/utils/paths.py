@@ -40,7 +40,12 @@ def get_content_database_dir_path(datafolder=None):
         "databases",
     )
     if not os.path.isdir(path):
-        os.makedirs(path)
+        try:
+            os.makedirs(path)
+        # When importing from USB, it does not need to create a database
+        # directory under the external drives that are not writable.
+        except OSError:
+            pass
     return path
 
 def get_content_database_file_path(channel_id, datafolder=None):

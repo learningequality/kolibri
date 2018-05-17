@@ -17,11 +17,11 @@ from kolibri.auth.models import Classroom
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 from kolibri.content.models import ContentNode
+from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import AttemptLog
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
 from kolibri.logger.models import MasteryLog
-from kolibri.core.lessons.models import Lesson
 
 logger = logging.getLogger(__name__)
 
@@ -328,6 +328,9 @@ def create_lessons_for_classroom(**options):
     lessons = options['lessons']
     facility = options['facility']
     now = options['now']
+
+    if not channels:
+        return
 
     coaches = facility.get_coaches()
     if coaches:
