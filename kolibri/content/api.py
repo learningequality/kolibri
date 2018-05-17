@@ -124,8 +124,6 @@ class ContentNodeFilter(IdFilter):
             intersection([Q(description__icontains=w) for w in words]),
             # any words in title
             union([Q(title__icontains=w) for w in words]),
-            # any words in description
-            union([Q(description__icontains=w) for w in words]),
         ]
 
         results = []
