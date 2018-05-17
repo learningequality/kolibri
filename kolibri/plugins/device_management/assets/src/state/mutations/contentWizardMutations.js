@@ -38,6 +38,7 @@ export function RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS(state) {
   const oldState = state.pageState.wizardState;
   state.pageState.wizardState = {
     ...oldState,
+    availableChannels: [],
     currentTopicNode: {},
     nodesForTransfer: {
       included: [],

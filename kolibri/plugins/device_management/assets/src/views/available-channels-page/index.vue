@@ -175,6 +175,11 @@
         };
       },
     },
+    watch: {
+      transferType(val) {
+        this.setPageTitle(this.backText(val));
+      },
+    },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
       this.setPageTitle(this.backText(this.transferType));

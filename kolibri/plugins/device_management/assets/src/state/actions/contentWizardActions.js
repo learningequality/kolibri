@@ -1,8 +1,11 @@
 import isEmpty from 'lodash/isEmpty';
+import find from 'lodash/find';
+import { RemoteChannelResource } from 'kolibri.resources';
 import { ContentWizardPages as PageNames, TransferTypes } from '../../constants';
 import { showAvailableChannelsPage } from './availableChannelsActions';
 import { loadChannelMetaData, showSelectContentPage } from './selectContentActions';
-import { cancelTask } from './taskActions';
+import { cancelTask, refreshDriveList } from './taskActions';
+import { refreshChannelList } from './manageContentActions';
 
 export const CANCEL = 'cancel';
 export const FORWARD = 'forward';
@@ -111,4 +114,63 @@ export function transitionWizardPage(store, transition, params) {
   }
 
   return Promise.resolve();
+}
+
+// Handler for when user goes directly to the Available Channels URL
+// params { drive_id?: string, for_export?: boolean }
+// are normalized at the router handler function
+export function showAvailableChannelsPageDirectly(store, params) {
+  let transferType;
+  let selectedDrivePromise = Promise.resolve({});
+  let availableChannelsPromise;
+  const { for_export, drive_id } = params;
+
+  if (for_export && !drive_id) {
+    return Promise.reject({ type: 'invalid_parameters' });
+  }
+
+  // Importing or Exporting from a drive
+  if (drive_id) {
+    selectedDrivePromise = new Promise((resolve, reject) => {
+      refreshDriveList(store).then(driveList => {
+        const drive = find(driveList, { id: drive_id });
+        if (drive) {
+          // TODO does not check to see if drive is (not) writeable, depending on workflow
+          resolve({ ...drive });
+        } else {
+          reject({ type: 'drive_not_found' });
+        }
+      });
+    });
+
+    if (for_export) {
+      transferType = TransferTypes.LOCALEXPORT;
+      availableChannelsPromise = refreshChannelList(store);
+    } else {
+      transferType = TransferTypes.LOCALIMPORT;
+      availableChannelsPromise = selectedDrivePromise.then(drive => {
+        return [...drive.metadata.channels];
+      });
+    }
+  } else {
+    // Importing from Studio
+    transferType = TransferTypes.REMOTEIMPORT;
+    availableChannelsPromise = new Promise((resolve, reject) => {
+      RemoteChannelResource.getCollection()
+        .fetch()
+        .then(channels => resolve([...channels]))
+        .catch(() => reject({ type: 'kolibri_studio_unavailable' }));
+    });
+  }
+
+  return Promise.all([availableChannelsPromise, selectedDrivePromise, transferType]).then(
+    ([availableChannels, selectedDrive, transferType]) => {
+      // Hydrate wizardState as if user went through UI workflow
+      store.dispatch('SET_TRANSFER_TYPE', transferType);
+      store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
+      store.dispatch('SET_AVAILABLE_CHANNELS', availableChannels);
+      store.dispatch('SET_PAGE_NAME', PageNames.AVAILABLE_CHANNELS);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    }
+  );
 }

@@ -67,5 +67,6 @@ export function refreshTaskList(store) {
 export function refreshDriveList(store) {
   return TaskResource.localDrives().then(({ entity }) => {
     store.dispatch('SET_DRIVE_LIST', entity);
+    return entity;
   });
 }

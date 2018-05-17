@@ -1,8 +1,14 @@
 import get from 'lodash/get';
 import router from 'kolibri.coreVue.router';
 import store from 'kolibri.coreVue.vuex.store';
+import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { ContentWizardPages } from './constants';
-import { transitionWizardPage, BACKWARD, CANCEL } from './state/actions/contentWizardActions';
+import {
+  transitionWizardPage,
+  showAvailableChannelsPageDirectly,
+  BACKWARD,
+  CANCEL,
+} from './state/actions/contentWizardActions';
 import { updateTreeViewTopic } from './state/actions/selectContentActions';
 
 export const WizardTransitions = {
@@ -94,6 +100,21 @@ export default [
       if (params.transition === 'cancel') {
         transitionWizardPage(store, CANCEL);
       }
+    },
+  },
+  {
+    name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
+    path: '/content/available_channels',
+    handler: ({ query }) => {
+      return showAvailableChannelsPageDirectly(store, {
+        for_export: String(query.for_export) === 'true',
+        drive_id: query.drive_id,
+      }).catch(err => {
+        // handle errors generically
+        handleApiError(store, err);
+        store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      });
     },
   },
 ];
