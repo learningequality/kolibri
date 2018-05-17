@@ -1,5 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import find from 'lodash/find';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { RemoteChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { ContentWizardPages as PageNames, TransferTypes } from '../../constants';
@@ -136,8 +137,12 @@ export function showAvailableChannelsPageDirectly(store, params) {
   let availableChannelsPromise;
   const { for_export, drive_id } = params;
 
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  // HACK have to set the wizardName for state machine to work as-is
+  store.dispatch('SET_WIZARD_PAGENAME', PageNames.AVAILABLE_CHANNELS);
+
   if (for_export && !drive_id) {
-    return Promise.reject({ type: 'invalid_parameters' });
+    return Promise.reject(Error('invalid_parameters'));
   }
 
   function getInstalledChannelsPromise() {
@@ -159,7 +164,7 @@ export function showAvailableChannelsPageDirectly(store, params) {
           // TODO does not check to see if drive is (not) writeable, depending on workflow
           resolve({ ...drive });
         } else {
-          reject({ type: 'drive_not_found' });
+          reject(Error('drive_not_found'));
         }
       });
     });
@@ -183,19 +188,22 @@ export function showAvailableChannelsPageDirectly(store, params) {
           ._promise.then(channels => {
             return getAllRemoteChannels(store, channels).then(allChannels => resolve(allChannels));
           })
-          .catch(() => reject({ type: 'kolibri_studio_unavailable' }));
+          .catch(() => reject(Error('kolibri_studio_unavailable')));
       });
     });
   }
+  const isSamePage = samePageCheckGenerator(store);
 
   return Promise.all([availableChannelsPromise, selectedDrivePromise, transferType]).then(
     ([availableChannels, selectedDrive, transferType]) => {
       // Hydrate wizardState as if user went through UI workflow
-      store.dispatch('SET_AVAILABLE_CHANNELS', availableChannels);
-      store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
-      store.dispatch('SET_TRANSFER_TYPE', transferType);
-      store.dispatch('SET_PAGE_NAME', PageNames.AVAILABLE_CHANNELS);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      if (isSamePage()) {
+        store.dispatch('SET_AVAILABLE_CHANNELS', availableChannels);
+        store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
+        store.dispatch('SET_TRANSFER_TYPE', transferType);
+        store.dispatch('SET_PAGE_NAME', PageNames.AVAILABLE_CHANNELS);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      }
     }
   );
 }
