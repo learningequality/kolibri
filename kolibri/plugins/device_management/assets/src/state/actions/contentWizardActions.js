@@ -1,8 +1,8 @@
 import isEmpty from 'lodash/isEmpty';
 import find from 'lodash/find';
 import { RemoteChannelResource } from 'kolibri.resources';
+import router from 'kolibri.coreVue.router';
 import { ContentWizardPages as PageNames, TransferTypes } from '../../constants';
-import { showAvailableChannelsPage } from './availableChannelsActions';
 import { loadChannelMetaData, showSelectContentPage } from './selectContentActions';
 import { cancelTask, refreshDriveList } from './taskActions';
 import { refreshChannelList } from './manageContentActions';
@@ -67,7 +67,9 @@ export function transitionWizardPage(store, transition, params) {
       _updateTransferType(TransferTypes.REMOTEIMPORT);
       // From top-level import workflow
       if (isEmpty(transferredChannel)) {
-        return showAvailableChannelsPage(store);
+        return router.push({
+          name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
+        });
       }
       // From import-more-from-channel workflow
       return loadChannelMetaData(store);
@@ -80,7 +82,13 @@ export function transitionWizardPage(store, transition, params) {
     store.dispatch('SET_SELECTED_DRIVE', params.driveId);
     // From top-level import workflow
     if (isEmpty(transferredChannel)) {
-      return showAvailableChannelsPage(store);
+      return router.push({
+        name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
+        query: {
+          drive_id: params.driveId,
+          for_export: store.state.pageState.wizardState.transferType === TransferTypes.LOCALEXPORT,
+        },
+      });
     }
     // From import-more-from-channel workflow
     return loadChannelMetaData(store);
@@ -166,11 +174,10 @@ export function showAvailableChannelsPageDirectly(store, params) {
   return Promise.all([availableChannelsPromise, selectedDrivePromise, transferType]).then(
     ([availableChannels, selectedDrive, transferType]) => {
       // Hydrate wizardState as if user went through UI workflow
-      store.dispatch('SET_TRANSFER_TYPE', transferType);
-      store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
       store.dispatch('SET_AVAILABLE_CHANNELS', availableChannels);
+      store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
+      store.dispatch('SET_TRANSFER_TYPE', transferType);
       store.dispatch('SET_PAGE_NAME', PageNames.AVAILABLE_CHANNELS);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
     }
   );
 }

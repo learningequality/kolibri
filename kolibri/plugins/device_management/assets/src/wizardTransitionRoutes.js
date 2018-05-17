@@ -106,6 +106,7 @@ export default [
     name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
     path: '/content/available_channels',
     handler: ({ query }) => {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
       return showAvailableChannelsPageDirectly(store, {
         for_export: String(query.for_export) === 'true',
         drive_id: query.drive_id,
