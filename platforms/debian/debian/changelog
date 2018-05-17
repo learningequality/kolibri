@@ -1,3 +1,9 @@
+kolibri-source (0.9.2-0ubuntu3) trusty; urgency=medium
+
+  * Remove "Recommends: python3-distutils"
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 18 May 2018 00:51:22 +0200
+
 kolibri-source (0.9.2-0ubuntu2) trusty; urgency=medium
 
   * Fix python3-distutils dependency: It only exists in Ubuntu 18.04+
