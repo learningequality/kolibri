@@ -122,9 +122,11 @@ class ContentNodeFilter(IdFilter):
             Q(description__icontains=value),
             # all words in description
             intersection([Q(description__icontains=w) for w in words]),
-            # any words in title
-            union([Q(title__icontains=w) for w in words]),
         ]
+
+        # any word in title, sorted by length
+        for w in reversed(sorted(words, key=len)):
+            all_queries.append(Q(title__icontains=w))
 
         results = []
         content_ids = set()
