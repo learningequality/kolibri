@@ -6,6 +6,7 @@ import { ContentWizardPages as PageNames, TransferTypes } from '../../constants'
 import { loadChannelMetaData, showSelectContentPage } from './selectContentActions';
 import { cancelTask, refreshDriveList } from './taskActions';
 import { refreshChannelList } from './manageContentActions';
+import { getAllRemoteChannels } from './availableChannelsActions';
 
 export const CANCEL = 'cancel';
 export const FORWARD = 'forward';
@@ -67,6 +68,7 @@ export function transitionWizardPage(store, transition, params) {
       _updateTransferType(TransferTypes.REMOTEIMPORT);
       // From top-level import workflow
       if (isEmpty(transferredChannel)) {
+        _updatePageName(PageNames.AVAILABLE_CHANNELS);
         return router.push({
           name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
         });
@@ -82,6 +84,7 @@ export function transitionWizardPage(store, transition, params) {
     store.dispatch('SET_SELECTED_DRIVE', params.driveId);
     // From top-level import workflow
     if (isEmpty(transferredChannel)) {
+      _updatePageName(PageNames.AVAILABLE_CHANNELS);
       return router.push({
         name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
         query: {
@@ -137,6 +140,16 @@ export function showAvailableChannelsPageDirectly(store, params) {
     return Promise.reject({ type: 'invalid_parameters' });
   }
 
+  function getInstalledChannelsPromise() {
+    const { channelList } = store.state.pageState;
+    // Only refresh channel list if it hasn't been fetched yet (i.e. user went straight to URL)
+    if (channelList.length === 0) {
+      return refreshChannelList(store);
+    } else {
+      return Promise.resolve([...channelList]);
+    }
+  }
+
   // Importing or Exporting from a drive
   if (drive_id) {
     selectedDrivePromise = new Promise((resolve, reject) => {
@@ -153,7 +166,7 @@ export function showAvailableChannelsPageDirectly(store, params) {
 
     if (for_export) {
       transferType = TransferTypes.LOCALEXPORT;
-      availableChannelsPromise = refreshChannelList(store);
+      availableChannelsPromise = getInstalledChannelsPromise();
     } else {
       transferType = TransferTypes.LOCALIMPORT;
       availableChannelsPromise = selectedDrivePromise.then(drive => {
@@ -164,10 +177,14 @@ export function showAvailableChannelsPageDirectly(store, params) {
     // Importing from Studio
     transferType = TransferTypes.REMOTEIMPORT;
     availableChannelsPromise = new Promise((resolve, reject) => {
-      RemoteChannelResource.getCollection()
-        .fetch()
-        .then(channels => resolve([...channels]))
-        .catch(() => reject({ type: 'kolibri_studio_unavailable' }));
+      getInstalledChannelsPromise().then(() => {
+        return RemoteChannelResource.getCollection()
+          .fetch()
+          ._promise.then(channels => {
+            return getAllRemoteChannels(store, channels).then(allChannels => resolve(allChannels));
+          })
+          .catch(() => reject({ type: 'kolibri_studio_unavailable' }));
+      });
     });
   }
 
@@ -178,6 +195,7 @@ export function showAvailableChannelsPageDirectly(store, params) {
       store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
       store.dispatch('SET_TRANSFER_TYPE', transferType);
       store.dispatch('SET_PAGE_NAME', PageNames.AVAILABLE_CHANNELS);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     }
   );
 }
