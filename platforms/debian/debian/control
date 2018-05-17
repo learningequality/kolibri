@@ -30,10 +30,10 @@ Architecture: all
 Depends: python3 (<< 3.7),
          python3 (>= 3.4),
          python3-pkg-resources,
+         python3-distutils | libpython3-stdlib (<< 3.6.5),
          adduser
 Recommends: python3-cryptography,
             python3-distutils
-# Depends: ${python3:Depends}, ${misc:Depends}
 Description: The offline app for universal education
  An educational platform for learners of all ages.
  .
