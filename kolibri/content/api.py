@@ -1,5 +1,6 @@
 import logging
 from random import sample
+from functools import reduce
 
 import requests
 from django.core.cache import cache
