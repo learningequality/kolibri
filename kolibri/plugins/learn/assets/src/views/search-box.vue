@@ -110,6 +110,8 @@
     display: table
     width: 100%
     max-width: 450px
+    margin-top: 3px
+    margin-right: 8px
     background-color: white
 
   .search-box-within-action-bar
@@ -143,7 +145,7 @@
     width: 78px
     height: 36px
     vertical-align: middle
-
+    
   .search-clear-button
     visibility: hidden
     width: 24px
