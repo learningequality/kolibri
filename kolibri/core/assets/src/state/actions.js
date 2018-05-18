@@ -153,6 +153,7 @@ function _channelListState(data) {
     last_updated: channel.last_updated,
     version: channel.version,
     thumbnail: channel.thumbnail,
+    num_coach_contents: channel.num_coach_contents,
   }));
 }
 

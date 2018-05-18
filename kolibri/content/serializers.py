@@ -28,6 +28,8 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         value = super(ChannelMetadataSerializer, self).to_representation(instance)
 
+        value.update({"num_coach_contents": get_num_coach_contents(instance.root)})
+
         # if it has the file_size flag add extra file_size information
         if 'request' in self.context and self.context['request'].GET.get('file_sizes', False):
             # only count up currently renderable content types, as only these will be downloaded
@@ -41,16 +43,12 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             on_device_resources = descendants.exclude(kind=content_kinds.TOPIC).filter(available=True).count()
             on_device_file_size = local_files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
 
-            num_coach_contents = get_num_coach_contents(instance.root)
-
-            value.update(
-                {
-                    "total_resources": total_resources,
-                    "total_file_size": total_file_size,
-                    "on_device_resources": on_device_resources,
-                    "on_device_file_size": on_device_file_size,
-                    "num_coach_contents": num_coach_contents,
-                })
+            value.update({
+                "total_resources": total_resources,
+                "total_file_size": total_file_size,
+                "on_device_resources": on_device_resources,
+                "on_device_file_size": on_device_file_size,
+            })
 
         return value
 
