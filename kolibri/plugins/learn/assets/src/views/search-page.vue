@@ -16,7 +16,7 @@
       <content-card-group-grid
         v-else
         :genContentLink="genContentLink"
-        :contents="contents"
+        :contents="searchContents"
         :showContentKindFilter="true"
         :showChannelFilter="true"
       />
@@ -31,6 +31,8 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import sortBy from 'lodash/sortBy';
+
   import { PageNames } from '../constants';
   import contentCard from './content-card';
   import contentCardGroupGrid from './content-card-group-grid';
@@ -41,13 +43,18 @@
     $trs: {
       searchPageHeader: 'Search',
       noSearch: 'Search by typing something in the search box above',
-      showingResultsFor: 'Search results for "{searchTerm}"',
+      showingResultsFor: 'Results for "{searchTerm}"',
       noResultsMsg: 'No results for "{searchTerm}"',
     },
     components: {
       contentCard,
       contentCardGroupGrid,
       searchBox,
+    },
+    computed: {
+      searchContents() {
+        return sortBy(this.contents, content => content.channel_id !== content.content_id);
+      },
     },
     methods: {
       genContentLink(contentId, contentKind) {

@@ -14,6 +14,11 @@ export default {
   SET_EXAM_LOG(state, examLog) {
     state.examLog = examLog;
   },
+
+  SET_CONTENT(state, content) {
+    state.pageState.content = content;
+  },
+
   SET_EXAM_ATTEMPT_LOGS(state, examAttemptLogs) {
     const newState = Object.assign({}, state.examAttemptLogs);
     Object.keys(examAttemptLogs).forEach(contentId => {

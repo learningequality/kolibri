@@ -55,6 +55,7 @@ function normalizeContentNode(node, ancestors = []) {
     thumbnail: getContentNodeThumbnail(node) || undefined,
     breadcrumbs: tail(ancestors).map(bc => ({ id: bc.pk, ...bc })),
     progress: Math.min(node.progress_fraction || 0, 1.0),
+    copies_count: 0,
   };
   delete normalized.pk;
   return normalized;
@@ -148,6 +149,14 @@ export function showChannels(store) {
       return error;
     }
   );
+}
+
+export function getCopies(store, contentId) {
+  return new Promise((resolve, reject) => {
+    ContentNodeResource.getCopies(contentId)
+      .then(copies => resolve(copies))
+      .catch(error => reject(error));
+  });
 }
 
 export function showTopicsTopic(store, id, isRoot = false) {
@@ -276,11 +285,38 @@ export function triggerSearch(store, searchTerm) {
   return ContentNodeResource.getPagedCollection({ search: searchTerm })
     .fetch()
     .then(results => {
+      const contents = _collectionState(results);
       store.dispatch('SET_PAGE_STATE', {
         searchTerm,
-        contents: _collectionState(results),
+        contents,
       });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+
+      const contentIds = contents
+        .filter(
+          content =>
+            content.kind !== ContentNodeKinds.TOPIC && content.kind !== ContentNodeKinds.CHANNEL
+        )
+        .map(content => content.content_id);
+
+      ContentNodeResource.getCopiesCount({
+        content_ids: contentIds,
+      })
+        .fetch()
+        .then(copiesCount => {
+          const updatedContents = contents.map(content => {
+            const updatedContent = content;
+            const matchingContent = copiesCount.find(
+              copyCount => copyCount.content_id === content.content_id
+            );
+            if (matchingContent) {
+              updatedContent.copies_count = matchingContent.count;
+            }
+            return updatedContent;
+          });
+          store.dispatch('SET_CONTENT', updatedContents);
+        })
+        .catch(error => handleApiError(store, error));
     })
     .catch(error => {
       handleApiError(store, error);

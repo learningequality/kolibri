@@ -72,14 +72,21 @@
       },
     },
     watch: {
+      text: 'handleUpdate',
+      maxHeight: 'handleUpdate',
       elSize: {
         handler() {
-          shave(this.$refs.shaveEl, this.maxHeight);
-          this.$nextTick(() => {
-            this.textIsTruncated = Boolean(this.$el.querySelector('.js-shave'));
-          });
+          this.handleUpdate();
         },
         deep: true,
+      },
+    },
+    methods: {
+      handleUpdate() {
+        shave(this.$refs.shaveEl, this.maxHeight);
+        this.$nextTick(() => {
+          this.textIsTruncated = Boolean(this.$el.querySelector('.js-shave'));
+        });
       },
     },
     $trs: {
