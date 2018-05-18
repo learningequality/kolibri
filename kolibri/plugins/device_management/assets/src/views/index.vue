@@ -29,6 +29,7 @@
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import { ContentWizardPages, PageNames } from '../constants';
+  import { refreshTaskList } from '../state/actions/taskActions';
   import topNavigation from './device-top-nav';
   import manageContentPage from './manage-content-page';
   import managePermissionsPage from './manage-permissions-page';
@@ -75,6 +76,15 @@
         };
       },
     },
+    mounted() {
+      // TODO try to simulate nested routes somehow so this is only on when on Content pages
+      if (this.canManageContent) {
+        this.intervalId = setInterval(this.refreshTaskList, 1000);
+      }
+    },
+    destroyed() {
+      clearInterval(this.intervalId);
+    },
     vuex: {
       getters: {
         pageName: ({ pageName }) => pageName,
@@ -83,6 +93,7 @@
         toolbarTitle: ({ pageState }) => pageState.toolbarTitle,
       },
       actions: {
+        refreshTaskList,
         hideWelcomeModal(store) {
           store.dispatch('SET_WELCOME_MODAL_VISIBLE', false);
         },
