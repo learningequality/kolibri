@@ -357,7 +357,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         next_item = models.ContentNode.objects.filter(available=True, tree_id=this_item.tree_id, lft__gt=this_item.rght).order_by("lft").first()
         if not next_item:
             next_item = this_item.get_root()
-        return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
+        return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title, 'description': next_item.description})
 
     @list_route(methods=['get'])
     def all_content(self, request, **kwargs):
