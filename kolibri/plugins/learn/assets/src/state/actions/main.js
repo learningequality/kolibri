@@ -298,25 +298,26 @@ export function triggerSearch(store, searchTerm) {
             content.kind !== ContentNodeKinds.TOPIC && content.kind !== ContentNodeKinds.CHANNEL
         )
         .map(content => content.content_id);
-
-      ContentNodeResource.getCopiesCount({
-        content_ids: contentIds,
-      })
-        .fetch()
-        .then(copiesCount => {
-          const updatedContents = contents.map(content => {
-            const updatedContent = content;
-            const matchingContent = copiesCount.find(
-              copyCount => copyCount.content_id === content.content_id
-            );
-            if (matchingContent) {
-              updatedContent.copies_count = matchingContent.count;
-            }
-            return updatedContent;
-          });
-          store.dispatch('SET_CONTENT', updatedContents);
+      if (contentIds.length) {
+        ContentNodeResource.getCopiesCount({
+          content_ids: contentIds,
         })
-        .catch(error => handleApiError(store, error));
+          .fetch()
+          .then(copiesCount => {
+            const updatedContents = contents.map(content => {
+              const updatedContent = content;
+              const matchingContent = copiesCount.find(
+                copyCount => copyCount.content_id === content.content_id
+              );
+              if (matchingContent) {
+                updatedContent.copies_count = matchingContent.count;
+              }
+              return updatedContent;
+            });
+            store.dispatch('SET_CONTENT', updatedContents);
+          })
+          .catch(error => handleApiError(store, error));
+      }
     })
     .catch(error => {
       handleApiError(store, error);
