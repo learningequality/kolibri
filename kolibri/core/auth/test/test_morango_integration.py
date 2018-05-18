@@ -202,7 +202,7 @@ class EcosystemTestCase(TestCase):
 
         # assert conflicting serialized data is appended after same role is created on different device
         fac = Facility.objects.using(s1_alias).get()
-        alk_user = FacilityUser.objects.using(s0_alias).get(username='Alkinst')
+        alk_user = FacilityUser.objects.using(s0_alias).get(username='Antemblowind')
         self.request_server(servers[1], "role", data=self._data(collection=fac.id, user=alk_user.id, kind="admin"))
         self.request_server(servers[0], "role", data=self._data(collection=fac.id, user=alk_user.id, kind="admin"))
         servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
@@ -213,7 +213,7 @@ class EcosystemTestCase(TestCase):
         # assert deleted object is propagated
         self.request_server(servers[0], "facilityuser", method="DELETE", lookup=alk_user.id)
         servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
-        self.assertFalse(FacilityUser.objects.using(s1_alias).filter(username='Alkinst').exists())
+        self.assertFalse(FacilityUser.objects.using(s1_alias).filter(username='Antemblowind').exists())
         self.assertTrue(Store.objects.using(s1_alias).get(id=alk_user.id).deleted)
 
         # # role deletion and re-creation
