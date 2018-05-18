@@ -4,7 +4,9 @@ set -euo pipefail
 
 # Skip upload if the SKIP_UPLOAD env var is set.
 if [ -z "$SKIP_UPLOAD" ]; then
+  echo ".. Abort! Upload set to skip!"
   exit 0
+fi
 
 SCRIPTPATH=$(pwd)
 PIP_PATH="$SCRIPTPATH/env/bin/pip"
