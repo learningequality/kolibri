@@ -131,9 +131,26 @@
         return drive.writable;
       },
       goForward() {
-        this.transitionWizardPage(FORWARD, {
-          driveId: this.selectedDriveId,
-        });
+        const query = {
+          drive_id: this.selectedDriveId,
+          for_export: !this.inImportMode,
+        };
+        // Top-level import or export workflow
+        if (isEmpty(this.transferredChannel)) {
+          this.$router.push({
+            name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
+            query,
+          });
+        } else {
+          // Import more from channel workflow
+          this.$router.push({
+            name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
+            params: {
+              channel_id: this.transferredChannel.id,
+            },
+            query,
+          });
+        }
       },
       cancel() {
         this.transitionWizardPage(CANCEL);

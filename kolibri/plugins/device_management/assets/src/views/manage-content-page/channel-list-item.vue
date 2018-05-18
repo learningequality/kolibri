@@ -68,12 +68,12 @@
     </div>
 
     <div class="buttons dtc">
-      <k-button
+      <k-router-link
         v-if="inImportMode || inExportMode"
-        @click="$emit('clickselect')"
-        name="select"
         :text="$tr('selectButton')"
         :disabled="tasksInQueue"
+        :to="selectContentLink"
+        appearance="raised-button"
       />
       <k-dropdown-menu
         v-if="inManageMode"
@@ -91,7 +91,7 @@
 <script>
 
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import UiIcon from 'keen-ui/src/UiIcon';
   import { channelIsInstalled } from '../../state/getters';
@@ -112,8 +112,8 @@
     name: 'channelListItem',
     components: {
       coachContentLabel,
-      kButton,
       kDropdownMenu,
+      kRouterLink,
       UiIcon,
     },
     props: {
@@ -171,6 +171,15 @@
           return installed.version;
         }
         return this.channel.version;
+      },
+      selectContentLink() {
+        return {
+          name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
+          params: {
+            channel_id: this.channel.id,
+          },
+          query: { ...this.$route.query },
+        };
       },
     },
     methods: {

@@ -89,7 +89,9 @@
 
 <script>
 
+  import uniqBy from 'lodash/uniqBy';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import { TaskResource } from 'kolibri.resources';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import uiAlert from 'keen-ui/src/UiAlert';
   import isEmpty from 'lodash/isEmpty';
@@ -104,7 +106,7 @@
     transferChannelContent,
     waitForTaskToComplete,
   } from '../../state/actions/contentTransferActions';
-  import { transitionWizardPage, BACKWARD } from '../../state/actions/contentWizardActions';
+  import { transitionWizardPage } from '../../state/actions/contentWizardActions';
   import taskProgress from '../manage-content-page/task-progress';
   import { WizardTransitions } from '../../wizardTransitionRoutes';
   import { PageNames, TaskStatuses } from '../../constants';
@@ -164,6 +166,9 @@
     mounted() {
       this.getAvailableSpaceOnDrive();
     },
+    beforeDestroy() {
+      this.cancelAllTasks();
+    },
     methods: {
       updateChannelMetadata() {
         // NOTE: This only updates the metadata, not the underlying content.
@@ -188,7 +193,9 @@
           });
       },
       returnToChannelsList() {
-        this.transitionWizardPage(BACKWARD);
+        this.$router.push({
+          name: PageNames.MANAGE_CONTENT_PAGE,
+        });
       },
     },
     vuex: {
@@ -209,6 +216,12 @@
       actions: {
         setPageTitle(store, newTitle) {
           store.dispatch('SET_TOOLBAR_TITLE', newTitle);
+        },
+        cancelAllTasks(store) {
+          const tasks = uniqBy(store.state.pageState.taskList, 'id');
+          tasks.map(task => {
+            TaskResource.cancelTask(task.id);
+          });
         },
         downloadChannelMetadata,
         getAvailableSpaceOnDrive,

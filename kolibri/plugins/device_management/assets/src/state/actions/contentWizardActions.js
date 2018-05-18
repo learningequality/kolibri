@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import find from 'lodash/find';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
-import { RemoteChannelResource } from 'kolibri.resources';
+import { RemoteChannelResource, ChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { ContentWizardPages as PageNames, TransferTypes } from '../../constants';
 import { loadChannelMetaData, updateTreeViewTopic } from './selectContentActions';
@@ -74,7 +74,13 @@ export function transitionWizardPage(store, transition, params) {
         });
       }
       // From import-more-from-channel workflow
-      return loadChannelMetaData(store);
+      _updatePageName(PageNames.SELECT_CONTENT);
+      return router.push({
+        name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
+        params: {
+          channel_id: transferredChannel.id,
+        },
+      });
     }
   }
 
@@ -82,7 +88,7 @@ export function transitionWizardPage(store, transition, params) {
   // Forward with params : { driveId }
   if (wizardPage === PageNames.SELECT_DRIVE && transition === FORWARD) {
     store.dispatch('SET_SELECTED_DRIVE', params.driveId);
-    // From top-level import workflow
+    // From top-level import/export workflow
     if (isEmpty(transferredChannel)) {
       _updatePageName(PageNames.AVAILABLE_CHANNELS);
       return router.push({
@@ -94,7 +100,16 @@ export function transitionWizardPage(store, transition, params) {
       });
     }
     // From import-more-from-channel workflow
-    return loadChannelMetaData(store);
+    _updatePageName(PageNames.SELECT_CONTENT);
+    return router.push({
+      name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
+      params: {
+        channel_id: transferredChannel.id,
+      },
+      query: {
+        drive_id: params.driveId,
+      },
+    });
   }
 
   return Promise.resolve();
@@ -149,7 +164,6 @@ export function showAvailableChannelsPageDirectly(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   // HACK have to set the wizardName for state machine to work as-is
   store.dispatch('SET_WIZARD_PAGENAME', PageNames.AVAILABLE_CHANNELS);
-
 
   if (transferType === null) {
     return Promise.reject({ error: 'invalid_parameters' });
@@ -206,6 +220,16 @@ export function showSelectContentPageDirectly(store, params) {
   let transferredChannelPromise;
   const { drive_id, channel_id } = params;
   const transferType = getTransferType(params);
+  // HACK if going directly to URL, make sure channel list has this channel at the minimum.
+  // We only get the one channel, since GETing channel-list with file sizes is slow.
+  const installedChannelPromise = ChannelResource.getModel(params.channel_id)
+    .fetch({ file_sizes: true }, true)
+    .then(channel => {
+      if (store.state.pageState.channelList.length === 0) {
+        store.dispatch('SET_CHANNEL_LIST', [channel]);
+      }
+    })
+    .catch(() => {});
 
   if (transferType === null) {
     return Promise.reject({ error: 'invalid_parameters' });
@@ -242,19 +266,25 @@ export function showSelectContentPageDirectly(store, params) {
   if (transferType === TransferTypes.REMOTEIMPORT) {
     transferredChannelPromise = new Promise((resolve, reject) => {
       RemoteChannelResource.getModel(channel_id)
-        .fetch()
+        // Force fetching because using cached version switches
+        // between returning an array and returning an object
+        .fetch({}, true)
         .then(
-          ([channel]) => {
-            resolve({ ...channel });
+          channels => {
+            resolve({ ...channels[0] });
           },
           () => reject({ error: 'channel_not_found_on_studio' })
         );
     });
   }
 
-  const isSamePage = samePageCheckGenerator(store);
+  let isSamePage = samePageCheckGenerator(store);
 
-  return Promise.all([selectedDrivePromise, transferredChannelPromise]).then(promises => {
+  return Promise.all([
+    selectedDrivePromise,
+    transferredChannelPromise,
+    installedChannelPromise,
+  ]).then(promises => {
     const [selectedDrive, transferredChannel] = promises;
 
     if (isSamePage()) {
@@ -263,11 +293,14 @@ export function showSelectContentPageDirectly(store, params) {
       store.dispatch('SET_TRANSFER_TYPE', transferType);
       store.dispatch('SET_PAGE_NAME', PageNames.SELECT_CONTENT);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      isSamePage = samePageCheckGenerator(store);
       return loadChannelMetaData(store).then(() => {
-        return updateTreeViewTopic(store, {
-          pk: store.state.pageState.wizardState.transferredChannel.root,
-          title: transferredChannel.name,
-        });
+        if (isSamePage()) {
+          return updateTreeViewTopic(store, {
+            pk: store.state.pageState.wizardState.transferredChannel.root,
+            title: transferredChannel.name,
+          });
+        }
       });
     }
   });
