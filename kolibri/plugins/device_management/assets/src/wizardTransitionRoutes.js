@@ -20,11 +20,10 @@ export const WizardTransitions = {
 
 export function updateTopicLinkObject(node) {
   return {
-    name: WizardTransitions.GOTO_TOPIC_TREEVIEW,
-    query: {
-      pk: node.pk,
-    },
+    name: 'GOTO_SELECT_CONTENT_PAGE_TOPIC',
     params: {
+      // TODO utilize id exclusively in import/export code
+      node_id: node.id || node.pk,
       node,
     },
   };
@@ -120,7 +119,7 @@ export default [
   },
   {
     name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
-    path: '/content/select_content/:channel_id',
+    path: '/content/channel/:channel_id',
     handler: ({ query, params }) => {
       return showSelectContentPageDirectly(store, {
         channel_id: params.channel_id,
@@ -132,6 +131,29 @@ export default [
         store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
         store.dispatch('CORE_SET_PAGE_LOADING', false);
       });
+    },
+  },
+  {
+    name: 'GOTO_SELECT_CONTENT_PAGE_TOPIC',
+    path: '/content/channel/:channel_id/node/:node_id',
+    handler: toRoute => {
+      // If wizardState is not fully-hydrated, redirect to top-level channel page
+      if (!store.state.pageState.wizardState.transferType) {
+        router.replace({ ...toRoute, name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY' });
+      } else {
+        const { params } = toRoute;
+        let nextNode;
+        if (!params.node) {
+          nextNode = {
+            // Works fine without title at the moment.
+            path: store.state.pageState.wizardState.pathCache[params.node_id],
+            pk: params.node_id,
+          };
+        } else {
+          nextNode = params.node;
+        }
+        return updateTreeViewTopic(store, nextNode);
+      }
     },
   },
 ];

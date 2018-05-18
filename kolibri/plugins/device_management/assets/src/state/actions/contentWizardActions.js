@@ -118,15 +118,15 @@ export function transitionWizardPage(store, transition, params) {
   // At LOADING_CHANNEL_METADATA
   // Backward
   if (wizardPage === PageNames.LOADING_CHANNEL_METADATA && transition === BACKWARD) {
-    return cancelTask(store, store.state.pageState.taskList[0].id).then(() => {
-      store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
-    });
+    // return cancelTask(store, store.state.pageState.taskList[0].id).then(() => {
+    //   store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
+    // });
   }
 
   // AT SELECT_CONTENT, going backwards
   if (pageName === PageNames.SELECT_CONTENT && transition === BACKWARD) {
-    store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
-    return Promise.resolve();
+    // store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
+    // return Promise.resolve();
   }
 
   return Promise.resolve();

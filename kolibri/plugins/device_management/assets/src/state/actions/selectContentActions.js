@@ -15,9 +15,9 @@ export function loadChannelMetaData(store) {
   let dbPromise;
   const { transferredChannel } = wizardState(store.state);
   const channelOnDevice = channelIsInstalled(store.state)(transferredChannel.id);
-  store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
-  store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.LOADING_CHANNEL_METADATA);
-  navigateToChannelMetaDataLoading(transferredChannel.id);
+  // store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
+  // store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.LOADING_CHANNEL_METADATA);
+  // navigateToChannelMetaDataLoading(transferredChannel.id);
 
   // Downloading the Content Metadata DB
   if (!channelOnDevice) {
@@ -43,7 +43,7 @@ export function loadChannelMetaData(store) {
         version: transferredChannel.version,
         public: transferredChannel.public,
       });
-      transitionWizardPage(store, FORWARD);
+      // transitionWizardPage(store, FORWARD);
     })
     .catch(({ errorType }) => {
       store.dispatch('SET_WIZARD_STATUS', errorType);
