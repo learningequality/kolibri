@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+# Skip upload if the SKIP_UPLOAD env var is set.
+if [ -z "$SKIP_UPLOAD" ]; then
+  exit 0
+
 SCRIPTPATH=$(pwd)
 PIP_PATH="$SCRIPTPATH/env/bin/pip"
 PYTHON_PATH="$SCRIPTPATH/env/bin/python"
