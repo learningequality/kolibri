@@ -4,7 +4,11 @@ import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { RemoteChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { ContentWizardPages as PageNames, TransferTypes } from '../../constants';
-import { loadChannelMetaData, showSelectContentPage } from './selectContentActions';
+import {
+  loadChannelMetaData,
+  showSelectContentPage,
+  updateTreeViewTopic,
+} from './selectContentActions';
 import { cancelTask, refreshDriveList } from './taskActions';
 import { refreshChannelList } from './manageContentActions';
 import { getAllRemoteChannels } from './availableChannelsActions';
@@ -128,74 +132,90 @@ export function transitionWizardPage(store, transition, params) {
   return Promise.resolve();
 }
 
+function getSelectedDrive(store, driveId) {
+  return new Promise((resolve, reject) => {
+    refreshDriveList(store).then(driveList => {
+      const drive = find(driveList, { id: driveId });
+      if (drive) {
+        // TODO does not check to see if drive is (not) writeable, depending on workflow
+        resolve({ ...drive });
+      } else {
+        reject(Error('drive_not_found'));
+      }
+    });
+  });
+}
+
+// Utilities for the show*Directly actions
+function getInstalledChannelsPromise(store) {
+  const { channelList } = store.state.pageState;
+  // Only refresh channel list if it hasn't been fetched yet (i.e. user went straight to URL)
+  if (channelList.length === 0) {
+    return refreshChannelList(store);
+  } else {
+    return Promise.resolve([...channelList]);
+  }
+}
+
+function getTransferType(params) {
+  const { for_export, drive_id } = params;
+  // invalid combination
+  if (for_export && !drive_id) {
+    return null;
+  }
+  if (drive_id) {
+    return for_export ? TransferTypes.LOCALEXPORT : TransferTypes.LOCALIMPORT;
+  } else {
+    return TransferTypes.REMOTEIMPORT;
+  }
+}
+
 // Handler for when user goes directly to the Available Channels URL
 // params { drive_id?: string, for_export?: boolean }
 // are normalized at the router handler function
 export function showAvailableChannelsPageDirectly(store, params) {
-  let transferType;
   let selectedDrivePromise = Promise.resolve({});
   let availableChannelsPromise;
-  const { for_export, drive_id } = params;
 
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   // HACK have to set the wizardName for state machine to work as-is
   store.dispatch('SET_WIZARD_PAGENAME', PageNames.AVAILABLE_CHANNELS);
 
-  if (for_export && !drive_id) {
-    return Promise.reject(Error('invalid_parameters'));
+  const transferType = getTransferType(params);
+
+  if (transferType === null) {
+    return Promise.reject({ error: 'invalid_parameters' });
   }
 
-  function getInstalledChannelsPromise() {
-    const { channelList } = store.state.pageState;
-    // Only refresh channel list if it hasn't been fetched yet (i.e. user went straight to URL)
-    if (channelList.length === 0) {
-      return refreshChannelList(store);
-    } else {
-      return Promise.resolve([...channelList]);
-    }
+  if (transferType === TransferTypes.LOCALEXPORT) {
+    selectedDrivePromise = getSelectedDrive(store, params.drive_id);
+    availableChannelsPromise = getInstalledChannelsPromise(store);
   }
 
-  // Importing or Exporting from a drive
-  if (drive_id) {
-    selectedDrivePromise = new Promise((resolve, reject) => {
-      refreshDriveList(store).then(driveList => {
-        const drive = find(driveList, { id: drive_id });
-        if (drive) {
-          // TODO does not check to see if drive is (not) writeable, depending on workflow
-          resolve({ ...drive });
-        } else {
-          reject(Error('drive_not_found'));
-        }
-      });
+  if (transferType === TransferTypes.LOCALIMPORT) {
+    selectedDrivePromise = getSelectedDrive(store, params.drive_id);
+    availableChannelsPromise = selectedDrivePromise.then(drive => {
+      return [...drive.metadata.channels];
     });
+  }
 
-    if (for_export) {
-      transferType = TransferTypes.LOCALEXPORT;
-      availableChannelsPromise = getInstalledChannelsPromise();
-    } else {
-      transferType = TransferTypes.LOCALIMPORT;
-      availableChannelsPromise = selectedDrivePromise.then(drive => {
-        return [...drive.metadata.channels];
-      });
-    }
-  } else {
-    // Importing from Studio
-    transferType = TransferTypes.REMOTEIMPORT;
+  if (transferType === TransferTypes.REMOTEIMPORT) {
     availableChannelsPromise = new Promise((resolve, reject) => {
-      getInstalledChannelsPromise().then(() => {
+      getInstalledChannelsPromise(store).then(() => {
         return RemoteChannelResource.getCollection()
           .fetch()
           ._promise.then(channels => {
             return getAllRemoteChannels(store, channels).then(allChannels => resolve(allChannels));
           })
-          .catch(() => reject(Error('kolibri_studio_unavailable')));
+          .catch(() => reject({ error: 'kolibri_studio_unavailable' }));
       });
     });
   }
+
   const isSamePage = samePageCheckGenerator(store);
 
-  return Promise.all([availableChannelsPromise, selectedDrivePromise, transferType]).then(
-    ([availableChannels, selectedDrive, transferType]) => {
+  return Promise.all([availableChannelsPromise, selectedDrivePromise]).then(
+    ([availableChannels, selectedDrive]) => {
       // Hydrate wizardState as if user went through UI workflow
       if (isSamePage()) {
         store.dispatch('SET_AVAILABLE_CHANNELS', availableChannels);
@@ -206,4 +226,83 @@ export function showAvailableChannelsPageDirectly(store, params) {
       }
     }
   );
+}
+
+/**
+ * Handler for going to Select Content Page URL directly
+ * params are { channel_id: string, drive_id?: string, for_export?: boolean },
+ * which are normalized at router handler function
+ */
+export function showSelectContentPageDirectly(store, params) {
+  let selectedDrivePromise = Promise.resolve({});
+  let transferredChannelPromise;
+
+  const { drive_id, channel_id } = params;
+
+  const transferType = getTransferType(params);
+
+  if (transferType === null) {
+    return Promise.reject({ error: 'invalid_parameters' });
+  }
+
+  if (transferType === TransferTypes.LOCALEXPORT) {
+    selectedDrivePromise = getSelectedDrive(store, drive_id);
+    transferredChannelPromise = new Promise((resolve, reject) => {
+      getInstalledChannelsPromise(store).then(channels => {
+        const match = find(channels, { id: channel_id });
+        if (match) {
+          resolve({ ...match });
+        } else {
+          reject({ error: 'channel_not_found_on_server' });
+        }
+      });
+    });
+  }
+
+  if (transferType === TransferTypes.LOCALIMPORT) {
+    selectedDrivePromise = getSelectedDrive(store, drive_id);
+    transferredChannelPromise = new Promise((resolve, reject) => {
+      selectedDrivePromise.then(drive => {
+        const match = find(drive.metadata.channels, { id: channel_id });
+        if (match) {
+          resolve({ ...match });
+        } else {
+          reject({ error: 'channel_not_found_on_drive' });
+        }
+      });
+    });
+  }
+
+  if (transferType === TransferTypes.REMOTEIMPORT) {
+    transferredChannelPromise = new Promise((resolve, reject) => {
+      RemoteChannelResource.getModel(channel_id)
+        .fetch()
+        .then(
+          ([channel]) => {
+            resolve({ ...channel });
+          },
+          () => reject({ error: 'channel_not_found_on_studio' })
+        );
+    });
+  }
+
+  const isSamePage = samePageCheckGenerator(store);
+
+  return Promise.all([selectedDrivePromise, transferredChannelPromise]).then(promises => {
+    const [selectedDrive, transferredChannel] = promises;
+
+    if (isSamePage()) {
+      store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
+      store.dispatch('SET_TRANSFERRED_CHANNEL', { ...transferredChannel });
+      store.dispatch('SET_TRANSFER_TYPE', transferType);
+      store.dispatch('SET_PAGE_NAME', PageNames.SELECT_CONTENT);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      return loadChannelMetaData(store).then(() => {
+        return updateTreeViewTopic(store, {
+          pk: store.state.pageState.wizardState.transferredChannel.root,
+          title: transferredChannel.name,
+        });
+      });
+    }
+  });
 }

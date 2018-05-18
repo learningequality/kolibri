@@ -6,6 +6,7 @@ import { ContentWizardPages } from './constants';
 import {
   transitionWizardPage,
   showAvailableChannelsPageDirectly,
+  showSelectContentPageDirectly,
   BACKWARD,
   CANCEL,
 } from './state/actions/contentWizardActions';
@@ -109,6 +110,22 @@ export default [
       return showAvailableChannelsPageDirectly(store, {
         for_export: String(query.for_export) === 'true',
         drive_id: query.drive_id,
+      }).catch(err => {
+        // handle errors generically
+        handleApiError(store, err);
+        store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      });
+    },
+  },
+  {
+    name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
+    path: '/content/select_content/:channel_id',
+    handler: ({ query, params }) => {
+      return showSelectContentPageDirectly(store, {
+        channel_id: params.channel_id,
+        drive_id: query.drive_id,
+        for_export: String(query.for_export) === 'true',
       }).catch(err => {
         // handle errors generically
         handleApiError(store, err);
