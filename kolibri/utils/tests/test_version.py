@@ -25,7 +25,7 @@ class TestKolibriVersion(unittest.TestCase):
         """
         Test that the major version is set as expected
         """
-        major_version_tuple = "{}.{}".format(*kolibri.VERSION[0:2])
+        major_version_tuple = "{}.{}".format(*kolibri.BASE_VERSION[0:2])
         self.assertIn(major_version_tuple, kolibri.__version__)
 
     @mock.patch('kolibri.utils.version.get_git_describe', return_value=None)
@@ -148,7 +148,7 @@ class TestKolibriVersion(unittest.TestCase):
     def test_beta_1_consistent_version_file(self, get_git_changeset_mock, describe_mock, file_mock):
         """
         Test that a VERSION file can overwrite an beta-1 state in case the
-        version was bumped in ``kolibri.VERSION``.
+        version was bumped in ``kolibri.BASE_VERSION``.
         """
         assert get_version((0, 1, 0, "beta", 1)) == "0.1.0b2"
 
@@ -158,7 +158,7 @@ class TestKolibriVersion(unittest.TestCase):
     def test_beta_1_consistent_dev_release_version_file(self, get_git_changeset_mock, describe_mock, file_mock):
         """
         Test that a VERSION file can overwrite an beta-1 state in case the
-        version was bumped in ``kolibri.VERSION``.
+        version was bumped in ``kolibri.BASE_VERSION``.
         """
         assert get_version((0, 7, 1, "alpha", 0)) == "0.7.1b1.dev+git-12-g2a8fe31"
 
@@ -177,7 +177,7 @@ class TestKolibriVersion(unittest.TestCase):
     def test_version_file_final(self, get_git_changeset_mock, describe_mock, file_mock):
         """
         Test that a VERSION specifying a final version will work when the
-        kolibri.VERSION tuple is consistent.
+        kolibri.BASE_VERSION tuple is consistent.
         """
         assert get_version((0, 1, 0, "final", 0)) == "0.1.0"
 

@@ -66,7 +66,7 @@ class Command(BaseCommand):
             search_root = default_backup_folder()
             use_backup = None
             # Ultimately, we are okay about a backup from a minor release
-            fallback_version = ".".join(map(str, kolibri.VERSION[:2]))
+            fallback_version = ".".join(map(str, kolibri.BASE_VERSION[:2]))
             if os.path.exists(search_root):
                 use_backup = search_latest(search_root, fallback_version)
             if not use_backup:

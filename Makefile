@@ -105,7 +105,7 @@ release:
 	@echo "1. Release notes?"
 	@echo "2. Downloaded CrowdIn translations?"
 	@echo "3. Pushed CrowdIn translations to repo?"
-	@echo "4. Version info as tag and in kolibri.VERSION?"
+	@echo "4. Version info as tag and in kolibri.BASE_VERSION?"
 	@echo "5. Did you do a signed commit and push to Github?"
 	@echo "6. Check that the .whl and .tar.gz dists work?"
 	@echo ""
