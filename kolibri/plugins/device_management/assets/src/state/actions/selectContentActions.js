@@ -3,9 +3,8 @@ import urls from 'kolibri.urls';
 import { ContentNodeGranularResource } from 'kolibri.resources';
 import { ContentWizardPages, TransferTypes } from '../../constants';
 import { channelIsInstalled, wizardState } from '../getters';
-import { navigateToTopicUrl, navigateToChannelMetaDataLoading } from '../../wizardTransitionRoutes';
+import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
 import { downloadChannelMetadata } from './contentTransferActions';
-import { transitionWizardPage, FORWARD } from './contentWizardActions';
 
 /**
  * Transitions the import/export wizard to the 'load-channel-metadata' interstitial state

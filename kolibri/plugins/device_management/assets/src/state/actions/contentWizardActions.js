@@ -4,12 +4,8 @@ import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { RemoteChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { ContentWizardPages as PageNames, TransferTypes } from '../../constants';
-import {
-  loadChannelMetaData,
-  showSelectContentPage,
-  updateTreeViewTopic,
-} from './selectContentActions';
-import { cancelTask, refreshDriveList } from './taskActions';
+import { loadChannelMetaData, updateTreeViewTopic } from './selectContentActions';
+import { refreshDriveList } from './taskActions';
 import { refreshChannelList } from './manageContentActions';
 import { getAllRemoteChannels } from './availableChannelsActions';
 
@@ -46,7 +42,6 @@ export function transitionWizardPage(store, transition, params) {
   }
 
   const { transferredChannel } = store.state.pageState.wizardState;
-  const { pageName } = store.state;
 
   // AT LANDING PAGE
   // Forward with params : { import : Boolean }
@@ -102,36 +97,10 @@ export function transitionWizardPage(store, transition, params) {
     return loadChannelMetaData(store);
   }
 
-  // At AVAILABLE_CHANNELS
-  // Forward with params: { channel }
-  if (pageName === PageNames.AVAILABLE_CHANNELS && transition === FORWARD) {
-    store.dispatch('SET_TRANSFERRED_CHANNEL', params.channel);
-    return loadChannelMetaData(store);
-  }
-
-  // At LOADING_CHANNEL_METADATA
-  // Forward
-  if (wizardPage === PageNames.LOADING_CHANNEL_METADATA && transition === FORWARD) {
-    return showSelectContentPage(store);
-  }
-
-  // At LOADING_CHANNEL_METADATA
-  // Backward
-  if (wizardPage === PageNames.LOADING_CHANNEL_METADATA && transition === BACKWARD) {
-    // return cancelTask(store, store.state.pageState.taskList[0].id).then(() => {
-    //   store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
-    // });
-  }
-
-  // AT SELECT_CONTENT, going backwards
-  if (pageName === PageNames.SELECT_CONTENT && transition === BACKWARD) {
-    // store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
-    // return Promise.resolve();
-  }
-
   return Promise.resolve();
 }
 
+// Utilities for the show*Directly actions
 function getSelectedDrive(store, driveId) {
   return new Promise((resolve, reject) => {
     refreshDriveList(store).then(driveList => {
@@ -146,7 +115,6 @@ function getSelectedDrive(store, driveId) {
   });
 }
 
-// Utilities for the show*Directly actions
 function getInstalledChannelsPromise(store) {
   const { channelList } = store.state.pageState;
   // Only refresh channel list if it hasn't been fetched yet (i.e. user went straight to URL)
@@ -176,12 +144,12 @@ function getTransferType(params) {
 export function showAvailableChannelsPageDirectly(store, params) {
   let selectedDrivePromise = Promise.resolve({});
   let availableChannelsPromise;
+  const transferType = getTransferType(params);
 
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   // HACK have to set the wizardName for state machine to work as-is
   store.dispatch('SET_WIZARD_PAGENAME', PageNames.AVAILABLE_CHANNELS);
 
-  const transferType = getTransferType(params);
 
   if (transferType === null) {
     return Promise.reject({ error: 'invalid_parameters' });
@@ -236,9 +204,7 @@ export function showAvailableChannelsPageDirectly(store, params) {
 export function showSelectContentPageDirectly(store, params) {
   let selectedDrivePromise = Promise.resolve({});
   let transferredChannelPromise;
-
   const { drive_id, channel_id } = params;
-
   const transferType = getTransferType(params);
 
   if (transferType === null) {
