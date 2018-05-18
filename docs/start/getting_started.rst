@@ -147,11 +147,17 @@ To start up the development server and build the client-side dependencies, use t
 
   (kolibri)$ yarn run devserver
 
-If this does not work, you can run the command that this is invoking:
+If this does not work, you should run the commands it is invoking in two separate terminal windows, the first runs the django development server:
 
 .. code-block:: bash
 
-  (kolibri)$ kolibri --debug manage devserver --webpack --lint --settings=kolibri.deployment.default.settings.dev
+  (kolibri)$ kolibri --debug manage devserver --settings=kolibri.deployment.default.settings.dev
+
+The second runs the webpack build process for frontend assets in 'watch' mode, meaning they will be automatically rebuilt if you modify them.
+
+.. code-block:: bash
+
+  (kolibri)$ yarn run watch
 
 Wait for the build process to complete. This takes a while the first time, will complete faster as you make edits and the assets are automatically re-built.
 
@@ -159,7 +165,7 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
 
 .. tip::
 
-  If you need to make the development server available through the LAN, you must leave out the ``--webpack`` flag, and use the following command:
+  If you need to make the development server available through the LAN, you need to do a production build of the assets, so use the following command:
 
   .. code-block:: bash
 
@@ -176,20 +182,6 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
   .. code-block:: bash
 
     (kolibri)$ npm rebuild node-sass
-
-
-More advanced examples of the ``devserver`` command:
-
-.. code-block:: bash
-
-  # runs the dev server, rebuild client assets when files change, and use developer settings
-  kolibri --debug manage devserver --webpack --settings=kolibri.deployment.default.settings.dev
-
-  # runs the dev server and re-run client-side tests when files changes
-  kolibri --debug manage devserver --karma
-
-  # runs all of the above
-  kolibri --debug manage devserver --webpack --karma --settings=kolibri.deployment.default.settings.dev
 
 
 Running the Production Server
@@ -253,11 +245,7 @@ Development workflows
 Linting
 ~~~~~~~
 
-To improve build times, and facilitate rapid development, Javascript linting is turned off by default when you run the dev server. However, all frontend assets that are bundled will be linted by our Travis CI builds. It is a good idea, therefore, to test your linting before submitting code for PR. To run the devserver in this mode you can run the following command.
-
-.. code-block:: bash
-
-  kolibri --debug manage devserver --webpack --lint
+Javascript linting is always run when you run the dev server. In addition, all frontend assets that are bundled will be linted by our Travis CI builds. It is a good idea, therefore, to monitor for linting errors in the webpack build process, while the build will complete in watch mode, it will issue warnings to the terminal.
 
 
 Code Testing
@@ -309,31 +297,23 @@ This includes tests of the bundling functions that are used in creating front en
 
   yarn run test-karma:watch
 
-Alternatively, this can be run as a subprocess in the development server with the following flag:
+To run specific tests only, you can add the filepath of the file. To further filter either by TestClass name or test method name, you can add `-k` followed by a string to filter classes or methods by. For example, to only run a test named ``test_admin_can_delete_membership`` in kolibri/auth/test/test_permissions.py:
 
 .. code-block:: bash
 
-  kolibri --debug manage devserver --karma
+  pytest kolibri/auth/test/test_permissions -k test_admin_can_delete_membership
 
-You can also run tests through Django's ``test`` management command, accessed through the ``kolibri`` command:
-
-.. code-block:: bash
-
-  kolibri manage test
-
-To run specific tests only, you can add ``--``, followed by a label (consisting of the import path to the test(s) you want to run, possibly ending in some subset of a filename, classname, and method name). For example, the following will run only one test, named ``test_admin_can_delete_membership`` in the ``MembershipPermissionsTestCase`` class in kolibri/auth/test/test_permissions.py:
+To only run the whole class named ``MembershipPermissionsTestCase`` in kolibri/auth/test/test_permissions.py:
 
 .. code-block:: bash
 
-  kolibri manage test -- kolibri.auth.test.test_permissions.MembershipPermissionsTestCase.test_admin_can_delete_membership
+  pytest kolibri/auth/test/test_permissions -k MembershipPermissionsTestCase
 
-
-
-To run a subset of tests, you can also run
+For more advanced usage, logical operators can also be used in wrapped strings, for example, the following will run only one test, named ``test_admin_can_delete_membership`` in the ``MembershipPermissionsTestCase`` class in kolibri/auth/test/test_permissions.py:
 
 .. code-block:: bash
 
-  py.test test/test_kolibri.py
+  pytest kolibri/auth/test/test_permissions -k "MembershipPermissionsTestCase and test_admin_can_delete_membership"
 
 
 Updating Documentation
