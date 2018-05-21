@@ -185,7 +185,7 @@ dockerenvclean:
 	docker image prune -f
 
 dockerenvbuild: writeversion
-	docker image build -t "learningequality/kolibri:$$(cat kolibri/VERSION | sed 's/+/_/g')" -t learningequality/kolibri:latest .
+	docker image build -t "learningequality/kolibri:$$(cat kolibri/VERSION | sed 's/+/_/g')" -t learningequality/kolibri:latest -f Dockerfile.build .
 
 dockerenvdist: writeversion
 	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri:$$(cat kolibri/VERSION | sed 's/+/_/g')"
