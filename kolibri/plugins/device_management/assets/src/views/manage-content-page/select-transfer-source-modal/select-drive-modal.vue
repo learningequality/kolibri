@@ -1,6 +1,14 @@
 <template>
 
   <div>
+    <ui-alert
+      v-if="driveStatus==='ERROR'"
+      type="error"
+      :dismissible="false"
+    >
+      {{ $tr('problemFindingLocalDrives') }}
+    </ui-alert>
+
     <transition mode="out-in">
       <ui-alert
         v-if="driveStatus==='LOADING'"
@@ -11,23 +19,13 @@
           {{ $tr('findingLocalDrives') }}
         </span>
       </ui-alert>
-
-      <ui-alert
-        v-else-if="driveStatus==='ERROR'"
-        type="error"
-        :dismissible="false"
-      >
-        {{ $tr('problemFindingLocalDrives') }}
-      </ui-alert>
-
+      <drive-list
+        v-if="driveStatus===''"
+        v-model="selectedDriveId"
+        :drives="enabledDrives"
+        :mode="inImportMode ? 'IMPORT' : 'EXPORT'"
+      />
     </transition>
-
-    <drive-list
-      v-if="driveStatus===''"
-      v-model="selectedDriveId"
-      :drives="enabledDrives"
-      :mode="inImportMode ? 'IMPORT' : 'EXPORT'"
-    />
 
     <div class="core-modal-buttons">
       <k-button
@@ -38,7 +36,7 @@
       <k-button
         :text="$tr('continue')"
         @click="goForward"
-        :disabled="continueIsDisabled"
+        :disabled="selectedDriveId===''"
         :primary="true"
       />
     </div>
@@ -75,9 +73,6 @@
       inImportMode() {
         return this.transferType === TransferTypes.LOCALIMPORT;
       },
-      continueIsDisabled() {
-        return this.selectedDriveId === '';
-      },
       title() {
         if (this.inImportMode) {
           return this.$tr('selectDrive');
@@ -85,7 +80,9 @@
         return this.$tr('selectExportDestination');
       },
       enabledDrives() {
-        return this.driveList.filter(this.driveIsEnabled);
+        return this.driveList.filter(drive =>
+          this.driveCanBeUsedForTransfer(drive, this.transferType)
+        );
       },
     },
     mounted() {
@@ -100,9 +97,6 @@
         });
     },
     methods: {
-      driveIsEnabled(drive) {
-        return this.driveCanBeUsedForTransfer(drive, this.transferType);
-      },
       goForward() {
         this.goForwardFromSelectDriveModal({
           driveId: this.selectedDriveId,
