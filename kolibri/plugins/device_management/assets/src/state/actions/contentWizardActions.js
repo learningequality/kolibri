@@ -4,6 +4,10 @@ import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { RemoteChannelResource, ChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { ContentWizardPages as PageNames, TransferTypes } from '../../constants';
+import {
+  availableChannelsPageLink,
+  selectContentPageLink,
+} from '../../views/manage-content-page/manageContentLinks';
 import { loadChannelMetaData, updateTreeViewTopic } from './selectContentActions';
 import { refreshDriveList } from './taskActions';
 import { refreshChannelList } from './manageContentActions';
@@ -54,17 +58,10 @@ export function goForwardFromSelectImportSourceModal(store, source) {
     setTransferType(store, TransferTypes.REMOTEIMPORT);
     // From top-level import workflow
     if (isEmpty(transferredChannel)) {
-      return router.push({
-        name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
-      });
+      return router.push(availableChannelsPageLink());
     }
     // From import-more-from-channel workflow
-    return router.push({
-      name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
-      params: {
-        channel_id: transferredChannel.id,
-      },
-    });
+    return router.push(selectContentPageLink({ channelId: transferredChannel.id }));
   }
 }
 
@@ -74,25 +71,13 @@ export function goForwardFromSelectDriveModal(store, { driveId, forExport }) {
   // From top-level import/export workflow
   if (isEmpty(transferredChannel)) {
     setWizardPageName(store, PageNames.AVAILABLE_CHANNELS);
-    return router.push({
-      name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
-      query: {
-        drive_id: driveId,
-        for_export: forExport,
-      },
-    });
+    return router.push(availableChannelsPageLink({ driveId, forExport }));
   }
   // From import-more-from-channel workflow
   setWizardPageName(store, PageNames.SELECT_CONTENT);
-  return router.push({
-    name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
-    params: {
-      channel_id: transferredChannel.id,
-    },
-    query: {
-      drive_id: driveId,
-    },
-  });
+  return router.push(
+    selectContentPageLink({ channelId: transferredChannel.id, driveId, forExport })
+  );
 }
 
 // Utilities for the show*Directly actions
@@ -136,7 +121,7 @@ function getTransferType(params) {
 // Handler for when user goes directly to the Available Channels URL
 // params { drive_id?: string, for_export?: boolean }
 // are normalized at the router handler function
-export function showAvailableChannelsPageDirectly(store, params) {
+export function showAvailableChannelsPage(store, params) {
   let selectedDrivePromise = Promise.resolve({});
   let availableChannelsPromise;
   const transferType = getTransferType(params);
@@ -193,7 +178,7 @@ export function showAvailableChannelsPageDirectly(store, params) {
  * params are { channel_id: string, drive_id?: string, for_export?: boolean },
  * which are normalized at router handler function
  */
-export function showSelectContentPageDirectly(store, params) {
+export function showSelectContentPage(store, params) {
   let selectedDrivePromise = Promise.resolve({});
   let transferredChannelPromise;
   const { drive_id, channel_id } = params;

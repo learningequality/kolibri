@@ -96,6 +96,7 @@
   import UiIcon from 'keen-ui/src/UiIcon';
   import { channelIsInstalled } from '../../state/getters';
   import bytesForHumans from './bytesForHumans';
+  import { selectContentPageLink } from './manageContentLinks';
 
   const Modes = {
     IMPORT: 'IMPORT',
@@ -173,13 +174,11 @@
         return this.channel.version;
       },
       selectContentLink() {
-        return {
-          name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
-          params: {
-            channel_id: this.channel.id,
-          },
-          query: { ...this.$route.query },
-        };
+        return selectContentPageLink({
+          channelId: this.channel.id,
+          driveId: this.$route.query.drive_id,
+          forExport: this.$route.query.for_export,
+        });
       },
     },
     methods: {

@@ -89,7 +89,7 @@
     installedChannelsWithResources,
     wizardState,
   } from '../../state/getters';
-  import { showSelectContentPageDirectly } from '../../state/actions/contentWizardActions';
+  import { showSelectContentPage } from '../../state/actions/contentWizardActions';
   import { TransferTypes } from '../../constants';
 
   const ALL_FILTER = 'ALL';
@@ -200,7 +200,7 @@
         return Boolean(match);
       },
       goToChannel(channel) {
-        this.showSelectContentPageDirectly({
+        this.showSelectContentPage({
           channel_id: channel.id,
           drive_id: this.selectedDrive.id,
         });
@@ -233,7 +233,7 @@
         wizardStatus: state => wizardState(state).status,
       },
       actions: {
-        showSelectContentPageDirectly,
+        showSelectContentPage,
         setPageTitle(store, newTitle) {
           store.dispatch('SET_TOOLBAR_TITLE', newTitle);
         },

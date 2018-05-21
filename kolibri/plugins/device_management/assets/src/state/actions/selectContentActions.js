@@ -1,9 +1,8 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { ContentNodeGranularResource } from 'kolibri.resources';
-import { ContentWizardPages, TransferTypes } from '../../constants';
+import { TransferTypes } from '../../constants';
 import { channelIsInstalled, wizardState } from '../getters';
-import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
 import { downloadChannelMetadata } from './contentTransferActions';
 
 /**
@@ -43,16 +42,6 @@ export function loadChannelMetaData(store) {
     .catch(({ errorType }) => {
       store.dispatch('SET_WIZARD_STATUS', errorType);
     });
-}
-
-/**
- * Transitions the import/export wizard to the 'select-content-page'
- *
- */
-export function showSelectContentPage(store) {
-  const { transferredChannel } = wizardState(store.state);
-  store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
-  navigateToTopicUrl({ title: transferredChannel.name, pk: transferredChannel.root });
 }
 
 /**

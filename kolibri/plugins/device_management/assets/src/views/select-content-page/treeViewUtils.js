@@ -2,7 +2,7 @@ import find from 'lodash/find';
 import flip from 'lodash/flip';
 import sumBy from 'lodash/fp/sumBy';
 import { createTranslator } from 'kolibri.utils.i18n';
-import { updateTopicLinkObject } from '../../wizardTransitionRoutes';
+import { selectContentTopicLink } from '../manage-content-page/manageContentLinks';
 
 const translator = createTranslator('treeViewRowMessages', {
   alreadyOnYourDevice: 'Already on your device',
@@ -198,6 +198,6 @@ export function annotateNode(node, selectedNodes, forImport = true) {
 export function transformBreadrumb(node) {
   return {
     text: node.title || translator.$tr('noTitle'),
-    link: updateTopicLinkObject(node),
+    link: selectContentTopicLink(node),
   };
 }

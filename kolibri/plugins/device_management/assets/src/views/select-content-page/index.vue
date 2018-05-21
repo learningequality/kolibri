@@ -107,7 +107,6 @@
     waitForTaskToComplete,
   } from '../../state/actions/contentTransferActions';
   import taskProgress from '../manage-content-page/task-progress';
-  import { WizardTransitions } from '../../wizardTransitionRoutes';
   import { PageNames, TaskStatuses } from '../../constants';
   import channelContentsSummary from './channel-contents-summary';
   import contentTreeViewer from './content-tree-viewer';
@@ -146,11 +145,6 @@
           return this.channel.version > this.channelOnDevice.version;
         }
         return false;
-      },
-      goBackLink() {
-        return {
-          name: WizardTransitions.GOTO_AVAILABLE_CHANNELS_PAGE,
-        };
       },
       taskInProgress() {
         return this.firstTask && this.firstTask.status !== TaskStatuses.COMPLETED;
