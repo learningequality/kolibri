@@ -1,11 +1,6 @@
 <template>
 
-  <core-modal
-    :title="title"
-    :enableBgClickCancel="false"
-    @enter="goForward"
-    @cancel="cancel"
-  >
+  <div>
     <transition mode="out-in">
       <ui-alert
         v-if="driveStatus==='LOADING'"
@@ -37,7 +32,7 @@
     <div class="core-modal-buttons">
       <k-button
         :text="$tr('cancel')"
-        @click="cancel"
+        @click="$emit('cancel')"
         appearance="flat-button"
       />
       <k-button
@@ -47,7 +42,7 @@
         :primary="true"
       />
     </div>
-  </core-modal>
+  </div>
 
 </template>
 
@@ -55,15 +50,10 @@
 <script>
 
   import isEmpty from 'lodash/isEmpty';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { refreshDriveList } from '../../../state/actions/taskActions';
-  import {
-    transitionWizardPage,
-    FORWARD,
-    CANCEL,
-  } from '../../../state/actions/contentWizardActions';
+  import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
   import { wizardState, channelIsInstalled } from '../../../state/getters';
   import { TransferTypes } from '../../../constants';
   import driveList from './drive-list';
@@ -71,7 +61,6 @@
   export default {
     name: 'selectDriveModal',
     components: {
-      coreModal,
       driveList,
       kButton,
       UiAlert,
@@ -151,9 +140,6 @@
             query,
           });
         }
-      },
-      cancel() {
-        this.transitionWizardPage(CANCEL);
       },
     },
     vuex: {

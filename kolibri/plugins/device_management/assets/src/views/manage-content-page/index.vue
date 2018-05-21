@@ -2,7 +2,7 @@
 
   <div>
     <template v-if="canManageContent">
-      <select-transfer-source-modal />
+      <select-transfer-source-modal v-if="wizardPageName!==''" />
 
       <subpage-container>
         <task-progress
@@ -122,6 +122,7 @@
         firstTask: ({ pageState }) => pageState.taskList[0],
         tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
         deviceHasChannels: ({ pageState }) => pageState.channelList.length > 0,
+        wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
       },
       actions: {
         cancelTask,

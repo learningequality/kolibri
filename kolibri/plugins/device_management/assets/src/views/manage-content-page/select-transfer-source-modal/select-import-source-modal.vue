@@ -1,10 +1,6 @@
 <template>
 
-  <core-modal
-    :title="$tr('title')"
-    @enter="goForward"
-    @cancel="cancel"
-  >
+  <div>
     <div class="options">
       <k-radio-button
         :label="$tr('network')"
@@ -23,7 +19,7 @@
 
     <div class="core-modal-buttons">
       <k-button
-        @click="cancel"
+        @click="$emit('cancel')"
         appearance="flat-button"
         :text="$tr('cancel')"
       />
@@ -34,21 +30,19 @@
         :text="$tr('continue')"
       />
     </div>
-  </core-modal>
+  </div>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { RemoteChannelResource } from 'kolibri.resources';
   import {
     transitionWizardPage,
     FORWARD,
-    CANCEL,
     LOCAL_DRIVE,
     KOLIBRI_STUDIO,
   } from '../../../state/actions/contentWizardActions';
@@ -56,7 +50,6 @@
   export default {
     name: 'selectImportSourceModal',
     components: {
-      coreModal,
       kButton,
       kRadioButton,
     },
@@ -81,14 +74,10 @@
       continue: 'Continue',
       network: 'Kolibri Studio',
       localDrives: 'Attached drive or memory card',
-      title: 'Import from',
     },
     methods: {
       goForward() {
         return this.transitionWizardPage(FORWARD, { source: this.source });
-      },
-      cancel() {
-        return this.transitionWizardPage(CANCEL);
       },
     },
     vuex: {
