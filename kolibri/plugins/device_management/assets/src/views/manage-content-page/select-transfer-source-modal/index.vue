@@ -26,8 +26,7 @@
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import { ContentWizardPages } from '../../../constants';
-  import { transitionWizardPage, CANCEL } from '../../../state/actions/contentWizardActions';
-  // TODO rename file
+  import { cancelContentTransferWizard } from '../../../state/actions/contentWizardActions';
   import selectImportSourceModal from './select-import-source-modal';
   import selectDriveModal from './select-drive-modal';
 
@@ -40,7 +39,6 @@
     },
     computed: {
       atSelectImportSource() {
-        // TODO rename constant
         return this.wizardPageName === ContentWizardPages.SELECT_IMPORT_SOURCE;
       },
       atSelectDrive() {
@@ -62,7 +60,7 @@
         }
       },
       cancel() {
-        return this.transitionWizardPage(CANCEL);
+        return this.cancelContentTransferWizard();
       },
     },
     vuex: {
@@ -70,7 +68,7 @@
         wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
       },
       actions: {
-        transitionWizardPage,
+        cancelContentTransferWizard,
       },
     },
     $trs: {

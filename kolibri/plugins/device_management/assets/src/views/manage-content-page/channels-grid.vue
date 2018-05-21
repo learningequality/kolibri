@@ -28,7 +28,7 @@
             :channel="channel"
             mode="MANAGE"
             @clickdelete="selectedChannelId=channel.id"
-            @import_more="handleImportMore"
+            @import_more="startImportWorkflow(channel)"
           />
         </div>
       </div>
@@ -51,7 +51,7 @@
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
-  import { transitionWizardPage } from '../../state/actions/contentWizardActions';
+  import { startImportWorkflow } from '../../state/actions/contentWizardActions';
   import { installedChannelsWithResources, installedChannelListLoading } from '../../state/getters';
   import deleteChannelModal from './delete-channel-modal';
   import channelListItem from './channel-list-item';
@@ -92,10 +92,6 @@
           this.triggerChannelDeleteTask(channelId);
         }
       },
-      handleImportMore(channel) {
-        this.setTransferredChannel(channel);
-        this.transitionWizardPage('forward', { import: true });
-      },
     },
     vuex: {
       getters: {
@@ -104,12 +100,9 @@
         pageState: state => state.pageState,
       },
       actions: {
+        startImportWorkflow,
         triggerChannelDeleteTask,
         refreshChannelList,
-        transitionWizardPage,
-        setTransferredChannel(store, channel) {
-          store.dispatch('SET_TRANSFERRED_CHANNEL', channel);
-        },
       },
     },
     $trs: {

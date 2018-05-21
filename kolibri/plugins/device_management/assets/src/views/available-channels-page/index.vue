@@ -89,7 +89,7 @@
     installedChannelsWithResources,
     wizardState,
   } from '../../state/getters';
-  import { transitionWizardPage, FORWARD } from '../../state/actions/contentWizardActions';
+  import { showSelectContentPageDirectly } from '../../state/actions/contentWizardActions';
   import { TransferTypes } from '../../constants';
 
   const ALL_FILTER = 'ALL';
@@ -200,7 +200,10 @@
         return Boolean(match);
       },
       goToChannel(channel) {
-        this.transitionWizardPage(FORWARD, { channel });
+        this.showSelectContentPageDirectly({
+          channel_id: channel.id,
+          drive_id: this.selectedDrive.id,
+        });
       },
       showChannel(channel) {
         let languageMatches = true;
@@ -230,7 +233,7 @@
         wizardStatus: state => wizardState(state).status,
       },
       actions: {
-        transitionWizardPage,
+        showSelectContentPageDirectly,
         setPageTitle(store, newTitle) {
           store.dispatch('SET_TOOLBAR_TITLE', newTitle);
         },

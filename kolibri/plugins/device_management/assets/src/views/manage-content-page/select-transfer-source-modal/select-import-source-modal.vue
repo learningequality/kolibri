@@ -41,8 +41,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import { RemoteChannelResource } from 'kolibri.resources';
   import {
-    transitionWizardPage,
-    FORWARD,
+    goForwardFromSelectImportSourceModal,
     LOCAL_DRIVE,
     KOLIBRI_STUDIO,
   } from '../../../state/actions/contentWizardActions';
@@ -77,12 +76,12 @@
     },
     methods: {
       goForward() {
-        return this.transitionWizardPage(FORWARD, { source: this.source });
+        this.goForwardFromSelectImportSourceModal(this.source);
       },
     },
     vuex: {
       actions: {
-        transitionWizardPage,
+        goForwardFromSelectImportSourceModal,
       },
     },
   };

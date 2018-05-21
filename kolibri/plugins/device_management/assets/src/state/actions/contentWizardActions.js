@@ -9,110 +9,90 @@ import { refreshDriveList } from './taskActions';
 import { refreshChannelList } from './manageContentActions';
 import { getAllRemoteChannels } from './availableChannelsActions';
 
-export const CANCEL = 'cancel';
-export const FORWARD = 'forward';
-export const BACKWARD = 'backward';
 export const LOCAL_DRIVE = 'local';
 export const KOLIBRI_STUDIO = 'network';
 
-/**
- * State machine for the Import/Export wizards.
- * Only handles forward, backward, and cancel transitions.
- *
- * @param store - vuex store object
- * @param {string} transition - 'forward' or 'cancel'
- * @param {Object} params - data needed to execute transition
- * @returns {Promise}
- *
- */
-export function transitionWizardPage(store, transition, params) {
-  const wizardPage = store.state.pageState.wizardState.pageName;
+export function setWizardPageName(store, pageName) {
+  store.dispatch('SET_WIZARD_PAGENAME', pageName);
+}
 
-  function _updatePageName(pageName) {
-    store.dispatch('SET_WIZARD_PAGENAME', pageName);
-  }
+export function setTransferType(store, transferType) {
+  store.dispatch('SET_TRANSFER_TYPE', transferType);
+}
 
-  function _updateTransferType(transferType) {
-    store.dispatch('SET_TRANSFER_TYPE', transferType);
-  }
+export function setTransferredChannel(store, channel) {
+  store.dispatch('SET_TRANSFERRED_CHANNEL', channel);
+}
 
-  if (transition === CANCEL) {
-    store.dispatch('SET_TRANSFERRED_CHANNEL', {});
-    return _updatePageName('');
-  }
+export function startImportWorkflow(store, channel) {
+  channel && setTransferredChannel(store, channel);
+  setWizardPageName(store, PageNames.SELECT_IMPORT_SOURCE);
+}
 
+export function startExportWorkflow(store) {
+  setTransferType(store, TransferTypes.LOCALEXPORT);
+  setWizardPageName(store, PageNames.SELECT_DRIVE);
+}
+
+// Cancels wizard and resets wizardState
+export function cancelContentTransferWizard(store) {
+  store.dispatch('SET_TRANSFERRED_CHANNEL', {});
+  setTransferType(store, '');
+  return setWizardPageName(store, '');
+}
+
+// Forward from SELECT_IMPORT -> SELECT_DRIVE or AVAILABLE_CHANNELS
+export function goForwardFromSelectImportSourceModal(store, source) {
   const { transferredChannel } = store.state.pageState.wizardState;
 
-  // AT LANDING PAGE
-  // Forward with params : { import : Boolean }
-  if (wizardPage === '') {
-    if (params.import) {
-      _updatePageName(PageNames.SELECT_IMPORT_SOURCE);
-    } else {
-      _updateTransferType(TransferTypes.LOCALEXPORT);
-      _updatePageName(PageNames.SELECT_DRIVE);
-    }
-    return Promise.resolve();
+  if (source === LOCAL_DRIVE) {
+    setTransferType(store, TransferTypes.LOCALIMPORT);
+    setWizardPageName(store, PageNames.SELECT_DRIVE);
   }
 
-  // At SELECT_IMPORT_SOURCE
-  // Forward with params : { source : 'local' | 'network' }
-  if (wizardPage === PageNames.SELECT_IMPORT_SOURCE && transition === FORWARD) {
-    const { source } = params;
-    if (source === LOCAL_DRIVE) {
-      _updateTransferType(TransferTypes.LOCALIMPORT);
-      _updatePageName(PageNames.SELECT_DRIVE);
-      return Promise.resolve();
-    }
-    if (source === KOLIBRI_STUDIO) {
-      _updateTransferType(TransferTypes.REMOTEIMPORT);
-      // From top-level import workflow
-      if (isEmpty(transferredChannel)) {
-        _updatePageName(PageNames.AVAILABLE_CHANNELS);
-        return router.push({
-          name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
-        });
-      }
-      // From import-more-from-channel workflow
-      _updatePageName(PageNames.SELECT_CONTENT);
-      return router.push({
-        name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
-        params: {
-          channel_id: transferredChannel.id,
-        },
-      });
-    }
-  }
-
-  // At SELECT_DRIVE
-  // Forward with params : { driveId }
-  if (wizardPage === PageNames.SELECT_DRIVE && transition === FORWARD) {
-    store.dispatch('SET_SELECTED_DRIVE', params.driveId);
-    // From top-level import/export workflow
+  if (source === KOLIBRI_STUDIO) {
+    setTransferType(store, TransferTypes.REMOTEIMPORT);
+    // From top-level import workflow
     if (isEmpty(transferredChannel)) {
-      _updatePageName(PageNames.AVAILABLE_CHANNELS);
       return router.push({
         name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
-        query: {
-          drive_id: params.driveId,
-          for_export: store.state.pageState.wizardState.transferType === TransferTypes.LOCALEXPORT,
-        },
       });
     }
     // From import-more-from-channel workflow
-    _updatePageName(PageNames.SELECT_CONTENT);
     return router.push({
       name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
       params: {
         channel_id: transferredChannel.id,
       },
+    });
+  }
+}
+
+// Forward from SELECT_DRIVE -> AVAILABLE_CHANNELS or SELECT_CONTENT
+export function goForwardFromSelectDriveModal(store, { driveId, forExport }) {
+  const { transferredChannel } = store.state.pageState.wizardState;
+  // From top-level import/export workflow
+  if (isEmpty(transferredChannel)) {
+    setWizardPageName(store, PageNames.AVAILABLE_CHANNELS);
+    return router.push({
+      name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
       query: {
-        drive_id: params.driveId,
+        drive_id: driveId,
+        for_export: forExport,
       },
     });
   }
-
-  return Promise.resolve();
+  // From import-more-from-channel workflow
+  setWizardPageName(store, PageNames.SELECT_CONTENT);
+  return router.push({
+    name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
+    params: {
+      channel_id: transferredChannel.id,
+    },
+    query: {
+      drive_id: driveId,
+    },
+  });
 }
 
 // Utilities for the show*Directly actions
@@ -162,8 +142,6 @@ export function showAvailableChannelsPageDirectly(store, params) {
   const transferType = getTransferType(params);
 
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  // HACK have to set the wizardName for state machine to work as-is
-  store.dispatch('SET_WIZARD_PAGENAME', PageNames.AVAILABLE_CHANNELS);
 
   if (transferType === null) {
     return Promise.reject({ error: 'invalid_parameters' });

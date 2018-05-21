@@ -106,7 +106,6 @@
     transferChannelContent,
     waitForTaskToComplete,
   } from '../../state/actions/contentTransferActions';
-  import { transitionWizardPage } from '../../state/actions/contentWizardActions';
   import taskProgress from '../manage-content-page/task-progress';
   import { WizardTransitions } from '../../wizardTransitionRoutes';
   import { PageNames, TaskStatuses } from '../../constants';
@@ -228,7 +227,6 @@
         transferChannelContent,
         waitForTaskToComplete,
         updateTreeViewTopic,
-        transitionWizardPage,
         updateResourceCounts(store) {
           const { transferredChannel, availableChannels } = wizardState(store.state);
           const updatedChannel = availableChannels.find(

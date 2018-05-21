@@ -55,7 +55,10 @@
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { refreshTaskList, cancelTask } from '../../state/actions/taskActions';
-  import { transitionWizardPage, FORWARD } from '../../state/actions/contentWizardActions';
+  import {
+    startImportWorkflow,
+    startExportWorkflow,
+  } from '../../state/actions/contentWizardActions';
   import subpageContainer from '../containers/subpage-container';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import channelsGrid from './channels-grid';
@@ -104,7 +107,10 @@
     },
     methods: {
       openWizard(action) {
-        return this.transitionWizardPage(FORWARD, { import: action === 'import' });
+        if (action === 'import') {
+          return this.startImportWorkflow();
+        }
+        return this.startExportWorkflow();
       },
       clearFirstTask(unblockCb) {
         this.cancelTask(this.firstTask.id)
@@ -128,7 +134,8 @@
         cancelTask,
         refreshTaskList,
         refreshChannelList,
-        transitionWizardPage,
+        startImportWorkflow,
+        startExportWorkflow,
       },
     },
   };

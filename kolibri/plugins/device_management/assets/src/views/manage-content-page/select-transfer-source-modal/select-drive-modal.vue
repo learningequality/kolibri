@@ -53,7 +53,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { refreshDriveList } from '../../../state/actions/taskActions';
-  import { transitionWizardPage } from '../../../state/actions/contentWizardActions';
+  import { goForwardFromSelectDriveModal } from '../../../state/actions/contentWizardActions';
   import { wizardState, channelIsInstalled } from '../../../state/getters';
   import { TransferTypes } from '../../../constants';
   import driveList from './drive-list';
@@ -120,26 +120,10 @@
         return drive.writable;
       },
       goForward() {
-        const query = {
-          drive_id: this.selectedDriveId,
-          for_export: !this.inImportMode,
-        };
-        // Top-level import or export workflow
-        if (isEmpty(this.transferredChannel)) {
-          this.$router.push({
-            name: 'GOTO_AVAILABLE_CHANNELS_PAGE_DIRECTLY',
-            query,
-          });
-        } else {
-          // Import more from channel workflow
-          this.$router.push({
-            name: 'GOTO_SELECT_CONTENT_PAGE_DIRECTLY',
-            params: {
-              channel_id: this.transferredChannel.id,
-            },
-            query,
-          });
-        }
+        this.goForwardFromSelectDriveModal({
+          driveId: this.selectedDriveId,
+          forExport: !this.inImportMode,
+        });
       },
     },
     vuex: {
@@ -150,7 +134,7 @@
         channelIsInstalled,
       },
       actions: {
-        transitionWizardPage,
+        goForwardFromSelectDriveModal,
         refreshDriveList,
       },
     },
