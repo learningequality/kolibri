@@ -1,6 +1,9 @@
+import json
 import logging
-from random import sample
+import os
+import re
 from functools import reduce
+from random import sample
 
 import requests
 from django.core.cache import cache
@@ -10,6 +13,7 @@ from django.db.models import Sum
 from django.db.models import When
 from django.db.models.aggregates import Count
 from django.http import Http404
+from django.utils.six import iteritems
 from django.utils.translation import ugettext as _
 from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
@@ -98,10 +102,17 @@ class ContentNodeFilter(IdFilter):
         fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related',
                   'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind', 'by_role']
 
-    def filter_search(self, queryset, name, value):
+    def filter_search(self, queryset, name, value):  # noqa: C901
         """
         Implement various filtering strategies in order to get a wide range of search results.
         """
+        # load stopwords file
+        stopwords_path = os.path.join(os.path.dirname(__file__), 'constants', 'stopwords-all.json')
+        with open(stopwords_path, 'r') as f:
+            stopwords = json.load(f)
+        stopwords_set = set()
+        for (key, values) in iteritems(stopwords):
+            stopwords_set.update(values)
 
         # return the result of and-ing a list of queries
         def intersection(queries):
@@ -111,30 +122,48 @@ class ContentNodeFilter(IdFilter):
         def union(queries):
             return reduce(lambda x, y: x | y, queries)
 
+        # all words with punctuation removed
+        all_words = [w for w in re.split('[?.,!";: ]', value) if w]
+        # words in all_words that are not stopwords
+        critical_words = [w for w in all_words if w not in stopwords_set]
+        # stopwords from the json file
+        stop_words = list(set(all_words).difference(critical_words))
         # queries ordered by relevance priority
-        words = value.split()
         all_queries = [
             # exact match in title
             Q(title__icontains=value),
             # all words in title
-            intersection([Q(title__icontains=w) for w in words]),
+            intersection([Q(title__icontains=w) for w in all_words]),
+            # all critical words in title
+            intersection([Q(title__icontains=w) for w in critical_words]),
             # exact match in description
             Q(description__icontains=value),
             # all words in description
-            intersection([Q(description__icontains=w) for w in words]),
+            intersection([Q(description__icontains=w) for w in all_words]),
+            # all critical words in description
+            intersection([Q(description__icontains=w) for w in critical_words]),
         ]
-
-        # any word in title, sorted by length
-        for w in reversed(sorted(words, key=len)):
+        # any critical word in title, reverse-sorted by word length
+        for w in sorted(critical_words, key=len, reverse=True):
             all_queries.append(Q(title__icontains=w))
+        # any critical word in description, reverse-sorted by word length
+        for w in sorted(critical_words, key=len, reverse=True):
+            all_queries.append(Q(description__icontains=w))
+        # any stop word in title, reverse-sorted by word length
+        for w in sorted(stop_words, key=len, reverse=True):
+            all_queries.append(Q(title__icontains=w))
+        # any stop word in description, reverse-sorted by word length
+        for w in sorted(stop_words, key=len, reverse=True):
+            all_queries.append(Q(description__icontains=w))
 
         results = []
         content_ids = set()
         MAX_RESULTS = 30
-        BUFFER_SIZE = MAX_RESULTS * 3  # grab some extras, but not too many
+        BUFFER_SIZE = MAX_RESULTS * 2  # grab some extras, but not too many
 
         # iterate over each query type, and build up search results
         for query in all_queries:
+
             # in each pass, don't take any items already in the result set
             matches = queryset.exclude(content_id__in=list(content_ids)).filter(query)[:BUFFER_SIZE]
 
