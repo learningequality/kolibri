@@ -6,14 +6,14 @@
         :label="$tr('network')"
         v-model="source"
         value="network"
-        :disabled="disableUi || kolibriStudioIsOffline"
+        :disabled="formIsDisabled || kolibriStudioIsOffline"
         :autofocus="!kolibriStudioIsOffline"
       />
       <k-radio-button
         :label="$tr('localDrives')"
         v-model="source"
         value="local"
-        :disabled="disableUi"
+        :disabled="formIsDisabled"
       />
     </div>
 
@@ -26,7 +26,7 @@
       <k-button
         @click="goForward"
         :primary="true"
-        :disabled="disableUi"
+        :disabled="formIsDisabled"
         :text="$tr('continue')"
       />
     </div>
@@ -55,7 +55,7 @@
     data() {
       return {
         source: KOLIBRI_STUDIO,
-        disableUi: true,
+        formIsDisabled: true,
         kolibriStudioIsOffline: false,
       };
     },
@@ -65,7 +65,7 @@
           this.source = LOCAL_DRIVE;
           this.kolibriStudioIsOffline = true;
         }
-        this.disableUi = false;
+        this.formIsDisabled = false;
       });
     },
     $trs: {
@@ -76,7 +76,9 @@
     },
     methods: {
       goForward() {
-        this.goForwardFromSelectImportSourceModal(this.source);
+        if (!this.formIsDisabled) {
+          this.goForwardFromSelectImportSourceModal(this.source);
+        }
       },
     },
     vuex: {
