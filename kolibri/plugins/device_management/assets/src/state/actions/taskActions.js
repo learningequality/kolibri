@@ -40,7 +40,7 @@ const simplifyTask = pick(['id', 'status', 'percentage']);
 
 function _taskListShouldUpdate(state, newTasks) {
   const oldTasks = state.pageState.taskList;
-  return !isEqual(oldTasks.map(simplifyTask), newTasks.map(simplifyTask));
+  return oldTasks && !isEqual(oldTasks.map(simplifyTask), newTasks.map(simplifyTask));
 }
 
 /**

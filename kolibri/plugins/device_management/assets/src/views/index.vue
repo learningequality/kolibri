@@ -76,14 +76,28 @@
         };
       },
     },
+    watch: {
+      inContentManagementPage(val) {
+        return val ? this.startTaskPolling() : this.stopTaskPolling();
+      },
+    },
     mounted() {
-      // TODO try to simulate nested routes somehow so this is only on when on Content pages
-      if (this.canManageContent) {
-        this.intervalId = setInterval(this.refreshTaskList, 1000);
-      }
+      this.inContentManagementPage && this.startTaskPolling();
     },
     destroyed() {
-      clearInterval(this.intervalId);
+      this.stopTaskPolling();
+    },
+    methods: {
+      startTaskPolling() {
+        if (!this.intervalId && this.canManageContent) {
+          this.intervalId = setInterval(this.refreshTaskList, 1000);
+        }
+      },
+      stopTaskPolling() {
+        if (this.intervalId) {
+          this.intervalId = clearInterval(this.intervalId);
+        }
+      },
     },
     vuex: {
       getters: {
@@ -91,6 +105,13 @@
         welcomeModalVisible: ({ welcomeModalVisible }) => welcomeModalVisible,
         canManageContent,
         toolbarTitle: ({ pageState }) => pageState.toolbarTitle,
+        inContentManagementPage: ({ pageName }) => {
+          return [
+            ContentWizardPages.AVAILABLE_CHANNELS,
+            ContentWizardPages.SELECT_CONTENT,
+            PageNames.MANAGE_CONTENT_PAGE,
+          ].includes(pageName);
+        },
       },
       actions: {
         refreshTaskList,
