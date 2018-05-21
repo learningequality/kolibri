@@ -1,4 +1,5 @@
 import find from 'lodash/find';
+import isEmpty from 'lodash/isEmpty';
 import sumBy from 'lodash/sumBy';
 import { TransferTypes } from '../constants';
 
@@ -89,4 +90,28 @@ export function nodeTransferCounts(state) {
 
 export function inExportMode(state) {
   return state.pageState.wizardState.transferType === TransferTypes.LOCALEXPORT;
+}
+
+export function driveCanBeUsedForTransfer(state) {
+  return function isEnabled(drive, transferType) {
+    if (transferType === TransferTypes.LOCALIMPORT) {
+      const { transferredChannel } = state.pageState.wizardState;
+      // In top-level Import workflow -> Show any drive with content
+      if (isEmpty(transferredChannel)) {
+        return drive.metadata.channels.length > 0;
+      }
+      // In "Import More" from Channel workflow -> Show any drive with that channel
+      // where its version is >= to the installed version
+      const channelOnDrive = find(drive.metadata.channels, { id: transferredChannel.id });
+      const channelOnServer = channelIsInstalled(state)(transferredChannel.id);
+      return channelOnDrive && channelOnDrive.version >= channelOnServer.version;
+    }
+
+    if (transferType === TransferTypes.LOCALEXPORT) {
+      // In Export workflow, drive just needs to be writable
+      return drive.writable;
+    }
+
+    return false;
+  };
 }

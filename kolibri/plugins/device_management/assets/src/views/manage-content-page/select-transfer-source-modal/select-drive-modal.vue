@@ -49,12 +49,11 @@
 
 <script>
 
-  import isEmpty from 'lodash/isEmpty';
   import kButton from 'kolibri.coreVue.components.kButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { refreshDriveList } from '../../../state/actions/taskActions';
   import { goForwardFromSelectDriveModal } from '../../../state/actions/contentWizardActions';
-  import { wizardState, channelIsInstalled } from '../../../state/getters';
+  import { wizardState, driveCanBeUsedForTransfer } from '../../../state/getters';
   import { TransferTypes } from '../../../constants';
   import driveList from './drive-list';
 
@@ -102,21 +101,7 @@
     },
     methods: {
       driveIsEnabled(drive) {
-        if (this.inImportMode) {
-          // In top-level Import workflow -> Show any drive with content
-          if (isEmpty(this.transferredChannel)) {
-            return drive.metadata.channels.length > 0;
-          }
-          // In "Import More" from Channel workflow -> Show any drive with that channel
-          // where its version is >= to the installed version
-          const channelOnDrive = drive.metadata.channels.find(
-            c => c.id === this.transferredChannel.id
-          );
-          const channelOnServer = this.channelIsInstalled(this.transferredChannel.id);
-          return channelOnDrive && channelOnDrive.version >= channelOnServer.version;
-        }
-        // In Export workflow, drive just needs to be writable
-        return drive.writable;
+        return this.driveCanBeUsedForTransfer(drive, this.transferType);
       },
       goForward() {
         this.goForwardFromSelectDriveModal({
@@ -130,7 +115,7 @@
         driveList: state => wizardState(state).driveList,
         transferType: state => wizardState(state).transferType,
         transferredChannel: state => wizardState(state).transferredChannel,
-        channelIsInstalled,
+        driveCanBeUsedForTransfer,
       },
       actions: {
         goForwardFromSelectDriveModal,
