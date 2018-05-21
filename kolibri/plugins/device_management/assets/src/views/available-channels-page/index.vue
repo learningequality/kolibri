@@ -24,6 +24,25 @@
       </div>
     </div>
 
+    <section
+      class="unlisted-channels"
+      v-if="showUnlistedChannels"
+    >
+      <channel-token-modal
+        v-if="showTokenModal"
+        @closemodal="showTokenModal=false"
+        @channelfound="goToChannel"
+      />
+      <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
+
+      <k-button
+        :text="$tr('channelTokenButtonLabel')"
+        appearance="basic-link"
+        name="showtokenmodal"
+        @click="showTokenModal=true"
+      />
+    </section>
+
     <k-linear-loader
       v-if="channelsAreLoading"
       type="indeterminate"
@@ -49,25 +68,6 @@
         />
       </div>
     </div>
-
-    <section
-      class="unlisted-channels"
-      v-if="showUnlistedChannels"
-    >
-      <channel-token-modal
-        v-if="showTokenModal"
-        @closemodal="showTokenModal=false"
-        @channelfound="goToChannel"
-      />
-      <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
-
-      <k-button
-        :text="$tr('channelTokenButtonLabel')"
-        appearance="basic-link"
-        name="showtokenmodal"
-        @click="showTokenModal=true"
-      />
-    </section>
   </div>
 
 </template>
