@@ -2,10 +2,7 @@
 
   <div>
     <template v-if="canManageContent">
-      <component
-        v-if="wizardPageName!==''"
-        :is="wizardComponent"
-      />
+      <select-transfer-source-modal />
 
       <subpage-container>
         <task-progress
@@ -59,18 +56,11 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import { refreshTaskList, cancelTask } from '../../state/actions/taskActions';
   import { transitionWizardPage, FORWARD } from '../../state/actions/contentWizardActions';
-  import { ContentWizardPages } from '../../constants';
   import subpageContainer from '../containers/subpage-container';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import channelsGrid from './channels-grid';
-  import selectImportSource from './wizards/select-import-source-modal';
   import taskProgress from './task-progress';
-  import selectDriveModal from './wizards/select-drive-modal';
-
-  const pageNameComponentMap = {
-    [ContentWizardPages.SELECT_IMPORT_SOURCE]: selectImportSource,
-    [ContentWizardPages.SELECT_DRIVE]: selectDriveModal,
-  };
+  import selectTransferSourceModal from './select-transfer-source-modal';
 
   const POLL_DELAY = 1000;
 
@@ -89,16 +79,12 @@
       kButton,
       subpageContainer,
       taskProgress,
+      selectTransferSourceModal,
     },
     data: () => ({
       intervalId: undefined,
       notification: null,
     }),
-    computed: {
-      wizardComponent() {
-        return pageNameComponentMap[this.wizardPageName];
-      },
-    },
     watch: {
       // If Tasks disappear from queue, assume that an addition/deletion has
       // completed and refresh list.
@@ -118,10 +104,7 @@
     },
     methods: {
       openWizard(action) {
-        if (action === 'import') {
-          return this.transitionWizardPage(FORWARD, { import: true });
-        }
-        return this.transitionWizardPage(FORWARD, { import: false });
+        return this.transitionWizardPage(FORWARD, { import: action === 'import' });
       },
       clearFirstTask(unblockCb) {
         this.cancelTask(this.firstTask.id)
@@ -135,7 +118,6 @@
     vuex: {
       getters: {
         canManageContent,
-        wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
         pageState: ({ pageState }) => pageState,
         firstTask: ({ pageState }) => pageState.taskList[0],
         tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
