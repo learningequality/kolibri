@@ -80,16 +80,20 @@ export function goForwardFromSelectDriveModal(store, { driveId, forExport }) {
   );
 }
 
-// Utilities for the show*Directly actions
+// Utilities for the show*Page actions
 function getSelectedDrive(store, driveId) {
+  const { transferType } = store.state.pageState.wizardState;
   return new Promise((resolve, reject) => {
     refreshDriveList(store).then(driveList => {
       const drive = find(driveList, { id: driveId });
       if (drive) {
-        // TODO does not check to see if drive is (not) writeable, depending on workflow
-        resolve({ ...drive });
+        if (transferType === TransferTypes.LOCALEXPORT && !drive.writable) {
+          reject({ error: 'drive_is_not_writeable' });
+        } else {
+          resolve({ ...drive });
+        }
       } else {
-        reject(Error('drive_not_found'));
+        reject({ error: 'drive_not_found' });
       }
     });
   });

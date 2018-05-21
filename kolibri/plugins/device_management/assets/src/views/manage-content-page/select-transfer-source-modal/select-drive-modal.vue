@@ -115,8 +115,7 @@
           const channelOnServer = this.channelIsInstalled(this.transferredChannel.id);
           return channelOnDrive && channelOnDrive.version >= channelOnServer.version;
         }
-        // In Export workflow, drive just needs to be writeable
-        // TODO: writable -> writeable
+        // In Export workflow, drive just needs to be writable
         return drive.writable;
       },
       goForward() {
