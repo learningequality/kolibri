@@ -160,14 +160,6 @@
       showUnlistedChannels() {
         return this.channelsAreAvailable && this.transferType === TransferTypes.REMOTEIMPORT;
       },
-      goBackLink() {
-        return {
-          name: 'wizardtransition',
-          params: {
-            transition: 'cancel',
-          },
-        };
-      },
       allLanguagesOption() {
         return {
           label: this.$tr('allLanguages'),

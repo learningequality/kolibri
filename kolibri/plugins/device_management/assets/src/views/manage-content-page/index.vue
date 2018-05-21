@@ -22,14 +22,14 @@
             <k-button
               :text="$tr('import')"
               class="button"
-              @click="openWizard('import')"
+              @click="startImportWorkflow()"
               :primary="true"
             />
             <k-button
               v-if="deviceHasChannels"
               :text="$tr('export')"
               class="button"
-              @click="openWizard('export')"
+              @click="startExportWorkflow()"
             />
           </div>
         </div>
@@ -65,8 +65,6 @@
   import taskProgress from './task-progress';
   import selectTransferSourceModal from './select-transfer-source-modal';
 
-  const POLL_DELAY = 1000;
-
   export default {
     name: 'manageContentPage',
     $trs: {
@@ -80,14 +78,10 @@
       authMessage,
       channelsGrid,
       kButton,
+      selectTransferSourceModal,
       subpageContainer,
       taskProgress,
-      selectTransferSourceModal,
     },
-    data: () => ({
-      intervalId: undefined,
-      notification: null,
-    }),
     watch: {
       // If Tasks disappear from queue, assume that an addition/deletion has
       // completed and refresh list.
@@ -97,21 +91,7 @@
         }
       },
     },
-    mounted() {
-      if (this.canManageContent) {
-        this.intervalId = setInterval(this.refreshTaskList, POLL_DELAY);
-      }
-    },
-    destroyed() {
-      clearInterval(this.intervalId);
-    },
     methods: {
-      openWizard(action) {
-        if (action === 'import') {
-          return this.startImportWorkflow();
-        }
-        return this.startExportWorkflow();
-      },
       clearFirstTask(unblockCb) {
         this.cancelTask(this.firstTask.id)
           // Handle failures silently in case of near-simultaneous cancels.
@@ -148,7 +128,7 @@
   @require '~kolibri.styles.definitions'
 
   .table-title
-    margin-top: 1em
+    margin-top: 16px
     &:after
       content: ''
       display: table
@@ -161,15 +141,10 @@
     float: right
 
   .main
-    padding: 1em 2em
-    padding-bottom: 3em
-    margin-top: 2em
+    padding: 16px 32px
+    padding-bottom: 48px
+    margin-top: 32px
     width: 100%
     border-radius: 4px
-
-  hr
-    background-color: $core-text-annotation
-    height: 1px
-    border: none
 
 </style>
