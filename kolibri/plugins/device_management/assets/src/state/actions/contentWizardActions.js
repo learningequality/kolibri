@@ -3,6 +3,7 @@ import find from 'lodash/find';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { RemoteChannelResource, ChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
+import { createTranslator } from 'kolibri.utils.i18n';
 import { ContentWizardPages as PageNames, TransferTypes } from '../../constants';
 import {
   availableChannelsPageLink,
@@ -12,6 +13,10 @@ import { loadChannelMetaData, updateTreeViewTopic } from './selectContentActions
 import { refreshDriveList } from './taskActions';
 import { refreshChannelList } from './manageContentActions';
 import { getAllRemoteChannels } from './availableChannelsActions';
+
+const translator = createTranslator('contentWizardTexts', {
+  loadingChannelsToolbar: 'Loading channels…',
+});
 
 export const LOCAL_DRIVE = 'local';
 export const KOLIBRI_STUDIO = 'network';
@@ -45,6 +50,12 @@ export function cancelContentTransferWizard(store) {
   return setWizardPageName(store, '');
 }
 
+// Provide a intermediate state before Available Channels is fully-loaded
+function prepareForAvailableChannelsPage(store) {
+  store.dispatch('SET_TOOLBAR_TITLE', translator.$tr('loadingChannelsToolbar'));
+  store.dispatch('SET_PAGE_NAME', PageNames.AVAILABLE_CHANNELS);
+}
+
 // Forward from SELECT_IMPORT -> SELECT_DRIVE or AVAILABLE_CHANNELS
 export function goForwardFromSelectImportSourceModal(store, source) {
   const { transferredChannel } = store.state.pageState.wizardState;
@@ -58,6 +69,7 @@ export function goForwardFromSelectImportSourceModal(store, source) {
     setTransferType(store, TransferTypes.REMOTEIMPORT);
     // From top-level import workflow
     if (isEmpty(transferredChannel)) {
+      prepareForAvailableChannelsPage(store);
       return router.push(availableChannelsPageLink());
     }
     // From import-more-from-channel workflow
@@ -70,7 +82,7 @@ export function goForwardFromSelectDriveModal(store, { driveId, forExport }) {
   const { transferredChannel } = store.state.pageState.wizardState;
   // From top-level import/export workflow
   if (isEmpty(transferredChannel)) {
-    setWizardPageName(store, PageNames.AVAILABLE_CHANNELS);
+    prepareForAvailableChannelsPage(store);
     return router.push(availableChannelsPageLink({ driveId, forExport }));
   }
   // From import-more-from-channel workflow
