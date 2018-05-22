@@ -1,10 +1,11 @@
 import isEmpty from 'lodash/isEmpty';
 import find from 'lodash/find';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { handleApiError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { RemoteChannelResource, ChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { createTranslator } from 'kolibri.utils.i18n';
-import { ContentWizardPages as PageNames, TransferTypes } from '../../constants';
+import { ContentWizardPages, PageNames, TransferTypes } from '../../constants';
 import {
   availableChannelsPageLink,
   selectContentPageLink,
@@ -39,17 +40,17 @@ export function setTransferredChannel(store, channel) {
 
 export function startImportWorkflow(store, channel) {
   channel && setTransferredChannel(store, channel);
-  setWizardPageName(store, PageNames.SELECT_IMPORT_SOURCE);
+  setWizardPageName(store, ContentWizardPages.SELECT_IMPORT_SOURCE);
 }
 
 export function startExportWorkflow(store) {
   setTransferType(store, TransferTypes.LOCALEXPORT);
-  setWizardPageName(store, PageNames.SELECT_DRIVE);
+  setWizardPageName(store, ContentWizardPages.SELECT_DRIVE);
 }
 
 // Cancels wizard and resets wizardState
 export function cancelContentTransferWizard(store) {
-  store.dispatch('SET_TRANSFERRED_CHANNEL', {});
+  setTransferredChannel({});
   setTransferType(store, '');
   return setWizardPageName(store, '');
 }
@@ -57,7 +58,7 @@ export function cancelContentTransferWizard(store) {
 // Provide a intermediate state before Available Channels is fully-loaded
 function prepareForAvailableChannelsPage(store) {
   store.dispatch('SET_TOOLBAR_TITLE', translator.$tr('loadingChannelsToolbar'));
-  store.dispatch('SET_PAGE_NAME', PageNames.AVAILABLE_CHANNELS);
+  store.dispatch('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
 }
 
 // Forward from SELECT_IMPORT -> SELECT_DRIVE or AVAILABLE_CHANNELS
@@ -66,7 +67,7 @@ export function goForwardFromSelectImportSourceModal(store, source) {
 
   if (source === LOCAL_DRIVE) {
     setTransferType(store, TransferTypes.LOCALIMPORT);
-    setWizardPageName(store, PageNames.SELECT_DRIVE);
+    setWizardPageName(store, ContentWizardPages.SELECT_DRIVE);
   }
 
   if (source === KOLIBRI_STUDIO) {
@@ -90,11 +91,22 @@ export function goForwardFromSelectDriveModal(store, { driveId, forExport }) {
     return router.push(availableChannelsPageLink({ driveId, forExport }));
   }
   // From import-more-from-channel workflow
-  setWizardPageName(store, PageNames.SELECT_CONTENT);
+  setWizardPageName(store, ContentWizardPages.SELECT_CONTENT);
   return router.push(
     selectContentPageLink({ channelId: transferredChannel.id, driveId, forExport })
   );
 }
+
+export const ContentWizardErrors = {
+  INVALID_PARAMETERS: 'INVALID_PARAMETERS',
+  CHANNEL_NOT_FOUND_ON_SERVER: 'CHANNEL_NOT_FOUND_ON_SERVER',
+  CHANNEL_NOT_FOUND_ON_DRIVE: 'CHANNEL_NOT_FOUND_ON_DRIVE',
+  CHANNEL_NOT_FOUND_ON_STUDIO: 'CHANNEL_NOT_FOUND_ON_STUDIO',
+  KOLIBRI_STUDIO_UNAVAILABLE: 'KOLIBRI_STUDIO_UNAVAILABLE',
+  DRIVE_IS_NOT_WRITEABLE: 'DRIVE_IS_NOT_WRITEABLE',
+  DRIVE_NOT_FOUND: 'DRIVE_NOT_FOUND',
+  TRANSFER_IN_PROGRESS: 'TRANSFER_IN_PROGRESS',
+};
 
 // Utilities for the show*Page actions
 function getSelectedDrive(store, driveId) {
@@ -104,12 +116,12 @@ function getSelectedDrive(store, driveId) {
       const drive = find(driveList, { id: driveId });
       if (drive) {
         if (transferType === TransferTypes.LOCALEXPORT && !drive.writable) {
-          reject({ error: 'drive_is_not_writeable' });
+          reject({ error: ContentWizardErrors.DRIVE_IS_NOT_WRITEABLE });
         } else {
           resolve({ ...drive });
         }
       } else {
-        reject({ error: 'drive_not_found' });
+        reject({ error: ContentWizardErrors.DRIVE_NOT_FOUND });
       }
     });
   });
@@ -138,9 +150,23 @@ function getTransferType(params) {
   }
 }
 
-// Handler for when user goes directly to the Available Channels URL
-// params { drive_id?: string, for_export?: boolean }
-// are normalized at the router handler function
+function handleError(store, error) {
+  const { error: errorType } = error;
+  // special errors that are handled gracefully by UI
+  if (errorType) {
+    // If parameters are invalid, redirect to main page
+    if (errorType === ContentWizardErrors.INVALID_PARAMETERS) {
+      return router.push({ name: PageNames.MANAGE_CONTENT_PAGE });
+    }
+    return store.dispatch('SET_WIZARD_STATUS', errorType);
+  }
+  // handle other errors generically
+  handleApiError(store, error);
+  return store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
+}
+
+// Handler for when user goes directly to the Available Channels URL.
+// Params are { drive_id?: string, for_export?: boolean }
 export function showAvailableChannelsPage(store, params) {
   let selectedDrivePromise = Promise.resolve({});
   let availableChannelsPromise;
@@ -150,7 +176,7 @@ export function showAvailableChannelsPage(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 
   if (transferType === null) {
-    return Promise.reject({ error: 'invalid_parameters' });
+    return Promise.reject({ error: ContentWizardErrors.INVALID_PARAMETERS });
   }
 
   if (transferType === TransferTypes.LOCALEXPORT) {
@@ -175,25 +201,25 @@ export function showAvailableChannelsPage(store, params) {
           ._promise.then(channels => {
             return getAllRemoteChannels(store, channels).then(allChannels => resolve(allChannels));
           })
-          .catch(() => reject({ error: 'kolibri_studio_unavailable' }));
+          .catch(() => reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE }));
       });
     });
     pageTitle = translator.$tr('availableChannelsOnStudio');
   }
 
-  const isSamePage = samePageCheckGenerator(store);
-
-  return Promise.all([availableChannelsPromise, selectedDrivePromise]).then(
-    ([availableChannels, selectedDrive]) => {
+  return ConditionalPromise.all([availableChannelsPromise, selectedDrivePromise]).only(
+    samePageCheckGenerator(store),
+    function onSuccess([availableChannels, selectedDrive]) {
       // Hydrate wizardState as if user went through UI workflow
-      if (isSamePage()) {
-        store.dispatch('SET_AVAILABLE_CHANNELS', availableChannels);
-        store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
-        store.dispatch('SET_TRANSFER_TYPE', transferType);
-        store.dispatch('SET_PAGE_NAME', PageNames.AVAILABLE_CHANNELS);
-        store.dispatch('CORE_SET_TITLE', pageTitle);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      }
+      store.dispatch('SET_AVAILABLE_CHANNELS', availableChannels);
+      store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
+      store.dispatch('SET_TRANSFER_TYPE', transferType);
+      store.dispatch('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
+      store.dispatch('CORE_SET_TITLE', pageTitle);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    function onFailure(error) {
+      return handleError(store, error);
     }
   );
 }
@@ -201,15 +227,15 @@ export function showAvailableChannelsPage(store, params) {
 /**
  * Handler for going to Select Content Page URL directly
  * params are { channel_id: string, drive_id?: string, for_export?: boolean },
- * which are normalized at router handler function
  */
 export function showSelectContentPage(store, params) {
   let selectedDrivePromise = Promise.resolve({});
   let transferredChannelPromise;
   const { drive_id, channel_id } = params;
   const transferType = getTransferType(params);
-  // HACK if going directly to URL, make sure channel list has this channel at the minimum.
-  // We only get the one channel, since GETing channel-list with file sizes is slow.
+  // HACK if going directly to URL, we make sure channelList has this channel at the minimum.
+  // We only get the one channel, since GETing /api/channel with file sizes is slow.
+  // We let it fail silently, since it is only used to show "on device" files/resources.
   const installedChannelPromise = ChannelResource.getModel(params.channel_id)
     .fetch({ file_sizes: true }, true)
     .then(channel => {
@@ -220,7 +246,7 @@ export function showSelectContentPage(store, params) {
     .catch(() => {});
 
   if (transferType === null) {
-    return Promise.reject({ error: 'invalid_parameters' });
+    return Promise.reject({ error: ContentWizardErrors.INVALID_PARAMETERS });
   }
 
   if (transferType === TransferTypes.LOCALEXPORT) {
@@ -231,7 +257,7 @@ export function showSelectContentPage(store, params) {
         if (match) {
           resolve({ ...match });
         } else {
-          reject({ error: 'channel_not_found_on_server' });
+          reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_SERVER });
         }
       });
     });
@@ -245,7 +271,7 @@ export function showSelectContentPage(store, params) {
         if (match) {
           resolve({ ...match });
         } else {
-          reject({ error: 'channel_not_found_on_drive' });
+          reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_DRIVE });
         }
       });
     });
@@ -261,31 +287,28 @@ export function showSelectContentPage(store, params) {
           channels => {
             resolve({ ...channels[0] });
           },
-          () => reject({ error: 'channel_not_found_on_studio' })
+          () => reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO })
         );
     });
   }
 
-  let isSamePage = samePageCheckGenerator(store);
-
-  return Promise.all([
+  return ConditionalPromise.all([
     selectedDrivePromise,
     transferredChannelPromise,
     installedChannelPromise,
-  ]).then(promises => {
-    const [selectedDrive, transferredChannel] = promises;
-
-    if (isSamePage()) {
+  ]).only(
+    samePageCheckGenerator(),
+    function onSuccess([selectedDrive, transferredChannel]) {
       store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
       store.dispatch('SET_TRANSFERRED_CHANNEL', { ...transferredChannel });
       store.dispatch('SET_TRANSFER_TYPE', transferType);
-      store.dispatch('SET_PAGE_NAME', PageNames.SELECT_CONTENT);
+      store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
       store.dispatch(
         'CORE_SET_TITLE',
         translator.$tr('selectContentFromChannel', { channelName: transferredChannel.name })
       );
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      isSamePage = samePageCheckGenerator(store);
+      const isSamePage = samePageCheckGenerator(store);
       return loadChannelMetaData(store).then(() => {
         if (isSamePage()) {
           return updateTreeViewTopic(store, {
@@ -294,6 +317,9 @@ export function showSelectContentPage(store, params) {
           });
         }
       });
+    },
+    function onFailure(error) {
+      return handleError(store, error);
     }
-  });
+  );
 }

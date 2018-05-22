@@ -1,6 +1,5 @@
 import router from 'kolibri.coreVue.router';
 import store from 'kolibri.coreVue.vuex.store';
-import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import {
   showAvailableChannelsPage,
   showSelectContentPage,
@@ -22,11 +21,6 @@ export default [
       return showAvailableChannelsPage(store, {
         for_export: String(query.for_export) === 'true',
         drive_id: query.drive_id,
-      }).catch(err => {
-        // handle errors generically
-        handleApiError(store, err);
-        store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
       });
     },
   },
@@ -38,11 +32,6 @@ export default [
         channel_id: params.channel_id,
         drive_id: query.drive_id,
         for_export: String(query.for_export) === 'true',
-      }).catch(err => {
-        // handle errors generically
-        handleApiError(store, err);
-        store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
       });
     },
   },
