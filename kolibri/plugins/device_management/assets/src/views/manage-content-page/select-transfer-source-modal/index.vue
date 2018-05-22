@@ -25,7 +25,7 @@
 <script>
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import { ContentWizardPages } from '../../../constants';
+  import { ContentWizardPages, TransferTypes } from '../../../constants';
   import { resetContentWizardState } from '../../../state/actions/contentWizardActions';
   import selectImportSourceModal from './select-import-source-modal';
   import selectDriveModal from './select-drive-modal';
@@ -47,8 +47,12 @@
       currentTitle() {
         if (this.atSelectImportSource) {
           return this.$tr('selectLocalRemoteSourceTitle');
+        } else {
+          if (this.transferType === TransferTypes.LOCALEXPORT) {
+            return this.$tr('selectExportDestinationTitle');
+          }
+          return this.$tr('selectDriveTitle');
         }
-        return this.$tr('selectDriveTitle');
       },
     },
     methods: {
@@ -66,6 +70,7 @@
     vuex: {
       getters: {
         wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
+        transferType: ({ pageState }) => pageState.wizardState.transferType,
       },
       actions: {
         resetContentWizardState,
@@ -74,6 +79,7 @@
     $trs: {
       selectDriveTitle: 'Select a drive',
       selectLocalRemoteSourceTitle: 'Import from',
+      selectExportDestinationTitle: 'Select an export destination',
     },
   };
 

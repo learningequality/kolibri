@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
+import VueRouter from 'vue-router';
 import { expect } from 'chai';
 import { mount } from '@vue/test-utils';
 import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
@@ -35,6 +36,7 @@ function makeWrapper(options = {}) {
   return mount(ChannelListItem, {
     propsData: { ...defaultProps, ...props },
     store: store || makeStore(),
+    router: new VueRouter({ routes: [] }),
   });
 }
 
@@ -44,7 +46,7 @@ function getElements(wrapper) {
     resourcesSizeText: () => wrapper.find('.resources-size').text().trim(),
     resourcesSize: () => wrapper.find('.resources-size'),
     onDevice: () => wrapper.find('.on-device'),
-    selectButton: () => wrapper.find('button[name="select"]'),
+    selectButton: () => wrapper.find({ name: 'kRouterLink' }),
     title: () => wrapper.find('.title').text().trim(),
     version: () => wrapper.find('.version').text().trim(),
     description: () => wrapper.find('.description').text().trim(),
@@ -166,15 +168,6 @@ describe('channelListItem', () => {
       // prettier-ignore
       expect(dropdownMenu().props().disabled).to.be.true
     });
-  });
-
-  it('in IMPORT/EXPORT mode, clicking "select" triggers a "clickselect" event', () => {
-    function test(wrapper) {
-      const { selectButton } = getElements(wrapper);
-      selectButton().trigger('click');
-      expect(wrapper.emitted().clickselect.length).to.equal(1);
-    }
-    return Promise.all([test(importWrapper), test(exportWrapper)]);
   });
 
   it('in IMPORT/EXPORT mode, "select" button is disabled when tasks in queue', () => {

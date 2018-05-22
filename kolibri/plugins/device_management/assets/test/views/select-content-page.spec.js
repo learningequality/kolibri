@@ -38,6 +38,9 @@ function makeStore() {
         },
       },
     },
+    mutations: {
+      SET_TOOLBAR_TITLE: () => {},
+    },
   });
 }
 

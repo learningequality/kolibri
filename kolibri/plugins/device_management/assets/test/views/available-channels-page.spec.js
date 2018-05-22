@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
-import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
 import kSelect from 'kolibri.coreVue.components.kSelect';
 import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
@@ -71,6 +70,9 @@ function makeStore() {
           status: '',
         },
       },
+    },
+    mutations: {
+      SET_TOOLBAR_TITLE() {},
     },
   });
 }
@@ -269,14 +271,21 @@ describe('availableChannelsPage', () => {
     });
   });
 
-  it('clicking "select" on one of the channels invokes page-transition action', () => {
+  it('the "select" link goes to the correct place', () => {
     const wrapper = makeWrapper();
     const { channelListItems } = getElements(wrapper);
-    const actionStub = sinon.stub(wrapper.vm, 'transitionWizardPage');
     const channels = channelListItems();
     // prettier-ignore
-    channels.at(0).find('button').trigger('click');
-    sinon.assert.calledOnce(actionStub);
-    sinon.assert.calledWith(actionStub, 'forward', { channel: availableChannels[0] });
+    const link = channels.at(0).find({ name: 'kRouterLink' });
+    expect(link.props().to).to.deep.equal({
+      name: 'SELECT_CONTENT',
+      params: {
+        channel_id: availableChannels[0].id,
+      },
+      query: {
+        drive_id: undefined,
+        for_export: undefined,
+      },
+    });
   });
 });

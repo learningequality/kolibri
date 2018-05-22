@@ -23,7 +23,7 @@
         v-if="driveStatus===''"
         v-model="selectedDriveId"
         :drives="enabledDrives"
-        :mode="inImportMode ? 'IMPORT' : 'EXPORT'"
+        :mode="driveListMode"
       />
     </transition>
 
@@ -47,6 +47,7 @@
 
 <script>
 
+  import isEmpty from 'lodash/isEmpty';
   import kButton from 'kolibri.coreVue.components.kButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { refreshDriveList } from '../../../state/actions/taskActions';
@@ -83,6 +84,15 @@
         return this.driveList.filter(drive =>
           this.driveCanBeUsedForTransfer(drive, this.transferType)
         );
+      },
+      driveListMode() {
+        if (this.inImportMode) {
+          if (isEmpty(this.transferredChannel)) {
+            return 'IMPORT';
+          }
+          return 'IMPORT_MORE';
+        }
+        return 'EXPORT';
       },
     },
     mounted() {

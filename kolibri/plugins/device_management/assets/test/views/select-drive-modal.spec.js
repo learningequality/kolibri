@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
 import coreModal from 'kolibri.coreVue.components.coreModal';
 import UiAlert from 'keen-ui/src/UiAlert';
-import SelectDriveModal from '../../src/views/manage-content-page/wizards/select-drive-modal';
+import SelectDriveModal from '../../src/views/manage-content-page/select-transfer-source-modal/select-drive-modal';
 import { wizardState } from '../../src/state/getters';
 
 SelectDriveModal.vuex.actions.refreshDriveList = () => Promise.resolve();
@@ -90,19 +90,20 @@ describe('selectDriveModal component', () => {
     store.state.pageState.wizardState.transferType = transferType;
   }
 
-  it('when importing, shows the correct title', () => {
-    setTransferType('localimport');
-    const wrapper = makeWrapper({ store });
-    const { titleText } = getElements(wrapper);
-    expect(titleText()).to.equal('Select a drive');
-  });
-
-  it('when exporting, shows the correct title', () => {
-    setTransferType('localexport');
-    const wrapper = makeWrapper({ store });
-    const { titleText } = getElements(wrapper);
-    expect(titleText()).to.equal('Select an export destination');
-  });
+  // TODO move to select-import-source-modal test
+  // it('when importing, shows the correct title', () => {
+  //   setTransferType('localimport');
+  //   const wrapper = makeWrapper({ store });
+  //   const { titleText } = getElements(wrapper);
+  //   expect(titleText()).to.equal('Select a drive');
+  // });
+  //
+  // it('when exporting, shows the correct title', () => {
+  //   setTransferType('localexport');
+  //   const wrapper = makeWrapper({ store });
+  //   const { titleText } = getElements(wrapper);
+  //   expect(titleText()).to.equal('Select an export destination');
+  // });
 
   it('when drive list is loading, show a message', () => {
     const wrapper = makeWrapper({ store });
@@ -208,24 +209,24 @@ describe('selectDriveModal component', () => {
 
   it('clicking "Continue" triggers a "transitionWizardPage" action', () => {
     const wrapper = makeWrapper({ store });
-    const transitionStub = sinon.stub(wrapper.vm, 'transitionWizardPage');
+    const transitionStub = sinon.stub(wrapper.vm, 'goForwardFromSelectDriveModal');
     const { continueButton, writableImportableRadio } = getElements(wrapper);
     writableImportableRadio().trigger('change');
     return wrapper.vm.$nextTick().then(() => {
       continueButton().trigger('click');
       // same parameters for import or export flow
-      sinon.assert.calledWith(transitionStub, 'forward', {
+      sinon.assert.calledWith(transitionStub, {
         driveId: 'writable_importable_drive',
+        forExport: false,
       });
     });
   });
 
-  it('clicking "Cancel" triggers a "transitionWizardPage" action', () => {
+  it('clicking "Cancel" triggers a "cancel" event', () => {
     const wrapper = makeWrapper({ store });
-    const transitionStub = sinon.stub(wrapper.vm, 'transitionWizardPage');
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
-    sinon.assert.calledWith(transitionStub, 'cancel');
+    expect(wrapper.emitted().cancel).to.have.lengthOf(1);
   });
 
   // not tested

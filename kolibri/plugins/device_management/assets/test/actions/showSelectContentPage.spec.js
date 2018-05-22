@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import sinon from 'sinon';
-import router from 'kolibri.coreVue.router';
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import { loadChannelMetaData } from '../../src/state/actions/selectContentActions';
 import mutations from '../../src/state/mutations';
@@ -105,26 +104,6 @@ describe('loadChannelMetaData action', () => {
     });
   }
 
-  let pushStub;
-
-  before(() => {
-    pushStub = sinon.stub(router, 'push');
-  });
-
-  function testUpdateTopicUrlIsCorrect(store, { pk, title }) {
-    // To test the end of this action, we spy router.push. Production code for
-    // router-based tree view updater relies on the kolibri.store singleton, while these tests
-    // stub store with fresh Vuex.Store instance.
-    pushStub.restore();
-    return loadChannelMetaData(store).then(() => {
-      sinon.assert.calledWithMatch(pushStub, {
-        name: 'GOTO_TOPIC_TREEVIEW',
-        params: { node: { pk, title } },
-        query: { pk },
-      });
-    });
-  }
-
   describe('during LOCALIMPORT only', () => {
     beforeEach(() => {
       setUpStateForTransferType('localimport');
@@ -133,13 +112,6 @@ describe('loadChannelMetaData action', () => {
     it('if channel already installed, "startdiskchannelimport" is not called', () => {
       useInstalledChannel();
       return testNoChannelsAreImported(store);
-    });
-
-    it('after metadata is downloaded, user is redirected to correct wizard URL', () => {
-      return testUpdateTopicUrlIsCorrect(store, {
-        pk: 'channel_1_root',
-        title: 'Installed Channel',
-      });
     });
 
     it('if channel is *not* on device, then "startdiskchannelimport" is called', () => {
@@ -170,13 +142,6 @@ describe('loadChannelMetaData action', () => {
       return testNoChannelsAreImported(store);
     });
 
-    it('after metadata is downloaded, user is redirected to correct wizard URL', () => {
-      return testUpdateTopicUrlIsCorrect(store, {
-        pk: 'channel_1_root',
-        title: 'Installed Channel',
-      });
-    });
-
     it('if channel is *not* on device, then "startremotechannelimport" is called', () => {
       return loadChannelMetaData(store).then(() => {
         sinon.assert.calledWith(TaskResource.startRemoteChannelImport, {
@@ -203,13 +168,6 @@ describe('loadChannelMetaData action', () => {
 
     it('"startdiskchannelimport" and "startremotechannelimport" are not called', () => {
       return testNoChannelsAreImported(store);
-    });
-
-    it('after metadata is downloaded, user is redirected to correct wizard URL', () => {
-      return testUpdateTopicUrlIsCorrect(store, {
-        pk: 'channel_1_root',
-        title: 'Installed Channel',
-      });
     });
   });
 
