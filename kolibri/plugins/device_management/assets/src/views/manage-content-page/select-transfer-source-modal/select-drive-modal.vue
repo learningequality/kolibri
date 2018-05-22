@@ -47,12 +47,11 @@
 
 <script>
 
-  import isEmpty from 'lodash/isEmpty';
   import kButton from 'kolibri.coreVue.components.kButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { refreshDriveList } from '../../../state/actions/taskActions';
   import { goForwardFromSelectDriveModal } from '../../../state/actions/contentWizardActions';
-  import { wizardState, driveCanBeUsedForTransfer } from '../../../state/getters';
+  import { wizardState, driveCanBeUsedForTransfer, isImportingMore } from '../../../state/getters';
   import { TransferTypes } from '../../../constants';
   import driveList from './drive-list';
 
@@ -87,10 +86,7 @@
       },
       driveListMode() {
         if (this.inImportMode) {
-          if (isEmpty(this.transferredChannel)) {
-            return 'IMPORT';
-          }
-          return 'IMPORT_MORE';
+          return this.isImportingMore ? 'IMPORT_MORE' : 'IMPORT';
         }
         return 'EXPORT';
       },
@@ -120,6 +116,7 @@
         transferType: state => wizardState(state).transferType,
         transferredChannel: state => wizardState(state).transferredChannel,
         driveCanBeUsedForTransfer,
+        isImportingMore,
       },
       actions: {
         goForwardFromSelectDriveModal,

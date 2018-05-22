@@ -97,7 +97,7 @@ export function driveCanBeUsedForTransfer(state) {
     if (transferType === TransferTypes.LOCALIMPORT) {
       const { transferredChannel } = state.pageState.wizardState;
       // In top-level Import workflow -> Show any drive with content
-      if (isEmpty(transferredChannel)) {
+      if (!isImportingMore(state)) {
         return drive.metadata.channels.length > 0;
       }
       // In "Import More" from Channel workflow -> Show any drive with that channel
@@ -114,4 +114,9 @@ export function driveCanBeUsedForTransfer(state) {
 
     return false;
   };
+}
+
+// Utility to help distinguish when app is in import-more workflow or not
+export function isImportingMore(state) {
+  return !inExportMode(state) && !isEmpty(state.pageState.wizardState.transferredChannel);
 }

@@ -10,7 +10,7 @@ import { installedChannelList } from '../getters';
  * @returns Promise
  */
 export function getRemoteChannelByToken(token) {
-  return RemoteChannelResource.getModel(token).fetch()._promise;
+  return RemoteChannelResource.getModel(token).fetch({}, true)._promise;
 }
 
 /**

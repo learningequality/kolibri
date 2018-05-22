@@ -201,7 +201,7 @@
       goToSelectContentPageForChannel(channel) {
         this.showSelectContentPage({
           channel_id: channel.id,
-          drive_id: this.selectedDrive.id,
+          drive_id: this.selectedDrive && this.selectedDrive.id,
         });
       },
       channelIsVisible(channel) {

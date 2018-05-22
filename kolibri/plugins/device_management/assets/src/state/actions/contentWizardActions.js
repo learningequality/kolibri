@@ -1,4 +1,3 @@
-import isEmpty from 'lodash/isEmpty';
 import find from 'lodash/find';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { handleApiError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
@@ -11,6 +10,7 @@ import {
   selectContentPageLink,
   manageContentPageLink,
 } from '../../views/manage-content-page/manageContentLinks';
+import { isImportingMore } from '../getters';
 import { loadChannelMetaData, updateTreeViewTopic } from './selectContentActions';
 import { refreshDriveList } from './taskActions';
 import { refreshChannelList } from './manageContentActions';
@@ -71,29 +71,29 @@ export function goForwardFromSelectImportSourceModal(store, source) {
 
   if (source === KOLIBRI_STUDIO) {
     setTransferType(store, TransferTypes.REMOTEIMPORT);
-    // From top-level import workflow
-    if (isEmpty(transferredChannel)) {
-      prepareForAvailableChannelsPage(store);
-      return router.push(availableChannelsPageLink());
+    if (isImportingMore(store.state)) {
+      // From import-more-from-channel workflow
+      return router.push(selectContentPageLink({ channelId: transferredChannel.id }));
     }
-    // From import-more-from-channel workflow
-    return router.push(selectContentPageLink({ channelId: transferredChannel.id }));
+    // From top-level import workflow
+    prepareForAvailableChannelsPage(store);
+    return router.push(availableChannelsPageLink());
   }
 }
 
 // Forward from SELECT_DRIVE -> AVAILABLE_CHANNELS or SELECT_CONTENT
 export function goForwardFromSelectDriveModal(store, { driveId, forExport }) {
   const { transferredChannel } = store.state.pageState.wizardState;
-  // From top-level import/export workflow
-  if (isEmpty(transferredChannel)) {
-    prepareForAvailableChannelsPage(store);
-    return router.push(availableChannelsPageLink({ driveId, forExport }));
-  }
   // From import-more-from-channel workflow
-  setWizardPageName(store, ContentWizardPages.SELECT_CONTENT);
-  return router.push(
-    selectContentPageLink({ channelId: transferredChannel.id, driveId, forExport })
-  );
+  if (isImportingMore(store.state)) {
+    setWizardPageName(store, ContentWizardPages.SELECT_CONTENT);
+    return router.push(
+      selectContentPageLink({ channelId: transferredChannel.id, driveId, forExport })
+    );
+  }
+  // From top-level import/export workflow
+  prepareForAvailableChannelsPage(store);
+  return router.push(availableChannelsPageLink({ driveId, forExport }));
 }
 
 export const ContentWizardErrors = {
