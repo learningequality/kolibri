@@ -57,7 +57,7 @@
   export default {
     name: 'contentCard',
     $trs: {
-      copies: '{ num } copies',
+      copies: '{ num, number} locations',
     },
     components: {
       cardThumbnail,

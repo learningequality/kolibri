@@ -99,7 +99,7 @@
       },
     },
     $trs: {
-      copies: 'Multiple copies found',
+      copies: 'Locations',
       close: 'Close',
     },
     vuex: {
