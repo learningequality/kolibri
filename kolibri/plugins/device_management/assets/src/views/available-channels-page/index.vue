@@ -31,7 +31,7 @@
       <channel-token-modal
         v-if="showTokenModal"
         @closemodal="showTokenModal=false"
-        @channelfound="goToChannel"
+        @channelfound="goToSelectContentPageForChannel"
       />
       <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
 
@@ -58,11 +58,11 @@
       <div class="channels-list">
         <channel-list-item
           v-for="channel in availableChannels"
-          v-show="showChannel(channel)"
+          v-show="channelIsVisible(channel)"
           :channel="channel"
           :key="channel.id"
           :onDevice="channelIsOnDevice(channel)"
-          @clickselect="goToChannel(channel)"
+          @clickselect="goToSelectContentPageForChannel(channel)"
           class="channel-list-item"
           :mode="channelListItemMode"
         />
@@ -169,15 +169,15 @@
     },
     watch: {
       transferType(val) {
-        this.setPageTitle(this.backText(val));
+        this.setToolbarTitle(this.toolbarTitle(val));
       },
     },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
-      this.setPageTitle(this.backText(this.transferType));
+      this.setToolbarTitle(this.toolbarTitle(this.transferType));
     },
     methods: {
-      backText(transferType) {
+      toolbarTitle(transferType) {
         switch (transferType) {
           case TransferTypes.LOCALEXPORT:
             return this.$tr('exportToDisk', { driveName: this.selectedDrive.name });
@@ -191,13 +191,13 @@
         const match = this.installedChannelsWithResources.find(({ id }) => id === channel.id);
         return Boolean(match);
       },
-      goToChannel(channel) {
+      goToSelectContentPageForChannel(channel) {
         this.showSelectContentPage({
           channel_id: channel.id,
           drive_id: this.selectedDrive.id,
         });
       },
-      showChannel(channel) {
+      channelIsVisible(channel) {
         let languageMatches = true;
         let titleMatches = true;
         let isOnDevice = true;
@@ -226,7 +226,7 @@
       },
       actions: {
         showSelectContentPage,
-        setPageTitle(store, newTitle) {
+        setToolbarTitle(store, newTitle) {
           store.dispatch('SET_TOOLBAR_TITLE', newTitle);
         },
       },

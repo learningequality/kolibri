@@ -16,6 +16,10 @@ import { getAllRemoteChannels } from './availableChannelsActions';
 
 const translator = createTranslator('contentWizardTexts', {
   loadingChannelsToolbar: 'Loading channels…',
+  availableChannelsOnDrive: "Available Channels on '{sourceName}'",
+  availableChannelsOnStudio: 'Available Channels on Kolibri Studio',
+  availableChannelsOnDevice: 'Available Channels on this device',
+  selectContentFromChannel: "Select Content from '{channelName}'",
 });
 
 export const LOCAL_DRIVE = 'local';
@@ -140,6 +144,7 @@ function getTransferType(params) {
 export function showAvailableChannelsPage(store, params) {
   let selectedDrivePromise = Promise.resolve({});
   let availableChannelsPromise;
+  let pageTitle;
   const transferType = getTransferType(params);
 
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -151,11 +156,13 @@ export function showAvailableChannelsPage(store, params) {
   if (transferType === TransferTypes.LOCALEXPORT) {
     selectedDrivePromise = getSelectedDrive(store, params.drive_id);
     availableChannelsPromise = getInstalledChannelsPromise(store);
+    pageTitle = translator.$tr('availableChannelsOnDevice');
   }
 
   if (transferType === TransferTypes.LOCALIMPORT) {
     selectedDrivePromise = getSelectedDrive(store, params.drive_id);
     availableChannelsPromise = selectedDrivePromise.then(drive => {
+      pageTitle = translator.$tr('availableChannelsOnDrive', { driveName: drive.name });
       return [...drive.metadata.channels];
     });
   }
@@ -171,6 +178,7 @@ export function showAvailableChannelsPage(store, params) {
           .catch(() => reject({ error: 'kolibri_studio_unavailable' }));
       });
     });
+    pageTitle = translator.$tr('availableChannelsOnStudio');
   }
 
   const isSamePage = samePageCheckGenerator(store);
@@ -183,6 +191,7 @@ export function showAvailableChannelsPage(store, params) {
         store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
         store.dispatch('SET_TRANSFER_TYPE', transferType);
         store.dispatch('SET_PAGE_NAME', PageNames.AVAILABLE_CHANNELS);
+        store.dispatch('CORE_SET_TITLE', pageTitle);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
       }
     }
@@ -271,6 +280,10 @@ export function showSelectContentPage(store, params) {
       store.dispatch('SET_TRANSFERRED_CHANNEL', { ...transferredChannel });
       store.dispatch('SET_TRANSFER_TYPE', transferType);
       store.dispatch('SET_PAGE_NAME', PageNames.SELECT_CONTENT);
+      store.dispatch(
+        'CORE_SET_TITLE',
+        translator.$tr('selectContentFromChannel', { channelName: transferredChannel.name })
+      );
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       isSamePage = samePageCheckGenerator(store);
       return loadChannelMetaData(store).then(() => {
