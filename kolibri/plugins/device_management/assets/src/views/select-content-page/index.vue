@@ -167,7 +167,7 @@
         return this.channelIsInstalled(this.channel.id);
       },
       newVersionAvailable() {
-        if (this.channelOnDevice.version) {
+        if (this.channelIsOnDevice && this.channelOnDevice.version) {
           return this.channel.version > this.channelOnDevice.version;
         }
         return false;

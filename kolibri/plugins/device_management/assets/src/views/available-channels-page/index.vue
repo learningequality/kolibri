@@ -95,7 +95,7 @@
     installedChannelsWithResources,
     wizardState,
   } from '../../state/getters';
-  import { showSelectContentPage } from '../../state/actions/contentWizardActions';
+  import { selectContentPageLink } from '../manage-content-page/manageContentLinks';
   import { TransferTypes } from '../../constants';
 
   const ALL_FILTER = 'ALL';
@@ -199,10 +199,13 @@
         return Boolean(match);
       },
       goToSelectContentPageForChannel(channel) {
-        this.showSelectContentPage({
-          channel_id: channel.id,
-          drive_id: this.selectedDrive && this.selectedDrive.id,
-        });
+        this.$router.push(
+          selectContentPageLink({
+            channelId: channel.id,
+            driveId: this.$route.query.drive_id,
+            forExport: this.$route.query.for_export,
+          })
+        );
       },
       channelIsVisible(channel) {
         let languageMatches = true;
@@ -232,7 +235,6 @@
         wizardStatus: state => wizardState(state).status,
       },
       actions: {
-        showSelectContentPage,
         setToolbarTitle(store, newTitle) {
           store.dispatch('SET_TOOLBAR_TITLE', newTitle);
         },
