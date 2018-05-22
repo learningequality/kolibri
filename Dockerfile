@@ -1,27 +1,26 @@
-FROM ubuntu:xenial
+# First build is to just build the assets
+FROM node:6.14
 
-# install latest python and nodejs
+RUN apt-get update
+# python-pip requires a compatible version of requests, so install it here too
 RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    curl
-RUN add-apt-repository ppa:voronov84/andreyv
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
-
-# add yarn ppa
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-
-RUN apt-get update && apt-get install -y \
-    python2.7 \
-    python3.6 \
     python-pip \
-    git \
-    nodejs \
-    yarn \
+    python-dev \
     gettext \
-    python-sphinx
-COPY . /kolibri
+    git
+RUN pip install -U pip
 
-VOLUME /kolibridist/  # for mounting the whl files into other docker containers
-# add buildkite pipeline specific installation here:
-CMD cd /kolibri && pip install -r requirements/dev.txt && pip install -r requirements/build.txt && pip install -e . && yarn install && make dist pex && cp /kolibri/dist/* /kolibridist/
+COPY . /kolibri
+WORKDIR /kolibri
+
+RUN pip install -r requirements.txt -r requirements/build.txt
+RUN yarn install
+RUN make dist
+RUN ls -l /kolibri/dist/
+
+FROM python:2.7.15
+
+COPY --from=0 /kolibri/dist/kolibri*.whl .
+RUN pip install *.whl
+ENTRYPOINT ["kolibri"]
+CMD ["start", "--foreground"]
