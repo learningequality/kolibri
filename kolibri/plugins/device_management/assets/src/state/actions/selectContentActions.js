@@ -40,7 +40,10 @@ export function loadChannelMetaData(store) {
       });
     })
     .catch(({ errorType }) => {
-      store.dispatch('SET_WIZARD_STATUS', errorType);
+      // ignore cancellations
+      if (errorType !== 'CHANNEL_TASK_ERROR') {
+        store.dispatch('SET_WIZARD_STATUS', errorType);
+      }
     });
 }
 

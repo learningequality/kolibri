@@ -15,6 +15,15 @@
   import UiAlert from 'keen-ui/src/UiAlert';
   import { ContentWizardErrors } from '../../state/actions/contentWizardActions';
 
+  const errorToTrStringMap = {
+    [ContentWizardErrors.CHANNEL_NOT_FOUND_ON_DRIVE]: 'channelNotFoundOnDriveError',
+    [ContentWizardErrors.CHANNEL_NOT_FOUND_ON_SERVER]: 'channelNotFoundOnServerError',
+    [ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO]: 'channelNotFoundError',
+    [ContentWizardErrors.DRIVE_IS_NOT_WRITEABLE]: 'driveNotWritableError',
+    [ContentWizardErrors.DRIVE_NOT_FOUND]: 'driveUnavailableError',
+    [ContentWizardErrors.TRANSFER_IN_PROGRESS]: 'transferInProgressError',
+  };
+
   export default {
     name: 'contentWizardUiAlert',
     components: {
@@ -27,22 +36,7 @@
     },
     computed: {
       alertText() {
-        switch (this.errorType) {
-          case ContentWizardErrors.CHANNEL_NOT_FOUND_ON_DRIVE:
-            return this.$tr('channelNotFoundOnDriveError');
-          case ContentWizardErrors.CHANNEL_NOT_FOUND_ON_SERVER:
-            return this.$tr('channelNotFoundOnServerError');
-          case ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO:
-            return this.$tr('channelNotFoundError');
-          case ContentWizardErrors.DRIVE_IS_NOT_WRITEABLE:
-            return this.$tr('driveNotWritableError');
-          case ContentWizardErrors.DRIVE_NOT_FOUND:
-            return this.$tr('driveUnavailableError');
-          case ContentWizardErrors.TRANSFER_IN_PROGRESS:
-            return this.$tr('transferInProgressError');
-          default:
-            return '';
-        }
+        return errorToTrStringMap[this.errorType] || '';
       },
     },
     $trs: {

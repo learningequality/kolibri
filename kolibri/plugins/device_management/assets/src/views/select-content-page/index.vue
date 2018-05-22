@@ -2,8 +2,8 @@
 
   <div>
     <content-wizard-ui-alert
-      v-if="wizardStatus"
-      :errorType="wizardStatus"
+      v-if="wholePageError"
+      :errorType="wholePageError"
     />
 
     <template v-else>
@@ -14,21 +14,21 @@
         :percentage="0"
         :showButtons="true"
         :cancellable="true"
-        @cleartask="returnToChannelsList"
+        @cleartask="cancelMetadataDownloadAndExit()"
         id="updatingchannel"
       />
       <task-progress
-        v-else-if="taskInProgress"
+        v-else-if="metadataDownloadTask"
         type="DOWNLOADING_CHANNEL_CONTENTS"
-        v-bind="firstTask"
+        v-bind="metadataDownloadTask"
         :showButtons="true"
         :cancellable="true"
-        @cleartask="returnToChannelsList"
+        @cleartask="cancelMetadataDownloadAndExit()"
       />
 
       <section class="notifications">
         <ui-alert
-          v-if="!wizardStatus && newVersionAvailable"
+          v-if="newVersionAvailable"
           type="info"
           :removeIcon="true"
           :dismissible="false"
@@ -37,7 +37,10 @@
         </ui-alert>
       </section>
 
-      <section v-if="onDeviceInfoIsReady" class="updates">
+      <section
+        class="updates"
+        v-if="onDeviceInfoIsReady"
+      >
         <div
           class="updates-available"
           v-if="newVersionAvailable"
@@ -56,7 +59,7 @@
       </section>
 
       <channel-contents-summary
-        v-if="!taskInProgress"
+        v-if="onDeviceInfoIsReady && !taskInProgress"
         :channel="channel"
         :channelOnDevice="channelOnDevice"
       />
@@ -87,7 +90,7 @@
           @clickconfirm="startTransferringContent()"
         />
         <hr>
-        <content-tree-viewer />
+        <content-tree-viewer v-if="!taskInProgress" />
       </template>
     </template>
   </div>
@@ -97,12 +100,12 @@
 
 <script>
 
-  import uniqBy from 'lodash/uniqBy';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import { TaskResource } from 'kolibri.resources';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import uiAlert from 'keen-ui/src/UiAlert';
+  import { TaskResource } from 'kolibri.resources';
   import isEmpty from 'lodash/isEmpty';
+  import find from 'lodash/find';
   import subpageContainer from '../containers/subpage-container';
   import { channelIsInstalled, wizardState, nodeTransferCounts } from '../../state/getters';
   import {
@@ -114,8 +117,9 @@
     transferChannelContent,
     waitForTaskToComplete,
   } from '../../state/actions/contentTransferActions';
+  import { ContentWizardErrors } from '../../state/actions/contentWizardActions';
   import taskProgress from '../manage-content-page/task-progress';
-  import { TaskStatuses } from '../../constants';
+  import { TaskStatuses, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../manage-content-page/manageContentLinks';
   import channelContentsSummary from './channel-contents-summary';
   import contentTreeViewer from './content-tree-viewer';
@@ -142,14 +146,25 @@
       };
     },
     computed: {
+      metadataDownloadTask() {
+        return find(this.taskList, { type: TaskTypes.REMOTECHANNELIMPORT });
+      },
+      contentDownloadTask() {
+        return find(this.taskList, { type: TaskTypes.REMOTECONTENTIMPORT });
+      },
+      // If this property is truthy, the entire UI is hidden and only the UiAlert is shown
+      wholePageError() {
+        // Show error if a Channel Transfer is in progress
+        if (this.contentDownloadTask) {
+          return ContentWizardErrors.TRANSFER_IN_PROGRESS;
+        }
+        // Show errors thrown during data fetching
+        if (Object.values(ContentWizardErrors).includes(this.wizardStatus)) {
+          return this.wizardStatus;
+        }
+      },
       channelOnDevice() {
-        const installedChannel = this.channelIsInstalled(this.channel.id);
-        return (
-          installedChannel || {
-            on_device_file_size: 0,
-            on_device_resources: 0,
-          }
-        );
+        return this.channelIsInstalled(this.channel.id);
       },
       newVersionAvailable() {
         if (this.channelOnDevice.version) {
@@ -165,15 +180,23 @@
       },
     },
     beforeMount() {
-      this.setPageTitle(this.$tr('selectContent'));
+      this.setToolbarTitle(this.$tr('selectContent'));
     },
     mounted() {
       this.getAvailableSpaceOnDrive();
     },
     beforeDestroy() {
-      this.cancelAllTasks();
+      this.cancelMetadataDownloadTask();
     },
     methods: {
+      cancelMetadataDownloadTask() {
+        if (this.metadataDownloadTask) {
+          return TaskResource.cancelTask(this.metadataDownloadTask.id);
+        }
+      },
+      cancelMetadataDownloadAndExit() {
+        this.cancelMetadataDownloadTask().then(() => this.returnToChannelsList());
+      },
       updateChannelMetadata() {
         // NOTE: This only updates the metadata, not the underlying content.
         // This could produced unexpected behavior for users.
@@ -190,7 +213,7 @@
         this.contentTransferError = false;
         return this.transferChannelContent()
           .then(() => {
-            this.$router.replace(manageContentPageLink());
+            this.returnToChannelsList();
           })
           .catch(() => {
             this.contentTransferError = true;
@@ -207,6 +230,7 @@
         channelIsInstalled,
         databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
         firstTask: ({ pageState }) => pageState.taskList[0],
+        taskList: ({ pageState }) => pageState.taskList,
         mode: state => (wizardState(state).transferType === 'localexport' ? 'export' : 'import'),
         nodeTransferCounts,
         onDeviceInfoIsReady: state => !isEmpty(wizardState(state).currentTopicNode),
@@ -216,14 +240,8 @@
         topicNode: state => wizardState(state).currentTopicNode,
       },
       actions: {
-        setPageTitle(store, newTitle) {
+        setToolbarTitle(store, newTitle) {
           store.dispatch('SET_TOOLBAR_TITLE', newTitle);
-        },
-        cancelAllTasks(store) {
-          const tasks = uniqBy(store.state.pageState.taskList, 'id');
-          tasks.map(task => {
-            TaskResource.cancelTask(task.id);
-          });
         },
         downloadChannelMetadata,
         getAvailableSpaceOnDrive,
