@@ -101,12 +101,10 @@
       </template>
     </slot>
 
-    <points-popup
+    <mastered-snackbars
       v-if="progress >= 1 && wasIncomplete"
-      :useSnackbar="useSnackbar"
       :nextContent="content.next_content"
-      :pageName="pageName"
-      :contentPoints="contentPoints"
+      :nextContentLink="nextContentLink"
       @close="markAsComplete"
     />
 
@@ -137,8 +135,8 @@
   import pageHeader from './page-header';
   import contentCardGroupCarousel from './content-card-group-carousel';
   import assessmentWrapper from './assessment-wrapper';
-  import pointsPopup from './points-popup';
-  import pointsSlidein from './points-slidein';
+  import masteredSnackbars from './mastered-snackbars';
+  import { lessonResourceViewerLink } from './classes/classPageLinks';
 
   export default {
     name: 'contentPage',
@@ -157,8 +155,7 @@
       contentRenderer,
       downloadButton,
       assessmentWrapper,
-      pointsPopup,
-      pointsSlidein,
+      masteredSnackbars,
       uiIconButton,
     },
     data: () => ({
@@ -200,19 +197,25 @@
         }
         return false;
       },
-      useSnackbar() {
-        return (
-          this.content.kind === ContentNodeKinds.EXERCISE ||
-          this.content.kind === ContentNodeKinds.VIDEO ||
-          this.content.kind === ContentNodeKinds.AUDIO
-        );
-      },
       downloadableFiles() {
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
       },
       showMetadata() {
         // Hide metadata when viewing Resource in a Lesson
         return !this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
+      },
+      nextContentLink() {
+        // HACK Use a the Resource Viewer Link instead
+        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
+        }
+        return {
+          name:
+            this.content.next_content.kind === ContentNodeKinds.TOPIC
+              ? PageNames.TOPICS_TOPIC
+              : PageNames.RECOMMENDED_CONTENT,
+          params: { id: this.content.next_content.id },
+        };
       },
     },
     beforeDestroy() {
