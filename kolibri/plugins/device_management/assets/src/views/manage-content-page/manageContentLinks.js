@@ -1,4 +1,4 @@
-import { ContentWizardPages } from '../../constants';
+import { ContentWizardPages, PageNames } from '../../constants';
 
 export function selectContentTopicLink(topicNode) {
   return {
@@ -33,5 +33,11 @@ export function selectContentPageLink(params = {}) {
       drive_id: driveId,
       for_export: forExport,
     },
+  };
+}
+
+export function manageContentPageLink() {
+  return {
+    name: PageNames.MANAGE_CONTENT_PAGE,
   };
 }

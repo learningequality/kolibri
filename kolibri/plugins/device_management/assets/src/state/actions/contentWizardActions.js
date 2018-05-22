@@ -9,6 +9,7 @@ import { ContentWizardPages, PageNames, TransferTypes } from '../../constants';
 import {
   availableChannelsPageLink,
   selectContentPageLink,
+  manageContentPageLink,
 } from '../../views/manage-content-page/manageContentLinks';
 import { loadChannelMetaData, updateTreeViewTopic } from './selectContentActions';
 import { refreshDriveList } from './taskActions';
@@ -17,7 +18,7 @@ import { getAllRemoteChannels } from './availableChannelsActions';
 
 const translator = createTranslator('contentWizardTexts', {
   loadingChannelsToolbar: 'Loading channels…',
-  availableChannelsOnDrive: "Available Channels on '{sourceName}'",
+  availableChannelsOnDrive: "Available Channels on '{driveName}'",
   availableChannelsOnStudio: 'Available Channels on Kolibri Studio',
   availableChannelsOnDevice: 'Available Channels on this device',
   selectContentFromChannel: "Select Content from '{channelName}'",
@@ -50,7 +51,7 @@ export function startExportWorkflow(store) {
 
 // Cancels wizard and resets wizardState
 export function cancelContentTransferWizard(store) {
-  setTransferredChannel({});
+  setTransferredChannel(store, {});
   setTransferType(store, '');
   return setWizardPageName(store, '');
 }
@@ -156,7 +157,7 @@ function handleError(store, error) {
   if (errorType) {
     // If parameters are invalid, redirect to main page
     if (errorType === ContentWizardErrors.INVALID_PARAMETERS) {
-      return router.push({ name: PageNames.MANAGE_CONTENT_PAGE });
+      return router.push(manageContentPageLink());
     }
     return store.dispatch('SET_WIZARD_STATUS', errorType);
   }
@@ -233,6 +234,7 @@ export function showSelectContentPage(store, params) {
   let transferredChannelPromise;
   const { drive_id, channel_id } = params;
   const transferType = getTransferType(params);
+  store.dispatch('SET_WIZARD_STATUS', '');
   // HACK if going directly to URL, we make sure channelList has this channel at the minimum.
   // We only get the one channel, since GETing /api/channel with file sizes is slow.
   // We let it fail silently, since it is only used to show "on device" files/resources.
@@ -292,17 +294,18 @@ export function showSelectContentPage(store, params) {
     });
   }
 
+  store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
+
   return ConditionalPromise.all([
     selectedDrivePromise,
     transferredChannelPromise,
     installedChannelPromise,
   ]).only(
-    samePageCheckGenerator(),
+    samePageCheckGenerator(store),
     function onSuccess([selectedDrive, transferredChannel]) {
       store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
       store.dispatch('SET_TRANSFERRED_CHANNEL', { ...transferredChannel });
       store.dispatch('SET_TRANSFER_TYPE', transferType);
-      store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
       store.dispatch(
         'CORE_SET_TITLE',
         translator.$tr('selectContentFromChannel', { channelName: transferredChannel.name })
@@ -319,6 +322,7 @@ export function showSelectContentPage(store, params) {
       });
     },
     function onFailure(error) {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
       return handleError(store, error);
     }
   );

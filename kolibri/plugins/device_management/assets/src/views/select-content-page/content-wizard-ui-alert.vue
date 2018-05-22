@@ -29,7 +29,9 @@
       alertText() {
         switch (this.errorType) {
           case ContentWizardErrors.CHANNEL_NOT_FOUND_ON_DRIVE:
+            return this.$tr('channelNotFoundOnDriveError');
           case ContentWizardErrors.CHANNEL_NOT_FOUND_ON_SERVER:
+            return this.$tr('channelNotFoundOnServerError');
           case ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO:
             return this.$tr('channelNotFoundError');
           case ContentWizardErrors.DRIVE_IS_NOT_WRITEABLE:
@@ -45,9 +47,11 @@
     },
     $trs: {
       channelNotFoundError: 'Channel not found',
+      channelNotFoundOnDriveError: 'Channel not found on drive',
+      channelNotFoundOnServerError: 'Channel is not available to export from server',
       driveUnavailableError: 'Drive not found or is disconnected',
       driveNotWritableError: 'Drive is not writable',
-      transferInProgressError: 'A content transfer is currently in progress'
+      transferInProgressError: 'A content transfer is currently in progress',
     },
   };
 
