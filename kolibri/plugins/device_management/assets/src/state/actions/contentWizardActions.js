@@ -5,7 +5,7 @@ import { handleApiError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.act
 import { RemoteChannelResource, ChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { createTranslator } from 'kolibri.utils.i18n';
-import { ContentWizardPages, PageNames, TransferTypes } from '../../constants';
+import { ContentWizardPages, TransferTypes } from '../../constants';
 import {
   availableChannelsPageLink,
   selectContentPageLink,
@@ -50,10 +50,8 @@ export function startExportWorkflow(store) {
 }
 
 // Cancels wizard and resets wizardState
-export function cancelContentTransferWizard(store) {
-  setTransferredChannel(store, {});
-  setTransferType(store, '');
-  return setWizardPageName(store, '');
+export function resetContentWizardState(store) {
+  store.dispatch('RESET_CONTENT_WIZARD_STATE');
 }
 
 // Provide a intermediate state before Available Channels is fully-loaded
@@ -163,7 +161,7 @@ function handleError(store, error) {
   }
   // handle other errors generically
   handleApiError(store, error);
-  return store.dispatch('RESET_WIZARD_STATE_FOR_AVAILABLE_CHANNELS');
+  return resetContentWizardState(store);
 }
 
 // Handler for when user goes directly to the Available Channels URL.
@@ -175,6 +173,7 @@ export function showAvailableChannelsPage(store, params) {
   const transferType = getTransferType(params);
 
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+  resetContentWizardState(store);
 
   if (transferType === null) {
     return Promise.reject({ error: ContentWizardErrors.INVALID_PARAMETERS });
@@ -234,7 +233,9 @@ export function showSelectContentPage(store, params) {
   let transferredChannelPromise;
   const { drive_id, channel_id } = params;
   const transferType = getTransferType(params);
-  store.dispatch('SET_WIZARD_STATUS', '');
+
+  store.dispatch('RESET_CONTENT_WIZARD_STATE');
+
   // HACK if going directly to URL, we make sure channelList has this channel at the minimum.
   // We only get the one channel, since GETing /api/channel with file sizes is slow.
   // We let it fail silently, since it is only used to show "on device" files/resources.
