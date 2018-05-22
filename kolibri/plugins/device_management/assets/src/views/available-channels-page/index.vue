@@ -1,6 +1,11 @@
 <template>
 
   <div>
+    <content-wizard-ui-alert
+      v-if="wizardStatus"
+      :errorType="wizardStatus"
+    />
+
     <div
       v-if="channelsAreAvailable"
       class="top-matter"
@@ -84,6 +89,7 @@
   import channelTokenModal from '../available-channels-page/channel-token-modal';
   import subpageContainer from '../containers/subpage-container';
   import channelListItem from '../manage-content-page/channel-list-item';
+  import contentWizardUiAlert from '../select-content-page/content-wizard-ui-alert';
   import {
     installedChannelList,
     installedChannelsWithResources,
@@ -99,6 +105,7 @@
     components: {
       channelListItem,
       channelTokenModal,
+      contentWizardUiAlert,
       immersiveFullScreen,
       kButton,
       kFilterTextbox,

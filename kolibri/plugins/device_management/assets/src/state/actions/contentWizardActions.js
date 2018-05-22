@@ -153,10 +153,6 @@ function handleError(store, error) {
   const { error: errorType } = error;
   // special errors that are handled gracefully by UI
   if (errorType) {
-    // If parameters are invalid, redirect to main page
-    if (errorType === ContentWizardErrors.INVALID_PARAMETERS) {
-      return router.push(manageContentPageLink());
-    }
     return store.dispatch('SET_WIZARD_STATUS', errorType);
   }
   // handle other errors generically
@@ -176,7 +172,7 @@ export function showAvailableChannelsPage(store, params) {
   resetContentWizardState(store);
 
   if (transferType === null) {
-    return Promise.reject({ error: ContentWizardErrors.INVALID_PARAMETERS });
+    return router.replace(manageContentPageLink());
   }
 
   if (transferType === TransferTypes.LOCALEXPORT) {
@@ -207,6 +203,8 @@ export function showAvailableChannelsPage(store, params) {
     pageTitle = translator.$tr('availableChannelsOnStudio');
   }
 
+  store.dispatch('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
+
   return ConditionalPromise.all([availableChannelsPromise, selectedDrivePromise]).only(
     samePageCheckGenerator(store),
     function onSuccess([availableChannels, selectedDrive]) {
@@ -214,11 +212,11 @@ export function showAvailableChannelsPage(store, params) {
       store.dispatch('SET_AVAILABLE_CHANNELS', availableChannels);
       store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
       store.dispatch('SET_TRANSFER_TYPE', transferType);
-      store.dispatch('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
       store.dispatch('CORE_SET_TITLE', pageTitle);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     function onFailure(error) {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
       return handleError(store, error);
     }
   );
@@ -236,6 +234,10 @@ export function showSelectContentPage(store, params) {
 
   store.dispatch('RESET_CONTENT_WIZARD_STATE');
 
+  if (transferType === null) {
+    return router.replace(manageContentPageLink());
+  }
+
   // HACK if going directly to URL, we make sure channelList has this channel at the minimum.
   // We only get the one channel, since GETing /api/channel with file sizes is slow.
   // We let it fail silently, since it is only used to show "on device" files/resources.
@@ -247,10 +249,6 @@ export function showSelectContentPage(store, params) {
       }
     })
     .catch(() => {});
-
-  if (transferType === null) {
-    return Promise.reject({ error: ContentWizardErrors.INVALID_PARAMETERS });
-  }
 
   if (transferType === TransferTypes.LOCALEXPORT) {
     selectedDrivePromise = getSelectedDrive(store, drive_id);

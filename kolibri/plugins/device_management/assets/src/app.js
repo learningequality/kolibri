@@ -82,6 +82,10 @@ const routes = [
     },
   },
   ...wizardTransitionRoutes,
+  {
+    path: '/content/*',
+    redirect: '/content',
+  },
 ];
 
 class DeviceManagementModule extends KolibriApp {
