@@ -198,6 +198,7 @@ oriented data synchronization.
       hintWasTaken: false,
       // Attempted fix for #1725
       checkingAnswer: false,
+      checkWasAttempted: false,
     }),
     computed: {
       recentAttempts() {
@@ -264,7 +265,7 @@ oriented data synchronization.
       currentStatus() {
         if (this.itemError) {
           return this.$tr('tryNextQuestion');
-        } else if (this.firstAttemptAtQuestion) {
+        } else if (this.firstAttemptAtQuestion && this.checkWasAttempted) {
           return this.$tr('inputAnswer');
         } else if (
           this.correct === 1 &&
@@ -276,9 +277,10 @@ oriented data synchronization.
           return this.$tr('greatKeepGoing');
         } else if (this.correct === 0 && this.hintWasTaken) {
           return this.$tr('hintUsed');
-        } else {
+        } else if (this.checkWasAttempted) {
           return this.$tr('tryAgain');
         }
+        return null;
       },
     },
     watch: { exerciseProgress: 'updateExerciseProgressMethod' },
@@ -323,6 +325,7 @@ oriented data synchronization.
         }
       },
       checkAnswer() {
+        this.checkWasAttempted = true;
         if (!this.checkingAnswer) {
           this.checkingAnswer = true;
           const answer = this.$refs.contentRenderer.checkAnswer();
@@ -411,6 +414,7 @@ oriented data synchronization.
         this.itemError = false;
         this.setItemId();
         this.callCreateAttemptLog();
+        this.checkWasAttempted = false;
       },
       callInitMasteryLog() {
         this.initMasteryLog(this.masterySpacingTime, this.masteryModel);
@@ -576,5 +580,6 @@ oriented data synchronization.
 
   .current-status
     margin: 0
+    height: 18px
 
 </style>
