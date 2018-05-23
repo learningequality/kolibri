@@ -6,15 +6,21 @@
       :errorType="wizardStatus"
     />
 
-    <div
+    <section
       v-if="channelsAreAvailable"
       class="top-matter"
     >
-      <div class="channels dib">
-        <h1>{{ channelsTitle }}</h1>
-        <p>{{ $tr('channelsAvailable', { channels: numberOfAvailableChannels }) }}</p>
+      <div class="channels">
+        <h1 class="channels-header">
+          <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
+          <span v-else-if="inLocalImportMode"> {{ selectedDrive.name }}</span>
+          <span v-else> {{ $tr('channels') }}</span>
+        </h1>
+
+        <p>{{ $tr('channelsAvailable', { channels: availableChannels.length }) }}</p>
       </div>
-      <div class="filters dib">
+
+      <div class="filters">
         <k-select
           :options="languageFilterOptions"
           v-model="languageFilter"
@@ -27,11 +33,11 @@
           class="title-filter"
         />
       </div>
-    </div>
+    </section>
 
     <section
-      class="unlisted-channels"
       v-if="showUnlistedChannels"
+      class="unlisted-channels"
     >
       <channel-token-modal
         v-if="showTokenModal"
@@ -69,7 +75,7 @@
           :onDevice="channelIsOnDevice(channel)"
           @clickselect="goToSelectContentPageForChannel(channel)"
           class="channel-list-item"
-          :mode="channelListItemMode"
+          :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
         />
       </div>
     </div>
@@ -94,6 +100,9 @@
     installedChannelList,
     installedChannelsWithResources,
     wizardState,
+    inLocalImportMode,
+    inRemoteImportMode,
+    inExportMode,
   } from '../../state/getters';
   import { selectContentPageLink } from '../manage-content-page/manageContentLinks';
   import { TransferTypes } from '../../constants';
@@ -121,33 +130,11 @@
       };
     },
     computed: {
-      channelListItemMode() {
-        if (this.transferType === TransferTypes.LOCALEXPORT) {
-          return 'EXPORT';
-        }
-        return 'IMPORT';
-      },
       channelsAreLoading() {
         return this.wizardStatus === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
       },
-      channelsTitle() {
-        switch (this.transferType) {
-          case TransferTypes.LOCALEXPORT:
-            return this.$tr('yourChannels');
-          case TransferTypes.LOCALIMPORT:
-            return this.selectedDrive.name;
-          default:
-            return this.$tr('channels');
-        }
-      },
       languageFilterOptions() {
-        let channels;
-        if (this.transferType === TransferTypes.LOCALEXPORT) {
-          channels = this.availableChannels.filter(this.channelIsOnDevice);
-        } else {
-          channels = [...this.availableChannels];
-        }
-        const codes = uniqBy(channels, 'lang_code')
+        const codes = uniqBy(this.availableChannels, 'lang_code')
           .map(({ lang_name, lang_code }) => ({
             value: lang_code,
             label: lang_name,
@@ -155,17 +142,11 @@
           .filter(x => x.value);
         return [this.allLanguagesOption, ...codes];
       },
-      numberOfAvailableChannels() {
-        if (this.transferType === TransferTypes.LOCALEXPORT) {
-          return this.availableChannels.filter(this.channelIsOnDevice).length;
-        }
-        return this.availableChannels.length;
-      },
       channelsAreAvailable() {
         return !this.channelsAreLoading && this.availableChannels.length > 0;
       },
       showUnlistedChannels() {
-        return this.channelsAreAvailable && this.transferType === TransferTypes.REMOTEIMPORT;
+        return this.channelsAreAvailable && this.inRemoteImportMode;
       },
       allLanguagesOption() {
         return {
@@ -175,6 +156,7 @@
       },
     },
     watch: {
+      // HACK doing it here to avoid moving $trs out of the component
       transferType(val) {
         this.setToolbarTitle(this.toolbarTitle(val));
       },
@@ -211,7 +193,7 @@
         let languageMatches = true;
         let titleMatches = true;
         let isOnDevice = true;
-        if (this.transferType === TransferTypes.LOCALEXPORT) {
+        if (this.inExportMode) {
           isOnDevice = this.channelIsOnDevice(channel);
         }
         if (this.languageFilter.value !== ALL_FILTER) {
@@ -233,6 +215,9 @@
         installedChannelsWithResources,
         transferType: state => wizardState(state).transferType,
         wizardStatus: state => wizardState(state).status,
+        inLocalImportMode,
+        inRemoteImportMode,
+        inExportMode,
       },
       actions: {
         setToolbarTitle(store, newTitle) {
@@ -272,19 +257,18 @@
   .channel-list-item:first-of-type
     border-top: 1px solid $core-grey
 
-  .dib
-    display: inline-block
-
   .top-matter
     margin-bottom: 32px
 
   .channels
     width: 30%
+    display: inline-block
 
   .filters
     width: 70%
     vertical-align: top
     margin: 16px 0
+    display: inline-block
 
   .title-filter
     width: 50%

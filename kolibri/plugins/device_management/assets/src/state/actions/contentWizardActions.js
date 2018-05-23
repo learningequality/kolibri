@@ -167,7 +167,9 @@ export function showAvailableChannelsPage(store, params) {
 
   if (transferType === TransferTypes.LOCALEXPORT) {
     selectedDrivePromise = getSelectedDrive(store, params.drive_id);
-    availableChannelsPromise = getInstalledChannelsPromise(store);
+    availableChannelsPromise = getInstalledChannelsPromise(store).then(channels =>
+      channels.filter(c => c.available)
+    );
     pageTitle = translator.$tr('availableChannelsOnDevice');
   }
 
