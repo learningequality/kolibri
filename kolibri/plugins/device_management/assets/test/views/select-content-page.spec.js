@@ -46,12 +46,15 @@ function makeStore() {
 
 function makeWrapper(options) {
   const { store, props = {} } = options;
-  return mount(SelectContentPage, {
+  const wrapper = mount(SelectContentPage, {
     propsData: props,
     store: store || makeStore(),
     stubs: ['content-tree-viewer'],
     router,
   });
+  // To avoid test failures
+  wrapper.vm.refreshPage = () => {};
+  return wrapper;
 }
 
 // prettier-ignore

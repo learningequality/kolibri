@@ -26,54 +26,50 @@
         @cleartask="cancelMetadataDownloadAndExit()"
       />
 
-      <section class="notifications">
+      <template v-if="!taskInProgress && onDeviceInfoIsReady">
+        <section class="notifications">
+          <ui-alert
+            v-if="newVersionAvailable"
+            type="info"
+            :removeIcon="true"
+            :dismissible="false"
+          >
+            {{ $tr('newVersionAvailableNotification') }}
+          </ui-alert>
+        </section>
+        <section
+          class="updates"
+          v-if="transferredChannel && onDeviceInfoIsReady"
+        >
+          <div
+            class="updates-available"
+            v-if="newVersionAvailable"
+          >
+            <span>
+              {{ $tr('newVersionAvailable', { version: transferredChannel.version }) }}
+            </span>
+            <k-button
+              :text="$tr('update')"
+              :primary="true"
+              name="update"
+              @click="updateChannelMetadata()"
+            />
+          </div>
+          <span v-else>{{ $tr('channelUpToDate') }}</span>
+        </section>
+        <channel-contents-summary
+          :channel="transferredChannel"
+          :channelOnDevice="channelOnDevice"
+        />
+
         <ui-alert
-          v-if="newVersionAvailable"
-          type="info"
-          :removeIcon="true"
+          v-if="wizardStatus!==''"
+          type="error"
           :dismissible="false"
         >
-          {{ $tr('newVersionAvailableNotification') }}
+          {{ $tr('problemFetchingChannel') }}
         </ui-alert>
-      </section>
 
-      <section
-        class="updates"
-        v-if="channel && onDeviceInfoIsReady"
-      >
-        <div
-          class="updates-available"
-          v-if="newVersionAvailable"
-        >
-          <span>
-            {{ $tr('newVersionAvailable', { version: channel.version }) }}
-          </span>
-          <k-button
-            :text="$tr('update')"
-            :primary="true"
-            name="update"
-            @click="updateChannelMetadata()"
-          />
-        </div>
-        <span v-else>{{ $tr('channelUpToDate') }}</span>
-      </section>
-
-      <channel-contents-summary
-        v-if="onDeviceInfoIsReady && !taskInProgress"
-        :channel="channel"
-        :channelOnDevice="channelOnDevice"
-      />
-
-      <!-- Assuming that if wizardState.status is truthy, it's an error -->
-      <ui-alert
-        v-if="wizardStatus!==''"
-        type="error"
-        :dismissible="false"
-      >
-        {{ $tr('problemFetchingChannel') }}
-      </ui-alert>
-
-      <template v-if="onDeviceInfoIsReady">
         <ui-alert
           v-if="contentTransferError"
           type="error"
@@ -87,10 +83,10 @@
           :fileSize="nodeCounts.fileSize"
           :resourceCount="nodeCounts.resources"
           :spaceOnDrive="availableSpace"
-          @clickconfirm="startTransferringContent()"
+          @clickconfirm="startContentTransfer()"
         />
         <hr>
-        <content-tree-viewer v-if="!taskInProgress" />
+        <content-tree-viewer />
       </template>
     </template>
   </div>
@@ -164,10 +160,10 @@
         }
       },
       channelOnDevice() {
-        return this.channelIsInstalled(this.channel.id) || {};
+        return this.channelIsInstalled(this.transferredChannel.id) || {};
       },
       newVersionAvailable() {
-        return this.channel.version > this.channelOnDevice.version;
+        return this.transferredChannel.version > this.channelOnDevice.version;
       },
       taskInProgress() {
         return this.firstTask && this.firstTask.status !== TaskStatuses.COMPLETED;
@@ -178,16 +174,17 @@
     },
     watch: {
       metadataDownloadTask(val) {
-        // turn progress bar off if update was cancelled
+        // turn progress bar off and refresh if update was cancelled
         if (this.showUpdateProgressBar && !val) {
           this.showUpdateProgressBar = false;
-          // Force refresh just in case it finished before cancelling -> get latest data
-          this.$router.go(this.$router.currentRoute);
+          this.refreshPage();
         }
       },
-    },
-    beforeMount() {
-      this.setToolbarTitle(this.$tr('selectContent'));
+      transferredChannel(val) {
+        if (val.name) {
+          this.setToolbarTitle(this.$tr('selectContent', { channelName: val.name }));
+        }
+      },
     },
     mounted() {
       this.getAvailableSpaceOnDrive();
@@ -196,29 +193,19 @@
       this.cancelMetadataDownloadTask();
     },
     methods: {
-      cancelMetadataDownloadTask() {
-        if (this.metadataDownloadTask) {
-          return TaskResource.cancelTask(this.metadataDownloadTask.id);
-        }
-      },
-      cancelMetadataDownloadAndExit() {
-        this.cancelMetadataDownloadTask().then(() => this.returnToChannelsList());
-      },
       updateChannelMetadata() {
         // NOTE: This only updates the metadata, not the underlying content.
         // This could produced unexpected behavior for users.
         this.showUpdateProgressBar = true;
         return this.downloadChannelMetadata()
-          .then(() => {
-            this.$router.go(this.$router.currentRoute);
-          })
+          .then(() => this.refreshPage())
           .catch(error => {
             if (error.errorType !== 'CHANNEL_TASK_ERROR') {
               this.contentTransferError = true;
             }
           });
       },
-      startTransferringContent() {
+      startContentTransfer() {
         this.contentTransferError = false;
         return this.transferChannelContent()
           .then(() => {
@@ -228,6 +215,17 @@
             this.contentTransferError = true;
           });
       },
+      cancelMetadataDownloadTask() {
+        if (this.metadataDownloadTask) {
+          return TaskResource.cancelTask(this.metadataDownloadTask.id);
+        }
+      },
+      cancelMetadataDownloadAndExit() {
+        this.cancelMetadataDownloadTask().then(() => this.returnToChannelsList());
+      },
+      refreshPage() {
+        this.$router.go(this.$router.currentRoute);
+      },
       returnToChannelsList() {
         this.$router.push(manageContentPageLink());
       },
@@ -235,7 +233,7 @@
     vuex: {
       getters: {
         availableSpace: state => wizardState(state).availableSpace || 0,
-        channel: state => wizardState(state).transferredChannel || {},
+        transferredChannel: state => wizardState(state).transferredChannel || {},
         channelIsInstalled,
         databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
         firstTask: ({ pageState }) => pageState.taskList[0],
@@ -266,7 +264,7 @@
         'New channel version available. Some of your files may be outdated or deleted.',
       problemFetchingChannel: 'There was a problem getting the contents of this channel',
       problemTransferringContents: 'There was a problem transferring the selected contents',
-      selectContent: 'Select content',
+      selectContent: "Select content from '{channelName}'",
       update: 'Update',
     },
   };

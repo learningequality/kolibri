@@ -18,6 +18,7 @@ import { getAllRemoteChannels } from './availableChannelsActions';
 
 const translator = createTranslator('contentWizardTexts', {
   loadingChannelsToolbar: 'Loading channels…',
+  loadingChannelToolbar: 'Loading channel…',
   availableChannelsOnDrive: "Available Channels on '{driveName}'",
   availableChannelsOnStudio: 'Available Channels on Kolibri Studio',
   availableChannelsOnDevice: 'Available Channels on this device',
@@ -233,6 +234,7 @@ export function showSelectContentPage(store, params) {
   const transferType = getTransferType(params);
 
   store.dispatch('RESET_CONTENT_WIZARD_STATE');
+  store.dispatch('SET_TOOLBAR_TITLE', translator.$tr('loadingChannelToolbar'));
 
   if (transferType === null) {
     return router.replace(manageContentPageLink());
