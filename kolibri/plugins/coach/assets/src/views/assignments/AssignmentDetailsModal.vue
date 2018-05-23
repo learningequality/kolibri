@@ -30,7 +30,6 @@
         v-if="showDescriptionField"
         :label="$tr('description')"
         :maxlength="200"
-        :textArea="true"
         v-model="description"
         :disabled="formIsSubmitted"
       />
