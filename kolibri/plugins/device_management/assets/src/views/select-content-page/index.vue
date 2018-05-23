@@ -14,7 +14,7 @@
         :percentage="0"
         :showButtons="true"
         :cancellable="true"
-        @cleartask="cancelMetadataDownloadAndExit()"
+        @cleartask="cancelMetadataDownloadTask()"
         id="updatingchannel"
       />
       <task-progress
@@ -39,7 +39,7 @@
 
       <section
         class="updates"
-        v-if="onDeviceInfoIsReady"
+        v-if="channel && onDeviceInfoIsReady"
       >
         <div
           class="updates-available"
@@ -164,19 +164,26 @@
         }
       },
       channelOnDevice() {
-        return this.channelIsInstalled(this.channel.id);
+        return this.channelIsInstalled(this.channel.id) || {};
       },
       newVersionAvailable() {
-        if (this.channelIsOnDevice && this.channelOnDevice.version) {
-          return this.channel.version > this.channelOnDevice.version;
-        }
-        return false;
+        return this.channel.version > this.channelOnDevice.version;
       },
       taskInProgress() {
         return this.firstTask && this.firstTask.status !== TaskStatuses.COMPLETED;
       },
       nodeCounts() {
         return this.nodeTransferCounts(this.transferType);
+      },
+    },
+    watch: {
+      metadataDownloadTask(val) {
+        // turn progress bar off if update was cancelled
+        if (this.showUpdateProgressBar && !val) {
+          this.showUpdateProgressBar = false;
+          // Force refresh just in case it finished before cancelling -> get latest data
+          this.$router.go(this.$router.currentRoute);
+        }
       },
     },
     beforeMount() {
@@ -201,13 +208,15 @@
         // NOTE: This only updates the metadata, not the underlying content.
         // This could produced unexpected behavior for users.
         this.showUpdateProgressBar = true;
-        return this.downloadChannelMetadata().then(() => {
-          this.showUpdateProgressBar = false;
-          // Update the topic in case content names have changed
-          this.updateTreeViewTopic(this.topicNode);
-          // Update total Channel resource counts
-          this.updateResourceCounts();
-        });
+        return this.downloadChannelMetadata()
+          .then(() => {
+            this.$router.go(this.$router.currentRoute);
+          })
+          .catch(error => {
+            if (error.errorType !== 'CHANNEL_TASK_ERROR') {
+              this.contentTransferError = true;
+            }
+          });
       },
       startTransferringContent() {
         this.contentTransferError = false;
@@ -226,7 +235,7 @@
     vuex: {
       getters: {
         availableSpace: state => wizardState(state).availableSpace || 0,
-        channel: state => wizardState(state).transferredChannel,
+        channel: state => wizardState(state).transferredChannel || {},
         channelIsInstalled,
         databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
         firstTask: ({ pageState }) => pageState.taskList[0],
@@ -248,13 +257,6 @@
         transferChannelContent,
         waitForTaskToComplete,
         updateTreeViewTopic,
-        updateResourceCounts(store) {
-          const { transferredChannel, availableChannels } = wizardState(store.state);
-          const updatedChannel = availableChannels.find(
-            channel => channel.id === transferredChannel.id
-          );
-          store.dispatch('SET_TRANSFERRED_CHANNEL', updatedChannel);
-        },
       },
     },
     $trs: {

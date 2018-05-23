@@ -36,7 +36,7 @@ export function setTransferType(store, transferType) {
 }
 
 export function setTransferredChannel(store, channel) {
-  store.dispatch('SET_TRANSFERRED_CHANNEL', channel);
+  store.dispatch('SET_TRANSFERRED_CHANNEL', { ...channel });
 }
 
 export function startImportWorkflow(store, channel) {
