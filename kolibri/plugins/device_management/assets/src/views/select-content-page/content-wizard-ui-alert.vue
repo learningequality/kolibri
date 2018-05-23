@@ -13,7 +13,7 @@
 <script>
 
   import UiAlert from 'keen-ui/src/UiAlert';
-  import { ContentWizardErrors } from '../../state/actions/contentWizardActions';
+  import { ContentWizardErrors } from '../../constants';
 
   const errorToTrStringMap = {
     [ContentWizardErrors.CHANNEL_NOT_FOUND_ON_DRIVE]: 'channelNotFoundOnDriveError',

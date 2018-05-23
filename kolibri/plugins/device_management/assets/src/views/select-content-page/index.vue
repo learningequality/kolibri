@@ -113,9 +113,8 @@
     transferChannelContent,
     waitForTaskToComplete,
   } from '../../state/actions/contentTransferActions';
-  import { ContentWizardErrors } from '../../state/actions/contentWizardActions';
   import taskProgress from '../manage-content-page/task-progress';
-  import { TaskStatuses, TaskTypes } from '../../constants';
+  import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../manage-content-page/manageContentLinks';
   import channelContentsSummary from './channel-contents-summary';
   import contentTreeViewer from './content-tree-viewer';

@@ -4,7 +4,7 @@ import { handleApiError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.act
 import { RemoteChannelResource, ChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { createTranslator } from 'kolibri.utils.i18n';
-import { ContentWizardPages, TransferTypes } from '../../constants';
+import { ContentWizardPages, ContentWizardErrors, TransferTypes } from '../../constants';
 import {
   availableChannelsPageLink,
   selectContentPageLink,
@@ -96,17 +96,6 @@ export function goForwardFromSelectDriveModal(store, { driveId, forExport }) {
   prepareForAvailableChannelsPage(store);
   return router.push(availableChannelsPageLink({ driveId, forExport }));
 }
-
-export const ContentWizardErrors = {
-  INVALID_PARAMETERS: 'INVALID_PARAMETERS',
-  CHANNEL_NOT_FOUND_ON_SERVER: 'CHANNEL_NOT_FOUND_ON_SERVER',
-  CHANNEL_NOT_FOUND_ON_DRIVE: 'CHANNEL_NOT_FOUND_ON_DRIVE',
-  CHANNEL_NOT_FOUND_ON_STUDIO: 'CHANNEL_NOT_FOUND_ON_STUDIO',
-  KOLIBRI_STUDIO_UNAVAILABLE: 'KOLIBRI_STUDIO_UNAVAILABLE',
-  DRIVE_IS_NOT_WRITEABLE: 'DRIVE_IS_NOT_WRITEABLE',
-  DRIVE_NOT_FOUND: 'DRIVE_NOT_FOUND',
-  TRANSFER_IN_PROGRESS: 'TRANSFER_IN_PROGRESS',
-};
 
 // Utilities for the show*Page actions
 function getSelectedDrive(store, driveId) {

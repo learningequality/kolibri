@@ -92,6 +92,14 @@ export function inExportMode(state) {
   return state.pageState.wizardState.transferType === TransferTypes.LOCALEXPORT;
 }
 
+export function inLocalImportMode(state) {
+  return state.pageState.wizardState.transferType === TransferTypes.LOCALIMPORT;
+}
+
+export function inRemoteImportMode(state) {
+  return state.pageState.wizardState.transferType === TransferTypes.REMOTEIMPORT;
+}
+
 export function driveCanBeUsedForTransfer(state) {
   return function isEnabled(drive, transferType) {
     if (transferType === TransferTypes.LOCALIMPORT) {

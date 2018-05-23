@@ -1,8 +1,7 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { ContentNodeGranularResource } from 'kolibri.resources';
-import { TransferTypes } from '../../constants';
-import { channelIsInstalled, wizardState } from '../getters';
+import { channelIsInstalled, wizardState, inLocalImportMode, inExportMode } from '../getters';
 import { downloadChannelMetadata } from './contentTransferActions';
 
 /**
@@ -54,12 +53,12 @@ export function loadChannelMetaData(store) {
  *
  */
 export function updateTreeViewTopic(store, topic) {
-  const { transferType, selectedDrive } = wizardState(store.state);
+  const { selectedDrive } = wizardState(store.state);
   const fetchArgs = {};
-  if (transferType === TransferTypes.LOCALIMPORT) {
+  if (inLocalImportMode(store.state)) {
     fetchArgs.importing_from_drive_id = selectedDrive.id;
   }
-  if (transferType === TransferTypes.LOCALEXPORT) {
+  if (inExportMode(store.state)) {
     fetchArgs.for_export = 'true';
   }
   return (
@@ -87,10 +86,10 @@ export function updateTreeViewTopic(store, topic) {
  *
  */
 export function getAvailableSpaceOnDrive(store, path = '') {
-  const { transferType, selectedDrive } = wizardState(store.state);
+  const { selectedDrive } = wizardState(store.state);
   let promise;
 
-  if (transferType === TransferTypes.LOCALEXPORT) {
+  if (inExportMode(store.state)) {
     promise = Promise.resolve(selectedDrive.freespace);
   } else {
     const params = path ? { path } : {};
