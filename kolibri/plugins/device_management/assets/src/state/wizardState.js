@@ -14,6 +14,7 @@ export function importExportWizardState() {
   return {
     // 0. can be set at any time
     status: '',
+    toolbarTitle: '',
     // 1. set after clicking "import" or "export", and changes throughout flow
     pageName: '',
     // 2. set after choosing REMOTEEXPORT or LOCALIMPORT

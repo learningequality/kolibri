@@ -23,3 +23,7 @@ export function showManageContentPage(store) {
   }
   return Promise.resolve();
 }
+
+export function setToolbarTitle(store, newTitle) {
+  store.dispatch('SET_TOOLBAR_TITLE', newTitle);
+}

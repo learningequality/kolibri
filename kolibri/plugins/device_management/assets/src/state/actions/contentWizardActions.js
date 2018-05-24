@@ -17,7 +17,7 @@ import {
   updateTreeViewTopic,
 } from './selectContentActions';
 import { refreshDriveList } from './taskActions';
-import { refreshChannelList } from './manageContentActions';
+import { refreshChannelList, setToolbarTitle } from './manageContentActions';
 import { getAllRemoteChannels } from './availableChannelsActions';
 
 const translator = createTranslator('contentWizardTexts', {
@@ -62,7 +62,7 @@ export function resetContentWizardState(store) {
 
 // Provide a intermediate state before Available Channels is fully-loaded
 function prepareForAvailableChannelsPage(store) {
-  store.dispatch('SET_TOOLBAR_TITLE', translator.$tr('loadingChannelsToolbar'));
+  setToolbarTitle(store, translator.$tr('loadingChannelsToolbar'));
   store.dispatch('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
 }
 
@@ -158,11 +158,12 @@ function handleError(store, error) {
 // Handler for when user goes directly to the Available Channels URL.
 // Params are { drive_id?: string, for_export?: boolean }
 export function showAvailableChannelsPage(store, params) {
-  let selectedDrivePromise = Promise.resolve({});
   let availableChannelsPromise;
+  let selectedDrivePromise;
   let pageTitle;
   const transferType = getTransferType(params);
 
+  store.dispatch('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   resetContentWizardState(store);
 
@@ -187,6 +188,7 @@ export function showAvailableChannelsPage(store, params) {
   }
 
   if (transferType === TransferTypes.REMOTEIMPORT) {
+    selectedDrivePromise = Promise.resolve({});
     availableChannelsPromise = new Promise((resolve, reject) => {
       getInstalledChannelsPromise(store).then(() => {
         return RemoteChannelResource.getCollection()
@@ -200,12 +202,15 @@ export function showAvailableChannelsPage(store, params) {
     pageTitle = translator.$tr('availableChannelsOnStudio');
   }
 
-  store.dispatch('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
-
   return ConditionalPromise.all([availableChannelsPromise, selectedDrivePromise]).only(
     samePageCheckGenerator(store),
     function onSuccess([availableChannels, selectedDrive]) {
-      // Hydrate wizardState as if user went through UI workflow
+      // store.dispatch('HYDRATE_SHOW_AVAILABLE_CHANNELS_PAGE', {
+      //   availableChannels,
+      //   pageTitle,
+      //   selectedDrive,
+      //   transferType,
+      // });
       store.dispatch('SET_AVAILABLE_CHANNELS', availableChannels);
       store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
       setTransferType(store, transferType);
@@ -232,7 +237,7 @@ export function showSelectContentPage(store, params) {
 
   store.dispatch('RESET_CONTENT_WIZARD_STATE');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_TOOLBAR_TITLE', translator.$tr('loadingChannelToolbar'));
+  setToolbarTitle(store, translator.$tr('loadingChannelToolbar'));
 
   if (transferType === null) {
     return router.replace(manageContentPageLink());
@@ -315,14 +320,13 @@ export function showSelectContentPage(store, params) {
         translator.$tr('selectContentFromChannel', { channelName: transferredChannel.name })
       );
       const isSamePage = samePageCheckGenerator(store);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
       return loadChannelMetaData(store).then(() => {
         if (isSamePage()) {
           return updateTreeViewTopic(store, {
             pk: store.state.pageState.wizardState.transferredChannel.root,
             title: transferredChannel.name,
-          }).then(() => {
-            store.dispatch('CORE_SET_PAGE_LOADING', false);
-          });
+          }).then(() => {});
         }
       });
     },

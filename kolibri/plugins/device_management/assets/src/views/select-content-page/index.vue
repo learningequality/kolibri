@@ -23,7 +23,7 @@
         v-bind="metadataDownloadTask"
         :showButtons="true"
         :cancellable="true"
-        @cleartask="cancelMetadataDownloadAndExit()"
+        @cleartask="returnToChannelsList()"
       />
 
       <template v-if="!taskInProgress && onDeviceInfoIsReady">
@@ -108,8 +108,8 @@
   import {
     downloadChannelMetadata,
     transferChannelContent,
-    waitForTaskToComplete,
   } from '../../state/actions/contentTransferActions';
+  import { setToolbarTitle } from '../../state/actions/manageContentActions';
   import taskProgress from '../manage-content-page/task-progress';
   import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../manage-content-page/manageContentLinks';
@@ -213,14 +213,6 @@
             this.contentTransferError = true;
           });
       },
-      cancelMetadataDownloadTask() {
-        if (this.metadataDownloadTask) {
-          return TaskResource.cancelTask(this.metadataDownloadTask.id);
-        }
-      },
-      cancelMetadataDownloadAndExit() {
-        this.cancelMetadataDownloadTask().then(() => this.returnToChannelsList());
-      },
       refreshPage() {
         this.$router.go(this.$router.currentRoute);
       },
@@ -245,12 +237,18 @@
         topicNode: state => wizardState(state).currentTopicNode,
       },
       actions: {
-        setToolbarTitle(store, newTitle) {
-          store.dispatch('SET_TOOLBAR_TITLE', newTitle);
+        setToolbarTitle,
+        cancelMetadataDownloadTask(store) {
+          const { taskList } = store.state.pageState;
+          const task = find(taskList, { type: TaskTypes.REMOTECHANNELIMPORT });
+          // TODO can remove this guard once cancelTask resolves even if Task is not there
+          if (task) {
+            return TaskResource.cancelTask(task.id);
+          }
+          return Promise.resolve();
         },
         downloadChannelMetadata,
         transferChannelContent,
-        waitForTaskToComplete,
       },
     },
     $trs: {

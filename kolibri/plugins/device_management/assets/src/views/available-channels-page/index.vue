@@ -104,6 +104,7 @@
     inRemoteImportMode,
     inExportMode,
   } from '../../state/getters';
+  import { setToolbarTitle } from '../../state/actions/manageContentActions';
   import { selectContentPageLink } from '../manage-content-page/manageContentLinks';
   import { TransferTypes } from '../../constants';
 
@@ -220,9 +221,7 @@
         inExportMode,
       },
       actions: {
-        setToolbarTitle(store, newTitle) {
-          store.dispatch('SET_TOOLBAR_TITLE', newTitle);
-        },
+        setToolbarTitle,
       },
     },
     $trs: {
