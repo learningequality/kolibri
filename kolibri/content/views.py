@@ -6,6 +6,7 @@ from django.http import Http404
 from django.http import HttpResponse
 from django.http.response import FileResponse
 from django.http.response import HttpResponseNotModified
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import View
 from le_utils.constants import exercises
 
@@ -17,6 +18,7 @@ mimetypes.init([os.path.join(os.path.dirname(__file__), 'constants', 'mime.types
 
 class ZipContentView(View):
 
+    @xframe_options_exempt
     def get(self, request, zipped_filename, embedded_filepath):
         """
         Handles GET requests and serves a static file from within the zip file.
@@ -76,10 +78,6 @@ class ZipContentView(View):
 
         # allow all origins so that content can be read from within zips within sandboxed iframes
         response["Access-Control-Allow-Origin"] = "*"
-
-        # Newer versions of Chrome block iframes from loading
-        # solution is to override xframe options with any string (https://stackoverflow.com/a/6767901)
-        response['X-Frame-Options'] = "GOFORIT"
 
         # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
         # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
