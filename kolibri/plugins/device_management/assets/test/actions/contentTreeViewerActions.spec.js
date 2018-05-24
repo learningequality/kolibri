@@ -16,7 +16,7 @@ import { nodesForTransfer, wizardState, nodeTransferCounts } from '../../src/sta
 import { updateTreeViewTopic } from '../../src/state/actions/selectContentActions';
 import { importExportWizardState } from '../../src/state/wizardState';
 
-const simplePath = (...pks) => pks.map(pk => ({ pk, title: `node_${pk}` }));
+const simplePath = (...ids) => ids.map(id => ({ id, title: `node_${id}` }));
 
 mockResource(ChannelResource);
 mockResource(ContentNodeGranularResource);
@@ -384,10 +384,10 @@ describe('updateTreeViewTopic action', () => {
   // is correctly called
   let store;
   const cngPayload = contentNodeGranularPayload();
-  const topic_1 = { pk: 'topic_1', title: 'Topic One' };
-  const topic_2 = { pk: 'topic_2', title: 'Topic Two' };
-  const topic_3 = { pk: 'topic_3', title: 'Topic Three' };
-  const topic_4 = { pk: 'topic_4', title: 'Topic Four' };
+  const topic_1 = { id: 'topic_1', title: 'Topic One' };
+  const topic_2 = { id: 'topic_2', title: 'Topic Two' };
+  const topic_3 = { id: 'topic_3', title: 'Topic Three' };
+  const topic_4 = { id: 'topic_4', title: 'Topic Four' };
 
   topic_1.path = []; // like a channel
   topic_2.path = [topic_1];

@@ -34,7 +34,7 @@
             :checked="nodeIsChecked(node)"
             :disabled="disableAll || node.disabled"
             :indeterminate="nodeIsIndeterminate(node)"
-            :key="node.pk"
+            :key="node.id"
             :message="node.message"
             :node="node"
             @clicktopic="updateCurrentTopicNode(node)"
@@ -98,7 +98,7 @@
           path: [
             ...this.path,
             {
-              pk: node.pk,
+              id: node.id,
               title: node.title,
             },
           ],
@@ -141,7 +141,7 @@
       },
       nodeCompletesParent(node) {
         // Get sibling nodes and check if every one is either checked or disabled
-        const siblings = this.annotatedChildNodes.filter(({ pk }) => pk !== node.pk);
+        const siblings = this.annotatedChildNodes.filter(({ id }) => id !== node.id);
         return every(siblings, node => this.nodeIsChecked(node) || node.disabled);
       },
       showNode(node) {

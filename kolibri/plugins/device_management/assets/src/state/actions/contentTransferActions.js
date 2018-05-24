@@ -51,12 +51,12 @@ export function downloadChannelMetadata(store) {
  */
 export function transferChannelContent(store) {
   let promise;
-  const combinePks = nodes => nodes.map(({ pk }) => pk);
+  const combineIds = nodes => nodes.map(({ id }) => id);
   const { transferredChannel, selectedDrive, nodesForTransfer } = wizardState(store.state);
   const params = {
     channel_id: transferredChannel.id,
-    node_ids: combinePks(nodesForTransfer.included),
-    exclude_node_ids: combinePks(nodesForTransfer.omitted),
+    node_ids: combineIds(nodesForTransfer.included),
+    exclude_node_ids: combineIds(nodesForTransfer.omitted),
   };
 
   if (inRemoteImportMode(store.state)) {

@@ -322,7 +322,7 @@ export function showSelectContentPage(store, params) {
       return loadChannelMetaData(store).then(() => {
         if (isSamePage()) {
           return updateTreeViewTopic(store, {
-            pk: store.state.pageState.wizardState.transferredChannel.root,
+            id: store.state.pageState.wizardState.transferredChannel.root,
             title: transferredChannel.name,
           }).then(() => {});
         }

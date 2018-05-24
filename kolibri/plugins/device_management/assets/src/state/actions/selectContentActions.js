@@ -50,7 +50,7 @@ export function loadChannelMetaData(store) {
 /**
  * Updates wizardState.treeView when a new topic is clicked.
  *
- * @param {Object} topic - { pk, title, path }
+ * @param {Object} topic - { id, title, path }
  *
  */
 export function updateTreeViewTopic(store, topic) {
@@ -63,7 +63,7 @@ export function updateTreeViewTopic(store, topic) {
     fetchArgs.for_export = 'true';
   }
   return (
-    ContentNodeGranularResource.getModel(topic.pk)
+    ContentNodeGranularResource.getModel(topic.id)
       // Need to force fetch, since cached values are used even with different
       // query params
       .fetch(fetchArgs, true)

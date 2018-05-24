@@ -55,7 +55,7 @@ export default [
           nextNode = {
             // Works fine without title at the moment.
             path: store.state.pageState.wizardState.pathCache[params.node_id],
-            pk: params.node_id,
+            id: params.node_id,
           };
         } else {
           nextNode = params.node;

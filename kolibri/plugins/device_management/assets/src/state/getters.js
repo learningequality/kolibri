@@ -50,8 +50,8 @@ export function taskList(state) {
 }
 
 export function cachedTopicPath(state) {
-  return function getPath(pk) {
-    return state.pageState.wizardState.pathCache[pk];
+  return function getPath(id) {
+    return state.pageState.wizardState.pathCache[id];
   };
 }
 

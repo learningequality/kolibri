@@ -4,8 +4,7 @@ export function selectContentTopicLink(topicNode) {
   return {
     name: ContentWizardPages.SELECT_CONTENT_TOPIC,
     params: {
-      // TODO utilize id exclusively in import/export code
-      node_id: topicNode.id || topicNode.pk,
+      node_id: topicNode.id,
       node: topicNode,
     },
   };
