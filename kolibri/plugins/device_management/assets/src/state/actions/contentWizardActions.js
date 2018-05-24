@@ -205,15 +205,11 @@ export function showAvailableChannelsPage(store, params) {
   return ConditionalPromise.all([availableChannelsPromise, selectedDrivePromise]).only(
     samePageCheckGenerator(store),
     function onSuccess([availableChannels, selectedDrive]) {
-      // store.dispatch('HYDRATE_SHOW_AVAILABLE_CHANNELS_PAGE', {
-      //   availableChannels,
-      //   pageTitle,
-      //   selectedDrive,
-      //   transferType,
-      // });
-      store.dispatch('SET_AVAILABLE_CHANNELS', availableChannels);
-      store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
-      setTransferType(store, transferType);
+      store.dispatch('HYDRATE_SHOW_AVAILABLE_CHANNELS_PAGE', {
+        availableChannels,
+        selectedDrive,
+        transferType,
+      });
       store.dispatch('CORE_SET_TITLE', pageTitle);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
@@ -236,6 +232,7 @@ export function showSelectContentPage(store, params) {
   const transferType = getTransferType(params);
 
   store.dispatch('RESET_CONTENT_WIZARD_STATE');
+  store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   setToolbarTitle(store, translator.$tr('loadingChannelToolbar'));
 
@@ -301,8 +298,6 @@ export function showSelectContentPage(store, params) {
     });
   }
 
-  store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
-
   return ConditionalPromise.all([
     selectedDrivePromise,
     transferredChannelPromise,
@@ -311,16 +306,19 @@ export function showSelectContentPage(store, params) {
   ]).only(
     samePageCheckGenerator(store),
     function onSuccess([selectedDrive, transferredChannel, availableSpace]) {
-      store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
-      setTransferredChannel(store, transferredChannel);
-      setTransferType(store, transferType);
-      store.dispatch('SET_AVAILABLE_SPACE', availableSpace);
+      store.dispatch('HYDRATE_SELECT_CONTENT_PAGE', {
+        availableSpace,
+        selectedDrive,
+        transferType,
+        transferredChannel,
+      });
       store.dispatch(
         'CORE_SET_TITLE',
         translator.$tr('selectContentFromChannel', { channelName: transferredChannel.name })
       );
-      const isSamePage = samePageCheckGenerator(store);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+
+      const isSamePage = samePageCheckGenerator(store);
       return loadChannelMetaData(store).then(() => {
         if (isSamePage()) {
           return updateTreeViewTopic(store, {

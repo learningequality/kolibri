@@ -173,7 +173,7 @@ describe('availableChannelsPage', () => {
     store.state.pageState.wizardState.availableChannels = [...channelsOnDevice];
     const wrapper = makeWrapper({ store });
     const { channelsAvailableText, noChannels } = getElements(wrapper);
-    expect(channelsAvailableText()).to.equal('2 channels available');
+    expect(channelsAvailableText()).to.equal('4 channels available');
     expect(noChannels().exists()).to.be.false;
   });
 
