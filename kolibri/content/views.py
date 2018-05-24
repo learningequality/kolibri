@@ -19,6 +19,16 @@ mimetypes.init([os.path.join(os.path.dirname(__file__), 'constants', 'mime.types
 class ZipContentView(View):
 
     @xframe_options_exempt
+    def options(self, request, *args, **kwargs):
+        """
+        Handles OPTIONS requests which may be sent as "preflight CORS" requests to check permissions.
+        """
+        response = HttpResponse()
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        return response
+
+    @xframe_options_exempt
     def get(self, request, zipped_filename, embedded_filepath):
         """
         Handles GET requests and serves a static file from within the zip file.
