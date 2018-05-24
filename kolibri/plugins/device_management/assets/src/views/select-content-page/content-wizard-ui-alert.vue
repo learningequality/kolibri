@@ -36,7 +36,7 @@
     },
     computed: {
       alertText() {
-        return errorToTrStringMap[this.errorType] || '';
+        return this.$tr(errorToTrStringMap[this.errorType]) || '';
       },
     },
     $trs: {

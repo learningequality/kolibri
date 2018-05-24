@@ -164,7 +164,11 @@
     },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
-      this.setToolbarTitle(this.toolbarTitle(this.transferType));
+      if (this.wizardStatus) {
+        this.setToolbarTitle(this.$tr('pageLoadError'));
+      } else {
+        this.setToolbarTitle(this.toolbarTitle(this.transferType));
+      }
     },
     methods: {
       toolbarTitle(transferType) {
@@ -238,6 +242,7 @@
       yourChannels: 'Your channels',
       channelTokenButtonLabel: 'Try adding a token',
       channelNotListedExplanation: "Don't see your channel listed?",
+      pageLoadError: 'There was a problem loading this page…',
     },
   };
 

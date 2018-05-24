@@ -183,9 +183,13 @@
       },
     },
     mounted() {
-      this.setToolbarTitle(
-        this.$tr('selectContent', { channelName: this.transferredChannel.name })
-      );
+      if (this.wholePageError) {
+        this.setToolbarTitle(this.$tr('pageLoadError'));
+      } else {
+        this.setToolbarTitle(
+          this.$tr('selectContent', { channelName: this.transferredChannel.name })
+        );
+      }
     },
     beforeDestroy() {
       this.cancelMetadataDownloadTask();
@@ -253,6 +257,7 @@
     },
     $trs: {
       channelUpToDate: 'Channel up-to-date',
+      pageLoadError: 'There was a problem loading this page…',
       newVersionAvailable: 'Version {version, number} available',
       newVersionAvailableNotification:
         'New channel version available. Some of your files may be outdated or deleted.',
