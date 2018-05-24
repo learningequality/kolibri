@@ -196,6 +196,7 @@
 
   .user-menu-button
     text-transform: none
+    vertical-align: middle
     svg
       fill: white
 
