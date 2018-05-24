@@ -2,8 +2,10 @@ import mimetypes
 import os
 import zipfile
 
-from django.http import Http404, HttpResponse
-from django.http.response import FileResponse, HttpResponseNotModified
+from django.http import Http404
+from django.http import HttpResponse
+from django.http.response import FileResponse
+from django.http.response import HttpResponseNotModified
 from django.views.generic.base import View
 from le_utils.constants import exercises
 
@@ -78,6 +80,11 @@ class ZipContentView(View):
         # Newer versions of Chrome block iframes from loading
         # solution is to override xframe options with any string (https://stackoverflow.com/a/6767901)
         response['X-Frame-Options'] = "GOFORIT"
+
+        # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
+        # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
+        host = request.build_absolute_uri('/').strip("/")
+        response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: " + host
 
         return response
 
