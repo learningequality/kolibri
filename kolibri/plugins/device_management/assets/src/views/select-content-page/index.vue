@@ -79,6 +79,7 @@
         </ui-alert>
         <!-- Contains size estimates + submit button -->
         <selected-resources-size
+          v-if="availableSpace!==null"
           :mode="mode"
           :fileSize="nodeCounts.fileSize"
           :resourceCount="nodeCounts.resources"
@@ -104,10 +105,6 @@
   import find from 'lodash/find';
   import subpageContainer from '../containers/subpage-container';
   import { channelIsInstalled, wizardState, nodeTransferCounts } from '../../state/getters';
-  import {
-    getAvailableSpaceOnDrive,
-    updateTreeViewTopic,
-  } from '../../state/actions/selectContentActions';
   import {
     downloadChannelMetadata,
     transferChannelContent,
@@ -186,7 +183,9 @@
       },
     },
     mounted() {
-      this.getAvailableSpaceOnDrive();
+      this.setToolbarTitle(
+        this.$tr('selectContent', { channelName: this.transferredChannel.name })
+      );
     },
     beforeDestroy() {
       this.cancelMetadataDownloadTask();
@@ -231,7 +230,7 @@
     },
     vuex: {
       getters: {
-        availableSpace: state => wizardState(state).availableSpace || 0,
+        availableSpace: state => wizardState(state).availableSpace,
         transferredChannel: state => wizardState(state).transferredChannel || {},
         channelIsInstalled,
         databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
@@ -250,10 +249,8 @@
           store.dispatch('SET_TOOLBAR_TITLE', newTitle);
         },
         downloadChannelMetadata,
-        getAvailableSpaceOnDrive,
         transferChannelContent,
         waitForTaskToComplete,
-        updateTreeViewTopic,
       },
     },
     $trs: {

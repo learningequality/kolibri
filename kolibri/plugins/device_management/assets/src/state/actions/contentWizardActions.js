@@ -11,7 +11,11 @@ import {
   manageContentPageLink,
 } from '../../views/manage-content-page/manageContentLinks';
 import { isImportingMore } from '../getters';
-import { loadChannelMetaData, updateTreeViewTopic } from './selectContentActions';
+import {
+  getAvailableSpaceOnDrive,
+  loadChannelMetaData,
+  updateTreeViewTopic,
+} from './selectContentActions';
 import { refreshDriveList } from './taskActions';
 import { refreshChannelList } from './manageContentActions';
 import { getAllRemoteChannels } from './availableChannelsActions';
@@ -28,6 +32,7 @@ const translator = createTranslator('contentWizardTexts', {
 export const LOCAL_DRIVE = 'local';
 export const KOLIBRI_STUDIO = 'network';
 
+// TODO move wizardState.pageName out of Vuex into local state
 export function setWizardPageName(store, pageName) {
   store.dispatch('SET_WIZARD_PAGENAME', pageName);
 }
@@ -203,7 +208,7 @@ export function showAvailableChannelsPage(store, params) {
       // Hydrate wizardState as if user went through UI workflow
       store.dispatch('SET_AVAILABLE_CHANNELS', availableChannels);
       store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
-      store.dispatch('SET_TRANSFER_TYPE', transferType);
+      setTransferType(store, transferType);
       store.dispatch('CORE_SET_TITLE', pageTitle);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
@@ -221,10 +226,12 @@ export function showAvailableChannelsPage(store, params) {
 export function showSelectContentPage(store, params) {
   let selectedDrivePromise = Promise.resolve({});
   let transferredChannelPromise;
+  let availableSpacePromise;
   const { drive_id, channel_id } = params;
   const transferType = getTransferType(params);
 
   store.dispatch('RESET_CONTENT_WIZARD_STATE');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_TOOLBAR_TITLE', translator.$tr('loadingChannelToolbar'));
 
   if (transferType === null) {
@@ -245,6 +252,7 @@ export function showSelectContentPage(store, params) {
 
   if (transferType === TransferTypes.LOCALEXPORT) {
     selectedDrivePromise = getSelectedDrive(store, drive_id);
+    availableSpacePromise = selectedDrivePromise.then(drive => getAvailableSpaceOnDrive(drive));
     transferredChannelPromise = new Promise((resolve, reject) => {
       getInstalledChannelsPromise(store).then(channels => {
         const match = find(channels, { id: channel_id });
@@ -259,6 +267,7 @@ export function showSelectContentPage(store, params) {
 
   if (transferType === TransferTypes.LOCALIMPORT) {
     selectedDrivePromise = getSelectedDrive(store, drive_id);
+    availableSpacePromise = getAvailableSpaceOnDrive();
     transferredChannelPromise = new Promise((resolve, reject) => {
       selectedDrivePromise.then(drive => {
         const match = find(drive.metadata.channels, { id: channel_id });
@@ -272,6 +281,7 @@ export function showSelectContentPage(store, params) {
   }
 
   if (transferType === TransferTypes.REMOTEIMPORT) {
+    availableSpacePromise = getAvailableSpaceOnDrive();
     transferredChannelPromise = new Promise((resolve, reject) => {
       RemoteChannelResource.getModel(channel_id)
         // Force fetching because using cached version switches
@@ -291,24 +301,27 @@ export function showSelectContentPage(store, params) {
   return ConditionalPromise.all([
     selectedDrivePromise,
     transferredChannelPromise,
+    availableSpacePromise,
     installedChannelPromise,
   ]).only(
     samePageCheckGenerator(store),
-    function onSuccess([selectedDrive, transferredChannel]) {
+    function onSuccess([selectedDrive, transferredChannel, availableSpace]) {
       store.dispatch('SET_SELECTED_DRIVE', selectedDrive.id);
-      store.dispatch('SET_TRANSFERRED_CHANNEL', { ...transferredChannel });
-      store.dispatch('SET_TRANSFER_TYPE', transferType);
+      setTransferredChannel(store, transferredChannel);
+      setTransferType(store, transferType);
+      store.dispatch('SET_AVAILABLE_SPACE', availableSpace);
       store.dispatch(
         'CORE_SET_TITLE',
         translator.$tr('selectContentFromChannel', { channelName: transferredChannel.name })
       );
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
       const isSamePage = samePageCheckGenerator(store);
       return loadChannelMetaData(store).then(() => {
         if (isSamePage()) {
           return updateTreeViewTopic(store, {
             pk: store.state.pageState.wizardState.transferredChannel.root,
             title: transferredChannel.name,
+          }).then(() => {
+            store.dispatch('CORE_SET_PAGE_LOADING', false);
           });
         }
       });

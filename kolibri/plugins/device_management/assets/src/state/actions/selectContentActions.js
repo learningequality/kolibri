@@ -3,6 +3,7 @@ import urls from 'kolibri.urls';
 import { ContentNodeGranularResource } from 'kolibri.resources';
 import { channelIsInstalled, wizardState, inLocalImportMode, inExportMode } from '../getters';
 import { downloadChannelMetadata } from './contentTransferActions';
+import { setTransferredChannel } from './contentWizardActions';
 
 /**
  * Transitions the import/export wizard to the 'load-channel-metadata' interstitial state
@@ -32,7 +33,7 @@ export function loadChannelMetaData(store) {
     .then(channel => {
       // The channel objects are not consistent if they come from different workflows.
       // Replacing them here with canonical type from ChannelResource.
-      store.dispatch('SET_TRANSFERRED_CHANNEL', {
+      setTransferredChannel(store, {
         ...channel,
         version: transferredChannel.version,
         public: transferredChannel.public,
@@ -85,25 +86,14 @@ export function updateTreeViewTopic(store, topic) {
  * @returns {Promise}
  *
  */
-export function getAvailableSpaceOnDrive(store, path = '') {
-  const { selectedDrive } = wizardState(store.state);
-  let promise;
-
-  if (inExportMode(store.state)) {
-    promise = Promise.resolve(selectedDrive.freespace);
-  } else {
-    const params = path ? { path } : {};
-    promise = client({
-      path: `${urls['freespace']()}`,
-      params,
-    }).then(({ entity }) => entity.freespace);
+export function getAvailableSpaceOnDrive(selectedDrive) {
+  if (selectedDrive) {
+    return Promise.resolve(selectedDrive.freespace);
   }
-  return promise
-    .then(freespace => {
-      return store.dispatch('SET_AVAILABLE_SPACE', freespace);
-    })
-    .catch(() => {
-      // UI will handle this gracefully with something instead of throwing an error
-      return store.dispatch('SET_AVAILABLE_SPACE', -1);
-    });
+  return client({
+    path: `${urls['freespace']()}`,
+    params: {},
+  })
+    .then(({ entity }) => entity.freespace)
+    .catch(() => -1);
 }

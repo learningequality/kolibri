@@ -22,7 +22,7 @@ export function importExportWizardState() {
     transferType: '',
     availableChannels: [],
     selectedDrive: {},
-    availableSpace: -1,
+    availableSpace: null,
     // 4. set after choosing channel
     transferredChannel: {},
     currentTopicNode: {},
