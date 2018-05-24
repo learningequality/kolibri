@@ -28,6 +28,12 @@ export default [
     name: ContentWizardPages.SELECT_CONTENT,
     path: '/content/channels/:channel_id',
     handler: ({ query, params }) => {
+      // HACK don't refresh state when going from SELECT_CONTENT_TOPIC back to here
+      const cachedChannelPath = store.state.pageState.wizardState.pathCache[params.channel_id];
+      if (cachedChannelPath) {
+        return updateTreeViewTopic(store, cachedChannelPath[0]);
+      }
+
       return showSelectContentPage(store, {
         channel_id: params.channel_id,
         drive_id: query.drive_id,
