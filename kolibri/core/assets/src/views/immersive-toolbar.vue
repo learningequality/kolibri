@@ -27,13 +27,13 @@
           category="navigation"
         />
         <mat-svg
-          v-else-if="icon === 'arrow_back'"
+          v-else-if="icon === 'arrow_back' && !isRtl"
           name="arrow_back"
           category="navigation"
         />
         <mat-svg
-          v-if="icon === 'arrow_back'"
-          name="arrow_back"
+          v-else-if="icon === 'arrow_back' && isRtl"
+          name="arrow_forward"
           category="navigation"
         />
       </ui-icon-button>
@@ -51,8 +51,13 @@
         category="navigation"
       />
       <mat-svg
-        v-if="icon === 'arrow_back'"
+        v-if="icon === 'arrow_back' && !isRtl"
         name="arrow_back"
+        category="navigation"
+      />
+      <mat-svg
+        v-if="icon === 'arrow_back' && isRtl"
+        name="arrow_forward"
         category="navigation"
       />
     </ui-icon-button>

@@ -1,7 +1,11 @@
 <template>
 
-  <span class="ui-icon" :class="[iconSet, {'icon': !rawSVG }, { 'is-mirrored': mirror }]" :aria-label="ariaLabel">
-    <svg class="ui-icon__svg" v-if="useSvg">
+  <span
+    class="ui-icon"
+    :class="[iconSet, {'icon': !rawSVG }, { 'is-mirrored': mirror }]"
+    :aria-label="ariaLabel"
+  >
+    <svg class="ui-icon-svg" v-if="useSvg">
       <use xmlns:xlink="http://www.w3.org/1999/xlink" :xlink:href="'#' + icon" />
     </svg>
 
