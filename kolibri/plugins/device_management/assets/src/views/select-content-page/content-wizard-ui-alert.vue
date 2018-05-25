@@ -21,6 +21,7 @@
     [ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO]: 'channelNotFoundError',
     [ContentWizardErrors.DRIVE_IS_NOT_WRITEABLE]: 'driveNotWritableError',
     [ContentWizardErrors.DRIVE_NOT_FOUND]: 'driveUnavailableError',
+    [ContentWizardErrors.DRIVE_ERROR]: 'driveError',
     [ContentWizardErrors.TRANSFER_IN_PROGRESS]: 'transferInProgressError',
   };
 
@@ -45,6 +46,7 @@
       channelNotFoundOnServerError: 'Channel is not available to export from server',
       driveUnavailableError: 'Drive not found or is disconnected',
       driveNotWritableError: 'Drive is not writable',
+      driveError: 'There was a problem accessing the drives connected to the server',
       transferInProgressError: 'A content transfer is currently in progress',
     },
   };

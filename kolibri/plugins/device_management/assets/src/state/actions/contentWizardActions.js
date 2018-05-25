@@ -106,18 +106,23 @@ export function goForwardFromSelectDriveModal(store, { driveId, forExport }) {
 function getSelectedDrive(store, driveId) {
   const { transferType } = store.state.pageState.wizardState;
   return new Promise((resolve, reject) => {
-    refreshDriveList(store).then(driveList => {
-      const drive = find(driveList, { id: driveId });
-      if (drive) {
-        if (transferType === TransferTypes.LOCALEXPORT && !drive.writable) {
-          reject({ error: ContentWizardErrors.DRIVE_IS_NOT_WRITEABLE });
+    refreshDriveList(store)
+      .then(driveList => {
+        const drive = find(driveList, { id: driveId });
+        if (drive) {
+          if (transferType === TransferTypes.LOCALEXPORT && !drive.writable) {
+            reject({ error: ContentWizardErrors.DRIVE_IS_NOT_WRITEABLE });
+          } else {
+            resolve({ ...drive });
+          }
         } else {
-          resolve({ ...drive });
+          reject({ error: ContentWizardErrors.DRIVE_NOT_FOUND });
         }
-      } else {
-        reject({ error: ContentWizardErrors.DRIVE_NOT_FOUND });
-      }
-    });
+      })
+      .catch(() => {
+        // Generic error fetching drive list (e.g. 500 stemming from root_pk/root_id issue)
+        reject({ error: ContentWizardErrors.DRIVE_ERROR });
+      });
   });
 }
 
