@@ -54,7 +54,7 @@
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import { refreshTaskList, cancelTask } from '../../state/actions/taskActions';
+  import { cancelTask } from '../../state/actions/taskActions';
   import {
     startImportWorkflow,
     startExportWorkflow,
@@ -112,7 +112,6 @@
       },
       actions: {
         cancelTask,
-        refreshTaskList,
         refreshChannelList,
         startImportWorkflow,
         startExportWorkflow,
@@ -124,8 +123,6 @@
 
 
 <style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
 
   .table-title
     margin-top: 16px

@@ -1,27 +1,11 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
-import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import { expect } from 'chai';
 import { mount } from '@vue/test-utils';
 import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import { defaultChannel } from '../utils/data';
-
-function makeStore() {
-  return new Vuex.Store({
-    state: {
-      pageState: {
-        taskList: [],
-        channelList: [{ id: 'installed', name: 'Installed Channel', version: 11, available: true }],
-      },
-    },
-    mutations: {
-      addTask(state, task) {
-        state.pageState.taskList.push(task);
-      },
-    },
-  });
-}
+import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 function makeWrapper(options = {}) {
   const { props = {}, store } = options;
@@ -35,7 +19,7 @@ function makeWrapper(options = {}) {
   };
   return mount(ChannelListItem, {
     propsData: { ...defaultProps, ...props },
-    store: store || makeStore(),
+    store: store || makeAvailableChannelsPageStore(),
     router: new VueRouter({ routes: [] }),
   });
 }
@@ -51,7 +35,7 @@ function getElements(wrapper) {
     version: () => wrapper.find('.version').text().trim(),
     description: () => wrapper.find('.description').text().trim(),
     thumbnail: () => wrapper.find('.thumbnail'),
-    addTaskMutation: (task) => wrapper.vm.$store.dispatch('addTask', task),
+    addTaskMutation: (task) => wrapper.vm.$store.dispatch('SET_CONTENT_PAGE_TASKS', [task]),
     dropdownMenu: () => wrapper.find({ name: 'kDropdownMenu' }),
   };
 }
@@ -80,7 +64,7 @@ describe('channelListItem', () => {
       function test(wrapper) {
         const { title, version, description } = getElements(wrapper);
         expect(title()).to.equal('Channel Title');
-        expect(version()).to.equal('Version 20');
+        expect(version()).to.equal('Version 10');
         expect(description()).to.equal('An awesome channel');
       }
       testAll(test);
@@ -115,13 +99,13 @@ describe('channelListItem', () => {
     importWrapper.setProps({
       onDevice: true,
       channel: {
-        id: 'installed',
-        version: 20,
+        id: 'awesome_channel',
+        version: 10,
       },
     });
     importWrapper.vm.$forceUpdate();
     const { version } = getElements(importWrapper);
-    expect(version()).to.equal('Version 11');
+    expect(version()).to.equal('Version 10');
   });
 
   it('if the channel is not installed, the version number is of the remote channel', () => {

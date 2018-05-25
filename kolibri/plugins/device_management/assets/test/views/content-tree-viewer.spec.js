@@ -1,43 +1,23 @@
 /* eslint-env mocha */
 import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
-import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
-import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
 import omit from 'lodash/omit';
 import ContentTreeViewer from '../../src/views/select-content-page/content-tree-viewer.vue';
-import ContentNodeRow from '../../src/views/select-content-page/content-node-row.vue';
-import { importExportWizardState } from '../../src/state/wizardState';
-import { makeNode, contentNodeGranularPayload } from '../utils/data';
-import mutations from '../../src/state/mutations';
+import { makeNode } from '../utils/data';
+import { makeSelectContentPageStore } from '../utils/makeStore';
 
 function simplePath(ids) {
   return ids.map(makeNode);
-}
-
-function makeStore() {
-  return new Vuex.Store({
-    state: {
-      pageState: {
-        wizardState: {
-          ...importExportWizardState(),
-          currentTopicNode: {
-            ...contentNodeGranularPayload(),
-          },
-        },
-      },
-    },
-    mutations,
-  });
 }
 
 function makeWrapper(options = {}) {
   const { props = {}, store } = options;
   return mount(ContentTreeViewer, {
     propsData: props,
-    store: store || makeStore(),
+    store: store || makeSelectContentPageStore(),
     router: new VueRouter({}),
   });
 }
@@ -46,11 +26,11 @@ function makeWrapper(options = {}) {
 function getElements(wrapper) {
   return {
     // Need to filter out checkboxes in content-node-rows
-    selectAllCheckbox: () => wrapper.findAll(kCheckbox).filter(el => el.props().label === 'Select all').at(0),
+    selectAllCheckbox: () => wrapper.findAll({ name: 'kCheckbox' }).filter(el => el.props().label === 'Select all').at(0),
     emptyState: () => wrapper.find('.no-contents'),
     contentsSection: () => wrapper.findAll('.contents'),
-    firstTopicButton: () => wrapper.find(ContentNodeRow).find('button'),
-    contentNodeRows: () => wrapper.findAll(ContentNodeRow),
+    firstTopicButton: () => wrapper.find({ name: 'contentNodeRow' }).find('button'),
+    contentNodeRows: () => wrapper.findAll({ name: 'contentNodeRow' }),
   };
 }
 
@@ -62,15 +42,15 @@ describe('contentTreeViewer component', () => {
   }
 
   function setIncludedNodes(nodes) {
-    store.state.pageState.wizardState.nodesForTransfer.included = nodes;
+    store.dispatch('REPLACE_INCLUDE_LIST', nodes);
   }
 
   function setOmittedNodes(nodes) {
-    store.state.pageState.wizardState.nodesForTransfer.omitted = nodes;
+    store.dispatch('REPLACE_OMIT_LIST', nodes);
   }
 
   beforeEach(() => {
-    store = makeStore();
+    store = makeSelectContentPageStore();
   });
 
   it('in REMOTEIMPORT, all nodes are shown', () => {
@@ -92,7 +72,7 @@ describe('contentTreeViewer component', () => {
       ],
     });
     const wrapper = makeWrapper({ store });
-    const rows = wrapper.findAll(ContentNodeRow);
+    const rows = wrapper.findAll({ name: 'contentNodeRow' });
     expect(rows).to.have.lengthOf(2);
   });
 
@@ -259,7 +239,7 @@ describe('contentTreeViewer component', () => {
       const removeNodeStub = sinon
         .stub(wrapper.vm, 'removeNodeForTransfer')
         .returns(Promise.resolve());
-      const topicRow = wrapper.find(ContentNodeRow);
+      const topicRow = wrapper.find({ name: 'contentNodeRow' });
       expect(topicRow.props().checked).to.be.true;
       expect(topicRow.props().disabled).to.be.false;
       topicRow.find('input[type="checkbox"]').trigger('click');
@@ -282,7 +262,7 @@ describe('contentTreeViewer component', () => {
       setChildren([subTopic, subTopic2]);
       const wrapper = makeWrapper({ store });
       const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
-      const topicRow = wrapper.find(ContentNodeRow);
+      const topicRow = wrapper.find({ name: 'contentNodeRow' });
       expect(topicRow.props().checked).to.be.false;
       topicRow.find('input[type="checkbox"]').trigger('click');
       sinon.assert.calledOnce(addNodeStub);
@@ -308,7 +288,7 @@ describe('contentTreeViewer component', () => {
       setIncludedNodes([subSubTopic]);
       const wrapper = makeWrapper({ store });
       const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
-      const topicRow = wrapper.find(ContentNodeRow);
+      const topicRow = wrapper.find({ name: 'contentNodeRow' });
       expect(topicRow.props().checked).to.be.false;
       expect(topicRow.props().indeterminate).to.be.true;
       topicRow.find('input[type="checkbox"]').trigger('click');

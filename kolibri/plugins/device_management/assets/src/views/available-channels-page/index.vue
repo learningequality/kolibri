@@ -13,8 +13,8 @@
       <div class="channels">
         <h1 class="channels-header">
           <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
-          <span v-else-if="inLocalImportMode"> {{ selectedDrive.name }}</span>
-          <span v-else> {{ $tr('channels') }}</span>
+          <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
+          <span v-else>{{ $tr('channels') }}</span>
         </h1>
 
         <p>{{ $tr('channelsAvailable', { channels: availableChannels.length }) }}</p>
@@ -97,7 +97,6 @@
   import channelListItem from '../manage-content-page/channel-list-item';
   import contentWizardUiAlert from '../select-content-page/content-wizard-ui-alert';
   import {
-    installedChannelList,
     installedChannelsWithResources,
     wizardState,
     inLocalImportMode,
@@ -216,7 +215,6 @@
       getters: {
         availableChannels: state => wizardState(state).availableChannels,
         selectedDrive: state => wizardState(state).selectedDrive,
-        installedChannelList,
         installedChannelsWithResources,
         transferType: state => wizardState(state).transferType,
         wizardStatus: state => wizardState(state).status,
