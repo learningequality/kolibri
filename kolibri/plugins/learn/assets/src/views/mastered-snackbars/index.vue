@@ -8,7 +8,6 @@
       <snackbar
         v-if="currentSnackbar === SNACKBARS.POINTS"
         :key="SNACKBARS.POINTS"
-        :isUserLoggedIn="isUserLoggedIn"
         @close="currentSnackbar = SNACKBARS.NEXT_RESOURCE"
       >
         <template slot="icon">
@@ -22,12 +21,22 @@
           />
           <div class="points-amount">{{ $tr('plusPoints', { maxPoints }) }}</div>
         </template>
+
+        <ui-alert
+          v-if="!isUserLoggedIn"
+          :dismissible="false"
+          :removeIcon="true"
+          type="warning"
+          class="alert"
+          slot="alert"
+        >
+          {{ $tr('signIn') }}
+        </ui-alert>
       </snackbar>
 
       <snackbar
         v-else-if="currentSnackbar === SNACKBARS.NEXT_RESOURCE"
         :key="SNACKBARS.NEXT_RESOURCE"
-        :isUserLoggedIn="isUserLoggedIn"
         @close="$emit('close')"
       >
         <template slot="icon">
@@ -64,6 +73,7 @@
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import uiAlert from 'keen-ui/src/UiAlert';
   import snackbar from './snackbar';
 
   const SNACKBARS = { POINTS: 'POINTS', NEXT_RESOURCE: 'NEXT_RESOURCE' };
@@ -76,6 +86,7 @@
       contentIcon,
       kRouterLink,
       snackbar,
+      uiAlert,
     },
     props: {
       nextContent: {
@@ -143,6 +154,7 @@
     $trs: {
       plusPoints: '+ { maxPoints, number } Points',
       next: 'Next:',
+      signIn: 'Sign in or create an account to save points you earn',
     },
     vuex: {
       getters: {
@@ -205,5 +217,10 @@
       visibility: visible
     to
       transform: translate3d(0, 0, 0)
+
+
+  .alert
+    margin-top: 8px
+    margin-bottom: 0
 
 </style>

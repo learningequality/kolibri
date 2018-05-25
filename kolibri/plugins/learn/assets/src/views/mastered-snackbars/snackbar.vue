@@ -1,29 +1,25 @@
 <template>
 
-  <div class="snackbar table">
-    <div class="row">
-      <div class="icon-container cell">
-        <slot name="icon"></slot>
-      </div>
-      <div class="content-container cell">
-        <ui-alert
-          v-if="!isUserLoggedIn"
-          :dismissible="false"
-          type="warning"
-        >
-          {{ $tr('signIn') }}
-        </ui-alert>
-        <slot name="content"></slot>
-      </div>
-      <div class="close-container cell">
-        <ui-icon-button
-          size="small"
-          icon="close"
-          :ariaLabel="$tr('close')"
-          @click="$emit('close')"
-        />
+  <div class="snackbar">
+    <div class="table">
+      <div class="row">
+        <div class="icon-container cell">
+          <slot name="icon"></slot>
+        </div>
+        <div class="content-container cell">
+          <slot name="content"></slot>
+        </div>
+        <div class="close-container cell">
+          <ui-icon-button
+            size="small"
+            icon="close"
+            :ariaLabel="$tr('close')"
+            @click="$emit('close')"
+          />
+        </div>
       </div>
     </div>
+    <slot name="alert"></slot>
   </div>
 
 </template>
@@ -32,23 +28,14 @@
 <script>
 
   import UiIconButton from 'keen-ui/src/UiIconButton';
-  import uiAlert from 'keen-ui/src/UiAlert';
 
   export default {
     name: 'snackbar',
     $trs: {
       close: 'Close',
-      signIn: 'Sign in or create an account to save points you earn',
     },
     components: {
       UiIconButton,
-      uiAlert,
-    },
-    props: {
-      isUserLoggedIn: {
-        type: Boolean,
-        required: true,
-      },
     },
   };
 
