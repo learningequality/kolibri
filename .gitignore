@@ -60,10 +60,6 @@ output/*/index.html
 # Sphinx
 docs/_build
 
-# api-docs
-docs/py_modules/kolibri*rst
-docs/py_modules/modules.rst
-
 # node
 node_modules
 npm-debug.log
