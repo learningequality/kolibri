@@ -1,13 +1,13 @@
 /* eslint-env mocha */
 import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
-import Vuex from 'vuex';
 import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
 import coreModal from 'kolibri.coreVue.components.coreModal';
 import UiAlert from 'keen-ui/src/UiAlert';
 import SelectDriveModal from '../../src/views/manage-content-page/select-transfer-source-modal/select-drive-modal';
 import { wizardState } from '../../src/state/getters';
+import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 SelectDriveModal.vuex.actions.refreshDriveList = () => Promise.resolve();
 
@@ -23,42 +23,34 @@ function makeWrapper(options = {}) {
 }
 
 function makeStore() {
-  return new Vuex.Store({
-    state: {
-      pageState: {
-        wizardState: {
-          transferType: 'localimport',
-          transferredChannel: {},
-          driveList: [
-            {
-              id: 'unwritable_drive',
-              metadata: { channels: [{ id: 'installed_channel' }] },
-              name: 'Unwritable',
-              writable: false,
-            },
-            {
-              id: 'writable_importable_drive',
-              metadata: { channels: [{ id: 'channel_1', version: 1 }] },
-              name: 'Writable and Importable',
-              writable: true,
-            },
-            {
-              id: 'incompatible_chanel_drive',
-              metadata: { channels: [{ id: 'channel_2', version: 1 }] },
-              name: 'Incompatible Channel',
-              writable: true,
-            },
-            {
-              id: 'no_content_drive',
-              metadata: { channels: [] },
-              name: 'Writable and Importable',
-              writable: true,
-            },
-          ],
-        },
-      },
+  const store = makeAvailableChannelsPageStore();
+  store.dispatch('SET_DRIVE_LIST', [
+    {
+      id: 'unwritable_drive',
+      metadata: { channels: [{ id: 'installed_channel' }] },
+      name: 'Unwritable',
+      writable: false,
     },
-  });
+    {
+      id: 'writable_importable_drive',
+      metadata: { channels: [{ id: 'channel_1', version: 1 }] },
+      name: 'Writable and Importable',
+      writable: true,
+    },
+    {
+      id: 'incompatible_chanel_drive',
+      metadata: { channels: [{ id: 'channel_2', version: 1 }] },
+      name: 'Incompatible Channel',
+      writable: true,
+    },
+    {
+      id: 'no_content_drive',
+      metadata: { channels: [] },
+      name: 'Writable and Importable',
+      writable: true,
+    },
+  ]);
+  return store;
 }
 
 // prettier-ignore
@@ -89,21 +81,6 @@ describe('selectDriveModal component', () => {
   function setTransferType(transferType) {
     store.state.pageState.wizardState.transferType = transferType;
   }
-
-  // TODO move to select-import-source-modal test
-  // it('when importing, shows the correct title', () => {
-  //   setTransferType('localimport');
-  //   const wrapper = makeWrapper({ store });
-  //   const { titleText } = getElements(wrapper);
-  //   expect(titleText()).to.equal('Select a drive');
-  // });
-  //
-  // it('when exporting, shows the correct title', () => {
-  //   setTransferType('localexport');
-  //   const wrapper = makeWrapper({ store });
-  //   const { titleText } = getElements(wrapper);
-  //   expect(titleText()).to.equal('Select an export destination');
-  // });
 
   it('when drive list is loading, show a message', () => {
     const wrapper = makeWrapper({ store });
@@ -141,7 +118,7 @@ describe('selectDriveModal component', () => {
       id: 'channel_1',
       version: 1,
     };
-    store.state.pageState.wizardState.transferredChannel = { ...channel };
+    store.dispatch('SET_TRANSFERRED_CHANNEL', channel);
     store.state.pageState.channelList = [{ ...channel }];
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio } = getElements(wrapper);
@@ -154,7 +131,7 @@ describe('selectDriveModal component', () => {
       id: 'channel_2',
       version: 6,
     };
-    store.state.pageState.wizardState.transferredChannel = { ...channel };
+    store.dispatch('SET_TRANSFERRED_CHANNEL', channel);
     store.state.pageState.channelList = [{ ...channel }];
     const wrapper = makeWrapper({ store });
     const { incompatibleRadio } = getElements(wrapper);
