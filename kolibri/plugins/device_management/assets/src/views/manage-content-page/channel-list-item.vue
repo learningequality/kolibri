@@ -46,8 +46,9 @@
           <ui-icon
             class="lock-icon"
             v-if="channel.public === false"
-            icon="lock_open"
-          />
+          >
+            <mat-svg name="lock_open" category="action" />
+          </ui-icon>
         </div>
         <div class="version">
           {{ $tr('version', { version: versionNumber }) }}

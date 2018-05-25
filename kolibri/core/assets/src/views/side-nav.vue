@@ -20,9 +20,14 @@
             type="secondary"
             color="white"
             size="large"
-            icon="close"
             @click="toggleNav"
-          />
+          >
+            <mat-svg
+              name="close"
+              category="navigation"
+              class="side-nav-header-close"
+            />
+          </ui-icon-button>
           <span class="side-nav-header-name">{{ $tr('kolibri') }}</span>
         </div>
 
@@ -80,6 +85,13 @@
   import customUiMenu from 'kolibri.coreVue.components.customUiMenu';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import logo from 'kolibri.coreVue.components.logo';
+
+  import schoolIcon from 'svg-inline-loader!material-design-icons/social/svg/production/ic_school_24px.svg';
+  import assessmentIcon from 'svg-inline-loader!material-design-icons/action/svg/production/ic_assessment_24px.svg';
+  import settingsIcon from 'svg-inline-loader!material-design-icons/action/svg/production/ic_settings_input_antenna_24px.svg';
+  import tabletIcon from 'svg-inline-loader!material-design-icons/hardware/svg/production/ic_tablet_mac_24px.svg';
+  import accountIcon from 'svg-inline-loader!material-design-icons/action/svg/production/ic_account_circle_24px.svg';
+  import exitIcon from 'svg-inline-loader!material-design-icons/action/svg/production/ic_exit_to_app_24px.svg';
 
   export default {
     name: 'sideNav',
@@ -143,7 +155,8 @@
           {
             label: this.$tr('learn'),
             active: this.pageIsActive(TopLevelPageNames.LEARN),
-            icon: 'school',
+            icon: schoolIcon,
+            rawSVG: true,
             href: '/learn',
           },
         ];
@@ -151,7 +164,8 @@
           options.push({
             label: this.$tr('coach'),
             active: this.pageIsActive(TopLevelPageNames.COACH),
-            icon: 'assessment',
+            icon: assessmentIcon,
+            rawSVG: true,
             href: '/coach',
           });
         }
@@ -159,7 +173,8 @@
           options.push({
             label: this.$tr('facility'),
             active: this.pageIsActive(TopLevelPageNames.MANAGE),
-            icon: 'settings_input_antenna',
+            icon: settingsIcon,
+            rawSVG: true,
             href: '/facility',
           });
         }
@@ -167,7 +182,8 @@
           options.push({
             label: this.$tr('device'),
             active: this.pageIsActive(TopLevelPageNames.DEVICE),
-            icon: 'tablet_mac',
+            icon: tabletIcon,
+            rawSVG: true,
             href: '/device',
           });
         }
@@ -176,12 +192,14 @@
           options.push({
             label: this.$tr('profile'),
             active: this.pageIsActive(TopLevelPageNames.USER),
-            icon: 'account_circle',
+            icon: accountIcon,
+            rawSVG: true,
             href: '/user',
           });
           options.push({
             label: this.$tr('signOut'),
-            icon: 'exit_to_app',
+            icon: exitIcon,
+            rawSVG: true,
             iconProps: {
               mirror: this.isRtl,
             },
@@ -190,7 +208,8 @@
         } else {
           options.push({
             label: this.$tr('signIn'),
-            icon: 'exit_to_app',
+            icon: exitIcon,
+            rawSVG: true,
             iconProps: {
               mirror: this.isRtl,
             },
@@ -302,6 +321,9 @@
     text-transform: uppercase
     background-color: $core-text-default
     box-shadow: $side-nav-header-box-shadow
+
+  .side-nav-header-close
+    fill: white
 
   .side-nav-header-name
     margin-left: 8px

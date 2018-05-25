@@ -4,12 +4,12 @@
     <button
       v-show="!enoughSpace"
       class="k-navbar-scroll-button"
-      @click="isRtl ? scrollRight() : scrollLeft()"
+      @click="rtl ? scrollRight() : scrollLeft()"
     >
       <mat-svg
         name="keyboard_arrow_left"
         category="hardware"
-        :class="{ 'rtl-icon': isRtl }"
+        :class="{ 'rtl-icon': rtl }"
       />
     </button>
 
@@ -25,12 +25,12 @@
     <button
       v-show="!enoughSpace"
       class="k-navbar-scroll-button"
-      @click="isRtl ? scrollLeft() : scrollRight()"
+      @click="rtl ? scrollLeft() : scrollRight()"
     >
       <mat-svg
         name="keyboard_arrow_right"
         category="hardware"
-        :class="{ 'rtl-icon': isRtl }"
+        :class="{ 'rtl-icon': rtl }"
       />
     </button>
   </nav>
@@ -51,6 +51,7 @@
     mixins: [responsiveElement],
     data: () => ({
       enoughSpace: true,
+      rtl: this.isRtl || false,
     }),
     computed: {
       maxWidth() {

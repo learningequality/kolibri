@@ -19,13 +19,17 @@
 
       <ui-button
         ref="userMenuButton"
-        icon="person"
         type="primary"
         color="primary"
         class="user-menu-button"
         :ariaLabel="$tr('userMenu')"
         @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
       >
+        <mat-svg
+          slot="icon"
+          name="person"
+          category="social"
+        />
         <template v-if="isUserLoggedIn">{{ username }}</template>
         <mat-svg name="arrow_drop_down" category="navigation" />
       </ui-button>
@@ -71,6 +75,7 @@
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
   import languageSwitcherModal from './language-switcher/modal';
+  import languageIcon from 'svg-inline-loader!material-design-icons/action/svg/production/ic_language_24px.svg';
 
   export default {
     name: 'appBar',
@@ -117,7 +122,8 @@
         const changeLanguage = {
           id: 'language',
           label: this.$tr('languageSwitchMenuOption'),
-          icon: 'language',
+          icon: languageIcon,
+          rawSVG: true,
         };
         if (this.isUserLoggedIn) {
           return [

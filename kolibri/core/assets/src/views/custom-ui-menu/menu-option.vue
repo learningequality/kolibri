@@ -16,6 +16,7 @@
           :removeText="iconProps.removeText"
           :useSvg="iconProps.useSvg"
           :mirror="iconProps.mirror"
+          :rawSVG="rawSVG"
 
           v-if="icon"
         />
@@ -45,8 +46,8 @@
 
   import config from 'keen-ui/src/config';
 
-  import UiIcon from 'keen-ui/src/UiIcon.vue';
   import UiRippleInk from 'keen-ui/src/UiRippleInk.vue';
+  import UiIcon from './UiIcon';
 
   export default {
     name: 'uiMenuOption',
@@ -74,6 +75,10 @@
         default: false,
       },
       active: {
+        type: Boolean,
+        default: false,
+      },
+      rawSVG: {
         type: Boolean,
         default: false,
       },

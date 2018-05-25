@@ -41,24 +41,28 @@
         class="controls button-fullscreen"
         aria-controls="pdf-container"
         :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-        :icon="isInFullscreen ? 'fullscreen_exit' : 'fullscreen'"
         size="large"
         @click="toggleFullscreen($refs.pdfRenderer)"
-      />
+      >
+        <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
+        <mat-svg v-else name="fullscreen" category="navigation" />
+      </ui-icon-button>
       <ui-icon-button
         class="controls button-zoom-in"
         aria-controls="pdf-container"
-        icon="add"
         size="large"
         @click="zoomIn"
-      />
+      >
+        <mat-svg name="add" category="content" />
+      </ui-icon-button>
       <ui-icon-button
         class="controls button-zoom-out"
         aria-controls="pdf-container"
-        icon="remove"
         size="large"
         @click="zoomOut"
-      />
+      >
+        <mat-svg name="remove" category="content" />
+      </ui-icon-button>
     </template>
   </div>
 

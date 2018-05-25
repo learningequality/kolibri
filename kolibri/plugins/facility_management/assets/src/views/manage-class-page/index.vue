@@ -33,7 +33,9 @@
           :key="classroom.id"
         >
           <td class="core-table-icon-col">
-            <ui-icon icon="business" />
+            <ui-icon>
+              <mat-svg name="business" category="communication" />
+            </ui-icon>
           </td>
           <td class="core-table-main-col">
             <k-router-link

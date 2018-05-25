@@ -7,8 +7,9 @@
     <ui-icon
       class="coach-mat-icon"
       ref="icon"
-      icon="local_library"
-    />
+    >
+      <mat-svg name="local_library" category="maps" />
+    </ui-icon>
     <span class="counter" v-if="isTopic">
       {{ value }}
     </span>

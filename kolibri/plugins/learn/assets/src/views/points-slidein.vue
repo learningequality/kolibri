@@ -10,10 +10,11 @@
       type="secondary"
       color="default"
       size="small"
-      icon="close"
       :ariaLabel="$tr('close')"
       @click="$emit('close')"
-    />
+    >
+      <mat-svg name="close" category="navigation" />
+    </ui-icon-button>
   </div>
 
 </template>

@@ -8,12 +8,13 @@
     <ui-icon-button
       slot="icon"
       v-show="currentStep > 1"
-      icon="arrow_back"
       type="secondary"
       color="white"
       @click="$emit('backButtonClicked')"
       :class="{ 'rtl-icon': isRtl }"
-    />
+    >
+      <mat-svg name="arrow_back" category="navigation" />
+    </ui-icon-button>
     {{ $tr('progressIndicator', {currentStep , totalSteps}) }}
 
   </ui-toolbar>
@@ -53,5 +54,8 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  .progress-toolbar
+    fill: white
 
 </style>

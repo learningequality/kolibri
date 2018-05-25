@@ -70,12 +70,14 @@
 
         <template v-if="content.license_description">
           <ui-icon-button
-            :icon="licenceDescriptionIsVisible ? 'expand_less' : 'expand_more'"
             :ariaLabel="$tr('toggleLicenseDescription')"
             size="small"
             type="secondary"
             @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
-          />
+          >
+            <mat-svg v-if="licenceDescriptionIsVisible" name="expand_less" category="navigation" />
+            <mat-svg v-else name="expand_more" category="navigation" />
+          </ui-icon-button>
           <p v-if="licenceDescriptionIsVisible" dir="auto" class="ta-l">
             {{ content.license_description }}
           </p>

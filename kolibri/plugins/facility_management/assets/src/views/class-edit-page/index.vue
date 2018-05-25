@@ -7,13 +7,14 @@
         {{ currentClass.name }}
       </h1>
       <ui-icon-button
-        icon="mode_edit"
         type="secondary"
         color="primary"
         class="edit-button"
         :ariaLabel="$tr('edit')"
         @click="displayModal(Modals.EDIT_CLASS_NAME)"
-      />
+      >
+        <mat-svg name="edit" category="image" />
+      </ui-icon-button>
     </div>
 
     <p>{{ $tr('coachEnrollmentPageTitle') }}</p>
