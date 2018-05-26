@@ -15,7 +15,7 @@ Changes are ordered reverse-chronologically.
  - Various other fixes
  - Languages: English, Chinyanja, Arabic, Farsi, French, Hindi, Marathi, Portuguese, Spanish, Swahili, Tamil, Telugu, and Urdu
 
-See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.1+label%3Achangelog>`_ of changes on Github.
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.1+label%3Achangelog>`__ of changes on Github.
 
 
 0.9.0
@@ -34,7 +34,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=
  - Added icon next to language-switching functionality
  - Languages: English, Arabic, Farsi, French, Hindi, Spanish, Swahili, and Urdu
 
-See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.0+label%3Achangelog>`_ of changes on Github.
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.0+label%3Achangelog>`__ of changes on Github.
 
 
 0.8.0
@@ -47,7 +47,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=
  - Languages: English, Spanish, Arabic, Farsi, Urdu, French, Haitian Creole, and Burmese
  - Various bug fixes
 
-See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.8.0+label%3Achangelog>`_ of changes on Github.
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.8.0+label%3Achangelog>`__ of changes on Github.
 
 
 0.7.2
