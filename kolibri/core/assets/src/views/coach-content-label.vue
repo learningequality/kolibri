@@ -1,8 +1,8 @@
 <template>
 
-  <div class="vab" v-if="value > 0">
-    <ui-tooltip trigger="icon" position="top center">
-      {{ $tr('coachLabel') }}
+  <div class="vab" v-if="value > 0" :title="titleText">
+    <ui-tooltip trigger="icon" position="bottom center" v-if="!isTopic">
+      {{ $tr('coachResourceLabel') }}
     </ui-tooltip>
     <ui-icon
       class="coach-mat-icon"
@@ -39,8 +39,17 @@
         default: false,
       },
     },
+    computed: {
+      titleText() {
+        if (this.isTopic) {
+          return this.$tr('topicTitle', { count: this.value });
+        }
+        return null;
+      },
+    },
     $trs: {
-      coachLabel: 'Coach',
+      coachResourceLabel: 'Coach resource',
+      topicTitle: 'Contains {count} {count, plural, one {story} other {stories}}',
     },
   };
 
