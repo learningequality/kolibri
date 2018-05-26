@@ -1,14 +1,7 @@
 <template>
 
   <div class="vab" v-if="value > 0" :title="titleText">
-    <ui-tooltip trigger="icon" position="bottom center" v-if="!isTopic">
-      {{ $tr('coachResourceLabel') }}
-    </ui-tooltip>
-    <ui-icon
-      class="coach-mat-icon"
-      ref="icon"
-      icon="local_library"
-    />
+    <ui-icon class="coach-mat-icon" icon="local_library" />
     <span class="counter" v-if="isTopic">
       {{ value }}
     </span>
@@ -20,13 +13,11 @@
 <script>
 
   import UiIcon from 'keen-ui/src/UiIcon';
-  import UiTooltip from 'keen-ui/src/UiTooltip';
 
   export default {
     name: 'coachContentLabel',
     components: {
       UiIcon,
-      UiTooltip,
     },
     props: {
       value: {
@@ -44,12 +35,12 @@
         if (this.isTopic) {
           return this.$tr('topicTitle', { count: this.value });
         }
-        return null;
+        return this.$tr('coachResourceLabel');
       },
     },
     $trs: {
       coachResourceLabel: 'Coach resource',
-      topicTitle: 'Contains {count} {count, plural, one {story} other {stories}}',
+      topicTitle: 'Contains {count} {count, plural, one {coach resource} other {coach resources}}',
     },
   };
 
