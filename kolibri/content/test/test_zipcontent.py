@@ -91,3 +91,10 @@ class ZipContentTestCase(TestCase):
     def test_x_frame_options_header(self):
         response = self.client.get(self.zip_file_base_url + self.test_name_1)
         self.assertEqual(response.get("X-Frame-Options", ""), "")
+
+    def test_access_control_allow_headers(self):
+        headerval = "X-Penguin-Dance-Party"
+        response = self.client.options(self.zip_file_base_url + self.test_name_1, HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval)
+        self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
+        response = self.client.get(self.zip_file_base_url + self.test_name_1, HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval)
+        self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
