@@ -11,6 +11,6 @@ buildkite-agent.exe artifact download "installer/*.exe" . --step "Build kolibri 
 GOTO END
 
 :DONT_SIGN
-echo Don't sign the Windows installer.
+echo Set the SIGN_WINDOWS_INSTALLER=true environment variable to sign the Windows installer.
 
 :END
