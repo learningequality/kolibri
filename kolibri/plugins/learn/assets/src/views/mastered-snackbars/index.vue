@@ -35,7 +35,7 @@
       </snackbar>
 
       <snackbar
-        v-else-if="currentSnackbar === SNACKBARS.NEXT_RESOURCE"
+        v-else-if="currentSnackbar === SNACKBARS.NEXT_RESOURCE && nextContent"
         :key="SNACKBARS.NEXT_RESOURCE"
         @close="$emit('close')"
       >
@@ -49,13 +49,19 @@
         </template>
 
         <template slot="content">
-          <h2 class="next-content-heading">{{ $tr('next') }}</h2>
-          <k-router-link
-            :text="nextContent.title"
+          <router-link
+            class="rm-link-style"
             :to="nextContentLink"
-            class="next-content-title"
-            dir="auto"
-          />
+          >
+            <h2 class="next-content-heading">{{ $tr('next') }}</h2>
+            <k-router-link
+              :text="nextContent.title"
+              :to="nextContentLink"
+              class="next-content-title"
+              dir="auto"
+            />
+          </router-link>
+
         </template>
       </snackbar>
     </transition>
@@ -222,5 +228,10 @@
   .alert
     margin-top: 8px
     margin-bottom: 0
+
+  .rm-link-style
+    color: $core-text-default
+    text-decoration: none
+    display: block
 
 </style>
