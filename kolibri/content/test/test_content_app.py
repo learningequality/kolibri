@@ -674,6 +674,22 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": '47385a6d4df3426db38ad0d20e113dce'})
         self.assertEqual(len(response.data), 0)
 
+    def test_copies(self):
+        response = self.client.get(reverse('contentnode-copies', kwargs={'pk': 'c6f49ea527824f398f4d5d26faf19396'}))
+        expected_titles = set(['root', 'c1'])
+        response_titles = set()
+        for node in response.data[0]:
+            response_titles.add(node['title'])
+        self.assertSetEqual(expected_titles, response_titles)
+
+    def test_copies_count(self):
+        response = self.client.get(reverse('contentnode-copies-count'),
+                                   data={'content_ids': 'c6f49ea527824f398f4d5d26faf19396,c6f49ea527824f398f4d5d26faf15555'})
+        # assert non existent content id does not show up in results
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['count'],
+                         content.ContentNode.objects.filter(content_id='c6f49ea527824f398f4d5d26faf19396').count())
+
     def tearDown(self):
         """
         clean up files/folders created during the test
