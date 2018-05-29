@@ -20,7 +20,7 @@
         :label="option[keys.type] === 'divider' ? null : option[keys.label] || option"
         :secondaryText="hasSecondaryText ? option[keys.secondaryText] : null"
         :type="option[keys.type]"
-        :rawSVG="option.rawSVG"
+        :rawSvg="option.rawSvg"
 
         @click.native="selectOption(option)"
         @keydown.enter.native.prevent="selectOption(option)"

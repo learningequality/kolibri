@@ -113,7 +113,6 @@
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.1",
     "svg-icon-inline-loader": "^3.0.0",
-    "svg-inline-loader": "0.8.0",
     "temp": "^0.8.3",
     "url-loader": "^0.5.7",
     "vue-hot-reload-api": "^2.0.6",

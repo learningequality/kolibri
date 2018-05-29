@@ -86,12 +86,12 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import logo from 'kolibri.coreVue.components.logo';
 
-  import schoolIcon from 'svg-inline-loader!material-design-icons/social/svg/production/ic_school_24px.svg';
-  import assessmentIcon from 'svg-inline-loader!material-design-icons/action/svg/production/ic_assessment_24px.svg';
-  import settingsIcon from 'svg-inline-loader!material-design-icons/action/svg/production/ic_settings_input_antenna_24px.svg';
-  import tabletIcon from 'svg-inline-loader!material-design-icons/hardware/svg/production/ic_tablet_mac_24px.svg';
-  import accountIcon from 'svg-inline-loader!material-design-icons/action/svg/production/ic_account_circle_24px.svg';
-  import exitIcon from 'svg-inline-loader!material-design-icons/action/svg/production/ic_exit_to_app_24px.svg';
+  import schoolSvg from './menuIcons/schoolSvg';
+  import assessmentSvg from './menuIcons/assessmentSvg';
+  import settingsSvg from './menuIcons/settingsSvg';
+  import tabletSvg from './menuIcons/tabletSvg';
+  import accountSvg from './menuIcons/accountSvg';
+  import exitIcon from './menuIcons/exitSvg';
 
   export default {
     name: 'sideNav',
@@ -155,8 +155,7 @@
           {
             label: this.$tr('learn'),
             active: this.pageIsActive(TopLevelPageNames.LEARN),
-            icon: schoolIcon,
-            rawSVG: true,
+            rawSvg: schoolSvg,
             href: '/learn',
           },
         ];
@@ -164,8 +163,7 @@
           options.push({
             label: this.$tr('coach'),
             active: this.pageIsActive(TopLevelPageNames.COACH),
-            icon: assessmentIcon,
-            rawSVG: true,
+            rawSvg: assessmentSvg,
             href: '/coach',
           });
         }
@@ -173,8 +171,7 @@
           options.push({
             label: this.$tr('facility'),
             active: this.pageIsActive(TopLevelPageNames.MANAGE),
-            icon: settingsIcon,
-            rawSVG: true,
+            rawSvg: settingsSvg,
             href: '/facility',
           });
         }
@@ -182,8 +179,7 @@
           options.push({
             label: this.$tr('device'),
             active: this.pageIsActive(TopLevelPageNames.DEVICE),
-            icon: tabletIcon,
-            rawSVG: true,
+            rawSvg: tabletSvg,
             href: '/device',
           });
         }
@@ -192,14 +188,12 @@
           options.push({
             label: this.$tr('profile'),
             active: this.pageIsActive(TopLevelPageNames.USER),
-            icon: accountIcon,
-            rawSVG: true,
+            rawSvg: accountSvg,
             href: '/user',
           });
           options.push({
             label: this.$tr('signOut'),
-            icon: exitIcon,
-            rawSVG: true,
+            rawSvg: exitIcon,
             iconProps: {
               mirror: this.isRtl,
             },
@@ -208,8 +202,7 @@
         } else {
           options.push({
             label: this.$tr('signIn'),
-            icon: exitIcon,
-            rawSVG: true,
+            rawSvg: exitIcon,
             iconProps: {
               mirror: this.isRtl,
             },

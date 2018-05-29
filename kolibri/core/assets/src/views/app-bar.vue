@@ -75,7 +75,7 @@
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
   import languageSwitcherModal from './language-switcher/modal';
-  import languageIcon from 'svg-inline-loader!material-design-icons/action/svg/production/ic_language_24px.svg';
+  import languageSvg from './menuIcons/languageSvg';
 
   export default {
     name: 'appBar',
@@ -122,8 +122,7 @@
         const changeLanguage = {
           id: 'language',
           label: this.$tr('languageSwitchMenuOption'),
-          icon: languageIcon,
-          rawSVG: true,
+          rawSvg: languageSvg,
         };
         if (this.isUserLoggedIn) {
           return [

@@ -2,14 +2,16 @@
 
   <span
     class="ui-icon"
-    :class="[iconSet, {'icon': !rawSVG }, { 'is-mirrored': mirror }]"
+    :class="[iconSet, icon, { 'is-mirrored': mirror }]"
     :aria-label="ariaLabel"
   >
     <svg class="ui-icon-svg" v-if="useSvg">
       <use xmlns:xlink="http://www.w3.org/1999/xlink" :xlink:href="'#' + icon" />
     </svg>
-
-    <span v-else-if="rawSVG" v-html="decodedRawSVG"></span>
+    <component
+      v-else-if="rawSvg"
+      :is="rawSvg"
+    />
     <slot v-else>{{ removeText ? null : icon }}</slot>
   </span>
 
@@ -20,7 +22,6 @@
 
   export default {
     name: 'ui-icon',
-
     props: {
       icon: String,
       iconSet: {
@@ -40,16 +41,9 @@
         type: Boolean,
         default: false,
       },
-      rawSVG: {
-        type: Boolean,
-        default: false,
-      },
-    },
-    computed: {
-      decodedRawSVG() {
-        const base64 = this.icon.split('base64,')[1].split('&quot')[0];
-        const decoded = window.atob(base64);
-        return decoded;
+      rawSvg: {
+        type: Object,
+        required: false,
       },
     },
   };

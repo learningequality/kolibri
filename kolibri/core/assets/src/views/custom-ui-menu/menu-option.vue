@@ -16,16 +16,16 @@
           :removeText="iconProps.removeText"
           :useSvg="iconProps.useSvg"
           :mirror="iconProps.mirror"
-          :rawSVG="rawSVG"
+          :rawSvg="rawSvg"
 
-          v-if="icon"
+          v-if="icon || rawSvg"
         />
 
         <!-- if anything in the dropdown menu has an icon, then we are
         going to add padding to make all the items align -->
         <div
           class="ui-menu-option-text"
-          :class="{ 'ui-menu-option-text-lp': !icon }"
+          :class="{ 'ui-menu-option-text-lp': !icon && !rawSvg }"
         >
           {{ label }}
         </div>
@@ -78,9 +78,9 @@
         type: Boolean,
         default: false,
       },
-      rawSVG: {
-        type: Boolean,
-        default: false,
+      rawSvg: {
+        type: Object,
+        required: false,
       },
     },
 
