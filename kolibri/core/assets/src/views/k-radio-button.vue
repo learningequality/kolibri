@@ -32,7 +32,7 @@
       :class="['unchecked', {disabled, active}]"
     />
 
-    <span class="text">
+    <span class="text" dir="auto">
       {{ label }}
       <span
         v-if="description"

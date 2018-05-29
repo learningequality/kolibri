@@ -10,28 +10,33 @@ As a platform intended for use around the world, Kolibri has a strong mandate fo
 Writing localized strings
 -------------------------
 
-Backend
-~~~~~~~
+For strings in python files, we are using standard Django tools (``gettext`` and associated functions). See the `Django i18n documentation <https://docs.djangoproject.com/en/1.10/topics/i18n/>`_ for more information.
 
-For any strings in Django, we are using the standard Django i18n machinery (gettext and associated functions) to provide translations. See the `Django i18n documentation <https://docs.djangoproject.com/en/1.10/topics/i18n/>`_ for more information.
+For strings in the frontend, we are using `Vue-Intl <https://www.npmjs.com/package/vue-intl>`_, an in house port of `React-intl <https://www.npmjs.com/package/react-intl>`_. Strings are collected during the build process, and bundled into exported JSON files.
 
-Frontend
-~~~~~~~~
+Messages will be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the front-end are based off the current Django language for the HTTP request.
 
-For any strings in the frontend, we are using `Vue-Intl <https://www.npmjs.com/package/vue-intl>`_ an in house port of `React-intl <https://www.npmjs.com/package/react-intl>`_.
 
-Within Kolibri, messages are defined on the body of the Vue component:
+.vue files
+~~~~~~~~~~
+
+Within Kolibri .vue components, messages are defined in the ``<script>`` section as attributes of the component definition:
 
 .. code-block:: javascript
 
-  name: 'componentName'
-  $trs: {
-    msgId: 'Message text',
-  }
+  export default {
+    name: 'componentName',
+    $trs: {
+      msgId1: 'Message text 1',
+      msgId2: 'Message text 2',
+    },
+  };
 
-The ``name`` and every ``msgId`` should be in camelCase.
 
-User visible strings should be rendered directly in the template with ``{{ $tr('msgId') }}``. These strings are collected during the build process, and bundled into exported JSON files. These files are then uploaded to Crowdin for translation.
+The component names and message IDs should all be camelCase.
+
+User visible strings can be used anywhere in the .vue file using ``$tr('msgId')`` (in the template) or ``this.$tr('msgId')`` (in the script).
+
 
 An example Vue component would then look like this
 
@@ -39,38 +44,70 @@ An example Vue component would then look like this
 
   <template>
     <div>
-      <p>{{ $tr('exampleMessage') }}</p>
+      <!-- puts 'Hello world' in paragraph -->
+      <p>{{ $tr('helloWorld') }}</p>
     </div>
   </template>
 
 
-.. code-block:: javascript
+  <script>
 
-    module.exports = {
-      name: 'example',
+    export default {
+      name: 'someComponent',
+      mounted() {
+        // prints 'Hello world' to console
+        console.log((this.$trs('helloWorld'));
+      },
       $trs: {
-        exampleMessage: 'This message is just an example',
+        helloWorld: 'Hello world',
       },
     };
+
+  </script>
+
+
+.js files
+~~~~~~~~~
 
 In order to translate strings in Javascript source files, the namespace and messages are defined like this:
 
 .. code-block:: javascript
 
   import { createTranslator } from 'kolibri.utils.i18n';
-  const name = 'exampleTitles';
+  const name = 'someModule';
   const messages = {
-    msgIdForThisMessage: 'This is a message',
+    helloWorld: 'Hello world',
   };
   const translator = createTranslator(name, messages);
-  console.log(translator.$tr('msgIdForThisMessage'));
 
+Then messages are available from the ``$tr`` method on the translator object:
 
-In this way, messages are namespaced, and then available off the ``$tr`` method of the translator object returned from the createTranslator function.
+.. code-block:: javascript
 
-These messages will then be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the Frontend is based off the current Django language for the request.
+  console.log(translator.$tr('helloWorld'));
 
-All front-end translations can be parameterized using `ICU message syntax <https://formatjs.io/guides/message-syntax/>`_.
+ICU message syntax
+~~~~~~~~~~~~~~~~~~
+
+All front-end translations can be parameterized using `ICU message syntax <https://formatjs.io/guides/message-syntax/>`_. Additional documentation is `available on crowdin <https://support.crowdin.com/icu-message-syntax/>`_.
+
+This syntax can be used to do things like inject variables, pluralize words, and localize numbers.
+
+Dynamic values are passed into translation strings as named arguments in an object. For example:
+
+.. code-block:: javascript
+
+  export default {
+    name: 'anothetComponent',
+    mounted() {
+      // outputs 'Henry read 2 stories'
+      console.log(this.$tr('msg', {name: 'Henry', count: 2}));
+    },
+    $trs: {
+      msg: '{name} read {count} {count, plural, one {story} other {stories}}',
+    },
+  };
+
 
 
 .. _crowdin:

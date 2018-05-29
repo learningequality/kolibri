@@ -127,6 +127,7 @@
     display: table
     width: 100%
     max-width: 450px
+    margin-right: 8px
     background-color: white
 
   .search-box-within-action-bar

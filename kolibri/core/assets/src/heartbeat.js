@@ -42,12 +42,12 @@ export class HeartBeat {
   }
   setActivityListeners() {
     this.events.forEach(event => {
-      document.addEventListener(event, this.setActive, true);
+      document.addEventListener(event, this.setActive, { capture: true, passive: true });
     });
   }
   clearActivityListeners() {
     this.events.forEach(event => {
-      document.removeEventListener(event, this.setActive, true);
+      document.removeEventListener(event, this.setActive, { capture: true, passive: true });
     });
   }
   setActive() {
