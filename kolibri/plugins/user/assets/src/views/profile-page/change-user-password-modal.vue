@@ -8,7 +8,8 @@
 
       <k-textbox
         ref="newPassword"
-        type="new-password"
+        type="password"
+        autocomplete="new-password"
         :label="$tr('newPasswordFieldLabel')"
         :invalid="newPasswordIsInvalid"
         :invalidText="newPasswordInvalidErrorText"
@@ -18,7 +19,8 @@
       />
       <k-textbox
         ref="confirmedNewPassword"
-        type="new-password"
+        type="password"
+        autocomplete="new-password"
         :label="$tr('confirmNewPasswordFieldLabel')"
         :invalid="confirmedNewPasswordIsInvalid"
         :invalidText="confirmedNewPasswordInvalidErrorText"
