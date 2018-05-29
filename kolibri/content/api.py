@@ -109,7 +109,7 @@ class ContentNodeFilter(IdFilter):
         def intersection(queries):
             if queries:
                 return reduce(lambda x, y: x & y, queries)
-            return []
+            return None
 
         # all words with punctuation removed
         all_words = [w for w in re.split('[?.,!";: ]', value) if w]
