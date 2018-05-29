@@ -684,11 +684,11 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_copies_count(self):
         response = self.client.get(reverse('contentnode-copies-count'),
-                                   data={'content_ids': 'c6f49ea527824f398f4d5d26faf19396,c6f49ea527824f398f4d5d26faf15555'})
+                                   data={'content_ids': 'f2332710c2fd483386cdeb5dcbdda81f,c6f49ea527824f398f4d5d26faf15555'})
         # assert non existent content id does not show up in results
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['count'],
-                         content.ContentNode.objects.filter(content_id='c6f49ea527824f398f4d5d26faf19396').count())
+                         content.ContentNode.objects.filter(content_id='f2332710c2fd483386cdeb5dcbdda81f').count())
 
     def tearDown(self):
         """
