@@ -117,7 +117,7 @@
       },
       copiesCount: {
         type: Number,
-        default: 0,
+        required: false,
       },
     },
     computed: {

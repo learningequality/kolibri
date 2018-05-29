@@ -55,7 +55,7 @@ function normalizeContentNode(node, ancestors = []) {
     thumbnail: getContentNodeThumbnail(node) || undefined,
     breadcrumbs: tail(ancestors).map(bc => ({ id: bc.pk, ...bc })),
     progress: Math.min(node.progress_fraction || 0, 1.0),
-    copies_count: 0,
+    copies_count: node.copies_count,
   };
   delete normalized.pk;
   return normalized;
