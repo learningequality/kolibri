@@ -9,8 +9,8 @@
       <use xmlns:xlink="http://www.w3.org/1999/xlink" :xlink:href="'#' + icon" />
     </svg>
     <component
-      v-else-if="rawSvg"
-      :is="rawSvg"
+      v-else-if="iconComponent"
+      :is="iconComponent"
     />
     <slot v-else>{{ removeText ? null : icon }}</slot>
   </span>
@@ -41,7 +41,7 @@
         type: Boolean,
         default: false,
       },
-      rawSvg: {
+      iconComponent: {
         type: Object,
         required: false,
       },

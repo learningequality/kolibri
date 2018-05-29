@@ -155,7 +155,7 @@
           {
             label: this.$tr('learn'),
             active: this.pageIsActive(TopLevelPageNames.LEARN),
-            rawSvg: schoolSvg,
+            iconComponent: schoolSvg,
             href: '/learn',
           },
         ];
@@ -163,7 +163,7 @@
           options.push({
             label: this.$tr('coach'),
             active: this.pageIsActive(TopLevelPageNames.COACH),
-            rawSvg: assessmentSvg,
+            iconComponent: assessmentSvg,
             href: '/coach',
           });
         }
@@ -171,7 +171,7 @@
           options.push({
             label: this.$tr('facility'),
             active: this.pageIsActive(TopLevelPageNames.MANAGE),
-            rawSvg: settingsSvg,
+            iconComponent: settingsSvg,
             href: '/facility',
           });
         }
@@ -179,7 +179,7 @@
           options.push({
             label: this.$tr('device'),
             active: this.pageIsActive(TopLevelPageNames.DEVICE),
-            rawSvg: tabletSvg,
+            iconComponent: tabletSvg,
             href: '/device',
           });
         }
@@ -188,12 +188,12 @@
           options.push({
             label: this.$tr('profile'),
             active: this.pageIsActive(TopLevelPageNames.USER),
-            rawSvg: accountSvg,
+            iconComponent: accountSvg,
             href: '/user',
           });
           options.push({
             label: this.$tr('signOut'),
-            rawSvg: exitIcon,
+            iconComponent: exitIcon,
             iconProps: {
               mirror: this.isRtl,
             },
@@ -202,7 +202,7 @@
         } else {
           options.push({
             label: this.$tr('signIn'),
-            rawSvg: exitIcon,
+            iconComponent: exitIcon,
             iconProps: {
               mirror: this.isRtl,
             },

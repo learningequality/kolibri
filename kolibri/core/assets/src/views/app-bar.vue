@@ -122,7 +122,7 @@
         const changeLanguage = {
           id: 'language',
           label: this.$tr('languageSwitchMenuOption'),
-          rawSvg: languageSvg,
+          iconComponent: languageSvg,
         };
         if (this.isUserLoggedIn) {
           return [
