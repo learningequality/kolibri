@@ -1,8 +1,9 @@
 import os
 import re
 
-from django.conf import settings
 from django.core.urlresolvers import reverse
+
+from kolibri.utils import conf
 
 try:
     from urlparse import urljoin
@@ -20,23 +21,32 @@ POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".perseus", ".zip"])
 def get_content_file_name(obj):
     return '{checksum}.{extension}'.format(checksum=obj.id, extension=obj.extension)
 
+
 # DISK PATHS
 
-def get_content_folder_path(datafolder):
+def get_content_dir_path(datafolder=None):
     return os.path.join(
         datafolder,
         "content",
-    )
+    ) if datafolder else conf.OPTIONS["Paths"]["CONTENT_DIR"]
 
-def get_content_database_folder_path(datafolder=None):
+def get_content_database_dir_path(datafolder=None):
     """
     Returns the path to the content sqlite databases
     ($HOME/.kolibri/content/databases on POSIX systems, by default)
     """
-    return os.path.join(
-        get_content_folder_path(datafolder),
+    path = os.path.join(
+        get_content_dir_path(datafolder),
         "databases",
-    ) if datafolder else settings.CONTENT_DATABASE_DIR
+    )
+    if not os.path.isdir(path):
+        try:
+            os.makedirs(path)
+        # When importing from USB, it does not need to create a database
+        # directory under the external drives that are not writable.
+        except OSError:
+            pass
+    return path
 
 def get_content_database_file_path(channel_id, datafolder=None):
     """
@@ -44,20 +54,23 @@ def get_content_database_file_path(channel_id, datafolder=None):
     ($HOME/.kolibri/content/databases/<channel_id>.sqlite3 on POSIX systems, by default)
     """
     return os.path.join(
-        get_content_database_folder_path(datafolder),
+        get_content_database_dir_path(datafolder),
         "{}.sqlite3".format(channel_id),
     )
 
-def get_content_storage_folder_path(datafolder=None):
-    return os.path.join(
-        get_content_folder_path(datafolder),
+def get_content_storage_dir_path(datafolder=None):
+    path = os.path.join(
+        get_content_dir_path(datafolder),
         "storage",
-    ) if datafolder else settings.CONTENT_STORAGE_DIR
+    )
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    return path
 
 def get_content_storage_file_path(filename, datafolder=None):
     assert VALID_STORAGE_FILENAME.match(filename), "'{}' is not a valid content storage filename".format(filename)
     return os.path.join(
-        get_content_storage_folder_path(datafolder),
+        get_content_storage_dir_path(datafolder),
         filename[0],
         filename[1],
         filename,
@@ -68,7 +81,7 @@ def get_content_storage_file_path(filename, datafolder=None):
 
 def get_content_url(baseurl=None):
     return urljoin(
-        baseurl or settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL,
+        baseurl or conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'],
         "content/",
     )
 
@@ -93,12 +106,12 @@ def get_content_storage_url(baseurl=None):
 def get_content_storage_remote_url(filename, baseurl=None):
     return "{}{}/{}/{}".format(get_content_storage_url(baseurl), filename[0], filename[1], filename)
 
-def get_channel_lookup_url(identifier=None, base_url=None):
+def get_channel_lookup_url(identifier=None, baseurl=None):
     studio_url = "/api/public/v1/channels"
     if identifier:
         studio_url += "/lookup/{}".format(identifier)
     return urljoin(
-        base_url or settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL,
+        baseurl or conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'],
         studio_url
     )
 

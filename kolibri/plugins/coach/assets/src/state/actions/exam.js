@@ -42,6 +42,7 @@ function _currentTopicState(topic, ancestors = []) {
   return {
     id: topic.id,
     title: topic.title,
+    num_coach_contents: topic.num_coach_contents,
     breadcrumbs: [
       { id: null, title: translator.$tr('allChannels') },
       ...ancestors,

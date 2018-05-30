@@ -1,6 +1,7 @@
 import json
 import os
 import pickle
+import uuid
 
 from django.core.management import call_command
 from django.test import TestCase
@@ -14,9 +15,12 @@ from sqlalchemy import create_engine
 from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
 from kolibri.content import models as content
+from kolibri.content.models import AssessmentMetaData
 from kolibri.content.models import ChannelMetadata
 from kolibri.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.content.models import ContentNode
+from kolibri.content.models import File
+from kolibri.content.models import LocalFile
 from kolibri.content.models import NO_VERSION
 from kolibri.content.models import V020BETA1
 from kolibri.content.models import V040BETA3
@@ -224,9 +228,9 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         model_mock = MagicMock()
+        model_mock._meta.pk.name = 'test_attr'
         merge_models.append(model_mock)
         channel_import.table_import(model_mock, lambda x, y: 'test_val', lambda x: [{}]*100, 0)
-        channel_import.destination.session.merge.assert_has_calls([call(record_mock(**{'test_attr': 'test_val'}))]*100)
         channel_import.destination.session.flush.assert_not_called()
 
     @patch('kolibri.content.utils.channel_import.merge_models', new=[])
@@ -237,9 +241,9 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         model_mock = Mock()
+        model_mock._meta.pk.name = 'test_attr'
         merge_models.append(model_mock)
         channel_import.table_import(model_mock, lambda x, y: 'test_val', lambda x: [{}]*10000, 0)
-        channel_import.destination.session.merge.assert_has_calls([call(record_mock(**{'test_attr': 'test_val'}))]*10000)
         channel_import.destination.session.flush.assert_called_once_with()
 
 
@@ -261,11 +265,13 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
         }
         with patch.object(channel_import, 'generate_row_mapper'),\
             patch.object(channel_import, 'generate_table_mapper'),\
-                patch.object(channel_import, 'table_import'):
+                patch.object(channel_import, 'table_import'),\
+                patch.object(channel_import, 'check_and_delete_existing_channel'):
             channel_import.import_channel_data()
             channel_import.generate_row_mapper.assert_called_once_with(mapping_mock.get('per_row'))
             channel_import.generate_table_mapper.assert_called_once_with(mapping_mock.get('per_table'))
             channel_import.table_import.assert_called_once()
+            channel_import.check_and_delete_existing_channel.assert_called_once()
             channel_import.destination.session.commit.assert_called_once_with()
 
     def test_end(self, apps_mock, tree_id_mock, BridgeMock):
@@ -295,9 +301,10 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
 
 class MaliciousDatabaseTestCase(TestCase):
 
-    @patch('kolibri.content.utils.channel_import.set_availability')
+    @patch('kolibri.content.utils.channel_import.set_leaf_node_availability_from_local_file_availability')
+    @patch('kolibri.content.utils.channel_import.recurse_availability_up_tree')
     @patch('kolibri.content.utils.channel_import.initialize_import_manager')
-    def test_non_existent_root_node(self, initialize_manager_mock, availability_mock):
+    def test_non_existent_root_node(self, initialize_manager_mock, recurse_mock, leaf_mock):
         import_mock = MagicMock()
         initialize_manager_mock.return_value = import_mock
         channel_id = '6199dde695db4ee4ab392222d5af1e5c'
@@ -406,6 +413,64 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
     name = CONTENT_SCHEMA_VERSION
 
     legacy_schema = None
+
+    def test_no_update_old_version(self):
+        channel = ChannelMetadata.objects.first()
+        channel.version += 1
+        channel_version = channel.version
+        channel.save()
+        self.set_content_fixture()
+        channel.refresh_from_db()
+        self.assertEqual(channel.version, channel_version)
+
+    def test_localfile_available_remain_after_import(self):
+        local_file = LocalFile.objects.get(pk='9f9438fe6b0d42dd8e913d7d04cfb2b2')
+        local_file.available = True
+        local_file.save()
+        self.set_content_fixture()
+        local_file.refresh_from_db()
+        self.assertTrue(local_file.available)
+
+    def residual_object_deleted(self, Model):
+        # Checks that objects previously associated with a channel are deleted on channel upgrade
+        obj = Model.objects.first()
+        # older databases may not import data for all models so if this is None, ignore
+        if obj is not None:
+            # Set id to a new UUID so that it does an insert at save
+            obj.id = uuid.uuid4().hex
+            obj.save()
+            obj_id = obj.id
+            channel = ChannelMetadata.objects.first()
+            # Decrement current channel version to ensure reimport
+            channel.version -= 1
+            channel.save()
+            self.set_content_fixture()
+            with self.assertRaises(Model.DoesNotExist):
+                assert Model.objects.get(pk=obj_id)
+
+    def test_residual_file_deleted_after_reimport(self):
+        self.residual_object_deleted(File)
+
+    def test_residual_assessmentmetadata_deleted_after_reimport(self):
+        self.residual_object_deleted(AssessmentMetaData)
+
+    def test_residual_contentnode_deleted_after_reimport(self):
+        root_node = ChannelMetadata.objects.first().root
+        obj = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            parent=root_node,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+        )
+        obj_id = obj.id
+        channel = ChannelMetadata.objects.first()
+        # Decrement current channel version to ensure reimport
+        channel.version -= 1
+        channel.save()
+        self.set_content_fixture()
+        with self.assertRaises(ContentNode.DoesNotExist):
+            assert ContentNode.objects.get(pk=obj_id)
 
 
 class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase):

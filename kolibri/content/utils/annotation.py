@@ -2,7 +2,6 @@ import datetime
 import logging as logger
 import os
 
-from django.conf import settings
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import exists
@@ -18,6 +17,7 @@ from kolibri.content.models import ChannelMetadata
 from kolibri.content.models import ContentNode
 from kolibri.content.models import File
 from kolibri.content.models import LocalFile
+from kolibri.content.utils.paths import get_content_database_dir_path
 
 logging = logger.getLogger(__name__)
 
@@ -28,11 +28,11 @@ CHUNKSIZE = 10000
 def update_channel_metadata():
     """
     If we are potentially moving from a version of Kolibri that did not import its content data,
-    scan through the settings.CONTENT_DATABASE_DIR folder for all channel content databases,
+    scan through the content database folder for all channel content databases,
     and pull the data from each database if we have not already imported it.
     """
     from .channel_import import import_channel_from_local_db, InvalidSchemaVersionError, FutureSchemaError
-    channel_ids = get_channel_ids_for_content_database_dir(settings.CONTENT_DATABASE_DIR)
+    channel_ids = get_channel_ids_for_content_database_dir(get_content_database_dir_path())
     for channel_id in channel_ids:
         if not ChannelMetadata.objects.filter(id=channel_id).exists():
             try:
@@ -42,7 +42,7 @@ def update_channel_metadata():
                 logging.warning("Tried to import channel {channel_id}, but database file was incompatible".format(channel_id=channel_id))
 
 
-def set_leaf_node_availability_from_local_file_availability():
+def set_leaf_node_availability_from_local_file_availability(channel_id):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeTable = bridge.get_table(ContentNode)
@@ -59,17 +59,24 @@ def set_leaf_node_availability_from_local_file_availability():
 
     connection.execute(FileTable.update().values(available=file_statement).execution_options(autocommit=True))
 
-    contentnode_statement = select([FileTable.c.contentnode_id]).where(
+    contentnode_statement = select([FileTable.c.contentnode_id]
+    ).where(
         and_(
             FileTable.c.available == True,  # noqa
             FileTable.c.supplementary == False
         )
-    ).where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
+    ).where(
+        ContentNodeTable.c.id == FileTable.c.contentnode_id,
+    )
 
     logging.info('Setting availability of non-topic ContentNode objects based on File availability')
 
     connection.execute(ContentNodeTable.update().where(
-        ContentNodeTable.c.kind != content_kinds.TOPIC).values(available=exists(contentnode_statement)).execution_options(autocommit=True))
+        and_(
+            ContentNodeTable.c.kind != content_kinds.TOPIC,
+            ContentNodeTable.c.channel_id == channel_id,
+        )
+    ).values(available=exists(contentnode_statement)).execution_options(autocommit=True))
 
     bridge.end()
 
@@ -171,5 +178,5 @@ def set_availability(channel_id, checksums=None):
     else:
         mark_local_files_as_available(checksums)
 
-    set_leaf_node_availability_from_local_file_availability()
+    set_leaf_node_availability_from_local_file_availability(channel_id)
     recurse_availability_up_tree(channel_id)

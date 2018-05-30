@@ -28,6 +28,8 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         value = super(ChannelMetadataSerializer, self).to_representation(instance)
 
+        value.update({"num_coach_contents": get_num_coach_contents(instance.root)})
+
         # if it has the file_size flag add extra file_size information
         if 'request' in self.context and self.context['request'].GET.get('file_sizes', False):
             # only count up currently renderable content types, as only these will be downloaded
@@ -41,16 +43,12 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             on_device_resources = descendants.exclude(kind=content_kinds.TOPIC).filter(available=True).count()
             on_device_file_size = local_files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
 
-            num_coach_contents = get_num_coach_contents(instance.root)
-
-            value.update(
-                {
-                    "total_resources": total_resources,
-                    "total_file_size": total_file_size,
-                    "on_device_resources": on_device_resources,
-                    "on_device_file_size": on_device_file_size,
-                    "num_coach_contents": num_coach_contents,
-                })
+            value.update({
+                "total_resources": total_resources,
+                "total_file_size": total_file_size,
+                "on_device_resources": on_device_resources,
+                "on_device_file_size": on_device_file_size,
+            })
 
         return value
 
@@ -222,11 +220,10 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # ensure that we are filtering by the parent only
         # this allows us to only cache results on the learn page
         from .api import ContentNodeFilter
-        pure_parent_query = "parent" in self.context['request'].GET and \
-            not any(field in self.context['request'].GET for field in ContentNodeFilter.Meta.fields if field != "parent")
+        parent_filter_only = set(self.context['request'].GET.keys()).intersection(ContentNodeFilter.Meta.fields) == set(['parent'])
 
         # Cache parent look ups only
-        if pure_parent_query:
+        if parent_filter_only:
             cache_key = 'contentnode_list_{parent}'.format(
                 parent=self.context['request'].GET.get('parent'))
 
@@ -263,7 +260,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # This has the happy side effect of not caching our dynamically calculated
         # recommendation queries, which might change for the same user over time
         # because they do not return topics
-        if topic_only and pure_parent_query:
+        if topic_only and parent_filter_only:
             cache.set(cache_key, result, 60 * 10)
 
         return result

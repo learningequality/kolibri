@@ -223,6 +223,7 @@ class BaseAttemptLog(BaseLogModel):
     # with this assessment item in this attempt.
     interaction_history = JSONField(default=[], blank=True)
     user = models.ForeignKey(FacilityUser, blank=True, null=True)
+    error = models.BooleanField(default=False)
 
     class Meta:
         abstract = True

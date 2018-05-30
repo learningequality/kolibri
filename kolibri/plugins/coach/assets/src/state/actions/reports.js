@@ -1,4 +1,3 @@
-import find from 'lodash/find';
 import { handleError } from 'kolibri.coreVue.vuex.actions';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { getChannels } from 'kolibri.coreVue.vuex.getters';
@@ -109,16 +108,14 @@ function getAllChannelsLastActivePromise(channels, userScope, userScopeId) {
   return Promise.all(promises);
 }
 
-function _channelReportState(data, channelRootNodes = []) {
+function _channelReportState(data) {
   if (!data) {
     return [];
   }
   return data.map(row => ({
     lastActive: row.last_active,
     id: row.channelId,
-    // merge ChannelMetdata with ContentNode to get num_coach_contents
-    num_coach_contents:
-      (find(channelRootNodes, { id: row.channelId }) || {}).num_coach_contents || 0,
+    num_coach_contents: row.num_coach_contents,
     progress: row.progress.map(progressData => ({
       kind: progressData.kind,
       nodeCount: progressData.node_count,
@@ -145,7 +142,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
   }
 
   return Promise.all(promises).then(
-    ([allChannelLastActive, , user]) => {
+    ([allChannelLastActive, , , user]) => {
       const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
       setReportSorting(store, defaultSortCol, SortOrders.DESCENDING);
       // HACK: need to append this to make pageState more consistent between pages

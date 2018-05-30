@@ -58,7 +58,7 @@
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { refreshTaskList, cancelTask } from '../../state/actions/taskActions';
-  import { transitionWizardPage } from '../../state/actions/contentWizardActions';
+  import { transitionWizardPage, FORWARD } from '../../state/actions/contentWizardActions';
   import { ContentWizardPages } from '../../constants';
   import availableChannelsPage from '../available-channels-page';
   import subpageContainer from '../containers/subpage-container';
@@ -74,6 +74,7 @@
     [ContentWizardPages.SELECT_DRIVE]: selectDriveModal,
     [ContentWizardPages.AVAILABLE_CHANNELS]: availableChannelsPage,
     [ContentWizardPages.SELECT_CONTENT]: selectContentPage,
+    [ContentWizardPages.LOADING_CHANNEL_METADATA]: selectContentPage,
   };
 
   const POLL_DELAY = 1000;
@@ -123,9 +124,9 @@
     methods: {
       openWizard(action) {
         if (action === 'import') {
-          return this.transitionWizardPage('forward', { import: true });
+          return this.transitionWizardPage(FORWARD, { import: true });
         }
-        return this.transitionWizardPage('forward', { import: false });
+        return this.transitionWizardPage(FORWARD, { import: false });
       },
       clearFirstTask(unblockCb) {
         this.cancelTask(this.firstTask.id)

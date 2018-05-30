@@ -1,20 +1,18 @@
+import hashlib
 import os
 import tempfile
-from django.test import TestCase
-from django.test import Client
-from django.test.utils import override_settings
-from kolibri.auth.test.helpers import provision_device
-import hashlib
 import zipfile
+
+from django.test import Client
+from django.test import TestCase
 
 from ..models import LocalFile
 from ..utils.paths import get_content_storage_file_path
+from kolibri.auth.test.helpers import provision_device
+from kolibri.utils.tests.helpers import override_option
 
-CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
 
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-)
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ZipContentTestCase(TestCase):
     """
     Testcase for zipcontent endpoint
@@ -79,3 +77,24 @@ class ZipContentTestCase(TestCase):
         caching_client = Client(HTTP_IF_MODIFIED_SINCE="Sat, 10-Sep-2016 19:14:07 GMT")
         response = caching_client.get(self.zip_file_base_url + self.test_name_1)
         self.assertEqual(response.status_code, 304)
+
+    def test_content_security_policy_header(self):
+        response = self.client.get(self.zip_file_base_url + self.test_name_1)
+        self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http://testserver")
+
+    def test_access_control_allow_origin_header(self):
+        response = self.client.get(self.zip_file_base_url + self.test_name_1)
+        self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
+        response = self.client.options(self.zip_file_base_url + self.test_name_1)
+        self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
+
+    def test_x_frame_options_header(self):
+        response = self.client.get(self.zip_file_base_url + self.test_name_1)
+        self.assertEqual(response.get("X-Frame-Options", ""), "")
+
+    def test_access_control_allow_headers(self):
+        headerval = "X-Penguin-Dance-Party"
+        response = self.client.options(self.zip_file_base_url + self.test_name_1, HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval)
+        self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
+        response = self.client.get(self.zip_file_base_url + self.test_name_1, HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval)
+        self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)

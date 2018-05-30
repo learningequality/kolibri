@@ -1,22 +1,27 @@
 import tempfile
+import uuid
 
 from django.core.management import call_command
 from django.test import TransactionTestCase
-
-from kolibri.content.models import ContentNode, File, LocalFile
-from kolibri.content.utils.annotation import (
-    mark_local_files_as_available, set_local_file_availability_from_disk,
-    set_leaf_node_availability_from_local_file_availability, recurse_availability_up_tree
-)
-
 from le_utils.constants import content_kinds
-
 from mock import patch
 
 from .sqlalchemytesting import django_connection_engine
+from kolibri.content.models import ContentNode
+from kolibri.content.models import File
+from kolibri.content.models import LocalFile
+from kolibri.content.utils.annotation import mark_local_files_as_available
+from kolibri.content.utils.annotation import recurse_availability_up_tree
+from kolibri.content.utils.annotation import set_leaf_node_availability_from_local_file_availability
+from kolibri.content.utils.annotation import set_local_file_availability_from_disk
+
 
 def get_engine(connection_string):
     return django_connection_engine()
+
+
+test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
 
 @patch('kolibri.content.utils.sqlalchemybridge.get_engine', new=get_engine)
 class AnnotationFromLocalFileAvailability(TransactionTestCase):
@@ -25,25 +30,36 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
 
     def test_all_local_files_available(self):
         LocalFile.objects.all().update(available=True)
-        set_leaf_node_availability_from_local_file_availability()
+        set_leaf_node_availability_from_local_file_availability(test_channel_id)
         self.assertTrue(all(File.objects.all().values_list('available', flat=True)))
         self.assertTrue(all(
             ContentNode.objects.exclude(kind=content_kinds.TOPIC).exclude(files=None).values_list('available', flat=True)))
 
     def test_no_local_files_available(self):
         LocalFile.objects.all().update(available=False)
-        set_leaf_node_availability_from_local_file_availability()
+        set_leaf_node_availability_from_local_file_availability(test_channel_id)
         self.assertEqual(File.objects.filter(available=True).count(), 0)
         self.assertEqual(ContentNode.objects.exclude(kind=content_kinds.TOPIC).filter(available=True).count(), 0)
 
     def test_one_local_file_available(self):
         LocalFile.objects.all().update(available=False)
         LocalFile.objects.filter(id='9f9438fe6b0d42dd8e913d7d04cfb2b2').update(available=True)
-        set_leaf_node_availability_from_local_file_availability()
+        set_leaf_node_availability_from_local_file_availability(test_channel_id)
         self.assertTrue(ContentNode.objects.get(id='32a941fb77c2576e8f6b294cde4c3b0c').available)
         self.assertFalse(all(
             ContentNode.objects.exclude(
                 kind=content_kinds.TOPIC).exclude(id='32a941fb77c2576e8f6b294cde4c3b0c').values_list('available', flat=True)))
+
+    def test_other_channel_node_still_available(self):
+        test = ContentNode.objects.filter(kind=content_kinds.VIDEO).first()
+        test.id = uuid.uuid4().hex
+        test.channel_id = uuid.uuid4().hex
+        test.available = True
+        test.parent = None
+        test.save()
+        set_leaf_node_availability_from_local_file_availability(test_channel_id)
+        test.refresh_from_db()
+        self.assertTrue(test.available)
 
     def tearDown(self):
         call_command('flush', interactive=False)

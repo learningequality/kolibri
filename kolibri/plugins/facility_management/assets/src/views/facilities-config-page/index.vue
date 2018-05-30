@@ -22,7 +22,6 @@
 
       <div class="mb">
         <div class="settings">
-          <h2>{{ $tr('settingsHeader') }}</h2>
           <template v-for="setting in settingsList">
             <k-checkbox
               :label="$tr(setting)"
@@ -138,7 +137,7 @@
       },
     },
     $trs: {
-      currentFacilityHeader: 'Your current facility',
+      currentFacilityHeader: 'Facility',
       learnerCanEditName: 'Allow learners and coaches to edit their full name',
       learnerCanEditPassword: 'Allow learners and coaches to change their password when signed in',
       learnerCanEditUsername: 'Allow learners and coaches to edit their username',
@@ -149,7 +148,6 @@
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to default settings',
       saveChanges: 'Save changes',
-      settingsHeader: 'Facility settings',
     },
   };
 

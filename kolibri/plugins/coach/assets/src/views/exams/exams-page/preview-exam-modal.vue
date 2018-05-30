@@ -27,6 +27,7 @@
               <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
                 <li
+                  class="question-list-item"
                   v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
                   :key="questionIndex"
                 >
@@ -218,8 +219,12 @@
 
   @require '~kolibri.styles.definitions'
 
+  .question-list-item
+    vertical-align: middle
+
   .coach-content-label
     display: inline-block
+    vertical-align: inherit
 
   .exam-preview-container
     padding-top: 1em

@@ -1,25 +1,19 @@
-import tempfile
-
 from django.core.management import call_command
 from django.test import TestCase
-from django.test.utils import override_settings
 
-from kolibri.auth.models import Classroom, Facility, FacilityUser
+from kolibri.auth.models import Classroom
+from kolibri.auth.models import Facility
+from kolibri.auth.models import FacilityUser
 from kolibri.core.lessons.models import Lesson
-from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
+from kolibri.logger.models import ContentSessionLog
+from kolibri.logger.models import ContentSummaryLog
 
 n_users = 2
 n_classes = 2
 n_facilities = 2
 n_lessons = 2
 
-CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
-CONTENT_DATABASE_DIR_TEMP = tempfile.mkdtemp()
 
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-    CONTENT_DATABASE_DIR=CONTENT_DATABASE_DIR_TEMP,
-)
 class GenerateUserDataTest(TestCase):
 
     fixtures = ['content_test.json']
@@ -50,3 +44,7 @@ class GenerateUserDataTest(TestCase):
 
     def test_lessons_created(self):
         self.assertEqual(Lesson.objects.count(), n_lessons * n_classes * n_facilities)
+
+    def test_no_spacey_names(self):
+        for user in FacilityUser.objects.all():
+            self.assertEqual(user.full_name.strip(), user.full_name)

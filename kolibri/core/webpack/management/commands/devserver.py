@@ -50,8 +50,10 @@ class Command(RunserverCommand):
     def handle(self, *args, **options):
 
         if options["webpack"]:
+            logging.warn("This flag is deprecated and will be removed after the release of 0.10, please update your dev scripts.")
             self.spawn_webpack()
         if options["karma"]:
+            logging.warn("This flag is deprecated and will be removed after the release of 0.10, please update your dev scripts.")
             self.spawn_karma()
 
         update_channel_metadata()

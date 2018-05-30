@@ -49,7 +49,7 @@ describe('assessmentWrapper Component', function() {
   describe('computed property', function() {
     describe('exerciseProgress', function() {
       it('should be 0 when there are no past attempts', function() {
-        this.vm = createComponent([], 0);
+        this.vm = createComponent(0, [], { type: 'm_of_n', m: 5, n: 5 });
         expect(this.vm.exerciseProgress).to.equal(0);
       });
       let numCorrect;

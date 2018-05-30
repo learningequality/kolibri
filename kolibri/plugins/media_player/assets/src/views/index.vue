@@ -10,7 +10,7 @@
     <div
       v-show="!loading"
       class="fill-space"
-      :class="{ 'mimic-fullscreen': mimicFullscreen }"
+      ref="container"
     >
       <video
         v-if="isVideo"
@@ -60,7 +60,7 @@
   import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
-  import ScreenFull from 'screenfull';
+  import fullscreen from 'kolibri.coreVue.mixins.fullscreen';
   import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import audioIconPoster from './audio-icon-poster.svg';
 
@@ -97,7 +97,7 @@
     },
     components: { kCircularLoader },
 
-    mixins: [ResponsiveElement, contentRendererMixin],
+    mixins: [ResponsiveElement, contentRendererMixin, fullscreen],
 
     data: () => ({
       dummyTime: 0,
@@ -108,7 +108,6 @@
       playerMuted: false,
       playerRate: 1.0,
       videoLangCode: GlobalLangCode,
-      mimicFullscreen: false,
     }),
 
     computed: {
@@ -140,9 +139,6 @@
       },
       isVideo() {
         return this.videoSources.length;
-      },
-      fullscreenAllowed() {
-        return ScreenFull.enabled;
       },
     },
     created() {
@@ -237,7 +233,7 @@
         }
 
         // Add appropriate fullscreen button
-        if (this.fullscreenAllowed) {
+        if (this.fullscreenIsSupported) {
           videojsConfig.controlBar.children.push({ name: 'fullscreenToggle' });
         } else {
           videojs.registerComponent('MimicFullscreenToggle', MimicFullscreenToggle);
@@ -260,7 +256,7 @@
         this.player.on('pause', () => this.setPlayState(false));
         this.player.on('ended', () => this.setPlayState(false));
         this.player.on('mimicFullscreenToggled', () => {
-          this.mimicFullscreen = !this.mimicFullscreen;
+          this.toggleFullscreen(this.$refs.container);
         });
         this.$watch('elSize.width', this.updatePlayerSizeClass);
         this.updatePlayerSizeClass();
@@ -403,19 +399,6 @@
     top: 50%
     left: 50%
     transform: translate(-50%, -50%)
-
-  .mimic-fullscreen
-    position: fixed
-    top: 0
-    right: 0
-    bottom: 0
-    left: 0
-    z-index: 24
-    max-width: calc(100vh * (16/9))
-    max-height: 100%
-    width: 100%
-    height: 100%
-    background-color: black
 
 
   /***** PLAYER OVERRIDES *****/

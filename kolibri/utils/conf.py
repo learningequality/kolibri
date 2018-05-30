@@ -24,7 +24,7 @@ import logging
 import os
 
 from .compat import module_exists
-
+from .options import read_options_file
 
 logger = logging.getLogger(__name__)
 
@@ -152,3 +152,7 @@ def enable_default_plugins():
 
     if changed:
         save()
+
+
+# read the config file options in here so they can be accessed from a standard location
+OPTIONS = read_options_file(KOLIBRI_HOME)

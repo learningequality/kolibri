@@ -1,7 +1,6 @@
 import logging as logger
 import os
 
-from django.conf import settings
 from django.core.management.base import CommandError
 from requests.exceptions import HTTPError
 
@@ -10,6 +9,7 @@ from ...utils import import_export_content
 from ...utils import paths
 from ...utils import transfer
 from kolibri.tasks.management.commands.base import AsyncCommand
+from kolibri.utils import conf
 
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
@@ -93,7 +93,7 @@ class Command(AsyncCommand):
         )
         network_subparser.add_argument('channel_id', type=str)
 
-        default_studio_url = settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL
+        default_studio_url = conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL']
         network_subparser.add_argument(
             "--baseurl",
             type=str,

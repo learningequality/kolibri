@@ -17,11 +17,11 @@ from kolibri.auth.models import Classroom
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 from kolibri.content.models import ContentNode
+from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import AttemptLog
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
 from kolibri.logger.models import MasteryLog
-from kolibri.core.lessons.models import Lesson
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ def get_or_create_classroom_users(**options):
             # Get the first base data that does not have a matching user already
             base_data = user_data[n_in_classroom + i]
             # Randomly create the name from 1 to 3 of the three user name fields
-            name = " ".join([base_data[key] for key in random.sample(user_data_name_fields, random.randint(1, 3))])
+            name = " ".join([base_data[key] for key in random.sample(user_data_name_fields, random.randint(1, 3)) if base_data[key]])
             user = FacilityUser.objects.create(
                 facility=facility,
                 full_name=name,
@@ -328,6 +328,9 @@ def create_lessons_for_classroom(**options):
     lessons = options['lessons']
     facility = options['facility']
     now = options['now']
+
+    if not channels:
+        return
 
     coaches = facility.get_coaches()
     if coaches:
