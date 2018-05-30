@@ -12,7 +12,7 @@ try:
 except ImportError:
     subprocess = None
 
-# from kolibri.utils.conf import OPTIONS
+from kolibri.utils.conf import OPTIONS
 
 logging = logger.getLogger(__name__)
 
@@ -20,8 +20,7 @@ NGINX_CONF_PATH = "/etc/nginx/sites-enabled/007-kolibri"
 
 context = {
     "kolibri_home": settings.KOLIBRI_HOME,
-    # "http_port": OPTIONS["Deployment"]["HTTP_PORT"],
-    "http_port": os.environ.get("KOLIBRI_LISTEN_PORT", 8080),
+    "http_port": OPTIONS["Deployment"]["HTTP_PORT"],
     "static_root": settings.STATIC_ROOT,
     "content_database_dir": settings.CONTENT_DATABASE_DIR,
     "content_storage_dir": settings.CONTENT_STORAGE_DIR,
