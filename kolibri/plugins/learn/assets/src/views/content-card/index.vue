@@ -125,6 +125,7 @@
     text-decoration: none
     display: inline-block
     width: $thumb-width-desktop
+    vertical-align: top
     border-radius: 2px
     background-color: $core-bg-light
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
