@@ -88,6 +88,15 @@ before_install:
 
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
+  - psql -c 'create database eco_test1;' -U postgres
+  - psql -c 'create database eco_test2;' -U postgres
+  - psql -c 'create database eco_test3;' -U postgres
+
+  - psql -c 'create database eco2_test1;' -U postgres
+  - psql -c 'create database eco2_test2;' -U postgres
+  - psql -c 'create database eco2_test3;' -U postgres
+  - psql -c 'create database eco2_test4;' -U postgres
+  - psql -c 'create database eco2_test5;' -U postgres
 
 # command to run tests
 script:
