@@ -125,6 +125,8 @@
             return '#3938A5';
           case ContentNodeKinds.AUDIO:
             return '#E65997';
+          case ContentNodeKinds.DOCUMENT:
+            return '#ED2828';
           case ContentNodeKinds.HTML5:
             return '#FF8B41';
           default:
@@ -223,7 +225,6 @@
       visibility: visible
     to
       transform: translate3d(0, 0, 0)
-
 
   .alert
     margin-top: 8px
