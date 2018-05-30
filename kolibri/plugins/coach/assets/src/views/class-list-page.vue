@@ -140,7 +140,7 @@
       learnerColumnHeader: 'Learners',
       classIconTableDescription: 'Class icon',
       twoCoachNames: '{name1}, {name2}',
-      manyCoachNames: '{name1}, {name2}... (+{numRemaining, number})',
+      manyCoachNames: '{name1}, {name2}… (+{numRemaining, number})',
     },
   };
 

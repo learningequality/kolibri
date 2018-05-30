@@ -172,7 +172,7 @@
       learnersColumnHeader: 'Learners',
       coachesColumnHeader: 'Coaches',
       twoCoachNames: '{name1}, {name2}',
-      manyCoachNames: '{name1}, {name2}... (+{numRemaining, number})',
+      manyCoachNames: '{name1}, {name2}… (+{numRemaining, number})',
       actions: 'Actions',
       noClassesExist: 'No classes exist.',
     },
