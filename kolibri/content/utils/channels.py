@@ -2,11 +2,10 @@ import fnmatch
 import logging as logger
 import os
 
-from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
-from kolibri.utils.uuids import is_valid_uuid
-
 from .paths import get_content_database_folder_path
 from .sqlalchemybridge import Bridge
+from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
+from kolibri.utils.uuids import is_valid_uuid
 
 logging = logger.getLogger(__name__)
 
@@ -62,6 +61,11 @@ def read_channel_metadata_from_db_file(channeldbpath):
 
     source.end()
 
+    # Adds an attribute `root_id` when `root_id` does not exist to match with
+    # the latest schema.
+    if not hasattr(source_channel_metadata, 'root_id'):
+        setattr(source_channel_metadata, 'root_id', getattr(source_channel_metadata, 'root_pk'))
+
     return source_channel_metadata
 
 def get_channels_for_data_folder(datafolder):
@@ -75,7 +79,7 @@ def get_channels_for_data_folder(datafolder):
             "description": channel.description,
             "thumbnail": channel.thumbnail,
             "version": channel.version,
-            "root": channel.root_pk,
+            "root": channel.root_id,
             "author": channel.author,
             "last_updated": getattr(channel, 'last_updated', None),
             "lang_code": getattr(channel, 'lang_code', None),
