@@ -41,17 +41,7 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields"
-      :checkButtonIsPrimary="!showNextBtn"
       :initSession="initSession"
-    />
-
-    <k-button
-      :primary="true"
-      @click="nextContentClicked"
-      v-if="showNextBtn"
-      class="float"
-      :text="$tr('nextContent')"
-      alignment="right"
     />
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
@@ -94,6 +84,13 @@
     />
 
     <slot name="below_content">
+      <template v-if="progress >= 1 && content.next_content">
+        <h2>{{ $tr('nextResource') }}</h2>
+        <content-card-group-carousel
+          :genContentLink="genContentLink"
+          :contents="[content.next_content]"
+        />
+      </template>
       <template v-if="showRecommended">
         <h2>{{ $tr('recommended') }}</h2>
         <content-card-group-carousel
@@ -104,26 +101,12 @@
       </template>
     </slot>
 
-    <template v-if="progress >= 1 && wasIncomplete">
-      <points-popup
-        v-if="showPopup"
-        @close="markAsComplete"
-        :nextContent="content.next_content"
-      >
-        <k-button
-          v-if="nextContent"
-          :primary="true"
-          slot="nextItemBtn"
-          @click="nextContentClicked"
-          :text="$tr('nextContent')"
-          alignment="right"
-        />
-      </points-popup>
-
-      <transition v-else name="slidein" appear>
-        <points-slidein @close="markAsComplete" />
-      </transition>
-    </template>
+    <mastered-snackbars
+      v-if="progress >= 1 && wasIncomplete"
+      :nextContent="content.next_content"
+      :nextContentLink="nextContentLink"
+      @close="markAsComplete"
+    />
 
   </div>
 
@@ -139,11 +122,10 @@
     stopTrackingProgress as stopTracking,
   } from 'kolibri.coreVue.vuex.actions';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { isUserLoggedIn, facilityConfig } from 'kolibri.coreVue.vuex.getters';
+  import { isUserLoggedIn, facilityConfig, contentPoints } from 'kolibri.coreVue.vuex.getters';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import downloadButton from 'kolibri.coreVue.components.downloadButton';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
@@ -153,19 +135,18 @@
   import pageHeader from './page-header';
   import contentCardGroupCarousel from './content-card-group-carousel';
   import assessmentWrapper from './assessment-wrapper';
-  import pointsPopup from './points-popup';
-  import pointsSlidein from './points-slidein';
+  import masteredSnackbars from './mastered-snackbars';
   import { lessonResourceViewerLink } from './classes/classPageLinks';
 
   export default {
     name: 'contentPage',
     $trs: {
       recommended: 'Recommended',
-      nextContent: 'Go to next item',
       author: 'Author: {author}',
       license: 'License: {license}',
       toggleLicenseDescription: 'Toggle license description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
+      nextResource: 'Next resource',
     },
     components: {
       coachContentLabel,
@@ -173,10 +154,8 @@
       contentCardGroupCarousel,
       contentRenderer,
       downloadButton,
-      kButton,
       assessmentWrapper,
-      pointsPopup,
-      pointsSlidein,
+      masteredSnackbars,
       uiIconButton,
     },
     data: () => ({
@@ -203,9 +182,6 @@
           return md.render(this.content.description);
         }
       },
-      showNextBtn() {
-        return this.progress >= 1 && this.content && this.nextContentLink;
-      },
       recommendedText() {
         return this.$tr('recommended');
       },
@@ -215,28 +191,11 @@
         }
         return this.sessionProgress;
       },
-      nextContentLink() {
-        if (this.content.next_content) {
-          // HACK Use a the Resource Viewer Link instead
-          if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-            return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
-          }
-          return this.genContentLink(this.content.next_content.id, this.content.next_content.kind);
-        }
-        return null;
-      },
       showRecommended() {
         if (this.recommended && this.pageMode === PageModes.RECOMMENDED) {
           return true;
         }
         return false;
-      },
-      showPopup() {
-        return (
-          this.content.kind === ContentNodeKinds.EXERCISE ||
-          this.content.kind === ContentNodeKinds.VIDEO ||
-          this.content.kind === ContentNodeKinds.AUDIO
-        );
       },
       downloadableFiles() {
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
@@ -245,14 +204,24 @@
         // Hide metadata when viewing Resource in a Lesson
         return !this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
       },
+      nextContentLink() {
+        // HACK Use a the Resource Viewer Link instead
+        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
+        }
+        return {
+          name:
+            this.content.next_content.kind === ContentNodeKinds.TOPIC
+              ? PageNames.TOPICS_TOPIC
+              : PageNames.RECOMMENDED_CONTENT,
+          params: { id: this.content.next_content.id },
+        };
+      },
     },
     beforeDestroy() {
       this.stopTracking();
     },
     methods: {
-      nextContentClicked() {
-        this.$router.push(this.nextContentLink);
-      },
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
@@ -267,15 +236,12 @@
         this.wasIncomplete = false;
       },
       genContentLink(id, kind) {
-        let name;
-        if (kind === ContentNodeKinds.TOPIC) {
-          name = PageNames.TOPICS_TOPIC;
-        } else {
-          name = PageNames.RECOMMENDED_CONTENT;
-        }
         return {
-          name,
-          params: { channel_id: this.channelId, id },
+          name:
+            kind === ContentNodeKinds.TOPIC
+              ? PageNames.TOPICS_TOPIC
+              : PageNames.RECOMMENDED_CONTENT,
+          params: { id },
         };
       },
     },
@@ -292,6 +258,7 @@
         pageMode,
         isUserLoggedIn,
         facilityConfig,
+        contentPoints,
       },
       actions: {
         initSessionAction,

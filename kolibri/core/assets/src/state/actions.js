@@ -739,9 +739,9 @@ function initMasteryLog(store, masterySpacingTime, masteryCriterion) {
 
 function updateMasteryAttemptState(
   store,
-  { currentTime, correct, complete, firstAttempt, hinted, answerState, simpleAnswer }
+  { currentTime, correct, complete, firstAttempt, hinted, answerState, simpleAnswer, error }
 ) {
-  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt, hinted);
+  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt, hinted, error);
   store.dispatch('UPDATE_LOGGING_ATTEMPT', {
     currentTime,
     correct,
@@ -750,6 +750,7 @@ function updateMasteryAttemptState(
     hinted,
     answerState,
     simpleAnswer,
+    error,
   });
 }
 

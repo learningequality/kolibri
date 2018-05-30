@@ -36,7 +36,6 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
 
-
 logger = logging.getLogger(__name__)
 
 class ChannelMetadataFilter(FilterSet):
@@ -412,6 +411,10 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         next_item = models.ContentNode.objects.filter(available=True, tree_id=this_item.tree_id, lft__gt=this_item.rght).order_by("lft").first()
         if not next_item:
             next_item = this_item.get_root()
+
+        thumbnails = serializers.FileSerializer(next_item.files.filter(thumbnail=True), many=True).data
+        if thumbnails:
+            return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title, 'thumbnail': thumbnails[0]['storage_url']})
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
 
     @list_route(methods=['get'])
