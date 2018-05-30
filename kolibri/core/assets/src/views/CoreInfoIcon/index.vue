@@ -3,7 +3,7 @@
   <div class="info-icon-container">
     <ui-icon
       ref="info-icon"
-      icon="info_outline"
+      icon="info"
       class="info-icon"
       :iconAriaLabel="iconAriaLabel"
     />

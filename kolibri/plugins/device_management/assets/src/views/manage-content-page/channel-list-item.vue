@@ -36,11 +36,11 @@
             v-if="inExportMode || inManageMode"
             class="resources-size"
           >
-            <span>{{ resourcesSizeText }}</span>
+            <span dir="auto">{{ resourcesSizeText }}</span>
           </div>
         </div>
         <div class="channel-title">
-          <div class="title">
+          <div class="title" dir="auto">
             {{ channel.name }}
           </div>
           <ui-icon
@@ -55,7 +55,7 @@
       </div>
 
       <div class="details-bottom">
-        <div class="description">
+        <div class="description" dir="auto">
           {{ channel.description || $tr('defaultDescription') }}
         </div>
 
@@ -197,7 +197,6 @@
     color: $core-text-annotation
 
   .description
-    width: 66%
     padding: 1em 0
 
   .thumbnail

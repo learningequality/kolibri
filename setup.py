@@ -33,7 +33,7 @@ dist_name = 'kolibri'
 readme = read_file('README.rst')
 
 # Default description of the distributed package
-description = ("""Kolibri education platform for offline environments""")
+description = ("""Kolibri - the offline app for universal education""")
 
 # Decide if the invoked command is a request to do building
 is_building_dist = any([
@@ -50,7 +50,6 @@ dependency_links, install_requires, static_requirements = [], [], []
 if is_building_dist or '--static' in sys.argv:
     sys.argv.remove('--static')
     dist_name = 'kolibri'
-    description += " This static version bundles all dependencies."
     static_build = True
 # TODO:
 # `pip -e .` should work in a source dir, however since it doesn't

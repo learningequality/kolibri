@@ -290,7 +290,8 @@
 
   .resource-title
     display: inline-block
-    width: 75%
+    margin-right: 8px
+    max-width: 75%
 
   .coach-content-label
     display: inline-block

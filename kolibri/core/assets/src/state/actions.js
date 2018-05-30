@@ -153,6 +153,7 @@ function _channelListState(data) {
     last_updated: channel.last_updated,
     version: channel.version,
     thumbnail: channel.thumbnail,
+    num_coach_contents: channel.num_coach_contents,
   }));
 }
 
@@ -738,9 +739,9 @@ function initMasteryLog(store, masterySpacingTime, masteryCriterion) {
 
 function updateMasteryAttemptState(
   store,
-  { currentTime, correct, complete, firstAttempt, hinted, answerState, simpleAnswer }
+  { currentTime, correct, complete, firstAttempt, hinted, answerState, simpleAnswer, error }
 ) {
-  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt, hinted);
+  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt, hinted, error);
   store.dispatch('UPDATE_LOGGING_ATTEMPT', {
     currentTime,
     correct,
@@ -749,6 +750,7 @@ function updateMasteryAttemptState(
     hinted,
     answerState,
     simpleAnswer,
+    error,
   });
 }
 

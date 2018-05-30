@@ -134,11 +134,17 @@ export function showChannels(store) {
         .fetch()
         .then(channelCollection => {
           // we want them to be in the same order as the channels list
-          const rootNodes = channels.map(channel => {
-            const node = _collectionState(channelCollection).find(n => n.channel_id === channel.id);
-            node.thumbnail = channel.thumbnail;
-            return node;
-          });
+          const rootNodes = channels
+            .map(channel => {
+              const node = _collectionState(channelCollection).find(
+                n => n.channel_id === channel.id
+              );
+              if (node) {
+                node.thumbnail = channel.thumbnail;
+                return node;
+              }
+            })
+            .filter(Boolean);
           store.dispatch('SET_PAGE_STATE', { rootNodes });
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);

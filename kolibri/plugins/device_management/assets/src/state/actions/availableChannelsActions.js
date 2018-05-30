@@ -64,12 +64,12 @@ export function getRemoteChannelByToken(token) {
  */
 export function getAllRemoteChannels(store, publicChannels) {
   const installedChannels = installedChannelList(store.state);
-  const potentiallyUnlisted = differenceBy(installedChannels, publicChannels, 'id').filter(
+  const privateChannels = differenceBy(installedChannels, publicChannels, 'id').filter(
     channel => channel.on_device_resources > 0
   );
-  const promises = potentiallyUnlisted.map(channel =>
-    getRemoteChannelByToken(channel.id)
-      .then(([channel]) => Promise.resolve(channel))
+  const promises = privateChannels.map(privateChannel =>
+    getRemoteChannelByToken(privateChannel.id)
+      .then(([channel]) => Promise.resolve({ ...channel, ...privateChannel }))
       .catch(() => Promise.resolve())
   );
   return Promise.all(promises).then(unlisted => {

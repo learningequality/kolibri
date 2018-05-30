@@ -107,11 +107,12 @@
     padding-right: 24px
 
   td
-    font-family: monospace
     padding-bottom: 24px
 
   .link
     display: block
+
+  .link:not(:last-child)
     margin-bottom: 8px
 
 </style>
