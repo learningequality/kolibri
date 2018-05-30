@@ -13,9 +13,11 @@
           <div class="box">
             <logo
               class="logo"
-              :style="logoStyle"
+              :style="{'height': `${logoHeight}px`}"
             />
-            <h1>{{ $tr('signInToKolibri') }}</h1>
+            <h1 :style="{'font-size': `${logoTextSize}px`}">
+              {{ $tr('kolibri') }}
+            </h1>
             <form class="login-form" ref="form" @submit.prevent="signIn">
               <ui-alert
                 v-if="invalidCredentials"
@@ -135,7 +137,6 @@
     name: 'signInPage',
     $trs: {
       kolibri: 'Kolibri',
-      signInToKolibri: 'Sign into Kolibri',
       signIn: 'Sign in',
       username: 'Username',
       password: 'Password',
@@ -233,12 +234,15 @@
       needPasswordField() {
         return !this.simpleSignIn || this.hasServerError;
       },
-      logoStyle() {
-        const CRITICAL_ACTIONS_HEIGHT = 345; // title + form + action buttons
-        const height = Math.max(this.windowSize.height - CRITICAL_ACTIONS_HEIGHT - 32, 0);
-        return {
-          height: `${height}px`,
-        };
+      logoHeight() {
+        const CRITICAL_ACTIONS_HEIGHT = 350; // title + form + action buttons
+        let height = this.windowSize.height - CRITICAL_ACTIONS_HEIGHT - 32;
+        height = Math.max(height, 32);
+        height = Math.min(height, 80);
+        return height;
+      },
+      logoTextSize() {
+        return Math.floor(this.logoHeight * 0.3);
       },
     },
     watch: {
@@ -403,7 +407,7 @@
 
   .main-row
     display: table-row
-    // background-image: url(./background.svg)
+    background-color: lighten($core-action-normal, 85%)
     background-repeat: no-repeat
     background-size: cover
     background-position: center
@@ -417,14 +421,12 @@
   .box
     width: 300px
     background-color: $core-bg-light
-    margin: 0 auto
+    margin: 16px auto
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2),
                 0 1px 1px 0 rgba(0, 0, 0, 0.14),
                 0 2px 1px -1px rgba(0, 0, 0, 0.12)
 
   .logo
-    max-height: 80px
-    min-height: 24px
     margin-top: 16px
 
   .login-form
@@ -440,7 +442,7 @@
   .version
     font-size: 0.8em
     margin-top: 24px
-    margin-bottom: 24px
+    margin-bottom: 0
     padding-bottom: 16px
 
   .footer-row
@@ -481,7 +483,10 @@
     transform: opacity 0
 
   h1
-    font-size: 1.17em
+    font-size: 1.5em
+    font-weight: 100
+    color: #9174a9
+    margin-top: 0
 
   .create-button
     margin-top: 16px
