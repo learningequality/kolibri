@@ -8,3 +8,4 @@ sphinx-autobuild
 pex<1.3
 wheel
 setuptools>=2.2,<20.11          # needed to get pex working # pyup: ignore
+beautifulsoup4

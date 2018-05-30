@@ -1,26 +1,16 @@
 #!/usr/bin/env python
 import argparse
-import imp
 import os
 import shutil
 import subprocess
 import sys
 
 import requests
+from bs4 import BeautifulSoup
 
 DIST_CEXT = 'kolibri/dist/cext'
 PYPI_DOWNLOAD = 'https://pypi.python.org/simple/'
 PIWHEEL_DOWNLOAD = 'https://www.piwheels.hostedpi.com/simple/'
-
-
-def _install_bs4_if_needed():
-    """
-    Check if beautifulsoup4 module is installed.
-    """
-    try:
-        imp.find_module('bs4')
-    except ImportError:
-        subprocess.call(['pip', 'install', 'beautifulsoup4'])
 
 
 def get_path_with_arch(platform, path, abi, implementation, python_version):
@@ -136,22 +126,14 @@ def install(name, pk_version):
     """
     Start installing from the pypi and piwheels pages of the package.
     """
-    _install_bs4_if_needed()
-    try:
-        from bs4 import BeautifulSoup
-
-        # Parse everything in the package repo in both pypi and piwheel
-        links = [PYPI_DOWNLOAD, PIWHEEL_DOWNLOAD]
-        for link in links:
-            r = requests.get(link + name)
-            if r.status_code == 200:
-                files = BeautifulSoup(r.content, 'html.parser')
-                parse_package_page(files, pk_version, link)
-            else:
-                sys.exit('\nUnable to find package {} on {}.\n'.format(name, link))
-
-    except ImportError:
-        raise ImportError('\nImporting modules failed.\n')
+    links = [PYPI_DOWNLOAD, PIWHEEL_DOWNLOAD]
+    for link in links:
+        r = requests.get(link + name)
+        if r.status_code == 200:
+            files = BeautifulSoup(r.content, 'html.parser')
+            parse_package_page(files, pk_version, link)
+        else:
+            sys.exit('\nUnable to find package {} on {}.\n'.format(name, link))
 
 
 def parse_requirements(args):
