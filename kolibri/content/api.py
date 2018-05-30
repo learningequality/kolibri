@@ -1,6 +1,7 @@
 import logging
-from random import sample
+import re
 from functools import reduce
+from random import sample
 
 import requests
 from django.core.cache import cache
@@ -31,12 +32,14 @@ from kolibri.content import serializers
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
 from kolibri.content.utils.paths import get_channel_lookup_url
+from kolibri.content.utils.stopwords import stopwords_set
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
 
 logger = logging.getLogger(__name__)
+
 
 class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available")
@@ -101,53 +104,58 @@ class ContentNodeFilter(IdFilter):
         """
         Implement various filtering strategies in order to get a wide range of search results.
         """
-
         # return the result of and-ing a list of queries
         def intersection(queries):
-            return reduce(lambda x, y: x & y, queries)
+            if queries:
+                return reduce(lambda x, y: x & y, queries)
+            return None
 
-        # return the result of or-ing a list of queries
-        def union(queries):
-            return reduce(lambda x, y: x | y, queries)
-
+        # all words with punctuation removed
+        all_words = [w for w in re.split('[?.,!";: ]', value) if w]
+        # words in all_words that are not stopwords
+        critical_words = [w for w in all_words if w not in stopwords_set]
         # queries ordered by relevance priority
-        words = value.split()
         all_queries = [
-            # exact match in title
-            Q(title__icontains=value),
             # all words in title
-            intersection([Q(title__icontains=w) for w in words]),
-            # exact match in description
-            Q(description__icontains=value),
+            intersection([Q(title__icontains=w) for w in all_words]),
+            # all critical words in title
+            intersection([Q(title__icontains=w) for w in critical_words]),
             # all words in description
-            intersection([Q(description__icontains=w) for w in words]),
+            intersection([Q(description__icontains=w) for w in all_words]),
+            # all critical words in description
+            intersection([Q(description__icontains=w) for w in critical_words]),
         ]
-
-        # any word in title, sorted by length
-        for w in reversed(sorted(words, key=len)):
+        # any critical word in title, reverse-sorted by word length
+        for w in sorted(critical_words, key=len, reverse=True):
             all_queries.append(Q(title__icontains=w))
+        # any critical word in description, reverse-sorted by word length
+        for w in sorted(critical_words, key=len, reverse=True):
+            all_queries.append(Q(description__icontains=w))
 
         results = []
         content_ids = set()
         MAX_RESULTS = 30
-        BUFFER_SIZE = MAX_RESULTS * 3  # grab some extras, but not too many
+        BUFFER_SIZE = MAX_RESULTS * 2  # grab some extras, but not too many
 
         # iterate over each query type, and build up search results
         for query in all_queries:
-            # in each pass, don't take any items already in the result set
-            matches = queryset.exclude(content_id__in=list(content_ids)).filter(query)[:BUFFER_SIZE]
 
-            for match in matches:
-                # filter the dupes
-                if match.content_id in content_ids:
-                    continue
-                # add new, unique results
-                content_ids.add(match.content_id)
-                results.append(match)
+            # only execute if query is meaningful
+            if query:
+                # in each pass, don't take any items already in the result set
+                matches = queryset.exclude(content_id__in=list(content_ids)).filter(query)[:BUFFER_SIZE]
 
-                # bail out as soon as we reach the quota
-                if len(results) >= MAX_RESULTS:
-                    return results
+                for match in matches:
+                    # filter the dupes
+                    if match.content_id in content_ids:
+                        continue
+                    # add new, unique results
+                    content_ids.add(match.content_id)
+                    results.append(match)
+
+                    # bail out as soon as we reach the quota
+                    if len(results) >= MAX_RESULTS:
+                        return results
 
         # we've tried all the queries and still have fewer than MAX_RESULTS results
         return results

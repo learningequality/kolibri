@@ -669,6 +669,17 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": '47385a6d4df3426db38ad0d20e113dce'})
         self.assertEqual(len(response.data), 0)
 
+    def test_search(self):
+        # ensure search works when there are no words not defined
+        response = self.client.get(reverse('contentnode-list'), data={'search': '!?,'})
+        self.assertEqual(len(response.data), 0)
+        # ensure search words when there is only stopwords
+        response = self.client.get(reverse('contentnode-list'), data={'search': 'or'})
+        self.assertEqual(len(response.data), 0)
+        # regular search
+        response = self.client.get(reverse('contentnode-list'), data={'search': 'root'})
+        self.assertEqual(len(response.data), 1)
+
     def tearDown(self):
         """
         clean up files/folders created during the test
