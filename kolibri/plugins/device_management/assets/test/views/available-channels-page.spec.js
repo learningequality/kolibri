@@ -1,87 +1,21 @@
 /* eslint-env mocha */
 import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
-import Vuex from 'vuex';
 import VueRouter from 'vue-router';
-import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
-import kSelect from 'kolibri.coreVue.components.kSelect';
-import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
-import ImmersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
-import cloneDeep from 'lodash/cloneDeep';
 import AvailableChannelsPage from '../../src/views/available-channels-page';
-import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
-import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
-import { importExportWizardState } from '../../src/state/wizardState';
+import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 const router = new VueRouter({
   routes: [{ path: '', name: 'wizardtransition' }],
 });
-
-const availableChannels = [
-  {
-    name: 'Awesome Channel',
-    id: 'awesome_channel',
-    lang_code: 'en',
-    lang_name: 'English',
-    total_resources: 100,
-  },
-  {
-    name: 'Bird Channel',
-    id: 'bird_channel',
-    total_resources: 100,
-  },
-  {
-    name: 'Hunden Channel',
-    id: 'hunden_channel',
-    lang_code: 'de',
-    lang_name: 'German',
-    total_resources: 100,
-  },
-  {
-    name: 'Kaetze Channel',
-    id: 'kaetze_channel',
-    lang_code: 'de',
-    lang_name: 'German',
-    total_resources: 100,
-  },
-];
-
-const channelsOnDevice = cloneDeep(availableChannels);
-
-// Pretending that metadata has been downloaded previously for Bird & Hunden channel,
-// but no resources. Awesome & Kaetze channel have some resources.
-channelsOnDevice[0].on_device_resources = 90;
-channelsOnDevice[0].available = true;
-channelsOnDevice[1].on_device_resources = 0;
-channelsOnDevice[1].available = false;
-channelsOnDevice[2].on_device_resources = 0;
-channelsOnDevice[2].available = false;
-channelsOnDevice[3].on_device_resources = 90;
-channelsOnDevice[3].available = true;
-
-function makeStore() {
-  return new Vuex.Store({
-    state: {
-      pageState: {
-        channelList: channelsOnDevice,
-        wizardState: {
-          ...importExportWizardState(),
-          availableChannels,
-          transferType: 'localimport',
-          status: '',
-        },
-      },
-    },
-  });
-}
 
 function makeWrapper(options = {}) {
   const { store, props = {} } = options;
   const defaultProps = {};
   return mount(AvailableChannelsPage, {
     propsData: { ...defaultProps, ...props },
-    store: store || makeStore(),
+    store: store || makeAvailableChannelsPageStore(),
     router,
   });
 }
@@ -92,15 +26,13 @@ function getElements(wrapper) {
     noChannels: () => wrapper.find('.no-channels'),
     channelsList: () => wrapper.find('.channels-list'),
     channelsAvailableText: () => wrapper.find('.channels p').text().trim(),
-    channelListItems: () => wrapper.findAll(ChannelListItem),
-    channelTokenModal: () => wrapper.find(ChannelTokenModal),
+    channelListItems: () => wrapper.findAll({ name: 'channelListItem' }),
+    channelTokenModal: () => wrapper.find({ name: 'channelTokenModal' }),
     filters: () => wrapper.find('.filters'),
-    languageFilter: () => wrapper.find(kSelect),
+    languageFilter: () => wrapper.find({ name: 'kSelect' }),
     titleText: () => wrapper.find('.channels h1').text().trim(),
-    titleFilter: () => wrapper.find(kFilterTextbox),
+    titleFilter: () => wrapper.find({ name: 'kFilterTextbox' }),
     unlistedChannelsSection: () => wrapper.findAll('section.unlisted-channels'),
-    wholePageBackLink: () => wrapper.find(ImmersiveFullScreen).props().backPageLink,
-    wholePageBackText: () => wrapper.find(ImmersiveFullScreen).props().backPageText,
   }
 }
 
@@ -115,24 +47,12 @@ describe('availableChannelsPage', () => {
   let store;
 
   beforeEach(() => {
-    store = makeStore();
+    store = makeAvailableChannelsPageStore();
   });
 
   function setTransferType(transferType) {
-    store.state.pageState.wizardState.transferType = transferType;
+    store.dispatch('SET_TRANSFER_TYPE', transferType);
   }
-
-  it('back button link is correct', () => {
-    const wrapper = makeWrapper();
-    const { wholePageBackLink } = getElements(wrapper);
-    expect(wholePageBackLink()).to.deep.equal({
-      name: 'wizardtransition',
-      path: '',
-      params: {
-        transition: 'cancel',
-      },
-    });
-  });
 
   it('in REMOTEIMPORT mode, the unlisted channel button is available', () => {
     // ...and clicking it opens the channel token modal
@@ -154,42 +74,32 @@ describe('availableChannelsPage', () => {
 
   it('in LOCALEXPORT mode, the back link text and title are correct', () => {
     setTransferType('localexport');
-    store.state.pageState.wizardState.selectedDrive = {
-      id: 'f9e29616935fbff37913ed46bf20e2c0',
-      name: 'SANDISK (F:)',
-    };
+    store.dispatch('SET_SELECTED_DRIVE', 'f9e29616935fbff37913ed46bf20e2c1');
     const wrapper = makeWrapper({ store });
-    const { wholePageBackText, titleText } = getElements(wrapper);
-    expect(wholePageBackText()).to.equal('Export to SANDISK (F:)');
+    const { titleText } = getElements(wrapper);
     expect(titleText()).to.equal('Your channels');
   });
 
   it('in LOCALIMPORT mode, the back link text and title are correct', () => {
     setTransferType('localimport');
-    store.state.pageState.wizardState.selectedDrive = {
-      id: 'f9e29616935fbff37913ed46bf20e2c0',
-      name: 'SANDISK (G:)',
-    };
+    store.dispatch('SET_SELECTED_DRIVE', 'f9e29616935fbff37913ed46bf20e2c0');
     const wrapper = makeWrapper({ store });
-    const { wholePageBackText, titleText } = getElements(wrapper);
-    expect(wholePageBackText()).to.equal('Import from SANDISK (G:)');
+    const { titleText } = getElements(wrapper);
     expect(titleText()).to.equal('SANDISK (G:)');
   });
 
   it('in REMOTEIMPORT mode, the back link text and title are correct', () => {
     setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
-    const { wholePageBackText, titleText } = getElements(wrapper);
-    expect(wholePageBackText()).to.equal('Kolibri Studio');
+    const { titleText } = getElements(wrapper);
     expect(titleText()).to.equal('Channels');
   });
 
   it('in LOCALEXPORT shows the correct number of channels available message', () => {
     setTransferType('localexport');
-    store.state.pageState.wizardState.availableChannels = [...channelsOnDevice];
     const wrapper = makeWrapper({ store });
     const { channelsAvailableText, noChannels } = getElements(wrapper);
-    expect(channelsAvailableText()).to.equal('2 channels available');
+    expect(channelsAvailableText()).to.equal('4 channels available');
     expect(noChannels().exists()).to.be.false;
   });
 
@@ -202,7 +112,7 @@ describe('availableChannelsPage', () => {
   });
 
   it('if there are no channels, then filters do not appear', () => {
-    store.state.pageState.wizardState.availableChannels = [];
+    store.dispatch('SET_AVAILABLE_CHANNELS', []);
     const wrapper = makeWrapper({ store });
     const { filters } = getElements(wrapper);
     expect(filters().exists()).to.be.false;
@@ -222,7 +132,6 @@ describe('availableChannelsPage', () => {
 
   it('IN LOCALEXPORT, with no filters, all channels (with resources) appear', () => {
     setTransferType('localexport');
-    store.state.pageState.wizardState.availableChannels = [...channelsOnDevice];
     const wrapper = makeWrapper({ store });
     expect(wrapper.vm.titleFilter).to.equal('');
     expect(wrapper.vm.languageFilter.value).to.equal('ALL');
@@ -287,14 +196,21 @@ describe('availableChannelsPage', () => {
     });
   });
 
-  it('clicking "select" on one of the channels invokes page-transition action', () => {
+  it('the "select" link goes to the correct place', () => {
     const wrapper = makeWrapper();
     const { channelListItems } = getElements(wrapper);
-    const actionStub = sinon.stub(wrapper.vm, 'transitionWizardPage');
     const channels = channelListItems();
     // prettier-ignore
-    channels.at(0).find('button').trigger('click');
-    sinon.assert.calledOnce(actionStub);
-    sinon.assert.calledWith(actionStub, 'forward', { channel: availableChannels[0] });
+    const link = channels.at(0).find({ name: 'kRouterLink' });
+    expect(link.props().to).to.deep.equal({
+      name: 'SELECT_CONTENT',
+      params: {
+        channel_id: 'awesome_channel',
+      },
+      query: {
+        drive_id: undefined,
+        for_export: undefined,
+      },
+    });
   });
 });

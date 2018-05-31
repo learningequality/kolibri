@@ -2,7 +2,7 @@ import find from 'lodash/find';
 import flip from 'lodash/flip';
 import sumBy from 'lodash/fp/sumBy';
 import { createTranslator } from 'kolibri.utils.i18n';
-import { updateTopicLinkObject } from '../../wizardTransitionRoutes';
+import { selectContentTopicLink } from '../manage-content-page/manageContentLinks';
 
 const translator = createTranslator('treeViewRowMessages', {
   alreadyOnYourDevice: 'Already on your device',
@@ -23,7 +23,7 @@ export const CheckboxTypes = {
 
 // One-liner utilities for annotateNode
 // isAncestorOf(a, b) is truthy if a is an ancestor of b
-const isAncestorOf = (a, b) => find(b.path, { pk: a.pk });
+const isAncestorOf = (a, b) => find(b.path, { id: a.id });
 const isDescedantOf = flip(isAncestorOf);
 const sumTotalResources = sumBy('total_resources');
 const sumOnDeviceResources = sumBy('on_device_resources');
@@ -41,8 +41,8 @@ const sumOnDeviceResources = sumBy('on_device_resources');
  */
 export function annotateNode(node, selectedNodes, forImport = true) {
   const { on_device_resources, total_resources } = node;
-  const isIncluded = find(selectedNodes.included, { pk: node.pk });
-  const isOmitted = find(selectedNodes.omitted, { pk: node.pk });
+  const isIncluded = find(selectedNodes.included, { id: node.id });
+  const isOmitted = find(selectedNodes.omitted, { id: node.id });
   const ancestorIsIncluded = find(selectedNodes.included, iNode => isAncestorOf(iNode, node));
   const ancestorIsOmitted = find(selectedNodes.omitted, oNode => isAncestorOf(oNode, node));
   const nodeIsIncluded = isIncluded || ancestorIsIncluded;
@@ -198,6 +198,6 @@ export function annotateNode(node, selectedNodes, forImport = true) {
 export function transformBreadrumb(node) {
   return {
     text: node.title || translator.$tr('noTitle'),
-    link: updateTopicLinkObject(node),
+    link: selectContentTopicLink(node),
   };
 }

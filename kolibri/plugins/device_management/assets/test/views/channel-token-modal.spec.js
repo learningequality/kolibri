@@ -3,8 +3,6 @@ import Vue from 'vue-test'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import kTextbox from 'kolibri.coreVue.components.kTextbox';
-import UiAlert from 'keen-ui/src/UiAlert';
 import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
 
 function makeWrapper() {
@@ -14,8 +12,8 @@ function makeWrapper() {
 function getElements(wrapper) {
   return {
     cancelButton: () => wrapper.find('button[name="cancel"]'),
-    tokenTextbox: () => wrapper.find(kTextbox),
-    networkErrorAlert: () => wrapper.find(UiAlert),
+    tokenTextbox: () => wrapper.find({ name: 'kTextbox' }),
+    networkErrorAlert: () => wrapper.find({ name: 'ui-alert' }),
     lookupTokenStub: () => sinon.stub(wrapper.vm, 'lookupToken'),
   };
 }
