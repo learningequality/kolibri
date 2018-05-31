@@ -42,9 +42,9 @@
     name: 'searchPage',
     $trs: {
       searchPageHeader: 'Search',
-      noSearch: 'Search by typing something in the search box above',
-      showingResultsFor: 'Results for "{searchTerm}"',
-      noResultsMsg: 'No results for "{searchTerm}"',
+      noSearch: 'Search by typing in the box above',
+      showingResultsFor: "Results for '{searchTerm}'",
+      noResultsMsg: "No results for '{searchTerm}'",
     },
     components: {
       contentCard,
