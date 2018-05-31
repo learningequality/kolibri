@@ -437,7 +437,10 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         Returns the number of node copies for each content id.
         """
         content_ids = self.request.query_params.get('content_ids', []).split(',')
-        counts = models.ContentNode.objects.filter(content_id__in=content_ids, available=True).values('content_id').order_by().annotate(count=Count('content_id'))
+        counts = models.ContentNode.objects.filter(content_id__in=content_ids, available=True) \
+                                           .values('content_id') \
+                                           .order_by() \
+                                           .annotate(count=Count('content_id'))
         return Response(counts)
 
     @detail_route(methods=['get'])

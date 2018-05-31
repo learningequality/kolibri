@@ -670,17 +670,25 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(len(response.data), 0)
 
     def test_copies(self):
+        # the pk is actually a content id
         response = self.client.get(reverse('contentnode-copies', kwargs={'pk': 'c6f49ea527824f398f4d5d26faf19396'}))
-        expected_titles = set(['root', 'c1'])
+        expected_titles = set(['root', 'c1', 'copy'])
         response_titles = set()
         for node in response.data[0]:
             response_titles.add(node['title'])
         self.assertSetEqual(expected_titles, response_titles)
 
+    def test_available_copies(self):
+        # the pk is actually a content id
+        response = self.client.get(reverse('contentnode-copies', kwargs={'pk': 'f2332710c2fd483386cdeb5dcbdda81a'}))
+        # no results should be returned for unavailable content node
+        self.assertEqual(len(response.data), 0)
+
     def test_copies_count(self):
         response = self.client.get(reverse('contentnode-copies-count'),
-                                   data={'content_ids': 'f2332710c2fd483386cdeb5dcbdda81f,c6f49ea527824f398f4d5d26faf15555'})
+                                   data={'content_ids': 'f2332710c2fd483386cdeb5dcbdda81f,c6f49ea527824f398f4d5d26faf15555,f2332710c2fd483386cdeb5dcbdda81a'})
         # assert non existent content id does not show up in results
+        # no results should be returned for unavailable content node
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['count'],
                          content.ContentNode.objects.filter(content_id='f2332710c2fd483386cdeb5dcbdda81f').count())
