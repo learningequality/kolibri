@@ -1,24 +1,42 @@
 <template>
 
   <div class="content-grid">
-    <div>
-      <k-select
+    <div class="filters">
+      <div
         v-if="showContentKindFilter"
-        :label="$tr('resourceType')"
-        :options="contentKindFilterOptions"
-        :inline="true"
-        v-model="contentKindFilterSelection"
-      />
-
-      <k-select
+        class="ib"
+      >
+        <mat-svg
+          category="content"
+          name="filter_list"
+          class="filter-icon"
+        />
+        <k-select
+          :label="$tr('resourceType')"
+          :options="contentKindFilterOptions"
+          :inline="true"
+          class="filter"
+          v-model="contentKindFilterSelection"
+        />
+      </div>
+      <div
         v-if="showChannelFilter"
-        :label="$tr('channels')"
-        :options="channelFilterOptions"
-        :inline="true"
-        v-model="channelFilterSelection"
-      />
+        class="ib"
+      >
+        <mat-svg
+          category="navigation"
+          name="apps"
+          class="filter-icon"
+        />
+        <k-select
+          :label="$tr('channels')"
+          :options="channelFilterOptions"
+          :inline="true"
+          class="filter"
+          v-model="channelFilterSelection"
+        />
+      </div>
     </div>
-
     <content-card
       v-for="content in contents"
       v-show="showContentCard(content)"
@@ -31,8 +49,16 @@
       :progress="content.progress"
       :numCoachContents="content.num_coach_contents"
       :link="genContentLink(content.id, content.kind)"
+      :contentId="content.content_id"
+      :copiesCount="content.copies_count"
+      @openCopiesModal="openCopiesModal"
     />
-
+    <copies-modal
+      v-if="modalIsOpen"
+      :uniqueId="uniqueId"
+      :sharedContentId="sharedContentId"
+      @cancel="modalIsOpen = false"
+    />
   </div>
 
 </template>
@@ -47,6 +73,7 @@
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentCard from './content-card';
+  import copiesModal from './copies-modal';
 
   const ALL_FILTER = 'all';
 
@@ -75,6 +102,7 @@
     components: {
       contentCard,
       kSelect,
+      copiesModal,
     },
     mixins: [responsiveWindow],
     props: {
@@ -102,6 +130,9 @@
     data: () => ({
       contentKindFilterSelection: {},
       channelFilterSelection: {},
+      modalIsOpen: false,
+      sharedContentId: null,
+      uniqueId: null,
     }),
     computed: {
       isMobile() {
@@ -111,21 +142,21 @@
         return { label: this.$tr('all'), value: ALL_FILTER };
       },
       contentKindFilterOptions() {
-        const options = Object.keys(kindFilterToLabelMap).map(kind => ({
-          label: this.$tr(kindFilterToLabelMap[kind]),
-          value: kind,
-          disabled: !this.resultsIncludeContentKind(kind),
-        }));
+        const options = Object.keys(kindFilterToLabelMap)
+          .filter(kind => this.resultsIncludeContentKind(kind))
+          .map(kind => ({
+            label: this.$tr(kindFilterToLabelMap[kind]),
+            value: kind,
+          }));
         return [this.allFilter, ...options];
       },
       channelFilterOptions() {
-        const options = this.channels.map(channel => {
-          return {
+        const options = this.channels
+          .filter(channel => this.resultsIncludeChannel(channel.id))
+          .map(channel => ({
             label: channel.title,
             value: channel.id,
-            disabled: !this.resultsIncludeChannel(channel.id),
-          };
-        });
+          }));
         return [this.allFilter, ...options];
       },
     },
@@ -148,6 +179,11 @@
           (channelFilter === ALL_FILTER || channelFilter === content.channel_id)
         );
       },
+      openCopiesModal(contentId) {
+        this.sharedContentId = contentId;
+        this.uniqueId = this.contents.find(content => content.content_id === contentId).id;
+        this.modalIsOpen = true;
+      },
     },
     vuex: {
       getters: {
@@ -168,5 +204,21 @@
   .grid-item
     margin-right: $gutters
     margin-bottom: $gutters
+
+  .filter-icon
+    vertical-align: middle
+    margin-right: 12px
+
+  .filter:nth-of-type(1)
+    margin-right: 32px
+
+  .filter
+    margin-bottom: 0
+
+  .filters
+    margin-bottom: 24px
+
+  .ib
+    display: inline-block
 
 </style>

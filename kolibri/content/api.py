@@ -413,6 +413,34 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         return Response(ancestors)
 
     @detail_route(methods=['get'])
+    def copies(self, request, pk=None):
+        """
+        Returns each nodes that has this content id, along with their ancestors.
+        """
+        # let it be noted that pk is actually the content id in this case
+        cache_key = 'contentnode_copies_ancestors_{content_id}'.format(content_id=pk)
+
+        if cache.get(cache_key) is not None:
+            return Response(cache.get(cache_key))
+
+        copies = []
+        nodes = models.ContentNode.objects.filter(content_id=pk)
+        for node in nodes:
+            copies.append(node.get_ancestors(include_self=True).values('id', 'title'))
+
+        cache.set(cache_key, copies, 60 * 10)
+        return Response(copies)
+
+    @list_route(methods=['get'])
+    def copies_count(self, request, **kwargs):
+        """
+        Returns the number of node copies for each content id.
+        """
+        content_ids = self.request.query_params.get('content_ids', []).split(',')
+        counts = models.ContentNode.objects.filter(content_id__in=content_ids).values('content_id').order_by().annotate(count=Count('content_id'))
+        return Response(counts)
+
+    @detail_route(methods=['get'])
     def next_content(self, request, **kwargs):
         # retrieve the "next" content node, according to depth-first tree traversal
         this_item = self.get_object()

@@ -19,14 +19,26 @@
       <p
         v-if="subtitle"
         class="subtitle"
+        :class="{ 'no-footer': !hasFooter }"
       >
         {{ subtitle }}
       </p>
-      <coach-content-label
-        class="coach-content-label"
-        :value="numCoachContents"
-        :isTopic="isTopic"
-      />
+      <div
+        class="footer"
+      >
+        <coach-content-label
+          class="coach-content-label"
+          :value="numCoachContents"
+          :isTopic="isTopic"
+        />
+        <k-button
+          v-if="copiesCount > 1"
+          appearance="basic-link"
+          class="copies"
+          :text="$tr('copies', { num: copiesCount })"
+          @click.prevent="$emit('openCopiesModal', contentId)"
+        />
+      </div>
     </div>
   </router-link>
 
@@ -39,13 +51,19 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import textTruncator from 'kolibri.coreVue.components.textTruncator';
+  import kButton from 'kolibri.coreVue.components.kButton';
   import cardThumbnail from './card-thumbnail';
 
   export default {
+    name: 'contentCard',
+    $trs: {
+      copies: '{ num, number} locations',
+    },
     components: {
       cardThumbnail,
       coachContentLabel,
       textTruncator,
+      kButton,
     },
     props: {
       title: {
@@ -93,17 +111,29 @@
         type: Boolean,
         default: false,
       },
+      contentId: {
+        type: String,
+        required: false,
+      },
+      copiesCount: {
+        type: Number,
+        required: false,
+      },
     },
     computed: {
       isTopic() {
         return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
       },
       maxTitleHeight() {
-        // Add room if there is a subtitle, or the coach content icon appears
-        if (this.subtitle || this.numCoachContents > 0) {
+        if (this.hasFooter && this.subtitle) {
+          return 20;
+        } else if (this.hasFooter || this.subtitle) {
           return 40;
         }
-        return this.isMobile ? 52 : 60;
+        return 60;
+      },
+      hasFooter() {
+        return this.numCoachContents > 0 || this.copiesCount > 1;
       },
     },
   };
@@ -116,10 +146,10 @@
   @require '~kolibri.styles.definitions'
   @require './card.styl'
 
+  $margin = 16px
+
   .coach-content-label
-    position: absolute
-    bottom: 0
-    padding: 8px 0
+    display: inline-block
 
   .card
     text-decoration: none
@@ -141,7 +171,7 @@
   .text
     color: $core-text-default
     overflow: hidden
-    padding: 16px
+    padding: $margin
     height: 92px
     position: relative
 
@@ -150,13 +180,28 @@
 
   .subtitle
     position: absolute
-    bottom: 12px
-    left: 16px
-    right: 16px
+    top: 38px
+    left: $margin
+    right: $margin
     font-size: 14px
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
+
+  .footer
+    position: absolute
+    font-size: 12px
+    bottom: $margin
+    right: $margin
+    left: $margin
+
+  .subtitle.no-footer
+    top: unset
+    bottom: $margin
+
+  .copies
+    display: inline-block
+    float: right
 
   .mobile-card.card
     width: 100%
@@ -169,6 +214,6 @@
       margin-left: $thumb-width-mobile
       height: 84px
     .subtitle
-      bottom: 17px
+      top: 36px
 
 </style>
