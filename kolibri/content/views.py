@@ -2,8 +2,11 @@ import mimetypes
 import os
 import zipfile
 
-from django.http import Http404, HttpResponse
-from django.http.response import FileResponse, HttpResponseNotModified
+from django.http import Http404
+from django.http import HttpResponse
+from django.http.response import FileResponse
+from django.http.response import HttpResponseNotModified
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import View
 from le_utils.constants import exercises
 
@@ -13,8 +16,27 @@ from .utils.paths import get_content_storage_file_path
 # https://www.thecodingforums.com/threads/mimetypes-guess_type-broken-in-windows-on-py2-7-and-python-3-x.952693/
 mimetypes.init([os.path.join(os.path.dirname(__file__), 'constants', 'mime.types')])
 
+
+def _add_access_control_headers(request, response):
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    requested_headers = request.META.get("HTTP_ACCESS_CONTROL_REQUEST_HEADERS", "")
+    if requested_headers:
+        response["Access-Control-Allow-Headers"] = requested_headers
+
+
 class ZipContentView(View):
 
+    @xframe_options_exempt
+    def options(self, request, *args, **kwargs):
+        """
+        Handles OPTIONS requests which may be sent as "preflight CORS" requests to check permissions.
+        """
+        response = HttpResponse()
+        _add_access_control_headers(request, response)
+        return response
+
+    @xframe_options_exempt
     def get(self, request, zipped_filename, embedded_filepath):
         """
         Handles GET requests and serves a static file from within the zip file.
@@ -72,12 +94,13 @@ class ZipContentView(View):
         # ensure the browser knows not to try byte-range requests, as we don't support them here
         response["Accept-Ranges"] = "none"
 
-        # allow all origins so that content can be read from within zips within sandboxed iframes
-        response["Access-Control-Allow-Origin"] = "*"
+        # add headers to ensure AJAX requests will be permitted for these files, even from a null origin
+        _add_access_control_headers(request, response)
 
-        # Newer versions of Chrome block iframes from loading
-        # solution is to override xframe options with any string (https://stackoverflow.com/a/6767901)
-        response['X-Frame-Options'] = "GOFORIT"
+        # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
+        # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
+        host = request.build_absolute_uri('/').strip("/")
+        response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: " + host
 
         return response
 

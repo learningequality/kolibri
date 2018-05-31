@@ -84,8 +84,8 @@ class AnnotationTreeRecursion(TransactionTestCase):
     def test_no_content_nodes_available(self):
         ContentNode.objects.filter(kind=content_kinds.TOPIC).update(available=True)
         recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
-        # 2, as there are two childless topics in the fixture, these cannot exist in real databases
-        self.assertEqual(ContentNode.objects.filter(kind=content_kinds.TOPIC).filter(available=True).count(), 2)
+        # 3, as there are two childless topics in the fixture, these cannot exist in real databases
+        self.assertEqual(ContentNode.objects.filter(kind=content_kinds.TOPIC).filter(available=True).count(), 3)
 
     def test_one_content_node_available(self):
         ContentNode.objects.filter(id='32a941fb77c2576e8f6b294cde4c3b0c').update(available=True)

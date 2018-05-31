@@ -5,8 +5,8 @@ import pick from 'lodash/pick';
 import { annotateNode } from '../src/views/select-content-page/treeViewUtils';
 import { makeNode } from './utils/data';
 
-function simplePath(pks) {
-  return pks.map(makeNode);
+function simplePath(ids) {
+  return ids.map(makeNode);
 }
 
 function assertAnnotationsEqual(annotated, expected) {

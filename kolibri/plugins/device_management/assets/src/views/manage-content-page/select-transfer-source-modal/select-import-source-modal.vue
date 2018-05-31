@@ -1,54 +1,47 @@
 <template>
 
-  <core-modal
-    :title="$tr('title')"
-    @enter="goForward"
-    @cancel="cancel"
-  >
+  <div>
     <div class="options">
       <k-radio-button
         :label="$tr('network')"
         v-model="source"
         value="network"
-        :disabled="disableUi || kolibriStudioIsOffline"
+        :disabled="formIsDisabled || kolibriStudioIsOffline"
         :autofocus="!kolibriStudioIsOffline"
       />
       <k-radio-button
         :label="$tr('localDrives')"
         v-model="source"
         value="local"
-        :disabled="disableUi"
+        :disabled="formIsDisabled"
       />
     </div>
 
     <div class="core-modal-buttons">
       <k-button
-        @click="cancel"
+        @click="$emit('cancel')"
         appearance="flat-button"
         :text="$tr('cancel')"
       />
       <k-button
         @click="goForward"
         :primary="true"
-        :disabled="disableUi"
+        :disabled="formIsDisabled"
         :text="$tr('continue')"
       />
     </div>
-  </core-modal>
+  </div>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { RemoteChannelResource } from 'kolibri.resources';
   import {
-    transitionWizardPage,
-    FORWARD,
-    CANCEL,
+    goForwardFromSelectImportSourceModal,
     LOCAL_DRIVE,
     KOLIBRI_STUDIO,
   } from '../../../state/actions/contentWizardActions';
@@ -56,14 +49,13 @@
   export default {
     name: 'selectImportSourceModal',
     components: {
-      coreModal,
       kButton,
       kRadioButton,
     },
     data() {
       return {
         source: KOLIBRI_STUDIO,
-        disableUi: true,
+        formIsDisabled: true,
         kolibriStudioIsOffline: false,
       };
     },
@@ -73,7 +65,7 @@
           this.source = LOCAL_DRIVE;
           this.kolibriStudioIsOffline = true;
         }
-        this.disableUi = false;
+        this.formIsDisabled = false;
       });
     },
     $trs: {
@@ -81,19 +73,17 @@
       continue: 'Continue',
       network: 'Kolibri Studio',
       localDrives: 'Attached drive or memory card',
-      title: 'Import from',
     },
     methods: {
       goForward() {
-        return this.transitionWizardPage(FORWARD, { source: this.source });
-      },
-      cancel() {
-        return this.transitionWizardPage(CANCEL);
+        if (!this.formIsDisabled) {
+          this.goForwardFromSelectImportSourceModal(this.source);
+        }
       },
     },
     vuex: {
       actions: {
-        transitionWizardPage,
+        goForwardFromSelectImportSourceModal,
       },
     },
   };

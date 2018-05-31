@@ -60,6 +60,8 @@
       noDrivesText() {
         if (this.mode === 'IMPORT') {
           return this.$tr('noImportableDrives');
+        } else if (this.mode === 'IMPORT_MORE') {
+          return this.$tr('noDriveWithSelectedChannelError');
         }
         return this.$tr('noExportableDrives');
       },
@@ -82,6 +84,8 @@
     $trs: {
       drivesFound: 'Drives found',
       noImportableDrives: 'No drives with Kolibri content are connected to the server',
+      noDriveWithSelectedChannelError:
+        'No drives with the selected channel are connected to the server',
       noExportableDrives: 'No drives that can be written to are connected to the server',
     },
   };

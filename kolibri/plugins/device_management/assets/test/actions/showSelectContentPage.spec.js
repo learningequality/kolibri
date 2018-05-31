@@ -1,44 +1,17 @@
 /* eslint-env mocha */
 import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
-import Vuex from 'vuex';
 import sinon from 'sinon';
-import router from 'kolibri.coreVue.router';
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import { loadChannelMetaData } from '../../src/state/actions/selectContentActions';
-import mutations from '../../src/state/mutations';
 import { wizardState } from '../../src/state/getters';
 import { mockResource } from 'testUtils'; // eslint-disable-line
-import { importExportWizardState } from '../../src/state/wizardState';
 import { defaultChannel } from '../utils/data';
+import { makeSelectContentPageStore } from '../utils/makeStore';
 
 mockResource(ChannelResource);
 mockResource(ContentNodeGranularResource);
 mockResource(TaskResource);
-
-function makeStore() {
-  return new Vuex.Store({
-    state: {
-      pageState: {
-        taskList: [],
-        channelList: [
-          { id: 'channel_1', name: 'Installed Channel', root: 'channel_1_root', available: true },
-        ],
-        wizardState: {
-          ...importExportWizardState(),
-          pageName: 'SELECT_CONTENT',
-          transferredChannel: { ...defaultChannel },
-        },
-      },
-    },
-    mutations: {
-      ...mutations,
-      addTask(state, task) {
-        state.pageState.taskList.push(task);
-      },
-    },
-  });
-}
 
 // Have store suddenly add a Task to the store so the task waiting step
 // resolves successfully
@@ -58,7 +31,11 @@ describe('loadChannelMetaData action', () => {
   });
 
   beforeEach(() => {
-    store = makeStore();
+    store = makeSelectContentPageStore();
+    store.dispatch('SET_TRANSFERRED_CHANNEL', defaultChannel);
+    store.dispatch('SET_CHANNEL_LIST', [
+      { id: 'channel_1', name: 'Installed Channel', root: 'channel_1_root', available: true },
+    ]);
     hackStoreWatcher(store);
     const taskEntity = { entity: { id: 'task_1' } };
     TaskResource.cancelTask = sinon.stub().returns(Promise.resolve());
@@ -84,17 +61,21 @@ describe('loadChannelMetaData action', () => {
   });
 
   function setUpStateForTransferType(transferType) {
-    store.state.pageState.wizardState.transferType = transferType;
-    store.state.pageState.wizardState.selectedDrive = {
-      id: `${transferType}_specs_drive`,
-    };
-    store.state.pageState.wizardState.transferredChannel = {
+    store.dispatch('SET_TRANSFER_TYPE', transferType);
+    store.dispatch('SET_DRIVE_LIST', [
+      {
+        id: `${transferType}_specs_drive`,
+        name: 'test drive',
+      },
+    ]);
+    store.dispatch('SET_SELECTED_DRIVE', `${transferType}_specs_drive`);
+    store.dispatch('SET_TRANSFERRED_CHANNEL', {
       id: `${transferType}_brand_new_channel`,
-    };
+    });
   }
 
   function useInstalledChannel() {
-    store.state.pageState.wizardState.transferredChannel = { id: 'channel_1' };
+    store.dispatch('SET_TRANSFERRED_CHANNEL', { id: 'channel_1' });
   }
 
   // Tests for common behavior
@@ -102,26 +83,6 @@ describe('loadChannelMetaData action', () => {
     return loadChannelMetaData(store, options).then(() => {
       sinon.assert.notCalled(TaskResource.startDiskChannelImport);
       sinon.assert.notCalled(TaskResource.startRemoteChannelImport);
-    });
-  }
-
-  let pushStub;
-
-  before(() => {
-    pushStub = sinon.stub(router, 'push');
-  });
-
-  function testUpdateTopicUrlIsCorrect(store, { pk, title }) {
-    // To test the end of this action, we spy router.push. Production code for
-    // router-based tree view updater relies on the kolibri.store singleton, while these tests
-    // stub store with fresh Vuex.Store instance.
-    pushStub.restore();
-    return loadChannelMetaData(store).then(() => {
-      sinon.assert.calledWithMatch(pushStub, {
-        name: 'GOTO_TOPIC_TREEVIEW',
-        params: { node: { pk, title } },
-        query: { pk },
-      });
     });
   }
 
@@ -133,13 +94,6 @@ describe('loadChannelMetaData action', () => {
     it('if channel already installed, "startdiskchannelimport" is not called', () => {
       useInstalledChannel();
       return testNoChannelsAreImported(store);
-    });
-
-    it('after metadata is downloaded, user is redirected to correct wizard URL', () => {
-      return testUpdateTopicUrlIsCorrect(store, {
-        pk: 'channel_1_root',
-        title: 'Installed Channel',
-      });
     });
 
     it('if channel is *not* on device, then "startdiskchannelimport" is called', () => {
@@ -170,13 +124,6 @@ describe('loadChannelMetaData action', () => {
       return testNoChannelsAreImported(store);
     });
 
-    it('after metadata is downloaded, user is redirected to correct wizard URL', () => {
-      return testUpdateTopicUrlIsCorrect(store, {
-        pk: 'channel_1_root',
-        title: 'Installed Channel',
-      });
-    });
-
     it('if channel is *not* on device, then "startremotechannelimport" is called', () => {
       return loadChannelMetaData(store).then(() => {
         sinon.assert.calledWith(TaskResource.startRemoteChannelImport, {
@@ -203,13 +150,6 @@ describe('loadChannelMetaData action', () => {
 
     it('"startdiskchannelimport" and "startremotechannelimport" are not called', () => {
       return testNoChannelsAreImported(store);
-    });
-
-    it('after metadata is downloaded, user is redirected to correct wizard URL', () => {
-      return testUpdateTopicUrlIsCorrect(store, {
-        pk: 'channel_1_root',
-        title: 'Installed Channel',
-      });
     });
   });
 

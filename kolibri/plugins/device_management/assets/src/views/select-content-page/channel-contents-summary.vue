@@ -67,7 +67,9 @@
       },
       channelOnDevice: {
         type: Object,
-        required: true,
+        default() {
+          return {};
+        },
       },
     },
     computed: {

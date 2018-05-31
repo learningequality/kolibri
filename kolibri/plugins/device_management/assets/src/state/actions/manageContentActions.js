@@ -10,8 +10,9 @@ export function refreshChannelList(store) {
   return ChannelResource.getCollection()
     .fetch({ file_sizes: true }, true)
     .then(channels => {
-      store.dispatch('SET_CHANNEL_LIST', channels);
+      store.dispatch('SET_CHANNEL_LIST', [...channels]);
       store.dispatch('SET_CHANNEL_LIST_LOADING', false);
+      return [...channels];
     });
 }
 
@@ -21,4 +22,8 @@ export function showManageContentPage(store) {
     return refreshChannelList(store);
   }
   return Promise.resolve();
+}
+
+export function setToolbarTitle(store, newTitle) {
+  store.dispatch('SET_TOOLBAR_TITLE', newTitle);
 }

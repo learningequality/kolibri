@@ -1,12 +1,10 @@
 /* eslint-env mocha */
 import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
-import Vuex from 'vuex';
 import sinon from 'sinon';
 import omit from 'lodash/fp/omit';
 import { mockResource } from 'testUtils'; // eslint-disable-line
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
-import mutations from '../../src/state/mutations';
 import {
   addNodeForTransfer,
   removeNodeForTransfer,
@@ -14,26 +12,13 @@ import {
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
 import { nodesForTransfer, wizardState, nodeTransferCounts } from '../../src/state/getters';
 import { updateTreeViewTopic } from '../../src/state/actions/selectContentActions';
-import { importExportWizardState } from '../../src/state/wizardState';
+import { makeSelectContentPageStore } from '../utils/makeStore';
 
-const simplePath = (...pks) => pks.map(pk => ({ pk, title: `node_${pk}` }));
+const simplePath = (...ids) => ids.map(id => ({ id, title: `node_${id}` }));
 
 mockResource(ChannelResource);
 mockResource(ContentNodeGranularResource);
 mockResource(TaskResource);
-
-function makeStore() {
-  return new Vuex.Store({
-    state: {
-      pageState: {
-        taskList: [],
-        channelList: [],
-        wizardState: importExportWizardState(),
-      },
-    },
-    mutations,
-  });
-}
 
 describe('contentTreeViewer actions', () => {
   let store;
@@ -70,7 +55,7 @@ describe('contentTreeViewer actions', () => {
   });
 
   beforeEach(() => {
-    store = makeStore();
+    store = makeSelectContentPageStore();
     // For now, just keep it simple and make the file size result 0/1
     // TODO extend this mock to return arbitrary file sizes
     ContentNodeGranularResource.getFileSizes.returns(
@@ -384,10 +369,10 @@ describe('updateTreeViewTopic action', () => {
   // is correctly called
   let store;
   const cngPayload = contentNodeGranularPayload();
-  const topic_1 = { pk: 'topic_1', title: 'Topic One' };
-  const topic_2 = { pk: 'topic_2', title: 'Topic Two' };
-  const topic_3 = { pk: 'topic_3', title: 'Topic Three' };
-  const topic_4 = { pk: 'topic_4', title: 'Topic Four' };
+  const topic_1 = { id: 'topic_1', title: 'Topic One' };
+  const topic_2 = { id: 'topic_2', title: 'Topic Two' };
+  const topic_3 = { id: 'topic_3', title: 'Topic Three' };
+  const topic_4 = { id: 'topic_4', title: 'Topic Four' };
 
   topic_1.path = []; // like a channel
   topic_2.path = [topic_1];
@@ -395,7 +380,7 @@ describe('updateTreeViewTopic action', () => {
   topic_4.path = [...topic_3.path, topic_3];
 
   beforeEach(() => {
-    store = makeStore();
+    store = makeSelectContentPageStore();
     ContentNodeGranularResource.__getModelFetchReturns(cngPayload);
   });
 

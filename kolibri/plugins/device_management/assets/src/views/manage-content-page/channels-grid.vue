@@ -28,6 +28,7 @@
             :channel="channel"
             mode="MANAGE"
             @clickdelete="selectedChannelId=channel.id"
+            @import_more="startImportWorkflow(channel)"
           />
         </div>
       </div>
@@ -50,6 +51,7 @@
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
   import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
+  import { startImportWorkflow } from '../../state/actions/contentWizardActions';
   import { installedChannelsWithResources, installedChannelListLoading } from '../../state/getters';
   import deleteChannelModal from './delete-channel-modal';
   import channelListItem from './channel-list-item';
@@ -84,7 +86,7 @@
     },
     methods: {
       handleDeleteChannel() {
-        if (this.selectedChannelId !== null) {
+        if (this.channelIsSelected) {
           const channelId = this.selectedChannelId;
           this.selectedChannelId = null;
           this.triggerChannelDeleteTask(channelId);
@@ -98,6 +100,7 @@
         pageState: state => state.pageState,
       },
       actions: {
+        startImportWorkflow,
         triggerChannelDeleteTask,
         refreshChannelList,
       },
@@ -116,8 +119,8 @@
   @require '~kolibri.styles.definitions'
 
   .channel-list-header
-    font-size: 0.85em
-    padding: 1em 0
+    font-size: 12px
+    padding: 16px 0
     color: $core-text-annotation
 
   .channel-list-item:first-of-type

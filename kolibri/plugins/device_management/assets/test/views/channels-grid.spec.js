@@ -1,21 +1,10 @@
 /* eslint-env mocha */
 import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
-import Vuex from 'vuex';
 import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
 import ChannelsGrid from '../../src/views/manage-content-page/channels-grid.vue';
-import { manageContentPageState } from '../../src/state/wizardState';
-import mutations from '../../src/state/mutations';
-
-function makeStore() {
-  return new Vuex.Store({
-    state: {
-      pageState: manageContentPageState(),
-    },
-    mutations,
-  });
-}
+import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 function makeWrapper(options) {
   const { store = {}, props = {} } = options;
@@ -46,7 +35,7 @@ describe('channelsGrid component', () => {
   let store;
 
   beforeEach(() => {
-    store = makeStore();
+    store = makeAvailableChannelsPageStore();
     store.dispatch('SET_CHANNEL_LIST', [
       {
         name: 'visible channel',
@@ -126,9 +115,8 @@ describe('channelsGrid component', () => {
       .$nextTick()
       .then(() => {
         const items = channelListItems();
-        const button = items.at(0).find('button');
-        expect(button.text().trim()).to.equal('Delete');
-        button.trigger('click');
+        const dropdownMenu = items.at(0).find({ name: 'kDropdownMenu' });
+        dropdownMenu.vm.$emit('select', { value: 'DELETE_CHANNEL' });
         return wrapper.vm.$nextTick();
       })
       .then(() => {

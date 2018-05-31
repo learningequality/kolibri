@@ -1,11 +1,14 @@
 <template>
 
-  <core-modal
-    :title="title"
-    :enableBgClickCancel="false"
-    @enter="goForward"
-    @cancel="cancel"
-  >
+  <div>
+    <ui-alert
+      v-if="driveStatus==='ERROR'"
+      type="error"
+      :dismissible="false"
+    >
+      {{ $tr('problemFindingLocalDrives') }}
+    </ui-alert>
+
     <transition mode="out-in">
       <ui-alert
         v-if="driveStatus==='LOADING'"
@@ -16,61 +19,45 @@
           {{ $tr('findingLocalDrives') }}
         </span>
       </ui-alert>
-
-      <ui-alert
-        v-else-if="driveStatus==='ERROR'"
-        type="error"
-        :dismissible="false"
-      >
-        {{ $tr('problemFindingLocalDrives') }}
-      </ui-alert>
-
+      <drive-list
+        v-if="driveStatus===''"
+        v-model="selectedDriveId"
+        :drives="enabledDrives"
+        :mode="driveListMode"
+      />
     </transition>
-
-    <drive-list
-      v-if="driveStatus===''"
-      v-model="selectedDriveId"
-      :drives="enabledDrives"
-      :mode="inImportMode ? 'IMPORT' : 'EXPORT'"
-    />
 
     <div class="core-modal-buttons">
       <k-button
         :text="$tr('cancel')"
-        @click="cancel"
+        @click="$emit('cancel')"
         appearance="flat-button"
       />
       <k-button
         :text="$tr('continue')"
         @click="goForward"
-        :disabled="continueIsDisabled"
+        :disabled="selectedDriveId===''"
         :primary="true"
       />
     </div>
-  </core-modal>
+  </div>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { refreshDriveList } from '../../../state/actions/taskActions';
-  import {
-    transitionWizardPage,
-    FORWARD,
-    CANCEL,
-  } from '../../../state/actions/contentWizardActions';
-  import { wizardState } from '../../../state/getters';
+  import { goForwardFromSelectDriveModal } from '../../../state/actions/contentWizardActions';
+  import { wizardState, driveCanBeUsedForTransfer, isImportingMore } from '../../../state/getters';
   import { TransferTypes } from '../../../constants';
   import driveList from './drive-list';
 
   export default {
     name: 'selectDriveModal',
     components: {
-      coreModal,
       driveList,
       kButton,
       UiAlert,
@@ -86,9 +73,6 @@
       inImportMode() {
         return this.transferType === TransferTypes.LOCALIMPORT;
       },
-      continueIsDisabled() {
-        return this.selectedDriveId === '';
-      },
       title() {
         if (this.inImportMode) {
           return this.$tr('selectDrive');
@@ -96,7 +80,15 @@
         return this.$tr('selectExportDestination');
       },
       enabledDrives() {
-        return this.driveList.filter(this.driveIsEnabled);
+        return this.driveList.filter(drive =>
+          this.driveCanBeUsedForTransfer(drive, this.transferType)
+        );
+      },
+      driveListMode() {
+        if (this.inImportMode) {
+          return this.isImportingMore ? 'IMPORT_MORE' : 'IMPORT';
+        }
+        return 'EXPORT';
       },
     },
     mounted() {
@@ -111,28 +103,23 @@
         });
     },
     methods: {
-      driveIsEnabled(drive) {
-        if (this.inImportMode) {
-          return drive.metadata.channels.length > 0;
-        }
-        return drive.writable;
-      },
       goForward() {
-        this.transitionWizardPage(FORWARD, {
+        this.goForwardFromSelectDriveModal({
           driveId: this.selectedDriveId,
+          forExport: !this.inImportMode,
         });
-      },
-      cancel() {
-        this.transitionWizardPage(CANCEL);
       },
     },
     vuex: {
       getters: {
         driveList: state => wizardState(state).driveList,
         transferType: state => wizardState(state).transferType,
+        transferredChannel: state => wizardState(state).transferredChannel,
+        driveCanBeUsedForTransfer,
+        isImportingMore,
       },
       actions: {
-        transitionWizardPage,
+        goForwardFromSelectDriveModal,
         refreshDriveList,
       },
     },

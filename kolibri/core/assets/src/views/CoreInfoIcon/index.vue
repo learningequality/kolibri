@@ -6,7 +6,7 @@
       class="info-icon"
       :iconAriaLabel="iconAriaLabel"
     >
-      <mat-svg name="info_outline" category="action" />
+      <mat-svg name="info" category="action" />
     </ui-icon>
     <ui-tooltip
       trigger="info-icon"
