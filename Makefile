@@ -189,3 +189,7 @@ dockerenvbuild: writeversion
 
 dockerenvdist: writeversion
 	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')"
+
+runkolibridocker: writeversion
+	docker image build . -t "learningequality/kolibri"
+	docker run "learningequality/kolibri:"
