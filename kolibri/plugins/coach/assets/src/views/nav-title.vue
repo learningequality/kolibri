@@ -10,8 +10,11 @@
       </template>
     </h2>
 
-    <div v-if="classCoaches.length">
-      <span> {{ $tr('coachListLabel') }} </span>
+    <div v-if="classCoaches.length === 1">
+      {{ $tr('coach', {name: classCoaches[0].full_name}) }}
+    </div>
+    <div v-else-if="classCoaches.length > 1">
+      <div>{{ $tr('coachesLabel', {count: classCoaches.length}) }}</div>
       <ul>
         <li
           v-for="(coach, idx) in classCoaches"
@@ -32,7 +35,8 @@
     name: 'navTitle',
     $trs: {
       coachPageHeader: 'Classes',
-      coachListLabel: 'Coaches:',
+      coach: 'Coach: {name}',
+      coachesLabel: '{count, plural, one {Coach} other {Coaches}}:',
     },
     props: {
       className: {
@@ -49,15 +53,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  ul, li
-    margin: 0
-    padding: 0
-    display: inline
-    list-style-type: none
-
-  li:not(&:last-child)::after
-    content: ', '
-
-</style>
+<style lang="stylus" scoped></style>
