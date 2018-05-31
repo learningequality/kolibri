@@ -78,7 +78,7 @@
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import actionBarSearchBox from './action-bar-search-box';
 
-  const BOTTOM_SPACED_RESERVED = 88;
+  const BOTTOM_SPACED_RESERVED = 117;
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: channelsPage,
@@ -214,10 +214,11 @@
       bottomSpaceReserved() {
         const isContentPage =
           this.pageName === PageNames.TOPICS_CONTENT ||
-          this.pageName === PageNames.RECOMMENDED_CONTENT;
+          this.pageName === PageNames.RECOMMENDED_CONTENT ||
+          ClassesPageNames.LESSON_PLAYLIST;
         const isAssessment = isContentPage && this.content && this.content.assessment;
-        // height of .attemptprogress-container.mobile in assessment-wrapper
-        return isAssessment && this.windowSize.breakpoint <= 1 ? BOTTOM_SPACED_RESERVED : 0;
+        // height of .attempts-container in assessment-wrapper
+        return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
       },
     },
 

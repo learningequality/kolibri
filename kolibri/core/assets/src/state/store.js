@@ -138,16 +138,16 @@ export const coreMutations = {
   UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY(state, action) {
     state.core.logging.attempt.interaction_history.push(action);
   },
-  UPDATE_LOGGING_MASTERY(state, currentTime, correct, firstAttempt, hinted) {
+  UPDATE_LOGGING_MASTERY(state, currentTime, correct, firstAttempt, hinted, error) {
     if (firstAttempt) {
       state.core.logging.mastery.totalattempts += 1;
-      state.core.logging.mastery.pastattempts.unshift({ correct, hinted });
+      state.core.logging.mastery.pastattempts.unshift({ correct, hinted, error });
     }
     state.core.logging.mastery.end_timestamp = currentTime;
   },
   UPDATE_LOGGING_ATTEMPT(
     state,
-    { currentTime, correct, firstAttempt, complete, hinted, answerState, simpleAnswer }
+    { currentTime, correct, firstAttempt, complete, hinted, answerState, simpleAnswer, error }
   ) {
     if (complete) {
       state.core.logging.attempt.completion_timestamp = currentTime;
@@ -168,6 +168,7 @@ export const coreMutations = {
       state.core.logging.attempt.hinted = hinted;
       state.core.logging.attempt.answer = answerState;
       state.core.logging.attempt.simple_answer = simpleAnswer;
+      state.core.logging.attempt.error = error;
     } else if (state.core.logging.attempt.correct < 1) {
       // Only set hinted if attempt has not already been marked as correct
       // and set it to true if now true, but leave as true if false.

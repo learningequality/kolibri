@@ -49,7 +49,7 @@ class MasteryLogSerializer(KolibriModelSerializer):
 
     def get_pastattempts(self, obj):
         # will return a list of the latest 10 correct and hint_taken fields for each attempt.
-        return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).values('correct', 'hinted').order_by('-start_timestamp')[:10]
+        return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).values('correct', 'hinted', 'error').order_by('-start_timestamp')[:10]
 
     def get_totalattempts(self, obj):
         return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).count()
@@ -62,7 +62,7 @@ class AttemptLogSerializer(KolibriModelSerializer):
         model = AttemptLog
         fields = ('id', 'masterylog', 'start_timestamp', 'sessionlog',
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent', 'user',
-                  'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
+                  'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history', 'error')
 
 class ExamAttemptLogSerializer(KolibriModelSerializer):
     answer = serializers.JSONField(default='{}', allow_null=True)
