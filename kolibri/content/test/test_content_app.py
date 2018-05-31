@@ -534,7 +534,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.client.login(username="learner", password="pass", facility=facility)
 
         # The progress endpoint is used, so should report progress for topics
-        assert_progress(root, 0.3)
+        assert_progress(root, 0.24)
         assert_progress(c1, 0)
         assert_progress(c2, 0.4)
         assert_progress(c2c1, 0.7)
@@ -560,7 +560,7 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("contentnodeprogress-list"))
 
         # The progress endpoint is used, so should report progress for topics
-        self.assertEqual(get_progress_fraction(root), 0.3)
+        self.assertEqual(get_progress_fraction(root), 0.24)
         self.assertEqual(get_progress_fraction(c1), 0)
         self.assertEqual(get_progress_fraction(c2), 0.4)
         self.assertEqual(get_progress_fraction(c2c1), 0.7)
@@ -587,7 +587,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_filtering_coach_content_anon(self):
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"by_role": True})
         # TODO make content_test.json fixture more organized. Here just, hardcoding the correct count
-        self.assertEqual(len(response.data), 6)
+        self.assertEqual(len(response.data), 7)
 
     def test_filtering_coach_content_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
