@@ -57,6 +57,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
   import { submitSuperuserCredentials } from '../../../state/actions/forms';
@@ -106,6 +107,11 @@
       };
     },
     computed: {
+      ...mapGetters({
+        currentName: state => state.onboardingData.superuser.full_name,
+        currentUsername: state => state.onboardingData.superuser.username,
+        currentPassword: state => state.onboardingData.superuser.password,
+      }),
       nameErrorMessage() {
         if (this.name === '') {
           return this.$tr('nameFieldEmptyErrorMessage');
@@ -158,6 +164,9 @@
       },
     },
     methods: {
+      ...mapActions({
+        submitSuperuserCredentials,
+      }),
       setSuperuserCredentials() {
         for (const field in this.visitedFields) {
           this.visitedFields[field] = true;
@@ -175,16 +184,6 @@
         } else if (this.passwordConfirmIsInvalid) {
           this.$refs.passwordConfirm.focus();
         }
-      },
-    },
-    vuex: {
-      actions: {
-        submitSuperuserCredentials,
-      },
-      getters: {
-        currentName: state => state.onboardingData.superuser.full_name,
-        currentUsername: state => state.onboardingData.superuser.username,
-        currentPassword: state => state.onboardingData.superuser.password,
       },
     },
   };

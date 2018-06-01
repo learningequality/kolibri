@@ -111,6 +111,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
@@ -161,10 +162,18 @@
         permissionPresetDetailsModalShown: false,
       };
     },
+    computed:{
+      ...mapGetters({
+        currentPermissionPreset: state => state.onboardingData.preset,
+      }),
+    },
     mounted() {
       this.$refs['first-button'].focus();
     },
     methods: {
+      ...mapActions({
+        submitFacilityPermissions,
+      }),
       setPermissions() {
         this.submitFacilityPermissions(this.selectedPreset);
         this.$emit('submit');
@@ -174,14 +183,6 @@
       },
       hideFacilityPermissionsDetails() {
         this.permissionPresetDetailsModalShown = false;
-      },
-    },
-    vuex: {
-      actions: {
-        submitFacilityPermissions,
-      },
-      getters: {
-        currentPermissionPreset: state => state.onboardingData.preset,
       },
     },
   };
