@@ -25,6 +25,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import coreBase from 'kolibri.coreVue.components.coreBase';
@@ -56,6 +57,19 @@
       topNavigation,
     },
     computed: {
+      ...mapGetters({
+        pageName: ({ pageName }) => pageName,
+        welcomeModalVisible: ({ welcomeModalVisible }) => welcomeModalVisible,
+        canManageContent,
+        toolbarTitle: ({ pageState }) => pageState.toolbarTitle,
+        inContentManagementPage: ({ pageName }) => {
+          return [
+            ContentWizardPages.AVAILABLE_CHANNELS,
+            ContentWizardPages.SELECT_CONTENT,
+            PageNames.MANAGE_CONTENT_PAGE,
+          ].includes(pageName);
+        },
+      }),
       DEVICE: () => TopLevelPageNames.DEVICE,
       currentPage() {
         return pageNameComponentMap[this.pageName];
@@ -88,6 +102,12 @@
       this.stopTaskPolling();
     },
     methods: {
+      ...mapActions({
+        refreshTaskList,
+        hideWelcomeModal(store) {
+          store.dispatch('SET_WELCOME_MODAL_VISIBLE', false);
+        },
+      }),
       startTaskPolling() {
         if (!this.intervalId && this.canManageContent) {
           this.intervalId = setInterval(this.refreshTaskList, 1000);
@@ -97,27 +117,6 @@
         if (this.intervalId) {
           this.intervalId = clearInterval(this.intervalId);
         }
-      },
-    },
-    vuex: {
-      getters: {
-        pageName: ({ pageName }) => pageName,
-        welcomeModalVisible: ({ welcomeModalVisible }) => welcomeModalVisible,
-        canManageContent,
-        toolbarTitle: ({ pageState }) => pageState.toolbarTitle,
-        inContentManagementPage: ({ pageName }) => {
-          return [
-            ContentWizardPages.AVAILABLE_CHANNELS,
-            ContentWizardPages.SELECT_CONTENT,
-            PageNames.MANAGE_CONTENT_PAGE,
-          ].includes(pageName);
-        },
-      },
-      actions: {
-        refreshTaskList,
-        hideWelcomeModal(store) {
-          store.dispatch('SET_WELCOME_MODAL_VISIBLE', false);
-        },
       },
     },
     $trs: {

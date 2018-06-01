@@ -61,6 +61,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import subpageContainer from './containers/subpage-container';
@@ -71,11 +72,11 @@
       authMessage,
       subpageContainer,
     },
-    vuex: {
-      getters: {
+    computed: {
+      ...mapGetters({
         info: state => state.pageState.deviceInfo,
         canManageContent,
-      },
+      }),
     },
     $trs: {
       header: 'Device info',

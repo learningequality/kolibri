@@ -24,6 +24,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import { ContentWizardPages, TransferTypes } from '../../../constants';
   import { resetContentWizardState } from '../../../state/actions/contentWizardActions';
@@ -38,6 +39,10 @@
       selectDriveModal,
     },
     computed: {
+      ...mapGetters({
+        wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
+        transferType: ({ pageState }) => pageState.wizardState.transferType,
+      }),
       atSelectImportSource() {
         return this.wizardPageName === ContentWizardPages.SELECT_IMPORT_SOURCE;
       },
@@ -56,6 +61,9 @@
       },
     },
     methods: {
+      ...mapActions({
+        resetContentWizardState,
+      }),
       goForward() {
         if (this.atSelectImportSource) {
           return this.$refs.selectImportSourceModal.goForward();
@@ -65,15 +73,6 @@
       },
       cancel() {
         return this.resetContentWizardState();
-      },
-    },
-    vuex: {
-      getters: {
-        wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
-        transferType: ({ pageState }) => pageState.wizardState.transferType,
-      },
-      actions: {
-        resetContentWizardState,
       },
     },
     $trs: {
