@@ -2,6 +2,7 @@ import io
 import logging
 import os
 import re
+import subprocess
 import sys
 from datetime import datetime
 
@@ -9,10 +10,10 @@ from django import db
 from django.conf import settings
 
 import kolibri
+from kolibri.utils import server
 from kolibri.utils.conf import KOLIBRI_HOME
 # Import db instead of db.connections because we want to use an instance of
 # connections that might be updated from outside.
-
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,24 @@ class IncompatibleDatabase(Exception):
 
 def default_backup_folder():
     return os.path.join(KOLIBRI_HOME, 'backups')
+
+
+def exit_if_kolibri_running(instance):
+    """
+    :param: instance: An instance of BaseCommand
+    """
+
+    try:
+        server.get_status()
+        instance.stderr.write(instance.style.ERROR(
+            "Cannot recover database while Kolibri is running, please run:\n"
+            "\n"
+            "    kolibri stop\n"
+        ))
+        raise SystemExit()
+    except server.NotRunning:
+        # Great, it's not running!
+        pass
 
 
 def get_dtm_from_backup_name(fname):
@@ -62,6 +81,28 @@ def is_full_version(fname):
     )
 
 
+def get_path_backup_dump_file(old_version, dest_folder):
+    """
+    :param: old_version: The kolibri version used when creating the backup
+    :param: dest_folder: Default is ~/.kolibri/backups/db-[version]-[date].dump
+    """
+
+    if not dest_folder:
+        dest_folder = default_backup_folder()
+
+    if not os.path.exists(dest_folder):
+        os.makedirs(dest_folder)
+
+    # This file name is a convention, used to figure out the latest backup
+    # that was made (by the dbrestore command)
+    fname = "db-v{version}_{dtm}.dump".format(
+        version=old_version,
+        dtm=datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    )
+
+    return os.path.join(dest_folder, fname)
+
+
 def dbbackup(old_version, dest_folder=None):
     """
     Sqlite3 only
@@ -74,6 +115,7 @@ def dbbackup(old_version, dest_folder=None):
     the same date overwrite each other. It's also quite important for the user
     to know which version of Kolibri that a certain database should match.
 
+    :param: old_version: The kolibri version used when creating the backup
     :param: dest_folder: Default is ~/.kolibri/backups/db-[version]-[date].dump
 
     :returns: Path of new backup file
@@ -82,20 +124,7 @@ def dbbackup(old_version, dest_folder=None):
     if 'sqlite3' not in settings.DATABASES['default']['ENGINE']:
         raise IncompatibleDatabase()
 
-    if not dest_folder:
-        dest_folder = default_backup_folder()
-
-    # This file name is a convention, used to figure out the latest backup
-    # that was made (by the dbrestore command)
-    fname = "db-v{version}_{dtm}.dump".format(
-        version=old_version,
-        dtm=datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    )
-
-    if not os.path.exists(dest_folder):
-        os.makedirs(dest_folder)
-
-    backup_path = os.path.join(dest_folder, fname)
+    backup_path = get_path_backup_dump_file(old_version, dest_folder)
 
     # Setting encoding=utf-8: io.open() is Python 2 compatible
     # See: https://github.com/learningequality/kolibri/issues/2875
@@ -107,6 +136,39 @@ def dbbackup(old_version, dest_folder=None):
             f.write(line)
 
     return backup_path
+
+
+def dbbackup_sqlite3_dump(old_version, dest_folder=None):
+    """
+    Sqlite3 only - uses external sqlite3 command
+
+    Uses the external `sqlite3 .dump` command.
+
+    :param: dest_folder: Default is ~/.kolibri/backups/db-[version]-[date].dump
+
+    :returns: Path of new backup file
+    """
+
+    if 'sqlite3' not in settings.DATABASES['default']['ENGINE']:
+        raise IncompatibleDatabase()
+
+    backup_path = get_path_backup_dump_file(old_version, dest_folder)
+
+    dump_result = open(backup_path, "w")
+    origin = settings.DATABASES['default']['NAME']
+
+    try:
+        p = subprocess.Popen(
+            "sqlite3 {} .dump".format(origin),
+            stdout=dump_result,
+            shell=True,
+        )
+        p.wait()
+        if p.returncode == 0:
+            return True
+        raise RuntimeError(p.stderr)
+    except EnvironmentError:
+        return False
 
 
 def dbrestore(from_file):
@@ -173,9 +235,31 @@ def search_latest(search_root, fallback_version):
         except ValueError:
             continue
         # Always pick the newest version
-        if is_full_version(backup) or dtm > newest_dtm:
+        if is_full_version(backup) or (newest_dtm and dtm > newest_dtm):
             newest_dtm = dtm
             newest = backup
 
     if newest:
         return os.path.join(search_root, newest)
+
+
+def check_for_sqlite3():
+    """
+    Tests if current environment has the `sqlite3` command, common on many
+    systems.
+
+    :returns: Version of sqlite3
+    """
+    try:
+        p = subprocess.Popen(
+            "sqlite3 -version",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True,
+            universal_newlines=True
+        )
+        # This does not fail if sqlite3 is not available
+        sqlite_3_version = p.communicate()[0].strip()
+        return bool(sqlite_3_version)
+    except EnvironmentError:
+        return False
