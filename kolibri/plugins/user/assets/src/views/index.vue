@@ -19,6 +19,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import { PageNames } from '../constants';
@@ -35,6 +36,9 @@
   export default {
     name: 'userPlugin',
     components: {
+      ...mapGetters({
+        pageName: state => state.pageName,
+      }),
       coreBase,
       signInPage,
       signUpPage,
@@ -53,11 +57,6 @@
       },
       navBarNeeded() {
         return this.pageName !== PageNames.SIGN_IN && this.pageName !== PageNames.SIGN_UP;
-      },
-    },
-    vuex: {
-      getters: {
-        pageName: state => state.pageName,
       },
     },
     $trs: {

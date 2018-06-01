@@ -117,6 +117,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import { kolibriLogin } from 'kolibri.coreVue.vuex.actions';
   import { facilityConfig } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
@@ -176,6 +177,15 @@
       };
     },
     computed: {
+      ...mapGetters({
+        // backend's default facility on load
+        facilityId: state => state.facilityId,
+        facilityConfig,
+        hasMultipleFacilities: state => state.pageState.hasMultipleFacilities,
+        passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
+        invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
+        busy: state => state.core.signInBusy,
+      }),
       simpleSignIn() {
         return this.facilityConfig.learnerCanLoginWithNoPassword;
       },
@@ -269,6 +279,9 @@
       }, 250);
     },
     methods: {
+      ...mapActions({
+        kolibriLogin,
+      }),
       closeFacilityModal() {
         this.facilityModalVisible = false;
       },
@@ -371,20 +384,6 @@
       },
       handlePasswordChanged() {
         this.autoFilledByChromeAndNotEdited = false;
-      },
-    },
-    vuex: {
-      getters: {
-        // backend's default facility on load
-        facilityId: state => state.facilityId,
-        facilityConfig,
-        hasMultipleFacilities: state => state.pageState.hasMultipleFacilities,
-        passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
-        invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
-        busy: state => state.core.signInBusy,
-      },
-      actions: {
-        kolibriLogin,
       },
     },
   };

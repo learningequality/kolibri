@@ -113,6 +113,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import {
     facilityConfig,
     isSuperuser,
@@ -178,6 +179,23 @@
       };
     },
     computed: {
+      ...mapGetters({
+        facilityConfig,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        isLearner,
+        totalPoints,
+        session: state => state.core.session,
+        busy: state => state.pageState.busy,
+        errorCode: state => state.pageState.errorCode,
+        backendErrorMessage: state => state.pageState.errorMessage,
+        success: state => state.pageState.success,
+        passwordModalVisible: state => state.pageState.passwordState.modal,
+        getUserKind,
+        getUserPermissions,
+        userHasPermissions,
+      }),
       role() {
         if (this.getUserKind === UserKinds.ADMIN) {
           return this.$tr('isAdmin');
@@ -267,6 +285,14 @@
       this.fetchPoints();
     },
     methods: {
+      ...mapActions({
+        updateUserProfile,
+        resetProfileState,
+        fetchPoints,
+        setPasswordModalVisible(store, visibility) {
+          store.dispatch('SET_PROFILE_PASSWORD_MODAL', visibility);
+        },
+      }),
       submitEdits() {
         this.formSubmitted = true;
         this.resetProfileState();
@@ -291,33 +317,6 @@
           return this.$tr('manageContent');
         }
         return permission;
-      },
-    },
-    vuex: {
-      getters: {
-        facilityConfig,
-        isSuperuser,
-        isAdmin,
-        isCoach,
-        isLearner,
-        totalPoints,
-        session: state => state.core.session,
-        busy: state => state.pageState.busy,
-        errorCode: state => state.pageState.errorCode,
-        backendErrorMessage: state => state.pageState.errorMessage,
-        success: state => state.pageState.success,
-        passwordModalVisible: state => state.pageState.passwordState.modal,
-        getUserKind,
-        getUserPermissions,
-        userHasPermissions,
-      },
-      actions: {
-        updateUserProfile,
-        resetProfileState,
-        fetchPoints,
-        setPasswordModalVisible(store, visibility) {
-          store.dispatch('SET_PROFILE_PASSWORD_MODAL', visibility);
-        },
       },
     },
   };

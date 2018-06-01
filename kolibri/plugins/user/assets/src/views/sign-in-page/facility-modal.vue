@@ -26,6 +26,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -44,7 +45,23 @@
         selectedFacility: this.currentFacilityId,
       };
     },
+    computed: {
+      ...mapGetters({
+        // currentFacilityId uses session, with is anonymous in sign-in-page
+        currentFacilityId: state => state.facilityId,
+        facilities,
+      }),
+    },
     methods: {
+      ...mapActions({
+        getFacilityConfig,
+        setFacilityId(store) {
+          store.dispatch('SET_FACILITY_ID', this.selectedFacility);
+        },
+        clearLoginError(store) {
+          store.dispatch('CORE_SET_LOGIN_ERROR', '');
+        },
+      }),
       emitClose() {
         this.$emit('close');
       },
@@ -58,22 +75,6 @@
       facilitySelectionPrompt: 'Which facility do you want to sign in to?',
       submitFacilitySelectionButtonPrompt: 'Select',
       facilitySelectionModalHeader: 'Select a facility',
-    },
-    vuex: {
-      getters: {
-        // currentFacilityId uses session, with is anonymous in sign-in-page
-        currentFacilityId: state => state.facilityId,
-        facilities,
-      },
-      actions: {
-        getFacilityConfig,
-        setFacilityId(store) {
-          store.dispatch('SET_FACILITY_ID', this.selectedFacility);
-        },
-        clearLoginError(store) {
-          store.dispatch('CORE_SET_LOGIN_ERROR', '');
-        },
-      },
     },
   };
 
