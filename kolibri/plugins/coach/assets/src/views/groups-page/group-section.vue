@@ -85,6 +85,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -141,6 +142,9 @@
       return { selectedUsers: [] };
     },
     computed: {
+      ...mapGetters({
+        groupModalShown: state => state.pageState.groupModalShown,
+      }),
       sortedGroupUsers() {
         return sortBy(this.group.users, user => user.full_name.toLowerCase());
       },
@@ -163,6 +167,9 @@
       },
     },
     methods: {
+      ...mapActions({
+        displayModal,
+      }),
       handleSelection(selectedOption) {
         if (selectedOption === this.$tr('renameGroup')) {
           this.$emit('rename', this.group.name, this.group.id);
@@ -191,10 +198,6 @@
       emitMove() {
         this.$emit('move', this.group.name, this.group.id, this.selectedUsers, this.isUngrouped);
       },
-    },
-    vuex: {
-      getters: { groupModalShown: state => state.pageState.groupModalShown },
-      actions: { displayModal },
     },
   };
 

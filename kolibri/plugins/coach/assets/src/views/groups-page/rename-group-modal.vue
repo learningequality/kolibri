@@ -39,6 +39,7 @@
 
 <script>
 
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -114,6 +115,10 @@
       },
     },
     methods: {
+      ...mapActions({
+        renameGroup,
+        displayModal,
+      }),
       callRenameGroup() {
         this.formSubmitted = true;
         if (this.formIsValid) {
@@ -125,12 +130,6 @@
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        renameGroup,
-        displayModal,
       },
     },
   };

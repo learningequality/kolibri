@@ -89,6 +89,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import countBy from 'lodash/countBy';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -122,6 +123,11 @@
       };
     },
     computed: {
+      ...mapGetters({
+        lessons: state => state.pageState.lessons,
+        classId: state => state.classId,
+        learnerGroups: state => state.pageState.learnerGroups,
+      }),
       filterOptions() {
         const filters = ['allLessons', 'activeLessons', 'inactiveLessons'];
         return filters.map(filter => ({
@@ -137,6 +143,9 @@
       this.filterSelection = this.filterOptions[0];
     },
     methods: {
+      ...mapActions({
+        createLesson,
+      }),
       showLesson(lesson) {
         switch (this.filterSelection.value) {
           case 'activeLessons':
@@ -167,16 +176,6 @@
         })
           .then()
           .catch(() => this.$refs.detailsModal.handleSubmitFailure());
-      },
-    },
-    vuex: {
-      actions: {
-        createLesson,
-      },
-      getters: {
-        lessons: state => state.pageState.lessons,
-        classId: state => state.classId,
-        learnerGroups: state => state.pageState.learnerGroups,
       },
     },
     $trs: {

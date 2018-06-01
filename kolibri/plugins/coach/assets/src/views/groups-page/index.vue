@@ -63,6 +63,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import differenceWith from 'lodash/differenceWith';
   import orderBy from 'lodash/orderBy';
   import flatMap from 'lodash/flatMap';
@@ -102,6 +103,11 @@
       };
     },
     computed: {
+      ...mapGetters({
+        classUsers: state => state.pageState.classUsers,
+        groups: state => state.pageState.groups,
+        groupModalShown: state => state.pageState.groupModalShown,
+      }),
       showCreateGroupModal() {
         return this.groupModalShown === GroupModals.CREATE_GROUP;
       },
@@ -131,6 +137,9 @@
       },
     },
     methods: {
+      ...mapActions({
+        displayModal,
+      }),
       openCreateGroupModal() {
         this.displayModal(GroupModals.CREATE_GROUP);
       },
@@ -157,14 +166,6 @@
         this.isUngrouped = isUngrouped;
         this.displayModal(GroupModals.MOVE_LEARNERS);
       },
-    },
-    vuex: {
-      getters: {
-        classUsers: state => state.pageState.classUsers,
-        groups: state => state.pageState.groups,
-        groupModalShown: state => state.pageState.groupModalShown,
-      },
-      actions: { displayModal },
     },
   };
 

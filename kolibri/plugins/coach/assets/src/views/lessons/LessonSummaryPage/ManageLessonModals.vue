@@ -51,6 +51,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
@@ -73,6 +74,14 @@
       AssignmentDeleteModal,
     },
     computed: {
+      ...mapGetters({
+        currentLesson: state => state.pageState.currentLesson,
+        lessonsModalSet: state => state.pageState.lessonsModalSet,
+        classId: state => state.classId,
+        classList: state => state.classList,
+        className: state => state.className,
+        learnerGroups: state => state.pageState.learnerGroups,
+      }),
       AssignmentActions() {
         return AssignmentActions;
       },
@@ -81,6 +90,13 @@
       },
     },
     methods: {
+      ...mapActions({
+        setLessonsModal,
+        updateLessonStatus,
+        deleteLesson,
+        copyLesson,
+        updateLesson,
+      }),
       handleChangeStatus(isActive) {
         this.updateLessonStatus(this.currentLesson.id, isActive);
       },
@@ -104,23 +120,6 @@
         })
           .then()
           .catch(() => this.$refs.detailsModal.handleSubmitFailure());
-      },
-    },
-    vuex: {
-      getters: {
-        currentLesson: state => state.pageState.currentLesson,
-        lessonsModalSet: state => state.pageState.lessonsModalSet,
-        classId: state => state.classId,
-        classList: state => state.classList,
-        className: state => state.className,
-        learnerGroups: state => state.pageState.learnerGroups,
-      },
-      actions: {
-        setLessonsModal,
-        updateLessonStatus,
-        deleteLesson,
-        copyLesson,
-        updateLesson,
       },
     },
     $trs: {

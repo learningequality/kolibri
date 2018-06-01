@@ -160,6 +160,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
@@ -192,6 +193,13 @@
       };
     },
     computed: {
+      ...mapGetters({
+        resourceTitle: state => state.pageState.resourceTitle,
+        resourceKind: state => state.pageState.resourceKind,
+        channelTitle: state => state.pageState.channelTitle,
+        userData: state => state.pageState.userData,
+        contentNode: state => state.pageState.contentNode,
+      }),
       isExercise() {
         return this.resourceKind === ContentNodeKinds.EXERCISE;
       },
@@ -230,16 +238,6 @@
         this.sortBy = sortKey;
         this.invert = false;
       },
-    },
-    vuex: {
-      getters: {
-        resourceTitle: state => state.pageState.resourceTitle,
-        resourceKind: state => state.pageState.resourceKind,
-        channelTitle: state => state.pageState.channelTitle,
-        userData: state => state.pageState.userData,
-        contentNode: state => state.pageState.contentNode,
-      },
-      actions: {},
     },
     $trs: {
       channelTitleLabel: 'Channel',

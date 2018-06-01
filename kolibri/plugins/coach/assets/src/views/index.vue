@@ -30,6 +30,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
@@ -123,6 +124,17 @@
       navTitle,
     },
     computed: {
+      ...mapGetters({
+        toolbarRoute: state => state.pageState.toolbarRoute,
+        pageName: state => state.pageName,
+        isAdmin,
+        isCoach,
+        isSuperuser,
+        className,
+        classCoaches,
+        classList: state => state.classList,
+        classId: state => state.classId,
+      }),
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
         if (!this.userCanAccessPage) {
@@ -178,19 +190,6 @@
           return false;
         }
         return true;
-      },
-    },
-    vuex: {
-      getters: {
-        toolbarRoute: state => state.pageState.toolbarRoute,
-        pageName: state => state.pageName,
-        isAdmin,
-        isCoach,
-        isSuperuser,
-        className,
-        classCoaches,
-        classList: state => state.classList,
-        classId: state => state.classId,
       },
     },
   };

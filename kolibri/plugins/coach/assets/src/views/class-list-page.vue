@@ -56,6 +56,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import ContentIcon from 'kolibri.coreVue.components.contentIcon';
@@ -84,6 +85,10 @@
       sortedClasses() {
         return orderBy(this.classList, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
+      ...mapGetters({
+        classList: state => state.classList,
+        noClassesExist: state => state.classList.length === 0,
+      }),
     },
     methods: {
       learnerPageLink,
@@ -120,12 +125,6 @@
           return coach_names.join('\n');
         }
         return null;
-      },
-    },
-    vuex: {
-      getters: {
-        classList: state => state.classList,
-        noClassesExist: state => state.classList.length === 0,
       },
     },
     $trs: {

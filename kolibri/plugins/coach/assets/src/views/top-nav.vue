@@ -44,6 +44,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   import { PageNames } from '../constants';
@@ -64,6 +65,10 @@
       kNavbarLink,
     },
     computed: {
+      ...mapGetters({
+        pageName: state => state.pageName,
+        classId: state => state.classId,
+      }),
       recentLink() {
         return {
           name: PageNames.RECENT_CHANNELS,
@@ -99,12 +104,6 @@
           name: LessonsPageNames.ROOT,
           params: { classId: this.classId },
         };
-      },
-    },
-    vuex: {
-      getters: {
-        pageName: state => state.pageName,
-        classId: state => state.classId,
       },
     },
   };

@@ -9,6 +9,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import { PageNames, LearnerReports } from '../../../constants';
   import learnerExerciseReport from './learner-exercise-report';
@@ -21,6 +22,13 @@
       learnerExerciseReport,
     },
     computed: {
+      ...mapGetters({
+        channelId: state => state.pageState.channelId,
+        user: state => state.pageState.user,
+        exercise: state => state.pageState.exercise,
+        classId: state => state.classId,
+        pageName: state => state.pageName,
+      }),
       backPageLink() {
         if (this.pageName === PageNames.RECENT_LEARNER_ITEM_DETAILS) {
           return {
@@ -63,15 +71,6 @@
       },
       parentTopic() {
         return this.exercise.ancestors[this.exercise.ancestors.length - 1];
-      },
-    },
-    vuex: {
-      getters: {
-        channelId: state => state.pageState.channelId,
-        user: state => state.pageState.user,
-        exercise: state => state.pageState.exercise,
-        classId: state => state.classId,
-        pageName: state => state.pageName,
       },
     },
   };

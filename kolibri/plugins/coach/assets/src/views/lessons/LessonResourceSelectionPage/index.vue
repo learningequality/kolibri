@@ -61,6 +61,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -82,6 +83,16 @@
       searchTools,
     },
     computed: {
+      ...mapGetters({
+        currentLesson: state => state.pageState.currentLesson,
+        lessonId: state => state.pageState.currentLesson.id,
+        workingResources: state => state.pageState.workingResources,
+        // TODO remove since we don't need it in template; use actions
+        classId: state => state.classId,
+        contentList: state => state.pageState.contentList,
+        resourceCache: state => state.pageState.resourceCache,
+        ancestorCounts: state => state.pageState.ancestorCounts,
+      }),
       lessonPage() {
         return lessonSummaryLink(this.routerParams);
       },
@@ -90,6 +101,17 @@
       },
     },
     methods: {
+      ...mapActions({
+        saveLessonResources,
+        createSnackbar,
+        addToSelectedResources(store, contentId) {
+          store.dispatch('ADD_TO_RESOURCE_CACHE', this.contentList.find(n => n.id === contentId));
+          store.dispatch('ADD_TO_WORKING_RESOURCES', contentId);
+        },
+        removeFromSelectedResources(store, contentId) {
+          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', contentId);
+        },
+      }),
       // IDEA refactor router logic into actions
       contentIsDirectoryKind({ kind }) {
         return kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL;
@@ -135,29 +157,6 @@
         } else {
           this.removeFromSelectedResources(contentId);
         }
-      },
-    },
-    vuex: {
-      getters: {
-        currentLesson: state => state.pageState.currentLesson,
-        lessonId: state => state.pageState.currentLesson.id,
-        workingResources: state => state.pageState.workingResources,
-        // TODO remove since we don't need it in template; use actions
-        classId: state => state.classId,
-        contentList: state => state.pageState.contentList,
-        resourceCache: state => state.pageState.resourceCache,
-        ancestorCounts: state => state.pageState.ancestorCounts,
-      },
-      actions: {
-        saveLessonResources,
-        createSnackbar,
-        addToSelectedResources(store, contentId) {
-          store.dispatch('ADD_TO_RESOURCE_CACHE', this.contentList.find(n => n.id === contentId));
-          store.dispatch('ADD_TO_WORKING_RESOURCES', contentId);
-        },
-        removeFromSelectedResources(store, contentId) {
-          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', contentId);
-        },
       },
     },
     $trs: {

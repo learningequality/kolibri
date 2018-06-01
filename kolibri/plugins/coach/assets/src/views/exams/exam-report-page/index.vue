@@ -102,6 +102,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import sumBy from 'lodash/sumBy';
@@ -171,8 +172,17 @@
           { label: this.$tr('delete') },
         ];
       },
+      ...mapGetters({
+        examTakers: state => state.pageState.examTakers,
+        classId: state => state.classId,
+        exam: state => state.pageState.exam,
+        learnerGroups: state => state.pageState.learnerGroups,
+      }),
     },
     methods: {
+      ...mapActions({
+        setExamsModal,
+      }),
       handleSelection(optionSelected) {
         const action = optionSelected.label;
         if (action === this.$tr('previewExam')) {
@@ -202,17 +212,6 @@
         return averageScore >= 0
           ? this.$tr('averageScore', { num: averageScore })
           : this.$tr('noAverageScore');
-      },
-    },
-    vuex: {
-      getters: {
-        examTakers: state => state.pageState.examTakers,
-        classId: state => state.classId,
-        exam: state => state.pageState.exam,
-        learnerGroups: state => state.pageState.learnerGroups,
-      },
-      actions: {
-        setExamsModal,
       },
     },
     $trs: {

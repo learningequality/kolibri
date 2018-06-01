@@ -1,21 +1,12 @@
 <template>
 
   <div>
-    <!-- TODO make search box work, sets content on page -->
-
-    <!-- TODO functionalize -->
-    <!-- <search-box /> -->
-
-    <!-- TODO add conditionalsearch exit button -->
-
     <k-breadcrumbs
       v-if="!noContentOnDevice"
       :items="selectionCrumbs"
       :showSingleItem="true"
     />
 
-    <!-- TODO add conditional filters for search -->
-    <!-- TODO add conditional search result strings -->
     <template v-if="contentListEmpty">
       {{ emptyStateString }}
     </template>
@@ -26,14 +17,13 @@
 
 <script>
 
-  // import searchBox from '../../../../../../../learn/assets/src/views/search-box/';
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { selectionRootLink, topicListingLink } from '../../lessonsRouterUtils';
 
   export default {
     name: 'searchTools',
     components: {
-      // searchBox,
       kBreadcrumbs,
     },
     data() {
@@ -44,6 +34,12 @@
       };
     },
     computed: {
+      ...mapGetters({
+        ancestors: state => state.pageState.ancestors,
+        lessonId: state => state.pageState.currentLesson.id,
+        classId: state => state.classId,
+        contentList: state => state.pageState.contentList,
+      }),
       // TODO cleanup, classId and lessonId are included in these routes all of these routes
       routerParams() {
         return { classId: this.classId, lessonId: this.lessonId };
@@ -77,16 +73,6 @@
           return this.$tr('noResourcesInTopicStatus');
         }
       },
-    },
-    methods: {},
-    vuex: {
-      getters: {
-        ancestors: state => state.pageState.ancestors,
-        lessonId: state => state.pageState.currentLesson.id,
-        classId: state => state.classId,
-        contentList: state => state.pageState.contentList,
-      },
-      actions: {},
     },
     $trs: {
       noResourcesOnDeviceStatus: 'No Channels to select resources from',

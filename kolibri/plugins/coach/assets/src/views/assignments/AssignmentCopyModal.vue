@@ -68,6 +68,7 @@
 
   import sortBy from 'lodash/sortBy';
   import find from 'lodash/find';
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import { error as logError } from 'kolibri.lib.logging';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -137,6 +138,9 @@
       this.selectedClassroomId = this.classId;
     },
     methods: {
+      ...mapActions({
+        handleApiError,
+      }),
       getLearnerGroupsForClassroom(classroomId) {
         return LearnerGroupResource.getCollection({ parent: classroomId }).fetch();
       },
@@ -171,11 +175,6 @@
       },
       isCurrentClassroom(classroom) {
         return classroom.id === this.classId;
-      },
-    },
-    vuex: {
-      actions: {
-        handleApiError,
       },
     },
     $trs: {
