@@ -5,9 +5,19 @@
     type="colored"
     textColor="white"
     class="app-bar"
-    @nav-icon-click="$emit('toggleSideNav')"
     :style="{ height: height + 'px' }"
   >
+    <ui-icon-button
+      slot="icon"
+      type="secondary"
+      @click="$emit('toggleSideNav')"
+    >
+      <mat-svg
+        class="icon"
+        name="menu"
+        category="navigation"
+      />
+    </ui-icon-button>
 
     <div>
       <div class="app-bar-title-icon"></div>
@@ -223,5 +233,8 @@
     display: inline-block
     vertical-align: middle
     background-size: cover
+
+  .icon
+    fill: white
 
 </style>
