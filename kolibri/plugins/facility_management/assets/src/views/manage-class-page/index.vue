@@ -77,6 +77,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
   import orderBy from 'lodash/orderBy';
@@ -108,12 +109,20 @@
     mixins: [responsiveWindow],
     data: () => ({ currentClassDelete: null }),
     computed: {
+      ...mapGetters({
+        modalShown: state => state.pageState.modalShown,
+        classes: state => state.pageState.classes,
+        noClassesExist: state => state.pageState.classes.length === 0,
+      }),
       Modals: () => Modals,
       sortedClassrooms() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
     },
     methods: {
+      ...mapActions({
+        displayModal,
+      }),
       // Duplicated in class-list-page
       coachNames(classroom) {
         const { coaches } = classroom;
@@ -150,16 +159,6 @@
       openDeleteClassModal(classModel) {
         this.currentClassDelete = classModel;
         this.displayModal(Modals.DELETE_CLASS);
-      },
-    },
-    vuex: {
-      getters: {
-        modalShown: state => state.pageState.modalShown,
-        classes: state => state.pageState.classes,
-        noClassesExist: state => state.pageState.classes.length === 0,
-      },
-      actions: {
-        displayModal,
       },
     },
     $trs: {

@@ -28,6 +28,7 @@
 
 <script>
 
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import { displayModal } from '../../state/actions';
@@ -56,16 +57,14 @@
       },
     },
     methods: {
+      ...mapActions({
+        displayModal,
+      }),
       confirmRemoval() {
         this.$emit('confirm');
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        displayModal,
       },
     },
   };

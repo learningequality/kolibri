@@ -6,7 +6,7 @@
   >
     <p>{{ $tr('confirmation', { username: username }) }}</p>
     <p>{{ $tr('warning', { username: username }) }}</p>
-  
+
     <div class="core-modal-buttons">
       <k-button
         :text="$tr('cancel')"
@@ -29,6 +29,7 @@
 
 <script>
 
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { deleteUser, displayModal } from '../../state/actions';
@@ -66,18 +67,16 @@
       };
     },
     methods: {
+      ...mapActions({
+        deleteUser,
+        displayModal,
+      }),
       handleDeleteUser() {
         this.submitting = true;
         this.deleteUser(this.id);
       },
       closeModal() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        deleteUser,
-        displayModal,
       },
     },
   };

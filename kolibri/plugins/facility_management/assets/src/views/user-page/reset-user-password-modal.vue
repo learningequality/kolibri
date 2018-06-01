@@ -52,6 +52,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -88,6 +89,9 @@
       };
     },
     computed: {
+      ...mapGetters({
+        isBusy: state => state.pageState.isBusy,
+      }),
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.submittedForm) {
           if (this.password === '') {
@@ -118,6 +122,10 @@
       },
     },
     methods: {
+      ...mapActions({
+        updateUser,
+        displayModal,
+      }),
       submitForm() {
         this.submittedForm = true;
         if (this.formIsValid) {
@@ -129,15 +137,6 @@
             this.$refs.confirmedPassword.focus();
           }
         }
-      },
-    },
-    vuex: {
-      actions: {
-        updateUser,
-        displayModal,
-      },
-      getters: {
-        isBusy: state => state.pageState.isBusy,
       },
     },
     $trs: {

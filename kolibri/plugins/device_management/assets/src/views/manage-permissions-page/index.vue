@@ -27,6 +27,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
@@ -46,11 +47,11 @@
         searchFilterText: '',
       };
     },
-    vuex: {
-      getters: {
+    computed: {
+      ...mapGetters({
         facilityUsers: state => state.pageState.facilityUsers,
         isSuperuser,
-      },
+      }),
     },
     $trs: {
       devicePermissionsHeader: 'Device permissions',

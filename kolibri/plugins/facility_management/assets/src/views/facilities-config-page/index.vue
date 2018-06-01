@@ -66,6 +66,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   import isEqual from 'lodash/isEqual';
@@ -94,6 +95,11 @@
       settingsCopy: {},
     }),
     computed: {
+      ...mapGetters({
+        currentFacilityName: state => state.pageState.facilityName,
+        settings: state => state.pageState.settings,
+        notification: state => state.pageState.notification,
+      }),
       settingsList: () => settingsList,
       settingsHaveChanged() {
         return !isEqual(this.settings, this.settingsCopy);
@@ -103,26 +109,7 @@
       this.copySettings();
     },
     methods: {
-      resetToDefaultSettings() {
-        this.showModal = false;
-        this.resetFacilityConfig();
-      },
-      saveConfig() {
-        this.saveFacilityConfig().then(() => {
-          this.copySettings();
-        });
-      },
-      copySettings() {
-        this.settingsCopy = Object.assign({}, this.settings);
-      },
-    },
-    vuex: {
-      getters: {
-        currentFacilityName: state => state.pageState.facilityName,
-        settings: state => state.pageState.settings,
-        notification: state => state.pageState.notification,
-      },
-      actions: {
+      ...mapActions({
         toggleSetting(store, settingName) {
           store.dispatch('CONFIG_PAGE_MODIFY_SETTING', {
             name: settingName,
@@ -134,6 +121,18 @@
         dismissNotification(store) {
           store.dispatch('CONFIG_PAGE_NOTIFY', null);
         },
+      }),
+      resetToDefaultSettings() {
+        this.showModal = false;
+        this.resetFacilityConfig();
+      },
+      saveConfig() {
+        this.saveFacilityConfig().then(() => {
+          this.copySettings();
+        });
+      },
+      copySettings() {
+        this.settingsCopy = Object.assign({}, this.settings);
       },
     },
     $trs: {

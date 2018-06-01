@@ -30,7 +30,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';

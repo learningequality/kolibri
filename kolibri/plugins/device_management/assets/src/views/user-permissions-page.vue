@@ -75,6 +75,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -108,6 +109,12 @@
       };
     },
     computed: {
+      ...mapGetters({
+        user: ({ pageState }) => pageState.user,
+        permissions: ({ pageState }) => pageState.permissions,
+        isCurrentUser: ({ core, pageState }) => core.session.username === pageState.user.username,
+        isSuperuser,
+      }),
       superuserDisabled() {
         return this.uiBlocked || this.isCurrentUser;
       },
@@ -161,6 +168,9 @@
         this.permissions.can_manage_content || this.permissions.is_superuser;
     },
     methods: {
+      ...mapActions({
+        addOrUpdateUserPermissions,
+      }),
       save() {
         this.uiBlocked = true;
         this.saveProgress = IN_PROGRESS;
@@ -179,17 +189,6 @@
       },
       goBack() {
         this.$router.push({ path: '/permissions' });
-      },
-    },
-    vuex: {
-      getters: {
-        user: ({ pageState }) => pageState.user,
-        permissions: ({ pageState }) => pageState.permissions,
-        isCurrentUser: ({ core, pageState }) => core.session.username === pageState.user.username,
-        isSuperuser,
-      },
-      actions: {
-        addOrUpdateUserPermissions,
       },
     },
     $trs: {
