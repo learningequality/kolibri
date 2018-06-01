@@ -5,7 +5,8 @@ import { mount } from '@vue/test-utils';
 import ProfilePage from '../../src/views/profile-page';
 import makeStore from '../util/makeStore';
 
-ProfilePage.vuex.actions.fetchPoints = () => {};
+ProfilePage.methods.fetchPoints = () => {};
+ProfilePage.mixins = [];
 
 function makeWrapper() {
   const store = makeStore();

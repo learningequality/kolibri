@@ -171,8 +171,8 @@
     mixins: [responsiveWindow],
     data() {
       return {
-        username: this.session.username,
-        name: this.session.full_name,
+        username: this.$store.state.core.session.username,
+        name: this.$store.state.core.session.full_name,
         usernameBlurred: false,
         nameBlurred: false,
         formSubmitted: false,

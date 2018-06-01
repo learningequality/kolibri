@@ -162,7 +162,7 @@
         permissionPresetDetailsModalShown: false,
       };
     },
-    computed:{
+    computed: {
       ...mapGetters({
         currentPermissionPreset: state => state.onboardingData.preset,
       }),
