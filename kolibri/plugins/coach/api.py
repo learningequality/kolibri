@@ -45,7 +45,7 @@ class KolibriReportPermissions(permissions.BasePermission):
             collection_kind = view.kwargs.get('collection_kind', 'user')
             collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
 
-        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+        allowed_roles = [role_kinds.ADMIN, role_kinds.FACILITY_COACH]
         try:
             if 'user' == collection_kind:
                 return request.user.has_role_for(allowed_roles, FacilityUser.objects.get(pk=collection_or_user_pk))

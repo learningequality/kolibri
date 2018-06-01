@@ -524,7 +524,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         RoleBasedPermissions(  # FacilityUser can be read by admin or coach, and updated by admin, but not created/deleted by non-facility admin
             target_field=".",
             can_be_created_by=(),  # we can't check creation permissions by role, as user doesn't exist yet
-            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.FACILITY_COACH),
             can_be_updated_by=(role_kinds.ADMIN,),
             can_be_deleted_by=(),  # don't want a classroom admin deleting a user completely, just removing them from the class
         )
@@ -782,7 +782,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
         return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
             source_user=F("id"),
             ancestor_collection=self,
-            role_kind=role_kinds.COACH,
+            role_kind=role_kinds.FACILITY_COACH,
         )
 
     def add_role(self, user, role_kind):
@@ -906,7 +906,7 @@ class Membership(AbstractFacilityDataModel):
         RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the member user
             target_field="user",
             can_be_created_by=(role_kinds.ADMIN,),
-            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.FACILITY_COACH),
             can_be_updated_by=(),  # Membership objects shouldn't be updated; they should be deleted and recreated as needed
             can_be_deleted_by=(role_kinds.ADMIN,),
         ) |
@@ -955,7 +955,7 @@ class Role(AbstractFacilityDataModel):
         RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the role collection
             target_field="collection",
             can_be_created_by=(role_kinds.ADMIN,),
-            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.FACILITY_COACH),
             can_be_updated_by=(),  # Role objects shouldn't be updated; they should be deleted and recreated as needed
             can_be_deleted_by=(role_kinds.ADMIN,),
         )
@@ -1061,13 +1061,13 @@ class Facility(Collection):
         self.remove_role(user, role_kinds.ADMIN)
 
     def add_coach(self, user):
-        return self.add_role(user, role_kinds.COACH)
+        return self.add_role(user, role_kinds.FACILITY_COACH)
 
     def add_coaches(self, users):
         return [self.add_coach(user) for user in users]
 
     def remove_coach(self, user):
-        self.remove_role(user, role_kinds.COACH)
+        self.remove_role(user, role_kinds.FACILITY_COACH)
 
     def __str__(self):
         return self.name
@@ -1116,13 +1116,13 @@ class Classroom(Collection):
         self.remove_role(user, role_kinds.ADMIN)
 
     def add_coach(self, user):
-        return self.add_role(user, role_kinds.COACH)
+        return self.add_role(user, role_kinds.FACILITY_COACH)
 
     def add_coaches(self, users):
         return [self.add_coach(user) for user in users]
 
     def remove_coach(self, user):
-        self.remove_role(user, role_kinds.COACH)
+        self.remove_role(user, role_kinds.FACILITY_COACH)
 
     def __str__(self):
         return self.name

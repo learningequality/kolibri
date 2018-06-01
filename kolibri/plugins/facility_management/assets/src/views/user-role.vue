@@ -12,9 +12,9 @@
 
   const roleToLabelMap = {
     [UserKinds.ADMIN]: 'admin',
-    [UserKinds.COACH]: 'facilityCoachRoleLabel',
+    [UserKinds.FACILITY_COACH]: 'facilityCoachRoleLabel',
     [UserKinds.LEARNER]: 'learner',
-    [UserKinds.ASSIGNABLE_COACH]: 'coach',
+    [UserKinds.CLASS_COACH]: 'coach',
   };
 
   export default {

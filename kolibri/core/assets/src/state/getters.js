@@ -8,8 +8,8 @@ export function isAdmin(state) {
 
 export function isCoach(state) {
   return (
-    state.core.session.kind.includes(UserKinds.COACH) ||
-    state.core.session.kind.includes(UserKinds.ASSIGNABLE_COACH)
+    state.core.session.kind.includes(UserKinds.FACILITY_COACH) ||
+    state.core.session.kind.includes(UserKinds.CLASS_COACH)
   );
 }
 
@@ -25,7 +25,7 @@ export function getUserKind(state) {
   if (isAdmin(state)) {
     return UserKinds.ADMIN;
   } else if (isCoach(state)) {
-    return UserKinds.COACH;
+    return UserKinds.FACILITY_COACH;
   } else if (isLearner(state)) {
     return UserKinds.LEARNER;
   }

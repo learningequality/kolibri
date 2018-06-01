@@ -19,10 +19,10 @@ class Exam(AbstractFacilityDataModel):
 
     permissions = RoleBasedPermissions(
         target_field="collection",
-        can_be_created_by=(role_kinds.ADMIN, role_kinds.COACH),
-        can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
-        can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
-        can_be_deleted_by=(role_kinds.ADMIN, role_kinds.COACH),
+        can_be_created_by=(role_kinds.ADMIN, role_kinds.FACILITY_COACH),
+        can_be_read_by=(role_kinds.ADMIN, role_kinds.FACILITY_COACH),
+        can_be_updated_by=(role_kinds.ADMIN, role_kinds.FACILITY_COACH),
+        can_be_deleted_by=(role_kinds.ADMIN, role_kinds.FACILITY_COACH),
     ) | UserCanReadExamData()
 
     title = models.CharField(max_length=200)
@@ -70,10 +70,10 @@ class ExamAssignment(AbstractFacilityDataModel):
     permissions = (
         RoleBasedPermissions(
             target_field="collection",
-            can_be_created_by=(role_kinds.ADMIN, role_kinds.COACH),
-            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_created_by=(role_kinds.ADMIN, role_kinds.FACILITY_COACH),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.FACILITY_COACH),
             can_be_updated_by=(),
-            can_be_deleted_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_deleted_by=(role_kinds.ADMIN, role_kinds.FACILITY_COACH),
         ) | UserCanReadExamAssignmentData()
     )
     exam = models.ForeignKey(Exam, related_name='assignments', blank=False, null=False)

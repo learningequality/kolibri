@@ -33,26 +33,26 @@ class RolesWithinFacilityTestCase(TestCase):
     def test_coach_has_coach_role_for_own_classroom(self):
         coach0 = self.data["classroom_coaches"][0]
         classroom0 = self.data["classrooms"][0]
-        self.assertTrue(coach0.has_role_for(role_kinds.COACH, classroom0))
-        self.assertIn(role_kinds.COACH, coach0.get_roles_for(classroom0))
+        self.assertTrue(coach0.has_role_for(role_kinds.FACILITY_COACH, classroom0))
+        self.assertIn(role_kinds.FACILITY_COACH, coach0.get_roles_for(classroom0))
 
     def test_coach_has_no_coach_role_for_other_classroom(self):
         coach0 = self.data["classroom_coaches"][0]
         classroom1 = self.data["classrooms"][1]
-        self.assertFalse(coach0.has_role_for(role_kinds.COACH, classroom1))
-        self.assertNotIn(role_kinds.COACH, coach0.get_roles_for(classroom1))
+        self.assertFalse(coach0.has_role_for(role_kinds.FACILITY_COACH, classroom1))
+        self.assertNotIn(role_kinds.FACILITY_COACH, coach0.get_roles_for(classroom1))
 
     def test_coach_has_coach_role_for_learner_from_own_classroom(self):
         coach0 = self.data["classroom_coaches"][0]
         learner0 = self.data["learners_one_group"][0][0]
-        self.assertTrue(coach0.has_role_for(role_kinds.COACH, learner0))
-        self.assertIn(role_kinds.COACH, coach0.get_roles_for(learner0))
+        self.assertTrue(coach0.has_role_for(role_kinds.FACILITY_COACH, learner0))
+        self.assertIn(role_kinds.FACILITY_COACH, coach0.get_roles_for(learner0))
 
     def test_coach_has_no_coach_role_for_learner_from_other_classroom(self):
         coach0 = self.data["classroom_coaches"][0]
         learner1 = self.data["learners_one_group"][1][0]
-        self.assertFalse(coach0.has_role_for(role_kinds.COACH, learner1))
-        self.assertNotIn(role_kinds.COACH, coach0.get_roles_for(learner1))
+        self.assertFalse(coach0.has_role_for(role_kinds.FACILITY_COACH, learner1))
+        self.assertNotIn(role_kinds.FACILITY_COACH, coach0.get_roles_for(learner1))
 
 
 class ImplicitMembershipTestCase(TestCase):

@@ -326,7 +326,7 @@ class LoginLogoutTestCase(APITestCase):
         self.client.post(reverse('session-list'), data={"username": self.admin.username, "password": "bar", "facility": self.facility.id})
         response = self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))
         self.assertIn(role_kinds.ADMIN, response.data['kind'])
-        self.assertIn(role_kinds.COACH, response.data['kind'])
+        self.assertIn(role_kinds.FACILITY_COACH, response.data['kind'])
 
     def test_session_return_anon_kind(self):
         response = self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))

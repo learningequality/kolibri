@@ -595,7 +595,7 @@ class RolePermissionsTestCase(TestCase):
         self.assertTrue(self.superuser.can_create(Role, new_role_data))
 
     def test_facility_admin_can_create_facility_coach_role(self):
-        new_role_data = {"user": self.role_user, "collection": self.data["facility"], "kind": role_kinds.COACH}
+        new_role_data = {"user": self.role_user, "collection": self.data["facility"], "kind": role_kinds.FACILITY_COACH}
         self.assertTrue(self.data["facility_admin"].can_create(Role, new_role_data))
         self.assertFalse(self.data["facility_coach"].can_create(Role, new_role_data))
         self.assertFalse(self.own_classroom_admin.can_create(Role, new_role_data))
@@ -619,7 +619,7 @@ class RolePermissionsTestCase(TestCase):
         self.assertFalse(self.anon_user.can_create(Role, new_role_data))
 
     def test_facility_or_classroom_admin_can_create_classroom_coach_role(self):
-        new_role_data = {"user": self.role_user, "collection": self.own_classroom, "kind": role_kinds.COACH}
+        new_role_data = {"user": self.role_user, "collection": self.own_classroom, "kind": role_kinds.FACILITY_COACH}
         self.assertTrue(self.data["facility_admin"].can_create(Role, new_role_data))
         self.assertFalse(self.data["facility_coach"].can_create(Role, new_role_data))
         self.assertTrue(self.own_classroom_admin.can_create(Role, new_role_data))
@@ -657,7 +657,7 @@ class RolePermissionsTestCase(TestCase):
     def test_facility_users_cannot_update_roles(self):
         # None of the fields in a role are "mutable", so there's no reason to allow updates
         # (changing a role from one kind to another means deleting the existing role and creating another)
-        role = Role.objects.create(user=self.role_user, collection=self.own_classroom, kind=role_kinds.COACH)
+        role = Role.objects.create(user=self.role_user, collection=self.own_classroom, kind=role_kinds.FACILITY_COACH)
         self.assertFalse(self.data["facility_admin"].can_update(role))
         self.assertFalse(self.data["facility_coach"].can_update(role))
         self.assertFalse(self.own_classroom_admin.can_update(role))
@@ -680,7 +680,7 @@ class RolePermissionsTestCase(TestCase):
         self.assertFalse(self.anon_user.can_delete(role))
 
     def test_facility_admin_can_delete_facility_coach_role(self):
-        role = Role.objects.create(user=self.role_user, collection=self.data["facility"], kind=role_kinds.COACH)
+        role = Role.objects.create(user=self.role_user, collection=self.data["facility"], kind=role_kinds.FACILITY_COACH)
         self.assertTrue(self.data["facility_admin"].can_delete(role))
         self.assertFalse(self.data["facility_coach"].can_delete(role))
         self.assertFalse(self.own_classroom_admin.can_delete(role))
@@ -704,7 +704,7 @@ class RolePermissionsTestCase(TestCase):
         self.assertFalse(self.anon_user.can_delete(role))
 
     def test_facility_or_classroom_admin_can_delete_classroom_coach_role(self):
-        role = Role.objects.create(user=self.role_user, collection=self.own_classroom, kind=role_kinds.COACH)
+        role = Role.objects.create(user=self.role_user, collection=self.own_classroom, kind=role_kinds.FACILITY_COACH)
         self.assertTrue(self.data["facility_admin"].can_delete(role))
         self.assertFalse(self.data["facility_coach"].can_delete(role))
         self.assertTrue(self.own_classroom_admin.can_delete(role))

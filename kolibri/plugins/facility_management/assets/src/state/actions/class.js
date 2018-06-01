@@ -110,7 +110,7 @@ export function assignCoachesToClass(store, coaches) {
     coaches.map(userId => ({
       collection: classId,
       user: userId,
-      kind: UserKinds.COACH,
+      kind: UserKinds.FACILITY_COACH,
     }))
   ).save();
 }
@@ -263,8 +263,8 @@ export function showCoachClassAssignmentPage(store, classId) {
           // filter out users who are not eligible to be coaches
           .filter(user => {
             const eligibleRoles = [
-              UserKinds.ASSIGNABLE_COACH,
-              UserKinds.COACH,
+              UserKinds.CLASS_COACH,
+              UserKinds.FACILITY_COACH,
               UserKinds.ADMIN,
               UserKinds.SUPERUSER,
             ];

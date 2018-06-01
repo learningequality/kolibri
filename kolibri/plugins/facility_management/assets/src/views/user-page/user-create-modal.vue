@@ -165,15 +165,15 @@
       newUserRole() {
         if (this.coachIsSelected) {
           if (this.classCoach) {
-            return UserKinds.ASSIGNABLE_COACH;
+            return UserKinds.CLASS_COACH;
           }
-          return UserKinds.COACH;
+          return UserKinds.FACILITY_COACH;
         }
         // Admin or Learner
         return this.kind.value;
       },
       coachIsSelected() {
-        return this.kind.value === UserKinds.COACH;
+        return this.kind.value === UserKinds.FACILITY_COACH;
       },
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
@@ -249,7 +249,7 @@
           },
           {
             label: this.$tr('coach'),
-            value: UserKinds.COACH,
+            value: UserKinds.FACILITY_COACH,
           },
           {
             label: this.$tr('admin'),
