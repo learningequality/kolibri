@@ -17,6 +17,7 @@
 <script>
 
   import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import { snackbarIsVisible, snackbarOptions } from 'kolibri.coreVue.vuex.getters';
 
   export default {
@@ -36,18 +37,16 @@
         }
         return JSON.stringify(options) + new Date();
       },
+      ...mapGetters({
+        snackbarIsVisible,
+        snackbarOptions,
+      }),
     },
     methods: {
       hideCallback() {
         if (this.snackbarOptions.hideCallback) {
           this.snackbarOptions.hideCallback();
         }
-      },
-    },
-    vuex: {
-      getters: {
-        snackbarIsVisible,
-        snackbarOptions,
       },
     },
   };

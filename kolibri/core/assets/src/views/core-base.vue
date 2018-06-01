@@ -56,6 +56,7 @@
 
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import appBar from 'kolibri.coreVue.components.appBar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
@@ -125,13 +126,6 @@
         required: false,
       },
     },
-    vuex: {
-      getters: {
-        // set document title (window name)
-        documentTitle: state => state.core.title,
-        toolbarTitle: state => state.pageState.toolbarTitle,
-      },
-    },
     data: () => ({ navShown: false }),
     computed: {
       mobile() {
@@ -143,6 +137,10 @@
       navWidth() {
         return this.headerHeight * 4;
       },
+      ...mapGetters({
+        documentTitle: state => state.core.title,
+        toolbarTitle: state => state.pageState.toolbarTitle,
+      }),
     },
     watch: {
       documentTitle: 'updateDocumentTitle',

@@ -20,6 +20,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import errorBox from './error-box';
@@ -59,13 +60,11 @@
           padding: `${this.padding}px`,
         };
       },
-    },
-    vuex: {
-      getters: {
+      ...mapGetters({
         loading: state => state.core.loading,
         error: state => state.core.error,
         documentTitle: state => state.core.title,
-      },
+      }),
     },
   };
 

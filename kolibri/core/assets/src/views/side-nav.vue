@@ -73,6 +73,7 @@
     isCoach,
     canManageContent,
   } from 'kolibri.coreVue.vuex.getters';
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -200,6 +201,14 @@
         options.push({ type: 'divider' });
         return options;
       },
+      ...mapGetters({
+        session: state => state.core.session,
+        isUserLoggedIn,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        canManageContent,
+      }),
     },
     watch: {
       navShown(isShown) {
@@ -237,17 +246,9 @@
           this.$refs.toggleButton.$el.focus();
         }
       },
-    },
-    vuex: {
-      actions: { signOut: kolibriLogout },
-      getters: {
-        session: state => state.core.session,
-        isUserLoggedIn,
-        isSuperuser,
-        isAdmin,
-        isCoach,
-        canManageContent,
-      },
+      ...mapActions({
+        signOut: kolibriLogout,
+      }),
     },
   };
 
