@@ -66,6 +66,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
@@ -135,6 +136,9 @@
       uniqueId: null,
     }),
     computed: {
+      ...mapGetters({
+        channels: getChannels,
+      }),
       isMobile() {
         return this.windowSize.breakpoint <= 1;
       },
@@ -183,11 +187,6 @@
         this.sharedContentId = contentId;
         this.uniqueId = this.contents.find(content => content.content_id === contentId).id;
         this.modalIsOpen = true;
-      },
-    },
-    vuex: {
-      getters: {
-        channels: getChannels,
       },
     },
   };

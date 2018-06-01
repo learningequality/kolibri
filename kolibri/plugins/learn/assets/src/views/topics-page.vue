@@ -28,6 +28,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import textTruncator from 'kolibri.coreVue.components.textTruncator';
   import { PageNames } from '../constants';
@@ -47,6 +48,14 @@
       contentCardGroupGrid,
       textTruncator,
     },
+    computed: {
+      ...mapGetters({
+        topic: state => state.pageState.topic,
+        contents: state => state.pageState.contents,
+        isRoot: state => state.pageState.isRoot,
+        channelId: state => state.pageState.channel.id,
+      }),
+    },
     methods: {
       genContentLink(id, kind) {
         if (kind === ContentNodeKinds.TOPIC) {
@@ -59,14 +68,6 @@
           name: PageNames.TOPICS_CONTENT,
           params: { channel_id: this.channelId, id },
         };
-      },
-    },
-    vuex: {
-      getters: {
-        topic: state => state.pageState.topic,
-        contents: state => state.pageState.contents,
-        isRoot: state => state.pageState.isRoot,
-        channelId: state => state.pageState.channel.id,
       },
     },
   };

@@ -25,6 +25,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import AuthMessage from 'kolibri.coreVue.components.authMessage';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -40,6 +41,10 @@
     },
     mixins: [responsiveWindow],
     computed: {
+      ...mapGetters({
+        classrooms: state => state.pageState.classrooms,
+        isUserLoggedIn,
+      }),
       isMobile() {
         return this.windowSize.breakpoint <= 1;
       },
@@ -49,12 +54,6 @@
     },
     methods: {
       classAssignmentsLink,
-    },
-    vuex: {
-      getters: {
-        classrooms: state => state.pageState.classrooms,
-        isUserLoggedIn,
-      },
     },
     $trs: {
       allClassesHeader: 'Classes',

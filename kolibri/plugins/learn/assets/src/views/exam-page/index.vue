@@ -96,6 +96,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
@@ -137,8 +138,8 @@
         submitModalOpen: false,
       };
     },
-    vuex: {
-      getters: {
+    computed: {
+      ...mapGetters({
         exam: state => state.pageState.exam,
         channelId: state => state.pageState.channelId,
         content: state => state.pageState.content,
@@ -147,13 +148,7 @@
         attemptLogs: state => state.examAttemptLogs,
         currentAttempt: state => state.pageState.currentAttempt,
         questionsAnswered: state => state.pageState.questionsAnswered,
-      },
-      actions: {
-        setAndSaveCurrentExamAttemptLog,
-        closeExam,
-      },
-    },
-    computed: {
+      }),
       backPageLink() {
         return {
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
@@ -169,6 +164,10 @@
       });
     },
     methods: {
+      ...mapActions({
+        setAndSaveCurrentExamAttemptLog,
+        closeExam,
+      }),
       checkAnswer() {
         if (this.$refs.contentRenderer) {
           return this.$refs.contentRenderer.checkAnswer();

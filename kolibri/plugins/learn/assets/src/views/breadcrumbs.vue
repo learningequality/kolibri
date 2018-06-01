@@ -11,6 +11,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { PageNames, PageModes } from '../constants';
   import { pageMode } from '../state/getters';
@@ -25,6 +26,16 @@
     components: { kBreadcrumbs },
     mixins: [classesBreadcrumbItems],
     computed: {
+      ...mapGetters({
+        pageName: state => state.pageName,
+        pageMode,
+        channelRootId: state => (state.pageState.channel || {}).root_id,
+        channelTitle: state => (state.pageState.channel || {}).title,
+        topicTitle: state => (state.pageState.topic || {}).title,
+        topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
+        contentTitle: state => (state.pageState.content || {}).title,
+        contentCrumbs: state => (state.pageState.content || {}).breadcrumbs || [],
+      }),
       inLearn() {
         return this.pageMode === PageModes.RECOMMENDED && this.pageName !== PageNames.RECOMMENDED;
       },
@@ -97,18 +108,6 @@
             params: { id },
           },
         }));
-      },
-    },
-    vuex: {
-      getters: {
-        pageName: state => state.pageName,
-        pageMode,
-        channelRootId: state => (state.pageState.channel || {}).root_id,
-        channelTitle: state => (state.pageState.channel || {}).title,
-        topicTitle: state => (state.pageState.topic || {}).title,
-        topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
-        contentTitle: state => (state.pageState.content || {}).title,
-        contentCrumbs: state => (state.pageState.content || {}).breadcrumbs || [],
       },
     },
   };

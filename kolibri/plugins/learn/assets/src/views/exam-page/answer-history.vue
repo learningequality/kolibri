@@ -30,6 +30,8 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
+
   export default {
     name: 'answerHistory',
     $trs: {
@@ -40,6 +42,12 @@
         type: Number,
         required: true,
       },
+    },
+    computed: {
+      ...mapGetters({
+        questions: state => state.pageState.questions,
+        attemptLogs: state => state.examAttemptLogs,
+      }),
     },
     methods: {
       daysElapsedText(daysElapsed) {
@@ -61,12 +69,6 @@
       },
       isAnswered(question) {
         return ((this.attemptLogs[question.contentId] || {})[question.itemId] || {}).answer;
-      },
-    },
-    vuex: {
-      getters: {
-        questions: state => state.pageState.questions,
-        attemptLogs: state => state.examAttemptLogs,
       },
     },
   };

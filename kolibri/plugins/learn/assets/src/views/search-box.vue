@@ -46,6 +46,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import { PageNames } from '../constants';
 
@@ -70,6 +71,11 @@
         searchQuery: this.searchTerm,
       };
     },
+    computed: {
+      ...mapGetters({
+        searchTerm: state => state.pageState.searchTerm,
+      }),
+    },
     watch: {
       searchTerm(val) {
         this.searchQuery = val || '';
@@ -90,11 +96,6 @@
             query: { query: this.searchQuery },
           });
         }
-      },
-    },
-    vuex: {
-      getters: {
-        searchTerm: state => state.pageState.searchTerm,
       },
     },
   };

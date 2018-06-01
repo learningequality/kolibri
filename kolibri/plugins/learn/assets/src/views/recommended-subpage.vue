@@ -15,6 +15,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { PageNames } from '../constants';
   import contentCardGroupGrid from './content-card-group-grid';
@@ -35,6 +36,11 @@
       kBreadcrumbs,
     },
     computed: {
+      ...mapGetters({
+        pageName: state => state.pageName,
+        recommendations: state => state.pageState.recommendations,
+        channelTitle: state => state.pageState.channelTitle,
+      }),
       header() {
         switch (this.pageName) {
           case PageNames.RECOMMENDED_POPULAR:
@@ -69,13 +75,6 @@
           name: PageNames.RECOMMENDED_CONTENT,
           params: { id },
         };
-      },
-    },
-    vuex: {
-      getters: {
-        pageName: state => state.pageName,
-        recommendations: state => state.pageState.recommendations,
-        channelTitle: state => state.pageState.channelTitle,
       },
     },
   };

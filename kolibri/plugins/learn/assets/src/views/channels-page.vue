@@ -16,6 +16,7 @@
 
 <script>
 
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import { PageNames } from '../constants';
   import pageHeader from './page-header';
   import contentCardGroupGrid from './content-card-group-grid';
@@ -29,17 +30,17 @@
       pageHeader,
       contentCardGroupGrid,
     },
+    computed: {
+      ...mapGetters({
+        channels: state => state.pageState.rootNodes,
+      }),
+    },
     methods: {
       genChannelLink(channel_id) {
         return {
           name: PageNames.TOPICS_CHANNEL,
           params: { channel_id },
         };
-      },
-    },
-    vuex: {
-      getters: {
-        channels: state => state.pageState.rootNodes,
       },
     },
   };

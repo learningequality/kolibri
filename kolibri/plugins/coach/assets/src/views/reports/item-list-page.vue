@@ -77,7 +77,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapGetters } from 'kolibri.utils.vuexCompat';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';

@@ -31,7 +31,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import { deleteClass, displayModal } from '../../state/actions';
