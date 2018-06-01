@@ -151,7 +151,7 @@ def run_server(port):
     # Configure the server
     server.socket_host = LISTEN_ADDRESS
     server.socket_port = port
-    server.thread_pool = conf.OPTIONS["Server"]["THREADS_POOL"]
+    server.thread_pool = conf.OPTIONS["Server"]["THREAD_POOL"]
     server.socket_timeout = conf.OPTIONS["Server"]["SOCKET_TIMEOUT"]
     server.accepted_queue_size = conf.OPTIONS["Server"]["QUEUE_SIZE"]
     server.accepted_queue_timeout = conf.OPTIONS["Server"]["QUEUE_TIMEOUT"]

@@ -33,10 +33,10 @@ option_spec = {
         },
     },
     "Server": {
-        "THREADS_POOL": {
+        "THREAD_POOL": {
             "type": "integer",
             "default": 10,
-            "envvars": ("CHERRYPY_THREADS_POOL",),
+            "envvars": ("CHERRYPY_THREAD_POOL",),
         },
         "SOCKET_TIMEOUT": {
             "type": "integer",
