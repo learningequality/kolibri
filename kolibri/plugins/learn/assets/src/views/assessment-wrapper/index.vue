@@ -140,7 +140,7 @@ oriented data synchronization.
     },
     mixins: [responsiveWindow],
     $trs: {
-      goal: 'Get {count, number, integer} correct',
+      goal: 'Get {count, number, integer} {count, plural, other {correct}}',
       tryAgain: 'Try again',
       correct: 'Correct!',
       check: 'Check',
