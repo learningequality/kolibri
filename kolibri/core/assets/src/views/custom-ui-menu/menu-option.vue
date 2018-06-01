@@ -44,7 +44,6 @@
 <script>
 
   import config from 'keen-ui/src/config';
-
   import UiIcon from 'keen-ui/src/UiIcon.vue';
   import UiRippleInk from 'keen-ui/src/UiRippleInk.vue';
 
@@ -78,7 +77,6 @@
         default: false,
       },
     },
-
     computed: {
       classes() {
         return {
@@ -87,7 +85,6 @@
           'is-active': this.active,
         };
       },
-
       isDivider() {
         return this.type === 'divider';
       },
