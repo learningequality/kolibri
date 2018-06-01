@@ -424,7 +424,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
             return Response(cache.get(cache_key))
 
         copies = []
-        nodes = models.ContentNode.objects.filter(content_id=pk)
+        nodes = models.ContentNode.objects.filter(content_id=pk, available=True)
         for node in nodes:
             copies.append(node.get_ancestors(include_self=True).values('id', 'title'))
 
@@ -437,7 +437,10 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         Returns the number of node copies for each content id.
         """
         content_ids = self.request.query_params.get('content_ids', []).split(',')
-        counts = models.ContentNode.objects.filter(content_id__in=content_ids).values('content_id').order_by().annotate(count=Count('content_id'))
+        counts = models.ContentNode.objects.filter(content_id__in=content_ids, available=True) \
+                                           .values('content_id') \
+                                           .order_by() \
+                                           .annotate(count=Count('content_id'))
         return Response(counts)
 
     @detail_route(methods=['get'])

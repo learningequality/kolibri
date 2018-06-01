@@ -74,10 +74,11 @@ class ContentReportAPITestCase(APITestCase):
         # Topic so None
         assert_progress(root, [
             [{'log_count_total': 0, 'total_progress': 0.0, 'log_count_complete': 0}],
+            [{'log_count_total': 0, 'total_progress': 0.0, 'log_count_complete': 0}],
             [
                 {'kind': 'audio', 'node_count': 1, 'total_progress': 0.5},
                 {'kind': 'document', 'node_count': 1, 'total_progress': 0.0},
-                {'kind': 'exercise', 'node_count': 1, 'total_progress': 0.7}
+                {'kind': 'exercise', 'node_count': 1, 'total_progress': 0.7},
             ]
         ])
         assert_progress(c2, [
