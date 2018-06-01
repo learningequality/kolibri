@@ -4,12 +4,16 @@ import uuid
 from django.core.management import call_command
 from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
+from mock import call
 from mock import patch
 
 from .sqlalchemytesting import django_connection_engine
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.content.models import ContentNode
 from kolibri.content.models import File
 from kolibri.content.models import LocalFile
+from kolibri.content.utils.annotation import fix_multiple_trees_with_id_one
 from kolibri.content.utils.annotation import mark_local_files_as_available
 from kolibri.content.utils.annotation import recurse_availability_up_tree
 from kolibri.content.utils.annotation import set_leaf_node_availability_from_local_file_availability
@@ -84,7 +88,7 @@ class AnnotationTreeRecursion(TransactionTestCase):
     def test_no_content_nodes_available(self):
         ContentNode.objects.filter(kind=content_kinds.TOPIC).update(available=True)
         recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
-        # 3, as there are two childless topics in the fixture, these cannot exist in real databases
+        # 3, as there are three childless topics in the fixture, these cannot exist in real databases
         self.assertEqual(ContentNode.objects.filter(kind=content_kinds.TOPIC).filter(available=True).count(), 3)
 
     def test_one_content_node_available(self):
@@ -127,6 +131,7 @@ class LocalFileByChecksum(TransactionTestCase):
 
 
 mock_content_file = tempfile.mkstemp()
+
 
 @patch('kolibri.content.utils.sqlalchemybridge.get_engine', new=get_engine)
 class LocalFileByDisk(TransactionTestCase):
@@ -204,3 +209,138 @@ class LocalFileByDisk(TransactionTestCase):
     def tearDown(self):
         call_command('flush', interactive=False)
         super(LocalFileByDisk, self).tearDown()
+
+
+mock_content_db_file = tempfile.mkstemp()
+
+
+@patch('kolibri.content.utils.channel_import.import_channel_from_local_db')
+class FixMultipleTreesWithIdOneTestCase(TransactionTestCase):
+
+    fixtures = ['content_test.json']
+
+    @patch('kolibri.content.utils.annotation.get_content_database_file_path', return_value=mock_content_file[1])
+    def test_extra_channel_contentdb_exists(self, path_mock, import_mock):
+        root_node = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+        )
+        ChannelMetadata.objects.create(
+            id=root_node.channel_id,
+            root=root_node,
+            name='test',
+            min_schema_version=CONTENT_SCHEMA_VERSION,
+        )
+        # Do this to side step django mptts auto tree_id code
+        ContentNode.objects.filter(parent=None).update(tree_id=1)
+        self.assertEqual(ContentNode.objects.filter(parent=None, tree_id=1).count(), 2)
+        fix_multiple_trees_with_id_one()
+        self.assertEqual(ContentNode.objects.filter(parent=None, tree_id=1).count(), 1)
+        import_mock.assert_called_with(root_node.channel_id)
+
+    @patch('kolibri.content.utils.annotation.get_content_database_file_path', return_value=mock_content_file[1])
+    def test_two_extra_channels_contentdb_exists(self, path_mock, import_mock):
+        root_node_1 = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+        )
+        ChannelMetadata.objects.create(
+            id=root_node_1.channel_id,
+            root=root_node_1,
+            name='test',
+            min_schema_version=CONTENT_SCHEMA_VERSION,
+        )
+        root_node_2 = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+        )
+        # Add an additional node so that root_node_1 channel is processed first.
+        ContentNode.objects.create(
+            title='test1',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node_2.channel_id,
+            parent=root_node_2,
+        )
+        ChannelMetadata.objects.create(
+            id=root_node_2.channel_id,
+            root=root_node_2,
+            name='test',
+            min_schema_version=CONTENT_SCHEMA_VERSION,
+        )
+        # Do this to side step django mptts auto tree_id code
+        ContentNode.objects.filter(parent=None).update(tree_id=1)
+        self.assertEqual(ContentNode.objects.filter(parent=None, tree_id=1).count(), 3)
+        fix_multiple_trees_with_id_one()
+        self.assertEqual(ContentNode.objects.filter(parent=None, tree_id=1).count(), 1)
+        import_mock.assert_has_calls([call(root_node_1.channel_id), call(root_node_2.channel_id)])
+
+    @patch('kolibri.content.utils.annotation.get_content_database_file_path', return_value='')
+    def test_extra_channel_no_contentdb_exists(self, path_mock, import_mock):
+        root_node = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+        )
+        ChannelMetadata.objects.create(
+            id=root_node.channel_id,
+            root=root_node,
+            name='test',
+            min_schema_version=CONTENT_SCHEMA_VERSION,
+        )
+        # Do this to side step django mptts auto tree_id code
+        ContentNode.objects.filter(parent=None).update(tree_id=1)
+        self.assertEqual(ContentNode.objects.filter(parent=None, tree_id=1).count(), 2)
+        fix_multiple_trees_with_id_one()
+        self.assertEqual(ContentNode.objects.filter(parent=None, tree_id=1).count(), 2)
+        import_mock.assert_not_called()
+
+    @patch('kolibri.content.utils.annotation.get_content_database_file_path', side_effect=['', mock_content_file[1]])
+    def test_two_extra_channels_one_contentdb_exists(self, path_mock, import_mock):
+        root_node_1 = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+        )
+        ChannelMetadata.objects.create(
+            id=root_node_1.channel_id,
+            root=root_node_1,
+            name='test',
+            min_schema_version=CONTENT_SCHEMA_VERSION,
+        )
+        root_node_2 = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+        )
+        # Add an additional node so that root_node_1 channel is processed first.
+        ContentNode.objects.create(
+            title='test1',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node_2.channel_id,
+            parent=root_node_2,
+        )
+        ChannelMetadata.objects.create(
+            id=root_node_2.channel_id,
+            root=root_node_2,
+            name='test',
+            min_schema_version=CONTENT_SCHEMA_VERSION,
+        )
+        # Do this to side step django mptts auto tree_id code
+        ContentNode.objects.filter(parent=None).update(tree_id=1)
+        self.assertEqual(ContentNode.objects.filter(parent=None, tree_id=1).count(), 3)
+        fix_multiple_trees_with_id_one()
+        self.assertEqual(ContentNode.objects.filter(parent=None, tree_id=1).count(), 2)
+        with self.assertRaises(AssertionError):
+            import_mock.assert_called_with(root_node_1.channel_id)
+        import_mock.assert_called_with(root_node_2.channel_id)
