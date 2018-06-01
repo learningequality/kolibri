@@ -47,6 +47,7 @@
 
 <script>
 
+  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { refreshDriveList } from '../../../state/actions/taskActions';
@@ -70,6 +71,13 @@
       };
     },
     computed: {
+      ...mapGetters({
+        driveList: state => wizardState(state).driveList,
+        transferType: state => wizardState(state).transferType,
+        transferredChannel: state => wizardState(state).transferredChannel,
+        driveCanBeUsedForTransfer,
+        isImportingMore,
+      }),
       inImportMode() {
         return this.transferType === TransferTypes.LOCALIMPORT;
       },
@@ -103,24 +111,15 @@
         });
     },
     methods: {
+      ...mapActions({
+        goForwardFromSelectDriveModal,
+        refreshDriveList,
+      }),
       goForward() {
         this.goForwardFromSelectDriveModal({
           driveId: this.selectedDriveId,
           forExport: !this.inImportMode,
         });
-      },
-    },
-    vuex: {
-      getters: {
-        driveList: state => wizardState(state).driveList,
-        transferType: state => wizardState(state).transferType,
-        transferredChannel: state => wizardState(state).transferredChannel,
-        driveCanBeUsedForTransfer,
-        isImportingMore,
-      },
-      actions: {
-        goForwardFromSelectDriveModal,
-        refreshDriveList,
       },
     },
     $trs: {
