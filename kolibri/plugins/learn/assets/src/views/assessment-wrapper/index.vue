@@ -147,7 +147,7 @@ oriented data synchronization.
       next: 'Next',
       itemError: 'There was an error showing this item',
       completed: 'Completed',
-      inputAnswer: 'Must input answer',
+      inputAnswer: 'Please enter an answer above',
       hintUsed: 'Hint used',
       greatKeepGoing: 'Great! Keep going',
       tryDifferentQuestion: 'Try a different question',
