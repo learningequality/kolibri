@@ -81,14 +81,14 @@
       kRouterLink,
     },
     computed: {
-      CLASSROOM: () => ContentNodeKinds.CLASSROOM,
-      sortedClasses() {
-        return orderBy(this.classList, [classroom => classroom.name.toUpperCase()], ['asc']);
-      },
       ...mapGetters({
         classList: state => state.classList,
         noClassesExist: state => state.classList.length === 0,
       }),
+      CLASSROOM: () => ContentNodeKinds.CLASSROOM,
+      sortedClasses() {
+        return orderBy(this.classList, [classroom => classroom.name.toUpperCase()], ['asc']);
+      },
     },
     methods: {
       learnerPageLink,

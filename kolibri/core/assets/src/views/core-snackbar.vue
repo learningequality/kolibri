@@ -88,6 +88,12 @@
       }
     },
     methods: {
+      ...mapActions({
+        hideSnackbar(store) {
+          this.$emit('hide');
+          clearSnackbar(store);
+        },
+      }),
       containFocus(event) {
         if (event.target === window) {
           return;
@@ -96,12 +102,6 @@
           this.$refs.snackbar.$el.focus();
         }
       },
-      ...mapActions({
-        hideSnackbar(store) {
-          this.$emit('hide');
-          clearSnackbar(store);
-        },
-      }),
     },
   };
 

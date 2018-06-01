@@ -85,6 +85,14 @@
       AssignmentDeleteModal,
     },
     computed: {
+      ...mapGetters({
+        exam: state => state.pageState.exam,
+        examsModalSet: state => state.pageState.examsModalSet,
+        classId: state => state.classId,
+        className: state => state.className,
+        classList: state => state.classList,
+        learnerGroups: state => state.pageState.learnerGroups,
+      }),
       AssignmentActions() {
         return AssignmentActions;
       },
@@ -94,14 +102,6 @@
       selectedCollectionIds() {
         return this.exam.assignments.map(assignment => assignment.collection);
       },
-      ...mapGetters({
-        exam: state => state.pageState.exam,
-        examsModalSet: state => state.pageState.examsModalSet,
-        classId: state => state.classId,
-        className: state => state.className,
-        classList: state => state.classList,
-        learnerGroups: state => state.pageState.learnerGroups,
-      }),
     },
     methods: {
       ...mapActions({

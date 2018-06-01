@@ -34,15 +34,6 @@
       examReport,
     },
     computed: {
-      backPageLink() {
-        return {
-          name: PageNames.EXAM_REPORT,
-          params: {
-            classId: this.classId,
-            examId: this.exam.id,
-          },
-        };
-      },
       ...mapGetters({
         classId: state => state.classId,
         examAttempts: state => state.pageState.examAttempts,
@@ -59,6 +50,15 @@
         completionTimestamp: state => state.pageState.examLog.completion_timestamp,
         closed: state => state.pageState.examLog.closed,
       }),
+      backPageLink() {
+        return {
+          name: PageNames.EXAM_REPORT,
+          params: {
+            classId: this.classId,
+            examId: this.exam.id,
+          },
+        };
+      },
     },
     methods: {
       navigateToQuestion(questionNumber) {

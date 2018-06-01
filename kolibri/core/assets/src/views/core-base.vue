@@ -128,6 +128,10 @@
     },
     data: () => ({ navShown: false }),
     computed: {
+      ...mapGetters({
+        documentTitle: state => state.core.title,
+        toolbarTitle: state => state.pageState.toolbarTitle,
+      }),
       mobile() {
         return this.windowSize.breakpoint < 2;
       },
@@ -137,10 +141,6 @@
       navWidth() {
         return this.headerHeight * 4;
       },
-      ...mapGetters({
-        documentTitle: state => state.core.title,
-        toolbarTitle: state => state.pageState.toolbarTitle,
-      }),
     },
     watch: {
       documentTitle: 'updateDocumentTitle',

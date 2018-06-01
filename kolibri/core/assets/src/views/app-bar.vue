@@ -114,6 +114,13 @@
       userMenuDropdownIsOpen: false,
     }),
     computed: {
+      ...mapGetters({
+        isUserLoggedIn,
+        isAdmin,
+        isCoach,
+        isLearner,
+        username: state => state.core.session.username,
+      }),
       userMenuOptions() {
         const changeLanguage = {
           id: 'language',
@@ -141,13 +148,6 @@
           changeLanguage,
         ];
       },
-      ...mapGetters({
-        isUserLoggedIn,
-        isAdmin,
-        isCoach,
-        isLearner,
-        username: state => state.core.session.username,
-      }),
     },
     created() {
       window.addEventListener('click', this.handleClick);

@@ -46,12 +46,12 @@
       },
     },
     methods: {
-      close() {
-        this.setExamsModal(false);
-      },
       ...mapActions({
         setExamsModal,
       }),
+      close() {
+        this.setExamsModal(false);
+      },
     },
   };
 

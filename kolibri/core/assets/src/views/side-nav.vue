@@ -133,6 +133,14 @@
       };
     },
     computed: {
+      ...mapGetters({
+        session: state => state.core.session,
+        isUserLoggedIn,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        canManageContent,
+      }),
       mobile() {
         return this.windowSize.breakpoint < 2;
       },
@@ -201,14 +209,6 @@
         options.push({ type: 'divider' });
         return options;
       },
-      ...mapGetters({
-        session: state => state.core.session,
-        isUserLoggedIn,
-        isSuperuser,
-        isAdmin,
-        isCoach,
-        canManageContent,
-      }),
     },
     watch: {
       navShown(isShown) {
@@ -225,6 +225,9 @@
       },
     },
     methods: {
+      ...mapActions({
+        signOut: kolibriLogout,
+      }),
       navigate(option) {
         if (option.href) {
           window.location.href = option.href;
@@ -246,9 +249,6 @@
           this.$refs.toggleButton.$el.focus();
         }
       },
-      ...mapActions({
-        signOut: kolibriLogout,
-      }),
     },
   };
 

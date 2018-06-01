@@ -47,6 +47,11 @@
       },
     },
     computed: {
+      ...mapGetters({
+        loading: state => state.core.loading,
+        error: state => state.core.error,
+        documentTitle: state => state.core.title,
+      }),
       isMobile() {
         return this.windowSize.breakpoint < 2;
       },
@@ -60,11 +65,6 @@
           padding: `${this.padding}px`,
         };
       },
-      ...mapGetters({
-        loading: state => state.core.loading,
-        error: state => state.core.error,
-        documentTitle: state => state.core.title,
-      }),
     },
   };
 

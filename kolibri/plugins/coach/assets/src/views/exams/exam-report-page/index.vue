@@ -135,6 +135,12 @@
       };
     },
     computed: {
+      ...mapGetters({
+        examTakers: state => state.pageState.examTakers,
+        classId: state => state.classId,
+        exam: state => state.pageState.exam,
+        learnerGroups: state => state.pageState.learnerGroups,
+      }),
       viewByGroupsIsDisabled() {
         return !this.learnerGroups.length || this.examTakers.every(learner => !learner.group.id);
       },
@@ -172,12 +178,6 @@
           { label: this.$tr('delete') },
         ];
       },
-      ...mapGetters({
-        examTakers: state => state.pageState.examTakers,
-        classId: state => state.classId,
-        exam: state => state.pageState.exam,
-        learnerGroups: state => state.pageState.learnerGroups,
-      }),
     },
     methods: {
       ...mapActions({

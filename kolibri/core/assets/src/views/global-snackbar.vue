@@ -26,6 +26,10 @@
       coreSnackbar,
     },
     computed: {
+      ...mapGetters({
+        snackbarIsVisible,
+        snackbarOptions,
+      }),
       key() {
         const options = Object.assign({}, this.snackbarOptions);
         // The forceReuse option is used to force the reuse of the snackbar
@@ -37,10 +41,6 @@
         }
         return JSON.stringify(options) + new Date();
       },
-      ...mapGetters({
-        snackbarIsVisible,
-        snackbarOptions,
-      }),
     },
     methods: {
       hideCallback() {
