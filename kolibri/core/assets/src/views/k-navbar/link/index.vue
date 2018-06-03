@@ -6,14 +6,12 @@
       :class="{ 'tab-has-icon-and-title': type === 'icon-and-title' }"
       :to="link"
     >
-
       <div v-if="type === 'icon' || type === 'icon-and-title'" class="tab-icon">
         <ui-icon :ariaLabel="title" class="icon">
           <!--The icon svg-->
-          <slot> </slot>
+          <slot></slot>
         </ui-icon>
       </div>
-
       <div v-if="type === 'title' || type === 'icon-and-title'" class="tab-title">
         {{ title }}
       </div>
