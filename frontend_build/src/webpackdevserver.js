@@ -9,6 +9,7 @@ process.argv.forEach(function(val) {
 var WebpackDevServer = require('webpack-dev-server');
 var webpack = require('webpack');
 var devServerConfig = require('./webpackdevserverconfig');
+var openInEditor = require('launch-editor-middleware');
 
 var bundles = require('./webpack.config.dev');
 var compiler = webpack(bundles);
@@ -37,4 +38,6 @@ var server = new WebpackDevServer(compiler, {
     'Access-Control-Allow-Origin': '*',
   },
 });
+server.use('/__open-in-editor', openInEditor());
+
 server.listen(devServerConfig.port, devServerConfig.address, function() {});
