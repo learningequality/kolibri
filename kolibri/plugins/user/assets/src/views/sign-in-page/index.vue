@@ -134,6 +134,10 @@
   import languageSwitcherFooter from '../language-switcher-footer';
   import facilityModal from './facility-modal';
 
+  function hasMultipleFacilities(state) {
+    return state.pageState.hasMultipleFacilities;
+  }
+
   export default {
     name: 'signInPage',
     $trs: {
@@ -166,7 +170,7 @@
         username: '',
         password: '',
         usernameSuggestions: [],
-        facilityModalVisible: this.hasMultipleFacilities,
+        facilityModalVisible: hasMultipleFacilities(this.$store.state),
         suggestionTerm: '',
         showDropdown: true,
         highlightedIndex: -1,
@@ -181,7 +185,7 @@
         // backend's default facility on load
         facilityId: state => state.facilityId,
         facilityConfig,
-        hasMultipleFacilities: state => state.pageState.hasMultipleFacilities,
+        hasMultipleFacilities,
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,

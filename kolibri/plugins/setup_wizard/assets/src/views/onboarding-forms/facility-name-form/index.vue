@@ -27,6 +27,10 @@
   import { submitFacilityName } from '../../../state/actions/forms';
   import onboardingForm from '../onboarding-form';
 
+  function currentFacilityName(state) {
+    return state.onboardingData.facility.name;
+  }
+
   export default {
     name: 'facilityNameForm',
     components: {
@@ -49,13 +53,13 @@
     },
     data() {
       return {
-        facilityName: this.currentFacilityName,
+        facilityName: currentFacilityName(this.$store.state),
         fieldVisited: false,
       };
     },
     computed: {
       ...mapGetters({
-        currentFacilityName: state => state.onboardingData.facility.name,
+        currentFacilityName,
       }),
       facilityNameErrorMessage() {
         if (this.facilityName === '') {

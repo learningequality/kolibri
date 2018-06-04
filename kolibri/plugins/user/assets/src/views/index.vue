@@ -36,15 +36,15 @@
   export default {
     name: 'userPlugin',
     components: {
-      ...mapGetters({
-        pageName: state => state.pageName,
-      }),
       coreBase,
       signInPage,
       signUpPage,
       profilePage,
     },
     computed: {
+      ...mapGetters({
+        pageName: state => state.pageName,
+      }),
       appBarTitle() {
         if (this.pageName === PageNames.PROFILE) {
           return this.$tr('userProfileTitle');

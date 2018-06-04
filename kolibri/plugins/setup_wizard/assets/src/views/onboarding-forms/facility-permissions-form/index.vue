@@ -118,6 +118,10 @@
   import onboardingForm from '../onboarding-form';
   import { submitFacilityPermissions } from '../../../state/actions/forms';
 
+  function currentPermissionPreset(state) {
+    return state.onboardingData.preset;
+  }
+
   export default {
     name: 'selectPermissionsForm',
     components: {
@@ -158,13 +162,13 @@
     },
     data() {
       return {
-        selectedPreset: this.currentPermissionPreset,
+        selectedPreset: currentPermissionPreset(this.$store.state),
         permissionPresetDetailsModalShown: false,
       };
     },
     computed: {
       ...mapGetters({
-        currentPermissionPreset: state => state.onboardingData.preset,
+        currentPermissionPreset,
       }),
     },
     mounted() {

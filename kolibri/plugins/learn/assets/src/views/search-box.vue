@@ -68,7 +68,7 @@
     },
     data() {
       return {
-        searchQuery: this.searchTerm,
+        searchQuery: this.$store.state.pageState.searchTerm,
       };
     },
     computed: {
