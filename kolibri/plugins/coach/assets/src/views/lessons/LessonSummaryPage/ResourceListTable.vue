@@ -116,6 +116,10 @@
 
   const removalSnackbarTime = 5000;
 
+  function workingResources(state) {
+    return state.pageState.workingResources;
+  }
+
   export default {
     name: 'resourceListTable',
     components: {
@@ -129,14 +133,14 @@
     },
     data() {
       return {
-        workingResourcesBackup: Array.from(this.workingResources),
+        workingResourcesBackup: Array.from(workingResources(this.$store.state)),
         firstRemovalTitle: '',
       };
     },
     computed: {
       ...mapState({
         lessonId: state => state.pageState.currentLesson.id,
-        workingResources: state => state.pageState.workingResources,
+        workingResources,
         // consider loading this async?
         resourceContentNodes: state => state.pageState.resourceCache,
         totalLearners: state => state.pageState.lessonReport.total_learners,
