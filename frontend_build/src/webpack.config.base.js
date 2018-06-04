@@ -17,11 +17,14 @@
 
 var path = require('path');
 var mkdirp = require('mkdirp');
-var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 // adds custom rules
 require('./htmlhint_custom');
 var prettierOptions = require('../../.prettier');
+var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
+
+var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+var OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 var production = process.env.NODE_ENV === 'production';
 
@@ -157,6 +160,16 @@ module.exports = {
         test: /fg-loadcss\/src\/onloadCSS/,
         use: 'exports-loader?onloadCSS',
       },
+    ],
+  },
+  optimization: {
+    minimizer: [
+      new UglifyJsPlugin({
+        cache: true,
+        parallel: true,
+        sourceMap: false,
+      }),
+      new OptimizeCSSAssetsPlugin({}),
     ],
   },
   plugins: [
