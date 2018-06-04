@@ -32,7 +32,7 @@ fi
 # Will be investigated in 0.8.x when setting a path relative to "~" is
 # supported.
 export KOLIBRI_USER
-export KOLIBRI_LISTEN
+export KOLIBRI_LISTEN_PORT
 export KOLIBRI_COMMAND
 export DJANGO_SETTINGS_MODULE
 export KOLIBRI_HOME
