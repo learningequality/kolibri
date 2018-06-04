@@ -24,7 +24,7 @@ requests-toolbelt==0.8.0
 clint==0.5.1
 tzlocal==1.5.1
 pytz==2018.4
-python-dateutil==2.7.2
+python-dateutil==2.7.3
 ifcfg==0.15
 sqlalchemy==1.2.7
 user-agents==1.1.0
