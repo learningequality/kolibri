@@ -56,7 +56,7 @@
 
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import values from 'lodash/values';
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import appBar from 'kolibri.coreVue.components.appBar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
@@ -128,7 +128,7 @@
     },
     data: () => ({ navShown: false }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         documentTitle: state => state.core.title,
         toolbarTitle: state => state.pageState.toolbarTitle,
       }),

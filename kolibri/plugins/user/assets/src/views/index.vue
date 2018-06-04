@@ -19,7 +19,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import { PageNames } from '../constants';
@@ -42,7 +42,7 @@
       profilePage,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         pageName: state => state.pageName,
       }),
       appBarTitle() {

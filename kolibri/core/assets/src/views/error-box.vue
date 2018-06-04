@@ -17,7 +17,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
 
   export default {
     name: 'error',
@@ -31,7 +31,7 @@
       isHidden: false,
     }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         error: state => state.core.error,
       }),
     },

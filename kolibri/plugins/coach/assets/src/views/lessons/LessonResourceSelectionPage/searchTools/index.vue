@@ -17,7 +17,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { selectionRootLink, topicListingLink } from '../../lessonsRouterUtils';
 
@@ -34,7 +34,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         ancestors: state => state.pageState.ancestors,
         lessonId: state => state.pageState.currentLesson.id,
         classId: state => state.classId,

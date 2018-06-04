@@ -24,7 +24,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import { ContentWizardPages, TransferTypes } from '../../../constants';
   import { resetContentWizardState } from '../../../state/actions/contentWizardActions';
@@ -39,7 +39,7 @@
       selectDriveModal,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
         transferType: ({ pageState }) => pageState.wizardState.transferType,
       }),

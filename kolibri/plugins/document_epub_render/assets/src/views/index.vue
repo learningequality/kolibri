@@ -40,7 +40,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import Epub from 'epubjs/lib/epub';
   import manager from 'epubjs/lib/managers/default';
   import iFrameView from 'epubjs/lib/managers/views/iframe';
@@ -71,7 +71,7 @@
       totalPages: null,
     }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         sessionTimeSpent,
       }),
       epubURL() {

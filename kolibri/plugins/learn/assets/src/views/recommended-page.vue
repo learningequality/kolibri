@@ -91,7 +91,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../constants';
@@ -118,7 +118,7 @@
     },
     mixins: [responsiveWindow],
     computed: {
-      ...mapGetters({
+      ...mapState({
         channels: getChannels,
         nextSteps: state => state.pageState.nextSteps,
         popular: state => state.pageState.popular,

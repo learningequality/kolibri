@@ -56,7 +56,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -92,7 +92,7 @@
       noChannels: 'You do not have any content yet',
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         channels: getChannels,
         standardDataTable,
         classId: state => state.classId,

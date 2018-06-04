@@ -73,7 +73,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
@@ -119,7 +119,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         exams: state => state.pageState.exams,
       }),
       examIcon() {

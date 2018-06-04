@@ -63,7 +63,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import differenceWith from 'lodash/differenceWith';
   import orderBy from 'lodash/orderBy';
   import flatMap from 'lodash/flatMap';
@@ -103,7 +103,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         classUsers: state => state.pageState.classUsers,
         groups: state => state.pageState.groups,
         groupModalShown: state => state.pageState.groupModalShown,

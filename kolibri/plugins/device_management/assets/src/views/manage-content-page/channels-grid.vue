@@ -47,7 +47,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
@@ -69,7 +69,7 @@
       selectedChannelId: null,
     }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         installedChannelsWithResources,
         installedChannelListLoading,
         pageState: state => state.pageState,

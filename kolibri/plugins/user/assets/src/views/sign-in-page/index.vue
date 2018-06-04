@@ -117,7 +117,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { kolibriLogin } from 'kolibri.coreVue.vuex.actions';
   import { facilityConfig } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
@@ -181,7 +181,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         // backend's default facility on load
         facilityId: state => state.facilityId,
         facilityConfig,

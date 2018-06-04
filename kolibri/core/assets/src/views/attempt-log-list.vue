@@ -56,7 +56,7 @@
 <script>
 
   import find from 'lodash/find';
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
 
   export default {
@@ -83,7 +83,7 @@
       },
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         numCoachContents(state) {
           return function getCoachContents(questionNumber) {
             const { questions, exerciseContentNodes } = state.pageState;

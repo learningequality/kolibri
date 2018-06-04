@@ -24,7 +24,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
   import ContentCard from '../content-card';
   import ContentPage from '../content-page';
@@ -37,7 +37,7 @@
       ContentPage,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         currentLesson: state => state.pageState.currentLesson,
         currentLessonResource: state => state.pageState.content,
         nextLessonResource: state => state.pageState.content.next_content,

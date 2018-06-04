@@ -89,7 +89,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import countBy from 'lodash/countBy';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -123,7 +123,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         lessons: state => state.pageState.lessons,
         classId: state => state.classId,
         learnerGroups: state => state.pageState.learnerGroups,

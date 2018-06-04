@@ -9,7 +9,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import { PageNames, LearnerReports } from '../../../constants';
   import learnerExerciseReport from './learner-exercise-report';
@@ -22,7 +22,7 @@
       learnerExerciseReport,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         channelId: state => state.pageState.channelId,
         user: state => state.pageState.user,
         exercise: state => state.pageState.exercise,

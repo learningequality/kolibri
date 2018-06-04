@@ -54,7 +54,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -122,7 +122,7 @@
     },
     mixins: [responsiveWindow],
     computed: {
-      ...mapGetters({
+      ...mapState({
         memberships: state => state.learnAppState.memberships,
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,

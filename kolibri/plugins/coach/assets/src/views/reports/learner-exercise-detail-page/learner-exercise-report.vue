@@ -51,7 +51,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import attemptLogList from 'kolibri.coreVue.components.attemptLogList';
@@ -68,7 +68,7 @@
       interactionList,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         interactionIndex: state => state.pageState.interactionIndex,
         currentAttemptLog: state => state.pageState.currentAttemptLog,
         attemptLogs: state => state.pageState.attemptLogs,

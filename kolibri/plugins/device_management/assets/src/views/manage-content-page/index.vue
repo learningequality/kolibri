@@ -51,7 +51,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -84,7 +84,7 @@
       taskProgress,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         canManageContent,
         pageState: ({ pageState }) => pageState,
         firstTask: ({ pageState }) => pageState.taskList[0],

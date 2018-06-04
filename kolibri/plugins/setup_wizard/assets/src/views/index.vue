@@ -35,7 +35,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions/main';
 
@@ -62,7 +62,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         onboardingStep: state => state.onboardingStep,
         onboardingData: state => state.onboardingData,
         loading: state => state.loading,

@@ -47,7 +47,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { refreshDriveList } from '../../../state/actions/taskActions';
@@ -71,7 +71,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         driveList: state => wizardState(state).driveList,
         transferType: state => wizardState(state).transferType,
         transferredChannel: state => wizardState(state).transferredChannel,

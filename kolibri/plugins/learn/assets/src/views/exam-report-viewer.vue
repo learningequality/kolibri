@@ -24,7 +24,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import examReport from 'kolibri.coreVue.components.examReport';
   import { ClassesPageNames } from '../constants';
 
@@ -34,7 +34,7 @@
       examReport,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         classId: state => state.pageState.exam.collection,
         examAttempts: state => state.pageState.examAttempts,
         exam: state => state.pageState.exam,

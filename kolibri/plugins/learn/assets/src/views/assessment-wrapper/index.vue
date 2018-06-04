@@ -104,7 +104,7 @@ oriented data synchronization.
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import {
     initMasteryLog,
@@ -202,7 +202,7 @@ oriented data synchronization.
       checkWasAttempted: false,
     }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         isUserLoggedIn,
         mastered: state => state.core.logging.mastery.complete,
         totalattempts: state => state.core.logging.mastery.totalattempts,

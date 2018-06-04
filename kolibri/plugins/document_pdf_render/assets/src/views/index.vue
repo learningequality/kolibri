@@ -67,7 +67,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import PDFJSLib from 'pdfjs-dist';
   import Lockr from 'lockr';
 
@@ -122,7 +122,7 @@
       recycleListIsMounted: false,
     }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         sessionTimeSpent,
       }),
       pdfURL() {

@@ -26,7 +26,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { isAdmin, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
@@ -67,7 +67,7 @@
       topNav,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         pageName: state => state.pageName,
         isEnrollmentPage: state => classEnrollmentPages.includes(state.pageName),
         isAdmin,

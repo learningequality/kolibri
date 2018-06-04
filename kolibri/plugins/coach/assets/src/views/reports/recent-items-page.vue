@@ -59,7 +59,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -99,7 +99,7 @@
       noRecentProgress: 'No activity in past {threshold} days',
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         classId: state => state.classId,
         pageState: state => state.pageState,
         userCount: classMemberCount,

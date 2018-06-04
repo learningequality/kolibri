@@ -115,7 +115,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
@@ -168,7 +168,7 @@
       formSubmitted: false,
     }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         session: state => state.core.session,
         errorCode: state => state.pageState.errorCode,
         busy: state => state.pageState.busy,

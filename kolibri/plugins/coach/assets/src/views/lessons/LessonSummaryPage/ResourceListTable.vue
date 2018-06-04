@@ -102,7 +102,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
@@ -134,7 +134,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         lessonId: state => state.pageState.currentLesson.id,
         workingResources: state => state.pageState.workingResources,
         // consider loading this async?

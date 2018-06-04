@@ -7,7 +7,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { getChannels, getChannelObject } from 'kolibri.coreVue.vuex.getters';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { PageNames } from '../../constants';
@@ -27,7 +27,7 @@
     },
     components: { kBreadcrumbs },
     computed: {
-      ...mapGetters({
+      ...mapState({
         channels: getChannels,
         classId: state => state.classId,
         pageName: state => state.pageName,

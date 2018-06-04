@@ -28,7 +28,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { sortColumn, sortOrder } from '../../../state/getters/reports';
   import { SortOrders } from '../../../constants/reportConstants';
   import { setReportSorting } from '../../../state/actions/reports';
@@ -56,7 +56,7 @@
       },
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         sortColumn,
         sortOrder,
       }),

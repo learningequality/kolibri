@@ -82,7 +82,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
@@ -152,7 +152,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         currentFacilityId,
         currentUserId: state => state.core.session.user_id,
         currentUserKind: state => state.core.session.kind[0],

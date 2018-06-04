@@ -75,7 +75,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -109,7 +109,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         user: ({ pageState }) => pageState.user,
         permissions: ({ pageState }) => pageState.permissions,
         isCurrentUser: ({ core, pageState }) => core.session.username === pageState.user.username,

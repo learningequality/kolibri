@@ -15,7 +15,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { PageNames } from '../constants';
   import { assignCoachesToClass } from '../state/actions/class';
   import classEnrollForm from './class-enroll-form';
@@ -26,7 +26,7 @@
       classEnrollForm,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         className: state => state.pageState.class.name,
         facilityUsers: state => state.pageState.facilityUsers,
         classUsers: state => state.pageState.classUsers,

@@ -57,7 +57,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import xorWith from 'lodash/xorWith';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import previewExamModal from '../exams-page/preview-exam-modal';
@@ -85,7 +85,7 @@
       AssignmentDeleteModal,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         exam: state => state.pageState.exam,
         examsModalSet: state => state.pageState.examsModalSet,
         classId: state => state.classId,

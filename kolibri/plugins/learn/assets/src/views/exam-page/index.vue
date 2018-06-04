@@ -96,7 +96,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
@@ -139,7 +139,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         exam: state => state.pageState.exam,
         channelId: state => state.pageState.channelId,
         content: state => state.pageState.content,

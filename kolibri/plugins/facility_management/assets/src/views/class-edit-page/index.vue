@@ -93,7 +93,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -138,7 +138,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         classLearners: state => state.pageState.classLearners,
         classCoaches: state => state.pageState.classCoaches,
         classes: state => state.pageState.classes,

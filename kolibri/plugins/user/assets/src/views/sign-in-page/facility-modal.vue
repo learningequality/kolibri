@@ -26,7 +26,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -50,7 +50,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         // currentFacilityId uses session, with is anonymous in sign-in-page
         currentFacilityId,
         facilities,

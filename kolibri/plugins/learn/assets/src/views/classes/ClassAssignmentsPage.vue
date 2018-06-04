@@ -20,7 +20,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import AssignedExamsCards from './AssignedExamsCards';
   import AssignedLessonsCards from './AssignedLessonsCards';
@@ -33,7 +33,7 @@
     },
     mixins: [responsiveWindow],
     computed: {
-      ...mapGetters({
+      ...mapState({
         classroomName: state => state.pageState.currentClassroom.name,
         exams: state => state.pageState.currentClassroom.assignments.exams,
         lessons: state => state.pageState.currentClassroom.assignments.lessons,

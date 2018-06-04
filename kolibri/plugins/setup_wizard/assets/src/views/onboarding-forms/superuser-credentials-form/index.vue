@@ -57,7 +57,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
   import { submitSuperuserCredentials } from '../../../state/actions/forms';
@@ -119,7 +119,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         currentName,
         currentUsername,
         currentPassword,

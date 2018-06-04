@@ -57,7 +57,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import CoreTable from 'kolibri.coreVue.components.coreTable';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
@@ -93,7 +93,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         breadcrumbs: state => wizardState(state).path.map(transformBreadrumb),
         childNodes: state => wizardState(state).currentTopicNode.children,
         inExportMode,

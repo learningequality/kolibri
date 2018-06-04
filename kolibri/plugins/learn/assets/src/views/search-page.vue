@@ -30,7 +30,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import sortBy from 'lodash/sortBy';
   import { PageNames } from '../constants';
@@ -52,7 +52,7 @@
       searchBox,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         contents: state => state.pageState.contents,
         searchTerm: state => state.pageState.searchTerm,
       }),

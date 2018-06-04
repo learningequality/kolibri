@@ -61,7 +61,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -83,7 +83,7 @@
       searchTools,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         currentLesson: state => state.pageState.currentLesson,
         lessonId: state => state.pageState.currentLesson.id,
         workingResources: state => state.pageState.workingResources,

@@ -11,7 +11,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { PageNames, PageModes } from '../constants';
   import { pageMode } from '../state/getters';
@@ -26,7 +26,7 @@
     components: { kBreadcrumbs },
     mixins: [classesBreadcrumbItems],
     computed: {
-      ...mapGetters({
+      ...mapState({
         pageName: state => state.pageName,
         pageMode,
         channelRootId: state => (state.pageState.channel || {}).root_id,

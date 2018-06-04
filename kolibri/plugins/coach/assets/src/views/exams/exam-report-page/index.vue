@@ -102,7 +102,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import sumBy from 'lodash/sumBy';
@@ -135,7 +135,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         examTakers: state => state.pageState.examTakers,
         classId: state => state.classId,
         exam: state => state.pageState.exam,

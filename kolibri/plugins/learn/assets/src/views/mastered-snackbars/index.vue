@@ -73,7 +73,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import { MaxPointsPerContent, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
@@ -112,7 +112,7 @@
     }),
 
     computed: {
-      ...mapGetters({
+      ...mapState({
         isUserLoggedIn,
       }),
       SNACKBARS() {

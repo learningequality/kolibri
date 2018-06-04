@@ -15,7 +15,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { PageNames } from '../constants';
   import contentCardGroupGrid from './content-card-group-grid';
@@ -36,7 +36,7 @@
       kBreadcrumbs,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         pageName: state => state.pageName,
         recommendations: state => state.pageState.recommendations,
         channelTitle: state => state.pageState.channelTitle,

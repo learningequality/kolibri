@@ -43,7 +43,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import sumBy from 'lodash/sumBy';
   import ProgressIcon from 'kolibri.coreVue.components.progressIcon';
   import ContentIcon from 'kolibri.coreVue.components.contentIcon';
@@ -59,7 +59,7 @@
       ProgressIcon,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         contentNodes: state => state.pageState.contentNodes,
         currentLesson: state => state.pageState.currentLesson,
       }),

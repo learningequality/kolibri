@@ -15,7 +15,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { totalPoints, currentUserId, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
@@ -29,7 +29,7 @@
       uiTooltip,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         totalPoints,
         currentUserId,
         isUserLoggedIn,

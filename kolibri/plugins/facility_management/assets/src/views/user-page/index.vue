@@ -78,7 +78,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import UiIcon from 'keen-ui/src/UiIcon';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -119,7 +119,7 @@
       selectedUser: null,
     }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         facilityUsers: state => state.pageState.facilityUsers,
         modalShown: state => state.pageState.modalShown,
         currentUserId,

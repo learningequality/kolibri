@@ -28,7 +28,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   import { canManageContent, isSuperuser } from 'kolibri.coreVue.vuex.getters';
@@ -41,7 +41,7 @@
       kNavbarLink,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         canManageContent,
         isSuperuser,
       }),

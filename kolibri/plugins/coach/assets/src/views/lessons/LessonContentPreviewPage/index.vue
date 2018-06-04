@@ -39,7 +39,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
@@ -64,7 +64,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         content: state => state.pageState.currentContentNode,
         questions: state => state.pageState.questions,
         completionData: state => state.pageState.completionData,

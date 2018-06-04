@@ -27,7 +27,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
@@ -48,7 +48,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         facilityUsers: state => state.pageState.facilityUsers,
         isSuperuser,
       }),

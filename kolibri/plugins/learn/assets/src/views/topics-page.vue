@@ -28,7 +28,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import textTruncator from 'kolibri.coreVue.components.textTruncator';
   import { PageNames } from '../constants';
@@ -49,7 +49,7 @@
       textTruncator,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         topic: state => state.pageState.topic,
         contents: state => state.pageState.contents,
         isRoot: state => state.pageState.isRoot,

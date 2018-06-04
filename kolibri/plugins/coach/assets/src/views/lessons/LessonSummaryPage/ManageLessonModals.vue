@@ -51,7 +51,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
@@ -74,7 +74,7 @@
       AssignmentDeleteModal,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         currentLesson: state => state.pageState.currentLesson,
         lessonsModalSet: state => state.pageState.lessonsModalSet,
         classId: state => state.classId,

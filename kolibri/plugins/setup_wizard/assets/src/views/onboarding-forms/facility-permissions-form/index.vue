@@ -111,7 +111,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
@@ -167,7 +167,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         currentPermissionPreset,
       }),
     },

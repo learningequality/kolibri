@@ -30,7 +30,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
 
   export default {
     name: 'answerHistory',
@@ -44,7 +44,7 @@
       },
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         questions: state => state.pageState.questions,
         attemptLogs: state => state.examAttemptLogs,
       }),

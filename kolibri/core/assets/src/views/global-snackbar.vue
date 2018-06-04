@@ -17,7 +17,7 @@
 <script>
 
   import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { snackbarIsVisible, snackbarOptions } from 'kolibri.coreVue.vuex.getters';
 
   export default {
@@ -26,7 +26,7 @@
       coreSnackbar,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         snackbarIsVisible,
         snackbarOptions,
       }),

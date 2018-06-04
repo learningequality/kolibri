@@ -73,7 +73,7 @@
     isCoach,
     canManageContent,
   } from 'kolibri.coreVue.vuex.getters';
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -133,7 +133,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         session: state => state.core.session,
         isUserLoggedIn,
         isSuperuser,

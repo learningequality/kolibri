@@ -16,7 +16,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { PageNames } from '../constants';
   import pageHeader from './page-header';
   import contentCardGroupGrid from './content-card-group-grid';
@@ -31,7 +31,7 @@
       contentCardGroupGrid,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         channels: state => state.pageState.rootNodes,
       }),
     },

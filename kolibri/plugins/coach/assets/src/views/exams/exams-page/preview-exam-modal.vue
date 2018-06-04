@@ -76,7 +76,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import find from 'lodash/find';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
@@ -131,7 +131,7 @@
       loading: true,
     }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         exerciseContentNodes: state => state.pageState.exerciseContentNodes,
       }),
       questions() {

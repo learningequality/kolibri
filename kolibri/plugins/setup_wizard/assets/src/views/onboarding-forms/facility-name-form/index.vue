@@ -22,7 +22,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { submitFacilityName } from '../../../state/actions/forms';
   import onboardingForm from '../onboarding-form';
@@ -58,7 +58,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         currentFacilityName,
       }),
       facilityNameErrorMessage() {

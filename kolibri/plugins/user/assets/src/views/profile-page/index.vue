@@ -113,7 +113,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import {
     facilityConfig,
     isSuperuser,
@@ -179,7 +179,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         facilityConfig,
         isSuperuser,
         isAdmin,

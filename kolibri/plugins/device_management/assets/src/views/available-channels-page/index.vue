@@ -86,7 +86,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
@@ -131,7 +131,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         availableChannels: state => wizardState(state).availableChannels,
         selectedDrive: state => wizardState(state).selectedDrive,
         installedChannelsWithResources,

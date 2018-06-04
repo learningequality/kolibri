@@ -85,7 +85,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -142,7 +142,7 @@
       return { selectedUsers: [] };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         groupModalShown: state => state.pageState.groupModalShown,
       }),
       sortedGroupUsers() {

@@ -49,7 +49,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
@@ -69,7 +69,7 @@
       },
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         isCurrentUser: ({ core }) => username => core.session.username === username,
         facilityUsers: ({ pageState }) => pageState.facilityUsers,
         userPermissions: state => userid => state.pageState.permissions[userid],

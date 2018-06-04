@@ -30,7 +30,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
@@ -124,7 +124,7 @@
       navTitle,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         toolbarRoute: state => state.pageState.toolbarRoute,
         pageName: state => state.pageName,
         isAdmin,

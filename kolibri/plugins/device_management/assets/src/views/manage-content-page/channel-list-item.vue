@@ -90,7 +90,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
@@ -136,7 +136,7 @@
       },
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         pageState: ({ pageState }) => pageState,
         channelIsInstalled,
       }),

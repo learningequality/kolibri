@@ -97,7 +97,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import uiAlert from 'keen-ui/src/UiAlert';
@@ -139,7 +139,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         availableSpace: state => wizardState(state).availableSpace,
         transferredChannel: state => wizardState(state).transferredChannel || {},
         channelIsInstalled,

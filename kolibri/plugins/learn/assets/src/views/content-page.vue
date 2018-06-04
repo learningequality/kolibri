@@ -115,7 +115,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import {
     initContentSession as initSessionAction,
     updateProgress as updateProgressAction,
@@ -164,7 +164,7 @@
       licenceDescriptionIsVisible: false,
     }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         content: state => state.pageState.content,
         contentId: state => state.pageState.content.content_id,
         contentNodeId: state => state.pageState.content.id,

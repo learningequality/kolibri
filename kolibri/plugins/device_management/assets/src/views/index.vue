@@ -25,7 +25,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import coreBase from 'kolibri.coreVue.components.coreBase';
@@ -57,7 +57,7 @@
       topNavigation,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         pageName: ({ pageName }) => pageName,
         welcomeModalVisible: ({ welcomeModalVisible }) => welcomeModalVisible,
         canManageContent,

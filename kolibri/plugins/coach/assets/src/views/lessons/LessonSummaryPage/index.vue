@@ -52,7 +52,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import map from 'lodash/map';
@@ -74,7 +74,7 @@
       AssignmentSummary,
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         // IDEA refactor, make actions get all this information themselves.
         classId: state => state.classId,
         lessonId: state => state.pageState.currentLesson.id,

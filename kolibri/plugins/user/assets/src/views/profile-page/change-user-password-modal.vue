@@ -50,7 +50,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -106,7 +106,7 @@
       },
     },
     methods: {
-      ...mapGetters({
+      ...mapState({
         isBusy: state => state.pageState.busy,
       }),
       closeModal() {

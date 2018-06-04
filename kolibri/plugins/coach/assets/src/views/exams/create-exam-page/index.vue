@@ -135,7 +135,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -218,7 +218,7 @@
       };
     },
     computed: {
-      ...mapGetters({
+      ...mapState({
         classId: state => state.classId,
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,

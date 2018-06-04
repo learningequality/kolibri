@@ -66,7 +66,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   import isEqual from 'lodash/isEqual';
@@ -95,7 +95,7 @@
       settingsCopy: {},
     }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         currentFacilityName: state => state.pageState.facilityName,
         settings: state => state.pageState.settings,
         notification: state => state.pageState.notification,

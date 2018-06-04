@@ -66,7 +66,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
@@ -136,7 +136,7 @@
       uniqueId: null,
     }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         channels: getChannels,
       }),
       isMobile() {

@@ -77,7 +77,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'kolibri.utils.vuexCompat';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
   import orderBy from 'lodash/orderBy';
@@ -109,7 +109,7 @@
     mixins: [responsiveWindow],
     data: () => ({ currentClassDelete: null }),
     computed: {
-      ...mapGetters({
+      ...mapState({
         modalShown: state => state.pageState.modalShown,
         classes: state => state.pageState.classes,
         noClassesExist: state => state.pageState.classes.length === 0,

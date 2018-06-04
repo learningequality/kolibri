@@ -25,7 +25,7 @@
 
 <script>
 
-  import { mapGetters } from 'kolibri.utils.vuexCompat';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import AuthMessage from 'kolibri.coreVue.components.authMessage';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -41,7 +41,7 @@
     },
     mixins: [responsiveWindow],
     computed: {
-      ...mapGetters({
+      ...mapState({
         classrooms: state => state.pageState.classrooms,
         isUserLoggedIn,
       }),

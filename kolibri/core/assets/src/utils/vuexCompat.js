@@ -1,15 +1,15 @@
 import mapValues from 'lodash/mapValues';
 
 /**
- * Use like vuex 3's mapGetters utility
+ * Use like vuex 3's mapState utility
  * computed: {
- * ...mapGetters({
+ * ...mapState({
  *     getter1,
  *     getter2,
  *   })
  * }
  */
-export function mapGetters(getters) {
+export function mapState(getters) {
   return mapValues(getters, fn => {
     return function newGetter() {
       return fn.call(this, this.$store.state);
