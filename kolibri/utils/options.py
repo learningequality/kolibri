@@ -33,25 +33,25 @@ option_spec = {
         },
     },
     "Server": {
-        "SERVER_THREAD_POOL": {
+        "CHERRYPY_THREAD_POOL": {
             "type": "integer",
             "default": 10,
-            "envvars": ("KOLIBRI_SERVER_THREAD_POOL",),
+            "envvars": ("KOLIBRI_CHERRYPY_THREAD_POOL",),
         },
-        "SERVER_SOCKET_TIMEOUT": {
+        "CHERRYPY_SOCKET_TIMEOUT": {
             "type": "integer",
             "default": 10,
-            "envvars": ("KOLIBRI_SERVER_SOCKET_TIMEOUT",),
+            "envvars": ("KOLIBRI_CHERRYPY_SOCKET_TIMEOUT",),
         },
-        "SERVER_QUEUE_SIZE": {
+        "CHERRYPY_QUEUE_SIZE": {
             "type": "integer",
             "default": 5,
-            "envvars": ("KOLIBRI_SERVER_QUEUE_SIZE",),
+            "envvars": ("KOLIBRI_CHERRYPY_QUEUE_SIZE",),
         },
-        "SERVER_QUEUE_TIMEOUT": {
+        "CHERRYPY_QUEUE_TIMEOUT": {
             "type": "float",
             "default": 0.1,
-            "envvars": ("KOLIBRI_SERVER_QUEUE_TIMEOUT",),
+            "envvars": ("KOLIBRI_CHERRYPY_QUEUE_TIMEOUT",),
         },
     },
     "Paths": {

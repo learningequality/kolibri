@@ -151,10 +151,10 @@ def run_server(port):
     # Configure the server
     server.socket_host = LISTEN_ADDRESS
     server.socket_port = port
-    server.thread_pool = conf.OPTIONS["Server"]["SERVER_THREAD_POOL"]
-    server.socket_timeout = conf.OPTIONS["Server"]["SERVER_SOCKET_TIMEOUT"]
-    server.accepted_queue_size = conf.OPTIONS["Server"]["SERVER_QUEUE_SIZE"]
-    server.accepted_queue_timeout = conf.OPTIONS["Server"]["SERVER_QUEUE_TIMEOUT"]
+    server.thread_pool = conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"]
+    server.socket_timeout = conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"]
+    server.accepted_queue_size = conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"]
+    server.accepted_queue_timeout = conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"]
 
     # Subscribe this server
     server.subscribe()
