@@ -5,6 +5,12 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.6.3
+-----
+
+ - Bug fix to properly handle content with missing license
+
+
 0.6.2
 -----
 
