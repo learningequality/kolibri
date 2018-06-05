@@ -181,7 +181,7 @@
       role() {
         if (this.getUserKind === UserKinds.ADMIN) {
           return this.$tr('isAdmin');
-        } else if (this.getUserKind === UserKinds.COACH) {
+        } else if (this.getUserKind === UserKinds.FACILITY_COACH) {
           return this.$tr('isCoach');
         } else if (this.getUserKind === UserKinds.LEARNER) {
           return this.$tr('isLearner');

@@ -1,10 +1,10 @@
 const UserKinds = {
   ADMIN: 'admin',
-  COACH: 'coach',
+  FACILITY_COACH: 'facility coach',
   LEARNER: 'learner',
   SUPERUSER: 'superuser',
   ANONYMOUS: 'anonymous',
-  ASSIGNABLE_COACH: 'classroom assignable coach',
+  CLASS_COACH: 'class coach',
 };
 
 const CollectionKinds = {

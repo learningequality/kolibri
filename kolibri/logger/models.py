@@ -57,7 +57,7 @@ def log_permissions(user_field):
         RoleBasedPermissions(
             target_field=user_field,
             can_be_created_by=(role_kinds.ADMIN,),
-            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.FACILITY_COACH),
             can_be_updated_by=(role_kinds.ADMIN,),
             can_be_deleted_by=(role_kinds.ADMIN,),
         )

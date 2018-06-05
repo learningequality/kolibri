@@ -152,7 +152,7 @@
     },
     computed: {
       coachIsSelected() {
-        return this.newKind.value === UserKinds.COACH;
+        return this.newKind.value === UserKinds.FACILITY_COACH;
       },
       userKinds() {
         return [
@@ -162,7 +162,7 @@
           },
           {
             label: this.$tr('coach'),
-            value: UserKinds.COACH,
+            value: UserKinds.FACILITY_COACH,
           },
           {
             label: this.$tr('admin'),
@@ -214,10 +214,10 @@
     },
     beforeMount() {
       const coachOption = this.userKinds[1];
-      if (this.kind === UserKinds.ASSIGNABLE_COACH) {
+      if (this.kind === UserKinds.CLASS_COACH) {
         this.newKind = coachOption;
         this.classCoachIsSelected = true;
-      } else if (this.kind === UserKinds.COACH) {
+      } else if (this.kind === UserKinds.FACILITY_COACH) {
         this.newKind = coachOption;
         this.classCoachIsSelected = false;
       } else {
@@ -231,11 +231,11 @@
         };
         this.formSubmitted = true;
         if (this.formIsValid) {
-          if (this.newKind.value === UserKinds.COACH) {
+          if (this.newKind.value === UserKinds.FACILITY_COACH) {
             if (this.classCoachIsSelected) {
-              roleUpdate.kind = UserKinds.ASSIGNABLE_COACH;
+              roleUpdate.kind = UserKinds.CLASS_COACH;
             } else {
-              roleUpdate.kind = UserKinds.COACH;
+              roleUpdate.kind = UserKinds.FACILITY_COACH;
             }
           } else {
             roleUpdate.kind = this.newKind.value;

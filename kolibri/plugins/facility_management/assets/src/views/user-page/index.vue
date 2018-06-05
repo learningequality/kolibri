@@ -123,7 +123,7 @@
         return [
           { label: this.$tr('allUsers'), value: ALL_FILTER },
           { label: this.$tr('learners'), value: UserKinds.LEARNER },
-          { label: this.$tr('coaches'), value: UserKinds.COACH },
+          { label: this.$tr('coaches'), value: UserKinds.FACILITY_COACH },
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
         ];
       },
@@ -151,8 +151,8 @@
         if (filterKind === ALL_FILTER) {
           return true;
         }
-        if (user.kind === UserKinds.ASSIGNABLE_COACH) {
-          return filterKind === UserKinds.COACH;
+        if (user.kind === UserKinds.CLASS_COACH) {
+          return filterKind === UserKinds.FACILITY_COACH;
         }
         return filterKind === user.kind;
       },
