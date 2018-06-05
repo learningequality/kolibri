@@ -44,7 +44,7 @@
         <mat-svg name="arrow_drop_down" category="navigation" />
       </ui-button>
 
-      <custom-ui-menu
+      <core-menu
         v-show="userMenuDropdownIsOpen"
         ref="userMenuDropdown"
         class="user-menu-dropdown"
@@ -62,11 +62,11 @@
 
         <template slot="options">
           <template v-if="isUserLoggedIn">
-            <menu-option
+            <core-menu-option
               :label="$tr('profile')"
               @select="selectOption($tr('profile'))"
             />
-            <menu-option
+            <core-menu-option
               :label="$tr('languageSwitchMenuOption')"
               @select="selectOption($tr('languageSwitchMenuOption'))"
             >
@@ -75,19 +75,19 @@
                 name="language"
                 category="action"
               />
-            </menu-option>
-            <menu-option
+            </core-menu-option>
+            <core-menu-option
               :label="$tr('signOut')"
               @select="selectOption($tr('signOut'))"
             />
           </template>
 
           <template v-else>
-            <menu-option
+            <core-menu-option
               :label="$tr('signIn')"
               @select="selectOption($tr('signIn'))"
             />
-            <menu-option
+            <core-menu-option
               :label="$tr('languageSwitchMenuOption')"
               @select="selectOption($tr('languageSwitchMenuOption'))"
             >
@@ -96,10 +96,10 @@
                 name="language"
                 category="action"
               />
-            </menu-option>
+            </core-menu-option>
           </template>
         </template>
-      </custom-ui-menu>
+      </core-menu>
 
       <language-switcher-modal
         v-if="showLanguageModal"
@@ -119,21 +119,21 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import customUiMenu from 'kolibri.coreVue.components.customUiMenu';
+  import coreMenu from 'kolibri.coreVue.components.coreMenu';
+  import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
   import languageSwitcherModal from './language-switcher/modal';
-  import menuOption from './custom-ui-menu/menu-option';
 
   export default {
     name: 'appBar',
     components: {
       uiToolbar,
       uiIconButton,
-      customUiMenu,
+      coreMenu,
       uiButton,
       languageSwitcherModal,
-      menuOption,
+      coreMenuOption,
     },
     mixins: [responsiveWindow],
     $trs: {

@@ -32,13 +32,8 @@
 
   import config from 'keen-ui/src/config';
 
-  import UiMenuOption from './menu-option.vue';
-
   export default {
-    name: 'uiMenu',
-    components: {
-      'menu-option': UiMenuOption,
-    },
+    name: 'coreMenu',
     props: {
       options: {
         type: Array,

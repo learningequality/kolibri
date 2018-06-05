@@ -35,14 +35,14 @@
           class="side-nav-scrollable-area"
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
-          <custom-ui-menu
+          <core-menu
             class="side-nav-scrollable-area-menu"
             role="navigation"
             :hasIcons="true"
             :aria-label="$tr('navigationLabel')"
           >
             <template slot="options">
-              <menu-option
+              <core-menu-option
                 :label="$tr('learn')"
                 :active="pageIsActive(TopLevelPageNames.LEARN)"
                 @select="navigate('/learn')"
@@ -52,8 +52,8 @@
                   name="school"
                   category="social"
                 />
-              </menu-option>
-              <menu-option
+              </core-menu-option>
+              <core-menu-option
                 v-if="isCoach || isAdmin || isSuperuser"
                 :label="$tr('coach')"
                 :active="pageIsActive(TopLevelPageNames.COACH)"
@@ -64,9 +64,9 @@
                   name="assessment"
                   category="action"
                 />
-              </menu-option>
+              </core-menu-option>
 
-              <menu-option
+              <core-menu-option
                 v-if="isAdmin || isSuperuser"
                 :label="$tr('facility')"
                 :active="pageIsActive(TopLevelPageNames.MANAGE)"
@@ -77,9 +77,9 @@
                   name="settings_input_antenna"
                   category="action"
                 />
-              </menu-option>
+              </core-menu-option>
 
-              <menu-option
+              <core-menu-option
                 v-if="canManageContent || isSuperuser"
                 :label="$tr('device')"
                 :active="pageIsActive(TopLevelPageNames.DEVICE)"
@@ -90,12 +90,12 @@
                   name="tablet_mac"
                   category="hardware"
                 />
-              </menu-option>
+              </core-menu-option>
 
-              <menu-option type="divider" />
+              <core-menu-option type="divider" />
 
               <template v-if="isUserLoggedIn">
-                <menu-option
+                <core-menu-option
                   :label="$tr('profile')"
                   :active="pageIsActive(TopLevelPageNames.USER)"
                   @select="navigate('/user')"
@@ -105,9 +105,9 @@
                     name="account_circle"
                     category="action"
                   />
-                </menu-option>
+                </core-menu-option>
 
-                <menu-option
+                <core-menu-option
                   :label="$tr('signOut')"
                   @select="signOut"
                 >
@@ -117,10 +117,10 @@
                     category="action"
                     :class="{ 'rtl-icon': isRtl }"
                   />
-                </menu-option>
+                </core-menu-option>
               </template>
 
-              <menu-option
+              <core-menu-option
                 v-else
                 :label="$tr('signIn')"
                 @select="navigate('/user')"
@@ -131,12 +131,12 @@
                   category="action"
                   :class="{ 'rtl-icon': isRtl }"
                 />
-              </menu-option>
+              </core-menu-option>
 
-              <menu-option type="divider" />
+              <core-menu-option type="divider" />
 
             </template>
-          </custom-ui-menu>
+          </core-menu>
 
           <div class="side-nav-scrollable-area-footer">
             <logo class="side-nav-scrollable-area-footer-logo" />
@@ -176,18 +176,18 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import customUiMenu from 'kolibri.coreVue.components.customUiMenu';
+  import coreMenu from 'kolibri.coreVue.components.coreMenu';
+  import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import logo from 'kolibri.coreVue.components.logo';
-  import menuOption from './custom-ui-menu/menu-option';
 
   export default {
     name: 'sideNav',
     components: {
-      customUiMenu,
+      coreMenu,
       uiIconButton,
       logo,
-      menuOption,
+      coreMenuOption,
     },
     mixins: [responsiveWindow, responsiveElement],
     $trs: {

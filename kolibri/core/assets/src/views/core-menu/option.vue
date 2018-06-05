@@ -49,7 +49,7 @@
   import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
-    name: 'uiMenuOption',
+    name: 'coreMenuOption',
     components: {
       UiIcon,
       UiRippleInk,
