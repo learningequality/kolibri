@@ -1,8 +1,8 @@
 <template>
 
   <li
-    class="ui-menu-option"
     role="menuitem"
+    class="ui-menu-option"
     :class="classes"
     :tabindex="(isDivider || disabled) ? null : '0'"
     @click="$emit('select')"
@@ -11,12 +11,8 @@
     <slot v-if="!isDivider">
       <div class="ui-menu-option-content">
         <ui-icon
-          class="ui-menu-option-icon"
-          :iconSet="iconProps.iconSet"
-          :removeText="iconProps.removeText"
-          :useSvg="iconProps.useSvg"
-          :mirror="iconProps.mirror"
           v-if="$slots.icon"
+          class="ui-menu-option-icon"
         >
           <slot name="icon"></slot>
         </ui-icon>
@@ -29,13 +25,15 @@
         >
           {{ label }}
         </div>
-        <div class="ui-menu-option-secondary-text" v-if="secondaryText">
+        <div
+          v-if="secondaryText"
+          class="ui-menu-option-secondary-text"
+        >
           {{ secondaryText }}
         </div>
       </div>
     </slot>
 
-    <ui-ripple-ink v-if="!disabled && !isDivider && !disableRipple" />
   </li>
 
 </template>
@@ -43,32 +41,17 @@
 
 <script>
 
-  import config from 'keen-ui/src/config';
-
-  import UiRippleInk from 'keen-ui/src/UiRippleInk.vue';
   import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
     name: 'coreMenuOption',
     components: {
       UiIcon,
-      UiRippleInk,
     },
     props: {
       type: String,
       label: String,
-      icon: String,
-      iconProps: {
-        type: Object,
-        default() {
-          return {};
-        },
-      },
       secondaryText: String,
-      disableRipple: {
-        type: Boolean,
-        default: config.data.disableRipple,
-      },
       disabled: {
         type: Boolean,
         default: false,

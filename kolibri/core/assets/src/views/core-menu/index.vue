@@ -1,7 +1,11 @@
 <template>
 
   <div @keydown.esc="$emit('close')">
-    <ul class="ui-menu" role="menu" :class="classes">
+    <ul
+      role="menu"
+      class="ui-menu"
+      :class="classes"
+    >
       <!-- if anything in the dropdown menu has an icon, then we are
       going to add padding to make all the items align -->
       <div
@@ -15,13 +19,12 @@
       <slot name="options"></slot>
 
       <div
+        v-if="containFocus"
         class="ui-menu-focus-redirector"
         tabindex="0"
-
         @focus="redirectFocus"
-
-        v-if="containFocus"
-      ></div>
+      >
+      </div>
     </ul>
   </div>
 
@@ -30,22 +33,13 @@
 
 <script>
 
-  import config from 'keen-ui/src/config';
-
   export default {
     name: 'coreMenu',
     props: {
-      options: {
-        type: Array,
-        default() {
-          return [];
-        },
-      },
       hasIcons: {
         type: Boolean,
         default: false,
       },
-      iconProps: Object,
       hasSecondaryText: {
         type: Boolean,
         default: false,
@@ -53,16 +47,6 @@
       containFocus: {
         type: Boolean,
         default: false,
-      },
-      keys: {
-        type: Object,
-        default() {
-          return config.data.UiMenu.keys;
-        },
-      },
-      disableRipple: {
-        type: Boolean,
-        default: config.data.disableRipple,
       },
       raised: {
         type: Boolean,
@@ -85,7 +69,6 @@
         if (option.disabled || option.type === 'divider') {
           return;
         }
-
         this.$emit('select', option);
         this.closeMenu();
       },
