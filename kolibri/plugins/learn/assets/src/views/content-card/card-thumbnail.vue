@@ -127,6 +127,7 @@
           video: '#3938A5',
           audio: '#E65997',
           topic: '#262626',
+          document: '#ED2828',
           html5: '#FF8B41',
         };
         return { fill: kindToFillHex[this.kind] };
@@ -146,9 +147,10 @@
     width: $thumb-width-desktop
     height: $thumb-height-desktop
     position: relative
-    background-size: cover
+    background-size: contain
+    background-repeat: no-repeat
     background-position: center
-    background-color: $core-grey
+    background-color: $core-bg-light
 
   .type-icon
     position: absolute

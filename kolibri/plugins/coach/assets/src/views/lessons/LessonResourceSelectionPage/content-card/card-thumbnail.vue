@@ -100,9 +100,10 @@
 
   .card-thumbnail-wrapper
     position: absolute
-    background-size: cover
+    background-size: contain
+    background-repeat: no-repeat
     background-position: center
-    background-color: $core-grey
+    background-color: $core-bg-light
     width: $thumb-width
     height: $thumb-height
 
