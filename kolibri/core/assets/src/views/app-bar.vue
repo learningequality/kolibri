@@ -60,44 +60,42 @@
           <div v-else-if="isLearner">{{ $tr('learner') }}</div>
         </template>
 
-        <template slot="options">
-          <template v-if="isUserLoggedIn">
-            <core-menu-option
-              :label="$tr('profile')"
-              @select="selectOption($tr('profile'))"
+        <template v-if="isUserLoggedIn" slot="options">
+          <core-menu-option
+            :label="$tr('profile')"
+            @select="goToProfile"
+          />
+          <core-menu-option
+            :label="$tr('languageSwitchMenuOption')"
+            @select="showLanguageModal = true"
+          >
+            <mat-svg
+              slot="icon"
+              name="language"
+              category="action"
             />
-            <core-menu-option
-              :label="$tr('languageSwitchMenuOption')"
-              @select="selectOption($tr('languageSwitchMenuOption'))"
-            >
-              <mat-svg
-                slot="icon"
-                name="language"
-                category="action"
-              />
-            </core-menu-option>
-            <core-menu-option
-              :label="$tr('signOut')"
-              @select="selectOption($tr('signOut'))"
-            />
-          </template>
+          </core-menu-option>
+          <core-menu-option
+            :label="$tr('signOut')"
+            @select="kolibriLogout"
+          />
+        </template>
 
-          <template v-else>
-            <core-menu-option
-              :label="$tr('signIn')"
-              @select="selectOption($tr('signIn'))"
+        <template v-else slot="options">
+          <core-menu-option
+            :label="$tr('signIn')"
+            @select="signIn"
+          />
+          <core-menu-option
+            :label="$tr('languageSwitchMenuOption')"
+            @select="showLanguageModal = true"
+          >
+            <mat-svg
+              slot="icon"
+              name="language"
+              category="action"
             />
-            <core-menu-option
-              :label="$tr('languageSwitchMenuOption')"
-              @select="selectOption($tr('languageSwitchMenuOption'))"
-            >
-              <mat-svg
-                slot="icon"
-                name="language"
-                category="action"
-              />
-            </core-menu-option>
-          </template>
+          </core-menu-option>
         </template>
       </core-menu>
 
@@ -173,16 +171,9 @@
       window.removeEventListener('click', this.handleClick);
     },
     methods: {
-      selectOption(option) {
-        if (option === this.$tr('profile')) {
-          window.location = `/user`;
-        } else if (option === this.$tr('signOut')) {
-          this.kolibriLogout();
-        } else if (option === this.$tr('signIn')) {
-          redirectBrowser();
-        } else if (option === this.$tr('languageSwitchMenuOption')) {
-          this.showLanguageModal = true;
-        }
+      signIn: redirectBrowser,
+      goToProfile() {
+        window.location = `/user`;
       },
       handleClick(event) {
         if (
