@@ -48,11 +48,9 @@
         v-show="userMenuDropdownIsOpen"
         ref="userMenuDropdown"
         class="user-menu-dropdown"
-        :options="userMenuOptions"
         :raised="true"
         :containFocus="true"
         :hasIcons="true"
-        @select="optionSelected"
         @close="userMenuDropdownIsOpen = false"
       >
         <template slot="header" v-if="isUserLoggedIn">
@@ -60,6 +58,46 @@
           <div v-if="isAdmin">{{ $tr('admin') }}</div>
           <div v-else-if="isCoach">{{ $tr('coach') }}</div>
           <div v-else-if="isLearner">{{ $tr('learner') }}</div>
+        </template>
+
+        <template slot="options">
+          <template v-if="isUserLoggedIn">
+            <menu-option
+              :label="$tr('profile')"
+              @select="selectOption($tr('profile'))"
+            />
+            <menu-option
+              :label="$tr('languageSwitchMenuOption')"
+              @select="selectOption($tr('languageSwitchMenuOption'))"
+            >
+              <mat-svg
+                slot="icon"
+                name="language"
+                category="action"
+              />
+            </menu-option>
+            <menu-option
+              :label="$tr('signOut')"
+              @select="selectOption($tr('signOut'))"
+            />
+          </template>
+
+          <template v-else>
+            <menu-option
+              :label="$tr('signIn')"
+              @select="selectOption($tr('signIn'))"
+            />
+            <menu-option
+              :label="$tr('languageSwitchMenuOption')"
+              @select="selectOption($tr('languageSwitchMenuOption'))"
+            >
+              <mat-svg
+                slot="icon"
+                name="language"
+                category="action"
+              />
+            </menu-option>
+          </template>
         </template>
       </custom-ui-menu>
 
@@ -85,7 +123,7 @@
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
   import languageSwitcherModal from './language-switcher/modal';
-  import languageSvg from './menuIcons/languageSvg';
+  import menuOption from './custom-ui-menu/menu-option';
 
   export default {
     name: 'appBar',
@@ -95,6 +133,7 @@
       customUiMenu,
       uiButton,
       languageSwitcherModal,
+      menuOption,
     },
     mixins: [responsiveWindow],
     $trs: {
@@ -127,35 +166,6 @@
       showLanguageModal: false,
       userMenuDropdownIsOpen: false,
     }),
-    computed: {
-      userMenuOptions() {
-        const changeLanguage = {
-          id: 'language',
-          label: this.$tr('languageSwitchMenuOption'),
-          iconComponent: languageSvg,
-        };
-        if (this.isUserLoggedIn) {
-          return [
-            {
-              id: 'profile',
-              label: this.$tr('profile'),
-            },
-            changeLanguage,
-            {
-              id: 'signOut',
-              label: this.$tr('signOut'),
-            },
-          ];
-        }
-        return [
-          {
-            id: 'signIn',
-            label: this.$tr('signIn'),
-          },
-          changeLanguage,
-        ];
-      },
-    },
     created() {
       window.addEventListener('click', this.handleClick);
     },
@@ -163,14 +173,14 @@
       window.removeEventListener('click', this.handleClick);
     },
     methods: {
-      optionSelected(option) {
-        if (option.id === 'profile') {
+      selectOption(option) {
+        if (option === this.$tr('profile')) {
           window.location = `/user`;
-        } else if (option.id === 'signOut') {
+        } else if (option === this.$tr('signOut')) {
           this.kolibriLogout();
-        } else if (option.id === 'signIn') {
+        } else if (option === this.$tr('signIn')) {
           redirectBrowser();
-        } else if (option.id === 'language') {
+        } else if (option === this.$tr('languageSwitchMenuOption')) {
           this.showLanguageModal = true;
         }
       },

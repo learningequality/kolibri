@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div @keydown.esc="$emit('close')">
     <ul class="ui-menu" role="menu" :class="classes">
       <!-- if anything in the dropdown menu has an icon, then we are
       going to add padding to make all the items align -->
@@ -11,26 +11,8 @@
       >
         <slot name="header"></slot>
       </div>
-      <menu-option
-        :disableRipple="disableRipple"
-        :disabled="option[keys.disabled]"
-        :active="Boolean(option.active)"
-        :iconProps="iconProps || option[keys.iconProps]"
-        :icon="hasIcons ? option[keys.icon] : null"
-        :label="option[keys.type] === 'divider' ? null : option[keys.label] || option"
-        :secondaryText="hasSecondaryText ? option[keys.secondaryText] : null"
-        :type="option[keys.type]"
-        :iconComponent="option.iconComponent"
 
-        @click.native="selectOption(option)"
-        @keydown.enter.native.prevent="selectOption(option)"
-        @keydown.esc.native.esc="closeMenu"
-
-        v-for="(option, index) in options"
-        :key="index"
-      >
-        <slot name="option" :option="option"></slot>
-      </menu-option>
+      <slot name="options"></slot>
 
       <div
         class="ui-menu-focus-redirector"

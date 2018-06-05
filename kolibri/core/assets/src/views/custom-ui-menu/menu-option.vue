@@ -5,31 +5,30 @@
     role="menuitem"
     :class="classes"
     :tabindex="(isDivider || disabled) ? null : '0'"
+    @click="$emit('select')"
+    @keydown.enter="$emit('select')"
   >
     <slot v-if="!isDivider">
       <div class="ui-menu-option-content">
         <ui-icon
           class="ui-menu-option-icon"
-
           :iconSet="iconProps.iconSet"
-          :icon="icon"
           :removeText="iconProps.removeText"
           :useSvg="iconProps.useSvg"
           :mirror="iconProps.mirror"
-          :iconComponent="iconComponent"
-
-          v-if="icon || iconComponent"
-        />
+          v-if="$slots.icon"
+        >
+          <slot name="icon"></slot>
+        </ui-icon>
 
         <!-- if anything in the dropdown menu has an icon, then we are
         going to add padding to make all the items align -->
         <div
           class="ui-menu-option-text"
-          :class="{ 'ui-menu-option-text-lp': !icon && !iconComponent }"
+          :class="{ 'ui-menu-option-text-lp': !$slots.icon }"
         >
           {{ label }}
         </div>
-
         <div class="ui-menu-option-secondary-text" v-if="secondaryText">
           {{ secondaryText }}
         </div>
@@ -47,7 +46,7 @@
   import config from 'keen-ui/src/config';
 
   import UiRippleInk from 'keen-ui/src/UiRippleInk.vue';
-  import UiIcon from './UiIcon';
+  import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
     name: 'uiMenuOption',
@@ -77,10 +76,6 @@
       active: {
         type: Boolean,
         default: false,
-      },
-      iconComponent: {
-        type: Object,
-        required: false,
       },
     },
 

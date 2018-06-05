@@ -38,11 +38,105 @@
           <custom-ui-menu
             class="side-nav-scrollable-area-menu"
             role="navigation"
-            :options="menuOptions"
             :hasIcons="true"
             :aria-label="$tr('navigationLabel')"
-            @select="navigate"
-          />
+          >
+            <template slot="options">
+              <menu-option
+                :label="$tr('learn')"
+                :active="pageIsActive(TopLevelPageNames.LEARN)"
+                @select="navigate('/learn')"
+              >
+                <mat-svg
+                  slot="icon"
+                  name="school"
+                  category="social"
+                />
+              </menu-option>
+              <menu-option
+                v-if="isCoach || isAdmin || isSuperuser"
+                :label="$tr('coach')"
+                :active="pageIsActive(TopLevelPageNames.COACH)"
+                @select="navigate('/coach')"
+              >
+                <mat-svg
+                  slot="icon"
+                  name="assessment"
+                  category="action"
+                />
+              </menu-option>
+
+              <menu-option
+                v-if="isAdmin || isSuperuser"
+                :label="$tr('facility')"
+                :active="pageIsActive(TopLevelPageNames.MANAGE)"
+                @select="navigate('/facility')"
+              >
+                <mat-svg
+                  slot="icon"
+                  name="settings_input_antenna"
+                  category="action"
+                />
+              </menu-option>
+
+              <menu-option
+                v-if="canManageContent || isSuperuser"
+                :label="$tr('device')"
+                :active="pageIsActive(TopLevelPageNames.DEVICE)"
+                @select="navigate('/device')"
+              >
+                <mat-svg
+                  slot="icon"
+                  name="tablet_mac"
+                  category="hardware"
+                />
+              </menu-option>
+
+              <menu-option type="divider" />
+
+              <template v-if="isUserLoggedIn">
+                <menu-option
+                  :label="$tr('profile')"
+                  :active="pageIsActive(TopLevelPageNames.USER)"
+                  @select="navigate('/user')"
+                >
+                  <mat-svg
+                    slot="icon"
+                    name="account_circle"
+                    category="action"
+                  />
+                </menu-option>
+
+                <menu-option
+                  :label="$tr('signOut')"
+                  @select="signOut"
+                >
+                  <mat-svg
+                    slot="icon"
+                    name="exit_to_app"
+                    category="action"
+                    :class="{ 'rtl-icon': isRtl }"
+                  />
+                </menu-option>
+              </template>
+
+              <menu-option
+                v-else
+                :label="$tr('signIn')"
+                @select="navigate('/user')"
+              >
+                <mat-svg
+                  slot="icon"
+                  name="exit_to_app"
+                  category="action"
+                  :class="{ 'rtl-icon': isRtl }"
+                />
+              </menu-option>
+
+              <menu-option type="divider" />
+
+            </template>
+          </custom-ui-menu>
 
           <div class="side-nav-scrollable-area-footer">
             <logo class="side-nav-scrollable-area-footer-logo" />
@@ -85,13 +179,7 @@
   import customUiMenu from 'kolibri.coreVue.components.customUiMenu';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import logo from 'kolibri.coreVue.components.logo';
-
-  import schoolSvg from './menuIcons/schoolSvg';
-  import assessmentSvg from './menuIcons/assessmentSvg';
-  import settingsSvg from './menuIcons/settingsSvg';
-  import tabletSvg from './menuIcons/tabletSvg';
-  import accountSvg from './menuIcons/accountSvg';
-  import exitIcon from './menuIcons/exitSvg';
+  import menuOption from './custom-ui-menu/menu-option';
 
   export default {
     name: 'sideNav',
@@ -99,6 +187,7 @@
       customUiMenu,
       uiIconButton,
       logo,
+      menuOption,
     },
     mixins: [responsiveWindow, responsiveElement],
     $trs: {
@@ -144,73 +233,14 @@
       };
     },
     computed: {
+      TopLevelPageNames() {
+        return TopLevelPageNames;
+      },
       mobile() {
         return this.windowSize.breakpoint < 2;
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
-      },
-      menuOptions() {
-        const options = [
-          {
-            label: this.$tr('learn'),
-            active: this.pageIsActive(TopLevelPageNames.LEARN),
-            iconComponent: schoolSvg,
-            href: '/learn',
-          },
-        ];
-        if (this.isCoach || this.isAdmin || this.isSuperuser) {
-          options.push({
-            label: this.$tr('coach'),
-            active: this.pageIsActive(TopLevelPageNames.COACH),
-            iconComponent: assessmentSvg,
-            href: '/coach',
-          });
-        }
-        if (this.isAdmin || this.isSuperuser) {
-          options.push({
-            label: this.$tr('facility'),
-            active: this.pageIsActive(TopLevelPageNames.MANAGE),
-            iconComponent: settingsSvg,
-            href: '/facility',
-          });
-        }
-        if (this.canManageContent || this.isSuperuser) {
-          options.push({
-            label: this.$tr('device'),
-            active: this.pageIsActive(TopLevelPageNames.DEVICE),
-            iconComponent: tabletSvg,
-            href: '/device',
-          });
-        }
-        options.push({ type: 'divider' });
-        if (this.isUserLoggedIn) {
-          options.push({
-            label: this.$tr('profile'),
-            active: this.pageIsActive(TopLevelPageNames.USER),
-            iconComponent: accountSvg,
-            href: '/user',
-          });
-          options.push({
-            label: this.$tr('signOut'),
-            iconComponent: exitIcon,
-            iconProps: {
-              mirror: this.isRtl,
-            },
-            action: this.signOut,
-          });
-        } else {
-          options.push({
-            label: this.$tr('signIn'),
-            iconComponent: exitIcon,
-            iconProps: {
-              mirror: this.isRtl,
-            },
-            href: '/user',
-          });
-        }
-        options.push({ type: 'divider' });
-        return options;
       },
     },
     watch: {
@@ -228,12 +258,8 @@
       },
     },
     methods: {
-      navigate(option) {
-        if (option.href) {
-          window.location.href = option.href;
-        } else if (option.action) {
-          option.action();
-        }
+      navigate(href) {
+        window.location.href = href;
       },
       toggleNav() {
         this.$emit('toggleSideNav');
