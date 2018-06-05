@@ -5,6 +5,7 @@ from time import sleep
 from django.core.management.base import CommandError
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
+from requests.exceptions import Timeout
 
 from ...utils import annotation
 from ...utils import import_export_content
@@ -152,22 +153,23 @@ class Command(AsyncCommand):
                 finished = False
                 while not finished:
                     try:
-                        with filetransfer:
-                            with self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
-                                for chunk in filetransfer:
-                                    if self.is_cancelled():
-                                        filetransfer.cancel()
-                                        finished = True
-                                        break
-                                    length = len(chunk)
-                                    overall_progress_update(length)
-                                    file_dl_progress_update(length)
+                        with filetransfer, self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
+                            for chunk in filetransfer:
+                                if self.is_cancelled():
+                                    filetransfer.cancel()
+                                    finished = True
+                                    break
+                                length = len(chunk)
+                                overall_progress_update(length)
+                                file_dl_progress_update(length)
 
                         file_checksums_to_annotate.append(f.id)
                         finished = True
 
-                    # When there is an Internet connection error, wait for 30 seconds to retry
-                    except ConnectionError:
+                    # When there is an Internet connection error or timeout error,
+                    # wait for 30 seconds to retry
+                    except (ConnectionError, Timeout) as e:
+                        logging.error("An error occured during content import: {}".format(e))
                         for i in range(30):
                             if self.is_cancelled():
                                 self.cancel()

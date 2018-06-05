@@ -298,27 +298,14 @@
   {
     "fields": {
       "lang": 1,
-      "local_file": "9f9438fe6b0d42dd8e913d7d04cfb2b2",
-      "thumbnail": false,
-      "available": true,
-      "preset": "high_res_video",
-      "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
-      "supplementary": false
-    },
-    "pk": "9f9438fe6b0d42dd8e913d7d04cfb2b1",
-    "model": "content.file"
-  },
-  {
-    "fields": {
-      "lang": 1,
-      "local_file": "725257a0570044acbd59f8cf6a68b2be",
+      "local_file": "211523265f53825b82f70ba19218a02e",
       "thumbnail": false,
       "available": true,
       "preset": "low_res_video",
       "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
       "supplementary": false
     },
-    "pk": "725257a0570044acbd59f8cf6a68b2bf",
+    "pk": "211523265f53825b82f70ba19218a02e",
     "model": "content.file"
   },
   {
@@ -366,15 +353,6 @@
       "available": true,
       "extension": "mp4"
     },
-    "pk": "9f9438fe6b0d42dd8e913d7d04cfb2b2",
-    "model": "content.localfile"
-  },
-  {
-    "fields": {
-      "file_size": null,
-      "available": true,
-      "extension": "mp4"
-    },
     "pk": "6bdfea4a01830fdd4a585181c0b8068c",
     "model": "content.localfile"
   },
@@ -384,7 +362,7 @@
       "available": true,
       "extension": "mp4"
     },
-    "pk": "725257a0570044acbd59f8cf6a68b2be",
+    "pk": "211523265f53825b82f70ba19218a02e",
     "model": "content.localfile"
   },
   {
