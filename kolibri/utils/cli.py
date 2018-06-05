@@ -18,6 +18,7 @@ from docopt import docopt  # noqa
 import kolibri  # noqa
 from . import server  # noqa
 from .conf import OPTIONS  # noqa
+from .sanity_checks import check_content_directory_exists  # noqa
 from .sanity_checks import check_other_kolibri_running  # noqa
 from .system import become_daemon  # noqa
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
@@ -592,6 +593,10 @@ def main(args=None):  # noqa: max-complexity=13
     if arguments['start']:
         port = _get_port(arguments['--port'])
         check_other_kolibri_running(port)
+
+        # Check if the content directory exists when Kolibri runs after the first time.
+        if os.path.exists(version_file()):
+            check_content_directory_exists()
 
     try:
         initialize(debug=debug)

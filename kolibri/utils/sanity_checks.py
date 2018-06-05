@@ -1,7 +1,9 @@
 import logging
+import os
 import socket
 import sys
 
+from .conf import OPTIONS
 from .server import get_status
 from .server import NotRunning
 
@@ -41,4 +43,15 @@ def check_port_availability(host, port):
             "running on this port and try again.\n".format(port)
         )
         s.close()
+        sys.exit(1)
+
+
+def check_content_directory_exists():
+    content_directory = OPTIONS['Paths']['CONTENT_DIR']
+
+    # Check if the content directory exists
+    if not os.path.exists(content_directory):
+        logger.error(
+            "The content directory {} does not exist.".format(content_directory)
+        )
         sys.exit(1)
