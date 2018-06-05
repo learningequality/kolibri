@@ -58,14 +58,16 @@
     }),
     computed: {
       actualHeight() {
-        if (this.pageReady) {
-          return this.pdfPage.view[3];
+        if (!this.pageReady) {
+          return null;
         }
+        return this.pdfPage.view[3];
       },
       actualWidth() {
-        if (this.pageReady) {
-          return this.pdfPage.view[2];
+        if (!this.pageReady) {
+          return null;
         }
+        return this.pdfPage.view[2];
       },
       heightToWidthRatio() {
         return this.actualHeight / this.actualWidth || this.firstPageHeight / this.firstPageWidth;
