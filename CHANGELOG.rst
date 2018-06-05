@@ -16,6 +16,7 @@ Changes are ordered reverse-chronologically.
  - New Kolibri configuration file
  - Overall improved performance
  - Auto-play videos
+ - Various improvements to PDF renderer
  - Command to migrate content directory location
 
 See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.10.0+label%3Achangelog>`_ of changes on Github.
