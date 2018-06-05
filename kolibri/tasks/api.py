@@ -3,6 +3,7 @@ import os
 
 from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
+from django.http.response import Http404
 from django.utils.translation import gettext_lazy as _
 from iceqube.common.classes import State
 from iceqube.exceptions import UserCancelledError
@@ -11,6 +12,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from six import string_types
+from sqlalchemy.orm.exc import NoResultFound
 
 from .client import get_client
 from kolibri.content.permissions import CanManageContent
@@ -50,8 +52,11 @@ class TasksViewSet(viewsets.ViewSet):
         pass
 
     def retrieve(self, request, pk=None):
-        task = _job_to_response(get_client().status(pk))
-        return Response(task)
+        try:
+            task = _job_to_response(get_client().status(pk))
+            return Response(task)
+        except NoResultFound:
+            raise Http404('Task with {pk} not found'.format(pk=pk))
 
     def destroy(self, request, pk=None):
         # unimplemented for now.
@@ -306,8 +311,10 @@ class TasksViewSet(viewsets.ViewSet):
         if not isinstance(request.data['task_id'], string_types):
             raise serializers.ValidationError(
                 "The 'task_id' should be a string.")
-
-        get_client().cancel(request.data['task_id'])
+        try:
+            get_client().cancel(request.data['task_id'])
+        except NoResultFound:
+            pass
         get_client().clear(force=True)
         return Response({})
 
