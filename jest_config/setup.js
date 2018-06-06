@@ -13,5 +13,9 @@ Vue.config.silent = true;
 Vue.use(Vuex);
 Vue.use(VueRouter);
 setUpVueIntl();
+Vue.config.productionTip = false;
 
-export default Vue;
+const csrf = global.document.createElement('input');
+csrf.name = 'csrfmiddlewaretoken';
+csrf.value = 'csrfmiddlewaretoken';
+global.document.body.append(csrf);
