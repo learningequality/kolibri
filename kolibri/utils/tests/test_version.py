@@ -1,12 +1,15 @@
 """
 Tests for `kolibri` module.
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import unittest
 
-import kolibri
 import mock
+
+import kolibri
 from kolibri.utils import version
 
 #: Because we don't want to call the original (decorated function), it uses
@@ -142,6 +145,24 @@ class TestKolibriVersion(unittest.TestCase):
         """
         assert get_version((0, 1, 0, "alpha", 0)) == "0.1.0b1"
 
+    @mock.patch('kolibri.utils.version.get_version_file', return_value=None)
+    @mock.patch('kolibri.utils.version.get_git_describe', return_value="v0.1.0-alpha1-123-abcdfe12")
+    def test_alpha_0_consistent_git(self, describe_mock, file_mock):
+        """
+        Tests that git describe data for an alpha-1 tag generates an a1 version
+        string.
+        """
+        assert get_version((0, 1, 0, "alpha", 0)) == "0.1.0a1.dev+git-123-abcdfe12"
+
+    @mock.patch('kolibri.utils.version.get_version_file', return_value=None)
+    @mock.patch('kolibri.utils.version.get_git_describe', return_value="v0.1.0-alpha1-123-abcdfe12")
+    def test_alpha_1_consistent_git(self, describe_mock, file_mock):
+        """
+        Tests that git describe data for an alpha-1 tag generates an a1 version
+        string.
+        """
+        assert get_version((0, 1, 0, "alpha", 1)) == "0.1.0a1.dev+git-123-abcdfe12"
+
     @mock.patch('kolibri.utils.version.get_version_file', return_value="0.1.0b2")
     @mock.patch('kolibri.utils.version.get_git_describe', return_value=None)
     @mock.patch('kolibri.utils.version.get_git_changeset', return_value=None)
@@ -210,9 +231,10 @@ class TestKolibriVersion(unittest.TestCase):
             version.get_git_describe = git_describe
 
     @mock.patch('kolibri.utils.version.get_git_describe', return_value="v0.1.0-beta1-123-abcdfe12")
-    def test_alpha_1_consistent_git(self, describe_mock):
+    def test_alpha_1_beta_1_consistent_git(self, describe_mock):
         """
-        Test that we get the git describe data when it's there
+        Test that a beta1 git tag can override kolibri.__version__ reading
+        alpha0.
         """
         assert get_version((0, 1, 0, "alpha", 1)) == "0.1.0b1.dev+git-123-abcdfe12"
 
