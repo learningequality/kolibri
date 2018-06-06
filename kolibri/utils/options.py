@@ -45,7 +45,7 @@ option_spec = {
         },
         "CHERRYPY_QUEUE_SIZE": {
             "type": "integer",
-            "default": 5,
+            "default": 30,
             "envvars": ("KOLIBRI_CHERRYPY_QUEUE_SIZE",),
         },
         "CHERRYPY_QUEUE_TIMEOUT": {
