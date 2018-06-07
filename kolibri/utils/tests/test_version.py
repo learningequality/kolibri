@@ -1,12 +1,15 @@
 """
 Tests for `kolibri` module.
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import unittest
 
-import kolibri
 import mock
+
+import kolibri
 from kolibri.utils import version
 
 #: Because we don't want to call the original (decorated function), it uses
@@ -170,6 +173,17 @@ class TestKolibriVersion(unittest.TestCase):
         Test that the VERSION file is NOT used where git data is available
         """
         assert get_version((0, 1, 0, "alpha", 0)) == "0.1.0.dev+git123"
+
+    @mock.patch('kolibri.utils.version.get_version_file', return_value="0.10.0.dev4.dev+git-29-ga99e882")
+    @mock.patch('kolibri.utils.version.get_git_describe', return_value=None)
+    @mock.patch('kolibri.utils.version.get_git_changeset', return_value=None)
+    def test_version_file_prerelease_git(self, get_git_changeset_mock, describe_mock, file_mock):
+        """
+        Test that a VERSION specifying a pre-release with git info works
+
+        Data from @ivan
+        """
+        assert get_version((0, 10, 0, u'alpha', 0)) == "0.10.0.dev4.dev+git-29-ga99e882"
 
     @mock.patch('kolibri.utils.version.get_version_file', return_value="0.1.0")
     @mock.patch('kolibri.utils.version.get_git_describe', return_value=None)
