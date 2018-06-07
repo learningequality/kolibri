@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import importlib  # noqa
+import io
 import logging  # noqa
 import os  # noqa
 import signal  # noqa
@@ -135,7 +136,7 @@ def initialize(debug=False):
         from .conf import autoremove_unavailable_plugins, enable_default_plugins
         autoremove_unavailable_plugins()
 
-        version = open(version_file(), "r").read()
+        version = io.open(version_file(), mode='r', encoding='utf-8').read()
         version = version.strip() if version else ""
         change_version = kolibri.__version__ != version
         if change_version:
@@ -238,7 +239,7 @@ def update():
     if not SKIP_AUTO_DATABASE_MIGRATION:
         _migrate_databases()
 
-    with open(version_file(), "w") as f:
+    with io.open(version_file(), mode='w', encoding='utf-8') as f:
         f.write(kolibri.__version__)
 
     from kolibri.content.utils.annotation import update_channel_metadata

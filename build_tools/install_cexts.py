@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import imp
+import io
 import os
 import shutil
 import subprocess
@@ -160,7 +161,7 @@ def parse_requirements(args):
     Parse the requirements.txt to get packages' names and versions,
     then install them.
     """
-    with open(args.file) as f:
+    with io.open(args.file, mode='r', encoding='utf-8') as f:
         for line in f:
             char_list = line.split('==')
             if len(char_list) == 2:

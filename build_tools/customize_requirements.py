@@ -4,6 +4,7 @@ and hence bundled into the dist folder.
 
 For more detail see the documentation in __init__.py
 """
+import io
 import os
 import tempfile
 
@@ -17,15 +18,16 @@ def add_requirements_to_base():
         if file_path.startswith('http'):
             print("Downloading extra requirements from {file_path}".format(file_path=file_path))
             _, path = tempfile.mkstemp(suffix=".txt", text=True)
-            with open(path, 'w') as f:
+            with io.open(path, mode='w', encoding='utf-8') as f:
                 r = requests.get(file_path)
                 f.write(r.content)
             file_path = path
         try:
-            with open(file_path, 'r') as f:
+            with io.open(file_path, mode='r', encoding='utf-8') as f:
                 requirements = [requirement.strip() for requirement in f.readlines() if requirement.strip()]
             if requirements:
-                with open(os.path.join(os.path.dirname(__file__), '../requirements.txt'), 'a') as f:
+                reqs_file = os.path.join(os.path.dirname(__file__), '../requirements.txt')
+                with io.open(reqs_file, mode='a', encoding='utf-8') as f:
                     f.writelines(requirements)
         except IOError:
             pass
