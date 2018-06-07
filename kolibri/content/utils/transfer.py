@@ -5,15 +5,8 @@ import shutil
 import requests
 from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError
-from requests.packages.urllib3.util.retry import Retry
 
 logging = logger.getLogger(__name__)
-
-
-# policy for retrying downloads with exponential backoff delay
-retries = Retry(total=5,
-                backoff_factor=0.1,
-                status_forcelist=[500, 502, 503, 504])
 
 
 class ExistingTransferInProgress(Exception):
@@ -147,10 +140,10 @@ class FileDownload(Transfer):
         if self.started:
             self.dest_file_obj = open(self.dest_tmp, "ab")
 
-        # initialize the requests session, with backoff-retries enabled
+        # initialize the requests session
         self.session = requests.Session()
-        self.session.mount('http://', HTTPAdapter(max_retries=retries))
-        self.session.mount('https://', HTTPAdapter(max_retries=retries))
+        self.session.mount('http://', HTTPAdapter())
+        self.session.mount('https://', HTTPAdapter())
 
         # initiate the download, check for status errors, and calculate download size
         self.response = self.session.get(
