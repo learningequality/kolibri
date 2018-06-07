@@ -51,8 +51,10 @@ export class HeartBeat {
     });
   }
   setActive() {
-    this.active = true;
-    this.clearActivityListeners();
+    if (this.active !== true) {
+      this.active = true;
+      this.clearActivityListeners();
+    }
   }
   setInactive() {
     this.active = false;
