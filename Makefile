@@ -182,7 +182,11 @@ dockerenvclean:
 	docker image prune -f
 
 dockerenvbuild: writeversion
-	docker image build -t "learningequality/kolibri:$$(cat kolibri/VERSION | sed 's/+/_/g')" -t learningequality/kolibri:latest .
+	docker image build -t "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')" -t learningequality/kolibri:latest -f deploy/build.dockerfile .
 
 dockerenvdist: writeversion
-	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri:$$(cat kolibri/VERSION | sed 's/+/_/g')"
+	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')"
+
+runkolibridocker: writeversion
+	docker image build . -t "learningequality/kolibri"
+	docker run "learningequality/kolibri:"
