@@ -1,3 +1,4 @@
+import io
 import json
 import os
 import pickle
@@ -361,7 +362,8 @@ class ContentImportTestBase(TransactionTestCase):
         with open(SCHEMA_PATH_TEMPLATE.format(name=self.schema_name), 'rb') as f:
             metadata = pickle.load(f)
 
-        with open(DATA_PATH_TEMPLATE.format(name=self.data_name), 'r') as f:
+        data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
+        with io.open(data_path, mode='r', encoding='utf-8') as f:
             data = json.load(f)
 
         metadata.bind = self.content_engine
