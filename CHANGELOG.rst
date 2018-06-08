@@ -26,7 +26,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=
 -----
 
  - Various bug fixes
- - Languages: English, Arabic, Bengali, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese, Spanish, Swahili, Tamil,   Telugu, Urdu, Yoruba, and Zulu
+ - Languages: English, Arabic, Bengali, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Tamil,   Telugu, Urdu, Yoruba, and Zulu
 
 See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.2+label%3Achangelog>`_ of changes on Github.
 
@@ -41,7 +41,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=
  - Fixed issue with password-less sign-on
  - Fixed issue with editing lessons
  - Various other fixes
- - Languages: English, Arabic, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese, Spanish, Swahili, Tamil, Telugu, and Urdu
+ - Languages: English, Arabic, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Tamil, Telugu, and Urdu
 
 See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.1+label%3Achangelog>`__ of changes on Github.
 
