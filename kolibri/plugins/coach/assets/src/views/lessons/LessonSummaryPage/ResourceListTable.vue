@@ -39,20 +39,22 @@
         <td class="core-table-icon-col">
           <ui-icon-button
             type="flat"
-            icon="keyboard_arrow_up"
             :ariaLabel="$tr('moveResourceUpButtonDescription')"
             :disabled="index === 0"
             @click="moveUpOne(index)"
             class="position-adjustment-button"
-          />
+          >
+            <mat-svg name="keyboard_arrow_up" category="hardware" />
+          </ui-icon-button>
           <ui-icon-button
             type="flat"
-            icon="keyboard_arrow_down"
             :ariaLabel="$tr('moveResourceDownButtonDescription')"
             :disabled="index === (workingResources.length - 1)"
             @click="moveDownOne(index)"
             class="position-adjustment-button"
-          />
+          >
+            <mat-svg name="keyboard_arrow_down" category="hardware" />
+          </ui-icon-button>
         </td>
         <td class="core-table-icon-col">
           <content-icon :kind="resourceKind(resourceId)" />

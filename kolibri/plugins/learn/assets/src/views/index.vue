@@ -20,21 +20,24 @@
           v-if="isUserLoggedIn && userHasMemberships"
           type="icon-and-title"
           :title="$tr('classes')"
-          icon="business"
           :link="allClassesLink"
-        />
+        >
+          <mat-svg name="business" category="communication" />
+        </k-navbar-link>
         <k-navbar-link
           type="icon-and-title"
           :title="$tr('channels')"
-          icon="apps"
           :link="channelsLink"
-        />
+        >
+          <mat-svg name="apps" category="navigation" />
+        </k-navbar-link>
         <k-navbar-link
           type="icon-and-title"
           :title="$tr('recommended')"
-          icon="forum"
           :link="recommendedLink"
-        />
+        >
+          <mat-svg name="forum" category="communication" />
+        </k-navbar-link>
       </k-navbar>
     </div>
 

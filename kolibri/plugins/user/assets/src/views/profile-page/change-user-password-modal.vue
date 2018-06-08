@@ -83,7 +83,7 @@
         return '';
       },
       newPasswordIsInvalid() {
-        return !!this.newPasswordInvalidErrorText;
+        return Boolean(this.newPasswordInvalidErrorText);
       },
       confirmedNewPasswordInvalidErrorText() {
         if (this.confirmedNewPasswordBlurred || this.submittedForm) {
@@ -97,7 +97,7 @@
         return '';
       },
       confirmedNewPasswordIsInvalid() {
-        return !!this.confirmedNewPasswordInvalidErrorText;
+        return Boolean(this.confirmedNewPasswordInvalidErrorText);
       },
       formIsValid() {
         return !this.newPasswordIsInvalid && !this.confirmedNewPasswordIsInvalid;

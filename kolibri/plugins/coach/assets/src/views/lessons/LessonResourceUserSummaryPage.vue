@@ -55,8 +55,18 @@
                 @click="invert=!invert"
                 size="small"
                 type="secondary"
-                :icon="arrowIcon"
-              />
+              >
+                <mat-svg
+                  v-if="invert"
+                  name="keyboard_arrow_up"
+                  category="hardware"
+                />
+                <mat-svg
+                  v-if="!invert"
+                  name="keyboard_arrow_down"
+                  category="hardware"
+                />
+              </ui-icon-button>
             </th>
             <th>
               <k-button
@@ -70,8 +80,18 @@
                 @click="invert=!invert"
                 size="small"
                 type="secondary"
-                :icon="arrowIcon"
-              />
+              >
+                <mat-svg
+                  v-if="invert"
+                  name="keyboard_arrow_up"
+                  category="hardware"
+                />
+                <mat-svg
+                  v-if="!invert"
+                  name="keyboard_arrow_down"
+                  category="hardware"
+                />
+              </ui-icon-button>
             </th>
             <th>
               <k-button
@@ -85,8 +105,18 @@
                 @click="invert=!invert"
                 size="small"
                 type="secondary"
-                :icon="arrowIcon"
-              />
+              >
+                <mat-svg
+                  v-if="invert"
+                  name="keyboard_arrow_up"
+                  category="hardware"
+                />
+                <mat-svg
+                  v-if="!invert"
+                  name="keyboard_arrow_down"
+                  category="hardware"
+                />
+              </ui-icon-button>
 
             </th>
             <th>
@@ -101,8 +131,18 @@
                 @click="invert=!invert"
                 size="small"
                 type="secondary"
-                :icon="arrowIcon"
-              />
+              >
+                <mat-svg
+                  v-if="invert"
+                  name="keyboard_arrow_up"
+                  category="hardware"
+                />
+                <mat-svg
+                  v-if="!invert"
+                  name="keyboard_arrow_down"
+                  category="hardware"
+                />
+              </ui-icon-button>
             </th>
           </tr>
         </thead>
@@ -206,9 +246,6 @@
         return {
           name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
         };
-      },
-      arrowIcon() {
-        return this.invert ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
       },
       sortedUsers() {
         return filterAndSortUsers(this.userData, () => true, this.sortBy);
