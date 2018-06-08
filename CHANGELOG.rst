@@ -3,6 +3,25 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+
+0.10.0
+------
+
+ - Support for coach-specific content
+ - Content import/export is more reliable and easier to use
+ - Search has improved results and handles duplicate items
+ - Display of answer history in learner exercises is improved
+ - Login page is more responsive
+ - Windows-specific improvements and bug fixes
+ - New Kolibri configuration file
+ - Overall improved performance
+ - Auto-play videos
+ - Various improvements to PDF renderer
+ - Command to migrate content directory location
+
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.10.0+label%3Achangelog>`_ of changes on Github.
+
+
 0.9.2
 -----
 
