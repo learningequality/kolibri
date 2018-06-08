@@ -1,6 +1,5 @@
 /* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
+import Vue from 'vue'; // eslint-disable-line
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import urls from 'kolibri.urls';
@@ -35,12 +34,12 @@ describe('device management index page', () => {
   it('core-base is immersive when at the SELECT_CONTENT page', () => {
     store.dispatch('SET_PAGE_NAME', 'SELECT_CONTENT');
     const { els } = makeWrapper(store);
-    expect(els.coreBase().props().immersivePage).to.be.true;
+    expect(els.coreBase().props().immersivePage).toEqual(true);
   });
 
   it('core-base is immersive when at the AVAILABLE_CHANNELS page', () => {
     store.dispatch('SET_PAGE_NAME', 'AVAILABLE_CHANNELS');
     const { els } = makeWrapper(store);
-    expect(els.coreBase().props().immersivePage).to.be.true;
+    expect(els.coreBase().props().immersivePage).toEqual(true);
   });
 });

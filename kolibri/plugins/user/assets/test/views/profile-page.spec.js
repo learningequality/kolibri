@@ -1,6 +1,5 @@
 /* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
+import Vue from 'vue'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import ProfilePage from '../../src/views/profile-page';
 import makeStore from '../util/makeStore';
@@ -19,6 +18,6 @@ function makeWrapper() {
 describe('profilePage component', () => {
   it('smoke test', () => {
     const wrapper = makeWrapper();
-    expect(wrapper.isVueInstance()).to.be.true;
+    expect(wrapper.isVueInstance()).toEqual(true);
   });
 });

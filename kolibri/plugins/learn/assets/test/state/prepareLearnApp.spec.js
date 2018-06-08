@@ -1,6 +1,5 @@
 /* eslint-env mocha */
 import sinon from 'sinon';
-import { expect } from 'chai';
 import { mockResource } from 'testUtils'; // eslint-disable-line import/no-unresolved
 import { MembershipResource } from 'kolibri.resources';
 import prepareLearnApp from '../../src/state/prepareLearnApp';
@@ -26,7 +25,7 @@ describe('prepareLearnApp action', () => {
 
     return prepareLearnApp(store).then(() => {
       sinon.assert.notCalled(MembershipResource.getCollection);
-      expect(getMemberships(store)).to.deep.equal([]);
+      expect(getMemberships(store)).toEqual([]);
     });
   });
 
@@ -39,7 +38,7 @@ describe('prepareLearnApp action', () => {
       sinon.assert.calledWith(MembershipResource.getCollection, {
         user: 101,
       });
-      expect(getMemberships(store)).to.deep.equal(fakeMemberships);
+      expect(getMemberships(store)).toEqual(fakeMemberships);
     });
   });
 
@@ -51,8 +50,8 @@ describe('prepareLearnApp action', () => {
       sinon.assert.calledWith(MembershipResource.getCollection, {
         user: 102,
       });
-      expect(store.state.core.error).to.deep.equal('fetch error');
-      expect(getMemberships(store)).to.deep.equal([]);
+      expect(store.state.core.error).toEqual('fetch error');
+      expect(getMemberships(store)).toEqual([]);
     });
   });
 });

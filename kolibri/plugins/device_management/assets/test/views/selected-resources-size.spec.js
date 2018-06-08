@@ -1,6 +1,5 @@
 /* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line
-import { expect } from 'chai';
+import Vue from 'vue'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import kButton from 'kolibri.coreVue.components.kButton';
 import UiAlert from 'keen-ui/src/UiAlert.vue';
@@ -35,21 +34,21 @@ describe('selectedResourcesSize component', () => {
   it('shows the correct message and button when in import mode', () => {
     const wrapper = makeWrapper();
     const { chooseMsg, buttonText } = getElements(wrapper);
-    expect(chooseMsg()).to.equal('Choose content to import');
-    expect(buttonText()).to.equal('import');
+    expect(chooseMsg()).toEqual('Choose content to import');
+    expect(buttonText()).toEqual('import');
   });
 
   it('shows the correct message and button when in export mode', () => {
     const wrapper = makeWrapper({ mode: 'export' });
     const { chooseMsg, buttonText } = getElements(wrapper);
-    expect(chooseMsg()).to.equal('Choose content to export');
-    expect(buttonText()).to.equal('export');
+    expect(chooseMsg()).toEqual('Choose content to export');
+    expect(buttonText()).toEqual('export');
   });
 
   it('shows correct "resources selected" message given resourceCount & fileSize props', () => {
     const wrapper = makeWrapper();
     const { resourcesSelectedMsg } = getElements(wrapper);
-    expect(resourcesSelectedMsg()).to.equal('Resources selected: 10 (9 MB)');
+    expect(resourcesSelectedMsg()).toEqual('Resources selected: 10 (9 MB)');
   });
 
   it('confirmation button is disabled when no resources are selected', () => {
@@ -58,7 +57,7 @@ describe('selectedResourcesSize component', () => {
       fileSize: 0,
     });
     const { button } = getElements(wrapper);
-    expect(button().props().disabled).to.be.true;
+    expect(button().props().disabled).toEqual(true);
   });
 
   it('confirmation button is disabled when remaining space is zero', () => {
@@ -68,14 +67,14 @@ describe('selectedResourcesSize component', () => {
       spaceOnDrive: 9,
     });
     const { button } = getElements(wrapper);
-    expect(button().props().disabled).to.be.true;
+    expect(button().props().disabled).toEqual(true);
   });
 
   it('when button is clicked, it emits an "clickconfirm" event', () => {
     const wrapper = makeWrapper();
     const { button } = getElements(wrapper);
     button().trigger('click');
-    expect(wrapper.emitted().clickconfirm.length).to.equal(1);
+    expect(wrapper.emitted().clickconfirm.length).toEqual(1);
   });
 
   it('confirmation button is enabled when some resources are selected', () => {
@@ -84,22 +83,22 @@ describe('selectedResourcesSize component', () => {
       fileSize: 10,
     });
     const { button } = getElements(wrapper);
-    expect(button().props().disabled).to.be.false;
+    expect(button().props().disabled).toEqual(false);
   });
 
   it('shows the "remaining space message"', () => {
     const wrapper = makeWrapper();
     const { remainingSpaceMsg } = getElements(wrapper);
-    expect(remainingSpaceMsg()).to.equal('Your remaining space: 4 GB');
+    expect(remainingSpaceMsg()).toEqual('Your remaining space: 4 GB');
   });
 
   it('shows an error notification when remaining space goes to zero', () => {
     const wrapper = makeWrapper();
     const { notification } = getElements(wrapper);
-    expect(notification().exists()).to.be.false;
+    expect(notification().exists()).toEqual(false);
     wrapper.setProps({ fileSize: 100000000000000 });
-    expect(notification().exists()).to.be.true;
+    expect(notification().exists()).toEqual(true);
     wrapper.setProps({ fileSize: 100 });
-    expect(notification().exists()).to.be.false;
+    expect(notification().exists()).toEqual(false);
   });
 });

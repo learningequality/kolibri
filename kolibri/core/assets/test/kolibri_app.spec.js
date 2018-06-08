@@ -1,31 +1,39 @@
-/* eslint-env mocha */
-import sinon from 'sinon';
+import store from 'kolibri.coreVue.vuex.store';
 import KolibriApp from '../src/kolibri_app';
 
+const mockRegisterModule = store.registerModule;
+jest.mock(
+  'kolibri',
+  () => {
+    return {
+      registerKolibriModuleSync: jest.fn(),
+    };
+  },
+  { virtual: true }
+);
+
+jest.mock('kolibri.coreVue.vuex.store', () => {
+  return {
+    registerModule: jest.fn(),
+  };
+});
+
 describe('KolibriApp', function() {
+  let app;
   describe('ready method', function() {
     beforeEach(function() {
-      window.kolibriGlobal.registerKolibriModuleSync = sinon.spy();
-      this.app = new KolibriApp();
-      this.registerModuleStub = sinon.stub();
-      this.store = {
-        registerModule: this.registerModuleStub,
-      };
-      sinon.stub(this.app, 'store').get(() => this.store);
-    });
-    afterEach(function() {
-      delete window.kolibriGlobal.registerKolibriModuleSync;
+      app = new KolibriApp();
     });
     it('should call store registerModule', function() {
-      this.app.ready();
-      sinon.assert.calledOnce(this.registerModuleStub);
+      app.ready();
+      expect(mockRegisterModule.mock.calls).toHaveLength(1);
     });
     it('should call store registerModule with app state and mutations', function() {
-      this.app.ready();
-      sinon.assert.calledWith(
-        this.registerModuleStub,
-        sinon.match({ state: this.app.initialState, mutations: this.app.mutations })
-      );
+      app.ready();
+      expect(mockRegisterModule.mock.calls[0][0]).toEqual({
+        state: app.initialState,
+        mutations: app.mutations,
+      });
     });
   });
 });

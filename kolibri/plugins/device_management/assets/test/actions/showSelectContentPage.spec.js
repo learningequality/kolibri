@@ -1,6 +1,5 @@
 /* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
+import Vue from 'vue'; // eslint-disable-line
 import sinon from 'sinon';
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import { loadChannelMetaData } from '../../src/state/actions/selectContentActions';
@@ -24,7 +23,7 @@ function hackStoreWatcher(store) {
 describe('loadChannelMetaData action', () => {
   let store;
 
-  before(() => {
+  beforeEach(() => {
     // Add mock methods not in generic mock Resource
     TaskResource.startRemoteChannelImport = sinon.stub();
     TaskResource.startDiskChannelImport = sinon.stub();
@@ -109,7 +108,7 @@ describe('loadChannelMetaData action', () => {
     it('errors from startDiskChannelImport are handled', () => {
       TaskResource.startDiskChannelImport.returns(Promise.reject());
       return loadChannelMetaData(store).then(() => {
-        expect(wizardState(store.state).status).to.equal('CONTENT_DB_LOADING_ERROR');
+        expect(wizardState(store.state).status).toEqual('CONTENT_DB_LOADING_ERROR');
       });
     });
   });
@@ -136,7 +135,7 @@ describe('loadChannelMetaData action', () => {
     it('errors from startRemoteChannelImport are handled', () => {
       TaskResource.startRemoteChannelImport.returns(Promise.reject());
       return loadChannelMetaData(store).then(() => {
-        expect(wizardState(store.state).status).to.equal('CONTENT_DB_LOADING_ERROR');
+        expect(wizardState(store.state).status).toEqual('CONTENT_DB_LOADING_ERROR');
       });
     });
   });

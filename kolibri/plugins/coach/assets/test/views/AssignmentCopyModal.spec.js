@@ -1,8 +1,7 @@
 /* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line
+import Vue from 'vue'; // eslint-disable-line
 import Vuex from 'vuex';
 import sinon from 'sinon';
-import { expect } from 'chai';
 import { mount } from '@vue/test-utils';
 import AssignmentCopyModal from '../../src/views/assignments/AssignmentCopyModal';
 
@@ -36,8 +35,8 @@ describe('AssignmentCopyModal', () => {
       propsData: { ...defaultProps },
       store,
     });
-    expect(els.selectClassroomForm().exists()).to.be.true;
-    expect(els.selectLearnerGroupForm().exists()).to.be.false;
+    expect(els.selectClassroomForm().exists()).toEqual(true);
+    expect(els.selectLearnerGroupForm().exists()).toEqual(false);
   });
 
   it('shows one radio button for each classroom', () => {
@@ -46,7 +45,7 @@ describe('AssignmentCopyModal', () => {
       store,
     });
     const classroomRadios = els.selectClassroomForm().findAll({ name: 'kRadioButton' });
-    expect(classroomRadios.length).to.equal(2);
+    expect(classroomRadios.length).toEqual(2);
   });
 
   it('first classroom radio button is the current class and has special label', () => {
@@ -58,7 +57,7 @@ describe('AssignmentCopyModal', () => {
       .selectClassroomForm()
       .findAll({ name: 'kRadioButton' })
       .at(0);
-    expect(currentClassroomRadio.props().label).to.equal('Class Two (current class)');
+    expect(currentClassroomRadio.props().label).toEqual('Class Two (current class)');
   });
 
   it('clicking continue on Select Classroom form goes to Select Learner Group form', () => {
@@ -69,14 +68,14 @@ describe('AssignmentCopyModal', () => {
     });
     sinon.stub(wrapper.vm, 'getLearnerGroupsForClassroom').returns(Promise.resolve(groups));
     return wrapper.vm.goToAvailableGroups().then(() => {
-      expect(els.selectLearnerGroupForm().exists()).to.be.true;
+      expect(els.selectLearnerGroupForm().exists()).toEqual(true);
       // Explanations should reflect the selection of Class Two (current class)
       // prettier-ignore
       const explanation = wrapper.find('p').text();
-      expect(explanation).to.equal(`Will be copied to 'Class Two'`);
+      expect(explanation).toEqual(`Will be copied to 'Class Two'`);
       // Recipient selector gets all of the groups
       const recipientSelector = els.selectLearnerGroupForm().find({ name: 'recipientSelector' });
-      expect(recipientSelector.props().groups).to.deep.equal(groups);
+      expect(recipientSelector.props().groups).toEqual(groups);
     });
   });
 
@@ -89,7 +88,7 @@ describe('AssignmentCopyModal', () => {
     return wrapper.vm.goToAvailableGroups().then(() => {
       els.selectLearnerGroupForm().trigger('submit');
       // By default, this will copy the Assignment to the same class, and the entire class
-      expect(wrapper.emitted().copy[0]).to.deep.equal(['class_2', ['class_2']]);
+      expect(wrapper.emitted().copy[0]).toEqual(['class_2', ['class_2']]);
     });
   });
 

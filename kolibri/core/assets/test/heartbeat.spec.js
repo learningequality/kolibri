@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-import { expect } from 'chai';
 import sinon from 'sinon';
 import coreStore from 'kolibri.coreVue.vuex.store';
 import {
@@ -8,219 +7,212 @@ import {
   connected,
   reconnectTime,
 } from 'kolibri.coreVue.vuex.getters';
-import { setUpVueIntl } from 'kolibri.utils.i18n';
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
 
+jest.mock('http');
+
 describe('HeartBeat', function() {
-  // TODO: Make this more general so it is set up for all tests
-  beforeEach(function() {
-    setUpVueIntl();
-  });
+  let heartBeat, store;
   describe('constructor method', function() {
     it('should set the delay property to the first argument', function() {
       const delay = 10000;
       const test = new HeartBeat(delay);
-      expect(delay).to.equal(test.delay);
+      expect(delay).toEqual(test.delay);
     });
     it('should raise an error if delay is not a number', function() {
       function testCall() {
         const delay = true;
-        this.test = new HeartBeat(delay);
-        delete this.test;
+        new HeartBeat(delay);
       }
-      expect(testCall).to.throw(ReferenceError);
+      expect(testCall).toThrow(ReferenceError);
     });
     it('should set the setActive method to a bound method', function() {
       const test = new HeartBeat();
-      expect(HeartBeat.prototype.setActive).to.not.equal(test.setActive);
+      expect(HeartBeat.prototype.setActive).not.toEqual(test.setActive);
     });
     it('should set the beat method to a bound method', function() {
       const test = new HeartBeat();
-      expect(HeartBeat.prototype.beat).to.not.equal(test.beat);
+      expect(HeartBeat.prototype.beat).not.toEqual(test.beat);
     });
     it('should call the setInactive method', function() {
       const spy = sinon.spy(HeartBeat.prototype, 'setInactive');
-      this.test = new HeartBeat();
+      new HeartBeat();
       sinon.assert.calledOnce(spy);
       spy.restore();
     });
     it('should not call the start method', function() {
       const spy = sinon.spy(HeartBeat.prototype, 'start');
-      this.test = new HeartBeat();
+      new HeartBeat();
       sinon.assert.notCalled(spy);
       spy.restore();
     });
   });
   describe('beat method', function() {
+    let checkSessionStub;
     beforeEach(function() {
-      this.heartBeat = new HeartBeat();
-      this.heartBeat.active = false;
-      this.store = coreStore.factory();
-      this.checkSessionStub = sinon.stub(this.heartBeat, 'checkSession');
-      this.checkSessionStub.resolves();
+      heartBeat = new HeartBeat();
+      heartBeat.active = false;
+      coreStore.factory();
+      checkSessionStub = sinon.stub(heartBeat, 'checkSession');
+      checkSessionStub.resolves();
     });
     it('should call setInactive', function() {
-      const spy = sinon.spy(this.heartBeat, 'setInactive');
-      return this.heartBeat.beat().then(() => {
+      const spy = sinon.spy(heartBeat, 'setInactive');
+      return heartBeat.beat().then(() => {
         sinon.assert.calledOnce(spy);
       });
     });
     it('should call wait', function() {
-      const spy = sinon.spy(this.heartBeat, 'wait');
-      return this.heartBeat.beat().then(() => {
+      const spy = sinon.spy(heartBeat, 'wait');
+      return heartBeat.beat().then(() => {
         sinon.assert.calledOnce(spy);
       });
     });
     it('should set timerId to a setTimeout identifier', function() {
-      return this.heartBeat.beat().then(() => {
-        expect(typeof this.heartBeat.timerId).to.equal('number');
+      return heartBeat.beat().then(() => {
+        expect(typeof heartBeat.timerId).toEqual('number');
       });
     });
     it('should call checkSession', function() {
-      this.heartBeat.beat();
-      sinon.assert.calledOnce(this.checkSessionStub);
+      heartBeat.beat();
+      sinon.assert.calledOnce(checkSessionStub);
     });
     describe('and activity is detected', function() {
       beforeEach(function() {
-        this.heartBeat.active = true;
+        heartBeat.active = true;
       });
       it('should call setActivityListeners', function() {
-        const spy = sinon.spy(this.heartBeat, 'setActivityListeners');
-        this.heartBeat.beat();
+        const spy = sinon.spy(heartBeat, 'setActivityListeners');
+        heartBeat.beat();
         sinon.assert.calledOnce(spy);
       });
     });
   });
   describe('monitorDisconnect method', function() {
     beforeEach(function() {
-      this.heartBeat = new HeartBeat();
-      this.wait = sinon.stub(this.heartBeat, 'wait');
-      this.store = coreStore.factory();
-      this.heartBeat.monitorDisconnect();
+      heartBeat = new HeartBeat();
+      sinon.stub(heartBeat, 'wait');
+      store = coreStore.factory();
+      heartBeat.monitorDisconnect();
     });
     it('should set connected to false', function() {
-      expect(connected(this.store.state)).to.be.false;
+      expect(connected(store.state)).toEqual(false);
     });
     it('should set reconnectTime to not null', function() {
-      expect(reconnectTime(this.store.state)).to.not.equal(null);
+      expect(reconnectTime(store.state)).not.toEqual(null);
     });
     it('should set current snackbar to disconnected', function() {
-      expect(snackbarIsVisible(this.store.state)).to.be.true;
+      expect(snackbarIsVisible(store.state)).toEqual(true);
       expect(
-        snackbarOptions(this.store.state).text.startsWith(
+        snackbarOptions(store.state).text.startsWith(
           'Disconnected from server. Will try to reconnect in'
         )
-      ).to.be.true;
+      ).toEqual(true);
     });
     it('should not do anything if it already knows it is disconnected', function() {
-      this.store.dispatch('CORE_SET_RECONNECT_TIME', 'fork');
-      this.heartBeat.monitorDisconnect();
-      expect(reconnectTime(this.store.state)).to.equal('fork');
+      store.dispatch('CORE_SET_RECONNECT_TIME', 'fork');
+      heartBeat.monitorDisconnect();
+      expect(reconnectTime(store.state)).toEqual('fork');
     });
   });
   describe('checkSession method', function() {
     beforeEach(function() {
-      this.heartBeat = new HeartBeat();
-      this.urlStub = sinon.stub(this.heartBeat, 'sessionUrl');
-      this.urlStub.returns('url');
-      this.store = coreStore.factory();
+      heartBeat = new HeartBeat();
+      const urlStub = sinon.stub(heartBeat, 'sessionUrl');
+      urlStub.returns('url');
+      store = coreStore.factory();
     });
     it('should sign out if an auto logout is detected', function() {
-      this.store.dispatch('CORE_SET_SESSION', { userId: 'test' });
-      const server = sinon.createFakeServer();
-      server.respondWith([
-        200,
-        { 'Content-Type': 'application/json' },
-        JSON.stringify({ user_id: 'nottest' }),
-      ]);
-      server.autoRespond = true;
-      const stub = sinon.stub(this.heartBeat, 'signOutDueToInactivity');
-      return this.heartBeat.checkSession().finally(() => {
+      store.dispatch('CORE_SET_SESSION', { userId: 'test' });
+      const http = require('http');
+      http.__setCode(200);
+      http.__setHeaders({ 'Content-Type': 'application/json' });
+      http.__setEntity({ user_id: 'nottest' });
+      const stub = sinon.stub(heartBeat, 'signOutDueToInactivity');
+      return heartBeat.checkSession().finally(() => {
         sinon.assert.calledOnce(stub);
-        server.restore();
       });
     });
     describe('when is connected', function() {
-      disconnectionErrorCodes.forEach(errorCode => {
+      // Don't test for 0, as it is not a real error code.
+      // Rather it is the status code that our request client library returns
+      // when the connection is refused by the host, or is otherwise unable to connect.
+      // What happens for a zero code is tested later in this file.
+      disconnectionErrorCodes.filter(code => code !== 0).forEach(errorCode => {
         it('should call monitorDisconnect if it receives error code ' + errorCode, function() {
-          const monitorStub = sinon.stub(this.heartBeat, 'monitorDisconnect');
-          const server = sinon.createFakeServer();
-          server.respondWith([errorCode, {}, '']);
-          server.autoRespond = true;
-          return this.heartBeat.checkSession().finally(() => {
+          const monitorStub = sinon.stub(heartBeat, 'monitorDisconnect');
+          const http = require('http');
+          http.__setCode(errorCode);
+          http.__setHeaders({ 'Content-Type': 'application/json' });
+          return heartBeat.checkSession().finally(() => {
             sinon.assert.calledOnce(monitorStub);
-            server.restore();
           });
         });
       });
     });
     describe('when not connected', function() {
       beforeEach(function() {
-        sinon.stub(this.heartBeat, 'wait');
-        this.heartBeat.monitorDisconnect();
+        const http = require('http');
+        http.__setCode(0);
+        http.__setHeaders({ 'Content-Type': 'application/json' });
+        sinon.stub(heartBeat, 'wait');
+        heartBeat.monitorDisconnect();
       });
       it('should set snackbar to trying to reconnect', function() {
-        this.heartBeat.checkSession();
-        expect(snackbarIsVisible(this.store.state)).to.be.true;
-        expect(snackbarOptions(this.store.state).text).to.equal(trs.$tr('tryingToReconnect'));
+        heartBeat.checkSession();
+        expect(snackbarIsVisible(store.state)).toEqual(true);
+        expect(snackbarOptions(store.state).text).toEqual(trs.$tr('tryingToReconnect'));
       });
       disconnectionErrorCodes.forEach(errorCode => {
         it('should set snackbar to disconnected for error code ' + errorCode, function() {
-          sinon.stub(this.heartBeat, 'monitorDisconnect');
-          const server = sinon.createFakeServer();
-          server.respondWith([errorCode, {}, '']);
-          server.autoRespond = true;
-          return this.heartBeat.checkSession().finally(() => {
-            expect(snackbarIsVisible(this.store.state)).to.be.true;
+          sinon.stub(heartBeat, 'monitorDisconnect');
+          const http = require('http');
+          http.__setCode(errorCode);
+          http.__setHeaders({ 'Content-Type': 'application/json' });
+          return heartBeat.checkSession().finally(() => {
+            expect(snackbarIsVisible(store.state)).toEqual(true);
             expect(
-              snackbarOptions(this.store.state).text.startsWith(
+              snackbarOptions(store.state).text.startsWith(
                 'Disconnected from server. Will try to reconnect in'
               )
-            ).to.be.true;
-            server.restore();
+            ).toEqual(true);
           });
         });
       });
       it('should increase the reconnect time when it fails to connect', function() {
-        const server = sinon.createFakeServer();
-        server.respondWith([0, {}, '']);
-        server.autoRespond = true;
-        this.store.dispatch('CORE_SET_RECONNECT_TIME', 5);
-        return this.heartBeat.checkSession().finally(() => {
-          const oldReconnectTime = reconnectTime(this.store.state);
-          return this.heartBeat.checkSession().finally(() => {
-            expect(reconnectTime(this.store.state)).to.be.above(oldReconnectTime);
-            server.restore();
+        const http = require('http');
+        http.__setCode(0);
+        http.__setHeaders({ 'Content-Type': 'application/json' });
+        store.dispatch('CORE_SET_RECONNECT_TIME', 5);
+        return heartBeat.checkSession().finally(() => {
+          const oldReconnectTime = reconnectTime(store.state);
+          return heartBeat.checkSession().finally(() => {
+            expect(reconnectTime(store.state)).toBeGreaterThan(oldReconnectTime);
           });
         });
       });
       describe('and then gets reconnected', function() {
         beforeEach(function() {
-          this.server = sinon.createFakeServer();
-          this.server.respondWith([200, {}, '']);
-          this.server.autoRespond = true;
-        });
-        afterEach(function() {
-          this.server.restore();
+          const http = require('http');
+          http.__setCode(200);
+          http.__setHeaders({ 'Content-Type': 'application/json' });
         });
         it('should set snackbar to reconnected', function() {
-          return this.heartBeat.checkSession().finally(() => {
-            expect(snackbarIsVisible(this.store.state)).to.be.true;
-            expect(snackbarOptions(this.store.state).text).to.equal(
-              trs.$tr('successfullyReconnected')
-            );
+          return heartBeat.checkSession().finally(() => {
+            expect(snackbarIsVisible(store.state)).toEqual(true);
+            expect(snackbarOptions(store.state).text).toEqual(trs.$tr('successfullyReconnected'));
           });
         });
         it('should set connected to true', function() {
-          return this.heartBeat.checkSession().finally(() => {
-            expect(connected(this.store.state)).to.be.true;
+          return heartBeat.checkSession().finally(() => {
+            expect(connected(store.state)).toEqual(true);
           });
         });
         it('should set reconnect time to null', function() {
-          return this.heartBeat.checkSession().finally(() => {
-            expect(reconnectTime(this.store.state)).to.equal(null);
+          return heartBeat.checkSession().finally(() => {
+            expect(reconnectTime(store.state)).toEqual(null);
           });
         });
       });
