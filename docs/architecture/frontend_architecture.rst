@@ -257,7 +257,7 @@ These methods are also publicly exposed methods of the core app:
 Unit Testing
 ------------
 
-Unit testing is carried out using `Mocha <https://mochajs.org/>`_. All JavaScript code should have unit tests for all object methods and functions.
+Unit testing is carried out using `Jest <https://facebook.github.io/jest/>`_. All JavaScript code should have unit tests for all object methods and functions.
 
 Tests are written in JavaScript, and placed in the 'assets/test' folder. An example test is shown below:
 
