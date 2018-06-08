@@ -33,6 +33,11 @@ export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
     return createFacilityRole();
   }
 
+  // If facility-wide Role has not changed, do nothing
+  if (currentFacilityRole.kind === newRoleKind) {
+    return Promise.resolve();
+  }
+
   // Downgrading Role to LEARNER
   if (newRoleKind === UserKinds.LEARNER) {
     const roleDeletionPromises = [

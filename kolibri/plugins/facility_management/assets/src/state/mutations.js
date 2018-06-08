@@ -51,6 +51,7 @@ export function UPDATE_USERS(state, users) {
         existingUser.username = user.username;
         existingUser.full_name = user.full_name;
         existingUser.kind = user.kind;
+        existingUser.roles = [...user.roles];
       }
     });
   });

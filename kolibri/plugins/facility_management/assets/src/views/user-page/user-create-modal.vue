@@ -9,7 +9,7 @@
       {{ errorMessage }}
     </ui-alert>
 
-    <form @submit.prevent="createNewUser">
+    <form class="user-create-form" @submit.prevent="createNewUser">
       <section>
         <k-textbox
           ref="name"
@@ -317,6 +317,9 @@
 
 
 <style lang="stylus" scoped>
+
+  .user-create-form
+    min-height: 500px
 
   .coach-selector
     margin-bottom: 3em

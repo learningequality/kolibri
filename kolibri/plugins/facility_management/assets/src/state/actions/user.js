@@ -68,6 +68,7 @@ export function createUser(store, stateUserData) {
  * @param {object} userUpdates Optional Changes: full_name, username, password, and kind(role)
  */
 export function updateUser(store, userId, userUpdates) {
+  let facilityUserPromise;
   store.dispatch('SET_ERROR', '');
   store.dispatch('SET_BUSY', true);
 
@@ -83,45 +84,44 @@ export function updateUser(store, userId, userUpdates) {
   if (userUpdates.password && userUpdates.password !== origUserState.password) {
     changedValues.password = userUpdates.password;
   }
-  if (userUpdates.role && userUpdates.role !== origUserState.role) {
-    changedValues.role = userUpdates.role;
+
+  const facilityUserHasChanged = Object.getOwnPropertyNames(changedValues).length > 0;
+  const facilityRoleHasChanged = origUserState.kind !== userUpdates.role.kind;
+
+  if (!facilityRoleHasChanged && !facilityUserHasChanged) {
+    return displayModal(store, false);
   }
 
-  if (Object.getOwnPropertyNames(changedValues).length === 0) {
-    displayModal(store, false);
+  if (facilityUserHasChanged) {
+    facilityUserPromise = FacilityUserResource.getModel(userId).save(changedValues);
   } else {
-    return FacilityUserResource.getModel(userId)
-      .save(changedValues)
-      .then(
-        updatedUser => {
-          if (changedValues.role) {
-            if (currentUserId(store.state) === userId && isSuperuser(store.state)) {
-              // maintain superuser if updating self.
-              store.dispatch('UPDATE_CURRENT_USER_KIND', [
-                UserKinds.SUPERUSER,
-                changedValues.role.kind,
-              ]);
-            }
-            return setUserRole(updatedUser, changedValues.role).then(userWithRole => {
-              // dispatch changes to store
-              store.dispatch('UPDATE_USERS', [_userState(userWithRole)]);
-              displayModal(store, false);
-            });
-          }
-          // dispatch changes to store
-          store.dispatch('UPDATE_USERS', [_userState(updatedUser)]);
-          displayModal(store, false);
-        },
-        error => {
-          if (error.status.code === 400) {
-            store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
-          } else if (error.status.code === 403) {
-            store.dispatch('SET_ERROR', error.entity);
-          }
-          store.dispatch('SET_BUSY', false);
-        }
-      );
+    facilityUserPromise = Promise.resolve({
+      ...origUserState,
+      facility: origUserState.facility_id,
+    });
   }
+
+  return facilityUserPromise.then(
+    updatedUser => {
+      if (currentUserId(store.state) === userId && isSuperuser(store.state)) {
+        // maintain superuser if updating self.
+        store.dispatch('UPDATE_CURRENT_USER_KIND', [UserKinds.SUPERUSER, userUpdates.role.kind]);
+      }
+      return setUserRole(updatedUser, userUpdates.role).then(userWithRole => {
+        // dispatch changes to store
+        store.dispatch('UPDATE_USERS', [_userState(userWithRole)]);
+        displayModal(store, false);
+      });
+    },
+    error => {
+      if (error.status.code === 400) {
+        store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
+      } else if (error.status.code === 403) {
+        store.dispatch('SET_ERROR', error.entity);
+      }
+      store.dispatch('SET_BUSY', false);
+    }
+  );
 }
 
 /**
