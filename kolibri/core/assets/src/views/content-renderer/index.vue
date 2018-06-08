@@ -46,6 +46,7 @@
 <script>
 
   import logger from 'kolibri.lib.logging';
+  import heartbeat from 'kolibri.heartbeat';
   import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
 
   import uiAlert from 'keen-ui/src/UiAlert';
@@ -185,21 +186,27 @@
       },
       answerGiven(...args) {
         this.$emit('answerGiven', ...args);
+        heartbeat.setActive();
       },
       hintTaken(...args) {
         this.$emit('hintTaken', ...args);
+        heartbeat.setActive();
       },
       itemError(...args) {
         this.$emit('itemError', ...args);
+        heartbeat.setActive();
       },
       interaction(...args) {
         this.$emit('interaction', ...args);
+        heartbeat.setActive();
       },
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);
+        heartbeat.setActive();
       },
       startTracking(...args) {
         this.$emit('startTracking', ...args);
+        heartbeat.setActive();
       },
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
@@ -214,6 +221,7 @@
         } else if (!this.$refs.contentView.checkAnswer) {
           logging.warn('This content renderer has not implemented the checkAnswer method');
         }
+        heartbeat.setActive();
         return null;
       },
     },
