@@ -1,10 +1,10 @@
-import { shallow } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import elapsedTime from '../../src/views/elapsed-time';
 
 const DUMMY_CURRENT_DATE = new Date(2017, 0, 1, 1, 1, 1);
 
 function makeWrapper(options) {
-  return shallow(elapsedTime, options);
+  return shallowMount(elapsedTime, options);
 }
 
 // prettier-ignore
@@ -26,9 +26,7 @@ describe('elapsed time component', () => {
         date: date1SecondAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
     expect(/second/.test(timeText)).toEqual(true);
   });
@@ -41,9 +39,7 @@ describe('elapsed time component', () => {
         date: date60SecondsAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
     expect(/minute/.test(timeText)).toEqual(true);
   });
@@ -56,9 +52,7 @@ describe('elapsed time component', () => {
         date: date1MinuteAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
     expect(/minute/.test(timeText)).toEqual(true);
   });
@@ -71,9 +65,7 @@ describe('elapsed time component', () => {
         date: date60MinutesAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
     expect(/hour/.test(timeText)).toEqual(true);
   });
@@ -86,9 +78,7 @@ describe('elapsed time component', () => {
         date: date1HourAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
     expect(/hour/.test(timeText)).toEqual(true);
   });
@@ -101,9 +91,7 @@ describe('elapsed time component', () => {
         date: date24HoursAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
     expect(/day/.test(timeText)).toEqual(true);
   });
@@ -116,9 +104,7 @@ describe('elapsed time component', () => {
         date: date1DayAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
     expect(/day/.test(timeText)).toEqual(true);
   });
@@ -131,9 +117,7 @@ describe('elapsed time component', () => {
         date: date4WeeksAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
     expect(/month/.test(timeText)).toEqual(true);
   });
@@ -146,9 +130,7 @@ describe('elapsed time component', () => {
         date: date1MonthAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
     expect(/month/.test(timeText)).toEqual(true);
   });
@@ -161,9 +143,7 @@ describe('elapsed time component', () => {
         date: date12MonthsAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
     expect(/year/.test(timeText)).toEqual(true);
   });
@@ -176,9 +156,7 @@ describe('elapsed time component', () => {
         date: date1YearAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
     expect(/year/.test(timeText)).toEqual(true);
   });
