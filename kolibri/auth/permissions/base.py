@@ -1,7 +1,6 @@
 """
 This module defines the base classes for Kolibri's class-based Permissions system.
 """
-
 from django.db.models import F
 
 

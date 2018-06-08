@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
+
 from django.db import models
 from jsonfield import JSONField
+
 from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import AbstractFacilityDataModel
 from kolibri.auth.models import Collection

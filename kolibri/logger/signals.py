@@ -3,7 +3,8 @@ import logging
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from .models import ContentSessionLog, UserSessionLog
+from .models import ContentSessionLog
+from .models import UserSessionLog
 
 logger = logging.getLogger(__name__)
 

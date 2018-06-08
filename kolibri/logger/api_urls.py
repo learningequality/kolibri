@@ -1,10 +1,15 @@
 from rest_framework import routers
 
-from .api import (
-    AttemptLogViewSet, ContentSessionLogViewSet, ContentSummaryLogViewSet, ExamAttemptLogViewSet, ExamLogViewSet, MasteryLogViewSet,
-    TotalContentProgressViewSet, UserSessionLogViewSet
-)
-from .csv import ContentSessionLogCSVExportViewSet, ContentSummaryLogCSVExportViewSet
+from .api import AttemptLogViewSet
+from .api import ContentSessionLogViewSet
+from .api import ContentSummaryLogViewSet
+from .api import ExamAttemptLogViewSet
+from .api import ExamLogViewSet
+from .api import MasteryLogViewSet
+from .api import TotalContentProgressViewSet
+from .api import UserSessionLogViewSet
+from .csv import ContentSessionLogCSVExportViewSet
+from .csv import ContentSummaryLogCSVExportViewSet
 
 router = routers.SimpleRouter()
 

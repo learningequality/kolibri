@@ -12,10 +12,14 @@ Tags for including management app javascript assets in a template. To use:
     {% device_management_assets %}
 
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
 from django import template
-from kolibri.core.webpack.utils import webpack_asset_render
+
 from ..hooks import DeviceManagementSyncHook
+from kolibri.core.webpack.utils import webpack_asset_render
 
 register = template.Library()
 

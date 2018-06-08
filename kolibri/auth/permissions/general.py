@@ -2,9 +2,9 @@
 The permissions classes in this module are broadly useful. Other apps can import the classes from this module
 in their own "permissions.py" module, extend or remix them, and then apply them to their own models.
 """
-
 from ..constants import role_kinds
-from .base import BasePermissions, lookup_field_with_fks
+from .base import BasePermissions
+from .base import lookup_field_with_fks
 
 
 class DenyAll(BasePermissions):

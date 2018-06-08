@@ -1,12 +1,14 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import logging
 
-import kolibri
 from django.core.management.base import BaseCommand
-from kolibri.utils import server
 
+import kolibri
 from ...utils import dbbackup
+from kolibri.utils import server
 
 logger = logging.getLogger(__name__)
 

@@ -1,14 +1,16 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
+
 from django.core.urlresolvers import reverse
+from rest_framework.test import APITestCase
+
 from kolibri.auth.models import Classroom
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
+from kolibri.auth.test.helpers import provision_device
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
-from kolibri.auth.test.helpers import provision_device
-from rest_framework.test import APITestCase
 
 
 class LearnerLessonTestCase(APITestCase):

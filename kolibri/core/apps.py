@@ -5,7 +5,9 @@ import os
 
 from django.apps import AppConfig
 from django.db.backends.signals import connection_created
-from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS, START_PRAGMAS
+
+from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
+from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
 logger = logging.getLogger(__name__)
 

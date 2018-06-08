@@ -1,12 +1,15 @@
 """
 Tests for `kolibri` module.
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import unittest
 
-import kolibri
 import mock
+
+import kolibri
 from kolibri.utils import version
 
 #: Because we don't want to call the original (decorated function), it uses

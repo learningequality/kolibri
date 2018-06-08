@@ -1,12 +1,17 @@
 from django.db import transaction
-from django.utils.translation import check_for_language, ugettext_lazy as _
-from kolibri.auth.constants.facility_presets import choices, mappings
-from kolibri.auth.constants.role_kinds import ADMIN
-from kolibri.auth.models import Facility, FacilityUser
-from kolibri.auth.serializers import FacilitySerializer, FacilityUserSerializer
+from django.utils.translation import check_for_language
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-from .models import DevicePermissions, DeviceSettings
+from .models import DevicePermissions
+from .models import DeviceSettings
+from kolibri.auth.constants.facility_presets import choices
+from kolibri.auth.constants.facility_presets import mappings
+from kolibri.auth.constants.role_kinds import ADMIN
+from kolibri.auth.models import Facility
+from kolibri.auth.models import FacilityUser
+from kolibri.auth.serializers import FacilitySerializer
+from kolibri.auth.serializers import FacilityUserSerializer
 
 
 class DevicePermissionsSerializer(serializers.ModelSerializer):

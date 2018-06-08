@@ -1,8 +1,8 @@
 import abc
 from collections import namedtuple
 
-from iceqube.exceptions import UserCancelledError
 from django.core.management.base import BaseCommand
+from iceqube.exceptions import UserCancelledError
 from tqdm import tqdm
 
 Progress = namedtuple(

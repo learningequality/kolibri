@@ -6,9 +6,12 @@ import unittest
 
 from django.test import TestCase
 from morango.controller import MorangoProfileController
-from morango.models import InstanceIDModel, Store
+from morango.models import InstanceIDModel
+from morango.models import Store
 
-from ..models import Facility, FacilityDataset, FacilityUser
+from ..models import Facility
+from ..models import FacilityDataset
+from ..models import FacilityUser
 
 
 class FacilityDatasetCertificateTestCase(TestCase):

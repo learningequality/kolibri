@@ -1,8 +1,9 @@
 import datetime
+
 import factory
-from kolibri.auth.test.test_api import FacilityUserFactory
 
 from .. import models
+from kolibri.auth.test.test_api import FacilityUserFactory
 
 
 class ContentSessionLogFactory(factory.DjangoModelFactory):

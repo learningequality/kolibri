@@ -1,9 +1,10 @@
 import logging as logger
 import os
 
+from ...utils import import_export_content
+from ...utils import paths
+from ...utils import transfer
 from kolibri.tasks.management.commands.base import AsyncCommand
-
-from ...utils import paths, transfer, import_export_content
 
 logging = logger.getLogger(__name__)
 

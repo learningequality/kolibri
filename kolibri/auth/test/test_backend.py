@@ -1,9 +1,12 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from django.test import TestCase
 
-from ..models import FacilityUser, Facility
 from ..backends import FacilityUserBackend
+from ..models import Facility
+from ..models import FacilityUser
 
 
 class FacilityUserBackendTestCase(TestCase):

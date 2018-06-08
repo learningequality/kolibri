@@ -1,17 +1,23 @@
-import kolibri
 from django.conf import settings
-from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
+from morango.models import InstanceIDModel
+from rest_framework import mixins
+from rest_framework import status
+from rest_framework import views
+from rest_framework import viewsets
+from rest_framework.response import Response
+
+import kolibri
+from .models import DevicePermissions
+from .permissions import NotProvisionedCanPost
+from .permissions import UserHasAnyDevicePermissions
+from .serializers import DevicePermissionsSerializer
+from .serializers import DeviceProvisionSerializer
+from kolibri.auth.api import KolibriAuthPermissions
+from kolibri.auth.api import KolibriAuthPermissionsFilter
 from kolibri.content.permissions import CanManageContent
 from kolibri.utils.server import get_urls
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time import local_now
-from morango.models import InstanceIDModel
-from rest_framework import mixins, status, views, viewsets
-from rest_framework.response import Response
-
-from .models import DevicePermissions
-from .permissions import NotProvisionedCanPost, UserHasAnyDevicePermissions
-from .serializers import DevicePermissionsSerializer, DeviceProvisionSerializer
 
 
 class DevicePermissionsViewSet(viewsets.ModelViewSet):

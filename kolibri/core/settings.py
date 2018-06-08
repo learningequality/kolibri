@@ -11,7 +11,6 @@ naming scheme in django.conf.settings like ``KOLIBRI_*``.
 Please avoid depending on settings in kolibri.deployments.default.settings,
 rather define the default here so we don't have multiple layers of defaults.
 """
-
 from django.conf import settings
 
 #: These plugins are automatically enabled if they exist at the first run of

@@ -1,15 +1,18 @@
-from __future__ import unicode_literals, print_function
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import json
 
 from django.test import TestCase
 from django.test.client import RequestFactory
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
-from django_filters.rest_framework import DjangoFilterBackend
 
 from kolibri.content.models import Language
 from kolibri.content.serializers import LanguageSerializer
-from kolibri.core.mixins import BulkCreateMixin, BulkDeleteMixin
+from kolibri.core.mixins import BulkCreateMixin
+from kolibri.core.mixins import BulkDeleteMixin
 
 
 class LanguageViewSet(ModelViewSet):

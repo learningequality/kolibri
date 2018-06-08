@@ -1,13 +1,18 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import tempfile
 
 import pytest
 from django.core.management import call_command
-from kolibri.core.deviceadmin.tests.test_dbrestore import is_sqlite_settings, mock_status_not_running
-from kolibri.core.deviceadmin.utils import IncompatibleDatabase, dbbackup
 from mock import patch
+
+from kolibri.core.deviceadmin.tests.test_dbrestore import is_sqlite_settings
+from kolibri.core.deviceadmin.tests.test_dbrestore import mock_status_not_running
+from kolibri.core.deviceadmin.utils import dbbackup
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase
 
 
 def test_active_kolibri():
