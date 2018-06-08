@@ -136,9 +136,9 @@ class FileDownload(Transfer):
 
     def start(self):
         # If a file download was stopped by Internet connection error,
-        # then reopen the temp file to write to it
+        # then open the temp file again.
         if self.started:
-            self.dest_file_obj = open(self.dest_tmp, "ab")
+            self.dest_file_obj = open(self.dest_tmp, "wb")
 
         # initialize the requests session
         self.session = requests.Session()
