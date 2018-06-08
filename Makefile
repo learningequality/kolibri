@@ -153,7 +153,7 @@ buildconfig:
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: writeversion staticdeps staticdeps-cext buildconfig translation-extract assets translation-django-compilemessages
+dist: writeversion staticdeps staticdeps-cext buildconfig translation-extract-frontend assets translation-django-compilemessages
 	python setup.py sdist --format=gztar --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
 	ls -l dist
@@ -161,9 +161,13 @@ dist: writeversion staticdeps staticdeps-cext buildconfig translation-extract as
 pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
-translation-extract:
-	yarn run makemessages
+translation-extract-backend:
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
+
+translation-extract-frontend:
+	yarn run makemessages
+
+translation-extract: translation-extract-frontend translation-extract-backend
 
 translation-django-compilemessages:
 	# Change working directory to kolibri/ such that compilemessages
