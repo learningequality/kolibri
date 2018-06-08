@@ -31,3 +31,11 @@ class SanityCheckTestCase(TestCase):
         with self.assertRaises(SystemExit):
             cli.main({'start': True})
             logging_mock.assert_called()
+
+    @patch('kolibri.utils.sanity_checks.logging.error')
+    @patch('kolibri.utils.sanity_checks.os.access', return_value=False)
+    @patch('kolibri.utils.sanity_checks.os.path.exists', return_value=True)
+    def test_content_dir_writable(self, path_exists_mock, access_mock, logging_mock):
+        with self.assertRaises(SystemExit):
+            cli.main({'start': True})
+            logging_mock.assert_called

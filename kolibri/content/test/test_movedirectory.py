@@ -44,22 +44,22 @@ class ContentMoveDirectoryTestCase(TestCase):
 
     @patch('kolibri.content.management.commands.content.shutil.rmtree')
     @patch('kolibri.content.management.commands.content.shutil.copy2')
-    @patch('kolibri.content.management.commands.content.input', return_value='yes')
+    @patch('kolibri.content.management.commands.content.input', return_value='no')
     @patch('kolibri.content.management.commands.content.os.listdir', side_effect=_listdir_side_effect)
     @patch('kolibri.content.management.commands.content.os.path.exists', return_value=True)
-    def test_migrate_while_dest_content_exists_yes(self, path_exists_mock, listdir_mock, input_mock, copyfile_mock, remove_mock):
-        destination = '/test/content_exists_yes'
+    def test_migrate_while_dest_content_exists_no(self, path_exists_mock, listdir_mock, input_mock, copyfile_mock, remove_mock):
+        destination = '/test/content_exists_no'
         call_command('content', 'movedirectory', destination)
         self.assertEqual(copyfile_mock.call_count, 2)
         self.assertEqual(remove_mock.call_count, 2)
 
     @patch('kolibri.content.management.commands.content.Command.copy_content')
     @patch('kolibri.content.management.commands.content.shutil.rmtree')
-    @patch('kolibri.content.management.commands.content.input', return_value='no')
+    @patch('kolibri.content.management.commands.content.input', return_value='yes')
     @patch('kolibri.content.management.commands.content.os.listdir', return_value=['test'])
     @patch('kolibri.content.management.commands.content.os.path.exists', return_value=True)
-    def test_migrate_while_dest_content_exists_no(self, path_exists_mock, listdir_mock, input_mock, remove_mock, copy_mock):
-        destination = '/test/content_exists_no'
+    def test_migrate_while_dest_content_exists_yes(self, path_exists_mock, listdir_mock, input_mock, remove_mock, copy_mock):
+        destination = '/test/content_exists_yes'
         call_command('content', 'movedirectory', destination)
         copy_mock.assert_called()
         self.assertEqual(remove_mock.call_count, 4)

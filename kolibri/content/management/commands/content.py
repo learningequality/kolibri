@@ -46,7 +46,7 @@ class Command(BaseCommand):
                 self.style.ERROR(
                     '\nCurrent content directory {} does not exist.'
                 ).format(content_directory))
-            raise SystemExit()
+            raise SystemExit(1)
 
         # If the current directory is the same as the destination
         if content_directory == destination:
@@ -54,7 +54,7 @@ class Command(BaseCommand):
                 self.style.ERROR(
                     '\nDestination {} is the current content directory.'
                 ).format(destination))
-            raise SystemExit()
+            raise SystemExit(1)
 
         # Check if Kolibri is running
         try:
@@ -64,7 +64,7 @@ class Command(BaseCommand):
                 "\n"
                 "    kolibri stop\n"
             ))
-            raise SystemExit()
+            raise SystemExit(1)
         except server.NotRunning:
             pass
 
@@ -86,9 +86,9 @@ class Command(BaseCommand):
         dst_content_exists = os.path.exists(databases_dst) and \
             os.listdir(databases_dst)
 
-        # If destination has content inside, ask users if they want to keep the content
+        # If destination has content inside, ask users if they want to overwrite content
         if dst_content_exists:
-            self.handle_user_input(src, dst)
+            self.ask_user_overwrite_or_keep_content(src, dst)
 
         # copy the databases folder
         self.copy_content(databases_src, databases_dst)
@@ -101,31 +101,31 @@ class Command(BaseCommand):
 
         self.update_config_content_directory(dst)
 
-    def handle_user_input(self, src, dst):
+    def ask_user_overwrite_or_keep_content(self, src, dst):
         """
-        If destination has content inside, ask users if they want to keep the
+        If destination has content inside, ask users if they want to overwrite
         content in the destination. We will copy the content to destination
         depending on the user response.
         """
         user_answer = input(
             self.style.WARNING(
-                'The destination {} has content inside.\n'
-                'Do you want to keep the content? (Yes/No)'.format(dst)))
+                'The destination has content inside: {}\n'
+                'Do you want to overwrite it completely? (y/N)'.format(dst)))
 
         # If the user does not want to keep the content in the destination,
         # remove the databases folder and storage folder in the destination
         # directory
-        if user_answer == 'no' or user_answer == 'No':
+        if user_answer.strip().lower() in ['y', 'yes']:
             shutil.rmtree(os.path.join(dst, 'databases'))
             shutil.rmtree(os.path.join(dst, 'storage'))
 
-        elif user_answer != 'yes' and user_answer != 'Yes':
+        elif user_answer.strip().lower() not in ['n', 'no', '']:
             self.stderr.write(
                 self.style.ERROR(
                     '{} cannot be an answer to the question. '
-                    'Please answer \'Yes\' or \'No\'.'
+                    'Please answer \'y\' or \'n\'.'
                     .format(user_answer)))
-            raise SystemExit()
+            raise SystemExit(1)
 
     def update_config_content_directory(self, dst):
         """

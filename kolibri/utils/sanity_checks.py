@@ -46,12 +46,19 @@ def check_port_availability(host, port):
         sys.exit(1)
 
 
-def check_content_directory_exists():
+def check_content_directory_exists_and_writable():
     content_directory = OPTIONS['Paths']['CONTENT_DIR']
 
     # Check if the content directory exists
     if not os.path.exists(content_directory):
         logger.error(
             "The content directory {} does not exist.".format(content_directory)
+        )
+        sys.exit(1)
+
+    # Check if the directory is writable
+    if not os.access(content_directory, os.W_OK):
+        logger.error(
+            "The content directory {} is not writable.".format(content_directory)
         )
         sys.exit(1)
