@@ -1,7 +1,6 @@
 import atexit
 
 from django.conf import settings
-
 from iceqube.client import SimpleClient
 
 _client = None

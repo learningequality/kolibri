@@ -1,7 +1,9 @@
+import imp
 import os
 import sys
-import imp
+
 from django.test import TestCase
+
 from kolibri import dist as kolibri_dist
 
 dist_dir = os.path.realpath(os.path.dirname(kolibri_dist.__file__))

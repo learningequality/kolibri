@@ -19,4 +19,3 @@ scenarios:
             username: "{{ username }}"
       - get:
           url: /learn/#/1d8f6d84618153c18c695d85074952a7/
-

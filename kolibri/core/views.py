@@ -2,7 +2,8 @@ from django import http
 from django.conf import settings
 from django.core.urlresolvers import translate_url
 from django.utils.http import is_safe_url
-from django.utils.translation import LANGUAGE_SESSION_KEY, check_for_language
+from django.utils.translation import check_for_language
+from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.views.i18n import LANGUAGE_QUERY_PARAMETER
 
 

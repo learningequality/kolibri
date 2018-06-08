@@ -1,24 +1,28 @@
-import mock
-import kolibri
 import platform
 import sys
-
-from kolibri.auth.constants.role_kinds import ADMIN
-from kolibri.auth.test.test_api import FacilityFactory, FacilityUserFactory
-from kolibri.auth.test.helpers import create_superuser, provision_device
-from kolibri.auth.models import Facility, FacilityDataset, FacilityUser, Role
-from kolibri.core.device.models import DevicePermissions, DeviceSettings
-
-from morango.models import DatabaseIDModel, InstanceIDModel
-
-from django.core.urlresolvers import reverse
-from django.conf import settings
-
-from rest_framework import status
-from rest_framework.test import APITestCase
 from collections import namedtuple
 
+import mock
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from mock import patch
+from morango.models import DatabaseIDModel
+from morango.models import InstanceIDModel
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+import kolibri
+from kolibri.auth.constants.role_kinds import ADMIN
+from kolibri.auth.models import Facility
+from kolibri.auth.models import FacilityDataset
+from kolibri.auth.models import FacilityUser
+from kolibri.auth.models import Role
+from kolibri.auth.test.helpers import create_superuser
+from kolibri.auth.test.helpers import provision_device
+from kolibri.auth.test.test_api import FacilityFactory
+from kolibri.auth.test.test_api import FacilityUserFactory
+from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import DeviceSettings
 
 DUMMY_PASSWORD = "password"
 

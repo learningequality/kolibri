@@ -1,9 +1,9 @@
 from django.core.management import call_command
 from django.test import TestCase
+from mock import call
+from mock import patch
 
 from kolibri.content import models as content
-
-from mock import patch, call
 
 class DeleteChannelTestCase(TestCase):
     """

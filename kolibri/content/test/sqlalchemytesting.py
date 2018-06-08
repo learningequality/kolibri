@@ -1,7 +1,7 @@
-from kolibri.content.utils.sqlalchemybridge import get_default_db_string
-
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
+
+from kolibri.content.utils.sqlalchemybridge import get_default_db_string
 
 # get_conn and SharingPool code modified from:
 # http://nathansnoggin.blogspot.com/2013/11/integrating-sqlalchemy-into-django.html

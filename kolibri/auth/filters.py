@@ -1,7 +1,6 @@
-from six import string_types
-
 from django.db import models
 from django.db.models.query import F
+from six import string_types
 
 from .constants import collection_kinds
 from .errors import InvalidHierarchyRelationsArgument

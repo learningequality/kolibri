@@ -3,7 +3,6 @@ Implements custom auth backends as described in the Django docs, for our custom 
 The appropriate classes should be listed in the AUTHENTICATION_BACKENDS. Note that authentication
 backends are checked in the order they're listed.
 """
-
 from kolibri.auth.models import FacilityUser
 
 

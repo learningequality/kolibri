@@ -2,7 +2,8 @@ import requests
 from clint.textui.progress import Bar as ProgressBar
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
+from requests_toolbelt import MultipartEncoder
+from requests_toolbelt import MultipartEncoderMonitor
 
 DB_PATH = settings.DATABASES["default"]["NAME"]
 

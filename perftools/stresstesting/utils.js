@@ -5,7 +5,6 @@
 const Faker = require('faker');
 
 function generateRandomUserData(userContext, events, done) {
-
   userContext.vars.fullname = `${Faker.name.firstName()} ${Faker.name.lastName()}`;
   userContext.vars.username = Faker.internet.userName().replace('.', '');
   userContext.vars.password = Faker.internet.password();
@@ -14,6 +13,5 @@ function generateRandomUserData(userContext, events, done) {
 }
 
 module.exports = {
-  generateRandomUserData
+  generateRandomUserData,
 };
-

@@ -4,9 +4,11 @@ Permissions tests on the logging models.
 import uuid
 
 from django.test import TestCase
-from kolibri.auth.test.helpers import create_dummy_facility_data
 
-from .factory_logger import ContentSessionLogFactory, ContentSummaryLogFactory, UserSessionLogFactory
+from .factory_logger import ContentSessionLogFactory
+from .factory_logger import ContentSummaryLogFactory
+from .factory_logger import UserSessionLogFactory
+from kolibri.auth.test.helpers import create_dummy_facility_data
 
 
 class ContentSessionLogPermissionsTestCase(TestCase):

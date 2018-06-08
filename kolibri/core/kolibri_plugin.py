@@ -1,6 +1,9 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
-from kolibri.core.webpack.hooks import FrontEndCoreAssetHook, FrontEndCoreHook
+from kolibri.core.webpack.hooks import FrontEndCoreAssetHook
+from kolibri.core.webpack.hooks import FrontEndCoreHook
 from kolibri.plugins.base import KolibriPluginBase
 
 

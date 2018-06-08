@@ -1,12 +1,14 @@
 """
 The permissions classes in this module define the specific permissions that govern access to the models in the auth app.
 """
-
 from django.contrib.auth.models import AnonymousUser
 
-from ..constants.collection_kinds import FACILITY, LEARNERGROUP
-from ..constants.role_kinds import ADMIN, COACH
-from .base import BasePermissions, RoleBasedPermissions
+from ..constants.collection_kinds import FACILITY
+from ..constants.collection_kinds import LEARNERGROUP
+from ..constants.role_kinds import ADMIN
+from ..constants.role_kinds import COACH
+from .base import BasePermissions
+from .base import RoleBasedPermissions
 from .general import DenyAll
 
 

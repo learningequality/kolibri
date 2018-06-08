@@ -1,5 +1,8 @@
-from .serializers import LearnerClassroomSerializer
 from django.db.models.query import F
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ReadOnlyModelViewSet
+
+from .serializers import LearnerClassroomSerializer
 from kolibri.auth.api import KolibriAuthPermissionsFilter
 from kolibri.auth.filters import HierarchyRelationsFilter
 from kolibri.auth.models import Classroom
@@ -7,8 +10,6 @@ from kolibri.auth.serializers import ClassroomSerializer
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.lessons.serializers import LessonSerializer
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import ReadOnlyModelViewSet
 
 
 class LearnerClassroomViewset(ReadOnlyModelViewSet):
