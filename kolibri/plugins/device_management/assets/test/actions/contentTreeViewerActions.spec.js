@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import sinon from 'sinon';
 import omit from 'lodash/fp/omit';
 import { mockResource } from 'testUtils'; // eslint-disable-line

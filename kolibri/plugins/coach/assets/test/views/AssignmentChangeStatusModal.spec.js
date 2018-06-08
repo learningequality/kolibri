@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import AssignmentChangeStatusModal from '../../src/views/assignments/AssignmentChangeStatusModal';
 

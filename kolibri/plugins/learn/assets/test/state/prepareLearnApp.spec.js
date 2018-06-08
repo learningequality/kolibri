@@ -1,4 +1,3 @@
-/* eslint-env mocha */
 import sinon from 'sinon';
 import { mockResource } from 'testUtils'; // eslint-disable-line import/no-unresolved
 import { MembershipResource } from 'kolibri.resources';

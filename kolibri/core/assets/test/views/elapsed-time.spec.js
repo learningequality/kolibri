@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import { shallow } from '@vue/test-utils';
 import elapsedTime from '../../src/views/elapsed-time';
 

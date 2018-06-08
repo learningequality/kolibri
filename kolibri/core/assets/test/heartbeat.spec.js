@@ -1,4 +1,3 @@
-/* eslint-env mocha */
 import sinon from 'sinon';
 import coreStore from 'kolibri.coreVue.vuex.store';
 import {

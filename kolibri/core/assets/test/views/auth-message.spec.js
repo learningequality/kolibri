@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import { shallow } from '@vue/test-utils';
 import AuthMessage from '../../src/views/auth-message';
 

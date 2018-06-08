@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import Vuex from 'vuex';
 import sinon from 'sinon';
 import { mount } from '@vue/test-utils';

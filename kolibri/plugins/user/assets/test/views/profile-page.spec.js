@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import ProfilePage from '../../src/views/profile-page';
 import makeStore from '../util/makeStore';

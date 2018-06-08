@@ -1,4 +1,3 @@
-/* eslint-env mocha */
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import LearnIndex from '../../src/views/index.vue';

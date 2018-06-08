@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import { shallow } from '@vue/test-utils';
 import ProgressBar from '../src/views/progress-bar';
 

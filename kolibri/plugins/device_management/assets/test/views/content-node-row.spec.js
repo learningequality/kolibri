@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import ContentNodeRow from '../../src/views/select-content-page/content-node-row.vue';
 import { makeNode } from '../utils/data';

@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import VueRouter from 'vue-router';
 import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
 import { mount } from '@vue/test-utils';

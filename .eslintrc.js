@@ -5,8 +5,18 @@ module.exports = {
     es6: true,
     browser: true,
     node: true,
-    jest: true,
   },
+  overrides: [
+    {
+      files: ['*.spec.js'],
+      env: {
+        es6: true,
+        browser: true,
+        node: true,
+        jest: true,
+      },
+    },
+  ],
   parserOptions: {
     sourceType: 'module',
     ecmaVersion: 7,

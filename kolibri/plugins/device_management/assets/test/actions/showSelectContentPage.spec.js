@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import sinon from 'sinon';
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import { loadChannelMetaData } from '../../src/state/actions/selectContentActions';

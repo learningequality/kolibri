@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
 import ChannelsGrid from '../../src/views/manage-content-page/channels-grid.vue';

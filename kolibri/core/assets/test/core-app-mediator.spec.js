@@ -1,4 +1,3 @@
-/* eslint-env mocha */
 import Vue from 'kolibri.lib.vue';
 import vueintl from 'vue-intl';
 import sinon from 'sinon';

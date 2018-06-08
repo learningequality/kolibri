@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import SelectTransferSourceModal from '../../src/views/manage-content-page/select-transfer-source-modal';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';

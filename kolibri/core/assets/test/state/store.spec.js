@@ -1,4 +1,3 @@
-/* eslint-env mocha */
 import Vue from 'vue';
 import Vuex from 'vuex';
 import sinon from 'sinon';

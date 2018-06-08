@@ -1,5 +1,4 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
+import Vue from 'vue';
 import Vuex from 'vuex';
 import assessmentWrapper from '../../src/views/assessment-wrapper';
 

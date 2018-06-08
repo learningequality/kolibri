@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import UiTooltip from 'keen-ui/src/UiTooltip';
 import UiIcon from 'keen-ui/src/UiIcon';
