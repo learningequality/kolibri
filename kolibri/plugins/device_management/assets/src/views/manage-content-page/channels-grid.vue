@@ -3,7 +3,7 @@
   <div>
     <transition mode="out-in">
       <p
-        class="core-text-alert no-channels"
+        class="no-channels"
         v-if="noChannelsToShow"
       >
         {{ $tr('emptyChannelListMessage') }}
@@ -125,5 +125,8 @@
 
   .channel-list-item:first-of-type
     border-top: 1px solid $core-grey
+
+  .no-channels
+    color: $core-text-error
 
 </style>
