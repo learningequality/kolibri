@@ -5,7 +5,7 @@
     @cancel="displayModal(false)"
     width="400px"
   >
-    <form @submit.prevent="submitForm">
+    <form class="edit-user-form" @submit.prevent="submitForm">
 
       <ui-alert
         v-if="error"
@@ -287,5 +287,8 @@
     margin: 0
     padding: 0
     border: none
+
+  .edit-user-form
+    min-height: 350px
 
 </style>
