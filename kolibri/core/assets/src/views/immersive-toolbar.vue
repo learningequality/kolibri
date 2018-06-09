@@ -4,24 +4,63 @@
     :title="appBarTitle"
     textColor="white"
     type="colored"
-    :navIcon="icon"
     :showIcon="showIcon"
     @nav-icon-click="$emit('navIconClick')"
     :class="{ secondary: !primary }"
     :style="{ height: height + 'px' }"
   >
-    <div v-if="hasRoute" slot="icon">
-      <router-link :to="route">
-        <!-- TODO add aria label? -->
-        <ui-icon-button
-          type="flat"
-          @click="$emit('navIconClick')"
-          :icon="icon"
-          class="icon"
+    <router-link
+      v-if="hasRoute"
+      slot="icon"
+      :to="route"
+      class="link"
+    >
+      <!-- TODO add aria label? -->
+      <ui-icon-button
+        type="flat"
+        @click="$emit('navIconClick')"
+        class="icon"
+      >
+        <mat-svg
+          v-if="icon === 'close'"
+          name="close"
+          category="navigation"
         />
-      </router-link>
+        <mat-svg
+          v-else-if="icon === 'arrow_back' && !isRtl"
+          name="arrow_back"
+          category="navigation"
+        />
+        <mat-svg
+          v-else-if="icon === 'arrow_back' && isRtl"
+          name="arrow_forward"
+          category="navigation"
+        />
+      </ui-icon-button>
+    </router-link>
 
-    </div>
+    <ui-icon-button
+      v-else
+      type="flat"
+      @click="$emit('navIconClick')"
+      class="icon"
+    >
+      <mat-svg
+        v-if="icon === 'close'"
+        name="close"
+        category="navigation"
+      />
+      <mat-svg
+        v-if="icon === 'arrow_back' && !isRtl"
+        name="arrow_back"
+        category="navigation"
+      />
+      <mat-svg
+        v-if="icon === 'arrow_back' && isRtl"
+        name="arrow_forward"
+        category="navigation"
+      />
+    </ui-icon-button>
   </ui-toolbar>
 
 </template>
@@ -52,6 +91,9 @@
         type: String,
         required: false,
         default: 'close',
+        validator(val) {
+          return ['close', 'arrow_back'].includes(val);
+        },
       },
       showIcon: {
         type: Boolean,
@@ -71,7 +113,7 @@
     },
     computed: {
       hasRoute() {
-        return !!this.route;
+        return Boolean(this.route);
       },
     },
   };
@@ -88,9 +130,20 @@
     // copied from keen
     height: 3em
     width: 3em
-    color: white
+    fill: white
 
   .secondary
     background-color: $core-text-default
+
+  .link
+    display: inline-block
+    border-radius: 50%
+    &:focus, &:hover
+      background-color: $core-action-dark
+
+  .secondary
+    .link
+      &:focus, &:hover
+        background-color: darken($core-text-default, 25%)
 
 </style>

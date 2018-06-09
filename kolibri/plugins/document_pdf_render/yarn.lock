@@ -73,26 +73,31 @@ schema-utils@^0.4.0:
     ajv "^6.1.0"
     ajv-keywords "^3.1.0"
 
+scrollparent@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/scrollparent/-/scrollparent-2.0.1.tgz#715d5b9cc57760fb22bdccc3befb5bfe06b1a317"
+
 uri-js@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/uri-js/-/uri-js-3.0.2.tgz#f90b858507f81dea4dcfbb3c4c3dbfa2b557faaa"
   dependencies:
     punycode "^2.1.0"
 
-vue-observe-visibility@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/vue-observe-visibility/-/vue-observe-visibility-0.3.1.tgz#e7cad37893da42858c086196da9acdb0fd85340b"
+vue-observe-visibility@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/vue-observe-visibility/-/vue-observe-visibility-0.4.1.tgz#741dfc6c7894f4f41abab9efa1a86b1eb5012b18"
 
-vue-resize@^0.4.2:
+vue-resize@^0.4.4:
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/vue-resize/-/vue-resize-0.4.4.tgz#dee9b8dd1b189e7e3f6ec47f86c60694a241bb17"
 
-vue-virtual-scroller@0.11.0:
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/vue-virtual-scroller/-/vue-virtual-scroller-0.11.0.tgz#e1e97c66133cc75f8b183717077c64ed9f424aae"
+vue-virtual-scroller@0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/vue-virtual-scroller/-/vue-virtual-scroller-0.12.0.tgz#42f8fd7b299cd4d4fd1f5e14676792c229b890e2"
   dependencies:
-    vue-observe-visibility "^0.3.1"
-    vue-resize "^0.4.2"
+    scrollparent "^2.0.1"
+    vue-observe-visibility "^0.4.1"
+    vue-resize "^0.4.4"
 
 worker-loader@^1.0.0:
   version "1.1.1"

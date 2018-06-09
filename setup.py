@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import io
 import logging
 import os
 import sys
@@ -19,18 +20,9 @@ import kolibri
 from kolibri import dist as kolibri_dist
 
 
-def read_file(fname):
-    """
-    Read file and decode in py2k
-    """
-    if sys.version_info < (3, ):
-        return open(fname).read().decode("utf-8")
-    return open(fname).read()
-
-
 dist_name = 'kolibri'
 
-readme = read_file('README.rst')
+readme = io.open('README.rst', mode='r', encoding='utf-8').read()
 
 # Default description of the distributed package
 description = ("""Kolibri - the offline app for universal education""")
@@ -49,8 +41,8 @@ dependency_links, install_requires, static_requirements = [], [], []
 # !! Currently, we just bundle no matter what
 if is_building_dist or '--static' in sys.argv:
     sys.argv.remove('--static')
-    dist_name = 'kolibri'
     static_build = True
+
 # TODO:
 # `pip -e .` should work in a source dir, however since it doesn't
 # anyways (because of http sources in requirements.txt), we can

@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import csv
+import io
 import logging
 import os
 import random
@@ -38,7 +39,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Load in the user data from the csv file to give a predictable source of user data
-        with open(os.path.join(os.path.dirname(__file__), 'user_data.csv')) as f:
+        data_path = os.path.join(os.path.dirname(__file__), 'user_data.csv')
+        with io.open(data_path, mode='r', encoding='utf-8') as f:
             user_data = [data for data in csv.DictReader(f)]
 
         n_users = options['users']

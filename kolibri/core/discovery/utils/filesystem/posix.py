@@ -25,9 +25,11 @@ RAW_MOUNT_PARSER = re.compile("^(?P<device>\S+) (?P<path>.+) (?P<filesystem>\S+)
 FILESYSTEM_BLACKLIST = set(["anon_inodefs", "bdev", "binfmt_misc", "cgroup", "cpuset", "debugfs", "devpts", "devtmpfs",
                             "ecryptfs", "fuse", "fuse.gvfsd-fuse", "fusectl", "hugetlbfs", "mqueue", "nfs", "nfs4", "nfsd",
                             "pipefs", "proc", "pstore", "ramfs", "rootfs", "rpc_pipefs", "securityfs", "sockfs", "sysfs",
-                            "tmpfs"])
+                            "tmpfs", "cgmfs"])
 
-PATH_PREFIX_BLACKLIST = ["/proc", "/sys", "/tmp", "/var", "/run", "/boot", "/dev"]
+# These paths can be mounted as separate drives/partitions,
+# so they should not be shown in the list of import/export drives.
+PATH_PREFIX_BLACKLIST = ["/proc", "/sys", "/tmp", "/var", "/boot", "/dev"]
 
 def get_drive_list():
     """

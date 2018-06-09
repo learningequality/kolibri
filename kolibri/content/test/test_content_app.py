@@ -534,7 +534,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.client.login(username="learner", password="pass", facility=facility)
 
         # The progress endpoint is used, so should report progress for topics
-        assert_progress(root, 0.3)
+        assert_progress(root, 0.24)
         assert_progress(c1, 0)
         assert_progress(c2, 0.4)
         assert_progress(c2c1, 0.7)
@@ -560,7 +560,7 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("contentnodeprogress-list"))
 
         # The progress endpoint is used, so should report progress for topics
-        self.assertEqual(get_progress_fraction(root), 0.3)
+        self.assertEqual(get_progress_fraction(root), 0.24)
         self.assertEqual(get_progress_fraction(c1), 0)
         self.assertEqual(get_progress_fraction(c2), 0.4)
         self.assertEqual(get_progress_fraction(c2c1), 0.7)
@@ -587,7 +587,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_filtering_coach_content_anon(self):
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"by_role": True})
         # TODO make content_test.json fixture more organized. Here just, hardcoding the correct count
-        self.assertEqual(len(response.data), 6)
+        self.assertEqual(len(response.data), 7)
 
     def test_filtering_coach_content_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
@@ -670,17 +670,25 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(len(response.data), 0)
 
     def test_copies(self):
+        # the pk is actually a content id
         response = self.client.get(reverse('contentnode-copies', kwargs={'pk': 'c6f49ea527824f398f4d5d26faf19396'}))
-        expected_titles = set(['root', 'c1'])
+        expected_titles = set(['root', 'c1', 'copy'])
         response_titles = set()
         for node in response.data[0]:
             response_titles.add(node['title'])
         self.assertSetEqual(expected_titles, response_titles)
 
+    def test_available_copies(self):
+        # the pk is actually a content id
+        response = self.client.get(reverse('contentnode-copies', kwargs={'pk': 'f2332710c2fd483386cdeb5dcbdda81a'}))
+        # no results should be returned for unavailable content node
+        self.assertEqual(len(response.data), 0)
+
     def test_copies_count(self):
         response = self.client.get(reverse('contentnode-copies-count'),
-                                   data={'content_ids': 'f2332710c2fd483386cdeb5dcbdda81f,c6f49ea527824f398f4d5d26faf15555'})
+                                   data={'content_ids': 'f2332710c2fd483386cdeb5dcbdda81f,c6f49ea527824f398f4d5d26faf15555,f2332710c2fd483386cdeb5dcbdda81a'})
         # assert non existent content id does not show up in results
+        # no results should be returned for unavailable content node
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['count'],
                          content.ContentNode.objects.filter(content_id='f2332710c2fd483386cdeb5dcbdda81f').count())

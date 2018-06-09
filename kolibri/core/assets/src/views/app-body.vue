@@ -79,6 +79,8 @@
     right: 0
     position: absolute
     overflow-x: hidden
+    max-width: 1000px
+    margin: auto
 
   .toolbar-loader
     position: fixed

@@ -172,6 +172,18 @@ EXTRA_LANG_INFO = {
         'name': 'Chichewa, Chewa, Nyanja',
         'name_local': 'chinyanja',
     },
+    'yo': {
+        'bidi': False,
+        'code': 'yo',
+        'name': 'Yoruba',
+        'name_local': 'Yorùbá',
+    },
+    'zu': {
+        'bidi': False,
+        'code': 'zu',
+        'name': 'Zulu',
+        'name_local': 'isiZulu',
+    },
 }
 locale.LANG_INFO.update(EXTRA_LANG_INFO)
 

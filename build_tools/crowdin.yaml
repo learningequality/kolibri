@@ -17,6 +17,8 @@ files:
         ny: nyn
         ta: ta
         te: te
+        yo: yo
+        zu: zu
 
   - source: '/en/LC_MESSAGES/*.po'
     translation: '/%locale_with_underscore%/LC_MESSAGES/%original_file_name%'
@@ -29,3 +31,5 @@ files:
         ny: nyn
         ta: ta
         te: te
+        yo: yo
+        zu: zu
