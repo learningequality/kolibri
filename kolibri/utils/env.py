@@ -1,23 +1,19 @@
 import logging
 import os
+import platform
 import sys
-from distutils import util
-
-logger = logging.getLogger(__name__)
-
 
 def get_cext_path(dist_path):
     """
     Get the directory of dist/cext.
     """
-    # Python version of current platform
     python_version = 'cp' + str(sys.version_info.major) + str(sys.version_info.minor)
-    dirname = os.path.join(dist_path, 'cext/' + python_version)
+    system_name = platform.system()
+    machine_name = platform.machine()
+    dirname = os.path.join(dist_path, 'cext', python_version, system_name)
 
-    platform = util.get_platform()
     # For Linux system with cpython<3.3, there could be abi tags 'm' and 'mu'
-    if 'linux' in platform and int(python_version[2:]) < 33:
-        dirname = os.path.join(dirname, 'linux')
+    if system_name == 'Linux' and int(python_version[2:]) < 33:
         # encode with ucs2
         if sys.maxunicode == 65535:
             dirname = os.path.join(dirname, python_version+'m')
@@ -25,7 +21,7 @@ def get_cext_path(dist_path):
         else:
             dirname = os.path.join(dirname, python_version+'mu')
 
-    dirname = os.path.join(dirname, platform)
+    dirname = os.path.join(dirname, machine_name)
     sys.path = [os.path.realpath(str(dirname))] + sys.path
 
 

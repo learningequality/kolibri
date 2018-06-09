@@ -28,7 +28,7 @@ def create_facility(facility_name=None, preset=None, interactive=False):
     if facility_name is None and interactive:
         answer = get_user_response("Do you wish to create a facility? [yn] ", ["y", "n"])
         if answer == "y":
-            facility = get_user_response("What do you wish to name your facility? ")
+            facility_name = get_user_response("What do you wish to name your facility? ")
 
     if facility_name:
         facility, created = Facility.objects.get_or_create(name=facility_name)
