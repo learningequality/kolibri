@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import UserPage from '../../src/views/index.vue';
 import makeStore from '../util/makeStore';
@@ -14,6 +11,6 @@ function makeWrapper() {
 describe('user index page component', () => {
   it('smoke test', () => {
     const wrapper = makeWrapper();
-    expect(wrapper.exists()).to.be.true;
+    expect(wrapper.exists()).toEqual(true);
   });
 });

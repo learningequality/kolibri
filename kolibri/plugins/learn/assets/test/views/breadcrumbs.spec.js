@@ -1,8 +1,5 @@
-/* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
 import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
-import { expect } from 'chai';
 import { mount } from '@vue/test-utils';
 import Breadcrumbs from '../../src/views/breadcrumbs';
 import makeStore from '../util/makeStore';
@@ -44,7 +41,7 @@ describe('learn page breadcrumbs', () => {
       const store = makeStore({ pageName: PageNames.RECOMMENDED });
       const wrapper = makeWrapper({ store });
       const { breadcrumbs } = getElements(wrapper);
-      expect(breadcrumbs().exists()).to.be.false;
+      expect(breadcrumbs().exists()).toEqual(false);
     });
 
     it('shows correct breadcrumbs when on a Recommended Content Item', () => {
@@ -55,11 +52,11 @@ describe('learn page breadcrumbs', () => {
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
       const bcs = breadcrumbItems();
-      expect(bcs.length).to.equal(2);
-      expect(bcs[0].link.name).to.equal(PageNames.RECOMMENDED);
+      expect(bcs.length).toEqual(2);
+      expect(bcs[0].link.name).toEqual(PageNames.RECOMMENDED);
       // Content Item has no link, just text
-      expect(bcs[1].link).to.equal(undefined);
-      expect(bcs[1].text).to.equal('Recommended Content Item');
+      expect(bcs[1].link).toEqual(undefined);
+      expect(bcs[1].text).toEqual('Recommended Content Item');
     });
   });
 
@@ -68,7 +65,7 @@ describe('learn page breadcrumbs', () => {
       const store = makeStore({ pageName: PageNames.TOPICS_ROOT });
       const wrapper = makeWrapper({ store });
       const { breadcrumbs } = getElements(wrapper);
-      expect(breadcrumbs().exists()).to.be.false;
+      expect(breadcrumbs().exists()).toEqual(false);
     });
 
     it('shows correct breadcrumbs at a Channel', () => {
@@ -79,10 +76,10 @@ describe('learn page breadcrumbs', () => {
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
       const bcs = breadcrumbItems();
-      expect(bcs.length).to.equal(2);
-      expect(bcs[0].link.name).to.equal(PageNames.TOPICS_ROOT);
-      expect(bcs[1].link).to.equal(undefined);
-      expect(bcs[1].text).to.equal('Recommended Channel');
+      expect(bcs.length).toEqual(2);
+      expect(bcs[0].link.name).toEqual(PageNames.TOPICS_ROOT);
+      expect(bcs[1].link).toEqual(undefined);
+      expect(bcs[1].text).toEqual('Recommended Channel');
     });
 
     it('shows correct breadcrumbs at a non-Channel Topic', () => {
@@ -98,21 +95,21 @@ describe('learn page breadcrumbs', () => {
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
       const bcs = breadcrumbItems();
-      expect(bcs.length).to.equal(4);
+      expect(bcs.length).toEqual(4);
       // All Channels Link
-      expect(bcs[0].link.name).to.equal(PageNames.TOPICS_ROOT);
-      expect(bcs[0].text).to.equal('Channels');
+      expect(bcs[0].link.name).toEqual(PageNames.TOPICS_ROOT);
+      expect(bcs[0].text).toEqual('Channels');
       // Parent Channel Link
-      expect(bcs[1].link.name).to.equal(PageNames.TOPICS_CHANNEL);
-      expect(bcs[1].link.params.channel_id).to.equal('another_channel');
-      expect(bcs[1].text).to.equal('Another Recommended Channel');
+      expect(bcs[1].link.name).toEqual(PageNames.TOPICS_CHANNEL);
+      expect(bcs[1].link.params.channel_id).toEqual('another_channel');
+      expect(bcs[1].text).toEqual('Another Recommended Channel');
       // Previous Topic Link
-      expect(bcs[2].link.name).to.equal(PageNames.TOPICS_TOPIC);
-      expect(bcs[2].link.params.id).to.equal('previous_topic');
-      expect(bcs[2].text).to.equal('Previous Topic');
+      expect(bcs[2].link.name).toEqual(PageNames.TOPICS_TOPIC);
+      expect(bcs[2].link.params.id).toEqual('previous_topic');
+      expect(bcs[2].text).toEqual('Previous Topic');
       // Topic
-      expect(bcs[3].link).to.equal(undefined);
-      expect(bcs[3].text).to.equal('Recommended Topic');
+      expect(bcs[3].link).toEqual(undefined);
+      expect(bcs[3].text).toEqual('Recommended Topic');
     });
 
     it('shows correct breadcrumbs at a Content Item', () => {
@@ -128,21 +125,21 @@ describe('learn page breadcrumbs', () => {
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
       const bcs = breadcrumbItems();
-      expect(bcs.length).to.equal(4);
+      expect(bcs.length).toEqual(4);
       // All Channels Link
-      expect(bcs[0].link.name).to.equal(PageNames.TOPICS_ROOT);
-      expect(bcs[0].text).to.equal('Channels');
+      expect(bcs[0].link.name).toEqual(PageNames.TOPICS_ROOT);
+      expect(bcs[0].text).toEqual('Channels');
       // Channel Link
-      expect(bcs[1].link.name).to.equal(PageNames.TOPICS_CHANNEL);
-      expect(bcs[1].link.params.channel_id).to.equal('another_channel');
-      expect(bcs[1].text).to.equal('Another Recommended Channel');
+      expect(bcs[1].link.name).toEqual(PageNames.TOPICS_CHANNEL);
+      expect(bcs[1].link.params.channel_id).toEqual('another_channel');
+      expect(bcs[1].text).toEqual('Another Recommended Channel');
       // Previous Topic link
-      expect(bcs[2].link.name).to.equal(PageNames.TOPICS_TOPIC);
-      expect(bcs[2].link.params.id).to.equal('previous_topic');
-      expect(bcs[2].text).to.equal('Previous Topic');
+      expect(bcs[2].link.name).toEqual(PageNames.TOPICS_TOPIC);
+      expect(bcs[2].link.params.id).toEqual('previous_topic');
+      expect(bcs[2].text).toEqual('Previous Topic');
       // Content Item
-      expect(bcs[3].link).to.equal(undefined);
-      expect(bcs[3].text).to.equal('Recommended Item');
+      expect(bcs[3].link).toEqual(undefined);
+      expect(bcs[3].text).toEqual('Recommended Item');
     });
   });
 

@@ -14,7 +14,7 @@
     </button>
 
     <ul
-      ref="kNavbar"
+      ref="navbarUl"
       class="k-navbar"
       :style="{ maxWidth: `${ maxWidth }px` }"
     >
@@ -76,10 +76,10 @@
         this.checkSpace();
       }, 100),
       scrollLeft() {
-        this.$refs.kNavbar.scrollLeft -= this.maxWidth;
+        this.$refs.navbarUl.scrollLeft -= this.maxWidth;
       },
       scrollRight() {
-        this.$refs.kNavbar.scrollLeft += this.maxWidth;
+        this.$refs.navbarUl.scrollLeft += this.maxWidth;
       },
     },
   };

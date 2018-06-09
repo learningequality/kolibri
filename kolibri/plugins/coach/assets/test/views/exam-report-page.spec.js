@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
 import { mount } from '@vue/test-utils';
 import ExamReportPage from '../../src/views/exams/exam-report-page';
@@ -43,7 +40,7 @@ describe('exam report page', () => {
     ];
     const wrapper = makeWrapper({ store: new Vuex.Store({ state }) });
     const { averageScoreText } = getElements(wrapper);
-    expect(averageScoreText().endsWith('%')).to.be.false;
+    expect(averageScoreText().endsWith('%')).toEqual(false);
   });
 
   it('average score is shown if at least one exam in progress', () => {
@@ -55,7 +52,7 @@ describe('exam report page', () => {
     ];
     const wrapper = makeWrapper({ store: new Vuex.Store({ state }) });
     const { averageScoreText } = getElements(wrapper);
-    expect(averageScoreText().endsWith('%')).to.be.true;
+    expect(averageScoreText().endsWith('%')).toEqual(true);
   });
 
   it('shows correct scores for exam takers', () => {
@@ -67,8 +64,8 @@ describe('exam report page', () => {
     const wrapper = makeWrapper({ store: new Vuex.Store({ state }) });
     const { tableRows } = getElements(wrapper);
     // score is properly formatted
-    expect(getTextInScoreColumn(tableRows().at(0)).trim()).to.equal('50%');
+    expect(getTextInScoreColumn(tableRows().at(0)).trim()).toEqual('50%');
     // emdash
-    expect(getTextInScoreColumn(tableRows().at(1)).trim()).to.equal('–');
+    expect(getTextInScoreColumn(tableRows().at(1)).trim()).toEqual('–');
   });
 });

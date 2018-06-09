@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
 import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
 import ChannelsGrid from '../../src/views/manage-content-page/channels-grid.vue';
@@ -61,7 +58,7 @@ describe('channelsGrid component', () => {
     const wrapper = makeWrapper({ store });
     const { emptyState } = getElements(wrapper);
     return wrapper.vm.$nextTick().then(() => {
-      expect(emptyState().is('p')).to.be.true;
+      expect(emptyState().is('p')).toEqual(true);
     });
   });
 
@@ -75,7 +72,7 @@ describe('channelsGrid component', () => {
         return wrapper.vm.$nextTick();
       })
       .then(() => {
-        expect(progressBar().isVueInstance()).to.be.true;
+        expect(progressBar().isVueInstance()).toEqual(true);
       });
   });
 
@@ -100,8 +97,8 @@ describe('channelsGrid component', () => {
     const { channelListItems } = getElements(wrapper);
     return wrapper.vm.$nextTick().then(() => {
       const items = channelListItems();
-      expect(items.at(0).props().channel.id).to.equal('awesome_channel');
-      expect(items.at(1).props().channel.id).to.equal('beautiful_channel');
+      expect(items.at(0).props().channel.id).toEqual('awesome_channel');
+      expect(items.at(1).props().channel.id).toEqual('beautiful_channel');
     });
   });
 
@@ -121,9 +118,9 @@ describe('channelsGrid component', () => {
       })
       .then(() => {
         deleteModal = deleteChannelModal();
-        expect(deleteModal.isVueInstance()).to.be.true;
+        expect(deleteModal.isVueInstance()).toEqual(true);
         const deleteButton = deleteModal.find('button[name="confirm"]');
-        expect(deleteButton.text().trim()).to.equal('Delete');
+        expect(deleteButton.text().trim()).toEqual('Delete');
         deleteButton.trigger('click');
         return wrapper.vm.$nextTick();
       })

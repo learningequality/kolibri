@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
@@ -73,7 +70,7 @@ describe('contentTreeViewer component', () => {
     });
     const wrapper = makeWrapper({ store });
     const rows = wrapper.findAll({ name: 'contentNodeRow' });
-    expect(rows).to.have.lengthOf(2);
+    expect(rows).toHaveLength(2);
   });
 
   it('if in LOCALIMPORT, then non-importable nodes are filtered from the list', () => {
@@ -93,7 +90,7 @@ describe('contentTreeViewer component', () => {
     });
     const wrapper = makeWrapper({ store });
     const { contentNodeRows } = getElements(wrapper);
-    expect(contentNodeRows()).to.have.lengthOf(1);
+    expect(contentNodeRows()).toHaveLength(1);
   });
 
   it('in LOCALEXPORT, if a node has available: false, then it is not shown', () => {
@@ -115,15 +112,15 @@ describe('contentTreeViewer component', () => {
     });
     const wrapper = makeWrapper({ store });
     const { contentNodeRows } = getElements(wrapper);
-    expect(contentNodeRows()).to.have.lengthOf(1);
+    expect(contentNodeRows()).toHaveLength(1);
   });
 
   it('it shows an empty state if the topic has no children', () => {
     setChildren([]);
     const wrapper = makeWrapper({ store });
     const { contentsSection, emptyState } = getElements(wrapper);
-    expect(contentsSection()).to.have.lengthOf(0);
-    expect(emptyState().is('div')).to.be.true;
+    expect(contentsSection()).toHaveLength(0);
+    expect(emptyState().is('div')).toEqual(true);
   });
 
   it('when clicking a topic-title button on a row, a "update topic" action is trigged', () => {
@@ -149,7 +146,7 @@ describe('contentTreeViewer component', () => {
         { id: 'topic_1', title: 'Topic 1' },
         { id: n.id, title: n.title },
       ];
-      expect(n.path).to.deep.equal(expectedPath);
+      expect(n.path).toEqual(expectedPath);
     });
   });
 
@@ -162,19 +159,19 @@ describe('contentTreeViewer component', () => {
 
     it('if neither topic nor any ancestor is selected, then "Select All" is unchecked', () => {
       const wrapper = makeWrapper({ store });
-      expect(checkboxIsChecked(wrapper)).to.be.false;
+      expect(checkboxIsChecked(wrapper)).toEqual(false);
     });
     it('if any ancestor of the topic is selected, then "Select All" is checked', () => {
       store.state.pageState.wizardState.path = [{ id: 'channel_1' }];
       setIncludedNodes([makeNode('channel_1')]);
       const wrapper = makeWrapper({ store });
-      expect(checkboxIsChecked(wrapper)).to.be.true;
+      expect(checkboxIsChecked(wrapper)).toEqual(true);
     });
 
     it('if the topic itself is selected, then "Select All" is checked', () => {
       setIncludedNodes([makeNode('topic_1')]);
       const wrapper = makeWrapper({ store });
-      expect(checkboxIsChecked(wrapper)).to.be.true;
+      expect(checkboxIsChecked(wrapper)).toEqual(true);
     });
 
     it('if topic is selected, but one descendant is omitted', () => {
@@ -182,7 +179,7 @@ describe('contentTreeViewer component', () => {
       setIncludedNodes([makeNode('topic_1')]);
       setOmittedNodes([makeNode('subtopic_1', { path: [{ id: 'topic_1' }] })]);
       const wrapper = makeWrapper({ store });
-      expect(checkboxIsChecked(wrapper)).to.be.false;
+      expect(checkboxIsChecked(wrapper)).toEqual(false);
     });
   });
 
@@ -240,8 +237,8 @@ describe('contentTreeViewer component', () => {
         .stub(wrapper.vm, 'removeNodeForTransfer')
         .returns(Promise.resolve());
       const topicRow = wrapper.find({ name: 'contentNodeRow' });
-      expect(topicRow.props().checked).to.be.true;
-      expect(topicRow.props().disabled).to.be.false;
+      expect(topicRow.props().checked).toEqual(true);
+      expect(topicRow.props().disabled).toEqual(false);
       topicRow.find('input[type="checkbox"]').trigger('click');
       sinon.assert.calledOnce(removeNodeStub);
       sinon.assert.calledWithMatch(removeNodeStub, subTopic);
@@ -263,7 +260,7 @@ describe('contentTreeViewer component', () => {
       const wrapper = makeWrapper({ store });
       const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
       const topicRow = wrapper.find({ name: 'contentNodeRow' });
-      expect(topicRow.props().checked).to.be.false;
+      expect(topicRow.props().checked).toEqual(false);
       topicRow.find('input[type="checkbox"]').trigger('click');
       sinon.assert.calledOnce(addNodeStub);
       sinon.assert.calledWithMatch(addNodeStub, subTopic);
@@ -289,8 +286,8 @@ describe('contentTreeViewer component', () => {
       const wrapper = makeWrapper({ store });
       const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
       const topicRow = wrapper.find({ name: 'contentNodeRow' });
-      expect(topicRow.props().checked).to.be.false;
-      expect(topicRow.props().indeterminate).to.be.true;
+      expect(topicRow.props().checked).toEqual(false);
+      expect(topicRow.props().indeterminate).toEqual(true);
       topicRow.find('input[type="checkbox"]').trigger('click');
       sinon.assert.calledOnce(addNodeStub);
       sinon.assert.calledWithMatch(addNodeStub, { id: 'subtopic' });

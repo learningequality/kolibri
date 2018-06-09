@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import sinon from 'sinon';
@@ -20,18 +18,18 @@ describe('Vuex store/actions for core module', () => {
     it('handleError action updates core state', () => {
       const store = coreStore.factory();
       coreActions.handleError(store, 'catastrophic failure');
-      expect(store.state.core.error).to.equal('catastrophic failure');
-      expect(store.state.core.loading).to.be.false;
-      expect(store.state.core.title).to.equal(errorMessage);
+      expect(store.state.core.error).toEqual('catastrophic failure');
+      expect(store.state.core.loading).toBeFalsy();
+      expect(store.state.core.title).toEqual(errorMessage);
     });
 
     it('handleApiError action updates core state', () => {
       const store = coreStore.factory();
       const apiError = { message: 'Too Bad' };
       coreActions.handleApiError(store, apiError);
-      expect(store.state.core.error.match(/Too Bad/)).to.have.lengthOf(1);
-      expect(store.state.core.loading).to.be.false;
-      expect(store.state.core.title).to.equal(errorMessage);
+      expect(store.state.core.error.match(/Too Bad/)).toHaveLength(1);
+      expect(store.state.core.loading).toBeFalsy();
+      expect(store.state.core.title).toEqual(errorMessage);
     });
   });
 
@@ -66,9 +64,9 @@ describe('Vuex store/actions for core module', () => {
 
       function runAssertions() {
         const { session } = store.state.core;
-        expect(session.id).to.equal('123');
-        expect(session.username).to.equal('e_fermi');
-        expect(session.kind).to.deep.equal(['cool-guy-user']);
+        expect(session.id).toEqual('123');
+        expect(session.username).toEqual('e_fermi');
+        expect(session.kind).toEqual(['cool-guy-user']);
         sinon.assert.called(assignStub);
       }
 
@@ -88,7 +86,7 @@ describe('Vuex store/actions for core module', () => {
       coreActions
         .kolibriLogin(store, {})
         .then(() => {
-          expect(store.state.core.loginError).to.equal(constants.LoginErrors.INVALID_CREDENTIALS);
+          expect(store.state.core.loginError).toEqual(constants.LoginErrors.INVALID_CREDENTIALS);
         })
         .then(done, done);
     });
@@ -131,8 +129,8 @@ describe('Vuex core logging actions', () => {
       store.state.core.logging.attempt.id = 'assertion';
       externalResolve(firstState);
       promise.then(() => {
-        expect(store.state.core.logging.attempt.id).to.equal('assertion');
-        expect(store.state.core.logging.attempt.item).to.equal('second');
+        expect(store.state.core.logging.attempt.id).toEqual('assertion');
+        expect(store.state.core.logging.attempt.item).toEqual('second');
         done();
       });
     });

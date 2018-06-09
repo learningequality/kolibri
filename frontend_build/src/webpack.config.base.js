@@ -17,11 +17,14 @@
 
 var path = require('path');
 var mkdirp = require('mkdirp');
-var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 // adds custom rules
 require('./htmlhint_custom');
 var prettierOptions = require('../../.prettier');
+var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
+
+var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+var OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 var production = process.env.NODE_ENV === 'production';
 
@@ -44,11 +47,9 @@ var cssLoader = {
   options: { minimize: production, sourceMap: !production },
 };
 
-// for stylus blocks in vue files.
-var vueStylusLoaders = [cssLoader, postCSSLoader, 'stylus-loader', 'stylint-loader'];
-
-// for scss blocks in vue files (e.g. Keen-UI files)
-var vueSassLoaders = [
+// for scss blocks
+var sassLoaders = [
+  MiniCssExtractPlugin.loader,
   cssLoader,
   postCSSLoader,
   {
@@ -58,40 +59,56 @@ var vueSassLoaders = [
   },
 ];
 
+var eslintLoader = {
+  loader: 'eslint-loader',
+  options: {
+    failOnError: production,
+    emitError: production,
+    emitWarning: !production,
+    fix: !production,
+    configFile: path.resolve(path.join(base_dir, '.eslintrc.js')),
+  },
+};
+
+var htmlLoaders = [
+  {
+    // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
+    loader: 'svg-icon-inline-loader',
+  },
+  {
+    loader: 'htmlhint-loader',
+    options: { failOnError: production, emitAs: production ? 'error' : 'warning' },
+  },
+];
+
 // primary webpack config
 module.exports = {
   context: base_dir,
   module: {
     rules: [
-      // Linting rules
+      // Linting and preprocessing rules
       {
-        test: /\.(vue|js)$/,
+        test: /\.html$/,
         enforce: 'pre',
-        use: {
-          loader: 'eslint-loader',
-          options: {
-            failOnError: production,
-            emitError: production,
-            emitWarning: !production,
-            fix: !production,
-            configFile: path.resolve(path.join(base_dir, '.eslintrc.js')),
-          },
-        },
+        use: htmlLoaders,
         exclude: /node_modules/,
       },
       {
-        test: /\.(vue|html)/,
+        test: /\.vue$/,
         enforce: 'pre',
-        use: {
-          loader: 'htmlhint-loader',
-          options: { failOnError: production, emitAs: production ? 'error' : 'warning' },
-        },
+        use: htmlLoaders.concat(eslintLoader),
         exclude: /node_modules/,
       },
       {
-        test: /\.styl$/,
+        test: /\.js$/,
         enforce: 'pre',
-        loader: 'stylint-loader',
+        use: eslintLoader,
+        // Without this exclude, VueLoader will add this linting into the
+        // chained loaders after svg-inline-loader has been run
+        // The output of svg-inline-loader violates our max attribute per
+        // line vue template rules, which triggers an autofix, and
+        // permanently saves the files with the injected svg.
+        exclude: /(node_modules|\.vue)/,
       },
       // Transpilation and code loading rules
       {
@@ -99,51 +116,27 @@ module.exports = {
         loader: 'vue-loader',
         options: {
           preserveWhitespace: false,
-          loaders: {
-            stylus: ExtractTextPlugin.extract({
-              allChunks: true,
-              use: vueStylusLoaders,
-            }),
-            scss: ExtractTextPlugin.extract({
-              allChunks: true,
-              use: vueSassLoaders,
-            }),
-          },
-          buble: {
-            objectAssign: 'Object.assign',
-          },
-          // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
-          preLoaders: { html: 'svg-icon-inline-loader' },
         },
       },
       {
         test: /\.js$/,
         loader: 'buble-loader',
         exclude: /node_modules\/(?!(keen-ui)\/).*/,
-        query: {
+        options: {
           objectAssign: 'Object.assign',
         },
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          allChunks: true,
-          use: [cssLoader, postCSSLoader],
-        }),
+        use: [MiniCssExtractPlugin.loader, cssLoader, postCSSLoader],
       },
       {
-        test: /\.styl$/,
-        use: ExtractTextPlugin.extract({
-          allChunks: true,
-          use: [cssLoader, postCSSLoader, 'stylus-loader'],
-        }),
+        test: /\.styl(us)*$/,
+        use: [MiniCssExtractPlugin.loader, cssLoader, postCSSLoader, 'stylus-loader'],
       },
       {
         test: /\.s[a|c]ss$/,
-        use: ExtractTextPlugin.extract({
-          allChunks: true,
-          use: [cssLoader, postCSSLoader, 'sass-loader'],
-        }),
+        use: sassLoaders,
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/,
@@ -167,6 +160,16 @@ module.exports = {
         test: /fg-loadcss\/src\/onloadCSS/,
         use: 'exports-loader?onloadCSS',
       },
+    ],
+  },
+  optimization: {
+    minimizer: [
+      new UglifyJsPlugin({
+        cache: true,
+        parallel: true,
+        sourceMap: false,
+      }),
+      new OptimizeCSSAssetsPlugin({}),
     ],
   },
   plugins: [

@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import AvailableChannelsPage from '../../src/views/available-channels-page';
@@ -39,7 +36,7 @@ function getElements(wrapper) {
 function testChannelVisibility(wrapper, visibilities) {
   const channels = getElements(wrapper).channelListItems();
   visibilities.forEach((v, i) => {
-    expect(channels.at(i).isVisible()).to.equal(v);
+    expect(channels.at(i).isVisible()).toEqual(v);
   });
 }
 
@@ -62,14 +59,14 @@ describe('availableChannelsPage', () => {
     // prettier-ignore
     const button = unlistedChannelsSection().at(0).find('button');
     button.trigger('click');
-    expect(channelTokenModal().isVueInstance()).to.be.true;
+    expect(channelTokenModal().isVueInstance()).toEqual(true);
   });
 
   it('in LOCALIMPORT and LOCALEXPORT mode, the unlisted channel button is not available', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
     const { unlistedChannelsSection } = getElements(wrapper);
-    expect(unlistedChannelsSection().length).to.equal(0);
+    expect(unlistedChannelsSection().length).toEqual(0);
   });
 
   it('in LOCALEXPORT mode, the back link text and title are correct', () => {
@@ -77,7 +74,7 @@ describe('availableChannelsPage', () => {
     store.dispatch('SET_SELECTED_DRIVE', 'f9e29616935fbff37913ed46bf20e2c1');
     const wrapper = makeWrapper({ store });
     const { titleText } = getElements(wrapper);
-    expect(titleText()).to.equal('Your channels');
+    expect(titleText()).toEqual('Your channels');
   });
 
   it('in LOCALIMPORT mode, the back link text and title are correct', () => {
@@ -85,37 +82,37 @@ describe('availableChannelsPage', () => {
     store.dispatch('SET_SELECTED_DRIVE', 'f9e29616935fbff37913ed46bf20e2c0');
     const wrapper = makeWrapper({ store });
     const { titleText } = getElements(wrapper);
-    expect(titleText()).to.equal('SANDISK (G:)');
+    expect(titleText()).toEqual('SANDISK (G:)');
   });
 
   it('in REMOTEIMPORT mode, the back link text and title are correct', () => {
     setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
     const { titleText } = getElements(wrapper);
-    expect(titleText()).to.equal('Channels');
+    expect(titleText()).toEqual('Channels');
   });
 
   it('in LOCALEXPORT shows the correct number of channels available message', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
     const { channelsAvailableText, noChannels } = getElements(wrapper);
-    expect(channelsAvailableText()).to.equal('4 channels available');
-    expect(noChannels().exists()).to.be.false;
+    expect(channelsAvailableText()).toEqual('4 channels available');
+    expect(noChannels().exists()).toEqual(false);
   });
 
   it('in REMOTEIMPORT/LOCALIMPORT shows the correct number of channels available message', () => {
     setTransferType('localimport');
     const wrapper = makeWrapper({ store });
     const { channelsAvailableText, noChannels } = getElements(wrapper);
-    expect(channelsAvailableText()).to.equal('4 channels available');
-    expect(noChannels().exists()).to.be.false;
+    expect(channelsAvailableText()).toEqual('4 channels available');
+    expect(noChannels().exists()).toEqual(false);
   });
 
   it('if there are no channels, then filters do not appear', () => {
     store.dispatch('SET_AVAILABLE_CHANNELS', []);
     const wrapper = makeWrapper({ store });
     const { filters } = getElements(wrapper);
-    expect(filters().exists()).to.be.false;
+    expect(filters().exists()).toEqual(false);
   });
 
   it('in LOCALIMPORT/REMOTEIMPORT, channel item (not) on device has the correct props', () => {
@@ -123,26 +120,26 @@ describe('availableChannelsPage', () => {
     const { channelListItems } = getElements(wrapper);
     const channels = channelListItems();
     const channelNProps = n => channels.at(n).props();
-    expect(channelNProps(0).mode).to.equal('IMPORT');
-    expect(channelNProps(0).onDevice).to.be.true;
-    expect(channelNProps(1).onDevice).to.be.false;
-    expect(channelNProps(2).onDevice).to.be.false;
-    expect(channelNProps(3).onDevice).to.be.true;
+    expect(channelNProps(0).mode).toEqual('IMPORT');
+    expect(channelNProps(0).onDevice).toEqual(true);
+    expect(channelNProps(1).onDevice).toEqual(false);
+    expect(channelNProps(2).onDevice).toEqual(false);
+    expect(channelNProps(3).onDevice).toEqual(true);
   });
 
   it('IN LOCALEXPORT, with no filters, all channels (with resources) appear', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
-    expect(wrapper.vm.titleFilter).to.equal('');
-    expect(wrapper.vm.languageFilter.value).to.equal('ALL');
+    expect(wrapper.vm.titleFilter).toEqual('');
+    expect(wrapper.vm.languageFilter.value).toEqual('ALL');
     testChannelVisibility(wrapper, [true, false, false, true]);
   });
 
   it('IN LOCALIMPORT/REMOTEIMPORT, with no filters, all appear', () => {
     setTransferType('localimport');
     const wrapper = makeWrapper({ store });
-    expect(wrapper.vm.titleFilter).to.equal('');
-    expect(wrapper.vm.languageFilter.value).to.equal('ALL');
+    expect(wrapper.vm.titleFilter).toEqual('');
+    expect(wrapper.vm.languageFilter.value).toEqual('ALL');
     testChannelVisibility(wrapper, [true, true, true, true]);
   });
 
@@ -155,7 +152,7 @@ describe('availableChannelsPage', () => {
       { label: 'English', value: 'en' },
       { label: 'German', value: 'de' },
     ];
-    expect(languageFilter().props().options).to.deep.equal(expected);
+    expect(languageFilter().props().options).toEqual(expected);
   });
 
   it('with language filter, the correct channels appear', () => {
@@ -177,7 +174,7 @@ describe('availableChannelsPage', () => {
     // Can't trigger 'input' event; need to set new value manually
     filter.vm.model = 'bir ch';
     return wrapper.vm.$nextTick().then(() => {
-      expect(wrapper.vm.titleFilter).to.equal('bir ch');
+      expect(wrapper.vm.titleFilter).toEqual('bir ch');
       testChannelVisibility(wrapper, [false, true, false, false]);
     });
   });
@@ -202,7 +199,7 @@ describe('availableChannelsPage', () => {
     const channels = channelListItems();
     // prettier-ignore
     const link = channels.at(0).find({ name: 'kRouterLink' });
-    expect(link.props().to).to.deep.equal({
+    expect(link.props().to).toEqual({
       name: 'SELECT_CONTENT',
       params: {
         channel_id: 'awesome_channel',

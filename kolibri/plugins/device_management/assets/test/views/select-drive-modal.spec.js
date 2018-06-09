@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
 import coreModal from 'kolibri.coreVue.components.coreModal';
@@ -86,7 +83,7 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     return wrapper.vm.$nextTick().then(() => {
       const alert = wrapper.find(UiAlert);
-      expect(alert.text().trim()).to.equal('Finding local drives…');
+      expect(alert.text().trim()).toEqual('Finding local drives…');
     });
   });
 
@@ -99,8 +96,8 @@ describe('selectDriveModal component', () => {
         return wrapper.vm.$nextTick();
       })
       .then(() => {
-        expect(driveListContainer().is('div')).to.be.true;
-        expect(driveListLoading().exists()).to.be.false;
+        expect(driveListContainer().is('div')).toEqual(true);
+        expect(driveListLoading().exists()).toEqual(false);
       });
   });
 
@@ -108,8 +105,8 @@ describe('selectDriveModal component', () => {
     setTransferType('localimport');
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio, noContentRadio } = getElements(wrapper);
-    expect(writableImportableRadio().is('input')).to.be.true;
-    expect(noContentRadio().exists()).to.be.false;
+    expect(writableImportableRadio().is('input')).toEqual(true);
+    expect(noContentRadio().exists()).toEqual(false);
   });
 
   it('in import more mode, drive-list only shows drives with a compatible channel', () => {
@@ -122,7 +119,7 @@ describe('selectDriveModal component', () => {
     store.state.pageState.channelList = [{ ...channel }];
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio } = getElements(wrapper);
-    expect(writableImportableRadio().is('input')).to.be.true;
+    expect(writableImportableRadio().is('input')).toEqual(true);
   });
 
   it('in import more mode, drive-list hides drives with an incompatible channel', () => {
@@ -135,16 +132,16 @@ describe('selectDriveModal component', () => {
     store.state.pageState.channelList = [{ ...channel }];
     const wrapper = makeWrapper({ store });
     const { incompatibleRadio } = getElements(wrapper);
-    expect(incompatibleRadio().exists()).to.be.false;
+    expect(incompatibleRadio().exists()).toEqual(false);
   });
 
   it('in export mode, drive-list only shows drives that are writable', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio, noContentRadio, unwritableRadio } = getElements(wrapper);
-    expect(writableImportableRadio().is('input')).to.be.true;
-    expect(noContentRadio().is('input')).to.be.true;
-    expect(unwritableRadio().exists()).to.be.false;
+    expect(writableImportableRadio().is('input')).toEqual(true);
+    expect(noContentRadio().is('input')).toEqual(true);
+    expect(unwritableRadio().exists()).toEqual(false);
   });
 
   it('in import mode, if there are no drives with content, there is an empty state', () => {
@@ -155,7 +152,7 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     const driveListText = wrapper.find(UiAlert);
     const expectedMessage = 'No drives with Kolibri content are connected to the server';
-    expect(driveListText.text().trim()).to.equal(expectedMessage);
+    expect(driveListText.text().trim()).toEqual(expectedMessage);
   });
 
   it('in export mode, if there are no writable drives, there is an empty state', () => {
@@ -166,13 +163,13 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     const driveListText = wrapper.find(UiAlert);
     const expectedMessage = 'No drives that can be written to are connected to the server';
-    expect(driveListText.text().trim()).to.equal(expectedMessage);
+    expect(driveListText.text().trim()).toEqual(expectedMessage);
   });
 
   it('when no drive is selected, "Continue" button is disabled', () => {
     const wrapper = makeWrapper({ store });
     const { continueButton } = getElements(wrapper);
-    expect(continueButton().attributes().disabled).to.equal('disabled');
+    expect(continueButton().attributes().disabled).toEqual('disabled');
   });
 
   it('when a drive is selected, "Continue" button is enabled', () => {
@@ -180,7 +177,7 @@ describe('selectDriveModal component', () => {
     const { continueButton, writableImportableRadio } = getElements(wrapper);
     writableImportableRadio().trigger('change');
     return wrapper.vm.$nextTick().then(() => {
-      expect(continueButton().attributes().disabled).to.equal(undefined);
+      expect(continueButton().attributes().disabled).toEqual(undefined);
     });
   });
 
@@ -203,7 +200,7 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
-    expect(wrapper.emitted().cancel).to.have.lengthOf(1);
+    expect(wrapper.emitted().cancel).toHaveLength(1);
   });
 
   // not tested

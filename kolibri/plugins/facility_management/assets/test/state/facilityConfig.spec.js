@@ -1,4 +1,3 @@
-/* eslint-env mocha */
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
 import sinon from 'sinon';
 import * as actions from '../../src/state/actions/facilityConfig';
