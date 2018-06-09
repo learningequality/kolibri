@@ -1,8 +1,4 @@
-/* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
-import { expect } from 'chai';
-import sinon from 'sinon';
 import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
 
 function makeWrapper() {
@@ -14,7 +10,10 @@ function getElements(wrapper) {
     cancelButton: () => wrapper.find('button[name="cancel"]'),
     tokenTextbox: () => wrapper.find({ name: 'kTextbox' }),
     networkErrorAlert: () => wrapper.find({ name: 'ui-alert' }),
-    lookupTokenStub: () => sinon.stub(wrapper.vm, 'lookupToken'),
+    lookupTokenStub: () => {
+      wrapper.vm.lookupToken = jest.fn();
+      return wrapper.vm.lookupToken;
+    },
   };
 }
 
@@ -29,7 +28,7 @@ describe('channelTokenModal component', () => {
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
     return wrapper.vm.$nextTick().then(() => {
-      expect(wrapper.emitted().closemodal.length).to.equal(1);
+      expect(wrapper.emitted().closemodal.length).toEqual(1);
     });
   });
 
@@ -38,37 +37,37 @@ describe('channelTokenModal component', () => {
       const textbox = getElements(wrapper).tokenTextbox();
       textbox.vm.$emit('input', token);
       return wrapper.vm.$nextTick().then(() => {
-        expect(textbox.props().value).to.equal(token.trim());
+        expect(textbox.props().value).toEqual(token.trim());
       });
     }
 
     function assertTextboxInvalid(wrapper) {
       const textbox = getElements(wrapper).tokenTextbox();
-      expect(textbox.props().invalid).to.be.true;
-      expect(textbox.props().invalidText).to.equal('Check whether you entered token correctly');
+      expect(textbox.props().invalid).toEqual(true);
+      expect(textbox.props().invalidText).toEqual('Check whether you entered token correctly');
     }
 
     it('if user has not interacted with the form, then no validation messages appear', () => {
       const { tokenTextbox, networkErrorAlert } = getElements(wrapper);
-      expect(tokenTextbox().props().invalid).to.be.false;
-      expect(networkErrorAlert().exists()).to.be.false;
+      expect(tokenTextbox().props().invalid).toEqual(false);
+      expect(networkErrorAlert().exists()).toEqual(false);
     });
 
     it('disables the form while waiting for a response from the server', () => {
       //...then re-enables it afterwards
       const { lookupTokenStub } = getElements(wrapper);
       const lookupStub = lookupTokenStub();
-      const disabledSpy = sinon.spy();
+      const disabledSpy = jest.fn();
       wrapper.vm.$watch('formIsDisabled', disabledSpy);
       // not checking the Promise.reject case
-      lookupStub.returns(Promise.resolve([]));
+      lookupStub.mockResolvedValue([]);
       return inputToken(wrapper, 'toka-toka-token')
         .then(() => {
           wrapper.vm.submitForm();
         })
         .then(() => {
-          expect(disabledSpy.firstCall.args[0]).to.be.true;
-          expect(disabledSpy.firstCall.args[1]).to.be.false;
+          expect(disabledSpy.mock.calls[0][0]).toEqual(true);
+          expect(disabledSpy.mock.calls[0][1]).toBeFalsy();
         });
     });
 
@@ -76,14 +75,14 @@ describe('channelTokenModal component', () => {
       const tokenPayload = { id: 'toka-toka-token' };
       const { lookupTokenStub } = getElements(wrapper);
       const lookupStub = lookupTokenStub();
-      lookupStub.returns(Promise.resolve([tokenPayload]));
+      lookupStub.mockResolvedValue([tokenPayload]);
       return inputToken(wrapper, 'toka-toka-token')
         .then(() => {
           wrapper.vm.submitForm();
         })
         .then(() => {
-          sinon.assert.calledWith(lookupStub, 'toka-toka-token');
-          expect(wrapper.emitted().channelfound).to.deep.equal([[tokenPayload]]);
+          expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
+          expect(wrapper.emitted().channelfound).toEqual([[tokenPayload]]);
         });
     });
 
@@ -116,14 +115,14 @@ describe('channelTokenModal component', () => {
       const tokenPayload = { status: { code: 404 } };
       const { lookupTokenStub } = getElements(wrapper);
       const lookupStub = lookupTokenStub();
-      lookupStub.returns(Promise.reject(tokenPayload));
+      lookupStub.mockRejectedValue(tokenPayload);
       return inputToken(wrapper, 'toka-toka-token')
         .then(() => {
           return wrapper.vm.submitForm();
         })
         .then(() => {
-          sinon.assert.calledWith(lookupStub, 'toka-toka-token');
-          expect(wrapper.emittedByOrder().length).to.equal(0);
+          expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
+          expect(wrapper.emittedByOrder().length).toEqual(0);
           assertTextboxInvalid(wrapper);
         });
     });
@@ -133,16 +132,16 @@ describe('channelTokenModal component', () => {
       const { tokenTextbox, networkErrorAlert, lookupTokenStub } = getElements(wrapper);
       const textbox = tokenTextbox();
       const lookupStub = lookupTokenStub();
-      lookupStub.returns(Promise.reject(tokenPayload));
+      lookupStub.mockRejectedValue(tokenPayload);
       return inputToken(wrapper, 'toka-toka-token')
         .then(() => {
           return wrapper.vm.submitForm();
         })
         .then(() => {
-          sinon.assert.calledWith(lookupStub, 'toka-toka-token');
-          expect(wrapper.emittedByOrder().length).to.equal(0);
-          expect(textbox.props().invalid).to.be.false;
-          expect(networkErrorAlert().isVueInstance()).to.be.true;
+          expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
+          expect(wrapper.emittedByOrder().length).toEqual(0);
+          expect(textbox.props().invalid).toEqual(false);
+          expect(networkErrorAlert().isVueInstance()).toEqual(true);
         });
     });
   });

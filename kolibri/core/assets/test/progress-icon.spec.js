@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
 import UiTooltip from 'keen-ui/src/UiTooltip';
 import UiIcon from 'keen-ui/src/UiIcon';
@@ -8,9 +5,9 @@ import ProgressIcon from '../src/views/progress-icon';
 
 function testIcon(wrapper, expected) {
   const { iconType, text } = expected;
-  expect(wrapper.find(UiIcon).props().icon).to.equal(iconType);
+  expect(wrapper.find(UiIcon).props().icon).toEqual(iconType);
   // prettier-ignore
-  expect(wrapper.find(UiTooltip).text().trim()).to.equal(text);
+  expect(wrapper.find(UiTooltip).text().trim()).toEqual(text);
 }
 
 describe('ProgressIcon Component', () => {
@@ -22,9 +19,9 @@ describe('ProgressIcon Component', () => {
       },
     });
     const tooltip = wrapper.find(UiTooltip);
-    expect(wrapper.contains(UiIcon)).to.be.false;
+    expect(wrapper.contains(UiIcon)).toEqual(false);
     // Tooltip is still around, just nothing to trigger it.
-    expect(tooltip.text().trim()).to.equal('Completed');
+    expect(tooltip.text().trim()).toEqual('Completed');
   });
 
   it('it should show an in-progress icon when progress is between 0 and 1', () => {

@@ -1,7 +1,4 @@
-/* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
-import { expect } from 'chai';
 import { mount } from '@vue/test-utils';
 import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import { defaultChannel } from '../utils/data';
@@ -63,9 +60,9 @@ describe('channelListItem', () => {
     it('shows the channel title, version, and description', () => {
       function test(wrapper) {
         const { title, version, description } = getElements(wrapper);
-        expect(title()).to.equal('Channel Title');
-        expect(version()).to.equal('Version 10');
-        expect(description()).to.equal('An awesome channel');
+        expect(title()).toEqual('Channel Title');
+        expect(version()).toEqual('Version 10');
+        expect(description()).toEqual('An awesome channel');
       }
       testAll(test);
     });
@@ -75,8 +72,8 @@ describe('channelListItem', () => {
         wrapper.setProps({ channel: { ...defaultChannel, thumbnail: fakeImage } });
         const { thumbnail } = getElements(wrapper);
         const thumb = thumbnail();
-        expect(thumb.find('img').attributes().src).to.equal(fakeImage);
-        expect(thumb.contains('svg')).to.be.false;
+        expect(thumb.find('img').attributes().src).toEqual(fakeImage);
+        expect(thumb.contains('svg')).toEqual(false);
       }
       testAll(test);
     });
@@ -86,8 +83,10 @@ describe('channelListItem', () => {
         const { thumbnail } = getElements(wrapper);
         wrapper.setProps({ channel: { ...defaultChannel, thumbnail: '' } });
         const thumb = thumbnail();
-        expect(thumb.contains('svg')).to.be.true;
-        expect(thumb.contains('img')).to.be.false;
+        // We are not using the mat-svg webpack loader, so just check for the
+        // mat-svg tag here untransformed.
+        expect(thumb.contains('mat-svg')).toEqual(true);
+        expect(thumb.contains('img')).toEqual(false);
       }
       testAll(test);
     });
@@ -105,7 +104,7 @@ describe('channelListItem', () => {
     });
     importWrapper.vm.$forceUpdate();
     const { version } = getElements(importWrapper);
-    expect(version()).to.equal('Version 10');
+    expect(version()).toEqual('Version 10');
   });
 
   it('if the channel is not installed, the version number is of the remote channel', () => {
@@ -118,15 +117,15 @@ describe('channelListItem', () => {
     });
     importWrapper.vm.$forceUpdate();
     const { version } = getElements(importWrapper);
-    expect(version()).to.equal('Version 20');
+    expect(version()).toEqual('Version 20');
   });
 
   it('in MANAGE/EXPORT shows the on-device file sizes of Resources', () => {
     // ...and does not show the "On Device" indicator
     function test(wrapper) {
       const { resourcesSizeText, onDevice } = getElements(wrapper);
-      expect(resourcesSizeText()).to.equal('90 MB');
-      expect(onDevice().exists()).to.be.false;
+      expect(resourcesSizeText()).toEqual('90 MB');
+      expect(onDevice().exists()).toEqual(false);
     }
     test(manageWrapper);
     test(exportWrapper);
@@ -136,11 +135,11 @@ describe('channelListItem', () => {
     const wrapper = manageWrapper;
     const { dropdownMenu, selectButton } = getElements(wrapper);
     // Select button is not shown
-    expect(selectButton().exists()).to.be.false;
+    expect(selectButton().exists()).toEqual(false);
     return wrapper.vm.$nextTick().then(() => {
       // HACK trigger an event from dropdown menu options, since the actual button is hard to target
       dropdownMenu().vm.$emit('select', { value: 'DELETE_CHANNEL' });
-      expect(wrapper.emitted().clickdelete.length).to.equal(1);
+      expect(wrapper.emitted().clickdelete.length).toEqual(1);
     });
   });
 
@@ -150,7 +149,7 @@ describe('channelListItem', () => {
     addTaskMutation({ id: 'task_1' });
     return wrapper.vm.$nextTick().then(() => {
       // prettier-ignore
-      expect(dropdownMenu().props().disabled).to.be.true
+      expect(dropdownMenu().props().disabled).toEqual(true)
     });
   });
 
@@ -160,7 +159,7 @@ describe('channelListItem', () => {
       addTaskMutation({ id: 'task_1' });
       return wrapper.vm.$nextTick().then(() => {
         // prettier-ignore
-        expect(selectButton().attributes().disabled).to.equal('disabled');
+        expect(selectButton().attributes().disabled).toEqual('disabled');
       });
     }
     return Promise.all([test(importWrapper), test(exportWrapper)]);
@@ -170,13 +169,13 @@ describe('channelListItem', () => {
     function posTest(wrapper) {
       wrapper.setProps({ onDevice: true });
       const { onDevice, resourcesSize } = getElements(wrapper);
-      expect(onDevice().exists()).to.be.true;
-      expect(resourcesSize().exists()).to.be.false;
+      expect(onDevice().exists()).toEqual(true);
+      expect(resourcesSize().exists()).toEqual(false);
     }
     function negTest(wrapper) {
       wrapper.setProps({ onDevice: true });
       const { onDevice } = getElements(wrapper);
-      expect(onDevice().exists()).to.be.false;
+      expect(onDevice().exists()).toEqual(false);
     }
     posTest(importWrapper);
     negTest(exportWrapper);
@@ -187,7 +186,7 @@ describe('channelListItem', () => {
     const wrapper = importWrapper;
     wrapper.setProps({ onDevice: false });
     const { onDevice, resourcesSize } = getElements(wrapper);
-    expect(onDevice().exists()).to.be.false;
-    expect(resourcesSize().exists()).to.be.false;
+    expect(onDevice().exists()).toEqual(false);
+    expect(resourcesSize().exists()).toEqual(false);
   });
 });

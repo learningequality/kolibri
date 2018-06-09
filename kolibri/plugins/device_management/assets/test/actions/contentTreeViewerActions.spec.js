@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
 import sinon from 'sinon';
 import omit from 'lodash/fp/omit';
 import { mockResource } from 'testUtils'; // eslint-disable-line
@@ -25,11 +22,11 @@ describe('contentTreeViewer actions', () => {
 
   function assertIncludeEquals(expected) {
     // HACK add the hard-coded file sizes to the expected array
-    expect(nodesForTransfer(store.state).included).to.deep.equal(expected.map(addFileSizes));
+    expect(nodesForTransfer(store.state).included).toEqual(expected.map(addFileSizes));
   }
 
   function assertOmitEquals(expected) {
-    expect(nodesForTransfer(store.state).omitted).to.deep.equal(expected.map(addFileSizes));
+    expect(nodesForTransfer(store.state).omitted).toEqual(expected.map(addFileSizes));
   }
 
   function assertFilesResourcesEqual(
@@ -38,8 +35,8 @@ describe('contentTreeViewer actions', () => {
     transferType = 'remoteimport'
   ) {
     const { fileSize, resources } = nodeTransferCounts(store.state)(transferType);
-    expect(fileSize).to.equal(expectedFiles);
-    expect(resources).to.equal(expectedResources);
+    expect(fileSize).toEqual(expectedFiles);
+    expect(resources).toEqual(expectedResources);
   }
 
   function setIncludedNodes(nodes) {
@@ -50,7 +47,7 @@ describe('contentTreeViewer actions', () => {
     nodesForTransfer(store.state).omitted = nodes.map(addFileSizes);
   }
 
-  before(() => {
+  beforeEach(() => {
     ContentNodeGranularResource.getFileSizes = sinon.stub();
   });
 
@@ -385,7 +382,7 @@ describe('updateTreeViewTopic action', () => {
   });
 
   function assertPathEquals(expected) {
-    expect(wizardState(store.state).path).to.deep.equal(expected.map(omit('path')));
+    expect(wizardState(store.state).path).toEqual(expected.map(omit('path')));
   }
 
   it('moving forward by one topic', () => {

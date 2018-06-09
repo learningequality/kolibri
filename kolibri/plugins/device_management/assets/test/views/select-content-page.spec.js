@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
@@ -67,26 +64,26 @@ describe('selectContentPage', () => {
     const wrapper = makeWrapper({ store });
     const { thumbnail, version, title, description } = getElements(wrapper);
     // prettier-ignore
-    expect(thumbnail().find('img').attributes().src).to.equal(fakeImage);
-    expect(title()).to.equal('Awesome Channel');
-    expect(version()).to.equal('Version 10');
-    expect(description()).to.equal('An awesome channel');
+    expect(thumbnail().find('img').attributes().src).toEqual(fakeImage);
+    expect(title()).toEqual('Awesome Channel');
+    expect(version()).toEqual('Version 10');
+    expect(description()).toEqual('An awesome channel');
   });
 
   it('shows the total size of the channel', () => {
     const wrapper = makeWrapper({ store });
     const { totalSizeRows } = getElements(wrapper);
     const rows = totalSizeRows();
-    expect(rows.at(1).text()).to.equal('1,000');
-    expect(rows.at(2).text()).to.equal('4 GB');
+    expect(rows.at(1).text()).toEqual('1,000');
+    expect(rows.at(2).text()).toEqual('4 GB');
   });
 
   it('if resources are on the device, it shows the total size of those', () => {
     const wrapper = makeWrapper({ store });
     const { onDeviceRows } = getElements(wrapper);
     const rows = onDeviceRows();
-    expect(rows.at(1).text()).to.equal('2,000');
-    expect(rows.at(2).text()).to.equal('90 MB');
+    expect(rows.at(1).text()).toEqual('2,000');
+    expect(rows.at(2).text()).toEqual('90 MB');
   });
 
   it('if channel is not on device, it shows size and resources as 0', () => {
@@ -94,18 +91,18 @@ describe('selectContentPage', () => {
     const wrapper = makeWrapper({ store });
     const { onDeviceRows } = getElements(wrapper);
     const rows = onDeviceRows();
-    expect(rows.at(1).text()).to.equal('0');
-    expect(rows.at(2).text()).to.equal('0 B');
+    expect(rows.at(1).text()).toEqual('0');
+    expect(rows.at(2).text()).toEqual('0 B');
   });
 
   it('if a new version is available, a update notification and button appear', () => {
     updateMetaChannel(store, { version: 1000 });
     const wrapper = makeWrapper({ store });
     const { updateSection, notificationsSection, versionAvailable } = getElements(wrapper);
-    expect(updateSection().exists()).to.be.true;
-    expect(notificationsSection().is('section')).to.be.true;
+    expect(updateSection().exists()).toEqual(true);
+    expect(notificationsSection().is('section')).toEqual(true);
     // { useGrouping: false } intl option not working, but probably won't see such a large number
-    expect(versionAvailable()).to.equal('Version 1,000 available');
+    expect(versionAvailable()).toEqual('Version 1,000 available');
   });
 
   it('in LOCALIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
@@ -135,7 +132,7 @@ describe('selectContentPage', () => {
     updateMetaChannel(store, { version: 10 }); // same version
     const wrapper = makeWrapper({ store });
     const { updateSection, notificationsSection } = getElements(wrapper);
-    expect(notificationsSection().isEmpty()).to.be.true;
-    expect(updateSection().exists()).to.be.false;
+    expect(notificationsSection().isEmpty()).toEqual(true);
+    expect(updateSection().exists()).toEqual(false);
   });
 });

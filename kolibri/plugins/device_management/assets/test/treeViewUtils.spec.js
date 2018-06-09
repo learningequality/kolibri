@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
 import pick from 'lodash/pick';
 import { annotateNode } from '../src/views/select-content-page/treeViewUtils';
 import { makeNode } from './utils/data';
@@ -10,7 +7,7 @@ function simplePath(ids) {
 }
 
 function assertAnnotationsEqual(annotated, expected) {
-  expect(pick(annotated, ['message', 'disabled', 'checkboxType'])).to.deep.equal(expected);
+  expect(pick(annotated, ['message', 'disabled', 'checkboxType'])).toEqual(expected);
 }
 
 function makeNodeWithResources(id, total = 1, onDevice = 0) {

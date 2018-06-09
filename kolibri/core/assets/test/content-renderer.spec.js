@@ -1,6 +1,4 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
+import Vue from 'vue';
 import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
 import contentRenderer from '../src/views/content-renderer';
@@ -27,7 +25,7 @@ describe('contentRenderer Component', () => {
         const wrapper = mount(contentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
         });
-        expect(wrapper.vm.availableFiles.length).to.equal(expected);
+        expect(wrapper.vm.availableFiles.length).toEqual(expected);
       }
 
       it('should be 1 when there is one available file', () => {
@@ -66,7 +64,7 @@ describe('contentRenderer Component', () => {
         const wrapper = mount(contentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
         });
-        expect(wrapper.vm.defaultFile).to.equal(expected);
+        expect(wrapper.vm.defaultFile).toEqual(expected);
       }
 
       it('should be the file when there is one available file', () => {
@@ -83,7 +81,7 @@ describe('contentRenderer Component', () => {
         const wrapper = mount(contentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
         });
-        expect(wrapper.vm.extension).to.equal(expected);
+        expect(wrapper.vm.extension).toEqual(expected);
       }
 
       it("should be the file's extension when there is one available file", () => {
@@ -101,13 +99,13 @@ describe('contentRenderer Component', () => {
       describe('when content is available', () => {
         describe('when renderer is available', () => {
           const dummyComponent = { test: 'testing' };
-          before(() => {
+          beforeEach(() => {
             Vue.prototype.Kolibri = {
               retrieveContentRenderer: () => Promise.resolve(dummyComponent),
             };
           });
 
-          after(() => {
+          afterEach(() => {
             Vue.prototype.Kolibri = {};
           });
 
@@ -119,7 +117,7 @@ describe('contentRenderer Component', () => {
               propsData: props,
             });
             return Vue.nextTick().then(() => {
-              expect(wrapper.vm.currentViewClass).to.deep.equal(dummyComponent);
+              expect(wrapper.vm.currentViewClass).toEqual(dummyComponent);
             });
           });
 
@@ -138,13 +136,13 @@ describe('contentRenderer Component', () => {
         });
 
         describe('when no renderer is available', () => {
-          before(() => {
+          beforeEach(() => {
             Vue.prototype.Kolibri = {
               retrieveContentRenderer: () => Promise.reject({ message: 'oh no' }),
             };
           });
 
-          after(() => {
+          afterEach(() => {
             Vue.prototype.Kolibri = {};
           });
 
@@ -158,7 +156,7 @@ describe('contentRenderer Component', () => {
             // 'created' hook runs it once. Running it here again for testing.
             // TODO Look into how to do this without calling the method directly
             return wrapper.vm.updateRendererComponent().then(() => {
-              expect(wrapper.vm.noRendererAvailable).to.be.true;
+              expect(wrapper.vm.noRendererAvailable).toEqual(true);
             });
           });
         });
@@ -174,7 +172,7 @@ describe('contentRenderer Component', () => {
           });
           // 'created' hook runs it once. Running it here again for testing.
           return wrapper.vm.updateRendererComponent().then(component => {
-            expect(component).to.equal(null);
+            expect(component).toEqual(null);
           });
         });
       });
