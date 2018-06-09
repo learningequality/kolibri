@@ -265,8 +265,6 @@ def get_prerelease_version(version):
     """
 
     mapping = {'alpha': 'a', 'beta': 'b', 'rc': 'rc'}
-    if version[4] == 0 and version[3] == 'alpha':
-        mapping['alpha'] = '.dev'
 
     major = get_major_version(version)
     major_and_release = major + mapping[version[3]] + str(version[4])
@@ -366,6 +364,12 @@ def get_prerelease_version(version):
                 )
             )
         return version_file
+
+    # Finally, if there was no git data or VERSION file, map the alpha-0 to
+    # .dev
+    if version[4] == 0 and version[3] == 'alpha':
+        mapping['alpha'] = '.dev'
+        major_and_release = major + mapping[version[3]] + str(version[4])
 
     # In all circumstances, return the initial findings
     return major_and_release
