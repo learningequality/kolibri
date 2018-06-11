@@ -1,4 +1,4 @@
-Implementation Details
+Implementation details
 ======================
 
 Collections
@@ -52,7 +52,7 @@ method, which must be overridden in every subclass of
 ``AbstractFacilityDataModel`` to return the dataset to associate with that
 instance.
 
-Efficient Hierarchy Calculations
+Efficient hierarchy calculations
 --------------------------------
 
 In order to make decisions about whether a user has a certain permission for
@@ -213,7 +213,7 @@ the following overridable methods:
   queryset and returns a queryset filtered down to just objects that should be
   readable by the user.
 
-Associating Permissions with Models
+Associating permissions with models
 -----------------------------------
 
 A model is associated with a particular permissions class through a
@@ -229,7 +229,7 @@ referencing an instance of a Permissions class (a class that subclasses
 
         <remainder of model definition>
 
-Specifying Role-Based Permissions
+Specifying role-based permissions
 ---------------------------------
 
 Defining a custom Permissions class and overriding its methods allows for
@@ -266,7 +266,7 @@ permissions should only be available to an admin for the user::
 
         <remainder of model definition>
 
-Built-in Permissions Classes
+Built-in permissions classes
 ----------------------------
 
 Some common rules are encapsulated by the permissions classes in
@@ -287,7 +287,7 @@ from the same facility to read the model, but not to write to it, whereas
 ``IsFromSameFacility(read_only=False)`` or ``IsFromSameFacility()`` would
 allow both.
 
-Combining Permissions Classes
+Combining permissions classes
 -----------------------------
 
 In many cases, it may be necessary to combine multiple permission classes
@@ -302,7 +302,7 @@ still support the ``readable_by_user_filter`` method, returning a queryset
 that is either the union (for ``|``) or intersection (``&``) of the querysets
 that were returned by each of the permissions classes.
 
-Checking Permissions
+Checking permissions
 --------------------
 
 Checking whether a user has permission to perform a CRUD operation on an
@@ -335,7 +335,7 @@ superusers. For the ``FacilityUser`` model, they defer to the permissions
 encoded in the ``permission`` object on the model class.
 
 
-Using Kolibri Permissions with Django REST Framework
+Using Kolibri permissions with Django REST Framework
 ----------------------------------------------------
 
 There are two classes that make it simple to leverage the permissions system

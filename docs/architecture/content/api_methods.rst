@@ -1,4 +1,4 @@
-API Methods
+API methods
 -----------
 
 .. automodule:: kolibri.content.api

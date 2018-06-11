@@ -15,8 +15,8 @@ Components allow us to define new custom tags that encapsulate a piece of self-c
 Read through :doc:`/references/conventions` for some important consistency tips on writing new components.
 
 
-Layout of Frontend Code
------------------------
+Layout of front-end code
+------------------------
 
 Front-end code and assets are generally contained in one of two places: either in one of the plugin subdirectories (under *kolibri/plugins*) or in *kolibri/core*, which contains code shared across all plugins as described below.
 
@@ -99,7 +99,7 @@ On the Server-side, the ``kolibri_plugin.py`` file describes most of the configu
 On the client-side, the app creates a single ``KolibriModule`` object in the entry file (conventionally *app.js*) and registers this with the core app, a global variable called ``kolibriGlobal``. The Kolibri Module then mounts single root component to the HTML returned by the server, which recursively contains all additional components, html and logic.
 
 
-Defining a New Kolibri Module
+Defining a new Kolibri module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. note::
@@ -112,7 +112,7 @@ All apps should extend the ``KolibriModule`` class found in `kolibri/core/assets
 
 The ``ready`` method will be automatically executed once the Module is loaded and registered with the Kolibri Core App. By convention, JavaScript is injected into the served HTML *after* the ``<rootvue>`` tag, meaning that this tag should be available when the ``ready`` method is called, and the root component (conventionally in *vue/index.vue*) can be mounted here.
 
-Content Renderers
+Content renderers
 ~~~~~~~~~~~~~~~~~
 
 A special kind of Kolibri Module is dedicated to rendering particular content types. All content renderers should extend the ``ContentRendererModule`` class found in `kolibri/core/assets/src/content_renderer_module.js`. In addition, rather than subclassing the ``WebpackBundleHook`` class, content renderers should be defined in the Python code using the ``ContentRendererHook`` class defined in ``kolibri.content.hooks``. In addition to the standard options for the ``WebpackBundleHook``, the ``ContentRendererHook`` also accepts a json file defining the content types that it renders.
@@ -163,13 +163,13 @@ The answer renderer should also define a ``checkAnswer`` method in its component
     },
   };
 
-Shared Core Functionality
+Shared core functionality
 -------------------------
 
 
 Kolibri provides a set of shared "core" functionality – including components, styles, and helper logic, and libraries – which can be re-used across apps and plugins.
 
-JS Libraries
+JS libraries
 ~~~~~~~~~~~~
 
 The following libraries are available globally, in all module code:
@@ -224,7 +224,7 @@ For convenience (and to prevent accidental imports), 3rd party (NPM) modules ins
 
     const vue = require('vue');
 
-Bootstrapped Data
+Bootstrapped data
 ~~~~~~~~~~~~~~~~~
 
 The ``kolibriGlobal`` object is also used to bootstrap data into the JS app, rather than making unnecessary API requests.
@@ -241,7 +241,7 @@ For shared styles, two mechanisms are provided:
 * The *core-global.styl* file is always inserted into the ``<head>`` after normalize.css and provides some basic styling to global elements
 
 
-Additional Functionality
+Additional functionality
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 These methods are also publicly exposed methods of the core app:
@@ -254,7 +254,7 @@ These methods are also publicly exposed methods of the core app:
   kolibriGlobal.emit                            // Emit an event, with optional args.
 
 
-Unit Testing
+Unit testing
 ------------
 
 Unit testing is carried out using `Jest <https://facebook.github.io/jest/>`_. All JavaScript code should have unit tests for all object methods and functions.
@@ -280,7 +280,7 @@ Tests are written in JavaScript, and placed in the 'assets/test' folder. An exam
 Vue.js components can also be tested. The management plugin contains an example (*kolibri/plugins/management/assets/test/management.js*) where the component is bound to a temporary DOM node, changes are made to the state, and assertions are made about the new component structure.
 
 
-Adding Dependencies
+Adding dependencies
 -------------------
 
 Dependencies are tracked using ``yarn`` - `see the docs here <https://yarnpkg.com/en/docs/>`_.

@@ -2,7 +2,7 @@
 Manual testing & QA
 ===================
 
-Accessibility (A11y) Testing
+Accessibility (a11y) testing
 ----------------------------
 
 Inclusive design benefits all users, and we strive to make Kolibri accessible for all. Testing for accessibility can be challenging, but there are a few features you should check for before submitting your PR:
@@ -24,7 +24,7 @@ Here are a few tools that we use in testing for accessibility:
 There is a much longer list on our `Kolibri Accessibility Tools Wiki page <https://github.com/learningequality/kolibri/wiki/Accessibility-Resources-(Tools)>`_ if you want to go deeper, but these four should be enough to help you avoid the most important accessibility pitfalls.
 
 
-Cross-browser and OS Testing
+Cross-browser and OS testing
 ----------------------------
 
 It's vital to ensure that our app works across a wide range of browsers and operating systems, particularly older versions of Windows and Android that are common on old and cheap devices.
@@ -58,7 +58,7 @@ An alternative is to run the guest operating system inside a virtual machine usi
 There are some situations where actual hardware is necessary to test the application. This is particularly true when virtualization might prohibit or impede testing features, such as lower-level driver interactions.
 
 
-Responsiveness to Varying Screen Sizes
+Responsiveness to varying screen sizes
 --------------------------------------
 
 We want to ensure that the app looks and behaves reasonably across a wide range of typical screen sizes, from small tablets to large, HD monitors. It is highly recommended to constantly be testing functionality at a range of sizes.
@@ -66,8 +66,8 @@ We want to ensure that the app looks and behaves reasonably across a wide range 
 Chrome and Firefox's Developer Tools both have some excellent functionality to simulate arbitrary screen resolutions.
 
 
-Slow Network Connection Speeds
-------------------------------
+Slow network connections
+------------------------
 
 It's important to simulate end-users network conditions. This will help identify real-world performance issues that may not be apparent on local development machines.
 
@@ -78,7 +78,7 @@ Within the Chrome Dev Tools, navigate to the Network panel. Select a connection 
 For Kolibri, our target audience's network condition can be mimicked by setting connectivity to Regular 3G (100ms, 750kb/s, 250 kb/s).
 
 
-Performance Testing with Django Debug Panel
+Performance testing with Django Debug Panel
 -------------------------------------------
 
 We have built in support for Django Debug Panel (a Chrome extension that allows tracking of AJAX requests to Django).
@@ -90,7 +90,7 @@ To use this, ensure that you have development dependencies installed, and instal
 This will activate the debug panel, and will display in the Dev tools panel of Chrome. This panel will track all page loads and API requests. However, all data bootstrapping into the template will be disabled, as our data bootstrapping prevents the page load request from being profiled, and also does not profile the bootstrapped API requests.
 
 
-Generating User Data
+Generating user data
 --------------------
 
 For manual testing, it is sometimes helpful to have generated user data, particularly for Coach and Admin facing functionality.

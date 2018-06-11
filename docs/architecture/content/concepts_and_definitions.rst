@@ -11,7 +11,7 @@ File
 
 A Django model that is used to store details about the source file, such as what language it supports, how big is the size, which format the file is and where to find the source file.
 
-ContentDB Diagram
+ContentDB diagram
 -----------------
 .. image:: ./content_distributed_db.png
 .. Source: https://www.draw.io/#G0B5xDzmtBJIQlNlEybldiODJqUHM

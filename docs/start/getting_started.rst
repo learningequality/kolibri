@@ -23,7 +23,7 @@ Git & GitHub
 #. `Fork the main Kolibri repository <https://github.com/learningequality/kolibri>`_. This will make it easier to `submit pull requests <https://help.github.com/articles/using-pull-requests/>`_. Read more details `about forking <https://help.github.com/articles/fork-a-repo/>`_ from GitHub.
 
 
-Install Environment Dependencies
+Install environment dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. Install `Python <https://www.python.org/downloads/windows/>`_ if you are on Windows, on Linux and OSX Python is preinstalled (recommended versions 2.7+ or 3.4+).
@@ -107,7 +107,7 @@ To deactivate the virtualenv, run the command below. Note, you'll want to leave 
 
 
 
-Install Project Dependencies
+Install project dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. note::
@@ -135,11 +135,11 @@ To install Kolibri project-specific dependencies make sure you're in the ``kolib
   * In case you get webpack compilation error with Node modules build failures, add the flag ``--force`` at the end, to ensure binaries get installed.
 
 
-Running Kolibri server
-----------------------
+Running the Kolibri server
+--------------------------
 
-Development server
-~~~~~~~~~~~~~~~~~~
+Development
+~~~~~~~~~~~
 
 To start up the development server and build the client-side dependencies, use the following command:
 
@@ -184,8 +184,8 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
     (kolibri)$ npm rebuild node-sass
 
 
-Running the Production Server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Production
+~~~~~~~~~~
 
 In production, content is served through CherryPy. Static assets must be pre-built:
 
@@ -203,7 +203,7 @@ Additional Recommended Setup
 If you're planning on contributing code to the project, there are a few additional steps you should consider taking.
 
 
-Editor Config
+Editor config
 ~~~~~~~~~~~~~
 
 We have a project-level *.editorconfig* file to help you configure your text editor or IDE to use our internal conventions.
@@ -211,14 +211,14 @@ We have a project-level *.editorconfig* file to help you configure your text edi
 `Check your editor <http://editorconfig.org/#download>`_ to see if it supports EditorConfig out-of-the-box, or if a plugin is available.
 
 
-Front-end Dev Tools
+Front-end dev tools
 ~~~~~~~~~~~~~~~~~~~
 
 If you're working with front-end Vue.js and use Google Chrome Dev Tools, you may find the `Vue.js devtools <https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd?hl=en>`_ helpful
 
 
-DB Setup
-~~~~~~~~
+Database setup
+~~~~~~~~~~~~~~
 
 You can initialize the server using:
 
@@ -227,8 +227,8 @@ You can initialize the server using:
   kolibri manage migrate
 
 
-Pre-Commit Install
-~~~~~~~~~~~~~~~~~~
+Pre-Commit
+~~~~~~~~~~
 
 We use `pre-commit <http://pre-commit.com/>`_ to help ensure consistent, clean code. The pip package should already be installed from a prior setup step, but you need to install the git hooks using this command.
 
@@ -248,8 +248,8 @@ Linting
 Javascript linting is always run when you run the dev server. In addition, all frontend assets that are bundled will be linted by our Travis CI builds. It is a good idea, therefore, to monitor for linting errors in the webpack build process, while the build will complete in watch mode, it will issue warnings to the terminal.
 
 
-Code Testing
-~~~~~~~~~~~~
+Automated testing
+~~~~~~~~~~~~~~~~~
 
 First, install some additional dependencies related to running tests:
 
@@ -316,7 +316,7 @@ For more advanced usage, logical operators can also be used in wrapped strings, 
   pytest kolibri/auth/test/test_permissions -k "MembershipPermissionsTestCase and test_admin_can_delete_membership"
 
 
-Updating Documentation
+Updating documentation
 ~~~~~~~~~~~~~~~~~~~~~~
 
 First, install some additional dependencies related to building documentation output:
@@ -340,7 +340,7 @@ You can also run the auto-build for faster editing from the ``docs`` directory:
   sphinx-autobuild --port 8888 . _build
 
 
-Manual Testing
+Manual testing
 ~~~~~~~~~~~~~~
 
 All changes should be thoroughly tested and vetted before being merged in. Our primary considerations are:
@@ -354,7 +354,7 @@ All changes should be thoroughly tested and vetted before being merged in. Our p
 For more information, see the next section on :doc:`/references/manual_testing`.
 
 
-Submitting a Pull Request
+Submitting a pull request
 -------------------------
 
 The most common situation is working off of ``develop`` branch so we'll take it as an example:
