@@ -2,36 +2,23 @@
 
   <core-modal
     :title="$tr('newLearnerGroup')"
+    size="small"
+    :submitText="$tr('save')"
+    :cancelText="$tr('cancel')"
+    :submitDisabled="submitting"
+    @submit="callCreateGroup"
     @cancel="close"
   >
-    <div>
-      <form @submit.prevent="callCreateGroup">
-        <k-textbox
-          ref="name"
-          type="text"
-          :label="$tr('learnerGroupName')"
-          :autofocus="true"
-          :invalid="nameIsInvalid"
-          :invalidText="nameIsInvalidText"
-          @blur="nameBlurred = true"
-          v-model.trim="name"
-        />
-        <div class="core-modal-buttons">
-          <k-button
-            type="button"
-            :text="$tr('cancel')"
-            appearance="flat-button"
-            @click="close"
-          />
-          <k-button
-            type="submit"
-            :text="$tr('save')"
-            :primary="true"
-            :disabled="submitting"
-          />
-        </div>
-      </form>
-    </div>
+    <k-textbox
+      ref="name"
+      type="text"
+      :label="$tr('learnerGroupName')"
+      :autofocus="true"
+      :invalid="nameIsInvalid"
+      :invalidText="nameIsInvalidText"
+      @blur="nameBlurred = true"
+      v-model.trim="name"
+    />
   </core-modal>
 
 </template>
@@ -41,7 +28,6 @@
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import { displayModal, createGroup } from '../../state/actions/group';
 
   export default {
@@ -57,7 +43,6 @@
     components: {
       coreModal,
       kTextbox,
-      kButton,
     },
     props: {
       groups: {

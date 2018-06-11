@@ -2,6 +2,7 @@
 
   <core-modal
     :title="$tr('copies')"
+    :cancelText="$tr('close')"
     @cancel="closeModal"
   >
     <transition mode="out-in">
@@ -35,13 +36,6 @@
         </li>
       </ul>
     </transition>
-
-    <div class="ar">
-      <k-button
-        :text="$tr('close')"
-        @click="closeModal"
-      />
-    </div>
   </core-modal>
 
 </template>

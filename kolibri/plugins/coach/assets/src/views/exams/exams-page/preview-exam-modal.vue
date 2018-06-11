@@ -2,15 +2,10 @@
 
   <core-modal
     :title="$tr('preview')"
+    :cancelText="$tr('close')"
+    size="large"
     @cancel="close"
-    width="100%"
-    height="100%"
   >
-    <k-button
-      :text="$tr('close')"
-      :primary="false"
-      @click="close"
-    />
     <transition mode="out-in">
       <k-circular-loader
         v-if="loading"
@@ -228,7 +223,7 @@
 
   .exam-preview-container
     padding-top: 1em
-    max-height: calc(100vh - 160px)
+    max-height: calc(100vh - 215px)
 
   .question-selector, .exercise-container
     overflow-y: auto

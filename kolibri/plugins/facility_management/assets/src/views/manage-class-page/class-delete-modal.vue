@@ -2,28 +2,14 @@
 
   <core-modal
     :title="$tr('modalTitle')"
+    :submitText="$tr('delete')"
+    :cancelText="$tr('cancel')"
     :hasError="false"
+    @submit="classDelete"
     @cancel="close"
   >
-    <div>
-      <p>{{ $tr('confirmation', { classname: classname }) }}</p>
-      <p>{{ $tr('description') }}</p>
-
-      <div class="core-modal-buttons">
-        <k-button
-          :text="$tr('cancel')"
-          appearance="flat-button"
-          @click="close"
-        />
-
-        <k-button
-          :text="$tr('delete')"
-          :primary="true"
-          @click="classDelete"
-        />
-      </div>
-
-    </div>
+    <p>{{ $tr('confirmation', { classname: classname }) }}</p>
+    <p>{{ $tr('description') }}</p>
   </core-modal>
 
 </template>
@@ -31,7 +17,6 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import { deleteClass, displayModal } from '../../state/actions';
 
@@ -46,7 +31,6 @@
         "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
     },
     components: {
-      kButton,
       coreModal,
     },
     props: {

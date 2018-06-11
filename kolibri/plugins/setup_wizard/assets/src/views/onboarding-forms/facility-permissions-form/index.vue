@@ -5,11 +5,12 @@
     <!-- Cannot match spec with current core modal -->
     <!-- Should be its own component -->
     <core-modal
-      :title=" $tr('facilityPermissionsPresetDetailsHeader')"
-      @cancel="hideFacilityPermissionsDetails"
-      @enter="hideFacilityPermissionsDetails"
-      :enableBgClickCancel="true"
       v-if="permissionPresetDetailsModalShown"
+      :title=" $tr('facilityPermissionsPresetDetailsHeader')"
+      :enableBgClickCancel="true"
+      :submitText="$tr('permissionsModalDismissText')"
+      @cancel="hideFacilityPermissionsDetails"
+      @submit="hideFacilityPermissionsDetails"
     >
 
       <dl class="permission-preset-human">
@@ -50,16 +51,6 @@
           {{ $tr('enabledAccountEditPermissionDetail') }}
         </dd>
       </dl>
-
-      <div class="core-modal-buttons">
-        <k-button
-          class="permission-preset-modal-dismiss-button"
-          :text="$tr('permissionsModalDismissText')"
-          :primary="true"
-          @click="hideFacilityPermissionsDetails"
-        />
-      </div>
-
     </core-modal>
 
     <onboarding-form

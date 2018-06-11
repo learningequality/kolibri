@@ -2,47 +2,32 @@
 
   <core-modal
     :title="$tr('passwordChangeFormHeader')"
+    size="small"
+    :submitText="$tr('updateButtonLabel')"
+    :cancelText="$tr('cancelButtonLabel')"
+    :submitDisabled="isBusy"
+    @submit="submitForm"
     @cancel="closeModal"
   >
-    <form @submit.prevent="submitForm">
-
-      <k-textbox
-        ref="newPassword"
-        type="new-password"
-        :label="$tr('newPasswordFieldLabel')"
-        :invalid="newPasswordIsInvalid"
-        :invalidText="newPasswordInvalidErrorText"
-        :autofocus="true"
-        @blur="newPasswordBlurred = true"
-        v-model="newPassword"
-      />
-      <k-textbox
-        ref="confirmedNewPassword"
-        type="new-password"
-        :label="$tr('confirmNewPasswordFieldLabel')"
-        :invalid="confirmedNewPasswordIsInvalid"
-        :invalidText="confirmedNewPasswordInvalidErrorText"
-        @blur="confirmedNewPasswordBlurred = true"
-        v-model="confirmedNewPassword"
-      />
-
-      <div class="core-modal-buttons">
-        <k-button
-          :text="$tr('cancelButtonLabel')"
-          :primary="false"
-          appearance="flat-button"
-          @click="closeModal"
-        />
-        <k-button
-          type="submit"
-          :text="$tr('updateButtonLabel')"
-          :primary="true"
-          appearance="raised-button"
-          :disabled="isBusy"
-        />
-      </div>
-
-    </form>
+    <k-textbox
+      ref="newPassword"
+      type="new-password"
+      :label="$tr('newPasswordFieldLabel')"
+      :invalid="newPasswordIsInvalid"
+      :invalidText="newPasswordInvalidErrorText"
+      :autofocus="true"
+      @blur="newPasswordBlurred = true"
+      v-model="newPassword"
+    />
+    <k-textbox
+      ref="confirmedNewPassword"
+      type="new-password"
+      :label="$tr('confirmNewPasswordFieldLabel')"
+      :invalid="confirmedNewPasswordIsInvalid"
+      :invalidText="confirmedNewPasswordInvalidErrorText"
+      @blur="confirmedNewPasswordBlurred = true"
+      v-model="confirmedNewPassword"
+    />
   </core-modal>
 
 </template>
@@ -52,7 +37,6 @@
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import { updateUserProfilePassword } from '../../state/actions';
 
   export default {
@@ -60,7 +44,6 @@
     components: {
       coreModal,
       kTextbox,
-      kButton,
     },
     data() {
       return {

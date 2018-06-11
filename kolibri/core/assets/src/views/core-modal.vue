@@ -10,27 +10,50 @@
       ref="modal-overlay"
       id="modal-window"
     >
-
       <div
         class="modal"
         ref="modal"
         :tabindex="0"
         role="dialog"
         aria-labelledby="modal-title"
-        :class="{ mobile: windowSize.breakpoint <= 1 }"
-        :style="{ width: width, height: height }"
+        :class="size"
+        :style="modalMaxSize"
       >
 
         <!-- Modal Title -->
-        <h1 v-show="!invisibleTitle" class="title" id="modal-title">
+        <h1 v-show="!invisibleTitle" class="title" id="modal-title" ref="header">
           <!-- Accessible error reporting per @radina -->
           <span v-if="hasError" class="visuallyhidden">{{ $tr('errorAlert') }}</span>
           {{ title }}
         </h1>
 
-        <!-- Modal Content -->
-        <slot></slot>
+        <form @submit.prevent="emitEnterEvent">
+          <!-- Modal Content -->
+          <div
+            class="content"
+            ref="content"
+            :style="contentSectionMaxHeight"
+          >
+            <slot></slot>
+          </div>
 
+          <div class="core-modal-buttons" ref="footer">
+            <k-button
+              v-if="cancelText"
+              :text="cancelText"
+              :raised="false"
+              :disabled="cancelDisabled"
+              @click="emitCancelEvent"
+            />
+            <k-button
+              v-if="submitText"
+              :text="submitText"
+              :primary="true"
+              :disabled="submitDisabled"
+              type="submit"
+            />
+          </div>
+        </form>
       </div>
     </div>
   </transition>
@@ -41,9 +64,14 @@
 <script>
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import debounce from 'lodash/debounce';
+  import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
     name: 'coreModal',
+    components: {
+      kButton,
+    },
     mixins: [responsiveWindow],
     $trs: {
       // error alerts
@@ -56,15 +84,35 @@
         type: String,
         required: true,
       },
+      submitText: {
+        type: String,
+        required: false,
+      },
+      cancelText: {
+        type: String,
+        required: false,
+      },
+      submitDisabled: {
+        type: Boolean,
+        default: false,
+      },
+      cancelDisabled: {
+        type: Boolean,
+        default: false,
+      },
+      size: {
+        type: String,
+        required: false,
+        default: 'medium',
+        validator(val) {
+          return ['small', 'medium', 'large'].includes(val);
+        },
+      },
       invisibleTitle: {
         type: Boolean,
         default: false,
       },
       // Modal options
-      disableclose: {
-        type: Boolean,
-        default: false,
-      },
       enableBgClickCancel: {
         type: Boolean,
         default: true,
@@ -74,21 +122,23 @@
         type: Boolean,
         default: false,
       },
-      // Specifies a custom width for the modal
-      width: {
-        type: String,
-        required: false,
-      },
-      // Specifies a custom height for the modal
-      height: {
-        type: String,
-        required: false,
-      },
     },
     data() {
       return {
         lastFocus: null,
+        maxContentHeight: '1000',
       };
+    },
+    computed: {
+      modalMaxSize() {
+        return {
+          'max-width': `${this.windowSize.width - 32}px`,
+          'max-height': `${this.windowSize.height - 32}px`,
+        };
+      },
+      contentSectionMaxHeight() {
+        return { 'max-height': `${this.maxContentHeight}px` };
+      },
     },
     beforeMount() {
       this.lastFocus = document.activeElement;
@@ -102,6 +152,9 @@
       window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);
     },
+    updated() {
+      this.setContentSectionMaxHeight();
+    },
     destroyed() {
       window.removeEventListener('focus', this.focusElementTest, true);
       window.removeEventListener('scroll', this.preventScroll, true);
@@ -110,15 +163,21 @@
       window.setTimeout(() => this.lastFocus.focus());
     },
     methods: {
+      setContentSectionMaxHeight: debounce(function() {
+        if (this.$refs.header && this.$refs.footer) {
+          this.maxContentHeight =
+            this.windowSize.height -
+            this.$refs.header.clientHeight -
+            this.$refs.footer.clientHeight -
+            32;
+        }
+      }, 100),
       emitCancelEvent() {
         this.$emit('cancel');
       },
-      emitEnterEvent() {
-        this.$emit('enter');
-      },
-      emitBackEvent() {
-        this.$emit('back');
-      },
+      emitEnterEvent: debounce(function() {
+        this.$emit('submit');
+      }, 50),
       focusModal() {
         this.$refs.modal.focus();
       },
@@ -166,28 +225,20 @@
     background-attachment: fixed
     z-index: 24
 
+  // TODO: margins for stacked buttons.
   .modal
     position: absolute
     top: 50%
     left: 50%
     transform: translate(-50%, -50%)
-    background: #fff
-    max-width: 90%
-    max-height: 90%
+    background: $core-bg-light
     overflow-y: auto
     border-radius: $radius
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     margin: 0 auto
-    padding: 15px 30px
 
     &:focus
       outline: none
-
-  .modal.mobile
-    width: 85%
-
-  .btn-close
-    right: -10px
 
   .fade-enter-active, .fade-leave-active
     transition: all 0.3s ease
@@ -195,10 +246,30 @@
   .fade-enter, .fade-leave-active
     opacity: 0
 
-  >>>.core-modal-buttons
-    text-align: right
+  .title
+    margin: 0
+    padding: 24px
 
-  >>>.core-modal-buttons button:last-of-type
-    margin-right: 0
+  .content
+    padding: 0 24px
+    overflow-y: auto
+
+  .core-modal-buttons
+    text-align: right
+    padding: 24px
+    button
+      margin: 0
+
+  .core-modal-buttons button:last-of-type
+    margin-left: 16px
+
+  .small
+    width: 300px
+
+  .medium
+    width: 450px
+
+  .large
+    width: 100%
 
 </style>

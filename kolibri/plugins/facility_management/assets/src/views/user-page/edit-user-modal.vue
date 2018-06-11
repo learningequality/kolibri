@@ -2,79 +2,63 @@
 
   <core-modal
     :title="$tr('editUser')"
+    :submitText="$tr('save')"
+    :cancelText="$tr('cancel')"
+    :submitDisabled="isBusy"
+    @submit="submitForm"
     @cancel="displayModal(false)"
-    width="400px"
   >
-    <form @submit.prevent="submitForm">
+    <ui-alert
+      v-if="error"
+      type="error"
+      :dismissible="false"
+    >
+      {{ error }}
+    </ui-alert>
 
-      <ui-alert
-        v-if="error"
-        type="error"
-        :dismissible="false"
-      >
-        {{ error }}
-      </ui-alert>
+    <k-textbox
+      ref="name"
+      type="text"
+      :label="$tr('fullName')"
+      :autofocus="true"
+      :maxlength="120"
+      :invalid="nameIsInvalid"
+      :invalidText="nameIsInvalidText"
+      @blur="nameBlurred = true"
+      v-model="newName"
+    />
 
-      <k-textbox
-        ref="name"
-        type="text"
-        :label="$tr('fullName')"
-        :autofocus="true"
-        :maxlength="120"
-        :invalid="nameIsInvalid"
-        :invalidText="nameIsInvalidText"
-        @blur="nameBlurred = true"
-        v-model="newName"
+    <k-textbox
+      ref="username"
+      type="text"
+      :label="$tr('username')"
+      :maxlength="30"
+      :invalid="usernameIsInvalid"
+      :invalidText="usernameIsInvalidText"
+      @blur="usernameBlurred = true"
+      v-model="newUsername"
+    />
+
+    <k-select
+      :label="$tr('userType')"
+      :options="userKinds"
+      v-model="newKind"
+    />
+
+    <fieldset class="coach-selector" v-if="coachIsSelected">
+      <k-radio-button
+        :label="$tr('classCoachLabel')"
+        :description="$tr('classCoachDescription')"
+        :value="true"
+        v-model="classCoachIsSelected"
       />
-
-      <k-textbox
-        ref="username"
-        type="text"
-        :label="$tr('username')"
-        :maxlength="30"
-        :invalid="usernameIsInvalid"
-        :invalidText="usernameIsInvalidText"
-        @blur="usernameBlurred = true"
-        v-model="newUsername"
+      <k-radio-button
+        :label="$tr('facilityCoachLabel')"
+        :description="$tr('facilityCoachDescription')"
+        :value="false"
+        v-model="classCoachIsSelected"
       />
-
-      <k-select
-        :label="$tr('userType')"
-        :options="userKinds"
-        v-model="newKind"
-      />
-
-      <fieldset class="coach-selector" v-if="coachIsSelected">
-        <k-radio-button
-          :label="$tr('classCoachLabel')"
-          :description="$tr('classCoachDescription')"
-          :value="true"
-          v-model="classCoachIsSelected"
-        />
-        <k-radio-button
-          :label="$tr('facilityCoachLabel')"
-          :description="$tr('facilityCoachDescription')"
-          :value="false"
-          v-model="classCoachIsSelected"
-        />
-      </fieldset>
-
-      <div class="core-modal-buttons">
-        <k-button
-          :text="$tr('cancel')"
-          :primary="false"
-          appearance="flat-button"
-          @click="displayModal(false)"
-        />
-        <k-button
-          type="submit"
-          :text="$tr('save')"
-          :primary="true"
-          appearance="raised-button"
-          :disabled="isBusy"
-        />
-      </div>
-    </form>
+    </fieldset>
   </core-modal>
 
 </template>
@@ -87,7 +71,6 @@
   import { validateUsername } from 'kolibri.utils.validators';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
@@ -114,7 +97,6 @@
       facilityCoachDescription: 'Can instruct all classes in your facility',
     },
     components: {
-      kButton,
       coreModal,
       kTextbox,
       kSelect,

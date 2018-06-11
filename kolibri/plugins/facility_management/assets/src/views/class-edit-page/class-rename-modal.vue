@@ -2,37 +2,23 @@
 
   <core-modal
     :title="$tr('modalTitle')"
+    size="small"
+    :submitText="$tr('update')"
+    :cancelText="$tr('cancel')"
+    :submitDisabled="submitting"
+    @submit="updateName"
     @cancel="close"
   >
-    <div>
-      <form @submit.prevent="updateName">
-        <k-textbox
-          ref="name"
-          type="text"
-          :label="$tr('classname')"
-          :autofocus="true"
-          :invalid="nameIsInvalid"
-          :invalidText="nameIsInvalidText"
-          @blur="nameBlurred = true"
-          v-model.trim="name"
-        />
-
-        <div class="core-modal-buttons">
-          <k-button
-            type="button"
-            appearance="flat-button"
-            :text="$tr('cancel')"
-            @click="close"
-          />
-          <k-button
-            type="submit"
-            :text="$tr('update')"
-            :primary="true"
-            :disabled="submitting"
-          />
-        </div>
-      </form>
-    </div>
+    <k-textbox
+      ref="name"
+      type="text"
+      :label="$tr('classname')"
+      :autofocus="true"
+      :invalid="nameIsInvalid"
+      :invalidText="nameIsInvalidText"
+      @blur="nameBlurred = true"
+      v-model.trim="name"
+    />
   </core-modal>
 
 </template>
@@ -40,7 +26,6 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { updateClass, displayModal } from '../../state/actions';
@@ -56,7 +41,6 @@
       required: 'This field is required',
     },
     components: {
-      kButton,
       coreModal,
       kTextbox,
     },

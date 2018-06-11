@@ -2,35 +2,22 @@
 
   <core-modal
     :title="modalTitle"
-    @cancel="closeModal()"
+    :submitText="$tr('save')"
+    :cancelText="$tr('cancel')"
+    @submit="changeStatus"
+    @cancel="closeModal"
   >
-    <form @submit.prevent="changeStatus">
-      <p>{{ modalDescription }}</p>
-      <k-radio-button
-        :label="$tr('activeOption')"
-        :value="true"
-        v-model="activeIsSelected"
-      />
-      <k-radio-button
-        :label="$tr('inactiveOption')"
-        :value="false"
-        v-model="activeIsSelected"
-      />
-
-      <div class="core-modal-buttons">
-        <k-button
-          name="cancel"
-          :text="$tr('cancel')"
-          appearance="flat-button"
-          @click="closeModal()"
-        />
-        <k-button
-          type="submit"
-          :text="$tr('save')"
-          :primary="true"
-        />
-      </div>
-    </form>
+    <p>{{ modalDescription }}</p>
+    <k-radio-button
+      :label="$tr('activeOption')"
+      :value="true"
+      v-model="activeIsSelected"
+    />
+    <k-radio-button
+      :label="$tr('inactiveOption')"
+      :value="false"
+      v-model="activeIsSelected"
+    />
   </core-modal>
 
 </template>
@@ -40,13 +27,11 @@
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
     name: 'assignmentChangeStatusModal',
     components: {
       coreModal,
-      kButton,
       kRadioButton,
     },
     props: {

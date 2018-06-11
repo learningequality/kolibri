@@ -2,38 +2,23 @@
 
   <core-modal
     :title="$tr('addNewClassTitle')"
+    size="small"
+    :submitText="$tr('create')"
+    :cancelText="$tr('cancel')"
+    :submitDisabled="submitting"
     @cancel="close"
+    @submit="createNewClass"
   >
-    <div>
-      <form @submit.prevent="createNewClass">
-        <k-textbox
-          ref="name"
-          type="text"
-          :label="$tr('classname')"
-          :autofocus="true"
-          :invalid="nameIsInvalid"
-          :invalidText="nameIsInvalidText"
-          @blur="nameBlurred = true"
-          v-model.trim="name"
-        />
-
-        <div class="core-modal-buttons">
-          <k-button
-            type="button"
-            :text="$tr('cancel')"
-            appearance="flat-button"
-            @click="close"
-          />
-
-          <k-button
-            type="submit"
-            :text="$tr('create')"
-            :primary="true"
-            :disabled="submitting"
-          />
-        </div>
-      </form>
-    </div>
+    <k-textbox
+      ref="name"
+      type="text"
+      :label="$tr('classname')"
+      :autofocus="true"
+      :invalid="nameIsInvalid"
+      :invalidText="nameIsInvalidText"
+      @blur="nameBlurred = true"
+      v-model.trim="name"
+    />
   </core-modal>
 
 </template>
@@ -41,7 +26,6 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { createClass, displayModal } from '../../state/actions';
@@ -57,7 +41,6 @@
       required: 'This field is required',
     },
     components: {
-      kButton,
       coreModal,
       kTextbox,
     },

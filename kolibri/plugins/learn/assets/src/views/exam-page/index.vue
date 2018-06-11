@@ -69,24 +69,15 @@
       <core-modal
         v-if="submitModalOpen"
         :title="$tr('submitExam')"
+        :submitText="$tr('submitExam')"
+        :cancelText="$tr('goBack')"
+        @submit="finishExam"
         @cancel="toggleModal"
       >
         <p>{{ $tr('areYouSure') }}</p>
         <p v-if="questionsUnanswered">
           {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
         </p>
-        <div class="core-modal-buttons">
-          <k-button
-            :text="$tr('goBack')"
-            appearance="flat-button"
-            @click="toggleModal"
-          />
-          <k-button
-            :text="$tr('submitExam')"
-            @click="finishExam"
-            :primary="true"
-          />
-        </div>
       </core-modal>
     </template>
   </immersive-full-screen>

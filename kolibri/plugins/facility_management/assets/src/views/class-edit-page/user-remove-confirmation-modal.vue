@@ -3,24 +3,13 @@
   <core-modal
     :title="$tr('modalTitle')"
     :hasError="false"
-    @enter="confirmRemoval"
+    :submitText="$tr('remove')"
+    :cancelText="$tr('cancel')"
+    @submit="confirmRemoval"
     @cancel="close"
   >
     <p>{{ $tr('confirmation', { username: username, classname: classname }) }}</p>
     <p>{{ $tr('description') }}</p>
-
-    <div class="core-modal-buttons">
-      <k-button
-        :text="$tr('cancel')"
-        appearance="flat-button"
-        @click="close"
-      />
-      <k-button
-        :text="$tr('remove')"
-        :primary="true"
-        @click="confirmRemoval"
-      />
-    </div>
   </core-modal>
 
 </template>
@@ -28,7 +17,6 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import { displayModal } from '../../state/actions';
 
@@ -42,7 +30,6 @@
       description: "You can still access this account from the 'Users' tab.",
     },
     components: {
-      kButton,
       coreModal,
     },
     props: {

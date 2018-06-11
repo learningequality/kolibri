@@ -1,6 +1,15 @@
 <template>
 
-  <div>
+  <core-modal
+    :title="title"
+    :enableBgClickCancel="false"
+    size="small"
+    :submitText="$tr('continue')"
+    :cancelText="$tr('cancel')"
+    :submitDisabled="selectedDriveId===''"
+    @submit="goForward"
+    @cancel="resetContentWizardState"
+  >
     <ui-alert
       v-if="driveStatus==='ERROR'"
       type="error"
@@ -26,31 +35,20 @@
         :mode="driveListMode"
       />
     </transition>
-
-    <div class="core-modal-buttons">
-      <k-button
-        :text="$tr('cancel')"
-        @click="$emit('cancel')"
-        appearance="flat-button"
-      />
-      <k-button
-        :text="$tr('continue')"
-        @click="goForward"
-        :disabled="selectedDriveId===''"
-        :primary="true"
-      />
-    </div>
-  </div>
+  </core-modal>
 
 </template>
 
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
   import UiAlert from 'keen-ui/src/UiAlert';
+  import coreModal from 'kolibri.coreVue.components.coreModal';
   import { refreshDriveList } from '../../../state/actions/taskActions';
-  import { goForwardFromSelectDriveModal } from '../../../state/actions/contentWizardActions';
+  import {
+    goForwardFromSelectDriveModal,
+    resetContentWizardState,
+  } from '../../../state/actions/contentWizardActions';
   import { wizardState, driveCanBeUsedForTransfer, isImportingMore } from '../../../state/getters';
   import { TransferTypes } from '../../../constants';
   import driveList from './drive-list';
@@ -59,8 +57,8 @@
     name: 'selectDriveModal',
     components: {
       driveList,
-      kButton,
       UiAlert,
+      coreModal,
     },
     data() {
       return {
@@ -121,6 +119,7 @@
       actions: {
         goForwardFromSelectDriveModal,
         refreshDriveList,
+        resetContentWizardState,
       },
     },
     $trs: {

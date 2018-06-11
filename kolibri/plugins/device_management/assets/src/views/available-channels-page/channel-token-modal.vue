@@ -1,43 +1,33 @@
 <template>
 
-  <core-modal :title="$tr('enterChannelToken')">
+  <core-modal
+    :title="$tr('enterChannelToken')"
+    :submitText="$tr('confirm')"
+    :cancelText="$tr('cancel')"
+    :submitDisabled="formIsDisabled"
+    :cancelDisabled="formIsDisabled"
+    @submit="submitForm"
+    @cancel="$emit('closemodal')"
+  >
     <p>{{ $tr('tokenExplanation') }}</p>
 
-    <form @submit.prevent="submitForm">
-      <ui-alert
-        v-if="tokenNetworkError"
-        :dismissible="false"
-        type="error"
-      >
-        {{ $tr('networkErrorMessage') }}
-      </ui-alert>
+    <ui-alert
+      v-if="tokenNetworkError"
+      :dismissible="false"
+      type="error"
+    >
+      {{ $tr('networkErrorMessage') }}
+    </ui-alert>
 
-      <k-textbox
-        :label="$tr('channelTokenLabel')"
-        v-model.trim="token"
-        :invalid="!tokenIsValid"
-        :invalidText="$tr('invalidTokenMessage')"
-        autofocus
-        @blur="tokenIsBlurred=true"
-        :disabled="formIsDisabled"
-      />
-
-      <div class="core-modal-buttons">
-        <k-button
-          :text="$tr('cancel')"
-          name="cancel"
-          appearance="flat-button"
-          @click="$emit('closemodal')"
-          :disabled="formIsDisabled"
-        />
-        <k-button
-          type="submit"
-          :text="$tr('confirm')"
-          :primary="true"
-          :disabled="formIsDisabled"
-        />
-      </div>
-    </form>
+    <k-textbox
+      :label="$tr('channelTokenLabel')"
+      v-model.trim="token"
+      :invalid="!tokenIsValid"
+      :invalidText="$tr('invalidTokenMessage')"
+      autofocus
+      @blur="tokenIsBlurred=true"
+      :disabled="formIsDisabled"
+    />
   </core-modal>
 
 </template>
@@ -47,7 +37,6 @@
 
   import UiAlert from 'keen-ui/src/UiAlert';
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { getRemoteChannelByToken } from '../../state/actions/availableChannelsActions';
 
@@ -56,7 +45,6 @@
     components: {
       UiAlert,
       coreModal,
-      kButton,
       kTextbox,
     },
     data() {

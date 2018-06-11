@@ -2,93 +2,78 @@
 
   <core-modal
     :title="$tr('addNewAccountTitle')"
+    :submitText="$tr('createAccount')"
+    :cancelText="$tr('cancel')"
+    :submitDisabled="submitting"
+    @submit="createNewUser"
     @cancel="close"
-    width="400px"
   >
     <ui-alert type="error" v-if="errorMessage" @dismiss="errorMessage = ''">
       {{ errorMessage }}
     </ui-alert>
 
-    <form @submit.prevent="createNewUser">
-      <section>
-        <k-textbox
-          ref="name"
-          type="text"
-          :label="$tr('name')"
-          :autofocus="true"
-          :maxlength="120"
-          :invalid="nameIsInvalid"
-          :invalidText="nameIsInvalidText"
-          @blur="nameBlurred = true"
-          v-model.trim="fullName"
-        />
-        <k-textbox
-          ref="username"
-          type="text"
-          :label="$tr('username')"
-          :maxlength="30"
-          :invalid="usernameIsInvalid"
-          :invalidText="usernameIsInvalidText"
-          @blur="usernameBlurred = true"
-          v-model="username"
-        />
-        <k-textbox
-          ref="password"
-          type="password"
-          :label="$tr('password')"
-          :invalid="passwordIsInvalid"
-          :invalidText="passwordIsInvalidText"
-          @blur="passwordBlurred = true"
-          v-model="password"
-        />
-        <k-textbox
-          ref="confirmedPassword"
-          type="password"
-          :label="$tr('reEnterPassword')"
-          :invalid="confirmedPasswordIsInvalid"
-          :invalidText="confirmedPasswordIsInvalidText"
-          @blur="confirmedPasswordBlurred = true"
-          v-model="confirmedPassword"
-        />
+    <section>
+      <k-textbox
+        ref="name"
+        type="text"
+        :label="$tr('name')"
+        :autofocus="true"
+        :maxlength="120"
+        :invalid="nameIsInvalid"
+        :invalidText="nameIsInvalidText"
+        @blur="nameBlurred = true"
+        v-model.trim="fullName"
+      />
+      <k-textbox
+        ref="username"
+        type="text"
+        :label="$tr('username')"
+        :maxlength="30"
+        :invalid="usernameIsInvalid"
+        :invalidText="usernameIsInvalidText"
+        @blur="usernameBlurred = true"
+        v-model="username"
+      />
+      <k-textbox
+        ref="password"
+        type="password"
+        :label="$tr('password')"
+        :invalid="passwordIsInvalid"
+        :invalidText="passwordIsInvalidText"
+        @blur="passwordBlurred = true"
+        v-model="password"
+      />
+      <k-textbox
+        ref="confirmedPassword"
+        type="password"
+        :label="$tr('reEnterPassword')"
+        :invalid="confirmedPasswordIsInvalid"
+        :invalidText="confirmedPasswordIsInvalidText"
+        @blur="confirmedPasswordBlurred = true"
+        v-model="confirmedPassword"
+      />
 
-        <k-select
-          :label="$tr('userType')"
-          :options="userKindDropdownOptions"
-          v-model="kind"
-        />
+      <k-select
+        :label="$tr('userType')"
+        :options="userKindDropdownOptions"
+        v-model="kind"
+      />
 
-        <fieldset class="coach-selector" v-if="coachIsSelected">
-          <k-radio-button
-            :label="$tr('classCoachLabel')"
-            :description="$tr('classCoachDescription')"
-            :value="true"
-            v-model="classCoach"
-          />
-          <k-radio-button
-            :label="$tr('facilityCoachLabel')"
-            :description="$tr('facilityCoachDescription')"
-            :value="false"
-            v-model="classCoach"
-          />
-        </fieldset>
-      </section>
-
-      <!-- Button Options at footer of modal -->
-      <div class="core-modal-buttons">
-        <k-button
-          :text="$tr('cancel')"
-          :primary="false"
-          appearance="flat-button"
-          @click="close"
+      <fieldset class="coach-selector" v-if="coachIsSelected">
+        <k-radio-button
+          :label="$tr('classCoachLabel')"
+          :description="$tr('classCoachDescription')"
+          :value="true"
+          v-model="classCoach"
         />
-        <k-button
-          :text="$tr('createAccount')"
-          :primary="true"
-          type="submit"
-          :disabled="submitting"
+        <k-radio-button
+          :label="$tr('facilityCoachLabel')"
+          :description="$tr('facilityCoachDescription')"
+          :value="false"
+          v-model="classCoach"
         />
-      </div>
-    </form>
+      </fieldset>
+    </section>
   </core-modal>
 
 </template>
@@ -99,7 +84,6 @@
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -134,7 +118,6 @@
       required: 'This field is required',
     },
     components: {
-      kButton,
       kRadioButton,
       coreModal,
       kTextbox,

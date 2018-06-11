@@ -3,7 +3,8 @@
   <core-modal
     :title="$tr('welcomeModalHeader')"
     :enableBgClickCancel="false"
-    @enter="emitCloseModal"
+    :submitText="$tr('welcomeButtonDismissText')"
+    @submit="emitCloseModal"
     @cancel="emitCloseModal"
   >
     <p class="welcome-modal-description">
@@ -13,15 +14,6 @@
     <p class="welcome-modal-description">
       {{ $tr('welcomeModalPermissionsDescription') }}
     </p>
-
-    <div class="core-modal-buttons">
-      <k-button
-        :text="$tr('welcomeButtonDismissText')"
-        :primary="true"
-        @click="emitCloseModal"
-      />
-    </div>
-
   </core-modal>
 
 </template>

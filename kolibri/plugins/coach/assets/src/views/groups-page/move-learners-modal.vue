@@ -2,7 +2,11 @@
 
   <core-modal
     :title="$tr('moveLearners')"
+    :cancelText="$tr('cancel')"
+    :submitText="$tr('move')"
+    :submitDisabled="!groupSelected"
     @cancel="close"
+    @submit="moveUsers"
   >
     <p>{{ $tr('moveLearnerCount', {count: usersToMove.length }) }}</p>
     <k-radio-button
@@ -21,20 +25,6 @@
         v-model="groupSelected"
       />
     </div>
-
-    <div class="core-modal-buttons button-section">
-      <k-button
-        :text="$tr('cancel')"
-        appearance="flat-button"
-        @click="close"
-      />
-      <k-button
-        :text="$tr('move')"
-        :primary="true"
-        :disabled="!groupSelected"
-        @click="moveUsers"
-      />
-    </div>
   </core-modal>
 
 </template>
@@ -43,7 +33,6 @@
 <script>
 
   import coreModal from 'kolibri.coreVue.components.coreModal';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import {
     displayModal,
@@ -64,7 +53,6 @@
     },
     components: {
       coreModal,
-      kButton,
       kRadioButton,
     },
     props: {

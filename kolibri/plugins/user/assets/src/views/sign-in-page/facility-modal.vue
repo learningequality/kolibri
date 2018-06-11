@@ -1,24 +1,21 @@
 <template>
 
-  <core-modal @cancel="emitClose" :title="$tr('facilitySelectionModalHeader')">
-    <form @submit.prevent="submitAndClose">
-      {{ $tr('facilitySelectionPrompt') }}
+  <core-modal
+    :title="$tr('facilitySelectionModalHeader')"
+    :submitText="$tr('submitFacilitySelectionButtonPrompt')"
+    :cancelText="$tr('close')"
+    @submit="submitAndClose"
+    @cancel="emitClose"
+  >
+    {{ $tr('facilitySelectionPrompt') }}
 
-      <k-radio-button
-        v-for="facility in facilities"
-        v-model="selectedFacility"
-        :key="facility.id"
-        :label="facility.name"
-        :value="facility.id"
-      />
-      <div class="core-modal-buttons">
-        <k-button
-          :text="$tr('submitFacilitySelectionButtonPrompt')"
-          :primary="true"
-          type="submit"
-        />
-      </div>
-    </form>
+    <k-radio-button
+      v-for="facility in facilities"
+      v-model="selectedFacility"
+      :key="facility.id"
+      :label="facility.name"
+      :value="facility.id"
+    />
   </core-modal>
 
 </template>
@@ -58,6 +55,7 @@
       facilitySelectionPrompt: 'Which facility do you want to sign in to?',
       submitFacilitySelectionButtonPrompt: 'Select',
       facilitySelectionModalHeader: 'Select a facility',
+      close: 'Close',
     },
     vuex: {
       getters: {
