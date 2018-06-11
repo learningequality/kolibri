@@ -211,10 +211,10 @@ We have a project-level *.editorconfig* file to help you configure your text edi
 `Check your editor <http://editorconfig.org/#download>`_ to see if it supports EditorConfig out-of-the-box, or if a plugin is available.
 
 
-Front-end dev tools
-~~~~~~~~~~~~~~~~~~~
+Frontend dev tools
+~~~~~~~~~~~~~~~~~~
 
-If you're working with front-end Vue.js and use Google Chrome Dev Tools, you may find the `Vue.js devtools <https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd?hl=en>`_ helpful
+If you're working with frontend Vue.js and use Google Chrome Dev Tools, you may find the `Vue.js devtools <https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd?hl=en>`_ helpful
 
 
 Database setup

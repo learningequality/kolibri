@@ -1,6 +1,6 @@
 
-Front-end architecture
-======================
+Frontend architecture
+=====================
 
 
 Components
@@ -15,10 +15,10 @@ Components allow us to define new custom tags that encapsulate a piece of self-c
 Read through :doc:`/references/conventions` for some important consistency tips on writing new components.
 
 
-Layout of front-end code
-------------------------
+Layout of frontend code
+-----------------------
 
-Front-end code and assets are generally contained in one of two places: either in one of the plugin subdirectories (under *kolibri/plugins*) or in *kolibri/core*, which contains code shared across all plugins as described below.
+Frontend code and assets are generally contained in one of two places: either in one of the plugin subdirectories (under *kolibri/plugins*) or in *kolibri/core*, which contains code shared across all plugins as described below.
 
 Within these directories, there should be an *assets* directory with *src* and *test* under it. Most assets will go in *src*, and tests for the components will go in *test*.
 
@@ -69,7 +69,7 @@ In the example above, the *vue/another-page/index.vue* file in *learn* can use o
 
   For many development scenarios, only files in these directories need to be touched.
 
-  There is also a lot of logic and configuration relevant to front-end code loading, parsing, testing, and linting. This includes webpack, NPM, and integration with the plugin system. This is somewhat scattered, and includes logic in *frontend_build/...*, *package.json*, *kolibri/core/webpack/...*, and other locations. Much of this functionality is described in other sections of the docs (such as :doc:`/pipeline/frontend_build_pipeline`), but it can take some time to understand how it all hangs together.
+  There is also a lot of logic and configuration relevant to frontend code loading, parsing, testing, and linting. This includes webpack, NPM, and integration with the plugin system. This is somewhat scattered, and includes logic in *frontend_build/...*, *package.json*, *kolibri/core/webpack/...*, and other locations. Much of this functionality is described in other sections of the docs (such as :doc:`/pipeline/frontend_build_pipeline`), but it can take some time to understand how it all hangs together.
 
 
 SVG Icons
@@ -90,7 +90,7 @@ Attributes (such as vue directives like ``v-if`` and SVG attributes like ``viewb
 Single-page Apps
 ----------------
 
-The Kolibri front-end is made of a few high-level "app" plugins, which are single-page JS applications (conventionally *app.js*) with their own base URL and a single root Vue.js component. Examples of apps are 'Learn' and 'User Management', as shown in the example above. Apps are independent of each other, and can only reference components and styles from within themselves and from core.
+The Kolibri frontend is made of a few high-level "app" plugins, which are single-page JS applications (conventionally *app.js*) with their own base URL and a single root Vue.js component. Examples of apps are 'Learn' and 'User Management', as shown in the example above. Apps are independent of each other, and can only reference components and styles from within themselves and from core.
 
 Each app is implemented as a Kolibri plugin and is defined in a subdirectory of *kolibri/plugins*.
 

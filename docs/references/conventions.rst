@@ -1,7 +1,7 @@
 .. _conventions:
 
-Front-end code conventions
-==========================
+Frontend code conventions
+=========================
 
 In general, follow the `style guide <http://kolibridemo.learningequality.org/style_guide>`_ and use built-in components and conventions when ever possible.
 

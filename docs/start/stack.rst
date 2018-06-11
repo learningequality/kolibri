@@ -22,7 +22,7 @@ The server is a `Django <https://www.djangoproject.com/>`_ application, and cont
 Client
 ------
 
-The front-end user interface is built using `Vue <https://vuejs.org/>`_ and uses ES6 syntax transpiled by `Bublé <https://buble.surge.sh/guide/>`_. The client is responsible for:
+The frontend user interface is built using `Vue <https://vuejs.org/>`_ and uses ES6 syntax transpiled by `Bublé <https://buble.surge.sh/guide/>`_. The client is responsible for:
 
 - Compositing and rendering the UI
 - Managing client-side state using `Vuex <https://vuex.vuejs.org/>`_

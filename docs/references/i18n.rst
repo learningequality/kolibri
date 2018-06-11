@@ -14,7 +14,7 @@ For strings in python files, we are using standard Django tools (``gettext`` and
 
 For strings in the frontend, we are using `Vue-Intl <https://www.npmjs.com/package/vue-intl>`_, an in house port of `React-intl <https://www.npmjs.com/package/react-intl>`_. Strings are collected during the build process, and bundled into exported JSON files.
 
-Messages will be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the front-end are based off the current Django language for the HTTP request.
+Messages will be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the frontend are based off the current Django language for the HTTP request.
 
 
 .vue files
@@ -89,7 +89,7 @@ Then messages are available from the ``$tr`` method on the translator object:
 ICU message syntax
 ~~~~~~~~~~~~~~~~~~
 
-All front-end translations can be parameterized using `ICU message syntax <https://formatjs.io/guides/message-syntax/>`_. Additional documentation is `available on crowdin <https://support.crowdin.com/icu-message-syntax/>`_.
+All frontend translations can be parameterized using `ICU message syntax <https://formatjs.io/guides/message-syntax/>`_. Additional documentation is `available on crowdin <https://support.crowdin.com/icu-message-syntax/>`_.
 
 This syntax can be used to do things like inject variables, pluralize words, and localize numbers.
 
