@@ -8,12 +8,4 @@ References
   release_process
   i18n
   conventions
-  files
-
-
-API reference
--------------
-
-* :ref:`modindex`
-* :ref:`genindex`
 
