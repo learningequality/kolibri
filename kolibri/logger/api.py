@@ -1,19 +1,37 @@
 from django.db.models.query import F
 from django_filters import ModelChoiceFilter
-from django_filters.rest_framework import CharFilter, DjangoFilterBackend, FilterSet
-from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
+from django_filters.rest_framework import CharFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
+from rest_framework import filters
+from rest_framework import viewsets
+
+from .models import AttemptLog
+from .models import ContentSessionLog
+from .models import ContentSummaryLog
+from .models import ExamAttemptLog
+from .models import ExamLog
+from .models import MasteryLog
+from .models import UserSessionLog
+from .permissions import ExamActivePermissions
+from .serializers import AttemptLogSerializer
+from .serializers import ContentSessionLogSerializer
+from .serializers import ContentSummaryLogSerializer
+from .serializers import ExamAttemptLogSerializer
+from .serializers import ExamLogSerializer
+from .serializers import MasteryLogSerializer
+from .serializers import TotalContentProgressSerializer
+from .serializers import UserSessionLogSerializer
+from kolibri.auth.api import KolibriAuthPermissions
+from kolibri.auth.api import KolibriAuthPermissionsFilter
 from kolibri.auth.filters import HierarchyRelationsFilter
-from kolibri.auth.models import Classroom, Collection, Facility, FacilityUser, LearnerGroup
+from kolibri.auth.models import Classroom
+from kolibri.auth.models import Collection
+from kolibri.auth.models import Facility
+from kolibri.auth.models import FacilityUser
+from kolibri.auth.models import LearnerGroup
 from kolibri.content.api import OptionalPageNumberPagination
 from kolibri.core.exams.models import Exam
-from rest_framework import filters, viewsets
-
-from .models import AttemptLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
-from .permissions import ExamActivePermissions
-from .serializers import (
-    AttemptLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, ExamAttemptLogSerializer, ExamLogSerializer, MasteryLogSerializer,
-    TotalContentProgressSerializer, UserSessionLogSerializer
-)
 
 
 class BaseLogFilter(FilterSet):

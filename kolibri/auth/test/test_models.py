@@ -1,21 +1,30 @@
 """
 Tests of the core auth models (Role, Membership, Collection, FacilityUser, etc).
 """
-
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from kolibri.core.device.models import DeviceSettings
-
+from ..constants import collection_kinds
+from ..constants import role_kinds
+from ..errors import InvalidRoleKind
+from ..errors import UserDoesNotHaveRoleError
+from ..errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
+from ..errors import UserIsMemberOnlyIndirectlyThroughHierarchyError
+from ..errors import UserIsNotMemberError
+from ..models import Classroom
+from ..models import Collection
+from ..models import Facility
+from ..models import FacilityUser
+from ..models import LearnerGroup
+from ..models import Membership
+from ..models import Role
 from .helpers import create_superuser
-
-from ..constants import role_kinds, collection_kinds
-from ..models import FacilityUser, Facility, Classroom, LearnerGroup, Role, Membership, Collection
-from ..errors import UserDoesNotHaveRoleError, UserHasRoleOnlyIndirectlyThroughHierarchyError,\
-    UserIsMemberOnlyIndirectlyThroughHierarchyError, InvalidRoleKind, UserIsNotMemberError
+from kolibri.core.device.models import DeviceSettings
 
 
 class CollectionRoleMembershipDeletionTestCase(TestCase):

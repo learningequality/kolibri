@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line
-import { expect } from 'chai';
 import { mount } from '@vue/test-utils';
 import AssignmentDetailsModal from '../../src/views/assignments/AssignmentDetailsModal.vue';
 
@@ -40,7 +37,7 @@ describe('AssignmentDetailsModal', () => {
     els.titleField().vm.$emit('input', 'Lesson 1');
     els.descriptionField().vm.$emit('input', 'The first lesson');
     els.form().trigger('submit');
-    expect(wrapper.emitted().continue[0][0]).to.deep.equal(expected);
+    expect(wrapper.emitted().continue[0][0]).toEqual(expected);
   });
 
   it('does not submit when form data is invalid', () => {
@@ -48,7 +45,7 @@ describe('AssignmentDetailsModal', () => {
       propsData: { ...defaultProps },
     });
     els.form().trigger('submit');
-    expect(wrapper.emitted().continue).to.be.undefined;
+    expect(wrapper.emitted().continue).toBeUndefined();
   });
 
   describe('in edit mode', () => {
@@ -64,8 +61,8 @@ describe('AssignmentDetailsModal', () => {
         propsData: props,
       });
       els.form().trigger('submit');
-      expect(wrapper.emitted().save).to.be.undefined;
-      expect(wrapper.emitted().cancel.length).to.equal(1);
+      expect(wrapper.emitted().save).toBeUndefined();
+      expect(wrapper.emitted().cancel.length).toEqual(1);
     });
 
     it('in edit mode, if the name has changed, makes a request after clicking submit', () => {
@@ -79,7 +76,7 @@ describe('AssignmentDetailsModal', () => {
       };
       els.titleField().vm.$emit('input', 'Old Lesson V2');
       els.form().trigger('submit');
-      expect(wrapper.emitted().save[0][0]).to.deep.equal(expected);
+      expect(wrapper.emitted().save[0][0]).toEqual(expected);
     });
 
     it('in edit mode, if the description has changed, makes a request after clicking submit', () => {
@@ -93,7 +90,7 @@ describe('AssignmentDetailsModal', () => {
       };
       els.descriptionField().vm.$emit('input', 'Its da remix');
       els.form().trigger('submit');
-      expect(wrapper.emitted().save[0][0]).to.deep.equal(expected);
+      expect(wrapper.emitted().save[0][0]).toEqual(expected);
     });
   });
 

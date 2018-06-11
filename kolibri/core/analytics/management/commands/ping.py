@@ -4,12 +4,15 @@ import os
 import time
 from datetime import datetime
 
-import kolibri
 import requests
 from django.core.management.base import BaseCommand
-from kolibri.core.device.models import DeviceSettings
 from morango.models import InstanceIDModel
-from requests.exceptions import ConnectionError, RequestException, Timeout
+from requests.exceptions import ConnectionError
+from requests.exceptions import RequestException
+from requests.exceptions import Timeout
+
+import kolibri
+from kolibri.core.device.models import DeviceSettings
 
 logging = logger.getLogger(__name__)
 

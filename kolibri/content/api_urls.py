@@ -1,9 +1,14 @@
-from django.conf.urls import include, url
+from django.conf.urls import include
+from django.conf.urls import url
 from rest_framework import routers
 
-from .api import (ChannelMetadataViewSet, ContentNodeGranularViewset,
-                  ContentNodeProgressViewset, ContentNodeViewset, FileViewset,
-                  RemoteChannelViewSet, ContentNodeFileSizeViewSet)
+from .api import ChannelMetadataViewSet
+from .api import ContentNodeFileSizeViewSet
+from .api import ContentNodeGranularViewset
+from .api import ContentNodeProgressViewset
+from .api import ContentNodeViewset
+from .api import FileViewset
+from .api import RemoteChannelViewSet
 
 router = routers.SimpleRouter()
 router.register('channel', ChannelMetadataViewSet, base_name="channel")

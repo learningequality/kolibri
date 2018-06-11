@@ -1,19 +1,26 @@
 """
 Tests of the permissions on specific models in the auth app. For tests of the permissions system itself, see test_permission_classes.py
 """
-
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from django.test import TestCase
-
-from kolibri.core.device.models import DevicePermissions
-
-from .helpers import create_dummy_facility_data, create_superuser
 
 from ..constants import role_kinds
 from ..errors import InvalidHierarchyRelationsArgument
 from ..filters import HierarchyRelationsFilter
-from ..models import Facility, FacilityDataset, Classroom, LearnerGroup, Role, Membership, FacilityUser, KolibriAnonymousUser
+from ..models import Classroom
+from ..models import Facility
+from ..models import FacilityDataset
+from ..models import FacilityUser
+from ..models import KolibriAnonymousUser
+from ..models import LearnerGroup
+from ..models import Membership
+from ..models import Role
+from .helpers import create_dummy_facility_data
+from .helpers import create_superuser
+from kolibri.core.device.models import DevicePermissions
 
 
 class ImproperUsageIsProperlyHandledTestCase(TestCase):

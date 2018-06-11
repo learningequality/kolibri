@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line
-import { expect } from 'chai';
 import { mount } from '@vue/test-utils';
 import AssignmentChangeStatusModal from '../../src/views/assignments/AssignmentChangeStatusModal';
 
@@ -30,13 +27,13 @@ describe('AssignmentChangeStatusModal', () => {
         active: true,
       },
     });
-    expect(wrapper.vm.activeIsSelected).to.be.true;
+    expect(wrapper.vm.activeIsSelected).toEqual(true);
     els.inactiveRadio().trigger('change');
-    expect(wrapper.vm.activeIsSelected).to.be.false;
+    expect(wrapper.vm.activeIsSelected).toBeFalsy();
     // Clicking submit button doesn't propagate to form: may be bug with test-utils
     // els.submitButton().trigger('click');
     els.form().trigger('submit');
-    expect(wrapper.emitted().changeStatus[0][0]).to.be.false;
+    expect(wrapper.emitted().changeStatus[0][0]).toEqual(false);
   });
 
   it('if status is changed from inactive to active, submitting form emits a "changestatus" event', () => {
@@ -46,11 +43,11 @@ describe('AssignmentChangeStatusModal', () => {
         active: false,
       },
     });
-    expect(wrapper.vm.activeIsSelected).to.be.false;
+    expect(wrapper.vm.activeIsSelected).toBeFalsy();
     els.activeRadio().trigger('change');
-    expect(wrapper.vm.activeIsSelected).to.be.true;
+    expect(wrapper.vm.activeIsSelected).toEqual(true);
     els.form().trigger('submit');
-    expect(wrapper.emitted().changeStatus[0][0]).to.be.true;
+    expect(wrapper.emitted().changeStatus[0][0]).toEqual(true);
   });
 
   it('if status has not changed, submitting form only closes modal', () => {
@@ -61,7 +58,7 @@ describe('AssignmentChangeStatusModal', () => {
       },
     });
     els.form().trigger('submit');
-    expect(wrapper.emitted().cancel.length).to.equal(1);
+    expect(wrapper.emitted().cancel.length).toEqual(1);
   });
 
   it('pressing "cancel" closes the modal', () => {
@@ -69,6 +66,6 @@ describe('AssignmentChangeStatusModal', () => {
       propsData: { ...defaultProps },
     });
     els.cancelButton().trigger('click');
-    expect(wrapper.emitted().cancel.length).to.equal(1);
+    expect(wrapper.emitted().cancel.length).toEqual(1);
   });
 });

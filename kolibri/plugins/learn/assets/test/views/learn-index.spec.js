@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import LearnIndex from '../../src/views/index.vue';
@@ -57,7 +54,7 @@ describe('learn plugin index page', () => {
     setPageName('CONTENT_UNAVAILABLE');
     const wrapper = makeWrapper({ store });
     const { tabLinks } = getElements(wrapper);
-    expect(tabLinks().length).to.equal(0);
+    expect(tabLinks().length).toEqual(0);
   });
 
   it('the recommended and channel links are always available to everybody', () => {
@@ -65,9 +62,9 @@ describe('learn plugin index page', () => {
     setMemberships([]);
     const wrapper = makeWrapper({ store });
     const { tabLinks, recommendedLink, topicsLink } = getElements(wrapper);
-    expect(tabLinks().length).to.equal(2);
-    expect(recommendedLink().is('a')).to.be.true;
-    expect(topicsLink().is('a')).to.be.true;
+    expect(tabLinks().length).toEqual(2);
+    expect(recommendedLink().is('a')).toEqual(true);
+    expect(topicsLink().is('a')).toEqual(true);
   });
 
   it('the classes tab is available if user is logged in and has memberships', () => {
@@ -76,8 +73,8 @@ describe('learn plugin index page', () => {
     setMemberships([{ id: 'membership_1' }]);
     const wrapper = makeWrapper({ store });
     const { classesLink, tabLinks } = getElements(wrapper);
-    expect(tabLinks().length).to.equal(3);
-    expect(classesLink().is('a')).to.be.true;
+    expect(tabLinks().length).toEqual(3);
+    expect(classesLink().is('a')).toEqual(true);
   });
 
   it('the classes tab is not available if user is not logged in', () => {
@@ -86,8 +83,8 @@ describe('learn plugin index page', () => {
     setMemberships([]);
     const wrapper = makeWrapper({ store });
     const { classesLink, tabLinks } = getElements(wrapper);
-    expect(tabLinks().length).to.equal(2);
-    expect(!classesLink().exists()).to.be.true;
+    expect(tabLinks().length).toEqual(2);
+    expect(!classesLink().exists()).toEqual(true);
   });
 
   it('the classes tab is not available if user has no memberships/classes', () => {
@@ -95,7 +92,7 @@ describe('learn plugin index page', () => {
     setMemberships([]);
     const wrapper = makeWrapper({ store });
     const { classesLink, tabLinks } = getElements(wrapper);
-    expect(tabLinks().length).to.equal(2);
-    expect(!classesLink().exists()).to.be.true;
+    expect(tabLinks().length).toEqual(2);
+    expect(!classesLink().exists()).toEqual(true);
   });
 });

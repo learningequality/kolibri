@@ -1,19 +1,26 @@
 import datetime
+
 from dateutil.parser import parse
 from django.db import connection
-from django.db.models import Min, Q
+from django.db.models import Min
+from django.db.models import Q
 from django.utils import timezone
-from kolibri.auth.constants import role_kinds
-from kolibri.auth.models import Collection, FacilityUser
-from kolibri.content.models import ContentNode
-from kolibri.logger.models import ContentSummaryLog, MasteryLog
-from kolibri.core.lessons.models import Lesson
-from rest_framework import pagination, permissions, viewsets
+from rest_framework import pagination
+from rest_framework import permissions
+from rest_framework import viewsets
+
 from .serializers import ContentReportSerializer
 from .serializers import ContentSummarySerializer
 from .serializers import LessonReportSerializer
 from .serializers import UserReportSerializer
 from .utils.return_users import get_members_or_user
+from kolibri.auth.constants import role_kinds
+from kolibri.auth.models import Collection
+from kolibri.auth.models import FacilityUser
+from kolibri.content.models import ContentNode
+from kolibri.core.lessons.models import Lesson
+from kolibri.logger.models import ContentSummaryLog
+from kolibri.logger.models import MasteryLog
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):

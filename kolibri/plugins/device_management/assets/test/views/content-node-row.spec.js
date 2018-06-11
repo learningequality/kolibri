@@ -1,7 +1,4 @@
-/* eslint-env mocha */
-import Vue from 'vue-test'; // eslint-disable-line
 import { mount } from '@vue/test-utils';
-import { expect } from 'chai';
 import ContentNodeRow from '../../src/views/select-content-page/content-node-row.vue';
 import { makeNode } from '../utils/data';
 
@@ -35,20 +32,20 @@ describe('contentNodeRow component', () => {
   it('shows the correct title', () => {
     const wrapper = makeWrapper();
     const { titleText } = getElements(wrapper);
-    expect(titleText()).to.equal('Awesome Content');
+    expect(titleText()).toEqual('Awesome Content');
   });
 
   it('shows the correct message', () => {
     const wrapper = makeWrapper();
     const { messageText } = getElements(wrapper);
-    expect(messageText()).to.equal('HELLO');
+    expect(messageText()).toEqual('HELLO');
   });
 
   it('when node is a topic, title is a button that emits "clicktopic" event', () => {
     const wrapper = makeWrapper();
     const { goToTopicButton } = getElements(wrapper);
     goToTopicButton().trigger('click');
-    expect(wrapper.emitted().clicktopic).to.deep.equal([[wrapper.vm.node]]);
+    expect(wrapper.emitted().clicktopic).toEqual([[wrapper.vm.node]]);
   });
 
   it('when node is not a topic, title is just text', () => {
@@ -58,15 +55,15 @@ describe('contentNodeRow component', () => {
       }),
     });
     const { goToTopicButton, titleText } = getElements(wrapper);
-    expect(goToTopicButton().exists()).to.be.false;
-    expect(titleText()).to.equal('node_1');
+    expect(goToTopicButton().exists()).toEqual(false);
+    expect(titleText()).toEqual('node_1');
   });
 
   it('when node is disabled, title is just text', () => {
     const wrapper = makeWrapper({ disabled: true });
     const { goToTopicButton, titleText } = getElements(wrapper);
-    expect(goToTopicButton()[0]).to.equal(undefined);
-    expect(titleText()).to.equal('Awesome Content');
+    expect(goToTopicButton()[0]).toEqual(undefined);
+    expect(titleText()).toEqual('Awesome Content');
   });
 
   it('when checkbox is changed, it emits a "changeselection" event', () => {
@@ -74,13 +71,13 @@ describe('contentNodeRow component', () => {
     const { checkbox } = getElements(wrapper);
     // have to "click" the inner checkbox to trigger "change" on whole component
     checkbox().trigger('click');
-    expect(wrapper.emitted().changeselection).to.deep.equal([[wrapper.vm.node]]);
+    expect(wrapper.emitted().changeselection).toEqual([[wrapper.vm.node]]);
   });
 
   it('when props.disabled, the checkbox is disabled', () => {
     const wrapper = makeWrapper({ disabled: true });
     const { checkbox } = getElements(wrapper);
-    expect(checkbox().attributes().disabled).to.equal('disabled');
+    expect(checkbox().attributes().disabled).toEqual('disabled');
   });
 
   it('when props.checked, the checkbox is checked', () => {
@@ -90,7 +87,7 @@ describe('contentNodeRow component', () => {
     });
     // For some reason, the HTML for the actual checkbox does not have checked attribute
     const { kCheckbox } = getElements(wrapper);
-    expect(kCheckbox().props().checked).to.be.true;
+    expect(kCheckbox().props().checked).toEqual(true);
   });
 
   it('when props.determinate, the checkbox is indeterminate', () => {
@@ -100,6 +97,6 @@ describe('contentNodeRow component', () => {
       indeterminate: true,
     });
     const { kCheckbox } = getElements(wrapper);
-    expect(kCheckbox().props().indeterminate).to.be.true;
+    expect(kCheckbox().props().indeterminate).toEqual(true);
   });
 });

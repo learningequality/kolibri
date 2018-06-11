@@ -1,7 +1,8 @@
 import pytz
-
 from django.utils import timezone
-from rest_framework.serializers import DateTimeField, ModelSerializer
+from rest_framework.serializers import DateTimeField
+from rest_framework.serializers import ModelSerializer
+
 from .fields import DateTimeTzField as DjangoDateTimeTzField
 
 class DateTimeTzField(DateTimeField):

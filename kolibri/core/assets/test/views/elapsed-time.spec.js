@@ -1,13 +1,10 @@
-/* eslint-env mocha */
-import { expect } from 'chai';
-import Vue from 'vue-test'; // eslint-disable-line
-import { shallow } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import elapsedTime from '../../src/views/elapsed-time';
 
 const DUMMY_CURRENT_DATE = new Date(2017, 0, 1, 1, 1, 1);
 
 function makeWrapper(options) {
-  return shallow(elapsedTime, options);
+  return shallowMount(elapsedTime, options);
 }
 
 // prettier-ignore
@@ -19,7 +16,7 @@ describe('elapsed time component', () => {
   it('should show display a "–" if no date is passed in', () => {
     const wrapper = makeWrapper({ propsData: {} });
     const timeText = getTimeText(wrapper);
-    expect(timeText).to.equal('–');
+    expect(timeText).toEqual('–');
   });
   it('should use seconds if the date passed in 1 second ago', () => {
     const date1SecondAgo = new Date(DUMMY_CURRENT_DATE);
@@ -29,11 +26,9 @@ describe('elapsed time component', () => {
         date: date1SecondAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
-    expect(/second/.test(timeText)).to.be.true;
+    expect(/second/.test(timeText)).toEqual(true);
   });
 
   it('should use minutes if the date passed in is 60 seconds ago', () => {
@@ -44,11 +39,9 @@ describe('elapsed time component', () => {
         date: date60SecondsAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
-    expect(/minute/.test(timeText)).to.be.true;
+    expect(/minute/.test(timeText)).toEqual(true);
   });
 
   it('should use minutes if the date passed in is 1 minute ago', () => {
@@ -59,11 +52,9 @@ describe('elapsed time component', () => {
         date: date1MinuteAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
-    expect(/minute/.test(timeText)).to.be.true;
+    expect(/minute/.test(timeText)).toEqual(true);
   });
 
   it('should use hours if the date passed is 60 minutes ago', () => {
@@ -74,11 +65,9 @@ describe('elapsed time component', () => {
         date: date60MinutesAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
-    expect(/hour/.test(timeText)).to.be.true;
+    expect(/hour/.test(timeText)).toEqual(true);
   });
 
   it('should use hours if the date passed is 1 hour ago', () => {
@@ -89,11 +78,9 @@ describe('elapsed time component', () => {
         date: date1HourAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
-    expect(/hour/.test(timeText)).to.be.true;
+    expect(/hour/.test(timeText)).toEqual(true);
   });
 
   it('should use days if the date passed is 24 hours ago', () => {
@@ -104,11 +91,9 @@ describe('elapsed time component', () => {
         date: date24HoursAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
-    expect(/day/.test(timeText)).to.be.true;
+    expect(/day/.test(timeText)).toEqual(true);
   });
 
   it('should use days if the date passed is 1 day ago', () => {
@@ -119,11 +104,9 @@ describe('elapsed time component', () => {
         date: date1DayAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
-    expect(/day/.test(timeText)).to.be.true;
+    expect(/day/.test(timeText)).toEqual(true);
   });
 
   it('should use months if the date passed is 4 weeks ago', () => {
@@ -134,11 +117,9 @@ describe('elapsed time component', () => {
         date: date4WeeksAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
-    expect(/month/.test(timeText)).to.be.true;
+    expect(/month/.test(timeText)).toEqual(true);
   });
 
   it('should use months if the date passed is 1 month ago', () => {
@@ -149,11 +130,9 @@ describe('elapsed time component', () => {
         date: date1MonthAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
-    expect(/month/.test(timeText)).to.be.true;
+    expect(/month/.test(timeText)).toEqual(true);
   });
 
   it('should use years if the date passed is 12 months ago', () => {
@@ -164,11 +143,9 @@ describe('elapsed time component', () => {
         date: date12MonthsAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
-    expect(/year/.test(timeText)).to.be.true;
+    expect(/year/.test(timeText)).toEqual(true);
   });
 
   it('should use years if the date passed is 1 year ago', () => {
@@ -179,10 +156,8 @@ describe('elapsed time component', () => {
         date: date1YearAgo,
       },
     });
-    wrapper.setData({
-      now: DUMMY_CURRENT_DATE,
-    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
     const timeText = getTimeText(wrapper);
-    expect(/year/.test(timeText)).to.be.true;
+    expect(/year/.test(timeText)).toEqual(true);
   });
 });

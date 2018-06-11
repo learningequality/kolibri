@@ -57,7 +57,7 @@ export function setSelectedAttemptLogIndex(store, index) {
 
 /**
   * Handle coach page errors.
-  * The status code errors that's related to the authentication issue, most not show 
+  * The status code errors that's related to the authentication issue, most not show
     in coach page beacuse there's an `auth-message` that explain the error.
 **/
 export function handleCoachPageError(store, errorObject) {

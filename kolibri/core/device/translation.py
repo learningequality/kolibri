@@ -5,7 +5,11 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.utils.translation import LANGUAGE_SESSION_KEY
-from django.utils.translation.trans_real import check_for_language, get_languages, get_supported_language_variant, language_code_re, parse_accept_lang_header
+from django.utils.translation.trans_real import check_for_language
+from django.utils.translation.trans_real import get_languages
+from django.utils.translation.trans_real import get_supported_language_variant
+from django.utils.translation.trans_real import language_code_re
+from django.utils.translation.trans_real import parse_accept_lang_header
 
 from .models import DeviceSettings
 

@@ -1,11 +1,14 @@
 """
 Tests related specifically to the FacilityDataset model.
 """
-
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from ..models import FacilityUser, Facility, Classroom, LearnerGroup, FacilityDataset
+from ..models import Classroom
+from ..models import Facility
+from ..models import FacilityDataset
+from ..models import FacilityUser
+from ..models import LearnerGroup
 
 class FacilityDatasetTestCase(TestCase):
 

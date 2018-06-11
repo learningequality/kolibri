@@ -1,8 +1,11 @@
-from django.test import TestCase
-from django.db.migrations.executor import MigrationExecutor
 from django.db import connection
-from kolibri.auth.models import Classroom, Facility, FacilityUser
+from django.db.migrations.executor import MigrationExecutor
+from django.test import TestCase
+
 from kolibri.auth.constants.role_kinds import ADMIN
+from kolibri.auth.models import Classroom
+from kolibri.auth.models import Facility
+from kolibri.auth.models import FacilityUser
 
 # Modified from https://www.caktusgroup.com/blog/2016/02/02/writing-unit-tests-django-migrations/
 

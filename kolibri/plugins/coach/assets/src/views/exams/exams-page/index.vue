@@ -99,7 +99,7 @@
       show: 'Show',
       status: 'Status',
       statusDescription: 'Status description',
-      statusTooltipText: 'Learners can only see active lessons',
+      statusTooltipText: 'Learners can only see active exams',
       entireClass: 'Entire class',
       groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
       nobody: 'Nobody',

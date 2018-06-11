@@ -2,25 +2,25 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import importlib  # noqa
-import logging  # noqa
-import os  # noqa
-import signal  # noqa
-import sys  # noqa
-from sqlite3 import DatabaseError as SQLite3DatabaseError  # noqa
+import importlib
+import logging
+import os
+import signal
+import sys
+from sqlite3 import DatabaseError as SQLite3DatabaseError
 
-import django  # noqa
-from django.core.exceptions import AppRegistryNotReady  # noqa
-from django.core.management import call_command  # noqa
-from django.db.utils import DatabaseError  # noqa
-from docopt import docopt  # noqa
+import django
+from django.core.exceptions import AppRegistryNotReady
+from django.core.management import call_command
+from django.db.utils import DatabaseError
+from docopt import docopt
 
-import kolibri  # noqa
-from . import server  # noqa
-from .conf import OPTIONS  # noqa
-from .sanity_checks import check_other_kolibri_running  # noqa
-from .system import become_daemon  # noqa
-from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
+import kolibri
+from . import server
+from .conf import OPTIONS
+from .sanity_checks import check_other_kolibri_running
+from .system import become_daemon
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase
 
 USAGE = """
 Kolibri

@@ -1,7 +1,11 @@
-from django.conf.urls import include, url
+from django.conf.urls import include
+from django.conf.urls import url
 from rest_framework import routers
 
-from .api import DeviceInfoView, DevicePermissionsViewSet, DeviceProvisionView, FreeSpaceView
+from .api import DeviceInfoView
+from .api import DevicePermissionsViewSet
+from .api import DeviceProvisionView
+from .api import FreeSpaceView
 
 router = routers.SimpleRouter()
 router.register(r'devicepermissions', DevicePermissionsViewSet, base_name='devicepermissions')

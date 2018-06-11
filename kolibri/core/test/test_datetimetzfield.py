@@ -1,12 +1,17 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import datetime
-import pytz
 
+import pytz
 from django.db import models
-from django.test import override_settings, TestCase
+from django.test import override_settings
+from django.test import TestCase
 from django.utils import timezone
-from kolibri.core.fields import DateTimeTzField, parse_timezonestamp
+
+from kolibri.core.fields import DateTimeTzField
+from kolibri.core.fields import parse_timezonestamp
 from kolibri.core.serializers import DateTimeTzField as DateTimeTzSerializerField
 
 def aware_datetime():

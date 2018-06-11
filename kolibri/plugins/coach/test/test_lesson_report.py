@@ -1,18 +1,21 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
+
 import datetime
 import json
+
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
+
 from kolibri.auth.models import Classroom
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 from kolibri.auth.test.helpers import provision_device
-from kolibri.logger.models import ContentSummaryLog
 from kolibri.content.models import ContentNode
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
+from kolibri.logger.models import ContentSummaryLog
 
 class LessonReportTestCase(APITestCase):
 

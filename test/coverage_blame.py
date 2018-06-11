@@ -1,12 +1,15 @@
 #!/usr/bin/env python
-
+# -*- coding: utf-8 -*-
 # Derived from http://scottlobdell.me/2015/04/gamifying-test-coverage-project/
-
 # Before running this script, first run tests with coverage using:
 #  tox -e py3.4
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
-from subprocess import Popen, PIPE
 from collections import Counter
+from subprocess import PIPE
+from subprocess import Popen
 
 
 LINE_COUNT_THRESH = 50
@@ -49,7 +52,7 @@ class ExcludeLineParser(object):
             try:
                 line_number = int(exclude_line_string)
             except ValueError:
-                print "Error for values (%s)" % exclude_line_string
+                print("Error for values ({})".format(exclude_line_string))
                 return []
             return [line_number]
 
@@ -155,5 +158,5 @@ if __name__ == "__main__":
     author_to_test_coverage = get_test_coverage_percent_per_author(line_counter, miss_counter)
     rank = 1
     for author, cov in sorted(author_to_test_coverage.items(), key=lambda t: t[1], reverse=True):
-        print "#%s. %s: %.2d%% coverage (%d out of %d lines)" % (rank, author, cov*100, line_counter[author]-miss_counter[author], line_counter[author])
+        print("#%s. %s: %.2d%% coverage (%d out of %d lines)" % (rank, author, cov*100, line_counter[author]-miss_counter[author], line_counter[author]))
         rank += 1

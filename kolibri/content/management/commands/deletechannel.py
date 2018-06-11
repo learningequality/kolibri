@@ -2,7 +2,9 @@ import logging as logger
 import os
 
 from django.core.management.base import CommandError
-from kolibri.content.models import ChannelMetadata, LocalFile
+
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.models import LocalFile
 from kolibri.content.utils.paths import get_content_database_file_path
 from kolibri.tasks.management.commands.base import AsyncCommand
 

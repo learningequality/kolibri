@@ -1,11 +1,19 @@
-from django.test import TestCase, override_settings
-from kolibri.content.utils.sqlalchemybridge import (
-    Bridge, get_engine, get_class, get_default_db_string, make_session,
-    sqlite_connection_string, ClassNotFoundError, set_all_class_defaults
-)
+from django.test import override_settings
+from django.test import TestCase
+from mock import call
+from mock import MagicMock
+from mock import Mock
+from mock import patch
 from sqlalchemy.engine import Engine
 
-from mock import patch, MagicMock, Mock, call
+from kolibri.content.utils.sqlalchemybridge import Bridge
+from kolibri.content.utils.sqlalchemybridge import ClassNotFoundError
+from kolibri.content.utils.sqlalchemybridge import get_class
+from kolibri.content.utils.sqlalchemybridge import get_default_db_string
+from kolibri.content.utils.sqlalchemybridge import get_engine
+from kolibri.content.utils.sqlalchemybridge import make_session
+from kolibri.content.utils.sqlalchemybridge import set_all_class_defaults
+from kolibri.content.utils.sqlalchemybridge import sqlite_connection_string
 
 @patch('kolibri.content.utils.sqlalchemybridge.db_matches_schema')
 @patch('kolibri.content.utils.sqlalchemybridge.make_session', return_value=(0, 0))

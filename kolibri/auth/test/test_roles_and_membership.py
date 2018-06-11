@@ -1,14 +1,20 @@
 """
 Tests of role and membership calculations.
 """
-
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from django.test import TestCase
 
 from ..constants import role_kinds
-from ..models import KolibriAnonymousUser, FacilityUser, Facility, Classroom, LearnerGroup
-from .helpers import create_dummy_facility_data, create_superuser
+from ..models import Classroom
+from ..models import Facility
+from ..models import FacilityUser
+from ..models import KolibriAnonymousUser
+from ..models import LearnerGroup
+from .helpers import create_dummy_facility_data
+from .helpers import create_superuser
 
 
 def flatten(lst):
