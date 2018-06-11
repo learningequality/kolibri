@@ -82,6 +82,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
@@ -151,6 +152,14 @@
       };
     },
     computed: {
+      ...mapState({
+        currentFacilityId,
+        currentUserId: state => state.core.session.user_id,
+        currentUserKind: state => state.core.session.kind[0],
+        facilityUsers: state => state.pageState.facilityUsers,
+        error: state => state.pageState.error,
+        isBusy: state => state.pageState.isBusy,
+      }),
       coachIsSelected() {
         return this.newKind.value === UserKinds.COACH;
       },
@@ -225,6 +234,10 @@
       }
     },
     methods: {
+      ...mapActions({
+        updateUser,
+        displayModal,
+      }),
       submitForm() {
         const roleUpdate = {
           collection: this.currentFacilityId,
@@ -259,20 +272,6 @@
             this.$refs.username.focus();
           }
         }
-      },
-    },
-    vuex: {
-      actions: {
-        updateUser,
-        displayModal,
-      },
-      getters: {
-        currentFacilityId,
-        currentUserId: state => state.core.session.user_id,
-        currentUserKind: state => state.core.session.kind[0],
-        facilityUsers: state => state.pageState.facilityUsers,
-        error: state => state.pageState.error,
-        isBusy: state => state.pageState.isBusy,
       },
     },
   };

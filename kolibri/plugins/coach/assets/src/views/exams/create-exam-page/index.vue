@@ -135,6 +135,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -217,6 +218,14 @@
       };
     },
     computed: {
+      ...mapState({
+        classId: state => state.classId,
+        topic: state => state.pageState.topic,
+        subtopics: state => state.pageState.subtopics,
+        exercises: state => state.pageState.exercises,
+        selectedExercises: state => state.pageState.selectedExercises,
+        examsModalSet: state => state.pageState.examsModalSet,
+      }),
       numCols() {
         return this.windowSize.breakpoint > 3 ? 2 : 1;
       },
@@ -341,6 +350,16 @@
       },
     },
     methods: {
+      ...mapActions({
+        goToTopic,
+        goToTopLevel,
+        createExamAndRoute,
+        addExercise,
+        removeExercise,
+        setExamsModal,
+        createSnackbar,
+        setSelectedExercises,
+      }),
       setDummyChannelId(id) {
         if (!this.dummyChannelId) {
           this.dummyChannelId = id;
@@ -446,26 +465,6 @@
       randomize() {
         this.seed = this.generateRandomSeed();
         this.setSelectedExercises(shuffle(this.selectedExercises));
-      },
-    },
-    vuex: {
-      getters: {
-        classId: state => state.classId,
-        topic: state => state.pageState.topic,
-        subtopics: state => state.pageState.subtopics,
-        exercises: state => state.pageState.exercises,
-        selectedExercises: state => state.pageState.selectedExercises,
-        examsModalSet: state => state.pageState.examsModalSet,
-      },
-      actions: {
-        goToTopic,
-        goToTopLevel,
-        createExamAndRoute,
-        addExercise,
-        removeExercise,
-        setExamsModal,
-        createSnackbar,
-        setSelectedExercises,
       },
     },
   };

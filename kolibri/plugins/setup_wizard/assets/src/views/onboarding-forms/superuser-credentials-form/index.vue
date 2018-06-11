@@ -57,10 +57,23 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
   import { submitSuperuserCredentials } from '../../../state/actions/forms';
   import onboardingForm from '../onboarding-form';
+
+  function currentName(state) {
+    return state.onboardingData.superuser.full_name;
+  }
+
+  function currentUsername(state) {
+    return state.onboardingData.superuser.username;
+  }
+
+  function currentPassword(state) {
+    return state.onboardingData.superuser.password;
+  }
 
   export default {
     name: 'superuserCredentialsForm',
@@ -93,9 +106,9 @@
     },
     data() {
       return {
-        name: this.currentName,
-        username: this.currentUsername,
-        password: this.currentPassword,
+        name: currentName(this.$store.state),
+        username: currentUsername(this.$store.state),
+        password: currentPassword(this.$store.state),
         passwordConfirm: this.currentPassword,
         visitedFields: {
           name: false,
@@ -106,6 +119,11 @@
       };
     },
     computed: {
+      ...mapState({
+        currentName,
+        currentUsername,
+        currentPassword,
+      }),
       nameErrorMessage() {
         if (this.name === '') {
           return this.$tr('nameFieldEmptyErrorMessage');
@@ -158,6 +176,9 @@
       },
     },
     methods: {
+      ...mapActions({
+        submitSuperuserCredentials,
+      }),
       setSuperuserCredentials() {
         for (const field in this.visitedFields) {
           this.visitedFields[field] = true;
@@ -175,16 +196,6 @@
         } else if (this.passwordConfirmIsInvalid) {
           this.$refs.passwordConfirm.focus();
         }
-      },
-    },
-    vuex: {
-      actions: {
-        submitSuperuserCredentials,
-      },
-      getters: {
-        currentName: state => state.onboardingData.superuser.full_name,
-        currentUsername: state => state.onboardingData.superuser.username,
-        currentPassword: state => state.onboardingData.superuser.password,
       },
     },
   };

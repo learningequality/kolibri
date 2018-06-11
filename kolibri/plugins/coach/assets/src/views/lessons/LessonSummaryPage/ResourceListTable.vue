@@ -102,6 +102,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
@@ -114,6 +115,10 @@
   import { saveLessonResources, updateCurrentLesson } from '../../../state/actions/lessons';
 
   const removalSnackbarTime = 5000;
+
+  function workingResources(state) {
+    return state.pageState.workingResources;
+  }
 
   export default {
     name: 'resourceListTable',
@@ -128,11 +133,32 @@
     },
     data() {
       return {
-        workingResourcesBackup: Array.from(this.workingResources),
+        workingResourcesBackup: Array.from(workingResources(this.$store.state)),
         firstRemovalTitle: '',
       };
     },
     computed: {
+      ...mapState({
+        lessonId: state => state.pageState.currentLesson.id,
+        workingResources,
+        // consider loading this async?
+        resourceContentNodes: state => state.pageState.resourceCache,
+        totalLearners: state => state.pageState.lessonReport.total_learners,
+        getCachedResource(state) {
+          return function getter(resourceId) {
+            return state.pageState.resourceCache[resourceId] || {};
+          };
+        },
+        numLearnersCompleted(state) {
+          return function counter(contentNodeId) {
+            const report =
+              state.pageState.lessonReport.progress.find(p => p.contentnode_id === contentNodeId) ||
+              {};
+            // If progress couldn't be found, assume 0 learners completed
+            return report.num_learners_completed || 0;
+          };
+        },
+      }),
       removalMessage() {
         const numberOfRemovals = this.workingResourcesBackup.length - this.workingResources.length;
 
@@ -150,6 +176,18 @@
       },
     },
     methods: {
+      ...mapActions({
+        saveLessonResources,
+        updateCurrentLesson,
+        createSnackbar,
+        clearSnackbar,
+        removeFromWorkingResources(store, resourceId) {
+          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', resourceId);
+        },
+        setWorkingResources(store, resourceArray) {
+          store.dispatch('SET_WORKING_RESOURCES', resourceArray);
+        },
+      }),
       resourceUserSummaryLink,
       resourceTitle(resourceId) {
         return this.resourceContentNodes[resourceId].title;
@@ -224,41 +262,6 @@
             );
           });
         });
-      },
-    },
-    vuex: {
-      getters: {
-        lessonId: state => state.pageState.currentLesson.id,
-        workingResources: state => state.pageState.workingResources,
-        // consider loading this async?
-        resourceContentNodes: state => state.pageState.resourceCache,
-        totalLearners: state => state.pageState.lessonReport.total_learners,
-        getCachedResource(state) {
-          return function getter(resourceId) {
-            return state.pageState.resourceCache[resourceId] || {};
-          };
-        },
-        numLearnersCompleted(state) {
-          return function counter(contentNodeId) {
-            const report =
-              state.pageState.lessonReport.progress.find(p => p.contentnode_id === contentNodeId) ||
-              {};
-            // If progress couldn't be found, assume 0 learners completed
-            return report.num_learners_completed || 0;
-          };
-        },
-      },
-      actions: {
-        saveLessonResources,
-        updateCurrentLesson,
-        createSnackbar,
-        clearSnackbar,
-        removeFromWorkingResources(store, resourceId) {
-          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', resourceId);
-        },
-        setWorkingResources(store, resourceArray) {
-          store.dispatch('SET_WORKING_RESOURCES', resourceArray);
-        },
       },
     },
     $trs: {

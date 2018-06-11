@@ -43,6 +43,7 @@
 
 <script>
 
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import sumBy from 'lodash/sumBy';
   import ProgressIcon from 'kolibri.coreVue.components.progressIcon';
   import ContentIcon from 'kolibri.coreVue.components.contentIcon';
@@ -58,6 +59,10 @@
       ProgressIcon,
     },
     computed: {
+      ...mapState({
+        contentNodes: state => state.pageState.contentNodes,
+        currentLesson: state => state.pageState.currentLesson,
+      }),
       lessonHasResources() {
         return this.contentNodes.length > 0;
       },
@@ -76,12 +81,6 @@
     methods: {
       getContentNodeThumbnail,
       lessonResourceViewerLink,
-    },
-    vuex: {
-      getters: {
-        contentNodes: state => state.pageState.contentNodes,
-        currentLesson: state => state.pageState.currentLesson,
-      },
     },
     $trs: {
       noResourcesInLesson: 'There are no resources in this lesson',

@@ -111,11 +111,16 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import onboardingForm from '../onboarding-form';
   import { submitFacilityPermissions } from '../../../state/actions/forms';
+
+  function currentPermissionPreset(state) {
+    return state.onboardingData.preset;
+  }
 
   export default {
     name: 'selectPermissionsForm',
@@ -157,14 +162,22 @@
     },
     data() {
       return {
-        selectedPreset: this.currentPermissionPreset,
+        selectedPreset: currentPermissionPreset(this.$store.state),
         permissionPresetDetailsModalShown: false,
       };
+    },
+    computed: {
+      ...mapState({
+        currentPermissionPreset,
+      }),
     },
     mounted() {
       this.$refs['first-button'].focus();
     },
     methods: {
+      ...mapActions({
+        submitFacilityPermissions,
+      }),
       setPermissions() {
         this.submitFacilityPermissions(this.selectedPreset);
         this.$emit('submit');
@@ -174,14 +187,6 @@
       },
       hideFacilityPermissionsDetails() {
         this.permissionPresetDetailsModalShown = false;
-      },
-    },
-    vuex: {
-      actions: {
-        submitFacilityPermissions,
-      },
-      getters: {
-        currentPermissionPreset: state => state.onboardingData.preset,
       },
     },
   };

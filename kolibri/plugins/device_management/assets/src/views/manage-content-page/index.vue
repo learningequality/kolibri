@@ -51,6 +51,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -82,6 +83,16 @@
       subpageContainer,
       taskProgress,
     },
+    computed: {
+      ...mapState({
+        canManageContent,
+        pageState: ({ pageState }) => pageState,
+        firstTask: ({ pageState }) => pageState.taskList[0],
+        tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
+        deviceHasChannels: ({ pageState }) => pageState.channelList.length > 0,
+        wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
+      }),
+    },
     watch: {
       // If Tasks disappear from queue, assume that an addition/deletion has
       // completed and refresh list.
@@ -92,6 +103,12 @@
       },
     },
     methods: {
+      ...mapActions({
+        cancelTask,
+        refreshChannelList,
+        startImportWorkflow,
+        startExportWorkflow,
+      }),
       clearFirstTask(unblockCb) {
         this.cancelTask(this.firstTask.id)
           // Handle failures silently in case of near-simultaneous cancels.
@@ -99,22 +116,6 @@
           .then(() => {
             unblockCb();
           });
-      },
-    },
-    vuex: {
-      getters: {
-        canManageContent,
-        pageState: ({ pageState }) => pageState,
-        firstTask: ({ pageState }) => pageState.taskList[0],
-        tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
-        deviceHasChannels: ({ pageState }) => pageState.channelList.length > 0,
-        wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
-      },
-      actions: {
-        cancelTask,
-        refreshChannelList,
-        startImportWorkflow,
-        startExportWorkflow,
       },
     },
   };

@@ -115,6 +115,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import {
     initContentSession as initSessionAction,
     updateProgress as updateProgressAction,
@@ -163,6 +164,20 @@
       licenceDescriptionIsVisible: false,
     }),
     computed: {
+      ...mapState({
+        content: state => state.pageState.content,
+        contentId: state => state.pageState.content.content_id,
+        contentNodeId: state => state.pageState.content.id,
+        channelId: state => state.pageState.content.channel_id,
+        pageName: state => state.pageName,
+        recommended: state => state.pageState.recommended,
+        summaryProgress: state => state.core.logging.summary.progress,
+        sessionProgress: state => state.core.logging.session.progress,
+        pageMode,
+        isUserLoggedIn,
+        facilityConfig,
+        contentPoints,
+      }),
       isTopic() {
         return this.content.kind === ContentNodeKinds.TOPIC;
       },
@@ -222,6 +237,12 @@
       this.stopTracking();
     },
     methods: {
+      ...mapActions({
+        initSessionAction,
+        updateProgressAction,
+        startTracking,
+        stopTracking,
+      }),
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
@@ -243,28 +264,6 @@
               : PageNames.RECOMMENDED_CONTENT,
           params: { id },
         };
-      },
-    },
-    vuex: {
-      getters: {
-        content: state => state.pageState.content,
-        contentId: state => state.pageState.content.content_id,
-        contentNodeId: state => state.pageState.content.id,
-        channelId: state => state.pageState.content.channel_id,
-        pageName: state => state.pageName,
-        recommended: state => state.pageState.recommended,
-        summaryProgress: state => state.core.logging.summary.progress,
-        sessionProgress: state => state.core.logging.session.progress,
-        pageMode,
-        isUserLoggedIn,
-        facilityConfig,
-        contentPoints,
-      },
-      actions: {
-        initSessionAction,
-        updateProgressAction,
-        startTracking,
-        stopTracking,
       },
     },
   };

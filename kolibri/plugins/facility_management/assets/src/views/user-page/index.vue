@@ -78,6 +78,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import UiIcon from 'keen-ui/src/UiIcon';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -118,6 +119,12 @@
       selectedUser: null,
     }),
     computed: {
+      ...mapState({
+        facilityUsers: state => state.pageState.facilityUsers,
+        modalShown: state => state.pageState.modalShown,
+        currentUserId,
+        isSuperuser,
+      }),
       Modals: () => Modals,
       userKinds() {
         return [
@@ -146,6 +153,9 @@
       this.roleFilter = this.userKinds[0];
     },
     methods: {
+      ...mapActions({
+        displayModal,
+      }),
       userMatchesRole(user) {
         const { value: filterKind } = this.roleFilter;
         if (filterKind === ALL_FILTER) {
@@ -175,17 +185,6 @@
         // If logged-in user is a superuser, then they can edit anybody (including other SUs).
         // Otherwise, only non-SUs can be edited.
         return this.isSuperuser || !user.is_superuser;
-      },
-    },
-    vuex: {
-      getters: {
-        facilityUsers: state => state.pageState.facilityUsers,
-        modalShown: state => state.pageState.modalShown,
-        currentUserId,
-        isSuperuser,
-      },
-      actions: {
-        displayModal,
       },
     },
     $trs: {

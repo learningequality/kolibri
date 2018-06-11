@@ -24,6 +24,7 @@
 
 <script>
 
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
   import ContentCard from '../content-card';
   import ContentPage from '../content-page';
@@ -36,19 +37,17 @@
       ContentPage,
     },
     computed: {
+      ...mapState({
+        currentLesson: state => state.pageState.currentLesson,
+        currentLessonResource: state => state.pageState.content,
+        nextLessonResource: state => state.pageState.content.next_content,
+      }),
       nextResourceLink() {
         return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
       },
     },
     methods: {
       getContentNodeThumbnail,
-    },
-    vuex: {
-      getters: {
-        currentLesson: state => state.pageState.currentLesson,
-        currentLessonResource: state => state.pageState.content,
-        nextLessonResource: state => state.pageState.content.next_content,
-      },
     },
     $trs: {
       nextInLesson: 'Next in lesson',

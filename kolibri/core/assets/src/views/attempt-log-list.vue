@@ -56,6 +56,7 @@
 <script>
 
   import find from 'lodash/find';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
 
   export default {
@@ -81,16 +82,8 @@
         default: 1,
       },
     },
-    methods: {
-      setSelectedAttemptLog(questionNumber) {
-        this.$emit('select', questionNumber);
-      },
-      isSelected(questionNumber) {
-        return Number(this.selectedQuestionNumber) === questionNumber;
-      },
-    },
-    vuex: {
-      getters: {
+    computed: {
+      ...mapState({
         numCoachContents(state) {
           return function getCoachContents(questionNumber) {
             const { questions, exerciseContentNodes } = state.pageState;
@@ -98,6 +91,14 @@
             return find(exerciseContentNodes, { id: questionId }).num_coach_contents;
           };
         },
+      }),
+    },
+    methods: {
+      setSelectedAttemptLog(questionNumber) {
+        this.$emit('select', questionNumber);
+      },
+      isSelected(questionNumber) {
+        return Number(this.selectedQuestionNumber) === questionNumber;
       },
     },
   };

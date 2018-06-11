@@ -37,6 +37,7 @@
 
 <script>
 
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { RemoteChannelResource } from 'kolibri.resources';
@@ -75,15 +76,13 @@
       localDrives: 'Attached drive or memory card',
     },
     methods: {
+      ...mapActions({
+        goForwardFromSelectImportSourceModal,
+      }),
       goForward() {
         if (!this.formIsDisabled) {
           this.goForwardFromSelectImportSourceModal(this.source);
         }
-      },
-    },
-    vuex: {
-      actions: {
-        goForwardFromSelectImportSourceModal,
       },
     },
   };

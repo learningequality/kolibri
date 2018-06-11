@@ -47,6 +47,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
@@ -68,6 +69,11 @@
       selectedChannelId: null,
     }),
     computed: {
+      ...mapState({
+        installedChannelsWithResources,
+        installedChannelListLoading,
+        pageState: state => state.pageState,
+      }),
       channelIsSelected() {
         return this.selectedChannelId !== null;
       },
@@ -85,24 +91,17 @@
       },
     },
     methods: {
+      ...mapActions({
+        startImportWorkflow,
+        triggerChannelDeleteTask,
+        refreshChannelList,
+      }),
       handleDeleteChannel() {
         if (this.channelIsSelected) {
           const channelId = this.selectedChannelId;
           this.selectedChannelId = null;
           this.triggerChannelDeleteTask(channelId);
         }
-      },
-    },
-    vuex: {
-      getters: {
-        installedChannelsWithResources,
-        installedChannelListLoading,
-        pageState: state => state.pageState,
-      },
-      actions: {
-        startImportWorkflow,
-        triggerChannelDeleteTask,
-        refreshChannelList,
       },
     },
     $trs: {

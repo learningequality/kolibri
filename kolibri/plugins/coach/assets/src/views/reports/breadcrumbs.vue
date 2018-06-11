@@ -7,6 +7,7 @@
 
 <script>
 
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import { getChannels, getChannelObject } from 'kolibri.coreVue.vuex.getters';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { PageNames } from '../../constants';
@@ -26,6 +27,34 @@
     },
     components: { kBreadcrumbs },
     computed: {
+      ...mapState({
+        channels: getChannels,
+        classId: state => state.classId,
+        pageName: state => state.pageName,
+        pageState: state => state.pageState,
+        currentClassroom: state => state.currentClassroom,
+        isTopicPage,
+        isLearnerPage,
+        isRecentPage,
+        getChannelObject: state => getChannelObject.bind(null, state),
+        numberOfAssignedClassrooms,
+        currentLearnerForReport(state) {
+          if (state.pageState.userScope === 'user') {
+            return {
+              name: state.pageState.userScopeName,
+              id: state.pageState.userScopeId,
+            };
+          }
+        },
+        currentLearnerReportContentNode(state) {
+          if (state.pageState.contentScope) {
+            return {
+              name: state.pageState.contentScopeSummary.title,
+              ancestors: state.pageState.contentScopeSummary.ancestors,
+            };
+          }
+        },
+      }),
       channelTitle() {
         return this.pageState.channelId
           ? this.getChannelObject(this.pageState.channelId).title
@@ -194,36 +223,6 @@
             },
           })),
         ];
-      },
-    },
-    vuex: {
-      getters: {
-        channels: getChannels,
-        classId: state => state.classId,
-        pageName: state => state.pageName,
-        pageState: state => state.pageState,
-        currentClassroom: state => state.currentClassroom,
-        isTopicPage,
-        isLearnerPage,
-        isRecentPage,
-        getChannelObject: state => getChannelObject.bind(null, state),
-        numberOfAssignedClassrooms,
-        currentLearnerForReport(state) {
-          if (state.pageState.userScope === 'user') {
-            return {
-              name: state.pageState.userScopeName,
-              id: state.pageState.userScopeId,
-            };
-          }
-        },
-        currentLearnerReportContentNode(state) {
-          if (state.pageState.contentScope) {
-            return {
-              name: state.pageState.contentScopeSummary.title,
-              ancestors: state.pageState.contentScopeSummary.ancestors,
-            };
-          }
-        },
       },
     },
   };

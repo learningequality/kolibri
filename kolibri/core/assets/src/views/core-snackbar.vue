@@ -25,6 +25,7 @@
 <script>
 
   import uiSnackbar from 'keen-ui/src/UiSnackbar';
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import { clearSnackbar } from 'kolibri.coreVue.vuex.actions';
 
   /* Snackbars are used to display notification. */
@@ -87,6 +88,12 @@
       }
     },
     methods: {
+      ...mapActions({
+        hideSnackbar(store) {
+          this.$emit('hide');
+          clearSnackbar(store);
+        },
+      }),
       containFocus(event) {
         if (event.target === window) {
           return;
@@ -94,14 +101,6 @@
         if (!this.$refs.snackbar.$el.contains(event.target)) {
           this.$refs.snackbar.$el.focus();
         }
-      },
-    },
-    vuex: {
-      actions: {
-        hideSnackbar(store) {
-          this.$emit('hide');
-          clearSnackbar(store);
-        },
       },
     },
   };

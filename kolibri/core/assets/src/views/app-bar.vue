@@ -64,6 +64,7 @@
 
   import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
   import { isUserLoggedIn, isAdmin, isCoach, isLearner } from 'kolibri.coreVue.vuex.getters';
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import uiIconButton from 'keen-ui/src/UiIconButton';
@@ -113,6 +114,13 @@
       userMenuDropdownIsOpen: false,
     }),
     computed: {
+      ...mapState({
+        isUserLoggedIn,
+        isAdmin,
+        isCoach,
+        isLearner,
+        username: state => state.core.session.username,
+      }),
       userMenuOptions() {
         const changeLanguage = {
           id: 'language',
@@ -168,15 +176,8 @@
           this.userMenuDropdownIsOpen = false;
         }
       },
-    },
-    vuex: {
-      actions: { kolibriLogout },
-      getters: {
-        username: state => state.core.session.username,
-        isUserLoggedIn,
-        isAdmin,
-        isCoach,
-        isLearner,
+      kolibriLogout() {
+        kolibriLogout(this.$store);
       },
     },
   };

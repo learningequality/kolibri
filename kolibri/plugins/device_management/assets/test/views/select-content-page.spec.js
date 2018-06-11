@@ -6,7 +6,7 @@ import { wizardState } from '../../src/state/getters';
 import SelectedResourcesSize from '../../src/views/select-content-page/selected-resources-size';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
-SelectContentPage.vuex.actions.getAvailableSpaceOnDrive = () => {};
+SelectContentPage.methods.getAvailableSpaceOnDrive = () => {};
 
 const router = new VueRouter({
   routes: [],

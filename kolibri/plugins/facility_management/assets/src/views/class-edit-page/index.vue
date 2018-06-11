@@ -93,6 +93,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -137,6 +138,13 @@
       };
     },
     computed: {
+      ...mapState({
+        classLearners: state => state.pageState.classLearners,
+        classCoaches: state => state.pageState.classCoaches,
+        classes: state => state.pageState.classes,
+        currentClass: state => state.pageState.currentClass,
+        modalShown: state => state.pageState.modalShown,
+      }),
       Modals() {
         return Modals;
       },
@@ -152,24 +160,15 @@
       },
     },
     methods: {
+      ...mapActions({
+        displayModal,
+        removeClassLearner,
+        removeClassCoach,
+      }),
       confirmRemoval(user, removalAction) {
         this.userToBeRemoved = user;
         this.removalAction = removalAction;
         this.displayModal(Modals.REMOVE_USER);
-      },
-    },
-    vuex: {
-      getters: {
-        classLearners: state => state.pageState.classLearners,
-        classCoaches: state => state.pageState.classCoaches,
-        classes: state => state.pageState.classes,
-        currentClass: state => state.pageState.currentClass,
-        modalShown: state => state.pageState.modalShown,
-      },
-      actions: {
-        displayModal,
-        removeClassLearner,
-        removeClassCoach,
       },
     },
   };

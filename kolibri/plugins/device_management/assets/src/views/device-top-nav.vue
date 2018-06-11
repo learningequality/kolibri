@@ -28,6 +28,7 @@
 
 <script>
 
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   import { canManageContent, isSuperuser } from 'kolibri.coreVue.vuex.getters';
@@ -40,17 +41,15 @@
       kNavbarLink,
     },
     computed: {
+      ...mapState({
+        canManageContent,
+        isSuperuser,
+      }),
       PageNames: () => PageNames,
     },
     methods: {
       linkify(name) {
         return { name };
-      },
-    },
-    vuex: {
-      getters: {
-        canManageContent,
-        isSuperuser,
       },
     },
     $trs: {

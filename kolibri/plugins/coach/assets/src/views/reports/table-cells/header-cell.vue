@@ -28,6 +28,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { sortColumn, sortOrder } from '../../../state/getters/reports';
   import { SortOrders } from '../../../constants/reportConstants';
   import { setReportSorting } from '../../../state/actions/reports';
@@ -55,6 +56,10 @@
       },
     },
     computed: {
+      ...mapState({
+        sortColumn,
+        sortOrder,
+      }),
       sorted() {
         return (
           this.column === this.sortColumn && (this.sortOrder && this.sortOrder !== SortOrders.NONE)
@@ -68,6 +73,9 @@
       },
     },
     methods: {
+      ...mapActions({
+        setReportSorting,
+      }),
       setSortOrder() {
         let sortOrder;
         if (!this.sorted) {
@@ -79,15 +87,6 @@
           sortOrder = SortOrders.NONE;
         }
         this.setReportSorting(this.column, sortOrder);
-      },
-    },
-    vuex: {
-      getters: {
-        sortColumn,
-        sortOrder,
-      },
-      actions: {
-        setReportSorting,
       },
     },
   };

@@ -40,6 +40,7 @@
 
 <script>
 
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import Epub from 'epubjs/lib/epub';
   import manager from 'epubjs/lib/managers/default';
   import iFrameView from 'epubjs/lib/managers/views/iframe';
@@ -70,6 +71,9 @@
       totalPages: null,
     }),
     computed: {
+      ...mapState({
+        sessionTimeSpent,
+      }),
       epubURL() {
         return this.defaultFile.storage_url;
       },
@@ -133,11 +137,6 @@
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
-    },
-    vuex: {
-      getters: {
-        sessionTimeSpent,
-      },
     },
   };
 

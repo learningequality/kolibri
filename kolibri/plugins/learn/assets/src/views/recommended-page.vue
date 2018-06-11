@@ -91,6 +91,7 @@
 
 <script>
 
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../constants';
@@ -117,6 +118,13 @@
     },
     mixins: [responsiveWindow],
     computed: {
+      ...mapState({
+        channels: getChannels,
+        nextSteps: state => state.pageState.nextSteps,
+        popular: state => state.pageState.popular,
+        resume: state => state.pageState.resume,
+        featured: state => state.pageState.featured,
+      }),
       isMobile() {
         return this.windowSize.breakpoint <= 1;
       },
@@ -169,15 +177,6 @@
       },
       getChannelTitle(channel_id) {
         return this.channels.find(channel => channel.id === channel_id).title;
-      },
-    },
-    vuex: {
-      getters: {
-        channels: getChannels,
-        nextSteps: state => state.pageState.nextSteps,
-        popular: state => state.pageState.popular,
-        resume: state => state.pageState.resume,
-        featured: state => state.pageState.featured,
       },
     },
   };

@@ -117,6 +117,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { kolibriLogin } from 'kolibri.coreVue.vuex.actions';
   import { facilityConfig } from 'kolibri.coreVue.vuex.getters';
   import { FacilityUsernameResource } from 'kolibri.resources';
@@ -132,6 +133,10 @@
   import { PageNames } from '../../constants';
   import languageSwitcherFooter from '../language-switcher-footer';
   import facilityModal from './facility-modal';
+
+  function hasMultipleFacilities(state) {
+    return state.pageState.hasMultipleFacilities;
+  }
 
   export default {
     name: 'signInPage',
@@ -165,7 +170,7 @@
         username: '',
         password: '',
         usernameSuggestions: [],
-        facilityModalVisible: this.hasMultipleFacilities,
+        facilityModalVisible: hasMultipleFacilities(this.$store.state),
         suggestionTerm: '',
         showDropdown: true,
         highlightedIndex: -1,
@@ -176,6 +181,15 @@
       };
     },
     computed: {
+      ...mapState({
+        // backend's default facility on load
+        facilityId: state => state.facilityId,
+        facilityConfig,
+        hasMultipleFacilities,
+        passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
+        invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
+        busy: state => state.core.signInBusy,
+      }),
       simpleSignIn() {
         return this.facilityConfig.learnerCanLoginWithNoPassword;
       },
@@ -269,6 +283,9 @@
       }, 250);
     },
     methods: {
+      ...mapActions({
+        kolibriLogin,
+      }),
       closeFacilityModal() {
         this.facilityModalVisible = false;
       },
@@ -371,20 +388,6 @@
       },
       handlePasswordChanged() {
         this.autoFilledByChromeAndNotEdited = false;
-      },
-    },
-    vuex: {
-      getters: {
-        // backend's default facility on load
-        facilityId: state => state.facilityId,
-        facilityConfig,
-        hasMultipleFacilities: state => state.pageState.hasMultipleFacilities,
-        passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
-        invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
-        busy: state => state.core.signInBusy,
-      },
-      actions: {
-        kolibriLogin,
       },
     },
   };

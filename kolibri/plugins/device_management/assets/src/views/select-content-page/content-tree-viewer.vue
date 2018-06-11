@@ -57,6 +57,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import CoreTable from 'kolibri.coreVue.components.coreTable';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
@@ -92,6 +93,15 @@
       };
     },
     computed: {
+      ...mapState({
+        breadcrumbs: state => wizardState(state).path.map(transformBreadrumb),
+        childNodes: state => wizardState(state).currentTopicNode.children,
+        inExportMode,
+        path: state => wizardState(state).path,
+        nodesForTransfer: state => wizardState(state).nodesForTransfer,
+        topicNode: state => wizardState(state).currentTopicNode,
+        transferType: state => wizardState(state).transferType,
+      }),
       childNodesWithPath() {
         return this.childNodes.map(node => ({
           ...node,
@@ -133,6 +143,10 @@
       },
     },
     methods: {
+      ...mapActions({
+        addNodeForTransfer,
+        removeNodeForTransfer,
+      }),
       nodeIsChecked(node) {
         return node.checkboxType === CheckboxTypes.CHECKED;
       },
@@ -175,21 +189,6 @@
           this.disableAll = false;
           this.$forceUpdate();
         });
-      },
-    },
-    vuex: {
-      getters: {
-        breadcrumbs: state => wizardState(state).path.map(transformBreadrumb),
-        childNodes: state => wizardState(state).currentTopicNode.children,
-        inExportMode,
-        path: state => wizardState(state).path,
-        nodesForTransfer: state => wizardState(state).nodesForTransfer,
-        topicNode: state => wizardState(state).currentTopicNode,
-        transferType: state => wizardState(state).transferType,
-      },
-      actions: {
-        addNodeForTransfer,
-        removeNodeForTransfer,
       },
     },
     $trs: {

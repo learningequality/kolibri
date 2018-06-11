@@ -90,6 +90,7 @@
 
 <script>
 
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
@@ -135,6 +136,10 @@
       },
     },
     computed: {
+      ...mapState({
+        pageState: ({ pageState }) => pageState,
+        channelIsInstalled,
+      }),
       manageChannelActions() {
         return [
           {
@@ -187,12 +192,6 @@
           return this.$emit('clickdelete');
         }
         return this.$emit('import_more', { ...this.channel });
-      },
-    },
-    vuex: {
-      getters: {
-        pageState: ({ pageState }) => pageState,
-        channelIsInstalled,
       },
     },
     $trs: {

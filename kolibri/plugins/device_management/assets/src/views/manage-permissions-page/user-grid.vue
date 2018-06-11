@@ -49,6 +49,7 @@
 
 <script>
 
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
@@ -68,6 +69,11 @@
       },
     },
     computed: {
+      ...mapState({
+        isCurrentUser: ({ core }) => username => core.session.username === username,
+        facilityUsers: ({ pageState }) => pageState.facilityUsers,
+        userPermissions: state => userid => state.pageState.permissions[userid],
+      }),
       visibleUsers() {
         return filterAndSortUsers(this.facilityUsers, user =>
           userMatchesFilter(user, this.searchFilter)
@@ -96,13 +102,6 @@
           return PermissionTypes.LIMITED_PERMISSIONS;
         }
         return null;
-      },
-    },
-    vuex: {
-      getters: {
-        isCurrentUser: ({ core }) => username => core.session.username === username,
-        facilityUsers: ({ pageState }) => pageState.facilityUsers,
-        userPermissions: state => userid => state.pageState.permissions[userid],
       },
     },
     $trs: {

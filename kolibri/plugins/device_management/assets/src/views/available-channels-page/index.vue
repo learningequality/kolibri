@@ -86,6 +86,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
@@ -130,6 +131,16 @@
       };
     },
     computed: {
+      ...mapState({
+        availableChannels: state => wizardState(state).availableChannels,
+        selectedDrive: state => wizardState(state).selectedDrive,
+        installedChannelsWithResources,
+        transferType: state => wizardState(state).transferType,
+        wizardStatus: state => wizardState(state).status,
+        inLocalImportMode,
+        inRemoteImportMode,
+        inExportMode,
+      }),
       channelsAreLoading() {
         return this.wizardStatus === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
       },
@@ -170,6 +181,9 @@
       }
     },
     methods: {
+      ...mapActions({
+        setToolbarTitle,
+      }),
       toolbarTitle(transferType) {
         switch (transferType) {
           case TransferTypes.LOCALEXPORT:
@@ -209,21 +223,6 @@
           titleMatches = tokens.every(token => channel.name.toLowerCase().includes(token));
         }
         return languageMatches && titleMatches && isOnDevice;
-      },
-    },
-    vuex: {
-      getters: {
-        availableChannels: state => wizardState(state).availableChannels,
-        selectedDrive: state => wizardState(state).selectedDrive,
-        installedChannelsWithResources,
-        transferType: state => wizardState(state).transferType,
-        wizardStatus: state => wizardState(state).status,
-        inLocalImportMode,
-        inRemoteImportMode,
-        inExportMode,
-      },
-      actions: {
-        setToolbarTitle,
       },
     },
     $trs: {

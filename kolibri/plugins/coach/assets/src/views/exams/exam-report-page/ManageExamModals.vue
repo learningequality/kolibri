@@ -57,6 +57,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import xorWith from 'lodash/xorWith';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import previewExamModal from '../exams-page/preview-exam-modal';
@@ -84,6 +85,14 @@
       AssignmentDeleteModal,
     },
     computed: {
+      ...mapState({
+        exam: state => state.pageState.exam,
+        examsModalSet: state => state.pageState.examsModalSet,
+        classId: state => state.classId,
+        className: state => state.className,
+        classList: state => state.classList,
+        learnerGroups: state => state.pageState.learnerGroups,
+      }),
       AssignmentActions() {
         return AssignmentActions;
       },
@@ -95,6 +104,14 @@
       },
     },
     methods: {
+      ...mapActions({
+        setExamsModal,
+        activateExam,
+        deactivateExam,
+        deleteExam,
+        copyExam,
+        updateExamDetails,
+      }),
       handleChangeStatus(isActive) {
         if (isActive === true) {
           this.activateExam(this.exam.id);
@@ -139,24 +156,6 @@
           assignments: selectedCollectionIds.map(id => ({ collection: id })),
         };
         this.copyExam(exam, this.className);
-      },
-    },
-    vuex: {
-      getters: {
-        exam: state => state.pageState.exam,
-        examsModalSet: state => state.pageState.examsModalSet,
-        classId: state => state.classId,
-        className: state => state.className,
-        classList: state => state.classList,
-        learnerGroups: state => state.pageState.learnerGroups,
-      },
-      actions: {
-        setExamsModal,
-        activateExam,
-        deactivateExam,
-        deleteExam,
-        copyExam,
-        updateExamDetails,
       },
     },
     $trs: {

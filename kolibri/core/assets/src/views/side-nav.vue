@@ -73,6 +73,7 @@
     isCoach,
     canManageContent,
   } from 'kolibri.coreVue.vuex.getters';
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -132,6 +133,14 @@
       };
     },
     computed: {
+      ...mapState({
+        session: state => state.core.session,
+        isUserLoggedIn,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        canManageContent,
+      }),
       mobile() {
         return this.windowSize.breakpoint < 2;
       },
@@ -216,6 +225,9 @@
       },
     },
     methods: {
+      ...mapActions({
+        signOut: kolibriLogout,
+      }),
       navigate(option) {
         if (option.href) {
           window.location.href = option.href;
@@ -236,17 +248,6 @@
         if (!this.$refs.sideNav.contains(event.target)) {
           this.$refs.toggleButton.$el.focus();
         }
-      },
-    },
-    vuex: {
-      actions: { signOut: kolibriLogout },
-      getters: {
-        session: state => state.core.session,
-        isUserLoggedIn,
-        isSuperuser,
-        isAdmin,
-        isCoach,
-        canManageContent,
       },
     },
   };

@@ -96,6 +96,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
@@ -162,6 +163,10 @@
       };
     },
     computed: {
+      ...mapState({
+        facilityUsers: state => state.pageState.facilityUsers,
+        currentFacilityId,
+      }),
       newUserRole() {
         if (this.coachIsSelected) {
           if (this.classCoach) {
@@ -259,6 +264,10 @@
       },
     },
     methods: {
+      ...mapActions({
+        createUser,
+        displayModal,
+      }),
       createNewUser() {
         this.errorMessage = '';
         this.formSubmitted = true;
@@ -299,16 +308,6 @@
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      getters: {
-        facilityUsers: state => state.pageState.facilityUsers,
-        currentFacilityId,
-      },
-      actions: {
-        createUser,
-        displayModal,
       },
     },
   };

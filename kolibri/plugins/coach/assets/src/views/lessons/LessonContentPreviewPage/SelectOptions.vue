@@ -27,6 +27,7 @@
 
 <script>
 
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
@@ -54,8 +55,8 @@
         return this.workingResources.includes(this.contentId);
       },
     },
-    vuex: {
-      actions: {
+    methods: {
+      ...mapActions({
         // Maybe break these out to actual actions.
         // Used by select page, summary page, and here
         addToWorkingResources(store) {
@@ -65,7 +66,7 @@
         removeFromWorkingResources(store) {
           store.dispatch('REMOVE_FROM_WORKING_RESOURCES', this.contentId);
         },
-      },
+      }),
     },
   };
 

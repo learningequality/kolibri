@@ -6,7 +6,7 @@ import SelectDriveModal from '../../src/views/manage-content-page/select-transfe
 import { wizardState } from '../../src/state/getters';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
-SelectDriveModal.vuex.actions.refreshDriveList = () => Promise.resolve();
+SelectDriveModal.methods.refreshDriveList = () => Promise.resolve();
 
 function makeWrapper(options = {}) {
   const { props = {}, store } = options;

@@ -19,6 +19,7 @@
 
 <script>
 
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { setExamsModal } from '../../../state/actions/exam';
   import previewExamModal from '../exams-page/preview-exam-modal';
@@ -45,11 +46,13 @@
       },
     },
     methods: {
+      ...mapActions({
+        setExamsModal,
+      }),
       close() {
         this.setExamsModal(false);
       },
     },
-    vuex: { actions: { setExamsModal } },
   };
 
 </script>

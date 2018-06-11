@@ -42,6 +42,7 @@
 
 <script>
 
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
@@ -100,6 +101,12 @@
       },
     },
     methods: {
+      ...mapActions({
+        displayModal,
+        addUsersToGroup,
+        removeUsersFromGroup,
+        moveUsersBetweenGroups,
+      }),
       moveUsers() {
         if (this.groupId) {
           if (this.groupSelected === 'ungrouped') {
@@ -113,14 +120,6 @@
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        displayModal,
-        addUsersToGroup,
-        removeUsersFromGroup,
-        moveUsersBetweenGroups,
       },
     },
   };

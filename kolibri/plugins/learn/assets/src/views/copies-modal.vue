@@ -49,6 +49,7 @@
 
 <script>
 
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
@@ -88,6 +89,9 @@
       });
     },
     methods: {
+      ...mapActions({
+        getCopies,
+      }),
       closeModal() {
         return this.$emit('cancel');
       },
@@ -101,11 +105,6 @@
     $trs: {
       copies: 'Locations',
       close: 'Close',
-    },
-    vuex: {
-      actions: {
-        getCopies,
-      },
     },
   };
 

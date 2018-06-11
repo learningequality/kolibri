@@ -79,6 +79,7 @@
 
 <script>
 
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
@@ -122,6 +123,14 @@
       noLearners: 'There are no learners enrolled in this class',
     },
     computed: {
+      ...mapState({
+        classId: state => state.classId,
+        pageState: state => state.pageState,
+        pageName: state => state.pageName,
+        exerciseCount,
+        contentCount,
+        standardDataTable,
+      }),
       isExercisePage() {
         return this.pageState.contentScopeSummary.kind === ContentNodeKinds.EXERCISE;
       },
@@ -161,16 +170,6 @@
           };
         }
         return undefined;
-      },
-    },
-    vuex: {
-      getters: {
-        classId: state => state.classId,
-        pageState: state => state.pageState,
-        pageName: state => state.pageName,
-        exerciseCount,
-        contentCount,
-        standardDataTable,
       },
     },
   };

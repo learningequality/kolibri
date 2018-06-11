@@ -40,6 +40,7 @@
 
 <script>
 
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
@@ -115,6 +116,10 @@
       },
     },
     methods: {
+      ...mapActions({
+        updateClass,
+        displayModal,
+      }),
       updateName() {
         this.formSubmitted = true;
         if (this.formIsValid) {
@@ -126,12 +131,6 @@
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        updateClass,
-        displayModal,
       },
     },
   };

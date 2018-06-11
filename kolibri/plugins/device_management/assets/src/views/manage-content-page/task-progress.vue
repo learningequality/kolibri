@@ -55,6 +55,7 @@
 
 <script>
 
+  import { mapActions } from 'kolibri.utils.vuexCompat';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -155,17 +156,15 @@
       },
     },
     methods: {
+      ...mapActions({
+        cancelTask,
+        refreshChannelList,
+      }),
       endTask() {
         this.uiBlocked = true;
         this.$emit('cleartask', () => {
           this.uiBlocked = false;
         });
-      },
-    },
-    vuex: {
-      actions: {
-        cancelTask,
-        refreshChannelList,
       },
     },
     $trs: {

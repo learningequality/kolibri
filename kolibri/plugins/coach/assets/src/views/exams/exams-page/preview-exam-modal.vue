@@ -76,6 +76,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import find from 'lodash/find';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
@@ -130,6 +131,9 @@
       loading: true,
     }),
     computed: {
+      ...mapState({
+        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
+      }),
       questions() {
         return Object.keys(this.exercises).length
           ? createQuestionList(this.examQuestionSources).map(question => ({
@@ -159,6 +163,9 @@
       this.setExercises();
     },
     methods: {
+      ...mapActions({
+        setExamsModal,
+      }),
       numCoachContents(exercise) {
         return find(this.exerciseContentNodes, { id: exercise.exercise_id }).num_coach_contents;
       },
@@ -200,14 +207,6 @@
       },
       getExerciseQuestions(exerciseId) {
         return this.questions.filter(q => q.contentId === exerciseId);
-      },
-    },
-    vuex: {
-      actions: {
-        setExamsModal,
-      },
-      getters: {
-        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
       },
     },
   };

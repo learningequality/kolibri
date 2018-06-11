@@ -104,6 +104,7 @@ oriented data synchronization.
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import {
     initMasteryLog,
@@ -201,6 +202,18 @@ oriented data synchronization.
       checkWasAttempted: false,
     }),
     computed: {
+      ...mapState({
+        isUserLoggedIn,
+        mastered: state => state.core.logging.mastery.complete,
+        totalattempts: state => state.core.logging.mastery.totalattempts,
+        pastattempts: state =>
+          (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
+        userid: state => state.core.session.user_id,
+        content: state => state.pageState.content,
+        assessmentIds: state => state.pageState.content.assessmentIds,
+        masteryModel: state => state.pageState.content.masteryModel,
+        randomize: state => state.pageState.content.randomize,
+      }),
       recentAttempts() {
         if (!this.pastattempts) {
           return [];
@@ -288,6 +301,19 @@ oriented data synchronization.
       this.saveAttemptLogMasterLog(false);
     },
     methods: {
+      ...mapActions({
+        initMasteryLog,
+        createDummyMasteryLog,
+        saveMasteryLog,
+        saveAndStoreMasteryLog,
+        setMasteryLogComplete,
+        createAttemptLog,
+        saveAttemptLog,
+        saveAndStoreAttemptLog,
+        updateMasteryAttemptState,
+        updateAttemptLogInteractionHistory,
+        updateExerciseProgress,
+      }),
       updateAttemptLogMasteryLog({
         correct,
         complete,
@@ -464,33 +490,6 @@ oriented data synchronization.
       },
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
-      },
-    },
-    vuex: {
-      actions: {
-        initMasteryLog,
-        createDummyMasteryLog,
-        saveMasteryLog,
-        saveAndStoreMasteryLog,
-        setMasteryLogComplete,
-        createAttemptLog,
-        saveAttemptLog,
-        saveAndStoreAttemptLog,
-        updateMasteryAttemptState,
-        updateAttemptLogInteractionHistory,
-        updateExerciseProgress,
-      },
-      getters: {
-        isUserLoggedIn,
-        mastered: state => state.core.logging.mastery.complete,
-        totalattempts: state => state.core.logging.mastery.totalattempts,
-        pastattempts: state =>
-          (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
-        userid: state => state.core.session.user_id,
-        content: state => state.pageState.content,
-        assessmentIds: state => state.pageState.content.assessmentIds,
-        masteryModel: state => state.pageState.content.masteryModel,
-        randomize: state => state.pageState.content.randomize,
       },
     },
   };

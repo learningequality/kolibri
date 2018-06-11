@@ -15,6 +15,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'kolibri.utils.vuexCompat';
   import { totalPoints, currentUserId, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
@@ -27,17 +28,19 @@
       pointsIcon,
       uiTooltip,
     },
-    vuex: {
-      getters: {
+    computed: {
+      ...mapState({
         totalPoints,
         currentUserId,
         isUserLoggedIn,
-      },
-      actions: { fetchPoints },
+      }),
     },
     watch: { currentUserId: 'fetchPoints' },
     created() {
       this.fetchPoints();
+    },
+    methods: {
+      ...mapActions({ fetchPoints }),
     },
   };
 

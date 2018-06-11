@@ -67,6 +67,7 @@
 
 <script>
 
+  import { mapState } from 'kolibri.utils.vuexCompat';
   import PDFJSLib from 'pdfjs-dist';
   import Lockr from 'lockr';
 
@@ -121,6 +122,9 @@
       recycleListIsMounted: false,
     }),
     computed: {
+      ...mapState({
+        sessionTimeSpent,
+      }),
       pdfURL() {
         return this.defaultFile.storage_url;
       },
@@ -320,11 +324,6 @@
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
-    },
-    vuex: {
-      getters: {
-        sessionTimeSpent,
-      },
     },
   };
 
