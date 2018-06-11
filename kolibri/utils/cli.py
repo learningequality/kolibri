@@ -184,7 +184,9 @@ def _first_run():
     Called once at least.
     """
     if os.path.exists(version_file()):
-        check_content_directory_exists_and_writable()
+        logger.error(
+            "_first_run() called, but Kolibri is already initialized."
+        )
         return
     logger.info("Kolibri running for the first time.")
     logger.info(
@@ -634,8 +636,10 @@ def main(args=None):  # noqa: max-complexity=13
         return
 
     if arguments['start']:
+
         # Check if the content directory exists when Kolibri runs after the first time.
-        _first_run()
+        check_content_directory_exists_and_writable()
+
         daemon = not arguments['--foreground']
         if sys.platform == 'darwin':
             daemon = False
