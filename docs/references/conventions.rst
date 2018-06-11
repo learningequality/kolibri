@@ -5,30 +5,30 @@ Frontend code conventions
 
 In general, follow the `style guide <http://kolibridemo.learningequality.org/style_guide>`_ and use built-in components and conventions when ever possible.
 
-Most syntax conventions are enforced by our linters, so make sure you've set up `pre-commit` as described in :doc:`../start/getting_started`
+Most syntax conventions are enforced by our linters, so make sure you've set up `pre-commit` as described in :doc:`../start/getting_started`.
 
-Vue.js Components
+Vue.js components
 -----------------
 
-- Keep child-components stateless when possible. In practice, this means using ``props`` but not ``data``
+- Keep components stateless and declarative as much as possible
+- For simple components, make *SomeComonent.vue*. For more complex components, make *SomeComponent/index.vue* and add private sub-components
+- All user-visible app text should be internationalized. See :doc:`i18n` for details
+- Avoid direct DOM references and Vue component "lifecycle events" except in special cases
+- Props, slots, and Vuex state/getters for communicating down the view hierarchy
+- Events and Vuex actions for communicating up the view hierarchy
 
-- Put child components inside the directory of a parent component if they are *only* used by the parent. Otherwise, put shared child components in the *vue* directory
+Styling anti-patterns
+---------------------
 
-- Any user-visisble app text should be rendered translatable. See :doc:`i18n` for details
-
-
-Styling code smells
--------------------
-
-- Unused styles. Delete them
-- Unscoped styles. If absolutely necessary, use `deep selectors <https://vue-loader.vuejs.org/guide/scoped-css.html#deep-selectors>`_
-- Classes used javascript identifiers - ``ref`` instead (`see docs <https://vuejs.org/v2/api/#ref>`_)
-- References by ``id``. Use a ``class`` instead
-- HTML-based selectors. Define a ``class`` instead
-- Floats or flexbox. Use ``k-grid``
-- Media queries. Use ``responsive-window`` or ``responsive-element``
-- Nested selectors. Make a sub-component instead (more reading `here <https://csswizardry.com/2012/05/keep-your-css-selectors-short/>`_ and `here <http://thesassway.com/beginner/the-inception-rule>`_)
-- Dynamically-generated class names which fail the `grep test <http://jamie-wong.com/2013/07/12/grep-test/>`_
-- Complex pre-processor functionality. Keep logic in javascript instead
-- Hard-coded colors. Rely on global theme variables instead
-- Left or right text-alignment on user-generated text. Use ``dir="auto"`` instead
+- **Adding unnecessary new rules** - whenever possible, delete code to fix issues
+- **Unscoped styles** - if absolutely necessary, use `deep selectors <https://vue-loader.vuejs.org/guide/scoped-css.html#deep-selectors>`_ to style component children
+- **Classes referenced in javascript** - if absolutely necessary, use `ref <https://vuejs.org/v2/api/#ref>`_ instead (also an anti-pattern)
+- **References by ID** - use a ``class`` instead
+- **HTML tag selectors** - define a ``class`` instead
+- **Floats or flexbox for layout** - use ``k-grid`` instead
+- **Media queries** - use ``responsive-window`` or ``responsive-element``
+- **Nested selectors** - make a sub-component instead (more reading `here <https://csswizardry.com/2012/05/keep-your-css-selectors-short/>`_ and `here <http://thesassway.com/beginner/the-inception-rule>`_)
+- **Dynamically-generated class names** - avoid patterns which fail the `grep test <http://jamie-wong.com/2013/07/12/grep-test/>`_
+- **Complex pre-processor functionality** - use Vue `computed styles <https://vuejs.org/v2/guide/class-and-style.html>`_ instead
+- **Hard-coded values** - rely on core themes and components
+- **Left or right alignment on user-generated text** - use ``dir="auto"`` instead for RTL support
