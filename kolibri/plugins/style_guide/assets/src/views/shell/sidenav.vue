@@ -7,8 +7,10 @@
 
     <div>
       <template v-for="section in navMenu">
-        <div class="section-heading" :key="section.sectionName">{{ section.sectionName }}</div>
-        <ul :key="section.sectionName">
+        <div class="section-heading" :key="`${section.sectionName}-heading`">
+          {{ section.sectionName }}
+        </div>
+        <ul :key="`${section.sectionName}-ul`">
           <li v-for="sectionItem in section.sectionItems" :key="sectionItem.itemName">
             <router-link :to="sectionItem.itemRoute" class="link">
               {{ sectionItem.itemName }}

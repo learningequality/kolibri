@@ -9,6 +9,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import io
 import json
 import logging
 import os
@@ -111,14 +112,14 @@ class WebpackBundleHook(hooks.KolibriHook):
         global _JSON_STATS_FILE_CACHE
         try:
             if not _JSON_STATS_FILE_CACHE.get(self.unique_slug) or django_settings.DEBUG:
-                with open(self._stats_file) as f:
+                with io.open(self._stats_file, mode='r', encoding='utf-8') as f:
                     stats = json.load(f)
                 if django_settings.DEBUG:
                     timeout = 0
                     while stats['status'] == 'compiling':
                         time.sleep(getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1))
                         timeout += getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1)
-                        with open(self._stats_file) as f:
+                        with io.open(self._stats_file, mode='r', encoding='utf-8') as f:
                             stats = json.load(f)
                         if timeout >= getattr(settings, 'WEBPACK_POLL_INTERVAL', 1.0):
                             raise WebpackError('Webpack compilation still in progress')
@@ -239,7 +240,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code) or django_settings.DEBUG:
             frontend_message_file = self.frontend_message_file(lang_code)
             if frontend_message_file:
-                with open(frontend_message_file) as f:
+                with io.open(frontend_message_file, mode='r', encoding='utf-8') as f:
                     if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug):
                         _JSON_MESSAGES_FILE_CACHE[self.unique_slug] = {}
                     # Load JSON file, then immediately convert it to a string in minified form.

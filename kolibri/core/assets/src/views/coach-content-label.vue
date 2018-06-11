@@ -1,7 +1,9 @@
 <template>
 
   <div class="vab" v-if="value > 0" :title="titleText">
-    <ui-icon class="coach-mat-icon" icon="local_library" />
+    <ui-icon class="coach-mat-icon">
+      <mat-svg name="local_library" category="maps" />
+    </ui-icon>
     <span class="counter" v-if="isTopic">
       {{ value }}
     </span>

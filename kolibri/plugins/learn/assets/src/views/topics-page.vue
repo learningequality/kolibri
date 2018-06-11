@@ -11,7 +11,7 @@
       :showTooltip="false"
       :showViewMore="true"
       dir="auto"
-      class="page-description ta-l"
+      class="page-description"
     />
 
     <content-card-group-grid
@@ -80,8 +80,5 @@
     margin-top: 1em
     margin-bottom: 1em
     line-height: 1.5em
-
-  .ta-l
-    text-align: left
 
 </style>

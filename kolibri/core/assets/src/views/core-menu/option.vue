@@ -1,41 +1,39 @@
 <template>
 
   <li
-    class="ui-menu-option"
     role="menuitem"
+    class="ui-menu-option"
     :class="classes"
     :tabindex="(isDivider || disabled) ? null : '0'"
+    @click="$emit('select')"
+    @keydown.enter="$emit('select')"
   >
     <slot v-if="!isDivider">
       <div class="ui-menu-option-content">
         <ui-icon
+          v-if="$slots.icon"
           class="ui-menu-option-icon"
-
-          :iconSet="iconProps.iconSet"
-          :icon="icon"
-          :removeText="iconProps.removeText"
-          :useSvg="iconProps.useSvg"
-          :mirror="iconProps.mirror"
-
-          v-if="icon"
-        />
+        >
+          <slot name="icon"></slot>
+        </ui-icon>
 
         <!-- if anything in the dropdown menu has an icon, then we are
         going to add padding to make all the items align -->
         <div
           class="ui-menu-option-text"
-          :class="{ 'ui-menu-option-text-lp': !icon }"
+          :class="{ 'ui-menu-option-text-lp': !$slots.icon }"
         >
           {{ label }}
         </div>
-
-        <div class="ui-menu-option-secondary-text" v-if="secondaryText">
+        <div
+          v-if="secondaryText"
+          class="ui-menu-option-secondary-text"
+        >
           {{ secondaryText }}
         </div>
       </div>
     </slot>
 
-    <ui-ripple-ink v-if="!disabled && !isDivider && !disableRipple" />
   </li>
 
 </template>
@@ -43,32 +41,17 @@
 
 <script>
 
-  import config from 'keen-ui/src/config';
-
-  import UiIcon from 'keen-ui/src/UiIcon.vue';
-  import UiRippleInk from 'keen-ui/src/UiRippleInk.vue';
+  import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
-    name: 'uiMenuOption',
+    name: 'coreMenuOption',
     components: {
       UiIcon,
-      UiRippleInk,
     },
     props: {
       type: String,
       label: String,
-      icon: String,
-      iconProps: {
-        type: Object,
-        default() {
-          return {};
-        },
-      },
       secondaryText: String,
-      disableRipple: {
-        type: Boolean,
-        default: config.data.disableRipple,
-      },
       disabled: {
         type: Boolean,
         default: false,

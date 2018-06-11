@@ -3,8 +3,8 @@
   <section
     class="pdf-page"
     :style="{
-      height: `${pageHeight}px`,
-      width: `${pageWidth}px`
+      height: `${scaledHeight}px`,
+      width: `${scaledWidth}px`
     }"
   >
     <span class="loading">{{ $formatNumber(pageNum) }}</span>
@@ -13,8 +13,8 @@
       ref="canvas"
       class="canvas"
       dir="ltr"
-      :height="pageHeight"
-      :width="pageWidth"
+      :height="scaledHeight"
+      :width="scaledWidth"
     >
     </canvas>
   </section>
@@ -43,27 +43,43 @@
         type: Number,
         required: true,
       },
-      defaultHeight: {
+      firstPageHeight: {
         type: Number,
         required: true,
       },
-      defaultWidth: {
+      firstPageWidth: {
         type: Number,
         required: true,
       },
     },
     data: () => ({
-      height: null,
-      width: null,
       canvas: null,
       rendered: false,
     }),
     computed: {
-      pageHeight() {
-        return this.height || this.defaultHeight;
+      actualHeight() {
+        if (!this.pageReady) {
+          return null;
+        }
+        return this.pdfPage.view[3];
       },
-      pageWidth() {
-        return this.width || this.defaultWidth;
+      actualWidth() {
+        if (!this.pageReady) {
+          return null;
+        }
+        return this.pdfPage.view[2];
+      },
+      heightToWidthRatio() {
+        return this.actualHeight / this.actualWidth || this.firstPageHeight / this.firstPageWidth;
+      },
+      scaledHeight() {
+        return this.firstPageHeight * this.scale;
+      },
+      scaledWidth() {
+        return this.scaledHeight / this.heightToWidthRatio;
+      },
+      pageScale() {
+        return this.scaledHeight / this.actualHeight || this.scale;
       },
     },
     watch: {
@@ -77,26 +93,16 @@
     methods: {
       getViewport() {
         // Get viewport, which contains directions to be passed into render function
-        return this.pdfPage.getViewport(this.scale);
-      },
-      setPageDimensions() {
-        // Set height and width based on the the pdfPage information and the scale
-        if (this.pdfPage) {
-          this.height = this.pdfPage.view[3] * this.scale;
-          this.width = this.pdfPage.view[2] * this.scale;
-        }
+        return this.pdfPage.getViewport(this.pageScale);
       },
       renderPage(newVal, oldVal) {
         if (typeof newVal === 'number' && typeof oldVal === 'number' && newVal !== oldVal) {
           // Change values are numeric, so we should assume it is a change in scale
           this.cancelRender();
-          this.setPageDimensions();
         }
         if (this.pdfPage && this.pageReady && !this.renderTask && !this.rendered) {
           const canvasContext = this.$refs.canvas.getContext('2d');
           const viewport = this.getViewport();
-
-          this.setPageDimensions();
 
           this.renderTask = this.pdfPage.render({
             canvasContext,
@@ -112,11 +118,8 @@
               this.rendered = false;
             }
           );
-        } else if (this.pdfPage && this.pdfPage.getViewport) {
-          // We have a pdfPage, so use this opportunity to set the current page width and height
-          this.setPageDimensions();
-        } else {
-          // No pdfPage and not active, either we are not being asked to render a page yet,
+        } else if (!this.pdfPage) {
+          // No pdfPage, either we are not being asked to render a page yet,
           // or it has been removed so we should tear down any existing page
           this.cancelRender();
           this.clearPage();
@@ -132,7 +135,7 @@
       clearPage() {
         const canvasContext = this.$refs.canvas.getContext('2d');
         // Clear canvas
-        canvasContext.clearRect(0, 0, this.height, this.width);
+        canvasContext.clearRect(0, 0, this.scaledHeight, this.scaledWidth);
         this.rendered = false;
       },
     },

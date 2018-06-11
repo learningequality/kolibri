@@ -1,0 +1,115 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-02-23 17:34-0800\n"
+"PO-Revision-Date: 2018-05-10 13:33-0400\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Yoruba\n"
+"Language: yo_NG\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: yo\n"
+"X-Crowdin-File: /release-v0.9.x/django.po\n"
+
+#: kolibri/auth/constants/collection_kinds.py:14
+#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "Ohun èlò"
+
+#: kolibri/auth/constants/collection_kinds.py:15
+msgid "Classroom"
+msgstr "Kíláásì"
+
+#: kolibri/auth/constants/collection_kinds.py:16
+msgid "Learner group"
+msgstr "Ẹgbẹ́ akẹ́kọ̀ọ́"
+
+#: kolibri/auth/constants/role_kinds.py:12
+msgid "Admin"
+msgstr "Alábójútó"
+
+#: kolibri/auth/constants/role_kinds.py:13
+msgid "Coach"
+msgstr "Olùkọni"
+
+#: kolibri/auth/models.py:210
+msgid "username"
+msgstr "Orúkọ olùṣàmúlò"
+
+#: kolibri/auth/models.py:212
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr "Nílò. Ìṣọwọ́ kọ̀wé ọgbọ̀n tàbí ó kéré. Àwọn lẹ́tà àti díjítì nìkan"
+
+#: kolibri/auth/models.py:216
+msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
+msgstr "Ṣàmúlò orúkọ aṣàmúlò tíó tọ̀nà. Iye yìí gbọ́dọ̀ ní àwọn lẹ́tà, nọ́ḿbà, àti ìlà abẹ́ nìkan."
+
+#: kolibri/auth/models.py:220
+msgid "full name"
+msgstr "orúko ní kíkún"
+
+#: kolibri/auth/models.py:221
+msgid "date joined"
+msgstr "Ọjọ́ tí o darapọ̀"
+
+#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+msgid "An account with that username already exists"
+msgstr "Ẹgbẹ kan pẹlú orúkọ amulo yẹn ti wà"
+
+#: kolibri/content/api.py:74
+msgid "Content"
+msgstr "Àkoónú"
+
+#: kolibri/content/api.py:363
+msgid "The requested channel does not exist on the content server"
+msgstr "Ìkànnì tí a bèèrè ni kòsí lóri àpèsè àkoonú"
+
+#: kolibri/content/models.py:187
+msgid "Unknown format"
+msgstr "Fọ́màtì aimọ̀"
+
+#: kolibri/core/device/serializers.py:44
+msgid "Language is not supported by Kolibri"
+msgstr "Kolibri kò gba èdè "
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr "Kolibri"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "Aṣàwákiri àìtìlẹ́yìn"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "Mábinú, aṣàwákiri rẹ kò ní àtìlẹ́yìn."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "Láti lo Kolibri, a gbà lámọ̀ràn kí o lo Firefox tàbí Chrome."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "O tún lè gbìyànjú ní ṣíṣàfikún aṣàwákiri tí o ńlò lọ́wọ́lọ́wọ́."
+
+#: kolibri/plugins/device_management/kolibri_plugin.py:30
+msgid "Device"
+msgstr "Ẹ̀rọ"
+
+#: kolibri/tasks/api.py:31
+msgid "There was a network error."
+msgstr "Àṣìṣe alásopọ̀ wà."
+
+#: kolibri/tasks/api.py:33
+msgid "There was a disk access error."
+msgstr "Àṣìṣe ìráàyèsì dísíkì wáyé."
+
+#: kolibri/tasks/api.py:35
+msgid "There was an unknown error."
+msgstr "Àṣìṣe àìmọ̀ wáyé."
+

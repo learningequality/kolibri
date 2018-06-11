@@ -1,3 +1,4 @@
+import io
 import json
 import os
 import pickle
@@ -59,5 +60,6 @@ class Command(BaseCommand):
         with open(SCHEMA_PATH_TEMPLATE.format(name=options['version']), 'wb') as f:
             pickle.dump(metadata, f, protocol=2)
 
-        with open(DATA_PATH_TEMPLATE.format(name=options['version']), 'w') as f:
+        data_path = DATA_PATH_TEMPLATE.format(name=options['version'])
+        with io.open(data_path, mode='w', encoding='utf-8') as f:
             json.dump(data, f)

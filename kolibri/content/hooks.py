@@ -8,6 +8,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import io
 import json
 import logging
 import os
@@ -69,7 +70,7 @@ class ContentRendererHook(WebpackBundleHook):
         if not _JSON_CONTENT_TYPES_CACHE.get(self.unique_slug):
             try:
                 file_path = os.path.join(self._module_file_path, self.content_types_file)
-                with open(file_path) as f:
+                with io.open(file_path, mode='r', encoding='utf-8') as f:
                     content_types = json.load(f)
                     for kind_data in content_types.get('kinds', []):
                         if kind_data.get("name") not in dict(content_kinds.choices):
