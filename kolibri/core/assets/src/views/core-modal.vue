@@ -4,9 +4,8 @@
   <transition name="fade">
     <div
       class="modal-overlay"
-      @keydown.esc="emitCancelEvent"
-      @keydown.enter="emitEnterEvent"
-      @click="bgClick($event)"
+      @keyup.esc="emitCancelEvent"
+      @keyup.enter="emitEnterEvent"
       ref="modal-overlay"
       id="modal-window"
     >
@@ -21,9 +20,19 @@
       >
 
         <!-- Modal Title -->
-        <h1 v-show="!invisibleTitle" class="title" id="modal-title" ref="header">
+        <h1
+          v-show="!invisibleTitle"
+          class="title"
+          id="modal-title"
+          ref="title"
+        >
           <!-- Accessible error reporting per @radina -->
-          <span v-if="hasError" class="visuallyhidden">{{ $tr('errorAlert') }}</span>
+          <span
+            v-if="hasError"
+            class="visuallyhidden"
+          >
+            {{ $tr('errorAlert') }}
+          </span>
           {{ title }}
         </h1>
 
@@ -37,7 +46,10 @@
             <slot></slot>
           </div>
 
-          <div class="core-modal-buttons" ref="footer">
+          <div
+            class="actions"
+            ref="actions"
+          >
             <k-button
               v-if="cancelText"
               :text="cancelText"
@@ -112,12 +124,7 @@
         type: Boolean,
         default: false,
       },
-      // Modal options
-      enableBgClickCancel: {
-        type: Boolean,
-        default: true,
-      },
-      // toggles error message indicator in header
+      // toggles error message indicator in title
       hasError: {
         type: Boolean,
         default: false,
@@ -164,11 +171,11 @@
     },
     methods: {
       setContentSectionMaxHeight: debounce(function() {
-        if (this.$refs.header && this.$refs.footer) {
+        if (this.$refs.title && this.$refs.actions) {
           this.maxContentHeight =
             this.windowSize.height -
-            this.$refs.header.clientHeight -
-            this.$refs.footer.clientHeight -
+            this.$refs.title.clientHeight -
+            this.$refs.actions.clientHeight -
             32;
         }
       }, 100),
@@ -197,12 +204,6 @@
       },
       preventScroll(event) {
         event.preventDefault();
-      },
-      bgClick(event) {
-        // check to make sure the area being clicked is the overlay, not the modal
-        if (this.enableBgClickCancel && event.target === this.$refs.modalOverlay) {
-          this.emitCancelEvent();
-        }
       },
     },
   };
@@ -254,13 +255,13 @@
     padding: 0 24px
     overflow-y: auto
 
-  .core-modal-buttons
+  .actions
     text-align: right
     padding: 24px
     button
       margin: 0
 
-  .core-modal-buttons button:last-of-type
+  .actions button:last-of-type
     margin-left: 16px
 
   .small

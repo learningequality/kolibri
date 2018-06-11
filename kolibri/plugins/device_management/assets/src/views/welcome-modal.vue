@@ -2,7 +2,6 @@
 
   <core-modal
     :title="$tr('welcomeModalHeader')"
-    :enableBgClickCancel="false"
     :submitText="$tr('welcomeButtonDismissText')"
     @submit="emitCloseModal"
     @cancel="emitCloseModal"

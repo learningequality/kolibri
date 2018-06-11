@@ -2,7 +2,6 @@
 
   <core-modal
     :title="$tr('selectLocalRemoteSourceTitle')"
-    :enableBgClickCancel="false"
     :submitText="$tr('continue')"
     :cancelText="$tr('cancel')"
     :submitDisabled="formIsDisabled"

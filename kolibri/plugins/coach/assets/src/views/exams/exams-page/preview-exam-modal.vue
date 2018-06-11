@@ -2,8 +2,9 @@
 
   <core-modal
     :title="$tr('preview')"
-    :cancelText="$tr('close')"
+    :submitText="$tr('close')"
     size="large"
+    @submit="close"
     @cancel="close"
   >
     <transition mode="out-in">
@@ -11,7 +12,7 @@
         v-if="loading"
         :delay="false"
       />
-      <div v-else>
+      <div v-else @keyup.enter.stop>
         <div>
           <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
           <slot name="randomize-button"></slot>

@@ -2,7 +2,8 @@
 
   <core-modal
     :title="$tr('copies')"
-    :cancelText="$tr('close')"
+    :submitText="$tr('close')"
+    @submit="closeModal"
     @cancel="closeModal"
   >
     <transition mode="out-in">

@@ -2,7 +2,6 @@
 
   <core-modal
     :title="title"
-    :enableBgClickCancel="false"
     size="small"
     :submitText="$tr('continue')"
     :cancelText="$tr('cancel')"
