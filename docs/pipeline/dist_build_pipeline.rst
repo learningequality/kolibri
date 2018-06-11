@@ -23,14 +23,24 @@ The Kolibri Package build pipeline looks like this::
                               `pip install kolibri-static`
                                 /            |          \
                                /             |           \
-                         Windows            OSX        Debian
-                        installer         installer   installer
+                         Windows          Android        Debian
+                        installer           APK         installer
 
 
 Make targets
 ------------
 
-To build both the slim Kolibri and the one with bundled dependencies, simply
-run ``make dist``. The ``.whl`` files will now be available in ``dist/*whl``
-and you can install them with ``pip install dist/filename.whl``.
+- To build a wheel file, run ``make dist``
+- To build a pex file, run ``make pex`` after ``make dist``
+- Builds for additional platforms are triggered from buildkite  based on *.buildkite/pipeline.yml*
+
+
+More on version numbers
+-----------------------
+
+.. note:: The content below is pulled from the docstring of the ``kolibri.utils.version`` module.
+
+.. automodule:: kolibri.utils.version
+  :undoc-members:
+  :show-inheritance:
 

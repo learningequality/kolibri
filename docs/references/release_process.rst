@@ -228,14 +228,3 @@ Tell the world!
 * Announce release on dev list and newsletter if appropriate.
 * For issues on this milestone that have been reported by the community, respond on the issues or other channels, notifying of the release that fixes this issues.
 
-
-
-More on version numbers
------------------------
-
-.. note:: The content below is pulled from the docstring of the ``kolibri.utils.version`` module.
-
-.. automodule:: kolibri.utils.version
-  :undoc-members:
-  :show-inheritance:
-
