@@ -5,7 +5,7 @@
     <div
       class="modal-overlay"
       @keyup.esc="emitCancelEvent"
-      @keyup.enter="emitEnterEvent"
+      @keyup.enter="emitSubmitEvent"
       ref="modal-overlay"
       id="modal-window"
     >
@@ -36,7 +36,7 @@
         </h1>
 
         <form
-          @submit.prevent="emitEnterEvent"
+          @submit.prevent="emitSubmitEvent"
           @keyup.enter.stop
         >
           <!-- Default slot for content -->
@@ -214,12 +214,16 @@
         }
       }, 100),
       emitCancelEvent() {
-        // Emitted when the cancel button is clicked or the esc key is pressed
-        this.$emit('cancel');
+        if(!this.cancelDisabled) {
+          // Emitted when the cancel button is clicked or the esc key is pressed
+          this.$emit('cancel');
+        }
       },
-      emitEnterEvent() {
-        // Emitted when the submit button or the enter key is pressed
-        this.$emit('submit');
+      emitSubmitEvent() {
+        if(!this.submitDisabled) {
+          // Emitted when the submit button or the enter key is pressed
+          this.$emit('submit');
+        }
       },
       focusModal() {
         this.$refs.modal.focus();
