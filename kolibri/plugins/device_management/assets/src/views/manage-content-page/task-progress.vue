@@ -149,7 +149,7 @@
       },
       progressMessage() {
         if (this.percentage > 0) {
-          return this.formattedPercentage.toFixed(1) + '%';
+          return this.formattedPercentage.toFixed(2) + '%';
         }
         return '';
       },

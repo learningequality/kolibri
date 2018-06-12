@@ -47,7 +47,7 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
 
     def test_one_local_file_available(self):
         LocalFile.objects.all().update(available=False)
-        LocalFile.objects.filter(id='9f9438fe6b0d42dd8e913d7d04cfb2b2').update(available=True)
+        LocalFile.objects.filter(id='6bdfea4a01830fdd4a585181c0b8068c').update(available=True)
         set_leaf_node_availability_from_local_file_availability(test_channel_id)
         self.assertTrue(ContentNode.objects.get(id='32a941fb77c2576e8f6b294cde4c3b0c').available)
         self.assertFalse(all(
@@ -112,13 +112,13 @@ class LocalFileByChecksum(TransactionTestCase):
         LocalFile.objects.all().update(available=False)
 
     def test_set_one_file(self):
-        file_id = '9f9438fe6b0d42dd8e913d7d04cfb2b2'
+        file_id = '6bdfea4a01830fdd4a585181c0b8068c'
         mark_local_files_as_available([file_id])
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 1)
         self.assertTrue(LocalFile.objects.get(id=file_id).available)
 
     def test_set_two_files(self):
-        file_id_1 = '9f9438fe6b0d42dd8e913d7d04cfb2b2'
+        file_id_1 = '6bdfea4a01830fdd4a585181c0b8068c'
         file_id_2 = 'e00699f859624e0f875ac6fe1e13d648'
         mark_local_files_as_available([file_id_1, file_id_2])
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 2)
@@ -138,7 +138,7 @@ class LocalFileByDisk(TransactionTestCase):
 
     fixtures = ['content_test.json']
 
-    file_id_1 = '9f9438fe6b0d42dd8e913d7d04cfb2b2'
+    file_id_1 = '6bdfea4a01830fdd4a585181c0b8068c'
     file_id_2 = 'e00699f859624e0f875ac6fe1e13d648'
 
     def setUp(self):
