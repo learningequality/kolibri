@@ -35,7 +35,7 @@ class Command(AsyncCommand):
 
     def get_dataset_id(self, base_url, dataset_id):
         # get list of facilities and if more than 1, display all choices to user
-        facility_url = urljoin(base_url, reverse('publicfacility'))
+        facility_url = urljoin(base_url, reverse('publicfacility-list'))
         facility_resp = requests.get(facility_url)
         facility_resp.raise_for_status()
         facilities = facility_resp.json()

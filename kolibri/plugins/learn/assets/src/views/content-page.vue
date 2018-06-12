@@ -2,8 +2,7 @@
 
   <div>
 
-    <!-- TODO: RTL - Remove ta-l -->
-    <page-header :title="content.title" dir="auto" class="ta-l" />
+    <page-header :title="content.title" dir="auto" />
     <coach-content-label
       class="coach-content-label"
       :value="content.coach_content ? 1 : 0"
@@ -45,8 +44,7 @@
     />
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
-    <!-- TODO: RTL - Remove ta-l -->
-    <p v-html="description" dir="auto" class="ta-l"></p>
+    <p v-html="description" dir="auto"></p>
 
 
     <section class="metadata" v-if="showMetadata">
@@ -60,13 +58,15 @@
 
         <template v-if="content.license_description">
           <ui-icon-button
-            :icon="licenceDescriptionIsVisible ? 'expand_less' : 'expand_more'"
             :ariaLabel="$tr('toggleLicenseDescription')"
             size="small"
             type="secondary"
             @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
-          />
-          <p v-if="licenceDescriptionIsVisible" dir="auto" class="ta-l">
+          >
+            <mat-svg v-if="licenceDescriptionIsVisible" name="expand_less" category="navigation" />
+            <mat-svg v-else name="expand_more" category="navigation" />
+          </ui-icon-button>
+          <p v-if="licenceDescriptionIsVisible" dir="auto">
             {{ content.license_description }}
           </p>
         </template>
@@ -288,8 +288,5 @@
 
   .download-button
     display: block
-
-  .ta-l
-    text-align: left
 
 </style>

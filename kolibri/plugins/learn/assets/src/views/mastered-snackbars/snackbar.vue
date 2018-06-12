@@ -12,10 +12,11 @@
         <div class="close-container cell">
           <ui-icon-button
             size="small"
-            icon="close"
             :ariaLabel="$tr('close')"
             @click="$emit('close')"
-          />
+          >
+            <mat-svg name="close" category="navigation" />
+          </ui-icon-button>
         </div>
       </div>
     </div>

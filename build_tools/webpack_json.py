@@ -52,7 +52,7 @@ def main():
 
     if args.output_file:
         logger.info("Writing webpack_json output to {}".format(args.output_file))
-        with open(args.output_file, "w") as f:
+        with open(args.output_file, 'w') as f:
             json.dump(result, f)
     else:
         logger.info("No output file argument; writing webpack_json output to stdout.")

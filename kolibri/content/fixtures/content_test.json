@@ -76,6 +76,28 @@
     "fields": {
       "license_owner": "",
       "parent": "da7ecc42e62553eebc8121242746e88a",
+      "title": "copy",
+      "license_name": "WTFPL",
+      "tags": [],
+      "kind": "video",
+      "content_id": "c6f49ea527824f398f4d5d26faf19396",
+      "tree_id": 1,
+      "rght": 3,
+      "description": "copy",
+      "available": true,
+      "lft": 2,
+      "sort_order": null,
+      "level": 1,
+      "author": "",
+      "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
+    },
+    "pk": "42a941fb77c2576e8f6b294cde4c3b0c",
+    "model": "content.contentnode"
+  },
+  {
+    "fields": {
+      "license_owner": "",
+      "parent": "da7ecc42e62553eebc8121242746e88a",
       "title": "c2",
       "license_name": "GNU",
       "tags": [

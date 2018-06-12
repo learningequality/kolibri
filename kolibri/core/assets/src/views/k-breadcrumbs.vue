@@ -3,7 +3,11 @@
   <div v-show="showSingleItem || crumbs.length > 1">
     <nav class="breadcrumbs">
       <div v-show="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
-        <ui-icon-button :hasDropdown="true" icon="expand_more" size="small">
+        <ui-icon-button :hasDropdown="true" size="small">
+          <mat-svg
+            name="expand_more"
+            category="navigation"
+          />
           <div slot="dropdown" class="breadcrumbs-dropdown">
             <ol class="breadcrumbs-dropdown-items">
               <li
