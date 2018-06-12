@@ -1,30 +1,7 @@
 .. _release_process:
 
-Release process
-===============
-
-Branches and tags
------------------
-
-* The ``master`` branch always has the latest stable code
-* The ``develop`` branch is our current development branch
-* Branches named like ``release-v1.2.x`` (for example) track all releases of the 1.2 release line. This may include multiple patch releases (like v1.2.0, v1.2.1, etc)
-* Tags named like  like ``v1.2.0-beta1`` and ``v1.2.0`` label specific releases
-
-
-.. note::
-  At a high level, we follow the 'Gitflow' model. Some helpful references: `Original reference <http://nvie.com/posts/a-successful-git-branching-model/>`_, `Atlassian <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/>`_
-
-
-If a change needs to be introduced to an old release, target **the oldest release branch** that you want a bug fix introduced in. Then that will be merged into all later releases, including develop.
-
-When we get close to releasing a new stable version/release of Kolibri, we generally branch ``develop`` into something like ``release-v0.1.x`` and tag it as a new beta. If you're working on an issue targetted with that milestone, then you should target changes to that branch. Changes to those branches will later be pulled into ``develop`` again.
-
-If you're not sure which branch to target, ask the dev team!
-
-
-Process
--------
+Release process steps
+=====================
 
 Update the Changelog
 ~~~~~~~~~~~~~~~~~~~~
