@@ -11,7 +11,7 @@
   >
     <k-textbox
       ref="newPassword"
-      type="new-password"
+      type="password"
       :label="$tr('newPasswordFieldLabel')"
       :invalid="newPasswordIsInvalid"
       :invalidText="newPasswordInvalidErrorText"
@@ -21,7 +21,7 @@
     />
     <k-textbox
       ref="confirmedNewPassword"
-      type="new-password"
+      type="password"
       :label="$tr('confirmNewPasswordFieldLabel')"
       :invalid="confirmedNewPasswordIsInvalid"
       :invalidText="confirmedNewPasswordInvalidErrorText"
@@ -64,7 +64,7 @@
         return '';
       },
       newPasswordIsInvalid() {
-        return !!this.newPasswordInvalidErrorText;
+        return Boolean(this.newPasswordInvalidErrorText);
       },
       confirmedNewPasswordInvalidErrorText() {
         if (this.confirmedNewPasswordBlurred || this.submittedForm) {
@@ -78,7 +78,7 @@
         return '';
       },
       confirmedNewPasswordIsInvalid() {
-        return !!this.confirmedNewPasswordInvalidErrorText;
+        return Boolean(this.confirmedNewPasswordInvalidErrorText);
       },
       formIsValid() {
         return !this.newPasswordIsInvalid && !this.confirmedNewPasswordIsInvalid;

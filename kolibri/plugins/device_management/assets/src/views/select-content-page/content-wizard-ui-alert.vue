@@ -23,6 +23,8 @@
     [ContentWizardErrors.DRIVE_NOT_FOUND]: 'driveUnavailableError',
     [ContentWizardErrors.DRIVE_ERROR]: 'driveError',
     [ContentWizardErrors.TRANSFER_IN_PROGRESS]: 'transferInProgressError',
+    // Recycling 'channel not found error'
+    [ContentWizardErrors.TREEVIEW_LOADING_ERROR]: 'channelNotFoundError',
   };
 
   export default {

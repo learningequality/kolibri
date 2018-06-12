@@ -6,11 +6,12 @@
       :class="{ 'tab-has-icon-and-title': type === 'icon-and-title' }"
       :to="link"
     >
-
       <div v-if="type === 'icon' || type === 'icon-and-title'" class="tab-icon">
-        <ui-icon :icon="icon" :ariaLabel="title" class="icon" />
+        <ui-icon :ariaLabel="title" class="icon">
+          <!--The icon svg-->
+          <slot></slot>
+        </ui-icon>
       </div>
-
       <div v-if="type === 'title' || type === 'icon-and-title'" class="tab-title">
         {{ title }}
       </div>
@@ -46,13 +47,6 @@
        * The text
        */
       title: {
-        type: String,
-        required: false,
-      },
-      /**
-       * A material icon name
-       */
-      icon: {
         type: String,
         required: false,
       },

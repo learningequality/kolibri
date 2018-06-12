@@ -71,7 +71,8 @@ import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
 import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
-import customUiMenu from '../views/custom-ui-menu';
+import coreMenu from '../views/core-menu';
+import coreMenuOption from '../views/core-menu/option';
 import heartbeat from '../heartbeat';
 import coreTable from '../views/core-table';
 import kDropdownMenu from '../views/k-dropdown-menu';
@@ -145,7 +146,8 @@ export default {
       uiAlert,
       appBar,
       coreSnackbar,
-      customUiMenu,
+      coreMenu,
+      coreMenuOption,
       coreTable,
       kDropdownMenu,
       CoreInfoIcon,

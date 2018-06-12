@@ -5,22 +5,25 @@
       v-if="canManageContent"
       type="icon-and-title"
       :title="$tr('contentLabel')"
-      icon="apps"
       :link="linkify(PageNames.MANAGE_CONTENT_PAGE)"
-    />
+    >
+      <mat-svg name="apps" category="navigation" />
+    </k-navbar-link>
     <k-navbar-link
       v-if="isSuperuser"
       type="icon-and-title"
       :title="$tr('permissionsLabel')"
-      icon="https"
       :link="linkify(PageNames.MANAGE_PERMISSIONS_PAGE)"
-    />
+    >
+      <mat-svg name="https" category="action" />
+    </k-navbar-link>
     <k-navbar-link
       type="icon-and-title"
       :title="$tr('infoLabel')"
-      icon="perm_device_information"
       :link="linkify(PageNames.DEVICE_INFO_PAGE)"
-    />
+    >
+      <mat-svg name="perm_device_information" category="action" />
+    </k-navbar-link>
   </k-navbar>
 
 </template>

@@ -17,17 +17,21 @@
     <ui-icon-button
       class="doc-viewer-controls button-prev-page"
       aria-controls="pdf-container"
-      :icon="isRtl? 'chevron_right' : 'chevron_left'"
       size="large"
       @click="prevPage"
-    />
+    >
+      <mat-svg v-if="isRtl" name="chevron_right" category="navigation" />
+      <mat-svg v-else name="chevron_left" category="navigation" />
+    </ui-icon-button>
     <ui-icon-button
       class="doc-viewer-controls button-next-page"
       aria-controls="pdf-container"
-      :icon="isRtl? 'chevron_left' : 'chevron_right'"
       size="large"
       @click="nextPage"
-    />
+    >
+      <mat-svg v-if="isRtl" name="chevron_left" category="navigation" />
+      <mat-svg v-else name="chevron_right" category="navigation" />
+    </ui-icon-button>
     <div
       ref="epubContainer"
       id="epub-container"

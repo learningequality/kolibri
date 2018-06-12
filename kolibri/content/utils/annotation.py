@@ -9,6 +9,7 @@ from sqlalchemy import func
 from sqlalchemy import select
 
 from .channels import get_channel_ids_for_content_database_dir
+from .paths import get_content_database_file_path
 from .paths import get_content_file_name
 from .paths import get_content_storage_file_path
 from .sqlalchemybridge import Bridge
@@ -25,11 +26,14 @@ CONTENT_APP_NAME = KolibriContentConfig.label
 
 CHUNKSIZE = 10000
 
+
 def update_channel_metadata():
     """
     If we are potentially moving from a version of Kolibri that did not import its content data,
     scan through the content database folder for all channel content databases,
     and pull the data from each database if we have not already imported it.
+    Additionally, fix any potential issues that might be in the current content database from bugs
+    in a previous version.
     """
     from .channel_import import import_channel_from_local_db, InvalidSchemaVersionError, FutureSchemaError
     channel_ids = get_channel_ids_for_content_database_dir(get_content_database_dir_path())
@@ -40,6 +44,41 @@ def update_channel_metadata():
                 set_availability(channel_id)
             except (InvalidSchemaVersionError, FutureSchemaError):
                 logging.warning("Tried to import channel {channel_id}, but database file was incompatible".format(channel_id=channel_id))
+    fix_multiple_trees_with_id_one()
+
+
+def fix_multiple_trees_with_id_one():
+    # Do a check for improperly imported ContentNode trees
+    # These trees have been naively imported, and so there are multiple trees
+    # with tree_ids set to 1. Just check the root nodes to reduce the query size.
+    tree_id_one_channel_ids = ContentNode.objects.filter(parent=None, tree_id=1).values_list('channel_id', flat=True)
+    if len(tree_id_one_channel_ids) > 1:
+        logging.warning("Improperly imported channels discovered")
+        # There is more than one channel with a tree_id of 1
+        # Find which channel has the most content nodes, and then delete and reimport the rest.
+        channel_sizes = {}
+        for channel_id in tree_id_one_channel_ids:
+            channel_sizes[channel_id] = ContentNode.objects.filter(channel_id=channel_id).count()
+        # Get sorted list of ids by increasing number of nodes
+        sorted_channel_ids = sorted(channel_sizes, key=channel_sizes.get)
+        # Loop through all but the largest channel, delete and reimport
+        count = 0
+        from .channel_import import import_channel_from_local_db
+        for channel_id in sorted_channel_ids[:-1]:
+            # Double check that we have a content db to import from before deleting any metadata
+            if os.path.exists(get_content_database_file_path(channel_id)):
+                logging.warning("Deleting and reimporting channel metadata for {channel_id}".format(channel_id=channel_id))
+                ChannelMetadata.objects.get(id=channel_id).delete_content_tree_and_files()
+                import_channel_from_local_db(channel_id)
+                logging.info("Successfully reimported channel metadata for {channel_id}".format(channel_id=channel_id))
+                count += 1
+            else:
+                logging.warning("Attempted to reimport channel metadata for channel {channel_id} but no content database found".format(channel_id=channel_id))
+        if count:
+            logging.info("Successfully reimported channel metadata for {count} channels".format(count=count))
+        failed_count = len(sorted_channel_ids) - 1 - count
+        if failed_count:
+            logging.warning("Failed to reimport channel metadata for {count} channels".format(count=failed_count))
 
 
 def set_leaf_node_availability_from_local_file_availability(channel_id):

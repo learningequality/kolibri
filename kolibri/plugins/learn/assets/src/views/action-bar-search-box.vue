@@ -5,12 +5,13 @@
       <ui-icon-button
         v-show="searchBoxIsDropdown"
         ref="toggleBtn"
-        icon="search"
         type="primary"
         color="primary"
         :disableRipple="true"
         @click="toggleDropdownSearchBox"
-      />
+      >
+        <mat-svg name="search" category="action" class="search-icon" />
+      </ui-icon-button>
 
       <div v-show="searchBoxIsVisible" :class="{ 'search-box-dropdown': searchBoxIsDropdown }">
         <search-box
@@ -130,5 +131,8 @@
     left: 0
     z-index: 4
     background-color: rgba(0, 0, 0, 0.7)
+
+  .search-icon
+    fill: white
 
 </style>
