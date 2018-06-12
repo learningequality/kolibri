@@ -15,6 +15,7 @@ import textFieldsPage from '../content/text-fields';
 import filtersPage from '../content/filters';
 import dropdownMenusPage from '../content/dropdown-menus';
 import loadersPage from '../content/loaders';
+import modalsPage from '../content/modals';
 
 function sortSectionItems(items) {
   return sortBy(items, [item => item.itemName]);
@@ -115,6 +116,13 @@ const navMenu = [
         itemRoute: {
           path: `/components/loaders`,
           component: loadersPage,
+        },
+      },
+      {
+        itemName: 'Modals',
+        itemRoute: {
+          path: `/components/modals`,
+          component: modalsPage,
         },
       },
     ]),

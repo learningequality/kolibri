@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('enterChannelToken')"
     :submitText="$tr('confirm')"
     :cancelText="$tr('cancel')"
@@ -28,7 +28,7 @@
       @blur="tokenIsBlurred=true"
       :disabled="formIsDisabled"
     />
-  </core-modal>
+  </k-modal>
 
 </template>
 
@@ -36,7 +36,7 @@
 <script>
 
   import UiAlert from 'keen-ui/src/UiAlert';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { getRemoteChannelByToken } from '../../state/actions/availableChannelsActions';
 
@@ -44,7 +44,7 @@
     name: 'channelTokenModal',
     components: {
       UiAlert,
-      coreModal,
+      kModal,
       kTextbox,
     },
     data() {

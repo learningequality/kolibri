@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('deleteUser')"
     :submitText="$tr('delete')"
     :cancelText="$tr('cancel')"
@@ -10,14 +10,14 @@
   >
     <p>{{ $tr('confirmation', { username: username }) }}</p>
     <p>{{ $tr('warning', { username: username }) }}</p>
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import { deleteUser, displayModal } from '../../state/actions';
 
   export default {
@@ -30,7 +30,7 @@
       delete: 'Delete',
     },
     components: {
-      coreModal,
+      kModal,
     },
     props: {
       id: {

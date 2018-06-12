@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
-import coreModal from 'kolibri.coreVue.components.coreModal';
+import kModal from 'kolibri.coreVue.components.kModal';
 import UiAlert from 'keen-ui/src/UiAlert';
 import SelectDriveModal from '../../src/views/manage-content-page/select-transfer-source-modal/select-drive-modal';
 import { wizardState } from '../../src/state/getters';
@@ -53,7 +53,7 @@ function makeStore() {
 // prettier-ignore
 function getElements(wrapper) {
   return {
-    titleText: () => wrapper.find(coreModal).props().title,
+    titleText: () => wrapper.find(kModal).props().title,
     driveListLoading: () => wrapper.find('.drive-list-loading'),
     driveListLoadingText: () => wrapper.find('.drive-list-loading').text().trim(),
     driveListContainer: () => wrapper.find('.drive-list'),

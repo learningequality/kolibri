@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="title"
     size="small"
     :submitText="$tr('continue')"
@@ -34,7 +34,7 @@
         :mode="driveListMode"
       />
     </transition>
-  </core-modal>
+  </k-modal>
 
 </template>
 
@@ -42,7 +42,7 @@
 <script>
 
   import UiAlert from 'keen-ui/src/UiAlert';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import { refreshDriveList } from '../../../state/actions/taskActions';
   import {
     goForwardFromSelectDriveModal,
@@ -57,7 +57,7 @@
     components: {
       driveList,
       UiAlert,
-      coreModal,
+      kModal,
     },
     data() {
       return {

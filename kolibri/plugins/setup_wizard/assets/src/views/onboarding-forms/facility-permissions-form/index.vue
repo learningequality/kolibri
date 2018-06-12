@@ -4,7 +4,7 @@
 
     <!-- Cannot match spec with current core modal -->
     <!-- Should be its own component -->
-    <core-modal
+    <k-modal
       v-if="permissionPresetDetailsModalShown"
       :title=" $tr('facilityPermissionsPresetDetailsHeader')"
       :submitText="$tr('permissionsModalDismissText')"
@@ -50,7 +50,7 @@
           {{ $tr('enabledAccountEditPermissionDetail') }}
         </dd>
       </dl>
-    </core-modal>
+    </k-modal>
 
     <onboarding-form
       :header="$tr('facilityPermissionsSetupFormHeader')"
@@ -103,7 +103,7 @@
 
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import onboardingForm from '../onboarding-form';
   import { submitFacilityPermissions } from '../../../state/actions/forms';
 
@@ -113,7 +113,7 @@
       onboardingForm,
       kRadioButton,
       kButton,
-      coreModal,
+      kModal,
     },
     $trs: {
       facilityPermissionsSetupFormHeader: 'Choose a Facility setup',

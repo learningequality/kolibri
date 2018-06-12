@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('moveLearners')"
     :cancelText="$tr('cancel')"
     :submitText="$tr('move')"
@@ -25,14 +25,14 @@
         v-model="groupSelected"
       />
     </div>
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import {
     displayModal,
@@ -52,7 +52,7 @@
       move: 'Move',
     },
     components: {
-      coreModal,
+      kModal,
       kRadioButton,
     },
     props: {

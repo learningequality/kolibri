@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('title')"
     :submitText="$tr('reset')"
     :cancelText="$tr('cancel')"
@@ -11,19 +11,19 @@
       <p>{{ $tr('confirmationQuestion') }}</p>
       <p>{{ $tr('changesWillBeLost') }}</p>
     </div>
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
     name: 'confirmResetModal',
     components: {
-      coreModal,
+      kModal,
     },
     methods: {
       handleConfirm() {

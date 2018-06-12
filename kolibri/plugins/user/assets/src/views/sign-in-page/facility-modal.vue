@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('facilitySelectionModalHeader')"
     :submitText="$tr('submitFacilitySelectionButtonPrompt')"
     :cancelText="$tr('close')"
@@ -16,14 +16,14 @@
       :label="facility.name"
       :value="facility.id"
     />
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { getFacilityConfig } from 'kolibri.coreVue.vuex.actions';
@@ -32,7 +32,7 @@
   export default {
     name: 'facilityModal',
     components: {
-      coreModal,
+      kModal,
       kRadioButton,
       kButton,
     },

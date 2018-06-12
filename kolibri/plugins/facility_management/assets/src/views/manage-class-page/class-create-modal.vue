@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('addNewClassTitle')"
     size="small"
     :submitText="$tr('create')"
@@ -19,14 +19,14 @@
       @blur="nameBlurred = true"
       v-model.trim="name"
     />
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { createClass, displayModal } from '../../state/actions';
 
@@ -41,7 +41,7 @@
       required: 'This field is required',
     },
     components: {
-      coreModal,
+      kModal,
       kTextbox,
     },
     props: {

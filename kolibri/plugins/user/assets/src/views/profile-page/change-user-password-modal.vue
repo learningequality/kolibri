@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('passwordChangeFormHeader')"
     size="small"
     :submitText="$tr('updateButtonLabel')"
@@ -28,21 +28,21 @@
       @blur="confirmedNewPasswordBlurred = true"
       v-model="confirmedNewPassword"
     />
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { updateUserProfilePassword } from '../../state/actions';
 
   export default {
     name: 'changeUserPasswordModal',
     components: {
-      coreModal,
+      kModal,
       kTextbox,
     },
     data() {

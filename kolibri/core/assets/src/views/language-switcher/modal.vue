@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('changeLanguageModalHeader')"
     :submitText="$tr('confirmButtonText')"
     :cancelText="$tr('cancelButtonText')"
@@ -14,21 +14,21 @@
       :label="language.lang_name"
       v-model="selectedLanguage"
     />
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import languageSwitcherMixin from 'kolibri.coreVue.mixins.languageSwitcherMixin';
   import { currentLanguage } from 'kolibri.utils.i18n';
 
   export default {
     name: 'languageSwitcherModal',
-    components: { coreModal, kRadioButton },
+    components: { kModal, kRadioButton },
     mixins: [languageSwitcherMixin],
     $trs: {
       changeLanguageModalHeader: 'Change language',

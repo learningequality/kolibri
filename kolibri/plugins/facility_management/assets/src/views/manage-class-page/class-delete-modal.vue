@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('modalTitle')"
     :submitText="$tr('delete')"
     :cancelText="$tr('cancel')"
@@ -10,14 +10,14 @@
   >
     <p>{{ $tr('confirmation', { classname: classname }) }}</p>
     <p>{{ $tr('description') }}</p>
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import { deleteClass, displayModal } from '../../state/actions';
 
   export default {
@@ -31,7 +31,7 @@
         "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
     },
     components: {
-      coreModal,
+      kModal,
     },
     props: {
       classname: {

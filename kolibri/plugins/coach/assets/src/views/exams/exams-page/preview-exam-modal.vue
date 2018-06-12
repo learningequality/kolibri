@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('preview')"
     :submitText="$tr('close')"
     size="large"
@@ -65,7 +65,7 @@
         </k-grid>
       </div>
     </transition>
-  </core-modal>
+  </k-modal>
 
 </template>
 
@@ -76,7 +76,7 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kGrid from 'kolibri.coreVue.components.kGrid';
@@ -95,7 +95,7 @@
     },
     components: {
       coachContentLabel,
-      coreModal,
+      kModal,
       contentRenderer,
       kButton,
       kGrid,

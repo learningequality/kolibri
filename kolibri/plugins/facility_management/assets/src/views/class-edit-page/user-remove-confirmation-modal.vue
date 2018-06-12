@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('modalTitle')"
     :hasError="false"
     :submitText="$tr('remove')"
@@ -10,14 +10,14 @@
   >
     <p>{{ $tr('confirmation', { username: username, classname: classname }) }}</p>
     <p>{{ $tr('description') }}</p>
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import { displayModal } from '../../state/actions';
 
   export default {
@@ -30,7 +30,7 @@
       description: "You can still access this account from the 'Users' tab.",
     },
     components: {
-      coreModal,
+      kModal,
     },
     props: {
       classname: {

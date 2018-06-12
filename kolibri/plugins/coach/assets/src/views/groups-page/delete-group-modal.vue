@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('deleteLearnerGroup')"
     :submitText="$tr('deleteGroup')"
     :cancelText="$tr('cancel')"
@@ -9,14 +9,14 @@
   >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
     <p>{{ $tr('learnersWillBecomeUngrouped') }}</p>
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { displayModal, deleteGroup } from '../../state/actions/group';
 
@@ -30,7 +30,7 @@
       deleteGroup: 'Delete group',
     },
     components: {
-      coreModal,
+      kModal,
       kTextbox,
     },
     props: {

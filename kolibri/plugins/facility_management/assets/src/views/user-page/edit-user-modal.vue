@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('editUser')"
     :submitText="$tr('save')"
     :cancelText="$tr('cancel')"
@@ -59,7 +59,7 @@
         v-model="classCoachIsSelected"
       />
     </fieldset>
-  </core-modal>
+  </k-modal>
 
 </template>
 
@@ -69,7 +69,7 @@
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
@@ -97,7 +97,7 @@
       facilityCoachDescription: 'Can instruct all classes in your facility',
     },
     components: {
-      coreModal,
+      kModal,
       kTextbox,
       kSelect,
       uiAlert,

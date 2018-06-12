@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('addNewAccountTitle')"
     :submitText="$tr('createAccount')"
     :cancelText="$tr('cancel')"
@@ -74,7 +74,7 @@
         />
       </fieldset>
     </section>
-  </core-modal>
+  </k-modal>
 
 </template>
 
@@ -85,7 +85,7 @@
   import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
@@ -119,7 +119,7 @@
     },
     components: {
       kRadioButton,
-      coreModal,
+      kModal,
       kTextbox,
       uiAlert,
       kSelect,

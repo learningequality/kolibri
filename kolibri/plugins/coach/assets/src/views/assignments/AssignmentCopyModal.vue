@@ -2,7 +2,7 @@
 
   <div>
     <!-- Classroom Selection Form -->
-    <core-modal
+    <k-modal
       v-if="stage===Stages.SELECT_CLASSROOM"
       id="select-classroom"
       :title="modalTitle"
@@ -19,10 +19,10 @@
         :value="classroom.id"
         v-model="selectedClassroomId"
       />
-    </core-modal>
+    </k-modal>
 
     <!-- Learner Group Selection Form -->
-    <core-modal
+    <k-modal
       v-else
       id="select-learnergroup"
       :title="modalTitle"
@@ -38,7 +38,7 @@
         :groups="availableGroups"
         :classId="selectedClassroomId"
       />
-    </core-modal>
+    </k-modal>
   </div>
 
 </template>
@@ -49,7 +49,7 @@
   import sortBy from 'lodash/sortBy';
   import find from 'lodash/find';
   import { error as logError } from 'kolibri.lib.logging';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import { LearnerGroupResource } from 'kolibri.resources';
   import { handleApiError } from 'kolibri.coreVue.vuex.actions';
@@ -63,7 +63,7 @@
   export default {
     name: 'assignmentCopyModal',
     components: {
-      coreModal,
+      kModal,
       kRadioButton,
       RecipientSelector,
     },

@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="modalTitle"
     :hasError="showServerError || !formIsValid"
     :submitText="isInEditMode ? $tr('save') : $tr('continue')"
@@ -43,7 +43,7 @@
         :disabled="formIsSubmitted"
       />
     </fieldset>
-  </core-modal>
+  </k-modal>
 
 </template>
 
@@ -51,7 +51,7 @@
 <script>
 
   import xor from 'lodash/xor';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import UiAlert from 'keen-ui/src/UiAlert';
   import RecipientSelector from './RecipientSelector';
@@ -59,7 +59,7 @@
   export default {
     name: 'assignmentDetailsModal',
     components: {
-      coreModal,
+      kModal,
       kTextbox,
       RecipientSelector,
       UiAlert,

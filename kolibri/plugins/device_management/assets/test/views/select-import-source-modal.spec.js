@@ -8,7 +8,7 @@ function makeWrapper(options) {
     stubs: ['selectImportSourceModal', 'selectDriveModal'],
   });
   const els = {
-    titleText: () => wrapper.find({ name: 'coreModal' }).props().title,
+    titleText: () => wrapper.find({ name: 'kModal' }).props().title,
   };
   return { wrapper, els };
 }

@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="modalTitle"
     :submitText="$tr('delete')"
     :cancelText="$tr('cancel')"
@@ -8,19 +8,19 @@
     @cancel="closeModal"
   >
     <p>{{ modalDescription }}</p>
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
     name: 'assignmentDeleteModal',
     components: {
-      coreModal,
+      kModal,
     },
     props: {
       modalTitle: {

@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('selectLocalRemoteSourceTitle')"
     :submitText="$tr('continue')"
     :cancelText="$tr('cancel')"
@@ -23,7 +23,7 @@
         :disabled="formIsDisabled"
       />
     </div>
-  </core-modal>
+  </k-modal>
 
 </template>
 
@@ -32,7 +32,7 @@
 
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import { RemoteChannelResource } from 'kolibri.resources';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import {
     goForwardFromSelectImportSourceModal,
     LOCAL_DRIVE,
@@ -44,7 +44,7 @@
     name: 'selectImportSourceModal',
     components: {
       kRadioButton,
-      coreModal,
+      kModal,
     },
     data() {
       return {

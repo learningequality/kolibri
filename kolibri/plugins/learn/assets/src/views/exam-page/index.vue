@@ -66,7 +66,7 @@
           </div>
         </div>
       </div>
-      <core-modal
+      <k-modal
         v-if="submitModalOpen"
         :title="$tr('submitExam')"
         :submitText="$tr('submitExam')"
@@ -78,7 +78,7 @@
         <p v-if="questionsUnanswered">
           {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
         </p>
-      </core-modal>
+      </k-modal>
     </template>
   </immersive-full-screen>
 
@@ -94,7 +94,7 @@
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import { setAndSaveCurrentExamAttemptLog, closeExam } from '../../state/actions/main';
   import { ClassesPageNames } from '../../constants';
@@ -120,7 +120,7 @@
       contentRenderer,
       kButton,
       answerHistory,
-      coreModal,
+      kModal,
       uiAlert,
     },
     data() {

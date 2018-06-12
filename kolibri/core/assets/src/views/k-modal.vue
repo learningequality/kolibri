@@ -21,7 +21,6 @@
 
         <!-- Modal Title -->
         <h1
-          v-show="!invisibleTitle"
           class="title"
           id="modal-title"
           ref="title"
@@ -40,7 +39,7 @@
           @submit.prevent="emitEnterEvent"
           @keyup.enter.stop
         >
-          <!-- Modal Content -->
+          <!-- Default slot for content -->
           <div
             class="content"
             ref="content"
@@ -53,6 +52,7 @@
             class="actions"
             ref="actions"
           >
+            <!-- Slot for buttons -->
             <slot
               v-if="$slots.actions"
               name="actions"
@@ -91,8 +91,11 @@
   import debounce from 'lodash/debounce';
   import kButton from 'kolibri.coreVue.components.kButton';
 
+  /**
+   * Used to focus attention on a singular action/task
+   */
   export default {
-    name: 'coreModal',
+    name: 'kModal',
     components: {
       kButton,
     },
@@ -104,26 +107,47 @@
       closeWindow: 'Close window',
     },
     props: {
+      /**
+       * The title of the modal
+       */
       title: {
         type: String,
         required: true,
       },
+      /**
+       * The text of the submit button
+       */
       submitText: {
         type: String,
         required: false,
       },
+      /**
+       * The text of the cancel button
+       */
       cancelText: {
         type: String,
         required: false,
       },
+      /**
+       * Disable the submit button
+       */
       submitDisabled: {
         type: Boolean,
         default: false,
       },
+      /**
+       * Disable the cancel button
+       */
       cancelDisabled: {
         type: Boolean,
         default: false,
       },
+      /**
+       * How wide the modal should be.
+       * Small - 300 px.
+       * Medium - 450px.
+       * Large - 100%.
+       */
       size: {
         type: String,
         required: false,
@@ -132,11 +156,9 @@
           return ['small', 'medium', 'large'].includes(val);
         },
       },
-      invisibleTitle: {
-        type: Boolean,
-        default: false,
-      },
-      // toggles error message indicator in title
+      /**
+       * Toggles error message indicator in title
+       */
       hasError: {
         type: Boolean,
         default: false,
@@ -192,9 +214,11 @@
         }
       }, 100),
       emitCancelEvent() {
+        // Emitted when the cancel button is clicked or the esc key is pressed
         this.$emit('cancel');
       },
       emitEnterEvent() {
+        // Emitted when the submit button or the enter key is pressed
         this.$emit('submit');
       },
       focusModal() {

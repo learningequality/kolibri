@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('resetPassword')"
     :submitText="$tr('save')"
     :cancelText="$tr('cancel')"
@@ -29,21 +29,21 @@
       @blur="confirmedPasswordBlurred = true"
       v-model="confirmedPassword"
     />
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { updateUser, displayModal } from '../../state/actions';
 
   export default {
     name: 'resetUserPasswordModal',
     components: {
-      coreModal,
+      kModal,
       kTextbox,
     },
     props: {

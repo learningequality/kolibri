@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="modalTitle"
     :submitText="$tr('save')"
     :cancelText="$tr('cancel')"
@@ -18,20 +18,20 @@
       :value="false"
       v-model="activeIsSelected"
     />
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
 
   export default {
     name: 'assignmentChangeStatusModal',
     components: {
-      coreModal,
+      kModal,
       kRadioButton,
     },
     props: {
