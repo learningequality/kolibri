@@ -53,22 +53,29 @@
             class="actions"
             ref="actions"
           >
-            <k-button
-              v-if="cancelText"
-              name="cancel"
-              :text="cancelText"
-              :raised="false"
-              :disabled="cancelDisabled"
-              @click="emitCancelEvent"
-            />
-            <k-button
-              v-if="submitText"
-              name="submit"
-              :text="submitText"
-              :primary="true"
-              :disabled="submitDisabled"
-              type="submit"
-            />
+            <slot
+              v-if="$slots.actions"
+              name="actions"
+            >
+            </slot>
+            <template v-else>
+              <k-button
+                v-if="cancelText"
+                name="cancel"
+                :text="cancelText"
+                :raised="false"
+                :disabled="cancelDisabled"
+                @click="emitCancelEvent"
+              />
+              <k-button
+                v-if="submitText"
+                name="submit"
+                :text="submitText"
+                :primary="true"
+                :disabled="submitDisabled"
+                type="submit"
+              />
+            </template>
           </div>
         </form>
       </div>
