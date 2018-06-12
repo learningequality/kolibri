@@ -2,13 +2,13 @@ import sinon from 'sinon';
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import { loadChannelMetaData } from '../../src/state/actions/selectContentActions';
 import { wizardState } from '../../src/state/getters';
-import { mockResource } from 'testUtils'; // eslint-disable-line
+import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import { defaultChannel } from '../utils/data';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
-mockResource(ChannelResource);
-mockResource(ContentNodeGranularResource);
-mockResource(TaskResource);
+jestMockResource(ChannelResource);
+jestMockResource(ContentNodeGranularResource);
+jestMockResource(TaskResource);
 
 // Have store suddenly add a Task to the store so the task waiting step
 // resolves successfully
@@ -38,7 +38,7 @@ describe('loadChannelMetaData action', () => {
     TaskResource.cancelTask = sinon.stub().returns(Promise.resolve());
     TaskResource.startDiskChannelImport.returns(Promise.resolve(taskEntity));
     TaskResource.startRemoteChannelImport.returns(Promise.resolve(taskEntity));
-    ChannelResource.getModel.returns({
+    ChannelResource.getModel.mockReturnValue({
       fetch: () => ({
         _promise: Promise.resolve({
           name: 'Channel One',

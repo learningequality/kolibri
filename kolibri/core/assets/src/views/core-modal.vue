@@ -95,7 +95,7 @@
     },
     mounted() {
       this.$nextTick(() => {
-        if (!this.$refs.modal.contains(document.activeElement)) {
+        if (this.$refs.modal && !this.$refs.modal.contains(document.activeElement)) {
           this.focusModal();
         }
       });
