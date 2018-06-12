@@ -18,6 +18,7 @@ from docopt import docopt  # noqa
 import kolibri  # noqa
 from . import server  # noqa
 from .conf import OPTIONS  # noqa
+from .sanity_checks import check_content_directory_exists_and_writable  # noqa
 from .sanity_checks import check_other_kolibri_running  # noqa
 from .system import become_daemon  # noqa
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
@@ -180,8 +181,7 @@ def _migrate_databases():
 
 def _first_run():
     """
-    Called once at least. Will not run if the .kolibri/.version file is
-    found.
+    Called once at least.
     """
     if os.path.exists(version_file()):
         logger.error(
@@ -636,6 +636,10 @@ def main(args=None):  # noqa: max-complexity=13
         return
 
     if arguments['start']:
+
+        # Check if the content directory exists when Kolibri runs after the first time.
+        check_content_directory_exists_and_writable()
+
         daemon = not arguments['--foreground']
         if sys.platform == 'darwin':
             daemon = False
