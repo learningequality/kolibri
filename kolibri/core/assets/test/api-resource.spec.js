@@ -1,4 +1,3 @@
-import sinon from 'sinon';
 import * as Resources from '../src/api-resource';
 
 if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
@@ -58,9 +57,9 @@ describe('Resource', function() {
       expect(resource.getModel('test')).toEqual(testModel);
     });
     it('should call create model if the model is not in the cache', function() {
-      const spy = sinon.spy(resource, 'createModel');
+      const spy = jest.spyOn(resource, 'createModel');
       resource.getModel('test');
-      sinon.assert.calledOnce(spy);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
   describe('createModel method', function() {
@@ -68,9 +67,9 @@ describe('Resource', function() {
       expect(resource.createModel(modelData)).toBeInstanceOf(Resources.Model);
     });
     it('should call add model', function() {
-      const spy = sinon.spy(resource, 'addModel');
+      const spy = jest.spyOn(resource, 'addModel');
       resource.createModel(modelData);
-      sinon.assert.calledOnce(spy);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
   describe('addModel method', function() {
@@ -78,14 +77,14 @@ describe('Resource', function() {
       expect(resource.addModel(modelData)).toBeInstanceOf(Resources.Model);
     });
     it('should call createModel if passed an object', function() {
-      const spy = sinon.spy(resource, 'createModel');
+      const spy = jest.spyOn(resource, 'createModel');
       resource.addModel(modelData);
-      sinon.assert.calledOnce(spy);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it('should not call createModel if passed a Model', function() {
-      const spy = sinon.spy(resource, 'createModel');
+      const spy = jest.spyOn(resource, 'createModel');
       resource.addModel(new Resources.Model(modelData, {}, resource));
-      sinon.assert.notCalled(spy);
+      expect(spy).not.toHaveBeenCalled();
     });
     it('should add a model to the cache if no id', function() {
       resource.addModel(new Resources.Model({ data: 'data' }, {}, resource));
@@ -148,9 +147,9 @@ describe('Resource', function() {
       expect(resource.getCollection({})).toEqual(testCollection);
     });
     it('should call create collection if the collection is not in the cache', function() {
-      const spy = sinon.spy(resource, 'createCollection');
+      const spy = jest.spyOn(resource, 'createCollection');
       resource.getCollection({});
-      sinon.assert.calledOnce(spy);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
   describe('createCollection method', function() {
@@ -167,24 +166,22 @@ describe('Resource', function() {
       expect(resource.filterAndCheckResourceIds({ test: 'test' })).toEqual({});
     });
     it('should throw a TypeError when resourceIds are missing', function() {
-      const stub = sinon.stub(Resources.Resource, 'resourceIdentifiers');
-      stub.returns(['thisisatest']);
+      const stub = jest.spyOn(Resources.Resource, 'resourceIdentifiers').mockReturnValue(['thisisatest']);
       function testCall() {
         resource.filterAndCheckResourceIds({ test: 'test' });
       }
       expect(testCall).toThrow(TypeError);
-      stub.restore();
+      stub.mockRestore();
     });
     it('should return an object with only resourceIds', function() {
-      const stub = sinon.stub(Resources.Resource, 'resourceIdentifiers');
-      stub.returns(['thisisatest']);
+      const stub = jest.spyOn(Resources.Resource, 'resourceIdentifiers').mockReturnValue(['thisisatest']);
       const filtered = resource.filterAndCheckResourceIds({
         test: 'test',
         thisisatest: 'testtest',
       });
       expect(Object.keys(filtered)).toHaveLength(1);
       expect(filtered.thisisatest).toEqual('testtest');
-      stub.restore();
+      stub.mockRestore();
     });
   });
 });
@@ -192,7 +189,7 @@ describe('Resource', function() {
 describe('Collection', function() {
   let addModelStub, resource, params, data, collection, response, resourceIds;
   beforeEach(function() {
-    addModelStub = sinon.spy(model => ({
+    addModelStub = jest.fn().mockImplementation(model => ({
       id: model.id,
       attributes: model,
     }));
@@ -258,7 +255,7 @@ describe('Collection', function() {
     });
     describe('addModel method', function() {
       it('should be called once', function() {
-        sinon.assert.calledOnce(addModelStub);
+        expect(addModelStub).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -273,34 +270,34 @@ describe('Collection', function() {
     });
     describe('if data is passed in', function() {
       it('should call the set method once', function() {
-        const spy = sinon.spy(Resources.Collection.prototype, 'set');
+        const spy = jest.spyOn(Resources.Collection.prototype, 'set');
         const testCollection = new Resources.Collection(resourceIds, params, data, resource);
         expect(testCollection).toBeTruthy();
-        sinon.assert.calledOnce(spy);
-        Resources.Collection.prototype.set.restore();
+        expect(spy).toHaveBeenCalledTimes(1);
+        Resources.Collection.prototype.set.mockRestore();
       });
       it('should call the set method with the data', function() {
-        const spy = sinon.spy(Resources.Collection.prototype, 'set');
+        const spy = jest.spyOn(Resources.Collection.prototype, 'set');
         const testCollection = new Resources.Collection(resourceIds, params, data, resource);
         expect(testCollection).toBeTruthy();
-        sinon.assert.calledWithExactly(spy, data);
-        Resources.Collection.prototype.set.restore();
+        expect(spy).toHaveBeenCalledWith(data);
+        Resources.Collection.prototype.set.mockRestore();
       });
     });
     describe('if no data is passed in', function() {
       it('should call the set method once', function() {
-        const spy = sinon.spy(Resources.Collection.prototype, 'set');
+        const spy = jest.spyOn(Resources.Collection.prototype, 'set');
         const testCollection = new Resources.Collection(resourceIds, params, undefined, resource);
         expect(testCollection).toBeTruthy();
-        sinon.assert.calledOnce(spy);
-        Resources.Collection.prototype.set.restore();
+        expect(spy).toHaveBeenCalledTimes(1);
+        Resources.Collection.prototype.set.mockRestore();
       });
       it('should call the set method with an empty array', function() {
-        const spy = sinon.spy(Resources.Collection.prototype, 'set');
+        const spy = jest.spyOn(Resources.Collection.prototype, 'set');
         const testCollection = new Resources.Collection(resourceIds, params, undefined, resource);
         expect(testCollection).toBeTruthy();
-        sinon.assert.calledWithExactly(spy, []);
-        Resources.Collection.prototype.set.restore();
+        expect(spy).toHaveBeenCalledWith([]);
+        Resources.Collection.prototype.set.mockRestore();
       });
     });
   });
@@ -330,45 +327,45 @@ describe('Collection', function() {
     describe('if called when Collection.synced = false', function() {
       describe('and the fetch is successful', function() {
         beforeEach(function() {
-          setSpy = sinon.stub(collection, 'set');
-          clearCacheSpy = sinon.stub(collection, 'clearCache');
-          client = sinon.stub();
+          setSpy = jest.spyOn(collection, 'set');
+          clearCacheSpy = jest.spyOn(collection, 'clearCache');
+          client = jest.fn().mockResolvedValue();
           resource.client = client;
-          client.returns(Promise.resolve());
         });
         afterEach(function() {
-          collection.set.restore();
+          collection.set.mockRestore();
         });
         describe('and the returned data is an array', function() {
           beforeEach(function() {
             response = { entity: [{ testing: 'testing' }] };
-            client.returns(Promise.resolve(response));
+            client = jest.fn().mockResolvedValue(response);
+            resource.client = client;
           });
           it('should call the client once', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              sinon.assert.calledOnce(client);
+              expect(client).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call clearCache once', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              sinon.assert.calledOnce(clearCacheSpy);
+              expect(clearCacheSpy).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call set once', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              sinon.assert.calledOnce(setSpy);
+              expect(setSpy).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call set with the response entity', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              sinon.assert.calledWithExactly(setSpy, response.entity);
+              expect(setSpy).toHaveBeenCalledWith(response.entity);
               done();
             });
           });
@@ -407,35 +404,34 @@ describe('Collection', function() {
               },
             };
             collection.pageSize = 25;
-            client = sinon.stub();
-            client.returns(Promise.resolve(response));
+            client = jest.fn().mockResolvedValue(response);
             resource.client = client;
           });
           it('should call the client once', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              sinon.assert.calledOnce(client);
+              expect(client).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call clearCache once', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              sinon.assert.calledOnce(clearCacheSpy);
+              expect(clearCacheSpy).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call set once', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              sinon.assert.calledOnce(setSpy);
+              expect(setSpy).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call set with the response entity results', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              sinon.assert.calledWithExactly(setSpy, response.entity.results);
+              expect(setSpy).toHaveBeenCalledWith(response.entity.results);
               done();
             });
           });
@@ -480,25 +476,24 @@ describe('Collection', function() {
         describe('and the returned data is malformed', function() {
           beforeEach(function() {
             response = {};
-            client = sinon.stub();
-            client.returns(Promise.resolve(response));
+            client = jest.fn().mockResolvedValue(response)
             resource.client = client;
-            logstub = sinon.stub(Resources.logging, 'debug');
+            logstub = jest.spyOn(Resources.logging, 'debug').mockImplementation(() => {});
           });
           afterEach(function() {
-            logstub.restore();
+            logstub.mockRestore();
           });
           it('should call the client once', function(done) {
             collection.synced = false;
             collection.fetch().catch(() => {
-              sinon.assert.calledOnce(client);
+              expect(client).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call logging.debug once', function(done) {
             collection.synced = false;
             collection.fetch().catch(() => {
-              sinon.assert.calledOnce(logstub);
+              expect(logstub).toHaveBeenCalledTimes(1);
               done();
             });
           });
@@ -507,18 +502,17 @@ describe('Collection', function() {
       describe('and the fetch is not successful', function() {
         beforeEach(function() {
           response = 'Error';
-          client = sinon.stub();
-          client.returns(Promise.reject(response));
+          client = jest.fn().mockRejectedValue(response);
           resource.client = client;
-          logstub = sinon.stub(Resources.logging, 'error');
+          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
         });
         afterEach(function() {
-          logstub.restore();
+          logstub.mockRestore();
         });
         it('should call logging.error once', function(done) {
           collection.synced = false;
           collection.fetch().catch(() => {
-            sinon.assert.calledOnce(logstub);
+            expect(logstub).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -541,12 +535,11 @@ describe('Collection', function() {
     describe('if called with force true and synced is true', function() {
       it('should call the client once', function(done) {
         response = { entity: [{ testing: 'testing' }] };
-        client = sinon.stub();
-        client.returns(Promise.resolve(response));
+        client = jest.fn().mockResolvedValue(response);
         resource.client = client;
         collection.synced = true;
         collection.fetch({}, true).then(() => {
-          sinon.assert.calledOnce(client);
+          expect(client).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -554,8 +547,7 @@ describe('Collection', function() {
     describe('if called once', function() {
       it('should add a promise to the promises property', function() {
         response = { entity: [{ testing: 'testing' }] };
-        client = sinon.stub();
-        client.returns(new Promise(() => {}));
+        client = jest.fn().mockResolvedValue();
         collection.synced = false;
         const promise = collection.fetch();
         expect(collection.promises).toEqual([promise]);
@@ -564,8 +556,7 @@ describe('Collection', function() {
     describe('if called twice', function() {
       it('should add two promises to the promises property', function() {
         response = { entity: [{ testing: 'testing' }] };
-        client = sinon.stub();
-        client.returns(new Promise(() => {}));
+        client = jest.fn().mockResolvedValue();
         collection.synced = false;
         const promise1 = collection.fetch();
         const promise2 = collection.fetch();
@@ -573,7 +564,7 @@ describe('Collection', function() {
       });
     });
   });
-  describe('save method', function() {
+  describe('ave method', function() {
     let setSpy, client, logstub;
     describe('if called when Collection.new = false', function() {
       it('should reject the promise', function(done) {
@@ -588,38 +579,38 @@ describe('Collection', function() {
     describe('if called when Collection.new = true', function() {
       describe('and the save is successful', function() {
         beforeEach(function() {
-          setSpy = sinon.stub(collection, 'set');
-          sinon.stub(collection, 'clearCache');
-          client = sinon.stub();
+          setSpy = jest.spyOn(collection, 'set');
+          jest.spyOn(collection, 'clearCache');
+          client = jest.fn().mockResolvedValue();
           resource.client = client;
-          client.returns(Promise.resolve());
         });
         afterEach(function() {
-          collection.set.restore();
+          collection.set.mockRestore();
         });
         describe('and the returned data is an array', function() {
           beforeEach(function() {
             response = { entity: [{ testing: 'testing' }] };
-            client.returns(Promise.resolve(response));
+            client = jest.fn().mockResolvedValue(response);
+            resource.client = client;
           });
           it('should call the client once', function(done) {
             collection.synced = false;
             collection.save().then(() => {
-              sinon.assert.calledOnce(client);
+              expect(client).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call set once', function(done) {
             collection.synced = false;
             collection.save().then(() => {
-              sinon.assert.calledOnce(setSpy);
+              expect(setSpy).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call set with the response entity', function(done) {
             collection.synced = false;
             collection.save().then(() => {
-              sinon.assert.calledWithExactly(setSpy, response.entity);
+              expect(setSpy).toHaveBeenCalledWith(response.entity);
               done();
             });
           });
@@ -650,25 +641,24 @@ describe('Collection', function() {
         describe('and the returned data is malformed', function() {
           beforeEach(function() {
             response = {};
-            client = sinon.stub();
-            client.returns(Promise.resolve(response));
+            client = jest.fn().mockResolvedValue(response);
             resource.client = client;
-            logstub = sinon.stub(Resources.logging, 'debug');
+            logstub = jest.spyOn(Resources.logging, 'debug').mockImplementation(() => {});
           });
           afterEach(function() {
-            logstub.restore();
+            logstub.mockRestore();
           });
           it('should call the client once', function(done) {
             collection.synced = false;
             collection.save().catch(() => {
-              sinon.assert.calledOnce(client);
+              expect(client).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call logging.debug once', function(done) {
             collection.synced = false;
             collection.save().catch(() => {
-              sinon.assert.calledOnce(logstub);
+              expect(logstub).toHaveBeenCalledTimes(1);
               done();
             });
           });
@@ -677,18 +667,17 @@ describe('Collection', function() {
       describe('and the save is not successful', function() {
         beforeEach(function() {
           response = 'Error';
-          client = sinon.stub();
-          client.returns(Promise.reject(response));
+          client = jest.fn().mockRejectedValue(response);
           resource.client = client;
-          logstub = sinon.stub(Resources.logging, 'error');
+          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
         });
         afterEach(function() {
-          logstub.restore();
+          logstub.mockRestore();
         });
         it('should call logging.error once', function(done) {
           collection.synced = false;
           collection.save().catch(() => {
-            sinon.assert.calledOnce(logstub);
+            expect(logstub).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -711,8 +700,7 @@ describe('Collection', function() {
     describe('if called once', function() {
       it('should add a promise to the promises property', function() {
         response = { entity: [{ testing: 'testing' }] };
-        client = sinon.stub();
-        client.returns(new Promise(() => {}));
+        client = jest.fn().mockResolvedValue();
         collection.synced = false;
         const promise = collection.save();
         expect(collection.promises).toEqual([promise]);
@@ -721,10 +709,10 @@ describe('Collection', function() {
     describe('if called twice', function() {
       it('should add two promises to the promises property', function() {
         response = { entity: [{ testing: 'testing' }] };
-        client = sinon.stub();
-        client.returns(new Promise(() => {}));
+        client = jest.fn().mockResolvedValue();
         collection.synced = false;
         const promise1 = collection.save();
+        // NOTE: unhandled promise rejection here
         const promise2 = collection.save();
         expect(collection.promises).toEqual([promise1, promise2]);
       });
@@ -750,32 +738,31 @@ describe('Collection', function() {
       });
       describe('and the delete is successful', function() {
         beforeEach(function() {
-          resource.removeModel = sinon.spy();
-          resource.removeCollection = sinon.spy();
-          sinon.stub(collection, 'set');
-          sinon.stub(collection, 'clearCache');
-          client = sinon.stub();
+          resource.removeModel = jest.fn();
+          resource.removeCollection = jest.fn();
+          jest.spyOn(collection, 'set');
+          jest.spyOn(collection, 'clearCache');
+          client = jest.fn().mockResolvedValue();
           resource.client = client;
-          client.returns(Promise.resolve());
         });
         afterEach(function() {
-          collection.set.restore();
+          collection.set.mockRestore();
         });
         it('should call the client once', function(done) {
           collection.delete().then(() => {
-            sinon.assert.calledOnce(client);
+            expect(client).toHaveBeenCalledTimes(1);
             done();
           });
         });
         it('should call the client with the DELETE method', function(done) {
           collection.delete().then(() => {
-            expect(client.args[0][0].method).toEqual('DELETE');
+            expect(client.mock.calls[0][0].method).toEqual('DELETE');
             done();
           });
         });
         it('should call removeCollection on the resource', function(done) {
           collection.delete().then(() => {
-            sinon.assert.calledWithExactly(resource.removeCollection, collection);
+            expect(resource.removeCollection).toHaveBeenCalledWith(collection);
             done();
           });
         });
@@ -795,7 +782,7 @@ describe('Collection', function() {
         });
         it('should call removeModel for every Model in the collection', function(done) {
           collection.delete().then(() => {
-            expect(resource.removeCollection.callCount).toEqual(collection.models.length);
+            expect(resource.removeCollection).toHaveBeenCalledTimes(collection.models.length);
             done();
           });
         });
@@ -803,18 +790,18 @@ describe('Collection', function() {
       describe('and the delete is not successful', function() {
         beforeEach(function() {
           response = 'Error';
-          client = sinon.stub();
-          client.returns(Promise.reject(response));
+          client = jest.fn();
+          client.mockRejectedValue(response);
           resource.client = client;
-          logstub = sinon.stub(Resources.logging, 'error');
+          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {})
         });
         afterEach(function() {
-          logstub.restore();
+          logstub.mockRestore();
         });
         it('should call logging.error once', function(done) {
           collection.synced = false;
           collection.delete().catch(() => {
-            sinon.assert.calledOnce(logstub);
+            expect(logstub).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -835,9 +822,10 @@ describe('Collection', function() {
     describe('if called once', function() {
       it('should add a promise to the promises property', function() {
         response = { entity: [{ testing: 'testing' }] };
-        client = sinon.stub();
-        client.returns(new Promise(() => {}));
+        client = jest.fn();
+        client.mockResolvedValue();
         collection.synced = false;
+        // NOTE unhandled promise rejection here
         const promise = collection.delete();
         expect(collection.promises).toEqual([promise]);
       });
@@ -845,10 +833,11 @@ describe('Collection', function() {
     describe('if called twice', function() {
       it('should add two promises to the promises property', function() {
         response = { entity: [{ testing: 'testing' }] };
-        client = sinon.stub();
-        client.returns(new Promise(() => {}));
+        client = jest.fn();
+        client.mockResolvedValue();
         collection.synced = false;
         const promise1 = collection.delete();
+        // NOTE unhandled promise rejection here
         const promise2 = collection.delete();
         expect(collection.promises).toEqual([promise1, promise2]);
       });
@@ -965,18 +954,18 @@ describe('Model', function() {
     });
     describe('if data is passed in', function() {
       it('should call the set method once', function() {
-        const spy = sinon.spy(Resources.Model.prototype, 'set');
+        const spy = jest.spyOn(Resources.Model.prototype, 'set');
         const testModel = new Resources.Model(data, {}, resource);
         expect(testModel).toBeTruthy();
-        sinon.assert.calledOnce(spy);
-        Resources.Model.prototype.set.restore();
+        expect(spy).toHaveBeenCalledTimes(1);
+        Resources.Model.prototype.set.mockRestore();
       });
       it('should call the set method with the data', function() {
-        const spy = sinon.spy(Resources.Model.prototype, 'set');
+        const spy = jest.spyOn(Resources.Model.prototype, 'set');
         const testModel = new Resources.Model(data, {}, resource);
         expect(testModel).toBeTruthy();
-        sinon.assert.calledWithExactly(spy, data);
-        Resources.Model.prototype.set.restore();
+        expect(spy).toHaveBeenCalledWith(data);
+        Resources.Model.prototype.set.mockRestore();
       });
     });
     describe('if undefined data is passed in', function() {
@@ -1019,33 +1008,32 @@ describe('Model', function() {
     describe('if called when Model.synced = false', function() {
       describe('and the fetch is successful', function() {
         beforeEach(function() {
-          setSpy = sinon.stub(model, 'set');
+          setSpy = jest.spyOn(model, 'set');
           response = { entity: { testing: 'testing' } };
-          client = sinon.stub();
-          client.returns(Promise.resolve(response));
+          client = jest.fn().mockResolvedValue(response);
           resource.client = client;
         });
         afterEach(function() {
-          model.set.restore();
+          model.set.mockRestore();
         });
         it('should call the client once', function(done) {
           model.synced = false;
           model.fetch().then(() => {
-            sinon.assert.calledOnce(client);
+            expect(client).toHaveBeenCalledTimes(1);
             done();
           });
         });
         it('should call set once', function(done) {
           model.synced = false;
           model.fetch().then(() => {
-            sinon.assert.calledOnce(setSpy);
+            expect(setSpy).toHaveBeenCalledTimes(1);
             done();
           });
         });
         it('should call set with the response entity', function(done) {
           model.synced = false;
           model.fetch().then(() => {
-            sinon.assert.calledWithExactly(setSpy, response.entity);
+            expect(setSpy).toHaveBeenCalledWith(response.entity);
             done();
           });
         });
@@ -1067,18 +1055,18 @@ describe('Model', function() {
       describe('and the fetch is not successful', function() {
         beforeEach(function() {
           response = 'Error';
-          client = sinon.stub();
-          client.returns(Promise.reject(response));
+          client = jest.fn();
+          client.mockRejectedValue(response);
           resource.client = client;
-          logstub = sinon.stub(Resources.logging, 'error');
+          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {})
         });
         afterEach(function() {
-          logstub.restore();
+          logstub.mockRestore();
         });
         it('should call logging.error once', function(done) {
           model.synced = false;
           model.fetch().catch(() => {
-            sinon.assert.calledOnce(logstub);
+            expect(logstub).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -1101,12 +1089,12 @@ describe('Model', function() {
     describe('if called with force true and synced is true', function() {
       it('should call the client once', function(done) {
         response = { entity: [{ testing: 'testing' }] };
-        client = sinon.stub();
-        client.returns(Promise.resolve(response));
+        client = jest.fn();
+        client.mockResolvedValue(response);
         resource.client = client;
         model.synced = true;
         model.fetch({}, true).then(() => {
-          sinon.assert.calledOnce(client);
+          expect(client).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -1114,8 +1102,8 @@ describe('Model', function() {
     describe('if called once', function() {
       it('should add a promise to the promises property', function() {
         response = { entity: [{ testing: 'testing' }] };
-        client = sinon.stub();
-        client.returns(new Promise(() => {}));
+        client = jest.fn();
+        client.mockResolvedValue();
         resource.client = client;
         model.synced = false;
         const promise = model.fetch();
@@ -1125,8 +1113,8 @@ describe('Model', function() {
     describe('if called twice', function() {
       it('should add two promises to the promises property', function() {
         response = { entity: [{ testing: 'testing' }] };
-        client = sinon.stub();
-        client.returns(new Promise(() => {}));
+        client = jest.fn();
+        client.mockResolvedValue();
         resource.client = client;
         model.synced = false;
         const promise1 = model.fetch();
@@ -1153,11 +1141,11 @@ describe('Model', function() {
         const entity = {};
         Object.assign(entity, model.attributes, payload);
         const response = { entity };
-        const client = sinon.stub();
-        client.returns(Promise.resolve(response));
+        const client = jest.fn();
+        client.mockResolvedValue(response);
         resource.client = client;
         model.save(payload).then(() => {
-          sinon.assert.calledOnce(client);
+          expect(client).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -1167,8 +1155,8 @@ describe('Model', function() {
         const entity = {};
         Object.assign(entity, model.attributes, payload);
         const response = { entity };
-        const client = sinon.stub();
-        client.returns(Promise.resolve(response));
+        const client = jest.fn();
+        client.mockResolvedValue(response);
         resource.client = client;
         model.save(payload).then(() => {
           expect(model.attributes.somethingNew).toEqual('new');
@@ -1180,34 +1168,34 @@ describe('Model', function() {
       let payload, client, response;
       describe('and the save is successful', function() {
         beforeEach(function() {
-          setSpy = sinon.stub(model, 'set');
+          setSpy = jest.spyOn(model, 'set');
           payload = { somethingNew: 'new' };
           response = { entity: payload };
-          client = sinon.stub();
-          client.returns(Promise.resolve(response));
+          client = jest.fn();
+          client.mockResolvedValue(response);
           resource.client = client;
         });
         afterEach(function() {
-          model.set.restore();
+          model.set.mockRestore();
         });
         it('should call the client once', function(done) {
           model.synced = false;
           model.save(payload).then(() => {
-            sinon.assert.calledOnce(client);
+            expect(client).toHaveBeenCalledTimes(1);
             done();
           });
         });
         it('should call set twice', function(done) {
           model.synced = false;
           model.save(payload).then(() => {
-            sinon.assert.calledTwice(setSpy);
+            expect(setSpy).toHaveBeenCalledTimes(2);
             done();
           });
         });
         it('should call set with the response entity', function(done) {
           model.synced = false;
           model.save(payload).then(() => {
-            sinon.assert.calledWithExactly(setSpy, response.entity);
+            expect(setSpy).toHaveBeenCalledWith(response.entity);
             done();
           });
         });
@@ -1229,18 +1217,18 @@ describe('Model', function() {
       describe('and the save is not successful', function() {
         beforeEach(function() {
           response = 'Error';
-          client = sinon.stub();
-          client.returns(Promise.reject(response));
+          client = jest.fn();
+          client.mockRejectedValue(response);
           resource.client = client;
-          logstub = sinon.stub(Resources.logging, 'error');
+          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {})
         });
         afterEach(function() {
-          logstub.restore();
+          logstub.mockRestore();
         });
         it('should call logging.error once', function(done) {
           model.synced = false;
           model.save().catch(() => {
-            sinon.assert.calledOnce(logstub);
+            expect(logstub).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -1263,14 +1251,14 @@ describe('Model', function() {
         it('should call the client with no explicit method', function(done) {
           payload = { somethingNew: 'new' };
           response = { entity: payload };
-          client = sinon.stub();
-          client.returns(Promise.resolve(response));
+          client = jest.fn();
+          client.mockResolvedValue(response);
           resource.client = client;
           resource.collectionUrl = () => '';
           model = new Resources.Model(payload, {}, resource);
           model.synced = false;
           model.save(payload).then(() => {
-            expect(typeof client.args[0].method).toEqual('undefined');
+            expect(typeof client.mock.calls[0].method).toEqual('undefined');
             done();
           });
         });
@@ -1278,15 +1266,15 @@ describe('Model', function() {
           it('should call the resource addModel method', function(done) {
             payload = { somethingNew: 'new' };
             response = { entity: { id: 'test' } };
-            client = sinon.stub();
-            client.returns(Promise.resolve(response));
+            client = jest.fn();
+            client.mockResolvedValue(response);
             resource.client = client;
             resource.collectionUrl = () => '';
             model = new Resources.Model(payload, {}, resource);
             model.synced = false;
-            resource.addModel = sinon.spy();
+            resource.addModel = jest.fn();
             model.save(payload).then(() => {
-              sinon.assert.calledWithExactly(resource.addModel, model);
+              expect(resource.addModel).toHaveBeenCalledWith(model);
               done();
             });
           });
@@ -1296,12 +1284,12 @@ describe('Model', function() {
         it('should call the client with a PATCH method', function(done) {
           payload = { somethingNew: 'new' };
           response = { entity: payload };
-          client = sinon.stub();
-          client.returns(Promise.resolve(response));
+          client = jest.fn();
+          client.mockResolvedValue(response);
           resource.client = client;
           model.synced = false;
           model.save(payload).then(() => {
-            expect(client.args[0][0].method).toEqual('PATCH');
+            expect(client.mock.calls[0][0].method).toEqual('PATCH');
             done();
           });
         });
@@ -1309,8 +1297,8 @@ describe('Model', function() {
     });
     describe('if called once', function() {
       it('should add a promise to the promises property', function() {
-        client = sinon.stub();
-        client.returns(new Promise(() => {}));
+        client = jest.fn();
+        client.mockResolvedValue();
         model.synced = false;
         const promise = model.save({});
         expect(model.promises).toEqual([promise]);
@@ -1318,8 +1306,8 @@ describe('Model', function() {
     });
     describe('if called twice', function() {
       it('should add two promises to the promises property', function() {
-        client = sinon.stub();
-        client.returns(new Promise(() => {}));
+        client = jest.fn();
+        client.mockResolvedValue();
         model.synced = false;
         const promise1 = model.save({});
         const promise2 = model.save({});
@@ -1332,27 +1320,27 @@ describe('Model', function() {
     describe('if called when it has an id', function() {
       describe('and the delete is successful', function() {
         beforeEach(function() {
-          resource.removeModel = sinon.spy();
+          resource.removeModel = jest.fn();
           response = { entity: { testing: 'testing' } };
-          client = sinon.stub();
-          client.returns(Promise.resolve(response));
+          client = jest.fn();
+          client.mockResolvedValue(response);
           resource.client = client;
         });
         it('should call the client once', function(done) {
           model.delete().then(() => {
-            sinon.assert.calledOnce(client);
+            expect(client).toHaveBeenCalledTimes(1);
             done();
           });
         });
         it('should call the client with the DELETE method', function(done) {
           model.delete().then(() => {
-            expect(client.args[0][0].method).toEqual('DELETE');
+            expect(client.mock.calls[0][0].method).toEqual('DELETE');
             done();
           });
         });
         it('should call removeModel on the resource', function(done) {
           model.delete().then(() => {
-            sinon.assert.calledWithExactly(resource.removeModel, model);
+            expect(resource.removeModel).toHaveBeenCalledWith(model);
             done();
           });
         });
@@ -1372,17 +1360,17 @@ describe('Model', function() {
       describe('and the delete is not successful', function() {
         beforeEach(function() {
           response = 'Error';
-          client = sinon.stub();
-          client.returns(Promise.reject(response));
+          client = jest.fn();
+          client.mockRejectedValue(response);
           resource.client = client;
-          logstub = sinon.stub(Resources.logging, 'error');
+          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {})
         });
         afterEach(function() {
-          logstub.restore();
+          logstub.mockRestore();
         });
         it('should call logging.error once', function(done) {
           model.delete().catch(() => {
-            sinon.assert.calledOnce(logstub);
+            expect(logstub).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -1404,8 +1392,7 @@ describe('Model', function() {
       it('should reject the deletion', function(done) {
         payload = { somethingNew: 'new' };
         response = {};
-        client = sinon.stub();
-        client.returns(Promise.resolve(response));
+        client = jest.fn().mockResolvedValue(response);
         resource.client = client;
         model = new Resources.Model(payload, {}, resource);
         model.delete().catch(error => {
@@ -1417,8 +1404,8 @@ describe('Model', function() {
     describe('if called once', function() {
       it('should add a promise to the promises property', function() {
         response = { entity: [{ testing: 'testing' }] };
-        client = sinon.stub();
-        client.returns(new Promise(() => {}));
+        client = jest.fn();
+        client.mockResolvedValue();
         const promise = model.delete();
         expect(model.promises).toEqual([promise]);
       });
@@ -1426,8 +1413,8 @@ describe('Model', function() {
     describe('if called twice', function() {
       it('should add two promises to the promises property', function() {
         response = { entity: [{ testing: 'testing' }] };
-        client = sinon.stub();
-        client.returns(new Promise(() => {}));
+        client = jest.fn();
+        client.mockResolvedValue();
         const promise1 = model.delete();
         const promise2 = model.delete();
         expect(model.promises).toEqual([promise1, promise2]);
