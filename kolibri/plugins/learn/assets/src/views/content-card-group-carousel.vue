@@ -11,9 +11,10 @@
           v-show="!isFirstSet"
           :disabled="isFirstSet"
           :disableRipple="true"
-          icon="arrow_back"
           size="large"
-        />
+        >
+          <mat-svg name="arrow_back" category="navigation" />
+        </ui-icon-button>
       </div>
 
       <transition-group
@@ -46,9 +47,10 @@
           v-show="!isLastSet"
           :disabled="isLastSet"
           :disableRipple="true"
-          icon="arrow_forward"
           size="large"
-        />
+        >
+          <mat-svg name="arrow_forward" category="navigation" />
+        </ui-icon-button>
       </div>
 
     </div>

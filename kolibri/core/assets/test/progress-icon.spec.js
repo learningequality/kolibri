@@ -3,11 +3,9 @@ import UiTooltip from 'keen-ui/src/UiTooltip';
 import UiIcon from 'keen-ui/src/UiIcon';
 import ProgressIcon from '../src/views/progress-icon';
 
-function testIcon(wrapper, expected) {
-  const { iconType, text } = expected;
-  expect(wrapper.find(UiIcon).props().icon).toEqual(iconType);
+function testIcon(wrapper, expectedText) {
   // prettier-ignore
-  expect(wrapper.find(UiTooltip).text().trim()).toEqual(text);
+  expect(wrapper.find(UiTooltip).text().trim()).toEqual(expectedText);
 }
 
 describe('ProgressIcon Component', () => {
@@ -30,7 +28,7 @@ describe('ProgressIcon Component', () => {
         progress: 0.1,
       },
     });
-    testIcon(wrapper, { iconType: 'schedule', text: 'In progress' });
+    testIcon(wrapper, 'In progress');
   });
 
   it('it should show a completed icon when progress is exactly 1', () => {
@@ -39,7 +37,7 @@ describe('ProgressIcon Component', () => {
         progress: 1.0,
       },
     });
-    testIcon(wrapper, { iconType: 'star', text: 'Completed' });
+    testIcon(wrapper, 'Completed');
   });
 
   it('it should show a completed icon when progress is greater than 1', () => {
@@ -48,6 +46,6 @@ describe('ProgressIcon Component', () => {
         progress: 2.0,
       },
     });
-    testIcon(wrapper, { iconType: 'star', text: 'Completed' });
+    testIcon(wrapper, 'Completed');
   });
 });

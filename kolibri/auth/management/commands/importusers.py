@@ -132,6 +132,7 @@ class Command(BaseCommand):
             raise CommandError('No default facility exists, please make sure to provision this device before running this command')
 
         fieldnames = ['full_name', 'username', 'password', 'facility', 'class']
+        # open using default OS encoding
         with open(options['filepath']) as f:
             header = next(csv.reader(f, strict=True))
             if all(col in fieldnames for col in header):
@@ -144,6 +145,7 @@ class Command(BaseCommand):
             else:
                 ordered_fieldnames = fieldnames
 
+        # open using default OS encoding
         with open(options['filepath']) as f:
             reader = csv.DictReader(f, fieldnames=ordered_fieldnames, strict=True)
             with transaction.atomic():

@@ -19,21 +19,24 @@
         <k-navbar-link
           type="icon-and-title"
           title="Trending"
-          icon="trending_up"
           :link="a"
-        />
+        >
+          <mat-svg name="trending_up" category="action" />
+        </k-navbar-link>
         <k-navbar-link
           type="icon-and-title"
           title="Lit"
-          icon="whatshot"
           :link="b"
-        />
+        >
+          <mat-svg name="whatshot" category="social" />
+        </k-navbar-link>
         <k-navbar-link
           type="icon-and-title"
           title="Favorites"
-          icon="favorite"
           :link="c"
-        />
+        >
+          <mat-svg name="favorite" category="action" />
+        </k-navbar-link>
       </k-navbar>
     </show>
 

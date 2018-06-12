@@ -44,7 +44,9 @@
 
           </td>
           <td aria-hidden="true" class="core-table-icon-col">
-            <ui-icon icon="person" />
+            <ui-icon>
+              <mat-svg name="person" category="social" />
+            </ui-icon>
           </td>
           <td>
             {{ user.full_name }}

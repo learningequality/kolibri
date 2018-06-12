@@ -6,7 +6,7 @@
     allowfullscreen
   >
     <k-linear-loader
-      v-if="documentLoading"
+      v-if="documentLoading || firstPageHeight === null"
       class="progress-bar"
       :delay="false"
       :type="progress > 0 ? 'determinate' : 'indeterminate'"
@@ -17,7 +17,7 @@
       <recycle-list
         ref="recycleList"
         :items="pdfPages"
-        :itemHeight="pageHeight + 16"
+        :itemHeight="itemHeight"
         :emitUpdate="true"
         :style="{ height: `${elSize.height}px` }"
         class="pdf-container"
@@ -26,13 +26,13 @@
       >
         <template slot-scope="{ item }">
           <pdf-page
-            :pdfPage="item.page"
             :key="item.index"
             :pageNum="item.index + 1"
-            :pageReady="item.resolved"
+            :pdfPage="pdfPages[item.index].page"
+            :pageReady="pdfPages[item.index].resolved"
+            :firstPageHeight="firstPageHeight || 0"
+            :firstPageWidth="firstPageWidth || 0"
             :scale="scale || 1"
-            :defaultHeight="pageHeight || 0"
-            :defaultWidth="pageWidth || 0"
           />
         </template>
       </recycle-list>
@@ -41,24 +41,28 @@
         class="controls button-fullscreen"
         aria-controls="pdf-container"
         :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-        :icon="isInFullscreen ? 'fullscreen_exit' : 'fullscreen'"
         size="large"
         @click="toggleFullscreen($refs.pdfRenderer)"
-      />
+      >
+        <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
+        <mat-svg v-else name="fullscreen" category="navigation" />
+      </ui-icon-button>
       <ui-icon-button
         class="controls button-zoom-in"
         aria-controls="pdf-container"
-        icon="add"
         size="large"
         @click="zoomIn"
-      />
+      >
+        <mat-svg name="add" category="content" />
+      </ui-icon-button>
       <ui-icon-button
         class="controls button-zoom-out"
         aria-controls="pdf-container"
-        icon="remove"
         size="large"
         @click="zoomOut"
-      />
+      >
+        <mat-svg name="remove" category="content" />
+      </ui-icon-button>
     </template>
   </div>
 
@@ -95,8 +99,8 @@
 
   // How often should we respond to changes in scrolling to render new pages?
   const renderDebounceTime = 300;
-
   const scaleIncrement = 0.25;
+  const MARGIN = 16;
 
   export default {
     name: 'pdfRender',
@@ -113,8 +117,6 @@
       scale: null,
       timeout: null,
       totalPages: null,
-      pageHeight: null,
-      pageWidth: null,
       firstPageHeight: null,
       firstPageWidth: null,
       pdfPages: [],
@@ -136,6 +138,9 @@
       height() {
         return this.elSize.height;
       },
+      itemHeight() {
+        return this.firstPageHeight * this.scale + MARGIN;
+      },
     },
     watch: {
       scale(newScale, oldScale) {
@@ -143,8 +148,6 @@
         const noChange = newScale === oldScale;
         const firstChange = oldScale === null;
         if (!noChange && !firstChange) {
-          this.pageHeight = this.firstPageHeight * newScale;
-          this.pageWidth = this.firstPageWidth * newScale;
           this.$nextTick(() => {
             this.forceUpdateRecycleList();
           });
@@ -167,7 +170,7 @@
       this.prepComponentData = loadPdfPromise.then(pdfDocument => {
         // Get initial info from the loaded pdf document
         this.pdfDocument = pdfDocument;
-        this.totalPages = pdfDocument.numPages;
+        this.totalPages = this.pdfDocument.numPages;
 
         // init pdfPages array
         for (let i = 0; i < this.totalPages; i++) {
@@ -177,28 +180,17 @@
             index: i,
           });
         }
-
         return this.getPage(1).then(firstPage => {
-          const pageMargin = 8;
-          this.firstPageWidth = firstPage.view[2];
           this.firstPageHeight = firstPage.view[3];
-
-          this.scale =
-            this.windowSize.breakpoint > 3
-              ? 1
-              : (this.elSize.width - 2 * pageMargin) / this.firstPageWidth;
-
-          // set default height and width properties
-          const initialViewport = firstPage.getViewport(this.scale);
-          this.pageHeight = initialViewport.height;
-          this.pageWidth = initialViewport.width;
+          this.firstPageWidth = firstPage.view[2];
+          this.scale = this.elSize.height / (this.firstPageHeight + MARGIN);
           // Set the firstPage into the pdfPages object so that we do not refetch the page
           // from PDFJS when we do our initial render
           // splice so changes are detected
           this.pdfPages.splice(0, 1, {
+            ...this.pdfPages[0],
             page: firstPage,
             resolved: true,
-            index: 0,
           });
         });
       });
@@ -240,9 +232,9 @@
           this.getPage(pageNum).then(pdfPage => {
             // splice so changes are detected
             this.pdfPages.splice(pageIndex, 1, {
+              ...this.pdfPages[pageIndex],
               page: pdfPage,
               resolved: true,
-              index: pageIndex,
             });
           });
         }
@@ -283,10 +275,10 @@
       }, renderDebounceTime),
 
       zoomIn() {
-        this.setScale(Math.min(scaleIncrement * 15, this.scale + scaleIncrement));
+        this.setScale(Math.min(scaleIncrement * 20, this.scale + scaleIncrement));
       },
       zoomOut() {
-        this.setScale(Math.max(scaleIncrement, this.scale - scaleIncrement));
+        this.setScale(Math.max(scaleIncrement / 2, this.scale - scaleIncrement));
       },
       setScale: throttle(function(scaleValue) {
         this.scale = scaleValue;
@@ -311,7 +303,7 @@
         this.forceUpdateRecycleList();
       }, renderDebounceTime),
       forceUpdateRecycleList() {
-        this.$refs.recycleList.updateVisibleItems({ checkItem: false });
+        this.$refs.recycleList.updateVisibleItems(false);
       },
       updateProgress() {
         this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);

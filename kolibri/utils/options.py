@@ -32,6 +32,28 @@ option_spec = {
             "envvars": ("KOLIBRI_DATABASE_HOST",),
         },
     },
+    "Server": {
+        "CHERRYPY_THREAD_POOL": {
+            "type": "integer",
+            "default": 10,
+            "envvars": ("KOLIBRI_CHERRYPY_THREAD_POOL",),
+        },
+        "CHERRYPY_SOCKET_TIMEOUT": {
+            "type": "integer",
+            "default": 10,
+            "envvars": ("KOLIBRI_CHERRYPY_SOCKET_TIMEOUT",),
+        },
+        "CHERRYPY_QUEUE_SIZE": {
+            "type": "integer",
+            "default": 30,
+            "envvars": ("KOLIBRI_CHERRYPY_QUEUE_SIZE",),
+        },
+        "CHERRYPY_QUEUE_TIMEOUT": {
+            "type": "float",
+            "default": 0.1,
+            "envvars": ("KOLIBRI_CHERRYPY_QUEUE_TIMEOUT",),
+        },
+    },
     "Paths": {
         "CONTENT_DIR": {
             "type": "string",

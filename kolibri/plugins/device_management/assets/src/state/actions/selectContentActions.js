@@ -62,6 +62,7 @@ export function updateTreeViewTopic(store, topic) {
   if (inExportMode(store.state)) {
     fetchArgs.for_export = 'true';
   }
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   return (
     ContentNodeGranularResource.getModel(topic.id)
       // Need to force fetch, since cached values are used even with different
@@ -73,6 +74,9 @@ export function updateTreeViewTopic(store, topic) {
       })
       .catch(() => {
         store.dispatch('SET_WIZARD_STATUS', 'TREEVIEW_LOADING_ERROR');
+      })
+      .then(() => {
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
       })
   );
 }

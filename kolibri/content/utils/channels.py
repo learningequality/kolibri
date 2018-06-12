@@ -66,6 +66,11 @@ def read_channel_metadata_from_db_file(channeldbpath):
 
     source.end()
 
+    # Adds an attribute `root_id` when `root_id` does not exist to match with
+    # the latest schema.
+    if not hasattr(source_channel_metadata, 'root_id'):
+        setattr(source_channel_metadata, 'root_id', getattr(source_channel_metadata, 'root_pk'))
+
     return source_channel_metadata
 
 def get_channels_for_data_folder(datafolder):
@@ -79,7 +84,7 @@ def get_channels_for_data_folder(datafolder):
             "description": channel.description,
             "thumbnail": channel.thumbnail,
             "version": channel.version,
-            "root": channel.root_pk,
+            "root": channel.root_id,
             "author": channel.author,
             "last_updated": getattr(channel, 'last_updated', None),
             "lang_code": getattr(channel, 'lang_code', None),

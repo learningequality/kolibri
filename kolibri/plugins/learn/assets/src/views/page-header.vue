@@ -1,7 +1,7 @@
 <template>
 
-  <div class="header-wrapper">
-    <h1 class="title" dir="auto">
+  <div dir="auto">
+    <h1 class="title">
       {{ title }}
       <progress-icon :progress="progress" />
     </h1>

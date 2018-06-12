@@ -4,16 +4,18 @@
     <ui-icon
       v-if="permissionType === PermissionTypes.SUPERUSER"
       :ariaLabel="$tr('superuserTooltip')"
-      icon="vpn_key"
       class="superuser"
-    />
+    >
+      <mat-svg name="vpn_key" category="communication" />
+    </ui-icon>
 
     <ui-icon
       v-else-if="permissionType === PermissionTypes.LIMITED_PERMISSIONS"
       :ariaLabel="$tr('limitedPermissionsTooltip')"
-      icon="vpn_key"
       class="some-permissions"
-    />
+    >
+      <mat-svg name="vpn_key" category="communication" />
+    </ui-icon>
 
     <ui-tooltip trigger="icon">{{ tooltipText }}</ui-tooltip>
   </span>
