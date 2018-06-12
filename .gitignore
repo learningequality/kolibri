@@ -1,5 +1,8 @@
 *.py[cod]
 
+# Kolibri dockerbuild outputs
+kolibribuild/
+
 # C extensions
 *.so
 
