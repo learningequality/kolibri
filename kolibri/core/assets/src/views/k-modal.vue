@@ -63,7 +63,7 @@
                 v-if="cancelText"
                 name="cancel"
                 :text="cancelText"
-                :raised="false"
+                appearance="flat-button"
                 :disabled="cancelDisabled"
                 @click="emitCancelEvent"
               />
