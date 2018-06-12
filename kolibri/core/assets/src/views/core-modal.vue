@@ -36,7 +36,10 @@
           {{ title }}
         </h1>
 
-        <form @submit.prevent="emitEnterEvent">
+        <form
+          @submit.prevent="emitEnterEvent"
+          @keyup.enter.stop
+        >
           <!-- Modal Content -->
           <div
             class="content"
@@ -52,6 +55,7 @@
           >
             <k-button
               v-if="cancelText"
+              name="cancel"
               :text="cancelText"
               :raised="false"
               :disabled="cancelDisabled"
@@ -59,6 +63,7 @@
             />
             <k-button
               v-if="submitText"
+              name="submit"
               :text="submitText"
               :primary="true"
               :disabled="submitDisabled"
@@ -182,9 +187,9 @@
       emitCancelEvent() {
         this.$emit('cancel');
       },
-      emitEnterEvent: debounce(function() {
+      emitEnterEvent() {
         this.$emit('submit');
-      }, 50),
+      },
       focusModal() {
         this.$refs.modal.focus();
       },

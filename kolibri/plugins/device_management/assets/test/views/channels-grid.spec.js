@@ -119,13 +119,12 @@ describe('channelsGrid component', () => {
       .then(() => {
         deleteModal = deleteChannelModal();
         expect(deleteModal.isVueInstance()).toEqual(true);
-        const deleteButton = deleteModal.find('button[name="confirm"]');
+        const deleteButton = deleteModal.find('button[name="submit"]');
         expect(deleteButton.text().trim()).toEqual('Delete');
         deleteButton.trigger('click');
-        return wrapper.vm.$nextTick();
-      })
-      .then(() => {
-        sinon.assert.calledWith(deleteActionStub, 'visible_channel');
+        wrapper.vm.$nextTick(() => {
+          sinon.assert.calledWith(deleteActionStub, 'visible_channel');
+        });
       });
   });
 });

@@ -4,6 +4,7 @@
     <!-- Classroom Selection Form -->
     <core-modal
       v-if="stage===Stages.SELECT_CLASSROOM"
+      id="select-classroom"
       :title="modalTitle"
       :submitText="$tr('continue')"
       :cancelText="$tr('cancel')"
@@ -23,6 +24,7 @@
     <!-- Learner Group Selection Form -->
     <core-modal
       v-else
+      id="select-learnergroup"
       :title="modalTitle"
       :submitText="$tr('makeCopy')"
       :cancelText="$tr('cancel')"

@@ -61,8 +61,8 @@ function getElements(wrapper) {
     noContentRadio: () => wrapper.find('input[value="no_content_drive"]'),
     unwritableRadio: () => wrapper.find('input[value="unwritable_drive"]'),
     incompatibleRadio: () => wrapper.find('input[value="incompatible_chanel_drive"]'),
-    cancelButton: () => wrapper.find('.core-modal-buttons button'),
-    continueButton: () => wrapper.findAll('.core-modal-buttons button').at(1),
+    cancelButton: () => wrapper.find('button[name="cancel"]'),
+    continueButton: () => wrapper.find('button[name="submit"]'),
     UiAlerts: () => wrapper.find(UiAlert),
     findingLocalDrives: () => wrapper.find('.finding-local-drives'),
   };
@@ -186,12 +186,14 @@ describe('selectDriveModal component', () => {
     const transitionStub = sinon.stub(wrapper.vm, 'goForwardFromSelectDriveModal');
     const { continueButton, writableImportableRadio } = getElements(wrapper);
     writableImportableRadio().trigger('change');
-    return wrapper.vm.$nextTick().then(() => {
+    wrapper.vm.$nextTick().then(() => {
       continueButton().trigger('click');
-      // same parameters for import or export flow
-      sinon.assert.calledWith(transitionStub, {
-        driveId: 'writable_importable_drive',
-        forExport: false,
+      wrapper.vm.$nextTick().then(() => {
+        // same parameters for import or export flow
+        sinon.assert.calledWith(transitionStub, {
+          driveId: 'writable_importable_drive',
+          forExport: false,
+        });
       });
     });
   });
@@ -200,7 +202,9 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
-    expect(wrapper.emitted().cancel).toHaveLength(1);
+    wrapper.vm.$nextTick().then(() => {
+      expect(wrapper.emitted().cancel).toHaveLength(1);
+    });
   });
 
   // not tested

@@ -29,7 +29,7 @@ function getElements(wrapper) {
   return {
     cancelResetButton: () => wrapper.find('button[name="cancel"]'),
     checkbox: () => wrapper.find('input[class="k-checkbox-input"]'),
-    confirmResetButton: () => wrapper.find('button[name="reset"]'),
+    confirmResetButton: () => wrapper.find('button[name="submit"]'),
     resetButton: () => wrapper.find('button[name="reset-settings"]'),
     saveButton: () => wrapper.find('button[name="save-settings"]'),
     confirmResetModal: () => wrapper.find(confirmResetModal),
@@ -90,8 +90,10 @@ describe('facility config page view', () => {
     resetButton().trigger('click');
     assertModalIsUp(wrapper);
     confirmResetButton().trigger('click');
-    sinon.assert.called(wrapper.vm.resetFacilityConfig);
-    assertModalIsDown(wrapper);
+    wrapper.vm.$nextTick().then(() => {
+      sinon.assert.called(wrapper.vm.resetFacilityConfig);
+      assertModalIsDown(wrapper);
+    });
   });
 
   // not tested: notifications
