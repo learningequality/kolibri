@@ -244,6 +244,8 @@
             username: this.newUsername,
             full_name: this.newName,
             role: roleUpdate,
+          }).then(() => {
+            this.displayModal(false);
           });
           if (
             this.currentUserId === this.id &&

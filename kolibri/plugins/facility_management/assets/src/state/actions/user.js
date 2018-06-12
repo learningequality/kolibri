@@ -1,3 +1,4 @@
+import pickBy from 'lodash/pickBy';
 import { FacilityUserResource } from 'kolibri.resources';
 import {
   samePageCheckGenerator,
@@ -65,53 +66,28 @@ export function createUser(store, stateUserData) {
  * Do a PATCH to update existing user
  * @param {object} store
  * @param {string} userId
- * @param {object} userUpdates Optional Changes: full_name, username, password, and kind(role)
+ * @param {object} updates Optional Changes: full_name, username, password, and kind(role)
  */
-export function updateUser(store, userId, userUpdates) {
-  let facilityUserPromise;
+export function updateUser(store, userId, updates) {
   store.dispatch('SET_ERROR', '');
   store.dispatch('SET_BUSY', true);
-
-  // explicit checks for the only values that can be changed
   const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);
-  const changedValues = {};
-  if (userUpdates.full_name && userUpdates.full_name !== origUserState.full_name) {
-    changedValues.full_name = userUpdates.full_name;
-  }
-  if (userUpdates.username && userUpdates.username !== origUserState.username) {
-    changedValues.username = userUpdates.username;
-  }
-  if (userUpdates.password && userUpdates.password !== origUserState.password) {
-    changedValues.password = userUpdates.password;
-  }
+  const facilityRoleHasChanged = origUserState.kind !== updates.role.kind;
 
-  const facilityUserHasChanged = Object.getOwnPropertyNames(changedValues).length > 0;
-  const facilityRoleHasChanged = origUserState.kind !== userUpdates.role.kind;
-
-  if (!facilityRoleHasChanged && !facilityUserHasChanged) {
-    return displayModal(store, false);
-  }
-
-  if (facilityUserHasChanged) {
-    facilityUserPromise = FacilityUserResource.getModel(userId).save(changedValues);
-  } else {
-    facilityUserPromise = Promise.resolve({
-      ...origUserState,
-      facility: origUserState.facility_id,
-    });
-  }
-
-  return facilityUserPromise.then(
+  return updateFacilityUser(store, { userId, updates }).then(
     updatedUser => {
-      if (currentUserId(store.state) === userId && isSuperuser(store.state)) {
-        // maintain superuser if updating self.
-        store.dispatch('UPDATE_CURRENT_USER_KIND', [UserKinds.SUPERUSER, userUpdates.role.kind]);
+      const update = userData => store.dispatch('UPDATE_USER', _userState(userData));
+      if (facilityRoleHasChanged) {
+        if (currentUserId(store.state) === userId && isSuperuser(store.state)) {
+          // maintain superuser if updating self.
+          store.dispatch('UPDATE_CURRENT_USER_KIND', [UserKinds.SUPERUSER, updates.role.kind]);
+        }
+        return setUserRole(updatedUser, updates.role).then(userWithRole => {
+          update(userWithRole);
+        });
+      } else {
+        update(updatedUser);
       }
-      return setUserRole(updatedUser, userUpdates.role).then(userWithRole => {
-        // dispatch changes to store
-        store.dispatch('UPDATE_USERS', [_userState(userWithRole)]);
-        displayModal(store, false);
-      });
     },
     error => {
       if (error.status.code === 400) {
@@ -122,6 +98,25 @@ export function updateUser(store, userId, userUpdates) {
       store.dispatch('SET_BUSY', false);
     }
   );
+}
+
+// Update fields on the FacilityUser model
+// updates :: { full_name, username, password }
+export function updateFacilityUser(store, { userId, updates }) {
+  const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);
+  const changedValues = pickBy(
+    updates,
+    (value, key) => updates[key] && updates[key] !== origUserState[key]
+  );
+  const facilityUserHasChanged = Object.keys(changedValues).length > 0;
+
+  if (facilityUserHasChanged) {
+    return FacilityUserResource.getModel(userId).save(changedValues)._promise;
+  }
+  return Promise.resolve({
+    ...origUserState,
+    facility: origUserState.facility_id,
+  });
 }
 
 /**
