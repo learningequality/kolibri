@@ -72,7 +72,7 @@ class AsyncCommand(BaseCommand):
     implement handle_async(), which accepts the same arguments as handle().
 
     If ran from the command line, AsynCommand displays a progress bar to the
-    user. If ran asynchronously through kolibri.tasks.schedule_command(),
+    user. If ran asynchronously through kolibri.core.tasks.schedule_command(),
     AsyncCommand sends results through the Progress class to the main Django
     process. Anyone who knows the task id for the command instance can check
     the intermediate progress by looking at the task's AsyncResult.result

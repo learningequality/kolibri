@@ -7,7 +7,7 @@ from ...utils import channel_import
 from ...utils import paths
 from ...utils import transfer
 from kolibri.core.errors import KolibriUpgradeError
-from kolibri.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
 
 logging = logger.getLogger(__name__)

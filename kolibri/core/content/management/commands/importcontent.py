@@ -10,7 +10,7 @@ from ...utils import annotation
 from ...utils import import_export_content
 from ...utils import paths
 from ...utils import transfer
-from kolibri.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
 
 # constants to specify the transfer method to be used

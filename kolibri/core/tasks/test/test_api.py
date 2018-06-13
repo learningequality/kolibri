@@ -10,7 +10,7 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 
 
-@patch('kolibri.tasks.api.get_client')
+@patch('kolibri.core.tasks.api.get_client')
 class TaskAPITestCase(APITestCase):
 
     def setUp(self):

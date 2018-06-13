@@ -37,7 +37,7 @@ urlpatterns = [
     url(r'^api/', include('kolibri.core.auth.api_urls')),
     url(r'^api/', include('kolibri.core.content.api_urls')),
     url(r'^api/', include('kolibri.core.logger.api_urls')),
-    url(r'^api/', include('kolibri.tasks.api_urls')),
+    url(r'^api/', include('kolibri.core.tasks.api_urls')),
     url(r'^api/', include('kolibri.core.exams.api_urls')),
     url(r'^api/', include('kolibri.core.device.api_urls')),
     url(r'^api/', include('kolibri.core.lessons.api_urls')),

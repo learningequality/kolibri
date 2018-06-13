@@ -77,7 +77,7 @@ def start(port=8080):
 
     # This is also run every time the server is started to clear all the tasks
     # in the queue
-    from kolibri.tasks.client import get_client
+    from kolibri.core.tasks.client import get_client
     get_client().clear(force=True)
 
     def rm_pid_file():

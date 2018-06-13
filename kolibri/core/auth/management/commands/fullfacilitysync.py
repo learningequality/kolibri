@@ -20,7 +20,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import device_provisioned
-from kolibri.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.management.commands.base import AsyncCommand
 
 
 class Command(AsyncCommand):

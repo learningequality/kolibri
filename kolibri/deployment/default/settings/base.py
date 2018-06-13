@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     'kolibri.core.auth.apps.KolibriAuthConfig',
     'kolibri.core.content',
     'kolibri.core.logger',
-    'kolibri.tasks.apps.KolibriTasksConfig',
+    'kolibri.core.tasks.apps.KolibriTasksConfig',
     'kolibri.core.deviceadmin',
     'kolibri.core.webpack',
     'kolibri.core.exams',
