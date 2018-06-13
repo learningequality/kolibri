@@ -56,17 +56,20 @@ We have the following release types:
    * Git tag: ``v1.2.3`` on a release branch
 * Beta
    * Final integration testing, string freeze, and beta release candidates
+   * High level of risk-aversion in PRs
    * Info: major, minor, patch, beta
    * PEP-440: ``1.2.3b4``
    * Git tag: ``v1.2.3-beta4`` on a release branch
 * Alpha
    * Initial testing releases
+   * Avoid broken builds in PRs
    * Info: major, minor, patch, alpha
    * PEP-440: ``1.2.3a4``
    * Git tag: ``v1.2.3-alpha4`` on the develop branch
 * Dev
    * Feature branches, PRs, or other git commits
    * Info: major, minor, patch, commit
+   * Experimental work is OK
 
 
 Within the learning equality repository:

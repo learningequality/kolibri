@@ -1,10 +1,125 @@
 .. _release_process:
 
-Release process steps
-=====================
+Release process
+===============
+
+These instructions follow the hypothetical release of Kolibri version 0.3.0.
+
+In this case, the repo would currently have a ``develop`` branch and a number of pre-existing release branches, the most recent being ``release-v0.2.x`` with potententially multiple tags for patch releases, e.g. ``v0.2.0`` and ``v0.2.1``.
+
+Create alpha releases
+---------------------
+
+For the majority of development on a new release, PRs will target the ``develop`` branch. Tag alpha releases as desired using Github's `Releases <https://github.com/learningequality/kolibri/releases>`_ functionality, which both adds a tag to the git repo and creates a placeholder on the Github site with built distributions.
+
+Make sure to target ``develop``, use the standard tag naming convention (e.g. ``v0.3.0-alpha1``), and mark it has a "pre-release".
+
+These alphas can be used for preliminary testing as major, unstable updates are introduced.
+
+When a new alpha is published, delete any older alphas using Github's 'delete release' functionality. This will *not* delete the git tag.
+
+
+Merge in previous release
+-------------------------
+
+It's common that changes have been made in the previous release that need to be propagated to the current release. For an upcoming 0.3.0 release, we would need to merge ``release-v0.2.x`` into ``develop``.
+
+
+Schedule string freeze
+----------------------
+
+Once we are close to stabilizing the UI, we should schedule a string freeze.
+
+* Create a temporary branch and merge any outstanding PRs with user-facing strings into it
+* Upload the strings to Crowdin, into a temporary branch called ``test-upload``
+* Estimate the number of new strings and words, and the approximate time when translators should be prepared to start translating
+* Notify translators
+* Delete the temporary branches
+
+
+Create a release branch
+-----------------------
+
+When we're nearing the end of major new feature development, cut a new release branch. If we're getting ready to release version 0.3.0, we'd do the following steps:
+
+* Create new branch off of ``develop`` with a name like ``release-v0.3.x``
+* Set up `branch protections <https://help.github.com/articles/about-protected-branches/>`_ in Github using the same settings as ``develop``
+* Re-target any outstanding PRs for this release from ``develop`` to ``release-v0.3.x``
+
+Next, a couple book-keeping steps are necessary. The ``VERSION`` variable in *__init__.py* should currently be ``(0, 2, 0, 'alpha', 1)`` in both the  ``release-v0.3.x`` and ``develop`` branches.
+
+* In ``develop``, update the first three values from ``0, 2, 0`` to ``0, 3, 0``
+* In ``release-v0.3.x``, bump fourth value: ``'alpha'`` to  ``'beta'``
+
+These changes can be merged by a Github admin without code review.
+
+Finally, tag the first beta using Github's `Releases <https://github.com/learningequality/kolibri/releases>`_ functionality. Target the ``release-v0.3.x`` branch, use the standard tag naming convention (``v0.3.0-beta1``), and mark it has a "pre-release".
+
+
+Pin internal dependencies
+-------------------------
+
+Make sure all our internal dependencies are pointing at the correct, published versions. Specifically check:
+
+* Morango
+* LE Utils
+* Perseus plugin
+* Windows installer
+
+Test to ensure that changes have propagated as expected.
+
+
+Final string review and freeze
+------------------------------
+
+The team should make a final review of all user-facing strings introduced into the application in this release.
+
+When the user-facing strings have been signed off, upload the strings to Crowdin and notify translators that translation can begin.
+
+Remember to also include strings from the Perseus plugin if necessary.
+
+At this point, updates to the `user documentation <https://github.com/learningequality/kolibri-docs/>`_ can also begin.
+
+
+Integration testing and beta releases
+-------------------------------------
+
+Thoroughly test user stories, browsers, and operating systems. Publish beta Debian packages to `` kolibri-proposed``, update gherkin story test matrices, test performance, have bug bashes...
+
+As fixes are made, release a new beta at least every few days.
+
+Make sure to target tags to the release branch. For example, for 0.3.0 betas, target ``release-v0.3.x``. Use the standard tag naming convention (e.g. ``v0.3.0-beta1``), and mark it has a "pre-release" in the Github UI.
+
+These betas should be used for end-to-end testing as final, stabilizing changes are introduced. Risky changes should be avoided during the beta stage unless a critical issue is identified with no straightforward fix.
+
+When a new beta is published, delete any older betas using Github's 'delete release' functionality. This will *not* delete the git tag. Update `kolibribeta.learningequality.org <http://kolibribeta.learningequality.org/>`_ with the latest beta, and notify the team on Slack when new betas are available.
+
+
+Update with final translations
+------------------------------
+
+* Determine which languages are ready for inclusion
+* Download all strings for supported languages in Kolibri and Perseus
+* Re-publish Perseus if necessary, and update the Kolibri dependency reference
+* Test that all languages render properly
+
+
+Merge in previous release again
+-------------------------------
+
+Check one last time if there were any last-minute changes to the previous release branch that need to be merged into the current release branch. For example in preparation for 0.3.0, we would need to merge ``release-v0.2.x`` into ``release-v0.3.x``.
+
+
+Triage open PRs and issues
+--------------------------
+
+Check the current Github milestone for any outstanding PRs or issues. If there are any that cannot be closed or merged before release, either clear the milestone or re-target them to the next milestone.
+
+This could either be a patch of the current release or the next 'major' release.
+
 
 Update the Changelog
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 Update the :ref:`changelog` as necessary. In general we should try to keep the changelog up-to-date as PRs are merged in; however in practice the changelog usually needs to be cleaned up, fleshed out, and clarified.
 
@@ -18,190 +133,125 @@ Keep entries concise and consistent with the established writing style. The chan
 
 Note that for older patch releases, the change should only be mentioned once: it is implied that fixes in older releases are propagated forward.
 
-Additionally, we should also be adding the 'changelog' label to issues and pull requests on github. A more technical and granular overview of changes can be obtained by filtering by milestone and the 'changelog' label. Go through these issues and PRs, and ensure that the titles would be clear and meaningful.
+Additionally, we should also be adding the 'changelog' label to issues and pull requests on Github. A more technical and granular overview of changes can be obtained by filtering by milestone and the 'changelog' label. Go through these issues and PRs, and ensure that the titles would be clear and meaningful.
+
+Ensure the link to Github changelog label+milestone is correct.
 
 
-Create a release branch
-~~~~~~~~~~~~~~~~~~~~~~~
+Prepare blog post
+-----------------
 
-If this is a new major or minor release, you need to make a new branch as described above.
-
-
-Pin installer versions
-~~~~~~~~~~~~~~~~~~~~~~
-
-On Kolibri's ``develop`` branch, we sometimes allow the installers to track the latest development versions on github. Before releasing Kolibri, we need to pin the Buildkite configuration to a tagged version of each installer.
+Draft a blog post on Medium containing highlights of the release. This can be kept hidden until it's time to update the website as outlined below.
 
 
-Update any translation files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create the final release
+------------------------
 
-Make sure that the latest released translations are included for the appropriate release branch. Please see :ref:`crowdin` for details.
+Before proceeding, tag and build one last beta, and run through the most critical user stories to ensure that there are no glaring issues. If that checks out, it's time to create the final release.
 
-Finally, strings for any external Kolibri plugins (like ``kolibri-exercise-perseus-renderer``) should also have been updated, a new release made, and the version updated in Kolibri. See the README of that repository for details.
+For example, if we were releasing version 0.3.0, we would perform these steps:
 
+* The ``VERSION`` variable in *__init__.py* should currently be ``(0, 3, 0, 'beta', 1)`` in ``release-v0.3.x``
+* Update this to be ``(0, 3, 0, 'final', 0)`` (no code review necessary)
+* Tag the final release as ``v0.3.0`` targetting the ``release-v0.3.x`` branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`_ functionality.
+* Copy the entries from the changelog into Github's "Release notes" and ensure that the formatting and links are correct.
+* Delete the most recent beta pre-lease on github.
+* Merge ``release-v0.3.x`` into ``master`` (no code review necessary)
+* Update ``VERSION`` in ``release-v0.3.x`` to be ``(0, 3, 1, 'beta', 0)`` (no code review necessary)
 
-Squash migrations
-~~~~~~~~~~~~~~~~~
+At this point, all changes to the git tree are complete for the release.
 
-When possible, we like to utilize the Django migration squashing to simplify the migration path for new users (while simultaneously maintaining the migration path for old users). So far this has not been done, due to the existence of data migrations in our migration history. Once we have upgraded to Django 1.11, we will be able to mark these data migrations as elidable, and we will be able to better squash our history.
+Publish to PyPI
+---------------
 
+Releasing to PyPI marks the "no turning back" moment of a release because releases cannot be removed – only added. Make sure that the correct tag is checked out and that the git tree has no local changes.
 
-Ensure bugfixes from internal depencies have propagated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If this were version 0.3.0 we would do:
 
-Some issues in Kolibri arise due to our integration of internally produced, but external to Kolibri, packages, such as kolibri-exercise-perseus-renderer, iceqube, and morango. If any of these kinds of dependencies have been updated to fix issues for this milestone, then the dependency version should have been updated.
+.. code-block:: bash
 
+    $ git reset --hard v0.3.0
 
-Edit the VERSION file
-~~~~~~~~~~~~~~~~~~~~~
+Then sign the release and upload it:
 
-Current practice is to bump ``kolibri.VERSION`` before tagging a release. You are allowed to have a newer version in ``kolibri.VERSION``, but you are not allowed to add the tag before actually bumping ``kolibri.VERSION``.
-
-Select a release series number and initial version number::
-
-    $ SERIES=0.1.x
-    $ VER=0.1.0a
-
-The form is::
-
-            0.1.x
-           /  |  \
-          /   |   \
-         /    |    \
-     major  minor   patch
-
-
-Set the version in the release branch::
-
-    $ # edit VERSION in kolibri/__init__.py
-    $ git add kolibri/__init__.py
-    $ git commit -m "Bump version to $VER"
-
-Set the version number in the develop branch *if necessary*.
-
-Create a pull request on Github to get sign off for the release.
-
-Checklist for sign off:
-
-- [ ] Translation files have been updated
-- [ ] Migrations have been squashed where possible
-- [ ] Changelog has been updated
-- [ ] LE Dependencies properly updated
-- [ ] Tested Debian Installer
-- [ ] Tested Windows Installer
-- [ ] Tested PEX File
-
-
-Tag the release
-~~~~~~~~~~~~~~~
-
-We always add git tags to a commit that makes it to a final or pre release. A
-tag is prefixed ``v`` and follows the Semver convention,
-for instance ``v1.2.3-alpha1``.
-
-Tag the release using github's `Releases feature <https://github.com/learningequality/kolibri/releases>`_.
-
-Once a stable release is tagged, delete pre-releases (not the tags themselves) from github.
-
-Copy the entries from the changelog into Github's "Release notes".
-
-.. warning:: Always add tags in **release branches**. Otherwise, the tag
-    chronology will break. Do not add tags in feature branches or in the master
-    branch. You can add tags for pre-releases in ``develop``, for releases that don't yet have a release branch.
-
-.. warning:: Tagging is known to break after rebasing, so in case you rebase
-    a branch after tagging it, delete the tag and add it again. Basically,
-    ``git describe --tags`` detects the closest tag, but after a rebase, its
-    concept of distance is misguided.
-
-
-Update version data
-~~~~~~~~~~~~~~~~~~~
-
-* Merge the release branch to current master if it's the newest stable release.
-* Change ``kolibri.VERSION`` to track the next development stage. Example: After releasing ``1.0.0``, change ``kolibri.VERSION`` to ``(1, 0, 1, 'alpha', 0)`` and commit to the ``release-v1.0.x`` branch.
-
-
-Update milestone
-~~~~~~~~~~~~~~~~
-
-* Close, if fixed, or change milestone of any issues on this release milestone.
-* Close this milestone.
-
-
-Release to PyPI
-~~~~~~~~~~~~~~~
-
-Select the version number and checkout the exact git tag::
-
-    $ VER=0.1.0
-    $ git checkout v$VER
-
-Release with PyPI using the make command::
+.. code-block:: bash
 
     $ make release
 
+Confirm that the release is uploaded to `PyPi <https://pypi.org/>`_, and try installing it and running it on a few operating systems with both Python 2 and Python 3.
 
 
+Generate, test, and publish distributions
+----------------------------------
 
-Sign Windows installer
-~~~~~~~~~~~~~~~~~~~~~~
+When uploading files to the Pantry server, put them in a directory of the form ``/var/www/downloads/kolibri/vX.Y.Z/``.
 
-Use ``osslsigncode`` to sign the windows installer::
+Make sure the files and parent directories are owned by the ``www-data`` user, e.g. by running ``sudo chown www-data:www-data [filename]``
 
-    $ osslsigncode verify KolibriSetup-0.6.2.signed.exe
 
-Sign and update the Debian PPA
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For the example of version 0.3.0 we would do the following:
 
-[ TODO ]
+* Pex
+   * Test that .pex works and version info is correct
+   * Upload .pex to Pantry as ``kolibri-v0.3.0.pex``
+* Debian
+   * Build and sign Debian package
+   * Test that .deb works and that version is correct
+   * Publish package to our PPA
+   * Upload .deb to Pantry as ``kolibri_0.3.0-0ubuntu1_all.deb``
+   * Note that if another Debian build is necessary, ``ubuntu1`` can be incremented
+* Windows
+   * Sign Windows installer
+   * Test that .exe works and that version is correct
+   * Upload .exe to Pantry as ``kolibri-v0.3.0-windows-installer.exe``
 
-Upload Windows installer and PEX file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Upload the PEX file and the signed windows installer to:
+Update `learningequality.org/download <https://learningequality.org/download/>`_ to point to the latest release by updating variables in the Admin page. Log in and navigate to:
 
- * ``/var/www/downloads/kolibri/vX.Y.Z/kolibri-vX.Y.Z.pex``
- * ``/var/www/downloads/kolibri/vX.Y.Z/kolibri-vX.Y.Z-windows-installer.exe``
+    `Admin <https://learningequality.org/admin/>`_ → Redirects → Redirect variables
 
-Make sure the files and parent directories are owned by the ``www-data`` user, e.g. by running::
+Update the following variables:
 
-    sudo chown www-data:www-data [filename]
+* ``LATEST_KOLIBRI_VERSION``
+* ``LATEST_KOLIBRI_SUPPORTED_LANGUAGES``
+* ``LATEST_KOLIBRI_RELEASE_DATE``
+* ``LATEST_KOLIBRI_DEBIAN_VERSION_COMPONENT``
+* ``LATEST_KOLIBRI_BLOG_URL``
 
-Update the online demo
-~~~~~~~~~~~~~~~~~~~~~~
+Publish the Medium post if necessary.
 
-Get ``kolibridemo.learningequality.org`` running the latest version:
+Update the demo server
+----------------------
+
+Get `kolibridemo.learningequality.org <http://kolibridemo.learningequality.org/>`_ running the latest version:
 
  * SSH into ``192.237.248.135``
  * ``sudo su www-data``
- * ``cd ~/``
- * download new pex file and update the correct ``run...sh`` script
+ * Upload the new .pex file and update ``/var/www/run_kolibri.sh`` to point at it
 
-Then...::
+Then restart all running instances:
 
-    sudo -i -u aron
+.. code-block:: bash
+
     killall python
     run_all
 
-Update learningequality.org
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Update learningequality.org with the latest version number and release date. Currently, these two files need to be changed:
+Verify that `the demo server <kolibridemo.learningequality.org>`_ is running the latest version.
 
- * ``fle_site/apps/main/templates/main/documentation.html``
- * ``fle_site/apps/main/templates/main/download.html``
 
-Also, update the ``LATEST_KOLIBRI_VERSION`` variable at `this admin site <http://learningequality.org/admin/redirects/redirectvariable/>`_.
+Wrap-up
+-------
 
-Notifications
-~~~~~~~~~~~~~
+* Publish relevant updates to the `Toolkit <https://learningequality.org/r/toolkit>`_ and `User documentation <https://kolibri.readthedocs.io/en/latest/>`_
+* `Close the milestone <https://github.com/learningequality/kolibri/milestones>`_ on Github
+* For issues on this milestone that have been reported by the community, try to report in appropriate forum threads that the new release addresses the issues
 
-Tell the world!
 
-[ TODO ]
+Patch releases
+--------------
 
-* Announce release on dev list and newsletter if appropriate.
-* For issues on this milestone that have been reported by the community, respond on the issues or other channels, notifying of the release that fixes this issues.
+A patch release follows the same process outlined above, except that development occurs exclusively on an existing release branch.
+
+This means that patch releases only have betas, not alphas.
 

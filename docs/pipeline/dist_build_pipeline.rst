@@ -44,3 +44,8 @@ More on version numbers
   :undoc-members:
   :show-inheritance:
 
+
+.. warning:: Tagging is known to break after rebasing, so in case you rebase
+    a branch after tagging it, delete the tag and add it again. Basically,
+    ``git describe --tags`` detects the closest tag, but after a rebase, its
+    concept of distance is misguided.
