@@ -11,7 +11,7 @@ from django.core.management import call_command
 
 from .system import kill_pid
 from .system import pid_exists
-from kolibri.content.utils import paths
+from kolibri.core.content.utils import paths
 from kolibri.utils import conf
 
 logger = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ def start(port=8080):
     # This should be run every time the server is started for now.
     # Events to trigger it are hard, because of copying a content folder into
     # ~/.kolibri, or deleting a channel DB on disk
-    from kolibri.content.utils.annotation import update_channel_metadata
+    from kolibri.core.content.utils.annotation import update_channel_metadata
     update_channel_metadata()
 
     # This is also run every time the server is started to clear all the tasks

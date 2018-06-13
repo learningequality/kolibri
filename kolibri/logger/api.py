@@ -22,7 +22,6 @@ from .serializers import ExamLogSerializer
 from .serializers import MasteryLogSerializer
 from .serializers import TotalContentProgressSerializer
 from .serializers import UserSessionLogSerializer
-from kolibri.content.api import OptionalPageNumberPagination
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.filters import HierarchyRelationsFilter
@@ -31,6 +30,7 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.exams.models import Exam
 
 

@@ -11,9 +11,9 @@ import random
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from kolibri.content.models import ChannelMetadata
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.content.models import ChannelMetadata
 from kolibri.logger.utils import user_data as utils
 
 

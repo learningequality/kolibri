@@ -15,9 +15,9 @@ from six import string_types
 from sqlalchemy.orm.exc import NoResultFound
 
 from .client import get_client
-from kolibri.content.permissions import CanManageContent
-from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
-from kolibri.content.utils.paths import get_content_database_file_path
+from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
+from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.utils import conf
 
 try:

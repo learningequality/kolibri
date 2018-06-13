@@ -9,7 +9,7 @@ import morango.utils.uuids
 from django.db import migrations
 from django.db import models
 
-import kolibri.content.models
+import kolibri.core.content.models
 
 
 class Migration(migrations.Migration):
@@ -53,8 +53,8 @@ class Migration(migrations.Migration):
                 ('_morango_dirty_bit', models.BooleanField(default=True, editable=False)),
                 ('_morango_source_id', models.CharField(editable=False, max_length=96)),
                 ('_morango_partition', models.CharField(editable=False, max_length=128)),
-                ('content_id', kolibri.content.models.UUIDField(db_index=True)),
-                ('channel_id', kolibri.content.models.UUIDField()),
+                ('content_id', kolibri.core.content.models.UUIDField(db_index=True)),
+                ('channel_id', kolibri.core.content.models.UUIDField()),
                 ('start_timestamp', models.DateTimeField()),
                 ('end_timestamp', models.DateTimeField(blank=True, null=True)),
                 ('time_spent', models.FloatField(default=0.0, help_text='(in seconds)', validators=[django.core.validators.MinValueValidator(0)])),
@@ -75,8 +75,8 @@ class Migration(migrations.Migration):
                 ('_morango_dirty_bit', models.BooleanField(default=True, editable=False)),
                 ('_morango_source_id', models.CharField(editable=False, max_length=96)),
                 ('_morango_partition', models.CharField(editable=False, max_length=128)),
-                ('content_id', kolibri.content.models.UUIDField(db_index=True)),
-                ('channel_id', kolibri.content.models.UUIDField()),
+                ('content_id', kolibri.core.content.models.UUIDField(db_index=True)),
+                ('channel_id', kolibri.core.content.models.UUIDField()),
                 ('start_timestamp', models.DateTimeField()),
                 ('end_timestamp', models.DateTimeField(blank=True, null=True)),
                 ('completion_timestamp', models.DateTimeField(blank=True, null=True)),
@@ -109,8 +109,8 @@ class Migration(migrations.Migration):
                 ('answer', jsonfield.fields.JSONField(blank=True, default={}, null=True)),
                 ('simple_answer', models.CharField(blank=True, max_length=200)),
                 ('interaction_history', jsonfield.fields.JSONField(blank=True, default=[])),
-                ('content_id', kolibri.content.models.UUIDField()),
-                ('channel_id', kolibri.content.models.UUIDField()),
+                ('content_id', kolibri.core.content.models.UUIDField()),
+                ('channel_id', kolibri.core.content.models.UUIDField()),
                 ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityDataset')),
             ],
             options={

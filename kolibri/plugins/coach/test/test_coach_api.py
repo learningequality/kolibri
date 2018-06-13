@@ -1,5 +1,5 @@
 """
-To run this test, type this in command line <kolibri manage test -- kolibri.content>
+To run this test, type this in command line <kolibri manage test -- kolibri.core.content>
 """
 import datetime
 
@@ -7,13 +7,13 @@ from django.core.urlresolvers import reverse
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
-from kolibri.content import models as content
 from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Role
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.content import models as content
 from kolibri.logger.models import ContentSummaryLog
 
 

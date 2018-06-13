@@ -14,10 +14,10 @@ from .serializers import ContentSummarySerializer
 from .serializers import LessonReportSerializer
 from .serializers import UserReportSerializer
 from .utils.return_users import get_members_or_user
-from kolibri.content.models import ContentNode
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.content.models import ContentNode
 from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSummaryLog
 from kolibri.logger.models import MasteryLog

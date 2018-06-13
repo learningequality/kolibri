@@ -9,8 +9,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 
-from kolibri.content.models import Language
-from kolibri.content.serializers import LanguageSerializer
+from kolibri.core.content.models import Language
+from kolibri.core.content.serializers import LanguageSerializer
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
 

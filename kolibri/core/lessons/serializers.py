@@ -8,10 +8,10 @@ from rest_framework.serializers import ValidationError
 
 from .models import Lesson
 from .models import LessonAssignment
-from kolibri.content.models import ContentNode
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import ClassroomSerializer
+from kolibri.core.content.models import ContentNode
 
 
 class LessonAssignmentSerializer(ModelSerializer):
