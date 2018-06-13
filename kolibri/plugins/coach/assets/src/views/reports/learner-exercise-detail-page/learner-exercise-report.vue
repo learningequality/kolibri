@@ -23,7 +23,7 @@
           v-if="isExercise"
           :interactions="currentInteractionHistory"
           :selectedInteractionIndex="interactionIndex"
-          :attemptNumber="currentAttemptLog.questionNumber"
+          :attemptNumber="currentAttemptLog.questionNumber || 0"
           @select="navigateToNewInteraction($event)"
         />
 
