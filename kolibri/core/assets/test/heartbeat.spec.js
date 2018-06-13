@@ -1,4 +1,3 @@
-import sinon from 'sinon';
 import coreStore from 'kolibri.coreVue.vuex.store';
 import {
   snackbarIsVisible,
@@ -10,6 +9,16 @@ import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
 
+jest.mock('kolibri.lib.logging', () => ({
+  getLogger() {
+    return {
+      error() {},
+      debug() {},
+    };
+  },
+}));
+
+jest.mock('lockr');
 jest.mock('http');
 
 describe('HeartBeat', function() {
@@ -36,16 +45,16 @@ describe('HeartBeat', function() {
       expect(HeartBeat.prototype.beat).not.toEqual(test.beat);
     });
     it('should call the setInactive method', function() {
-      const spy = sinon.spy(HeartBeat.prototype, 'setInactive');
+      const spy = jest.spyOn(HeartBeat.prototype, 'setInactive');
       new HeartBeat();
-      sinon.assert.calledOnce(spy);
-      spy.restore();
+      expect(spy).toHaveBeenCalledTimes(1);
+      spy.mockRestore();
     });
     it('should not call the start method', function() {
-      const spy = sinon.spy(HeartBeat.prototype, 'start');
+      const spy = jest.spyOn(HeartBeat.prototype, 'start');
       new HeartBeat();
-      sinon.assert.notCalled(spy);
-      spy.restore();
+      expect(spy).not.toHaveBeenCalled();
+      spy.mockRestore();
     });
   });
   describe('beat method', function() {
@@ -54,19 +63,18 @@ describe('HeartBeat', function() {
       heartBeat = new HeartBeat();
       heartBeat.active = false;
       coreStore.factory();
-      checkSessionStub = sinon.stub(heartBeat, 'checkSession');
-      checkSessionStub.resolves();
+      checkSessionStub = jest.spyOn(heartBeat, 'checkSession').mockReturnValue(Promise.resolve());
     });
     it('should call setInactive', function() {
-      const spy = sinon.spy(heartBeat, 'setInactive');
+      const spy = jest.spyOn(heartBeat, 'setInactive');
       return heartBeat.beat().then(() => {
-        sinon.assert.calledOnce(spy);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it('should call wait', function() {
-      const spy = sinon.spy(heartBeat, 'wait');
+      const spy = jest.spyOn(heartBeat, 'wait');
       return heartBeat.beat().then(() => {
-        sinon.assert.calledOnce(spy);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it('should set timerId to a setTimeout identifier', function() {
@@ -76,23 +84,23 @@ describe('HeartBeat', function() {
     });
     it('should call checkSession', function() {
       heartBeat.beat();
-      sinon.assert.calledOnce(checkSessionStub);
+      expect(checkSessionStub).toHaveBeenCalledTimes(1);
     });
     describe('and activity is detected', function() {
       beforeEach(function() {
         heartBeat.active = true;
       });
       it('should call setActivityListeners', function() {
-        const spy = sinon.spy(heartBeat, 'setActivityListeners');
+        const spy = jest.spyOn(heartBeat, 'setActivityListeners');
         heartBeat.beat();
-        sinon.assert.calledOnce(spy);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
   });
   describe('monitorDisconnect method', function() {
     beforeEach(function() {
       heartBeat = new HeartBeat();
-      sinon.stub(heartBeat, 'wait');
+      jest.spyOn(heartBeat, 'wait').mockImplementation(() => {});
       store = coreStore.factory();
       heartBeat.monitorDisconnect();
     });
@@ -119,8 +127,7 @@ describe('HeartBeat', function() {
   describe('checkSession method', function() {
     beforeEach(function() {
       heartBeat = new HeartBeat();
-      const urlStub = sinon.stub(heartBeat, 'sessionUrl');
-      urlStub.returns('url');
+      jest.spyOn(heartBeat, 'sessionUrl').mockReturnValue('url');
       store = coreStore.factory();
     });
     it('should sign out if an auto logout is detected', function() {
@@ -129,9 +136,9 @@ describe('HeartBeat', function() {
       http.__setCode(200);
       http.__setHeaders({ 'Content-Type': 'application/json' });
       http.__setEntity({ user_id: 'nottest' });
-      const stub = sinon.stub(heartBeat, 'signOutDueToInactivity');
+      const stub = jest.spyOn(heartBeat, 'signOutDueToInactivity');
       return heartBeat.checkSession().finally(() => {
-        sinon.assert.calledOnce(stub);
+        expect(stub).toHaveBeenCalledTimes(1);
       });
     });
     describe('when is connected', function() {
@@ -141,12 +148,12 @@ describe('HeartBeat', function() {
       // What happens for a zero code is tested later in this file.
       disconnectionErrorCodes.filter(code => code !== 0).forEach(errorCode => {
         it('should call monitorDisconnect if it receives error code ' + errorCode, function() {
-          const monitorStub = sinon.stub(heartBeat, 'monitorDisconnect');
+          const monitorStub = jest.spyOn(heartBeat, 'monitorDisconnect');
           const http = require('http');
           http.__setCode(errorCode);
           http.__setHeaders({ 'Content-Type': 'application/json' });
           return heartBeat.checkSession().finally(() => {
-            sinon.assert.calledOnce(monitorStub);
+            expect(monitorStub).toHaveBeenCalledTimes(1);
           });
         });
       });
@@ -156,7 +163,7 @@ describe('HeartBeat', function() {
         const http = require('http');
         http.__setCode(0);
         http.__setHeaders({ 'Content-Type': 'application/json' });
-        sinon.stub(heartBeat, 'wait');
+        jest.spyOn(heartBeat, 'wait');
         heartBeat.monitorDisconnect();
       });
       it('should set snackbar to trying to reconnect', function() {
@@ -166,7 +173,7 @@ describe('HeartBeat', function() {
       });
       disconnectionErrorCodes.forEach(errorCode => {
         it('should set snackbar to disconnected for error code ' + errorCode, function() {
-          sinon.stub(heartBeat, 'monitorDisconnect');
+          jest.spyOn(heartBeat, 'monitorDisconnect');
           const http = require('http');
           http.__setCode(errorCode);
           http.__setHeaders({ 'Content-Type': 'application/json' });

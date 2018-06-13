@@ -166,7 +166,9 @@ describe('Resource', function() {
       expect(resource.filterAndCheckResourceIds({ test: 'test' })).toEqual({});
     });
     it('should throw a TypeError when resourceIds are missing', function() {
-      const stub = jest.spyOn(Resources.Resource, 'resourceIdentifiers').mockReturnValue(['thisisatest']);
+      const stub = jest
+        .spyOn(Resources.Resource, 'resourceIdentifiers')
+        .mockReturnValue(['thisisatest']);
       function testCall() {
         resource.filterAndCheckResourceIds({ test: 'test' });
       }
@@ -174,7 +176,9 @@ describe('Resource', function() {
       stub.mockRestore();
     });
     it('should return an object with only resourceIds', function() {
-      const stub = jest.spyOn(Resources.Resource, 'resourceIdentifiers').mockReturnValue(['thisisatest']);
+      const stub = jest
+        .spyOn(Resources.Resource, 'resourceIdentifiers')
+        .mockReturnValue(['thisisatest']);
       const filtered = resource.filterAndCheckResourceIds({
         test: 'test',
         thisisatest: 'testtest',
@@ -476,7 +480,7 @@ describe('Collection', function() {
         describe('and the returned data is malformed', function() {
           beforeEach(function() {
             response = {};
-            client = jest.fn().mockResolvedValue(response)
+            client = jest.fn().mockResolvedValue(response);
             resource.client = client;
             logstub = jest.spyOn(Resources.logging, 'debug').mockImplementation(() => {});
           });
@@ -793,7 +797,7 @@ describe('Collection', function() {
           client = jest.fn();
           client.mockRejectedValue(response);
           resource.client = client;
-          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {})
+          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
         });
         afterEach(function() {
           logstub.mockRestore();
@@ -1058,7 +1062,7 @@ describe('Model', function() {
           client = jest.fn();
           client.mockRejectedValue(response);
           resource.client = client;
-          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {})
+          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
         });
         afterEach(function() {
           logstub.mockRestore();
@@ -1220,7 +1224,7 @@ describe('Model', function() {
           client = jest.fn();
           client.mockRejectedValue(response);
           resource.client = client;
-          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {})
+          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
         });
         afterEach(function() {
           logstub.mockRestore();
@@ -1363,7 +1367,7 @@ describe('Model', function() {
           client = jest.fn();
           client.mockRejectedValue(response);
           resource.client = client;
-          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {})
+          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
         });
         afterEach(function() {
           logstub.mockRestore();

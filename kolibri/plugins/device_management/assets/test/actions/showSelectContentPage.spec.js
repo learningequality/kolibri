@@ -1,4 +1,3 @@
-import sinon from 'sinon';
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import { loadChannelMetaData } from '../../src/state/actions/selectContentActions';
 import { wizardState } from '../../src/state/getters';
@@ -23,8 +22,8 @@ describe('loadChannelMetaData action', () => {
 
   beforeEach(() => {
     // Add mock methods not in generic mock Resource
-    TaskResource.startRemoteChannelImport = sinon.stub();
-    TaskResource.startDiskChannelImport = sinon.stub();
+    TaskResource.startRemoteChannelImport = jest.fn();
+    TaskResource.startDiskChannelImport = jest.fn();
   });
 
   beforeEach(() => {
@@ -35,9 +34,9 @@ describe('loadChannelMetaData action', () => {
     ]);
     hackStoreWatcher(store);
     const taskEntity = { entity: { id: 'task_1' } };
-    TaskResource.cancelTask = sinon.stub().returns(Promise.resolve());
-    TaskResource.startDiskChannelImport.returns(Promise.resolve(taskEntity));
-    TaskResource.startRemoteChannelImport.returns(Promise.resolve(taskEntity));
+    TaskResource.cancelTask = jest.fn().mockResolvedValue();
+    TaskResource.startDiskChannelImport.mockResolvedValue(taskEntity);
+    TaskResource.startRemoteChannelImport.mockResolvedValue(taskEntity);
     ChannelResource.getModel.mockReturnValue({
       fetch: () => ({
         _promise: Promise.resolve({
@@ -52,9 +51,9 @@ describe('loadChannelMetaData action', () => {
     ChannelResource.__resetMocks();
     ContentNodeGranularResource.__resetMocks();
     TaskResource.__resetMocks();
-    TaskResource.startRemoteChannelImport.resetHistory();
-    TaskResource.startDiskChannelImport.resetHistory();
-    TaskResource.cancelTask.resetHistory();
+    TaskResource.startRemoteChannelImport.mockReset();
+    TaskResource.startDiskChannelImport.mockReset();
+    TaskResource.cancelTask.mockReset();
   });
 
   function setUpStateForTransferType(transferType) {
@@ -78,8 +77,8 @@ describe('loadChannelMetaData action', () => {
   // Tests for common behavior
   function testNoChannelsAreImported(store, options) {
     return loadChannelMetaData(store, options).then(() => {
-      sinon.assert.notCalled(TaskResource.startDiskChannelImport);
-      sinon.assert.notCalled(TaskResource.startRemoteChannelImport);
+      expect(TaskResource.startDiskChannelImport).not.toHaveBeenCalled();
+      expect(TaskResource.startRemoteChannelImport).not.toHaveBeenCalled();
     });
   }
 
@@ -95,16 +94,16 @@ describe('loadChannelMetaData action', () => {
 
     it('if channel is *not* on device, then "startdiskchannelimport" is called', () => {
       return loadChannelMetaData(store).then(() => {
-        sinon.assert.calledWith(TaskResource.startDiskChannelImport, {
+        expect(TaskResource.startDiskChannelImport).toHaveBeenCalledWith({
           channel_id: 'localimport_brand_new_channel',
           drive_id: 'localimport_specs_drive',
         });
-        sinon.assert.notCalled(TaskResource.startRemoteChannelImport);
+        expect(TaskResource.startRemoteChannelImport).not.toHaveBeenCalled();
       });
     });
 
     it('errors from startDiskChannelImport are handled', () => {
-      TaskResource.startDiskChannelImport.returns(Promise.reject());
+      TaskResource.startDiskChannelImport.mockRejectedValue();
       return loadChannelMetaData(store).then(() => {
         expect(wizardState(store.state).status).toEqual('CONTENT_DB_LOADING_ERROR');
       });
@@ -123,15 +122,15 @@ describe('loadChannelMetaData action', () => {
 
     it('if channel is *not* on device, then "startremotechannelimport" is called', () => {
       return loadChannelMetaData(store).then(() => {
-        sinon.assert.calledWith(TaskResource.startRemoteChannelImport, {
+        expect(TaskResource.startRemoteChannelImport).toHaveBeenCalledWith({
           channel_id: 'remoteimport_brand_new_channel',
         });
-        sinon.assert.notCalled(TaskResource.startDiskChannelImport);
+        expect(TaskResource.startDiskChannelImport).not.toHaveBeenCalled();
       });
     });
 
     it('errors from startRemoteChannelImport are handled', () => {
-      TaskResource.startRemoteChannelImport.returns(Promise.reject());
+      TaskResource.startRemoteChannelImport.mockRejectedValue();
       return loadChannelMetaData(store).then(() => {
         expect(wizardState(store.state).status).toEqual('CONTENT_DB_LOADING_ERROR');
       });

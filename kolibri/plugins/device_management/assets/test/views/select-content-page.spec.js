@@ -1,6 +1,5 @@
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
-import sinon from 'sinon';
 import SelectContentPage from '../../src/views/select-content-page';
 import { wizardState } from '../../src/state/getters';
 import SelectedResourcesSize from '../../src/views/select-content-page/selected-resources-size';
@@ -113,9 +112,9 @@ describe('selectContentPage', () => {
     };
     const wrapper = makeWrapper({ store });
     const { updateButton } = getElements(wrapper);
-    const stub = sinon.stub(wrapper.vm, 'downloadChannelMetadata').returns(Promise.resolve());
+    const stub = jest.spyOn(wrapper.vm, 'downloadChannelMetadata').mockResolvedValue();
     updateButton().trigger('click');
-    sinon.assert.called(stub);
+    expect(stub).toHaveBeenCalled();
   });
 
   it('in REMOTEIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
@@ -123,9 +122,9 @@ describe('selectContentPage', () => {
     wizardState(store.state).transferType = 'remoteimport';
     const wrapper = makeWrapper({ store });
     const { updateButton } = getElements(wrapper);
-    const stub = sinon.stub(wrapper.vm, 'downloadChannelMetadata').returns(Promise.resolve());
+    const stub = jest.spyOn(wrapper.vm, 'downloadChannelMetadata').mockResolvedValue();
     updateButton().trigger('click');
-    sinon.assert.calledWith(stub);
+    expect(stub).toHaveBeenCalled();
   });
 
   it('if a new version is not available, then no notification/button appear', () => {

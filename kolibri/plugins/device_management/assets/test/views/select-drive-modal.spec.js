@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import sinon from 'sinon';
 import coreModal from 'kolibri.coreVue.components.coreModal';
 import UiAlert from 'keen-ui/src/UiAlert';
 import SelectDriveModal from '../../src/views/manage-content-page/select-transfer-source-modal/select-drive-modal';
@@ -79,26 +78,20 @@ describe('selectDriveModal component', () => {
     store.state.pageState.wizardState.transferType = transferType;
   }
 
-  it('when drive list is loading, show a message', () => {
+  it('when drive list is loading, show a message', async () => {
     const wrapper = makeWrapper({ store });
-    return wrapper.vm.$nextTick().then(() => {
-      const alert = wrapper.find(UiAlert);
-      expect(alert.text().trim()).toEqual('Finding local drives…');
-    });
+    await wrapper.vm.$nextTick();
+    const alert = wrapper.find(UiAlert);
+    expect(alert.text().trim()).toEqual('Finding local drives…');
   });
 
-  it('when drive list is loaded, it shows the drive-list component ', () => {
+  it('when drive list is loaded, it shows the drive-list component ', async () => {
     const wrapper = makeWrapper({ store });
     const { driveListContainer, driveListLoading } = getElements(wrapper);
-    return wrapper.vm
-      .$nextTick()
-      .then(() => {
-        return wrapper.vm.$nextTick();
-      })
-      .then(() => {
-        expect(driveListContainer().is('div')).toEqual(true);
-        expect(driveListLoading().exists()).toEqual(false);
-      });
+    await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
+    expect(driveListContainer().is('div')).toEqual(true);
+    expect(driveListLoading().exists()).toEqual(false);
   });
 
   it('in import mode, drive-list only shows the drives with content', () => {
@@ -176,23 +169,19 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     const { continueButton, writableImportableRadio } = getElements(wrapper);
     writableImportableRadio().trigger('change');
-    return wrapper.vm.$nextTick().then(() => {
-      expect(continueButton().attributes().disabled).toEqual(undefined);
-    });
+    expect(continueButton().attributes().disabled).toEqual(undefined);
   });
 
-  it('clicking "Continue" triggers a "transitionWizardPage" action', () => {
+  it('clicking "Continue" triggers a "go forward" action', () => {
     const wrapper = makeWrapper({ store });
-    const transitionStub = sinon.stub(wrapper.vm, 'goForwardFromSelectDriveModal');
+    const transitionStub = jest.spyOn(wrapper.vm, 'goForwardFromSelectDriveModal');
     const { continueButton, writableImportableRadio } = getElements(wrapper);
     writableImportableRadio().trigger('change');
-    return wrapper.vm.$nextTick().then(() => {
-      continueButton().trigger('click');
-      // same parameters for import or export flow
-      sinon.assert.calledWith(transitionStub, {
-        driveId: 'writable_importable_drive',
-        forExport: false,
-      });
+    continueButton().trigger('click');
+    // same parameters for import or export flow
+    expect(transitionStub).toBeCalledWith({
+      driveId: 'writable_importable_drive',
+      forExport: false,
     });
   });
 
