@@ -12,15 +12,15 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 import kolibri
-from kolibri.auth.constants.role_kinds import ADMIN
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityDataset
-from kolibri.auth.models import FacilityUser
-from kolibri.auth.models import Role
-from kolibri.auth.test.helpers import create_superuser
-from kolibri.auth.test.helpers import provision_device
-from kolibri.auth.test.test_api import FacilityFactory
-from kolibri.auth.test.test_api import FacilityUserFactory
+from kolibri.core.auth.constants.role_kinds import ADMIN
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityDataset
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import Role
+from kolibri.core.auth.test.helpers import create_superuser
+from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.auth.test.test_api import FacilityFactory
+from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 

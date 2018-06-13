@@ -8,11 +8,11 @@ from django.test import TestCase
 from le_utils.constants import file_formats
 from le_utils.constants import format_presets
 
-from kolibri.auth.test.helpers import provision_device
 from kolibri.content.models import ContentNode
 from kolibri.content.models import File
 from kolibri.content.models import LocalFile
 from kolibri.content.utils.paths import get_content_storage_file_path
+from kolibri.core.auth.test.helpers import provision_device
 from kolibri.utils.tests.helpers import override_option
 
 

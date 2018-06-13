@@ -2,7 +2,7 @@ from django.db.models import Sum
 from django.utils.timezone import now
 from rest_framework import serializers
 
-from kolibri.auth.models import FacilityUser
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.serializers import KolibriModelSerializer
 from kolibri.logger.models import AttemptLog
 from kolibri.logger.models import ContentSessionLog

@@ -13,9 +13,9 @@ from le_utils.constants import content_kinds
 from rest_framework import serializers
 
 from .utils.return_users import get_members_or_user
-from kolibri.auth.models import FacilityUser
 from kolibri.content.models import ContentNode
 from kolibri.content.serializers import ContentNodeSerializer
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSummaryLog
 

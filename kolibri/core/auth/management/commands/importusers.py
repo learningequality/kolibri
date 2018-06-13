@@ -8,9 +8,9 @@ from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 from django.db import transaction
 
-from kolibri.auth.models import Classroom
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityUser
+from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 
 logging = logger.getLogger(__name__)
 

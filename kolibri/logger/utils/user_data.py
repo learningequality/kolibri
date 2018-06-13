@@ -12,11 +12,11 @@ from django.db.models import Sum
 from django.db.models.query import F
 from le_utils.constants import content_kinds
 
-from kolibri.auth.filters import HierarchyRelationsFilter
-from kolibri.auth.models import Classroom
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityUser
 from kolibri.content.models import ContentNode
+from kolibri.core.auth.filters import HierarchyRelationsFilter
+from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import AttemptLog
 from kolibri.logger.models import ContentSessionLog

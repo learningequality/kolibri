@@ -65,8 +65,8 @@ from .permissions.general import IsAdminForOwnFacility
 from .permissions.general import IsFromSameFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
-from kolibri.auth.constants.morango_scope_definitions import FULL_FACILITY
-from kolibri.auth.constants.morango_scope_definitions import SINGLE_USER
+from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
+from kolibri.core.auth.constants.morango_scope_definitions import SINGLE_USER
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
@@ -262,7 +262,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
         :param user: The target user for which this user has the roles.
         :return: The kinds of roles this user has with respect to the target user.
-        :rtype: set of ``kolibri.auth.constants.role_kinds.*`` strings
+        :rtype: set of ``kolibri.core.auth.constants.role_kinds.*`` strings
         """
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_user` method.")
 
@@ -272,7 +272,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
         :param coll: The target ``Collection`` for which this user has the roles.
         :return: The kinds of roles this user has with respect to the specified ``Collection``.
-        :rtype: set of ``kolibri.auth.constants.role_kinds.*`` strings
+        :rtype: set of ``kolibri.core.auth.constants.role_kinds.*`` strings
         """
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_collection` method.")
 
@@ -282,7 +282,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
         :param user: The user that is the target of the role (for which this user has the roles).
         :param kinds: The kind (or kinds) of role to check for, as a string or iterable.
-        :type kinds: string from ``kolibri.auth.constants.role_kinds.*``
+        :type kinds: string from ``kolibri.core.auth.constants.role_kinds.*``
         :return: ``True`` if this user has the specified role kind with respect to the target user, otherwise ``False``.
         :rtype: bool
         """
@@ -293,7 +293,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         Determine whether this user has (at least one of) the specified role kind(s) in relation to the specified ``Collection``.
 
         :param kinds: The kind (or kinds) of role to check for, as a string or iterable.
-        :type kinds: string from kolibri.auth.constants.role_kinds.*
+        :type kinds: string from kolibri.core.auth.constants.role_kinds.*
         :param coll: The target ``Collection`` for which this user has the roles.
         :return: ``True`` if this user has the specified role kind with respect to the target ``Collection``, otherwise ``False``.
         :rtype: bool

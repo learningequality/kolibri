@@ -15,8 +15,8 @@ from morango.models import InstanceIDModel
 from requests.exceptions import ConnectionError
 from six.moves.urllib.parse import urljoin
 
-from kolibri.auth.constants.morango_scope_definitions import FULL_FACILITY
-from kolibri.auth.models import FacilityUser
+from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import device_provisioned

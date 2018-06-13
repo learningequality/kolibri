@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
 
+import io
 import json
 import os
-import io
 
 presets_file = os.path.join(os.path.dirname(__file__), './facility_configuration_presets.json')
 with io.open(presets_file, mode='r', encoding='utf-8') as f:

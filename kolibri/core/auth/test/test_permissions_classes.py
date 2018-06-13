@@ -1,14 +1,18 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from django.test import TestCase
 from mock import Mock
 
-from .helpers import create_superuser
-
-from ..models import FacilityUser, Facility, KolibriAnonymousUser
 from ..api import KolibriAuthPermissions
+from ..models import Facility
+from ..models import FacilityUser
+from ..models import KolibriAnonymousUser
 from ..permissions.base import BasePermissions
-from ..permissions.general import AllowAll, DenyAll
+from ..permissions.general import AllowAll
+from ..permissions.general import DenyAll
+from .helpers import create_superuser
 
 class BasePermissionsThrowExceptionsTestCase(TestCase):
 

@@ -12,9 +12,9 @@ from .permissions import NotProvisionedCanPost
 from .permissions import UserHasAnyDevicePermissions
 from .serializers import DevicePermissionsSerializer
 from .serializers import DeviceProvisionSerializer
-from kolibri.auth.api import KolibriAuthPermissions
-from kolibri.auth.api import KolibriAuthPermissionsFilter
 from kolibri.content.permissions import CanManageContent
+from kolibri.core.auth.api import KolibriAuthPermissions
+from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.utils.server import get_urls
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time import local_now

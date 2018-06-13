@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from ..models import LocalFile
 from ..utils.paths import get_content_storage_file_path
-from kolibri.auth.test.helpers import provision_device
+from kolibri.core.auth.test.helpers import provision_device
 from kolibri.utils.tests.helpers import override_option
 
 

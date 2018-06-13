@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
-from kolibri.auth.permissions.base import BasePermissions
-from kolibri.auth.permissions.base import lookup_field_with_fks
+from kolibri.core.auth.permissions.base import BasePermissions
+from kolibri.core.auth.permissions.base import lookup_field_with_fks
 
 
 class AnyoneCanWriteAnonymousLogs(BasePermissions):

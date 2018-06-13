@@ -34,7 +34,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'', include('kolibri.core.urls')),
     url(r'', include('kolibri.content.urls')),
-    url(r'^api/', include('kolibri.auth.api_urls')),
+    url(r'^api/', include('kolibri.core.auth.api_urls')),
     url(r'^api/', include('kolibri.content.api_urls')),
     url(r'^api/', include('kolibri.logger.api_urls')),
     url(r'^api/', include('kolibri.tasks.api_urls')),

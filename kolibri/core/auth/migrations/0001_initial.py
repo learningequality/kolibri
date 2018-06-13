@@ -9,7 +9,8 @@ import django.db.models.deletion
 import django.utils.timezone
 import morango.utils.uuids
 import mptt.fields
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
 
 
 class Migration(migrations.Migration):

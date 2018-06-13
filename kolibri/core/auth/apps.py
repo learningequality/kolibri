@@ -6,7 +6,7 @@ from django.apps import AppConfig
 
 
 class KolibriAuthConfig(AppConfig):
-    name = 'kolibri.auth'
+    name = 'kolibri.core.auth'
     label = 'kolibriauth'
     verbose_name = 'Kolibri Auth'
 

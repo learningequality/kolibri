@@ -3,12 +3,14 @@
 from __future__ import unicode_literals
 
 import django.core.validators
-from django.db import migrations, models
-from kolibri.auth.constants.role_kinds import ADMIN
+from django.db import migrations
+from django.db import models
+
+from kolibri.core.auth.constants.role_kinds import ADMIN
 
 
 def device_owner_to_super_user(apps, schema_editor):
-    from kolibri.auth.models import FacilityUser as RealFacilityUser, Facility as RealFacility, Role as RealRole
+    from kolibri.core.auth.models import FacilityUser as RealFacilityUser, Facility as RealFacility, Role as RealRole
     # The get_default_facility method now requires database access to another model that does not exist yet for
     # this migration, so just defer to the old behaviour.
     real_default_facility = RealFacility.objects.first()

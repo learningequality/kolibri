@@ -19,13 +19,13 @@ from jsonfield import JSONField
 from morango.query import SyncableModelQuerySet
 
 from .permissions import AnyoneCanWriteAnonymousLogs
-from kolibri.auth.constants import role_kinds
-from kolibri.auth.models import AbstractFacilityDataModel
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityUser
-from kolibri.auth.permissions.base import RoleBasedPermissions
-from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.models import UUIDField
+from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.models import AbstractFacilityDataModel
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.permissions.base import RoleBasedPermissions
+from kolibri.core.auth.permissions.general import IsOwn
 from kolibri.core.exams.models import Exam
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now

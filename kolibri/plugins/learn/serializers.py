@@ -4,7 +4,7 @@ from rest_framework.serializers import JSONField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import SerializerMethodField
 
-from kolibri.auth.models import Classroom
+from kolibri.core.auth.models import Classroom
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSummaryLog

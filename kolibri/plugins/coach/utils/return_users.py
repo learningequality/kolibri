@@ -1,5 +1,5 @@
-from kolibri.auth.models import Collection
-from kolibri.auth.models import FacilityUser
+from kolibri.core.auth.models import Collection
+from kolibri.core.auth.models import FacilityUser
 
 
 def get_members_or_user(collection_kind, collection_id):

@@ -27,6 +27,6 @@ class CustomAuthenticationMiddleware(AuthenticationMiddleware):
             "The authentication middleware requires session middleware "
             "to be installed. Edit your MIDDLEWARE_CLASSES setting to insert "
             "'django.contrib.sessions.middleware.SessionMiddleware' before "
-            "'kolibri.auth.middleware.CustomAuthenticationMiddleware'."
+            "'kolibri.core.auth.middleware.CustomAuthenticationMiddleware'."
         )
         request.user = SimpleLazyObject(lambda: _get_user(request))

@@ -8,7 +8,7 @@ from django.test import TestCase
 from .factory_logger import ContentSessionLogFactory
 from .factory_logger import ContentSummaryLogFactory
 from .factory_logger import UserSessionLogFactory
-from kolibri.auth.test.helpers import create_dummy_facility_data
+from kolibri.core.auth.test.helpers import create_dummy_facility_data
 
 
 class ContentSessionLogPermissionsTestCase(TestCase):

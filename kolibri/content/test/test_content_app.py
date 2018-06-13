@@ -14,10 +14,10 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 import kolibri.content.serializers
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityUser
-from kolibri.auth.test.helpers import provision_device
 from kolibri.content import models as content
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.exams.models import Exam

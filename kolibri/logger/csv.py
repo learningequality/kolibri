@@ -4,11 +4,11 @@ from rest_framework import serializers
 
 from .models import ContentSessionLog
 from .models import ContentSummaryLog
-from kolibri.auth.api import KolibriAuthPermissions
-from kolibri.auth.api import KolibriAuthPermissionsFilter
 from kolibri.content.models import ChannelMetadata
 from kolibri.content.models import ContentNode
 from kolibri.core.api import CSVModelViewSet
+from kolibri.core.auth.api import KolibriAuthPermissions
+from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 
 
 class LogCSVSerializerBase(serializers.ModelSerializer):

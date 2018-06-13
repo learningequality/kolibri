@@ -22,15 +22,15 @@ from .serializers import ExamLogSerializer
 from .serializers import MasteryLogSerializer
 from .serializers import TotalContentProgressSerializer
 from .serializers import UserSessionLogSerializer
-from kolibri.auth.api import KolibriAuthPermissions
-from kolibri.auth.api import KolibriAuthPermissionsFilter
-from kolibri.auth.filters import HierarchyRelationsFilter
-from kolibri.auth.models import Classroom
-from kolibri.auth.models import Collection
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityUser
-from kolibri.auth.models import LearnerGroup
 from kolibri.content.api import OptionalPageNumberPagination
+from kolibri.core.auth.api import KolibriAuthPermissions
+from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.core.auth.filters import HierarchyRelationsFilter
+from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import Collection
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.exams.models import Exam
 
 

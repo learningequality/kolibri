@@ -6,10 +6,10 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
 
 from .. import models
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityUser
-from kolibri.auth.models import LearnerGroup
-from kolibri.auth.test.helpers import provision_device
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.auth.test.helpers import provision_device
 
 DUMMY_PASSWORD = "password"
 

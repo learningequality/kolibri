@@ -1,9 +1,9 @@
 from django.core.management import call_command
 from django.test import TestCase
 
-from kolibri.auth.models import Classroom
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityUser
+from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog

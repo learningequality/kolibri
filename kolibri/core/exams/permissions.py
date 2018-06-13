@@ -1,9 +1,9 @@
 from django.db.models import Q
 from django.db.models.query import F
 
-from kolibri.auth.filters import HierarchyRelationsFilter
-from kolibri.auth.models import AnonymousUser
-from kolibri.auth.permissions.general import DenyAll
+from kolibri.core.auth.filters import HierarchyRelationsFilter
+from kolibri.core.auth.models import AnonymousUser
+from kolibri.core.auth.permissions.general import DenyAll
 
 
 class UserCanReadExamAssignmentData(DenyAll):

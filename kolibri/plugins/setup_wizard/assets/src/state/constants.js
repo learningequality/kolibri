@@ -1,3 +1,3 @@
-import permissionPresets from '../../../../../auth/constants/facility_configuration_presets.json';
+import permissionPresets from '../../../../../core/auth/constants/facility_configuration_presets.json';
 
 export { permissionPresets };

@@ -4,8 +4,8 @@ from mock import patch
 from rest_framework.test import APITestCase
 from sqlalchemy.orm.exc import NoResultFound
 
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityUser
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 

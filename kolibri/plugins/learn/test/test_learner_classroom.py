@@ -5,11 +5,11 @@ from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
 
-from kolibri.auth.models import Classroom
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityUser
-from kolibri.auth.models import LearnerGroup
-from kolibri.auth.test.helpers import provision_device
+from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
