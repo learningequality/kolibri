@@ -183,9 +183,7 @@ In order to get the newly translated strings into the application, they need to 
 
 First, make sure to build the project using the Crowdin website. This is under:
 
-.. code-block::
-
-    Projects -> Kolibri -> Settings -> Build & Download -> Build Project
+    Projects → Kolibri → Settings → Build & Download → Build Project
 
 .. warning:: By default Crowdin will download all translations, not just approved ones. It will often download untranslated strings also. You must manually delete files that are not relevant.
 
