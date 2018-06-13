@@ -35,8 +35,8 @@ from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
-from kolibri.logger.models import ContentSessionLog
-from kolibri.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ContentSessionLog
+from kolibri.core.logger.models import ContentSummaryLog
 
 logger = logging.getLogger(__name__)
 

@@ -8,7 +8,7 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
-from kolibri.logger.models import ExamLog
+from kolibri.core.logger.models import ExamLog
 
 
 class NestedCollectionSerializer(serializers.ModelSerializer):

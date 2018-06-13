@@ -4,9 +4,10 @@ from __future__ import unicode_literals
 
 from functools import partial
 
+from django.db import migrations
+
 import kolibri.core.fields
 import kolibri.utils.time
-from django.db import migrations
 
 
 def convert_datetime_to_datetimetz(apps, schema_editor, model_name=None):

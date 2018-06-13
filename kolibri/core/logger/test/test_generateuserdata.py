@@ -5,8 +5,8 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.lessons.models import Lesson
-from kolibri.logger.models import ContentSessionLog
-from kolibri.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ContentSessionLog
+from kolibri.core.logger.models import ContentSummaryLog
 
 n_users = 2
 n_classes = 2

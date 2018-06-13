@@ -44,9 +44,9 @@ from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
+from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
-from kolibri.logger.models import UserSessionLog
 
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):

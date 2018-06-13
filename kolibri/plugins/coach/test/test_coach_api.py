@@ -14,7 +14,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Role
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content import models as content
-from kolibri.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ContentSummaryLog
 
 
 class ContentReportAPITestCase(APITestCase):

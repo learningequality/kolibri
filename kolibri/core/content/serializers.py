@@ -140,7 +140,7 @@ class AssessmentMetaDataSerializer(serializers.ModelSerializer):
 
 
 def get_summary_logs(content_ids, user):
-    from kolibri.logger.models import ContentSummaryLog
+    from kolibri.core.logger.models import ContentSummaryLog
     if not content_ids:
         return ContentSummaryLog.objects.none()
     # get all summary logs for the current user that correspond to the descendant content nodes
@@ -157,7 +157,7 @@ def get_topic_progress_fraction(topic, user):
 
 
 def get_content_progress_fraction(content, user):
-    from kolibri.logger.models import ContentSummaryLog
+    from kolibri.core.logger.models import ContentSummaryLog
     try:
         # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
         overall_progress = ContentSummaryLog.objects.get(user=user, content_id=content.content_id).progress

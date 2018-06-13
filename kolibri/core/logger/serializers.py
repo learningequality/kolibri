@@ -3,14 +3,14 @@ from django.utils.timezone import now
 from rest_framework import serializers
 
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.models import ContentSessionLog
+from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ExamAttemptLog
+from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.serializers import KolibriModelSerializer
-from kolibri.logger.models import AttemptLog
-from kolibri.logger.models import ContentSessionLog
-from kolibri.logger.models import ContentSummaryLog
-from kolibri.logger.models import ExamAttemptLog
-from kolibri.logger.models import ExamLog
-from kolibri.logger.models import MasteryLog
-from kolibri.logger.models import UserSessionLog
 
 
 class ContentSessionLogSerializer(KolibriModelSerializer):

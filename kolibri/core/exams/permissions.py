@@ -12,7 +12,7 @@ class UserCanReadExamAssignmentData(DenyAll):
         if isinstance(user, AnonymousUser):
             return False
         # Import here to avoid circular import.
-        from kolibri.logger.models import ExamLog
+        from kolibri.core.logger.models import ExamLog
         # If they are not a member of the assignment's collection, don't bother with any other checks
         return user.is_member_of(obj.collection) and (
             obj.exam.active or ExamLog.objects.filter(exam=obj.exam, user=user).exists())
@@ -31,7 +31,7 @@ class UserCanReadExamData(DenyAll):
         if isinstance(user, AnonymousUser):
             return False
         # Import here to avoid circular import.
-        from kolibri.logger.models import ExamLog
+        from kolibri.core.logger.models import ExamLog
         # If they are not a member of the assignment's collection, don't bother with any other checks
         return HierarchyRelationsFilter(obj.assignments.all()).filter_by_hierarchy(
             target_user=user,

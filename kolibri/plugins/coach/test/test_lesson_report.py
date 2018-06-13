@@ -15,7 +15,7 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
-from kolibri.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ContentSummaryLog
 
 class LessonReportTestCase(APITestCase):
 

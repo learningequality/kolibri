@@ -14,7 +14,7 @@ from django.utils import timezone
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ChannelMetadata
-from kolibri.logger.utils import user_data as utils
+from kolibri.core.logger.utils import user_data as utils
 
 
 logger = logging.getLogger(__name__)

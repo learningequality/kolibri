@@ -19,8 +19,8 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
 from kolibri.core.lessons.models import Lesson
-from kolibri.logger.models import ContentSummaryLog
-from kolibri.logger.models import MasteryLog
+from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import MasteryLog
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):

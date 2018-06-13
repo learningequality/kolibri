@@ -6,7 +6,7 @@ from django.apps import AppConfig
 
 
 class KolibriLoggerConfig(AppConfig):
-    name = 'kolibri.logger'
+    name = 'kolibri.core.logger'
     label = 'logger'
     verbose_name = 'Kolibri Logger'
 

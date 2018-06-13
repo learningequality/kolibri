@@ -14,7 +14,7 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
-from kolibri.logger.models import ExamLog
+from kolibri.core.logger.models import ExamLog
 
 
 class LearnerClassroomTestCase(APITestCase):

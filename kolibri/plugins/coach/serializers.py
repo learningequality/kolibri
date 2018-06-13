@@ -17,7 +17,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.serializers import ContentNodeSerializer
 from kolibri.core.lessons.models import Lesson
-from kolibri.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ContentSummaryLog
 
 
 class UserReportSerializer(serializers.ModelSerializer):

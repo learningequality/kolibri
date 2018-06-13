@@ -30,8 +30,8 @@ from kolibri.core.auth.test.test_api import LearnerGroupFactory
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
-from kolibri.logger.models import ExamAttemptLog
-from kolibri.logger.models import ExamLog
+from kolibri.core.logger.models import ExamAttemptLog
+from kolibri.core.logger.models import ExamLog
 
 class ContentSessionLogAPITestCase(APITestCase):
 

@@ -22,7 +22,7 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
-from kolibri.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ContentSummaryLog
 
 DUMMY_PASSWORD = "password"
 
