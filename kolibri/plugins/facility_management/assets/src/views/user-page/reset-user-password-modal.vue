@@ -8,7 +8,7 @@
     @submit="submitForm"
     @cancel="displayModal(false)"
   >
-    <p>{{ $tr('username') }}: <strong>{{ username }}</strong></p>
+    <p>{{ $tr('username') }}<strong>{{ username }}</strong></p>
 
     <k-textbox
       ref="password"
@@ -124,7 +124,7 @@
     },
     $trs: {
       resetPassword: 'Reset user password',
-      username: 'Username',
+      username: 'Username: ',
       newPassword: 'New password',
       confirmNewPassword: 'Confirm new password',
       passwordMatchError: 'Passwords do not match',

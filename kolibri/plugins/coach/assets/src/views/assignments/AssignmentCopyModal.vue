@@ -3,7 +3,7 @@
   <div>
     <!-- Classroom Selection Form -->
     <k-modal
-      v-if="stage===Stages.SELECT_CLASSROOM"
+      v-if="stage === Stages.SELECT_CLASSROOM"
       id="select-classroom"
       :title="modalTitle"
       :submitText="$tr('continue')"

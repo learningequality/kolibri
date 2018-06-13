@@ -25,16 +25,17 @@
           id="modal-title"
           ref="title"
         >
+          {{ title }}
           <!-- Accessible error reporting per @radina -->
           <span
             v-if="hasError"
             class="visuallyhidden"
           >
-            {{ $tr('errorAlert') }}
+            {{ $tr('errorAlert', { title }) }}
           </span>
-          {{ title }}
         </h1>
 
+        <!-- Stop propagation of enter key to prevent the submit event from being emitted twice -->
         <form
           @submit.prevent="emitSubmitEvent"
           @keyup.enter.stop
@@ -102,9 +103,7 @@
     mixins: [responsiveWindow],
     $trs: {
       // error alerts
-      errorAlert: 'Error in',
-      // aria labels
-      closeWindow: 'Close window',
+      errorAlert: 'Error in { title }',
     },
     props: {
       /**
@@ -204,6 +203,10 @@
       window.setTimeout(() => this.lastFocus.focus());
     },
     methods: {
+      /**
+       * Calculate the max-height of the content section of the modal
+       * This creates a vertically scrollable area if there is not enough vertical space
+       */
       setContentSectionMaxHeight: debounce(function() {
         if (this.$refs.title && this.$refs.actions) {
           this.maxContentHeight =
