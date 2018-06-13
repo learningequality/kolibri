@@ -1,14 +1,14 @@
 /* eslint-env node, mocha */
 
-var assert = require('assert');
-var rewire = require('rewire');
-var _ = require('lodash');
-var path = require('path');
+const assert = require('assert');
+const rewire = require('rewire');
+const _ = require('lodash');
+const path = require('path');
 
-var parseBundlePlugin = require('../src/parse_bundle_plugin');
-var readBundlePlugins = rewire('../src/read_bundle_plugins');
+const parseBundlePlugin = require('../src/parse_bundle_plugin');
+const readBundlePlugins = rewire('../src/read_bundle_plugins');
 
-var baseData = {
+const baseData = {
   name: 'kolibri.plugin.test.test_plugin',
   src_file: 'src/file.js',
   stats_file: 'output.json',
@@ -19,7 +19,7 @@ var baseData = {
   plugin_path: 'kolibri/plugin',
 };
 
-var baseData1 = {
+const baseData1 = {
   name: 'kolibri.plugin.test.test_plugin1',
   src_file: 'src/file1.js',
   stats_file: 'output1.json',
@@ -31,7 +31,7 @@ var baseData1 = {
 };
 
 describe('parseBundlePlugin', function() {
-  var data;
+  const data;
   beforeEach(function() {
     data = _.clone(baseData);
   });
@@ -157,7 +157,7 @@ describe('parseBundlePlugin', function() {
 });
 
 describe('readBundlePlugins', function() {
-  var data = [];
+  const data = [];
 
   beforeEach(function() {
     readBundlePlugins.__set__('readWebpackJson', function() {
@@ -174,7 +174,7 @@ describe('readBundlePlugins', function() {
   });
   describe('one valid input out of two, output', function() {
     it('should have one entry', function(done) {
-      var badData = _.clone(baseData);
+      const badData = _.clone(baseData);
       delete badData.src_file;
       data = [badData, baseData1];
       assert(readBundlePlugins().length === 1);
@@ -183,9 +183,9 @@ describe('readBundlePlugins', function() {
   });
   describe('no valid input, output', function() {
     it('should have no entries', function(done) {
-      var badData = _.clone(baseData);
+      const badData = _.clone(baseData);
       delete badData.src_file;
-      var badData1 = _.clone(baseData1);
+      const badData1 = _.clone(baseData1);
       delete badData1.src_file;
       data = [badData, badData1];
       assert(readBundlePlugins().length === 0);
