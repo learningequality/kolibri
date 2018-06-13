@@ -23,7 +23,7 @@
           v-if="isExercise"
           :interactions="currentInteractionHistory"
           :selectedInteractionIndex="interactionIndex"
-          :attemptNumber="currentAttemptLog.questionNumber"
+          :attemptNumber="currentAttemptLog.questionNumber || 0"
           @select="navigateToNewInteraction($event)"
         />
 
@@ -101,7 +101,11 @@
       getters: {
         interactionIndex: state => state.pageState.interactionIndex,
         currentAttemptLog: state => state.pageState.currentAttemptLog,
-        attemptLogs: state => state.pageState.attemptLogs,
+        attemptLogs: state =>
+          state.pageState.attemptLogs.map(attempt => ({
+            ...attempt,
+            num_coach_contents: state.pageState.exercise.num_coach_contents,
+          })),
         currentInteraction: state => state.pageState.currentInteraction,
         currentInteractionHistory: state => state.pageState.currentInteractionHistory,
         classId: state => state.classId,

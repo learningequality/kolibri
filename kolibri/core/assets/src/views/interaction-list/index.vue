@@ -30,7 +30,7 @@
   import interactionItem from './interaction-item';
 
   export default {
-    name: 'coachExerciseQuestionAttempt',
+    name: 'interactionList',
     components: { interactionItem },
     mixins: [responsiveElement],
     $trs: {
@@ -45,6 +45,7 @@
       },
       selectedInteractionIndex: {
         type: Number,
+        required: true,
       },
       attemptNumber: {
         type: Number,
