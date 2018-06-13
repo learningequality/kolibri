@@ -174,7 +174,9 @@ describe('selectDriveModal component', () => {
 
   it('clicking "Continue" triggers a "go forward" action', () => {
     const wrapper = makeWrapper({ store });
-    const transitionStub = jest.spyOn(wrapper.vm, 'goForwardFromSelectDriveModal');
+    const transitionStub = jest
+      .spyOn(wrapper.vm, 'goForwardFromSelectDriveModal')
+      .mockImplementation(() => {});
     const { continueButton, writableImportableRadio } = getElements(wrapper);
     writableImportableRadio().trigger('change');
     continueButton().trigger('click');

@@ -6,7 +6,9 @@ import makeStore from '../util/makeStore';
 function makeWrapper() {
   return mount(SignUpPage, {
     store: makeStore(),
-    router: new VueRouter(),
+    router: new VueRouter({
+      routes: [{ name: 'SIGN_IN', path: '/signin' }],
+    }),
   });
 }
 

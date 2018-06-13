@@ -1,4 +1,4 @@
-import { shallow } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import ProgressBar from '../src/views/progress-bar';
 
 function testProgressBar(wrapper, expected) {
@@ -9,7 +9,7 @@ function testProgressBar(wrapper, expected) {
 
 describe('ProgressBar Component', () => {
   it('should give 0 percent for progress of < 0', () => {
-    const wrapper = shallow(ProgressBar, {
+    const wrapper = shallowMount(ProgressBar, {
       propsData: {
         progress: -0.0000001,
       },
@@ -19,7 +19,7 @@ describe('ProgressBar Component', () => {
   });
 
   it('should give 10 percent for progress of 0.1', () => {
-    const wrapper = shallow(ProgressBar, {
+    const wrapper = shallowMount(ProgressBar, {
       propsData: {
         progress: 0.1,
       },
@@ -28,7 +28,7 @@ describe('ProgressBar Component', () => {
   });
 
   it('should give 100 percent for progress of 1.0', () => {
-    const wrapper = shallow(ProgressBar, {
+    const wrapper = shallowMount(ProgressBar, {
       propsData: {
         progress: 1.0,
       },
@@ -37,7 +37,7 @@ describe('ProgressBar Component', () => {
   });
 
   it('should give 100 percent for progress of > 1.0', () => {
-    const wrapper = shallow(ProgressBar, {
+    const wrapper = shallowMount(ProgressBar, {
       propsData: {
         progress: 1.0000001,
       },
