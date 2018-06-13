@@ -1,3 +1,5 @@
+import Vue from 'kolibri.lib.vue';
+
 // TODO move more mutations here so they can be tested
 export function SET_PAGE_NAME(state, name) {
   state.pageName = name;
@@ -44,16 +46,12 @@ export function SET_USER_JUST_CREATED(state, user) {
   state.pageState.userJustCreated = user;
 }
 
-export function UPDATE_USERS(state, users) {
-  users.forEach(user => {
-    state.pageState.facilityUsers.forEach(existingUser => {
-      if (existingUser.id === user.id.toString()) {
-        existingUser.username = user.username;
-        existingUser.full_name = user.full_name;
-        existingUser.kind = user.kind;
-      }
-    });
-  });
+export function UPDATE_USER(state, updatedUser) {
+  const match = state.pageState.facilityUsers.find(user => user.id === updatedUser.id);
+  Vue.set(match, 'username', updatedUser.username);
+  Vue.set(match, 'full_name', updatedUser.full_name);
+  Vue.set(match, 'kind', updatedUser.kind);
+  Vue.set(match, 'roles', [...updatedUser.roles]);
 }
 
 export function SET_ERROR(state, error) {
