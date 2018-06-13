@@ -1,123 +1,106 @@
-/* eslint-env node, mocha */
+const rewire = require('rewire');
 
-var assert = require('assert');
-var rewire = require('rewire');
-var _ = require('lodash');
+const apiSpecExportTools = rewire('../src/apiSpecExportTools');
 
-var apiSpecExportTools = rewire('../src/apiSpecExportTools');
+const testSpec = 'test';
 
-var testSpec = 'test';
-
-var oneDeepSpec = {
+const oneDeepSpec = {
   test: testSpec,
 };
 
-var twoDeepSpec = {
+const twoDeepSpec = {
   test: oneDeepSpec,
 };
 
-var localSpec = './test';
+const localSpec = './test';
 
-var oneDeepLocal = {
+const oneDeepLocal = {
   test: localSpec,
 };
 
-var twoDeepLocal = {
+const twoDeepLocal = {
   test: oneDeepLocal,
 };
 
 describe('coreExternals', function() {
   // Note: all externals objects will have at least one entry for the Kolibri object itself.
+  function expectLengthOfCoreExternals(apiSpec, length) {
+    expect(Object.keys(apiSpecExportTools.coreExternals('test_global'))).toHaveLength(length);
+  }
   describe('top level with special keys', function() {
-    it('should have one entry', function(done) {
+    it('should have one entry', function() {
       apiSpecExportTools.__set__('apiSpec', {});
-      assert(Object.keys(apiSpecExportTools.coreExternals('test_global')).length === 1);
-      done();
+      expectLengthOfCoreExternals(apiSpecExportTools, 1);
     });
   });
   describe('1 nested valid spec for non-local module', function() {
-    it('should have three entries', function(done) {
+    it('should have three entries', function() {
       apiSpecExportTools.__set__('apiSpec', oneDeepSpec);
-      assert(Object.keys(apiSpecExportTools.coreExternals('test_global')).length === 3);
-      done();
+      expectLengthOfCoreExternals(apiSpecExportTools, 3);
     });
   });
   describe('2 nested valid spec for non-local module', function() {
-    it('should have three entries', function(done) {
+    it('should have three entries', function() {
       apiSpecExportTools.__set__('apiSpec', twoDeepSpec);
-      assert(Object.keys(apiSpecExportTools.coreExternals('test_global')).length === 3);
-      done();
+      expectLengthOfCoreExternals(apiSpecExportTools, 3);
     });
   });
   describe('1 nested valid spec for local module', function() {
-    it('should have two entries', function(done) {
+    it('should have two entries', function() {
       apiSpecExportTools.__set__('apiSpec', oneDeepLocal);
-      assert(Object.keys(apiSpecExportTools.coreExternals('test_global')).length === 2);
-      done();
+      expectLengthOfCoreExternals(apiSpecExportTools, 2);
     });
   });
   describe('2 nested valid spec for local module', function() {
-    it('should have two entries', function(done) {
+    it('should have two entries', function() {
       apiSpecExportTools.__set__('apiSpec', twoDeepLocal);
-      assert(Object.keys(apiSpecExportTools.coreExternals('test_global')).length === 2);
-      done();
+      expectLengthOfCoreExternals(apiSpecExportTools, 2);
     });
   });
 });
 
 describe('coreAliases', function() {
-  var baseAliasesLength = Object.keys(apiSpecExportTools.baseAliases).length;
+  const baseAliasesLength = Object.keys(apiSpecExportTools.baseAliases).length;
+  function expectLengthCoreAliases(apiSpec, length) {
+    expect(Object.keys(apiSpecExportTools.coreAliases())).toHaveLength(length);
+  }
+
   describe('top level with special keys no local import', function() {
-    it('should have no extra entries', function(done) {
+    it('should have no extra entries', function() {
       apiSpecExportTools.__set__('apiSpec', {});
-      assert(Object.keys(apiSpecExportTools.coreAliases()).length === baseAliasesLength);
-      done();
+      expectLengthCoreAliases(apiSpecExportTools, baseAliasesLength);
     });
   });
   describe('1 deep nested valid spec no local import', function() {
-    it('should have 1 extra entry', function(done) {
+    it('should have 1 extra entry', function() {
       apiSpecExportTools.__set__('apiSpec', oneDeepSpec);
-      assert(Object.keys(apiSpecExportTools.coreAliases()).length === baseAliasesLength + 1);
-      done();
+      expectLengthCoreAliases(apiSpecExportTools, baseAliasesLength + 1);
     });
   });
   describe('2 deep nested valid spec no local import', function() {
-    it('should have 1 extra entry', function(done) {
+    it('should have 1 extra entry', function() {
       apiSpecExportTools.__set__('apiSpec', twoDeepSpec);
-      assert(Object.keys(apiSpecExportTools.coreAliases()).length === baseAliasesLength + 1);
-      done();
+      expectLengthCoreAliases(apiSpecExportTools, baseAliasesLength + 1);
     });
   });
   describe('1 nested valid spec with local import', function() {
-    it('should have 1 extra entry', function(done) {
+    it('should have 1 extra entry', function() {
       apiSpecExportTools.__set__('apiSpec', oneDeepLocal);
-      assert(Object.keys(apiSpecExportTools.coreAliases()).length === baseAliasesLength + 1);
-      done();
+      expectLengthCoreAliases(apiSpecExportTools, baseAliasesLength + 1);
     });
-    it('should have a path of kolibri.test', function(done) {
+    it('should have a path of kolibri.test', function() {
       apiSpecExportTools.__set__('apiSpec', oneDeepLocal);
-      assert(
-        _.some(Object.keys(apiSpecExportTools.coreAliases()), function(key) {
-          return key === 'kolibri.test';
-        })
-      );
-      done();
+      expect(Object.keys(apiSpecExportTools.coreAliases())).toContain('kolibri.test');
     });
   });
   describe('2 nested valid spec with local import', function() {
-    it('should have 1 extra entry', function(done) {
+    it('should have 1 extra entry', function() {
       apiSpecExportTools.__set__('apiSpec', twoDeepLocal);
-      assert(Object.keys(apiSpecExportTools.coreAliases()).length === baseAliasesLength + 1);
-      done();
+      expectLengthCoreAliases(apiSpecExportTools, baseAliasesLength + 1);
     });
-    it('should have a path of kolibri.test.test', function(done) {
+    it('should have a path of kolibri.test.test', function() {
       apiSpecExportTools.__set__('apiSpec', twoDeepLocal);
-      assert(
-        _.some(Object.keys(apiSpecExportTools.coreAliases()), function(key) {
-          return key === 'kolibri.test.test';
-        })
-      );
-      done();
+      expect(Object.keys(apiSpecExportTools.coreAliases())).toContain('kolibri.test.test');
     });
   });
 });
