@@ -23,3 +23,4 @@ serializer_field_mapping.update(ModelSerializer.serializer_field_mapping)
 class KolibriModelSerializer(ModelSerializer):
 
     serializer_field_mapping = serializer_field_mapping
+
