@@ -42,7 +42,7 @@
           </div>
           <coach-content-label
             class="coach-content-label"
-            :value="numCoachContents(attemptLog.questionNumber)"
+            :value="attemptLog.num_coach_contents"
             :isTopic="false"
           />
         </li>
@@ -55,7 +55,6 @@
 
 <script>
 
-  import find from 'lodash/find';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
 
   export default {
@@ -87,17 +86,6 @@
       },
       isSelected(questionNumber) {
         return Number(this.selectedQuestionNumber) === questionNumber;
-      },
-    },
-    vuex: {
-      getters: {
-        numCoachContents(state) {
-          return function getCoachContents(questionNumber) {
-            const { questions, exerciseContentNodes } = state.pageState;
-            const questionId = questions[questionNumber - 1].contentId;
-            return find(exerciseContentNodes, { id: questionId }).num_coach_contents;
-          };
-        },
       },
     },
   };

@@ -45,54 +45,55 @@ oriented data synchronization.
       class="attempts-container"
       :class="{ 'mobile': windowSize.breakpoint < 2}"
     >
-
-      <div class="overall-status">
-        <mat-svg
-          name="stars"
-          category="action"
-          :class="success ? 'mastered' : 'not-mastered'"
-        />
-        <div class="overall-status-text">
-          <div v-if="success" class="completed">
-            {{ $tr('completed') }}
-          </div>
-          <div>
-            {{ $tr('goal', {count: totalCorrectRequiredM}) }}
+      <div class="margin-wrapper">
+        <div class="overall-status">
+          <mat-svg
+            name="stars"
+            category="action"
+            :class="success ? 'mastered' : 'not-mastered'"
+          />
+          <div class="overall-status-text">
+            <div v-if="success" class="completed">
+              {{ $tr('completed') }}
+            </div>
+            <div>
+              {{ $tr('goal', {count: totalCorrectRequiredM}) }}
+            </div>
           </div>
         </div>
-      </div>
-      <div class="table">
-        <div class="row">
-          <div class="left">
-            <transition mode="out-in">
-              <k-button
-                v-if="!complete"
-                appearance="raised-button"
-                class="question-btn"
-                :text="$tr('check')"
-                :primary="true"
-                :class="{shaking: shake}"
-                :disabled="checkingAnswer"
-                @click="checkAnswer"
-              />
-              <k-button
-                v-else
-                appearance="raised-button"
-                class="question-btn"
-                :text="$tr('next')"
-                :primary="true"
-                @click="nextQuestion"
-              />
-            </transition>
-          </div>
+        <div class="table">
+          <div class="row">
+            <div class="left">
+              <transition mode="out-in">
+                <k-button
+                  v-if="!complete"
+                  appearance="raised-button"
+                  class="question-btn"
+                  :text="$tr('check')"
+                  :primary="true"
+                  :class="{shaking: shake}"
+                  :disabled="checkingAnswer"
+                  @click="checkAnswer"
+                />
+                <k-button
+                  v-else
+                  appearance="raised-button"
+                  class="question-btn"
+                  :text="$tr('next')"
+                  :primary="true"
+                  @click="nextQuestion"
+                />
+              </transition>
+            </div>
 
-          <div class="right">
-            <exercise-attempts
-              :waitingForAttempt="firstAttemptAtQuestion || itemError"
-              :numSpaces="attemptsWindowN"
-              :log="recentAttempts"
-            />
-            <p class="current-status">{{ currentStatus }}</p>
+            <div class="right">
+              <exercise-attempts
+                :waitingForAttempt="firstAttemptAtQuestion || itemError"
+                :numSpaces="attemptsWindowN"
+                :log="recentAttempts"
+              />
+              <p class="current-status">{{ currentStatus }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -517,6 +518,10 @@ oriented data synchronization.
     box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2),
                 0 16px 24px 2px rgba(0, 0, 0, 0.14),
                 0 6px 30px 5px rgba(0, 0, 0, 0.12)
+
+  .margin-wrapper
+    max-width: 1000px - 64px // account for page padding
+    margin: auto
 
   .mobile
       padding: 8px
