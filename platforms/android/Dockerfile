@@ -24,7 +24,6 @@ RUN dpkg --add-architecture i386 && \
     lsb-release \
     openjdk-8-jdk \
     python-dev \
-    python-pip \
     unzip \
     vim \
     wget \
@@ -33,7 +32,8 @@ RUN dpkg --add-architecture i386 && \
     zlib1g-dev \
     zlib1g:i386 \
     && apt-get clean && \
-    pip install pip --upgrade && \
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python get-pip.py && \
     pip install cython buildozer
 
 # would be nice if we could batch this into the bash file
