@@ -38,7 +38,7 @@ from django.conf.urls import url
 from django.conf.urls.static import static
 
 from .views import set_language
-from kolibri.content.utils import paths
+from kolibri.core.content.utils import paths
 from kolibri.plugins.registry import get_urls as plugin_urls
 
 app_name = 'kolibri'

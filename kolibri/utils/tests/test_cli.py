@@ -160,7 +160,7 @@ def test_kolibri_listen_port_env(monkeypatch):
     Checks that the correct fallback port is used from the environment.
     """
 
-    with patch('kolibri.content.utils.annotation.update_channel_metadata'):
+    with patch('kolibri.core.content.utils.annotation.update_channel_metadata'):
         from kolibri.utils import server
 
         def start_mock(port, *args, **kwargs):

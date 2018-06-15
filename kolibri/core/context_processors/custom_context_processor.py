@@ -2,7 +2,7 @@ import json
 
 from user_agents import parse
 
-from kolibri.auth.api import SessionViewSet
+from kolibri.core.auth.api import SessionViewSet
 from kolibri.utils import conf
 
 

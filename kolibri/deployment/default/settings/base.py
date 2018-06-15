@@ -59,10 +59,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
-    'kolibri.auth.apps.KolibriAuthConfig',
-    'kolibri.content',
-    'kolibri.logger',
-    'kolibri.tasks.apps.KolibriTasksConfig',
+    'kolibri.core.auth.apps.KolibriAuthConfig',
+    'kolibri.core.content',
+    'kolibri.core.logger',
+    'kolibri.core.tasks.apps.KolibriTasksConfig',
     'kolibri.core.deviceadmin',
     'kolibri.core.webpack',
     'kolibri.core.exams',
@@ -90,7 +90,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'kolibri.plugins.setup_wizard.middleware.SetupWizardMiddleware',
-    'kolibri.auth.middleware.CustomAuthenticationMiddleware',
+    'kolibri.core.auth.middleware.CustomAuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -310,14 +310,14 @@ LOGGING = {
 
 AUTH_USER_MODEL = 'kolibriauth.FacilityUser'
 
-AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.FacilityUserBackend']
+AUTHENTICATION_BACKENDS = ['kolibri.core.auth.backends.FacilityUserBackend']
 
 
 # Django REST Framework
 # http://www.django-rest-framework.org/api-guide/settings/
 
 REST_FRAMEWORK = {
-    "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser",
+    "UNAUTHENTICATED_USER": "kolibri.core.auth.models.KolibriAnonymousUser",
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
@@ -343,4 +343,4 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 600
 
 # morango specific settings
-MORANGO_JSON_SERIALIZER_CLASS = "kolibri.auth.encoders"
+MORANGO_JSON_SERIALIZER_CLASS = "kolibri.core.auth.encoders"

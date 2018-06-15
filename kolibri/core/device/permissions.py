@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 
-from kolibri.auth.permissions.general import DenyAll
+from kolibri.core.auth.permissions.general import DenyAll
 
 
 class UserCanManageDevicePermissions(DenyAll):

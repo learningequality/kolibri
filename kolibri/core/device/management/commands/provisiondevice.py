@@ -6,10 +6,10 @@ from django.core.management.base import CommandError
 from django.db import transaction
 from django.utils import six
 
-from kolibri.auth.constants.facility_presets import mappings
-from kolibri.auth.constants.facility_presets import presets
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityUser
+from kolibri.core.auth.constants.facility_presets import mappings
+from kolibri.core.auth.constants.facility_presets import presets
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DeviceSettings
 
 logging = logger.getLogger(__name__)

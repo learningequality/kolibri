@@ -7,9 +7,9 @@ from rest_framework import pagination
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from kolibri.auth.api import KolibriAuthPermissions
-from kolibri.auth.api import KolibriAuthPermissionsFilter
-from kolibri.auth.filters import HierarchyRelationsFilter
+from kolibri.core.auth.api import KolibriAuthPermissions
+from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.exams import models
 from kolibri.core.exams import serializers
 

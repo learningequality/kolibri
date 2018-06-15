@@ -23,7 +23,7 @@ class ContextProcessorTestCase(APITestCase):
         self.context = RequestContext(self.request)
 
     def test_context_added_with_context_processor(self):
-        with mock.patch('kolibri.auth.api.SessionViewSet.get_session', return_value={"context": True}):
+        with mock.patch('kolibri.core.auth.api.SessionViewSet.get_session', return_value={"context": True}):
             with self.context.bind_template(self.template):
                 self.assertEqual(json.loads(self.context['session'])['context'], True)
 

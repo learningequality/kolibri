@@ -2,8 +2,8 @@ from django.conf import settings
 from django.db import models
 
 from .permissions import UserCanManageDevicePermissions
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityUser
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 
 device_permissions_fields = [
     'is_superuser',
