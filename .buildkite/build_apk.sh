@@ -6,7 +6,7 @@ set -euo pipefail
 yes y | rm -r kolibri-kivy/ || true 2> /dev/null
 git clone https://github.com/learningequality/kolibri-kivy.git
 cd kolibri-kivy
-git checkout v0.1.0-beta1
+git checkout develop
 cd ..
 
 # copy in the latest whl to make it available to the Docker build script
