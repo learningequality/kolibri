@@ -1,8 +1,8 @@
-import { shallow } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import AuthMessage from '../../src/views/auth-message';
 
 function makeWrapper(options) {
-  return shallow(AuthMessage, options);
+  return shallowMount(AuthMessage, options);
 }
 
 // prettier-ignore

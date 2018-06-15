@@ -118,6 +118,7 @@ export function makeSelectContentPageStore() {
     },
     mutations: {
       ...mutations,
+      CORE_SET_PAGE_LOADING() {},
       // test-only mutation
       addTask(state, task) {
         state.pageState.taskList.push(task);

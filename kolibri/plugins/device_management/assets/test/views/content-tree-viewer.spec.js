@@ -1,7 +1,6 @@
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
-import sinon from 'sinon';
-import omit from 'lodash/omit';
+import omit from 'lodash/fp/omit';
 import ContentTreeViewer from '../../src/views/select-content-page/content-tree-viewer.vue';
 import { makeNode } from '../utils/data';
 import { makeSelectContentPageStore } from '../utils/makeStore';
@@ -15,7 +14,9 @@ function makeWrapper(options = {}) {
   return mount(ContentTreeViewer, {
     propsData: props,
     store: store || makeSelectContentPageStore(),
-    router: new VueRouter({}),
+    router: new VueRouter({
+      routes: [{ name: 'SELECT_CONTENT_TOPIC', path: 'topic' }],
+    }),
   });
 }
 
@@ -28,6 +29,14 @@ function getElements(wrapper) {
     contentsSection: () => wrapper.findAll('.contents'),
     firstTopicButton: () => wrapper.find({ name: 'contentNodeRow' }).find('button'),
     contentNodeRows: () => wrapper.findAll({ name: 'contentNodeRow' }),
+    addNodeForTransferMock: () => {
+      const mock = wrapper.vm.addNodeForTransfer = jest.fn().mockResolvedValue();
+      return mock;
+    },
+    removeNodeForTransferMock: () => {
+      const mock = wrapper.vm.removeNodeForTransfer = jest.fn().mockResolvedValue();
+      return mock;
+    },
   };
 }
 
@@ -126,12 +135,10 @@ describe('contentTreeViewer component', () => {
   it('when clicking a topic-title button on a row, a "update topic" action is trigged', () => {
     const wrapper = makeWrapper({ store });
     const { firstTopicButton } = getElements(wrapper);
-    const updateTopicStub = sinon.stub(wrapper.vm, 'updateCurrentTopicNode');
+    const { mock } = (wrapper.vm.updateCurrentTopicNode = jest.fn());
     firstTopicButton().trigger('click');
-    return wrapper.vm.$nextTick().then(() => {
-      sinon.assert.calledOnce(updateTopicStub);
-      sinon.assert.calledWith(updateTopicStub, wrapper.vm.annotatedChildNodes[0]);
-    });
+    expect(mock.calls).toHaveLength(1);
+    expect(mock.calls[0][0]).toEqual(wrapper.vm.annotatedChildNodes[0]);
   });
 
   it('child nodes are annotated with their full path', () => {
@@ -184,42 +191,27 @@ describe('contentTreeViewer component', () => {
   });
 
   describe('toggling "select all" checkbox', () => {
+    const sanitizeNode = omit(['message', 'checkboxType', 'disabled', 'children']);
     it('if unchecked, clicking the "Select All" for the topic triggers an "add node" action', () => {
       // Selected w/ unselected child scenario
       setIncludedNodes([makeNode('topic_1', { total_resources: 1000 })]);
       setOmittedNodes([makeNode('subtopic_1', { path: [{ id: 'topic_1', title: '' }] })]);
       const wrapper = makeWrapper({ store });
-      const { selectAllCheckbox } = getElements(wrapper);
-      const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
+      const { selectAllCheckbox, addNodeForTransferMock } = getElements(wrapper);
+      const { mock } = addNodeForTransferMock();
       selectAllCheckbox().trigger('click');
-      return wrapper.vm.$nextTick().then(() => {
-        const sanitized = omit(wrapper.vm.annotatedTopicNode, [
-          'message',
-          'checkboxType',
-          'disabled',
-          'children',
-        ]);
-        sinon.assert.calledOnce(addNodeStub);
-        sinon.assert.calledWithMatch(addNodeStub, sanitized);
-      });
+      expect(mock.calls).toHaveLength(1);
+      expect(mock.calls[0][0]).toMatchObject(sanitizeNode(wrapper.vm.annotatedTopicNode));
     });
 
     it('if topic is checked, clicking the "Select All" for the topic triggers a "remove node" action', () => {
       setIncludedNodes([makeNode('topic_1')]);
       const wrapper = makeWrapper({ store });
-      const removeNodeStub = sinon
-        .stub(wrapper.vm, 'removeNodeForTransfer')
-        .returns(Promise.resolve());
-      const { selectAllCheckbox } = getElements(wrapper);
+      const { selectAllCheckbox, removeNodeForTransferMock } = getElements(wrapper);
+      const { mock } = removeNodeForTransferMock();
       selectAllCheckbox().trigger('click');
-      const sanitized = omit(wrapper.vm.annotatedTopicNode, [
-        'message',
-        'checkboxType',
-        'disabled',
-        'children',
-      ]);
-      sinon.assert.calledOnce(removeNodeStub);
-      sinon.assert.calledWithMatch(removeNodeStub, sanitized);
+      expect(mock.calls).toHaveLength(1);
+      expect(mock.calls[0][0]).toMatchObject(sanitizeNode(wrapper.vm.annotatedTopicNode));
     });
   });
 
@@ -233,15 +225,14 @@ describe('contentTreeViewer component', () => {
       setChildren([subTopic]);
       setIncludedNodes([subTopic]);
       const wrapper = makeWrapper({ store });
-      const removeNodeStub = sinon
-        .stub(wrapper.vm, 'removeNodeForTransfer')
-        .returns(Promise.resolve());
+      const { removeNodeForTransferMock } = getElements(wrapper);
+      const { mock } = removeNodeForTransferMock();
       const topicRow = wrapper.find({ name: 'contentNodeRow' });
       expect(topicRow.props().checked).toEqual(true);
       expect(topicRow.props().disabled).toEqual(false);
       topicRow.find('input[type="checkbox"]').trigger('click');
-      sinon.assert.calledOnce(removeNodeStub);
-      sinon.assert.calledWithMatch(removeNodeStub, subTopic);
+      expect(mock.calls).toHaveLength(1);
+      expect(mock.calls[0][0]).toMatchObject(subTopic);
     });
 
     it('clicking an unchecked child node triggers an "add node" action', () => {
@@ -258,12 +249,13 @@ describe('contentTreeViewer component', () => {
       });
       setChildren([subTopic, subTopic2]);
       const wrapper = makeWrapper({ store });
-      const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
+      const { addNodeForTransferMock } = getElements(wrapper);
+      const { mock } = addNodeForTransferMock();
       const topicRow = wrapper.find({ name: 'contentNodeRow' });
       expect(topicRow.props().checked).toEqual(false);
       topicRow.find('input[type="checkbox"]').trigger('click');
-      sinon.assert.calledOnce(addNodeStub);
-      sinon.assert.calledWithMatch(addNodeStub, subTopic);
+      expect(mock.calls).toHaveLength(1);
+      expect(mock.calls[0][0]).toMatchObject(subTopic);
     });
 
     it('clicking an indeterminate child node triggers an "add node" action', () => {
@@ -284,13 +276,14 @@ describe('contentTreeViewer component', () => {
       setChildren([subTopic, subTopic2]);
       setIncludedNodes([subSubTopic]);
       const wrapper = makeWrapper({ store });
-      const addNodeStub = sinon.stub(wrapper.vm, 'addNodeForTransfer').returns(Promise.resolve());
+      const { addNodeForTransferMock } = getElements(wrapper);
+      const { mock } = addNodeForTransferMock();
       const topicRow = wrapper.find({ name: 'contentNodeRow' });
       expect(topicRow.props().checked).toEqual(false);
       expect(topicRow.props().indeterminate).toEqual(true);
       topicRow.find('input[type="checkbox"]').trigger('click');
-      sinon.assert.calledOnce(addNodeStub);
-      sinon.assert.calledWithMatch(addNodeStub, { id: 'subtopic' });
+      expect(mock.calls).toHaveLength(1);
+      expect(mock.calls[0][0]).toMatchObject({ id: 'subtopic' });
     });
   });
 });

@@ -29,6 +29,7 @@ module.exports = {
   setupFiles: [path.resolve(__dirname, './setup')],
   coverageDirectory: '<rootDir>/coverage',
   collectCoverageFrom: [
+    'frontend_build/src/*.js',
     'kolibri/**/assets/src/**/*.{js,vue}',
     '!**/node_modules/**',
     'kolibri/**/**/assets/src/**/*.{js,vue}',

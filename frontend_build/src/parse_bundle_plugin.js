@@ -9,17 +9,17 @@
  * should be added in that file and not in here.
  */
 
-var BundleTracker = require('webpack-bundle-tracker');
 var path = require('path');
-var logging = require('./logging');
+var BundleTracker = require('webpack-bundle-tracker');
 var webpack = require('webpack');
-var base_config = require('./webpack.config.base');
 var _ = require('lodash');
-var extract$trs = require('./extract_$trs');
 var merge = require('webpack-merge');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 var WebpackRTLPlugin = require('webpack-rtl-plugin');
 var { VueLoaderPlugin } = require('vue-loader');
+var extract$trs = require('./extract_$trs');
+var logging = require('./logging');
+var base_config = require('./webpack.config.base');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle

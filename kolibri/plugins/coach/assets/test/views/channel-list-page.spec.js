@@ -1,8 +1,10 @@
 import Vuex from 'vuex';
-import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
+import { now } from 'kolibri.utils.serverClock';
 import ChannelListPage from '../../src/views/reports/channel-list-page';
 import { ViewBy } from '../../src/constants/reportConstants';
+
+jest.mock('kolibri.utils.serverClock');
 
 const initialState = () => ({
   classId: '',
@@ -61,16 +63,11 @@ function getElements(wrapper) {
 
 describe('channel list page component', () => {
   let state;
-  let clock;
 
   beforeEach(() => {
-    state = initialState();
     // sets clock to 4/19/2017
-    clock = sinon.useFakeTimers(Number(new Date(2017, 3, 19)));
-  });
-
-  afterEach(() => {
-    clock.restore();
+    now.mockReturnValue(new Date(2017, 3, 19));
+    state = initialState();
   });
 
   describe('in "show everything" mode', () => {

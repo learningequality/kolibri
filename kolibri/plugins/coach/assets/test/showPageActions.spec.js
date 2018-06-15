@@ -1,13 +1,12 @@
-import { mockResource } from 'testUtils'; // eslint-disable-line
-import sinon from 'sinon';
+import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import { ClassroomResource, ContentNodeResource, ExamResource } from 'kolibri.resources';
+import { showExamsPage } from '../src/state/actions/exam';
 
-import * as examActions from '../src/state/actions/exam';
+jestMockResource(ClassroomResource);
+jestMockResource(ContentNodeResource);
+jestMockResource(ExamResource);
 
-mockResource(ClassroomResource);
-mockResource(ContentNodeResource);
-mockResource(ExamResource);
-
+//
 // fakes for data, since they have similar shape
 const fakeItems = [
   {
@@ -140,7 +139,7 @@ const fakeExamState = [
 
 describe('showPage actions for coach exams section', () => {
   const storeMock = {
-    dispatch: sinon.spy(),
+    dispatch: jest.fn(),
     state: { core: { pageSessionId: '' } },
   };
 
@@ -150,40 +149,34 @@ describe('showPage actions for coach exams section', () => {
     ClassroomResource.__resetMocks();
     ContentNodeResource.__resetMocks();
     ExamResource.__resetMocks();
-    dispatchSpy.resetHistory();
+    dispatchSpy.mockReset();
   });
 
   describe('showExamsPage', () => {
-    it('store is properly set up when there are no problems', () => {
+    it('store is properly set up when there are no problems', async () => {
       ClassroomResource.__getCollectionFetchReturns(fakeItems);
       ExamResource.__getCollectionFetchReturns(fakeExams);
 
       // Using the weird naming from fakeItems
       const classId = 'item_1';
-      return examActions.showExamsPage(storeMock, classId)._promise.then(() => {
-        sinon.assert.calledWith(ClassroomResource.getCollection);
-        sinon.assert.calledWith(ExamResource.getCollection, { collection: classId });
-        // sinon.assert.calledWith(dispatchSpy, 'SET_CLASS_INFO', classId, 'item one', [
-        //   { id: 'item_1', name: 'item one', memberCount: 5 },
-        //   { id: 'item_2', name: 'item two', memberCount: 6 },
-        // ]);
-        sinon.assert.calledWith(
-          dispatchSpy,
-          'SET_PAGE_STATE',
-          sinon.match({
-            exams: fakeExamState,
-            examsModalSet: false,
-          })
-        );
+      await showExamsPage(storeMock, classId)._promise;
+      expect(ClassroomResource.getCollection).toHaveBeenCalled();
+      expect(ExamResource.getCollection).toHaveBeenCalledWith({ collection: classId });
+      expect(dispatchSpy).toHaveBeenCalledWith('SET_PAGE_STATE', {
+        exams: fakeExamState,
+        examsModalSet: false,
+        busy: false,
       });
     });
 
-    it('store is properly set up when there are errors', () => {
+    it('store is properly set up when there are errors', async () => {
       ClassroomResource.__getCollectionFetchReturns(fakeItems);
       ExamResource.__getCollectionFetchReturns('channel error', true);
-      return examActions.showExamsPage(storeMock, 'class_1')._promise.catch(() => {
-        sinon.assert.calledWith(dispatchSpy, 'CORE_SET_ERROR', 'channel error');
-      });
+      try {
+        await showExamsPage(storeMock, 'class_1')._promise;
+      } catch (error) {
+        expect(dispatchSpy).toHaveBeenCalledWith('CORE_SET_ERROR', 'channel error');
+      }
     });
   });
 });

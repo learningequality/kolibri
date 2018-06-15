@@ -1,10 +1,13 @@
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
-import sinon from 'sinon';
-import * as actions from '../../src/state/actions/facilityConfig';
-import { mockResource } from 'testUtils'; // eslint-disable-line
+import {
+  showFacilityConfigPage,
+  saveFacilityConfig,
+  resetFacilityConfig,
+} from '../../src/state/actions/facilityConfig';
+import { jestMockResource } from 'testUtils'; // eslint-disable-line
 
-const FacilityStub = mockResource(FacilityResource);
-const DatasetStub = mockResource(FacilityDatasetResource);
+const FacilityStub = jestMockResource(FacilityResource);
+const DatasetStub = jestMockResource(FacilityDatasetResource);
 
 const fakeFacility = {
   name: 'Nalanda Maths',
@@ -25,7 +28,7 @@ const fakeDatasets = [
 
 describe('facility config page actions', () => {
   const storeMock = {
-    dispatch: sinon.spy(),
+    dispatch: jest.fn(),
     state: {
       core: {
         pageId: '123',
@@ -41,7 +44,7 @@ describe('facility config page actions', () => {
   beforeEach(() => {
     FacilityResource.__resetMocks();
     FacilityDatasetResource.__resetMocks();
-    dispatchStub.resetHistory();
+    dispatchStub.mockReset();
     storeMock.state.pageState = {};
   });
 
@@ -52,25 +55,28 @@ describe('facility config page actions', () => {
       const expectedPageState = {
         facilityDatasetId: 'dataset_2',
         facilityName: 'Nalanda Maths',
-        settings: {
+        settings: expect.objectContaining({
           learnerCanEditName: true,
           learnerCanEditUsername: false,
           learnerCanEditPassword: true,
           learnerCanDeleteAccount: true,
           learnerCanSignUp: true,
-        },
-        settingsCopy: {
+        }),
+        settingsCopy: expect.objectContaining({
           learnerCanEditName: true,
           learnerCanEditUsername: false,
           learnerCanEditPassword: true,
           learnerCanDeleteAccount: true,
           learnerCanSignUp: true,
-        },
+        }),
       };
 
-      return actions.showFacilityConfigPage(storeMock).then(() => {
-        sinon.assert.calledWith(DatasetStub.getCollection, { facility_id: 1 });
-        sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
+      return showFacilityConfigPage(storeMock).then(() => {
+        expect(DatasetStub.getCollection).toHaveBeenCalledWith({ facility_id: 1 });
+        expect(dispatchStub).toHaveBeenCalledWith(
+          'SET_PAGE_STATE',
+          expect.objectContaining(expectedPageState)
+        );
       });
     });
 
@@ -83,16 +89,22 @@ describe('facility config page actions', () => {
       it('when fetching Facility fails', () => {
         FacilityStub.__getModelFetchReturns('incomprehensible error', true);
         DatasetStub.__getCollectionFetchReturns(fakeDatasets);
-        return actions.showFacilityConfigPage(storeMock).then(() => {
-          sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
+        return showFacilityConfigPage(storeMock).then(() => {
+          expect(dispatchStub).toHaveBeenCalledWith(
+            'SET_PAGE_STATE',
+            expect.objectContaining(expectedPageState)
+          );
         });
       });
 
       it('when fetching FacilityDataset fails', () => {
         FacilityStub.__getModelFetchReturns(fakeFacility);
         DatasetStub.__getCollectionFetchReturns('incomprehensible error', true);
-        return actions.showFacilityConfigPage(storeMock).then(() => {
-          sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
+        return showFacilityConfigPage(storeMock).then(() => {
+          expect(dispatchStub).toHaveBeenCalledWith(
+            'SET_PAGE_STATE',
+            expect.objectContaining(expectedPageState)
+          );
         });
       });
     });
@@ -123,27 +135,30 @@ describe('facility config page actions', () => {
       // IRL returns the updated Model
       const saveStub = DatasetStub.__getModelSaveReturns('ok');
 
-      return actions.saveFacilityConfig(storeMock).then(() => {
-        sinon.assert.calledWith(DatasetStub.getModel, 1000);
-        sinon.assert.calledWith(saveStub, sinon.match(expectedRequest));
-        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_NOTIFY', 'SAVE_SUCCESS');
+      return saveFacilityConfig(storeMock).then(() => {
+        expect(DatasetStub.getModel).toHaveBeenCalledWith(1000);
+        expect(saveStub).toHaveBeenCalledWith(expect.objectContaining(expectedRequest));
+        expect(storeMock.dispatch).toHaveBeenCalledWith('CONFIG_PAGE_NOTIFY', 'SAVE_SUCCESS');
       });
     });
 
     it('when save fails', () => {
       const saveStub = DatasetStub.__getModelSaveReturns('heck no', true);
-      return actions.saveFacilityConfig(storeMock).then(() => {
-        sinon.assert.called(saveStub);
-        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_NOTIFY', 'SAVE_FAILURE');
-        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
+      return saveFacilityConfig(storeMock).then(() => {
+        expect(saveStub).toHaveBeenCalled();
+        expect(storeMock.dispatch).toHaveBeenCalledWith('CONFIG_PAGE_NOTIFY', 'SAVE_FAILURE');
+        expect(storeMock.dispatch).toHaveBeenCalledWith('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
       });
     });
 
     it('resetFacilityConfig action dispatches a modify all settings action before saving', () => {
       const saveStub = DatasetStub.__getModelSaveReturns('ok default');
-      return actions.resetFacilityConfig(storeMock).then(() => {
-        sinon.assert.calledWith(dispatchStub, 'CONFIG_PAGE_MODIFY_ALL_SETTINGS');
-        sinon.assert.called(saveStub);
+      return resetFacilityConfig(storeMock).then(() => {
+        expect(dispatchStub).toHaveBeenCalledWith(
+          'CONFIG_PAGE_MODIFY_ALL_SETTINGS',
+          expect.any(Object)
+        );
+        expect(saveStub).toHaveBeenCalled();
       });
     });
   });
