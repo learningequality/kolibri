@@ -11,7 +11,9 @@
     />
     <template v-else>
       <error-box v-if="error" />
-      <slot></slot>
+      <div class="wrapper">
+        <slot></slot>
+      </div>
     </template>
   </div>
 
@@ -79,6 +81,8 @@
     right: 0
     position: absolute
     overflow-x: hidden
+
+  .wrapper
     max-width: 1000px
     margin: auto
 
