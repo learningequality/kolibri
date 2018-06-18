@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import sinon from 'sinon';
 import urls from 'kolibri.urls';
 import { SessionResource, AttemptLogResource } from 'kolibri.resources';
 import coreStore from '../../src/state/store';
@@ -39,14 +38,14 @@ describe('Vuex store/actions for core module', () => {
 
     beforeEach(() => {
       store = coreStore.factory();
-      assignStub = sinon.stub(browser, 'redirectBrowser');
+      assignStub = jest.spyOn(browser, 'redirectBrowser');
     });
 
     afterEach(() => {
-      assignStub.restore();
+      assignStub.mockRestore();
     });
 
-    it('successful login', done => {
+    it('successful login', async () => {
       urls['kolibri:facilitymanagementplugin:facility_management'] = () => '';
       urls['kolibri:devicemanagementplugin:device_management'] = () => '';
       urls['kolibri:coach:coach'] = () => '';
@@ -62,63 +61,49 @@ describe('Vuex store/actions for core module', () => {
         }),
       });
 
-      function runAssertions() {
-        const { session } = store.state.core;
-        expect(session.id).toEqual('123');
-        expect(session.username).toEqual('e_fermi');
-        expect(session.kind).toEqual(['cool-guy-user']);
-        sinon.assert.called(assignStub);
-      }
-
-      coreActions
-        .kolibriLogin(store, {})
-        .then(runAssertions)
-        .then(done, done);
+      await coreActions.kolibriLogin(store, {});
+      const { session } = store.state.core;
+      expect(session.id).toEqual('123');
+      expect(session.username).toEqual('e_fermi');
+      expect(session.kind).toEqual(['cool-guy-user']);
+      expect(assignStub).toHaveBeenCalled();
     });
 
-    it('failed login (401)', done => {
+    it('failed login (401)', async () => {
       Object.assign(SessionResource, {
         createModel: () => ({
           save: () => Promise.reject({ status: { code: 401 } }),
         }),
       });
 
-      coreActions
-        .kolibriLogin(store, {})
-        .then(() => {
-          expect(store.state.core.loginError).toEqual(constants.LoginErrors.INVALID_CREDENTIALS);
-        })
-        .then(done, done);
+      await coreActions.kolibriLogin(store, {});
+      expect(store.state.core.loginError).toEqual(constants.LoginErrors.INVALID_CREDENTIALS);
     });
 
-    it('successful logout', done => {
-      const getModelStub = sinon.stub().returns({
+    it('successful logout', async () => {
+      const getModelStub = jest.fn().mockReturnValue({
         delete: () => Promise.resolve('goodbye'),
       });
       Object.assign(SessionResource, {
         getModel: getModelStub,
       });
 
-      coreActions
-        .kolibriLogout(store)
-        .then(() => {
-          sinon.assert.calledWith(getModelStub, 'current');
-          sinon.assert.called(assignStub);
-        })
-        .then(done, done);
+      await coreActions.kolibriLogout(store);
+      expect(getModelStub).toHaveBeenCalledWith('current');
+      expect(assignStub).toHaveBeenCalled();
     });
   });
 });
 
 describe('Vuex core logging actions', () => {
   describe('attempt log saving', () => {
-    it('saveAndStoreAttemptLog does not overwrite state if item id has changed', done => {
+    it('saveAndStoreAttemptLog does not overwrite state if item id has changed', async () => {
       const store = coreStore.factory();
       coreActions.createAttemptLog(store, 'first');
       let externalResolve;
       const firstState = Object.assign({}, store.state.core.logging.attempt);
-      const findModelStub = sinon.stub(AttemptLogResource, 'findModel');
-      findModelStub.returns({
+      const findModelStub = jest.spyOn(AttemptLogResource, 'findModel');
+      findModelStub.mockReturnValue({
         save: () =>
           new ConditionalPromise(resolve => {
             externalResolve = resolve;
@@ -128,11 +113,9 @@ describe('Vuex core logging actions', () => {
       coreActions.createAttemptLog(store, 'second');
       store.state.core.logging.attempt.id = 'assertion';
       externalResolve(firstState);
-      promise.then(() => {
-        expect(store.state.core.logging.attempt.id).toEqual('assertion');
-        expect(store.state.core.logging.attempt.item).toEqual('second');
-        done();
-      });
+      await promise;
+      expect(store.state.core.logging.attempt.id).toEqual('assertion');
+      expect(store.state.core.logging.attempt.item).toEqual('second');
     });
   });
 });

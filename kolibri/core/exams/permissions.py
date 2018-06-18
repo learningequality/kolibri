@@ -1,9 +1,9 @@
 from django.db.models import Q
 from django.db.models.query import F
 
-from kolibri.auth.filters import HierarchyRelationsFilter
-from kolibri.auth.models import AnonymousUser
-from kolibri.auth.permissions.general import DenyAll
+from kolibri.core.auth.filters import HierarchyRelationsFilter
+from kolibri.core.auth.models import AnonymousUser
+from kolibri.core.auth.permissions.general import DenyAll
 
 
 class UserCanReadExamAssignmentData(DenyAll):
@@ -12,7 +12,7 @@ class UserCanReadExamAssignmentData(DenyAll):
         if isinstance(user, AnonymousUser):
             return False
         # Import here to avoid circular import.
-        from kolibri.logger.models import ExamLog
+        from kolibri.core.logger.models import ExamLog
         # If they are not a member of the assignment's collection, don't bother with any other checks
         return user.is_member_of(obj.collection) and (
             obj.exam.active or ExamLog.objects.filter(exam=obj.exam, user=user).exists())
@@ -31,7 +31,7 @@ class UserCanReadExamData(DenyAll):
         if isinstance(user, AnonymousUser):
             return False
         # Import here to avoid circular import.
-        from kolibri.logger.models import ExamLog
+        from kolibri.core.logger.models import ExamLog
         # If they are not a member of the assignment's collection, don't bother with any other checks
         return HierarchyRelationsFilter(obj.assignments.all()).filter_by_hierarchy(
             target_user=user,

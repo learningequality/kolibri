@@ -226,6 +226,8 @@
             username: this.newUsername,
             full_name: this.newName,
             role: roleUpdate,
+          }).then(() => {
+            this.displayModal(false);
           });
           if (
             this.currentUserId === this.id &&
@@ -269,5 +271,8 @@
     margin: 0
     padding: 0
     border: none
+
+  .edit-user-form
+    min-height: 350px
 
 </style>

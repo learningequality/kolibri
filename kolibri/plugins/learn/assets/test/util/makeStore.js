@@ -18,7 +18,10 @@ export default function makeStore(options = {}) {
   }
 
   return new Vuex.Store({
-    mutations,
+    mutations: {
+      ...mutations,
+      CORE_SET_ERROR() {},
+    },
     state,
   });
 }

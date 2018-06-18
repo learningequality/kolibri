@@ -3,11 +3,11 @@ from jsonfield import JSONField
 
 from .permissions import UserCanReadExamAssignmentData
 from .permissions import UserCanReadExamData
-from kolibri.auth.constants import role_kinds
-from kolibri.auth.models import AbstractFacilityDataModel
-from kolibri.auth.models import Collection
-from kolibri.auth.models import FacilityUser
-from kolibri.auth.permissions.base import RoleBasedPermissions
+from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.models import AbstractFacilityDataModel
+from kolibri.core.auth.models import Collection
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.permissions.base import RoleBasedPermissions
 
 
 class Exam(AbstractFacilityDataModel):

@@ -242,7 +242,7 @@ def update():
     with open(version_file(), "w") as f:
         f.write(kolibri.__version__)
 
-    from kolibri.content.utils.annotation import update_channel_metadata
+    from kolibri.core.content.utils.annotation import update_channel_metadata
     update_channel_metadata()
 
 

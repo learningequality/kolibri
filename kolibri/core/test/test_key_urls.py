@@ -5,9 +5,9 @@ from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
 
-from kolibri.auth.test.helpers import create_superuser
-from kolibri.auth.test.helpers import provision_device
-from kolibri.auth.test.test_api import FacilityFactory
+from kolibri.core.auth.test.helpers import create_superuser
+from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.auth.test.test_api import FacilityFactory
 
 DUMMY_PASSWORD = "password"
 

@@ -1,10 +1,9 @@
-import sinon from 'sinon';
-import { mockResource } from 'testUtils'; // eslint-disable-line import/no-unresolved
+import { jestMockResource } from 'testUtils'; // eslint-disable-line import/no-unresolved
 import { MembershipResource } from 'kolibri.resources';
 import prepareLearnApp from '../../src/state/prepareLearnApp';
 import makeStore from '../util/makeStore';
 
-mockResource(MembershipResource);
+jestMockResource(MembershipResource);
 
 describe('prepareLearnApp action', () => {
   let store;
@@ -23,7 +22,7 @@ describe('prepareLearnApp action', () => {
     setSessionUserId(null);
 
     return prepareLearnApp(store).then(() => {
-      sinon.assert.notCalled(MembershipResource.getCollection);
+      expect(MembershipResource.getCollection).not.toHaveBeenCalled();
       expect(getMemberships(store)).toEqual([]);
     });
   });
@@ -34,7 +33,7 @@ describe('prepareLearnApp action', () => {
     MembershipResource.__getCollectionFetchReturns(fakeMemberships);
 
     return prepareLearnApp(store).then(() => {
-      sinon.assert.calledWith(MembershipResource.getCollection, {
+      expect(MembershipResource.getCollection).toHaveBeenCalledWith({
         user: 101,
       });
       expect(getMemberships(store)).toEqual(fakeMemberships);
@@ -46,7 +45,7 @@ describe('prepareLearnApp action', () => {
     MembershipResource.__getCollectionFetchReturns('fetch error', true);
 
     return prepareLearnApp(store).catch(() => {
-      sinon.assert.calledWith(MembershipResource.getCollection, {
+      expect(MembershipResource.getCollection).toHaveBeenCalledWith({
         user: 102,
       });
       expect(store.state.core.error).toEqual('fetch error');

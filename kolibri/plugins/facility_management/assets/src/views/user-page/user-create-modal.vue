@@ -301,6 +301,9 @@
 
 <style lang="stylus" scoped>
 
+  .user-create-form
+    min-height: 500px
+
   .coach-selector
     margin-bottom: 3em
     margin: 0

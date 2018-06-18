@@ -38,7 +38,9 @@
 
   import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import { updateUser, displayModal } from '../../state/actions';
+  import { handleApiError } from 'kolibri.coreVue.vuex.actions';
+  import { displayModal } from '../../state/actions';
+  import { updateFacilityUser } from '../../state/actions/user';
 
   export default {
     name: 'resetUserPasswordModal',
@@ -103,7 +105,10 @@
       submitForm() {
         this.submittedForm = true;
         if (this.formIsValid) {
-          this.updateUser(this.id, { password: this.password });
+          // TODO handle the error within this modal (needs new strings)
+          this.updateFacilityUser({ userId: this.id, updates: { password: this.password } })
+            .catch(error => this.handleApiError(error))
+            .then(() => this.displayModal(false));
         } else {
           if (this.passwordIsInvalid) {
             this.$refs.password.focus();
@@ -115,8 +120,9 @@
     },
     vuex: {
       actions: {
-        updateUser,
+        updateFacilityUser,
         displayModal,
+        handleApiError,
       },
       getters: {
         isBusy: state => state.pageState.isBusy,

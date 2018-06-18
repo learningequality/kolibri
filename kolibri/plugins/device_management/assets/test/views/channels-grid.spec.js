@@ -1,4 +1,3 @@
-import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
 import ChannelsGrid from '../../src/views/manage-content-page/channels-grid.vue';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
@@ -57,23 +56,14 @@ describe('channelsGrid component', () => {
     ]);
     const wrapper = makeWrapper({ store });
     const { emptyState } = getElements(wrapper);
-    return wrapper.vm.$nextTick().then(() => {
-      expect(emptyState().is('p')).toEqual(true);
-    });
+    expect(emptyState().is('p')).toEqual(true);
   });
 
   it('shows a progress bar if channels are loading', () => {
     const wrapper = makeWrapper({ store });
     const { progressBar } = getElements(wrapper);
-    return wrapper.vm
-      .$nextTick()
-      .then(() => {
-        store.dispatch('SET_CHANNEL_LIST_LOADING', true);
-        return wrapper.vm.$nextTick();
-      })
-      .then(() => {
-        expect(progressBar().isVueInstance()).toEqual(true);
-      });
+    store.dispatch('SET_CHANNEL_LIST_LOADING', true);
+    expect(progressBar().isVueInstance()).toEqual(true);
   });
 
   it('channels appear sorted by name', () => {
@@ -95,36 +85,27 @@ describe('channelsGrid component', () => {
     ]);
     const wrapper = makeWrapper({ store });
     const { channelListItems } = getElements(wrapper);
-    return wrapper.vm.$nextTick().then(() => {
-      const items = channelListItems();
-      expect(items.at(0).props().channel.id).toEqual('awesome_channel');
-      expect(items.at(1).props().channel.id).toEqual('beautiful_channel');
-    });
+    const items = channelListItems();
+    expect(items.at(0).props().channel.id).toEqual('awesome_channel');
+    expect(items.at(1).props().channel.id).toEqual('beautiful_channel');
   });
 
   it('a modal appears if channel is selected for deletion', () => {
     // and clicking "confirm" triggers an action
     let deleteModal;
     const wrapper = makeWrapper({ store });
-    const deleteActionStub = sinon.stub(wrapper.vm, 'triggerChannelDeleteTask');
+    const deleteActionStub = jest
+      .spyOn(wrapper.vm, 'triggerChannelDeleteTask')
+      .mockImplementation(() => {});
     const { channelListItems, deleteChannelModal } = getElements(wrapper);
-    return wrapper.vm
-      .$nextTick()
-      .then(() => {
-        const items = channelListItems();
-        const dropdownMenu = items.at(0).find({ name: 'kDropdownMenu' });
-        dropdownMenu.vm.$emit('select', { value: 'DELETE_CHANNEL' });
-        return wrapper.vm.$nextTick();
-      })
-      .then(() => {
-        deleteModal = deleteChannelModal();
-        expect(deleteModal.isVueInstance()).toEqual(true);
-        const deleteButton = deleteModal.find('button[name="submit"]');
-        expect(deleteButton.text().trim()).toEqual('Delete');
-        deleteButton.trigger('click');
-        wrapper.vm.$nextTick(() => {
-          sinon.assert.calledWith(deleteActionStub, 'visible_channel');
-        });
-      });
+    const items = channelListItems();
+    const dropdownMenu = items.at(0).find({ name: 'kDropdownMenu' });
+    dropdownMenu.vm.$emit('select', { value: 'DELETE_CHANNEL' });
+    deleteModal = deleteChannelModal();
+    expect(deleteModal.isVueInstance()).toEqual(true);
+    const deleteButton = deleteModal.find('button[name="submit"]');
+    expect(deleteButton.text().trim()).toEqual('Delete');
+    deleteButton.trigger('click');
+    expect(deleteActionStub).toHaveBeenCalledWith('visible_channel');
   });
 });

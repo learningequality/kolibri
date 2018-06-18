@@ -1,5 +1,4 @@
 import Vuex from 'vuex';
-import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
 import AssignmentCopyModal from '../../src/views/assignments/AssignmentCopyModal';
 
@@ -64,7 +63,7 @@ describe('AssignmentCopyModal', () => {
       propsData: { ...defaultProps },
       store,
     });
-    sinon.stub(wrapper.vm, 'getLearnerGroupsForClassroom').returns(Promise.resolve(groups));
+    wrapper.vm.getLearnerGroupsForClassroom = jest.fn().mockResolvedValue(groups);
     return wrapper.vm.goToAvailableGroups().then(() => {
       expect(els.selectLearnerGroupForm().exists()).toEqual(true);
       // Explanations should reflect the selection of Class Two (current class)
@@ -82,7 +81,7 @@ describe('AssignmentCopyModal', () => {
       propsData: { ...defaultProps },
       store,
     });
-    sinon.stub(wrapper.vm, 'getLearnerGroupsForClassroom').returns(Promise.resolve([]));
+    wrapper.vm.getLearnerGroupsForClassroom = jest.fn().mockResolvedValue([]);
     return wrapper.vm.goToAvailableGroups().then(() => {
       els.selectLearnerGroupForm().trigger('submit');
       // By default, this will copy the Assignment to the same class, and the entire class

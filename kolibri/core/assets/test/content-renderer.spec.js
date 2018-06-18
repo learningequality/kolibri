@@ -1,7 +1,14 @@
 import Vue from 'vue';
 import { mount } from '@vue/test-utils';
-import sinon from 'sinon';
 import contentRenderer from '../src/views/content-renderer';
+
+jest.mock('kolibri.lib.logging', () => ({
+  getLogger() {
+    return {
+      error() {},
+    };
+  },
+}));
 
 describe('contentRenderer Component', () => {
   const defaultFiles = [
@@ -124,13 +131,13 @@ describe('contentRenderer Component', () => {
           it('should call initSession', () => {
             const props = Object.assign(defaultPropsDataFromFiles(), {
               available: true,
-              initSession: sinon.stub().returns(Promise.resolve()),
+              initSession: jest.fn().mockResolvedValue(),
             });
             const wrapper = mount(contentRenderer, {
               propsData: props,
             });
             return Vue.nextTick().then(() => {
-              sinon.assert.calledOnce(wrapper.vm.initSession);
+              expect(wrapper.vm.initSession).toHaveBeenCalledTimes(1);
             });
           });
         });

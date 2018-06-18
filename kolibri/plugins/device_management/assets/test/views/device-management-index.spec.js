@@ -11,7 +11,18 @@ function makeStore() {
 }
 
 function makeWrapper(store) {
-  const router = new VueRouter();
+  const router = new VueRouter({
+    routes: [
+      {
+        name: 'MANAGE_CONTENT_PAGE',
+        path: '/content',
+      },
+      {
+        name: 'SELECT_CONTENT',
+        path: '/content/channel/:channel_id',
+      },
+    ],
+  });
   const wrapper = mount(Index, {
     store: store || makeStore,
     router,

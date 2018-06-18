@@ -1,5 +1,4 @@
 import Vuex from 'vuex';
-import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
 import ConfigPage from '../../src/views/facilities-config-page';
 import confirmResetModal from '../../src/views/facilities-config-page/confirm-reset-modal';
@@ -59,10 +58,10 @@ describe('facility config page view', () => {
 
   it('clicking save button dispatches a save action', () => {
     const wrapper = makeWrapper();
-    wrapper.vm.saveFacilityConfig = sinon.stub().returns(Promise.resolve());
+    const { mock } = (wrapper.vm.saveFacilityConfig = jest.fn().mockResolvedValue());
     const { saveButton } = getElements(wrapper);
     saveButton().trigger('click');
-    sinon.assert.calledOnce(wrapper.vm.saveFacilityConfig);
+    expect(mock.calls).toHaveLength(1);
   });
 
   it('clicking reset button brings up the confirmation modal', () => {
@@ -85,15 +84,13 @@ describe('facility config page view', () => {
 
   it('confirming reset calls the reset action and closes modal', () => {
     const wrapper = makeWrapper();
-    wrapper.vm.resetFacilityConfig = sinon.spy();
     const { resetButton, confirmResetButton } = getElements(wrapper);
+    const { mock } = (wrapper.vm.resetFacilityConfig = jest.fn());
     resetButton().trigger('click');
     assertModalIsUp(wrapper);
     confirmResetButton().trigger('click');
-    wrapper.vm.$nextTick().then(() => {
-      sinon.assert.called(wrapper.vm.resetFacilityConfig);
-      assertModalIsDown(wrapper);
-    });
+    expect(mock.calls).toHaveLength(1);
+    assertModalIsDown(wrapper);
   });
 
   // not tested: notifications

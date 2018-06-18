@@ -17,7 +17,14 @@ function makeWrapper(options = {}) {
   return mount(ChannelListItem, {
     propsData: { ...defaultProps, ...props },
     store: store || makeAvailableChannelsPageStore(),
-    router: new VueRouter({ routes: [] }),
+    router: new VueRouter({
+      routes: [
+        {
+          name: 'SELECT_CONTENT',
+          path: '/content/channel/:channel_id',
+        },
+      ],
+    }),
   });
 }
 

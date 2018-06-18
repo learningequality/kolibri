@@ -4,7 +4,7 @@ import AvailableChannelsPage from '../../src/views/available-channels-page';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 const router = new VueRouter({
-  routes: [{ path: '', name: 'wizardtransition' }],
+  routes: [{ path: '/content/channel/:channel_id', name: 'SELECT_CONTENT' }],
 });
 
 function makeWrapper(options = {}) {
@@ -199,7 +199,7 @@ describe('availableChannelsPage', () => {
     const channels = channelListItems();
     // prettier-ignore
     const link = channels.at(0).find({ name: 'kRouterLink' });
-    expect(link.props().to).toEqual({
+    expect(link.props().to).toMatchObject({
       name: 'SELECT_CONTENT',
       params: {
         channel_id: 'awesome_channel',

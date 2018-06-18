@@ -3,11 +3,11 @@ from __future__ import unicode_literals
 from django.db import models
 from jsonfield import JSONField
 
-from kolibri.auth.constants import role_kinds
-from kolibri.auth.models import AbstractFacilityDataModel
-from kolibri.auth.models import Collection
-from kolibri.auth.models import FacilityUser
-from kolibri.auth.permissions.base import RoleBasedPermissions
+from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.models import AbstractFacilityDataModel
+from kolibri.core.auth.models import Collection
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
 

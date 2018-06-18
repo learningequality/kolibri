@@ -13,7 +13,7 @@
     <div class="details-container">
       <div class="attempt-log-container">
         <attempt-log-list
-          :attemptLogs="examAttempts"
+          :attemptLogs="attemptLogs"
           :selectedQuestionNumber="questionNumber"
           @select="handleNavigateToQuestion"
         />
@@ -63,6 +63,7 @@
   import interactionList from 'kolibri.coreVue.components.interactionList';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import find from 'lodash/find';
   import pageStatus from './page-status';
 
   export default {
@@ -157,6 +158,16 @@
         showCorrectAnswer: false,
       };
     },
+    computed: {
+      attemptLogs() {
+        return this.examAttempts.map(attempt => {
+          const questionId = this.questions[attempt.questionNumber - 1].contentId;
+          const num_coach_contents = find(this.exerciseContentNodes, { id: questionId })
+            .num_coach_contents;
+          return { ...attempt, num_coach_contents };
+        });
+      },
+    },
     methods: {
       handleNavigateToQuestion(questionNumber) {
         this.navigateToQuestion(questionNumber);
@@ -166,6 +177,12 @@
       toggleShowCorrectAnswer() {
         this.showCorrectAnswer = !this.showCorrectAnswer;
         this.$forceUpdate();
+      },
+    },
+    vuex: {
+      getters: {
+        questions: state => state.pageState.questions,
+        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
       },
     },
   };

@@ -9,12 +9,12 @@ from ..management.commands.provisiondevice import create_device_settings
 from ..management.commands.provisiondevice import create_facility
 from ..management.commands.provisiondevice import create_superuser
 from ..models import DeviceSettings
-from kolibri.auth.constants.facility_presets import mappings
-from kolibri.auth.constants.facility_presets import presets
-from kolibri.auth.models import Facility
-from kolibri.auth.models import FacilityUser
-from kolibri.auth.test.helpers import provision_device
-from kolibri.auth.test.helpers import setup_device
+from kolibri.core.auth.constants.facility_presets import mappings
+from kolibri.core.auth.constants.facility_presets import presets
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.auth.test.helpers import setup_device
 
 
 class DeviceProvisionTestCase(TestCase):

@@ -1,19 +1,28 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import random
 import tempfile
 
-import kolibri
 import pytest
 from django.conf import settings
 from django.core.management import call_command
 from django.test.utils import override_settings
-from kolibri.auth.constants.collection_kinds import FACILITY
-from kolibri.core.deviceadmin.management.commands.dbrestore import CommandError
-from kolibri.core.deviceadmin.utils import IncompatibleDatabase, dbbackup, dbrestore, default_backup_folder, get_dtm_from_backup_name, search_latest
-from kolibri.utils.server import STATUS_UNKNOWN, NotRunning
 from mock import patch
+
+import kolibri
+from kolibri.core.auth.constants.collection_kinds import FACILITY
+from kolibri.core.deviceadmin.management.commands.dbrestore import CommandError
+from kolibri.core.deviceadmin.utils import dbbackup
+from kolibri.core.deviceadmin.utils import dbrestore
+from kolibri.core.deviceadmin.utils import default_backup_folder
+from kolibri.core.deviceadmin.utils import get_dtm_from_backup_name
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase
+from kolibri.core.deviceadmin.utils import search_latest
+from kolibri.utils.server import NotRunning
+from kolibri.utils.server import STATUS_UNKNOWN
 
 MOCK_DATABASES = {
     'default': {
@@ -120,7 +129,7 @@ def test_restore_from_latest():
         side_effect=mock_status_not_running
     ):
         # Create something special in the database!
-        from kolibri.auth.models import Facility
+        from kolibri.core.auth.models import Facility
         Facility.objects.create(name="test latest", kind=FACILITY)
         # Create a backup file from the current test database
         call_command("dbbackup")
@@ -159,7 +168,7 @@ def test_restore_from_file_to_memory():
         side_effect=mock_status_not_running
     ):
         # Create something special in the database!
-        from kolibri.auth.models import Facility
+        from kolibri.core.auth.models import Facility
         Facility.objects.create(name="test file", kind=FACILITY)
         # Create a backup file from the current test database
         dest_folder = tempfile.mkdtemp()
@@ -190,7 +199,7 @@ def test_restore_from_file_to_file():
         side_effect=mock_status_not_running
     ):
         # Create something special in the database!
-        from kolibri.auth.models import Facility
+        from kolibri.core.auth.models import Facility
         Facility.objects.create(name="test file", kind=FACILITY)
         # Create a backup file from the current test database
         dest_folder = tempfile.mkdtemp()
