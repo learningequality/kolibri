@@ -10,8 +10,8 @@
       :delay="false"
     />
     <template v-else>
-      <error-box v-if="error" />
       <div class="wrapper">
+        <error-box v-if="error" />
         <slot></slot>
       </div>
     </template>
