@@ -45,6 +45,7 @@
             class="content"
             ref="content"
             :style="contentSectionMaxHeight"
+            :class="{ 'scroll-shadow': scrollShadow }"
           >
             <slot></slot>
           </div>
@@ -167,6 +168,7 @@
       return {
         lastFocus: null,
         maxContentHeight: '1000',
+        scrollShadow: false,
       };
     },
     computed: {
@@ -185,7 +187,7 @@
     },
     mounted() {
       this.$nextTick(() => {
-        if (!this.$refs.modal.contains(document.activeElement)) {
+        if (this.$refs.modal && !this.$refs.modal.contains(document.activeElement)) {
           this.focusModal();
         }
       });
@@ -193,7 +195,7 @@
       window.addEventListener('scroll', this.preventScroll, true);
     },
     updated() {
-      this.setContentSectionMaxHeight();
+      this.updateContentSectionStyle();
     },
     destroyed() {
       window.removeEventListener('focus', this.focusElementTest, true);
@@ -205,25 +207,27 @@
     methods: {
       /**
        * Calculate the max-height of the content section of the modal
-       * This creates a vertically scrollable area if there is not enough vertical space
+       * If there is not enough vertical space, create a vertically scrollable area and a
+       * scroll shadow
        */
-      setContentSectionMaxHeight: debounce(function() {
+      updateContentSectionStyle: debounce(function() {
         if (this.$refs.title && this.$refs.actions) {
           this.maxContentHeight =
             this.windowSize.height -
             this.$refs.title.clientHeight -
             this.$refs.actions.clientHeight -
             32;
+          this.scrollShadow = this.maxContentHeight < this.$refs.content.scrollHeight;
         }
       }, 100),
       emitCancelEvent() {
-        if(!this.cancelDisabled) {
+        if (!this.cancelDisabled) {
           // Emitted when the cancel button is clicked or the esc key is pressed
           this.$emit('cancel');
         }
       },
       emitSubmitEvent() {
-        if(!this.submitDisabled) {
+        if (!this.submitDisabled) {
           // Emitted when the submit button or the enter key is pressed
           this.$emit('submit');
         }
@@ -297,6 +301,18 @@
   .content
     padding: 0 24px
     overflow-y: auto
+
+  .scroll-shadow
+    background:
+      linear-gradient(white 30%, hsla(0, 0%, 100%, 0)),
+      linear-gradient(hsla(0, 0%, 100%, 0) 10px, white 70%) bottom,
+      radial-gradient(at top, rgba(0, 0, 0, 0.2), transparent 70%),
+      radial-gradient(at bottom, rgba(0, 0, 0, 0.2), transparent 70%) bottom
+    background-repeat: no-repeat
+    background-size: 100% 20px, 100% 20px, 100% 10px, 100% 10px
+    background-attachment: local, local, scroll, scroll
+    border-top: 1px solid $core-grey
+    border-bottom: 1px solid $core-grey
 
   .actions
     text-align: right

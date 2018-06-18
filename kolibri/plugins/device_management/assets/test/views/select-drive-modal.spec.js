@@ -64,6 +64,7 @@ function getElements(wrapper) {
     continueButton: () => wrapper.find('button[name="submit"]'),
     UiAlerts: () => wrapper.find(UiAlert),
     findingLocalDrives: () => wrapper.find('.finding-local-drives'),
+    selectDriveModal: () => wrapper.find({ name: 'kModal'}),
   };
 }
 
@@ -177,9 +178,9 @@ describe('selectDriveModal component', () => {
     const transitionStub = jest
       .spyOn(wrapper.vm, 'goForwardFromSelectDriveModal')
       .mockImplementation(() => {});
-    const { continueButton, writableImportableRadio } = getElements(wrapper);
+    const { writableImportableRadio, selectDriveModal } = getElements(wrapper);
     writableImportableRadio().trigger('change');
-    continueButton().trigger('click');
+    selectDriveModal().vm.$emit('submit');
     // same parameters for import or export flow
     expect(transitionStub).toBeCalledWith({
       driveId: 'writable_importable_drive',
