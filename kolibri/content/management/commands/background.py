@@ -30,6 +30,17 @@ class Command(BaseCommand):
             cmd=self,
             help="Set default"
         )
+        subparsers.add_parser(
+            name='none',
+            cmd=self,
+            help="Set default"
+        )
+
+    def backup(self, img_path, backup_img_path):
+        # Only save a backup if it didn't exist before.
+        # This should only back up the default Kolibri image.
+        if not os.path.exists(backup_img_path) and os.path.exists(img_path):
+            shutil.copy(img_path, backup_img_path)
 
     def handle(self, *args, **options):
         user_static_directory = os.path.join(settings.STATIC_ROOT, 'user_module')
@@ -48,12 +59,12 @@ class Command(BaseCommand):
                 )
                 raise SystemExit(1)
 
-            # Only save a backup if it didn't exist before.
-            # This should only back up the default Kolibri image.
-            if not os.path.exists(backup_img_path):
-                shutil.copy(img_path, backup_img_path)
-
+            self.backup(img_path, backup_img_path)
             shutil.copy(new_img_path, img_path)
+
+        elif options['command'] == 'clear':
+            self.backup(img_path, backup_img_path)
+            os.unlink(img_path)
 
         elif options['command'] == 'reset':
             if os.path.exists(backup_img_path):
