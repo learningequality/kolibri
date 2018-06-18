@@ -166,8 +166,8 @@
     visibility: hidden
     width: 24px
     height: 24px
-    margin-right: 8px
-    margin-left: 8px
+    margin-right: 6px
+    margin-left: 6px
     vertical-align: middle
     color: $core-text-default
 
