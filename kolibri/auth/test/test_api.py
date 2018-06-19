@@ -440,3 +440,43 @@ class MembershipCascadeDeletion(APITestCase):
         response = self.client.delete(reverse('membership-detail', kwargs={'pk': self.classroom_membership.id}))
         self.assertEqual(response.status_code, 204)
         self.assertFalse(models.Membership.objects.all().exists())
+
+
+class GroupMembership(APITestCase):
+
+    def setUp(self):
+        provision_device()
+        self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.classroom1 = ClassroomFactory.create(parent=self.facility)
+        self.classroom2 = ClassroomFactory.create(parent=self.facility)
+        self.lg11 = LearnerGroupFactory.create(parent=self.classroom1)
+        self.lg12 = LearnerGroupFactory.create(parent=self.classroom1)
+        self.lg21 = LearnerGroupFactory.create(parent=self.classroom2)
+        self.classroom1_membership = models.Membership.objects.create(collection=self.classroom1, user=self.user)
+        self.classroom2_membership = models.Membership.objects.create(collection=self.classroom2, user=self.user)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
+
+    def test_create_group_membership_no_group_membership(self):
+        url = reverse('membership-list')
+        response = self.client.post(url, {'user': self.user.id, 'collection': self.lg11.id})
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_group_membership_group_membership_other_class(self):
+        models.Membership.objects.create(user=self.user, collection=self.lg21)
+        url = reverse('membership-list')
+        response = self.client.post(url, {'user': self.user.id, 'collection': self.lg11.id})
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_group_membership_group_membership_same_class(self):
+        models.Membership.objects.create(user=self.user, collection=self.lg12)
+        url = reverse('membership-list')
+        response = self.client.post(url, {'user': self.user.id, 'collection': self.lg11.id})
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_class_membership_group_membership_different_class(self):
+        self.classroom2_membership.delete()
+        url = reverse('membership-list')
+        response = self.client.post(url, {'user': self.user.id, 'collection': self.classroom2.id})
+        self.assertEqual(response.status_code, 201)
