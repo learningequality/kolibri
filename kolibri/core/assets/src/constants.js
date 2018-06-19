@@ -5,6 +5,7 @@ const UserKinds = {
   SUPERUSER: 'superuser',
   ANONYMOUS: 'anonymous',
   ASSIGNABLE_COACH: 'classroom assignable coach',
+  CAN_MANAGE_CONTENT: 'can manage content',
 };
 
 const CollectionKinds = {
@@ -78,24 +79,6 @@ const MasteryModelGenerators = {
   m_of_n: (assessmentIds, masteryModel) => masteryModel,
 };
 
-/* HACK HACK
-
-The core application should not have this knowledge
-about the available plugins. However, until we have
-a way for plugins to properly indicate what nav bar
-widgets they supply to core and in what order, this
-is a work-around.
-*/
-const TopLevelPageNames = {
-  LEARN: 'LEARN',
-  COACH: 'COACH',
-  MANAGE: 'MANAGE',
-  USER: 'USER',
-  ABOUT: 'ABOUT',
-  PROFILE: 'PROFILE',
-  DEVICE: 'DEVICE',
-};
-
 // How many points is a completed content item worth?
 const MaxPointsPerContent = 500;
 
@@ -118,7 +101,6 @@ export {
   AttemptLoggingMap,
   InteractionTypes,
   USER,
-  TopLevelPageNames,
   MasteryModelGenerators,
   CollectionKinds,
   MaxPointsPerContent,

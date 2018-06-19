@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import urls from 'kolibri.urls';
 import { SessionResource, AttemptLogResource } from 'kolibri.resources';
 import coreStore from '../../src/state/store';
 import * as coreActions from '../../src/state/actions';
@@ -46,9 +45,6 @@ describe('Vuex store/actions for core module', () => {
     });
 
     it('successful login', async () => {
-      urls['kolibri:facilitymanagementplugin:facility_management'] = () => '';
-      urls['kolibri:devicemanagementplugin:device_management'] = () => '';
-      urls['kolibri:coach:coach'] = () => '';
       Object.assign(SessionResource, {
         createModel: () => ({
           save: () =>
@@ -78,19 +74,6 @@ describe('Vuex store/actions for core module', () => {
 
       await coreActions.kolibriLogin(store, {});
       expect(store.state.core.loginError).toEqual(constants.LoginErrors.INVALID_CREDENTIALS);
-    });
-
-    it('successful logout', async () => {
-      const getModelStub = jest.fn().mockReturnValue({
-        delete: () => Promise.resolve('goodbye'),
-      });
-      Object.assign(SessionResource, {
-        getModel: getModelStub,
-      });
-
-      await coreActions.kolibriLogout(store);
-      expect(getModelStub).toHaveBeenCalledWith('current');
-      expect(assignStub).toHaveBeenCalled();
     });
   });
 });

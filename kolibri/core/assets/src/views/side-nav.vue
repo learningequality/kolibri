@@ -42,99 +42,8 @@
             :aria-label="$tr('navigationLabel')"
           >
             <template slot="options">
-              <core-menu-option
-                :label="$tr('learn')"
-                :active="pageIsActive(TopLevelPageNames.LEARN)"
-                @select="navigate('/learn')"
-              >
-                <mat-svg
-                  slot="icon"
-                  name="school"
-                  category="social"
-                />
-              </core-menu-option>
-              <core-menu-option
-                v-if="isCoach || isAdmin || isSuperuser"
-                :label="$tr('coach')"
-                :active="pageIsActive(TopLevelPageNames.COACH)"
-                @select="navigate('/coach')"
-              >
-                <mat-svg
-                  slot="icon"
-                  name="assessment"
-                  category="action"
-                />
-              </core-menu-option>
-
-              <core-menu-option
-                v-if="isAdmin || isSuperuser"
-                :label="$tr('facility')"
-                :active="pageIsActive(TopLevelPageNames.MANAGE)"
-                @select="navigate('/facility')"
-              >
-                <mat-svg
-                  slot="icon"
-                  name="settings_input_antenna"
-                  category="action"
-                />
-              </core-menu-option>
-
-              <core-menu-option
-                v-if="canManageContent || isSuperuser"
-                :label="$tr('device')"
-                :active="pageIsActive(TopLevelPageNames.DEVICE)"
-                @select="navigate('/device')"
-              >
-                <mat-svg
-                  slot="icon"
-                  name="tablet_mac"
-                  category="hardware"
-                />
-              </core-menu-option>
-
-              <core-menu-option type="divider" />
-
-              <template v-if="isUserLoggedIn">
-                <core-menu-option
-                  :label="$tr('profile')"
-                  :active="pageIsActive(TopLevelPageNames.USER)"
-                  @select="navigate('/user')"
-                >
-                  <mat-svg
-                    slot="icon"
-                    name="account_circle"
-                    category="action"
-                  />
-                </core-menu-option>
-
-                <core-menu-option
-                  :label="$tr('signOut')"
-                  @select="signOut"
-                >
-                  <mat-svg
-                    slot="icon"
-                    name="exit_to_app"
-                    category="action"
-                    :class="{ 'rtl-icon': isRtl }"
-                  />
-                </core-menu-option>
-              </template>
-
-              <core-menu-option
-                v-else
-                :label="$tr('signIn')"
-                @select="navigate('/user')"
-              >
-                <mat-svg
-                  slot="icon"
-                  name="exit_to_app"
-                  category="action"
-                  :class="{ 'rtl-icon': isRtl }"
-                />
-              </core-menu-option>
-
-              <core-menu-option type="divider" />
-
+              <component v-for="component in menuOptions" :is="component" :key="component.name" />
+              <divider />
             </template>
           </core-menu>
 
@@ -164,22 +73,27 @@
 
 <script>
 
-  import values from 'lodash/values';
-  import {
-    isUserLoggedIn,
-    isSuperuser,
-    isAdmin,
-    isCoach,
-    canManageContent,
-  } from 'kolibri.coreVue.vuex.getters';
-  import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
+  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import coreMenu from 'kolibri.coreVue.components.coreMenu';
   import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import logo from 'kolibri.coreVue.components.logo';
+  import navComponents from 'kolibri.utils.navComponents';
+  import navComponentsMixin from '../mixins/nav-components';
+  import logout from './logout-side-nav-entry';
+  import divider from './side-nav-divider';
+
+  // Explicit ordered list of roles for nav item sorting
+  const navComponentRoleOrder = [
+    UserKinds.ANONYMOUS,
+    UserKinds.LEARNER,
+    UserKinds.COACH,
+    UserKinds.ADMIN,
+    UserKinds.CAN_MANAGE_CONTENT,
+    UserKinds.SUPERUSER,
+  ];
 
   export default {
     name: 'sideNav',
@@ -188,32 +102,16 @@
       uiIconButton,
       logo,
       coreMenuOption,
+      divider,
     },
-    mixins: [responsiveWindow, responsiveElement],
+    mixins: [responsiveWindow, responsiveElement, navComponentsMixin],
     $trs: {
       kolibri: 'Kolibri',
       navigationLabel: 'Main user navigation',
-      learn: 'Learn',
-      facility: 'Facility',
-      coach: 'Coach',
-      device: 'Device',
-      signIn: 'Sign in',
-      profile: 'Profile',
-      signOut: 'Sign out',
-      about: 'About',
       closeNav: 'Close navigation',
       poweredBy: 'Kolibri {version}',
     },
     props: {
-      topLevelPageName: {
-        type: String,
-        validator(value) {
-          if (!value) {
-            return true;
-          }
-          return values(TopLevelPageNames).includes(value);
-        },
-      },
       navShown: {
         type: Boolean,
         required: true,
@@ -233,14 +131,20 @@
       };
     },
     computed: {
-      TopLevelPageNames() {
-        return TopLevelPageNames;
-      },
       mobile() {
         return this.windowSize.breakpoint < 2;
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
+      },
+      menuOptions() {
+        const topComponents = navComponents
+          .filter(component => component.section !== 'account')
+          .sort(this.compareMenuComponents);
+        const accountComponents = navComponents
+          .filter(component => component.section === 'account')
+          .sort(this.compareMenuComponents);
+        return [...topComponents, divider, ...accountComponents, logout].filter(this.filterByRole);
       },
     },
     watch: {
@@ -258,33 +162,41 @@
       },
     },
     methods: {
-      navigate(href) {
-        window.location.href = href;
-      },
       toggleNav() {
         this.$emit('toggleSideNav');
       },
-      pageIsActive(pageName) {
-        return this.topLevelPageName === pageName;
+      compareMenuComponents(navComponentA, navComponentB) {
+        // Compare menu items to allow sorting by the following priority:
+        // Sort by role
+        // Nav items with no roles will be placed first
+        // as index will be -1
+        if (navComponentA.role !== navComponentB.role) {
+          return (
+            navComponentRoleOrder.indexOf(navComponentA.role) -
+            navComponentRoleOrder.indexOf(navComponentB.role)
+          );
+        }
+        // Next sort by priority
+        if (navComponentA.priority !== navComponentB.priority) {
+          return navComponentA.priority - navComponentB.priority;
+        }
+        // Still no difference?
+        // There is no difference!
+        return 0;
       },
       containFocus(event) {
         if (event.target === window) {
-          return;
+          return event;
         }
         if (!this.$refs.sideNav.contains(event.target)) {
           this.$refs.toggleButton.$el.focus();
         }
+        return event;
       },
     },
     vuex: {
-      actions: { signOut: kolibriLogout },
       getters: {
         session: state => state.core.session,
-        isUserLoggedIn,
-        isSuperuser,
-        isAdmin,
-        isCoach,
-        canManageContent,
       },
     },
   };

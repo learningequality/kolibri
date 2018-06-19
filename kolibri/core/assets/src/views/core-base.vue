@@ -30,7 +30,6 @@
           :navShown="navShown"
           :headerHeight="headerHeight"
           :width="navWidth"
-          :topLevelPageName="topLevelPageName"
           @toggleSideNav="navShown=!navShown"
         />
       </template>
@@ -54,8 +53,6 @@
 
 <script>
 
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
-  import values from 'lodash/values';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import appBar from 'kolibri.coreVue.components.appBar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
@@ -78,18 +75,6 @@
     },
     mixins: [responsiveWindow],
     props: {
-      // This prop breaks the separation between core and plugins.
-      // It's being used as a work-around until plugins have a way
-      // of registering components to be added to the nav bar.
-      topLevelPageName: {
-        type: String,
-        validator(value) {
-          if (!value) {
-            return true; // Okay if it's undefined
-          }
-          return values(TopLevelPageNames).includes(value);
-        },
-      },
       appBarTitle: {
         type: String,
         required: false,

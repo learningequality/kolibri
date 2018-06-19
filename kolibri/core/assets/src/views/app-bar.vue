@@ -60,11 +60,8 @@
           <div v-else-if="isLearner">{{ $tr('learner') }}</div>
         </template>
 
-        <template v-if="isUserLoggedIn" slot="options">
-          <core-menu-option
-            :label="$tr('profile')"
-            @select="goToProfile"
-          />
+        <template slot="options">
+          <component v-for="component in menuOptions" :is="component" :key="component.name" />
           <core-menu-option
             :label="$tr('languageSwitchMenuOption')"
             @select="showLanguageModal = true"
@@ -75,28 +72,9 @@
               category="action"
             />
           </core-menu-option>
-          <core-menu-option
-            :label="$tr('signOut')"
-            @select="kolibriLogout"
-          />
+          <logout v-if="isUserLoggedIn" />
         </template>
 
-        <template v-else slot="options">
-          <core-menu-option
-            :label="$tr('signIn')"
-            @select="signIn"
-          />
-          <core-menu-option
-            :label="$tr('languageSwitchMenuOption')"
-            @select="showLanguageModal = true"
-          >
-            <mat-svg
-              slot="icon"
-              name="language"
-              category="action"
-            />
-          </core-menu-option>
-        </template>
       </core-menu>
 
       <language-switcher-modal
@@ -112,16 +90,17 @@
 
 <script>
 
-  import { kolibriLogout } from 'kolibri.coreVue.vuex.actions';
-  import { isUserLoggedIn, isAdmin, isCoach, isLearner } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import coreMenu from 'kolibri.coreVue.components.coreMenu';
   import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
   import uiButton from 'keen-ui/src/UiButton';
-  import { redirectBrowser } from 'kolibri.utils.browser';
+  import navComponents from 'kolibri.utils.navComponents';
+  import { sections } from 'kolibri.utils.navComponents';
+  import navComponentsMixin from '../mixins/nav-components';
   import languageSwitcherModal from './language-switcher/modal';
+  import logout from './logout-side-nav-entry';
 
   export default {
     name: 'appBar',
@@ -132,13 +111,10 @@
       uiButton,
       languageSwitcherModal,
       coreMenuOption,
+      logout,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, navComponentsMixin],
     $trs: {
-      account: 'Account',
-      profile: 'Profile',
-      signOut: 'Sign out',
-      signIn: 'Sign in',
       role: 'Role',
       admin: 'Admin',
       coach: 'Coach',
@@ -164,6 +140,13 @@
       showLanguageModal: false,
       userMenuDropdownIsOpen: false,
     }),
+    computed: {
+      menuOptions() {
+        return navComponents
+          .filter(action => action.section === sections.ACCOUNT)
+          .filter(this.filterByRole);
+      },
+    },
     created() {
       window.addEventListener('click', this.handleClick);
     },
@@ -171,10 +154,6 @@
       window.removeEventListener('click', this.handleClick);
     },
     methods: {
-      signIn: redirectBrowser,
-      goToProfile() {
-        window.location = `/user`;
-      },
       handleClick(event) {
         if (
           !this.$refs.userMenuDropdown.$el.contains(event.target) &&
@@ -183,16 +162,12 @@
         ) {
           this.userMenuDropdownIsOpen = false;
         }
+        return event;
       },
     },
     vuex: {
-      actions: { kolibriLogout },
       getters: {
         username: state => state.core.session.username,
-        isUserLoggedIn,
-        isAdmin,
-        isCoach,
-        isLearner,
       },
     },
   };

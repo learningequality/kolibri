@@ -3,7 +3,6 @@
   <div>
     <core-base
       :immersivePage="currentPageIsImmersive"
-      :topLevelPageName="topLevelPageName"
       :appBarTitle="appBarTitle"
       :immersivePageIcon="immersivePageIcon"
       :immersivePageRoute="toolbarRoute"
@@ -31,7 +30,6 @@
 <script>
 
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import { PageNames } from '../constants';
@@ -123,7 +121,6 @@
       navTitle,
     },
     computed: {
-      topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
         if (!this.userCanAccessPage) {
           // TODO better solution
