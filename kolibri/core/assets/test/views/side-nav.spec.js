@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
-import navComponents from '../../src/utils/navComponents';
-import { sections } from '../../src/utils/navComponents';
+import navComponents, { sections } from 'kolibri.utils.navComponents';
 import sideNav from '../../src/views/side-nav';
 import coreStore from 'kolibri.coreVue.vuex.store';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';

@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from .hooks import FacilityManagementSyncHook
 from kolibri.core.auth.constants.user_kinds import ADMIN
+from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins.base import KolibriPluginBase
@@ -33,3 +34,8 @@ class FacilityRedirect(RoleBasedRedirectHook):
     @property
     def url(self):
         return self.plugin_url(FacilityManagementPlugin, 'facility_management')
+
+
+class FacilityManagementNavItem(NavigationHook, WebpackBundleHook):
+    unique_slug = "facility_management_side_nav"
+    src_file = "assets/src/views/facility-management-side-nav-entry.vue"

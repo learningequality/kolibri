@@ -96,8 +96,7 @@
   import coreMenu from 'kolibri.coreVue.components.coreMenu';
   import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
   import uiButton from 'keen-ui/src/UiButton';
-  import navComponents from 'kolibri.utils.navComponents';
-  import { sections } from 'kolibri.utils.navComponents';
+  import navComponents, { sections } from 'kolibri.utils.navComponents';
   import navComponentsMixin from '../mixins/nav-components';
   import languageSwitcherModal from './language-switcher/modal';
   import logout from './logout-side-nav-entry';
