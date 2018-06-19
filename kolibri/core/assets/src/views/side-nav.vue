@@ -73,7 +73,7 @@
 
 <script>
 
-  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import coreMenu from 'kolibri.coreVue.components.coreMenu';
@@ -139,10 +139,10 @@
       },
       menuOptions() {
         const topComponents = navComponents
-          .filter(component => component.section !== 'account')
+          .filter(component => component.section !== NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents);
         const accountComponents = navComponents
-          .filter(component => component.section === 'account')
+          .filter(component => component.section === NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents);
         return [...topComponents, divider, ...accountComponents, logout].filter(this.filterByRole);
       },
