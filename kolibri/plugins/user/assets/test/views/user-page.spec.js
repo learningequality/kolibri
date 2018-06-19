@@ -2,6 +2,8 @@ import { mount } from '@vue/test-utils';
 import UserPage from '../../src/views/index.vue';
 import makeStore from '../util/makeStore';
 
+jest.mock('kolibri.urls');
+
 function makeWrapper() {
   return mount(UserPage, {
     store: makeStore(),

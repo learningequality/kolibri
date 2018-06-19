@@ -3,6 +3,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from .hooks import FacilityManagementSyncHook
+from kolibri.core.auth.constants.user_kinds import ADMIN
+from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins.base import KolibriPluginBase
 
@@ -23,3 +25,11 @@ class FacilityManagementAsset(WebpackBundleHook):
 
 class FacilityManagementInclusionHook(FacilityManagementSyncHook):
     bundle_class = FacilityManagementAsset
+
+
+class FacilityRedirect(RoleBasedRedirectHook):
+    role = ADMIN
+
+    @property
+    def url(self):
+        return self.plugin_url(FacilityManagementPlugin, 'facility_management')

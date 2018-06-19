@@ -96,7 +96,7 @@
               <k-external-link
                 class="guest-button"
                 :text="$tr('accessAsGuest')"
-                href="/learn"
+                :href="guestURL"
                 :primary="true"
                 appearance="basic-link"
               />
@@ -129,6 +129,7 @@
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import urls from 'kolibri.urls';
   import { PageNames } from '../../constants';
   import languageSwitcherFooter from '../language-switcher-footer';
   import facilityModal from './facility-modal';
@@ -243,6 +244,9 @@
       },
       logoTextSize() {
         return Math.floor(this.logoHeight * 0.3);
+      },
+      guestURL() {
+        return urls['kolibri:guest']();
       },
     },
     watch: {

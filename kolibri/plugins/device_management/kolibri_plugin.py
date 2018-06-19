@@ -3,6 +3,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from .hooks import DeviceManagementSyncHook
+from kolibri.core.auth.constants.user_kinds import SUPERUSER
+from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins.base import KolibriPluginBase
 
@@ -23,3 +25,12 @@ class DeviceManagementAsset(WebpackBundleHook):
 
 class DeviceManagementInclusionHook(DeviceManagementSyncHook):
     bundle_class = DeviceManagementAsset
+
+
+class DeviceFirstTimeRedirect(RoleBasedRedirectHook):
+    role = SUPERUSER
+    first_login = True
+
+    @property
+    def url(self):
+        return self.plugin_url(DeviceManagementPlugin, 'device_management') + '#/welcome'

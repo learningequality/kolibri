@@ -1,9 +1,6 @@
 import {
   isUserLoggedIn,
   currentUserId,
-  isSuperuser,
-  isAdmin,
-  isCoach,
   currentFacilityId,
   facilities,
 } from 'kolibri.coreVue.vuex.getters';
@@ -178,30 +175,15 @@ function handleApiError(store, errorObject) {
  *
  * @param {object} store The store.
  * @param {object} sessionPayload The session payload.
- * @param {boolean} isFirstDeviceSignIn Whether it's the first time singining in after setup wizard.
  */
-function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
+function kolibriLogin(store, sessionPayload) {
   store.dispatch('CORE_SET_SIGN_IN_BUSY', true);
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
   return sessionPromise
     .then(session => {
       store.dispatch('CORE_SET_SESSION', _sessionState(session));
-      const facilityURL = urls['kolibri:facilitymanagementplugin:facility_management']();
-      const deviceURL = urls['kolibri:devicemanagementplugin:device_management']();
-      const coachURL = urls['kolibri:coach:coach']();
-      if (isFirstDeviceSignIn) {
-        // Hacky way to redirect to content import page after completing setup wizard
-        redirectBrowser(`${window.location.origin}${deviceURL}#/welcome`);
-      } else if (isSuperuser(store.state) || isAdmin(store.state)) {
-        /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
-        redirectBrowser(window.location.origin + facilityURL);
-      } else if (isCoach(store.state)) {
-        /* Even more hacky solution to redirect a coach to Coach tab on login*/
-        redirectBrowser(window.location.origin + coachURL);
-      } else {
-        redirectBrowser();
-      }
+      redirectBrowser();
     })
     .catch(error => {
       store.dispatch('CORE_SET_SIGN_IN_BUSY', false);
@@ -215,17 +197,9 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
     });
 }
 
-function kolibriLogout(store) {
-  const sessionModel = SessionResource.getModel('current');
-  const logoutPromise = sessionModel.delete();
-  return logoutPromise
-    .then(() => {
-      /* Very hacky solution to redirect a user back to Learn tab on logout*/
-      redirectBrowser();
-    })
-    .catch(error => {
-      handleApiError(store, error);
-    });
+function kolibriLogout() {
+  // Use the logout backend URL to initiate logout
+  redirectBrowser(urls['kolibri:logout']());
 }
 
 function getCurrentSession(store, force = false) {
