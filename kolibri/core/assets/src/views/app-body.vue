@@ -9,12 +9,10 @@
       type="indeterminate"
       :delay="false"
     />
-    <template v-else>
-      <div class="wrapper">
-        <error-box v-if="error" />
-        <slot></slot>
-      </div>
-    </template>
+    <div v-else class="wrapper">
+      <error-box v-if="error" />
+      <slot></slot>
+    </div>
   </div>
 
 </template>
