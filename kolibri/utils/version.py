@@ -38,7 +38,7 @@ Confused? Here's a table:
 | Final        | Canonical, only     | N/A                 | N/A                       | 0.1.0, 0.2.2,                       |
 |              | information used    |                     |                           | 0.2.post1                           |
 +--------------+---------------------+---------------------+---------------------------+-------------------------------------+
-| dev release  | (1, 2, 3, 'alpha',  | Fallback            | timestamp of latest       | 0.4.0.dev020170605181124-f1234567   |
+| dev release  | (1, 2, 3, 'alpha',  | Fallback            | timestamp of latest       | 1.2.3.dev0+git.123.f1234567         |
 | (alpha0)     | 0), 0th alpha = a   |                     | commit + hash             |                                     |
 |              | dev release! Never  |                     |                           |                                     |
 |              | used as a canonical |                     |                           |                                     |
@@ -46,15 +46,15 @@ Confused? Here's a table:
 +--------------+---------------------+---------------------+---------------------------+-------------------------------------+
 | alpha1+      | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                         |
 |              | 1)                  |                     |                           | 1.2.3a1,                            |
-|              |                     |                     |                           | Changes                             |
+|              |                     |                     |                           | 4 changes                           |
 |              |                     |                     |                           | since tag:                          |
-|              |                     |                     |                           | 1.2.3a1.dev123-f1234567             |
+|              |                     |                     |                           | 1.2.3a1.dev+git.4.f1234567          |
 +--------------+---------------------+---------------------+---------------------------+-------------------------------------+
 | beta1+       | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                         |
 |              | 1)                  |                     |                           | 1.2.3b1,                            |
-|              |                     |                     |                           | Changes                             |
+|              |                     |                     |                           | 5 changes                           |
 |              |                     |                     |                           | since tag:                          |
-|              |                     |                     |                           | 1.2.3b1.dev123-f1234567             |
+|              |                     |                     |                           | 1.2.3b1.dev+git.5.f1234567          |
 +--------------+---------------------+---------------------+---------------------------+-------------------------------------+
 | rc1+         | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                         |
 | (release     | 1)                  |                     |                           | 1.2.3rc1,                           |
@@ -62,16 +62,8 @@ Confused? Here's a table:
 |              |                     |                     |                           | since tag:                          |
 |              |                     |                     |                           | 1.2.3rc1.dev123-f1234567            |
 +--------------+---------------------+---------------------+---------------------------+-------------------------------------+
-| beta0, rc0,  | Not recommended,    | Fallback            | timestamp of latest       | 0.4.0b0.dev020170605181124-f1234567 |
-| post0, x.y.0 | but if you use it,  |                     | commit + hash             |                                     |
-|              | your release        |                     |                           |                                     |
-|              | transforms into a   |                     |                           |                                     |
-|              | X.Y.0b0.dev{suffix} |                     |                           |                                     |
-|              | release, which in   |                     |                           |                                     |
-|              | most cases should   |                     |                           |                                     |
-|              | be assigned to the  |                     |                           |                                     |
-|              | preceding release   |                     |                           |                                     |
-|              | type.               |                     |                           |                                     |
+| beta0, rc0,  | DO NOT USE          | Fallback            | timestamp of latest       | 1.2.3b0.dev+git.123.f1234567        |
+| post0, x.y.0 |                     |                     | commit + hash             |                                     |
 |              |                     |                     |                           |                                     |
 +--------------+---------------------+---------------------+---------------------------+-------------------------------------+
 
@@ -235,7 +227,10 @@ def get_version_from_git(get_git_describe_string):
     else:
         major, minor, patch = version_split
 
-    suffix = m.group('suffix')
+    # We need to replace "-" with ".". Namely, this is done automatically in
+    # the naming of source dist .whl and .tar.gz files produced by setup.py.
+    # See: https://www.python.org/dev/peps/pep-0440/#local-version-identifiers
+    suffix = m.group('suffix').replace("-", ".")
     suffix = ".dev+git" + suffix if suffix else ""
 
     return get_complete_version((
