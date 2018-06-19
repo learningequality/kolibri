@@ -1,22 +1,18 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('preview')"
+    :submitText="$tr('close')"
+    size="large"
+    @submit="close"
     @cancel="close"
-    width="100%"
-    height="100%"
   >
-    <k-button
-      :text="$tr('close')"
-      :primary="false"
-      @click="close"
-    />
     <transition mode="out-in">
       <k-circular-loader
         v-if="loading"
         :delay="false"
       />
-      <div v-else>
+      <div v-else @keyup.enter.stop>
         <div>
           <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
           <slot name="randomize-button"></slot>
@@ -69,7 +65,7 @@
         </k-grid>
       </div>
     </transition>
-  </core-modal>
+  </k-modal>
 
 </template>
 
@@ -80,7 +76,7 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kGrid from 'kolibri.coreVue.components.kGrid';
@@ -99,7 +95,7 @@
     },
     components: {
       coachContentLabel,
-      coreModal,
+      kModal,
       contentRenderer,
       kButton,
       kGrid,
@@ -228,7 +224,7 @@
 
   .exam-preview-container
     padding-top: 1em
-    max-height: calc(100vh - 160px)
+    max-height: calc(100vh - 215px)
 
   .question-selector, .exercise-container
     overflow-y: auto

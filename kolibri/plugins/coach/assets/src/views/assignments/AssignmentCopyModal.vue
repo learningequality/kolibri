@@ -1,65 +1,45 @@
 <template>
 
-  <core-modal
-    :title="modalTitle"
-    @cancel="closeModal()"
-  >
+  <div>
     <!-- Classroom Selection Form -->
-    <div v-if="stage===Stages.SELECT_CLASSROOM">
+    <k-modal
+      v-if="stage === Stages.SELECT_CLASSROOM"
+      id="select-classroom"
+      :title="modalTitle"
+      :submitText="$tr('continue')"
+      :cancelText="$tr('cancel')"
+      @cancel="closeModal"
+      @submit="goToAvailableGroups"
+    >
       <p>{{ copyExplanation }}</p>
-      <form id="select-classroom" @submit.prevent="goToAvailableGroups()">
-        <template v-for="classroom in availableClassrooms">
-          <k-radio-button
-            :key="classroom.id"
-            :label="classroomLabel(classroom)"
-            :value="classroom.id"
-            v-model="selectedClassroomId"
-          />
-        </template>
-
-        <div class="core-modal-buttons">
-          <k-button
-            :text="$tr('cancel')"
-            appearance="flat-button"
-            @click="closeModal()"
-          />
-          <k-button
-            type="submit"
-            :text="$tr('continue')"
-            :primary="true"
-          />
-        </div>
-      </form>
-    </div>
+      <k-radio-button
+        v-for="classroom in availableClassrooms"
+        :key="classroom.id"
+        :label="classroomLabel(classroom)"
+        :value="classroom.id"
+        v-model="selectedClassroomId"
+      />
+    </k-modal>
 
     <!-- Learner Group Selection Form -->
-    <div v-else>
+    <k-modal
+      v-else
+      id="select-learnergroup"
+      :title="modalTitle"
+      :submitText="$tr('makeCopy')"
+      :cancelText="$tr('cancel')"
+      @cancel="closeModal"
+      @submit="$emit('copy', selectedClassroomId, selectedCollectionIds)"
+    >
       <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>
       <p>{{ assignmentQuestion }}</p>
-      <form
-        id="select-learnergroup"
-        @submit.prevent="$emit('copy', selectedClassroomId, selectedCollectionIds)"
-      >
-        <recipient-selector
-          v-model="selectedCollectionIds"
-          :groups="availableGroups"
-          :classId="selectedClassroomId"
-        />
-        <div class="core-modal-buttons">
-          <k-button
-            :text="$tr('cancel')"
-            appearance="flat-button"
-            @click="closeModal()"
-          />
-          <k-button
-            type="submit"
-            :text="$tr('makeCopy')"
-            :primary="true"
-          />
-        </div>
-      </form>
-    </div>
-  </core-modal>
+      <recipient-selector
+        v-model="selectedCollectionIds"
+        :groups="availableGroups"
+        :classId="selectedClassroomId"
+      />
+    </k-modal>
+  </div>
 
 </template>
 
@@ -69,8 +49,7 @@
   import sortBy from 'lodash/sortBy';
   import find from 'lodash/find';
   import { error as logError } from 'kolibri.lib.logging';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import { LearnerGroupResource } from 'kolibri.resources';
   import { handleApiError } from 'kolibri.coreVue.vuex.actions';
@@ -84,8 +63,7 @@
   export default {
     name: 'assignmentCopyModal',
     components: {
-      coreModal,
-      kButton,
+      kModal,
       kRadioButton,
       RecipientSelector,
     },

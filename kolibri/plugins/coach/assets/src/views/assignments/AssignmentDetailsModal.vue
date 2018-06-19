@@ -1,10 +1,12 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="modalTitle"
-    @cancel="closeModal()"
     :hasError="showServerError || !formIsValid"
-    width="400px"
+    :submitText="isInEditMode ? $tr('save') : $tr('continue')"
+    :cancelText="$tr('cancel')"
+    @submit="submitData"
+    @cancel="closeModal"
   >
     <ui-alert
       v-if="showServerError"
@@ -13,51 +15,35 @@
     >
       {{ submitErrorMessage }}
     </ui-alert>
+    <k-textbox
+      @blur="titleIsVisited = true"
+      ref="titleField"
+      :label="$tr('title')"
+      :maxlength="50"
+      :autofocus="true"
+      :invalid="titleIsInvalid"
+      :invalidText="titleIsInvalidText"
+      v-model="title"
+      :disabled="formIsSubmitted"
+    />
+    <k-textbox
+      v-if="showDescriptionField"
+      :label="$tr('description')"
+      :maxlength="200"
+      v-model="description"
+      :disabled="formIsSubmitted"
+    />
 
-    <form @submit.prevent="submitData">
-      <k-textbox
-        @blur="titleIsVisited = true"
-        ref="titleField"
-        :label="$tr('title')"
-        :maxlength="50"
-        :autofocus="true"
-        :invalid="titleIsInvalid"
-        :invalidText="titleIsInvalidText"
-        v-model="title"
+    <fieldset>
+      <legend>{{ $tr('recipients') }}</legend>
+      <recipient-selector
+        v-model="selectedCollectionIds"
+        :groups="groups"
+        :classId="classId"
         :disabled="formIsSubmitted"
       />
-      <k-textbox
-        v-if="showDescriptionField"
-        :label="$tr('description')"
-        :maxlength="200"
-        v-model="description"
-        :disabled="formIsSubmitted"
-      />
-
-      <fieldset>
-        <legend>{{ $tr('recipients') }}</legend>
-        <recipient-selector
-          v-model="selectedCollectionIds"
-          :groups="groups"
-          :classId="classId"
-          :disabled="formIsSubmitted"
-        />
-      </fieldset>
-
-      <div class="core-modal-buttons">
-        <k-button
-          :text="$tr('cancel')"
-          appearance="flat-button"
-          @click="closeModal()"
-        />
-        <k-button
-          :text="isInEditMode ? $tr('save') : $tr('continue')"
-          type="submit"
-          :primary="true"
-        />
-      </div>
-    </form>
-  </core-modal>
+    </fieldset>
+  </k-modal>
 
 </template>
 
@@ -65,8 +51,7 @@
 <script>
 
   import xor from 'lodash/xor';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import UiAlert from 'keen-ui/src/UiAlert';
   import RecipientSelector from './RecipientSelector';
@@ -74,8 +59,7 @@
   export default {
     name: 'assignmentDetailsModal',
     components: {
-      coreModal,
-      kButton,
+      kModal,
       kTextbox,
       RecipientSelector,
       UiAlert,

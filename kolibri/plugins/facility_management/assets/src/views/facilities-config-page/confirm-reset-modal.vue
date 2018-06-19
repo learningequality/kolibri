@@ -1,46 +1,29 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('title')"
+    :submitText="$tr('reset')"
+    :cancelText="$tr('cancel')"
+    @submit="handleConfirm"
     @cancel="handleCancel"
   >
     <div>
       <p>{{ $tr('confirmationQuestion') }}</p>
       <p>{{ $tr('changesWillBeLost') }}</p>
     </div>
-
-    <div class="core-modal-buttons">
-      <k-button
-        :primary="false"
-        appearance="flat-button"
-        @click="handleCancel()"
-        :text="$tr('cancel')"
-        name="cancel"
-      />
-      <k-button
-        :primary="true"
-        appearance="raised-button"
-        @click="handleConfirm()"
-        :text="$tr('reset')"
-        name="reset"
-      />
-    </div>
-
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
     name: 'confirmResetModal',
     components: {
-      coreModal,
-      kButton,
+      kModal,
     },
     methods: {
       handleConfirm() {

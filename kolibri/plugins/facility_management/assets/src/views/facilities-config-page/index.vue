@@ -56,7 +56,7 @@
     <confirm-reset-modal
       id="confirm-reset"
       v-if="showModal"
-      @click-confirm="resetToDefaultSettings()"
+      @click-confirm="resetToDefaultSettings"
       @click-cancel="showModal=false"
     />
   </div>

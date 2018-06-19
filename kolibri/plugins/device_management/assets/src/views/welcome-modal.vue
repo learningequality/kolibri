@@ -1,9 +1,9 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('welcomeModalHeader')"
-    :enableBgClickCancel="false"
-    @enter="emitCloseModal"
+    :submitText="$tr('welcomeButtonDismissText')"
+    @submit="emitCloseModal"
     @cancel="emitCloseModal"
   >
     <p class="welcome-modal-description">
@@ -13,23 +13,14 @@
     <p class="welcome-modal-description">
       {{ $tr('welcomeModalPermissionsDescription') }}
     </p>
-
-    <div class="core-modal-buttons">
-      <k-button
-        :text="$tr('welcomeButtonDismissText')"
-        :primary="true"
-        @click="emitCloseModal"
-      />
-    </div>
-
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
@@ -42,7 +33,7 @@
         'The admin account you created during setup has special permissions to do this. Learn more in the Permissions tab later.',
       welcomeButtonDismissText: 'OK',
     },
-    components: { coreModal, kButton },
+    components: { kModal, kButton },
     methods: {
       emitCloseModal() {
         this.$emit('closeModal');

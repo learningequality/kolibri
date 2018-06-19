@@ -1,68 +1,49 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('passwordChangeFormHeader')"
+    size="small"
+    :submitText="$tr('updateButtonLabel')"
+    :cancelText="$tr('cancelButtonLabel')"
+    :submitDisabled="isBusy"
+    @submit="submitForm"
     @cancel="closeModal"
   >
-    <form @submit.prevent="submitForm">
-
-      <k-textbox
-        ref="newPassword"
-        type="password"
-        autocomplete="new-password"
-        :label="$tr('newPasswordFieldLabel')"
-        :invalid="newPasswordIsInvalid"
-        :invalidText="newPasswordInvalidErrorText"
-        :autofocus="true"
-        @blur="newPasswordBlurred = true"
-        v-model="newPassword"
-      />
-      <k-textbox
-        ref="confirmedNewPassword"
-        type="password"
-        autocomplete="new-password"
-        :label="$tr('confirmNewPasswordFieldLabel')"
-        :invalid="confirmedNewPasswordIsInvalid"
-        :invalidText="confirmedNewPasswordInvalidErrorText"
-        @blur="confirmedNewPasswordBlurred = true"
-        v-model="confirmedNewPassword"
-      />
-
-      <div class="core-modal-buttons">
-        <k-button
-          :text="$tr('cancelButtonLabel')"
-          :primary="false"
-          appearance="flat-button"
-          @click="closeModal"
-        />
-        <k-button
-          type="submit"
-          :text="$tr('updateButtonLabel')"
-          :primary="true"
-          appearance="raised-button"
-          :disabled="isBusy"
-        />
-      </div>
-
-    </form>
-  </core-modal>
+    <k-textbox
+      ref="newPassword"
+      type="password"
+      :label="$tr('newPasswordFieldLabel')"
+      :invalid="newPasswordIsInvalid"
+      :invalidText="newPasswordInvalidErrorText"
+      :autofocus="true"
+      @blur="newPasswordBlurred = true"
+      v-model="newPassword"
+    />
+    <k-textbox
+      ref="confirmedNewPassword"
+      type="password"
+      :label="$tr('confirmNewPasswordFieldLabel')"
+      :invalid="confirmedNewPasswordIsInvalid"
+      :invalidText="confirmedNewPasswordInvalidErrorText"
+      @blur="confirmedNewPasswordBlurred = true"
+      v-model="confirmedNewPassword"
+    />
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import { updateUserProfilePassword } from '../../state/actions';
 
   export default {
     name: 'changeUserPasswordModal',
     components: {
-      coreModal,
+      kModal,
       kTextbox,
-      kButton,
     },
     data() {
       return {

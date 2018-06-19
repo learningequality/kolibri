@@ -1,7 +1,9 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('copies')"
+    :submitText="$tr('close')"
+    @submit="closeModal"
     @cancel="closeModal"
   >
     <transition mode="out-in">
@@ -35,21 +37,14 @@
         </li>
       </ul>
     </transition>
-
-    <div class="ar">
-      <k-button
-        :text="$tr('close')"
-        @click="closeModal"
-      />
-    </div>
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
@@ -60,7 +55,7 @@
   export default {
     name: 'copiesModal',
     components: {
-      coreModal,
+      kModal,
       kButton,
       kCircularLoader,
       kRouterLink,

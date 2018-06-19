@@ -1,60 +1,43 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('resetPassword')"
+    :submitText="$tr('save')"
+    :cancelText="$tr('cancel')"
+    :submitDisabled="isBusy"
+    @submit="submitForm"
     @cancel="displayModal(false)"
   >
-    <form @submit.prevent="submitForm">
+    <p>{{ $tr('username') }}<strong>{{ username }}</strong></p>
 
-      <p>{{ $tr('username') }}: <strong>{{ username }}</strong></p>
-
-      <k-textbox
-        ref="password"
-        type="password"
-        :label="$tr('newPassword')"
-        :autofocus="true"
-        :invalid="passwordIsInvalid"
-        :invalidText="passwordIsInvalidText"
-        @blur="passwordBlurred = true"
-        v-model="password"
-      />
-      <k-textbox
-        ref="confirmedPassword"
-        type="password"
-        :label="$tr('confirmNewPassword')"
-        :invalid="confirmedPasswordIsInvalid"
-        :invalidText="confirmedPasswordIsInvalidText"
-        @blur="confirmedPasswordBlurred = true"
-        v-model="confirmedPassword"
-      />
-
-      <div class="core-modal-buttons">
-        <k-button
-          :text="$tr('cancel')"
-          :primary="false"
-          appearance="flat-button"
-          @click="displayModal(false)"
-        />
-        <k-button
-          type="submit"
-          :text="$tr('save')"
-          :primary="true"
-          appearance="raised-button"
-          :disabled="isBusy"
-        />
-      </div>
-
-    </form>
-  </core-modal>
+    <k-textbox
+      ref="password"
+      type="password"
+      :label="$tr('newPassword')"
+      :autofocus="true"
+      :invalid="passwordIsInvalid"
+      :invalidText="passwordIsInvalidText"
+      @blur="passwordBlurred = true"
+      v-model="password"
+    />
+    <k-textbox
+      ref="confirmedPassword"
+      type="password"
+      :label="$tr('confirmNewPassword')"
+      :invalid="confirmedPasswordIsInvalid"
+      :invalidText="confirmedPasswordIsInvalidText"
+      @blur="confirmedPasswordBlurred = true"
+      v-model="confirmedPassword"
+    />
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import { handleApiError } from 'kolibri.coreVue.vuex.actions';
   import { displayModal } from '../../state/actions';
   import { updateFacilityUser } from '../../state/actions/user';
@@ -62,9 +45,8 @@
   export default {
     name: 'resetUserPasswordModal',
     components: {
-      coreModal,
+      kModal,
       kTextbox,
-      kButton,
     },
     props: {
       id: {
@@ -148,7 +130,7 @@
     },
     $trs: {
       resetPassword: 'Reset user password',
-      username: 'Username',
+      username: 'Username: ',
       newPassword: 'New password',
       confirmNewPassword: 'Confirm new password',
       passwordMatchError: 'Passwords do not match',

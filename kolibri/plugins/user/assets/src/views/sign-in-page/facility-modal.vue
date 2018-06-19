@@ -1,32 +1,29 @@
 <template>
 
-  <core-modal @cancel="emitClose" :title="$tr('facilitySelectionModalHeader')">
-    <form @submit.prevent="submitAndClose">
-      {{ $tr('facilitySelectionPrompt') }}
+  <k-modal
+    :title="$tr('facilitySelectionModalHeader')"
+    :submitText="$tr('submitFacilitySelectionButtonPrompt')"
+    :cancelText="$tr('close')"
+    @submit="submitAndClose"
+    @cancel="emitClose"
+  >
+    {{ $tr('facilitySelectionPrompt') }}
 
-      <k-radio-button
-        v-for="facility in facilities"
-        v-model="selectedFacility"
-        :key="facility.id"
-        :label="facility.name"
-        :value="facility.id"
-      />
-      <div class="core-modal-buttons">
-        <k-button
-          :text="$tr('submitFacilitySelectionButtonPrompt')"
-          :primary="true"
-          type="submit"
-        />
-      </div>
-    </form>
-  </core-modal>
+    <k-radio-button
+      v-for="facility in facilities"
+      v-model="selectedFacility"
+      :key="facility.id"
+      :label="facility.name"
+      :value="facility.id"
+    />
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { getFacilityConfig } from 'kolibri.coreVue.vuex.actions';
@@ -35,7 +32,7 @@
   export default {
     name: 'facilityModal',
     components: {
-      coreModal,
+      kModal,
       kRadioButton,
       kButton,
     },
@@ -58,6 +55,7 @@
       facilitySelectionPrompt: 'Which facility do you want to sign in to?',
       submitFacilitySelectionButtonPrompt: 'Select',
       facilitySelectionModalHeader: 'Select a facility',
+      close: 'Close',
     },
     vuex: {
       getters: {

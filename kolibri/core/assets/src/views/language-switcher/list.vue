@@ -21,7 +21,6 @@
       class="language-list-button-option language-list-items"
       @click="switchLanguage(language.id)"
       :key="language.id"
-      :raised="false"
       :text="language.lang_name"
       appearance="basic-link"
     />

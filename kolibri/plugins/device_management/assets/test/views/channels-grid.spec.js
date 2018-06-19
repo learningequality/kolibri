@@ -23,7 +23,7 @@ function getElements(wrapper) {
     channelListItems: () => wrapper.findAll({ name: 'channelListItem' }),
     emptyState: () => wrapper.find('.no-channels'),
     progressBar: () => wrapper.find({ name: 'ui-progress-linear' }),
-    deleteChannelModal: () => wrapper.find({ name: 'deleteChannelModal' }),
+    deleteChannelModal: () => wrapper.find({ name: 'kModal' }),
   };
 }
 
@@ -103,9 +103,9 @@ describe('channelsGrid component', () => {
     dropdownMenu.vm.$emit('select', { value: 'DELETE_CHANNEL' });
     deleteModal = deleteChannelModal();
     expect(deleteModal.isVueInstance()).toEqual(true);
-    const deleteButton = deleteModal.find('button[name="confirm"]');
+    const deleteButton = deleteModal.find('button[name="submit"]');
     expect(deleteButton.text().trim()).toEqual('Delete');
-    deleteButton.trigger('click');
+    deleteChannelModal().vm.$emit('submit');
     expect(deleteActionStub).toHaveBeenCalledWith('visible_channel');
   });
 });

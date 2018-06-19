@@ -8,7 +8,7 @@ function makeWrapper(options) {
     stubs: ['selectImportSourceModal', 'selectDriveModal'],
   });
   const els = {
-    titleText: () => wrapper.find({ name: 'coreModal' }).props().title,
+    titleText: () => wrapper.find({ name: 'kModal' }).props().title,
   };
   return { wrapper, els };
 }
@@ -22,22 +22,28 @@ describe('selectImportSourceModal component', () => {
 
   it('when at select source stage, shows correct channel', () => {
     store.dispatch('SET_WIZARD_PAGENAME', 'SELECT_IMPORT_SOURCE');
-    const { els } = makeWrapper({ store });
-    expect(els.titleText()).toEqual('Import from');
+    const { wrapper, els } = makeWrapper({ store });
+    wrapper.vm.$nextTick().then(() => {
+      expect(els.titleText()).toEqual('Import from');
+    });
   });
 
   it('when importing, shows the correct title', () => {
     store.dispatch('SET_WIZARD_PAGENAME', 'SELECT_DRIVE');
     store.dispatch('SET_TRANSFER_TYPE', 'localimport');
-    const { els } = makeWrapper({ store });
-    expect(els.titleText()).toEqual('Select a drive');
+    const { wrapper, els } = makeWrapper({ store });
+    wrapper.vm.$nextTick().then(() => {
+      expect(els.titleText()).toEqual('Select a drive');
+    });
   });
 
   it('when exporting, shows the correct title', () => {
     store.dispatch('SET_WIZARD_PAGENAME', 'SELECT_DRIVE');
     store.dispatch('SET_TRANSFER_TYPE', 'localexport');
-    const { els } = makeWrapper({ store });
-    expect(els.titleText()).toEqual('Select an export destination');
+    const { wrapper, els } = makeWrapper({ store });
+    wrapper.vm.$nextTick().then(() => {
+      expect(els.titleText()).toEqual('Select an export destination');
+    });
   });
 
   // not tested:

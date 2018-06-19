@@ -1,36 +1,23 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('deleteUser')"
-    @cancel="closeModal()"
+    :submitText="$tr('delete')"
+    :cancelText="$tr('cancel')"
+    :submitDisabled="submitting"
+    @submit="handleDeleteUser"
+    @cancel="closeModal"
   >
     <p>{{ $tr('confirmation', { username: username }) }}</p>
     <p>{{ $tr('warning', { username: username }) }}</p>
-  
-    <div class="core-modal-buttons">
-      <k-button
-        :text="$tr('cancel')"
-        :primary="false"
-        appearance="flat-button"
-        @click="closeModal()"
-      />
-      <k-button
-        :text="$tr('delete')"
-        :primary="true"
-        appearance="raised-button"
-        :disabled="submitting"
-        @click="handleDeleteUser"
-      />
-    </div>
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import { deleteUser, displayModal } from '../../state/actions';
 
   export default {
@@ -43,8 +30,7 @@
       delete: 'Delete',
     },
     components: {
-      coreModal,
-      kButton,
+      kModal,
     },
     props: {
       id: {

@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import coreModal from 'kolibri.coreVue.components.coreModal';
+import kModal from 'kolibri.coreVue.components.kModal';
 import UiAlert from 'keen-ui/src/UiAlert';
 import SelectDriveModal from '../../src/views/manage-content-page/select-transfer-source-modal/select-drive-modal';
 import { wizardState } from '../../src/state/getters';
@@ -52,7 +52,7 @@ function makeStore() {
 // prettier-ignore
 function getElements(wrapper) {
   return {
-    titleText: () => wrapper.find(coreModal).props().title,
+    titleText: () => wrapper.find(kModal).props().title,
     driveListLoading: () => wrapper.find('.drive-list-loading'),
     driveListLoadingText: () => wrapper.find('.drive-list-loading').text().trim(),
     driveListContainer: () => wrapper.find('.drive-list'),
@@ -60,10 +60,11 @@ function getElements(wrapper) {
     noContentRadio: () => wrapper.find('input[value="no_content_drive"]'),
     unwritableRadio: () => wrapper.find('input[value="unwritable_drive"]'),
     incompatibleRadio: () => wrapper.find('input[value="incompatible_chanel_drive"]'),
-    cancelButton: () => wrapper.find('.core-modal-buttons button'),
-    continueButton: () => wrapper.findAll('.core-modal-buttons button').at(1),
+    cancelButton: () => wrapper.find('button[name="cancel"]'),
+    continueButton: () => wrapper.find('button[name="submit"]'),
     UiAlerts: () => wrapper.find(UiAlert),
     findingLocalDrives: () => wrapper.find('.finding-local-drives'),
+    selectDriveModal: () => wrapper.find({ name: 'kModal'}),
   };
 }
 
@@ -177,9 +178,9 @@ describe('selectDriveModal component', () => {
     const transitionStub = jest
       .spyOn(wrapper.vm, 'goForwardFromSelectDriveModal')
       .mockImplementation(() => {});
-    const { continueButton, writableImportableRadio } = getElements(wrapper);
+    const { writableImportableRadio, selectDriveModal } = getElements(wrapper);
     writableImportableRadio().trigger('change');
-    continueButton().trigger('click');
+    selectDriveModal().vm.$emit('submit');
     // same parameters for import or export flow
     expect(transitionStub).toBeCalledWith({
       driveId: 'writable_importable_drive',
@@ -191,7 +192,9 @@ describe('selectDriveModal component', () => {
     const wrapper = makeWrapper({ store });
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
-    expect(wrapper.emitted().cancel).toHaveLength(1);
+    wrapper.vm.$nextTick().then(() => {
+      expect(wrapper.emitted().cancel).toHaveLength(1);
+    });
   });
 
   // not tested

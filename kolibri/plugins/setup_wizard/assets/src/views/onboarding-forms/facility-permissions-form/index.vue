@@ -4,12 +4,12 @@
 
     <!-- Cannot match spec with current core modal -->
     <!-- Should be its own component -->
-    <core-modal
-      :title=" $tr('facilityPermissionsPresetDetailsHeader')"
-      @cancel="hideFacilityPermissionsDetails"
-      @enter="hideFacilityPermissionsDetails"
-      :enableBgClickCancel="true"
+    <k-modal
       v-if="permissionPresetDetailsModalShown"
+      :title=" $tr('facilityPermissionsPresetDetailsHeader')"
+      :submitText="$tr('permissionsModalDismissText')"
+      @cancel="hideFacilityPermissionsDetails"
+      @submit="hideFacilityPermissionsDetails"
     >
 
       <dl class="permission-preset-human">
@@ -50,17 +50,7 @@
           {{ $tr('enabledAccountEditPermissionDetail') }}
         </dd>
       </dl>
-
-      <div class="core-modal-buttons">
-        <k-button
-          class="permission-preset-modal-dismiss-button"
-          :text="$tr('permissionsModalDismissText')"
-          :primary="true"
-          @click="hideFacilityPermissionsDetails"
-        />
-      </div>
-
-    </core-modal>
+    </k-modal>
 
     <onboarding-form
       :header="$tr('facilityPermissionsSetupFormHeader')"
@@ -113,7 +103,7 @@
 
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import onboardingForm from '../onboarding-form';
   import { submitFacilityPermissions } from '../../../state/actions/forms';
 
@@ -123,7 +113,7 @@
       onboardingForm,
       kRadioButton,
       kButton,
-      coreModal,
+      kModal,
     },
     $trs: {
       facilityPermissionsSetupFormHeader: 'Choose a Facility setup',

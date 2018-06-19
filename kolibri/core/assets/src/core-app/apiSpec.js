@@ -33,7 +33,7 @@ import contentIcon from '../views/content-icon';
 import progressIcon from '../views/progress-icon';
 import permissionsIcon from '../views/permissions-icon';
 import coreBase from '../views/core-base';
-import coreModal from '../views/core-modal';
+import kModal from '../views/k-modal';
 import sideNav from '../views/side-nav';
 import kButton from '../views/buttons-and-links/k-button';
 import kExternalLink from '../views/buttons-and-links/k-external-link';
@@ -122,7 +122,7 @@ export default {
       progressIcon,
       permissionsIcon,
       coreBase,
-      coreModal,
+      kModal,
       sideNav,
       kButton,
       kExternalLink,

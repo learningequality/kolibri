@@ -1,6 +1,13 @@
 <template>
 
-  <div>
+  <k-modal
+    :title="$tr('selectLocalRemoteSourceTitle')"
+    :submitText="$tr('continue')"
+    :cancelText="$tr('cancel')"
+    :submitDisabled="formIsDisabled"
+    @submit="goForward"
+    @cancel="resetContentWizardState"
+  >
     <div class="options">
       <k-radio-button
         :label="$tr('network')"
@@ -16,21 +23,7 @@
         :disabled="formIsDisabled"
       />
     </div>
-
-    <div class="core-modal-buttons">
-      <k-button
-        @click="$emit('cancel')"
-        appearance="flat-button"
-        :text="$tr('cancel')"
-      />
-      <k-button
-        @click="goForward"
-        :primary="true"
-        :disabled="formIsDisabled"
-        :text="$tr('continue')"
-      />
-    </div>
-  </div>
+  </k-modal>
 
 </template>
 
@@ -38,19 +31,20 @@
 <script>
 
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import { RemoteChannelResource } from 'kolibri.resources';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import {
     goForwardFromSelectImportSourceModal,
     LOCAL_DRIVE,
     KOLIBRI_STUDIO,
+    resetContentWizardState,
   } from '../../../state/actions/contentWizardActions';
 
   export default {
     name: 'selectImportSourceModal',
     components: {
-      kButton,
       kRadioButton,
+      kModal,
     },
     data() {
       return {
@@ -73,6 +67,7 @@
       continue: 'Continue',
       network: 'Kolibri Studio',
       localDrives: 'Attached drive or memory card',
+      selectLocalRemoteSourceTitle: 'Import from',
     },
     methods: {
       goForward() {
@@ -84,6 +79,7 @@
     vuex: {
       actions: {
         goForwardFromSelectImportSourceModal,
+        resetContentWizardState,
       },
     },
   };

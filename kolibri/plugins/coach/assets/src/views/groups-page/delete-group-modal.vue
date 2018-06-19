@@ -1,33 +1,23 @@
 <template>
 
-  <core-modal
+  <k-modal
     :title="$tr('deleteLearnerGroup')"
+    :submitText="$tr('deleteGroup')"
+    :cancelText="$tr('cancel')"
+    @submit="deleteGroup(groupId)"
     @cancel="close"
   >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
     <p>{{ $tr('learnersWillBecomeUngrouped') }}</p>
-    <div class="core-modal-buttons">
-      <k-button
-        :text="$tr('cancel')"
-        appearance="flat-button"
-        @click="close"
-      />
-      <k-button
-        :text="$tr('deleteGroup')"
-        :primary="true"
-        @click="deleteGroup(groupId)"
-      />
-    </div>
-  </core-modal>
+  </k-modal>
 
 </template>
 
 
 <script>
 
-  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kButton from 'kolibri.coreVue.components.kButton';
   import { displayModal, deleteGroup } from '../../state/actions/group';
 
   export default {
@@ -40,9 +30,8 @@
       deleteGroup: 'Delete group',
     },
     components: {
-      coreModal,
+      kModal,
       kTextbox,
-      kButton,
     },
     props: {
       groupName: {

@@ -28,10 +28,11 @@ function getElements(wrapper) {
   return {
     cancelResetButton: () => wrapper.find('button[name="cancel"]'),
     checkbox: () => wrapper.find('input[class="k-checkbox-input"]'),
-    confirmResetButton: () => wrapper.find('button[name="reset"]'),
+    confirmResetButton: () => wrapper.find('button[name="submit"]'),
     resetButton: () => wrapper.find('button[name="reset-settings"]'),
     saveButton: () => wrapper.find('button[name="save-settings"]'),
-    confirmResetModal: () => wrapper.find(confirmResetModal),
+    confirmResetModal: () => wrapper.find({ name: 'kModal' }),
+    form: () => wrapper.find('form'),
   };
 }
 
@@ -84,14 +85,13 @@ describe('facility config page view', () => {
 
   it('confirming reset calls the reset action and closes modal', () => {
     const wrapper = makeWrapper();
-    const { resetButton, confirmResetButton } = getElements(wrapper);
+    const { resetButton, confirmResetModal } = getElements(wrapper);
     const { mock } = (wrapper.vm.resetFacilityConfig = jest.fn());
     resetButton().trigger('click');
     assertModalIsUp(wrapper);
-    confirmResetButton().trigger('click');
+    confirmResetModal().vm.$emit('submit');
     expect(mock.calls).toHaveLength(1);
     assertModalIsDown(wrapper);
   });
-
   // not tested: notifications
 });
