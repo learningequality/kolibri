@@ -329,6 +329,9 @@ class SessionViewSet(viewsets.ViewSet):
             # Correct password, and the user is marked "active"
             login(request, user)
             # Success!
+            # Is this the first time this user has logged in?
+            # If so, they will not have any UserSessionLogs until we call get_session.
+            request.session['first_login'] = not UserSessionLog.objects.filter(user=user).exists()
             return Response(self.get_session(request))
         elif not password and FacilityUser.objects.filter(username__iexact=username, facility=facility_id).exists():
             # Password was missing, but username is valid, prompt to give password

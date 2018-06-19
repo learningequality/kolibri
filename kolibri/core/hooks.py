@@ -16,9 +16,18 @@ from __future__ import unicode_literals
 
 import logging
 
+from django.core.urlresolvers import reverse
+
 from kolibri.plugins.hooks import KolibriHook
 
 logger = logging.getLogger(__name__)
+
+
+def plugin_url(plugin_class, url_name):
+    return reverse('kolibri:{namespace}:{url_name}'.format(
+        namespace=plugin_class().url_namespace(),
+        url_name=url_name,
+    ))
 
 
 class NavigationHook(KolibriHook):
@@ -40,21 +49,19 @@ class NavigationHook(KolibriHook):
         abstract = True
 
 
-class UserNavigationHook(KolibriHook):
-    """
-    A hook for adding navigation items to the user menu.
-    """
-    # : A string label for the menu item
-    label = "Untitled"
+class RoleBasedRedirectHook(KolibriHook):
+    # User role to redirect for
+    role = None
 
-    # : A string or lazy proxy for the url
-    url = "/"
+    # URL to redirect to
+    url = None
 
-    def get_menu(self):
-        menu = {}
-        for hook in self.registered_hooks:
-            menu[hook.label] = self.url
-        return menu
+    # Special flag to only redirect on first login
+    # Default to False
+    first_login = False
+
+    def plugin_url(self, plugin_class, url_name):
+        return plugin_url(plugin_class, url_name)
 
     class Meta:
 

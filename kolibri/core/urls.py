@@ -37,6 +37,9 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.conf.urls.static import static
 
+from .views import GuestRedirectView
+from .views import logout_view
+from .views import RootURLRedirectView
 from .views import set_language
 from kolibri.core.content.utils import paths
 from kolibri.plugins.registry import get_urls as plugin_urls
@@ -48,4 +51,9 @@ urlpatterns = plugin_urls()
 
 urlpatterns += static(paths.get_content_url("/"), document_root=paths.get_content_dir_path())
 
-urlpatterns += [url(r'^i18n/setlang/$', set_language, name='set_language')]
+urlpatterns += [
+    url(r'^i18n/setlang/$', set_language, name='set_language'),
+    url(r'^$', RootURLRedirectView.as_view()),
+    url(r'^guestaccess/', GuestRedirectView.as_view(), name="guest"),
+    url(r'^logout/$', logout_view, name='logout'),
+]
