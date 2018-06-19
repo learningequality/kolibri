@@ -69,5 +69,5 @@ We use a number of mechanisms to help encourage code quality and consistency. Mo
 - ``sphinx-build -b linkcheck`` checks the validity of documentation links
 - `pytest <http://pytest.org/latest/>`_ runs our Python unit tests. We also leverage the `Django test framework <https://docs.djangoproject.com/en/1.9/topics/testing/>`_.
 - In addition to building client assets, `webpack <https://webpack.github.io/>`_ runs linters on client-side code: `ESLint <http://eslint.org/>`_ for ES6 JavaScript, `Stylint <https://rosspatton.github.io/stylint/>`_ for Stylus, and `HTMLHint <http://htmlhint.com/>`_ for HTML and Vue.js components.
-- Client-side code is tested using `Jest <https://facebook.github.io/jest/>`_ and `Sinon <http://sinonjs.org/>`_
+- Client-side code is tested using `Jest <https://facebook.github.io/jest/>`_
 - `codecov <https://codecov.io/>`_ reports on the test coverage
