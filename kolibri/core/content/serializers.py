@@ -152,6 +152,17 @@ class FileSerializer(serializers.ModelSerializer):
                   'supplementary', 'thumbnail', 'download_url')
 
 
+class FileThumbnailSerializer(serializers.ModelSerializer):
+    storage_url = serializers.SerializerMethodField()
+
+    def get_storage_url(self, target_node):
+        return target_node.get_storage_url()
+
+    class Meta:
+        model = File
+        fields = ('storage_url', 'available', 'thumbnail',)
+
+
 class AssessmentMetaDataSerializer(serializers.ModelSerializer):
 
     assessment_item_ids = serializers.JSONField(default='[]')
@@ -373,6 +384,26 @@ class ContentNodeSerializer(serializers.ModelSerializer):
                 return get_num_coach_contents(instance)
         # all other conditions return 0
         return 0
+
+class ContentNodeSlimSerializer(serializers.ModelSerializer):
+    parent = serializers.PrimaryKeyRelatedField(read_only=True)
+    assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
+    files = FileThumbnailSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ContentNode
+        fields = (
+            'id',
+            'parent',
+            'description',
+            'channel_id',
+            'content_id',
+            'kind',
+            'assessmentmetadata',
+            'files',
+            'pk',  # TODO remove after UI standardizes on 'id'
+            'title',
+        )
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):

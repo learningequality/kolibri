@@ -1,6 +1,7 @@
 import ClassroomResource from './classroom';
 import ContentNodeResource from './contentNode';
 import ContentNodeGranular from './contentNodeGranular';
+import ContentNodeSlim from './contentNodeSlim';
 import FacilityUserResource from './facilityUser';
 import FacilityUsernameResource from './facilityUsername';
 import LearnerGroupResource from './learnerGroup';
@@ -56,6 +57,7 @@ const deviceProvisionResource = new DeviceProvisionResource();
 const devicePermissionsResource = new DevicePermissionsResource();
 const newDevicePermissionsResource = new NewDevicePermissionsResource();
 const ContentNodeGranularResource = new ContentNodeGranular();
+const ContentNodeSlimResource = new ContentNodeSlim();
 const RemoteChannelResource = new RemoteChannel();
 const LessonResource = new Lesson();
 
@@ -63,6 +65,7 @@ export {
   classroomResource as ClassroomResource,
   contentNodeResource as ContentNodeResource,
   ContentNodeGranularResource,
+  ContentNodeSlimResource,
   RemoteChannelResource,
   LessonResource,
   facilityUserResource as FacilityUserResource,

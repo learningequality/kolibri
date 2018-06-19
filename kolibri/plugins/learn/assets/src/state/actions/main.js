@@ -1,5 +1,6 @@
 import {
   ContentNodeResource,
+  ContentNodeSlimResource,
   ContentNodeProgressResource,
   UserExamResource,
   ExamLogResource,
@@ -66,7 +67,7 @@ export function updateContentNodeProgress(channelId, contentId, progressFraction
    * to cache bust the model (and hence the entire collection), because some progress was
    * made on this ContentNode.
    */
-  ContentNodeResource.getModel(contentId).set({ progress_fraction: progressFraction });
+  ContentNodeSlimResource.getModel(contentId).set({ progress_fraction: progressFraction });
 }
 
 export function setAndCheckChannels(store) {
@@ -107,7 +108,7 @@ export function showChannels(store) {
         return;
       }
       const channelRootIds = channels.map(channel => channel.root);
-      ContentNodeResource.getCollection({ ids: channelRootIds, by_role: true })
+      ContentNodeSlimResource.getCollection({ ids: channelRootIds, by_role: true })
         .fetch()
         .then(channelCollection => {
           // we want them to be in the same order as the channels list
@@ -146,12 +147,12 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
   const promises = [
-    ContentNodeResource.getModel(id).fetch(), // the topic
-    ContentNodeResource.getCollection({
+    ContentNodeSlimResource.getModel(id).fetch(), // the topic
+    ContentNodeSlimResource.getCollection({
       parent: id,
       by_role: true,
     }).fetch(), // the topic's children
-    ContentNodeResource.fetchAncestors(id), // the topic's ancestors
+    ContentNodeSlimResource.fetchAncestors(id), // the topic's ancestors
     store.dispatch('setChannelInfo'),
   ];
 
