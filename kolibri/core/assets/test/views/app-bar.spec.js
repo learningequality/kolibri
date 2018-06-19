@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
-import navComponents, { sections } from 'kolibri.utils.navComponents';
+import navComponents from 'kolibri.utils.navComponents';
+import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
 import appBar from '../../src/views/app-bar';
 import coreStore from 'kolibri.coreVue.vuex.store';
-import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import coreMenu from 'kolibri.coreVue.components.coreMenu';
 import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
 import logoutSideNavEntry from '../../src/views/logout-side-nav-entry';
@@ -102,7 +102,7 @@ describe('app bar component', () => {
             return '';
           },
           role: kind,
-          section: sections.ACCOUNT,
+          section: NavComponentSections.ACCOUNT,
         };
         navComponents.register(component);
         expect(navComponents).toHaveLength(1);

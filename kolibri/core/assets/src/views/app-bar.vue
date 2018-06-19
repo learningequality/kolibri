@@ -96,7 +96,8 @@
   import coreMenu from 'kolibri.coreVue.components.coreMenu';
   import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
   import uiButton from 'keen-ui/src/UiButton';
-  import navComponents, { sections } from 'kolibri.utils.navComponents';
+  import navComponents from 'kolibri.utils.navComponents';
+  import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import navComponentsMixin from '../mixins/nav-components';
   import languageSwitcherModal from './language-switcher/modal';
   import logout from './logout-side-nav-entry';
@@ -142,7 +143,7 @@
     computed: {
       menuOptions() {
         return navComponents
-          .filter(action => action.section === sections.ACCOUNT)
+          .filter(component => component.section === NavComponentSections.ACCOUNT)
           .filter(this.filterByRole);
       },
     },

@@ -94,6 +94,10 @@ const PermissionTypes = {
 
 const SIGNED_OUT_DUE_TO_INACTIVITY = 'SIGNED_OUT_DUE_TO_INACTIVITY';
 
+const NavComponentSections = {
+  ACCOUNT: 'account',
+};
+
 export {
   UserKinds,
   ContentNodeKinds,
@@ -107,4 +111,5 @@ export {
   LoginErrors,
   PermissionTypes,
   SIGNED_OUT_DUE_TO_INACTIVITY,
+  NavComponentSections,
 };

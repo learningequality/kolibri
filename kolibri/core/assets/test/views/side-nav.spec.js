@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
-import navComponents, { sections } from 'kolibri.utils.navComponents';
+import navComponents from 'kolibri.utils.navComponents';
+import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
 import sideNav from '../../src/views/side-nav';
 import coreStore from 'kolibri.coreVue.vuex.store';
-import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import logoutSideNavEntry from '../../src/views/logout-side-nav-entry';
 jest.mock('kolibri.urls');
 
@@ -208,7 +208,7 @@ describe('side nav component', () => {
           return '';
         },
         priority: 1,
-        section: sections.ACCOUNT,
+        section: NavComponentSections.ACCOUNT,
       };
       const component2 = {
         name: '2SideNavEntry',
@@ -222,6 +222,27 @@ describe('side nav component', () => {
       expect(navComponents).toHaveLength(2);
       const wrapper = createWrapper();
       expect(wrapper.vm.menuOptions[2]).toBe(component1);
+      expect(wrapper.vm.menuOptions[0]).toBe(component2);
+    });
+    it('should show component with priority above undefined priority component', () => {
+      const component1 = {
+        name: '1SideNavEntry',
+        render() {
+          return '';
+        },
+      };
+      const component2 = {
+        name: '2SideNavEntry',
+        render() {
+          return '';
+        },
+        priority: 10,
+      };
+      navComponents.register(component2);
+      navComponents.register(component1);
+      expect(navComponents).toHaveLength(2);
+      const wrapper = createWrapper();
+      expect(wrapper.vm.menuOptions[1]).toBe(component1);
       expect(wrapper.vm.menuOptions[0]).toBe(component2);
     });
   });

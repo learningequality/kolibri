@@ -17,7 +17,7 @@
 
 <script>
 
-  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
@@ -37,6 +37,7 @@
     },
     role: UserKinds.ANONYMOUS,
     priority: 10,
+    section: NavComponentSections.ACCOUNT,
   };
 
   navComponents.register(component);
