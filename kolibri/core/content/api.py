@@ -494,7 +494,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         """
         Returns the object the view is displaying.
         You may want to override this if you need to provide non-standard
-        queryset lookups.  Eg if objects are referenced using multiple
+        queryset lookups. Eg if objects are referenced using multiple
         keyword arguments in the url conf.
         """
         queryset = self.filter_queryset(self.get_queryset(prefetch=prefetch))

@@ -153,6 +153,10 @@ class FileSerializer(serializers.ModelSerializer):
 
 
 class FileThumbnailSerializer(serializers.ModelSerializer):
+    """
+    Serializer used only in ContentNodeSlimSerializer (at the moment) to return minimum data
+    for frontend to be able to render thumbnails for content browsing
+    """
     storage_url = serializers.SerializerMethodField()
 
     def get_storage_url(self, target_node):
@@ -386,8 +390,11 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         return 0
 
 class ContentNodeSlimSerializer(serializers.ModelSerializer):
+    """
+    Lighter version of the ContentNodeSerializer whose purpose is to provide a minimum
+    subset of ContentNode fields necessary for functional content browsing
+    """
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
-    assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
     files = FileThumbnailSerializer(many=True, read_only=True)
 
     class Meta:
@@ -399,7 +406,6 @@ class ContentNodeSlimSerializer(serializers.ModelSerializer):
             'channel_id',
             'content_id',
             'kind',
-            'assessmentmetadata',
             'files',
             'pk',  # TODO remove after UI standardizes on 'id'
             'title',
