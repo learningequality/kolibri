@@ -31,6 +31,10 @@ option_spec = {
             "type": "string",
             "envvars": ("KOLIBRI_DATABASE_HOST",),
         },
+        "DATABASE_PORT": {
+            "type": "string",
+            "envvars": ("KOLIBRI_DATABASE_PORT",),
+        },
     },
     "Server": {
         "CHERRYPY_THREAD_POOL": {

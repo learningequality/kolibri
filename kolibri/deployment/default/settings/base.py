@@ -143,6 +143,7 @@ elif conf.OPTIONS['Database']['DATABASE_ENGINE'] == "postgres":
             'PASSWORD': conf.OPTIONS['Database']['DATABASE_PASSWORD'],
             'USER': conf.OPTIONS['Database']['DATABASE_USER'],
             'HOST': conf.OPTIONS['Database']['DATABASE_HOST'],
+            'PORT': conf.OPTIONS['Database']['DATABASE_PORT'],
         }
     }
 
