@@ -36,8 +36,8 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import languageSwitcherMixin from 'kolibri.coreVue.mixins.languageSwitcherMixin';
   import { currentLanguage } from 'kolibri.utils.i18n';
+  import languageSwitcherMixin from './mixin';
 
   export default {
     name: 'languageSwitcherModal',
