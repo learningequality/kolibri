@@ -160,6 +160,10 @@ class FileThumbnailSerializer(serializers.ModelSerializer):
     storage_url = serializers.SerializerMethodField()
 
     def get_storage_url(self, target_node):
+        # Avoid doing an extra db query if the file is not even a thumbnail
+        if not target_node.thumbnail:
+            return None
+
         return target_node.get_storage_url()
 
     class Meta:
