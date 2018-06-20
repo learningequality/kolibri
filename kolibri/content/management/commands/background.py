@@ -26,12 +26,12 @@ class Command(BaseCommand):
             help='Image file'
         )
         subparsers.add_parser(
-            name='reset',
+            name='none',
             cmd=self,
             help="Set default"
         )
         subparsers.add_parser(
-            name='none',
+            name='default',
             cmd=self,
             help="Set default"
         )
@@ -62,10 +62,10 @@ class Command(BaseCommand):
             self.backup(img_path, backup_img_path)
             shutil.copy(new_img_path, img_path)
 
-        elif options['command'] == 'clear':
+        elif options['command'] == 'none':
             self.backup(img_path, backup_img_path)
             os.unlink(img_path)
 
-        elif options['command'] == 'reset':
+        elif options['command'] == 'default':
             if os.path.exists(backup_img_path):
                 shutil.copy(backup_img_path, img_path)
