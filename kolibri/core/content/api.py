@@ -519,7 +519,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(methods=['get'])
     def ancestors(self, request, **kwargs):
-        cache_key = 'contentnode_ancestors_{pk}'.format(pk=kwargs.get('pk'))
+        cache_key = 'contentnode_slim_ancestors_{pk}'.format(pk=kwargs.get('pk'))
 
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
