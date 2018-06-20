@@ -23,3 +23,13 @@ serializer_field_mapping.update(ModelSerializer.serializer_field_mapping)
 class KolibriModelSerializer(ModelSerializer):
 
     serializer_field_mapping = serializer_field_mapping
+
+    def update(self, instance, validated_data):
+        skipped_fields = ['user', 'start_timestamp']
+        for attr, value in validated_data.items():
+
+            if attr not in skipped_fields and self.data[attr] != validated_data[attr]:
+                setattr(instance, attr, value)
+        instance.save()
+
+        return instance
