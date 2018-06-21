@@ -4,11 +4,14 @@
 
     <div :style="contentControlsContainerStyles">
 
-      <div class="content-carousel-previous-control" @click="previousSet">
+      <div
+        class="content-carousel-previous-control"
+        @click="previousSet"
+        v-show="!isFirstSet"
+      >
         <ui-icon-button
           class="content-carousel-previous-control-button"
           :style="buttonTransforms"
-          v-show="!isFirstSet"
           :disabled="isFirstSet"
           :disableRipple="true"
           size="large"
@@ -40,11 +43,14 @@
         />
       </transition-group>
 
-      <div class="content-carousel-next-control" @click="nextSet">
+      <div
+        class="content-carousel-next-control"
+        @click="nextSet"
+        v-show="!isLastSet"
+      >
         <ui-icon-button
           class="content-carousel-next-control-button"
           :style="buttonTransforms"
-          v-show="!isLastSet"
           :disabled="isLastSet"
           :disableRipple="true"
           size="large"
