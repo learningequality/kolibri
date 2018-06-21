@@ -74,7 +74,8 @@ class Command(BaseCommand):
 
         elif options['command'] == 'none':
             self.backup(img_path, backup_img_path)
-            os.unlink(img_path)
+            # write an empty file
+            open(img_path, 'w').close()
 
         elif options['command'] == 'default':
             if os.path.exists(backup_img_path):
