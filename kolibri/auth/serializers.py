@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from .constants.collection_kinds import LEARNERGROUP
 from .models import Classroom
 from .models import Facility
 from .models import FacilityDataset
@@ -68,6 +69,16 @@ class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership
         fields = ('id', 'collection', 'user')
+
+    def create(self, validated_data):
+        user = validated_data["user"]
+        collection = validated_data["collection"]
+        if collection.kind == LEARNERGROUP and user.memberships.filter(collection__parent=collection.parent).exists():
+            # We are trying to create a membership for a user in a group, but they already belong to a group
+            # in the same class as this group. We may want to allow this, but the frontend does not currently
+            # support this. Error!
+            raise serializers.ValidationError('This user is already in a group in this class')
+        return super(MembershipSerializer, self).create(validated_data)
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
