@@ -4,16 +4,9 @@ References
 .. toctree::
   :maxdepth: 2
 
-  manual_testing
+  development_workflow
   release_process
-  i18n
   conventions
-  files
-
-
-API reference
--------------
-
-* :ref:`modindex`
-* :ref:`genindex`
+  i18n
+  manual_testing
 

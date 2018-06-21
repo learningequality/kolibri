@@ -1,4 +1,4 @@
-Implementation Details and Workflows
+Implementation details and workflows
 ====================================
 
 To achieve using separate databases for each channel and being able to switch channels dynamically, the following data structure and utility functions have been implemented.
@@ -80,9 +80,9 @@ To find where the source file is located, the class method ``get_url`` uses the 
 
 As you can see, it is fine to store your content files outside of the kolibri project folder as long as you set the ``settings.CONTENT_STORAGE_DIR`` accordingly.
 
-The front-end will then use the ``extension`` field to decide which content player should be used. When the ``supplementary`` field's value is ``True``, that means this File object isn't necessary and can display the content without it. For example, we will mark caption (subtitle) file as supplementary.
+The frontend will then use the ``extension`` field to decide which content player should be used. When the ``supplementary`` field's value is ``True``, that means this File object isn't necessary and can display the content without it. For example, we will mark caption (subtitle) file as supplementary.
 
-Content Constants
+Content constants
 -----------------
 
 A Python module that stores constants for the ``kind`` field in ContentNode model and the ``preset`` field and ``extension`` field in File model.

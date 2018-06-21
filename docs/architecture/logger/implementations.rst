@@ -1,4 +1,4 @@
-Implementation Details
+Implementation details
 ======================
 
 Permissions

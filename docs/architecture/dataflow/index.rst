@@ -1,5 +1,5 @@
 
-Server-client communication
+Server/client communication
 ===========================
 
 Server API
@@ -31,7 +31,7 @@ Finally, in the ``api_urls.py`` file, the ViewSets are given a name (through the
 To explore the server REST APIs, visit `/api_explorer/` on the Kolibri server while running with developer settings.
 
 
-Client Resource Layer
+Client resource layer
 ---------------------
 
 To access this REST API in the frontend Javascript code, an abstraction layer has been written to reduce the complexity of inferring URLs, caching resources, and saving data back to the server.
@@ -169,8 +169,8 @@ If it is important to get data that has not been cached, you can call the :code:
     logging.info('This is the model data: ', dataArray);
   });
 
-Data Flow Diagram
------------------
+Data flow
+---------
 
 .. image:: ./full_stack_data_flow.svg
 .. Source: https://docs.google.com/drawings/d/1TLMV8FWgh4KUIL1CRQ-C5S3J3efCbG7-dkCOLzjohj4/edit

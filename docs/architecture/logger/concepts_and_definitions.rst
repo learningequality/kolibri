@@ -1,7 +1,7 @@
-Concepts and Definitions
+Concepts and definitions
 ========================
 
-Content Interaction Log
+Content interaction log
 -----------------------
 This Model provides a record of an interaction with a content item. As such, it
 should encode the channel that the content was in, and the id of the content.
@@ -15,7 +15,7 @@ multiple attempts within the same session), or a single session of viewing a vid
 Finally, these Logs will use MorangoDB to synchronize their data across devices.
 
 
-Content Summary Log
+Content summary log
 -------------------
 This Model provides a summary of all interactions of a user with a content item.
 As such, it should encode the channel that the content was in, and the id of
@@ -41,7 +41,7 @@ then the aggregation logic would be applied across all interaction logs to
 create a consolidated summary log.
 
 
-Content Rating Log
+Content rating log
 ------------------
 This Model provides a record of user feedback on content.
 
@@ -50,7 +50,7 @@ feedback data about any content.
 
 Finally, these Logs will use MorangoDB to synchronize their data across devices.
 
-User Session Log
+User session log
 ----------------
 This Model provides a record of an user session in Kolibri. As such, it should
 encode the channels interacted with, the length of time engaged, and the pages

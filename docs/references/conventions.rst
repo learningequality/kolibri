@@ -1,46 +1,34 @@
 .. _conventions:
 
-Front-end code conventions
-==========================
+Frontend code conventions
+=========================
 
+In general, follow the `style guide <http://kolibridemo.learningequality.org/style_guide>`_ and use built-in components and conventions whenever possible.
 
-Vue.js Components
+Most syntax conventions are enforced by our linters, so make sure you've set up `pre-commit` as described in :doc:`../start/getting_started`.
+
+Vue.js components
 -----------------
 
-Note that the top-level tags of `Vue.js components <https://vuejs.org/guide/components.html>`_ are ``<template>``, ``<script>``, and ``<style>``.
+- Keep components stateless and declarative as much as possible
+- For simple components, make *SomeComonent.vue*. For more complex components, make *SomeComponent/index.vue* and add private sub-components
+- All user-visible app text should be internationalized. See :doc:`i18n` for details
+- Avoid direct DOM references and Vue component "lifecycle events" except in special cases
+- Props, slots, and Vuex state/getters for communicating down the view hierarchy
+- Events and Vuex actions for communicating up the view hierarchy
 
-- Whitespace
+Styling anti-patterns
+---------------------
 
-  - an indent is 2 spaces
-  - two blank lines between top-level tags
-  - one blank line of padding within a top-level tag
-  - one level of indent for the contents of all top-level tags
-
-- Keep most child-components stateless. In practice, this means using ``props`` but not ``data``.
-
-- Avoid using Vue.js' camelCase-to-kebab-case mapping. Instead, use square brackets and strings to reference names.
-
-- Use ``scoped`` styles where ever possible
-
-- Name custom tags using kebab-case
-
-- Components are placed in the *vue* directory. The root component file is called *vue/index.vue*, and is mounted on a tag called ``<rootvue>``.
-
-- Components are defined either as a file with a ``.vue`` extension (*my-component.vue*) or as a directory with an *index.vue* file (*my-component/index.vue*). Both forms can be used with ``require('my-component')``.
-
-- Put child components inside the directory of a parent component if they are *only* used by the parent. Otherwise, put shared child components in the *vue* director.
-
-- Any user visisble interface text should be rendered translatable, see :doc:`i18n` for details.
-
-
-Stylus and CSS
---------------
-
-- clear out unused styles
-- avoid using classes as JS identifiers, and prefix with ``js-`` if necessary
-
-
-HTML
-----
-
-*attribute lists, semantic structure, accessibility...*
+- **Adding unnecessary new rules** - whenever possible, delete code to fix issues
+- **Unscoped styles** - if absolutely necessary, use `deep selectors <https://vue-loader.vuejs.org/guide/scoped-css.html#deep-selectors>`_ to style component children
+- **Classes referenced in javascript** - if absolutely necessary, use `ref <https://vuejs.org/v2/api/#ref>`_ instead (also an anti-pattern)
+- **References by ID** - use a ``class`` instead
+- **HTML tag selectors** - define a ``class`` instead
+- **Floats or flexbox for layout** - use ``k-grid`` instead
+- **Media queries** - use ``responsive-window`` or ``responsive-element``
+- **Nested selectors** - make a sub-component instead (more reading `here <https://csswizardry.com/2012/05/keep-your-css-selectors-short/>`_ and `here <http://thesassway.com/beginner/the-inception-rule>`_)
+- **Dynamically-generated class names** - avoid patterns which fail the `grep test <http://jamie-wong.com/2013/07/12/grep-test/>`_
+- **Complex pre-processor functionality** - use Vue `computed styles <https://vuejs.org/v2/guide/class-and-style.html>`_ instead
+- **Hard-coded values** - rely on core themes and components
+- **Left or right alignment on user-generated text** - use ``dir="auto"`` instead for RTL support

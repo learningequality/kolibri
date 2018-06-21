@@ -9,7 +9,7 @@ to developing plugins.
 Enabling and disabling plugins
 ------------------------------
 
-Non-core plugins can be enabled or disabled using the ``kolibri plugin`` command. See :doc:`../user/cli`.
+Non-core plugins can be enabled or disabled using the ``kolibri plugin`` command.
 
 .. automodule:: kolibri.plugins.registry
 
