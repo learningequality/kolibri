@@ -44,14 +44,24 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         user_static_directory = os.path.join(settings.STATIC_ROOT, 'user_module')
+
         if not os.path.exists(user_static_directory):
-            self.stderr.write(self.style.ERROR('\nStatic directory does not exist.'))
+            self.stderr.write(self.style.ERROR(
+                '\nStatic directory does not exist yet. Try running the server first.'
+            ))
             raise SystemExit(1)
 
         img_path = os.path.join(user_static_directory, 'background.jpg')
         backup_img_path = os.path.join(user_static_directory, 'background-backup')
 
         if options['command'] == 'set':
+
+            self.stdout.write(self.style.WARNING(
+                '\nCAUTION:\n'
+                'Setting the background image is experimental functionality.\n'
+                'Your changes may be reverted in a future update or upgrade.\n'
+            ))
+
             new_img_path = os.path.abspath(os.path.expanduser(options['destination']))
             if not os.path.exists(new_img_path):
                 self.stderr.write(
