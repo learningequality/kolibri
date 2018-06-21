@@ -143,7 +143,7 @@
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
-              <p>© 2017 Learning Equality</p>
+              <p>© 2018 Learning Equality</p>
             </div>
           </div>
         </div>
