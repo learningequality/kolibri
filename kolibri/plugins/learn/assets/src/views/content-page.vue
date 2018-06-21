@@ -202,7 +202,7 @@
       },
       showMetadata() {
         // Hide metadata when viewing Resource in a Lesson
-        return !this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
+        return this.pageName !== ClassesPageNames.LESSON_RESOURCE_VIEWER;
       },
       nextContentLink() {
         // HACK Use a the Resource Viewer Link instead
