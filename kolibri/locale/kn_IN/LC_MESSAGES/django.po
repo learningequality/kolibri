@@ -1,0 +1,121 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-05-30 19:55-0700\n"
+"PO-Revision-Date: 2018-06-21T02:40:20+0000\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Kannada\n"
+"Language: kn_IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: kn\n"
+"X-Crowdin-File: /release-v0.10.x/django.po\n"
+
+#: kolibri/auth/constants/collection_kinds.py:14
+#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "ಸೌಲಭ್ಯ"
+
+#: kolibri/auth/constants/collection_kinds.py:15
+msgid "Classroom"
+msgstr "ವರ್ಗದ ಕೋಣೆ"
+
+#: kolibri/auth/constants/collection_kinds.py:16
+msgid "Learner group"
+msgstr "ಕಲಿಯುವವರ ಗುಂಪು"
+
+#: kolibri/auth/constants/role_kinds.py:13
+msgid "Admin"
+msgstr "ನಿರ್ವಾಹಕ"
+
+#: kolibri/auth/constants/role_kinds.py:14
+msgid "Coach"
+msgstr "ತರಬೇತುದಾರ"
+
+#: kolibri/auth/constants/role_kinds.py:15
+msgid "Classroom Assignable Coach"
+msgstr "ತರಗತಿಗೆ ನಿಯೋಜಿಸಬಹುದಾದ ಕೋಚ್"
+
+#: kolibri/auth/models.py:227
+msgid "username"
+msgstr "ಬಳಕೆದಾರಹೆಸರು"
+
+#: kolibri/auth/models.py:229
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr "ಅಗತ್ಯ. 30 ಅಕ್ಷರಗಳು ಅಥವಾ ಕಡಿಮೆ. ಅಕ್ಚರಗಳು ಮತ್ತು ಅಂಕೆಗಳು ಮಾತ್ರ"
+
+#: kolibri/auth/models.py:233
+msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
+msgstr "ಮಾನ್ಯ ಬಳಕೆದಾರಹೆಸರು ನಮೂದಿಸಿ. ಈ ಮೌಲ್ಯವು ಅಕ್ಷರಗಳು, ಸಂಖ್ಯೆಗಳು ಮತ್ತು ಅಂಡರ್‌ಸ್ಕೋರ್‌ಗಳನ್ನು ಮಾತ್ರ ಒಳಗೊಂಡಿರಬೇಕು."
+
+#: kolibri/auth/models.py:237
+msgid "full name"
+msgstr "ಪೂರ್ಣ ಹೆಸರು"
+
+#: kolibri/auth/models.py:238
+msgid "date joined"
+msgstr "ದಿನಾಂಕ ಸೇರಿಸಲಾಗಿದೆ"
+
+#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
+#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
+#: kolibri/auth/serializers.py:55
+msgid "An account with that username already exists"
+msgstr "ಈ ಬಳಕೆದಾರಹೆಸರಿನ ಖಾತೆ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ"
+
+#: kolibri/content/api.py:93
+msgid "Content"
+msgstr "ವಿಷಯ"
+
+#: kolibri/content/api.py:523
+msgid "The requested channel does not exist on the content server"
+msgstr "ಕೋರಿರುವ ಚಾನಲ್ ವಿಷಯದ ಸರ್ವರ್‌ನಲ್ಲಿ ಲಭ್ಯವಿಲ್ಲ"
+
+#: kolibri/content/models.py:242
+msgid "Unknown format"
+msgstr "ಅಪರಿಚಿತ ರೂಪ"
+
+#: kolibri/core/device/serializers.py:44
+msgid "Language is not supported by Kolibri"
+msgstr "ಭಾಷೆ ಕೊಲಿಬ್ರಿಯಿಂದ ಬೆಂಬಲವಾಗುತ್ತಿಲ್ಲ"
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr "ಕೊಲಿಬ್ರಿ"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "ಬೆಂಬಲವಾಗದ ಬ್ರೌಸರ್"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "ಕ್ಷಮಿಸಿ, ನಿಮ್ಮ ಬ್ರೌಸರ್ ಆವೃತ್ತಿ ಬೆಂಬಲವಾಗುತ್ತಿಲ್ಲ."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "ಕೊಲಿಬ್ರಿಯನ್ನು ಬಳಸಲು, ನಾವು Firefox ಅಥವಾ Chrome ಬಳಕೆಯನ್ನು ಶಿಫಾರಸು ಮಾಡುತ್ತೇವೆ."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "ನೀವು ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಬ್ರೌಸರ್ ಅನ್ನು ನವೀಕರಿಸಲು ಪ್ರಯತ್ನಿಸಬಹುದು."
+
+#: kolibri/plugins/device_management/kolibri_plugin.py:30
+msgid "Device"
+msgstr "ಸಾಧನ"
+
+#: kolibri/tasks/api.py:33
+msgid "There was a network error."
+msgstr "ನೆಟ್‌ವರ್ಕ್‌ ದೋಷವಿತ್ತು."
+
+#: kolibri/tasks/api.py:35
+msgid "There was a disk access error."
+msgstr "ಡಿಸ್ಕ್ ಪ್ರವೇಶ ದೋಷ ಇತ್ತು."
+
+#: kolibri/tasks/api.py:37
+msgid "There was an unknown error."
+msgstr "ಒಂದು ಅಪರಿಚಿತ ದೋಷ ಇತ್ತು."
+
