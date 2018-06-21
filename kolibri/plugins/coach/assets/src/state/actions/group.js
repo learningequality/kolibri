@@ -1,12 +1,9 @@
 import { handleError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import logger from 'kolibri.lib.logging';
 import { LearnerGroupResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
 import { setClassState, handleCoachPageError } from './main';
-
-const logging = logger.getLogger(__filename);
 
 const translator = createTranslator('groupManagementPageTitles', {
   groupManagementPageTitle: 'Groups',
@@ -202,37 +199,33 @@ function _removeMultipleUsersFromGroup(store, groupId, userIds) {
 
 export function addUsersToGroup(store, groupId, userIds) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  return _addMultipleUsersToGroup(store, groupId, userIds).then(
-    () => {
+  return _addMultipleUsersToGroup(store, groupId, userIds)
+    .catch(error => handleError(store, error))
+    .finally(() => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
-    },
-    error => logging.error(error)
-  );
+    });
 }
 
 export function removeUsersFromGroup(store, groupId, userIds) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  return _removeMultipleUsersFromGroup(store, groupId, userIds).then(
-    () => {
+  return _removeMultipleUsersFromGroup(store, groupId, userIds)
+    .catch(error => handleError(store, error))
+    .finally(() => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
-    },
-    error => logging.error(error)
-  );
+    });
 }
 
 export function moveUsersBetweenGroups(store, currentGroupId, newGroupId, userIds) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  const promises = [
-    _removeMultipleUsersFromGroup(store, currentGroupId, userIds),
-    _addMultipleUsersToGroup(store, newGroupId, userIds),
-  ];
-  return Promise.all(promises).then(
-    () => {
+  return _removeMultipleUsersFromGroup(store, currentGroupId, userIds)
+    .then(() => {
+      return _addMultipleUsersToGroup(store, newGroupId, userIds);
+    })
+    .catch(error => handleError(store, error))
+    .finally(() => {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
-    },
-    error => logging.error(error)
-  );
+    });
 }
