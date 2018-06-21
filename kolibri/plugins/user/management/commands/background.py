@@ -14,23 +14,23 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
-        subparsers = parser.add_subparsers(dest='command', help="The following subcommands are available.")
-        movedir_subparser = subparsers.add_parser(
+        subparser = parser.add_subparsers(dest='command', help="The following subcommands are available.")
+        set_img_subparser = subparser.add_parser(
             name='set',
             cmd=self,
             help="EXPERIMENTAL: Sets the login screen background image"
         )
-        movedir_subparser.add_argument(
+        set_img_subparser.add_argument(
             'destination',
             type=str,
             help='Image file'
         )
-        subparsers.add_parser(
+        subparser.add_parser(
             name='none',
             cmd=self,
             help="Set default"
         )
-        subparsers.add_parser(
+        subparser.add_parser(
             name='default',
             cmd=self,
             help="Set default"
