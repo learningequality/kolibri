@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 17:34-0800\n"
-"PO-Revision-Date: 2018-04-19 20:08-0400\n"
+"POT-Creation-Date: 2018-05-30 19:55-0700\n"
+"PO-Revision-Date: 2018-06-21T02:39:33+0000\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Portuguese, Brazilian\n"
 "Language: pt_BR\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: pt-BR\n"
-"X-Crowdin-File: /release-v0.9.x/django.po\n"
+"X-Crowdin-File: /release-v0.10.x/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:14
 #: kolibri/plugins/facility_management/kolibri_plugin.py:30
@@ -29,47 +29,53 @@ msgstr "Classe"
 msgid "Learner group"
 msgstr "Grupo de alunos"
 
-#: kolibri/auth/constants/role_kinds.py:12
+#: kolibri/auth/constants/role_kinds.py:13
 msgid "Admin"
 msgstr "Administrador"
 
-#: kolibri/auth/constants/role_kinds.py:13
+#: kolibri/auth/constants/role_kinds.py:14
 msgid "Coach"
 msgstr "Professor"
 
-#: kolibri/auth/models.py:210
+#: kolibri/auth/constants/role_kinds.py:15
+msgid "Classroom Assignable Coach"
+msgstr "Professor(a) de classe"
+
+#: kolibri/auth/models.py:227
 msgid "username"
-msgstr "nome de usuário"
+msgstr "nome do usuário"
 
-#: kolibri/auth/models.py:212
+#: kolibri/auth/models.py:229
 msgid "Required. 30 characters or fewer. Letters and digits only"
-msgstr "Obrigatório. 30 caracteres ou menos. Apenas letras e números"
+msgstr "Obrigatório. 30 caracteres ou menos. Apenas letras e dígitos"
 
-#: kolibri/auth/models.py:216
+#: kolibri/auth/models.py:233
 msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
 msgstr "Digite um nome de usuário válido, contendo apenas letras, números e sublinhados."
 
-#: kolibri/auth/models.py:220
+#: kolibri/auth/models.py:237
 msgid "full name"
 msgstr "nome completo"
 
-#: kolibri/auth/models.py:221
+#: kolibri/auth/models.py:238
 msgid "date joined"
 msgstr "data do cadastro"
 
-#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
+#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
+#: kolibri/auth/serializers.py:55
 msgid "An account with that username already exists"
-msgstr "Já existe uma conta com esse nome de usuário"
+msgstr "Já existe uma conta para esse usuário"
 
-#: kolibri/content/api.py:74
+#: kolibri/content/api.py:93
 msgid "Content"
 msgstr "Conteúdo"
 
-#: kolibri/content/api.py:363
+#: kolibri/content/api.py:523
 msgid "The requested channel does not exist on the content server"
-msgstr "O canal solicitado não existe no servidor de conteúdos"
+msgstr "O canal solicitado não existe no servidor de conteúdo"
 
-#: kolibri/content/models.py:187
+#: kolibri/content/models.py:242
 msgid "Unknown format"
 msgstr "Formato desconhecido"
 
@@ -101,15 +107,15 @@ msgstr "Você também pode tentar atualizar seu navegador."
 msgid "Device"
 msgstr "Dispositivo"
 
-#: kolibri/tasks/api.py:31
+#: kolibri/tasks/api.py:33
 msgid "There was a network error."
 msgstr "Ocorreu um erro de rede."
 
-#: kolibri/tasks/api.py:33
+#: kolibri/tasks/api.py:35
 msgid "There was a disk access error."
 msgstr "Houve um erro ao acessar o disco."
 
-#: kolibri/tasks/api.py:35
+#: kolibri/tasks/api.py:37
 msgid "There was an unknown error."
 msgstr "Ocorreu um erro desconhecido."
 
