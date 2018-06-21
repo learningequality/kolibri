@@ -21,3 +21,8 @@ steps:
 
   - label: Upload artifacts
     command: .buildkite/setup_and_upload_artifact.sh && docker image prune -f -a
+
+  - label: Sign Windows installer
+    command: .buildkite/sign_windows_installer.bat
+    agents:
+      queue: "windows-sign"
