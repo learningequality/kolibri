@@ -12,6 +12,7 @@ files:
       locale_with_underscore:
         ar: ar
         fa: fa
+        kn: kn
         mr: mr
         my: my
         ny: nyn
@@ -26,6 +27,7 @@ files:
       locale_with_underscore:
         ar: ar
         fa: fa
+        kn: kn
         mr: mr
         my: my
         ny: nyn

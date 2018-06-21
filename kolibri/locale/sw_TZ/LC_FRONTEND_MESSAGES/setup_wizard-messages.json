@@ -39,7 +39,7 @@
     "facilityNameForm.facilityNameFieldMaxLengthReached": "Jina la kituo haliwezi kuwa na zaidi ya herufi 100",
     "defaultLanguageForm.languageFormHeader": "Tafadhali chagua lugha-msingi ya Kolibri",
     "progressToolbar.progressIndicator": "Hatua {currentStep, number} of {totalSteps, number}",
-    "onboardingErrorPage.errorPageHeader": "Hitilafu imetokea",
+    "onboardingErrorPage.errorPageHeader": "Kuna Hitilafu",
     "onboardingErrorPage.errorPageSubheader": "Tafadhali angalia muunganiko wa seva na jaribu tena.",
     "onboardingErrorPage.errorPageAdditionalGuidance": "Kama ukijaribu tena haitafanya kazi, washa upya seva na anzisha upya ukurasa.",
     "onboardingErrorPage.errorPageRetryButtonLabel": "Rudia",

@@ -30,7 +30,7 @@
     "superuserCredentialsForm.usernameCharacterErrorMessage": "Nom d’utilisateur ne peut contenir que des lettres, chiffres et caractères de soulignement",
     "superuserCredentialsForm.passwordFieldEmptyErrorMessage": "Le mot de passe ne peut pas être vide",
     "superuserCredentialsForm.passwordsMismatchErrorMessage": "Les mots de passe ne correspondent pas",
-    "superuserCredentialsForm.facilityFieldEmptyErrorMessage": "Le nom de l'institut ne peut pas être vide",
+    "superuserCredentialsForm.facilityFieldEmptyErrorMessage": "Le nom de l'établissement ne peut pas être vide",
     "superuserCredentialsForm.setupProgressFeedback": "Configuration de votre appareil...",
     "facilityNameForm.facilityNamingFormHeader": "Nommer votre institut",
     "facilityNameForm.facilityNamingFormDescription": "Une «Établissement» est l'endroit où vous installez Kolibri, comme une école ou un centre de formation",

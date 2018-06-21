@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 17:34-0800\n"
-"PO-Revision-Date: 2018-03-28 13:13-0400\n"
+"POT-Creation-Date: 2018-05-30 19:55-0700\n"
+"PO-Revision-Date: 2018-06-21T02:39:39+0000\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Persian\n"
 "Language: fa_IR\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: fa\n"
-"X-Crowdin-File: /release-v0.9.x/django.po\n"
+"X-Crowdin-File: /release-v0.10.x/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:14
 #: kolibri/plugins/facility_management/kolibri_plugin.py:30
@@ -29,47 +29,53 @@ msgstr "کلاس درس"
 msgid "Learner group"
 msgstr "گروه یادگیرنده"
 
-#: kolibri/auth/constants/role_kinds.py:12
+#: kolibri/auth/constants/role_kinds.py:13
 msgid "Admin"
 msgstr "مدیر سایت"
 
-#: kolibri/auth/constants/role_kinds.py:13
+#: kolibri/auth/constants/role_kinds.py:14
 msgid "Coach"
 msgstr "مربی"
 
-#: kolibri/auth/models.py:210
+#: kolibri/auth/constants/role_kinds.py:15
+msgid "Classroom Assignable Coach"
+msgstr ""
+
+#: kolibri/auth/models.py:227
 msgid "username"
 msgstr "نام کاربری"
 
-#: kolibri/auth/models.py:212
+#: kolibri/auth/models.py:229
 msgid "Required. 30 characters or fewer. Letters and digits only"
 msgstr "به 30 کاراکتر (نِویسه) یا کمتر نیاز است. فقط حروف و اعداد"
 
-#: kolibri/auth/models.py:216
+#: kolibri/auth/models.py:233
 msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
 msgstr "یک نام کاربری معتبر وارد کنید. این نام فقط می‌تواند شاملِ حروف، اعداد و زیرین‌خط باشد."
 
-#: kolibri/auth/models.py:220
+#: kolibri/auth/models.py:237
 msgid "full name"
 msgstr "نام کامل"
 
-#: kolibri/auth/models.py:221
+#: kolibri/auth/models.py:238
 msgid "date joined"
 msgstr "تاریخ بصورت پیوست وجود دارد"
 
-#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
+#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
+#: kolibri/auth/serializers.py:55
 msgid "An account with that username already exists"
 msgstr "یک حساب کاربری با این نام کاربری از قبل وجود دارد"
 
-#: kolibri/content/api.py:74
+#: kolibri/content/api.py:93
 msgid "Content"
 msgstr "محتوا"
 
-#: kolibri/content/api.py:363
+#: kolibri/content/api.py:523
 msgid "The requested channel does not exist on the content server"
 msgstr "کانال درخواست شده در سِرور محتوا و مطالب وجود ندارد"
 
-#: kolibri/content/models.py:187
+#: kolibri/content/models.py:242
 msgid "Unknown format"
 msgstr "فرمت ناشناخته"
 
@@ -101,15 +107,15 @@ msgstr "شما همچنین می‌توانید مرورگر فعلی خود ر�
 msgid "Device"
 msgstr "دستگاه"
 
-#: kolibri/tasks/api.py:31
+#: kolibri/tasks/api.py:33
 msgid "There was a network error."
 msgstr "یک خطاى شبکه وجود داشت."
 
-#: kolibri/tasks/api.py:33
+#: kolibri/tasks/api.py:35
 msgid "There was a disk access error."
 msgstr "یک خطای دسترسی به دیسک وجود داشت."
 
-#: kolibri/tasks/api.py:35
+#: kolibri/tasks/api.py:37
 msgid "There was an unknown error."
 msgstr "یک خطای ناشناخته وجود دارد."
 
