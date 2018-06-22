@@ -46,7 +46,6 @@
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import kButton from 'kolibri.coreVue.components.kButton';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import shuffle from 'lodash/shuffle';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import languageSwitcherMixin from './mixin';
   import languageSwitcherModal from './modal';
@@ -78,7 +77,7 @@
         return this.windowSize.breakpoint;
       },
       buttonLanguages() {
-        const prioritized_languages = shuffle(['ar', 'en', 'es-es', 'fr-fr', 'hi-in', 'sw-tz']);
+        const prioritized_languages = ['en', 'ar', 'es-es', 'hi-in', 'fr-fr', 'sw-tz'];
         return prioritized_languages
           .filter(lang => availableLanguages[lang] !== undefined)
           .filter(lang => lang !== currentLanguage)
