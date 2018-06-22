@@ -186,15 +186,15 @@ export function showTopicsTopic(store, id, isRoot = false) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
+      if (isRoot) {
+        topic.description = currentChannel.description;
+      }
       const pageState = {
         isRoot,
         channel: currentChannel,
         topic: normalizeContentNode(topic, ancestors),
         contents: _collectionState(children),
       };
-      if (isRoot) {
-        topic.description = currentChannel.description;
-      }
       store.dispatch('SET_PAGE_STATE', pageState);
 
       // Only load subtopic progress if the user is logged in
