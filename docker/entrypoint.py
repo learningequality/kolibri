@@ -234,7 +234,7 @@ def run_kolibri(cmd):
     cmd_str = ' '.join(cmd)
     # Depends on vars: KOLIBRI_HOME, KOLIBRI_HTTP_PORT, and DJANGO_SETTINGS_MODULE
     subprocess.call(cmd_str, shell=True)
-    # This results in pstree: init --> /deploy/entrypoint.py --> sh --> kolibri
+    # This results in pstree: init --> /docker/entrypoint.py --> sh --> kolibri
     # the extra sh-intemediary is because yarn needs to read ENV variables
     # 
     # The option of running kolibri as PID 1, i.e. process tree init --> kolibri

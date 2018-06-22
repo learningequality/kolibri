@@ -182,20 +182,20 @@ dockerenvclean:
 	docker image prune -f
 
 dockerenvbuild: writeversion
-	docker image build -t "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')" -t learningequality/kolibri:latest -f deploy/buildkite.dockerfile .
+	docker image build -t "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')" -t learningequality/kolibri:latest -f docker/buildkite.dockerfile .
 
 dockerenvdist: writeversion
 	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')"
 
 dockerbuildbase: writeversion
 	docker image build . \
-		-f deploy/base.dockerfile \
+		-f docker/base.dockerfile \
 		-t "learningequality/kolibribase" \
 		-t "learningequality/kolibribase:latest"
 
 dockerbuild: writeversion
 	docker image build \
-			-f deploy/build.dockerfile \
+			-f docker/build.dockerfile \
 			-t "learningequality/kolibribuild" .
 	# Run the container to produce the pex et al in /kolibribuild/
 	docker run --init \
@@ -205,7 +205,7 @@ dockerbuild: writeversion
 dockerdemoserver: writeversion
 	# Build the demoserver image
 	docker image build \
-			-f deploy/demoserver.dockerfile \
+			-f docker/demoserver.dockerfile \
 			-t "learningequality/demoserver" .
 	# Run the container using one of the following options:
 	#  --env KOLIBRI_PEX_URL set to URL for a pex file from release or pull request
@@ -224,7 +224,7 @@ dockerdemoserver: writeversion
 dockerdeveserver: writeversion
 	# Build the kolibridev image: contains source code + pip install -e of kolibri
 	docker image build \
-			-f deploy/dev.dockerfile \
+			-f docker/dev.dockerfile \
 			-t "learningequality/kolibridev" .
 	docker run --init \
 			-v $$PWD/kolibribuild:/kolibribuild \

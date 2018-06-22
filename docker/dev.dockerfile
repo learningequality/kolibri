@@ -2,7 +2,7 @@ FROM learningequality/kolibribase
 
 ENV KOLIBRI_RUN_MODE=devserver
 
-COPY deploy/entrypoint.py /deploy/entrypoint.py
+COPY docker/entrypoint.py /docker/entrypoint.py
 
 COPY . /kolibri
 # This copies current source code into container, note code inside the container
@@ -11,7 +11,7 @@ COPY . /kolibri
 
 WORKDIR /kolibri
 
-ENTRYPOINT ["python", "/deploy/entrypoint.py"]
+ENTRYPOINT ["python", "/docker/entrypoint.py"]
 
 # Install kolibri from source
 RUN cd /kolibri \

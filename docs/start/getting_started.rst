@@ -192,16 +192,15 @@ setting up the full JavaScript and Python stack, we provide docker images that
 setup all the necessary details and start, either kolibri of the working directory,
 of if supplied with the ENV variable ``KOLIBRI_PEX_URL`` run the specified pex file.
 
-The ``deploy/`` directory contains the docker files and startup scripts needed for
-various tasks.
- * ``deploy/buildkite.dockerfile``: used as part of the automated build process for
+The ``docker/`` directory contains the docker files and startup scripts needed for various tasks.
+ * ``docker/buildkite.dockerfile``: used as part of the automated build process for
    every commit and pull request.
- * ``deploy/build.dockerfile``: used to generated .whl and .pex files in kolibribuild
- * ``deploy/base.dockerfile``: the base layer that installs JavaScript and Python dependencies
+ * ``docker/build.dockerfile``: used to generated .whl and .pex files in kolibribuild
+ * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies
    (image tag `leaningequality:kolibirbase`).
- * ``deploy/dev.dockerfile``: container with full development setup, running deveserver.
- * ``deploy/demoserver.dockerfile``: runs the pex from ``KOLIBRI_PEX_URL`` with production setup.
- * ``deploy/entrypoint.py``: startup script that configures Kolibri based on ENV variables: 
+ * ``docker/dev.dockerfile``: container with full development setup, running deveserver.
+ * ``docker/demoserver.dockerfile``: runs the pex from ``KOLIBRI_PEX_URL`` with production setup.
+ * ``docker/entrypoint.py``: startup script that configures Kolibri based on ENV variables: 
  
     * Set ``KOLIBRI_PEX_URL`` to string ``default`` to run latest pex from Kolibri download page
     * Set ``KOLIBRI_PEX_URL`` to something like ``http://host.org/nameof.pex``
