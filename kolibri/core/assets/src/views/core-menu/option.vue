@@ -140,6 +140,7 @@
   .ui-menu-option-text {
       @include text-truncation;
       flex-grow: 1;
+      line-height: 2em;
   }
 
   .ui-menu-option-secondary-text {
