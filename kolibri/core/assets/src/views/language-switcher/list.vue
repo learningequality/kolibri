@@ -83,7 +83,8 @@
           .filter(lang => availableLanguages[lang] !== undefined)
           .filter(lang => lang !== currentLanguage)
           .map(lang => availableLanguages[lang])
-          .slice(0, this.numVisibleLanguages);
+          .slice(0, this.numVisibleLanguages)
+          .sort(this.compareLanguages);
       },
     },
   };
