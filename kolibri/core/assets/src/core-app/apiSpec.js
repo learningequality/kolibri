@@ -42,7 +42,6 @@ import kTextbox from '../views/k-textbox';
 import kNavbar from '../views/k-navbar';
 import kNavbarLink from '../views/k-navbar/link';
 import logo from '../views/logo';
-import languageSwitcherMixin from '../views/language-switcher/mixin.js';
 import languageSwitcherList from '../views/language-switcher/list.vue';
 import immersiveFullScreen from '../views/immersive-full-screen';
 import elapsedTime from '../views/elapsed-time';
@@ -162,7 +161,6 @@ export default {
     mixins: {
       responsiveWindow,
       responsiveElement,
-      languageSwitcherMixin,
       contentRenderer: contentRendererMixin,
       fullscreen,
     },
