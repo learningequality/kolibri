@@ -1,7 +1,6 @@
 <template>
 
   <core-base
-    :topLevelPageName="DEVICE"
     :appBarTitle="currentPageAppBarTitle"
     :immersivePage="currentPageIsImmersive"
     :immersivePagePrimary="true"
@@ -25,7 +24,6 @@
 
 <script>
 
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import { ContentWizardPages, PageNames } from '../constants';
@@ -56,7 +54,6 @@
       topNavigation,
     },
     computed: {
-      DEVICE: () => TopLevelPageNames.DEVICE,
       currentPage() {
         return pageNameComponentMap[this.pageName];
       },

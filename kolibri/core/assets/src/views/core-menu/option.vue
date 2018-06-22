@@ -1,39 +1,41 @@
 <template>
 
-  <li
-    role="menuitem"
-    class="ui-menu-option"
-    :class="classes"
-    :tabindex="(isDivider || disabled) ? null : '0'"
-    @click="$emit('select')"
-    @keydown.enter="$emit('select')"
-  >
-    <slot v-if="!isDivider">
-      <div class="ui-menu-option-content">
-        <ui-icon
-          v-if="$slots.icon"
-          class="ui-menu-option-icon"
-        >
-          <slot name="icon"></slot>
-        </ui-icon>
+  <li>
+    <a
+      :href="link"
+      class="ui-menu-option"
+      role="menuitem"
+      :class="classes"
+      :tabindex="(isDivider || disabled) ? null : '0'"
+      @click="conditionalEmit"
+      @keydown.enter="conditionalEmit"
+    >
+      <slot v-if="!isDivider">
+        <div class="ui-menu-option-content">
+          <ui-icon
+            v-if="$slots.icon"
+            class="ui-menu-option-icon"
+          >
+            <slot name="icon"></slot>
+          </ui-icon>
 
-        <!-- if anything in the dropdown menu has an icon, then we are
-        going to add padding to make all the items align -->
-        <div
-          class="ui-menu-option-text"
-          :class="{ 'ui-menu-option-text-lp': !$slots.icon }"
-        >
-          {{ label }}
+          <!-- if anything in the dropdown menu has an icon, then we are
+          going to add padding to make all the items align -->
+          <div
+            class="ui-menu-option-text"
+            :class="{ 'ui-menu-option-text-lp': !$slots.icon }"
+          >
+            {{ label }}
+          </div>
+          <div
+            v-if="secondaryText"
+            class="ui-menu-option-secondary-text"
+          >
+            {{ secondaryText }}
+          </div>
         </div>
-        <div
-          v-if="secondaryText"
-          class="ui-menu-option-secondary-text"
-        >
-          {{ secondaryText }}
-        </div>
-      </div>
-    </slot>
-
+      </slot>
+    </a>
   </li>
 
 </template>
@@ -51,17 +53,13 @@
     props: {
       type: String,
       label: String,
+      link: String,
       secondaryText: String,
       disabled: {
         type: Boolean,
         default: false,
       },
-      active: {
-        type: Boolean,
-        default: false,
-      },
     },
-
     computed: {
       classes() {
         return {
@@ -73,6 +71,17 @@
 
       isDivider() {
         return this.type === 'divider';
+      },
+
+      active() {
+        return window.location.pathname.startsWith(this.link);
+      },
+    },
+    methods: {
+      conditionalEmit() {
+        if (!this.link) {
+          this.$emit('select');
+        }
       },
     },
   };
@@ -90,6 +99,7 @@
       position: relative;
       user-select: none;
       width: 100%;
+      text-decoration: inherit;
 
       &.is-divider {
           background-color: rgba(black, 0.08);

@@ -1,7 +1,6 @@
 <template>
 
   <core-base
-    :topLevelPageName="topLevelPageName"
     :appBarTitle="appBarTitle"
     :bottomMargin="bottomSpaceReserved"
     :immersivePage="isImmersivePage"
@@ -57,7 +56,6 @@
 
 <script>
 
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import coreBase from 'kolibri.coreVue.components.coreBase';
@@ -124,9 +122,6 @@
     },
     mixins: [responsiveWindow],
     computed: {
-      topLevelPageName() {
-        return TopLevelPageNames.LEARN;
-      },
       userHasMemberships() {
         return this.memberships.length > 0;
       },

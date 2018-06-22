@@ -89,6 +89,7 @@ import textTruncator from '../views/text-truncator';
 import kLinearLoader from '../views/k-linear-loader';
 import kCircularLoader from '../views/k-circular-loader';
 
+import navComponents from '../utils/navComponents';
 import * as client from './client';
 import urls from './urls';
 
@@ -182,5 +183,6 @@ export default {
     validators,
     serverClock,
     i18n,
+    navComponents,
   },
 };

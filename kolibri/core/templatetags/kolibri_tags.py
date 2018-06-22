@@ -27,10 +27,11 @@ from rest_framework.renderers import JSONRenderer
 from six import iteritems
 
 from kolibri.core.hooks import NavigationHook
-from kolibri.core.hooks import UserNavigationHook
+from kolibri.core.webpack.utils import webpack_asset_render
 from kolibri.utils import conf
 
 register = template.Library()
+
 
 @register.simple_tag(takes_context=True)
 def kolibri_language_globals(context):
@@ -55,32 +56,12 @@ def kolibri_language_globals(context):
 
 
 @register.simple_tag()
-def kolibri_main_navigation():
+def kolibri_navigation_actions():
     """
-    A tag to include an initial JS-object to bootstrap data into the app.
+    A tag to include an initial JS-object to bootstrap nav action data into the app.
     :return: An html string
     """
-    init_data = {
-        'nav_items': [],
-        'user_nav_items': [],
-    }
-
-    for hook in NavigationHook().registered_hooks:
-        init_data['nav_items'].append({
-            'text': str(hook.label),
-            'url': str(hook.url),
-        })
-
-    for hook in UserNavigationHook().registered_hooks:
-        init_data['user_nav_items'].append({
-            'text': str(hook.label),
-            'url': str(hook.url),
-        })
-
-    html = ("<script type='text/javascript'>"
-            "window._nav={0};"
-            "</script>".format(json.dumps(init_data)))
-    return mark_safe(html)
+    return webpack_asset_render(NavigationHook)
 
 
 @register.simple_tag(takes_context=True)

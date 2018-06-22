@@ -12,7 +12,7 @@ function provisionDevice(store, onboardingData) {
   deviceProvisionPromise.then(
     response => {
       superuser.facility = response.facility.id;
-      kolibriLogin(store, superuser, true);
+      kolibriLogin(store, superuser);
     },
     error => {
       store.dispatch('SET_ERROR', true);

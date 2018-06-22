@@ -4,7 +4,6 @@
     <!-- v-if applied to component and not core-base because it sets doc title -->
     <core-base
       :navBarNeeded="navBarNeeded"
-      :topLevelPageName="topLevelPageName"
       :appBarTitle="appBarTitle"
     >
       <component :is="currentPage" v-if="navBarNeeded" />
@@ -19,7 +18,6 @@
 
 <script>
 
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import { PageNames } from '../constants';
   import signInPage from './sign-in-page';
@@ -47,7 +45,6 @@
         }
         return '';
       },
-      topLevelPageName: () => TopLevelPageNames.USER,
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
       },

@@ -27,10 +27,7 @@ from django.conf.urls import url
 from django.contrib import admin
 from morango import urls as morango_urls
 
-from .views import RootURLRedirectView
-
 urlpatterns = [
-    url(r'^$', RootURLRedirectView.as_view()),
     url(r'^admin/', include(admin.site.urls)),
     url(r'', include('kolibri.core.urls')),
     url(r'', include('kolibri.core.content.urls')),

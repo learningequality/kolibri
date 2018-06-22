@@ -1,7 +1,6 @@
 <template>
 
   <core-base
-    :topLevelPageName="topLevelPageName"
     :appBarTitle="appBarTitle"
     :immersivePage="isImmersive"
     immersivePageIcon="arrow_back"
@@ -27,7 +26,6 @@
 <script>
 
   import { isAdmin, isSuperuser } from 'kolibri.coreVue.vuex.getters';
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import { PageNames } from '../constants';
@@ -66,7 +64,6 @@
       topNav,
     },
     computed: {
-      topLevelPageName: () => TopLevelPageNames.MANAGE,
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
       },

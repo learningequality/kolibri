@@ -15,7 +15,12 @@ def webpack_asset_render(HookClass, async=False):
     """
     tags = []
     for hook in HookClass().registered_hooks:
-        tags.append(
-            hook.render_to_page_load_sync_html() if not async else hook.render_to_page_load_async_html()
-        )
+        if not async and hasattr(hook, 'render_to_page_load_sync_html'):
+            tags.append(
+                hook.render_to_page_load_sync_html()
+            )
+        elif async and hasattr(hook, 'render_to_page_load_async_html'):
+            tags.append(
+                hook.render_to_page_load_async_html()
+            )
     return mark_safe('\n'.join(tags))
