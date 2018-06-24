@@ -2,6 +2,7 @@
 To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
 import datetime
+import uuid
 from collections import namedtuple
 
 import mock
@@ -9,6 +10,7 @@ import requests
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.utils import timezone
 from le_utils.constants import content_kinds
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -22,6 +24,7 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
+from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
 
 DUMMY_PASSWORD = "password"
@@ -703,6 +706,70 @@ class ContentNodeAPITestCase(APITestCase):
         # regular search
         response = self.client.get(reverse('contentnode-list'), data={'search': 'root'})
         self.assertEqual(len(response.data), 1)
+
+    def _create_session_logs(self):
+        content_ids = ('f2332710c2fd483386cdeb5ecbdda81f', 'ce603df7c46b424b934348995e1b05fb', '481e1bda1faa445d801ceb2afbd2f42f')
+        channel_id = '6199dde695db4ee4ab392222d5af1e5c'
+        [ContentSessionLog.objects.create(channel_id=channel_id,
+                                          content_id=content_ids[0],
+                                          start_timestamp=timezone.now(),
+                                          kind='audio') for _ in range(50)]
+        [ContentSessionLog.objects.create(channel_id=channel_id,
+                                          content_id=content_ids[1],
+                                          start_timestamp=timezone.now(),
+                                          kind='exercise') for _ in range(25)]
+        [ContentSessionLog.objects.create(channel_id=channel_id,
+                                          content_id=content_ids[2],
+                                          start_timestamp=timezone.now(),
+                                          kind='document') for _ in range(1)]
+
+        # create log for non existent content id
+        # should not show up in api response
+        ContentSessionLog.objects.create(channel_id=uuid.uuid4().hex,
+                                         content_id=uuid.uuid4().hex,
+                                         start_timestamp=timezone.now(),
+                                         kind='content')
+        return content_ids
+
+    def test_popular(self):
+        expected_content_ids = self._create_session_logs()
+        response = self.client.get(reverse('contentnode-list'), data={'popular': uuid.uuid4().hex})
+        response_content_ids = set(node['content_id'] for node in response.json())
+        self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
+    def _create_summary_logs(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        content_ids = ('f2332710c2fd483386cdeb5ecbdda81f',)
+        channel_id = '6199dde695db4ee4ab392222d5af1e5c'
+        ContentSummaryLog.objects.create(channel_id=channel_id,
+                                         content_id=content_ids[0],
+                                         user_id=user.id,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        # create log with progress of 1
+        # should not show up in api response
+        ContentSummaryLog.objects.create(channel_id=channel_id,
+                                         content_id='ce603df7c46b424b934348995e1b05fb',
+                                         user_id=user.id,
+                                         progress=1,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+
+        # create log for non existent content id
+        # should not show up in api response
+        ContentSummaryLog.objects.create(channel_id=uuid.uuid4().hex,
+                                         content_id=uuid.uuid4().hex,
+                                         user_id=user.id,
+                                         start_timestamp=timezone.now(),
+                                         kind='content')
+        return user, content_ids
+
+    def test_resume(self):
+        user, expected_content_ids = self._create_summary_logs()
+        response = self.client.get(reverse('contentnode-list'), data={'resume': user.id})
+        response_content_ids = set(node['content_id'] for node in response.json())
+        self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
     def tearDown(self):
         """
