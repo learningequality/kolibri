@@ -152,7 +152,9 @@ class ChannelImport(object):
     def generate_row_mapper(self, mappings=None):
         # If no mappings, just use an empty object
         if mappings is None:
-            mappings = {}
+            # If no mappings have been specified, we can just skip direct to
+            # the default return value without doing any other checks
+            return self.base_row_mapper
 
         def mapper(record, column):
             """
@@ -177,7 +179,7 @@ class ChannelImport(object):
                     raise AttributeError('Column mapping specified but no valid column name or method found')
             else:
                 # Otherwise, we can just get the value directly from the record
-                return getattr(record, column, None)
+                return self.base_row_mapper(record, column)
         # Return the mapper function for repeated use
         return mapper
 
@@ -186,6 +188,10 @@ class ChannelImport(object):
         if SourceRecord:
             return self.source.session.query(SourceRecord).all()
         return []
+
+    def base_row_mapper(self, record, column):
+        # By default just return value directly from the record
+        return getattr(record, column, None)
 
     def generate_table_mapper(self, table_map=None):
         if table_map is None:
@@ -200,7 +206,7 @@ class ChannelImport(object):
 
     def table_import(self, model, row_mapper, table_mapper, unflushed_rows):
         DestinationRecord = self.destination.get_class(model)
-        dest_table = DestinationRecord.__table__
+        dest_table = self.destination.get_table(model)
 
         # If the source class does not exist (i.e. this table is undefined in the source database)
         # this will raise an error so we set it to None. In this case, a custom table mapper must
@@ -219,8 +225,7 @@ class ChannelImport(object):
         data_to_insert = []
         merge = model in merge_models
         for record in table_mapper(SourceRecord):
-            if self.is_cancelled():
-                raise ImportCancelError('Channel import was cancelled')
+            self.check_cancelled()
             data = {
                 str(column): row_mapper(record, column) for column in columns if row_mapper(record, column) is not None
             }
@@ -270,8 +275,7 @@ class ChannelImport(object):
                               'version {new_channel_version}').format(
                     channel_version=existing_channel.version, channel_id=self.channel_id, new_channel_version=self.channel_version))
                 return False
-            if self.is_cancelled():
-                raise ImportCancelError('Channel import was cancelled')
+            self.check_cancelled()
             root_id = ChannelMetadata.objects.get(pk=self.channel_id).root_id
             ContentNodeClass = self.destination.get_class(ContentNode)
             root_node = self.destination.session.query(ContentNodeClass).get(root_id)
@@ -285,10 +289,13 @@ class ChannelImport(object):
             self.destination.session.flush()
         return True
 
-    def is_cancelled(self):
+    def check_cancelled(self):
         if callable(self.cancel_check):
-            return self.cancel_check()
-        return bool(self.cancel_check)
+            check = self.cancel_check()
+        else:
+            check = bool(self.cancel_check)
+        if check:
+            raise ImportCancelError('Channel import was cancelled')
 
     def import_channel_data(self):
 
