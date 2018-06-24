@@ -14,9 +14,23 @@ from kolibri.content.models import File
 from kolibri.content.models import Language
 from kolibri.content.models import LocalFile
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
-from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
+from kolibri.content.utils.content_types_tools import renderable_contentnodes_without_topics_q_filter
 from kolibri.content.utils.import_export_content import get_num_coach_contents
 from kolibri.content.utils.paths import get_content_storage_file_path
+
+
+def _files_for_nodes(nodes):
+    return LocalFile.objects.filter(files__contentnode__in=nodes)
+
+
+def _total_file_size(files_or_nodes):
+    if issubclass(files_or_nodes.model, LocalFile):
+        localfiles = files_or_nodes
+    elif issubclass(files_or_nodes.model, ContentNode):
+        localfiles = _files_for_nodes(files_or_nodes)
+    else:
+        raise TypeError("Expected queryset for LocalFile or ContentNode")
+    return localfiles.distinct().aggregate(Sum('file_size'))['file_size__sum'] or 0
 
 
 class ChannelMetadataSerializer(serializers.ModelSerializer):
@@ -30,25 +44,34 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
 
         value.update({"num_coach_contents": get_num_coach_contents(instance.root)})
 
-        # if it has the file_size flag add extra file_size information
-        if 'request' in self.context and self.context['request'].GET.get('file_sizes', False):
-            # only count up currently renderable content types, as only these will be downloaded
-            descendants = ContentNode.objects.filter(channel_id=instance.id).filter(renderable_contentnodes_q_filter).distinct()
-            total_resources = descendants.exclude(kind=content_kinds.TOPIC).count()
+        # if the request includes a GET param 'include_fields', add the requested calculated fields
+        if 'request' in self.context:
 
-            # only count up currently renderable content types, as only these will be downloaded
-            local_files = LocalFile.objects.filter(files__contentnode__in=descendants).distinct()
-            total_file_size = local_files.aggregate(Sum('file_size'))['file_size__sum'] or 0
+            include_fields = self.context['request'].GET.get('include_fields', '').split(',')
 
-            on_device_resources = descendants.exclude(kind=content_kinds.TOPIC).filter(available=True).count()
-            on_device_file_size = local_files.filter(available=True).aggregate(Sum('file_size'))['file_size__sum'] or 0
+            if include_fields:
 
-            value.update({
-                "total_resources": total_resources,
-                "total_file_size": total_file_size,
-                "on_device_resources": on_device_resources,
-                "on_device_file_size": on_device_file_size,
-            })
+                # build querysets for the full set of channel nodes, as well as those that are unrenderable
+                channel_nodes = ContentNode.objects.filter(channel_id=instance.id)
+                unrenderable_nodes = channel_nodes.exclude(renderable_contentnodes_without_topics_q_filter)
+
+                if 'total_resources' in include_fields:
+                    # count the total number of renderable non-topic resources in the channel
+                    # (note: it's faster to count them all and then subtract the unrenderables, of which there are fewer)
+                    value['total_resources'] = channel_nodes.count() - unrenderable_nodes.count()
+
+                if 'total_file_size' in include_fields:
+                    # count the total file size of files associated with renderable content nodes
+                    # (note: it's faster to count them all and then subtract the unrenderables, of which there are fewer)
+                    value['total_file_size'] = _total_file_size(channel_nodes) - _total_file_size(unrenderable_nodes)
+
+                if 'on_device_resources' in include_fields:
+                    # count the total number of resources from the channel already available
+                    value['on_device_resources'] = channel_nodes.filter(available=True).exclude(kind=content_kinds.TOPIC).count()
+
+                if 'on_device_file_size' in include_fields:
+                    # count the total size of available files associated with the channel
+                    value['on_device_file_size'] = _total_file_size(_files_for_nodes(channel_nodes).filter(available=True))
 
         return value
 
@@ -363,15 +386,13 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
 
     def get_total_resources(self, instance):
         return instance.get_descendants(include_self=True) \
-            .exclude(kind=content_kinds.TOPIC) \
-            .filter(renderable_contentnodes_q_filter) \
+            .filter(renderable_contentnodes_without_topics_q_filter) \
             .distinct() \
             .count()
 
     def get_on_device_resources(self, instance):
         return instance.get_descendants(include_self=True) \
-            .exclude(kind=content_kinds.TOPIC) \
-            .filter(renderable_contentnodes_q_filter) \
+            .filter(renderable_contentnodes_without_topics_q_filter) \
             .filter(available=True) \
             .distinct() \
             .count()

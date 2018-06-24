@@ -8,7 +8,7 @@ import { canManageContent } from 'kolibri.coreVue.vuex.getters';
 export function refreshChannelList(store) {
   store.dispatch('SET_CHANNEL_LIST_LOADING', true);
   return ChannelResource.getCollection()
-    .fetch({ file_sizes: true }, true)
+    .fetch({ include_fields: 'on_device_file_size' }, true)
     .then(channels => {
       store.dispatch('SET_CHANNEL_LIST', [...channels]);
       store.dispatch('SET_CHANNEL_LIST_LOADING', false);
