@@ -200,7 +200,7 @@ class ContentNodeFilter(IdFilter):
         """
         Recommend content that is popular with all users.
 
-        :param queryset: all content nodes for this channel
+        :param queryset: all content nodes across all channels
         :param value: id of currently logged in user, or none if user is anonymous
         :return: 10 most popular content nodes
         """
@@ -217,7 +217,9 @@ class ContentNodeFilter(IdFilter):
             return cache.get(cache_key)
 
         # get the most accessed content nodes
+        # search for content nodes that currently exist in the database
         content_counts_sorted = ContentSessionLog.objects \
+            .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
             .values_list('content_id', flat=True) \
             .annotate(Count('content_id')) \
             .order_by('-content_id__count')
@@ -232,7 +234,7 @@ class ContentNodeFilter(IdFilter):
         """
         Recommend content that the user has recently engaged with, but not finished.
 
-        :param queryset: all content nodes for this channel
+        :param queryset: all content nodes across all channels
         :param value: id of currently logged in user, or none if user is anonymous
         :return: 10 most recently viewed content nodes
         """
@@ -242,7 +244,9 @@ class ContentNodeFilter(IdFilter):
             return queryset.none()
 
         # get the most recently viewed, but not finished, content nodes
+        # search for content nodes that currently exist in the database
         content_ids = ContentSummaryLog.objects \
+            .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
             .filter(user=value) \
             .exclude(progress=1) \
             .order_by('end_timestamp') \
