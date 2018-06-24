@@ -131,10 +131,11 @@
         if (!this.$refs.modal) {
           return;
         }
-        if (event.target === this.$refs.modal) {
-          return;
-        }
-        if (this.$refs.modal.contains(event.target.activeElement)) {
+        // addresses https://github.com/learningequality/kolibri/issues/3824
+        if (
+          event.target === this.$refs.modal ||
+          this.$refs.modal.contains(event.target.activeElement)
+        ) {
           return;
         }
         // focus has escaped the modal - put it back!
