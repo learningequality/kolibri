@@ -200,7 +200,7 @@ class ContentNodeFilter(IdFilter):
         """
         Recommend content that is popular with all users.
 
-        :param queryset: all content nodes for this channel
+        :param queryset: all content nodes across all channels
         :param value: id of currently logged in user, or none if user is anonymous
         :return: 10 most popular content nodes
         """
@@ -217,22 +217,34 @@ class ContentNodeFilter(IdFilter):
             return cache.get(cache_key)
 
         # get the most accessed content nodes
+        # search for content nodes that currently exist in the database
         content_counts_sorted = ContentSessionLog.objects \
+            .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
             .values_list('content_id', flat=True) \
             .annotate(Count('content_id')) \
             .order_by('-content_id__count')
 
-        most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:10]))
+        most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:20]))
+
+        # remove duplicate content items
+        deduped_list = []
+        content_ids = set()
+        for node in most_popular:
+            if node.content_id not in content_ids:
+                deduped_list.append(node)
+                content_ids.add(node.content_id)
+
+        queryset = most_popular.filter(id__in=[node.id for node in deduped_list])
 
         # cache the popular results queryset for 10 minutes, for efficiency
-        cache.set(cache_key, most_popular, 60 * 10)
-        return most_popular
+        cache.set(cache_key, queryset, 60 * 10)
+        return queryset
 
     def filter_resume(self, queryset, name, value):
         """
         Recommend content that the user has recently engaged with, but not finished.
 
-        :param queryset: all content nodes for this channel
+        :param queryset: all content nodes across all channels
         :param value: id of currently logged in user, or none if user is anonymous
         :return: 10 most recently viewed content nodes
         """
@@ -242,7 +254,9 @@ class ContentNodeFilter(IdFilter):
             return queryset.none()
 
         # get the most recently viewed, but not finished, content nodes
+        # search for content nodes that currently exist in the database
         content_ids = ContentSummaryLog.objects \
+            .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
             .filter(user=value) \
             .exclude(progress=1) \
             .order_by('end_timestamp') \
@@ -255,7 +269,15 @@ class ContentNodeFilter(IdFilter):
 
         resume = queryset.filter(content_id__in=list(content_ids[:10]))
 
-        return resume
+        # remove duplicate content items
+        deduped_list = []
+        content_ids = set()
+        for node in resume:
+            if node.content_id not in content_ids:
+                deduped_list.append(node)
+                content_ids.add(node.content_id)
+
+        return resume.filter(id__in=[node.id for node in deduped_list])
 
     def filter_kind(self, queryset, name, value):
         """
