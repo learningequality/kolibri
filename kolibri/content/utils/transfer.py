@@ -3,7 +3,6 @@ import os
 import shutil
 
 import requests
-from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError
 
 logging = logger.getLogger(__name__)
@@ -130,8 +129,17 @@ class Transfer(object):
 class FileDownload(Transfer):
 
     def __init__(self, *args, **kwargs):
+
         # Set block size to None, to always get the largest chunk available from the socket
         kwargs["block_size"] = None
+
+        # allow an existing requests.Session instance to be passed in, so it can be reused for speed
+        if "session" in kwargs:
+            self.session = kwargs.pop("session")
+        else:
+            # initialize a fresh requests session, if one wasn't provided
+            self.session = requests.Session()
+
         super(FileDownload, self).__init__(*args, **kwargs)
 
     def start(self):
@@ -139,11 +147,6 @@ class FileDownload(Transfer):
         # then open the temp file again.
         if self.started:
             self.dest_file_obj = open(self.dest_tmp, "wb")
-
-        # initialize the requests session
-        self.session = requests.Session()
-        self.session.mount('http://', HTTPAdapter())
-        self.session.mount('https://', HTTPAdapter())
 
         # initiate the download, check for status errors, and calculate download size
         self.response = self.session.get(
