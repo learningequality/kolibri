@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import F
 from django.http import Http404
 from django_filters import ModelChoiceFilter
