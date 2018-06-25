@@ -93,6 +93,7 @@
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { getChannels } from 'kolibri.coreVue.vuex.getters';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import contentCardGroupCarousel from './content-card-group-carousel';
   import contentCardGroupGrid from './content-card-group-grid';
@@ -152,9 +153,12 @@
       },
     },
     methods: {
-      genContentLink(id) {
+      genContentLink(id, kind) {
         return {
-          name: PageNames.RECOMMENDED_CONTENT,
+          name:
+            kind === ContentNodeKinds.TOPIC
+              ? PageNames.TOPICS_TOPIC
+              : PageNames.RECOMMENDED_CONTENT,
           params: { id },
         };
       },

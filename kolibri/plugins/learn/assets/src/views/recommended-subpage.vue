@@ -16,6 +16,7 @@
 <script>
 
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import contentCardGroupGrid from './content-card-group-grid';
   import contentCardGroupHeader from './content-card-group-header';
@@ -64,9 +65,12 @@
       },
     },
     methods: {
-      genContentLink(id) {
+      genContentLink(id, kind) {
         return {
-          name: PageNames.RECOMMENDED_CONTENT,
+          name:
+            kind === ContentNodeKinds.TOPIC
+              ? PageNames.TOPICS_TOPIC
+              : PageNames.RECOMMENDED_CONTENT,
           params: { id },
         };
       },
