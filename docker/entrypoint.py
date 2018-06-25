@@ -1,10 +1,18 @@
-import json
+"""
+This script is the first thing that runs when a Kolibri container starts and 
+receives as args the Kolibri command CMD, e.g., ['kolibri', 'start', '--foreground']
+The purpose of this script is to perform optional 'setup tasks' before starting Kolibri.
+The following environment variables are used for setup steps:
+ - KOLIBRI_PEX_URL set to 'default' or something like http://host.org/nameof.pex 
+ - KOLIBRIBUILD_PEX_PATH to something like ``/kolibribuild/nameof.pex``
+ - KOLIBRI_PROVISIONDEVICE_FACILITY  if set, provision facility with this name
+ - CHANNELS_TO_IMPORT if set, comma separated list of channel IDs to import
+"""
 import logging
 import os
 import re
 import subprocess
 import sys
-import time
 
 
 # py2+py3 compatible imports via http://python-future.org/compatible_idioms.html
@@ -117,7 +125,6 @@ def create_facility(kolibri_cmd):
       - Kolibri versions in range [0.9, +     --> provisiondevice
     """
     logging.info('Running create_facility')
-    envs = os.environ
     major, minor = get_kolibri_version(kolibri_cmd)
     if major is None or minor is None:
         logging.warning('Failed to retrieve Kolibri version. Skipping.')
@@ -229,7 +236,6 @@ def set_default_language(kolibri_cmd):
 
 def run_kolibri(cmd):
     logging.info("Starting Kolibri using command {}".format(' '.join(cmd)))
-    envs = os.environ
     os.chdir('/kolibri')  # in case we're running from source and calling devserver
     cmd_str = ' '.join(cmd)
     # Depends on vars: KOLIBRI_HOME, KOLIBRI_HTTP_PORT, and DJANGO_SETTINGS_MODULE
