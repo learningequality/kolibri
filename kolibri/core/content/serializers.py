@@ -385,9 +385,10 @@ class ContentNodeSerializer(serializers.ModelSerializer):
 
     def get_num_coach_contents(self, instance):
         user = self.context["request"].user
-        if not getattr(self, "user_roles_exist", None):
-            self.user_roles_exist = user.roles.exists()
         if user.is_facility_user:  # exclude anon users
+            # cache the user roles query on the instance
+            if not getattr(self, "user_roles_exist", None):
+                self.user_roles_exist = user.roles.exists()
             if self.user_roles_exist or user.is_superuser:  # must have coach role or higher
                 return get_num_coach_contents(instance)
         # all other conditions return 0
