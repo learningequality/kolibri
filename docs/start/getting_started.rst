@@ -183,21 +183,34 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
 
     (kolibri)$ npm rebuild node-sass
 
+    
+
+Production
+~~~~~~~~~~
+
+In production, content is served through CherryPy. Static assets must be pre-built:
+
+.. code-block:: bash
+
+  yarn run build
+  kolibri start
+
+Now you should be able to access the server at ``http://127.0.0.1:8080/``.
 
 
-Development and test servers using docker
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-For developers and testers who need to spin up a Kolibri instance quickly without
-setting up the full JavaScript and Python stack, we provide docker images that
-setup all the necessary details and start, either kolibri of the working directory,
-of if supplied with the ENV variable ``KOLIBRI_PEX_URL`` run the specified pex file.
+
+
+Running Kolibri inside docker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Users who are familiar with Docker can spin up a Kolibri instance quickly without setting up
+the full JavaScript and Python development environments. We provide docker images that contain
+all the necessary prerequisites for running Kolibri.
 
 The ``docker/`` directory contains the docker files and startup scripts needed for various tasks.
- * ``docker/buildkite.dockerfile``: used as part of the automated build process for
-   every commit and pull request.
+ * ``docker/buildkite.dockerfile``: used as part of the automated build process for every commit and pull request.
  * ``docker/build.dockerfile``: used to generated .whl and .pex files in kolibribuild
- * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies
-   (image tag `leaningequality:kolibirbase`).
+ * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies (image tag ``leaningequality:kolibirbase``).
  * ``docker/dev.dockerfile``: container with full development setup, running deveserver.
  * ``docker/demoserver.dockerfile``: runs the pex from ``KOLIBRI_PEX_URL`` with production setup.
  * ``docker/entrypoint.py``: startup script that configures Kolibri based on ENV variables: 
@@ -211,8 +224,7 @@ The ``docker/`` directory contains the docker files and startup scripts needed f
       with this name. The ``KOLIBRI_LANG`` environment variable and the following
       other environment variables will be used in the process:
         
-        * ``KOLIBRI_PROVISIONDEVICE_PRESET``: defaults to ``formal``, with the
-          other options being ``nonformal`` and ``informal``
+        * ``KOLIBRI_PROVISIONDEVICE_PRESET``: defaults to ``formal``, with the other options being ``nonformal`` and ``informal``
         * ``KOLIBRI_PROVISIONDEVICE_SUPERUSERNAME``: default ``devowner``
         * ``KOLIBRI_PROVISIONDEVICE_SUPERUSERPASSWORD``: default ``admin123``
 
@@ -224,12 +236,12 @@ The ``docker/`` directory contains the docker files and startup scripts needed f
 
 Building a pex file
 ^^^^^^^^^^^^^^^^^^^
-When simply testing things out or pull requests, the easiest way to obtain a pex
-file is to get the link from the buildkite assets link that is present for every
-git branch and pull request. This is the approach we recommend in combination with
-the ``demoserver`` approach for running described in the next section. 
+When simply testing things out or reviewing a pull request, the easiest way to
+obtain a pex file is to get the link from the buildkite assets link that is present
+for every git branch and every pull request. This is the approach we recommend in
+combination with the ``demoserver`` approach for running described in the next section. 
 
-However, if you want to build and run a pex from the source code in your current
+However, if you want to build and run a pex from the Kolibri code in your current
 local source files without relying on the github and the buildkite integration,
 you can run the following commands to build a pex file in ``kolibribuild/``:
 
@@ -243,9 +255,8 @@ Run the the resulting pex using the ``demoserver`` approach described below.
 
 Starting a demoserver
 ^^^^^^^^^^^^^^^^^^^^^
-You can start a Kolibri instance running any pex file by setting by setting the
-appropriate environment variables in your local copy of `env.list` then running
-the commands:
+You can start a Kolibri instance running any pex file by setting the appropriate
+environment variables in your local copy of `env.list` then running the commands:
 
 .. code-block:: bash
 
@@ -255,15 +266,14 @@ the commands:
 The choice of pex file can be controlled by setting environment variables in the
 file ``env.list``:
 
- * Set ``KOLIBRI_PEX_URL`` to string ``default`` to run latest pex from Kolibri download page
+ * Set ``KOLIBRI_PEX_URL`` to string ``default`` to run the latest pex from Kolibri download page
  * Set ``KOLIBRI_PEX_URL`` to something like ``http://host.org/nameof.pex``
  * Set ``KOLIBRIBUILD_PEX_PATH`` to something like ``/kolibribuild/nameof.pex``
 
 
-
  
- Staring a devserver
- ^^^^^^^^^^^^^^^^^^^
+ Starting a devserver
+ ^^^^^^^^^^^^^^^^^^^^
  Use these commands to start the Kolibri devserver running inside a container:
 
  .. code-block:: bash
@@ -273,17 +283,6 @@ file ``env.list``:
 
 
 
-Production
-~~~~~~~~~~
-
-In production, content is served through CherryPy. Static assets must be pre-built:
-
-.. code-block:: bash
-
-  yarn run build
-  kolibri start
-
-Now you should be able to access the server at ``http://127.0.0.1:8080/``.
 
 
 Additional Recommended Setup
@@ -324,6 +323,8 @@ We use `pre-commit <http://pre-commit.com/>`_ to help ensure consistent, clean c
 .. code-block:: bash
 
   pre-commit install
+
+
 
 
 .. _workflow_intro:
