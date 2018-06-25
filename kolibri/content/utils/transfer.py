@@ -130,9 +130,6 @@ class FileDownload(Transfer):
 
     def __init__(self, *args, **kwargs):
 
-        # Set block size to None, to always get the largest chunk available from the socket
-        kwargs["block_size"] = None
-
         # allow an existing requests.Session instance to be passed in, so it can be reused for speed
         if "session" in kwargs:
             self.session = kwargs.pop("session")
