@@ -61,19 +61,20 @@ class LoggerViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         model = self.queryset.model
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
         try:
-            lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
             instance = model.objects.get(id=self.kwargs[lookup_url_kwarg])
-            serializer = self.get_serializer(instance, data=request.data, partial=partial)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-
-            if getattr(instance, '_prefetched_objects_cache', None):
-                # If 'prefetch_related' has been applied to a queryset, we need to
-                # forcibly invalidate the prefetch cache on the instance.
-                instance._prefetched_objects_cache = {}
-        except:
+        except (ValueError, ObjectDoesNotExist):
             raise Http404
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
         return Response(request.data)
 
 class ContentSessionLogFilter(BaseLogFilter):
