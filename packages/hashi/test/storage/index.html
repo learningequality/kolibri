@@ -1,0 +1,28 @@
+<html>
+
+<body>
+    <script>
+        window.addEventListener("message", receiveMessage, false);
+
+        function receiveMessage(event)
+        {
+            // TODO: Check event.origin before handling.
+            var log = document.getElementById("message_log");
+            log.innerText += event.data + '\n';
+        }
+
+    </script>
+
+    <iframe id="embedding" src="embedded.html" sandbox="allow-scripts"></iframe>
+
+    <div id="messages">
+        <h3>Messages sent by iFrame:</h3>
+        <div id="message_log">
+
+
+        </div>
+    </div>
+
+</body>
+
+</html>

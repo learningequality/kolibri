@@ -1,0 +1,89 @@
+<html>
+
+<body>
+
+    <img height="1px" id="remoteimage" src="https://images.google.com/favicon.ico" />
+
+    <img height="1px" id="localimage" src="local.jpg" />
+
+    <img height="1px" id="dataimage" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAQAAABLCVATAAABJklEQVR4Ae3VPYrbUBRA4a+RJ1VSJswvGG8mhYsswRhtxT/YmNEuhtEiAmpcJjBJOQsYyyBMsF0qXcjDjNF7pAnJOd0tTqN3r/yLfPCsFfrsvUje+ao91RdvRfBGpX3Fzy6c4UKh0Ua6U+gJKLSJFgKa5FAjoE23W6hRWpp4UKeHNnIZgMzIS0rom1shXHqKDW3cgoHC2tq9PriyiQvl4JPjr8nBEIxjQo0MA8dguneHTN09VL7ySBfgsXtoCdYnoQpMu4cmZ0Oz7qEHcH8SmoOye6iWoe8QTH+4QWYb8/lHYGj/W+YjyOPe0YtLcGehUpm7Adfq2BV5coWQa9/TlnYcLG2uTj8jtUdTM6VtxBlJNGCXnGn+1PFfCegl/Y4aKz1/Lf/5CShXgVKz4A8DAAAAAElFTkSuQmCC" />
+
+    <form id="badform" action="https://test.com">
+
+    </form>
+
+    <h3>Any issues will show up below in all caps:</h3>
+
+    <div id="scripts"><b>INLINE SCRIPTS FAILED TO EXECUTE</b></div>
+
+    <div id="styles"></div>
+    <div id="nostyles"><b>INLINE STYLES DO NOT WORK!</b></div>
+
+    <div id="reading"><b>READING STATIC RESOURCE FAILED!</b></div>
+
+    <div id="goodimage"></div>
+    <div id="badimage"></div>
+    <div id="datauriimage"></div>
+
+    <div id="formresults"></div>
+
+    <p>If the following iframe is empty, then nested IFrames are broken:</p>
+    <iframe id="embedding"></iframe>
+
+    <style>
+        #styles:after {
+            content: "Inline styles are working!"; 
+        }
+        #nostyles {
+            display: none;
+        }
+    </style>
+
+    <script>
+        document.getElementById("scripts").innerText = "Inline scripts executed successfully";
+    </script>
+
+    <script>
+        var req = new XMLHttpRequest();
+        req.onreadystatechange = function(){
+            if(this.readyState == 4 && this.responseText == "Success\n") {
+                document.getElementById("reading").innerText = "Successfully read from static resource";
+            }
+        }
+        req.open('GET', 'data.txt', true);
+        req.send();
+    </script>
+
+    <script>
+        document.getElementById("localimage").onload = function() {
+            document.getElementById("goodimage").innerText = "Local image loaded successfully";
+        }
+        document.getElementById("localimage").onerror = function() {
+            document.getElementById("goodimage").innerHTML = "<b>LOCAL IMAGE FAILED TO LOAD</b>";
+        }
+        document.getElementById("remoteimage").onload = function() {
+            document.getElementById("badimage").innerHTML = "<b>REMOTE IMAGE LOADED (SHOULD NOT HAVE!)</b>";
+        }
+        document.getElementById("remoteimage").onerror = function() {
+            document.getElementById("badimage").innerText = "Remote image failed to load (as intended)";
+        }
+        document.getElementById("dataimage").onload = function() {
+            document.getElementById("datauriimage").innerText = "Data URI image loaded successfully";
+        }
+        document.getElementById("dataimage").onerror = function() {
+            document.getElementById("datauriimage").innerHTML = "<b>DATA URI IMAGE DID NOT LOAD!</b>";
+        }
+    </script>
+
+    <script>
+        document.getElementById("formresults").innerText = "If you're still seeing this page, the form failed to submit (as intended)";
+        document.getElementById("badform").submit();
+    </script>
+
+    <script>
+        document.getElementById("embedding").src = "embedded.html";
+    </script>
+
+</body>
+
+</html>

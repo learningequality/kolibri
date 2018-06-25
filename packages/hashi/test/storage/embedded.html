@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <script src="../../src/storage.js"></script>
+    </head>
+    <body>
+        <div id="set-results">
+            SET TEST NOT YET RUN
+        </div>
+        <div id="clear-results">
+
+        </div>
+        <script>
+            var storage = getLocalStorage();
+            storage.setItem("Hello", "World");
+            var set_results = document.getElementById("set-results");
+            var value = storage.getItem("Hello");
+            if (value === "World") {
+                set_results.innerText = "WRITE TEST SUCCESSFUL";
+            } else {
+                set_results.innerText = "WRITE TEST FAILED, VALUE IS: " + value;
+            }
+            if (storage.length != 1) {
+                set_results.innerText += "\nINCORRECT LENGTH: " + storage.length;
+            } else {
+                set_results.innerText += "\nCORRECT LENGTH: " + storage.length;
+            }
+            storage.setItem("Foo", "Bar");
+            if (storage.length != 2) {
+                set_results.innerText += "\nINCORRECT LENGTH AFTER SECOND SET: " + storage.length;
+            }
+
+            storage.removeItem("Foo");
+            if (storage.length == 1) {
+                set_results.innerText += "\nREMOVE TEST SUCCEEDED";
+            } else {
+                set_results.innerText += "\nINCORRECT LENGTH AFTER REMOVE: " + storage.length;
+            }
+
+            storage.clear();
+            if (storage.length == 0) {
+                set_results.innerText += "\nCLEAR SUCCEEDED";
+            } else {
+                set_results.innerText += "\nCLEAR FAILED.";
+            }
+
+        </script>
+    </body>
+</html>
