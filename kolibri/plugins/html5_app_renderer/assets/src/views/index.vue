@@ -78,6 +78,7 @@
     text-align: center
     height: 500px
     overflow-x: auto
+    overflow-y: hidden
 
   .iframe
     height: 100%

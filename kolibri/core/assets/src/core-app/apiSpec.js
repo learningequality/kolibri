@@ -88,6 +88,7 @@ import textTruncator from '../views/text-truncator';
 import kLinearLoader from '../views/k-linear-loader';
 import kCircularLoader from '../views/k-circular-loader';
 
+import multiPaneLayout from '../views/multi-pane-layout';
 import * as client from './client';
 import urls from './urls';
 
@@ -156,6 +157,7 @@ export default {
       textTruncator,
       kLinearLoader,
       kCircularLoader,
+      multiPaneLayout,
     },
     router,
     mixins: {

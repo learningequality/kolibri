@@ -2,7 +2,7 @@
 
   <!-- TODO if not breaking up into child components, use single .vue file -->
 
-  <div class="description-area">
+  <div>
     <!-- IDEA -a11y- add an invisible title entry in the dl below? -->
     <!-- h1's are technically not allowed within a dl -->
     <h1 class="header primary-data">
@@ -142,10 +142,6 @@
 
   $standard-data-spacing = 8px
 
-  .description-area
-    // safeguard against margin collapsing
-    overflow: auto
-
   .header
     margin-top: 0
     font-size: 28px // bumping half an increment
@@ -169,8 +165,8 @@
     &:not(.description)
       margin-left: 8px
 
-  .top-line
-    display: table
-    width: 100%
+  .description
+    >>>p
+      margin: 0
 
 </style>
