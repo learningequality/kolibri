@@ -174,21 +174,31 @@ def get_topic_and_content_progress_fraction(node, user):
 
 
 def get_topic_and_content_progress_fractions(nodes, user):
-    leaf_ids = nodes.get_descendants(include_self=True).order_by().exclude(
-        kind=content_kinds.TOPIC).values_list("content_id", flat=True)
+    leaf_ids = nodes.get_descendants(include_self=True) \
+        .order_by() \
+        .exclude(available=False) \
+        .exclude(kind=content_kinds.TOPIC) \
+        .values_list('content_id', flat=True)
 
-    summary_logs = get_summary_logs(leaf_ids, user)
+    leaf_node_logs = get_summary_logs(leaf_ids, user)
 
-    overall_progress = {log['content_id']: round(log['progress'], 4) for log in summary_logs.values('content_id', 'progress')}
+    overall_progress = {}
+
+    for log in leaf_node_logs.values('content_id', 'progress'):
+        overall_progress[log['content_id']] = round(log['progress'], 4)
 
     for node in nodes:
         if node.kind == content_kinds.TOPIC:
-            leaf_ids = node.get_descendants(include_self=True).order_by().exclude(
-                kind=content_kinds.TOPIC).values_list("content_id", flat=True)
+            topic_leaf_ids = node.get_descendants(include_self=True) \
+                .order_by() \
+                .exclude(available=False) \
+                .exclude(kind=content_kinds.TOPIC) \
+                .values_list('content_id', flat=True)
+
             overall_progress[node.content_id] = round(
-                sum(overall_progress.get(leaf_id, 0) for leaf_id in leaf_ids) / len(leaf_ids),
+                sum(overall_progress.get(leaf_id, 0) for leaf_id in topic_leaf_ids) / len(topic_leaf_ids),
                 4
-            ) if leaf_ids else 0.0
+            ) if topic_leaf_ids else 0.0
 
     return overall_progress
 
