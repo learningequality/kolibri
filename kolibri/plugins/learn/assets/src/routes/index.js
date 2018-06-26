@@ -67,7 +67,7 @@ export default [
     name: PageNames.TOPICS_TOPIC,
     path: '/topics/t/:id',
     handler: toRoute => {
-      showTopicsTopic(store, toRoute.params.id);
+      showTopicsTopic(store, { id: toRoute.params.id });
     },
   },
   {

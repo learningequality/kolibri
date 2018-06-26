@@ -131,7 +131,10 @@ export function showLearn(store) {
 
       featuredChannels.forEach(channel => {
         _getFeatured(state, channel.id).only(samePageCheckGenerator(store), featured => {
-          store.dispatch('SET_FEATURED_CHANNEL_CONTENTS', channel.id, _mapContentSet(featured));
+          store.dispatch('SET_FEATURED_CHANNEL_CONTENTS', {
+            channelId: channel.id,
+            contents: _mapContentSet(featured),
+          });
         });
       });
 

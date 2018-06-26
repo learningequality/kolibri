@@ -190,7 +190,11 @@
             correct: answer.correct,
             timestamp: now(),
           });
-          return this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
+          return this.setAndSaveCurrentExamAttemptLog({
+            contentId: this.content.id,
+            itemId: this.itemId,
+            currentAttemptLog: attempt,
+          });
         }
         return Promise.resolve();
       },
