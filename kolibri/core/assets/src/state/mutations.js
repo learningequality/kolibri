@@ -1,5 +1,3 @@
-import { baseSessionState } from './initialState';
-
 export default {
   CORE_SET_SESSION(state, value) {
     Object.assign(state.core.session, value);
@@ -16,9 +14,6 @@ export default {
   },
   CORE_SET_SIGN_IN_BUSY(state, isBusy) {
     state.core.signInBusy = isBusy;
-  },
-  CORE_CLEAR_SESSION(state) {
-    Object.assign(state.core.session, baseSessionState);
   },
   CORE_SET_PAGE_LOADING(state, value) {
     const update = { loading: value };
@@ -64,10 +59,6 @@ export default {
     state.core.logging.session.time_spent = sessionTime;
     state.core.logging.summary.time_spent = summaryTime;
   },
-  SET_LOGGING_PENDING(state, summaryPending, sessionPending) {
-    state.core.logging.summary.pending_create = summaryPending;
-    state.core.logging.session.pending_create = sessionPending;
-  },
   SET_LOGGING_THRESHOLD_CHECKS(state, progress, timeSpent) {
     state.core.logging.session.total_time_at_last_save = timeSpent;
     state.core.logging.session.progress_at_last_save = progress;
@@ -81,9 +72,6 @@ export default {
   },
   SET_LOGGING_ATTEMPT_STATE(state, attemptState) {
     state.core.logging.attempt = attemptState;
-  },
-  SET_LOGGING_ATTEMPT_STARTTIME(state, starttime) {
-    state.core.logging.attempt.start_timestamp = starttime;
   },
   UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY(state, action) {
     state.core.logging.attempt.interaction_history.push(action);
