@@ -192,10 +192,9 @@
         return this.sessionProgress;
       },
       showRecommended() {
-        if (this.recommended && this.pageMode === PageModes.RECOMMENDED) {
-          return true;
-        }
-        return false;
+        return (
+          this.recommended && this.recommended.length && this.pageMode === PageModes.RECOMMENDED
+        );
       },
       downloadableFiles() {
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
