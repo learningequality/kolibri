@@ -221,7 +221,7 @@ dockerdemoserver: writeversion
 	echo "Check http://localhost:8080 you should have a demoserver running there."
 
 
-dockerdeveserver: writeversion
+dockerdevserver: writeversion
 	# Build the kolibridev image: contains source code + pip install -e of kolibri
 	docker image build \
 			-f docker/dev.dockerfile \
@@ -235,5 +235,7 @@ dockerdeveserver: writeversion
 			yarn run devserver
 	echo "Check http://localhost:8000  you should have devserver running there."
 
+# Optionally add --env KOLIBRI_PROVISIONDEVICE_FACILITY="Dev Server" to skip setup wizard
+
 # TODO: figure out how to add source code as "volume" so can live-edit,
-# this didnt' work: `-v $$PWD:/kolibri` maybe -v $$PWD/.:/kolibri ??
+# 		  e.g. -v $$PWD/kolibri:/kolibri/kolibri ??

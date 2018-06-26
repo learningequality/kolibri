@@ -211,7 +211,7 @@ The ``docker/`` directory contains the docker files and startup scripts needed f
  * ``docker/buildkite.dockerfile``: used as part of the automated build process for every commit and pull request.
  * ``docker/build.dockerfile``: used to generated .whl and .pex files in kolibribuild
  * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies (image tag ``leaningequality:kolibirbase``).
- * ``docker/dev.dockerfile``: container with full development setup, running deveserver.
+ * ``docker/dev.dockerfile``: container with full development setup, running devserver.
  * ``docker/demoserver.dockerfile``: runs the pex from ``KOLIBRI_PEX_URL`` with production setup.
  * ``docker/entrypoint.py``: startup script that configures Kolibri based on ENV variables: 
  
