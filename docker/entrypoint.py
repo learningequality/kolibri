@@ -3,8 +3,8 @@ This script is the first thing that runs when a Kolibri container starts and
 receives as args the Kolibri command CMD, e.g., ['kolibri', 'start', '--foreground']
 The purpose of this script is to perform optional 'setup tasks' before starting Kolibri.
 The following environment variables are used for setup steps:
- - KOLIBRI_PEX_URL set to 'default' or something like http://host.org/nameof.pex 
- - DOCKERMNT_PEX_PATH to something like ``/docker/mnt/nameof.pex``
+ - set KOLIBRI_PEX_URL to 'default' or something like http://host.org/nameof.pex 
+ - set DOCKERMNT_PEX_PATH to ``/docker/mnt/nameof.pex`` will run the from ``./docker/mnt/``
  - KOLIBRI_PROVISIONDEVICE_FACILITY  if set, provision facility with this name
  - CHANNELS_TO_IMPORT if set, comma separated list of channel IDs to import
 """
