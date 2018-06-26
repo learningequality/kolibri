@@ -103,7 +103,7 @@
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
-          this.updateClass(this.classid, { name: this.name });
+          this.updateClass({ id: this.classid, updateData: { name: this.name } });
         } else {
           this.$refs.name.focus();
         }
