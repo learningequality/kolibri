@@ -292,6 +292,7 @@ class ContentNodeFilter(IdFilter):
                 return not contentnode.get_descendants() \
                     .exclude(kind=content_kinds.TOPIC) \
                     .exclude(coach_content=True) \
+                    .exclude(available=False) \
                     .exists()
             else:
                 return contentnode.coach_content
