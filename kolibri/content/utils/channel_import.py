@@ -343,6 +343,12 @@ class ChannelImport(object):
             # Check that the engine being used is sqlite
             can_use_attach = can_use_attach and self.destination.engine.name == "sqlite"
 
+        # if the table is not found in the source DB, we can't use the sqlite ATTACH method
+        try:
+            self.source.get_class(model)
+        except ClassNotFoundError:
+            can_use_attach = False
+
         if can_use_attach:
             return self.raw_attached_sqlite_table_import(model, row_mapper, table_mapper, unflushed_rows)
         else:
