@@ -1,6 +1,16 @@
 # 1. Set the default values
 
-KOLIBRI_USER="kolibri"
+if [ -f /etc/kolibri/username ]
+then
+  export KOLIBRI_USER=`cat /etc/kolibri/username`
+  if [ "$KOLIBRI_USER" = "" ]
+  then
+    export KOLIBRI_USER="kolibri"
+  fi
+else
+  export KOLIBRI_USER="kolibri"
+fi
+
 KOLIBRI_HOME="~/.kolibri"
 KOLIBRI_LISTEN_PORT="8080"
 KOLIBRI_COMMAND="kolibri"

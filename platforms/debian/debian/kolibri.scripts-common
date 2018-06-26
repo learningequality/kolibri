@@ -3,6 +3,8 @@
 # Thanks to the openldap debian package for this
 # method!
 
+# Uncomment to have debug output while for instance doing 'gdebi package.deb'
+KOLIBRI_DEB_DEBUG="YES"
 
 ###########################################
 # TRACEBACK & DEBUG
@@ -67,7 +69,7 @@ function traceback
 
 debug()
 {
-    if ! [ "$kolibri_DEB_DEBUG" = "" ]
+    if ! [ "$KOLIBRI_DEB_DEBUG" = "" ]
     then
         echo "$1"
     fi
@@ -101,7 +103,7 @@ default_user_conf() {
 #
 # Example environment vars to set (shell syntax)
 #
-# KOLIBRI_USER="kolibri"
+# KOLIBRI_USER="kolibri"  # Default is to use content of /etc/kolibri/username
 # KOLIBRI_HOME="~/.kolibri"
 # KOLIBRI_LISTEN_PORT="8080"
 # KOLIBRI_COMMAND="kolibri"
@@ -173,6 +175,10 @@ kolibri_get_config()
     db_get kolibri/init
     [ "$RET" = "true" ] && export ENABLE_INIT_D=true || export ENABLE_INIT_D=false
 
+    # Create user for kolibri if it doesn't exist
+    db_get kolibri/user
+    export KOLIBRI_USER="$RET"
+
 }
 
 
@@ -207,6 +213,16 @@ kolibri_debconf_ask()
     fi
     db_go || true
 
+
+    # Which user should run the script?
+    KOLIBRI_USER=""
+    while [ "$KOLIBRI_USER" = "" ]; do
+      db_input critical kolibri/user || true
+      db_go || true
+      db_get kolibri/user
+      export KOLIBRI_USER="$RET"
+    done
+
 }
 
 
@@ -218,24 +234,26 @@ kolibri_configure()
 
     if ! [ -e "/etc/kolibri/daemon.conf" ]
     then
-      default_user_conf > /etc/kolibri/daemon.conf
+        default_user_conf > /etc/kolibri/daemon.conf
     fi
 
-    # Fetch the $KOLIBRI_USER setting
-    . /etc/default/kolibri
+    # Fetch configuration settings
+    kolibri_get_config
+
+    if ! [ -e "/etc/kolibri/username" ]
+    then
+        echo -n "$KOLIBRI_USER" > /etc/kolibri/username
+    fi
 
     # This way of writing if statements with failing sub commands will work
     # while using errexit
     ( ! getent passwd "$KOLIBRI_USER" ) && {
         echo "Creating new user $KOLIBRI_USER"
         adduser --system --shell /bin/bash --home "/var/$KOLIBRI_USER" "$KOLIBRI_USER"
-    }    
+    }
 
     # Remove because we might re-register as systemd during an upgrade
     update-rc.d -f kolibri remove
-
-    # Fetch configuration settings
-    kolibri_get_config
 
     if $ENABLE_INIT_D
     then
@@ -254,7 +272,7 @@ kolibri_configure()
     fi
 
     add_state "after_postinst"
-    
+
 }
 
 # This is run at the beginning of kolibri_debconf_ask
@@ -268,24 +286,43 @@ kolibri_debconf_set_defaults()
     fi
 
     add_state "did_set_defaults"
-  
-    if [ "${args[0]}" = "configure" ]
+
+    # Ask for user name, default is "kolibri"
+    # First, test if the username is already seen. Otherwise, change it and
+    # mark it as unseen (changing a db value automatically marks it as seen)
+    db_fget kolibri/user seen
+    USER_SEEN="$RET"
+    if [ "$USER_SEEN" == "false" ]
     then
-        # Because of some strange bug in debconf, we always purge the notes
-        # separately -- and this cannot be done in kolibri_purge because then
-        # debconf will assume that the note should be displayed unconditionally
-        # without calling db_input
-        # Furthermore, the note contents may have changed
-        db_fset kolibri/manual-instructions seen false
-        db_fset kolibri/init-instructions seen false
+        DESKTOP_USER=`getent passwd | awk -F: '$3 >= 1000 && $3 < 2000 {print $1}`
+        # DESKTOP_USER=`getent passwd | cut -d: -f1,3 | egrep ':[0-9]{4}$' | cut -d: -f1 | head -1`
+        if ! [ "$DESKTOP_USER" == "" ]
+        then
+            # Set default to the user running the installation
+            db_set kolibri/user "$DESKTOP_USER"
+            db_fset kolibri/user seen false
+        fi
     fi
-    
+
+    # Because of some strange bug in debconf, we always purge the notes
+    # separately -- and this cannot be done in kolibri_purge because then
+    # debconf will assume that the note should be displayed unconditionally
+    # without calling db_input
+    # Furthermore, the note contents may have changed
+    db_fset kolibri/manual-instructions seen false
+    db_fset kolibri/init-instructions seen false
+
 }
 
 kolibri_preinst()
 {
     
-    # Only do this if install, abort-upgrade
+    # Initialize: Remove the states file.
+    # benjaoming: This seems to work, but uncommented for debugging
+    # https://github.com/learningequality/ka-lite-installers/issues/474
+    # rm_states
+
+    # Only do this if install or upgrade
     if [ "${args[0]}" = "install" ] ||
        [ "${args[0]}" = "upgrade" ]
     then
@@ -307,4 +344,10 @@ kolibri_prerm()
     # Removes .pyc files in the Kolibri directory
     # so that the Kolibri package can be completely removed later.
     py3clean -p kolibri
+}
+
+kolibri_purge()
+{
+    # Remove the username file such that a prompt will be shown at next install
+    rm -f /etc/kolibri/username
 }

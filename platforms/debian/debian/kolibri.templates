@@ -34,3 +34,13 @@ Description: Running Kolibri manually:
  Start Kolibri when the system boots:
  .
    sudo systemctl enable kolibri
+
+Template: kolibri/user
+Type: string
+Default: kolibri
+Description: Which user account should own the Kolibri server?
+ The default is to choose your preferred desktop user account, for instance
+ to ensure access to importing data from external USB devices.
+ .
+ Entering a username that doesn't exist will create a new system user with
+ home directory /var/<username>.
