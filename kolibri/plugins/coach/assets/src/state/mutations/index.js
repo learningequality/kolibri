@@ -1,18 +1,7 @@
 import Vue from 'kolibri.lib.vue';
-import * as lessonsMutations from './mutations/lessonsMutations';
+import * as lessonsMutations from './lessonsMutations';
 
-export const initialState = {
-  pageName: '',
-  pageState: {},
-  classId: null,
-  className: null,
-  classList: [],
-  classCoaches: [],
-  currentClassroom: {},
-  busy: false,
-};
-
-export const mutations = {
+export default {
   // coach-wide
   ...lessonsMutations,
   SET_PAGE_STATE(state, pageState) {
