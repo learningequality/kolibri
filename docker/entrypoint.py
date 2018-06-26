@@ -120,8 +120,7 @@ def create_facility(kolibri_cmd):
     """
     Create the facility so users don't have to go through setup wizard.
     We must use different appraoch based on Kolibri version:
-      - Kolibri versions in range [0, 0.6)    --> SKIP
-      - Kolibri versions in range [0.6, 0.9)  --> legacy_provisiondevice
+      - Kolibri versions in range [0, 0.9)    --> SKIP
       - Kolibri versions in range [0.9, +     --> provisiondevice
     """
     logging.info('Running create_facility')
