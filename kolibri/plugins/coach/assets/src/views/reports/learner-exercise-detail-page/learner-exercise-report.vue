@@ -80,7 +80,11 @@
     },
     computed: {
       answerState() {
-        if (this.currentInteraction && this.currentInteraction.type === 'answer') {
+        if (
+          !this.showCorrectAnswer &&
+          this.currentInteraction &&
+          this.currentInteraction.type === 'answer'
+        ) {
           return this.currentInteraction.answer;
         }
         return null;
