@@ -1,7 +1,10 @@
 <template>
 
   <multi-pane-layout>
-    <template slot="header">
+    <div
+      slot="header"
+      class="header"
+    >
       <metadata-area
         class="ib"
         :class="{left: workingResources}"
@@ -15,7 +18,7 @@
         :contentId="content.pk"
         @addresource="addToCache"
       />
-    </template>
+    </div>
 
     <question-list
       slot="aside"
@@ -104,6 +107,12 @@
 
 
 <style lang="stylus" scoped>
+
+  @require '~kolibri.styles.definitions'
+
+  .header
+    background-color: $core-bg-light
+    padding: 16px
 
   .select-options
     width: 20%

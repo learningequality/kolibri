@@ -1,6 +1,6 @@
 <template>
 
-  <section :class="{padding: isPerseusExercise}">
+  <section :class="{'content-area-perseus': isPerseusExercise}">
     <h2 v-if="isPerseusExercise" class="header">
       {{ header }}
     </h2>
@@ -65,17 +65,17 @@
 
 <style scoped lang="stylus">
 
-  .padding
-    padding-left: 8px // give same margin as question-list (16px)
+  @require '~kolibri.styles.definitions'
+
+  .content-area-perseus
+    padding: 16px
+    background-color: $core-bg-light
 
   .hof
     overflow-x: hidden // .solutionarea's negative margin oversteps
 
   .header
     margin: 0
-    margin-left: $perseus-padding
-    line-height: $header-height
-    vertical-align: middle
     font-size: 16px // same as question-list
 
 </style>
