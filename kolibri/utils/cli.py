@@ -16,6 +16,11 @@ from django.db.utils import DatabaseError  # noqa
 from docopt import docopt  # noqa
 
 import kolibri  # noqa
+from .debian_check import check_debian_user
+# Check if the current user is the kolibri user when running kolibri from .deb.
+# Putting it here because importing server module creates KOLIBRI_HOME directory.
+check_debian_user()
+
 from . import server  # noqa
 from .conf import OPTIONS  # noqa
 from .sanity_checks import check_content_directory_exists_and_writable  # noqa
