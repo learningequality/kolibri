@@ -164,8 +164,9 @@ class ContentNodeFilter(IdFilter):
         """
         Recommend items that are similar to this piece of content.
         """
-        return queryset.get(pk=value).get_siblings(
-            include_self=False).order_by("lft").exclude(kind=content_kinds.TOPIC)
+        recommendations = models.ContentNode.objects.get(pk=value).get_siblings(
+            include_self=False).exclude(kind=content_kinds.TOPIC)
+        return queryset & recommendations
 
     def filter_next_steps(self, queryset, name, value):
         """
