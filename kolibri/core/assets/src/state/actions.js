@@ -387,7 +387,10 @@ function saveLogs(store) {
   const sessionLog = store.state.core.logging.session;
 
   /* Reset values used for threshold checking */
-  store.dispatch('SET_LOGGING_THRESHOLD_CHECKS', sessionLog.progress, sessionLog.time_spent);
+  store.dispatch('SET_LOGGING_THRESHOLD_CHECKS', {
+    progress: sessionLog.progress,
+    timeSpent: sessionLog.time_spent,
+  });
 
   /* If a session model exists, save it with updated values */
   if (sessionLog.id) {
@@ -431,7 +434,7 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
   const originalProgress = summaryLog.progress;
 
   /* Update the logging state with new progress information */
-  store.dispatch('SET_LOGGING_PROGRESS', sessionProgress, summaryProgress);
+  store.dispatch('SET_LOGGING_PROGRESS', { sessionProgress, summaryProgress });
 
   /* Mark completion time if 100% progress reached
    * Also, increase totalProgress model to avoid a refetch from server
@@ -684,7 +687,7 @@ function updateAttemptLogInteractionHistory(store, interaction) {
   }
   store.dispatch('UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY', interaction);
   // Also update end timestamp on Mastery model.
-  store.dispatch('UPDATE_LOGGING_MASTERY', now());
+  store.dispatch('UPDATE_LOGGING_MASTERY', { currentTime: now() });
 }
 
 /**
@@ -715,7 +718,7 @@ function updateMasteryAttemptState(
   store,
   { currentTime, correct, complete, firstAttempt, hinted, answerState, simpleAnswer, error }
 ) {
-  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt, hinted, error);
+  store.dispatch('UPDATE_LOGGING_MASTERY', { currentTime, correct, firstAttempt, hinted, error });
   store.dispatch('UPDATE_LOGGING_ATTEMPT', {
     currentTime,
     correct,

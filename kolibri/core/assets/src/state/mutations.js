@@ -46,7 +46,7 @@ export default {
   SET_LOGGING_SESSION_STATE(state, sessionState) {
     state.core.logging.session = sessionState;
   },
-  SET_LOGGING_PROGRESS(state, sessionProgress, summaryProgress) {
+  SET_LOGGING_PROGRESS(state, { sessionProgress, summaryProgress }) {
     state.core.logging.session.progress = sessionProgress;
     state.core.logging.summary.progress = summaryProgress;
   },
@@ -59,7 +59,7 @@ export default {
     state.core.logging.session.time_spent = sessionTime;
     state.core.logging.summary.time_spent = summaryTime;
   },
-  SET_LOGGING_THRESHOLD_CHECKS(state, progress, timeSpent) {
+  SET_LOGGING_THRESHOLD_CHECKS(state, { progress, timeSpent }) {
     state.core.logging.session.total_time_at_last_save = timeSpent;
     state.core.logging.session.progress_at_last_save = progress;
   },
@@ -76,7 +76,7 @@ export default {
   UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY(state, action) {
     state.core.logging.attempt.interaction_history.push(action);
   },
-  UPDATE_LOGGING_MASTERY(state, currentTime, correct, firstAttempt, hinted, error) {
+  UPDATE_LOGGING_MASTERY(state, { currentTime, correct, firstAttempt, hinted, error }) {
     if (firstAttempt) {
       state.core.logging.mastery.totalattempts += 1;
       state.core.logging.mastery.pastattempts.unshift({ correct, hinted, error });
