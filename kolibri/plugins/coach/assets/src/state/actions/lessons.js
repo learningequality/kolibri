@@ -77,7 +77,8 @@ export function updateCurrentLesson(store, lessonId) {
   );
 }
 
-export function showLessonSummaryPage(store, classId, lessonId) {
+export function showLessonSummaryPage(store, params) {
+  const { classId, lessonId } = params;
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_STATE', {
     currentLesson: {},
@@ -188,7 +189,8 @@ function showResourceSelectionPage(
   );
 }
 
-export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
+export function showLessonResourceSelectionRootPage(store, params) {
+  const { classId, lessonId } = params;
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const channelContentList = getChannels(store.state).map(channel => {
     return {
@@ -210,7 +212,8 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
   );
 }
 
-export function showLessonResourceSelectionTopicPage(store, classId, lessonId, topicId) {
+export function showLessonResourceSelectionTopicPage(store, params) {
+  const { classId, lessonId, topicId } = params;
   // IDEA should probably have both selection pages set loading themselves
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const loadRequirements = [
@@ -279,7 +282,7 @@ function getResourceCache(store, resourceIds) {
   }
 }
 
-export function saveLessonResources(store, lessonId, resourceIds) {
+export function saveLessonResources(store, { lessonId, resourceIds }) {
   return getResourceCache(store, resourceIds).then(resourceCache => {
     const resources = resourceIds.map(resourceId => {
       const node = resourceCache[resourceId];
@@ -294,7 +297,8 @@ export function saveLessonResources(store, lessonId, resourceIds) {
   });
 }
 
-export function showLessonResourceContentPreview(store, classId, lessonId, contentId) {
+export function showLessonResourceContentPreview(store, params) {
+  const { classId, lessonId, contentId } = params;
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _prepLessonContentPreview(store, classId, lessonId, contentId).then(() => {
     store.dispatch('SET_TOOLBAR_ROUTE', {
@@ -304,7 +308,8 @@ export function showLessonResourceContentPreview(store, classId, lessonId, conte
   });
 }
 
-export function showLessonSelectionContentPreview(store, classId, lessonId, contentId) {
+export function showLessonSelectionContentPreview(store, params) {
+  const { classId, lessonId, contentId } = params;
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const pendingSelections = store.state.pageState.workingResources || [];
   return Promise.all([
@@ -367,7 +372,7 @@ export function setLessonsModal(store, modalName) {
   store.dispatch('SET_LESSONS_MODAL', modalName);
 }
 
-export function updateLessonStatus(store, lessonId, isActive) {
+export function updateLessonStatus(store, { lessonId, isActive }) {
   LessonResource.getModel(lessonId)
     .save({
       is_active: isActive,
@@ -393,7 +398,7 @@ export function updateLessonStatus(store, lessonId, isActive) {
     });
 }
 
-export function deleteLesson(store, lessonId, classId) {
+export function deleteLesson(store, { lessonId, classId }) {
   LessonResource.getModel(lessonId)
     .delete()
     ._promise.then(() => refreshClassLessons(store, classId))
@@ -419,7 +424,7 @@ export function deleteLesson(store, lessonId, classId) {
     });
 }
 
-export function copyLesson(store, payload, classroomName) {
+export function copyLesson(store, { payload, classroomName }) {
   LessonResource.createModel(payload)
     .save()
     ._promise.then(() => {
@@ -437,7 +442,7 @@ export function copyLesson(store, payload, classroomName) {
     });
 }
 
-export function updateLesson(store, lessonId, payload) {
+export function updateLesson(store, { lessonId, payload }) {
   return new Promise((resolve, reject) => {
     LessonResource.getModel(lessonId)
       .save(payload)
@@ -458,7 +463,7 @@ export function updateLesson(store, lessonId, payload) {
   });
 }
 
-export function createLesson(store, classId, payload) {
+export function createLesson(store, { classId, payload }) {
   return new Promise((resolve, reject) => {
     return LessonResource.createModel({
       ...payload,

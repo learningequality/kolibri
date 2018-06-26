@@ -42,7 +42,7 @@ export default [
       if (fromRoute.name !== null && toRoute.params.classId !== fromRoute.params.classId) {
         return redirectToLessonsList(toRoute.params.classId);
       } else {
-        return showLessonSummaryPage(store, toRoute.params.classId, toRoute.params.lessonId);
+        return showLessonSummaryPage(store, toRoute.params);
       }
     },
   },
@@ -50,12 +50,7 @@ export default [
     name: LessonsPageNames.RESOURCE_USER_SUMMARY,
     path: '/:classId/lessons/:lessonId/resource/:contentId',
     handler: toRoute => {
-      showLessonResourceUserSummaryPage(
-        store,
-        toRoute.params.classId,
-        toRoute.params.lessonId,
-        toRoute.params.contentId
-      );
+      showLessonResourceUserSummaryPage(store, toRoute.params);
     },
   },
   {
@@ -68,58 +63,35 @@ export default [
     path:
       '/:classId/lessons/:lessonId/resource/:contentId/user/:userId/:attemptLogIndex/:interactionIndex',
     handler: toRoute => {
-      showLessonResourceUserReportPage(
-        store,
-        toRoute.params.classId,
-        toRoute.params.lessonId,
-        toRoute.params.contentId,
-        toRoute.params.userId,
-        Number(toRoute.params.attemptLogIndex),
-        Number(toRoute.params.interactionIndex)
-      );
+      showLessonResourceUserReportPage(store, toRoute.params);
     },
   },
   {
     name: LessonsPageNames.SELECTION_ROOT,
     path: '/:classId/lessons/:lessonId/selection',
     handler: toRoute => {
-      showLessonResourceSelectionRootPage(store, toRoute.params.classId, toRoute.params.lessonId);
+      showLessonResourceSelectionRootPage(store, toRoute.params);
     },
   },
   {
     name: LessonsPageNames.SELECTION,
     path: '/:classId/lessons/:lessonId/selection/topic/:topicId',
     handler: toRoute => {
-      showLessonResourceSelectionTopicPage(
-        store,
-        toRoute.params.classId,
-        toRoute.params.lessonId,
-        toRoute.params.topicId
-      );
+      showLessonResourceSelectionTopicPage(store, toRoute.params);
     },
   },
   {
     name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
     path: '/:classId/lessons/:lessonId/selection/preview/:contentId',
     handler: toRoute => {
-      showLessonSelectionContentPreview(
-        store,
-        toRoute.params.classId,
-        toRoute.params.lessonId,
-        toRoute.params.contentId
-      );
+      showLessonSelectionContentPreview(store, toRoute.params);
     },
   },
   {
     name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
     path: '/:classId/lessons/:lessonId/resource/preview/:contentId',
     handler: toRoute => {
-      showLessonResourceContentPreview(
-        store,
-        toRoute.params.classId,
-        toRoute.params.lessonId,
-        toRoute.params.contentId
-      );
+      showLessonResourceContentPreview(store, toRoute.params);
     },
   },
 ];
