@@ -418,7 +418,10 @@ oriented data synchronization.
         this.checkWasAttempted = false;
       },
       callInitMasteryLog() {
-        this.initMasteryLog(this.masterySpacingTime, this.masteryModel);
+        this.initMasteryLog({
+          masterySpacingTime: this.masterySpacingTime,
+          masteryCriterion: this.masteryModel,
+        });
       },
       callCreateAttemptLog() {
         this.ready = false;
@@ -426,7 +429,7 @@ oriented data synchronization.
         this.ready = true;
       },
       updateExerciseProgressMethod() {
-        this.updateExerciseProgress(this.exerciseProgress);
+        this.updateExerciseProgress({ progressPercent: this.exerciseProgress });
         updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
       },
       sessionInitialized() {

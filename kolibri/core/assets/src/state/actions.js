@@ -46,7 +46,7 @@ const timeThreshold = 60; // Update logs if 60 seconds have passed since last up
  */
 
 function _contentSummaryLoggingState(data) {
-  const state = {
+  return {
     id: data.pk,
     start_timestamp: data.start_timestamp,
     completion_timestamp: data.completion_timestamp,
@@ -57,11 +57,10 @@ function _contentSummaryLoggingState(data) {
     time_spent_before_current_session: data.time_spent,
     progress_before_current_session: data.progress,
   };
-  return state;
 }
 
 function _contentSessionLoggingState(data) {
-  const state = {
+  return {
     id: data.pk,
     start_timestamp: data.start_timestamp,
     end_timestamp: data.end_timestamp,
@@ -71,12 +70,11 @@ function _contentSessionLoggingState(data) {
     progress: data.progress,
     progress_at_last_save: data.progress,
   };
-  return state;
 }
 
 function _contentSummaryModel(store) {
   const summaryLog = store.state.core.logging.summary;
-  const mapping = {
+  return {
     user: store.state.core.session.user_id,
     start_timestamp: summaryLog.start_timestamp,
     end_timestamp: summaryLog.end_timestamp,
@@ -85,7 +83,6 @@ function _contentSummaryModel(store) {
     time_spent: summaryLog.time_spent,
     extra_fields: summaryLog.extra_fields,
   };
-  return mapping;
 }
 
 function _contentSessionModel(store) {
@@ -160,13 +157,13 @@ function _channelListState(data) {
  * These methods are used to update client-side state
  */
 
-function handleError(store, errorString) {
+export function handleError(store, errorString) {
   store.dispatch('CORE_SET_ERROR', errorString);
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_TITLE', translator.$tr('errorPageTitle'));
 }
 
-function handleApiError(store, errorObject) {
+export function handleApiError(store, errorObject) {
   handleError(store, JSON.stringify(errorObject, null, '\t'));
 }
 
@@ -176,7 +173,7 @@ function handleApiError(store, errorObject) {
  * @param {object} store The store.
  * @param {object} sessionPayload The session payload.
  */
-function kolibriLogin(store, sessionPayload) {
+export function kolibriLogin(store, sessionPayload) {
   store.dispatch('CORE_SET_SIGN_IN_BUSY', true);
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
@@ -197,12 +194,12 @@ function kolibriLogin(store, sessionPayload) {
     });
 }
 
-function kolibriLogout() {
+export function kolibriLogout() {
   // Use the logout backend URL to initiate logout
   redirectBrowser(urls['kolibri:logout']());
 }
 
-function getCurrentSession(store, force = false) {
+export function getCurrentSession(store, force = false) {
   let sessionPromise;
   if (force) {
     sessionPromise = SessionResource.getModel('current').fetch({}, true)._promise;
@@ -220,7 +217,7 @@ function getCurrentSession(store, force = false) {
     });
 }
 
-function getFacilities(store) {
+export function getFacilities(store) {
   return FacilityResource.getCollection()
     .fetch()
     .then(facilities => {
@@ -228,7 +225,7 @@ function getFacilities(store) {
     });
 }
 
-function getFacilityConfig(store, facilityId = currentFacilityId(store.state)) {
+export function getFacilityConfig(store, facilityId = currentFacilityId(store.state)) {
   const currentFacility = facilities(store.state).find(facility => facility.id === facilityId);
   let datasetPromise;
   if (currentFacility && typeof currentFacility.dataset === 'object') {
@@ -254,7 +251,7 @@ function getFacilityConfig(store, facilityId = currentFacilityId(store.state)) {
  * Create models to store logging information
  * To be called on page load for content renderers
  */
-function initContentSession(store, channelId, contentId, contentKind) {
+export function initContentSession(store, { channelId, contentId, contentKind }) {
   // Always clear the logging state when we init the content session,
   // to avoid state pollution.
   store.dispatch('SET_EMPTY_LOGGING_STATE');
@@ -362,7 +359,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
   return Promise.all(promises);
 }
 
-function setChannelInfo(store) {
+export function setChannelInfo(store) {
   return ChannelResource.getCollection({ available: true })
     .fetch()
     .then(
@@ -381,7 +378,7 @@ function setChannelInfo(store) {
  * Do a PATCH to update existing logging models
  * Must be called after initContentSession
  */
-function saveLogs(store) {
+export function saveLogs(store) {
   /* Create aliases for logs */
   const summaryLog = store.state.core.logging.summary;
   const sessionLog = store.state.core.logging.session;
@@ -409,7 +406,7 @@ function saveLogs(store) {
   }
 }
 
-function fetchPoints(store) {
+export function fetchPoints(store) {
   if (isUserLoggedIn(store.state)) {
     const userProgressModel = UserProgressResource.getModel(currentUserId(store.state));
     userProgressModel.fetch().then(progress => {
@@ -471,7 +468,7 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
  * @param {float} progressPercent
  * @param {boolean} forceSave
  */
-function updateProgress(store, progressPercent, forceSave = false) {
+export function updateProgress(store, { progressPercent, forceSave = false }) {
   /* Create aliases for logs */
   const summaryLog = store.state.core.logging.summary;
   const sessionLog = store.state.core.logging.session;
@@ -490,7 +487,7 @@ function updateProgress(store, progressPercent, forceSave = false) {
 /**
 summary and session log progress update for exercise
 **/
-function updateExerciseProgress(store, progressPercent, forceSave = false) {
+export function updateExerciseProgress(store, { progressPercent, forceSave = false }) {
   /* Update the logging state with new progress information */
   progressPercent = progressPercent || 0;
   return _updateProgress(store, progressPercent, progressPercent, forceSave);
@@ -502,7 +499,7 @@ function updateExerciseProgress(store, progressPercent, forceSave = false) {
  * Must be called after initContentSession
  * @param {boolean} forceSave
  */
-function updateTimeSpent(store, forceSave = false) {
+export function updateTimeSpent(store, forceSave = false) {
   /* Create aliases for logs */
   const summaryLog = store.state.core.logging.summary;
   const sessionLog = store.state.core.logging.session;
@@ -530,7 +527,7 @@ function updateTimeSpent(store, forceSave = false) {
  * Start interval timer and set start time
  * @param {int} interval
  */
-function startTrackingProgress(store, interval = intervalTime) {
+export function startTrackingProgress(store, interval = intervalTime) {
   intervalTimer.startTimer(interval, () => {
     updateTimeSpent(store, false);
   });
@@ -543,7 +540,7 @@ function startTrackingProgress(store, interval = intervalTime) {
  * asynchronous outcomes should still be run based on whether the user is
  * still on the same page as when the action was first triggered.
  */
-function samePageCheckGenerator(store) {
+export function samePageCheckGenerator(store) {
   const pageId = store.state.core.pageSessionId;
   return () => store.state.core.pageSessionId === pageId;
 }
@@ -552,23 +549,23 @@ function samePageCheckGenerator(store) {
  * Stop interval timer and update latest times
  * Must be called after startTrackingProgress
  */
-function stopTrackingProgress(store) {
+export function stopTrackingProgress(store) {
   intervalTimer.stopTimer();
   updateTimeSpent(store, true);
 }
 
-function saveMasteryLog(store) {
+export function saveMasteryLog(store) {
   const masteryLogModel = MasteryLogResource.getModel(store.state.core.logging.mastery.id);
   return masteryLogModel.save(_masteryLogModel(store));
 }
 
-function saveAndStoreMasteryLog(store) {
+export function saveAndStoreMasteryLog(store) {
   return saveMasteryLog(store).only(samePageCheckGenerator(store), newMasteryLog => {
     store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
   });
 }
 
-function setMasteryLogComplete(store, completetime) {
+export function setMasteryLogComplete(store, completetime) {
   store.dispatch('SET_LOGGING_MASTERY_COMPLETE', completetime);
 }
 
@@ -598,7 +595,7 @@ function createMasteryLog(store, masteryLevel, masteryCriterion) {
     });
 }
 
-function createDummyMasteryLog(store) {
+export function createDummyMasteryLog(store) {
   /*
   Create a client side masterylog for anonymous user for tracking attempt-progress.
   This masterylog will never be saved in the database.
@@ -619,7 +616,7 @@ function createDummyMasteryLog(store) {
   store.dispatch('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
 }
 
-function saveAttemptLog(store) {
+export function saveAttemptLog(store) {
   const attemptLogModel = AttemptLogResource.findModel({
     item: store.state.core.logging.attempt.item,
   });
@@ -629,7 +626,7 @@ function saveAttemptLog(store) {
   return ConditionalPromise.resolve();
 }
 
-function saveAndStoreAttemptLog(store) {
+export function saveAndStoreAttemptLog(store) {
   const attemptLogId = store.state.core.logging.attempt.id;
   const attemptLogItem = store.state.core.logging.attempt.item;
   /*
@@ -649,7 +646,7 @@ function saveAndStoreAttemptLog(store) {
   });
 }
 
-function createAttemptLog(store, itemId) {
+export function createAttemptLog(store, itemId) {
   const user = isUserLoggedIn(store.state) ? currentUserId(store.state) : null;
   const attemptLogModel = AttemptLogResource.createModel({
     id: null,
@@ -673,7 +670,7 @@ function createAttemptLog(store, itemId) {
 
 const interactionHistoryProperties = ['type', 'correct', 'answer', 'timestamp'];
 
-function updateAttemptLogInteractionHistory(store, interaction) {
+export function updateAttemptLogInteractionHistory(store, interaction) {
   Object.keys(interaction).forEach(key => {
     if (interactionHistoryProperties.indexOf(key) === -1) {
       throw new TypeError(`${key} not allowed for interaction log`);
@@ -693,7 +690,7 @@ function updateAttemptLogInteractionHistory(store, interaction) {
 /**
  * Initialize assessment mastery log
  */
-function initMasteryLog(store, masterySpacingTime, masteryCriterion) {
+export function initMasteryLog(store, { masterySpacingTime, masteryCriterion }) {
   if (!store.state.core.logging.mastery.id) {
     // id has not been set on the masterylog state, so this is undefined.
     // Either way, we need to create a new masterylog, with a masterylevel of 1!
@@ -714,7 +711,7 @@ function initMasteryLog(store, masterySpacingTime, masteryCriterion) {
   return Promise.resolve();
 }
 
-function updateMasteryAttemptState(
+export function updateMasteryAttemptState(
   store,
   { currentTime, correct, complete, firstAttempt, hinted, answerState, simpleAnswer, error }
 ) {
@@ -731,41 +728,10 @@ function updateMasteryAttemptState(
   });
 }
 
-function createSnackbar(store, snackbarOptions) {
+export function createSnackbar(store, snackbarOptions) {
   store.dispatch('CORE_CREATE_SNACKBAR', snackbarOptions);
 }
-function clearSnackbar(store) {
+
+export function clearSnackbar(store) {
   store.dispatch('CORE_CLEAR_SNACKBAR');
 }
-
-export {
-  handleError,
-  handleApiError,
-  kolibriLogin,
-  kolibriLogout,
-  getCurrentSession,
-  getFacilities,
-  getFacilityConfig,
-  initContentSession,
-  setChannelInfo,
-  startTrackingProgress,
-  stopTrackingProgress,
-  updateTimeSpent,
-  updateProgress,
-  updateExerciseProgress,
-  saveLogs,
-  samePageCheckGenerator,
-  initMasteryLog,
-  saveMasteryLog,
-  saveAndStoreMasteryLog,
-  setMasteryLogComplete,
-  createDummyMasteryLog,
-  createAttemptLog,
-  saveAttemptLog,
-  saveAndStoreAttemptLog,
-  updateMasteryAttemptState,
-  updateAttemptLogInteractionHistory,
-  fetchPoints,
-  createSnackbar,
-  clearSnackbar,
-};

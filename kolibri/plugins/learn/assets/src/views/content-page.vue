@@ -226,10 +226,14 @@
         this.wasIncomplete = this.progress < 1;
       },
       initSession() {
-        return this.initSessionAction(this.channelId, this.contentId, this.content.kind);
+        return this.initSessionAction({
+          channelId: this.channelId,
+          contentId: this.contentId,
+          contentKind: this.content.kind,
+        });
       },
       updateProgress(progressPercent, forceSave = false) {
-        const summaryProgress = this.updateProgressAction(progressPercent, forceSave);
+        const summaryProgress = this.updateProgressAction({ progressPercent, forceSave });
         updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
       },
       markAsComplete() {
