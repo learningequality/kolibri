@@ -305,23 +305,8 @@ class ContentNodeFilter(IdFilter):
             if user.roles.exists() or user.is_superuser:  # must have coach role or higher
                 return queryset
 
-        # In all other cases, exclude leaf nodes that are coach content
-        queryset = queryset.exclude(coach_content=True)
-
-        # Also exclude topics that are 100% coach content
-        def node_only_has_coach_content(contentnode):
-            if (contentnode.kind == content_kinds.TOPIC):
-                return not contentnode.get_descendants() \
-                    .exclude(kind=content_kinds.TOPIC) \
-                    .exclude(coach_content=True) \
-                    .exclude(available=False) \
-                    .exists()
-            else:
-                return contentnode.coach_content
-
-        only_coach_content_node_ids = [node.id for node in queryset if node_only_has_coach_content(node)]
-
-        return queryset.exclude(id__in=only_coach_content_node_ids)
+        # In all other cases, exclude nodes that are coach content
+        return queryset.exclude(coach_content=True)
 
     def filter_in_lesson(self, queryset, name, value):
         """

@@ -3,6 +3,7 @@ import logging as logger
 import os
 
 from le_utils.constants import content_kinds
+from sqlalchemy import all_
 from sqlalchemy import and_
 from sqlalchemy import exists
 from sqlalchemy import func
@@ -195,6 +196,14 @@ def recurse_availability_up_tree(channel_id):
             )
         ).where(ContentNodeTable.c.id == child.c.parent_id)
 
+        coach_content_nodes = select([all_(child.c.coach_content)]).where(
+            and_(
+                child.c.available == True,  # noqa
+                child.c.level == level,
+                child.c.channel_id == channel_id,
+            )
+        ).where(ContentNodeTable.c.id == child.c.parent_id).as_scalar()
+
         logging.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
         # Only modify topic availability here
         connection.execute(ContentNodeTable.update().where(
@@ -202,6 +211,12 @@ def recurse_availability_up_tree(channel_id):
                 ContentNodeTable.c.level == level - 1,
                 ContentNodeTable.c.channel_id == channel_id,
                 ContentNodeTable.c.kind == content_kinds.TOPIC)).values(available=exists(available_nodes)))
+
+        connection.execute(ContentNodeTable.update().where(
+            and_(
+                ContentNodeTable.c.level == level - 1,
+                ContentNodeTable.c.channel_id == channel_id,
+                ContentNodeTable.c.kind == content_kinds.TOPIC)).where(exists(available_nodes)).values(coach_content=coach_content_nodes))
 
     # commit the transaction
     trans.commit()
