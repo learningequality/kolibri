@@ -351,6 +351,14 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": id})
         self.assertEqual(len(response.data), 2)
 
+    def test_contentnode_recommendations_does_not_error_for_unavailable_node(self):
+        node = content.ContentNode.objects.get(title="c2c2")
+        node.available = False
+        node.save()
+        id = node.id
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": id})
+        self.assertEqual(len(response.data), 2)
+
     def test_contentnode_allcontent(self):
         nodes = content.ContentNode.objects.exclude(kind=content_kinds.TOPIC).count()
         response = self.client.get(self._reverse_channel_url("contentnode-all-content"))
