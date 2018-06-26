@@ -17,8 +17,8 @@ export default function makeStore(options = {}) {
         mastery: {},
         summary: {},
       },
-    }
-  }
+    },
+  };
   const state = cloneDeep(initialState);
   Object.assign(state, coreState);
   state.pageState.content = {};
