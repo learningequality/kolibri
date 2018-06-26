@@ -48,6 +48,15 @@ def column_not_auto_integer_pk(column):
     return not (column.autoincrement == 'auto' and column.primary_key and column.type.python_type is int)
 
 
+def convert_to_sqlite_value(python_value):
+    if isinstance(python_value, bool):
+        return "1" if python_value else "0"
+    elif python_value is None:
+        return "null"
+    else:
+        return repr(python_value)
+
+
 class ChannelImport(object):
     """
     The ChannelImport class has two functions:
@@ -214,6 +223,7 @@ class ChannelImport(object):
 
     def raw_attached_sqlite_table_import(self, model, row_mapper, table_mapper, unflushed_rows):
 
+        source_table = self.source.get_table(model)
         dest_table = self.destination.get_table(model)
 
         # check the schema map and set up any fields to map to constant values
@@ -250,10 +260,14 @@ class ChannelImport(object):
         for col in dest_columns:
             if col in field_constants:
                 # insert the literal constant value, if we have one
-                source_vals.append(repr(field_constants[col]))
+                val = convert_to_sqlite_value(field_constants[col])
+            elif col in source_table.columns.keys():
+                # pull the value from the column on the source table if it exists
+                val = "source." + col
             else:
-                # otherwise, pull the value from the column on the source table
-                source_vals.append("source." + col)
+                # get the default value from the target model and use that, if the source table didn't have the field
+                val = convert_to_sqlite_value(model._meta.get_field(col).get_default())
+            source_vals.append(val)
 
         # build and execute a raw SQL query to transfer the data in one fell swoop
         query = """{operation} INTO {table} ({destcols}) SELECT {sourcevals} FROM sourcedb.{table} AS source""".format(
