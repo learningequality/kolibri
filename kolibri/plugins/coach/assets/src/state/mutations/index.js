@@ -19,9 +19,13 @@ export default {
   },
 
   // report
-  SET_REPORT_SORTING(state, sortColumn, sortOrder) {
+  SET_REPORT_SORTING(state, { sortColumn, sortOrder }) {
     Vue.set(state.pageState, 'sortColumn', sortColumn);
     Vue.set(state.pageState, 'sortOrder', sortOrder);
+  },
+  CLEAR_REPORT_SORTING(state) {
+    Vue.set(state.pageState, 'sortColumn', '');
+    Vue.set(state.pageState, 'sortOrder', '');
   },
   SET_REPORT_PROPERTIES(state, options) {
     Vue.set(state.pageState, 'channelId', options.channelId);

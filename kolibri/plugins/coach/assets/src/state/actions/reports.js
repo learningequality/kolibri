@@ -425,11 +425,11 @@ export function showExerciseDetailView(
 }
 
 function clearReportSorting(store) {
-  store.dispatch('SET_REPORT_SORTING');
+  store.dispatch('CLEAR_REPORT_SORTING');
 }
 
 export function setReportSorting(store, sortColumn, sortOrder) {
-  store.dispatch('SET_REPORT_SORTING', sortColumn, sortOrder);
+  store.dispatch('SET_REPORT_SORTING', { sortColumn, sortOrder });
 }
 
 export function showRecentItemsForChannel(store, classId, channelId) {
