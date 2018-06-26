@@ -1,4 +1,4 @@
-import { ContentNodeResource } from 'kolibri.resources';
+import { ContentNodeResource, ContentNodeSlimResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniqBy from 'lodash/uniqBy';
@@ -7,13 +7,13 @@ import { contentState, setAndCheckChannels } from './main';
 
 // User-agnostic recommendations
 function _getPopular() {
-  return ContentNodeResource.getCollection({ popular: 'true', by_role: true }).fetch();
+  return ContentNodeSlimResource.getCollection({ popular: 'true', by_role: true }).fetch();
 }
 
 // User-specific recommendations
 function _getNextSteps(store) {
   if (store.getters.isUserLoggedIn) {
-    return ContentNodeResource.getCollection({
+    return ContentNodeSlimResource.getCollection({
       next_steps: store.getters.currentUserId,
       by_role: true,
     }).fetch();
@@ -23,7 +23,7 @@ function _getNextSteps(store) {
 
 function _getResume(store) {
   if (store.getters.isUserLoggedIn) {
-    return ContentNodeResource.getCollection({
+    return ContentNodeSlimResource.getCollection({
       resume: store.getters.currentUserId,
       by_role: true,
     }).fetch();
