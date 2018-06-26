@@ -18,7 +18,7 @@ function assessmentMetaDataState(data) {
     randomize: false,
   };
   if (typeof data.assessmentmetadata === 'undefined') {
-    return blankState
+    return blankState;
   }
   // Data is from a serializer for a one to many key, so it will return an array of length 0 or 1
   const assessmentMetaData = data.assessmentmetadata[0];
