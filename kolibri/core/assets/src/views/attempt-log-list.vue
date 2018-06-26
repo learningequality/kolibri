@@ -97,6 +97,9 @@
 
   @require '~kolibri.styles.definitions'
 
+  .attempt-log-list
+    background-color: $core-bg-light
+
   .title
     display: inline-block
 

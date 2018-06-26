@@ -1,6 +1,6 @@
 <template>
 
-  <subpage-container>
+  <subpage-container :withSideMargin="false">
 
     <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
 

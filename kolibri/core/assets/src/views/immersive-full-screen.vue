@@ -12,8 +12,13 @@
         <p class="back">{{ backPageText }}</p>
       </router-link>
     </div>
-    <div class="page-body">
-      <slot></slot>
+    <div class="wrapper">
+      <div
+        class="page-body"
+        :style="{ padding: windowSize.breakpoint < 2 ? '16px' : '32px' }"
+      >
+        <slot></slot>
+      </div>
     </div>
   </div>
 
@@ -23,9 +28,11 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   export default {
     name: 'immersiveFullScreen',
+    mixins: [responsiveWindow],
     props: {
       backPageLink: {
         type: Object,
@@ -81,12 +88,15 @@
     margin: 0
 
   .page-body
-    width: 100%
+    max-width: 1000px
+    margin: auto
+
+  .wrapper
     position: absolute
-    margin-top:60px
-    top: 0
+    top: 60px
+    right: 0
     bottom: 0
+    left: 0
     overflow-y: auto
-    background-color: $core-bg-light
 
 </style>

@@ -1,23 +1,25 @@
 <template>
 
-  <div class="content-preview-page">
-    <metadata-area
-      class="top"
-      :class="{left: workingResources}"
-      :content="content"
-      :completionData="completionData"
-    />
-    <select-options
-      v-if="workingResources"
-      class="select-options"
-      :workingResources="workingResources"
-      :contentId="content.pk"
-      @addresource="addToCache"
-    />
+  <multi-pane-layout>
+    <template slot="header">
+      <metadata-area
+        class="ib"
+        :class="{left: workingResources}"
+        :content="content"
+        :completionData="completionData"
+      />
+      <select-options
+        v-if="workingResources"
+        class="select-options ib"
+        :workingResources="workingResources"
+        :contentId="content.pk"
+        @addresource="addToCache"
+      />
+    </template>
 
     <question-list
+      slot="aside"
       v-if="isPerseusExercise"
-      class="question-list bottom left"
       @select="selectedQuestionIndex = $event"
       :questions="questions"
       :questionLabel="questionLabel"
@@ -25,14 +27,13 @@
     />
 
     <content-area
-      class="content-area bottom"
-      :class="{right: isPerseusExercise}"
+      slot="main"
       :header="questionLabel(selectedQuestionIndex)"
       :selectedQuestion="selectedQuestion"
       :content="content"
       :isPerseusExercise="isPerseusExercise"
     />
-  </div>
+  </multi-pane-layout>
 
 </template>
 
@@ -40,6 +41,7 @@
 <script>
 
   import kButton from 'kolibri.coreVue.components.kButton';
+  import multiPaneLayout from 'kolibri.coreVue.components.multiPaneLayout';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
   import MetadataArea from './MetadataArea';
@@ -53,6 +55,7 @@
       MetadataArea,
       SelectOptions,
       kButton,
+      multiPaneLayout,
     },
     $trs: {
       questionLabel: 'Question { questionNumber, number }',
@@ -102,41 +105,15 @@
 
 <style lang="stylus" scoped>
 
-  $vertical-split = 30%
-  $horizontal-split = 25%
-
-  .content-preview-page
-    height: 100% // establish containing-blocks' height
-    position: relative // set the context for absolute elements within
-
   .select-options
-    max-width: 20%
-    position: absolute
-    // NOTE stylus specific - calc + variable interpolation
-    bottom: 'calc(100% - %s)' % 28px // should line up with header
-    margin-bottom: 0
-    right: 0
+    width: 20%
+    text-align: right
+    vertical-align: top
 
+  .ib
+    display: inline-block
 
-  .top
-    height: $horizontal-split
-    &.left
-      max-width: 80%
-
-  // went with this approach because of noscroll page. Not great on mobile
-  // might want to explore doing this with pure (original plan)
-  .bottom
-    position: absolute
-    bottom: 0
-    top: $horizontal-split
-    background-color: white
-    left: 0
-    right: 0
-
-    &.left
-      right: 100% - $vertical-split
-    &.right
-      margin-left: 8px
-      left: $vertical-split
+  .left
+    width: 80%
 
 </style>

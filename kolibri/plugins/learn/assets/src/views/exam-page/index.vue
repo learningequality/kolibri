@@ -5,67 +5,68 @@
     :backPageLink="backPageLink"
     :backPageText="$tr('backToExamList')"
   >
-    <template>
-      <div class="container">
-        <div class="exam-status-container">
-          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late" />
-          <h1 class="exam-title">{{ exam.title }}</h1>
-          <div class="exam-status">
-            <p class="questions-answered">
-              {{
-                $tr(
-                  'questionsAnswered',
-                  { numAnswered: questionsAnswered, numTotal: exam.question_count }
-                )
-              }}
-            </p>
-            <k-button @click="toggleModal" :text="$tr('submitExam')" :primary="true" />
-          </div>
+    <multi-pane-layout ref="multiPaneLayout">
+      <div class="exam-status-container" slot="header">
+        <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late" />
+        <h1 class="exam-title">{{ exam.title }}</h1>
+        <div class="exam-status">
+          <p class="questions-answered">
+            {{
+              $tr(
+                'questionsAnswered',
+                { numAnswered: questionsAnswered, numTotal: exam.question_count }
+              )
+            }}
+          </p>
+          <k-button @click="toggleModal" :text="$tr('submitExam')" :primary="true" />
         </div>
-        <div class="question-container">
-          <div class="outer-container">
-            <div class="answer-history-container column">
-              <answer-history
-                :questionNumber="questionNumber"
-                @goToQuestion="goToQuestion"
-              />
-            </div>
-            <div class="exercise-container column">
-              <content-renderer
-                ref="contentRenderer"
-                v-if="itemId"
-                :id="content.id"
-                :kind="content.kind"
-                :files="content.files"
-                :contentId="content.content_id"
-                :channelId="channelId"
-                :available="content.available"
-                :extraFields="content.extra_fields"
-                :itemId="itemId"
-                :assessment="true"
-                :allowHints="false"
-                :answerState="currentAttempt.answer"
-                @interaction="throttledSaveAnswer"
-              />
-              <ui-alert v-else :dismissible="false" type="error">
-                {{ $tr('noItemId') }}
-              </ui-alert>
-              <div class="question-navbutton-container">
-                <k-button
-                  :disabled="questionNumber===0"
-                  @click="goToQuestion(questionNumber - 1)"
-                  :text="$tr('previousQuestion')"
-                />
-                <k-button
-                  :disabled="questionNumber===exam.question_count-1"
-                  @click="goToQuestion(questionNumber + 1)"
-                  :text="$tr('nextQuestion')"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <div style="clear: both;"></div>
       </div>
+
+      <answer-history
+        slot="aside"
+        :questionNumber="questionNumber"
+        @goToQuestion="goToQuestion"
+      />
+
+      <div
+        slot="main"
+        class="question-container"
+      >
+        <content-renderer
+          ref="contentRenderer"
+          v-if="itemId"
+          :id="content.id"
+          :kind="content.kind"
+          :files="content.files"
+          :contentId="content.content_id"
+          :channelId="channelId"
+          :available="content.available"
+          :extraFields="content.extra_fields"
+          :itemId="itemId"
+          :assessment="true"
+          :allowHints="false"
+          :answerState="currentAttempt.answer"
+          @interaction="throttledSaveAnswer"
+        />
+        <ui-alert v-else :dismissible="false" type="error">
+          {{ $tr('noItemId') }}
+        </ui-alert>
+      </div>
+
+      <div class="question-navbutton-container" slot="footer">
+        <k-button
+          :disabled="questionNumber===0"
+          @click="goToQuestion(questionNumber - 1)"
+          :text="$tr('previousQuestion')"
+        />
+        <k-button
+          :disabled="questionNumber===exam.question_count-1"
+          @click="goToQuestion(questionNumber + 1)"
+          :text="$tr('nextQuestion')"
+        />
+      </div>
+
       <core-modal
         v-if="submitModalOpen"
         :title="$tr('submitExam')"
@@ -88,7 +89,7 @@
           />
         </div>
       </core-modal>
-    </template>
+    </multi-pane-layout>
   </immersive-full-screen>
 
 </template>
@@ -105,6 +106,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import multiPaneLayout from 'kolibri.coreVue.components.multiPaneLayout';
   import { setAndSaveCurrentExamAttemptLog, closeExam } from '../../state/actions/main';
   import { ClassesPageNames } from '../../constants';
   import answerHistory from './answer-history';
@@ -131,6 +133,7 @@
       answerHistory,
       coreModal,
       uiAlert,
+      multiPaneLayout,
     },
     data() {
       return {
@@ -212,6 +215,7 @@
               questionNumber,
             },
           });
+          this.$refs.multiPaneLayout.scrollMainToTop();
         });
       },
       submitExam() {
@@ -237,13 +241,8 @@
 
   @require '~kolibri.styles.definitions'
 
-  .container
-    width: 90%
-    margin: 30px auto
-    position: relative
-
   .exam-status-container
-    padding: 10px 25px
+    padding: 16px
     background: $core-bg-light
 
   .exam-status
@@ -251,7 +250,8 @@
     width: 50%
     max-width: 400px
     text-align: right
-    margin-top: 15px
+    button
+      margin: 0 0 0 8px
 
   .exam-icon
     position: relative
@@ -265,28 +265,12 @@
   .questions-answered
     display: inline-block
     position: relative
-    top: 2px
+    margin-top: 0
 
   .question-container
-    height: 100%
-    width: 100%
-    padding: 10px
     background: $core-bg-light
-
-  .outer-container > div
-    float: left
-
-  .answer-history-container
-    width: 25%
-    height: 100%
-    max-height: 500px
-    overflow-y: auto
-
-  .exercise-container
-    width: 75%
 
   .question-navbutton-container
     text-align: right
-    margin-right: 15px
 
 </style>
