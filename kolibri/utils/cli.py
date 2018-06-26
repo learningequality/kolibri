@@ -309,7 +309,7 @@ def stop():
         pid, __, __ = server.get_status()
         server.stop(pid=pid)
         stopped = True
-        logger.info("Kolibri server has successfully been stoppped.")
+        logger.info("Kolibri server has successfully been stopped.")
     except server.NotRunning as e:
         verbose_status = "{msg:s} ({code:d})".format(
             code=e.status_code,
