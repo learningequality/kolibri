@@ -66,30 +66,30 @@
           :text="$tr('nextQuestion')"
         />
       </div>
-
-      <core-modal
-        v-if="submitModalOpen"
-        :title="$tr('submitExam')"
-        @cancel="toggleModal"
-      >
-        <p>{{ $tr('areYouSure') }}</p>
-        <p v-if="questionsUnanswered">
-          {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
-        </p>
-        <div class="core-modal-buttons">
-          <k-button
-            :text="$tr('goBack')"
-            appearance="flat-button"
-            @click="toggleModal"
-          />
-          <k-button
-            :text="$tr('submitExam')"
-            @click="finishExam"
-            :primary="true"
-          />
-        </div>
-      </core-modal>
     </multi-pane-layout>
+
+    <core-modal
+      v-if="submitModalOpen"
+      :title="$tr('submitExam')"
+      @cancel="toggleModal"
+    >
+      <p>{{ $tr('areYouSure') }}</p>
+      <p v-if="questionsUnanswered">
+        {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
+      </p>
+      <div class="core-modal-buttons">
+        <k-button
+          :text="$tr('goBack')"
+          appearance="flat-button"
+          @click="toggleModal"
+        />
+        <k-button
+          :text="$tr('submitExam')"
+          @click="finishExam"
+          :primary="true"
+        />
+      </div>
+    </core-modal>
   </immersive-full-screen>
 
 </template>
