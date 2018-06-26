@@ -182,12 +182,8 @@
         return this._throttledSaveAnswer(...args);
       },
       saveAnswer() {
-        const answer = this.checkAnswer() || {
-          answerState: null,
-          simpleAnswer: '',
-          correct: 0,
-        };
-        if (!isEqual(answer.answerState, this.currentAttempt.answer)) {
+        const answer = this.checkAnswer();
+        if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
           const attempt = Object.assign({}, this.currentAttempt);
           attempt.answer = answer.answerState;
           attempt.simple_answer = answer.simpleAnswer;

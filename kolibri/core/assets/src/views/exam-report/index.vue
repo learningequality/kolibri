@@ -42,7 +42,7 @@
         :extraFields="exercise.extra_fields"
         :interactive="false"
         :assessment="true"
-        :answerState="currentInteraction"
+        :answerState="answerState"
         :showCorrectAnswer="showCorrectAnswer"
       />
     </div>
@@ -164,6 +164,12 @@
             .num_coach_contents;
           return { ...attempt, num_coach_contents };
         });
+      },
+      answerState() {
+        if (this.currentInteraction && this.currentInteraction.type === 'answer') {
+          return this.currentInteraction.answer;
+        }
+        return null;
       },
     },
     methods: {
