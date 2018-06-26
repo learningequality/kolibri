@@ -251,7 +251,7 @@
     max-width: 400px
     text-align: right
     button
-      margin: 0
+      margin: 0 0 0 8px
 
   .exam-icon
     position: relative

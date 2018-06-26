@@ -44,35 +44,12 @@
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import debounce from 'lodash/debounce';
 
   export default {
     name: 'multiPaneLayout',
     mixins: [responsiveWindow, responsiveElement],
-    data() {
-      return {
-        maxHeight: null,
-      };
-    },
-    watch: {
-      windowSize: {
-        handler() {
-          this.updateMaxHeight();
-        },
-        deep: true,
-      },
-      elSize: {
-        handler() {
-          this.updateMaxHeight();
-        },
-        deep: true,
-      },
-    },
-    methods: {
-      scrollMainToTop() {
-        this.$refs.main.scrollTop = 0;
-      },
-      updateMaxHeight: debounce(function() {
+    computed: {
+      maxHeight() {
         const APP_BAR_HEIGHT = this.windowSize.breakpoint < 2 ? 56 : 64;
         const PADDING = this.windowSize.breakpoint < 2 ? 16 : 32;
         const MARGIN = 16;
@@ -83,8 +60,13 @@
         if (this.$refs.footer) {
           maxHeight = maxHeight - this.$refs.footer.clientHeight;
         }
-        this.maxHeight = maxHeight;
-      }, 100),
+        return maxHeight;
+      },
+    },
+    methods: {
+      scrollMainToTop() {
+        this.$refs.main.scrollTop = 0;
+      },
     },
   };
 
