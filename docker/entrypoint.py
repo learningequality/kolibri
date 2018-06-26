@@ -81,7 +81,7 @@ def set_default_envs():
         envs['KOLIBRI_PEX_PATH'] = os.path.join(envs['KOLIBRI_HOME'], pex_name)
 
     # CASE B: Running the pex from the /docker/mnt volume
-    elif 'KOLIBRI_PEX_URL' not in envs and 'DOCKERMNT_PEX_PATH' in envs:
+    elif 'DOCKERMNT_PEX_PATH' in envs and 'KOLIBRI_PEX_URL' not in envs:
         pex_name = os.path.basename(envs['DOCKERMNT_PEX_PATH'])
         envs['DEPLOY_TYPE'] = 'pex'
         envs['KOLIBRI_PEX_PATH'] = os.path.join(envs['KOLIBRI_HOME'], pex_name)
@@ -208,7 +208,7 @@ def copy_pex_file_to_kolibrihome():
         pex_response = opener.open(request)
         with open(pex_path, 'wb') as pex_file:
             pex_file.write(pex_response.read())
-    elif 'KOLIBRI_PEX_URL' not in envs and 'DOCKERMNT_PEX_PATH' in envs:
+    elif 'DOCKERMNT_PEX_PATH' in envs and 'KOLIBRI_PEX_URL' not in envs:
         logging.info("Copying pex from {}".format(envs['DOCKERMNT_PEX_PATH']))
         with open(envs['DOCKERMNT_PEX_PATH'], 'rb') as dockermnt_pex:
             with open(pex_path, 'wb') as pex_file:
