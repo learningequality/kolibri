@@ -4,7 +4,7 @@ receives as args the Kolibri command CMD, e.g., ['kolibri', 'start', '--foregrou
 The purpose of this script is to perform optional 'setup tasks' before starting Kolibri.
 The following environment variables are used for setup steps:
  - KOLIBRI_PEX_URL set to 'default' or something like http://host.org/nameof.pex 
- - KOLIBRIBUILD_PEX_PATH to something like ``/kolibribuild/nameof.pex``
+ - DOCKERMNT_PEX_PATH to something like ``/docker/mnt/nameof.pex``
  - KOLIBRI_PROVISIONDEVICE_FACILITY  if set, provision facility with this name
  - CHANNELS_TO_IMPORT if set, comma separated list of channel IDs to import
 """
@@ -37,9 +37,9 @@ DEFAULT_KOLIBRI_PEX_URL = "https://learningequality.org/r/kolibri-pex-latest"
 # ENV VARIABLES
 ################################################################################
 # - KOLIBRI_PEX_URL set to 'default' or something like http://host.org/nameof.pex
-# - KOLIBRIBUILD_PEX_PATH`` to something like ``/kolibribuild/nameof.pex``
+# - DOCKERMNT_PEX_PATH`` to something like ``/docker/mnt/nameof.pex``
 # - DEPLOY_TYPE in ['pex', 'source']  This will be detemined automatically based
-#   on the presence of ENV vars KOLIBRI_PEX_URL and KOLIBRIBUILD_PEX_PATH.
+#   on the presence of ENV vars KOLIBRI_PEX_URL and DOCKERMNT_PEX_PATH.
 # - KOLIBRI_PROVISIONDEVICE_FACILITY  if set, provision facility with this name
 # - CHANNELS_TO_IMPORT if set, comma separated list of channel IDs to import
 DEFAULT_ENVS = {
@@ -66,12 +66,12 @@ def set_default_envs():
     # Logic to detemine DEPLOY_TYPE and KOLIBRI_PEX_PATH when using pex deploy
     ############################################################################
     # Check for edge case when both URL and BUILDPATH specified
-    if 'KOLIBRI_PEX_URL' in envs and 'KOLIBRIBUILD_PEX_PATH' in envs:
-        logging.warning('Using KOLIBRIBUILD_PEX_PATH and ignoring KOLIBRI_PEX_URL.')
+    if 'KOLIBRI_PEX_URL' in envs and 'DOCKERMNT_PEX_PATH' in envs:
+        logging.warning('Using DOCKERMNT_PEX_PATH and ignoring KOLIBRI_PEX_URL.')
         del envs['KOLIBRI_PEX_URL']
 
     # CASE A: Running the pex at KOLIBRI_PEX_URL
-    if 'KOLIBRI_PEX_URL' in envs and 'KOLIBRIBUILD_PEX_PATH' not in envs:
+    if 'KOLIBRI_PEX_URL' in envs and 'DOCKERMNT_PEX_PATH' not in envs:
         if envs['KOLIBRI_PEX_URL'] == 'default':
             envs['KOLIBRI_PEX_URL'] = DEFAULT_KOLIBRI_PEX_URL
             pex_name = 'kolibri-latest.pex'
@@ -80,9 +80,9 @@ def set_default_envs():
         envs['DEPLOY_TYPE'] = 'pex'
         envs['KOLIBRI_PEX_PATH'] = os.path.join(envs['KOLIBRI_HOME'], pex_name)
 
-    # CASE B: Running the pex from the /kolibribuild volume
-    elif 'KOLIBRI_PEX_URL' not in envs and 'KOLIBRIBUILD_PEX_PATH' in envs:
-        pex_name = os.path.basename(envs['KOLIBRIBUILD_PEX_PATH'])
+    # CASE B: Running the pex from the /docker/mnt volume
+    elif 'KOLIBRI_PEX_URL' not in envs and 'DOCKERMNT_PEX_PATH' in envs:
+        pex_name = os.path.basename(envs['DOCKERMNT_PEX_PATH'])
         envs['DEPLOY_TYPE'] = 'pex'
         envs['KOLIBRI_PEX_PATH'] = os.path.join(envs['KOLIBRI_HOME'], pex_name)
 
@@ -201,18 +201,18 @@ def copy_pex_file_to_kolibrihome():
     """
     envs = os.environ
     pex_path = envs['KOLIBRI_PEX_PATH']
-    if 'KOLIBRI_PEX_URL' in envs and 'KOLIBRIBUILD_PEX_PATH' not in envs:
+    if 'KOLIBRI_PEX_URL' in envs and 'DOCKERMNT_PEX_PATH' not in envs:
         logging.info("Downloading pex from {}".format(envs['KOLIBRI_PEX_URL']))
         request = Request(envs['KOLIBRI_PEX_URL'], headers={'User-Agent': 'Mozilla/5.0'})
         opener = build_opener(SmartRedirectHandler())
         pex_response = opener.open(request)
         with open(pex_path, 'wb') as pex_file:
             pex_file.write(pex_response.read())
-    elif 'KOLIBRI_PEX_URL' not in envs and 'KOLIBRIBUILD_PEX_PATH' in envs:
-        logging.info("Copying pex from {}".format(envs['KOLIBRIBUILD_PEX_PATH']))
-        with open(envs['KOLIBRIBUILD_PEX_PATH'], 'rb') as kolibribuild_pex:
+    elif 'KOLIBRI_PEX_URL' not in envs and 'DOCKERMNT_PEX_PATH' in envs:
+        logging.info("Copying pex from {}".format(envs['DOCKERMNT_PEX_PATH']))
+        with open(envs['DOCKERMNT_PEX_PATH'], 'rb') as dockermnt_pex:
             with open(pex_path, 'wb') as pex_file:
-                pex_file.write(kolibribuild_pex.read())
+                pex_file.write(dockermnt_pex.read())
     logging.info("Pex file saved to {}".format(pex_path))
 
 

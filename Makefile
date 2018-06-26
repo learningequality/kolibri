@@ -197,9 +197,9 @@ dockerbuild: writeversion
 	docker image build \
 			-f docker/build.dockerfile \
 			-t "learningequality/kolibribuild" .
-	# Run the container to produce the pex et al in /kolibribuild/
+	# Run the container to produce the pex et al in /docker/mnt/
 	docker run --init \
-			-v $$PWD/kolibribuild:/kolibribuild \
+			-v $$PWD/docker/mnt:/docker/mnt \
 			"learningequality/kolibribuild"
 
 dockerdemoserver: writeversion
@@ -210,9 +210,9 @@ dockerdemoserver: writeversion
 	# Run the container using one of the following options:
 	#  --env KOLIBRI_PEX_URL set to URL for a pex file from release or pull request
 	#  --env KOLIBRI_PEX_URL="default" will run leq.org/r/kolibri-pex-latest
-	#  --env KOLIBRIBUILD_PEX_PATH (e.g. /kolibribuild/kolibri-vX.Y.Z.pex)
+	#  --env DOCKERMNT_PEX_PATH (e.g. /docker/mnt/kolibri-vX.Y.Z.pex)
 	docker run --init \
-			-v $$PWD/kolibribuild:/kolibribuild \
+			-v $$PWD/docker/mnt:/docker/mnt \
 			-p 8080:8080 \
 			--env-file ./env.list \
 			--env KOLIBRI_PEX_URL="default" \
@@ -227,7 +227,7 @@ dockerdevserver: writeversion
 			-f docker/dev.dockerfile \
 			-t "learningequality/kolibridev" .
 	docker run --init \
-			-v $$PWD/kolibribuild:/kolibribuild \
+			-v $$PWD/docker/mnt:/docker/mnt \
 			-p 8000:8000 \
 			-p 3000:3000 \
 			--env-file ./env.list \

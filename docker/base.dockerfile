@@ -33,7 +33,8 @@ COPY . /kolibri
 # COPY requirements/package.json /kolibri/requirements/package.json
 
 
-VOLUME /kolibribuild  # store `pex` and `whl` files
+# A volume used to share `pex`/`whl` files and fixtures with docker host
+VOLUME /docker/mnt
 
 # do the time-consuming base install commands
 RUN cd /kolibri \

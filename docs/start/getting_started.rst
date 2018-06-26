@@ -209,7 +209,7 @@ all the necessary prerequisites for running Kolibri.
 
 The ``docker/`` directory contains the docker files and startup scripts needed for various tasks.
  * ``docker/buildkite.dockerfile``: used as part of the automated build process for every commit and pull request.
- * ``docker/build.dockerfile``: used to generated .whl and .pex files in kolibribuild
+ * ``docker/build.dockerfile``: build .whl and .pex files and put in ``/docker/mnt/``
  * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies (image tag ``leaningequality:kolibirbase``).
  * ``docker/dev.dockerfile``: container with full development setup, running devserver.
  * ``docker/demoserver.dockerfile``: runs the pex from ``KOLIBRI_PEX_URL`` with production setup.
@@ -217,7 +217,7 @@ The ``docker/`` directory contains the docker files and startup scripts needed f
  
     * Set ``KOLIBRI_PEX_URL`` to string ``default`` to run latest pex from Kolibri download page
     * Set ``KOLIBRI_PEX_URL`` to something like ``http://host.org/nameof.pex``
-    * Set ``KOLIBRIBUILD_PEX_PATH`` to something like ``/kolibribuild/nameof.pex``
+    * Set ``DOCKERMNT_PEX_PATH`` to something like ``/docker/mnt/nameof.pex``
     * ``KOLIBRI_RUN_MODE``: set in Dockerfile
     * ``KOLIBRI_PROVISIONDEVICE_FACILITY``: if this environment variable is set
       the entrypoint script will run the provision device an setup a facility
@@ -243,7 +243,7 @@ combination with the ``demoserver`` approach for running described in the next s
 
 However, if you want to build and run a pex from the Kolibri code in your current
 local source files without relying on the github and the buildkite integration,
-you can run the following commands to build a pex file in ``kolibribuild/``:
+you can run the following commands to build a pex file in ``docker/mnt/``:
 
 .. code-block:: bash
 
@@ -268,7 +268,7 @@ file ``env.list``:
 
  * Set ``KOLIBRI_PEX_URL`` to string ``default`` to run the latest pex from Kolibri download page
  * Set ``KOLIBRI_PEX_URL`` to something like ``http://host.org/nameof.pex``
- * Set ``KOLIBRIBUILD_PEX_PATH`` to something like ``/kolibribuild/nameof.pex``
+ * Set ``DOCKERMNT_PEX_PATH`` to something like ``/docker/mnt/nameof.pex``
 
 
  
