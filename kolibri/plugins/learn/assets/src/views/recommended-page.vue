@@ -91,8 +91,8 @@
 
 <script>
 
+  import { mapState, mapGetters } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import { getChannels } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../constants';
   import contentCardGroupCarousel from './content-card-group-carousel';
   import contentCardGroupGrid from './content-card-group-grid';
@@ -117,6 +117,15 @@
     },
     mixins: [responsiveWindow],
     computed: {
+      ...mapGetters({
+        channels: 'getChannels',
+      }),
+      ...mapState({
+        nextSteps: state => state.pageState.nextSteps,
+        popular: state => state.pageState.popular,
+        resume: state => state.pageState.resume,
+        featured: state => state.pageState.featured,
+      }),
       isMobile() {
         return this.windowSize.breakpoint <= 1;
       },
@@ -169,15 +178,6 @@
       },
       getChannelTitle(channel_id) {
         return this.channels.find(channel => channel.id === channel_id).title;
-      },
-    },
-    vuex: {
-      getters: {
-        channels: getChannels,
-        nextSteps: state => state.pageState.nextSteps,
-        popular: state => state.pageState.popular,
-        resume: state => state.pageState.resume,
-        featured: state => state.pageState.featured,
       },
     },
   };

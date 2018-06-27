@@ -44,12 +44,12 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kModal from 'kolibri.coreVue.components.kModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import sortBy from 'lodash/sortBy';
-  import { getCopies } from '../state/actions/main';
   import { PageNames } from '../constants';
 
   export default {
@@ -83,6 +83,7 @@
       });
     },
     methods: {
+      ...mapActions(['getCopies']),
       closeModal() {
         return this.$emit('cancel');
       },
@@ -96,11 +97,6 @@
     $trs: {
       copies: 'Locations',
       close: 'Close',
-    },
-    vuex: {
-      actions: {
-        getCopies,
-      },
     },
   };
 

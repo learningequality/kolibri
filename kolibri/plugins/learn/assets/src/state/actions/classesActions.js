@@ -1,6 +1,5 @@
 import { ContentNodeResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
-import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import { LearnerClassroomResource, LearnerLessonResource } from '../../apiResources';
 import { ClassesPageNames } from '../../constants';
 
@@ -39,7 +38,7 @@ export function showAllClassesPage(store) {
       store.commit('CORE_SET_PAGE_LOADING', false);
     })
     .catch(error => {
-      return handleApiError(store, error);
+      return store.dispatch('handleApiError', error);
     });
 }
 
@@ -63,7 +62,7 @@ export function showClassAssignmentsPage(store, classId) {
       store.commit('CORE_SET_PAGE_LOADING', false);
     })
     .catch(error => {
-      return handleApiError(store, error);
+      return store.dispatch('handleApiError', error);
     });
 }
 
@@ -98,7 +97,7 @@ export function showLessonPlaylist(store, { lessonId }) {
       store.commit('CORE_SET_PAGE_LOADING', false);
     })
     .catch(error => {
-      return handleApiError(store, error);
+      return store.dispatch('handleApiError', error);
     });
 }
 
@@ -140,6 +139,6 @@ export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
       store.commit('CORE_SET_PAGE_LOADING', false);
     })
     .catch(error => {
-      return handleApiError(store, error);
+      return store.dispatch('handleApiError', error);
     });
 }

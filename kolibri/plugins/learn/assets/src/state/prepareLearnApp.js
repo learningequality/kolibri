@@ -1,10 +1,9 @@
-import { currentUserId } from 'kolibri.coreVue.vuex.getters';
 import { MembershipResource } from 'kolibri.resources';
 
 // prepares state that is used for all pages in 'learn' plugin/app
 // currently, this is only the user's memberships
 export default function prepareLearnApp(store) {
-  const userId = currentUserId(store.state);
+  const userId = store.getters.currentUserId;
 
   if (userId === null) return Promise.resolve();
 

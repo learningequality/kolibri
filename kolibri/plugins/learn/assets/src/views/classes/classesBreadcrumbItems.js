@@ -1,4 +1,5 @@
 import { createTranslator } from 'kolibri.utils.i18n';
+import { mapState } from 'vuex';
 import { ClassesPageNames } from '../../constants';
 import { classAssignmentsLink, lessonPlaylistLink } from './classPageLinks';
 
@@ -47,9 +48,7 @@ export default {
         ClassesPageNames.LESSON_PLAYLIST,
       ].includes(this.pageName);
     },
-  },
-  vuex: {
-    getters: {
+    ...mapState({
       currentClassroom(state) {
         switch (state.pageName) {
           case ClassesPageNames.CLASS_ASSIGNMENTS:
@@ -68,6 +67,6 @@ export default {
         }
       },
       pageName: state => state.pageName,
-    },
+    }),
   },
 };

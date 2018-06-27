@@ -5,16 +5,7 @@ import {
   ExamLogResource,
   ExamAttemptLogResource,
 } from 'kolibri.resources';
-
-import { getChannelObject, isUserLoggedIn, currentUserId } from 'kolibri.coreVue.vuex.getters';
-import {
-  setChannelInfo,
-  handleError,
-  handleApiError,
-  samePageCheckGenerator,
-  getFacilities,
-  getFacilityConfig,
-} from 'kolibri.coreVue.vuex.actions';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import {
   createQuestionList,
   selectQuestionFromExercise,
@@ -92,7 +83,7 @@ export function updateContentNodeProgress(channelId, contentId, progressFraction
 }
 
 export function setAndCheckChannels(store) {
-  return setChannelInfo(store).then(
+  return store.dispatch('setChannelInfo').then(
     channels => {
       if (!channels.length) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -100,7 +91,7 @@ export function setAndCheckChannels(store) {
       return channels;
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
       return error;
     }
   );
@@ -151,7 +142,7 @@ export function showChannels(store) {
         });
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
       return error;
     }
   );
@@ -175,13 +166,13 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
       by_role: true,
     }).fetch(), // the topic's children
     ContentNodeResource.fetchAncestors(id), // the topic's ancestors
-    setChannelInfo(store),
+    store.dispatch('setChannelInfo'),
   ];
 
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([topic, children, ancestors]) => {
-      const currentChannel = getChannelObject(store.state, topic.channel_id);
+      const currentChannel = store.getters.getChannelObject(topic.channel_id);
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
@@ -198,7 +189,7 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
       store.commit('SET_PAGE_STATE', pageState);
 
       // Only load subtopic progress if the user is logged in
-      if (isUserLoggedIn(store.state)) {
+      if (store.getters.isUserLoggedIn) {
         const subtopicIds = children
           .filter(({ kind }) => kind === ContentNodeKinds.TOPIC)
           .map(({ id }) => id);
@@ -233,7 +224,7 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
       }
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     }
   );
 }
@@ -253,12 +244,12 @@ export function showTopicsContent(store, id) {
     ContentNodeResource.getModel(id).fetch(),
     ContentNodeResource.fetchNextContent(id),
     ContentNodeResource.fetchAncestors(id),
-    setChannelInfo(store),
+    store.dispatch('setChannelInfo'),
   ];
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([content, nextContent, ancestors]) => {
-      const currentChannel = getChannelObject(store.state, content.channel_id);
+      const currentChannel = store.getters.getChannelObject(content.channel_id);
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
@@ -278,7 +269,7 @@ export function showTopicsContent(store, id) {
       );
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     }
   );
 }
@@ -322,11 +313,11 @@ export function triggerSearch(store, searchTerm) {
             });
             store.commit('SET_CONTENT', updatedContents);
           })
-          .catch(error => handleApiError(store, error));
+          .catch(error => store.dispatch('handleApiError', error));
       }
     })
     .catch(error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     });
 }
 
@@ -380,7 +371,7 @@ export function showExamReport(store, params) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_REPORT_VIEWER);
 
-  const userId = currentUserId(store.state);
+  const userId = store.getters.currentUserId;
   const examReportPromise = getExamReport(
     store,
     examId,
@@ -421,7 +412,7 @@ export function showExam(store, params) {
   store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
   // Reset examAttemptLogs, so that it will not merge into another exam.
   store.commit('RESET_EXAM_ATTEMPT_LOGS');
-  const userId = currentUserId(store.state);
+  const userId = store.getters.currentUserId;
   const examParams = { user: userId, exam: examId };
 
   if (!userId) {
@@ -439,7 +430,7 @@ export function showExam(store, params) {
     ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttemptLogs]) => {
-        const currentChannel = getChannelObject(store.state, exam.channel_id);
+        const currentChannel = store.getters.getChannelObject(exam.channel_id);
         if (!currentChannel) {
           return router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         }
@@ -499,7 +490,10 @@ export function showExam(store, params) {
 
         if (!shuffledQuestions[questionNumber]) {
           // Illegal question number!
-          handleError(store, `Question number ${questionNumber} is not valid for this exam`);
+          store.dispatch(
+            'handleError',
+            `Question number ${questionNumber} is not valid for this exam`
+          );
         } else {
           const contentPromise = ContentNodeResource.getCollection({
             in_exam: exam.id,
@@ -524,7 +518,7 @@ export function showExam(store, params) {
 
               if (questions.every(question => !question.itemId)) {
                 // Exam is drawing solely on malformed exercise data, best to quit now
-                handleError(store, `This exam has no valid questions`);
+                store.dispatch('handleError', `This exam has no valid questions`);
               } else {
                 const itemId = questions[questionNumber].itemId;
                 const channelId = exam.channel_id;
@@ -579,13 +573,13 @@ export function showExam(store, params) {
               }
             },
             error => {
-              handleApiError(store, error);
+              store.dispatch('handleApiError', error);
             }
           );
         }
       },
       error => {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       }
     );
   }
@@ -612,7 +606,7 @@ export function setAndSaveCurrentExamAttemptLog(store, { contentId, itemId, curr
     item: itemId,
   });
   const attributes = Object.assign({}, currentAttemptLog);
-  attributes.user = currentUserId(store.state);
+  attributes.user = store.getters.currentUserId;
   attributes.examlog = store.state.examLog.id;
   // If the above findModel returned no matching model, then we can do
   // getModel to get the new model instead.
@@ -632,7 +626,7 @@ export function setAndSaveCurrentExamAttemptLog(store, { contentId, itemId, curr
         const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
         store.commit('SET_QUESTIONS_ANSWERED', questionsAnswered);
         const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
-          user: currentUserId(store.state),
+          user: store.getters.currentUserId,
           exam: store.state.pageState.exam.id,
         });
         // Add this attempt log to the Collection for future caching.
@@ -640,7 +634,7 @@ export function setAndSaveCurrentExamAttemptLog(store, { contentId, itemId, curr
         resolve();
       }),
     () => {
-      this.$router.replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
+      router.replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
     }
   );
 }
@@ -655,12 +649,12 @@ export function closeExam(store) {
     })
     .then(UserExamResource.clearCache())
     .catch(error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     });
 }
 
 export function setFacilitiesAndConfig(store) {
-  return getFacilities(store).then(() => {
-    return getFacilityConfig(store);
+  return store.dispatch('getFacilities').then(() => {
+    return store.dispatch('getFacilityConfig');
   });
 }

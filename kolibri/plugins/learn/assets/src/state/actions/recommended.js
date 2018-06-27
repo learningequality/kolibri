@@ -1,10 +1,5 @@
 import { ContentNodeResource } from 'kolibri.resources';
-import { currentUserId, getChannelObject, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
-import {
-  samePageCheckGenerator,
-  setChannelInfo,
-  handleApiError,
-} from 'kolibri.coreVue.vuex.actions';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniqBy from 'lodash/uniqBy';
 import { createTranslator } from 'kolibri.utils.i18n';
@@ -33,20 +28,20 @@ function _getFeatured(state, channelId) {
 }
 
 // User-specific recommendations
-function _getNextSteps(state) {
-  if (isUserLoggedIn(state)) {
+function _getNextSteps(store) {
+  if (store.getters.isUserLoggedIn) {
     return ContentNodeResource.getCollection({
-      next_steps: currentUserId(state),
+      next_steps: store.getters.currentUserId,
       by_role: true,
     }).fetch();
   }
   return Promise.resolve([]);
 }
 
-function _getResume(state) {
-  if (isUserLoggedIn(state)) {
+function _getResume(store) {
+  if (store.getters.isUserLoggedIn) {
     return ContentNodeResource.getCollection({
-      resume: currentUserId(state),
+      resume: store.getters.currentUserId,
       by_role: true,
     }).fetch();
   }
@@ -61,7 +56,7 @@ function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, chan
   store.commit('CORE_SET_PAGE_LOADING', true);
   // promise that resolves with content array, already mapped to state
   const pagePrep = Promise.all([
-    getContentPromise(store.state, channelId),
+    getContentPromise(store, channelId),
     setAndCheckChannels(store),
     // resolves to mapped content set because then resolves to its function's return value
   ]).then(([content, channels]) => [_mapContentSet(content), channels]);
@@ -76,7 +71,7 @@ function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, chan
       };
       let pageTitle;
       if (channelId) {
-        const currentChannel = getChannelObject(store.state, channelId);
+        const currentChannel = store.getters.getChannelObject(channelId);
         const channelTitle = currentChannel.title;
         recPageState.channelTitle = channelTitle;
         pageTitle = translator.$tr(windowTitleId, { currentChannel: channelTitle });
@@ -89,7 +84,7 @@ function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, chan
       store.commit('CORE_SET_ERROR', null);
       store.commit('CORE_SET_TITLE', pageTitle);
     },
-    error => handleApiError(error)
+    error => store.dispatch('handleApiError', error)
   );
 }
 
@@ -103,9 +98,9 @@ export function showLearn(store) {
   }
 
   return ConditionalPromise.all([
-    _getNextSteps(state),
+    _getNextSteps(store),
     _getPopular(),
-    _getResume(state),
+    _getResume(store),
     setAndCheckChannels(store),
   ]).only(
     samePageCheckGenerator(store),
@@ -145,7 +140,7 @@ export function showLearn(store) {
       store.commit('CORE_SET_TITLE', translator.$tr('learnPageTitle'));
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     }
   );
 }
@@ -178,7 +173,7 @@ export function showLearnContent(store, id) {
   const promises = [
     ContentNodeResource.getModel(id).fetch(),
     ContentNodeResource.fetchNextContent(id),
-    setChannelInfo(store),
+    store.dispatch('setChannelInfo'),
   ];
   const recommendedPromise = ContentNodeResource.getCollection({
     recommendations_for: id,
@@ -191,7 +186,7 @@ export function showLearnContent(store, id) {
         content: contentState(content, nextContent),
         recommended: store.state.pageState.recommended,
       };
-      const currentChannel = getChannelObject(store.state, content.channel_id);
+      const currentChannel = store.getters.getChannelObject(content.channel_id);
       store.commit('SET_PAGE_STATE', pageState);
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
@@ -204,7 +199,7 @@ export function showLearnContent(store, id) {
       );
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     }
   );
   recommendedPromise.only(
@@ -217,7 +212,7 @@ export function showLearnContent(store, id) {
       store.commit('CORE_SET_ERROR', null);
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     }
   );
 }

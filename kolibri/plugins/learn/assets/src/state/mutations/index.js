@@ -29,6 +29,9 @@ export default {
     });
     state.examAttemptLogs = newState;
   },
+  RESET_EXAM_ATTEMPT_LOGS(state) {
+    state.examAttemptLogs = {};
+  },
   SET_QUESTIONS_ANSWERED(state, questionsAnswered) {
     state.pageState.questionsAnswered = questionsAnswered;
   },
