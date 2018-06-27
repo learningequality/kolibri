@@ -165,11 +165,15 @@
       questionsUnanswered() {
         return this.exam.question_count - this.questionsAnswered;
       },
+      debouncedSetAndSaveCurrentExamAttemptLog() {
+        // So as not to share debounced functions between instances of the same component
+        // and also to allow access to the cancel method of the debounced function
+        // best practice seems to be to do it as a computed property and not a method:
+        // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
+        return debounce(this.setAndSaveCurrentExamAttemptLog, 5000);
+      },
     },
     methods: {
-      debouncedSetAndSaveCurrentExamAttemptLog: debounce(function(...args) {
-        this.setAndSaveCurrentExamAttemptLog(...args);
-      }, 5000),
       checkAnswer() {
         if (this.$refs.contentRenderer) {
           return this.$refs.contentRenderer.checkAnswer();
@@ -194,6 +198,9 @@
             timestamp: now(),
           });
           if (force) {
+            // Cancel any pending debounce
+            this.debouncedSetAndSaveCurrentExamAttemptLog.cancel();
+            // Force the save now instead
             return this.setAndSaveCurrentExamAttemptLog(
               this.content.id,
               this.itemId,
