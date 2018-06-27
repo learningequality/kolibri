@@ -57,6 +57,7 @@ describe('HeartBeat', function() {
     beforeEach(function() {
       this.heartBeat = new HeartBeat();
       this.heartBeat.active = false;
+      this.heartBeat.enabled = true;
       this.store = coreStore.factory();
       this.checkSessionStub = sinon.stub(this.heartBeat, 'checkSession');
       this.checkSessionStub.resolves();
