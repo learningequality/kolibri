@@ -38,7 +38,7 @@
         :contentId="exercise.content_id"
         :channelId="channelId"
         :available="exercise.available"
-        :answerState="currentInteraction"
+        :answerState="answerState"
         :showCorrectAnswer="showCorrectAnswer"
         :interactive="false"
         :extraFields="exercise.extra_fields"
@@ -77,6 +77,20 @@
       return {
         showCorrectAnswer: false,
       };
+    },
+    computed: {
+      // Do not pass in answerState if showCorrectAnswer is set to true
+      // answerState has a precedence over showCorrectAnswer
+      answerState() {
+        if (
+          !this.showCorrectAnswer &&
+          this.currentInteraction &&
+          this.currentInteraction.type === 'answer'
+        ) {
+          return this.currentInteraction.answer;
+        }
+        return null;
+      },
     },
     methods: {
       navigateToNewAttempt(attemptLogIndex) {

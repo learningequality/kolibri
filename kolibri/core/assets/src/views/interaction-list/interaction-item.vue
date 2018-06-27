@@ -21,6 +21,12 @@
       category="action"
       name="lightbulb_outline"
     />
+    <mat-svg
+      v-else-if="isError"
+      class="svg-item svg-error"
+      category="alert"
+      name="error_outline"
+    />
   </div>
 
 </template>
@@ -46,6 +52,9 @@
       },
       isHint() {
         return this.interaction.type === 'hint';
+      },
+      isError() {
+        return this.interaction.type === 'error';
       },
     },
   };
@@ -77,7 +86,7 @@
     border-bottom: 2px solid $core-text-default
     padding: 2px
 
-  .svg-hint
+  .svg-hint, svg-error
     fill: $core-text-annotation
 
   .svg-wrong
