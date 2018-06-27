@@ -1,27 +1,33 @@
+import forEach from 'lodash/forEach';
 import Vuex from 'vuex';
 import Vue from 'vue';
-import { initialState } from './initialState';
-import coreMutations from './mutations';
+import coreModule from './modules/core';
 
 Vue.use(Vuex);
 
-const store = new Vuex.Store({});
+export function coreStoreFactory(pluginModule) {
+  const store = new Vuex.Store({
+    modules: {
+      core: coreModule,
+    },
+  });
+  if (pluginModule) {
+    store.hotUpdate({
+      actions: pluginModule.actions || {},
+      getters: pluginModule.getters || {},
+      mutations: pluginModule.mutations || {},
+    });
+    store.replaceState({
+      core: { ...coreModule.state },
+      ...(pluginModule.state || {}),
+    });
+    forEach(pluginModule.modules, (module, name) => {
+      store.registerModule(name, module);
+    });
+  }
+  return store;
+}
+
+const store = coreStoreFactory();
 
 export default store;
-
-store.registerModule = ({ state, mutations } = { state: {}, mutations: {} }) => {
-  if (store.__initialized) {
-    throw new Error(
-      'The store has already been initialized, dynamic initalization is not currently available'
-    );
-  }
-  store.hotUpdate({ mutations: Object.assign(mutations, coreMutations) });
-  store.replaceState(Object.assign(state, initialState));
-  store.__initialized = true;
-};
-
-store.factory = ({ state, mutations } = { state: {}, mutations: {} }) => {
-  store.__initialized = false;
-  store.registerModule({ state, mutations });
-  return store;
-};

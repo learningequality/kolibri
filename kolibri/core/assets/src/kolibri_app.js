@@ -1,4 +1,4 @@
-import { getCurrentSession } from 'kolibri.coreVue.vuex.actions';
+import forEach from 'lodash/forEach';
 import router from 'kolibri.coreVue.router';
 import Vue from 'kolibri.lib.vue';
 import store from 'kolibri.coreVue.vuex.store';
@@ -17,20 +17,6 @@ export default class KolibriApp extends KolibriModule {
    */
   get routes() {
     return [];
-  }
-  /*
-   * @return {Object} An object of vuex mutations, with keys as the mutation name, and
-   *                  values that are methods that perform the store mutation.
-   */
-  get mutations() {
-    return {};
-  }
-  /*
-   * @return {Object} The initial state of the vuex store for this app, this will be merged with
-   *                  the core app initial state to instantiate the store.
-   */
-  get initialState() {
-    return {};
   }
   /*
    * @return {Object} A component definition for the root component of this single page app.
@@ -58,12 +44,32 @@ export default class KolibriApp extends KolibriModule {
   get stateSetters() {
     return [];
   }
+
+  // Vuex module for the plugin
+  get pluginModule() {
+    return {};
+  }
+
   ready() {
-    this.store.registerModule({
-      state: this.initialState,
-      mutations: this.mutations,
+    // Add the plugin-level mutations, getters, actions, but leave core module alone
+    this.store.hotUpdate({
+      actions: this.pluginModule.actions || {},
+      getters: this.pluginModule.getters || {},
+      mutations: this.pluginModule.mutations || {},
     });
-    getCurrentSession(store).then(() => {
+
+    // Add the plugin state
+    this.store.replaceState({
+      ...this.store.state,
+      ...this.pluginModule.state,
+    });
+
+    // Register plugin sub-modules
+    forEach(this.pluginModule.modules, (module, name) => {
+      store.registerModule(name, module);
+    });
+
+    store.dispatch('getCurrentSession').then(() => {
       Promise.all([
         // Invoke each of the state setters before initializing the app.
         ...this.stateSetters.map(setter => setter(this.store)),

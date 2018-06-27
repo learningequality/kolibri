@@ -16,11 +16,11 @@ class CoachToolsModule extends KolibriApp {
   get RootVue() {
     return RootVue;
   }
-  get initialState() {
-    return initialState;
-  }
-  get mutations() {
-    return mutations;
+  get pluginModule() {
+    return {
+      state: initialState,
+      mutations,
+    };
   }
 }
 
