@@ -27,8 +27,8 @@
 
 <script>
 
+  import { mapState, mapGetters } from 'vuex';
   import authMessage from 'kolibri.coreVue.components.authMessage';
-  import { isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import subpageContainer from '../containers/subpage-container';
   import userGrid from './user-grid';
@@ -46,11 +46,11 @@
         searchFilterText: '',
       };
     },
-    vuex: {
-      getters: {
+    computed: {
+      ...mapGetters(['isSuperuser']),
+      ...mapState({
         facilityUsers: state => state.pageState.facilityUsers,
-        isSuperuser,
-      },
+      }),
     },
     $trs: {
       devicePermissionsHeader: 'Device permissions',

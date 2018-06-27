@@ -47,12 +47,9 @@
 
 <script>
 
+  import { mapState, mapActions, mapGetters } from 'vuex';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
-  import { refreshChannelList } from '../../state/actions/manageContentActions';
-  import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
-  import { startImportWorkflow } from '../../state/actions/contentWizardActions';
-  import { installedChannelsWithResources, installedChannelListLoading } from '../../state/getters';
   import deleteChannelModal from './delete-channel-modal';
   import channelListItem from './channel-list-item';
 
@@ -68,6 +65,8 @@
       selectedChannelId: null,
     }),
     computed: {
+      ...mapGetters(['installedChannelsWithResources', 'installedChannelListLoading']),
+      ...mapState(['pageState']),
       channelIsSelected() {
         return this.selectedChannelId !== null;
       },
@@ -85,24 +84,13 @@
       },
     },
     methods: {
+      ...mapActions(['startImportWorkflow', 'triggerChannelDeleteTask', 'refreshChannelList']),
       handleDeleteChannel() {
         if (this.channelIsSelected) {
           const channelId = this.selectedChannelId;
           this.selectedChannelId = null;
           this.triggerChannelDeleteTask(channelId);
         }
-      },
-    },
-    vuex: {
-      getters: {
-        installedChannelsWithResources,
-        installedChannelListLoading,
-        pageState: state => state.pageState,
-      },
-      actions: {
-        startImportWorkflow,
-        triggerChannelDeleteTask,
-        refreshChannelList,
       },
     },
     $trs: {

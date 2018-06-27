@@ -57,18 +57,15 @@
 
 <script>
 
+  import { mapState, mapActions, mapGetters } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.coreTable';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import last from 'lodash/last';
   import every from 'lodash/every';
   import omit from 'lodash/omit';
-  import { wizardState, inExportMode } from '../../state/getters';
-  import {
-    addNodeForTransfer,
-    removeNodeForTransfer,
-  } from '../../state/actions/contentTreeViewerActions';
-  import { navigateToTopicUrl } from '../../routes/wizardTransitionRoutes';
+  import { wizardState } from '../../state/getters';
+  import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
   import { TransferTypes } from '../../constants';
   import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
   import contentNodeRow from './content-node-row';
@@ -92,6 +89,15 @@
       };
     },
     computed: {
+      ...mapGetters(['inExportMode']),
+      ...mapState({
+        breadcrumbs: state => wizardState(state).path.map(transformBreadrumb),
+        childNodes: state => wizardState(state).currentTopicNode.children,
+        path: state => wizardState(state).path,
+        nodesForTransfer: state => wizardState(state).nodesForTransfer,
+        topicNode: state => wizardState(state).currentTopicNode,
+        transferType: state => wizardState(state).transferType,
+      }),
       childNodesWithPath() {
         return this.childNodes.map(node => ({
           ...node,
@@ -133,6 +139,7 @@
       },
     },
     methods: {
+      ...mapActions(['addNodeForTransfer', 'removeNodeForTransfer']),
       nodeIsChecked(node) {
         return node.checkboxType === CheckboxTypes.CHECKED;
       },
@@ -175,21 +182,6 @@
           this.disableAll = false;
           this.$forceUpdate();
         });
-      },
-    },
-    vuex: {
-      getters: {
-        breadcrumbs: state => wizardState(state).path.map(transformBreadrumb),
-        childNodes: state => wizardState(state).currentTopicNode.children,
-        inExportMode,
-        path: state => wizardState(state).path,
-        nodesForTransfer: state => wizardState(state).nodesForTransfer,
-        topicNode: state => wizardState(state).currentTopicNode,
-        transferType: state => wizardState(state).transferType,
-      },
-      actions: {
-        addNodeForTransfer,
-        removeNodeForTransfer,
       },
     },
     $trs: {

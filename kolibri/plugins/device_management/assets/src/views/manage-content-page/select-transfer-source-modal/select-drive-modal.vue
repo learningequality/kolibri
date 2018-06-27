@@ -41,14 +41,10 @@
 
 <script>
 
+  import { mapActions, mapState, mapGetters } from 'vuex';
   import UiAlert from 'keen-ui/src/UiAlert';
   import kModal from 'kolibri.coreVue.components.kModal';
-  import { refreshDriveList } from '../../../state/actions/taskActions';
-  import {
-    goForwardFromSelectDriveModal,
-    resetContentWizardState,
-  } from '../../../state/actions/contentWizardActions';
-  import { wizardState, driveCanBeUsedForTransfer, isImportingMore } from '../../../state/getters';
+  import { wizardState } from '../../../state/getters';
   import { TransferTypes } from '../../../constants';
   import driveList from './drive-list';
 
@@ -67,6 +63,12 @@
       };
     },
     computed: {
+      ...mapGetters(['driveCanBeUsedForTransfer', 'isImportingMore']),
+      ...mapState({
+        driveList: state => wizardState(state).driveList,
+        transferType: state => wizardState(state).transferType,
+        transferredChannel: state => wizardState(state).transferredChannel,
+      }),
       inImportMode() {
         return this.transferType === TransferTypes.LOCALIMPORT;
       },
@@ -78,7 +80,7 @@
       },
       enabledDrives() {
         return this.driveList.filter(drive =>
-          this.driveCanBeUsedForTransfer(drive, this.transferType)
+          this.driveCanBeUsedForTransfer({ drive, transferType: this.transferType })
         );
       },
       driveListMode() {
@@ -100,25 +102,12 @@
         });
     },
     methods: {
+      ...mapActions(['goForwardFromSelectDriveModal', 'refreshDriveList']),
       goForward() {
         this.goForwardFromSelectDriveModal({
           driveId: this.selectedDriveId,
           forExport: !this.inImportMode,
         });
-      },
-    },
-    vuex: {
-      getters: {
-        driveList: state => wizardState(state).driveList,
-        transferType: state => wizardState(state).transferType,
-        transferredChannel: state => wizardState(state).transferredChannel,
-        driveCanBeUsedForTransfer,
-        isImportingMore,
-      },
-      actions: {
-        goForwardFromSelectDriveModal,
-        refreshDriveList,
-        resetContentWizardState,
       },
     },
     $trs: {
