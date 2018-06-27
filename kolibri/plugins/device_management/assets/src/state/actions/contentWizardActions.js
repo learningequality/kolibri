@@ -251,7 +251,14 @@ export function showSelectContentPage(store, params) {
   // eslint-disable-next-line
   const installedChannelPromise = ChannelResource.getModel(params.channel_id)
     .fetch(
-      { include_fields: 'total_resources,total_file_size,on_device_resources,on_device_file_size' },
+      {
+        include_fields: [
+          'total_resources',
+          'total_file_size',
+          'on_device_resources',
+          'on_device_file_size',
+        ],
+      },
       true
     )
     .then(channel => {
