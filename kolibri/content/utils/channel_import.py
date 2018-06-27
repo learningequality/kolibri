@@ -1,6 +1,7 @@
 import logging as logger
 
 from django.apps import apps
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
 
@@ -68,6 +69,9 @@ class ChannelImport(object):
     2) It is also the base class for any more complex import that requires explicit schema mappings from one version
     to another.
     """
+
+    current_model_being_imported = None
+    _sqlite_db_attached = False
 
     # Specific instructions and exceptions for importing table from previous versions of Kolibri
     # Mappings can be:
@@ -223,6 +227,8 @@ class ChannelImport(object):
 
     def raw_attached_sqlite_table_import(self, model, row_mapper, table_mapper, unflushed_rows):
 
+        self.check_cancelled()
+
         source_table = self.source.get_table(model)
         dest_table = self.destination.get_table(model)
 
@@ -268,9 +274,6 @@ class ChannelImport(object):
         )
         self.destination.session.execute(text(query))
 
-        # detach the content database from the primary database so we don't get errors trying to attach it again later
-        self.destination.session.execute(text("DETACH 'sourcedb'".format(path=self.source_db_path)))
-
         # no need to flush/commit as a result of the transfer in this method
         return 1
 
@@ -314,7 +317,8 @@ class ChannelImport(object):
             self.destination.session.bulk_insert_mappings(DestinationRecord, data_to_insert)
         return unflushed_rows
 
-    def table_import(self, model, row_mapper, table_mapper, unflushed_rows):
+    def can_use_sqlite_attach_method(self, model, row_mapper, table_mapper):
+
         # Check whether we can directly "attach" the sqlite database and do a one-line transfer
         # First check that we are not doing any mapping to construct the tables
         can_use_attach = table_mapper == self.base_table_mapper
@@ -327,21 +331,32 @@ class ChannelImport(object):
             for row_mapping in set(schema_map.get("per_row", {}).values()):
                 if hasattr(self, row_mapping):
                     if callable(getattr(self, row_mapping)):
-                        can_use_attach = False
+                        return False
                 else:
-                    can_use_attach = False
-        # Check that the engine being used is sqlite
-        can_use_attach = can_use_attach and self.destination.engine.name == "sqlite"
+                    return False
+        # Check that the engine being used is sqlite, and it's been attached
+        can_use_attach = can_use_attach and self._sqlite_db_attached
         # Check that the table is in the source database (otherwise we can't use the ATTACH method)
         try:
             self.source.get_class(model)
         except ClassNotFoundError:
-            can_use_attach = False
+            return False
 
-        if can_use_attach:
-            return self.raw_attached_sqlite_table_import(model, row_mapper, table_mapper, unflushed_rows)
+        return can_use_attach
+
+    def table_import(self, model, row_mapper, table_mapper, unflushed_rows):
+
+        # keep track of which model is currently being imported
+        self.current_model_being_imported = model
+
+        if self.can_use_sqlite_attach_method(model, row_mapper, table_mapper):
+            result = self.raw_attached_sqlite_table_import(model, row_mapper, table_mapper, unflushed_rows)
         else:
-            return self.orm_table_import(model, row_mapper, table_mapper, unflushed_rows)
+            result = self.orm_table_import(model, row_mapper, table_mapper, unflushed_rows)
+
+        self.current_model_being_imported = None
+
+        return result
 
     def merge_record(self, data, model, DestinationRecord):
         # Models that should be merged (see list above) need to be individually merged into the session
@@ -396,11 +411,32 @@ class ChannelImport(object):
         if check:
             raise ImportCancelError('Channel import was cancelled')
 
+    def try_attaching_sqlite_database(self):
+        # attach the external content database to our primary database so we can directly transfer records en masse
+        if self.destination.engine.name == "sqlite":
+            try:
+                self.destination.session.execute(text("ATTACH '{path}' AS 'sourcedb'".format(path=self.source_db_path)))
+                self._sqlite_db_attached = True
+            except OperationalError:
+                # silently ignore if we were unable to attach the database; we'll just fall back to other methods
+                pass
+
+    def try_detaching_sqlite_database(self):
+        # detach the content database from the primary database so we don't get errors trying to attach it again later
+        if self.destination.engine.name == "sqlite":
+            try:
+                self.destination.session.execute(text("DETACH 'sourcedb'".format(path=self.source_db_path)))
+            except OperationalError:
+                # silently ignore if the database was already detached, as then we're good to go
+                pass
+            self._sqlite_db_attached = False
+
     def import_channel_data(self):
 
         unflushed_rows = 0
 
         try:
+            self.try_attaching_sqlite_database()
             if self.check_and_delete_existing_channel():
                 for model in self.content_models:
                     mapping = self.schema_mapping.get(model, {})
@@ -408,11 +444,13 @@ class ChannelImport(object):
                     table_mapper = self.generate_table_mapper(mapping.get('per_table'))
                     logging.info('Importing {model} data'.format(model=model.__name__))
                     unflushed_rows = self.table_import(model, row_mapper, table_mapper, unflushed_rows)
-                self.destination.session.commit()
+            self.destination.session.commit()
+            self.try_detaching_sqlite_database()
 
         except (SQLAlchemyError, ImportCancelError) as e:
             # Rollback the transaction if any error occurs during the transaction
             self.destination.session.rollback()
+            self.try_detaching_sqlite_database()
             # Reraise the exception to prevent other errors occuring due to the non-completion
             raise e
 
