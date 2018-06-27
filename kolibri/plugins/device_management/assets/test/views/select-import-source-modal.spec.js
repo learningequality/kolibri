@@ -21,7 +21,7 @@ describe('selectImportSourceModal component', () => {
   });
 
   it('when at select source stage, shows correct channel', () => {
-    store.dispatch('SET_WIZARD_PAGENAME', 'SELECT_IMPORT_SOURCE');
+    store.commit('SET_WIZARD_PAGENAME', 'SELECT_IMPORT_SOURCE');
     const { wrapper, els } = makeWrapper({ store });
     wrapper.vm.$nextTick().then(() => {
       expect(els.titleText()).toEqual('Import from');
@@ -29,8 +29,8 @@ describe('selectImportSourceModal component', () => {
   });
 
   it('when importing, shows the correct title', () => {
-    store.dispatch('SET_WIZARD_PAGENAME', 'SELECT_DRIVE');
-    store.dispatch('SET_TRANSFER_TYPE', 'localimport');
+    store.commit('SET_WIZARD_PAGENAME', 'SELECT_DRIVE');
+    store.commit('SET_TRANSFER_TYPE', 'localimport');
     const { wrapper, els } = makeWrapper({ store });
     wrapper.vm.$nextTick().then(() => {
       expect(els.titleText()).toEqual('Select a drive');
@@ -38,8 +38,8 @@ describe('selectImportSourceModal component', () => {
   });
 
   it('when exporting, shows the correct title', () => {
-    store.dispatch('SET_WIZARD_PAGENAME', 'SELECT_DRIVE');
-    store.dispatch('SET_TRANSFER_TYPE', 'localexport');
+    store.commit('SET_WIZARD_PAGENAME', 'SELECT_DRIVE');
+    store.commit('SET_TRANSFER_TYPE', 'localexport');
     const { wrapper, els } = makeWrapper({ store });
     wrapper.vm.$nextTick().then(() => {
       expect(els.titleText()).toEqual('Select an export destination');

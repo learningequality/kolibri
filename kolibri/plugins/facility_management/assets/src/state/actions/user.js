@@ -45,9 +45,9 @@ export function createUser(store, stateUserData) {
     .then(userModel => {
       function dispatchUser(newUser) {
         const userState = _userState(newUser);
-        store.dispatch('ADD_USER', userState);
+        store.commit('ADD_USER', userState);
         // TODO to be removed
-        store.dispatch('SET_USER_JUST_CREATED', userState);
+        store.commit('SET_USER_JUST_CREATED', userState);
         displayModal(store, false);
         return userState;
       }
@@ -69,18 +69,18 @@ export function createUser(store, stateUserData) {
  * @param {object} updates Optional Changes: full_name, username, password, and kind(role)
  */
 export function updateUser(store, { userId, updates }) {
-  store.dispatch('SET_ERROR', '');
-  store.dispatch('SET_BUSY', true);
+  store.commit('SET_ERROR', '');
+  store.commit('SET_BUSY', true);
   const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);
   const facilityRoleHasChanged = origUserState.kind !== updates.role.kind;
 
   return updateFacilityUser(store, { userId, updates }).then(
     updatedUser => {
-      const update = userData => store.dispatch('UPDATE_USER', _userState(userData));
+      const update = userData => store.commit('UPDATE_USER', _userState(userData));
       if (facilityRoleHasChanged) {
         if (currentUserId(store.state) === userId && isSuperuser(store.state)) {
           // maintain superuser if updating self.
-          store.dispatch('UPDATE_CURRENT_USER_KIND', [UserKinds.SUPERUSER, updates.role.kind]);
+          store.commit('UPDATE_CURRENT_USER_KIND', [UserKinds.SUPERUSER, updates.role.kind]);
         }
         return setUserRole(updatedUser, updates.role).then(userWithRole => {
           update(userWithRole);
@@ -91,11 +91,11 @@ export function updateUser(store, { userId, updates }) {
     },
     error => {
       if (error.status.code === 400) {
-        store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
+        store.commit('SET_ERROR', Object.values(error.entity)[0][0]);
       } else if (error.status.code === 403) {
-        store.dispatch('SET_ERROR', error.entity);
+        store.commit('SET_ERROR', error.entity);
       }
-      store.dispatch('SET_BUSY', false);
+      store.commit('SET_BUSY', false);
     }
   );
 }
@@ -132,7 +132,7 @@ export function deleteUser(store, id) {
     .delete()
     .then(
       () => {
-        store.dispatch('DELETE_USER', id);
+        store.commit('DELETE_USER', id);
         displayModal(store, false);
         if (store.state.core.session.user_id === id) {
           kolibriLogout();
@@ -146,7 +146,7 @@ export function deleteUser(store, id) {
 
 // An action for setting up the initial state of the app by fetching data from the server
 export function showUserPage(store) {
-  preparePage(store.dispatch, {
+  preparePage(store.commit, {
     name: PageNames.USER_MGMT_PAGE,
     title: _managePageTitle('Users'),
   });
@@ -158,13 +158,13 @@ export function showUserPage(store) {
     .only(
       samePageCheckGenerator(store),
       users => {
-        store.dispatch('SET_PAGE_STATE', {
+        store.commit('SET_PAGE_STATE', {
           facilityUsers: users.map(_userState),
           modalShown: false,
           error: '',
           isBusy: false,
         });
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.commit('CORE_SET_PAGE_LOADING', false);
       },
       error => {
         handleApiError(store, error);

@@ -48,11 +48,11 @@ describe('contentTreeViewer component', () => {
   }
 
   function setIncludedNodes(nodes) {
-    store.dispatch('REPLACE_INCLUDE_LIST', nodes);
+    store.commit('REPLACE_INCLUDE_LIST', nodes);
   }
 
   function setOmittedNodes(nodes) {
-    store.dispatch('REPLACE_OMIT_LIST', nodes);
+    store.commit('REPLACE_OMIT_LIST', nodes);
   }
 
   beforeEach(() => {
@@ -61,8 +61,8 @@ describe('contentTreeViewer component', () => {
 
   it('in REMOTEIMPORT, all nodes are shown', () => {
     // API does annotate them as being importable, though...
-    store.dispatch('SET_TRANSFER_TYPE', 'remoteimport');
-    store.dispatch('SET_CURRENT_TOPIC_NODE', {
+    store.commit('SET_TRANSFER_TYPE', 'remoteimport');
+    store.commit('SET_CURRENT_TOPIC_NODE', {
       id: 'topic',
       children: [
         {
@@ -83,8 +83,8 @@ describe('contentTreeViewer component', () => {
   });
 
   it('if in LOCALIMPORT, then non-importable nodes are filtered from the list', () => {
-    store.dispatch('SET_TRANSFER_TYPE', 'localimport');
-    store.dispatch('SET_CURRENT_TOPIC_NODE', {
+    store.commit('SET_TRANSFER_TYPE', 'localimport');
+    store.commit('SET_CURRENT_TOPIC_NODE', {
       id: 'topic',
       children: [
         {
@@ -103,8 +103,8 @@ describe('contentTreeViewer component', () => {
   });
 
   it('in LOCALEXPORT, if a node has available: false, then it is not shown', () => {
-    store.dispatch('SET_TRANSFER_TYPE', 'localexport');
-    store.dispatch('SET_CURRENT_TOPIC_NODE', {
+    store.commit('SET_TRANSFER_TYPE', 'localexport');
+    store.commit('SET_CURRENT_TOPIC_NODE', {
       id: 'topic',
       children: [
         {

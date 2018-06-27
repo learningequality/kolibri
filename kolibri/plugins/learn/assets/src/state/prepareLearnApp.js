@@ -14,9 +14,9 @@ export default function prepareLearnApp(store) {
 
   return membershipPromise
     .then(memberships => {
-      store.dispatch('LEARN_SET_MEMBERSHIPS', memberships);
+      store.commit('LEARN_SET_MEMBERSHIPS', memberships);
     })
     .catch(err => {
-      store.dispatch('CORE_SET_ERROR', err);
+      store.commit('CORE_SET_ERROR', err);
     });
 }

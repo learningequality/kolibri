@@ -155,11 +155,11 @@
         saveLessonResources,
         createSnackbar,
         addToSelectedResources(store, contentId) {
-          store.dispatch('ADD_TO_RESOURCE_CACHE', this.contentList.find(n => n.id === contentId));
-          store.dispatch('ADD_TO_WORKING_RESOURCES', contentId);
+          store.commit('ADD_TO_RESOURCE_CACHE', this.contentList.find(n => n.id === contentId));
+          store.commit('ADD_TO_WORKING_RESOURCES', contentId);
         },
         removeFromSelectedResources(store, contentId) {
-          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', contentId);
+          store.commit('REMOVE_FROM_WORKING_RESOURCES', contentId);
         },
       },
     },

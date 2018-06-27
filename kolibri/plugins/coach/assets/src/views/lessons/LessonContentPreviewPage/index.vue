@@ -91,7 +91,7 @@
       },
       actions: {
         addToCache(store) {
-          store.dispatch('ADD_TO_RESOURCE_CACHE', this.content);
+          store.commit('ADD_TO_RESOURCE_CACHE', this.content);
         },
       },
     },

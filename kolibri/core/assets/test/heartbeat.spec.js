@@ -111,7 +111,7 @@ describe('HeartBeat', function() {
       ).toEqual(true);
     });
     it('should not do anything if it already knows it is disconnected', function() {
-      store.dispatch('CORE_SET_RECONNECT_TIME', 'fork');
+      store.commit('CORE_SET_RECONNECT_TIME', 'fork');
       heartBeat.monitorDisconnect();
       expect(reconnectTime(store.state)).toEqual('fork');
     });
@@ -123,7 +123,7 @@ describe('HeartBeat', function() {
       store = coreStore.factory();
     });
     it('should sign out if an auto logout is detected', function() {
-      store.dispatch('CORE_SET_SESSION', { userId: 'test' });
+      store.commit('CORE_SET_SESSION', { userId: 'test' });
       const http = require('http');
       http.__setCode(200);
       http.__setHeaders({ 'Content-Type': 'application/json' });
@@ -183,7 +183,7 @@ describe('HeartBeat', function() {
         const http = require('http');
         http.__setCode(0);
         http.__setHeaders({ 'Content-Type': 'application/json' });
-        store.dispatch('CORE_SET_RECONNECT_TIME', 5);
+        store.commit('CORE_SET_RECONNECT_TIME', 5);
         return heartBeat.checkSession().finally(() => {
           const oldReconnectTime = reconnectTime(store.state);
           return heartBeat.checkSession().finally(() => {

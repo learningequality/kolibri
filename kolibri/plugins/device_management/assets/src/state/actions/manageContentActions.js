@@ -6,18 +6,18 @@ import { canManageContent } from 'kolibri.coreVue.vuex.getters';
  *
  */
 export function refreshChannelList(store) {
-  store.dispatch('SET_CHANNEL_LIST_LOADING', true);
+  store.commit('SET_CHANNEL_LIST_LOADING', true);
   return ChannelResource.getCollection()
     .fetch({ file_sizes: true }, true)
     .then(channels => {
-      store.dispatch('SET_CHANNEL_LIST', [...channels]);
-      store.dispatch('SET_CHANNEL_LIST_LOADING', false);
+      store.commit('SET_CHANNEL_LIST', [...channels]);
+      store.commit('SET_CHANNEL_LIST_LOADING', false);
       return [...channels];
     });
 }
 
 export function showManageContentPage(store) {
-  store.dispatch('RESET_MANAGE_CONTENT_PAGESTATE');
+  store.commit('RESET_MANAGE_CONTENT_PAGESTATE');
   if (canManageContent(store.state)) {
     return refreshChannelList(store);
   }
@@ -25,5 +25,5 @@ export function showManageContentPage(store) {
 }
 
 export function setToolbarTitle(store, newTitle) {
-  store.dispatch('SET_TOOLBAR_TITLE', newTitle);
+  store.commit('SET_TOOLBAR_TITLE', newTitle);
 }

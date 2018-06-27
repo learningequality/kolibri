@@ -25,7 +25,7 @@ function setUserKind(userKind) {
     userKind = UserKinds.LEARNER;
     canManageContent = true;
   }
-  coreStore.dispatch('CORE_SET_SESSION', {
+  corestore.commit('CORE_SET_SESSION', {
     id: 'test',
     username: 'test',
     full_name: 'testing test',

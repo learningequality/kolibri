@@ -32,7 +32,7 @@ export function createClass(store, name) {
     .save()
     .then(
       classroom => {
-        store.dispatch('ADD_CLASS', classroom);
+        store.commit('ADD_CLASS', classroom);
         displayModal(store, false);
       },
       error => {
@@ -55,7 +55,7 @@ export function updateClass(store, { id, updateData }) {
     .save(updateData)
     .then(
       updatedClass => {
-        store.dispatch('UPDATE_CLASS', { id, updatedClass });
+        store.commit('UPDATE_CLASS', { id, updatedClass });
         displayModal(store, false);
       },
       error => {
@@ -77,7 +77,7 @@ export function deleteClass(store, id) {
     .delete()
     .then(
       () => {
-        store.dispatch('DELETE_CLASS', id);
+        store.commit('DELETE_CLASS', id);
         displayModal(store, false);
       },
       error => {
@@ -128,7 +128,7 @@ export function removeClassLearner(store, { classId, userId }) {
     .delete()
     .then(
       () => {
-        store.dispatch('DELETE_CLASS_LEARNER', userId);
+        store.commit('DELETE_CLASS_LEARNER', userId);
         displayModal(store, false);
       },
       error => {
@@ -152,7 +152,7 @@ export function removeClassCoach(store, { classId, userId }) {
     .delete()
     .then(
       () => {
-        store.dispatch('DELETE_CLASS_COACH', userId);
+        store.commit('DELETE_CLASS_COACH', userId);
         displayModal(store, false);
       },
       error => {
@@ -162,7 +162,7 @@ export function removeClassCoach(store, { classId, userId }) {
 }
 
 export function showClassesPage(store) {
-  preparePage(store.dispatch, {
+  preparePage(store.commit, {
     name: PageNames.CLASS_MGMT_PAGE,
     title: translator.$tr('showClassesPage'),
   });
@@ -172,11 +172,11 @@ export function showClassesPage(store) {
     .only(
       samePageCheckGenerator(store),
       classrooms => {
-        store.dispatch('SET_PAGE_STATE', {
+        store.commit('SET_PAGE_STATE', {
           modalShown: false,
           classes: [...classrooms],
         });
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.commit('CORE_SET_PAGE_LOADING', false);
       },
       error => {
         handleApiError(store, error);
@@ -185,7 +185,7 @@ export function showClassesPage(store) {
 }
 
 export function showClassEditPage(store, classId) {
-  preparePage(store.dispatch, {
+  preparePage(store.commit, {
     name: PageNames.CLASS_EDIT_MGMT_PAGE,
     title: translator.$tr('editClassesPage'),
   });
@@ -207,8 +207,8 @@ export function showClassEditPage(store, classId) {
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     results => {
-      store.dispatch('SET_PAGE_STATE', transformResults(results));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('SET_PAGE_STATE', transformResults(results));
+      store.commit('CORE_SET_PAGE_LOADING', false);
     },
     error => {
       handleApiError(store, error);
@@ -217,7 +217,7 @@ export function showClassEditPage(store, classId) {
 }
 
 export function showLearnerClassEnrollmentPage(store, classId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.commit('CORE_SET_PAGE_LOADING', true);
   const facilityId = currentFacilityId(store.state);
   // all users in facility
   const userPromise = FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
@@ -231,14 +231,14 @@ export function showLearnerClassEnrollmentPage(store, classId) {
   return ConditionalPromise.all([userPromise, classPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
     ([facilityUsers, classroom, classUsers]) => {
-      store.dispatch('SET_PAGE_STATE', {
+      store.commit('SET_PAGE_STATE', {
         facilityUsers: facilityUsers.map(_userState),
         classUsers: classUsers.map(_userState),
         class: classroom,
         modalShown: false,
       });
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ENROLL_LEARNER);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('SET_PAGE_NAME', PageNames.CLASS_ENROLL_LEARNER);
     },
     error => {
       handleApiError(store, error);
@@ -247,7 +247,7 @@ export function showLearnerClassEnrollmentPage(store, classId) {
 }
 
 export function showCoachClassAssignmentPage(store, classId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.commit('CORE_SET_PAGE_LOADING', true);
   const facilityId = currentFacilityId(store.state);
   // all users in facility
   const userPromise = FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
@@ -257,7 +257,7 @@ export function showCoachClassAssignmentPage(store, classId) {
   return ConditionalPromise.all([userPromise, classPromise]).only(
     samePageCheckGenerator(store),
     ([facilityUsers, classroom]) => {
-      store.dispatch('SET_PAGE_STATE', {
+      store.commit('SET_PAGE_STATE', {
         // facilityUsers now only contains users that are eligible for coachdom
         // TODO rename
         facilityUsers: facilityUsers
@@ -276,8 +276,8 @@ export function showCoachClassAssignmentPage(store, classId) {
         class: classroom,
         modalShown: false,
       });
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ASSIGN_COACH);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('SET_PAGE_NAME', PageNames.CLASS_ASSIGN_COACH);
     },
     error => {
       handleApiError(store, error);

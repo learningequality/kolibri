@@ -29,7 +29,7 @@ export function showDeviceInfoPage(store) {
       ._promise;
     return promises
       .then(function onSuccess([deviceInfo]) {
-        store.dispatch('SET_DEVICE_INFO_PAGE_STATE', {
+        store.commit('SET_DEVICE_INFO_PAGE_STATE', {
           deviceInfo,
         });
       })

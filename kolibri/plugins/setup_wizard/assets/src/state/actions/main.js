@@ -7,7 +7,7 @@ export function provisionDevice(store, onboardingData) {
 
   const { superuser } = onboardingData;
 
-  store.dispatch('SET_LOADING', true);
+  store.commit('SET_LOADING', true);
 
   deviceProvisionPromise.then(
     response => {
@@ -15,16 +15,16 @@ export function provisionDevice(store, onboardingData) {
       kolibriLogin(store, superuser);
     },
     error => {
-      store.dispatch('SET_ERROR', true);
+      store.commit('SET_ERROR', true);
       handleApiError(store, error);
     }
   );
 }
 
 export function goToNextStep(store) {
-  store.dispatch('INCREMENT_ONBOARDING_STEP');
+  store.commit('INCREMENT_ONBOARDING_STEP');
 }
 
 export function goToPreviousStep(store) {
-  store.dispatch('DECREMENT_ONBOARDING_STEP');
+  store.commit('DECREMENT_ONBOARDING_STEP');
 }

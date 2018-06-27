@@ -58,7 +58,7 @@ function _mapContentSet(contentSet) {
 }
 
 function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, channelId = null) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.commit('CORE_SET_PAGE_LOADING', true);
   // promise that resolves with content array, already mapped to state
   const pagePrep = Promise.all([
     getContentPromise(store.state, channelId),
@@ -83,23 +83,23 @@ function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, chan
       } else {
         pageTitle = translator.$tr(windowTitleId);
       }
-      store.dispatch('SET_PAGE_STATE', recPageState);
-      store.dispatch('SET_PAGE_NAME', pageName);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', pageTitle);
+      store.commit('SET_PAGE_STATE', recPageState);
+      store.commit('SET_PAGE_NAME', pageName);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_ERROR', null);
+      store.commit('CORE_SET_TITLE', pageTitle);
     },
     error => handleApiError(error)
   );
 }
 
 export function showLearn(store) {
-  store.dispatch('SET_EMPTY_LOGGING_STATE');
+  store.commit('SET_EMPTY_LOGGING_STATE');
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
   const state = store.state;
   if (state.pageName !== PageNames.RECOMMENDED) {
-    store.dispatch('CORE_SET_PAGE_LOADING', true);
+    store.commit('CORE_SET_PAGE_LOADING', true);
   }
 
   return ConditionalPromise.all([
@@ -127,22 +127,22 @@ export function showLearn(store) {
         pageState.featured[channel.id] = [];
       });
 
-      store.dispatch('SET_PAGE_STATE', pageState);
+      store.commit('SET_PAGE_STATE', pageState);
 
       featuredChannels.forEach(channel => {
         _getFeatured(state, channel.id).only(samePageCheckGenerator(store), featured => {
-          store.dispatch('SET_FEATURED_CHANNEL_CONTENTS', {
+          store.commit('SET_FEATURED_CHANNEL_CONTENTS', {
             channelId: channel.id,
             contents: _mapContentSet(featured),
           });
         });
       });
 
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_PAGE_NAME', PageNames.RECOMMENDED);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_ERROR', null);
+      store.commit('SET_PAGE_NAME', PageNames.RECOMMENDED);
 
-      store.dispatch('CORE_SET_TITLE', translator.$tr('learnPageTitle'));
+      store.commit('CORE_SET_TITLE', translator.$tr('learnPageTitle'));
     },
     error => {
       handleApiError(store, error);
@@ -173,8 +173,8 @@ export function showFeaturedPage(store, channelId) {
 }
 
 export function showLearnContent(store, id) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.RECOMMENDED_CONTENT);
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', PageNames.RECOMMENDED_CONTENT);
   const promises = [
     ContentNodeResource.getModel(id).fetch(),
     ContentNodeResource.fetchNextContent(id),
@@ -192,10 +192,10 @@ export function showLearnContent(store, id) {
         recommended: store.state.pageState.recommended,
       };
       const currentChannel = getChannelObject(store.state, content.channel_id);
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch(
+      store.commit('SET_PAGE_STATE', pageState);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_ERROR', null);
+      store.commit(
         'CORE_SET_TITLE',
         translator.$tr('learnContentPageTitle', {
           currentContent: pageState.content.title,
@@ -210,11 +210,11 @@ export function showLearnContent(store, id) {
   recommendedPromise.only(
     samePageCheckGenerator(store),
     recommended => {
-      store.dispatch('SET_PAGE_STATE', {
+      store.commit('SET_PAGE_STATE', {
         content: store.state.pageState.content,
         recommended: recommended.map(contentState),
       });
-      store.dispatch('CORE_SET_ERROR', null);
+      store.commit('CORE_SET_ERROR', null);
     },
     error => {
       handleApiError(store, error);

@@ -73,7 +73,7 @@ export function showManagePermissionsPage(store) {
   ]).only(samePageCheckGenerator(store))._promise;
   return promises
     .then(function onSuccess([users, permissions]) {
-      store.dispatch('SET_PERMISSIONS_PAGE_STATE', {
+      store.commit('SET_PERMISSIONS_PAGE_STATE', {
         facilityUsers: users,
         permissions,
       });
@@ -96,15 +96,15 @@ export function showUserPermissionsPage(store, userId) {
   )._promise;
   return promise
     .then(function onUserSuccess([data]) {
-      store.dispatch(
+      store.commit(
         'CORE_SET_TITLE',
         translator.$tr('userPermissionsPageTitle', { name: data.user.full_name })
       );
-      return store.dispatch('SET_USER_PERMISSIONS_PAGE_STATE', data);
+      return store.commit('SET_USER_PERMISSIONS_PAGE_STATE', data);
     })
     .catch(function onUserFailure(error) {
       if (error.status.code === 404) {
-        return store.dispatch('SET_USER_PERMISSIONS_PAGE_STATE', {
+        return store.commit('SET_USER_PERMISSIONS_PAGE_STATE', {
           user: null,
           permissions: {},
         });

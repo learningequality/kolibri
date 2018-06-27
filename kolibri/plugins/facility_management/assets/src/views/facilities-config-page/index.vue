@@ -124,7 +124,7 @@
       },
       actions: {
         toggleSetting(store, settingName) {
-          store.dispatch('CONFIG_PAGE_MODIFY_SETTING', {
+          store.commit('CONFIG_PAGE_MODIFY_SETTING', {
             name: settingName,
             value: !this.settings[settingName],
           });
@@ -132,7 +132,7 @@
         saveFacilityConfig,
         resetFacilityConfig,
         dismissNotification(store) {
-          store.dispatch('CONFIG_PAGE_NOTIFY', null);
+          store.commit('CONFIG_PAGE_NOTIFY', null);
         },
       },
     },

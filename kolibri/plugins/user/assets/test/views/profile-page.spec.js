@@ -7,7 +7,7 @@ ProfilePage.vuex.actions.fetchPoints = () => {};
 function makeWrapper() {
   const store = makeStore();
   store.state.pageState.passwordState = {};
-  store.dispatch('SET_PROFILE_PASSWORD_MODAL', false);
+  store.commit('SET_PROFILE_PASSWORD_MODAL', false);
   return mount(ProfilePage, {
     store,
   });

@@ -36,17 +36,17 @@ export function addNodeForTransfer(store, node) {
   // remove nodes in "omit" that are either descendants of new node or the node itself
   const [notToOmit, toOmit] = partition(omitted, omitNode => isDescendantOrSelf(omitNode, node));
   if (notToOmit.length > 0) {
-    store.dispatch('REPLACE_OMIT_LIST', toOmit);
+    store.commit('REPLACE_OMIT_LIST', toOmit);
   }
   // remove nodes in "include" that would be made redundant by the new one
   const [notToIncluded, toInclude] = partition(included, includeNode =>
     isDescendantOrSelf(includeNode, node)
   );
   if (notToIncluded.length > 0) {
-    store.dispatch('REPLACE_INCLUDE_LIST', toInclude);
+    store.commit('REPLACE_INCLUDE_LIST', toInclude);
   }
   return getContentNodeFileSize(node).then(fileSizes => {
-    store.dispatch('ADD_NODE_TO_INCLUDE_LIST', {
+    store.commit('ADD_NODE_TO_INCLUDE_LIST', {
       ...node,
       ...fileSizes,
     });
@@ -68,7 +68,7 @@ export function removeNodeForTransfer(store, node) {
     isDescendantOrSelf(includeNode, node)
   );
   if (notToInclude.length > 0) {
-    store.dispatch('REPLACE_INCLUDE_LIST', toInclude);
+    store.commit('REPLACE_INCLUDE_LIST', toInclude);
   }
   // if the removed node's has ancestors that are selected, the removed node gets placed in "omit"
   const includedAncestors = included.filter(
@@ -78,11 +78,11 @@ export function removeNodeForTransfer(store, node) {
     // remove redundant nodes in "omit" that either descendants of the new node or the node itself
     const [notToOmit, toOmit] = partition(omitted, omitNode => isDescendantOrSelf(omitNode, node));
     if (notToOmit.length > 0) {
-      store.dispatch('REPLACE_OMIT_LIST', toOmit);
+      store.commit('REPLACE_OMIT_LIST', toOmit);
     }
     promise = getContentNodeFileSize(node)
       .then(fileSizes => {
-        store.dispatch('ADD_NODE_TO_OMIT_LIST', {
+        store.commit('ADD_NODE_TO_OMIT_LIST', {
           ...node,
           ...fileSizes,
         });
@@ -107,9 +107,9 @@ export function removeNodeForTransfer(store, node) {
           }
           if (ancestorResources === omittedResources) {
             // remove the ancestor from "include"
-            store.dispatch('REPLACE_INCLUDE_LIST', included.filter(n => n.id !== ancestor.id));
+            store.commit('REPLACE_INCLUDE_LIST', included.filter(n => n.id !== ancestor.id));
             // remove all desceandants from "omit"
-            store.dispatch(
+            store.commit(
               'REPLACE_OMIT_LIST',
               omitted.filter(n => !pluckIds(n.path).includes(ancestor.id))
             );

@@ -113,7 +113,7 @@
       actions: {
         refreshTaskList,
         hideWelcomeModal(store) {
-          store.dispatch('SET_WELCOME_MODAL_VISIBLE', false);
+          store.commit('SET_WELCOME_MODAL_VISIBLE', false);
         },
       },
     },

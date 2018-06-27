@@ -14,7 +14,7 @@ export function refreshLessonReport(store, lessonId) {
   LessonReportResource.getModel(lessonId)
     .fetch({}, true)
     .then(lessonReport => {
-      store.dispatch('SET_LESSON_REPORT', lessonReport);
+      store.commit('SET_LESSON_REPORT', lessonReport);
     });
 }
 
@@ -23,7 +23,7 @@ export function refreshLessonReport(store, lessonId) {
  */
 export function showLessonResourceUserSummaryPage(store, params) {
   const { classId, lessonId, contentId } = params;
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.commit('CORE_SET_PAGE_LOADING', true);
 
   const loadRequirements = [
     // Used to get Lesson.learner_ids
@@ -60,21 +60,21 @@ export function showLessonResourceUserSummaryPage(store, params) {
             };
           });
 
-          store.dispatch('SET_PAGE_STATE', {
+          store.commit('SET_PAGE_STATE', {
             channelTitle: channelObject.title,
             resourceTitle: contentNode.title,
             resourceKind: contentNode.kind,
             contentNode: { ...contentNode },
             userData,
           });
-          store.dispatch('CORE_SET_TITLE', contentNode.title);
-          store.dispatch('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.SUMMARY });
-          store.dispatch('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_SUMMARY);
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.commit('CORE_SET_TITLE', contentNode.title);
+          store.commit('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.SUMMARY });
+          store.commit('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_SUMMARY);
+          store.commit('CORE_SET_PAGE_LOADING', false);
         });
     })
     .catch(error => {
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_PAGE_LOADING', false);
       return handleApiError(store, error);
     });
 }
@@ -84,16 +84,16 @@ export function showLessonResourceUserSummaryPage(store, params) {
  */
 export function showLessonResourceUserReportPage(store, params) {
   const { classId, contentId, userId, questionNumber, interactionNumber } = params;
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_REPORT);
-  store.dispatch('SET_PAGE_STATE', {
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_REPORT);
+  store.commit('SET_PAGE_STATE', {
     toolbarRoute: { name: LessonsPageNames.RESOURCE_USER_SUMMARY },
   });
   ContentNodeResource.getModel(contentId)
     .fetch()
     .then(
       contentNode => {
-        store.dispatch('CORE_SET_TITLE', contentNode.title);
+        store.commit('CORE_SET_TITLE', contentNode.title);
         // NOTE: returning the result causes problems for some reason
         showExerciseDetailView(
           store,
@@ -106,7 +106,7 @@ export function showLessonResourceUserReportPage(store, params) {
         );
       },
       error => {
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.commit('CORE_SET_PAGE_LOADING', false);
         return handleApiError(store, error);
       }
     );

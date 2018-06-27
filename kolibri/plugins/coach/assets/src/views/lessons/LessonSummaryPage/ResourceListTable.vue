@@ -256,10 +256,10 @@
         createSnackbar,
         clearSnackbar,
         removeFromWorkingResources(store, resourceId) {
-          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', resourceId);
+          store.commit('REMOVE_FROM_WORKING_RESOURCES', resourceId);
         },
         setWorkingResources(store, resourceArray) {
-          store.dispatch('SET_WORKING_RESOURCES', resourceArray);
+          store.commit('SET_WORKING_RESOURCES', resourceArray);
         },
       },
     },

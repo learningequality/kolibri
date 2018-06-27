@@ -120,9 +120,9 @@ export function showRoot(store) {
 }
 
 export function showChannels(store) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_ROOT);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('allChannels'));
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', PageNames.TOPICS_ROOT);
+  store.commit('CORE_SET_TITLE', translator.$tr('allChannels'));
 
   setAndCheckChannels(store).then(
     channels => {
@@ -145,9 +145,9 @@ export function showChannels(store) {
               }
             })
             .filter(Boolean);
-          store.dispatch('SET_PAGE_STATE', { rootNodes });
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-          store.dispatch('CORE_SET_ERROR', null);
+          store.commit('SET_PAGE_STATE', { rootNodes });
+          store.commit('CORE_SET_PAGE_LOADING', false);
+          store.commit('CORE_SET_ERROR', null);
         });
     },
     error => {
@@ -166,8 +166,8 @@ export function getCopies(store, contentId) {
 }
 
 export function showTopicsTopic(store, { id, isRoot = false }) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
   const promises = [
     ContentNodeResource.getModel(id).fetch(), // the topic
     ContentNodeResource.getCollection({
@@ -195,7 +195,7 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
       if (isRoot) {
         topic.description = currentChannel.description;
       }
-      store.dispatch('SET_PAGE_STATE', pageState);
+      store.commit('SET_PAGE_STATE', pageState);
 
       // Only load subtopic progress if the user is logged in
       if (isUserLoggedIn(store.state)) {
@@ -207,23 +207,23 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
           ContentNodeProgressResource.getCollection({ ids: subtopicIds })
             .fetch()
             .then(progresses => {
-              store.dispatch('SET_TOPIC_PROGRESS', progresses);
+              store.commit('SET_TOPIC_PROGRESS', progresses);
             });
         }
       }
 
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_ERROR', null);
 
       if (isRoot) {
-        store.dispatch(
+        store.commit(
           'CORE_SET_TITLE',
           translator.$tr('topicsForChannelPageTitle', {
             currentChannelTitle: currentChannel.title,
           })
         );
       } else {
-        store.dispatch(
+        store.commit(
           'CORE_SET_TITLE',
           translator.$tr('currentTopicForChannelPageTitle', {
             currentTopicTitle: pageState.topic.title,
@@ -239,15 +239,15 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
 }
 
 export function showTopicsChannel(store, id) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
   showTopicsTopic(store, { id, isRoot: true });
 }
 
 export function showTopicsContent(store, id) {
-  store.dispatch('SET_EMPTY_LOGGING_STATE');
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
+  store.commit('SET_EMPTY_LOGGING_STATE');
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
 
   const promises = [
     ContentNodeResource.getModel(id).fetch(),
@@ -263,13 +263,13 @@ export function showTopicsContent(store, id) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      store.dispatch('SET_PAGE_STATE', {
+      store.commit('SET_PAGE_STATE', {
         content: contentState(content, nextContent, ancestors),
         channel: currentChannel,
       });
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch(
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_ERROR', null);
+      store.commit(
         'CORE_SET_TITLE',
         translator.$tr('currentContentForChannelPageTitle', {
           currentContentTitle: content.title,
@@ -292,11 +292,11 @@ export function triggerSearch(store, searchTerm) {
     .fetch()
     .then(results => {
       const contents = _collectionState(results);
-      store.dispatch('SET_PAGE_STATE', {
+      store.commit('SET_PAGE_STATE', {
         searchTerm,
         contents,
       });
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_PAGE_LOADING', false);
 
       const contentIds = contents
         .filter(
@@ -320,7 +320,7 @@ export function triggerSearch(store, searchTerm) {
               }
               return updatedContent;
             });
-            store.dispatch('SET_CONTENT', updatedContents);
+            store.commit('SET_CONTENT', updatedContents);
           })
           .catch(error => handleApiError(store, error));
       }
@@ -331,7 +331,7 @@ export function triggerSearch(store, searchTerm) {
 }
 
 export function clearSearch(store, searchTerm = '') {
-  store.dispatch('SET_PAGE_STATE', {
+  store.commit('SET_PAGE_STATE', {
     topics: [],
     contents: [],
     searchTerm,
@@ -339,19 +339,19 @@ export function clearSearch(store, searchTerm = '') {
 }
 
 export function showContentUnavailable(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
-  store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('contentUnavailablePageTitle'));
+  store.commit('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
+  store.commit('SET_PAGE_STATE', {});
+  store.commit('CORE_SET_PAGE_LOADING', false);
+  store.commit('CORE_SET_ERROR', null);
+  store.commit('CORE_SET_TITLE', translator.$tr('contentUnavailablePageTitle'));
 }
 
 export function showSearch(store, searchTerm) {
-  store.dispatch('SET_PAGE_NAME', PageNames.SEARCH);
-  store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('searchPageTitle'));
+  store.commit('SET_PAGE_NAME', PageNames.SEARCH);
+  store.commit('SET_PAGE_STATE', {});
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('CORE_SET_ERROR', null);
+  store.commit('CORE_SET_TITLE', translator.$tr('searchPageTitle'));
   clearSearch(store);
   setAndCheckChannels(store).then(channels => {
     if (!channels.length) {
@@ -360,7 +360,7 @@ export function showSearch(store, searchTerm) {
     if (searchTerm) {
       triggerSearch(store, searchTerm);
     } else {
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_PAGE_LOADING', false);
     }
   });
 }
@@ -377,8 +377,8 @@ export function calcQuestionsAnswered(attemptLogs) {
 
 export function showExamReport(store, params) {
   const { classId, examId, questionNumber, questionInteraction } = params;
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_REPORT_VIEWER);
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_REPORT_VIEWER);
 
   const userId = currentUserId(store.state);
   const examReportPromise = getExamReport(
@@ -391,15 +391,15 @@ export function showExamReport(store, params) {
   ConditionalPromise.all([examReportPromise]).then(
     ([examReport]) => {
       if (canViewExamReport(examReport.exam, examReport.examLog)) {
-        store.dispatch('SET_PAGE_STATE', examReport);
-        store.dispatch('CORE_SET_ERROR', null);
-        store.dispatch(
+        store.commit('SET_PAGE_STATE', examReport);
+        store.commit('CORE_SET_ERROR', null);
+        store.commit(
           'CORE_SET_TITLE',
           translator.$tr('examReportTitle', {
             examTitle: examReport.exam.title,
           })
         );
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.commit('CORE_SET_PAGE_LOADING', false);
       } else {
         router.replace({
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
@@ -417,16 +417,16 @@ export function showExamReport(store, params) {
 export function showExam(store, params) {
   let questionNumber = params.questionNumber;
   const { classId, examId } = params;
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
   // Reset examAttemptLogs, so that it will not merge into another exam.
-  store.dispatch('RESET_EXAM_ATTEMPT_LOGS');
+  store.commit('RESET_EXAM_ATTEMPT_LOGS');
   const userId = currentUserId(store.state);
   const examParams = { user: userId, exam: examId };
 
   if (!userId) {
-    store.dispatch('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.commit('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
+    store.commit('CORE_SET_PAGE_LOADING', false);
   } else {
     questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
 
@@ -448,12 +448,12 @@ export function showExam(store, params) {
         const attemptLogs = {};
 
         if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
-          store.dispatch('SET_EXAM_LOG', examLogs.find(log => !log.closed));
+          store.commit('SET_EXAM_LOG', examLogs.find(log => !log.closed));
         } else {
           ExamLogResource.createModel({ ...examParams, closed: false })
             .save()
             .then(newExamLog => {
-              store.dispatch('SET_EXAM_LOG', newExamLog);
+              store.commit('SET_EXAM_LOG', newExamLog);
               return ExamLogResource.unCacheCollection(examParams);
             });
         }
@@ -565,11 +565,11 @@ export function showExam(store, params) {
                   };
                 }
                 pageState.currentAttempt = attemptLogs[currentQuestion.contentId][itemId];
-                store.dispatch('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
-                store.dispatch('SET_PAGE_STATE', pageState);
-                store.dispatch('CORE_SET_PAGE_LOADING', false);
-                store.dispatch('CORE_SET_ERROR', null);
-                store.dispatch(
+                store.commit('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
+                store.commit('SET_PAGE_STATE', pageState);
+                store.commit('CORE_SET_PAGE_LOADING', false);
+                store.commit('CORE_SET_ERROR', null);
+                store.commit(
                   'CORE_SET_TITLE',
                   translator.$tr('currentExamPageTitle', {
                     currentExamTitle: pageState.exam.title,
@@ -596,14 +596,14 @@ export function setAndSaveCurrentExamAttemptLog(store, { contentId, itemId, curr
   // UserExamResource - as that data has now changed.
   UserExamResource.clearCache();
 
-  store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+  store.commit('SET_EXAM_ATTEMPT_LOGS', {
     [contentId]: {
       [itemId]: currentAttemptLog,
     },
   });
   const pageState = Object.assign(store.state.pageState);
   pageState.currentAttempt = currentAttemptLog;
-  store.dispatch('SET_PAGE_STATE', pageState);
+  store.commit('SET_PAGE_STATE', pageState);
   // If a save has already been fired for this particular attempt log,
   // it may not have an id yet, so we can look for it by its uniquely
   // identifying fields, contentId and itemId.
@@ -624,13 +624,13 @@ export function setAndSaveCurrentExamAttemptLog(store, { contentId, itemId, curr
     newExamAttemptLog =>
       new Promise(resolve => {
         const log = Object.assign({}, newExamAttemptLog);
-        store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+        store.commit('SET_EXAM_ATTEMPT_LOGS', {
           [contentId]: {
             [itemId]: log,
           },
         });
         const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
-        store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
+        store.commit('SET_QUESTIONS_ANSWERED', questionsAnswered);
         const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
           user: currentUserId(store.state),
           exam: store.state.pageState.exam.id,

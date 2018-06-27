@@ -18,7 +18,7 @@ const translator = createTranslator('deviceAppPageTitles', {
 });
 
 function hideLoadingScreen() {
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.commit('CORE_SET_PAGE_LOADING', false);
 }
 
 const routes = [
@@ -29,7 +29,7 @@ const routes = [
   {
     path: '/welcome',
     redirect: () => {
-      store.dispatch('SET_WELCOME_MODAL_VISIBLE', true);
+      store.commit('SET_WELCOME_MODAL_VISIBLE', true);
       return '/content';
     },
   },
@@ -37,7 +37,7 @@ const routes = [
     name: PageNames.MANAGE_CONTENT_PAGE,
     path: '/content',
     handler: ({ name }) => {
-      preparePage(store.dispatch, {
+      preparePage(store.commit, {
         name,
         title: translator.$tr('manageDeviceContent'),
       });
@@ -48,7 +48,7 @@ const routes = [
     name: PageNames.MANAGE_PERMISSIONS_PAGE,
     path: '/permissions',
     handler: ({ name }) => {
-      preparePage(store.dispatch, {
+      preparePage(store.commit, {
         name,
         title: translator.$tr('manageDevicePermissions'),
       });
@@ -59,7 +59,7 @@ const routes = [
     name: PageNames.USER_PERMISSIONS_PAGE,
     path: '/permissions/:userid',
     handler: ({ params, name }) => {
-      preparePage(store.dispatch, {
+      preparePage(store.commit, {
         name,
         title: translator.$tr('manageUserPermissions'),
       });
@@ -70,7 +70,7 @@ const routes = [
     name: PageNames.DEVICE_INFO_PAGE,
     path: '/info',
     handler: ({ name }) => {
-      preparePage(store.dispatch, {
+      preparePage(store.commit, {
         name,
         title: translator.$tr('deviceInfo'),
       });

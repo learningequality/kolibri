@@ -44,7 +44,7 @@ function getElements(wrapper) {
 
 function updateMetaChannel(store, updates) {
   const { transferredChannel } = store.state.pageState.wizardState;
-  store.dispatch('SET_TRANSFERRED_CHANNEL', {
+  store.commit('SET_TRANSFERRED_CHANNEL', {
     ...transferredChannel,
     ...updates,
   });

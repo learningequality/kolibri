@@ -42,7 +42,7 @@ export function loadChannelMetaData(store) {
     .catch(({ errorType }) => {
       // ignore cancellations
       if (errorType !== 'CHANNEL_TASK_ERROR') {
-        store.dispatch('SET_WIZARD_STATUS', errorType);
+        store.commit('SET_WIZARD_STATUS', errorType);
       }
     });
 }
@@ -62,21 +62,21 @@ export function updateTreeViewTopic(store, topic) {
   if (inExportMode(store.state)) {
     fetchArgs.for_export = 'true';
   }
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.commit('CORE_SET_PAGE_LOADING', true);
   return (
     ContentNodeGranularResource.getModel(topic.id)
       // Need to force fetch, since cached values are used even with different
       // query params
       .fetch(fetchArgs, true)
       .then(contents => {
-        store.dispatch('SET_CURRENT_TOPIC_NODE', contents);
-        store.dispatch('UPDATE_PATH_BREADCRUMBS', topic);
+        store.commit('SET_CURRENT_TOPIC_NODE', contents);
+        store.commit('UPDATE_PATH_BREADCRUMBS', topic);
       })
       .catch(() => {
-        store.dispatch('SET_WIZARD_STATUS', 'TREEVIEW_LOADING_ERROR');
+        store.commit('SET_WIZARD_STATUS', 'TREEVIEW_LOADING_ERROR');
       })
       .then(() => {
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.commit('CORE_SET_PAGE_LOADING', false);
       })
   );
 }

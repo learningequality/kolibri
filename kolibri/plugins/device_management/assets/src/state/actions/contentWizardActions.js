@@ -34,15 +34,15 @@ export const KOLIBRI_STUDIO = 'network';
 
 // TODO move wizardState.pageName out of Vuex into local state
 export function setWizardPageName(store, pageName) {
-  store.dispatch('SET_WIZARD_PAGENAME', pageName);
+  store.commit('SET_WIZARD_PAGENAME', pageName);
 }
 
 export function setTransferType(store, transferType) {
-  store.dispatch('SET_TRANSFER_TYPE', transferType);
+  store.commit('SET_TRANSFER_TYPE', transferType);
 }
 
 export function setTransferredChannel(store, channel) {
-  store.dispatch('SET_TRANSFERRED_CHANNEL', { ...channel });
+  store.commit('SET_TRANSFERRED_CHANNEL', { ...channel });
 }
 
 export function startImportWorkflow(store, channel) {
@@ -57,13 +57,13 @@ export function startExportWorkflow(store) {
 
 // Cancels wizard and resets wizardState
 export function resetContentWizardState(store) {
-  store.dispatch('RESET_CONTENT_WIZARD_STATE');
+  store.commit('RESET_CONTENT_WIZARD_STATE');
 }
 
 // Provide a intermediate state before Available Channels is fully-loaded
 function prepareForAvailableChannelsPage(store) {
   setToolbarTitle(store, translator.$tr('loadingChannelsToolbar'));
-  store.dispatch('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
+  store.commit('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
 }
 
 // Forward from SELECT_IMPORT -> SELECT_DRIVE or AVAILABLE_CHANNELS
@@ -153,7 +153,7 @@ function handleError(store, error) {
   const { error: errorType } = error;
   // special errors that are handled gracefully by UI
   if (errorType) {
-    return store.dispatch('SET_WIZARD_STATUS', errorType);
+    return store.commit('SET_WIZARD_STATUS', errorType);
   }
   // handle other errors generically
   handleApiError(store, error);
@@ -168,8 +168,8 @@ export function showAvailableChannelsPage(store, params) {
   let pageTitle;
   const transferType = getTransferType(params);
 
-  store.dispatch('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
+  store.commit('CORE_SET_PAGE_LOADING', true);
   resetContentWizardState(store);
 
   if (transferType === null) {
@@ -210,16 +210,16 @@ export function showAvailableChannelsPage(store, params) {
   return ConditionalPromise.all([availableChannelsPromise, selectedDrivePromise]).only(
     samePageCheckGenerator(store),
     function onSuccess([availableChannels, selectedDrive]) {
-      store.dispatch('HYDRATE_SHOW_AVAILABLE_CHANNELS_PAGE', {
+      store.commit('HYDRATE_SHOW_AVAILABLE_CHANNELS_PAGE', {
         availableChannels,
         selectedDrive,
         transferType,
       });
-      store.dispatch('CORE_SET_TITLE', pageTitle);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_TITLE', pageTitle);
+      store.commit('CORE_SET_PAGE_LOADING', false);
     },
     function onFailure(error) {
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_PAGE_LOADING', false);
       return handleError(store, error);
     }
   );
@@ -236,9 +236,9 @@ export function showSelectContentPage(store, params) {
   const { drive_id, channel_id } = params;
   const transferType = getTransferType(params);
 
-  store.dispatch('RESET_CONTENT_WIZARD_STATE');
-  store.dispatch('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.commit('RESET_CONTENT_WIZARD_STATE');
+  store.commit('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
+  store.commit('CORE_SET_PAGE_LOADING', true);
   setToolbarTitle(store, translator.$tr('loadingChannelToolbar'));
 
   if (transferType === null) {
@@ -252,7 +252,7 @@ export function showSelectContentPage(store, params) {
     .fetch({ file_sizes: true }, true)
     .then(channel => {
       if (store.state.pageState.channelList.length === 0) {
-        store.dispatch('SET_CHANNEL_LIST', [channel]);
+        store.commit('SET_CHANNEL_LIST', [channel]);
       }
     })
     .catch(() => {});
@@ -311,17 +311,17 @@ export function showSelectContentPage(store, params) {
   ]).only(
     samePageCheckGenerator(store),
     function onSuccess([selectedDrive, transferredChannel, availableSpace]) {
-      store.dispatch('HYDRATE_SELECT_CONTENT_PAGE', {
+      store.commit('HYDRATE_SELECT_CONTENT_PAGE', {
         availableSpace,
         selectedDrive,
         transferType,
         transferredChannel,
       });
-      store.dispatch(
+      store.commit(
         'CORE_SET_TITLE',
         translator.$tr('selectContentFromChannel', { channelName: transferredChannel.name })
       );
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_PAGE_LOADING', false);
 
       const isSamePage = samePageCheckGenerator(store);
       return loadChannelMetaData(store).then(() => {
@@ -334,7 +334,7 @@ export function showSelectContentPage(store, params) {
       });
     },
     function onFailure(error) {
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_PAGE_LOADING', false);
       return handleError(store, error);
     }
   );
