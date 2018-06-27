@@ -1,10 +1,8 @@
-import { getChannels } from 'kolibri.coreVue.vuex.getters';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { LearnerGroupResource, LessonResource, ContentNodeResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-import { handleApiError, createSnackbar } from 'kolibri.coreVue.vuex.actions';
 import { error as logError } from 'kolibri.lib.logging';
 import router from 'kolibri.coreVue.router';
 import LessonReportResource from '../../apiResources/lessonReport';
@@ -38,7 +36,7 @@ export function showLessonsRootPage(store, classId) {
       store.commit('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
       store.commit('CORE_SET_PAGE_LOADING', false);
     }
   );
@@ -53,7 +51,7 @@ export function refreshClassLessons(store, classId) {
       return lessons;
     })
     .catch(error => {
-      return handleApiError(store, error);
+      return store.dispatch('handleApiError', error);
     });
 }
 
@@ -71,7 +69,7 @@ export function updateCurrentLesson(store, lessonId) {
           return lesson;
         },
         error => {
-          return handleApiError(store, error);
+          return store.dispatch('handleApiError', error);
         }
       )
   );
@@ -111,7 +109,7 @@ export function showLessonSummaryPage(store, params) {
     })
     .catch(error => {
       store.commit('CORE_SET_PAGE_LOADING', false);
-      return handleApiError(store, error);
+      return store.dispatch('handleApiError', error);
     });
 }
 
@@ -184,7 +182,7 @@ function showResourceSelectionPage(
     },
     error => {
       store.commit('CORE_SET_PAGE_LOADING', false);
-      return handleApiError(store, error);
+      return store.dispatch('handleApiError', error);
     }
   );
 }
@@ -192,7 +190,7 @@ function showResourceSelectionPage(
 export function showLessonResourceSelectionRootPage(store, params) {
   const { classId, lessonId } = params;
   store.commit('CORE_SET_PAGE_LOADING', true);
-  const channelContentList = getChannels(store.state).map(channel => {
+  const channelContentList = store.getters.getChannels.map(channel => {
     return {
       id: channel.root_id,
       description: channel.description,
@@ -250,7 +248,7 @@ export function showLessonResourceSelectionTopicPage(store, params) {
     },
     error => {
       store.commit('CORE_SET_PAGE_LOADING', false);
-      return handleApiError(store, error);
+      return store.dispatch('handleApiError', error);
     }
   );
 }
@@ -333,7 +331,7 @@ export function showLessonSelectionContentPreview(store, params) {
     })
     .catch(error => {
       store.commit('CORE_SET_PAGE_LOADING', false);
-      return handleApiError(store, error);
+      return store.dispatch('handleApiError', error);
     });
 }
 
@@ -363,7 +361,7 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
         return contentNode;
       },
       error => {
-        return handleApiError(store, error);
+        return store.dispatch('handleApiError', error);
       }
     );
 }
@@ -386,14 +384,14 @@ export function updateLessonStatus(store, { lessonId, isActive }) {
         lessonIsNowInactive: 'Lesson is now inactive',
       });
 
-      createSnackbar(store, {
+      store.dispatch('createSnackbar', {
         text: isActive ? trs.$tr('lessonIsNowActive') : trs.$tr('lessonIsNowInactive'),
         autoDismiss: true,
       });
     })
     .catch(err => {
       // TODO handle error properly
-      handleApiError(store, err);
+      store.dispatch('handleApiError', err);
       logError(err);
     });
 }
@@ -410,7 +408,7 @@ export function deleteLesson(store, { lessonId, classId }) {
           lessonId,
         },
       });
-      createSnackbar(store, {
+      store.dispatch('createSnackbar', {
         text: createTranslator('lessonDeletedSnackbar', {
           lessonDeleted: 'Lesson deleted',
         }).$tr('lessonDeleted'),
@@ -419,7 +417,7 @@ export function deleteLesson(store, { lessonId, classId }) {
     })
     .catch(error => {
       // TODO handle error inside the current page
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
       logError(error);
     });
 }
@@ -429,7 +427,7 @@ export function copyLesson(store, { payload, classroomName }) {
     .save()
     ._promise.then(() => {
       setLessonsModal(store, null);
-      createSnackbar(store, {
+      store.dispatch('createSnackbar', {
         text: createTranslator('lessonCopiedSnackbar', {
           copiedLessonTo: `Copied lesson to '{classroomName}'`,
         }).$tr('copiedLessonTo', { classroomName }),
@@ -437,7 +435,7 @@ export function copyLesson(store, { payload, classroomName }) {
       });
     })
     .catch(error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
       logError(error);
     });
 }
@@ -448,7 +446,7 @@ export function updateLesson(store, { lessonId, payload }) {
       .save(payload)
       .then(updatedLesson => {
         setLessonsModal(store, null);
-        createSnackbar(store, {
+        store.dispatch('createSnackbar', {
           text: createTranslator('lessonUpdatedSnackbar', {
             changesToLessonSaved: 'Changes to lesson saved',
           }).$tr('changesToLessonSaved'),
@@ -474,7 +472,7 @@ export function createLesson(store, { classId, payload }) {
       .then(newLesson => {
         setLessonsModal(store, null);
         router.push(lessonSummaryLink({ classId: classId, lessonId: newLesson.id }));
-        createSnackbar(store, {
+        store.dispatch('createSnackbar', {
           text: createTranslator('lessonCreatedSnackbar', {
             newLessonCreated: 'New lesson created',
           }).$tr('newLessonCreated'),

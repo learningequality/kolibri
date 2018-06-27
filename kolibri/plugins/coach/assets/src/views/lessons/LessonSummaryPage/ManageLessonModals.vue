@@ -51,18 +51,12 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
-  import {
-    setLessonsModal,
-    updateLessonStatus,
-    copyLesson,
-    deleteLesson,
-    updateLesson,
-  } from '../../../state/actions/lessons';
 
   export default {
     name: 'manageLessonModals',
@@ -73,6 +67,12 @@
       AssignmentDeleteModal,
     },
     computed: {
+      ...mapState(['classId', 'classList', 'className']),
+      ...mapState({
+        currentLesson: state => state.pageState.currentLesson,
+        lessonsModalSet: state => state.pageState.lessonsModalSet,
+        learnerGroups: state => state.pageState.learnerGroups,
+      }),
       AssignmentActions() {
         return AssignmentActions;
       },
@@ -81,6 +81,13 @@
       },
     },
     methods: {
+      ...mapActions([
+        'setLessonsModal',
+        'updateLessonStatus',
+        'deleteLesson',
+        'copyLesson',
+        'updateLesson',
+      ]),
       handleChangeStatus(isActive) {
         this.updateLessonStatus({ lessonId: this.currentLesson.id, isActive });
       },
@@ -107,23 +114,6 @@
         })
           .then()
           .catch(() => this.$refs.detailsModal.handleSubmitFailure());
-      },
-    },
-    vuex: {
-      getters: {
-        currentLesson: state => state.pageState.currentLesson,
-        lessonsModalSet: state => state.pageState.lessonsModalSet,
-        classId: state => state.classId,
-        classList: state => state.classList,
-        className: state => state.className,
-        learnerGroups: state => state.pageState.learnerGroups,
-      },
-      actions: {
-        setLessonsModal,
-        updateLessonStatus,
-        deleteLesson,
-        copyLesson,
-        updateLesson,
       },
     },
     $trs: {

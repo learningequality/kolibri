@@ -139,7 +139,7 @@ export function deleteUser(store, id) {
         }
       },
       error => {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       }
     );
 }
@@ -167,7 +167,7 @@ export function showUserPage(store) {
         store.commit('CORE_SET_PAGE_LOADING', false);
       },
       error => {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       }
     );
 }

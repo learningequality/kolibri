@@ -129,9 +129,9 @@
       };
     },
     computed: {
-      ...mapState('coachPlugin/reports', ['channelId']),
       ...mapState(['examAttemptLogs']),
       ...mapState({
+        channelId: state => state.pageState.channelId,
         exam: state => state.pageState.exam,
         content: state => state.pageState.content,
         itemId: state => state.pageState.itemId,

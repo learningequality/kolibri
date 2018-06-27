@@ -85,6 +85,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -93,7 +94,6 @@
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import sortBy from 'lodash/sortBy';
-  import { displayModal } from '../../state/actions/group';
 
   export default {
     name: 'groupSection',
@@ -141,6 +141,9 @@
       return { selectedUsers: [] };
     },
     computed: {
+      ...mapState({
+        groupModalShown: state => state.pageState.groupModalShown,
+      }),
       sortedGroupUsers() {
         return sortBy(this.group.users, user => user.full_name.toLowerCase());
       },
@@ -191,10 +194,6 @@
       emitMove() {
         this.$emit('move', this.group.name, this.group.id, this.selectedUsers, this.isUngrouped);
       },
-    },
-    vuex: {
-      getters: { groupModalShown: state => state.pageState.groupModalShown },
-      actions: { displayModal },
     },
   };
 

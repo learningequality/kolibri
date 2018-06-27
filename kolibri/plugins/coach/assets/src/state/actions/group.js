@@ -1,4 +1,4 @@
-import { handleError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import logger from 'kolibri.lib.logging';
 import { LearnerGroupResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
@@ -73,7 +73,7 @@ export function showGroupsPage(store, classId) {
           store.commit('CORE_SET_ERROR', null);
           store.commit('CORE_SET_TITLE', translator.$tr('groupManagementPageTitle'));
         },
-        error => handleError(store, error)
+        error => store.dispatch('handleError', error)
       );
     },
     error => {
@@ -101,7 +101,7 @@ export function createGroup(store, groupName) {
         store.commit('CORE_SET_PAGE_LOADING', false);
         displayModal(store, false);
       },
-      error => handleError(store, error)
+      error => store.dispatch('handleError', error)
     );
 }
 
@@ -116,9 +116,9 @@ export function renameGroup(store, { groupId, newGroupName }) {
         groups[groupIndex].name = newGroupName;
         store.commit('SET_GROUPS', groups);
         store.commit('CORE_SET_PAGE_LOADING', false);
-        this.displayModal(false);
+        displayModal(store, false);
       },
-      error => handleError(store, error)
+      error => store.dispatch('handleError', error)
     );
 }
 
@@ -133,9 +133,9 @@ export function deleteGroup(store, groupId) {
 
         store.commit('SET_GROUPS', updatedGroups);
         store.commit('CORE_SET_PAGE_LOADING', false);
-        this.displayModal(false);
+        displayModal(store, false);
       },
-      error => handleError(store, error)
+      error => store.dispatch('handleError', error)
     );
 }
 
@@ -205,7 +205,7 @@ export function addUsersToGroup(store, { groupId, userIds }) {
   return _addMultipleUsersToGroup(store, groupId, userIds).then(
     () => {
       store.commit('CORE_SET_PAGE_LOADING', false);
-      this.displayModal(false);
+      displayModal(store, false);
     },
     error => logging.error(error)
   );
@@ -216,7 +216,7 @@ export function removeUsersFromGroup(store, { groupId, userIds }) {
   return _removeMultipleUsersFromGroup(store, groupId, userIds).then(
     () => {
       store.commit('CORE_SET_PAGE_LOADING', false);
-      this.displayModal(false);
+      displayModal(store, false);
     },
     error => logging.error(error)
   );
@@ -231,7 +231,7 @@ export function moveUsersBetweenGroups(store, { currentGroupId, newGroupId, user
   return Promise.all(promises).then(
     () => {
       store.commit('CORE_SET_PAGE_LOADING', false);
-      this.displayModal(false);
+      displayModal(store, false);
     },
     error => logging.error(error)
   );

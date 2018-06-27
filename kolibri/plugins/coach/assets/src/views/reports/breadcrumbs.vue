@@ -7,15 +7,9 @@
 
 <script>
 
-  import { getChannels, getChannelObject } from 'kolibri.coreVue.vuex.getters';
+  import { mapState, mapGetters } from 'vuex';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
   import { PageNames } from '../../constants';
-  import {
-    isTopicPage,
-    isRecentPage,
-    isLearnerPage,
-    numberOfAssignedClassrooms,
-  } from '../../state/getters/main';
 
   export default {
     name: 'breadcrumbs',
@@ -26,10 +20,43 @@
     },
     components: { kBreadcrumbs },
     computed: {
+      ...mapGetters({
+        channels: 'getChannels',
+      }),
+      ...mapState({
+        userScope: state => state.pageState.userScope,
+        userScopeId: state => state.pageState.userScopeId,
+        userScopeName: state => state.pageState.userScopeName,
+        contentScope: state => state.pageState.contentScope,
+        contentScopeSummary: state => state.pageState.contentScopeSummary,
+        channelId: state => state.pageState.channelId,
+      }),
+      ...mapGetters([
+        'getChannelObject',
+        'isTopicPage',
+        'isLearnerPage',
+        'isRecentPage',
+        'numberOfAssignedClassrooms',
+      ]),
+      ...mapState(['classId', 'pageName', 'pageState', 'currentClassroom']),
+      currentLearnerForReport() {
+        if (this.userScope === 'user') {
+          return {
+            name: this.userScopeName,
+            id: this.userScopeId,
+          };
+        }
+      },
+      currentLearnerReportContentNode() {
+        if (this.contentScope) {
+          return {
+            name: this.contentScopeSummary.title,
+            ancestors: this.contentScopeSummary.ancestors,
+          };
+        }
+      },
       channelTitle() {
-        return this.pageState.channelId
-          ? this.getChannelObject(this.pageState.channelId).title
-          : '';
+        return this.channelId ? this.getChannelObject(this.channelId).title : '';
       },
       classroomCrumbs() {
         // Only show these first two crumbs if Coach is assigned to 2+ Classrooms
@@ -105,7 +132,7 @@
       },
       recentItemCrumbs() {
         if (!this.isRecentPage) return [];
-        const { title } = this.pageState.contentScopeSummary || {};
+        const { title } = this.contentScopeSummary || {};
         return [
           {
             text: this.$tr('channels'),
@@ -120,7 +147,7 @@
               name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
               params: {
                 classId: this.classId,
-                channelId: this.pageState.channelId,
+                channelId: this.channelId,
               },
             },
           },
@@ -129,7 +156,7 @@
       },
       topicCrumbs() {
         if (!this.isTopicPage) return [];
-        const { ancestors = [], title } = this.pageState.contentScopeSummary;
+        const { ancestors = [], title } = this.contentScopeSummary;
         return [
           // link to the root channels page
           {
@@ -147,7 +174,7 @@
                 name: PageNames.TOPIC_ITEM_LIST,
                 params: {
                   classId: this.classId,
-                  channelId: this.pageState.channelId,
+                  channelId: this.channelId,
                   topicId: item.id,
                 },
               };
@@ -157,14 +184,14 @@
                 name: PageNames.TOPIC_CHANNEL_ROOT,
                 params: {
                   classId: this.classId,
-                  channelId: this.pageState.channelId,
+                  channelId: this.channelId,
                 },
               };
             }
             return breadcrumb;
           }),
           // current item
-          title && { text: this.pageState.contentScopeSummary.title },
+          title && { text: this.contentScopeSummary.title },
         ].filter(Boolean);
       },
     },
@@ -194,36 +221,6 @@
             },
           })),
         ];
-      },
-    },
-    vuex: {
-      getters: {
-        channels: getChannels,
-        classId: state => state.classId,
-        pageName: state => state.pageName,
-        pageState: state => state.pageState,
-        currentClassroom: state => state.currentClassroom,
-        isTopicPage,
-        isLearnerPage,
-        isRecentPage,
-        getChannelObject: state => getChannelObject.bind(null, state),
-        numberOfAssignedClassrooms,
-        currentLearnerForReport(state) {
-          if (state.pageState.userScope === 'user') {
-            return {
-              name: state.pageState.userScopeName,
-              id: state.pageState.userScopeId,
-            };
-          }
-        },
-        currentLearnerReportContentNode(state) {
-          if (state.pageState.contentScope) {
-            return {
-              name: state.pageState.contentScopeSummary.title,
-              ancestors: state.pageState.contentScopeSummary.ancestors,
-            };
-          }
-        },
       },
     },
   };

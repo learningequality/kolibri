@@ -184,7 +184,7 @@ export function kolibriLogin(store, sessionPayload) {
       } else if (error.status.code === 400 && error.entity.missing_field === 'password') {
         store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_MISSING);
       } else {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       }
     });
 }
@@ -208,7 +208,7 @@ export function getCurrentSession(store, force = false) {
       return session;
     })
     .catch(error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     });
 }
 
@@ -365,7 +365,7 @@ export function setChannelInfo(store) {
         return channelsData;
       },
       error => {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
         return error;
       }
     );
@@ -390,7 +390,7 @@ export function saveLogs(store) {
   if (sessionLog.id) {
     const sessionModel = ContentSessionLogResource.getModel(sessionLog.id);
     sessionModel.save(_contentSessionModel(store)).catch(error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     });
   }
 
@@ -398,7 +398,7 @@ export function saveLogs(store) {
   if (summaryLog.id) {
     const summaryModel = ContentSummaryLogResource.getModel(summaryLog.id);
     summaryModel.save(_contentSummaryModel(store)).catch(error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     });
   }
 }

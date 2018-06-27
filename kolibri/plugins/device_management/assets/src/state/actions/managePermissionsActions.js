@@ -4,7 +4,7 @@ import {
   FacilityUserResource,
 } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { handleApiError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
@@ -79,7 +79,7 @@ export function showManagePermissionsPage(store) {
       });
     })
     .catch(function onFailure(error) {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     });
 }
 
@@ -109,7 +109,7 @@ export function showUserPermissionsPage(store, userId) {
           permissions: {},
         });
       }
-      return handleApiError(store, error);
+      return store.dispatch('handleApiError', error);
     });
 }
 

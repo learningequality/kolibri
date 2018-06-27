@@ -1,5 +1,3 @@
-import { getChannelObject } from 'kolibri.coreVue.vuex.getters';
-
 export function SET_CLASS_LESSONS(state, lessons) {
   state.pageState.lessons = [...lessons];
 }
@@ -52,8 +50,8 @@ export function SET_LESSON_REPORT(state, report) {
 
 export function ADD_TO_RESOURCE_CACHE(state, node) {
   if (node && node.pk) {
-    const channelObject = getChannelObject(state, node.channel_id);
-
+    // TODO remove dependency on channel title
+    const channelObject = state.core.channels.list.find(({ id }) => id === node.channel_id);
     state.pageState.resourceCache[node.pk] = {
       ...node,
       channelTitle: channelObject.title,

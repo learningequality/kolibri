@@ -4,7 +4,7 @@ import {
   FacilityUserResource,
   RoleResource,
 } from 'kolibri.resources';
-import { samePageCheckGenerator, handleApiError } from 'kolibri.coreVue.vuex.actions';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
@@ -36,7 +36,7 @@ export function createClass(store, name) {
         displayModal(store, false);
       },
       error => {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       }
     );
 }
@@ -59,7 +59,7 @@ export function updateClass(store, { id, updateData }) {
         displayModal(store, false);
       },
       error => {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       }
     );
 }
@@ -81,7 +81,7 @@ export function deleteClass(store, id) {
         displayModal(store, false);
       },
       error => {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       }
     );
 }
@@ -132,7 +132,7 @@ export function removeClassLearner(store, { classId, userId }) {
         displayModal(store, false);
       },
       error => {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       }
     );
 }
@@ -156,7 +156,7 @@ export function removeClassCoach(store, { classId, userId }) {
         displayModal(store, false);
       },
       error => {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       }
     );
 }
@@ -179,7 +179,7 @@ export function showClassesPage(store) {
         store.commit('CORE_SET_PAGE_LOADING', false);
       },
       error => {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       }
     );
 }
@@ -211,7 +211,7 @@ export function showClassEditPage(store, classId) {
       store.commit('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     }
   );
 }
@@ -241,7 +241,7 @@ export function showLearnerClassEnrollmentPage(store, classId) {
       store.commit('SET_PAGE_NAME', PageNames.CLASS_ENROLL_LEARNER);
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     }
   );
 }
@@ -280,7 +280,7 @@ export function showCoachClassAssignmentPage(store, classId) {
       store.commit('SET_PAGE_NAME', PageNames.CLASS_ASSIGN_COACH);
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     }
   );
 }

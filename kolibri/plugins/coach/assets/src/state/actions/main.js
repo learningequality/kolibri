@@ -1,4 +1,3 @@
-import { handleApiError, handleError } from 'kolibri.coreVue.vuex.actions';
 import { ClassroomResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
@@ -34,7 +33,7 @@ export function setClassState(store, classId = null) {
         classList: [...classrooms],
       });
     })
-    .catch(error => handleApiError(store, error));
+    .catch(error => store.dispatch('handleApiError', error));
 }
 
 export function showClassListPage(store) {
@@ -47,7 +46,7 @@ export function showClassListPage(store) {
       store.commit('CORE_SET_ERROR', null);
       store.commit('CORE_SET_TITLE', translator.$tr('classListPageTitle'));
     },
-    error => handleApiError(store, error)
+    error => store.dispatch('handleApiError', error)
   );
 }
 
@@ -63,8 +62,8 @@ export function setSelectedAttemptLogIndex(store, index) {
 export function handleCoachPageError(store, errorObject) {
   const authErrorCodes = [401, 403, 404, 407];
   if (authErrorCodes.includes(errorObject.status.code)) {
-    handleError(store, '');
+    store.dispatch('handleError', '');
   } else {
-    handleError(store, errorObject);
+    store.dispatch('handleError', errorObject);
   }
 }

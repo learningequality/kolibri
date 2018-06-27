@@ -32,14 +32,9 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kModal from 'kolibri.coreVue.components.kModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import {
-    displayModal,
-    addUsersToGroup,
-    removeUsersFromGroup,
-    moveUsersBetweenGroups,
-  } from '../../state/actions/group';
 
   export default {
     name: 'moveLearnersModal',
@@ -88,10 +83,19 @@
       },
     },
     methods: {
+      ...mapActions([
+        'addUsersToGroup',
+        'displayModal',
+        'moveUsersBetweenGroups',
+        'removeUsersFromGroup',
+      ]),
       moveUsers() {
         if (this.groupId) {
           if (this.groupSelected === 'ungrouped') {
-            this.removeUsersFromGroup({ groupId: this.groupId, userIds: this.usersToMove });
+            this.removeUsersFromGroup({
+              groupId: this.groupId,
+              userIds: this.usersToMove,
+            });
           } else {
             this.moveUsersBetweenGroups({
               currentGroupId: this.groupId,
@@ -100,19 +104,14 @@
             });
           }
         } else {
-          this.addUsersToGroup({ groupId: this.groupSelected, userIds: this.usersToMove });
+          this.addUsersToGroup({
+            groupId: this.groupSelected,
+            userIds: this.usersToMove,
+          });
         }
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        displayModal,
-        addUsersToGroup,
-        removeUsersFromGroup,
-        moveUsersBetweenGroups,
       },
     },
   };

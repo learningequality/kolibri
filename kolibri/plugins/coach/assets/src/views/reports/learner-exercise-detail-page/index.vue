@@ -9,18 +9,25 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import { PageNames, LearnerReports } from '../../../constants';
   import learnerExerciseReport from './learner-exercise-report';
 
   export default {
-    name: 'coachExerciseRenderPage',
+    name: 'learnerExerciseDetailPage',
     $trs: { backPrompt: 'Back to { backTitle }' },
     components: {
       immersiveFullScreen,
       learnerExerciseReport,
     },
     computed: {
+      ...mapState(['classId', 'pageName']),
+      ...mapState({
+        channelId: state => state.pageState.channelId,
+        exercise: state => state.pageState.exercise,
+        user: state => state.pageState.user,
+      }),
       backPageLink() {
         if (this.pageName === PageNames.RECENT_LEARNER_ITEM_DETAILS) {
           return {
@@ -63,15 +70,6 @@
       },
       parentTopic() {
         return this.exercise.ancestors[this.exercise.ancestors.length - 1];
-      },
-    },
-    vuex: {
-      getters: {
-        channelId: state => state.pageState.channelId,
-        user: state => state.pageState.user,
-        exercise: state => state.pageState.exercise,
-        classId: state => state.classId,
-        pageName: state => state.pageName,
       },
     },
   };

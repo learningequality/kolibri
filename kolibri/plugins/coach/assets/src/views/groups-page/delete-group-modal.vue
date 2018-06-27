@@ -16,9 +16,9 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import { displayModal, deleteGroup } from '../../state/actions/group';
 
   export default {
     name: 'deleteGroupModal',
@@ -44,14 +44,9 @@
       },
     },
     methods: {
+      ...mapActions(['displayModal', 'deleteGroup']),
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        displayModal,
-        deleteGroup,
       },
     },
   };

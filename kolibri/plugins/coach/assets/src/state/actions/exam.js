@@ -8,12 +8,7 @@ import {
 } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
-import {
-  handleError,
-  handleApiError,
-  createSnackbar,
-  samePageCheckGenerator,
-} from 'kolibri.coreVue.vuex.actions';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { getExamReport } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
@@ -116,7 +111,7 @@ export function showExamsPage(store, classId) {
       store.commit('CORE_SET_TITLE', translator.$tr('coachExamListPageTitle'));
       store.commit('CORE_SET_PAGE_LOADING', false);
     },
-    error => handleError(store, error)
+    error => store.dispatch('handleError', error)
   );
 }
 
@@ -131,12 +126,12 @@ function updateExamStatus(store, { examId, isActive }) {
       () => {
         store.commit('SET_EXAM_STATUS', { examId, isActive });
         setExamsModal(store, false);
-        createSnackbar(store, {
+        store.dispatch('createSnackbar', {
           text: snackbarTranslator.$tr(isActive ? 'examIsNowActive' : 'examIsNowInactive'),
           autoDismiss: true,
         });
       },
-      error => handleError(store, error)
+      error => store.dispatch('handleError', error)
     );
 }
 
@@ -154,12 +149,12 @@ export function copyExam(store, { exam, className }) {
     () => {
       store.commit('CORE_SET_PAGE_LOADING', false);
       setExamsModal(store, false);
-      createSnackbar(store, {
+      store.dispatch('createSnackbar', {
         text: snackbarTranslator.$tr('copiedExamToClass', { className }),
         autoDismiss: true,
       });
     },
-    error => handleApiError(store, error)
+    error => store.dispatch('handleApiError', error)
   );
 }
 
@@ -176,7 +171,7 @@ export function updateExamDetails(store, { examId, payload }) {
 
           store.commit('SET_EXAMS', exams);
           setExamsModal(store, false);
-          createSnackbar(store, {
+          store.dispatch('createSnackbar', {
             text: snackbarTranslator.$tr('changesToExamSaved'),
             autoDismiss: true,
           });
@@ -201,13 +196,13 @@ export function deleteExam(store, examId) {
         store.commit('SET_EXAMS', updatedExams);
 
         router.replace({ name: PageNames.EXAMS });
-        createSnackbar(store, {
+        store.dispatch('createSnackbar', {
           text: snackbarTranslator.$tr('examDeleted'),
           autoDismiss: true,
         });
         setExamsModal(store, false);
       },
-      error => handleError(store, error)
+      error => store.dispatch('handleError', error)
     );
 }
 
@@ -240,7 +235,7 @@ export function showCreateExamPage(store, classId) {
       store.commit('CORE_SET_ERROR', null);
       store.commit('CORE_SET_PAGE_LOADING', false);
     },
-    error => handleError(store, error)
+    error => store.dispatch('handleError', error)
   );
 }
 
@@ -398,12 +393,12 @@ export function createExamAndRoute(store, exam) {
   _createExam(store, exam).then(
     () => {
       router.getInstance().push({ name: PageNames.EXAMS });
-      createSnackbar(store, {
+      store.dispatch('createSnackbar', {
         text: snackbarTranslator.$tr('newExamCreated'),
         autoDismiss: true,
       });
     },
-    error => handleApiError(store, error)
+    error => store.dispatch('handleApiError', error)
   );
 }
 
@@ -460,7 +455,7 @@ export function showExamReportPage(store, params) {
           store.commit('CORE_SET_PAGE_LOADING', false);
         },
         error => {
-          handleApiError(store, error);
+          store.dispatch('handleApiError', error);
         }
       );
     },

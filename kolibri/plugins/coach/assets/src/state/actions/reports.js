@@ -1,6 +1,4 @@
-import { handleError } from 'kolibri.coreVue.vuex.actions';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
-import { getChannels } from 'kolibri.coreVue.vuex.getters';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { now } from 'kolibri.utils.serverClock';
 import {
@@ -21,7 +19,6 @@ import {
   UserScopes,
   ViewBy,
 } from '../../constants/reportConstants';
-import { className } from '../getters/classes';
 import RecentReportResourceConstructor from '../../apiResources/recentReport';
 import UserReportResource from '../../apiResources/userReport';
 import ContentSummaryResourceConstructor from '../../apiResources/contentSummary';
@@ -129,7 +126,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
   const userScope = userId ? UserScopes.USER : UserScopes.CLASSROOM;
   const userScopeId = userId || classId;
 
-  const channels = getChannels(store.state);
+  const channels = store.getters.getChannels;
   const promises = [
     getAllChannelsLastActivePromise(channels, userScope, userScopeId),
     // Get the ContentNode for the ChannelRoot for getting num_coach_contents
@@ -151,7 +148,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
         showRecentOnly,
         userScope,
         userScopeId,
-        userScopeName: userId ? user.full_name : className(store.state),
+        userScopeName: userId ? user.full_name : store.state.className,
         viewBy: ViewBy.CHANNEL,
       });
       store.commit('SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
@@ -310,7 +307,7 @@ function _showContentList(store, options) {
         contentScopeId: options.contentScopeId,
         userScope: options.userScope,
         userScopeId: options.userScopeId,
-        userScopeName: isUser ? user.full_name : className(store.state),
+        userScopeName: isUser ? user.full_name : store.state.className,
         viewBy: ViewBy.CONTENT,
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
@@ -346,12 +343,12 @@ function _showClassLearnerList(store, options) {
         showRecentOnly: options.showRecentOnly,
         userScope: userScope,
         userScopeId: options.userScopeId,
-        userScopeName: className(store.state),
+        userScopeName: store.state.className,
         viewBy: ViewBy.LEARNER,
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
     },
-    error => handleError(store, error)
+    error => store.dispatch('handleError', error)
   );
 }
 
@@ -457,7 +454,7 @@ export function showRecentItemsForChannel(store, params) {
             showRecentOnly: true,
             userScope: UserScopes.CLASSROOM,
             userScopeId: classId,
-            userScopeName: className(store.state),
+            userScopeName: store.state.className,
             viewBy: ViewBy.RECENT,
           });
           setReportSorting(store, {
@@ -517,12 +514,12 @@ export function showLearnerList(store, classId) {
         showRecentOnly: false,
         userScope: UserScopes.CLASSROOM,
         userScopeId: classId,
-        userScopeName: className(store.state),
+        userScopeName: store.state.className,
         viewBy: ViewBy.LEARNER,
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
     },
-    error => handleError(store, error)
+    error => store.dispatch('handleError', error)
   );
 }
 

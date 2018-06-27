@@ -1,7 +1,5 @@
 import find from 'lodash/find';
 import { LessonResource, ContentNodeResource, LearnerGroupResource } from 'kolibri.resources';
-import { getChannelObject } from 'kolibri.coreVue.vuex.getters';
-import { handleApiError } from 'kolibri.coreVue.vuex.actions';
 import LessonReportResource from '../../apiResources/lessonReport';
 import UserReportResource from '../../apiResources/userReport';
 import { CollectionTypes, LessonsPageNames } from '../../constants/lessonsConstants';
@@ -36,7 +34,7 @@ export function showLessonResourceUserSummaryPage(store, params) {
 
   return Promise.all(loadRequirements)
     .then(([lesson, contentNode, learnerGroups]) => {
-      const channelObject = getChannelObject(store.state, contentNode.channel_id);
+      const channelObject = store.getters.getChannelObject(contentNode.channel_id);
       const getLearnerGroup = userId => find(learnerGroups, g => g.user_ids.includes(userId)) || {};
 
       // IDEA filter by ids?
@@ -75,7 +73,7 @@ export function showLessonResourceUserSummaryPage(store, params) {
     })
     .catch(error => {
       store.commit('CORE_SET_PAGE_LOADING', false);
-      return handleApiError(store, error);
+      return store.dispatch('handleApiError', error);
     });
 }
 
@@ -107,7 +105,7 @@ export function showLessonResourceUserReportPage(store, params) {
       },
       error => {
         store.commit('CORE_SET_PAGE_LOADING', false);
-        return handleApiError(store, error);
+        return store.dispatch('handleApiError', error);
       }
     );
 }

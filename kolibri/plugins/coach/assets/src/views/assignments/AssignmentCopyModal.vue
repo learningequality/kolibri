@@ -48,11 +48,11 @@
 
   import sortBy from 'lodash/sortBy';
   import find from 'lodash/find';
+  import { mapActions } from 'vuex';
   import { error as logError } from 'kolibri.lib.logging';
   import kModal from 'kolibri.coreVue.components.kModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import { LearnerGroupResource } from 'kolibri.resources';
-  import { handleApiError } from 'kolibri.coreVue.vuex.actions';
   import RecipientSelector from './RecipientSelector';
 
   const Stages = {
@@ -115,6 +115,7 @@
       this.selectedClassroomId = this.classId;
     },
     methods: {
+      ...mapActions(['handleApiError']),
       getLearnerGroupsForClassroom(classroomId) {
         return LearnerGroupResource.getCollection({ parent: classroomId }).fetch();
       },
@@ -149,11 +150,6 @@
       },
       isCurrentClassroom(classroom) {
         return classroom.id === this.classId;
-      },
-    },
-    vuex: {
-      actions: {
-        handleApiError,
       },
     },
     $trs: {

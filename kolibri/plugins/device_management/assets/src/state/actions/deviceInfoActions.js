@@ -1,6 +1,6 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
-import { samePageCheckGenerator, handleApiError } from 'kolibri.coreVue.vuex.actions';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { canManageContent } from 'kolibri.coreVue.vuex.getters';
 import bytesForHumans from '../../views/manage-content-page/bytesForHumans';
@@ -34,7 +34,7 @@ export function showDeviceInfoPage(store) {
         });
       })
       .catch(function onFailure(error) {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       });
   }
   return Promise.resolve();
