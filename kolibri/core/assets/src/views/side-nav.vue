@@ -73,6 +73,8 @@
 
 <script>
 
+  import { mapState, mapGetters } from 'vuex';
+  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -131,6 +133,13 @@
       };
     },
     computed: {
+      TopLevelPageNames() {
+        return TopLevelPageNames;
+      },
+      ...mapGetters(['isUserLoggedIn', 'isSuperuser', 'isAdmin', 'isCoach', 'canManageContent']),
+      ...mapState({
+        session: state => state.core.session,
+      }),
       mobile() {
         return this.windowSize.breakpoint < 2;
       },
@@ -192,11 +201,6 @@
           this.$refs.toggleButton.$el.focus();
         }
         return event;
-      },
-    },
-    vuex: {
-      getters: {
-        session: state => state.core.session,
       },
     },
   };

@@ -1,5 +1,4 @@
 import logger from 'kolibri.lib.logging';
-import { currentUserId, connected, reconnectTime } from 'kolibri.coreVue.vuex.getters';
 import store from 'kolibri.coreVue.vuex.store';
 import Lockr from 'lockr';
 import urls from 'kolibri.urls';
@@ -60,7 +59,7 @@ export class HeartBeat {
     this.active = false;
   }
   wait() {
-    const reconnect = reconnectTime(store.state);
+    const reconnect = store.getters.reconnectTime;
     // If we are currently engaged in exponential backoff in trying to reconnect to the server
     // use the current reconnect time preferentially instead of the standard delay.
     // The reconnect time is stored in seconds, so multiply by 1000 to give the milliseconds.
@@ -75,12 +74,12 @@ export class HeartBeat {
    * @return {Promise} promise that resolves when the endpoint check is complete.
    */
   checkSession() {
+    const { currentUserId: userId, connected, reconnectTime } = store.getters;
     // Record the current user id to check if a different one is returned by the server.
-    const userId = currentUserId(store.state);
     // Don't use the regular client, to avoid circular imports, and to use different custom
     // interceptors on the request specific to the behaviour here.
     let client = baseClient.wrap(mime, { mime: 'application/json' });
-    if (!connected(store.state)) {
+    if (!connected) {
       // If not currently connected to the server, flag that we are currently trying to reconnect.
       createTryingToReconnectSnackbar(store);
       client = client.wrap(
@@ -98,9 +97,9 @@ export class HeartBeat {
             // If we have got here, then the error code meant that the server is still not reachable
             // set the snackbar to disconnected.
             // See what the previous reconnect interval was.
-            const reconnect = reconnectTime(store.state);
+            const reconnect = reconnectTime;
             // Set a new reconnect interval.
-            store.dispatch(
+            store.commit(
               'CORE_SET_RECONNECT_TIME',
               // Multiply the previous interval by our multiplier, but max out at a high interval.
               Math.min(reconnectMultiplier * reconnect, maxReconnectTime)
@@ -140,10 +139,10 @@ export class HeartBeat {
    * if the vuex state does not already indicate disconnection.
    */
   monitorDisconnect() {
-    if (connected(store.state)) {
+    if (store.getters.connected) {
       // We have not already registered that we have been disconnected
-      store.dispatch('CORE_SET_CONNECTED', false);
-      store.dispatch('CORE_SET_RECONNECT_TIME', minReconnectTime);
+      store.commit('CORE_SET_CONNECTED', false);
+      store.commit('CORE_SET_RECONNECT_TIME', minReconnectTime);
       createDisconnectedSnackbar(store, this.beat);
       this.wait();
     }
@@ -153,8 +152,8 @@ export class HeartBeat {
    * on the regular heartbeat delay.
    */
   setConnected() {
-    store.dispatch('CORE_SET_CONNECTED', true);
-    store.dispatch('CORE_SET_RECONNECT_TIME', null);
+    store.commit('CORE_SET_CONNECTED', true);
+    store.commit('CORE_SET_RECONNECT_TIME', null);
     createReconnectedSnackbar(store);
     this.wait();
   }

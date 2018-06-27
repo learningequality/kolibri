@@ -17,7 +17,7 @@
 <script>
 
   import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
-  import { snackbarIsVisible, snackbarOptions } from 'kolibri.coreVue.vuex.getters';
+  import { mapGetters } from 'vuex';
 
   export default {
     name: 'globalSnackbar',
@@ -25,6 +25,7 @@
       coreSnackbar,
     },
     computed: {
+      ...mapGetters(['snackbarIsVisible', 'snackbarOptions']),
       key() {
         const options = Object.assign({}, this.snackbarOptions);
         // The forceReuse option is used to force the reuse of the snackbar
@@ -42,12 +43,6 @@
         if (this.snackbarOptions.hideCallback) {
           this.snackbarOptions.hideCallback();
         }
-      },
-    },
-    vuex: {
-      getters: {
-        snackbarIsVisible,
-        snackbarOptions,
       },
     },
   };

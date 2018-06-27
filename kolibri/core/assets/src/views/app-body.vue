@@ -20,6 +20,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import errorBox from './error-box';
@@ -46,6 +47,11 @@
       },
     },
     computed: {
+      ...mapState({
+        loading: state => state.core.loading,
+        error: state => state.core.error,
+        documentTitle: state => state.core.title,
+      }),
       isMobile() {
         return this.windowSize.breakpoint < 2;
       },
@@ -58,13 +64,6 @@
           bottom: `${this.bottomGap}px`,
           padding: `${this.padding}px`,
         };
-      },
-    },
-    vuex: {
-      getters: {
-        loading: state => state.core.loading,
-        error: state => state.core.error,
-        documentTitle: state => state.core.title,
       },
     },
   };

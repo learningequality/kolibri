@@ -691,11 +691,11 @@ export function updateAttemptLogInteractionHistory(store, interaction) {
  * Initialize assessment mastery log
  */
 export function initMasteryLog(store, { masterySpacingTime, masteryCriterion }) {
-  const { logging: { mastery } } = store.getters;
+  const { mastery } = store.getters.logging;
   if (!mastery.id) {
     // id has not been set on the masterylog state, so this is undefined.
     // Either way, we need to create a new masterylog, with a masterylevel of 1!
-    return createMasteryLog(store, { masterylevel: 1, masteryCriterion });
+    return createMasteryLog(store, { masteryLevel: 1, masteryCriterion });
   } else if (
     mastery.complete &&
     now() - new Date(mastery.completion_timestamp) > masterySpacingTime
