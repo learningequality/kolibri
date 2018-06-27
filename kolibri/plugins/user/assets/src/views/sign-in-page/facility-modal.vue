@@ -23,11 +23,10 @@
 
 <script>
 
+  import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
   import kModal from 'kolibri.coreVue.components.kModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import { getFacilityConfig } from 'kolibri.coreVue.vuex.actions';
-  import { facilities } from 'kolibri.coreVue.vuex.getters';
 
   export default {
     name: 'facilityModal',
@@ -41,13 +40,25 @@
         selectedFacility: this.currentFacilityId,
       };
     },
+    computed: {
+      ...mapGetters(['facilities']),
+      ...mapState({
+        // currentFacilityId uses session, with is anonymous in sign-in-page
+        currentFacilityId: 'facilityId',
+      }),
+    },
     methods: {
+      ...mapActions(['getFacilityConfig']),
+      ...mapMutations({
+        setFacilityId: 'SET_FACILITY_ID',
+        setLoginError: 'CORE_SET_LOGIN_ERROR',
+      }),
       emitClose() {
         this.$emit('close');
       },
       submitAndClose() {
-        this.setFacilityId();
-        this.clearLoginError();
+        this.setFacilityId(this.selectedFacility);
+        this.setLoginError('');
         this.getFacilityConfig(this.selectedFacility).then(this.emitClose);
       },
     },
@@ -56,22 +67,6 @@
       submitFacilitySelectionButtonPrompt: 'Select',
       facilitySelectionModalHeader: 'Select a facility',
       close: 'Close',
-    },
-    vuex: {
-      getters: {
-        // currentFacilityId uses session, with is anonymous in sign-in-page
-        currentFacilityId: state => state.facilityId,
-        facilities,
-      },
-      actions: {
-        getFacilityConfig,
-        setFacilityId(store) {
-          store.dispatch('SET_FACILITY_ID', this.selectedFacility);
-        },
-        clearLoginError(store) {
-          store.dispatch('CORE_SET_LOGIN_ERROR', '');
-        },
-      },
     },
   };
 

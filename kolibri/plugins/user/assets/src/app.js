@@ -1,8 +1,7 @@
 import RootVue from './views';
-import { setFacilitiesAndConfig } from './state/actions';
-import initialState from './state/initialState';
-import mutations from './state/mutations';
 import routes from './routes';
+import { setFacilitiesAndConfig } from './state/actions';
+import pluginModule from './state/pluginModule';
 import KolibriApp from 'kolibri_app';
 
 class UserModule extends KolibriApp {
@@ -16,10 +15,7 @@ class UserModule extends KolibriApp {
     return RootVue;
   }
   get pluginModule() {
-    return {
-      state: initialState,
-      mutations,
-    };
+    return pluginModule;
   }
 }
 

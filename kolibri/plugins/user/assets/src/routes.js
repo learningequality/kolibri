@@ -1,5 +1,4 @@
 import store from 'kolibri.coreVue.vuex.store';
-import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 import router from 'kolibri.coreVue.router';
 import { showSignInPage, showSignUpPage, showProfilePage } from './state/actions';
 import { PageNames } from './constants';
@@ -9,7 +8,7 @@ export default [
     name: PageNames.ROOT,
     path: '/',
     handler: () => {
-      if (isUserLoggedIn(store.state)) {
+      if (store.getters.isUserLoggedIn) {
         router.getInstance().replace({
           name: PageNames.PROFILE,
         });
@@ -24,7 +23,7 @@ export default [
     name: PageNames.SIGN_IN,
     path: '/signin',
     handler: () => {
-      if (isUserLoggedIn(store.state)) {
+      if (store.getters.isUserLoggedIn) {
         router.getInstance().replace({
           name: PageNames.PROFILE,
         });
@@ -37,7 +36,7 @@ export default [
     name: PageNames.SIGN_UP,
     path: '/create_account',
     handler: () => {
-      if (isUserLoggedIn(store.state)) {
+      if (store.getters.isUserLoggedIn) {
         router.getInstance().replace({
           name: PageNames.PROFILE,
         });
@@ -51,7 +50,7 @@ export default [
     name: PageNames.PROFILE,
     path: '/profile',
     handler: () => {
-      if (!isUserLoggedIn(store.state)) {
+      if (!store.getters.isUserLoggedIn) {
         router.getInstance().replace({
           name: PageNames.SIGN_IN,
         });

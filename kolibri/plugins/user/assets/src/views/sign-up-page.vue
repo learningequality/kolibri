@@ -115,6 +115,7 @@
 
 <script>
 
+  import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
   import { validateUsername } from 'kolibri.utils.validators';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
@@ -123,7 +124,6 @@
   import logo from 'kolibri.coreVue.components.logo';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import { PageNames } from '../constants';
-  import { signUpNewUser, resetSignUpState } from '../state/actions';
   import languageSwitcherFooter from './language-switcher-footer';
 
   export default {
@@ -167,6 +167,12 @@
       formSubmitted: false,
     }),
     computed: {
+      ...mapGetters(['facilities', 'session']),
+      ...mapState({
+        errorCode: state => state.pageState.errorCode,
+        busy: state => state.pageState.busy,
+        backendErrorMessage: state => state.pageState.errorMessage,
+      }),
       signInPage() {
         return { name: PageNames.SIGN_IN };
       },
@@ -274,6 +280,10 @@
       }
     },
     methods: {
+      ...mapActions(['signUpNewUser']),
+      ...mapMutations({
+        resetSignUpState: 'RESET_SIGN_UP_STATE',
+      }),
       signUp() {
         this.formSubmitted = true;
         const canSubmit = this.formIsValid && !this.busy;
@@ -298,19 +308,6 @@
         } else if (this.confirmedPasswordIsInvalid) {
           this.$refs.confirmedPassword.focus();
         }
-      },
-    },
-    vuex: {
-      getters: {
-        session: state => state.core.session,
-        errorCode: state => state.pageState.errorCode,
-        busy: state => state.pageState.busy,
-        backendErrorMessage: state => state.pageState.errorMessage,
-        facilities: state => state.core.facilities,
-      },
-      actions: {
-        signUpNewUser,
-        resetSignUpState,
       },
     },
   };
