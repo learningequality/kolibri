@@ -97,6 +97,75 @@ class AnnotationTreeRecursion(TransactionTestCase):
         # Check parent is available
         self.assertTrue(ContentNode.objects.get(id='da7ecc42e62553eebc8121242746e88a').available)
 
+    def test_all_content_nodes_available_coach_content(self):
+        ContentNode.objects.exclude(kind=content_kinds.TOPIC).update(available=True, coach_content=True)
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        self.assertTrue(ContentNode.objects.get(id="da7ecc42e62553eebc8121242746e88a").coach_content)
+        self.assertTrue(ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").coach_content)
+
+    def test_no_content_nodes_coach_content(self):
+        ContentNode.objects.filter(kind=content_kinds.TOPIC).update(available=True)
+        ContentNode.objects.all().update(coach_content=False)
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        self.assertEqual(ContentNode.objects.filter(coach_content=True).count(), 0)
+
+    def test_one_content_node_many_siblings_coach_content(self):
+        ContentNode.objects.filter(kind=content_kinds.TOPIC).update(available=True)
+        ContentNode.objects.filter(id='32a941fb77c2576e8f6b294cde4c3b0c').update(coach_content=True)
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        # Check parent is not marked as coach_content True because there are non-coach_content siblings
+        self.assertFalse(ContentNode.objects.get(id='da7ecc42e62553eebc8121242746e88a').coach_content)
+
+    def test_two_channels_no_annotation_collision_child_false(self):
+        root_node = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            kind=content_kinds.TOPIC,
+            available=True,
+            coach_content=True,
+        )
+        ContentNode.objects.create(
+            title='test1',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=root_node,
+            kind=content_kinds.VIDEO,
+            available=False,
+            coach_content=False,
+        )
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        root_node.refresh_from_db()
+        self.assertTrue(root_node.available)
+        self.assertTrue(root_node.coach_content)
+
+    def test_two_channels_no_annotation_collision_child_true(self):
+        root_node = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            kind=content_kinds.TOPIC,
+            available=False,
+            coach_content=False,
+        )
+        ContentNode.objects.create(
+            title='test1',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=root_node,
+            kind=content_kinds.VIDEO,
+            available=True,
+            coach_content=True,
+        )
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        root_node.refresh_from_db()
+        self.assertFalse(root_node.available)
+        self.assertFalse(root_node.coach_content)
+
     def tearDown(self):
         call_command('flush', interactive=False)
         super(AnnotationTreeRecursion, self).tearDown()
