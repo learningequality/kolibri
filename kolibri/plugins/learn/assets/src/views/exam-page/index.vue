@@ -47,7 +47,7 @@
           :assessment="true"
           :allowHints="false"
           :answerState="currentAttempt.answer"
-          @interaction="handleInteraction"
+          @interaction="saveAnswer"
         />
         <ui-alert v-else :dismissible="false" type="error">
           {{ $tr('noItemId') }}
@@ -165,49 +165,61 @@
       questionsUnanswered() {
         return this.exam.question_count - this.questionsAnswered;
       },
+      debouncedSetAndSaveCurrentExamAttemptLog() {
+        // So as not to share debounced functions between instances of the same component
+        // and also to allow access to the cancel method of the debounced function
+        // best practice seems to be to do it as a computed property and not a method:
+        // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
+        return debounce(this.setAndSaveCurrentExamAttemptLog, 5000);
+      },
     },
     methods: {
-      handleInteraction() {
-        this.debouncedCheckAnswer();
-        this.debouncedSaveAnswer();
-      },
-      debouncedSaveAnswer: debounce(function() {
-        this.saveAnswer();
-      }, 5000),
-      debouncedCheckAnswer: debounce(function() {
-        this.checkAnswer();
-      }, 500),
       checkAnswer() {
         if (this.$refs.contentRenderer) {
           return this.$refs.contentRenderer.checkAnswer();
         }
         return null;
       },
-      saveAnswer() {
-        if (this.$refs.contentRenderer) {
-          const answer = this.checkAnswer();
-          if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
-            const attempt = Object.assign({}, this.currentAttempt);
-            attempt.answer = answer.answerState;
-            attempt.simple_answer = answer.simpleAnswer;
-            attempt.correct = answer.correct;
-            if (!attempt.completion_timestamp) {
-              attempt.completion_timestamp = now();
-            }
-            attempt.end_timestamp = now();
-            attempt.interaction_history.push({
-              type: InteractionTypes.answer,
-              answer: answer.answerState,
-              correct: answer.correct,
-              timestamp: now(),
-            });
-            return this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
+      saveAnswer(force = false) {
+        const answer = this.checkAnswer();
+        if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
+          const attempt = Object.assign({}, this.currentAttempt);
+          attempt.answer = answer.answerState;
+          attempt.simple_answer = answer.simpleAnswer;
+          attempt.correct = answer.correct;
+          if (!attempt.completion_timestamp) {
+            attempt.completion_timestamp = now();
           }
-          return Promise.resolve();
+          attempt.end_timestamp = now();
+          attempt.interaction_history.push({
+            type: InteractionTypes.answer,
+            answer: answer.answerState,
+            correct: answer.correct,
+            timestamp: now(),
+          });
+          if (force) {
+            // Cancel any pending debounce
+            this.debouncedSetAndSaveCurrentExamAttemptLog.cancel();
+            // Force the save now instead
+            return this.setAndSaveCurrentExamAttemptLog(
+              this.content.id,
+              this.itemId,
+              attempt,
+              this.exam.id
+            );
+          } else {
+            return this.debouncedSetAndSaveCurrentExamAttemptLog(
+              this.content.id,
+              this.itemId,
+              attempt,
+              this.exam.id
+            );
+          }
         }
+        return Promise.resolve();
       },
       goToQuestion(questionNumber) {
-        this.saveAnswer().then(() => {
+        this.saveAnswer(true).then(() => {
           this.$router.push({
             name: ClassesPageNames.EXAM_VIEWER,
             params: {
@@ -222,7 +234,7 @@
         this.submitModalOpen = !this.submitModalOpen;
       },
       finishExam() {
-        this.saveAnswer.then(
+        this.saveAnswer(true).then(
           this.closeExam().then(() => {
             this.$router.push(this.backPageLink);
           })
