@@ -8,7 +8,7 @@ import {
 } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { getExamReport } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';

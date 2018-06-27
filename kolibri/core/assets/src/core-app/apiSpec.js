@@ -69,6 +69,7 @@ import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
+import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
 import coreMenu from '../views/core-menu';
@@ -184,5 +185,6 @@ export default {
     serverClock,
     i18n,
     navComponents,
+    samePageCheckGenerator,
   },
 };

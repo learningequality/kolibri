@@ -23,6 +23,7 @@ import {
   InteractionTypes,
   LoginErrors,
 } from '../../../constants';
+import samePageCheckGenerator from '../../../utils/samePageCheckGenerator';
 
 const translator = createTranslator('coreTitles', {
   errorPageTitle: 'Error',
@@ -530,18 +531,6 @@ export function startTrackingProgress(store, interval = intervalTime) {
   intervalTimer.startTimer(interval, () => {
     updateTimeSpent(store, false);
   });
-}
-
-/**
- * Action inhibition check
- *
- * This generator function produces checks that help determine whether the
- * asynchronous outcomes should still be run based on whether the user is
- * still on the same page as when the action was first triggered.
- */
-export function samePageCheckGenerator(store) {
-  const pageId = store.getters.pageSessionId;
-  return () => store.getters.pageSessionId === pageId;
 }
 
 /**

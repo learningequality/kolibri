@@ -1,4 +1,4 @@
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import logger from 'kolibri.lib.logging';
 import { LearnerGroupResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';

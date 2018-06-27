@@ -1,5 +1,5 @@
 import { convertKeysToCamelCase, convertKeysToSnakeCase } from 'kolibri.coreVue.vuex.mappers';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { PageNames, defaultFacilityConfig, notificationTypes } from '../../constants';

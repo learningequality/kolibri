@@ -1,5 +1,5 @@
 import { ContentNodeResource } from 'kolibri.resources';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniqBy from 'lodash/uniqBy';
 import { createTranslator } from 'kolibri.utils.i18n';

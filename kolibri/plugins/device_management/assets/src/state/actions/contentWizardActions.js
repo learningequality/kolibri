@@ -1,6 +1,6 @@
 import find from 'lodash/find';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { RemoteChannelResource, ChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { createTranslator } from 'kolibri.utils.i18n';

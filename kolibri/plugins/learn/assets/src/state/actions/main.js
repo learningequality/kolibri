@@ -5,7 +5,7 @@ import {
   ExamLogResource,
   ExamAttemptLogResource,
 } from 'kolibri.resources';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import {
   createQuestionList,
   selectQuestionFromExercise,

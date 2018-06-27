@@ -1,6 +1,6 @@
 import pickBy from 'lodash/pickBy';
 import { FacilityUserResource } from 'kolibri.resources';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
 import { _userState, _managePageTitle } from './helpers/mappers';

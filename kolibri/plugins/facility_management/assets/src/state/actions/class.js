@@ -4,7 +4,7 @@ import {
   FacilityUserResource,
   RoleResource,
 } from 'kolibri.resources';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { createTranslator } from 'kolibri.utils.i18n';
