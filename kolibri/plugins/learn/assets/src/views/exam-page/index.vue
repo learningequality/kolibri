@@ -184,29 +184,31 @@
         return null;
       },
       saveAnswer() {
-        const answer = this.checkAnswer() || {
-          answerState: null,
-          simpleAnswer: '',
-          correct: 0,
-        };
-        if (!isEqual(answer.answerState, this.currentAttempt.answer)) {
-          const attempt = Object.assign({}, this.currentAttempt);
-          attempt.answer = answer.answerState;
-          attempt.simple_answer = answer.simpleAnswer;
-          attempt.correct = answer.correct;
-          if (!attempt.completion_timestamp) {
-            attempt.completion_timestamp = now();
+        if (this.$refs.contentRenderer) {
+          const answer = this.checkAnswer() || {
+            answerState: null,
+            simpleAnswer: '',
+            correct: 0,
+          };
+          if (!isEqual(answer.answerState, this.currentAttempt.answer)) {
+            const attempt = Object.assign({}, this.currentAttempt);
+            attempt.answer = answer.answerState;
+            attempt.simple_answer = answer.simpleAnswer;
+            attempt.correct = answer.correct;
+            if (!attempt.completion_timestamp) {
+              attempt.completion_timestamp = now();
+            }
+            attempt.end_timestamp = now();
+            attempt.interaction_history.push({
+              type: InteractionTypes.answer,
+              answer: answer.answerState,
+              correct: answer.correct,
+              timestamp: now(),
+            });
+            return this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
           }
-          attempt.end_timestamp = now();
-          attempt.interaction_history.push({
-            type: InteractionTypes.answer,
-            answer: answer.answerState,
-            correct: answer.correct,
-            timestamp: now(),
-          });
-          return this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
+          return Promise.resolve();
         }
-        return Promise.resolve();
       },
       goToQuestion(questionNumber) {
         this.saveAnswer().then(() => {
