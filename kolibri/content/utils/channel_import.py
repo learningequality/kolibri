@@ -243,15 +243,6 @@ class ChannelImport(object):
         # make sure to ignore any auto-incrementing fields so they're regenerated in the destination table
         fields_to_ignore = set([colname for colname, colobj in dest_table.columns.items() if not column_not_auto_integer_pk(colobj)])
 
-        # determine the SQLite operation to perform based on whether or not this is a model that needs to be merged
-        if model in merge_models:
-            operation = "REPLACE"
-        else:
-            operation = "INSERT"
-
-        # attach the external content database to our primary database so we can directly transfer records en masse
-        self.destination.session.execute(text("ATTACH '{path}' AS 'sourcedb'".format(path=self.source_db_path)))
-
         # enumerate the columns we're going to be writing into, excluding any we're meant to ignore
         dest_columns = [col.name for col in dest_table.c if col.name not in fields_to_ignore]
 
@@ -270,8 +261,7 @@ class ChannelImport(object):
             source_vals.append(val)
 
         # build and execute a raw SQL query to transfer the data in one fell swoop
-        query = """{operation} INTO {table} ({destcols}) SELECT {sourcevals} FROM sourcedb.{table} AS source""".format(
-            operation=operation,
+        query = """REPLACE INTO {table} ({destcols}) SELECT {sourcevals} FROM sourcedb.{table} AS source""".format(
             table=dest_table.name,
             destcols=", ".join(dest_columns),
             sourcevals=", ".join(source_vals),
