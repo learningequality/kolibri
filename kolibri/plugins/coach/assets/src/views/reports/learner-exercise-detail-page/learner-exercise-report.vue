@@ -79,6 +79,8 @@
       };
     },
     computed: {
+      // Do not pass in answerState if showCorrectAnswer is set to true
+      // answerState has a precedence over showCorrectAnswer
       answerState() {
         if (
           !this.showCorrectAnswer &&

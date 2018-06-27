@@ -166,6 +166,8 @@
         });
       },
       answerState() {
+        // Do not pass in answerState if showCorrectAnswer is set to true
+        // answerState has a precedence over showCorrectAnswer
         if (
           !this.showCorrectAnswer &&
           this.currentInteraction &&
