@@ -47,7 +47,7 @@
           :assessment="true"
           :allowHints="false"
           :answerState="currentAttempt.answer"
-          @interaction="throttledSaveAnswer"
+          @interaction="handleInteraction"
         />
         <ui-alert v-else :dismissible="false" type="error">
           {{ $tr('noItemId') }}
@@ -100,7 +100,7 @@
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
-  import throttle from 'lodash/throttle';
+  import debounce from 'lodash/debounce';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -166,20 +166,22 @@
         return this.exam.question_count - this.questionsAnswered;
       },
     },
-    created() {
-      this._throttledSaveAnswer = throttle(this.saveAnswer.bind(this), 500, {
-        leading: false,
-      });
-    },
     methods: {
+      handleInteraction() {
+        this.debouncedCheckAnswer();
+        this.debouncedSaveAnswer();
+      },
+      debouncedSaveAnswer: debounce(function() {
+        this.saveAnswer();
+      }, 5000),
+      debouncedCheckAnswer: debounce(function() {
+        this.checkAnswer();
+      }, 500),
       checkAnswer() {
         if (this.$refs.contentRenderer) {
           return this.$refs.contentRenderer.checkAnswer();
         }
         return null;
-      },
-      throttledSaveAnswer(...args) {
-        return this._throttledSaveAnswer(...args);
       },
       saveAnswer() {
         const answer = this.checkAnswer() || {
@@ -218,18 +220,15 @@
           this.$refs.multiPaneLayout.scrollMainToTop();
         });
       },
-      submitExam() {
-        if (!this.submitModalOpen) {
-          this.saveAnswer().then(this.toggleModal);
-        }
-      },
       toggleModal() {
         this.submitModalOpen = !this.submitModalOpen;
       },
       finishExam() {
-        this.closeExam().then(() => {
-          this.$router.push(this.backPageLink);
-        });
+        this.saveAnswer.then(
+          this.closeExam().then(() => {
+            this.$router.push(this.backPageLink);
+          })
+        );
       },
     },
   };
