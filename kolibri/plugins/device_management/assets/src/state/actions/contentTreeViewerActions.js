@@ -3,7 +3,6 @@ import map from 'lodash/fp/map';
 import partition from 'lodash/partition';
 import find from 'lodash/find';
 import { ContentNodeGranularResource } from 'kolibri.resources';
-import { selectedNodes, inExportMode } from '../getters';
 
 const pluckIds = map('id');
 
@@ -32,7 +31,7 @@ export function getContentNodeFileSize(node) {
  *
  */
 export function addNodeForTransfer(store, node) {
-  const { included, omitted } = selectedNodes(store.state);
+  const { included, omitted } = store.getters.selectedNodes;
   // remove nodes in "omit" that are either descendants of new node or the node itself
   const [notToOmit, toOmit] = partition(omitted, omitNode => isDescendantOrSelf(omitNode, node));
   if (notToOmit.length > 0) {
@@ -61,8 +60,8 @@ export function addNodeForTransfer(store, node) {
  */
 export function removeNodeForTransfer(store, node) {
   let promise = Promise.resolve();
-  const forImport = !inExportMode(store.state);
-  const { included, omitted } = selectedNodes(store.state);
+  const forImport = !store.getters.inExportMode;
+  const { included, omitted } = store.getters.selectedNodes;
   // remove nodes in "include" that are either descendants of the removed node or the node itself
   const [notToInclude, toInclude] = partition(included, includeNode =>
     isDescendantOrSelf(includeNode, node)

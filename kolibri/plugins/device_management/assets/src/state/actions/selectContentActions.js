@@ -1,7 +1,6 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { ContentNodeGranularResource } from 'kolibri.resources';
-import { channelIsInstalled, wizardState, inLocalImportMode, inExportMode } from '../getters';
 import { downloadChannelMetadata } from './contentTransferActions';
 import { setTransferredChannel } from './contentWizardActions';
 
@@ -11,8 +10,8 @@ import { setTransferredChannel } from './contentWizardActions';
  */
 export function loadChannelMetaData(store) {
   let dbPromise;
-  const { transferredChannel } = wizardState(store.state);
-  const channelOnDevice = channelIsInstalled(store.state)(transferredChannel.id);
+  const { transferredChannel } = store.getters.wizardState;
+  const channelOnDevice = store.getters.channelIsInstalled(transferredChannel.id);
 
   // Downloading the Content Metadata DB
   if (!channelOnDevice) {
@@ -54,12 +53,12 @@ export function loadChannelMetaData(store) {
  *
  */
 export function updateTreeViewTopic(store, topic) {
-  const { selectedDrive } = wizardState(store.state);
+  const { selectedDrive } = store.getters.wizardState;
   const fetchArgs = {};
-  if (inLocalImportMode(store.state)) {
+  if (store.getters.inLocalImportMode) {
     fetchArgs.importing_from_drive_id = selectedDrive.id;
   }
-  if (inExportMode(store.state)) {
+  if (store.getters.inExportMode) {
     fetchArgs.for_export = 'true';
   }
   store.commit('CORE_SET_PAGE_LOADING', true);

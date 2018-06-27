@@ -65,7 +65,7 @@
   import every from 'lodash/every';
   import omit from 'lodash/omit';
   import { wizardState } from '../../state/getters';
-  import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
+  import { navigateToTopicUrl } from '../../routes/wizardTransitionRoutes';
   import { TransferTypes } from '../../constants';
   import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
   import contentNodeRow from './content-node-row';

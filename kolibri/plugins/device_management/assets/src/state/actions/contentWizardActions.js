@@ -4,13 +4,17 @@ import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { RemoteChannelResource, ChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { createTranslator } from 'kolibri.utils.i18n';
-import { ContentWizardPages, ContentWizardErrors, TransferTypes } from '../../constants';
+import {
+  ContentSources,
+  ContentWizardPages,
+  ContentWizardErrors,
+  TransferTypes,
+} from '../../constants';
 import {
   availableChannelsPageLink,
   selectContentPageLink,
   manageContentPageLink,
 } from '../../views/manage-content-page/manageContentLinks';
-import { isImportingMore } from '../getters';
 import {
   getAvailableSpaceOnDrive,
   loadChannelMetaData,
@@ -29,8 +33,7 @@ const translator = createTranslator('contentWizardTexts', {
   selectContentFromChannel: "Select Content from '{channelName}'",
 });
 
-export const LOCAL_DRIVE = 'local';
-export const KOLIBRI_STUDIO = 'network';
+const { LOCAL_DRIVE, KOLIBRI_STUDIO } = ContentSources;
 
 // TODO move wizardState.pageName out of Vuex into local state
 export function setWizardPageName(store, pageName) {
@@ -77,7 +80,7 @@ export function goForwardFromSelectImportSourceModal(store, source) {
 
   if (source === KOLIBRI_STUDIO) {
     setTransferType(store, TransferTypes.REMOTEIMPORT);
-    if (isImportingMore(store.state)) {
+    if (store.getters.isImportingMore) {
       // From import-more-from-channel workflow
       return router.push(selectContentPageLink({ channelId: transferredChannel.id }));
     }
@@ -91,7 +94,7 @@ export function goForwardFromSelectImportSourceModal(store, source) {
 export function goForwardFromSelectDriveModal(store, { driveId, forExport }) {
   const { transferredChannel } = store.state.pageState.wizardState;
   // From import-more-from-channel workflow
-  if (isImportingMore(store.state)) {
+  if (store.getters.isImportingMore) {
     setWizardPageName(store, ContentWizardPages.SELECT_CONTENT);
     return router.push(
       selectContentPageLink({ channelId: transferredChannel.id, driveId, forExport })

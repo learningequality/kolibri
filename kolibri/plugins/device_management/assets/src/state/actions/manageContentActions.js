@@ -1,5 +1,4 @@
 import { ChannelResource } from 'kolibri.resources';
-import { canManageContent } from 'kolibri.coreVue.vuex.getters';
 
 /**
  * Force-refresh the ChannelResource Collection
@@ -18,7 +17,7 @@ export function refreshChannelList(store) {
 
 export function showManageContentPage(store) {
   store.commit('RESET_MANAGE_CONTENT_PAGESTATE');
-  if (canManageContent(store.state)) {
+  if (store.getters.canManageContent) {
     return refreshChannelList(store);
   }
   return Promise.resolve();

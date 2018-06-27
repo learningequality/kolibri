@@ -2,7 +2,6 @@ import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { canManageContent } from 'kolibri.coreVue.vuex.getters';
 import bytesForHumans from '../../views/manage-content-page/bytesForHumans';
 
 /* Function to fetch device info from the backend
@@ -24,7 +23,7 @@ export function getDeviceInfo() {
  * @returns Promise<void>
  */
 export function showDeviceInfoPage(store) {
-  if (canManageContent(store.state)) {
+  if (store.getters.canManageContent) {
     const promises = ConditionalPromise.all([getDeviceInfo()]).only(samePageCheckGenerator(store))
       ._promise;
     return promises

@@ -5,7 +5,6 @@ import {
 } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
-import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
 import head from 'lodash/head';
@@ -16,7 +15,7 @@ const translator = createTranslator('managePermissionsPageTitles', {
 });
 
 function fetchFacilityUsers(store) {
-  const facilityId = currentFacilityId(store.state);
+  const facilityId = store.getters.currentFacilityId;
   return FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
 }
 
