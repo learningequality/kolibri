@@ -148,7 +148,7 @@ export function deactivateExam(store, examId) {
   return updateExamStatus(store, { examId, isActive: false });
 }
 
-export function copyExam(store, exam, className) {
+export function copyExam(store, { exam, className }) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _createExam(store, exam).then(
     () => {
@@ -163,7 +163,7 @@ export function copyExam(store, exam, className) {
   );
 }
 
-export function updateExamDetails(store, examId, payload) {
+export function updateExamDetails(store, { examId, payload }) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   return new Promise((resolve, reject) => {
     ExamResource.getModel(examId)
@@ -411,7 +411,8 @@ export function createExamAndRoute(store, exam) {
  * EXAM REPORTS
  */
 
-export function showExamReportPage(store, classId, examId) {
+export function showExamReportPage(store, params) {
+  const { classId, examId } = params;
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT);
 
@@ -478,14 +479,8 @@ export function showExamReportPage(store, classId, examId) {
  * EXAM REPORT DETAILS
  */
 
-export function showExamReportDetailPage(
-  store,
-  classId,
-  userId,
-  examId,
-  questionNumber,
-  interactionIndex
-) {
+export function showExamReportDetailPage(store, params) {
+  const { classId, userId, examId, questionNumber, interactionIndex } = params;
   // idk what this is for
   if (store.state.pageName !== PageNames.EXAM_REPORT_DETAIL) {
     store.dispatch('CORE_SET_PAGE_LOADING', true);

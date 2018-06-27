@@ -91,12 +91,16 @@
       moveUsers() {
         if (this.groupId) {
           if (this.groupSelected === 'ungrouped') {
-            this.removeUsersFromGroup(this.groupId, this.usersToMove);
+            this.removeUsersFromGroup({ groupId: this.groupId, userIds: this.usersToMove });
           } else {
-            this.moveUsersBetweenGroups(this.groupId, this.groupSelected, this.usersToMove);
+            this.moveUsersBetweenGroups({
+              currentGroupId: this.groupId,
+              newGroupId: this.groupSelected,
+              userIds: this.usersToMove,
+            });
           }
         } else {
-          this.addUsersToGroup(this.groupSelected, this.usersToMove);
+          this.addUsersToGroup({ groupId: this.groupSelected, userIds: this.usersToMove });
         }
       },
       close() {

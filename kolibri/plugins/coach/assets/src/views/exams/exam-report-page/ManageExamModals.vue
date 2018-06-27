@@ -121,7 +121,7 @@
           this.setExamsModal(null);
           return;
         }
-        this.updateExamDetails(this.exam.id, payload)
+        this.updateExamDetails({ examId: this.exam.id, payload })
           .then()
           .catch(() => this.$refs.detailsModal.handleSubmitFailure());
       },
@@ -138,7 +138,7 @@
           seed: this.exam.seed,
           assignments: selectedCollectionIds.map(id => ({ collection: id })),
         };
-        this.copyExam(exam, this.className);
+        this.copyExam({ exam, className: this.className });
       },
     },
     vuex: {

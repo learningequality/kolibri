@@ -21,7 +21,8 @@ export function refreshLessonReport(store, lessonId) {
 /*
  * Shows the Lesson Resource Progress Report (all assigned learners vs. progress on resource).
  */
-export function showLessonResourceUserSummaryPage(store, classId, lessonId, contentId) {
+export function showLessonResourceUserSummaryPage(store, params) {
+  const { classId, lessonId, contentId } = params;
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 
   const loadRequirements = [
@@ -81,15 +82,8 @@ export function showLessonResourceUserSummaryPage(store, classId, lessonId, cont
 /*
  * Shows the attempt log for an Exercise
  */
-export function showLessonResourceUserReportPage(
-  store,
-  classId,
-  lessonId,
-  contentId,
-  userId,
-  questionNumber,
-  interactionNumber
-) {
+export function showLessonResourceUserReportPage(store, params) {
+  const { classId, contentId, userId, questionNumber, interactionNumber } = params;
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_REPORT);
   store.dispatch('SET_PAGE_STATE', {
@@ -107,8 +101,8 @@ export function showLessonResourceUserReportPage(
           userId,
           contentNode.channel_id,
           contentId,
-          questionNumber,
-          interactionNumber
+          Number(questionNumber),
+          Number(interactionNumber)
         );
       },
       error => {

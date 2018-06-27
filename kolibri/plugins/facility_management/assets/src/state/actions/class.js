@@ -46,7 +46,7 @@ export function createClass(store, name) {
  * @param {string} id - class id.
  * @param {object} updateData.
  */
-export function updateClass(store, id, updateData) {
+export function updateClass(store, { id, updateData }) {
   if (!id || Object.keys(updateData).length === 0) {
     // if no id or empty updateData passed, abort the function
     return;
@@ -54,8 +54,8 @@ export function updateClass(store, id, updateData) {
   ClassroomResource.getModel(id)
     .save(updateData)
     .then(
-      classroom => {
-        store.dispatch('UPDATE_CLASS', id, classroom);
+      updatedClass => {
+        store.dispatch('UPDATE_CLASS', { id, updatedClass });
         displayModal(store, false);
       },
       error => {
@@ -115,7 +115,7 @@ export function assignCoachesToClass(store, coaches) {
   ).save();
 }
 
-export function removeClassLearner(store, classId, userId) {
+export function removeClassLearner(store, { classId, userId }) {
   if (!classId || !userId) {
     // if no id passed, abort the function
     return;
@@ -137,7 +137,7 @@ export function removeClassLearner(store, classId, userId) {
     );
 }
 
-export function removeClassCoach(store, classId, userId) {
+export function removeClassCoach(store, { classId, userId }) {
   // TODO class id should be accessible from state.
   if (!classId || !userId) {
     // if no id passed, abort the function
@@ -245,6 +245,7 @@ export function showLearnerClassEnrollmentPage(store, classId) {
     }
   );
 }
+
 export function showCoachClassAssignmentPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const facilityId = currentFacilityId(store.state);

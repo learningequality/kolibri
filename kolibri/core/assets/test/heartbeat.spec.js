@@ -9,15 +9,7 @@ import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
 
-jest.mock('kolibri.lib.logging', () => ({
-  getLogger() {
-    return {
-      error() {},
-      debug() {},
-    };
-  },
-}));
-
+jest.mock('kolibri.lib.logging');
 jest.mock('lockr');
 jest.mock('http');
 

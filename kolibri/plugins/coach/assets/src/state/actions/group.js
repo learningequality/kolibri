@@ -105,7 +105,7 @@ export function createGroup(store, groupName) {
     );
 }
 
-export function renameGroup(store, groupId, newGroupName) {
+export function renameGroup(store, { groupId, newGroupName }) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   return LearnerGroupResource.getModel(groupId)
     .save({ name: newGroupName })
@@ -200,7 +200,7 @@ function _removeMultipleUsersFromGroup(store, groupId, userIds) {
   });
 }
 
-export function addUsersToGroup(store, groupId, userIds) {
+export function addUsersToGroup(store, { groupId, userIds }) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   return _addMultipleUsersToGroup(store, groupId, userIds).then(
     () => {
@@ -211,7 +211,7 @@ export function addUsersToGroup(store, groupId, userIds) {
   );
 }
 
-export function removeUsersFromGroup(store, groupId, userIds) {
+export function removeUsersFromGroup(store, { groupId, userIds }) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   return _removeMultipleUsersFromGroup(store, groupId, userIds).then(
     () => {
@@ -222,7 +222,7 @@ export function removeUsersFromGroup(store, groupId, userIds) {
   );
 }
 
-export function moveUsersBetweenGroups(store, currentGroupId, newGroupId, userIds) {
+export function moveUsersBetweenGroups(store, { currentGroupId, newGroupId, userIds }) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const promises = [
     _removeMultipleUsersFromGroup(store, currentGroupId, userIds),

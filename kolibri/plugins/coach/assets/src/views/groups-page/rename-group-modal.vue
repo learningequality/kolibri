@@ -103,7 +103,7 @@
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
-          this.renameGroup(this.groupId, this.name);
+          this.renameGroup({ groupId: this.groupId, newGroupName: this.name });
         } else {
           this.$refs.name.focus();
         }

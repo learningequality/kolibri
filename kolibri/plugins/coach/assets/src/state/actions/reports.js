@@ -144,7 +144,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
   return Promise.all(promises).then(
     ([allChannelLastActive, , , user]) => {
       const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
-      setReportSorting(store, defaultSortCol, SortOrders.DESCENDING);
+      setReportSorting(store, { sortColumn: defaultSortCol, sortOrder: SortOrders.DESCENDING });
       // HACK: need to append this to make pageState more consistent between pages
       store.dispatch('SET_REPORT_CONTENT_SUMMARY', {});
       store.dispatch('SET_REPORT_PROPERTIES', {
@@ -303,7 +303,7 @@ function _showContentList(store, options) {
   }
   Promise.all(promises).then(
     ([, , , user]) => {
-      setReportSorting(store, TableColumns.NAME, SortOrders.DESCENDING);
+      setReportSorting(store, { sortColumn: TableColumns.NAME, sortOrder: SortOrders.DESCENDING });
       store.dispatch('SET_REPORT_PROPERTIES', {
         channelId: options.channelId,
         contentScope: options.contentScope,
@@ -338,7 +338,7 @@ function _showClassLearnerList(store, options) {
   ];
   Promise.all(promises).then(
     () => {
-      setReportSorting(store, TableColumns.NAME, SortOrders.DESCENDING);
+      setReportSorting(store, { sortColumn: TableColumns.NAME, sortOrder: SortOrders.DESCENDING });
       store.dispatch('SET_REPORT_PROPERTIES', {
         channelId: options.channelId,
         contentScope: contentScope,
@@ -425,14 +425,15 @@ export function showExerciseDetailView(
 }
 
 function clearReportSorting(store) {
-  store.dispatch('SET_REPORT_SORTING');
+  store.dispatch('CLEAR_REPORT_SORTING');
 }
 
-export function setReportSorting(store, sortColumn, sortOrder) {
-  store.dispatch('SET_REPORT_SORTING', sortColumn, sortOrder);
+export function setReportSorting(store, { sortColumn, sortOrder }) {
+  store.dispatch('SET_REPORT_SORTING', { sortColumn, sortOrder });
 }
 
-export function showRecentItemsForChannel(store, classId, channelId) {
+export function showRecentItemsForChannel(store, params) {
+  const { classId, channelId } = params;
   preparePageNameAndTitle(store, PageNames.RECENT_ITEMS_FOR_CHANNEL);
   const channelPromise = ChannelResource.getModel(channelId).fetch();
 
@@ -459,7 +460,10 @@ export function showRecentItemsForChannel(store, classId, channelId) {
             userScopeName: className(store.state),
             viewBy: ViewBy.RECENT,
           });
-          setReportSorting(store, TableColumns.DATE, SortOrders.DESCENDING);
+          setReportSorting(store, {
+            sortColumn: TableColumns.DATE,
+            sortOrder: SortOrders.DESCENDING,
+          });
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', translator.$tr('recentPageTitle'));
@@ -471,14 +475,16 @@ export function showRecentItemsForChannel(store, classId, channelId) {
   );
 }
 
-export function showChannelListForReports(store, classId, showRecentOnly) {
+export function showChannelListForReports(store, params) {
+  const { classId, showRecentOnly } = params;
   clearReportSorting(store);
   const pageName = showRecentOnly ? PageNames.RECENT_CHANNELS : PageNames.TOPIC_CHANNELS;
   preparePageNameAndTitle(store, pageName);
   _showChannelList(store, classId, null, showRecentOnly);
 }
 
-export function showLearnerReportsForItem(store, classId, channelId, contentId, showRecentOnly) {
+export function showLearnerReportsForItem(store, params) {
+  const { classId, channelId, contentId, showRecentOnly } = params;
   clearReportSorting(store);
   const pageName = showRecentOnly
     ? PageNames.RECENT_LEARNERS_FOR_ITEM
@@ -504,7 +510,7 @@ export function showLearnerList(store, classId) {
   Promise.all(promises).then(
     ([userData, groupData]) => {
       store.dispatch('SET_REPORT_TABLE_DATA', _rootLearnerReportState(userData, groupData));
-      setReportSorting(store, TableColumns.NAME, SortOrders.DESCENDING);
+      setReportSorting(store, { sortColumn: TableColumns.NAME, sortOrder: SortOrders.DESCENDING });
       store.dispatch('SET_REPORT_CONTENT_SUMMARY', {});
       store.dispatch('SET_REPORT_PROPERTIES', {
         contentScope: ContentScopes.ALL,
@@ -520,12 +526,14 @@ export function showLearnerList(store, classId) {
   );
 }
 
-export function showLearnerChannels(store, classId, userId) {
+export function showLearnerChannels(store, params) {
+  const { classId, userId } = params;
   preparePageNameAndTitle(store, PageNames.LEARNER_CHANNELS);
   _showChannelList(store, classId, userId, false);
 }
 
-export function showChannelRootReport(store, classId, channelId, userId) {
+export function showChannelRootReport(store, params) {
+  const { classId, channelId, userId } = params;
   let scopeOptions;
   let pageName;
   clearReportSorting(store);
@@ -563,7 +571,8 @@ export function showChannelRootReport(store, classId, channelId, userId) {
     );
 }
 
-export function showItemListReports(store, classId, channelId, topicId, userId) {
+export function showItemListReports(store, params) {
+  const { classId, channelId, topicId, userId } = params;
   let scopeOptions;
   let pageName;
   clearReportSorting(store);

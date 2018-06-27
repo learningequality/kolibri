@@ -1,7 +1,7 @@
 import { DeviceProvisionResource } from 'kolibri.resources';
 import { kolibriLogin, handleApiError } from 'kolibri.coreVue.vuex.actions';
 
-function provisionDevice(store, onboardingData) {
+export function provisionDevice(store, onboardingData) {
   const DeviceProvisionModel = DeviceProvisionResource.createModel(onboardingData);
   const deviceProvisionPromise = DeviceProvisionModel.save();
 
@@ -21,12 +21,10 @@ function provisionDevice(store, onboardingData) {
   );
 }
 
-function goToNextStep(store) {
+export function goToNextStep(store) {
   store.dispatch('INCREMENT_ONBOARDING_STEP');
 }
 
-function goToPreviousStep(store) {
+export function goToPreviousStep(store) {
   store.dispatch('DECREMENT_ONBOARDING_STEP');
 }
-
-export { provisionDevice, goToNextStep, goToPreviousStep };

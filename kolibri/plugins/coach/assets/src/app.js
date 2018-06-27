@@ -1,6 +1,7 @@
 import { setChannelInfo } from 'kolibri.coreVue.vuex.actions';
 import RootVue from './views';
-import { initialState, mutations } from './state/store';
+import initialState from './state/initialState';
+import mutations from './state/mutations';
 import routes from './routes';
 import KolibriApp from 'kolibri_app';
 

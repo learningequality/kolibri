@@ -218,9 +218,9 @@
           autoDismiss: true,
         });
       },
-      autoSave(id, resources) {
-        this.saveLessonResources(id, resources).catch(() => {
-          this.updateCurrentLesson(id).then(currentLesson => {
+      autoSave(lessonId, resourceIds) {
+        this.saveLessonResources({ lessonId, resourceIds }).catch(() => {
+          this.updateCurrentLesson(lessonId).then(currentLesson => {
             this.setWorkingResources(
               currentLesson.resources.map(resourceObj => resourceObj.contentnode_id)
             );

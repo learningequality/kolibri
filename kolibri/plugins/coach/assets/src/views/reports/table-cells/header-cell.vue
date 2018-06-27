@@ -78,7 +78,7 @@
         } else {
           sortOrder = SortOrders.NONE;
         }
-        this.setReportSorting(this.column, sortOrder);
+        this.setReportSorting({ sortColumn: this.column, sortOrder });
       },
     },
     vuex: {

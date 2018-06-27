@@ -222,10 +222,13 @@
           } else {
             roleUpdate.kind = this.newKind.value;
           }
-          this.updateUser(this.id, {
-            username: this.newUsername,
-            full_name: this.newName,
-            role: roleUpdate,
+          this.updateUser({
+            userId: this.id,
+            updates: {
+              username: this.newUsername,
+              full_name: this.newName,
+              role: roleUpdate,
+            },
           }).then(() => {
             this.displayModal(false);
           });

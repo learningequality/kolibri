@@ -2,13 +2,7 @@ import Vue from 'vue';
 import { mount } from '@vue/test-utils';
 import contentRenderer from '../src/views/content-renderer';
 
-jest.mock('kolibri.lib.logging', () => ({
-  getLogger() {
-    return {
-      error() {},
-    };
-  },
-}));
+jest.mock('kolibri.lib.logging');
 
 describe('contentRenderer Component', () => {
   const defaultFiles = [

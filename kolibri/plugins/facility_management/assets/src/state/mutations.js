@@ -17,7 +17,7 @@ export function ADD_CLASS(state, classModel) {
   state.pageState.classes.push(classModel);
 }
 
-export function UPDATE_CLASS(state, id, updatedClass) {
+export function UPDATE_CLASS(state, { id, updatedClass }) {
   state.pageState.classes.forEach((classModel, index, arr) => {
     if (classModel.id === id) {
       arr[index] = updatedClass;

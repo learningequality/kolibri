@@ -165,7 +165,7 @@ export function getCopies(store, contentId) {
   });
 }
 
-export function showTopicsTopic(store, id, isRoot = false) {
+export function showTopicsTopic(store, { id, isRoot = false }) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
   const promises = [
@@ -241,7 +241,7 @@ export function showTopicsTopic(store, id, isRoot = false) {
 export function showTopicsChannel(store, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
-  showTopicsTopic(store, id, true);
+  showTopicsTopic(store, { id, isRoot: true });
 }
 
 export function showTopicsContent(store, id) {
@@ -375,7 +375,8 @@ export function calcQuestionsAnswered(attemptLogs) {
   return questionsAnswered;
 }
 
-export function showExamReport(store, classId, examId, questionNumber, questionInteraction) {
+export function showExamReport(store, params) {
+  const { classId, examId, questionNumber, questionInteraction } = params;
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_REPORT_VIEWER);
 
@@ -413,7 +414,9 @@ export function showExamReport(store, classId, examId, questionNumber, questionI
       })
   );
 }
-export function showExam(store, classId, examId, questionNumber) {
+export function showExam(store, params) {
+  let questionNumber = params.questionNumber;
+  const { classId, examId } = params;
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
   // Reset examAttemptLogs, so that it will not merge into another exam.
@@ -588,7 +591,7 @@ export function showExam(store, classId, examId, questionNumber) {
   }
 }
 
-export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemptLog) {
+export function setAndSaveCurrentExamAttemptLog(store, { contentId, itemId, currentAttemptLog }) {
   // As soon as this has happened, we should clear any previous cache for the
   // UserExamResource - as that data has now changed.
   UserExamResource.clearCache();

@@ -68,7 +68,7 @@ export function createUser(store, stateUserData) {
  * @param {string} userId
  * @param {object} updates Optional Changes: full_name, username, password, and kind(role)
  */
-export function updateUser(store, userId, updates) {
+export function updateUser(store, { userId, updates }) {
   store.dispatch('SET_ERROR', '');
   store.dispatch('SET_BUSY', true);
   const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);

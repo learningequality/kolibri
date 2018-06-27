@@ -1,5 +1,6 @@
 import RootVue from './views';
-import { initialState, mutations } from './state/store'; // attaching store to the root element
+import initialState from './state/initialState';
+import mutations from './state/mutations';
 import KolibriApp from 'kolibri_app';
 
 class OnboardingApp extends KolibriApp {

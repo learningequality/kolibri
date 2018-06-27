@@ -1,18 +1,7 @@
 import Vue from 'kolibri.lib.vue';
-import * as lessonsMutations from './mutations/lessonsMutations';
+import * as lessonsMutations from './lessonsMutations';
 
-export const initialState = {
-  pageName: '',
-  pageState: {},
-  classId: null,
-  className: null,
-  classList: [],
-  classCoaches: [],
-  currentClassroom: {},
-  busy: false,
-};
-
-export const mutations = {
+export default {
   // coach-wide
   ...lessonsMutations,
   SET_PAGE_STATE(state, pageState) {
@@ -30,9 +19,13 @@ export const mutations = {
   },
 
   // report
-  SET_REPORT_SORTING(state, sortColumn, sortOrder) {
+  SET_REPORT_SORTING(state, { sortColumn, sortOrder }) {
     Vue.set(state.pageState, 'sortColumn', sortColumn);
     Vue.set(state.pageState, 'sortOrder', sortOrder);
+  },
+  CLEAR_REPORT_SORTING(state) {
+    Vue.set(state.pageState, 'sortColumn', '');
+    Vue.set(state.pageState, 'sortOrder', '');
   },
   SET_REPORT_PROPERTIES(state, options) {
     Vue.set(state.pageState, 'channelId', options.channelId);

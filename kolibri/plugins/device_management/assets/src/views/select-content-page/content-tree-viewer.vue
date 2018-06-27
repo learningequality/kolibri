@@ -68,7 +68,7 @@
     addNodeForTransfer,
     removeNodeForTransfer,
   } from '../../state/actions/contentTreeViewerActions';
-  import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
+  import { navigateToTopicUrl } from '../../routes/wizardTransitionRoutes';
   import { TransferTypes } from '../../constants';
   import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
   import contentNodeRow from './content-node-row';

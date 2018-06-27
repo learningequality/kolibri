@@ -108,7 +108,10 @@
         };
       },
       saveResources() {
-        this.saveLessonResources(this.lessonId, this.workingResources).then(() => {
+        this.saveLessonResources({
+          lessonId: this.lessonId,
+          resourceIds: this.workingResources,
+        }).then(() => {
           // route to summary page with confirmation message
           this.createSnackbar({
             text: this.$tr('resourceSaveConfirmation'),
