@@ -248,8 +248,19 @@ export function showSelectContentPage(store, params) {
   // HACK if going directly to URL, we make sure channelList has this channel at the minimum.
   // We only get the one channel, since GETing /api/channel with file sizes is slow.
   // We let it fail silently, since it is only used to show "on device" files/resources.
+  // eslint-disable-next-line
   const installedChannelPromise = ChannelResource.getModel(params.channel_id)
-    .fetch({ file_sizes: true }, true)
+    .fetch(
+      {
+        include_fields: [
+          'total_resources',
+          'total_file_size',
+          'on_device_resources',
+          'on_device_file_size',
+        ],
+      },
+      true
+    )
     .then(channel => {
       if (store.state.pageState.channelList.length === 0) {
         store.dispatch('SET_CHANNEL_LIST', [channel]);

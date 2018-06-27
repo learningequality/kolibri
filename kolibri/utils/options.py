@@ -64,7 +64,7 @@ option_spec = {
     "Urls": {
         "CENTRAL_CONTENT_BASE_URL": {
             "type": "string",
-            "default": "http://studio.learningequality.org",
+            "default": "https://studio.learningequality.org",
             "envvars": ("KOLIBRI_CENTRAL_CONTENT_BASE_URL", "CENTRAL_CONTENT_DOWNLOAD_BASE_URL",),
         },
     },

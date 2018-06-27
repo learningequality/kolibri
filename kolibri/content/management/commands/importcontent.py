@@ -2,6 +2,7 @@ import logging as logger
 import os
 from time import sleep
 
+import requests
 from django.core.management.base import CommandError
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
@@ -128,6 +129,9 @@ class Command(AsyncCommand):
 
         with self.start_progress(total=total_bytes_to_transfer) as overall_progress_update:
 
+            if method == DOWNLOAD_METHOD:
+                session = requests.Session()
+
             for f in files_to_download:
 
                 if self.is_cancelled():
@@ -145,7 +149,7 @@ class Command(AsyncCommand):
                 # determine where we're downloading/copying from, and create appropriate transfer object
                 if method == DOWNLOAD_METHOD:
                     url = paths.get_content_storage_remote_url(filename, baseurl=baseurl)
-                    filetransfer = transfer.FileDownload(url, dest)
+                    filetransfer = transfer.FileDownload(url, dest, session=session)
                 elif method == COPY_METHOD:
                     srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
                     filetransfer = transfer.FileCopy(srcpath, dest)

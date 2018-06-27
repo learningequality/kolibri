@@ -4,18 +4,21 @@ import os
 import time
 from datetime import datetime
 
-import kolibri
 import requests
 from django.core.management.base import BaseCommand
-from kolibri.core.device.models import DeviceSettings
 from morango.models import InstanceIDModel
-from requests.exceptions import ConnectionError, RequestException, Timeout
+from requests.exceptions import ConnectionError
+from requests.exceptions import RequestException
+from requests.exceptions import Timeout
+
+import kolibri
+from kolibri.core.device.models import DeviceSettings
 
 logging = logger.getLogger(__name__)
 
 DEFAULT_PING_INTERVAL = 24 * 60
 DEFAULT_PING_CHECKRATE = 15
-DEFAULT_PING_SERVER_URL = "http://telemetry.learningequality.org/api/v1/pingback"
+DEFAULT_PING_SERVER_URL = "https://telemetry.learningequality.org/api/v1/pingback"
 
 
 class Command(BaseCommand):
