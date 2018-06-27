@@ -74,8 +74,11 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
-  import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+  import {
+    TopLevelPageNames,
+    UserKinds,
+    NavComponentSections,
+  } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import coreMenu from 'kolibri.coreVue.components.coreMenu';

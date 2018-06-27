@@ -8,7 +8,6 @@ jest.mock('lockr');
 jest.mock('http');
 
 describe('HeartBeat', function() {
-  let heartBeat, store;
   describe('constructor method', function() {
     it('should set the delay property to the first argument', function() {
       const delay = 10000;
@@ -44,11 +43,11 @@ describe('HeartBeat', function() {
     });
   });
   describe('beat method', function() {
+    let heartBeat;
     let checkSessionStub;
     beforeEach(function() {
       heartBeat = new HeartBeat();
       heartBeat.active = false;
-      coreStore.factory();
       checkSessionStub = jest.spyOn(heartBeat, 'checkSession').mockReturnValue(Promise.resolve());
     });
     it('should call setInactive', function() {
@@ -84,40 +83,40 @@ describe('HeartBeat', function() {
     });
   });
   describe('monitorDisconnect method', function() {
+    let heartBeat;
     beforeEach(function() {
       heartBeat = new HeartBeat();
       jest.spyOn(heartBeat, 'wait').mockImplementation(() => {});
-      store = coreStore.factory();
       heartBeat.monitorDisconnect();
     });
     it('should set connected to false', function() {
-      expect(store.getters.connected).toEqual(false);
+      expect(coreStore.getters.connected).toEqual(false);
     });
     it('should set reconnectTime to not null', function() {
-      expect(store.getters.reconnectTime).not.toEqual(null);
+      expect(coreStore.getters.reconnectTime).not.toEqual(null);
     });
     it('should set current snackbar to disconnected', function() {
-      expect(store.getters.snackbarIsVisible).toEqual(true);
+      expect(coreStore.getters.snackbarIsVisible).toEqual(true);
       expect(
-        store.getters.snackbarOptions.text.startsWith(
+        coreStore.getters.snackbarOptions.text.startsWith(
           'Disconnected from server. Will try to reconnect in'
         )
       ).toEqual(true);
     });
     it('should not do anything if it already knows it is disconnected', function() {
-      store.commit('CORE_SET_RECONNECT_TIME', 'fork');
+      coreStore.commit('CORE_SET_RECONNECT_TIME', 'fork');
       heartBeat.monitorDisconnect();
-      expect(store.getters.reconnectTime).toEqual('fork');
+      expect(coreStore.getters.reconnectTime).toEqual('fork');
     });
   });
   describe('checkSession method', function() {
+    let heartBeat;
     beforeEach(function() {
       heartBeat = new HeartBeat();
       jest.spyOn(heartBeat, 'sessionUrl').mockReturnValue('url');
-      store = coreStore.factory();
     });
     it('should sign out if an auto logout is detected', function() {
-      store.commit('CORE_SET_SESSION', { userId: 'test' });
+      coreStore.commit('CORE_SET_SESSION', { userId: 'test' });
       const http = require('http');
       http.__setCode(200);
       http.__setHeaders({ 'Content-Type': 'application/json' });
@@ -154,8 +153,8 @@ describe('HeartBeat', function() {
       });
       it('should set snackbar to trying to reconnect', function() {
         heartBeat.checkSession();
-        expect(store.getters.snackbarIsVisible).toEqual(true);
-        expect(store.getters.snackbarOptions.text).toEqual(trs.$tr('tryingToReconnect'));
+        expect(coreStore.getters.snackbarIsVisible).toEqual(true);
+        expect(coreStore.getters.snackbarOptions.text).toEqual(trs.$tr('tryingToReconnect'));
       });
       disconnectionErrorCodes.forEach(errorCode => {
         it('should set snackbar to disconnected for error code ' + errorCode, function() {
@@ -164,9 +163,9 @@ describe('HeartBeat', function() {
           http.__setCode(errorCode);
           http.__setHeaders({ 'Content-Type': 'application/json' });
           return heartBeat.checkSession().finally(() => {
-            expect(store.getters.snackbarIsVisible).toEqual(true);
+            expect(coreStore.getters.snackbarIsVisible).toEqual(true);
             expect(
-              store.getters.snackbarOptions.text.startsWith(
+              coreStore.getters.snackbarOptions.text.startsWith(
                 'Disconnected from server. Will try to reconnect in'
               )
             ).toEqual(true);
@@ -177,11 +176,11 @@ describe('HeartBeat', function() {
         const http = require('http');
         http.__setCode(0);
         http.__setHeaders({ 'Content-Type': 'application/json' });
-        store.commit('CORE_SET_RECONNECT_TIME', 5);
+        coreStore.commit('CORE_SET_RECONNECT_TIME', 5);
         return heartBeat.checkSession().finally(() => {
-          const oldReconnectTime = store.getters.reconnectTime;
+          const oldReconnectTime = coreStore.getters.reconnectTime;
           return heartBeat.checkSession().finally(() => {
-            expect(store.getters.reconnectTime).toBeGreaterThan(oldReconnectTime);
+            expect(coreStore.getters.reconnectTime).toBeGreaterThan(oldReconnectTime);
           });
         });
       });
@@ -193,18 +192,20 @@ describe('HeartBeat', function() {
         });
         it('should set snackbar to reconnected', function() {
           return heartBeat.checkSession().finally(() => {
-            expect(store.getters.snackbarIsVisible).toEqual(true);
-            expect(store.getters.snackbarOptions.text).toEqual(trs.$tr('successfullyReconnected'));
+            expect(coreStore.getters.snackbarIsVisible).toEqual(true);
+            expect(coreStore.getters.snackbarOptions.text).toEqual(
+              trs.$tr('successfullyReconnected')
+            );
           });
         });
         it('should set connected to true', function() {
           return heartBeat.checkSession().finally(() => {
-            expect(store.getters.connected).toEqual(true);
+            expect(coreStore.getters.connected).toEqual(true);
           });
         });
         it('should set reconnect time to null', function() {
           return heartBeat.checkSession().finally(() => {
-            expect(store.getters.reconnectTime).toEqual(null);
+            expect(coreStore.getters.reconnectTime).toEqual(null);
           });
         });
       });

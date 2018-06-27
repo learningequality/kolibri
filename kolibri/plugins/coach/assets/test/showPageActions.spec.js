@@ -1,12 +1,12 @@
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import { ClassroomResource, ContentNodeResource, ExamResource } from 'kolibri.resources';
 import { showExamsPage } from '../src/state/actions/exam';
+import makeStore from './makeStore';
 
 jestMockResource(ClassroomResource);
 jestMockResource(ContentNodeResource);
 jestMockResource(ExamResource);
 
-//
 // fakes for data, since they have similar shape
 const fakeItems = [
   {
@@ -138,18 +138,12 @@ const fakeExamState = [
 ];
 
 describe('showPage actions for coach exams section', () => {
-  const storeMock = {
-    dispatch: jest.fn(),
-    state: { core: { pageSessionId: '' } },
-  };
-
-  const dispatchSpy = storeMock.dispatch;
-
+  let store;
   beforeEach(() => {
+    store = makeStore();
     ClassroomResource.__resetMocks();
     ContentNodeResource.__resetMocks();
     ExamResource.__resetMocks();
-    dispatchSpy.mockReset();
   });
 
   describe('showExamsPage', () => {
@@ -159,10 +153,10 @@ describe('showPage actions for coach exams section', () => {
 
       // Using the weird naming from fakeItems
       const classId = 'item_1';
-      await showExamsPage(storeMock, classId)._promise;
+      await showExamsPage(store, classId)._promise;
       expect(ClassroomResource.getCollection).toHaveBeenCalled();
       expect(ExamResource.getCollection).toHaveBeenCalledWith({ collection: classId });
-      expect(dispatchSpy).toHaveBeenCalledWith('SET_PAGE_STATE', {
+      expect(store.state.pageState).toMatchObject({
         exams: fakeExamState,
         examsModalSet: false,
         busy: false,
@@ -173,9 +167,9 @@ describe('showPage actions for coach exams section', () => {
       ClassroomResource.__getCollectionFetchReturns(fakeItems);
       ExamResource.__getCollectionFetchReturns('channel error', true);
       try {
-        await showExamsPage(storeMock, 'class_1')._promise;
+        await showExamsPage(store, 'class_1')._promise;
       } catch (error) {
-        expect(dispatchSpy).toHaveBeenCalledWith('CORE_SET_ERROR', 'channel error');
+        expect(store.state.core.error).toEqual('channel error');
       }
     });
   });

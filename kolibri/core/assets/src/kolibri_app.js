@@ -69,8 +69,8 @@ export default class KolibriApp extends KolibriModule {
       store.registerModule(name, module);
     });
 
-    store.dispatch('getCurrentSession').then(() => {
-      Promise.all([
+    return this.store.dispatch('getCurrentSession').then(() => {
+      return Promise.all([
         // Invoke each of the state setters before initializing the app.
         ...this.stateSetters.map(setter => setter(this.store)),
       ]).then(() => {

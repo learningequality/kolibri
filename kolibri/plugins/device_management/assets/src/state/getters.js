@@ -101,7 +101,7 @@ export function inRemoteImportMode(state) {
 }
 
 export function driveCanBeUsedForTransfer(state) {
-  return function isEnabled(drive, transferType) {
+  return function isEnabled({ drive, transferType }) {
     if (transferType === TransferTypes.LOCALIMPORT) {
       const { transferredChannel } = state.pageState.wizardState;
       // In top-level Import workflow -> Show any drive with content

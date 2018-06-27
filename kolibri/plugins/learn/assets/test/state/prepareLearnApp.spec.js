@@ -1,7 +1,7 @@
 import { jestMockResource } from 'testUtils'; // eslint-disable-line import/no-unresolved
 import { MembershipResource } from 'kolibri.resources';
 import prepareLearnApp from '../../src/state/prepareLearnApp';
-import makeStore from '../util/makeStore';
+import makeStore from '../makeStore';
 
 jestMockResource(MembershipResource);
 

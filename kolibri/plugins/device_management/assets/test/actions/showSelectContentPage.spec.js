@@ -13,7 +13,7 @@ jestMockResource(TaskResource);
 // resolves successfully
 function hackStoreWatcher(store) {
   setTimeout(() => {
-    store.commit('addTask', { id: 'task_1', status: 'COMPLETED' });
+    store.commit('SET_CONTENT_PAGE_TASKS', [{ id: 'task_1', status: 'COMPLETED' }]);
   }, 1);
 }
 

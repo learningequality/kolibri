@@ -1,11 +1,12 @@
 import { mount } from '@vue/test-utils';
 import navComponents from 'kolibri.utils.navComponents';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-import appBar from '../../src/views/app-bar';
-import coreStore from 'kolibri.coreVue.vuex.store';
 import coreMenu from 'kolibri.coreVue.components.coreMenu';
 import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
+import appBar from '../../src/views/app-bar';
 import logoutSideNavEntry from '../../src/views/logout-side-nav-entry';
+import { coreStoreFactory as makeStore } from '../../src/state/store';
+
 jest.mock('kolibri.urls');
 
 function createWrapper({ navShown = true, height = 20, title = 'test' } = {}) {
@@ -15,17 +16,17 @@ function createWrapper({ navShown = true, height = 20, title = 'test' } = {}) {
       height,
       title,
     },
-    store: coreStore.factory(),
+    store: makeStore(),
   });
 }
 
-function setUserKind(userKind) {
+function setUserKind(store, userKind) {
   let canManageContent = false;
   if (userKind == UserKinds.CAN_MANAGE_CONTENT) {
     userKind = UserKinds.LEARNER;
     canManageContent = true;
   }
-  corestore.commit('CORE_SET_SESSION', {
+  store.commit('CORE_SET_SESSION', {
     id: 'test',
     username: 'test',
     full_name: 'testing test',
@@ -70,7 +71,7 @@ describe('app bar component', () => {
     it('should show logout if no components are added and user is logged in', () => {
       expect(navComponents).toHaveLength(0);
       const wrapper = createWrapper();
-      setUserKind(UserKinds.LEARNER);
+      setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
       expect(wrapper.contains(logoutSideNavEntry)).toBe(true);
     });
     describe('only non-account components are added', () => {
@@ -107,7 +108,7 @@ describe('app bar component', () => {
         navComponents.register(component);
         expect(navComponents).toHaveLength(1);
         const wrapper = createWrapper();
-        setUserKind(kind);
+        setUserKind(wrapper.vm.$store, kind);
         expect(wrapper.contains(component)).toBe(true);
       });
     });

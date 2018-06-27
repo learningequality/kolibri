@@ -9,6 +9,7 @@ function simplePath(ids) {
   return ids.map(makeNode);
 }
 
+//
 function makeWrapper(options = {}) {
   const { props = {}, store } = options;
   return mount(ContentTreeViewer, {
@@ -198,20 +199,24 @@ describe('contentTreeViewer component', () => {
       setOmittedNodes([makeNode('subtopic_1', { path: [{ id: 'topic_1', title: '' }] })]);
       const wrapper = makeWrapper({ store });
       const { selectAllCheckbox, addNodeForTransferMock } = getElements(wrapper);
-      const { mock } = addNodeForTransferMock();
+      const addNodeMock = addNodeForTransferMock();
       selectAllCheckbox().trigger('click');
-      expect(mock.calls).toHaveLength(1);
-      expect(mock.calls[0][0]).toMatchObject(sanitizeNode(wrapper.vm.annotatedTopicNode));
+      expect(addNodeMock).toHaveBeenCalledTimes(1);
+      expect(addNodeMock).toHaveBeenCalledWith(
+        expect.objectContaining(sanitizeNode(wrapper.vm.annotatedTopicNode))
+      );
     });
 
     it('if topic is checked, clicking the "Select All" for the topic triggers a "remove node" action', () => {
       setIncludedNodes([makeNode('topic_1')]);
       const wrapper = makeWrapper({ store });
       const { selectAllCheckbox, removeNodeForTransferMock } = getElements(wrapper);
-      const { mock } = removeNodeForTransferMock();
+      const removeNodeMock = removeNodeForTransferMock();
       selectAllCheckbox().trigger('click');
-      expect(mock.calls).toHaveLength(1);
-      expect(mock.calls[0][0]).toMatchObject(sanitizeNode(wrapper.vm.annotatedTopicNode));
+      expect(removeNodeMock).toHaveBeenCalledTimes(1);
+      expect(removeNodeMock).toHaveBeenCalledWith(
+        expect.objectContaining(sanitizeNode(wrapper.vm.annotatedTopicNode))
+      );
     });
   });
 

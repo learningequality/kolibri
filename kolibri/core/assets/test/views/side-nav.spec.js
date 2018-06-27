@@ -2,8 +2,9 @@ import { mount } from '@vue/test-utils';
 import navComponents from 'kolibri.utils.navComponents';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
 import sideNav from '../../src/views/side-nav';
-import coreStore from 'kolibri.coreVue.vuex.store';
 import logoutSideNavEntry from '../../src/views/logout-side-nav-entry';
+import { coreStoreFactory as makeStore } from '../../src/state/store';
+
 jest.mock('kolibri.urls');
 
 function createWrapper({ navShown = true, headerHeight = 20, width = 100 } = {}) {
@@ -13,17 +14,17 @@ function createWrapper({ navShown = true, headerHeight = 20, width = 100 } = {})
       headerHeight,
       width,
     },
-    store: coreStore.factory(),
+    store: makeStore(),
   });
 }
 
-function setUserKind(userKind) {
+function setUserKind(store, userKind) {
   let canManageContent = false;
   if (userKind == UserKinds.CAN_MANAGE_CONTENT) {
     userKind = UserKinds.LEARNER;
     canManageContent = true;
   }
-  corestore.commit('CORE_SET_SESSION', {
+  store.commit('CORE_SET_SESSION', {
     id: 'test',
     username: 'test',
     full_name: 'testing test',
@@ -56,7 +57,7 @@ describe('side nav component', () => {
   it('should show logout if no components are added and user is logged in', () => {
     expect(navComponents).toHaveLength(0);
     const wrapper = createWrapper();
-    setUserKind(UserKinds.LEARNER);
+    setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
     expect(wrapper.contains(logoutSideNavEntry)).toBe(true);
   });
   filterableUserKinds.forEach(kind => {
@@ -75,7 +76,7 @@ describe('side nav component', () => {
       navComponents.register(component);
       expect(navComponents).toHaveLength(1);
       const wrapper = createWrapper();
-      setUserKind(kind);
+      setUserKind(wrapper.vm.$store, kind);
       expect(wrapper.contains(component)).toBe(true);
     });
   });
@@ -104,7 +105,7 @@ describe('side nav component', () => {
         navComponents.register(component);
         expect(navComponents).toHaveLength(1);
         const wrapper = createWrapper();
-        setUserKind(kind);
+        setUserKind(wrapper.vm.$store, kind);
         expect(wrapper.contains(component)).toBe(true);
       });
     });
@@ -126,7 +127,7 @@ describe('side nav component', () => {
         navComponents.register(component);
         expect(navComponents).toHaveLength(1);
         const wrapper = createWrapper();
-        setUserKind(kind);
+        setUserKind(wrapper.vm.$store, kind);
         expect(wrapper.contains(component)).toBe(false);
       });
     });
@@ -166,7 +167,7 @@ describe('side nav component', () => {
           navComponents.register(component1);
           expect(navComponents).toHaveLength(2);
           const wrapper = createWrapper();
-          setUserKind(UserKinds.SUPERUSER);
+          setUserKind(wrapper.vm.$store, UserKinds.SUPERUSER);
           expect(wrapper.vm.menuOptions[0]).toBe(component1);
           expect(wrapper.vm.menuOptions[1]).toBe(component2);
         });
