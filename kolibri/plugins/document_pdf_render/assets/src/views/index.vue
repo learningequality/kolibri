@@ -71,12 +71,11 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import PDFJSLib from 'pdfjs-dist';
   import Lockr from 'lockr';
-
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
-
   import { RecycleList } from 'vue-virtual-scroller';
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
@@ -86,7 +85,6 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
-  import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
   import fullscreen from 'kolibri.coreVue.mixins.fullscreen';
 
   import uiIconButton from 'keen-ui/src/UiIconButton';
@@ -123,6 +121,7 @@
       recycleListIsMounted: false,
     }),
     computed: {
+      ...mapGetters(['sessionTimeSpent']),
       pdfURL() {
         return this.defaultFile.storage_url;
       },
@@ -312,11 +311,6 @@
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
-    },
-    vuex: {
-      getters: {
-        sessionTimeSpent,
-      },
     },
   };
 

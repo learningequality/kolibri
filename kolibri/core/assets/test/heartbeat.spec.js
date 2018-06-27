@@ -1,10 +1,4 @@
 import coreStore from 'kolibri.coreVue.vuex.store';
-import {
-  snackbarIsVisible,
-  snackbarOptions,
-  connected,
-  reconnectTime,
-} from 'kolibri.coreVue.vuex.getters';
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
@@ -97,15 +91,15 @@ describe('HeartBeat', function() {
       heartBeat.monitorDisconnect();
     });
     it('should set connected to false', function() {
-      expect(connected(store.state)).toEqual(false);
+      expect(store.getters.connected).toEqual(false);
     });
     it('should set reconnectTime to not null', function() {
-      expect(reconnectTime(store.state)).not.toEqual(null);
+      expect(store.getters.reconnectTime).not.toEqual(null);
     });
     it('should set current snackbar to disconnected', function() {
-      expect(snackbarIsVisible(store.state)).toEqual(true);
+      expect(store.getters.snackbarIsVisible).toEqual(true);
       expect(
-        snackbarOptions(store.state).text.startsWith(
+        store.getters.snackbarOptions.text.startsWith(
           'Disconnected from server. Will try to reconnect in'
         )
       ).toEqual(true);
@@ -113,7 +107,7 @@ describe('HeartBeat', function() {
     it('should not do anything if it already knows it is disconnected', function() {
       store.commit('CORE_SET_RECONNECT_TIME', 'fork');
       heartBeat.monitorDisconnect();
-      expect(reconnectTime(store.state)).toEqual('fork');
+      expect(store.getters.reconnectTime).toEqual('fork');
     });
   });
   describe('checkSession method', function() {
@@ -160,8 +154,8 @@ describe('HeartBeat', function() {
       });
       it('should set snackbar to trying to reconnect', function() {
         heartBeat.checkSession();
-        expect(snackbarIsVisible(store.state)).toEqual(true);
-        expect(snackbarOptions(store.state).text).toEqual(trs.$tr('tryingToReconnect'));
+        expect(store.getters.snackbarIsVisible).toEqual(true);
+        expect(store.getters.snackbarOptions.text).toEqual(trs.$tr('tryingToReconnect'));
       });
       disconnectionErrorCodes.forEach(errorCode => {
         it('should set snackbar to disconnected for error code ' + errorCode, function() {
@@ -170,9 +164,9 @@ describe('HeartBeat', function() {
           http.__setCode(errorCode);
           http.__setHeaders({ 'Content-Type': 'application/json' });
           return heartBeat.checkSession().finally(() => {
-            expect(snackbarIsVisible(store.state)).toEqual(true);
+            expect(store.getters.snackbarIsVisible).toEqual(true);
             expect(
-              snackbarOptions(store.state).text.startsWith(
+              store.getters.snackbarOptions.text.startsWith(
                 'Disconnected from server. Will try to reconnect in'
               )
             ).toEqual(true);
@@ -185,9 +179,9 @@ describe('HeartBeat', function() {
         http.__setHeaders({ 'Content-Type': 'application/json' });
         store.commit('CORE_SET_RECONNECT_TIME', 5);
         return heartBeat.checkSession().finally(() => {
-          const oldReconnectTime = reconnectTime(store.state);
+          const oldReconnectTime = store.getters.reconnectTime;
           return heartBeat.checkSession().finally(() => {
-            expect(reconnectTime(store.state)).toBeGreaterThan(oldReconnectTime);
+            expect(store.getters.reconnectTime).toBeGreaterThan(oldReconnectTime);
           });
         });
       });
@@ -199,18 +193,18 @@ describe('HeartBeat', function() {
         });
         it('should set snackbar to reconnected', function() {
           return heartBeat.checkSession().finally(() => {
-            expect(snackbarIsVisible(store.state)).toEqual(true);
-            expect(snackbarOptions(store.state).text).toEqual(trs.$tr('successfullyReconnected'));
+            expect(store.getters.snackbarIsVisible).toEqual(true);
+            expect(store.getters.snackbarOptions.text).toEqual(trs.$tr('successfullyReconnected'));
           });
         });
         it('should set connected to true', function() {
           return heartBeat.checkSession().finally(() => {
-            expect(connected(store.state)).toEqual(true);
+            expect(store.getters.connected).toEqual(true);
           });
         });
         it('should set reconnect time to null', function() {
           return heartBeat.checkSession().finally(() => {
-            expect(reconnectTime(store.state)).toEqual(null);
+            expect(store.getters.reconnectTime).toEqual(null);
           });
         });
       });
