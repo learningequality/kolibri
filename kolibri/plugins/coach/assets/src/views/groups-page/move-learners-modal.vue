@@ -130,11 +130,6 @@
 
 <style lang="stylus" scoped>
 
-  label
-    display: block
-    padding-bottom: 0.5em
-    padding-top: 0.5em
-
   .button-section
     margin-top: 1em
 

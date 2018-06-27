@@ -25,6 +25,12 @@
               name="check_circle"
             />
             <mat-svg
+              v-else-if="attemptLog.error"
+              class="svg-item svg-error"
+              category="alert"
+              name="error_outline"
+            />
+            <mat-svg
               v-else-if="!attemptLog.correct"
               class="item svg-item svg-wrong"
               category="navigation"
@@ -130,7 +136,7 @@
     width: 32px
     margin-right: 8px
 
-  .svg-hint
+  .svg-hint, .svg-error
     fill: $core-text-annotation
 
   .svg-wrong
