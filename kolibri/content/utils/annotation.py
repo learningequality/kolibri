@@ -200,13 +200,22 @@ def recurse_availability_up_tree(channel_id):
         # of a content node, whereby if they all have coach_content flagged on them, it will be true,
         # but otherwise false.
         # Everything after the select statement should be identical to the available_nodes expression above.
-        coach_content_nodes = select([all_(child.c.coach_content)]).where(
-            and_(
-                child.c.available == True,  # noqa
-                child.c.level == level,
-                child.c.channel_id == channel_id,
-            )
-        ).where(ContentNodeTable.c.id == child.c.parent_id)
+        if bridge.engine.name == 'sqlite':
+            coach_content_nodes = select([all_(child.c.coach_content)]).where(
+                and_(
+                    child.c.available == True,  # noqa
+                    child.c.level == level,
+                    child.c.channel_id == channel_id,
+                )
+            ).where(ContentNodeTable.c.id == child.c.parent_id)
+        elif bridge.engine.name == 'postgresql':
+            coach_content_nodes = select([func.bool_and(child.c.coach_content)]).where(
+                and_(
+                    child.c.available == True,  # noqa
+                    child.c.level == level,
+                    child.c.channel_id == channel_id,
+                )
+            ).where(ContentNodeTable.c.id == child.c.parent_id)
 
         logging.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
         # Only modify topic availability here
