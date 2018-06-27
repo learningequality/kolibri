@@ -1,12 +1,7 @@
 import pickBy from 'lodash/pickBy';
 import { FacilityUserResource } from 'kolibri.resources';
-import {
-  samePageCheckGenerator,
-  kolibriLogout,
-  handleApiError,
-} from 'kolibri.coreVue.vuex.actions';
+import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import { currentUserId, isSuperuser, currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import { PageNames } from '../../constants';
 import { _userState, _managePageTitle } from './helpers/mappers';
 import preparePage from './helpers/preparePage';
@@ -59,7 +54,7 @@ export function createUser(store, stateUserData) {
         return dispatchUser(userModel);
       }
     })
-    .catch(error => handleApiError(error));
+    .catch(error => store.dispatch('handleApiError', error));
 }
 
 /**
@@ -78,7 +73,7 @@ export function updateUser(store, { userId, updates }) {
     updatedUser => {
       const update = userData => store.commit('UPDATE_USER', _userState(userData));
       if (facilityRoleHasChanged) {
-        if (currentUserId(store.state) === userId && isSuperuser(store.state)) {
+        if (store.getters.currentUserId === userId && store.getters.isSuperuser) {
           // maintain superuser if updating self.
           store.commit('UPDATE_CURRENT_USER_KIND', [UserKinds.SUPERUSER, updates.role.kind]);
         }
@@ -135,7 +130,7 @@ export function deleteUser(store, id) {
         store.commit('DELETE_USER', id);
         displayModal(store, false);
         if (store.state.core.session.user_id === id) {
-          kolibriLogout();
+          store.dispatch('kolibriLogout');
         }
       },
       error => {
@@ -151,7 +146,7 @@ export function showUserPage(store) {
     title: _managePageTitle('Users'),
   });
 
-  const facilityId = currentFacilityId(store.state);
+  const facilityId = store.getters.currentFacilityId;
 
   FacilityUserResource.getCollection({ member_of: facilityId })
     .fetch({}, true)

@@ -1,7 +1,6 @@
 import RootVue from './views';
-import * as mutations from './state/mutations';
-import initialState from './state/initialState';
 import routes from './routes';
+import pluginModule from './state/pluginModule';
 import KolibriApp from 'kolibri_app';
 
 class FacilityManagementModule extends KolibriApp {
@@ -12,10 +11,7 @@ class FacilityManagementModule extends KolibriApp {
     return RootVue;
   }
   get pluginModule() {
-    return {
-      state: initialState,
-      mutations,
-    };
+    return pluginModule;
   }
 }
 

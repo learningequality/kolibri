@@ -4,9 +4,11 @@ import Vue from 'kolibri.lib.vue';
 export function SET_PAGE_NAME(state, name) {
   state.pageName = name;
 }
+
 export function SET_PAGE_STATE(state, pageState) {
   state.pageState = pageState;
 }
+
 // modal mutations
 export function SET_MODAL(state, modalName) {
   state.pageState.modalShown = modalName;
@@ -32,6 +34,7 @@ export function DELETE_CLASS(state, id) {
 export function DELETE_CLASS_LEARNER(state, id) {
   state.pageState.classLearners = state.pageState.classLearners.filter(user => user.id !== id);
 }
+
 export function DELETE_CLASS_COACH(state, id) {
   state.pageState.classCoaches = state.pageState.classCoaches.filter(user => user.id !== id);
 }

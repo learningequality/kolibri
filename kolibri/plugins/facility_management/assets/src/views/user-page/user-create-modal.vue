@@ -81,15 +81,14 @@
 
 <script>
 
+  import { mapActions, mapState, mapGetters } from 'vuex';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
-  import { createUser, displayModal } from '../../state/actions';
 
   export default {
     name: 'userCreateModal',
@@ -145,6 +144,10 @@
       };
     },
     computed: {
+      ...mapGetters(['currentFacilityId']),
+      ...mapState({
+        facilityUsers: state => state.pageState.facilityUsers,
+      }),
       newUserRole() {
         if (this.coachIsSelected) {
           if (this.classCoach) {
@@ -242,6 +245,7 @@
       },
     },
     methods: {
+      ...mapActions(['createUser', 'displayModal']),
       createNewUser() {
         this.errorMessage = '';
         this.formSubmitted = true;
@@ -282,16 +286,6 @@
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      getters: {
-        facilityUsers: state => state.pageState.facilityUsers,
-        currentFacilityId,
-      },
-      actions: {
-        createUser,
-        displayModal,
       },
     },
   };

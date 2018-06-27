@@ -26,9 +26,9 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import { createClass, displayModal } from '../../state/actions';
 
   export default {
     name: 'classCreateModal',
@@ -87,6 +87,7 @@
       },
     },
     methods: {
+      ...mapActions(['createClass', 'displayModal']),
       createNewClass() {
         this.formSubmitted = true;
         if (this.formIsValid) {
@@ -98,12 +99,6 @@
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        createClass,
-        displayModal,
       },
     },
   };

@@ -66,15 +66,14 @@
 
 <script>
 
+  import { mapActions, mapState, mapGetters } from 'vuex';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
   import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import { updateUser, displayModal } from '../../state/actions';
 
   export default {
     name: 'editUserModal',
@@ -133,6 +132,14 @@
       };
     },
     computed: {
+      ...mapGetters(['currentFacilityId']),
+      ...mapState({
+        currentUserId: state => state.core.session.user_id,
+        currentUserKind: state => state.core.session.kind[0],
+        facilityUsers: state => state.pageState.facilityUsers,
+        error: state => state.pageState.error,
+        isBusy: state => state.pageState.isBusy,
+      }),
       coachIsSelected() {
         return this.newKind.value === UserKinds.COACH;
       },
@@ -207,6 +214,7 @@
       }
     },
     methods: {
+      ...mapActions(['updateUser', 'displayModal']),
       submitForm() {
         const roleUpdate = {
           collection: this.currentFacilityId,
@@ -246,20 +254,6 @@
             this.$refs.username.focus();
           }
         }
-      },
-    },
-    vuex: {
-      actions: {
-        updateUser,
-        displayModal,
-      },
-      getters: {
-        currentFacilityId,
-        currentUserId: state => state.core.session.user_id,
-        currentUserKind: state => state.core.session.kind[0],
-        facilityUsers: state => state.pageState.facilityUsers,
-        error: state => state.pageState.error,
-        isBusy: state => state.pageState.isBusy,
       },
     },
   };

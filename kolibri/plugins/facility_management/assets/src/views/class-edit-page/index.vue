@@ -94,6 +94,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -101,8 +102,6 @@
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import userTable from '../user-table';
   import { PageNames, Modals } from '../../constants';
-  import { removeClassLearner, removeClassCoach } from '../../state/actions/class';
-  import { displayModal } from '../../state/actions';
   import classRenameModal from './class-rename-modal';
   import userRemoveConfirmationModal from './user-remove-confirmation-modal';
 
@@ -138,6 +137,13 @@
       };
     },
     computed: {
+      ...mapState({
+        classLearners: state => state.pageState.classLearners,
+        classCoaches: state => state.pageState.classCoaches,
+        classes: state => state.pageState.classes,
+        currentClass: state => state.pageState.currentClass,
+        modalShown: state => state.pageState.modalShown,
+      }),
       Modals() {
         return Modals;
       },
@@ -153,24 +159,11 @@
       },
     },
     methods: {
+      ...mapActions(['displayModal', 'removeClassLearner', 'removeClassCoach']),
       confirmRemoval(user, removalAction) {
         this.userToBeRemoved = user;
         this.removalAction = removalAction;
         this.displayModal(Modals.REMOVE_USER);
-      },
-    },
-    vuex: {
-      getters: {
-        classLearners: state => state.pageState.classLearners,
-        classCoaches: state => state.pageState.classCoaches,
-        classes: state => state.pageState.classes,
-        currentClass: state => state.pageState.currentClass,
-        modalShown: state => state.pageState.modalShown,
-      },
-      actions: {
-        displayModal,
-        removeClassLearner,
-        removeClassCoach,
       },
     },
   };

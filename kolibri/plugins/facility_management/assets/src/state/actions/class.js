@@ -5,7 +5,6 @@ import {
   RoleResource,
 } from 'kolibri.resources';
 import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
-import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { createTranslator } from 'kolibri.utils.i18n';
@@ -166,7 +165,7 @@ export function showClassesPage(store) {
     name: PageNames.CLASS_MGMT_PAGE,
     title: translator.$tr('showClassesPage'),
   });
-  const facilityId = currentFacilityId(store.state);
+  const facilityId = store.getters.currentFacilityId;
   return ClassroomResource.getCollection({ parent: facilityId })
     .fetch({}, true)
     .only(
@@ -189,7 +188,7 @@ export function showClassEditPage(store, classId) {
     name: PageNames.CLASS_EDIT_MGMT_PAGE,
     title: translator.$tr('editClassesPage'),
   });
-  const facilityId = currentFacilityId(store.state);
+  const facilityId = store.getters.currentFacilityId;
   const promises = [
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
     ClassroomResource.getModel(classId).fetch(),
@@ -218,7 +217,7 @@ export function showClassEditPage(store, classId) {
 
 export function showLearnerClassEnrollmentPage(store, classId) {
   store.commit('CORE_SET_PAGE_LOADING', true);
-  const facilityId = currentFacilityId(store.state);
+  const facilityId = store.getters.currentFacilityId;
   // all users in facility
   const userPromise = FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
   // current class
@@ -245,10 +244,9 @@ export function showLearnerClassEnrollmentPage(store, classId) {
     }
   );
 }
-
 export function showCoachClassAssignmentPage(store, classId) {
   store.commit('CORE_SET_PAGE_LOADING', true);
-  const facilityId = currentFacilityId(store.state);
+  const facilityId = store.getters.currentFacilityId;
   // all users in facility
   const userPromise = FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
   // current class

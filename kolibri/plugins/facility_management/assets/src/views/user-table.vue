@@ -150,10 +150,6 @@
         return this.$emit('input', selected.filter(selectedId => selectedId !== id));
       },
     },
-    vuex: {
-      getters: {},
-      actions: {},
-    },
     $trs: {
       coachTableTitle: 'Coaches',
       learnerTableTitle: 'Learners',

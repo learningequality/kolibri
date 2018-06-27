@@ -66,10 +66,10 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kButton from 'kolibri.coreVue.components.kButton';
   import isEqual from 'lodash/isEqual';
-  import { saveFacilityConfig, resetFacilityConfig } from '../../state/actions';
   import confirmResetModal from './confirm-reset-modal';
   import notifications from './config-page-notifications';
 
@@ -94,6 +94,11 @@
       settingsCopy: {},
     }),
     computed: {
+      ...mapState({
+        currentFacilityName: state => state.pageState.facilityName,
+        settings: state => state.pageState.settings,
+        notification: state => state.pageState.notification,
+      }),
       settingsList: () => settingsList,
       settingsHaveChanged() {
         return !isEqual(this.settings, this.settingsCopy);
@@ -103,6 +108,16 @@
       this.copySettings();
     },
     methods: {
+      ...mapActions(['saveFacilityConfig', 'resetFacilityConfig']),
+      toggleSetting(settingName) {
+        this.$store.commit('CONFIG_PAGE_MODIFY_SETTING', {
+          name: settingName,
+          value: !this.settings[settingName],
+        });
+      },
+      dismissNotification() {
+        this.$store.commit('CONFIG_PAGE_NOTIFY', null);
+      },
       resetToDefaultSettings() {
         this.showModal = false;
         this.resetFacilityConfig();
@@ -114,26 +129,6 @@
       },
       copySettings() {
         this.settingsCopy = Object.assign({}, this.settings);
-      },
-    },
-    vuex: {
-      getters: {
-        currentFacilityName: state => state.pageState.facilityName,
-        settings: state => state.pageState.settings,
-        notification: state => state.pageState.notification,
-      },
-      actions: {
-        toggleSetting(store, settingName) {
-          store.commit('CONFIG_PAGE_MODIFY_SETTING', {
-            name: settingName,
-            value: !this.settings[settingName],
-          });
-        },
-        saveFacilityConfig,
-        resetFacilityConfig,
-        dismissNotification(store) {
-          store.commit('CONFIG_PAGE_NOTIFY', null);
-        },
       },
     },
     $trs: {
