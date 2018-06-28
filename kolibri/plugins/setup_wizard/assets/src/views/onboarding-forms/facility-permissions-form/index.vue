@@ -101,14 +101,14 @@
 
 <script>
 
-  import { mapActions, mapState } from 'vuex';
+  import { mapActions } from 'vuex';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kModal from 'kolibri.coreVue.components.kModal';
   import onboardingForm from '../onboarding-form';
 
   export default {
-    name: 'selectPermissionsForm',
+    name: 'facilityPermissionsForm',
     components: {
       onboardingForm,
       kRadioButton,
@@ -147,14 +147,9 @@
     },
     data() {
       return {
-        selectedPreset: this.currentPermissionPreset,
+        selectedPreset: this.$store.state.onboardingData.preset,
         permissionPresetDetailsModalShown: false,
       };
-    },
-    computed: {
-      ...mapState({
-        currentPermissionPreset: state => state.onboardingData.preset,
-      }),
     },
     mounted() {
       this.$refs['first-button'].focus();

@@ -22,7 +22,7 @@
 
 <script>
 
-  import { mapActions, mapState } from 'vuex';
+  import { mapActions } from 'vuex';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import onboardingForm from '../onboarding-form';
 
@@ -48,14 +48,11 @@
     },
     data() {
       return {
-        facilityName: this.currentFacilityName,
+        facilityName: this.$store.state.onboardingData.facility.name,
         fieldVisited: false,
       };
     },
     computed: {
-      ...mapState({
-        currentFacilityName: state => state.onboardingData.facility.name,
-      }),
       facilityNameErrorMessage() {
         if (this.facilityName === '') {
           return this.$tr('facilityNameFieldEmptyErrorMessage');

@@ -57,7 +57,7 @@
 
 <script>
 
-  import { mapActions, mapState } from 'vuex';
+  import { mapActions } from 'vuex';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
   import onboardingForm from '../onboarding-form';
@@ -93,10 +93,10 @@
     },
     data() {
       return {
-        name: this.currentName,
-        username: this.currentUsername,
-        password: this.currentPassword,
-        passwordConfirm: this.currentPassword,
+        name: this.$store.state.onboardingData.superuser.full_name,
+        username: this.$store.state.onboardingData.superuser.username,
+        password: this.$store.state.onboardingData.superuser.password,
+        passwordConfirm: this.$store.state.onboardingData.superuser.password,
         visitedFields: {
           name: false,
           username: false,
@@ -106,11 +106,6 @@
       };
     },
     computed: {
-      ...mapState({
-        currentName: state => state.onboardingData.superuser.full_name,
-        currentUsername: state => state.onboardingData.superuser.username,
-        currentPassword: state => state.onboardingData.superuser.password,
-      }),
       nameErrorMessage() {
         if (this.name === '') {
           return this.$tr('nameFieldEmptyErrorMessage');
@@ -170,7 +165,11 @@
         }
 
         if (this.formIsValid) {
-          this.submitSuperuserCredentials(this.name, this.username, this.password);
+          this.submitSuperuserCredentials({
+            name: this.name,
+            username: this.username,
+            password: this.password,
+          });
           this.$emit('submit');
         } else if (this.nameIsInvalid) {
           this.$refs.name.focus();
