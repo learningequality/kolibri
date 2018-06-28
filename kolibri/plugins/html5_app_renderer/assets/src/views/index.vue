@@ -5,12 +5,14 @@
     class="html5-renderer"
     allowfullscreen
   >
-    <k-button
+    <ui-icon-button
       class="btn"
-      :text="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+      :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullscreen($refs.html5Renderer)"
-      :primary="true"
-    />
+    >
+      <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
+      <mat-svg v-else name="fullscreen" category="navigation" />
+    </ui-icon-button>
     <iframe
       class="iframe"
       sandbox="allow-scripts"
@@ -25,13 +27,15 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
   import fullscreen from 'kolibri.coreVue.mixins.fullscreen';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {
     name: 'html5Renderer',
-    components: { kButton },
+    components: {
+      uiIconButton,
+    },
     mixins: [contentRendererMixin, fullscreen],
     props: {
       defaultFile: {
@@ -70,8 +74,8 @@
 
   .btn
     position: absolute
-    left: 50%
-    transform: translateX(-50%)
+    right: 21px
+    top: 8px
 
   .html5-renderer
     position: relative

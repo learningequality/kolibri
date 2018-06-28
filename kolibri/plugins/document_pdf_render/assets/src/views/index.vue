@@ -41,7 +41,6 @@
         class="controls button-fullscreen"
         aria-controls="pdf-container"
         :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-        size="large"
         @click="toggleFullscreen($refs.pdfRenderer)"
       >
         <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
@@ -50,7 +49,6 @@
       <ui-icon-button
         class="controls button-zoom-in"
         aria-controls="pdf-container"
-        size="large"
         @click="zoomIn"
       >
         <mat-svg name="add" category="content" />
@@ -58,7 +56,6 @@
       <ui-icon-button
         class="controls button-zoom-out"
         aria-controls="pdf-container"
-        size="large"
         @click="zoomOut"
       >
         <mat-svg name="remove" category="content" />
@@ -327,7 +324,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  $keen-button-height = 48px
+  $keen-button-height = 36px
 
   .pdf-renderer
     position: relative
@@ -341,7 +338,7 @@
   .button-fullscreen,
   .button-zoom-in,
   .button-zoom-out
-    right: 32px
+    right: 21px
 
   .button-fullscreen
     top: 16px
