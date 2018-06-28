@@ -75,8 +75,13 @@ class LoggerViewSet(viewsets.ModelViewSet):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
-
-        return Response(request.data)
+        default_response = request.data
+        for field in serializer.fields:
+            method_name = getattr(serializer.fields[field],'method_name', None)
+            if method_name:
+                method = getattr(serializer.root, method_name)
+                default_response[field] = method(instance)
+        return Response(default_response)
 
 class ContentSessionLogFilter(BaseLogFilter):
 
