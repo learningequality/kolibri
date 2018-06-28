@@ -588,7 +588,13 @@ export function showExam(store, classId, examId, questionNumber) {
   }
 }
 
-export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemptLog) {
+export function setAndSaveCurrentExamAttemptLog(
+  store,
+  contentId,
+  itemId,
+  currentAttemptLog,
+  examId
+) {
   // As soon as this has happened, we should clear any previous cache for the
   // UserExamResource - as that data has now changed.
   UserExamResource.clearCache();
@@ -630,7 +636,7 @@ export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, curren
         store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
         const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
           user: currentUserId(store.state),
-          exam: store.state.pageState.exam.id,
+          exam: examId,
         });
         // Add this attempt log to the Collection for future caching.
         examAttemptLogCollection.set(examAttemptLogModel);

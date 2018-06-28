@@ -47,7 +47,7 @@
           :assessment="true"
           :allowHints="false"
           :answerState="currentAttempt.answer"
-          @interaction="throttledSaveAnswer"
+          @interaction="saveAnswer"
         />
         <ui-alert v-else :dismissible="false" type="error">
           {{ $tr('noItemId') }}
@@ -100,7 +100,7 @@
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
-  import throttle from 'lodash/throttle';
+  import debounce from 'lodash/debounce';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -165,11 +165,13 @@
       questionsUnanswered() {
         return this.exam.question_count - this.questionsAnswered;
       },
-    },
-    created() {
-      this._throttledSaveAnswer = throttle(this.saveAnswer.bind(this), 500, {
-        leading: false,
-      });
+      debouncedSetAndSaveCurrentExamAttemptLog() {
+        // So as not to share debounced functions between instances of the same component
+        // and also to allow access to the cancel method of the debounced function
+        // best practice seems to be to do it as a computed property and not a method:
+        // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
+        return debounce(this.setAndSaveCurrentExamAttemptLog, 5000);
+      },
     },
     methods: {
       checkAnswer() {
@@ -178,13 +180,13 @@
         }
         return null;
       },
-      throttledSaveAnswer(...args) {
-        return this._throttledSaveAnswer(...args);
-      },
-      saveAnswer() {
+      saveAnswer(force = false) {
         const answer = this.checkAnswer();
         if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
           const attempt = Object.assign({}, this.currentAttempt);
+          // Copy the interaction history separately, as otherwise we
+          // will still be modifying the underlying object
+          attempt.interaction_history = Array(...attempt.interaction_history);
           attempt.answer = answer.answerState;
           attempt.simple_answer = answer.simpleAnswer;
           attempt.correct = answer.correct;
@@ -198,12 +200,29 @@
             correct: answer.correct,
             timestamp: now(),
           });
-          return this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
+          if (force) {
+            // Cancel any pending debounce
+            this.debouncedSetAndSaveCurrentExamAttemptLog.cancel();
+            // Force the save now instead
+            return this.setAndSaveCurrentExamAttemptLog(
+              this.content.id,
+              this.itemId,
+              attempt,
+              this.exam.id
+            );
+          } else {
+            return this.debouncedSetAndSaveCurrentExamAttemptLog(
+              this.content.id,
+              this.itemId,
+              attempt,
+              this.exam.id
+            );
+          }
         }
         return Promise.resolve();
       },
       goToQuestion(questionNumber) {
-        this.saveAnswer().then(() => {
+        this.saveAnswer(true).then(() => {
           this.$router.push({
             name: ClassesPageNames.EXAM_VIEWER,
             params: {
@@ -214,18 +233,15 @@
           this.$refs.multiPaneLayout.scrollMainToTop();
         });
       },
-      submitExam() {
-        if (!this.submitModalOpen) {
-          this.saveAnswer().then(this.toggleModal);
-        }
-      },
       toggleModal() {
         this.submitModalOpen = !this.submitModalOpen;
       },
       finishExam() {
-        this.closeExam().then(() => {
-          this.$router.push(this.backPageLink);
-        });
+        this.saveAnswer(true).then(
+          this.closeExam().then(() => {
+            this.$router.push(this.backPageLink);
+          })
+        );
       },
     },
   };
