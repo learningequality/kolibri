@@ -73,7 +73,7 @@ class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return models.ChannelMetadata.objects.all() \
             .order_by('-last_updated') \
-            .prefetch_related('root__lang')
+            .select_related('root__lang')
 
 
 class IdFilter(FilterSet):
