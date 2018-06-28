@@ -57,6 +57,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import attemptLogList from 'kolibri.coreVue.components.attemptLogList';
@@ -159,6 +160,10 @@
       };
     },
     computed: {
+      ...mapState({
+        questions: state => state.pageState.questions,
+        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
+      }),
       attemptLogs() {
         return this.examAttempts.map(attempt => {
           const questionId = this.questions[attempt.questionNumber - 1].contentId;
@@ -177,12 +182,6 @@
       toggleShowCorrectAnswer() {
         this.showCorrectAnswer = !this.showCorrectAnswer;
         this.$forceUpdate();
-      },
-    },
-    vuex: {
-      getters: {
-        questions: state => state.pageState.questions,
-        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
       },
     },
   };

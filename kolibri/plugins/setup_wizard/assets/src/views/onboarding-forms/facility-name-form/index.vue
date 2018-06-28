@@ -22,9 +22,8 @@
 
 <script>
 
+  import { mapActions, mapState } from 'vuex';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import { submitFacilityName } from '../../../state/actions/forms';
-
   import onboardingForm from '../onboarding-form';
 
   export default {
@@ -54,6 +53,9 @@
       };
     },
     computed: {
+      ...mapState({
+        currentFacilityName: state => state.onboardingData.facility.name,
+      }),
       facilityNameErrorMessage() {
         if (this.facilityName === '') {
           return this.$tr('facilityNameFieldEmptyErrorMessage');
@@ -68,6 +70,7 @@
       },
     },
     methods: {
+      ...mapActions(['submitFacilityName']),
       validateFacilityName() {
         this.fieldVisited = true;
       },
@@ -79,14 +82,6 @@
           this.submitFacilityName(this.facilityName);
           this.$emit('submit');
         }
-      },
-    },
-    vuex: {
-      actions: {
-        submitFacilityName,
-      },
-      getters: {
-        currentFacilityName: state => state.onboardingData.facility.name,
       },
     },
   };
