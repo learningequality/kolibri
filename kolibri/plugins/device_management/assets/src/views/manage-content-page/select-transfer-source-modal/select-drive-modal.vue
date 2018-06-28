@@ -102,7 +102,11 @@
         });
     },
     methods: {
-      ...mapActions(['goForwardFromSelectDriveModal', 'refreshDriveList']),
+      ...mapActions([
+        'goForwardFromSelectDriveModal',
+        'refreshDriveList',
+        'resetContentWizardState',
+      ]),
       goForward() {
         this.goForwardFromSelectDriveModal({
           driveId: this.selectedDriveId,

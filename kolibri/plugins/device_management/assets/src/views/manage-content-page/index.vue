@@ -6,7 +6,7 @@
 
       <subpage-container>
         <task-progress
-          v-if="tasksInQueue"
+          v-if="firstTask"
           v-bind="firstTask"
           @cleartask="clearFirstTask"
         />

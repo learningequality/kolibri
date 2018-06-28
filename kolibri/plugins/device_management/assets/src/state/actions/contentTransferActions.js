@@ -1,5 +1,4 @@
 import { ChannelResource, TaskResource } from 'kolibri.resources';
-import { taskList } from '../getters';
 import { TaskStatuses, ErrorTypes } from '../../constants';
 
 /**
@@ -76,6 +75,7 @@ export function transferChannelContent(store) {
  *
  */
 export function waitForTaskToComplete(store, taskId) {
+  const taskList = state => state.pageState.taskList;
   return new Promise((resolve, reject) => {
     const stopWatching = store.watch(taskList, function checkTaskProgress(tasks) {
       const match = tasks.find(task => task.id === taskId);

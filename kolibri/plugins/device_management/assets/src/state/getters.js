@@ -26,29 +26,6 @@ export function driveChannelList(state) {
   };
 }
 
-export function installedChannelList(state) {
-  return state.pageState.channelList;
-}
-
-export function installedChannelListLoading(state) {
-  return state.pageState.channelListLoading;
-}
-
-// Channels that are installed & also "available"
-export function installedChannelsWithResources(state) {
-  return state.pageState.channelList.filter(channel => channel.available);
-}
-
-export function channelIsInstalled(state) {
-  return function findChannel(channelId) {
-    return find(installedChannelList(state), { id: channelId });
-  };
-}
-
-export function taskList(state) {
-  return state.pageState.taskList;
-}
-
 export function cachedTopicPath(state) {
   return function getPath(id) {
     return state.pageState.wizardState.pathCache[id];
@@ -100,7 +77,7 @@ export function inRemoteImportMode(state) {
   return state.pageState.wizardState.transferType === TransferTypes.REMOTEIMPORT;
 }
 
-export function driveCanBeUsedForTransfer(state) {
+export function driveCanBeUsedForTransfer(state, getters) {
   return function isEnabled({ drive, transferType }) {
     if (transferType === TransferTypes.LOCALIMPORT) {
       const { transferredChannel } = state.pageState.wizardState;
@@ -111,7 +88,7 @@ export function driveCanBeUsedForTransfer(state) {
       // In "Import More" from Channel workflow -> Show any drive with that channel
       // where its version is >= to the installed version
       const channelOnDrive = find(drive.metadata.channels, { id: transferredChannel.id });
-      const channelOnServer = channelIsInstalled(state)(transferredChannel.id);
+      const channelOnServer = getters.channelIsInstalled(transferredChannel.id);
       return channelOnDrive && channelOnDrive.version >= channelOnServer.version;
     }
 
