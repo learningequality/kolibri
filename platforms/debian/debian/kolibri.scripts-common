@@ -4,7 +4,7 @@
 # method!
 
 # Uncomment to have debug output while for instance doing 'gdebi package.deb'
-KOLIBRI_DEB_DEBUG="YES"
+# KOLIBRI_DEB_DEBUG="YES"
 
 ###########################################
 # TRACEBACK & DEBUG
@@ -294,8 +294,8 @@ kolibri_debconf_set_defaults()
     USER_SEEN="$RET"
     if [ "$USER_SEEN" == "false" ]
     then
-        DESKTOP_USER=`getent passwd | awk -F: '$3 >= 1000 && $3 < 2000 {print $1}`
-        # DESKTOP_USER=`getent passwd | cut -d: -f1,3 | egrep ':[0-9]{4}$' | cut -d: -f1 | head -1`
+        # DESKTOP_USER=`getent passwd | awk -F: '$3 >= 1000 && $3 < 2000 {print $1}'`
+        DESKTOP_USER=`getent passwd | cut -d: -f1,3 | egrep ':[0-9]{4}$' | cut -d: -f1 | head -1`
         if ! [ "$DESKTOP_USER" == "" ]
         then
             # Set default to the user running the installation
@@ -320,7 +320,7 @@ kolibri_preinst()
     # Initialize: Remove the states file.
     # benjaoming: This seems to work, but uncommented for debugging
     # https://github.com/learningequality/ka-lite-installers/issues/474
-    # rm_states
+    rm_states
 
     # Only do this if install or upgrade
     if [ "${args[0]}" = "install" ] ||
@@ -350,4 +350,7 @@ kolibri_purge()
 {
     # Remove the username file such that a prompt will be shown at next install
     rm -f /etc/kolibri/username
+    # Make sure that there are no more state persistent data saved for another
+    # install
+    rm_states
 }
