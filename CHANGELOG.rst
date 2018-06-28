@@ -263,7 +263,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=
  - Updated Spanish translations
 
 
-0.3.2
+0.3.1
 -----
 
  - Portuguese and Kaswihili updates
