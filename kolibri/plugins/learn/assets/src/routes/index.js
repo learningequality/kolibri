@@ -13,7 +13,6 @@ import {
   showPopularPage,
   showNextStepsPage,
   showResumePage,
-  showFeaturedPage,
   showLearnContent,
 } from '../state/actions/recommended';
 import { PageNames } from '../constants';
@@ -96,13 +95,6 @@ export default [
     path: '/recommended/nextsteps',
     handler: () => {
       showNextStepsPage(store);
-    },
-  },
-  {
-    name: PageNames.RECOMMENDED_FEATURED,
-    path: '/recommended/featured/:channel_id',
-    handler: toRoute => {
-      showFeaturedPage(store, toRoute.params.channel_id);
     },
   },
   {

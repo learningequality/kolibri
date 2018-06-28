@@ -61,29 +61,6 @@
       />
     </template>
 
-    <template v-for="(contents, channelId) in featured" v-if="contents.length">
-      <!-- TODO: RTL - Do not interpolate strings -->
-      <content-card-group-header
-        :key="`${channelId}-header`"
-        :header="$tr('featuredSectionHeader', { channelTitle: getChannelTitle(channelId) })"
-        :viewMorePageLink="featuredPageLink(channelId)"
-        :showViewMore="contents.length > trimContent(contents).length"
-      />
-      <content-card-group-grid
-        v-if="isMobile"
-        :key="`${channelId}-groupgrid`"
-        :genContentLink="genContentLink"
-        :contents="trimContent(contents)"
-        :showContentKindFilter="false"
-      />
-      <content-card-group-carousel
-        v-else
-        :key="`${channelId}-carousel`"
-        :genContentLink="genContentLink"
-        :contents="trimContent(contents)"
-      />
-    </template>
-
   </div>
 
 </template>
@@ -109,7 +86,6 @@
       popularSectionHeader: 'Most popular',
       suggestedNextStepsSectionHeader: 'Next steps',
       resumeSectionHeader: 'Resume',
-      featuredSectionHeader: "Featured in '{ channelTitle }'",
     },
     components: {
       contentCardGroupCarousel,
@@ -148,9 +124,6 @@
       trimmedResume() {
         return this.resume.slice(0, this.carouselLimit);
       },
-      trimmedFeatured() {
-        return this.featured.slice(0, this.carouselLimit);
-      },
     },
     methods: {
       genContentLink(id, kind) {
@@ -165,12 +138,6 @@
       trimContent(content) {
         return content.slice(0, this.carouselLimit);
       },
-      featuredPageLink(channel_id) {
-        return {
-          name: PageNames.RECOMMENDED_FEATURED,
-          params: { channel_id },
-        };
-      },
       getChannelTitle(channel_id) {
         return this.channels.find(channel => channel.id === channel_id).title;
       },
@@ -181,7 +148,6 @@
         nextSteps: state => state.pageState.nextSteps,
         popular: state => state.pageState.popular,
         resume: state => state.pageState.resume,
-        featured: state => state.pageState.featured,
       },
     },
   };

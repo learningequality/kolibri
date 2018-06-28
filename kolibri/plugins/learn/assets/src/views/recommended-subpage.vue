@@ -27,7 +27,6 @@
       popularPageHeader: 'Most popular',
       resumePageHeader: 'Resume',
       nextStepsPageHeader: 'Next steps',
-      featuredPageHeader: "Featured in '{channelTitle}'",
       recommended: 'Recommended',
     },
     components: {
@@ -44,8 +43,6 @@
             return this.$tr('resumePageHeader');
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('nextStepsPageHeader');
-          case PageNames.RECOMMENDED_FEATURED:
-            return this.$tr('featuredPageHeader', { channelTitle: this.channelTitle });
           default:
             return null;
         }
