@@ -184,6 +184,9 @@
         const answer = this.checkAnswer();
         if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
           const attempt = Object.assign({}, this.currentAttempt);
+          // Copy the interaction history separately, as otherwise we
+          // will still be modifying the underlying object
+          attempt.interaction_history = Array(...attempt.interaction_history);
           attempt.answer = answer.answerState;
           attempt.simple_answer = answer.simpleAnswer;
           attempt.correct = answer.correct;
