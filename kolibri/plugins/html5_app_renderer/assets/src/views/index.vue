@@ -8,6 +8,8 @@
     <ui-icon-button
       class="btn"
       :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+      color="primary"
+      size="large"
       @click="toggleFullscreen($refs.html5Renderer)"
     >
       <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
@@ -76,6 +78,7 @@
     position: absolute
     right: 21px
     top: 8px
+    fill: white
 
   .html5-renderer
     position: relative

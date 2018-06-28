@@ -41,6 +41,8 @@
         class="controls button-fullscreen"
         aria-controls="pdf-container"
         :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+        color="primary"
+        size="large"
         @click="toggleFullscreen($refs.pdfRenderer)"
       >
         <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
@@ -177,15 +179,17 @@
             index: i,
           });
         }
-        return this.getPage(1).then(firstPage => {
+        // Is either the first page or the saved last page visited
+        const firstPageToRender = parseInt(this.getSavedPosition() * this.totalPages);
+        return this.getPage(firstPageToRender + 1).then(firstPage => {
           this.firstPageHeight = firstPage.view[3];
           this.firstPageWidth = firstPage.view[2];
-          this.scale = this.elSize.height / (this.firstPageHeight + MARGIN);
-          // Set the firstPage into the pdfPages object so that we do not refetch the page
+          this.scale = this.elSize.width / (this.firstPageWidth + MARGIN);
+          // Set the firstPageToRender into the pdfPages object so that we do not refetch the page
           // from PDFJS when we do our initial render
           // splice so changes are detected
-          this.pdfPages.splice(0, 1, {
-            ...this.pdfPages[0],
+          this.pdfPages.splice(firstPageToRender, 1, {
+            ...this.pdfPages[firstPageToRender],
             page: firstPage,
             resolved: true,
           });
@@ -324,8 +328,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  $keen-button-height = 36px
-
   .pdf-renderer
     position: relative
     height: 500px
@@ -335,19 +337,20 @@
     position: absolute
     z-index: 6 // material spec - snackbar and FAB
 
-  .button-fullscreen,
-  .button-zoom-in,
-  .button-zoom-out
-    right: 21px
-
   .button-fullscreen
     top: 16px
+    right: 21px
+    fill: white
+
+  .button-zoom-in,
+  .button-zoom-out
+    right: 27px
 
   .button-zoom-in
-    top: $keen-button-height + 32
+    top: 80px
 
   .button-zoom-out
-    top: ($keen-button-height * 2) + 48
+    top: 132px
 
   .progress-bar
     top: 50%
