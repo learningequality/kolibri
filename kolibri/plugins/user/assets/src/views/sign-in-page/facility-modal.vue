@@ -23,7 +23,7 @@
 
 <script>
 
-  import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
+  import { mapGetters, mapActions, mapMutations } from 'vuex';
   import kModal from 'kolibri.coreVue.components.kModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
@@ -37,15 +37,12 @@
     },
     data() {
       return {
-        selectedFacility: this.currentFacilityId,
+        // currentFacilityId uses session, with is anonymous in sign-in-page
+        selectedFacility: this.$store.state.facilityId,
       };
     },
     computed: {
       ...mapGetters(['facilities']),
-      ...mapState({
-        // currentFacilityId uses session, with is anonymous in sign-in-page
-        currentFacilityId: 'facilityId',
-      }),
     },
     methods: {
       ...mapActions(['getFacilityConfig']),
