@@ -18,6 +18,7 @@ Changes are ordered reverse-chronologically.
  - Auto-play videos
  - Various improvements to PDF renderer
  - Command to migrate content directory location
+ - Languages: English, Arabic, Bengali, Chinyanja, Farsi, French, Hindi, Kannada, Marathi, Burmese, Portuguese (Brazilian), Spanish, Swahili, Tamil, Telugu, Urdu, Yoruba, and Zulu
 
 See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.10.0+label%3Achangelog>`_ of changes on Github.
 
@@ -26,7 +27,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=
 -----
 
  - Various bug fixes
- - Languages: English, Arabic, Bengali, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Tamil,   Telugu, Urdu, Yoruba, and Zulu
+ - Languages: English, Arabic, Bengali, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Tamil, Telugu, Urdu, Yoruba, and Zulu
 
 See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.2+label%3Achangelog>`_ of changes on Github.
 
