@@ -58,7 +58,7 @@ import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
 import contentRendererMixin from '../mixins/contentRenderer';
-import fullscreen from '../mixins/fullscreen';
+import fullscreen from '../views/fullscreen';
 import theme from '../styles/core-theme.styl';
 import definitions from '../styles/definitions.styl';
 import keenVars from '../keen-config/variables.scss';
@@ -158,13 +158,13 @@ export default {
       kLinearLoader,
       kCircularLoader,
       multiPaneLayout,
+      fullscreen,
     },
     router,
     mixins: {
       responsiveWindow,
       responsiveElement,
       contentRenderer: contentRendererMixin,
-      fullscreen,
     },
   },
   resources,
