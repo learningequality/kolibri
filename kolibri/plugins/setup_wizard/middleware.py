@@ -14,6 +14,8 @@ ALLOWED_PATH_LIST = [
 
 SETUP_WIZARD_URL = reverse("kolibri:setupwizardplugin:setupwizard")
 
+# Workaround for https://github.com/learningequality/kolibri/issues/3852
+# Uses a meta tag redirect rather than a 302 to prevent extra load by Windows GUI polling
 redirect_page_content = """
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
