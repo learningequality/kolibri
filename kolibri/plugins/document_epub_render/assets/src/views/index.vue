@@ -73,7 +73,7 @@
       progress: 0,
       timeout: null,
       totalPages: null,
-        isInFullscreen: false,
+      isInFullscreen: false,
     }),
     computed: {
       epubURL() {
