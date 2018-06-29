@@ -34,6 +34,13 @@
         return null;
       },
     },
+    watch: {
+      isInFullscreen(newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.$emit('changeFullscreen', newVal);
+        }
+      },
+    },
     mounted() {
       // Catch the use of the esc key to exit fullscreen
       if (fullscreenApiIsSupported) {
@@ -48,14 +55,12 @@
           ScreenFull.toggle(this.$refs.fullscreen);
         }
         this.isInFullscreen = true;
-        this.$emit('changeFullscreen', true);
       },
       exitFullscreen() {
         if (fullscreenApiIsSupported) {
           ScreenFull.toggle(this.$refs.fullscreen);
         }
         this.isInFullscreen = false;
-        this.$emit('changeFullscreen', false);
       },
       toggleFullscreen() {
         this.isInFullscreen ? this.exitFullscreen() : this.enterFullScreen();
