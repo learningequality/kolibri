@@ -30,6 +30,7 @@ const baseConnectionState = {
 export const initialState = {
   core: {
     error: '',
+    blockDoubleClicks: false,
     loading: true,
     title: '',
     pageSessionId: 0,
@@ -79,6 +80,9 @@ export const coreMutations = {
   },
   CORE_SET_ERROR(state, error) {
     state.core.error = error;
+  },
+  CORE_BLOCK_CLICKS(state, blocked) {
+    state.core.blockDoubleClicks = blocked;
   },
   CORE_SET_TITLE(state, title) {
     state.core.title = title;

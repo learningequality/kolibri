@@ -2,6 +2,7 @@
 
   <!-- class unused, used as identifier when debugging from DOM -->
   <div class="app-body" :style="contentStyle">
+    <div v-if="blockDoubleClicks" class="click-mask"></div>
     <k-linear-loader
       v-if="loading"
       class="toolbar-loader"
@@ -63,6 +64,7 @@
     vuex: {
       getters: {
         loading: state => state.core.loading,
+        blockDoubleClicks: state => state.core.blockDoubleClicks,
         error: state => state.core.error,
         documentTitle: state => state.core.title,
       },
@@ -88,5 +90,13 @@
     position: fixed
     right: 0
     left: 0
+
+  .click-mask
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    z-index: 24
 
 </style>
