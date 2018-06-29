@@ -482,7 +482,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
     pagination_class = OptionalPageNumberPagination
 
     def prefetch_related(self, queryset):
-        return queryset.prefetch_related('files')
+        return queryset.prefetch_related('files__local_file')
 
     def get_queryset(self, prefetch=True):
         queryset = models.ContentNode.objects.filter(available=True)
