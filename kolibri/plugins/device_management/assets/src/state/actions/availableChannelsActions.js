@@ -25,7 +25,7 @@ export function getRemoteChannelByToken(token) {
 export function getAllRemoteChannels(store, publicChannels) {
   const installedChannels = installedChannelList(store.state);
   const privateChannels = differenceBy(installedChannels, publicChannels, 'id').filter(
-    channel => channel.on_device_resources > 0
+    channel => channel.available
   );
   const promises = privateChannels.map(privateChannel =>
     getRemoteChannelByToken(privateChannel.id)
