@@ -1,9 +1,9 @@
 <template>
 
-  <div
+  <fullscreen
     ref="pdfRenderer"
     class="pdf-renderer"
-    allowfullscreen
+    @changeFullscreen="isInFullscreen = $event"
   >
     <k-linear-loader
       v-if="documentLoading || firstPageHeight === null"
@@ -43,7 +43,7 @@
         :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
         color="primary"
         size="large"
-        @click="toggleFullscreen($refs.pdfRenderer)"
+        @click="$refs.pdfRenderer.toggleFullscreen()"
       >
         <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
         <mat-svg v-else name="fullscreen" category="navigation" />
@@ -63,7 +63,7 @@
         <mat-svg name="remove" category="content" />
       </ui-icon-button>
     </template>
-  </div>
+  </fullscreen>
 
 </template>
 
@@ -86,7 +86,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
   import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
-  import fullscreen from 'kolibri.coreVue.mixins.fullscreen';
+  import fullscreen from 'kolibri.coreVue.components.fullscreen';
 
   import uiIconButton from 'keen-ui/src/UiIconButton';
 
@@ -109,8 +109,9 @@
       uiIconButton,
       pdfPage,
       RecycleList,
+      fullscreen,
     },
-    mixins: [responsiveWindow, responsiveElement, contentRendererMixin, fullscreen],
+    mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
       progress: null,
       scale: null,
@@ -120,6 +121,7 @@
       firstPageWidth: null,
       pdfPages: [],
       recycleListIsMounted: false,
+      isInFullscreen: false,
     }),
     computed: {
       pdfURL() {

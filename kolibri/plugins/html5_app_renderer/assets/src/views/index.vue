@@ -1,16 +1,16 @@
 <template>
 
-  <div
+  <fullscreen
     ref="html5Renderer"
     class="html5-renderer"
-    allowfullscreen
+    @changeFullscreen="isInFullscreen = $event"
   >
     <ui-icon-button
       class="btn"
       :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       color="primary"
       size="large"
-      @click="toggleFullscreen($refs.html5Renderer)"
+      @click="$refs.html5Renderer.toggleFullscreen()"
     >
       <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
       <mat-svg v-else name="fullscreen" category="navigation" />
@@ -22,7 +22,7 @@
       :src="rooturl"
     >
     </iframe>
-  </div>
+  </fullscreen>
 
 </template>
 
@@ -30,20 +30,26 @@
 <script>
 
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
-  import fullscreen from 'kolibri.coreVue.mixins.fullscreen';
   import uiIconButton from 'keen-ui/src/UiIconButton';
+  import fullscreen from 'kolibri.coreVue.components.fullscreen';
 
   export default {
     name: 'html5Renderer',
     components: {
       uiIconButton,
+      fullscreen,
     },
-    mixins: [contentRendererMixin, fullscreen],
+    mixins: [contentRendererMixin],
     props: {
       defaultFile: {
         type: Object,
         required: true,
       },
+    },
+    data() {
+      return {
+        isInFullscreen: false,
+      };
     },
     computed: {
       rooturl() {
