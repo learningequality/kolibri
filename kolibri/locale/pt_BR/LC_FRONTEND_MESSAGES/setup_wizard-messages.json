@@ -20,7 +20,7 @@
     "selectPermissionsForm.enabledUserSelfSignupPermissionDetail": "Usuários convidados podem criar suas próprias contas",
     "selectPermissionsForm.disabledUserSelfSignupPermissionDetail": "Administradores devem criar todas as contas de usuário",
     "superuserCredentialsForm.adminAccountCreationHeader": "Crie a sua conta de Administrador",
-    "superuserCredentialsForm.adminAccountCreationDescription": "Esta conta permite gerir a Instituição e os conteúdos deste dispositivo.",
+    "superuserCredentialsForm.adminAccountCreationDescription": "Esta conta permite gerir a instituição e os conteúdos deste dispositivo.",
     "superuserCredentialsForm.adminNameFieldLabel": "Nome completo",
     "superuserCredentialsForm.adminUsernameFieldLabel": "Nome de usuário",
     "superuserCredentialsForm.adminPasswordFieldLabel": "Senha",

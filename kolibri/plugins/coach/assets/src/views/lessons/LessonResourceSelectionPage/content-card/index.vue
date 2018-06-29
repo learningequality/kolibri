@@ -20,18 +20,18 @@
       <div v-if="message" class="message">
         {{ message }}
       </div>
-      <p class="description">
-        <!-- eslint-disable -->
-        <span :class="truncatedClass">{{ descriptionHead }}<span class="visuallyhidden">{{ descriptionTail }}</span></span>
-        <!-- eslint-enable -->
-        <k-button
-          v-if="descriptionIsTooLong"
-          @click.stop.prevent="descriptionExpanded=!descriptionExpanded"
-          appearance="basic-link"
-          :text="!descriptionExpanded ? $tr('viewMoreButtonPrompt') : $tr('viewLessButtonPrompt')"
-        />
 
-      </p>
+      <text-truncator
+        :text="description"
+        :maxHeight="40"
+        :showViewMore="true"
+        class="description"
+      />
+      <coach-content-label
+        class="coach-content-label"
+        :value="numCoachContents"
+        :isTopic="isTopic"
+      />
     </div>
 
   </router-link>
@@ -41,18 +41,19 @@
 
 <script>
 
-  import values from 'lodash/values';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { validateLinkObject } from 'kolibri.utils.validators';
+  import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import textTruncator from 'kolibri.coreVue.components.textTruncator';
   import cardThumbnail from './card-thumbnail';
-
-  const defaultDescriptionLimit = 140;
 
   export default {
     name: 'lessonContentCard',
     components: {
       cardThumbnail,
+      textTruncator,
+      coachContentLabel,
       kButton,
     },
     props: {
@@ -71,47 +72,29 @@
       kind: {
         type: String,
         required: true,
-        validator(value) {
-          return values(ContentNodeKinds).includes(value);
-        },
+        validator: validateContentNodeKind,
       },
       link: {
         type: Object,
         required: true,
         validator: validateLinkObject,
       },
+      // ContentNode.coach_content will be `0` if not a coach content leaf node,
+      // or a topic without coach content. It will be a positive integer if a topic
+      // with coach content, and `1` if a coach content leaf node.
+      numCoachContents: {
+        type: Number,
+        default: 0,
+      },
       message: {
         type: String,
         default: '',
       },
     },
-    data() {
-      return {
-        descriptionExpanded: false,
-      };
-    },
     computed: {
-      descriptionHead() {
-        if (this.descriptionExpanded) {
-          return this.description;
-        }
-        return this.description.slice(0, defaultDescriptionLimit);
+      isTopic() {
+        return this.kind === ContentNodeKinds.CHANNEL || this.kind === ContentNodeKinds.TOPIC;
       },
-      descriptionTail() {
-        return this.description.slice(defaultDescriptionLimit);
-      },
-      descriptionIsTooLong() {
-        return this.description.length > defaultDescriptionLimit;
-      },
-      truncatedClass() {
-        return {
-          truncated: this.descriptionIsTooLong && !this.descriptionExpanded,
-        };
-      },
-    },
-    $trs: {
-      viewMoreButtonPrompt: 'View more',
-      viewLessButtonPrompt: 'View less',
     },
   };
 
@@ -122,6 +105,9 @@
 
   @require '~kolibri.styles.definitions'
   @require './card.styl'
+
+  .coach-content-label
+    padding: 8px 0
 
   .content-card
     text-decoration: none
@@ -169,10 +155,6 @@
 
   .description
     font-size: 12px
-
-  .truncated::after
-    content: '\2026\0020'
-    display: inline
 
   .message
     color: $core-text-default

@@ -81,5 +81,10 @@ module.exports = {
       },
     ],
     'vue/html-closing-bracket-spacing': ['error'],
+
+    'import/first': 1,
+    'import/no-duplicates': 1,
+    'import/newline-after-import': 1,
+    'import/order': 1,
   },
 };

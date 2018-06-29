@@ -11,6 +11,7 @@
             :link="nextResourceLink"
             :progress="nextLessonResource.progress_fraction"
             :thumbnail="getContentNodeThumbnail(nextLessonResource)"
+            :numCoachContents="nextLessonResource.coach_content ? 1 : 0"
             :title="nextLessonResource.title"
           />
         </template>
@@ -23,10 +24,10 @@
 
 <script>
 
+  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
   import ContentCard from '../content-card';
   import ContentPage from '../content-page';
   import { lessonResourceViewerLink } from './classPageLinks';
-  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 
   export default {
     name: 'lessonResourceViewer',

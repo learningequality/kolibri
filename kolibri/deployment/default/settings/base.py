@@ -12,17 +12,17 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import io
 import json
 import os
 
 import pytz
+from django.conf import locale
 from tzlocal import get_localzone
 
 import kolibri
 from kolibri.utils import conf
 from kolibri.utils import i18n
-
-from django.conf import locale
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # import kolibri, so we can get the path to the module.
@@ -32,8 +32,6 @@ from django.conf import locale
 KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__name__))
-
-KOLIBRI_HOME = conf.KOLIBRI_HOME
 
 LOCALE_PATHS = [
     os.path.join(KOLIBRI_MODULE_PATH, "locale"),
@@ -86,6 +84,7 @@ LOCALE_PATHS += [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'kolibri.core.device.middleware.KolibriLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -98,7 +97,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
 ]
 
-QUEUE_JOB_STORAGE_PATH = os.path.join(KOLIBRI_HOME, "job_storage.sqlite3")
+QUEUE_JOB_STORAGE_PATH = os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
 
 ROOT_URLCONF = 'kolibri.deployment.default.urls'
 
@@ -126,31 +125,27 @@ WSGI_APPLICATION = 'kolibri.deployment.default.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(KOLIBRI_HOME, 'db.sqlite3'),
-        'OPTIONS': {
-            'timeout': 100,
+if conf.OPTIONS['Database']["DATABASE_ENGINE"] == "sqlite":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(conf.KOLIBRI_HOME, conf.OPTIONS['Database']['DATABASE_NAME'] or 'db.sqlite3'),
+            'OPTIONS': {
+                'timeout': 100,
+            }
         }
-    },
-}
+    }
+elif conf.OPTIONS['Database']['DATABASE_ENGINE'] == "postgres":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': conf.OPTIONS['Database']['DATABASE_NAME'],
+            'PASSWORD': conf.OPTIONS['Database']['DATABASE_PASSWORD'],
+            'USER': conf.OPTIONS['Database']['DATABASE_USER'],
+            'HOST': conf.OPTIONS['Database']['DATABASE_HOST'],
+        }
+    }
 
-# Content directories and URLs for channel metadata and content files
-
-# Directory and URL for storing content databases for channel data
-CONTENT_DATABASE_DIR = os.path.join(KOLIBRI_HOME, 'content', 'databases')
-if not os.path.exists(CONTENT_DATABASE_DIR):
-    os.makedirs(CONTENT_DATABASE_DIR)
-
-# Directory and URL for storing de-duped content files for all channels
-CONTENT_STORAGE_DIR = os.path.join(KOLIBRI_HOME, 'content', 'storage')
-if not os.path.exists(CONTENT_STORAGE_DIR):
-    os.makedirs(CONTENT_STORAGE_DIR)
-
-# Base default URL for downloading content from an online server
-CENTRAL_CONTENT_DOWNLOAD_BASE_URL = os.environ.get('CENTRAL_CONTENT_DOWNLOAD_BASE_URL',
-                                                   'http://studio.learningequality.org')
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -159,7 +154,7 @@ CENTRAL_CONTENT_DOWNLOAD_BASE_URL = os.environ.get('CENTRAL_CONTENT_DOWNLOAD_BAS
 # https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # http://helpsharepointvision.nevron.com/Culture_Table.html
 
-with open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json")) as f:
+with io.open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json"), encoding="utf-8") as f:
     LANGUAGES = i18n.parse_supported_languages(json.load(f))
 
 # Some languages are not supported out-of-the-box by Django
@@ -217,7 +212,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(KOLIBRI_HOME, "static")
+STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
@@ -276,14 +271,14 @@ LOGGING = {
             'level': 'DEBUG',
             'filters': ['require_debug_true'],
             'class': 'logging.FileHandler',
-            'filename': os.path.join(KOLIBRI_HOME, 'debug.log'),
+            'filename': os.path.join(conf.KOLIBRI_HOME, 'debug.log'),
             'formatter': 'simple_date',
         },
         'file': {
             'level': 'INFO',
             'filters': [],
             'class': 'logging.FileHandler',
-            'filename': os.path.join(KOLIBRI_HOME, 'kolibri.log'),
+            'filename': os.path.join(conf.KOLIBRI_HOME, 'kolibri.log'),
             'formatter': 'simple_date',
         },
     },

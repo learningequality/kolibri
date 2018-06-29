@@ -42,15 +42,16 @@
 
 <script>
 
+  import coreModal from 'kolibri.coreVue.components.coreModal';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import {
     displayModal,
     addUsersToGroup,
     removeUsersFromGroup,
     moveUsersBetweenGroups,
   } from '../../state/actions/group';
-  import coreModal from 'kolibri.coreVue.components.coreModal';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+
   export default {
     name: 'moveLearnersModal',
     $trs: {
@@ -128,11 +129,6 @@
 
 
 <style lang="stylus" scoped>
-
-  label
-    display: block
-    padding-bottom: 0.5em
-    padding-top: 0.5em
 
   .button-section
     margin-top: 1em

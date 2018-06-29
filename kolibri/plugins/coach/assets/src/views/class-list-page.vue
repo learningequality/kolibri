@@ -39,7 +39,9 @@
                 :to="learnerPageLink(classroom.id)"
               />
             </td>
-            <td>{{ coachNames(classroom) }}</td>
+            <td :title="formattedCoachNamesTooltip(classroom)">
+              {{ formattedCoachNames(classroom) }}
+            </td>
             <td>{{ classroom.learner_count }}</td>
           </tr>
         </tbody>
@@ -57,9 +59,9 @@
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import ContentIcon from 'kolibri.coreVue.components.contentIcon';
-  import { PageNames } from '../constants';
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import { PageNames } from '../constants';
   import { filterAndSortUsers } from '../../../../facility_management/assets/src/userSearchUtils';
 
   function learnerPageLink(classId) {
@@ -88,20 +90,36 @@
       // Duplicated in manage-classroom-page
       coachNames(classroom) {
         const { coaches } = classroom;
-        const coach_names = filterAndSortUsers(coaches, () => true, 'full_name').map(
+        return filterAndSortUsers(coaches, () => true, 'full_name').map(
           ({ full_name }) => full_name
         );
+      },
+      formattedCoachNames(classroom) {
+        const coach_names = this.coachNames(classroom);
         if (coach_names.length === 0) {
           return '–';
         }
-        if (coach_names.length <= 2) {
-          return coach_names.join(', ');
+        if (coach_names.length === 1) {
+          return coach_names[0];
         }
-        return this.$tr('truncatedCoachNames', {
+        if (coach_names.length === 2) {
+          return this.$tr('twoCoachNames', {
+            name1: coach_names[0],
+            name2: coach_names[1],
+          });
+        }
+        return this.$tr('manyCoachNames', {
           name1: coach_names[0],
           name2: coach_names[1],
           numRemaining: coach_names.length - 2,
         });
+      },
+      formattedCoachNamesTooltip(classroom) {
+        const coach_names = this.coachNames(classroom);
+        if (coach_names.length > 2) {
+          return coach_names.join('\n');
+        }
+        return null;
       },
     },
     vuex: {
@@ -121,8 +139,8 @@
       coachesColumnHeader: 'Coaches',
       learnerColumnHeader: 'Learners',
       classIconTableDescription: 'Class icon',
-      truncatedCoachNames:
-        '{name1}, {name2}, {numRemaining, number} {numRemaining, plural, one {other} other {others}}',
+      twoCoachNames: '{name1}, {name2}',
+      manyCoachNames: '{name1}, {name2}… (+{numRemaining, number})',
     },
   };
 

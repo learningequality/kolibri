@@ -20,9 +20,14 @@
             type="secondary"
             color="white"
             size="large"
-            icon="close"
             @click="toggleNav"
-          />
+          >
+            <mat-svg
+              name="close"
+              category="navigation"
+              class="side-nav-header-close"
+            />
+          </ui-icon-button>
           <span class="side-nav-header-name">{{ $tr('kolibri') }}</span>
         </div>
 
@@ -30,21 +35,115 @@
           class="side-nav-scrollable-area"
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
-          <custom-ui-menu
+          <core-menu
             class="side-nav-scrollable-area-menu"
             role="navigation"
-            :options="menuOptions"
             :hasIcons="true"
             :aria-label="$tr('navigationLabel')"
-            @select="navigate"
-          />
+          >
+            <template slot="options">
+              <core-menu-option
+                :label="$tr('learn')"
+                :active="pageIsActive(TopLevelPageNames.LEARN)"
+                @select="navigate('/learn')"
+              >
+                <mat-svg
+                  slot="icon"
+                  name="school"
+                  category="social"
+                />
+              </core-menu-option>
+              <core-menu-option
+                v-if="isCoach || isAdmin || isSuperuser"
+                :label="$tr('coach')"
+                :active="pageIsActive(TopLevelPageNames.COACH)"
+                @select="navigate('/coach')"
+              >
+                <mat-svg
+                  slot="icon"
+                  name="assessment"
+                  category="action"
+                />
+              </core-menu-option>
+
+              <core-menu-option
+                v-if="isAdmin || isSuperuser"
+                :label="$tr('facility')"
+                :active="pageIsActive(TopLevelPageNames.MANAGE)"
+                @select="navigate('/facility')"
+              >
+                <mat-svg
+                  slot="icon"
+                  name="settings_input_antenna"
+                  category="action"
+                />
+              </core-menu-option>
+
+              <core-menu-option
+                v-if="canManageContent || isSuperuser"
+                :label="$tr('device')"
+                :active="pageIsActive(TopLevelPageNames.DEVICE)"
+                @select="navigate('/device')"
+              >
+                <mat-svg
+                  slot="icon"
+                  name="tablet_mac"
+                  category="hardware"
+                />
+              </core-menu-option>
+
+              <core-menu-option type="divider" />
+
+              <template v-if="isUserLoggedIn">
+                <core-menu-option
+                  :label="$tr('profile')"
+                  :active="pageIsActive(TopLevelPageNames.USER)"
+                  @select="navigate('/user')"
+                >
+                  <mat-svg
+                    slot="icon"
+                    name="account_circle"
+                    category="action"
+                  />
+                </core-menu-option>
+
+                <core-menu-option
+                  :label="$tr('signOut')"
+                  @select="signOut"
+                >
+                  <mat-svg
+                    slot="icon"
+                    name="exit_to_app"
+                    category="action"
+                    :class="{ 'rtl-icon': isRtl }"
+                  />
+                </core-menu-option>
+              </template>
+
+              <core-menu-option
+                v-else
+                :label="$tr('signIn')"
+                @select="navigate('/user')"
+              >
+                <mat-svg
+                  slot="icon"
+                  name="exit_to_app"
+                  category="action"
+                  :class="{ 'rtl-icon': isRtl }"
+                />
+              </core-menu-option>
+
+              <core-menu-option type="divider" />
+
+            </template>
+          </core-menu>
 
           <div class="side-nav-scrollable-area-footer">
             <logo class="side-nav-scrollable-area-footer-logo" />
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
-              <p>© 2017 Learning Equality</p>
+              <p>© 2018 Learning Equality</p>
             </div>
           </div>
         </div>
@@ -77,16 +176,18 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import customUiMenu from 'kolibri.coreVue.components.customUiMenu';
+  import coreMenu from 'kolibri.coreVue.components.coreMenu';
+  import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import logo from 'kolibri.coreVue.components.logo';
 
   export default {
     name: 'sideNav',
     components: {
-      customUiMenu,
+      coreMenu,
       uiIconButton,
       logo,
+      coreMenuOption,
     },
     mixins: [responsiveWindow, responsiveElement],
     $trs: {
@@ -132,73 +233,14 @@
       };
     },
     computed: {
+      TopLevelPageNames() {
+        return TopLevelPageNames;
+      },
       mobile() {
         return this.windowSize.breakpoint < 2;
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
-      },
-      menuOptions() {
-        const options = [
-          {
-            label: this.$tr('learn'),
-            active: this.pageIsActive(TopLevelPageNames.LEARN),
-            icon: 'school',
-            href: '/learn',
-          },
-        ];
-        if (this.isCoach || this.isAdmin || this.isSuperuser) {
-          options.push({
-            label: this.$tr('coach'),
-            active: this.pageIsActive(TopLevelPageNames.COACH),
-            icon: 'assessment',
-            href: '/coach',
-          });
-        }
-        if (this.isAdmin || this.isSuperuser) {
-          options.push({
-            label: this.$tr('facility'),
-            active: this.pageIsActive(TopLevelPageNames.MANAGE),
-            icon: 'settings_input_antenna',
-            href: '/facility',
-          });
-        }
-        if (this.canManageContent || this.isSuperuser) {
-          options.push({
-            label: this.$tr('device'),
-            active: this.pageIsActive(TopLevelPageNames.DEVICE),
-            icon: 'tablet_mac',
-            href: '/device',
-          });
-        }
-        options.push({ type: 'divider' });
-        if (this.isUserLoggedIn) {
-          options.push({
-            label: this.$tr('profile'),
-            active: this.pageIsActive(TopLevelPageNames.USER),
-            icon: 'account_circle',
-            href: '/user',
-          });
-          options.push({
-            label: this.$tr('signOut'),
-            icon: 'exit_to_app',
-            iconProps: {
-              mirror: this.isRtl,
-            },
-            action: this.signOut,
-          });
-        } else {
-          options.push({
-            label: this.$tr('signIn'),
-            icon: 'exit_to_app',
-            iconProps: {
-              mirror: this.isRtl,
-            },
-            href: '/user',
-          });
-        }
-        options.push({ type: 'divider' });
-        return options;
       },
     },
     watch: {
@@ -216,12 +258,8 @@
       },
     },
     methods: {
-      navigate(option) {
-        if (option.href) {
-          window.location.href = option.href;
-        } else if (option.action) {
-          option.action();
-        }
+      navigate(href) {
+        window.location.href = href;
       },
       toggleNav() {
         this.$emit('toggleSideNav');
@@ -302,6 +340,9 @@
     text-transform: uppercase
     background-color: $core-text-default
     box-shadow: $side-nav-header-box-shadow
+
+  .side-nav-header-close
+    fill: white
 
   .side-nav-header-name
     margin-left: 8px

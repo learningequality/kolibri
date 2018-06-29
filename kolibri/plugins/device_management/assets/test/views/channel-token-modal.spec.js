@@ -4,8 +4,6 @@ import { mount } from '@vue/test-utils';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
-import kTextbox from 'kolibri.coreVue.components.kTextbox';
-import UiAlert from 'keen-ui/src/UiAlert';
 
 function makeWrapper() {
   return mount(ChannelTokenModal);
@@ -14,8 +12,8 @@ function makeWrapper() {
 function getElements(wrapper) {
   return {
     cancelButton: () => wrapper.find('button[name="cancel"]'),
-    tokenTextbox: () => wrapper.find(kTextbox),
-    networkErrorAlert: () => wrapper.find(UiAlert),
+    tokenTextbox: () => wrapper.find({ name: 'kTextbox' }),
+    networkErrorAlert: () => wrapper.find({ name: 'ui-alert' }),
     lookupTokenStub: () => sinon.stub(wrapper.vm, 'lookupToken'),
   };
 }

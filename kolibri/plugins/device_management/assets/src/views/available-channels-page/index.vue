@@ -1,100 +1,110 @@
 <template>
 
-  <immersive-full-screen
-    :backPageText="backText"
-    :backPageLink="goBackLink"
-  >
-    <subpage-container withSideMargin>
-      <div
-        v-if="channelsAreAvailable"
-        class="top-matter"
-      >
-        <div class="channels dib">
-          <h1>{{ channelsTitle }}</h1>
-          <p>{{ $tr('channelsAvailable', { channels: numberOfAvailableChannels }) }}</p>
-        </div>
-        <div class="filters dib">
-          <k-select
-            :options="languageFilterOptions"
-            v-model="languageFilter"
-            :label="$tr('languageFilterLabel')"
-            :inline="true"
-          />
-          <k-filter-textbox
-            :placeholder="$tr('titleFilterPlaceholder')"
-            v-model="titleFilter"
-            class="title-filter"
-          />
-        </div>
+  <div>
+    <content-wizard-ui-alert
+      v-if="wizardStatus"
+      :errorType="wizardStatus"
+    />
+
+    <section
+      v-if="channelsAreAvailable"
+      class="top-matter"
+    >
+      <div class="channels">
+        <h1 class="channels-header">
+          <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
+          <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
+          <span v-else>{{ $tr('channels') }}</span>
+        </h1>
+
+        <p>{{ $tr('channelsAvailable', { channels: availableChannels.length }) }}</p>
       </div>
 
-      <ui-progress-linear
-        v-if="channelsAreLoading"
-        type="indefinite"
-        color="primary"
+      <div class="filters">
+        <k-select
+          :options="languageFilterOptions"
+          v-model="languageFilter"
+          :label="$tr('languageFilterLabel')"
+          :inline="true"
+        />
+        <k-filter-textbox
+          :placeholder="$tr('titleFilterPlaceholder')"
+          v-model="titleFilter"
+          class="title-filter"
+        />
+      </div>
+    </section>
+
+    <section
+      v-if="showUnlistedChannels"
+      class="unlisted-channels"
+    >
+      <channel-token-modal
+        v-if="showTokenModal"
+        @closemodal="showTokenModal=false"
+        @channelfound="goToSelectContentPageForChannel"
       />
+      <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
 
-      <!-- Similar code in channels-grid -->
-      <div v-if="channelsAreAvailable">
-        <div class="channel-list-header">
-          {{ $tr('channelHeader') }}
-        </div>
+      <k-button
+        :text="$tr('channelTokenButtonLabel')"
+        appearance="basic-link"
+        name="showtokenmodal"
+        @click="showTokenModal=true"
+      />
+    </section>
 
-        <div class="channels-list">
-          <channel-list-item
-            v-for="channel in availableChannels"
-            v-show="showChannel(channel)"
-            :channel="channel"
-            :key="channel.id"
-            :onDevice="channelIsOnDevice(channel)"
-            @clickselect="goToChannel(channel)"
-            class="channel-list-item"
-            :mode="channelListItemMode"
-          />
-        </div>
+    <k-linear-loader
+      v-if="channelsAreLoading"
+      type="indeterminate"
+      :delay="false"
+    />
+
+    <!-- Similar code in channels-grid -->
+    <div v-if="channelsAreAvailable">
+      <div class="channel-list-header">
+        {{ $tr('channelHeader') }}
       </div>
 
-      <section
-        class="unlisted-channels"
-        v-if="showUnlistedChannels"
-      >
-        <channel-token-modal
-          v-if="showTokenModal"
-          @closemodal="showTokenModal=false"
-          @channelfound="goToChannel"
+      <div class="channels-list">
+        <channel-list-item
+          v-for="channel in availableChannels"
+          v-show="channelIsVisible(channel)"
+          :channel="channel"
+          :key="channel.id"
+          :onDevice="channelIsOnDevice(channel)"
+          @clickselect="goToSelectContentPageForChannel(channel)"
+          class="channel-list-item"
+          :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
         />
-        <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
-
-        <k-button
-          :text="$tr('channelTokenButtonLabel')"
-          appearance="basic-link"
-          name="showtokenmodal"
-          @click="showTokenModal=true"
-        />
-      </section>
-    </subpage-container>
-  </immersive-full-screen>
+      </div>
+    </div>
+  </div>
 
 </template>
 
 
 <script>
 
-  import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import kSelect from 'kolibri.coreVue.components.kSelect';
-  import channelListItem from '../manage-content-page/channel-list-item';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import uniqBy from 'lodash/uniqBy';
   import channelTokenModal from '../available-channels-page/channel-token-modal';
   import subpageContainer from '../containers/subpage-container';
-  import uniqBy from 'lodash/uniqBy';
+  import channelListItem from '../manage-content-page/channel-list-item';
+  import contentWizardUiAlert from '../select-content-page/content-wizard-ui-alert';
   import {
-    installedChannelList,
     installedChannelsWithResources,
     wizardState,
+    inLocalImportMode,
+    inRemoteImportMode,
+    inExportMode,
   } from '../../state/getters';
-  import { transitionWizardPage } from '../../state/actions/contentWizardActions';
+  import { setToolbarTitle } from '../../state/actions/manageContentActions';
+  import { selectContentPageLink } from '../manage-content-page/manageContentLinks';
   import { TransferTypes } from '../../constants';
 
   const ALL_FILTER = 'ALL';
@@ -104,11 +114,12 @@
     components: {
       channelListItem,
       channelTokenModal,
+      contentWizardUiAlert,
       immersiveFullScreen,
       kButton,
       kFilterTextbox,
       subpageContainer,
-      UiProgressLinear,
+      kLinearLoader,
       kSelect,
     },
     data() {
@@ -119,43 +130,11 @@
       };
     },
     computed: {
-      channelListItemMode() {
-        if (this.transferType === TransferTypes.LOCALEXPORT) {
-          return 'EXPORT';
-        }
-        return 'IMPORT';
-      },
       channelsAreLoading() {
         return this.wizardStatus === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
       },
-      backText() {
-        switch (this.transferType) {
-          case TransferTypes.LOCALEXPORT:
-            return this.$tr('exportToDisk', { driveName: this.selectedDrive.name });
-          case TransferTypes.LOCALIMPORT:
-            return this.$tr('importFromDisk', { driveName: this.selectedDrive.name });
-          default:
-            return this.$tr('kolibriCentralServer');
-        }
-      },
-      channelsTitle() {
-        switch (this.transferType) {
-          case TransferTypes.LOCALEXPORT:
-            return this.$tr('yourChannels');
-          case TransferTypes.LOCALIMPORT:
-            return this.selectedDrive.name;
-          default:
-            return this.$tr('channels');
-        }
-      },
       languageFilterOptions() {
-        let channels;
-        if (this.transferType === TransferTypes.LOCALEXPORT) {
-          channels = this.availableChannels.filter(this.channelIsOnDevice);
-        } else {
-          channels = [...this.availableChannels];
-        }
-        const codes = uniqBy(channels, 'lang_code')
+        const codes = uniqBy(this.availableChannels, 'lang_code')
           .map(({ lang_name, lang_code }) => ({
             value: lang_code,
             label: lang_name,
@@ -163,25 +142,11 @@
           .filter(x => x.value);
         return [this.allLanguagesOption, ...codes];
       },
-      numberOfAvailableChannels() {
-        if (this.transferType === TransferTypes.LOCALEXPORT) {
-          return this.availableChannels.filter(this.channelIsOnDevice).length;
-        }
-        return this.availableChannels.length;
-      },
       channelsAreAvailable() {
         return !this.channelsAreLoading && this.availableChannels.length > 0;
       },
       showUnlistedChannels() {
-        return this.channelsAreAvailable && this.transferType === TransferTypes.REMOTEIMPORT;
-      },
-      goBackLink() {
-        return {
-          name: 'wizardtransition',
-          params: {
-            transition: 'cancel',
-          },
-        };
+        return this.channelsAreAvailable && this.inRemoteImportMode;
       },
       allLanguagesOption() {
         return {
@@ -190,22 +155,49 @@
         };
       },
     },
+    watch: {
+      // HACK doing it here to avoid moving $trs out of the component
+      transferType(val) {
+        this.setToolbarTitle(this.toolbarTitle(val));
+      },
+    },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
+      if (this.wizardStatus) {
+        this.setToolbarTitle(this.$tr('pageLoadError'));
+      } else {
+        this.setToolbarTitle(this.toolbarTitle(this.transferType));
+      }
     },
     methods: {
+      toolbarTitle(transferType) {
+        switch (transferType) {
+          case TransferTypes.LOCALEXPORT:
+            return this.$tr('exportToDisk', { driveName: this.selectedDrive.name });
+          case TransferTypes.LOCALIMPORT:
+            return this.$tr('importFromDisk', { driveName: this.selectedDrive.name });
+          default:
+            return this.$tr('kolibriCentralServer');
+        }
+      },
       channelIsOnDevice(channel) {
         const match = this.installedChannelsWithResources.find(({ id }) => id === channel.id);
         return Boolean(match);
       },
-      goToChannel(channel) {
-        this.transitionWizardPage('forward', { channel });
+      goToSelectContentPageForChannel(channel) {
+        this.$router.push(
+          selectContentPageLink({
+            channelId: channel.id,
+            driveId: this.$route.query.drive_id,
+            forExport: this.$route.query.for_export,
+          })
+        );
       },
-      showChannel(channel) {
+      channelIsVisible(channel) {
         let languageMatches = true;
         let titleMatches = true;
         let isOnDevice = true;
-        if (this.transferType === TransferTypes.LOCALEXPORT) {
+        if (this.inExportMode) {
           isOnDevice = this.channelIsOnDevice(channel);
         }
         if (this.languageFilter.value !== ALL_FILTER) {
@@ -223,13 +215,15 @@
       getters: {
         availableChannels: state => wizardState(state).availableChannels,
         selectedDrive: state => wizardState(state).selectedDrive,
-        installedChannelList,
         installedChannelsWithResources,
         transferType: state => wizardState(state).transferType,
         wizardStatus: state => wizardState(state).status,
+        inLocalImportMode,
+        inRemoteImportMode,
+        inExportMode,
       },
       actions: {
-        transitionWizardPage,
+        setToolbarTitle,
       },
     },
     $trs: {
@@ -246,6 +240,7 @@
       yourChannels: 'Your channels',
       channelTokenButtonLabel: 'Try adding a token',
       channelNotListedExplanation: "Don't see your channel listed?",
+      pageLoadError: 'There was a problem loading this page…',
     },
   };
 
@@ -264,19 +259,18 @@
   .channel-list-item:first-of-type
     border-top: 1px solid $core-grey
 
-  .dib
-    display: inline-block
-
   .top-matter
     margin-bottom: 32px
 
   .channels
     width: 30%
+    display: inline-block
 
   .filters
     width: 70%
     vertical-align: top
     margin: 16px 0
+    display: inline-block
 
   .title-filter
     width: 50%

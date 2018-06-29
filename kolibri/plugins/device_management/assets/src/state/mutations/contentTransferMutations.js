@@ -6,7 +6,7 @@ export function ADD_NODE_TO_INCLUDE_LIST(state, node) {
 }
 
 export function REMOVE_NODE_FROM_INCLUDE_LIST(state, node) {
-  const newList = nodesForTransfer(state).included.filter(n => n.pk !== node.pk);
+  const newList = nodesForTransfer(state).included.filter(n => n.id !== node.id);
   nodesForTransfer(state).included = newList;
 }
 
@@ -19,7 +19,7 @@ export function ADD_NODE_TO_OMIT_LIST(state, node) {
 }
 
 export function REMOVE_NODE_FROM_OMIT_LIST(state, node) {
-  const newList = nodesForTransfer(state).omitted.filter(n => n.pk !== node.pk);
+  const newList = nodesForTransfer(state).omitted.filter(n => n.id !== node.id);
   nodesForTransfer(state).omitted = newList;
 }
 
@@ -36,12 +36,13 @@ export function SET_CURRENT_TOPIC_NODE(state, currentTopicNode) {
 }
 
 export function ADD_PATH_TO_CACHE(state, { node, path }) {
-  state.pageState.wizardState.pathCache[node.pk] = path;
+  state.pageState.wizardState.pathCache[node.id] = path;
 }
 
+const omitPath = omit('path');
+
 export function UPDATE_PATH_BREADCRUMBS(state, topic) {
-  const omitPath = omit('path');
-  const cached = cachedTopicPath(state)(topic.pk);
+  const cached = cachedTopicPath(state)(topic.id);
   if (cached) {
     state.pageState.wizardState.path = cached;
   } else {

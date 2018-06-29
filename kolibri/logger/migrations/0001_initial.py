@@ -5,9 +5,11 @@ from __future__ import unicode_literals
 import django.core.validators
 import django.db.models.deletion
 import jsonfield.fields
-import kolibri.content.models
 import morango.utils.uuids
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+
+import kolibri.content.models
 
 
 class Migration(migrations.Migration):
@@ -79,7 +81,7 @@ class Migration(migrations.Migration):
                 ('end_timestamp', models.DateTimeField(blank=True, null=True)),
                 ('completion_timestamp', models.DateTimeField(blank=True, null=True)),
                 ('time_spent', models.FloatField(default=0.0, help_text='(in seconds)', validators=[django.core.validators.MinValueValidator(0)])),
-                ('progress', models.FloatField(default=0, validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(1)])),
+                ('progress', models.FloatField(default=0, validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(1.01)])),
                 ('kind', models.CharField(max_length=200)),
                 ('extra_fields', jsonfield.fields.JSONField(blank=True, default={})),
                 ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityDataset')),

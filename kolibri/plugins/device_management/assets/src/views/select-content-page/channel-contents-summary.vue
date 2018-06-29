@@ -14,8 +14,9 @@
         <ui-icon
           class="lock-icon"
           v-if="channel.public === false"
-          icon="lock_open"
-        />
+        >
+          <mat-svg name="lock_open" category="action" />
+        </ui-icon>
       </div>
       <p class="version">
         {{ $tr('version', { version: versionNumber }) }}
@@ -51,8 +52,8 @@
 
 <script>
 
-  import bytesForHumans from '../manage-content-page/bytesForHumans';
   import UiIcon from 'keen-ui/src/UiIcon';
+  import bytesForHumans from '../manage-content-page/bytesForHumans';
 
   export default {
     name: 'channelContentsSummary',
@@ -66,7 +67,9 @@
       },
       channelOnDevice: {
         type: Object,
-        required: true,
+        default() {
+          return {};
+        },
       },
     },
     computed: {

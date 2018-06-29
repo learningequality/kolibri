@@ -1,3 +1,4 @@
+import pickBy from 'lodash/pickBy';
 import { FacilityUserResource } from 'kolibri.resources';
 import {
   samePageCheckGenerator,
@@ -5,7 +6,7 @@ import {
   handleApiError,
 } from 'kolibri.coreVue.vuex.actions';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
+import { currentUserId, isSuperuser, currentFacilityId } from 'kolibri.coreVue.vuex.getters';
 import { PageNames } from '../../constants';
 import { _userState, _managePageTitle } from './helpers/mappers';
 import preparePage from './helpers/preparePage';
@@ -65,63 +66,57 @@ export function createUser(store, stateUserData) {
  * Do a PATCH to update existing user
  * @param {object} store
  * @param {string} userId
- * @param {object} userUpdates Optional Changes: full_name, username, password, and kind(role)
+ * @param {object} updates Optional Changes: full_name, username, password, and kind(role)
  */
-export function updateUser(store, userId, userUpdates) {
+export function updateUser(store, userId, updates) {
   store.dispatch('SET_ERROR', '');
   store.dispatch('SET_BUSY', true);
-
-  // explicit checks for the only values that can be changed
   const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);
-  const changedValues = {};
-  if (userUpdates.full_name && userUpdates.full_name !== origUserState.full_name) {
-    changedValues.full_name = userUpdates.full_name;
-  }
-  if (userUpdates.username && userUpdates.username !== origUserState.username) {
-    changedValues.username = userUpdates.username;
-  }
-  if (userUpdates.password && userUpdates.password !== origUserState.password) {
-    changedValues.password = userUpdates.password;
-  }
-  if (userUpdates.role && userUpdates.role !== origUserState.role) {
-    changedValues.role = userUpdates.role;
-  }
+  const facilityRoleHasChanged = origUserState.kind !== updates.role.kind;
 
-  if (Object.getOwnPropertyNames(changedValues).length === 0) {
-    displayModal(store, false);
-  } else {
-    return FacilityUserResource.getModel(userId)
-      .save(changedValues)
-      .then(
-        updatedUser => {
-          if (changedValues.role) {
-            if (currentUserId(store.state) === userId && isSuperuser(store.state)) {
-              // maintain superuser if updating self.
-              store.dispatch('UPDATE_CURRENT_USER_KIND', [
-                UserKinds.SUPERUSER,
-                changedValues.role.kind,
-              ]);
-            }
-            return setUserRole(updatedUser, changedValues.role).then(userWithRole => {
-              // dispatch changes to store
-              store.dispatch('UPDATE_USERS', [_userState(userWithRole)]);
-              displayModal(store, false);
-            });
-          }
-          // dispatch changes to store
-          store.dispatch('UPDATE_USERS', [_userState(updatedUser)]);
-          displayModal(store, false);
-        },
-        error => {
-          if (error.status.code === 400) {
-            store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
-          } else if (error.status.code === 403) {
-            store.dispatch('SET_ERROR', error.entity);
-          }
-          store.dispatch('SET_BUSY', false);
+  return updateFacilityUser(store, { userId, updates }).then(
+    updatedUser => {
+      const update = userData => store.dispatch('UPDATE_USER', _userState(userData));
+      if (facilityRoleHasChanged) {
+        if (currentUserId(store.state) === userId && isSuperuser(store.state)) {
+          // maintain superuser if updating self.
+          store.dispatch('UPDATE_CURRENT_USER_KIND', [UserKinds.SUPERUSER, updates.role.kind]);
         }
-      );
+        return setUserRole(updatedUser, updates.role).then(userWithRole => {
+          update(userWithRole);
+        });
+      } else {
+        update(updatedUser);
+      }
+    },
+    error => {
+      if (error.status.code === 400) {
+        store.dispatch('SET_ERROR', Object.values(error.entity)[0][0]);
+      } else if (error.status.code === 403) {
+        store.dispatch('SET_ERROR', error.entity);
+      }
+      store.dispatch('SET_BUSY', false);
+    }
+  );
+}
+
+// Update fields on the FacilityUser model
+// updates :: { full_name, username, password }
+export function updateFacilityUser(store, { userId, updates }) {
+  const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);
+  const changedValues = pickBy(
+    updates,
+    (value, key) => updates[key] && updates[key] !== origUserState[key]
+  );
+  const facilityUserHasChanged = Object.keys(changedValues).length > 0;
+
+  if (facilityUserHasChanged) {
+    return FacilityUserResource.getModel(userId).save(changedValues)._promise;
   }
+  return Promise.resolve({
+    ...origUserState,
+    facility: origUserState.facility_id,
+  });
 }
 
 /**
@@ -156,7 +151,9 @@ export function showUserPage(store) {
     title: _managePageTitle('Users'),
   });
 
-  FacilityUserResource.getCollection()
+  const facilityId = currentFacilityId(store.state);
+
+  FacilityUserResource.getCollection({ member_of: facilityId })
     .fetch({}, true)
     .only(
       samePageCheckGenerator(store),

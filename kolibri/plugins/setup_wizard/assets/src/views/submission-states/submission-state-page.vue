@@ -1,7 +1,10 @@
 <template>
 
   <div class="submission-state-page">
-    <loading-spinner :delay="0" class="submission-state-page-spinner" />
+    <k-circular-loader
+      class="submission-state-page-spinner"
+      :delay="false"
+    />
 
     <h1 class="submission-state-page-header">
       {{ header }}
@@ -18,11 +21,11 @@
 
 <script>
 
-  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
 
   export default {
     name: 'submissionStatePage',
-    components: { loadingSpinner },
+    components: { kCircularLoader },
     props: {
       header: {
         type: String,
@@ -51,7 +54,7 @@
       font-size: 14px
 
     &-spinner
-      height: 125px // setting to the height of the spinner gif to make the wrapper hug it
+      height: 32px // setting to the height of the spinner to make the wrapper hug it
       margin-bottom: 40px
       display: inline-block
 

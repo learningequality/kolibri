@@ -3,37 +3,38 @@
   <div
     ref="docViewer"
     class="doc-viewer"
-    :class="{ 'doc-viewer-mimic-fullscreen': mimicFullscreen }"
     allowfullscreen
   >
 
     <k-button
       class="btn doc-viewer-controls button-fullscreen"
       aria-controls="pdf-container"
-      :text="isFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+      :text="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       :primary="true"
-      @click="toggleFullscreen"
+      @click="toggleFullscreen($refs.docViewer)"
     />
 
     <ui-icon-button
       class="doc-viewer-controls button-prev-page"
       aria-controls="pdf-container"
-      :icon="isRtl? 'chevron_right' : 'chevron_left'"
       size="large"
       @click="prevPage"
-    />
+    >
+      <mat-svg v-if="isRtl" name="chevron_right" category="navigation" />
+      <mat-svg v-else name="chevron_left" category="navigation" />
+    </ui-icon-button>
     <ui-icon-button
       class="doc-viewer-controls button-next-page"
       aria-controls="pdf-container"
-      :icon="isRtl? 'chevron_left' : 'chevron_right'"
       size="large"
       @click="nextPage"
-    />
-
+    >
+      <mat-svg v-if="isRtl" name="chevron_left" category="navigation" />
+      <mat-svg v-else name="chevron_right" category="navigation" />
+    </ui-icon-button>
     <div
       ref="epubContainer"
       id="epub-container"
-      :class="{ 'doc-viewer-mimic-fullscreen': mimicFullscreen }"
     >
     </div>
   </div>
@@ -46,7 +47,7 @@
   import Epub from 'epubjs/lib/epub';
   import manager from 'epubjs/lib/managers/default';
   import iFrameView from 'epubjs/lib/managers/views/iframe';
-  import ScreenFull from 'screenfull';
+  import fullscreen from 'kolibri.coreVue.mixins.fullscreen';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -66,22 +67,15 @@
       kButton,
       uiIconButton,
     },
-    mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
+    mixins: [responsiveWindow, responsiveElement, contentRendererMixin, fullscreen],
     data: () => ({
-      isFullscreen: false,
       progress: 0,
       timeout: null,
       totalPages: null,
     }),
     computed: {
-      fullscreenAllowed() {
-        return ScreenFull.enabled;
-      },
       epubURL() {
         return this.defaultFile.storage_url;
-      },
-      mimicFullscreen() {
-        return !this.fullscreenAllowed && this.isFullscreen;
       },
       targetTime() {
         return this.totalPages * 30;
@@ -105,11 +99,6 @@
     created() {
       global.ePub = Epub;
       this.book = new Epub(this.epubURL);
-      if (this.fullscreenAllowed) {
-        ScreenFull.onchange(() => {
-          this.isFullscreen = ScreenFull.isFullscreen;
-        });
-      }
     },
     mounted() {
       this.renderer = this.book.renderTo(this.$refs.epubContainer, {
@@ -129,13 +118,6 @@
       delete global.ePub;
     },
     methods: {
-      toggleFullscreen() {
-        if (this.fullscreenAllowed) {
-          ScreenFull.toggle(this.$refs.docViewer);
-        } else {
-          this.isFullscreen = !this.isFullscreen;
-        }
-      },
       zoomIn: throttle(function() {
         this.scale += scaleIncrement;
       }, renderDebounceTime),
@@ -179,24 +161,6 @@
     width: 90%
     margin-left: auto
     margin-right: auto
-
-    &:fullscreen
-      width: 100%
-      height: 100%
-      min-height: inherit
-      max-height: inherit
-
-    &-mimic-fullscreen
-      position: fixed
-      top: 0
-      right: 0
-      bottom: 0
-      left: 0
-      z-index: 24
-      max-width: 100%
-      max-height: 100%
-      width: 100%
-      height: 100%
 
     &-controls
       position: absolute

@@ -1,5 +1,6 @@
 import Vuex from 'vuex';
 import initialState from '../../src/state/initialState';
+import mutations from '../../src/state/mutations';
 
 export default function makeStore() {
   return new Vuex.Store({
@@ -15,6 +16,9 @@ export default function makeStore() {
         },
       },
       ...initialState,
+    },
+    mutations: {
+      ...mutations,
     },
   });
 }

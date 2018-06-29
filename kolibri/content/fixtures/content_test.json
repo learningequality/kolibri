@@ -76,6 +76,28 @@
     "fields": {
       "license_owner": "",
       "parent": "da7ecc42e62553eebc8121242746e88a",
+      "title": "copy",
+      "license_name": "WTFPL",
+      "tags": [],
+      "kind": "video",
+      "content_id": "c6f49ea527824f398f4d5d26faf19396",
+      "tree_id": 1,
+      "rght": 3,
+      "description": "copy",
+      "available": true,
+      "lft": 2,
+      "sort_order": null,
+      "level": 1,
+      "author": "",
+      "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
+    },
+    "pk": "42a941fb77c2576e8f6b294cde4c3b0c",
+    "model": "content.contentnode"
+  },
+  {
+    "fields": {
+      "license_owner": "",
+      "parent": "da7ecc42e62553eebc8121242746e88a",
       "title": "c2",
       "license_name": "GNU",
       "tags": [
@@ -197,6 +219,7 @@
       "rght": 10,
       "description": "balbla5",
       "available": true,
+      "coach_content": true,
       "lft": 9,
       "sort_order": null,
       "level": 2,
@@ -204,6 +227,29 @@
       "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
     },
     "pk": "c391bfeec8a458f89f013cf1ca9cf33a",
+    "model": "content.contentnode"
+  },
+  {
+    "fields": {
+      "license_owner": "",
+      "parent": "c391bfeec8a458f89f013cf1ca9cf33b",
+      "title": "copy",
+      "license_name": "WTFPL",
+      "tags": [],
+      "kind": "topic",
+      "content_id": "f2332710c2fd483386cdeb5dcbdda81f",
+      "tree_id": 1,
+      "rght": 10,
+      "description": "copy",
+      "available": true,
+      "coach_content": true,
+      "lft": 9,
+      "sort_order": null,
+      "level": 2,
+      "author": "",
+      "channel_id": "6199dde695db4ee4ab392222d5af1e5c"
+    },
+    "pk": "d391bfeec8a458f89f013cf1ca9cf33a",
     "model": "content.contentnode"
   },
   {
@@ -239,27 +285,27 @@
   {
     "fields": {
       "lang": 1,
-      "local_file": "9f9438fe6b0d42dd8e913d7d04cfb2b2",
+      "local_file": "6bdfea4a01830fdd4a585181c0b8068c",
       "thumbnail": false,
       "available": true,
       "preset": "high_res_video",
       "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
       "supplementary": false
     },
-    "pk": "9f9438fe6b0d42dd8e913d7d04cfb2b1",
+    "pk": "6bdfea4a01830fdd4a585181c0b8068c",
     "model": "content.file"
   },
   {
     "fields": {
       "lang": 1,
-      "local_file": "725257a0570044acbd59f8cf6a68b2be",
+      "local_file": "211523265f53825b82f70ba19218a02e",
       "thumbnail": false,
       "available": true,
       "preset": "low_res_video",
       "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
       "supplementary": false
     },
-    "pk": "725257a0570044acbd59f8cf6a68b2bf",
+    "pk": "211523265f53825b82f70ba19218a02e",
     "model": "content.file"
   },
   {
@@ -267,7 +313,7 @@
       "lang": 3,
       "local_file": "e00699f859624e0f875ac6fe1e13d648",
       "thumbnail": false,
-      "available": true,
+      "available": false,
       "preset": "vector_video",
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": false
@@ -280,7 +326,7 @@
       "lang": null,
       "local_file": "4c30dc7619f74f97ae2ccd4fffd09bf2",
       "thumbnail": false,
-      "available": true,
+      "available": false,
       "preset": "low_res_video",
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": false
@@ -293,7 +339,7 @@
       "lang": null,
       "local_file": "8ad3fffedf144cba9492e16daec1e39a",
       "thumbnail": false,
-      "available": true,
+      "available": false,
       "preset": "caption",
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": true
@@ -307,7 +353,7 @@
       "available": true,
       "extension": "mp4"
     },
-    "pk": "9f9438fe6b0d42dd8e913d7d04cfb2b2",
+    "pk": "6bdfea4a01830fdd4a585181c0b8068c",
     "model": "content.localfile"
   },
   {
@@ -316,13 +362,13 @@
       "available": true,
       "extension": "mp4"
     },
-    "pk": "725257a0570044acbd59f8cf6a68b2be",
+    "pk": "211523265f53825b82f70ba19218a02e",
     "model": "content.localfile"
   },
   {
     "fields": {
       "file_size": null,
-      "available": true,
+      "available": false,
       "extension": ""
     },
     "pk": "e00699f859624e0f875ac6fe1e13d648",

@@ -12,29 +12,36 @@
       v-if="annotatedChildNodes.length > 0"
       class="contents"
     >
-      <div class="select-all">
-        <k-checkbox
-          :label="$tr('selectAll')"
-          :checked="nodeIsChecked(annotatedTopicNode)"
-          :disabled="disableAll || annotatedTopicNode.disabled"
-          @change="toggleSelectAll"
-        />
-      </div>
-
-      <div class="content-node-rows">
-        <content-node-row
-          v-for="node in annotatedChildNodes"
-          v-if="showNode(node)"
-          :checked="nodeIsChecked(node)"
-          :disabled="disableAll || node.disabled"
-          :indeterminate="nodeIsIndeterminate(node)"
-          :key="node.pk"
-          :message="node.message"
-          :node="node"
-          @clicktopic="updateCurrentTopicNode(node)"
-          @changeselection="toggleSelection(node)"
-        />
-      </div>
+      <core-table>
+        <thead slot="thead">
+          <tr>
+            <th class="core-table-checkbox-col select-all">
+              <k-checkbox
+                :label="$tr('selectAll')"
+                :checked="nodeIsChecked(annotatedTopicNode)"
+                :disabled="disableAll || annotatedTopicNode.disabled"
+                @change="toggleSelectAll"
+              />
+            </th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody slot="tbody">
+          <content-node-row
+            v-for="node in annotatedChildNodes"
+            v-if="showNode(node)"
+            :checked="nodeIsChecked(node)"
+            :disabled="disableAll || node.disabled"
+            :indeterminate="nodeIsIndeterminate(node)"
+            :key="node.id"
+            :message="node.message"
+            :node="node"
+            @clicktopic="updateCurrentTopicNode(node)"
+            @changeselection="toggleSelection(node)"
+          />
+        </tbody>
+      </core-table>
     </div>
 
     <div
@@ -50,20 +57,21 @@
 
 <script>
 
+  import CoreTable from 'kolibri.coreVue.components.coreTable';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
-  import contentNodeRow from './content-node-row';
-  import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
+  import last from 'lodash/last';
+  import every from 'lodash/every';
+  import omit from 'lodash/omit';
+  import { wizardState, inExportMode } from '../../state/getters';
   import {
     addNodeForTransfer,
     removeNodeForTransfer,
   } from '../../state/actions/contentTreeViewerActions';
-  import { wizardState, inExportMode } from '../../state/getters';
-  import last from 'lodash/last';
-  import every from 'lodash/every';
-  import omit from 'lodash/omit';
   import { navigateToTopicUrl } from '../../wizardTransitionRoutes';
   import { TransferTypes } from '../../constants';
+  import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
+  import contentNodeRow from './content-node-row';
 
   // Removes annotations (except path) added to nodes in ContentTreeViewer before putting in store.
   function sanitizeNode(node) {
@@ -76,6 +84,7 @@
       contentNodeRow,
       kBreadcrumbs,
       kCheckbox,
+      CoreTable,
     },
     data() {
       return {
@@ -89,7 +98,7 @@
           path: [
             ...this.path,
             {
-              pk: node.pk,
+              id: node.id,
               title: node.title,
             },
           ],
@@ -132,7 +141,7 @@
       },
       nodeCompletesParent(node) {
         // Get sibling nodes and check if every one is either checked or disabled
-        const siblings = this.annotatedChildNodes.filter(({ pk }) => pk !== node.pk);
+        const siblings = this.annotatedChildNodes.filter(({ id }) => id !== node.id);
         return every(siblings, node => this.nodeIsChecked(node) || node.disabled);
       },
       showNode(node) {
@@ -195,8 +204,8 @@
 <style lang="stylus" scoped>
 
   .select-all
+    white-space: nowrap
     .k-checkbox-container
-      margin-top: 0
-      margin-bottom: 0
+      margin-right: -70px
 
 </style>

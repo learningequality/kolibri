@@ -31,8 +31,9 @@
 
 <script>
 
-  import { notificationTypes } from '../../constants';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import { notificationTypes } from '../../constants';
+
   export default {
     name: 'configPageNotifications',
     components: { uiAlert },

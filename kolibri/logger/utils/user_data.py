@@ -17,11 +17,11 @@ from kolibri.auth.models import Classroom
 from kolibri.auth.models import Facility
 from kolibri.auth.models import FacilityUser
 from kolibri.content.models import ContentNode
+from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import AttemptLog
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
 from kolibri.logger.models import MasteryLog
-
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ def get_or_create_classroom_users(**options):
             # Get the first base data that does not have a matching user already
             base_data = user_data[n_in_classroom + i]
             # Randomly create the name from 1 to 3 of the three user name fields
-            name = " ".join([base_data[key] for key in random.sample(user_data_name_fields, random.randint(1, 3))])
+            name = " ".join([base_data[key] for key in random.sample(user_data_name_fields, random.randint(1, 3)) if base_data[key]])
             user = FacilityUser.objects.create(
                 facility=facility,
                 full_name=name,
@@ -102,7 +102,7 @@ def get_or_create_classroom_users(**options):
     )[0:n_users]
 
 
-def add_channel_activity_for_user(**options): # noqa: max-complexity=16
+def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
     n_content_items = options['n_content_items']
     channel = options['channel']
     user = options['user']
@@ -227,7 +227,8 @@ def add_channel_activity_for_user(**options): # noqa: max-complexity=16
 
             # Get the list of assessment item ids from the assessment meta data
             assessment_item_ids = random_node.assessmentmetadata.first().assessment_item_ids
-
+            if not assessment_item_ids:
+                continue
             for i, session_log in enumerate(reversed(session_logs)):
                 # Always make students get 5 attempts correct in the most recent session
                 # if the exercise is complete
@@ -318,3 +319,52 @@ def add_channel_activity_for_user(**options): # noqa: max-complexity=16
                         masterylog=mastery_log,
                         sessionlog=session_log,
                     )
+
+
+def create_lessons_for_classroom(**options):
+
+    classroom = options['classroom']
+    channels = options['channels']
+    lessons = options['lessons']
+    facility = options['facility']
+    now = options['now']
+
+    if not channels:
+        return
+
+    coaches = facility.get_coaches()
+    if coaches:
+        coach = random.choice(coaches)
+    else:
+        members = facility.get_members()
+        if not members:
+            coach = FacilityUser.objects.create(username='admin', facility=facility)
+            coach.set_password('password')
+            coach.save()
+        else:
+            coach = random.choice(members)
+            facility.add_coach(coach)
+
+    for lesson in range(lessons):
+
+        channel = random.choice(channels)
+        channel_content = ContentNode.objects.filter(channel_id=channel.id)
+        # don't add more than 10 resources per Lesson:
+        n_content_items = min(random.randint(0, channel_content.count() - 1), 10)
+        lesson_content = []
+        for i in range(0, n_content_items):
+            # Use this to randomly select a content node to generate the interaction for
+            index = random.randint(0, channel_content.count() - 1)
+            random_node = channel_content[index]
+            content = {"contentnode_id": random_node.id, "channel_id": channel.id, "content_id": random_node.content_id}
+            lesson_content.append(content)
+
+        Lesson.objects.create(
+            title='Lesson {}-{a}'.format(lesson, a=random.choice('ABCDEF')),
+            resources=lesson_content,
+            is_active=True,
+            collection=classroom,
+            created_by=coach,
+            date_created=now
+
+        )

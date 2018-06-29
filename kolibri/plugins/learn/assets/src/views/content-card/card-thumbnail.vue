@@ -60,10 +60,9 @@
 
 <script>
 
-  import values from 'lodash/values';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
+  import { validateContentNodeKind } from 'kolibri.utils.validators';
 
   export default {
     name: 'cardThumbnail',
@@ -79,9 +78,7 @@
       kind: {
         type: String,
         required: true,
-        validator(value) {
-          return values(ContentNodeKinds).includes(value);
-        },
+        validator: validateContentNodeKind,
       },
       // If true, shows the content icon on the upper left of the thumbnail
       showContentIcon: {
@@ -130,6 +127,7 @@
           video: '#3938A5',
           audio: '#E65997',
           topic: '#262626',
+          document: '#ED2828',
           html5: '#FF8B41',
         };
         return { fill: kindToFillHex[this.kind] };
@@ -149,9 +147,10 @@
     width: $thumb-width-desktop
     height: $thumb-height-desktop
     position: relative
-    background-size: cover
+    background-size: contain
+    background-repeat: no-repeat
     background-position: center
-    background-color: $core-grey
+    background-color: $core-bg-light
 
   .type-icon
     position: absolute

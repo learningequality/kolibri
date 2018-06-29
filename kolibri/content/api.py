@@ -1,11 +1,14 @@
 import logging
+import re
 from functools import reduce
 from random import sample
 
 import requests
 from django.core.cache import cache
+from django.db.models import Case
 from django.db.models import Q
 from django.db.models import Sum
+from django.db.models import When
 from django.db.models.aggregates import Count
 from django.http import Http404
 from django.utils.translation import ugettext as _
@@ -24,12 +27,14 @@ from rest_framework.decorators import list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from .utils.search import fuzz
 from kolibri.content import models
 from kolibri.content import serializers
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
 from kolibri.content.utils.paths import get_channel_lookup_url
+from kolibri.content.utils.stopwords import stopwords_set
+from kolibri.core.exams.models import Exam
+from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
 
@@ -40,20 +45,24 @@ class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available")
     has_exercise = BooleanFilter(method="filter_has_exercise")
 
+    class Meta:
+        model = models.ChannelMetadata
+        fields = ('available', 'has_exercise',)
+
     def filter_has_exercise(self, queryset, name, value):
         channel_ids = []
-        for c in queryset:
-            num_exercises = c.root.get_descendants().filter(kind=content_kinds.EXERCISE).count()
-            if num_exercises > 0:
-                channel_ids.append(c.id)
+
+        for channel in queryset:
+            channel_has_exercise = channel.root.get_descendants() \
+                .filter(kind=content_kinds.EXERCISE) \
+                .exists()
+            if channel_has_exercise:
+                channel_ids.append(channel.id)
+
         return queryset.filter(id__in=channel_ids)
 
     def filter_available(self, queryset, name, value):
         return queryset.filter(root__available=value)
-
-    class Meta:
-        model = models.ChannelMetadata
-        fields = ['available', 'has_exercise', ]
 
 
 class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
@@ -76,40 +85,88 @@ class IdFilter(FilterSet):
 
 
 class ContentNodeFilter(IdFilter):
-    search = CharFilter(method='title_description_filter')
+    search = CharFilter(method='filter_search')
     recommendations_for = CharFilter(method="filter_recommendations_for")
     next_steps = CharFilter(method="filter_next_steps")
     popular = CharFilter(method="filter_popular")
     resume = CharFilter(method="filter_resume")
-    kind = ChoiceFilter(method="filter_kind", choices=(content_kinds.choices + ('content', _('Content'))))
+    kind = ChoiceFilter(method="filter_kind", choices=(content_kinds.choices + (('content', _('Content')),)))
+    by_role = BooleanFilter(method="filter_by_role")
+    in_lesson = CharFilter(method="filter_in_lesson")
+    in_exam = CharFilter(method="filter_in_exam")
 
     class Meta:
         model = models.ContentNode
         fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related',
-                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind']
+                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind', 'by_role']
 
-    def title_description_filter(self, queryset, name, value):
+    def filter_search(self, queryset, name, value):
         """
-        search for title or description that contains the keywords that are not necessary in adjacent
+        Implement various filtering strategies in order to get a wide range of search results.
         """
-        exact_match = queryset.filter(Q(parent__isnull=False), Q(title__icontains=value) | Q(description__icontains=value))
-        if exact_match:
-            return exact_match
-        # if no exact match, fuzzy search using the stemmed_metaphone field in ContentNode that covers the title and description
-        fuzzed_tokens = [fuzz(word) for word in value.split()]
-        if not fuzzed_tokens[0]:
-            return []
-        token_queries = [reduce(lambda x, y: x | y, [Q(stemmed_metaphone__contains=token) for token in tokens]) for tokens in fuzzed_tokens]
-        return queryset.filter(
-            Q(parent__isnull=False),
-            reduce(lambda x, y: x & y, token_queries))
+        # return the result of and-ing a list of queries
+        def intersection(queries):
+            if queries:
+                return reduce(lambda x, y: x & y, queries)
+            return None
+
+        # all words with punctuation removed
+        all_words = [w for w in re.split('[?.,!";: ]', value) if w]
+        # words in all_words that are not stopwords
+        critical_words = [w for w in all_words if w not in stopwords_set]
+        # queries ordered by relevance priority
+        all_queries = [
+            # all words in title
+            intersection([Q(title__icontains=w) for w in all_words]),
+            # all critical words in title
+            intersection([Q(title__icontains=w) for w in critical_words]),
+            # all words in description
+            intersection([Q(description__icontains=w) for w in all_words]),
+            # all critical words in description
+            intersection([Q(description__icontains=w) for w in critical_words]),
+        ]
+        # any critical word in title, reverse-sorted by word length
+        for w in sorted(critical_words, key=len, reverse=True):
+            all_queries.append(Q(title__icontains=w))
+        # any critical word in description, reverse-sorted by word length
+        for w in sorted(critical_words, key=len, reverse=True):
+            all_queries.append(Q(description__icontains=w))
+
+        results = []
+        content_ids = set()
+        MAX_RESULTS = 30
+        BUFFER_SIZE = MAX_RESULTS * 2  # grab some extras, but not too many
+
+        # iterate over each query type, and build up search results
+        for query in all_queries:
+
+            # only execute if query is meaningful
+            if query:
+                # in each pass, don't take any items already in the result set
+                matches = queryset.exclude(content_id__in=list(content_ids)).filter(query)[:BUFFER_SIZE]
+
+                for match in matches:
+                    # filter the dupes
+                    if match.content_id in content_ids:
+                        continue
+                    # add new, unique results
+                    content_ids.add(match.content_id)
+                    results.append(match)
+
+                    # bail out as soon as we reach the quota
+                    if len(results) >= MAX_RESULTS:
+                        return results
+
+        # we've tried all the queries and still have fewer than MAX_RESULTS results
+        return results
 
     def filter_recommendations_for(self, queryset, name, value):
         """
         Recommend items that are similar to this piece of content.
         """
-        return queryset.get(pk=value).get_siblings(
-            include_self=False).order_by("lft").exclude(kind=content_kinds.TOPIC)
+        recommendations = models.ContentNode.objects.get(pk=value).get_siblings(
+            include_self=False).exclude(kind=content_kinds.TOPIC)
+        return queryset & recommendations
 
     def filter_next_steps(self, queryset, name, value):
         """
@@ -144,7 +201,7 @@ class ContentNodeFilter(IdFilter):
         """
         Recommend content that is popular with all users.
 
-        :param queryset: all content nodes for this channel
+        :param queryset: all content nodes across all channels
         :param value: id of currently logged in user, or none if user is anonymous
         :return: 10 most popular content nodes
         """
@@ -161,22 +218,34 @@ class ContentNodeFilter(IdFilter):
             return cache.get(cache_key)
 
         # get the most accessed content nodes
+        # search for content nodes that currently exist in the database
         content_counts_sorted = ContentSessionLog.objects \
+            .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
             .values_list('content_id', flat=True) \
             .annotate(Count('content_id')) \
             .order_by('-content_id__count')
 
-        most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:10]))
+        most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:20]))
+
+        # remove duplicate content items
+        deduped_list = []
+        content_ids = set()
+        for node in most_popular:
+            if node.content_id not in content_ids:
+                deduped_list.append(node)
+                content_ids.add(node.content_id)
+
+        queryset = most_popular.filter(id__in=[node.id for node in deduped_list])
 
         # cache the popular results queryset for 10 minutes, for efficiency
-        cache.set(cache_key, most_popular, 60 * 10)
-        return most_popular
+        cache.set(cache_key, queryset, 60 * 10)
+        return queryset
 
     def filter_resume(self, queryset, name, value):
         """
         Recommend content that the user has recently engaged with, but not finished.
 
-        :param queryset: all content nodes for this channel
+        :param queryset: all content nodes across all channels
         :param value: id of currently logged in user, or none if user is anonymous
         :return: 10 most recently viewed content nodes
         """
@@ -186,7 +255,9 @@ class ContentNodeFilter(IdFilter):
             return queryset.none()
 
         # get the most recently viewed, but not finished, content nodes
+        # search for content nodes that currently exist in the database
         content_ids = ContentSummaryLog.objects \
+            .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
             .filter(user=value) \
             .exclude(progress=1) \
             .order_by('end_timestamp') \
@@ -199,7 +270,15 @@ class ContentNodeFilter(IdFilter):
 
         resume = queryset.filter(content_id__in=list(content_ids[:10]))
 
-        return resume
+        # remove duplicate content items
+        deduped_list = []
+        content_ids = set()
+        for node in resume:
+            if node.content_id not in content_ids:
+                deduped_list.append(node)
+                content_ids.add(node.content_id)
+
+        return resume.filter(id__in=[node.id for node in deduped_list])
 
     def filter_kind(self, queryset, name, value):
         """
@@ -212,6 +291,54 @@ class ContentNodeFilter(IdFilter):
         if value == 'content':
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
+
+    def filter_by_role(self, queryset, name, value):
+        """
+        Show coach_content if they have coach role or higher.
+
+        :param queryset: all content nodes for this channel
+        :param value: 'boolean'
+        :return: content nodes filtered by coach_content if appropiate
+        """
+        user = self.request.user
+        if user.is_facility_user:  # exclude anon users
+            if user.roles.exists() or user.is_superuser:  # must have coach role or higher
+                return queryset
+
+        # In all other cases, exclude nodes that are coach content
+        return queryset.exclude(coach_content=True)
+
+    def filter_in_lesson(self, queryset, name, value):
+        """
+        Show only content associated with this lesson
+
+        :param queryset: all content nodes
+        :param value: id of target lesson
+        :return: content nodes for this lesson
+        """
+        try:
+            resources = Lesson.objects.get(id=value).resources
+            contentnode_id_list = [node['contentnode_id'] for node in resources]
+            # the order_by will order according to the position in the list
+            id_order = Case(*[When(id=ident, then=pos) for pos, ident in enumerate(contentnode_id_list)])
+            return queryset.filter(pk__in=contentnode_id_list).order_by(id_order)
+        except (Lesson.DoesNotExist, ValueError):  # also handles invalid uuid
+            queryset.none()
+
+    def filter_in_exam(self, queryset, name, value):
+        """
+        Show only content associated with this exam
+
+        :param queryset: all content nodes
+        :param value: id of target exam
+        :return: content nodes for this exam
+        """
+        try:
+            question_sources = Exam.objects.get(id=value).question_sources
+            exercise_id_list = [node['exercise_id'] for node in question_sources]
+            return queryset.filter(pk__in=exercise_id_list)
+        except (Exam.DoesNotExist, ValueError):  # also handles invalid uuid
+            return queryset.none()
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
@@ -295,12 +422,47 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         return Response(ancestors)
 
     @detail_route(methods=['get'])
+    def copies(self, request, pk=None):
+        """
+        Returns each nodes that has this content id, along with their ancestors.
+        """
+        # let it be noted that pk is actually the content id in this case
+        cache_key = 'contentnode_copies_ancestors_{content_id}'.format(content_id=pk)
+
+        if cache.get(cache_key) is not None:
+            return Response(cache.get(cache_key))
+
+        copies = []
+        nodes = models.ContentNode.objects.filter(content_id=pk, available=True)
+        for node in nodes:
+            copies.append(node.get_ancestors(include_self=True).values('id', 'title'))
+
+        cache.set(cache_key, copies, 60 * 10)
+        return Response(copies)
+
+    @list_route(methods=['get'])
+    def copies_count(self, request, **kwargs):
+        """
+        Returns the number of node copies for each content id.
+        """
+        content_ids = self.request.query_params.get('content_ids', []).split(',')
+        counts = models.ContentNode.objects.filter(content_id__in=content_ids, available=True) \
+                                           .values('content_id') \
+                                           .order_by() \
+                                           .annotate(count=Count('content_id'))
+        return Response(counts)
+
+    @detail_route(methods=['get'])
     def next_content(self, request, **kwargs):
         # retrieve the "next" content node, according to depth-first tree traversal
         this_item = self.get_object()
         next_item = models.ContentNode.objects.filter(available=True, tree_id=this_item.tree_id, lft__gt=this_item.rght).order_by("lft").first()
         if not next_item:
             next_item = this_item.get_root()
+
+        thumbnails = serializers.FileSerializer(next_item.files.filter(thumbnail=True), many=True).data
+        if thumbnails:
+            return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title, 'thumbnail': thumbnails[0]['storage_url']})
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
 
     @list_route(methods=['get'])

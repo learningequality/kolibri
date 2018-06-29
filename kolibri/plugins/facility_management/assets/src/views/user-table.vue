@@ -44,7 +44,9 @@
 
           </td>
           <td aria-hidden="true" class="core-table-icon-col">
-            <ui-icon icon="person" />
+            <ui-icon>
+              <mat-svg name="person" category="social" />
+            </ui-icon>
           </td>
           <td>
             {{ user.full_name }}
@@ -82,9 +84,9 @@
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import userRole from './user-role';
   import UiIcon from 'keen-ui/src/UiIcon';
   import difference from 'lodash/difference';
+  import userRole from './user-role';
 
   export default {
     name: 'userTable',

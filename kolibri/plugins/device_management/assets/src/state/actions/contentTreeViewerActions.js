@@ -2,13 +2,13 @@ import sumBy from 'lodash/sumBy';
 import map from 'lodash/fp/map';
 import partition from 'lodash/partition';
 import find from 'lodash/find';
-import { selectedNodes, inExportMode } from '../getters';
 import { ContentNodeGranularResource } from 'kolibri.resources';
+import { selectedNodes, inExportMode } from '../getters';
 
-const pluckPks = map('pk');
+const pluckIds = map('id');
 
 function isDescendantOrSelf(testNode, selfNode) {
-  return testNode.pk === selfNode.pk || find(testNode.path, { pk: selfNode.pk });
+  return testNode.id === selfNode.id || find(testNode.path, { id: selfNode.id });
 }
 
 /**
@@ -19,7 +19,7 @@ function isDescendantOrSelf(testNode, selfNode) {
  *
  */
 export function getContentNodeFileSize(node) {
-  return ContentNodeGranularResource.getFileSizes(node.pk).then(({ entity }) => {
+  return ContentNodeGranularResource.getFileSizes(node.id).then(({ entity }) => {
     return entity;
   });
 }
@@ -72,7 +72,7 @@ export function removeNodeForTransfer(store, node) {
   }
   // if the removed node's has ancestors that are selected, the removed node gets placed in "omit"
   const includedAncestors = included.filter(
-    includeNode => pluckPks(node.path).includes(includeNode.pk) && node.pk !== includeNode.pk
+    includeNode => pluckIds(node.path).includes(includeNode.id) && node.id !== includeNode.id
   );
   if (includedAncestors.length > 0) {
     // remove redundant nodes in "omit" that either descendants of the new node or the node itself
@@ -92,7 +92,7 @@ export function removeNodeForTransfer(store, node) {
         includedAncestors.forEach(ancestor => {
           let omittedResources;
           let ancestorResources;
-          const omittedDescendants = omitted.filter(n => pluckPks(n.path).includes(ancestor.pk));
+          const omittedDescendants = omitted.filter(n => pluckIds(n.path).includes(ancestor.id));
           if (forImport) {
             // When total_resources === on_device_resources, then that node is not selectable.
             // So we need to compare the difference (i.e  # of transferrable nodes) when
@@ -107,11 +107,11 @@ export function removeNodeForTransfer(store, node) {
           }
           if (ancestorResources === omittedResources) {
             // remove the ancestor from "include"
-            store.dispatch('REPLACE_INCLUDE_LIST', included.filter(n => n.pk !== ancestor.pk));
+            store.dispatch('REPLACE_INCLUDE_LIST', included.filter(n => n.id !== ancestor.id));
             // remove all desceandants from "omit"
             store.dispatch(
               'REPLACE_OMIT_LIST',
-              omitted.filter(n => !pluckPks(n.path).includes(ancestor.pk))
+              omitted.filter(n => !pluckIds(n.path).includes(ancestor.id))
             );
           }
         });

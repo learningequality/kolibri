@@ -1,18 +1,22 @@
 """
-Tests for `kolibri` module.
+Tests for `kolibri.utils.cli` module.
 """
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import copy
 import logging
 import os
 from functools import wraps
 
-import kolibri
 import pytest
+from mock import patch
+
+import kolibri
 from kolibri.core.deviceadmin.tests.test_dbrestore import is_sqlite_settings
 from kolibri.utils import cli
-from mock import patch
+from kolibri.utils import options
 
 logger = logging.getLogger(__name__)
 
@@ -155,6 +159,7 @@ def test_kolibri_listen_port_env(monkeypatch):
     Starts and stops the server, mocking the actual server.start()
     Checks that the correct fallback port is used from the environment.
     """
+
     with patch('kolibri.content.utils.annotation.update_channel_metadata'):
         from kolibri.utils import server
 
@@ -165,19 +170,25 @@ def test_kolibri_listen_port_env(monkeypatch):
         monkeypatch.setattr(server, 'start', start_mock)
 
         test_port = 1234
-        # ENV VARS are always a string
-        os.environ['KOLIBRI_LISTEN_PORT'] = str(test_port)
+
+        os.environ['KOLIBRI_HTTP_PORT'] = str(test_port)
+
+        # force a reload of conf.OPTIONS so the environment variable will be read in
+        from kolibri.utils import conf
+        conf.OPTIONS.update(options.read_options_file(conf.KOLIBRI_HOME))
 
         server.start = start_mock
         cli.start(daemon=False)
-        with pytest.raises(SystemExit, code=0):
+        with pytest.raises(SystemExit) as excinfo:
             cli.stop()
+            assert excinfo.code == 0
 
         # Stop the server AGAIN, asserting that we can call the stop command
         # on an already stopped server and will be gracefully informed about
         # it.
-        with pytest.raises(SystemExit, code=0):
+        with pytest.raises(SystemExit) as excinfo:
             cli.stop()
+            assert excinfo.code == 0
         assert "Already stopped" in LOG_LOGGER[-1][1]
 
         def status_starting_up():
@@ -186,8 +197,9 @@ def test_kolibri_listen_port_env(monkeypatch):
         # Ensure that if a server is reported to be 'starting up', it doesn't
         # get killed while doing that.
         monkeypatch.setattr(server, 'get_status', status_starting_up)
-        with pytest.raises(SystemExit, code=server.STATUS_STARTING_UP):
+        with pytest.raises(SystemExit) as excinfo:
             cli.stop()
+            assert excinfo.code == server.STATUS_STARTING_UP
         assert "Not stopped" in LOG_LOGGER[-1][1]
 
 
@@ -234,6 +246,7 @@ def test_update(update, version_file=None, orig_version=None):
     update.assert_called_once()
 
 
+@pytest.mark.django_db
 @patch('kolibri.utils.cli.update')
 @patch('kolibri.core.deviceadmin.utils.dbbackup')
 def test_update_no_version_change(dbbackup, update, orig_version=None):
@@ -248,10 +261,12 @@ def test_update_no_version_change(dbbackup, update, orig_version=None):
 
 def test_cli_usage():
     # Test the -h
-    with pytest.raises(SystemExit, code=0):
+    with pytest.raises(SystemExit) as excinfo:
         cli.main("-h")
-    with pytest.raises(SystemExit, code=0):
+        assert excinfo.code == 0
+    with pytest.raises(SystemExit) as excinfo:
         cli.main("--version")
+        assert excinfo.code == 0
 
 
 def test_cli_parsing():

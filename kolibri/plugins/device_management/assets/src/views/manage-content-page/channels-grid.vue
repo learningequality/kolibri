@@ -9,10 +9,10 @@
         {{ $tr('emptyChannelListMessage') }}
       </p>
 
-      <ui-progress-linear
+      <k-linear-loader
         v-else-if="installedChannelListLoading"
-        type="indefinite"
-        color="primary"
+        type="indeterminate"
+        :delay="false"
       />
 
       <div v-else>
@@ -28,6 +28,7 @@
             :channel="channel"
             mode="MANAGE"
             @clickdelete="selectedChannelId=channel.id"
+            @import_more="startImportWorkflow(channel)"
           />
         </div>
       </div>
@@ -46,19 +47,20 @@
 
 <script>
 
-  import { refreshChannelList } from '../../state/actions/manageContentActions';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
+  import { refreshChannelList } from '../../state/actions/manageContentActions';
+  import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
+  import { startImportWorkflow } from '../../state/actions/contentWizardActions';
+  import { installedChannelsWithResources, installedChannelListLoading } from '../../state/getters';
   import deleteChannelModal from './delete-channel-modal';
   import channelListItem from './channel-list-item';
-  import { triggerChannelDeleteTask } from '../../state/actions/taskActions';
-  import { installedChannelsWithResources, installedChannelListLoading } from '../../state/getters';
 
   export default {
     name: 'channelsGrid',
     components: {
       channelListItem,
-      uiProgressLinear,
+      kLinearLoader,
       deleteChannelModal,
       kButton,
     },
@@ -84,7 +86,7 @@
     },
     methods: {
       handleDeleteChannel() {
-        if (this.selectedChannelId !== null) {
+        if (this.channelIsSelected) {
           const channelId = this.selectedChannelId;
           this.selectedChannelId = null;
           this.triggerChannelDeleteTask(channelId);
@@ -98,6 +100,7 @@
         pageState: state => state.pageState,
       },
       actions: {
+        startImportWorkflow,
         triggerChannelDeleteTask,
         refreshChannelList,
       },
@@ -116,8 +119,8 @@
   @require '~kolibri.styles.definitions'
 
   .channel-list-header
-    font-size: 0.85em
-    padding: 1em 0
+    font-size: 12px
+    padding: 16px 0
     color: $core-text-annotation
 
   .channel-list-item:first-of-type

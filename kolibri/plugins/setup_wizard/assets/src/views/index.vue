@@ -35,8 +35,8 @@
 
 <script>
 
-  import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions/main';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions/main';
 
   import loadingPage from './submission-states/loading-page';
   import errorPage from './submission-states/error-page';
@@ -128,8 +128,6 @@
       width: 90%
       max-width: 550px
       &.mobile
-        margin: 48px auto
-        width: auto
-        margin-top: 40px
+        margin: 40px auto
 
 </style>

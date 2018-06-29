@@ -11,33 +11,46 @@
           :class="{selected: isSelected(index)}"
           :key="index"
         >
-          <mat-svg
-            v-if="attemptLog.noattempt"
-            class="item svg-item svg-noattempt"
-            category="navigation"
-            name="cancel"
+          <div class="title">
+            <mat-svg
+              v-if="attemptLog.noattempt"
+              class="item svg-item svg-noattempt"
+              category="navigation"
+              name="cancel"
+            />
+            <mat-svg
+              v-else-if="attemptLog.correct"
+              class="item svg-item svg-correct"
+              category="action"
+              name="check_circle"
+            />
+            <mat-svg
+              v-else-if="attemptLog.error"
+              class="svg-item svg-error"
+              category="alert"
+              name="error_outline"
+            />
+            <mat-svg
+              v-else-if="!attemptLog.correct"
+              class="item svg-item svg-wrong"
+              category="navigation"
+              name="cancel"
+            />
+            <mat-svg
+              v-else-if="attemptLog.hinted"
+              class="item svg-item svg-hint"
+              category="action"
+              name="lightbulb_outline"
+            />
+            <h3 class="item">
+              {{ $tr('question', {questionNumber: attemptLog.questionNumber}) }}
+            </h3>
+          </div>
+          <coach-content-label
+            class="coach-content-label"
+            :value="attemptLog.num_coach_contents"
+            :isTopic="false"
           />
-          <mat-svg
-            v-else-if="attemptLog.correct"
-            class="item svg-item svg-correct"
-            category="action"
-            name="check_circle"
-          />
-          <mat-svg
-            v-else-if="!attemptLog.correct"
-            class="item svg-item svg-wrong"
-            category="navigation"
-            name="cancel"
-          />
-          <mat-svg
-            v-else-if="attemptLog.hinted"
-            class="item svg-item svg-hint"
-            category="action"
-            name="lightbulb_outline"
-          />
-          <h3 class="item">
-            {{ $tr('question', {questionNumber: attemptLog.questionNumber}) }}
-          </h3>
         </li>
       </template>
     </ul>
@@ -48,8 +61,13 @@
 
 <script>
 
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+
   export default {
     name: 'attemptLogList',
+    components: {
+      coachContentLabel,
+    },
     $trs: {
       header: 'Answer history',
       today: 'Today',
@@ -85,6 +103,17 @@
 
   @require '~kolibri.styles.definitions'
 
+  .attempt-log-list
+    background-color: $core-bg-light
+
+  .title
+    display: inline-block
+
+  .coach-content-label
+    display: inline-block
+    vertical-align: middle
+    margin-left: 8px
+
   .header
     margin: 0
     padding-left: 20px
@@ -107,7 +136,7 @@
     width: 32px
     margin-right: 8px
 
-  .svg-hint
+  .svg-hint, .svg-error
     fill: $core-text-annotation
 
   .svg-wrong

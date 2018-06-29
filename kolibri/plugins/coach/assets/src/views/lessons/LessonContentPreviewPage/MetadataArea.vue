@@ -2,12 +2,16 @@
 
   <!-- TODO if not breaking up into child components, use single .vue file -->
 
-  <div class="description-area">
+  <div>
     <!-- IDEA -a11y- add an invisible title entry in the dl below? -->
     <!-- h1's are technically not allowed within a dl -->
     <h1 class="header primary-data">
       {{ content.title }}
     </h1>
+    <coach-content-label
+      :value="content.num_coach_contents"
+      :isTopic="false"
+    />
 
     <dl>
       <div class="primary-data" v-if="completionRequirements">
@@ -60,7 +64,9 @@
 
 <script>
 
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import markdownIt from 'markdown-it';
 
   const dataRequired = ['title'];
   const completionDataRequired = ['m', 'n'];
@@ -76,6 +82,7 @@
       copyrightHolderDataHeader: 'Copyright holder',
     },
     components: {
+      coachContentLabel,
       InfoIcon,
     },
     props: {
@@ -108,7 +115,10 @@
         return false;
       },
       description() {
-        return this.content.description;
+        if (this.content) {
+          const md = new markdownIt('zero', { breaks: true });
+          return md.render(this.content.description);
+        }
       },
       author() {
         return this.content.author;
@@ -131,10 +141,6 @@
 <style scoped lang="stylus">
 
   $standard-data-spacing = 8px
-
-  .description-area
-    // safeguard against margin collapsing
-    overflow: auto
 
   .header
     margin-top: 0
@@ -159,8 +165,8 @@
     &:not(.description)
       margin-left: 8px
 
-  .top-line
-    display: table
-    width: 100%
+  .description
+    >>>p
+      margin: 0
 
 </style>

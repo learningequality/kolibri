@@ -1,56 +1,52 @@
 <template>
 
-  <div>
-    <div class="summary-container">
-      <page-status
-        :contentName="exam.title"
-        :userName="userName"
-        :questions="examAttempts"
-        :completionTimestamp="completionTimestamp"
-        :completed="closed"
+  <multi-pane-layout ref="multiPaneLayout">
+    <page-status
+      slot="header"
+      :contentName="exam.title"
+      :userName="userName"
+      :questions="examAttempts"
+      :completionTimestamp="completionTimestamp"
+      :completed="closed"
+    />
+
+    <attempt-log-list
+      slot="aside"
+      :attemptLogs="attemptLogs"
+      :selectedQuestionNumber="questionNumber"
+      @select="handleNavigateToQuestion"
+    />
+
+    <div slot="main" class="exercise-container">
+      <h3>{{ $tr('question', {questionNumber: questionNumber + 1}) }}</h3>
+
+      <k-checkbox
+        :label="$tr('showCorrectAnswerLabel')"
+        :checked="showCorrectAnswer"
+        @change="toggleShowCorrectAnswer"
+      />
+      <interaction-list
+        v-if="!showCorrectAnswer"
+        :interactions="currentInteractionHistory"
+        :selectedInteractionIndex="selectedInteractionIndex"
+        @select="navigateToQuestionAttempt"
+      />
+      <content-renderer
+        :id="exercise.pk"
+        :itemId="itemId"
+        :allowHints="false"
+        :kind="exercise.kind"
+        :files="exercise.files"
+        :contentId="exercise.content_id"
+        :available="exercise.available"
+        :extraFields="exercise.extra_fields"
+        :interactive="false"
+        :assessment="true"
+        :answerState="answerState"
+        :showCorrectAnswer="showCorrectAnswer"
       />
     </div>
-    <div class="details-container">
-      <div class="attempt-log-container">
-        <attempt-log-list
-          :attemptLogs="examAttempts"
-          :selectedQuestionNumber="questionNumber"
-          @select="handleNavigateToQuestion"
-        />
-      </div>
-      <div class="exercise-container" ref ="exerciseContainer">
-        <h3>{{ $tr('question', {questionNumber: questionNumber + 1}) }}</h3>
-
-        <k-checkbox
-          label="Show correct answer"
-          :checked="showCorrectAnswer"
-          @change="toggleShowCorrectAnswer"
-        />
-        <interaction-list
-          v-if="!showCorrectAnswer"
-          :interactions="currentInteractionHistory"
-          :attemptNumber="currentAttempt.questionNumber"
-          :selectedInteractionIndex="selectedInteractionIndex"
-          @select="navigateToQuestionAttempt"
-        />
-
-        <content-renderer
-          :id="exercise.pk"
-          :itemId="itemId"
-          :allowHints="false"
-          :kind="exercise.kind"
-          :files="exercise.files"
-          :contentId="exercise.content_id"
-          :available="exercise.available"
-          :extraFields="exercise.extra_fields"
-          :interactive="false"
-          :assessment="true"
-          :answerState="currentInteraction && !showCorrectAnswer ? currentInteraction.answer : null"
-          :showCorrectAnswer="showCorrectAnswer"
-        />
-      </div>
-    </div>
-  </div>
+  </multi-pane-layout>
 
 </template>
 
@@ -59,11 +55,13 @@
 
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import pageStatus from './page-status';
   import attemptLogList from 'kolibri.coreVue.components.attemptLogList';
   import interactionList from 'kolibri.coreVue.components.interactionList';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import find from 'lodash/find';
+  import multiPaneLayout from 'kolibri.coreVue.components.multiPaneLayout';
+  import pageStatus from './page-status';
 
   export default {
     name: 'examReport',
@@ -73,6 +71,7 @@
       yourAnswer: 'Your answer',
       correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
       question: 'Question { questionNumber, number }',
+      showCorrectAnswerLabel: 'Show correct answer',
     },
     components: {
       immersiveFullScreen,
@@ -82,6 +81,7 @@
       interactionList,
       kButton,
       kCheckbox,
+      multiPaneLayout,
     },
     props: {
       examAttempts: {
@@ -156,15 +156,43 @@
         showCorrectAnswer: false,
       };
     },
+    computed: {
+      attemptLogs() {
+        return this.examAttempts.map(attempt => {
+          const questionId = this.questions[attempt.questionNumber - 1].contentId;
+          const num_coach_contents = find(this.exerciseContentNodes, { id: questionId })
+            .num_coach_contents;
+          return { ...attempt, num_coach_contents };
+        });
+      },
+      answerState() {
+        // Do not pass in answerState if showCorrectAnswer is set to true
+        // answerState has a precedence over showCorrectAnswer
+        if (
+          !this.showCorrectAnswer &&
+          this.currentInteraction &&
+          this.currentInteraction.type === 'answer'
+        ) {
+          return this.currentInteraction.answer;
+        }
+        return null;
+      },
+    },
     methods: {
       handleNavigateToQuestion(questionNumber) {
         this.navigateToQuestion(questionNumber);
-        this.$refs.exerciseContainer.scrollTop = 0;
+        this.$refs.multiPaneLayout.scrollMainToTop();
         this.showCorrectAnswer = false;
       },
       toggleShowCorrectAnswer() {
         this.showCorrectAnswer = !this.showCorrectAnswer;
         this.$forceUpdate();
+      },
+    },
+    vuex: {
+      getters: {
+        questions: state => state.pageState.questions,
+        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
       },
     },
   };
@@ -176,32 +204,11 @@
 
   @require '~kolibri.styles.definitions'
 
-  $container-side-padding = 16px
-  $max-height = calc(100vh - 290px)
-
-  .summary-container
-    height: 15%
-
-  .details-container
-    width: 100%
-    height: 85%
-    padding-top: $container-side-padding
-    clearfix()
-
-  .attempt-log-container
-    width: 30%
-    height: 100%
-    max-height: $max-height
-    overflow-y: auto
-    float: left
-
   .exercise-container
-    width: 70%
-    height: 100%
-    max-height: $max-height
-    padding-left: $container-side-padding
-    padding-right: $container-side-padding
-    float: left
-    overflow: auto
+    background-color: $core-bg-light
+    padding: 8px
+
+  h3
+    margin-top: 0
 
 </style>

@@ -3,10 +3,11 @@
   <div class="info-icon-container">
     <ui-icon
       ref="info-icon"
-      icon="info_outline"
       class="info-icon"
       :iconAriaLabel="iconAriaLabel"
-    />
+    >
+      <mat-svg name="info" category="action" />
+    </ui-icon>
     <ui-tooltip
       trigger="info-icon"
       class="info-icon-tooltip"

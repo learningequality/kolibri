@@ -72,4 +72,3 @@ def set_env():
     os.environ.setdefault(
         "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
     )
-    os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8080")

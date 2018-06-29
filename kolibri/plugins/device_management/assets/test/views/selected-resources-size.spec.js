@@ -2,9 +2,9 @@
 import Vue from 'vue-test'; // eslint-disable-line
 import { expect } from 'chai';
 import { mount } from '@vue/test-utils';
-import SelectedResourcesSize from '../../src/views/select-content-page/selected-resources-size.vue';
 import kButton from 'kolibri.coreVue.components.kButton';
 import UiAlert from 'keen-ui/src/UiAlert.vue';
+import SelectedResourcesSize from '../../src/views/select-content-page/selected-resources-size.vue';
 
 function makeWrapper(props = {}) {
   const defaultProps = {

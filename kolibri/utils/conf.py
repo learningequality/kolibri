@@ -24,10 +24,11 @@ import logging
 import os
 
 from .compat import module_exists
-
+from .options import read_options_file
 
 logger = logging.getLogger(__name__)
 
+# use default OS encoding
 with open(os.path.join(os.path.dirname(__file__), 'KOLIBRI_CORE_JS_NAME')) as f:
     KOLIBRI_CORE_JS_NAME = f.read().strip()
 
@@ -92,6 +93,7 @@ def update(new_values):
 def save(first_run=False):
     """Saves the current state of the configuration"""
     config['FIRST_RUN'] = first_run
+    # use default OS encoding
     with open(conf_file, 'w') as kolibri_conf_file:
         json.dump(config, kolibri_conf_file, indent=2, sort_keys=True)
 
@@ -101,6 +103,7 @@ if not os.path.isfile(conf_file):
     save(True)
 else:
     # Open up the config file and overwrite defaults
+    # use default OS encoding
     with open(conf_file, 'r') as kolibri_conf_file:
         config.update(json.load(kolibri_conf_file))
 
@@ -152,3 +155,7 @@ def enable_default_plugins():
 
     if changed:
         save()
+
+
+# read the config file options in here so they can be accessed from a standard location
+OPTIONS = read_options_file(KOLIBRI_HOME)

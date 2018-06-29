@@ -1,8 +1,10 @@
 import logging as logger
 import os
+from time import sleep
 
-from django.conf import settings
+import requests
 from django.core.management.base import CommandError
+from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 
 from ...utils import annotation
@@ -10,10 +12,12 @@ from ...utils import import_export_content
 from ...utils import paths
 from ...utils import transfer
 from kolibri.tasks.management.commands.base import AsyncCommand
+from kolibri.utils import conf
 
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
+RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
 
 logging = logger.getLogger(__name__)
 
@@ -93,7 +97,7 @@ class Command(AsyncCommand):
         )
         network_subparser.add_argument('channel_id', type=str)
 
-        default_studio_url = settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL
+        default_studio_url = conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL']
         network_subparser.add_argument(
             "--baseurl",
             type=str,
@@ -125,6 +129,9 @@ class Command(AsyncCommand):
 
         with self.start_progress(total=total_bytes_to_transfer) as overall_progress_update:
 
+            if method == DOWNLOAD_METHOD:
+                session = requests.Session()
+
             for f in files_to_download:
 
                 if self.is_cancelled():
@@ -142,43 +149,77 @@ class Command(AsyncCommand):
                 # determine where we're downloading/copying from, and create appropriate transfer object
                 if method == DOWNLOAD_METHOD:
                     url = paths.get_content_storage_remote_url(filename, baseurl=baseurl)
-                    filetransfer = transfer.FileDownload(url, dest)
+                    filetransfer = transfer.FileDownload(url, dest, session=session)
                 elif method == COPY_METHOD:
                     srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
                     filetransfer = transfer.FileCopy(srcpath, dest)
 
-                try:
-
-                    with filetransfer:
-
-                        with self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
-
-                            for chunk in filetransfer:
-                                if self.is_cancelled():
-                                    filetransfer.cancel()
-                                    break
-                                length = len(chunk)
-                                overall_progress_update(length)
-                                file_dl_progress_update(length)
-
-                    file_checksums_to_annotate.append(f.id)
-
-                except HTTPError:
-                    overall_progress_update(f.file_size)
-
-                except OSError:
-                    number_of_skipped_files += 1
-                    overall_progress_update(f.file_size)
+                finished = False
+                while not finished:
+                    finished, increment = self._start_file_transfer(
+                        f, filetransfer, overall_progress_update)
+                    if increment == 2:
+                        file_checksums_to_annotate.append(f.id)
+                    else:
+                        number_of_skipped_files += increment
 
             annotation.set_availability(channel_id, file_checksums_to_annotate)
 
             if number_of_skipped_files > 0:
                 logging.warning(
-                    "{} files are skipped, because they are not found in the given external drive.".format(
+                    "{} files are skipped, because they do not exist.".format(
                         number_of_skipped_files))
 
             if self.is_cancelled():
                 self.cancel()
+
+    def _start_file_transfer(self, f, filetransfer, overall_progress_update):
+        """
+        Start to transfer the file from network/disk to the destination.
+        Return value:
+            * True, 2 - successfully transfer the file.
+            * True, 1 - the file does not exist so it is skipped.
+            * True, 0 - the transfer is cancelled.
+            * Fail, 0 - the transfer fails and needs to retry.
+        """
+        try:
+            with filetransfer, self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
+                for chunk in filetransfer:
+                    if self.is_cancelled():
+                        filetransfer.cancel()
+                        return True, 0
+                    length = len(chunk)
+                    overall_progress_update(length)
+                    file_dl_progress_update(length)
+            return True, 2
+
+        except Exception as e:
+            logging.error("An error occured during content import: {}".format(e))
+
+            # When there is an Internet connection error or timeout error,
+            # or HTTPError where the error code is one of the RETRY_STATUS_CODE,
+            # return False, 0 to retry the file transfer, or return True, 0 to
+            # indicate the cancellation
+            if (isinstance(e, ConnectionError) or
+                    (isinstance(e, HTTPError) and e.response.status_code in RETRY_STATUS_CODE)):
+                return self._sleep_before_retry(), 0
+
+            # Skip the file if it does not exist on the server or disk
+            elif ((isinstance(e, HTTPError) and e.response.status_code == 404) or
+                    (isinstance(e, OSError) and e.errno == 2)):
+                overall_progress_update(f.file_size)
+                return True, 1
+
+            else:
+                raise e
+
+    def _sleep_before_retry(self):
+        for i in range(30):
+            if self.is_cancelled():
+                self.cancel()
+                return True
+            sleep(1)
+        return False
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':

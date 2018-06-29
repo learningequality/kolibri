@@ -33,7 +33,9 @@
           :key="classroom.id"
         >
           <td class="core-table-icon-col">
-            <ui-icon icon="business" />
+            <ui-icon>
+              <mat-svg name="business" category="communication" />
+            </ui-icon>
           </td>
           <td class="core-table-main-col">
             <k-router-link
@@ -41,8 +43,8 @@
               :to="classEditLink(classroom.id)"
             />
           </td>
-          <td>
-            {{ coachNames(classroom) }}
+          <td :title="formattedCoachNamesTooltip(classroom)">
+            {{ formattedCoachNames(classroom) }}
           </td>
           <td>
             {{ classroom.learner_count }}
@@ -79,14 +81,14 @@
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import { Modals, PageNames } from '../../constants';
-  import { displayModal } from '../../state/actions';
   import orderBy from 'lodash/orderBy';
-  import classCreateModal from './class-create-modal';
-  import classDeleteModal from './class-delete-modal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import { Modals, PageNames } from '../../constants';
+  import { displayModal } from '../../state/actions';
+  import classCreateModal from './class-create-modal';
+  import classDeleteModal from './class-delete-modal';
 
   function classEditLink(classId) {
     return {
@@ -114,20 +116,37 @@
       },
     },
     methods: {
+      // Duplicated in class-list-page
       coachNames(classroom) {
         const { coaches } = classroom;
-        const coach_names = coaches.map(({ full_name }) => full_name);
+        return coaches.map(({ full_name }) => full_name);
+      },
+      formattedCoachNames(classroom) {
+        const coach_names = this.coachNames(classroom);
         if (coach_names.length === 0) {
           return '–';
         }
-        if (coach_names.length <= 2) {
-          return coach_names.join(', ');
+        if (coach_names.length === 1) {
+          return coach_names[0];
         }
-        return this.$tr('truncatedCoachNames', {
+        if (coach_names.length === 2) {
+          return this.$tr('twoCoachNames', {
+            name1: coach_names[0],
+            name2: coach_names[1],
+          });
+        }
+        return this.$tr('manyCoachNames', {
           name1: coach_names[0],
           name2: coach_names[1],
           numRemaining: coach_names.length - 2,
         });
+      },
+      formattedCoachNamesTooltip(classroom) {
+        const coach_names = this.coachNames(classroom);
+        if (coach_names.length > 2) {
+          return coach_names.join('\n');
+        }
+        return null;
       },
       classEditLink,
       openDeleteClassModal(classModel) {
@@ -154,8 +173,8 @@
       tableCaption: 'List of classes',
       learnersColumnHeader: 'Learners',
       coachesColumnHeader: 'Coaches',
-      truncatedCoachNames:
-        '{name1}, {name2}, {numRemaining, number} {numRemaining, plural, one {other} other {others}}',
+      twoCoachNames: '{name1}, {name2}',
+      manyCoachNames: '{name1}, {name2}… (+{numRemaining, number})',
       actions: 'Actions',
       noClassesExist: 'No classes exist.',
     },

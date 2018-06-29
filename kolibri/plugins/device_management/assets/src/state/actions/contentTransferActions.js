@@ -1,6 +1,6 @@
-import { taskList, wizardState } from '../getters';
 import { ChannelResource, TaskResource } from 'kolibri.resources';
-import { TaskStatuses, TransferTypes } from '../../constants';
+import { taskList, wizardState, inLocalImportMode, inRemoteImportMode } from '../getters';
+import { TaskStatuses } from '../../constants';
 
 export const ErrorTypes = {
   CONTENT_DB_LOADING_ERROR: 'CONTENT_DB_LOADING_ERROR',
@@ -13,17 +13,19 @@ export const ErrorTypes = {
  *
  */
 export function downloadChannelMetadata(store) {
-  const { transferType, transferredChannel, selectedDrive } = wizardState(store.state);
+  const { transferredChannel, selectedDrive } = wizardState(store.state);
   let promise;
-  if (transferType === TransferTypes.LOCALIMPORT) {
+  if (inLocalImportMode(store.state)) {
     promise = TaskResource.startDiskChannelImport({
       channel_id: transferredChannel.id,
       drive_id: selectedDrive.id,
     });
-  } else if (transferType === TransferTypes.REMOTEIMPORT) {
+  } else if (inRemoteImportMode(store.state)) {
     promise = TaskResource.startRemoteChannelImport({
       channel_id: transferredChannel.id,
     });
+  } else {
+    return Error('Channel Metadata is only downloaded when importing');
   }
   promise = promise.catch(() => Promise.reject({ errorType: ErrorTypes.CONTENT_DB_LOADING_ERROR }));
 
@@ -35,15 +37,19 @@ export function downloadChannelMetadata(store) {
       const { taskId, cancelled } = completedTask;
       if (taskId && !cancelled) {
         return TaskResource.cancelTask(taskId).then(() => {
-          return ChannelResource.getModel(transferredChannel.id).fetch({ file_sizes: true })
-            ._promise;
+          return ChannelResource.getModel(transferredChannel.id).fetch({
+            include_fields: [
+              'total_resources',
+              'total_file_size',
+              'on_device_resources',
+              'on_device_file_size',
+            ],
+          })._promise;
         });
       }
       return Promise.reject({ errorType: ErrorTypes.CHANNEL_TASK_ERROR });
     });
 }
-
-const combinePks = nodes => nodes.map(({ pk }) => pk);
 
 /**
  * Starts a Task that transfers Channel ContentNodes to/from a drive
@@ -51,29 +57,26 @@ const combinePks = nodes => nodes.map(({ pk }) => pk);
  */
 export function transferChannelContent(store) {
   let promise;
-  const { transferType, transferredChannel, selectedDrive, nodesForTransfer } = wizardState(
-    store.state
-  );
+  const combineIds = nodes => nodes.map(({ id }) => id);
+  const { transferredChannel, selectedDrive, nodesForTransfer } = wizardState(store.state);
   const params = {
     channel_id: transferredChannel.id,
-    node_ids: combinePks(nodesForTransfer.included),
-    exclude_node_ids: combinePks(nodesForTransfer.omitted),
+    node_ids: combineIds(nodesForTransfer.included),
+    exclude_node_ids: combineIds(nodesForTransfer.omitted),
   };
-  switch (transferType) {
-    case TransferTypes.REMOTEIMPORT:
-      promise = TaskResource.startRemoteContentImport(params);
-      break;
-    case TransferTypes.LOCALIMPORT:
-      promise = TaskResource.startDiskContentImport({
-        ...params,
-        drive_id: selectedDrive.id,
-      });
-      break;
-    case TransferTypes.LOCALEXPORT:
-      promise = TaskResource.startDiskContentExport({
-        ...params,
-        drive_id: selectedDrive.id,
-      });
+
+  if (inRemoteImportMode(store.state)) {
+    promise = TaskResource.startRemoteContentImport(params);
+  } else if (inLocalImportMode(store.state)) {
+    promise = TaskResource.startDiskContentImport({
+      ...params,
+      drive_id: selectedDrive.id,
+    });
+  } else {
+    promise = TaskResource.startDiskContentExport({
+      ...params,
+      drive_id: selectedDrive.id,
+    });
   }
   return promise;
 }

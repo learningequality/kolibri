@@ -1,7 +1,7 @@
-import { PageNames } from '../../constants';
-import { handleApiError } from 'kolibri.coreVue.vuex.actions';
+import { handleApiError, handleError } from 'kolibri.coreVue.vuex.actions';
 import { ClassroomResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
+import { PageNames } from '../../constants';
 
 const translator = createTranslator('classListTitles', {
   classListPageTitle: 'Classes',
@@ -53,4 +53,18 @@ export function showClassListPage(store) {
 
 export function setSelectedAttemptLogIndex(store, index) {
   store.dispatch('SET_SELECTED_ATTEMPT_LOG_INDEX', index);
+}
+
+/**
+  * Handle coach page errors.
+  * The status code errors that's related to the authentication issue, most not show 
+    in coach page beacuse there's an `auth-message` that explain the error.
+**/
+export function handleCoachPageError(store, errorObject) {
+  const authErrorCodes = [401, 403, 404, 407];
+  if (authErrorCodes.includes(errorObject.status.code)) {
+    handleError(store, '');
+  } else {
+    handleError(store, errorObject);
+  }
 }

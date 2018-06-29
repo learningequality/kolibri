@@ -9,8 +9,8 @@
 
 <script>
 
-  import { PageNames, LearnerReports } from '../../../constants';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
+  import { PageNames, LearnerReports } from '../../../constants';
   import learnerExerciseReport from './learner-exercise-report';
 
   export default {
@@ -79,28 +79,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  $container-side-padding = 15px
-
-  .details-container
-    width: 100%
-    height: 85%
-    padding-top: $container-side-padding
-    clearfix()
-
-  .attempt-log-container
-    width: 30%
-    height: 100%
-    overflow-y: auto
-    float: left
-
-  .exercise-container
-    width: 70%
-    height: 100%
-    padding: $containerSidePadding
-    float: left
-
-</style>
+<style lang="stylus" scoped></style>

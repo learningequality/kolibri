@@ -35,9 +35,8 @@
 
 <script>
 
-  import values from 'lodash/values';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import { validateContentNodeKind } from 'kolibri.utils.validators';
 
   export default {
     name: 'cardThumbnail',
@@ -52,9 +51,7 @@
       kind: {
         type: String,
         required: true,
-        validator(value) {
-          return values(ContentNodeKinds).includes(value);
-        },
+        validator: validateContentNodeKind,
       },
     },
     computed: {
@@ -103,9 +100,10 @@
 
   .card-thumbnail-wrapper
     position: absolute
-    background-size: cover
+    background-size: contain
+    background-repeat: no-repeat
     background-position: center
-    background-color: $core-grey
+    background-color: $core-bg-light
     width: $thumb-width
     height: $thumb-height
 

@@ -1,8 +1,8 @@
 -r base.txt
 flake8==3.5.0
-pre-commit==1.7.0
-tox==2.9.1
+pre-commit==1.8.2
+tox==3.0.0
 django-debug-panel==0.8.3
 django-debug-toolbar==1.9.1
 sphinx-autobuild
-django-rest-swagger==2.1.2
+django-rest-swagger==2.2.0

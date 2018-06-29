@@ -1,10 +1,10 @@
-import { PageNames } from '../constants';
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri.coreVue.vuex.constants';
 import * as coreActions from 'kolibri.coreVue.vuex.actions';
 import { currentFacilityId, facilities } from 'kolibri.coreVue.vuex.getters';
 import { SignUpResource, FacilityUserResource, FacilityResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import Lockr from 'lockr';
+import { PageNames } from '../constants';
 
 const translator = createTranslator('userPageTitles', {
   userProfilePageTitle: 'User Profile',

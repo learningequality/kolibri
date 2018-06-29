@@ -247,6 +247,7 @@ class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
 class ClassroomFilter(FilterSet):
 
     role = CharFilter(method="filter_has_role_for")
+    parent = ModelChoiceFilter(queryset=Facility.objects.all())
 
     def filter_has_role_for(self, queryset, name, value):
         requesting_user = get_user(self.request)
@@ -266,7 +267,7 @@ class ClassroomFilter(FilterSet):
 
     class Meta:
         model = Classroom
-        fields = ['role', ]
+        fields = ['role', 'parent', ]
 
 
 class ClassroomViewSet(viewsets.ModelViewSet):
@@ -366,7 +367,8 @@ class SessionViewSet(viewsets.ViewSet):
                    'full_name': user.full_name,
                    'user_id': user.id,
                    'can_manage_content': user.can_manage_content}
-        roles = Role.objects.filter(user_id=user.id)
+
+        roles = list(Role.objects.filter(user_id=user.id).values_list('kind', flat=True).distinct())
 
         if len(roles) is 0:
             session.update({'facility_id': user.facility_id,
@@ -374,15 +376,8 @@ class SessionViewSet(viewsets.ViewSet):
                             'error': '200'})
         else:
             session.update({'facility_id': user.facility_id,
-                            'kind': [],
+                            'kind': roles,
                             'error': '200'})
-            for role in roles:
-                if role.kind == 'admin':
-                    session['kind'].append('admin')
-                elif role.kind == 'coach':
-                    session['kind'].append('coach')
-                elif role.kind == 'classroom assignable coach':
-                    session['kind'].append('classroom assignable coach')
 
         if user.is_superuser:
             session['kind'].insert(0, 'superuser')

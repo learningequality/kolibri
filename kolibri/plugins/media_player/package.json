@@ -3,6 +3,6 @@
   "description": "Media Player Plugin for Kolibri",
   "private": true,
   "dependencies": {
-    "video.js": "6.1.0"
+    "video.js": "6.8.0"
   }
 }

@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import csv
+import io
 import logging
 import os
 import random
@@ -34,16 +35,19 @@ class Command(BaseCommand):
         parser.add_argument('--facilities', type=int, default=1, dest="facilities", help="Number of facilities")
         parser.add_argument('--no-onboarding', action='store_true', dest="no_onboarding", help="Automatically create superusers and skip onboarding")
         parser.add_argument('--num-content-items', type=int, dest='num_content_items', help="Number of content interactions per user")
+        parser.add_argument('--num-lessons', type=int, default=5, dest='num_lessons', help="Number of lessons to be created per class")
 
     def handle(self, *args, **options):
         # Load in the user data from the csv file to give a predictable source of user data
-        with open(os.path.join(os.path.dirname(__file__), 'user_data.csv')) as f:
+        data_path = os.path.join(os.path.dirname(__file__), 'user_data.csv')
+        with io.open(data_path, mode='r', encoding='utf-8') as f:
             user_data = [data for data in csv.DictReader(f)]
 
         n_users = options['users']
         n_classes = options['classes']
         no_onboarding = options['no_onboarding']
         num_content_items = options['num_content_items']
+        num_lessons = options['num_lessons']
 
         # Set the random seed so that all operations will be randomized predictably
         random.seed(options['seed'])
@@ -97,3 +101,12 @@ class Command(BaseCommand):
                             user=user,
                             now=now
                         )
+
+                # create lessons
+                utils.create_lessons_for_classroom(
+                    classroom=classroom,
+                    facility=facility,
+                    channels=ChannelMetadata.objects.all(),
+                    lessons=num_lessons,
+                    now=now
+                )

@@ -50,7 +50,12 @@
           <td class="core-table-icon-col">
             <content-icon :kind="row.kind" />
           </td>
-          <name-cell :kind="row.kind" :title="row.title" :link="genRowLink(row)">
+          <name-cell
+            :kind="row.kind"
+            :title="row.title"
+            :link="genRowLink(row)"
+            :numCoachContents="row.num_coach_contents"
+          >
             {{ $tr('exerciseCountText', {count: row.exerciseCount}) }}
             •
             {{ $tr('contentCountText', {count: row.contentCount}) }}
@@ -61,6 +66,9 @@
         </tr>
       </tbody>
     </core-table>
+    <p v-if="!standardDataTable.length">
+      {{ $tr('emptyTableMessage') }}
+    </p>
 
   </div>
 
@@ -70,11 +78,11 @@
 <script>
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
-  import { TopicReports, LearnerReports, PageNames } from '../../constants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import { TopicReports, LearnerReports, PageNames } from '../../constants';
   import { exerciseCount, contentCount, standardDataTable } from '../../state/getters/reports';
   import { TableColumns } from '../../constants/reportConstants';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import breadcrumbs from './breadcrumbs';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
@@ -104,6 +112,7 @@
         '{count, number, integer} {count, plural, one {exercise} other {exercises}}',
       contentCountText:
         '{count, number, integer} {count, plural, one {resource} other {resources}}',
+      emptyTableMessage: 'No exercises or resources in this topic',
     },
     computed: {
       tableColumns() {
@@ -112,43 +121,27 @@
     },
     methods: {
       genRowLink(row) {
+        const rowIsTopic = row.kind === ContentNodeKinds.TOPIC;
+        const params = {
+          classId: this.classId,
+          channelId: this.pageState.channelId,
+          [rowIsTopic ? 'topicId' : 'contentId']: row.id,
+        };
         if (TopicReports.includes(this.pageName)) {
-          if (row.kind === ContentNodeKinds.TOPIC) {
-            return {
-              name: PageNames.TOPIC_ITEM_LIST,
-              params: {
-                classId: this.classId,
-                channelId: this.pageState.channelId,
-                topicId: row.id,
-              },
-            };
-          }
           return {
-            name: PageNames.TOPIC_LEARNERS_FOR_ITEM,
-            params: {
-              classId: this.classId,
-              channelId: this.pageState.channelId,
-              contentId: row.id,
-            },
+            name: rowIsTopic ? PageNames.TOPIC_ITEM_LIST : PageNames.TOPIC_LEARNERS_FOR_ITEM,
+            params,
           };
         } else if (LearnerReports.includes(this.pageName)) {
-          if (row.kind === ContentNodeKinds.TOPIC) {
+          if (rowIsTopic) {
             return {
               name: PageNames.LEARNER_ITEM_LIST,
-              params: {
-                classId: this.classId,
-                channelId: this.pageState.channelId,
-                topicId: row.id,
-              },
+              params,
             };
           } else if (row.kind === ContentNodeKinds.EXERCISE) {
             return {
               name: PageNames.LEARNER_ITEM_DETAILS_ROOT,
-              params: {
-                classId: this.classId,
-                channelId: this.pageState.channelId,
-                contentId: row.id,
-              },
+              params,
             };
           }
         }

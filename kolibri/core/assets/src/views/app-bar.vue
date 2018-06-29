@@ -5,9 +5,19 @@
     type="colored"
     textColor="white"
     class="app-bar"
-    @nav-icon-click="$emit('toggleSideNav')"
     :style="{ height: height + 'px' }"
   >
+    <ui-icon-button
+      slot="icon"
+      type="secondary"
+      @click="$emit('toggleSideNav')"
+    >
+      <mat-svg
+        class="icon"
+        name="menu"
+        category="navigation"
+      />
+    </ui-icon-button>
 
     <div>
       <div class="app-bar-title-icon"></div>
@@ -19,26 +29,28 @@
 
       <ui-button
         ref="userMenuButton"
-        icon="person"
         type="primary"
         color="primary"
         class="user-menu-button"
         :ariaLabel="$tr('userMenu')"
         @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
       >
+        <mat-svg
+          slot="icon"
+          name="person"
+          category="social"
+        />
         <template v-if="isUserLoggedIn">{{ username }}</template>
         <mat-svg name="arrow_drop_down" category="navigation" />
       </ui-button>
 
-      <custom-ui-menu
+      <core-menu
         v-show="userMenuDropdownIsOpen"
         ref="userMenuDropdown"
         class="user-menu-dropdown"
-        :options="userMenuOptions"
         :raised="true"
         :containFocus="true"
         :hasIcons="true"
-        @select="optionSelected"
         @close="userMenuDropdownIsOpen = false"
       >
         <template slot="header" v-if="isUserLoggedIn">
@@ -47,7 +59,45 @@
           <div v-else-if="isCoach">{{ $tr('coach') }}</div>
           <div v-else-if="isLearner">{{ $tr('learner') }}</div>
         </template>
-      </custom-ui-menu>
+
+        <template v-if="isUserLoggedIn" slot="options">
+          <core-menu-option
+            :label="$tr('profile')"
+            @select="goToProfile"
+          />
+          <core-menu-option
+            :label="$tr('languageSwitchMenuOption')"
+            @select="showLanguageModal = true"
+          >
+            <mat-svg
+              slot="icon"
+              name="language"
+              category="action"
+            />
+          </core-menu-option>
+          <core-menu-option
+            :label="$tr('signOut')"
+            @select="kolibriLogout"
+          />
+        </template>
+
+        <template v-else slot="options">
+          <core-menu-option
+            :label="$tr('signIn')"
+            @select="signIn"
+          />
+          <core-menu-option
+            :label="$tr('languageSwitchMenuOption')"
+            @select="showLanguageModal = true"
+          >
+            <mat-svg
+              slot="icon"
+              name="language"
+              category="action"
+            />
+          </core-menu-option>
+        </template>
+      </core-menu>
 
       <language-switcher-modal
         v-if="showLanguageModal"
@@ -67,7 +117,8 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import customUiMenu from 'kolibri.coreVue.components.customUiMenu';
+  import coreMenu from 'kolibri.coreVue.components.coreMenu';
+  import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
   import uiButton from 'keen-ui/src/UiButton';
   import { redirectBrowser } from 'kolibri.utils.browser';
   import languageSwitcherModal from './language-switcher/modal';
@@ -77,9 +128,10 @@
     components: {
       uiToolbar,
       uiIconButton,
-      customUiMenu,
+      coreMenu,
       uiButton,
       languageSwitcherModal,
+      coreMenuOption,
     },
     mixins: [responsiveWindow],
     $trs: {
@@ -112,35 +164,6 @@
       showLanguageModal: false,
       userMenuDropdownIsOpen: false,
     }),
-    computed: {
-      userMenuOptions() {
-        const changeLanguage = {
-          id: 'language',
-          label: this.$tr('languageSwitchMenuOption'),
-          icon: 'language',
-        };
-        if (this.isUserLoggedIn) {
-          return [
-            {
-              id: 'profile',
-              label: this.$tr('profile'),
-            },
-            changeLanguage,
-            {
-              id: 'signOut',
-              label: this.$tr('signOut'),
-            },
-          ];
-        }
-        return [
-          {
-            id: 'signIn',
-            label: this.$tr('signIn'),
-          },
-          changeLanguage,
-        ];
-      },
-    },
     created() {
       window.addEventListener('click', this.handleClick);
     },
@@ -148,16 +171,9 @@
       window.removeEventListener('click', this.handleClick);
     },
     methods: {
-      optionSelected(option) {
-        if (option.id === 'profile') {
-          window.location = `/user`;
-        } else if (option.id === 'signOut') {
-          this.kolibriLogout();
-        } else if (option.id === 'signIn') {
-          redirectBrowser();
-        } else if (option.id === 'language') {
-          this.showLanguageModal = true;
-        }
+      signIn: redirectBrowser,
+      goToProfile() {
+        window.location = `/user`;
       },
       handleClick(event) {
         if (
@@ -196,6 +212,7 @@
 
   .user-menu-button
     text-transform: none
+    vertical-align: middle
     svg
       fill: white
 
@@ -217,5 +234,8 @@
     display: inline-block
     vertical-align: middle
     background-size: cover
+
+  .icon
+    fill: white
 
 </style>

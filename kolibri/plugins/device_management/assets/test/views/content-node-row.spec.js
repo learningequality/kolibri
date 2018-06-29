@@ -4,7 +4,6 @@ import { mount } from '@vue/test-utils';
 import { expect } from 'chai';
 import ContentNodeRow from '../../src/views/select-content-page/content-node-row.vue';
 import { makeNode } from '../utils/data';
-import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
 
 const defaultProps = {
   node: {
@@ -28,7 +27,7 @@ function getElements(wrapper) {
     messageText: () => wrapper.find('.message').text().trim(),
     goToTopicButton: () => wrapper.find('button[name="select-node"]'),
     checkbox: () => wrapper.find('input[type="checkbox"]'),
-    kCheckbox: () => wrapper.find(kCheckbox),
+    kCheckbox: () => wrapper.find({ name: 'kCheckbox' }),
   };
 }
 

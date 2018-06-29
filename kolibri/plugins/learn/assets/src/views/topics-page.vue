@@ -4,13 +4,15 @@
 
     <page-header :title="topic.title" />
 
-    <p
+    <text-truncator
       v-if="topic.description"
+      :text="topic.description"
+      :maxHeight="50"
+      :showTooltip="false"
+      :showViewMore="true"
       dir="auto"
-      class="page-description ta-l"
-    >
-      {{ topic.description }}
-    </p>
+      class="page-description"
+    />
 
     <content-card-group-grid
       v-if="contents.length"
@@ -26,11 +28,13 @@
 
 <script>
 
-  import { PageNames } from '../constants';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import textTruncator from 'kolibri.coreVue.components.textTruncator';
+  import { PageNames } from '../constants';
   import pageHeader from './page-header';
   import contentCard from './content-card';
   import contentCardGroupGrid from './content-card-group-grid';
+
   export default {
     name: 'topicsPage',
     $trs: {
@@ -41,6 +45,7 @@
       pageHeader,
       contentCard,
       contentCardGroupGrid,
+      textTruncator,
     },
     methods: {
       genContentLink(id, kind) {
@@ -75,8 +80,5 @@
     margin-top: 1em
     margin-bottom: 1em
     line-height: 1.5em
-
-  .ta-l
-    text-align: left
 
 </style>

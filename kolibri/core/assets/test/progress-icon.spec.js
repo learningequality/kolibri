@@ -1,16 +1,14 @@
 /* eslint-env mocha */
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
-import ProgressIcon from '../src/views/progress-icon';
 import { mount } from '@vue/test-utils';
 import UiTooltip from 'keen-ui/src/UiTooltip';
 import UiIcon from 'keen-ui/src/UiIcon';
-import assert from 'assert';
+import ProgressIcon from '../src/views/progress-icon';
 
-function testIcon(wrapper, expected) {
-  const { iconType, text } = expected;
-  assert.equal(wrapper.find(UiIcon).props().icon, iconType);
+function testIcon(wrapper, expectedText) {
   // prettier-ignore
-  assert.equal(wrapper.find(UiTooltip).text().trim(), text);
+  expect(wrapper.find(UiTooltip).text().trim()).to.equal(expectedText);
 }
 
 describe('ProgressIcon Component', () => {
@@ -22,9 +20,9 @@ describe('ProgressIcon Component', () => {
       },
     });
     const tooltip = wrapper.find(UiTooltip);
-    assert.equal(wrapper.contains(UiIcon), false);
+    expect(wrapper.contains(UiIcon)).to.be.false;
     // Tooltip is still around, just nothing to trigger it.
-    assert.equal(tooltip.text().trim(), 'Completed');
+    expect(tooltip.text().trim()).to.equal('Completed');
   });
 
   it('it should show an in-progress icon when progress is between 0 and 1', () => {
@@ -33,7 +31,7 @@ describe('ProgressIcon Component', () => {
         progress: 0.1,
       },
     });
-    testIcon(wrapper, { iconType: 'schedule', text: 'In progress' });
+    testIcon(wrapper, 'In progress');
   });
 
   it('it should show a completed icon when progress is exactly 1', () => {
@@ -42,7 +40,7 @@ describe('ProgressIcon Component', () => {
         progress: 1.0,
       },
     });
-    testIcon(wrapper, { iconType: 'star', text: 'Completed' });
+    testIcon(wrapper, 'Completed');
   });
 
   it('it should show a completed icon when progress is greater than 1', () => {
@@ -51,6 +49,6 @@ describe('ProgressIcon Component', () => {
         progress: 2.0,
       },
     });
-    testIcon(wrapper, { iconType: 'star', text: 'Completed' });
+    testIcon(wrapper, 'Completed');
   });
 });

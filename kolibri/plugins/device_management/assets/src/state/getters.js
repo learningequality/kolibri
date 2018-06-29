@@ -1,4 +1,5 @@
 import find from 'lodash/find';
+import isEmpty from 'lodash/isEmpty';
 import sumBy from 'lodash/sumBy';
 import { TransferTypes } from '../constants';
 
@@ -40,7 +41,7 @@ export function installedChannelsWithResources(state) {
 
 export function channelIsInstalled(state) {
   return function findChannel(channelId) {
-    return find(installedChannelList(state), { id: channelId, available: true });
+    return find(installedChannelList(state), { id: channelId });
   };
 }
 
@@ -49,8 +50,8 @@ export function taskList(state) {
 }
 
 export function cachedTopicPath(state) {
-  return function getPath(pk) {
-    return state.pageState.wizardState.pathCache[pk];
+  return function getPath(id) {
+    return state.pageState.wizardState.pathCache[id];
   };
 }
 
@@ -89,4 +90,41 @@ export function nodeTransferCounts(state) {
 
 export function inExportMode(state) {
   return state.pageState.wizardState.transferType === TransferTypes.LOCALEXPORT;
+}
+
+export function inLocalImportMode(state) {
+  return state.pageState.wizardState.transferType === TransferTypes.LOCALIMPORT;
+}
+
+export function inRemoteImportMode(state) {
+  return state.pageState.wizardState.transferType === TransferTypes.REMOTEIMPORT;
+}
+
+export function driveCanBeUsedForTransfer(state) {
+  return function isEnabled(drive, transferType) {
+    if (transferType === TransferTypes.LOCALIMPORT) {
+      const { transferredChannel } = state.pageState.wizardState;
+      // In top-level Import workflow -> Show any drive with content
+      if (!isImportingMore(state)) {
+        return drive.metadata.channels.length > 0;
+      }
+      // In "Import More" from Channel workflow -> Show any drive with that channel
+      // where its version is >= to the installed version
+      const channelOnDrive = find(drive.metadata.channels, { id: transferredChannel.id });
+      const channelOnServer = channelIsInstalled(state)(transferredChannel.id);
+      return channelOnDrive && channelOnDrive.version >= channelOnServer.version;
+    }
+
+    if (transferType === TransferTypes.LOCALEXPORT) {
+      // In Export workflow, drive just needs to be writable
+      return drive.writable;
+    }
+
+    return false;
+  };
+}
+
+// Utility to help distinguish when app is in import-more workflow or not
+export function isImportingMore(state) {
+  return !inExportMode(state) && !isEmpty(state.pageState.wizardState.transferredChannel);
 }

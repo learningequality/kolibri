@@ -1,9 +1,9 @@
 import { handleError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { PageNames } from '../../constants';
-import { setClassState } from './main';
 import { LearnerGroupResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
+import { PageNames } from '../../constants';
+import { setClassState, handleCoachPageError } from './main';
 
 const translator = createTranslator('groupManagementPageTitles', {
   groupManagementPageTitle: 'Groups',
@@ -73,7 +73,9 @@ export function showGroupsPage(store, classId) {
         error => handleError(store, error)
       );
     },
-    error => handleError(store, error)
+    error => {
+      handleCoachPageError(store, error);
+    }
   );
 }
 

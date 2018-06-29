@@ -8,16 +8,16 @@ from sqlalchemy import ColumnDefault
 from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.ext.automap import generate_relationship
+from sqlalchemy.orm import interfaces
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 from .check_schema_db import db_matches_schema
 from .check_schema_db import DBSchemaError
+from kolibri.content.models import CONTENT_DB_SCHEMA_VERSIONS
 from kolibri.content.models import CONTENT_SCHEMA_VERSION
-from kolibri.content.models import NO_VERSION
-from kolibri.content.models import V020BETA1
-from kolibri.content.models import V040BETA3
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
@@ -31,13 +31,6 @@ def set_sqlite_connection_pragma(dbapi_connection, connection_record):
 logger = logging.getLogger(__name__)
 
 BASES = {}
-
-CONTENT_DB_SCHEMA_VERSIONS = [
-    CONTENT_SCHEMA_VERSION,
-    NO_VERSION,
-    V040BETA3,
-    V020BETA1,
-]
 
 class ClassNotFoundError(Exception):
     pass
@@ -132,22 +125,43 @@ def prepare_bases():
 
         with open(SCHEMA_PATH_TEMPLATE.format(name=name), 'rb') as f:
             metadata = pickle.load(f)
-        BASES[name] = prepare_base(metadata)
+        cascade_relationships = name == CONTENT_SCHEMA_VERSION
+        BASES[name] = prepare_base(metadata, cascade_relationships=cascade_relationships)
 
 
-def prepare_base(metadata):
+def get_model_from_cls(cls):
+    return next((m for m in apps.get_models(include_auto_created=True) if m._meta.db_table == cls.__table__.name), None)
+
+
+def get_field_from_model_by_column(model, column):
+    return next((f for f in model._meta.fields if f.column == column), None)
+
+
+def prepare_base(metadata, cascade_relationships=False):
     """
     Create a Base mapping for models for a particular schema version of the content app
     A Base mapping defines the mapping from database tables to the SQLAlchemy ORM and is
     our main entrypoint for interacting with content databases and the content app tables
     of the default database.
+    If cascade_relationships is True, then also attempt to use Django model information
+    to setup proper relationship cascade behaviour to allow deletion in SQLAlchemy.
     """
     # Set up the base mapping using the automap_base method, using the metadata passed in
     Base = automap_base(metadata=metadata)
-    # TODO map relationship backreferences using the django names
     # Calling Base.prepare() means that Base now has SQLALchemy ORM classes corresponding to
     # every database table that we need
-    Base.prepare()
+
+    def _gen_relationship(base, direction, return_fn,
+                          attrname, local_cls, referred_cls, **kw):
+        if direction is interfaces.ONETOMANY:
+            kw['cascade'] = 'all, delete-orphan'
+        # Add cascade behaviour on deletion
+        return generate_relationship(base, direction, return_fn,
+                                     attrname, local_cls, referred_cls, **kw)
+    if cascade_relationships:
+        Base.prepare(generate_relationship=_gen_relationship)
+    else:
+        Base.prepare()
     # Set any Django Model defaults
     set_all_class_defaults(Base)
     return Base
@@ -191,6 +205,7 @@ class Bridge(object):
                 self.session, self.engine = make_session(self.connection_string)
                 try:
                     db_matches_schema(self.Base, self.session)
+                    self.schema_version = version
                     break
                 except DBSchemaError as e:
                     logging.debug(e)

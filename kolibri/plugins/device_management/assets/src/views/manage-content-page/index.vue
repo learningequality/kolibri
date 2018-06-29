@@ -2,10 +2,7 @@
 
   <div>
     <template v-if="canManageContent">
-      <component
-        v-if="wizardPageName!==''"
-        :is="wizardComponent"
-      />
+      <select-transfer-source-modal v-if="wizardPageName!==''" />
 
       <subpage-container>
         <task-progress
@@ -25,14 +22,14 @@
             <k-button
               :text="$tr('import')"
               class="button"
-              @click="openWizard('import')"
+              @click="startImportWorkflow()"
               :primary="true"
             />
             <k-button
               v-if="deviceHasChannels"
               :text="$tr('export')"
               class="button"
-              @click="openWizard('export')"
+              @click="startExportWorkflow()"
             />
           </div>
         </div>
@@ -55,28 +52,18 @@
 <script>
 
   import { canManageContent } from 'kolibri.coreVue.vuex.getters';
-  import { refreshTaskList, cancelTask } from '../../state/actions/taskActions';
-  import { transitionWizardPage } from '../../state/actions/contentWizardActions';
-  import { ContentWizardPages } from '../../constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
-  import channelsGrid from './channels-grid';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import availableChannelsPage from '../available-channels-page';
-  import selectImportSource from './wizards/select-import-source-modal';
+  import { cancelTask } from '../../state/actions/taskActions';
+  import {
+    startImportWorkflow,
+    startExportWorkflow,
+  } from '../../state/actions/contentWizardActions';
   import subpageContainer from '../containers/subpage-container';
-  import taskProgress from './task-progress';
-  import selectDriveModal from './wizards/select-drive-modal';
-  import selectContentPage from '../select-content-page';
   import { refreshChannelList } from '../../state/actions/manageContentActions';
-
-  const pageNameComponentMap = {
-    [ContentWizardPages.SELECT_IMPORT_SOURCE]: selectImportSource,
-    [ContentWizardPages.SELECT_DRIVE]: selectDriveModal,
-    [ContentWizardPages.AVAILABLE_CHANNELS]: availableChannelsPage,
-    [ContentWizardPages.SELECT_CONTENT]: selectContentPage,
-  };
-
-  const POLL_DELAY = 1000;
+  import channelsGrid from './channels-grid';
+  import taskProgress from './task-progress';
+  import selectTransferSourceModal from './select-transfer-source-modal';
 
   export default {
     name: 'manageContentPage',
@@ -91,17 +78,9 @@
       authMessage,
       channelsGrid,
       kButton,
+      selectTransferSourceModal,
       subpageContainer,
       taskProgress,
-    },
-    data: () => ({
-      intervalId: undefined,
-      notification: null,
-    }),
-    computed: {
-      wizardComponent() {
-        return pageNameComponentMap[this.wizardPageName];
-      },
     },
     watch: {
       // If Tasks disappear from queue, assume that an addition/deletion has
@@ -112,21 +91,7 @@
         }
       },
     },
-    mounted() {
-      if (this.canManageContent) {
-        this.intervalId = setInterval(this.refreshTaskList, POLL_DELAY);
-      }
-    },
-    destroyed() {
-      clearInterval(this.intervalId);
-    },
     methods: {
-      openWizard(action) {
-        if (action === 'import') {
-          return this.transitionWizardPage('forward', { import: true });
-        }
-        return this.transitionWizardPage('forward', { import: false });
-      },
       clearFirstTask(unblockCb) {
         this.cancelTask(this.firstTask.id)
           // Handle failures silently in case of near-simultaneous cancels.
@@ -139,17 +104,17 @@
     vuex: {
       getters: {
         canManageContent,
-        wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
         pageState: ({ pageState }) => pageState,
         firstTask: ({ pageState }) => pageState.taskList[0],
         tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
         deviceHasChannels: ({ pageState }) => pageState.channelList.length > 0,
+        wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
       },
       actions: {
         cancelTask,
-        refreshTaskList,
         refreshChannelList,
-        transitionWizardPage,
+        startImportWorkflow,
+        startExportWorkflow,
       },
     },
   };
@@ -159,10 +124,8 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
   .table-title
-    margin-top: 1em
+    margin-top: 16px
     &:after
       content: ''
       display: table
@@ -175,15 +138,10 @@
     float: right
 
   .main
-    padding: 1em 2em
-    padding-bottom: 3em
-    margin-top: 2em
+    padding: 16px 32px
+    padding-bottom: 48px
+    margin-top: 32px
     width: 100%
     border-radius: 4px
-
-  hr
-    background-color: $core-text-annotation
-    height: 1px
-    border: none
 
 </style>

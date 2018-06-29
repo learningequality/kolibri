@@ -7,13 +7,14 @@
         {{ currentClass.name }}
       </h1>
       <ui-icon-button
-        icon="mode_edit"
         type="secondary"
         color="primary"
         class="edit-button"
         :ariaLabel="$tr('edit')"
         @click="displayModal(Modals.EDIT_CLASS_NAME)"
-      />
+      >
+        <mat-svg name="edit" category="image" />
+      </ui-icon-button>
     </div>
 
     <p>{{ $tr('coachEnrollmentPageTitle') }}</p>
@@ -93,17 +94,17 @@
 
 <script>
 
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import userTable from '../user-table';
   import { PageNames, Modals } from '../../constants';
   import { removeClassLearner, removeClassCoach } from '../../state/actions/class';
   import { displayModal } from '../../state/actions';
   import classRenameModal from './class-rename-modal';
   import userRemoveConfirmationModal from './user-remove-confirmation-modal';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
-  import kGrid from 'kolibri.coreVue.components.kGrid';
-  import kGridItem from 'kolibri.coreVue.components.kGridItem';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
     // TODO update component name after string freeze

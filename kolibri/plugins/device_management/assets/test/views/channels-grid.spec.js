@@ -1,21 +1,10 @@
 /* eslint-env mocha */
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
-import Vuex from 'vuex';
-import assert from 'assert';
 import sinon from 'sinon';
 import { mount } from '@vue/test-utils';
 import ChannelsGrid from '../../src/views/manage-content-page/channels-grid.vue';
-import { manageContentPageState } from '../../src/state/wizardState';
-import mutations from '../../src/state/mutations';
-
-function makeStore() {
-  return new Vuex.Store({
-    state: {
-      pageState: manageContentPageState(),
-    },
-    mutations,
-  });
-}
+import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 function makeWrapper(options) {
   const { store = {}, props = {} } = options;
@@ -46,7 +35,7 @@ describe('channelsGrid component', () => {
   let store;
 
   beforeEach(() => {
-    store = makeStore();
+    store = makeAvailableChannelsPageStore();
     store.dispatch('SET_CHANNEL_LIST', [
       {
         name: 'visible channel',
@@ -72,7 +61,7 @@ describe('channelsGrid component', () => {
     const wrapper = makeWrapper({ store });
     const { emptyState } = getElements(wrapper);
     return wrapper.vm.$nextTick().then(() => {
-      assert(emptyState().is('p'));
+      expect(emptyState().is('p')).to.be.true;
     });
   });
 
@@ -86,7 +75,7 @@ describe('channelsGrid component', () => {
         return wrapper.vm.$nextTick();
       })
       .then(() => {
-        assert(progressBar().isVueComponent);
+        expect(progressBar().isVueInstance()).to.be.true;
       });
   });
 
@@ -111,8 +100,8 @@ describe('channelsGrid component', () => {
     const { channelListItems } = getElements(wrapper);
     return wrapper.vm.$nextTick().then(() => {
       const items = channelListItems();
-      assert.equal(items.at(0).props().channel.id, 'awesome_channel');
-      assert.equal(items.at(1).props().channel.id, 'beautiful_channel');
+      expect(items.at(0).props().channel.id).to.equal('awesome_channel');
+      expect(items.at(1).props().channel.id).to.equal('beautiful_channel');
     });
   });
 
@@ -126,16 +115,15 @@ describe('channelsGrid component', () => {
       .$nextTick()
       .then(() => {
         const items = channelListItems();
-        const button = items.at(0).find('button');
-        assert.equal(button.text().trim(), 'Delete');
-        button.trigger('click');
+        const dropdownMenu = items.at(0).find({ name: 'kDropdownMenu' });
+        dropdownMenu.vm.$emit('select', { value: 'DELETE_CHANNEL' });
         return wrapper.vm.$nextTick();
       })
       .then(() => {
         deleteModal = deleteChannelModal();
-        assert(deleteModal.isVueComponent);
+        expect(deleteModal.isVueInstance()).to.be.true;
         const deleteButton = deleteModal.find('button[name="confirm"]');
-        assert.equal(deleteButton.text().trim(), 'Delete');
+        expect(deleteButton.text().trim()).to.equal('Delete');
         deleteButton.trigger('click');
         return wrapper.vm.$nextTick();
       })

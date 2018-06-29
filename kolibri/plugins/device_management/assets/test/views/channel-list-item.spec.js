@@ -1,26 +1,11 @@
 /* eslint-env mocha */
 import Vue from 'vue-test'; // eslint-disable-line
-import Vuex from 'vuex';
+import VueRouter from 'vue-router';
 import { expect } from 'chai';
-import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import { mount } from '@vue/test-utils';
+import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
 import { defaultChannel } from '../utils/data';
-
-function makeStore() {
-  return new Vuex.Store({
-    state: {
-      pageState: {
-        taskList: [],
-        channelList: [{ id: 'installed', name: 'Installed Channel', version: 11, available: true }],
-      },
-    },
-    mutations: {
-      addTask(state, task) {
-        state.pageState.taskList.push(task);
-      },
-    },
-  });
-}
+import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 function makeWrapper(options = {}) {
   const { props = {}, store } = options;
@@ -34,7 +19,8 @@ function makeWrapper(options = {}) {
   };
   return mount(ChannelListItem, {
     propsData: { ...defaultProps, ...props },
-    store: store || makeStore(),
+    store: store || makeAvailableChannelsPageStore(),
+    router: new VueRouter({ routes: [] }),
   });
 }
 
@@ -44,13 +30,13 @@ function getElements(wrapper) {
     resourcesSizeText: () => wrapper.find('.resources-size').text().trim(),
     resourcesSize: () => wrapper.find('.resources-size'),
     onDevice: () => wrapper.find('.on-device'),
-    deleteButton: () => wrapper.find('button[name="delete"]'),
-    selectButton: () => wrapper.find('button[name="select"]'),
+    selectButton: () => wrapper.find({ name: 'kRouterLink' }),
     title: () => wrapper.find('.title').text().trim(),
     version: () => wrapper.find('.version').text().trim(),
     description: () => wrapper.find('.description').text().trim(),
     thumbnail: () => wrapper.find('.thumbnail'),
-    addTaskMutation: (task) => wrapper.vm.$store.dispatch('addTask', task),
+    addTaskMutation: (task) => wrapper.vm.$store.dispatch('SET_CONTENT_PAGE_TASKS', [task]),
+    dropdownMenu: () => wrapper.find({ name: 'kDropdownMenu' }),
   };
 }
 
@@ -78,7 +64,7 @@ describe('channelListItem', () => {
       function test(wrapper) {
         const { title, version, description } = getElements(wrapper);
         expect(title()).to.equal('Channel Title');
-        expect(version()).to.equal('Version 20');
+        expect(version()).to.equal('Version 10');
         expect(description()).to.equal('An awesome channel');
       }
       testAll(test);
@@ -113,13 +99,13 @@ describe('channelListItem', () => {
     importWrapper.setProps({
       onDevice: true,
       channel: {
-        id: 'installed',
-        version: 20,
+        id: 'awesome_channel',
+        version: 10,
       },
     });
     importWrapper.vm.$forceUpdate();
     const { version } = getElements(importWrapper);
-    expect(version()).to.equal('Version 11');
+    expect(version()).to.equal('Version 10');
   });
 
   it('if the channel is not installed, the version number is of the remote channel', () => {
@@ -148,30 +134,24 @@ describe('channelListItem', () => {
 
   it('in MANAGE mode only, clicking "delete" triggers a "clickdelete" event', () => {
     const wrapper = manageWrapper;
-    const { deleteButton, selectButton } = getElements(wrapper);
+    const { dropdownMenu, selectButton } = getElements(wrapper);
     // Select button is not shown
     expect(selectButton().exists()).to.be.false;
-    deleteButton().trigger('click');
-    expect(wrapper.emitted().clickdelete.length).to.equal(1);
+    return wrapper.vm.$nextTick().then(() => {
+      // HACK trigger an event from dropdown menu options, since the actual button is hard to target
+      dropdownMenu().vm.$emit('select', { value: 'DELETE_CHANNEL' });
+      expect(wrapper.emitted().clickdelete.length).to.equal(1);
+    });
   });
 
   it('in MANAGE mode only, delete button is disabled when tasks in queue', () => {
     const wrapper = manageWrapper;
-    const { deleteButton, addTaskMutation } = getElements(wrapper);
+    const { dropdownMenu, addTaskMutation } = getElements(wrapper);
     addTaskMutation({ id: 'task_1' });
     return wrapper.vm.$nextTick().then(() => {
       // prettier-ignore
-      expect(deleteButton().attributes().disabled).to.equal('disabled');
+      expect(dropdownMenu().props().disabled).to.be.true
     });
-  });
-
-  it('in IMPORT/EXPORT mode, clicking "select" triggers a "clickselect" event', () => {
-    function test(wrapper) {
-      const { selectButton } = getElements(wrapper);
-      selectButton().trigger('click');
-      expect(wrapper.emitted().clickselect.length).to.equal(1);
-    }
-    return Promise.all([test(importWrapper), test(exportWrapper)]);
   });
 
   it('in IMPORT/EXPORT mode, "select" button is disabled when tasks in queue', () => {

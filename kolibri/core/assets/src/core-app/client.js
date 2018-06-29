@@ -4,12 +4,12 @@
 
 import interceptor from 'rest/interceptor';
 import mime from 'rest/interceptor/mime';
-import baseClient from './baseClient';
-import errorCodes from '../disconnectionErrorCodes';
 
 import heartbeat from 'kolibri.heartbeat';
 import { connected } from 'kolibri.coreVue.vuex.getters';
 import store from 'kolibri.coreVue.vuex.store';
+import errorCodes from '../disconnectionErrorCodes';
+import baseClient from './baseClient';
 
 const disconnectInterceptor = interceptor({
   request: function(request) {

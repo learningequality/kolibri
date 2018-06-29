@@ -2,19 +2,23 @@ import logging as logger
 import os
 
 from django.apps.registry import AppRegistryNotReady
-from django.conf import settings
-from django.core.management import CommandError, call_command
+from django.core.management import call_command
+from django.http.response import Http404
+from django.utils.translation import gettext_lazy as _
 from iceqube.common.classes import State
 from iceqube.exceptions import UserCancelledError
+from rest_framework import serializers
+from rest_framework import viewsets
+from rest_framework.decorators import list_route
+from rest_framework.response import Response
+from six import string_types
+from sqlalchemy.orm.exc import NoResultFound
+
+from .client import get_client
 from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.paths import get_content_database_file_path
-from rest_framework import serializers, viewsets
-from django.utils.translation import gettext_lazy as _
-from rest_framework.decorators import list_route
-from rest_framework.response import Response
-
-from .client import get_client
+from kolibri.utils import conf
 
 try:
     from django.apps import apps
@@ -48,8 +52,11 @@ class TasksViewSet(viewsets.ViewSet):
         pass
 
     def retrieve(self, request, pk=None):
-        task = _job_to_response(get_client().status(pk))
-        return Response(task)
+        try:
+            task = _job_to_response(get_client().status(pk))
+            return Response(task)
+        except NoResultFound:
+            raise Http404('Task with {pk} not found'.format(pk=pk))
 
     def destroy(self, request, pk=None):
         # unimplemented for now.
@@ -63,7 +70,7 @@ class TasksViewSet(viewsets.ViewSet):
         except KeyError:
             raise serializers.ValidationError("The channel_id field is required.")
 
-        baseurl = request.data.get("baseurl", settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL)
+        baseurl = request.data.get("baseurl", conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'])
 
         job_metadata = {
             "type": "REMOTECHANNELIMPORT",
@@ -77,6 +84,7 @@ class TasksViewSet(viewsets.ViewSet):
             channel_id,
             baseurl=baseurl,
             extra_metadata=job_metadata,
+            cancellable=True,
         )
         resp = _job_to_response(get_client().status(job_id))
 
@@ -91,7 +99,7 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The channel_id field is required.")
 
         # optional arguments
-        baseurl = request.data.get("base_url", settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL)
+        baseurl = request.data.get("base_url", conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'])
         node_ids = request.data.get("node_ids", None)
         exclude_node_ids = request.data.get("exclude_node_ids", None)
 
@@ -155,6 +163,7 @@ class TasksViewSet(viewsets.ViewSet):
             channel_id,
             drive.datafolder,
             extra_metadata=job_metadata,
+            cancellable=True,
         )
 
         resp = _job_to_response(get_client().status(job_id))
@@ -210,8 +219,6 @@ class TasksViewSet(viewsets.ViewSet):
         resp = _job_to_response(get_client().status(job_id))
 
         return Response(resp)
-
-    # TODO: complete startdiskexport
 
     @list_route(methods=['post'])
     def startdeletechannel(self, request):
@@ -301,8 +308,13 @@ class TasksViewSet(viewsets.ViewSet):
         if 'task_id' not in request.data:
             raise serializers.ValidationError(
                 "The 'task_id' field is required.")
-
-        get_client().cancel(request.data['task_id'])
+        if not isinstance(request.data['task_id'], string_types):
+            raise serializers.ValidationError(
+                "The 'task_id' should be a string.")
+        try:
+            get_client().cancel(request.data['task_id'])
+        except NoResultFound:
+            pass
         get_client().clear(force=True)
         return Response({})
 
@@ -324,60 +336,6 @@ class TasksViewSet(viewsets.ViewSet):
         out = [mountdata._asdict() for mountdata in drives.values()]
 
         return Response(out)
-
-
-def _networkimport(channel_id, node_ids, update_progress=None, check_for_cancel=None):
-    call_command(
-        "importchannel",
-        "network",
-        channel_id,
-        update_progress=update_progress,
-        check_for_cancel=check_for_cancel)
-    try:
-        call_command(
-            "importcontent",
-            "network",
-            channel_id,
-            node_ids=node_ids,
-            update_progress=update_progress,
-            check_for_cancel=check_for_cancel)
-    except UserCancelledError:
-        call_command("deletechannel", channel_id, update_progress=update_progress)
-        raise
-
-
-def _localimport(drive_id, channel_id, node_ids=None, update_progress=None, check_for_cancel=None):
-    drives = get_mounted_drives_with_channel_info()
-    drive = drives[drive_id]
-    # copy channel's db file then copy all the content files from storage dir
-
-    available_channel_ids = [c["id"] for c in drive.metadata["channels"]]
-    assert channel_id in available_channel_ids, "The given channel was not found in the drive."
-
-    try:
-        call_command(
-            "importchannel",
-            "local",
-            channel_id,
-            drive.datafolder,
-            update_progress=update_progress,
-            check_for_cancel=check_for_cancel
-        )
-        call_command(
-            "importcontent",
-            "local",
-            channel_id,
-            drive.datafolder,
-            node_ids=node_ids,
-            update_progress=update_progress,
-            check_for_cancel=check_for_cancel
-        )
-    except UserCancelledError:
-        try:
-            call_command("deletechannel", channel_id, update_progress=update_progress)
-        except CommandError:
-            pass
-        raise
 
 
 def _localexport(channel_id, drive_id, update_progress=None, check_for_cancel=None, node_ids=None, exclude_node_ids=None, extra_metadata=None):
@@ -405,10 +363,6 @@ def _localexport(channel_id, drive_id, update_progress=None, check_for_cancel=No
         except OSError:
             pass
         raise
-
-
-def _deletechannel(channel_id, update_progress=None):
-    call_command("deletechannel", channel_id, update_progress=update_progress)
 
 
 def _job_to_response(job):

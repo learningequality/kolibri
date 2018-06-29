@@ -10,8 +10,15 @@
       />
     </th>
     <td class="col-table-main-col">
-      <content-icon :kind="exercise" />
-      <span>{{ exerciseTitle }}</span>
+      <div class="exercise-title">
+        <content-icon :kind="exercise" />
+        <span>{{ exerciseTitle }}</span>
+      </div>
+      <coach-content-label
+        class="coach-content-label"
+        :value="numCoachContents"
+        :isTopic="false"
+      />
     </td>
     <td></td>
   </tr>
@@ -22,6 +29,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -32,6 +40,7 @@
       selectExercise: 'Select exercise',
     },
     components: {
+      coachContentLabel,
       contentIcon,
       kButton,
       kCheckbox,
@@ -48,6 +57,10 @@
       exerciseNumAssessments: {
         type: Number,
         required: true,
+      },
+      numCoachContents: {
+        type: Number,
+        default: 0,
       },
       selectedExercises: {
         type: Array,
@@ -86,4 +99,14 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .exercise-title
+    display: inline-block
+
+  .coach-content-label
+    display: inline-block
+    vertical-align: bottom
+    margin-left: 8px
+
+</style>

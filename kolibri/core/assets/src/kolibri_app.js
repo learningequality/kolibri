@@ -1,9 +1,9 @@
-import KolibriModule from 'kolibri_module';
 import { getCurrentSession } from 'kolibri.coreVue.vuex.actions';
 import router from 'kolibri.coreVue.router';
 import Vue from 'kolibri.lib.vue';
 import store from 'kolibri.coreVue.vuex.store';
 import heartbeat from 'kolibri.heartbeat';
+import KolibriModule from 'kolibri_module';
 
 /*
  * A class for single page apps that control routing and vuex state.
@@ -63,7 +63,7 @@ export default class KolibriApp extends KolibriModule {
       state: this.initialState,
       mutations: this.mutations,
     });
-    getCurrentSession(store).then(() => {
+    return getCurrentSession(store).then(() => {
       Promise.all([
         // Invoke each of the state setters before initializing the app.
         ...this.stateSetters.map(setter => setter(this.store)),

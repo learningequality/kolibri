@@ -2,10 +2,11 @@
 
   <div class="k-filter">
     <ui-icon
-      icon="search"
       class="k-filter-icon"
       :ariaLabel="$tr('filter')"
-    />
+    >
+      <mat-svg name="search" category="action" />
+    </ui-icon>
 
     <input
       v-model.trim="model"
@@ -17,14 +18,15 @@
     >
 
     <ui-icon-button
-      icon="clear"
       color="black"
       size="small"
       class="k-filter-clear-button"
       :class="model === '' ? '' : 'k-filter-clear-button-visible'"
       :ariaLabel="$tr('clear')"
       @click="model = ''"
-    />
+    >
+      <mat-svg name="clear" category="content" />
+    </ui-icon-button>
   </div>
 
 </template>

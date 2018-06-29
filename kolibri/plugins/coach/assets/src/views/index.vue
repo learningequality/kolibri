@@ -30,11 +30,13 @@
 
 <script>
 
-  import { PageNames } from '../constants';
-  import { className, classCoaches } from '../state/getters/classes';
   import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
+  import coreBase from 'kolibri.coreVue.components.coreBase';
+  import { PageNames } from '../constants';
+  import { className, classCoaches } from '../state/getters/classes';
+  import { LessonsPageNames } from '../constants/lessonsConstants';
   import topNav from './top-nav';
   import classListPage from './class-list-page';
   import examsPage from './exams/exams-page';
@@ -42,14 +44,12 @@
   import examReportPage from './exams/exam-report-page';
   import examReportDetailPage from './exams/exam-report-detail-page';
   import groupsPage from './groups-page';
-  import coreBase from 'kolibri.coreVue.components.coreBase';
   import learnerExerciseDetailPage from './reports/learner-exercise-detail-page';
   import recentItemsPage from './reports/recent-items-page';
   import channelListPage from './reports/channel-list-page';
   import itemListPage from './reports/item-list-page';
   import learnerListPage from './reports/learner-list-page';
   import navTitle from './nav-title';
-  import { LessonsPageNames } from '../constants/lessonsConstants';
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
   import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';
@@ -191,7 +191,6 @@
         classCoaches,
         classList: state => state.classList,
         classId: state => state.classId,
-        isLoading: state => state.core.loading,
       },
     },
   };

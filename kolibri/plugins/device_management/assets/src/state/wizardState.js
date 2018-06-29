@@ -1,6 +1,7 @@
 // Minimal state needed to render the manage content page
 export function manageContentPageState() {
   return {
+    toolbarTitle: '',
     channelList: [],
     channelListLoading: false,
     taskList: [],
@@ -21,7 +22,7 @@ export function importExportWizardState() {
     transferType: '',
     availableChannels: [],
     selectedDrive: {},
-    availableSpace: -1,
+    availableSpace: null,
     // 4. set after choosing channel
     transferredChannel: {},
     currentTopicNode: {},

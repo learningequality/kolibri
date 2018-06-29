@@ -15,6 +15,13 @@
           <dd>
             {{ channelTitle }}
           </dd>
+          <dd>
+            <coach-content-label
+              class="coach-content-label"
+              :value="contentNode.num_coach_contents"
+              :isTopic="false"
+            />
+          </dd>
         </dl>
       </div>
 
@@ -48,8 +55,18 @@
                 @click="invert=!invert"
                 size="small"
                 type="secondary"
-                :icon="arrowIcon"
-              />
+              >
+                <mat-svg
+                  v-if="invert"
+                  name="keyboard_arrow_up"
+                  category="hardware"
+                />
+                <mat-svg
+                  v-if="!invert"
+                  name="keyboard_arrow_down"
+                  category="hardware"
+                />
+              </ui-icon-button>
             </th>
             <th>
               <k-button
@@ -63,8 +80,18 @@
                 @click="invert=!invert"
                 size="small"
                 type="secondary"
-                :icon="arrowIcon"
-              />
+              >
+                <mat-svg
+                  v-if="invert"
+                  name="keyboard_arrow_up"
+                  category="hardware"
+                />
+                <mat-svg
+                  v-if="!invert"
+                  name="keyboard_arrow_down"
+                  category="hardware"
+                />
+              </ui-icon-button>
             </th>
             <th>
               <k-button
@@ -78,8 +105,18 @@
                 @click="invert=!invert"
                 size="small"
                 type="secondary"
-                :icon="arrowIcon"
-              />
+              >
+                <mat-svg
+                  v-if="invert"
+                  name="keyboard_arrow_up"
+                  category="hardware"
+                />
+                <mat-svg
+                  v-if="!invert"
+                  name="keyboard_arrow_down"
+                  category="hardware"
+                />
+              </ui-icon-button>
 
             </th>
             <th>
@@ -94,8 +131,18 @@
                 @click="invert=!invert"
                 size="small"
                 type="secondary"
-                :icon="arrowIcon"
-              />
+              >
+                <mat-svg
+                  v-if="invert"
+                  name="keyboard_arrow_up"
+                  category="hardware"
+                />
+                <mat-svg
+                  v-if="!invert"
+                  name="keyboard_arrow_down"
+                  category="hardware"
+                />
+              </ui-icon-button>
             </th>
           </tr>
         </thead>
@@ -158,16 +205,18 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import progressBar from 'kolibri.coreVue.components.progressBar';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
   // TODO add to core
-  import { filterAndSortUsers } from '../../../../../facility_management/assets/src/userSearchUtils';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { filterAndSortUsers } from '../../../../../facility_management/assets/src/userSearchUtils';
   import { LessonsPageNames } from '../../constants/lessonsConstants';
 
   export default {
     name: 'lessonResourceUserSummaryPage',
     components: {
+      coachContentLabel,
       contentIcon,
       coreTable,
       progressBar,
@@ -198,9 +247,6 @@
           name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
         };
       },
-      arrowIcon() {
-        return this.invert ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
-      },
       sortedUsers() {
         return filterAndSortUsers(this.userData, () => true, this.sortBy);
       },
@@ -228,6 +274,7 @@
         resourceKind: state => state.pageState.resourceKind,
         channelTitle: state => state.pageState.channelTitle,
         userData: state => state.pageState.userData,
+        contentNode: state => state.pageState.contentNode,
       },
       actions: {},
     },
@@ -252,6 +299,8 @@
 
   @require '~kolibri.styles.definitions'
 
+  .coach-content-label
+    padding: 8px 0
 
   .kind-icon
     display: inline-block

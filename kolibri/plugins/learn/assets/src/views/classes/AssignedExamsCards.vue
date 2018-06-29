@@ -28,10 +28,11 @@
 
 <script>
 
-  import ContentCard from '../content-card';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { examViewerLink, examReportViewerLink } from './classPageLinks';
   import { canViewExam } from 'kolibri.utils.exams';
+  import ContentCard from '../content-card';
+  import { examViewerLink, examReportViewerLink } from './classPageLinks';
+
   export default {
     name: 'assignedExamsCards',
     components: {

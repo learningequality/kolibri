@@ -7,27 +7,21 @@ import logging  # noqa
 import os  # noqa
 import signal  # noqa
 import sys  # noqa
-
-from . import env
-
-# Setup the environment before loading anything else from the application
-# TODO: This should perhaps be moved to kolibri.__init__
-env.set_env()
-
-import kolibri  # noqa
-import django  # noqa
-
-from django.core.management import call_command  # noqa
-from django.core.exceptions import AppRegistryNotReady  # noqa
-from django.db.utils import DatabaseError  # noqa
 from sqlite3 import DatabaseError as SQLite3DatabaseError  # noqa
+
+import django  # noqa
+from django.core.exceptions import AppRegistryNotReady  # noqa
+from django.core.management import call_command  # noqa
+from django.db.utils import DatabaseError  # noqa
 from docopt import docopt  # noqa
 
-from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
-
+import kolibri  # noqa
 from . import server  # noqa
-from .system import become_daemon  # noqa
+from .conf import OPTIONS  # noqa
+from .sanity_checks import check_content_directory_exists_and_writable  # noqa
 from .sanity_checks import check_other_kolibri_running  # noqa
+from .system import become_daemon  # noqa
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
 
 USAGE = """
 Kolibri
@@ -79,10 +73,9 @@ Environment:
    - Default: "kolibri.deployment.default.settings.base"
 
   KOLIBRI_HOME
-   - Where Kolibri will store its data and configuration files. If you are using
-     an external drive
+   - Where Kolibri will store its data and configuration files.
 
-  KOLIBRI_LISTEN_PORT
+  KOLIBRI_HTTP_PORT
    - Default: 8080
 
 """
@@ -139,7 +132,7 @@ def initialize(debug=False):
         _first_run()
     else:
         # Do this here so that we can fix any issues with our configuration file before
-        # we attempt to setup django.
+        # we attempt to set up django.
         from .conf import autoremove_unavailable_plugins, enable_default_plugins
         autoremove_unavailable_plugins()
 
@@ -172,6 +165,7 @@ def initialize(debug=False):
             )
             update()
 
+
 def _migrate_databases():
     """
     Try to migrate all active databases. This should not be called unless Django has
@@ -181,11 +175,13 @@ def _migrate_databases():
     for database in settings.DATABASES:
         call_command("migrate", interactive=False, database=database)
 
+    # load morango fixtures needed for certificate related operations
+    call_command("loaddata", "scopedefinitions")
+
 
 def _first_run():
     """
-    Called once at least. Will not run if the .kolibri/.version file is
-    found.
+    Called once at least.
     """
     if os.path.exists(version_file()):
         logger.error(
@@ -264,7 +260,7 @@ def start(port=None, daemon=True):
     # https://github.com/learningequality/kolibri/issues/1615
     update()
 
-    # In case that some tests run start() function only
+    # In case some tests run start() function only
     if not isinstance(port, int):
         port = _get_port(port)
 
@@ -313,7 +309,7 @@ def stop():
         pid, __, __ = server.get_status()
         server.stop(pid=pid)
         stopped = True
-        logger.info("Kolibri server has successfully been stoppped.")
+        logger.info("Kolibri server has successfully been stopped.")
     except server.NotRunning as e:
         verbose_status = "{msg:s} ({code:d})".format(
             code=e.status_code,
@@ -380,8 +376,8 @@ status.codes = {
     server.STATUS_FAILED_TO_START:
         'Failed to start (check log file: {0})'.format(server.DAEMON_LOG),
     server.STATUS_UNCLEAN_SHUTDOWN: 'Unclean shutdown',
-    server.STATUS_UNKNOWN_INSTANCE: 'Unknown KA Lite running on port',
-    server.STATUS_SERVER_CONFIGURATION_ERROR: 'KA Lite server configuration error',
+    server.STATUS_UNKNOWN_INSTANCE: 'Unknown Kolibri running on port',
+    server.STATUS_SERVER_CONFIGURATION_ERROR: 'Kolibri server configuration error',
     server.STATUS_PID_FILE_READ_ERROR: 'Could not read PID file',
     server.STATUS_PID_FILE_INVALID: 'Invalid PID file',
     server.STATUS_UNKNOWN: 'Could not determine status',
@@ -577,14 +573,7 @@ def parse_args(args=None):
 
 
 def _get_port(port):
-    port = int(port) if port else None
-    if port is None:
-        try:
-            port = int(os.environ['KOLIBRI_LISTEN_PORT'])
-        except ValueError:
-            logger.error("Invalid KOLIBRI_LISTEN_PORT, must be an integer")
-            raise
-    return port
+    return int(port) if port else OPTIONS["Deployment"]['HTTP_PORT']
 
 
 def main(args=None):  # noqa: max-complexity=13
@@ -647,6 +636,10 @@ def main(args=None):  # noqa: max-complexity=13
         return
 
     if arguments['start']:
+
+        # Check if the content directory exists when Kolibri runs after the first time.
+        check_content_directory_exists_and_writable()
+
         daemon = not arguments['--foreground']
         if sys.platform == 'darwin':
             daemon = False

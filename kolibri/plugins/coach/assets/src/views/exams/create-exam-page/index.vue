@@ -47,7 +47,11 @@
 
       <div>
         <transition name="fade" mode="out-in">
-          <ui-progress-linear v-if="loading" key="progress" />
+          <k-circular-loader
+            v-if="loading"
+            key="progress"
+            :delay="false"
+          />
 
           <core-table
             v-else
@@ -75,6 +79,7 @@
                 :key="exercise.id"
                 :exerciseId="exercise.id"
                 :exerciseTitle="exercise.title"
+                :numCoachContents="exercise.num_coach_contents"
                 :exerciseNumAssessments="exercise.numAssessments"
                 :selectedExercises="selectedExercises"
                 @addExercise="handleAddExercise"
@@ -85,6 +90,7 @@
                 :key="topic.id"
                 :topicId="topic.id"
                 :topicTitle="topic.title"
+                :numCoachContents="topic.num_coach_contents"
                 :allExercisesWithinTopic="topic.allExercisesWithinTopic"
                 :selectedExercises="selectedExercises"
                 @goToTopic="handleGoToTopic"
@@ -129,9 +135,21 @@
 
 <script>
 
-  import topicRow from './topic-row';
-  import exerciseRow from './exercise-row';
-  import previewNewExamModal from './preview-new-exam-modal';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
+  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
+  import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import shuffle from 'lodash/shuffle';
+  import orderBy from 'lodash/orderBy';
+  import random from 'lodash/random';
+  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
+  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import flatMap from 'lodash/flatMap';
+  import { Modals as ExamModals } from '../../../constants/examConstants';
   import {
     goToTopic,
     goToTopLevel,
@@ -141,26 +159,14 @@
     setExamsModal,
     setSelectedExercises,
   } from '../../../state/actions/exam';
-  import { Modals as ExamModals } from '../../../constants/examConstants';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kGrid from 'kolibri.coreVue.components.kGrid';
-  import kGridItem from 'kolibri.coreVue.components.kGridItem';
-  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
-  import uiAlert from 'kolibri.coreVue.components.uiAlert';
-  import shuffle from 'lodash/shuffle';
-  import orderBy from 'lodash/orderBy';
-  import random from 'lodash/random';
-  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
-  import flatMap from 'lodash/flatMap';
+  import previewNewExamModal from './preview-new-exam-modal';
+  import exerciseRow from './exercise-row';
+  import topicRow from './topic-row';
 
   export default {
     name: 'createExamPage',
     components: {
-      uiProgressLinear,
+      kCircularLoader,
       kButton,
       kTextbox,
       kGrid,

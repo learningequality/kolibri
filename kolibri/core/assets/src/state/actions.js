@@ -3,11 +3,11 @@ import {
   currentUserId,
   isSuperuser,
   isAdmin,
+  isCoach,
   currentFacilityId,
   facilities,
 } from 'kolibri.coreVue.vuex.getters';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
-import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
@@ -23,9 +23,10 @@ import {
 import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import intervalTimer from '../timer';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import { createTranslator } from 'kolibri.utils.i18n';
+import intervalTimer from '../timer';
+import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
 
 const name = 'coreTitles';
 
@@ -152,6 +153,7 @@ function _channelListState(data) {
     last_updated: channel.last_updated,
     version: channel.version,
     thumbnail: channel.thumbnail,
+    num_coach_contents: channel.num_coach_contents,
   }));
 }
 
@@ -187,12 +189,16 @@ function kolibriLogin(store, sessionPayload, isFirstDeviceSignIn) {
       store.dispatch('CORE_SET_SESSION', _sessionState(session));
       const facilityURL = urls['kolibri:facilitymanagementplugin:facility_management']();
       const deviceURL = urls['kolibri:devicemanagementplugin:device_management']();
+      const coachURL = urls['kolibri:coach:coach']();
       if (isFirstDeviceSignIn) {
         // Hacky way to redirect to content import page after completing setup wizard
         redirectBrowser(`${window.location.origin}${deviceURL}#/welcome`);
       } else if (isSuperuser(store.state) || isAdmin(store.state)) {
         /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
         redirectBrowser(window.location.origin + facilityURL);
+      } else if (isCoach(store.state)) {
+        /* Even more hacky solution to redirect a coach to Coach tab on login*/
+        redirectBrowser(window.location.origin + coachURL);
       } else {
         redirectBrowser();
       }
@@ -733,9 +739,9 @@ function initMasteryLog(store, masterySpacingTime, masteryCriterion) {
 
 function updateMasteryAttemptState(
   store,
-  { currentTime, correct, complete, firstAttempt, hinted, answerState, simpleAnswer }
+  { currentTime, correct, complete, firstAttempt, hinted, answerState, simpleAnswer, error }
 ) {
-  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt, hinted);
+  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt, hinted, error);
   store.dispatch('UPDATE_LOGGING_ATTEMPT', {
     currentTime,
     correct,
@@ -744,6 +750,7 @@ function updateMasteryAttemptState(
     hinted,
     answerState,
     simpleAnswer,
+    error,
   });
 }
 

@@ -23,7 +23,6 @@ import {
   canViewExamReport,
 } from 'kolibri.utils.exams';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { PageNames, ClassesPageNames } from '../../constants';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { now } from 'kolibri.utils.serverClock';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
@@ -31,8 +30,11 @@ import router from 'kolibri.coreVue.router';
 import seededShuffle from 'kolibri.lib.seededshuffle';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
+import tail from 'lodash/tail';
+import { PageNames, ClassesPageNames } from '../../constants';
 
 const translator = createTranslator('topicTreeExplorationPageTitles', {
+  allChannels: 'All channels',
   topicsForChannelPageTitle: 'Topics - { currentChannelTitle }',
   currentTopicForChannelPageTitle: '{ currentTopicTitle } - { currentChannelTitle }',
   currentContentForChannelPageTitle: '{ currentContentTitle } - { currentChannelTitle }',
@@ -43,98 +45,35 @@ const translator = createTranslator('topicTreeExplorationPageTitles', {
   examReportTitle: '{examTitle} report',
 });
 
-/**
- * Vuex State Mappers
- *
- * The methods below help map data from
- * the API to state in the Vuex store
- */
-
-function _crumbState(ancestors) {
-  // skip the root node
-  return ancestors.slice(1).map(ancestor => ({
-    id: ancestor.pk,
-    title: ancestor.title,
-  }));
-}
-
-function normalizeProgress(data) {
-  if (!data.progress_fraction) {
-    return 0.0;
-  } else if (data.progress_fraction > 1.0) {
-    return 1.0;
-  }
-  return data.progress_fraction;
-}
-
-function _topicState(data, ancestors = []) {
-  return {
-    id: data.pk,
-    title: data.title,
-    description: data.description,
-    thumbnail: getContentNodeThumbnail(data) || undefined,
-    breadcrumbs: _crumbState(ancestors),
-    parent: data.parent,
-    kind: data.parent ? data.kind : ContentNodeKinds.CHANNEL,
-    progress: normalizeProgress(data),
-    channel_id: data.channel_id,
+// adds progress, thumbnail, and breadcrumbs. normalizes pk/id and kind
+function normalizeContentNode(node, ancestors = []) {
+  const normalized = {
+    ...node,
+    // TODO change serializer to use ID
+    id: node.pk,
+    kind: node.parent ? node.kind : ContentNodeKinds.CHANNEL,
+    thumbnail: getContentNodeThumbnail(node) || undefined,
+    breadcrumbs: tail(ancestors).map(bc => ({ id: bc.pk, ...bc })),
+    progress: Math.min(node.progress_fraction || 0, 1.0),
+    copies_count: node.copies_count,
   };
+  delete normalized.pk;
+  return normalized;
 }
 
-export function contentState(data, nextContent, ancestors = []) {
+export function contentState(data, next_content = [], ancestors = []) {
   return {
-    id: data.pk,
-    title: data.title,
-    kind: data.kind,
-    description: data.description,
-    thumbnail: getContentNodeThumbnail(data) || undefined,
-    available: data.available,
-    files: data.files,
-    progress: normalizeProgress(data),
-    breadcrumbs: _crumbState(ancestors),
-    content_id: data.content_id,
-    next_content: nextContent,
-    author: data.author,
-    license_name: data.license_name,
-    license_description: data.license_description,
-    license_owner: data.license_owner,
-    parent: data.parent,
-    lang: data.lang,
-    channel_id: data.channel_id,
+    next_content,
+    ...normalizeContentNode(data, ancestors),
     ...assessmentMetaDataState(data),
   };
 }
 
 function _collectionState(data) {
-  return data.map(item => {
-    if (item.kind === ContentNodeKinds.TOPIC) {
-      return _topicState(item);
-    }
-    return contentState(item);
-  });
-}
-
-function _examState(data) {
-  const state = {
-    id: data.id,
-    title: data.title,
-    channelId: data.channel_id,
-    active: data.active,
-    archive: data.archive,
-    closed: data.closed,
-    answerCount: data.answer_count,
-    questionCount: data.question_count,
-    score: data.score,
-  };
-  return state;
-}
-
-function _examLoggingState(data) {
-  const state = {
-    id: data.id,
-    closed: data.closed,
-  };
-  return state;
+  return data.map(
+    item =>
+      item.kind === ContentNodeKinds.TOPICS ? normalizeContentNode(item) : contentState(item)
+  );
 }
 
 /**
@@ -149,8 +88,7 @@ export function updateContentNodeProgress(channelId, contentId, progressFraction
    * to cache bust the model (and hence the entire collection), because some progress was
    * made on this ContentNode.
    */
-  const model = ContentNodeResource.getModel(contentId);
-  model.set({ progress_fraction: progressFraction });
+  ContentNodeResource.getModel(contentId).set({ progress_fraction: progressFraction });
 }
 
 export function setAndCheckChannels(store) {
@@ -175,16 +113,16 @@ export function setAndCheckChannels(store) {
  */
 
 export function showRoot(store) {
-  if (store.state.learnAppState.memberships.length) {
-    router.replace({ name: ClassesPageNames.ALL_CLASSES });
-  } else {
-    router.replace({ name: PageNames.TOPICS_ROOT });
-  }
+  const { memberships } = store.state.learnAppState;
+  router.replace({
+    name: memberships.length > 0 ? ClassesPageNames.ALL_CLASSES : PageNames.TOPICS_ROOT,
+  });
 }
 
 export function showChannels(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_ROOT);
+  store.dispatch('CORE_SET_TITLE', translator.$tr('allChannels'));
 
   setAndCheckChannels(store).then(
     channels => {
@@ -192,17 +130,22 @@ export function showChannels(store) {
         return;
       }
       const channelRootIds = channels.map(channel => channel.root);
-      ContentNodeResource.getCollection({ ids: channelRootIds })
+      ContentNodeResource.getCollection({ ids: channelRootIds, by_role: true })
         .fetch()
         .then(channelCollection => {
           // we want them to be in the same order as the channels list
-          const rootNodes = channels.map(channel => {
-            const node = _collectionState(channelCollection).find(n => n.channel_id === channel.id);
-            node.thumbnail = channel.thumbnail;
-            return node;
-          });
-          const pageState = { rootNodes };
-          store.dispatch('SET_PAGE_STATE', pageState);
+          const rootNodes = channels
+            .map(channel => {
+              const node = _collectionState(channelCollection).find(
+                n => n.channel_id === channel.id
+              );
+              if (node) {
+                node.thumbnail = channel.thumbnail;
+                return node;
+              }
+            })
+            .filter(Boolean);
+          store.dispatch('SET_PAGE_STATE', { rootNodes });
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
         });
@@ -214,17 +157,23 @@ export function showChannels(store) {
   );
 }
 
+export function getCopies(store, contentId) {
+  return new Promise((resolve, reject) => {
+    ContentNodeResource.getCopies(contentId)
+      .then(copies => resolve(copies))
+      .catch(error => reject(error));
+  });
+}
+
 export function showTopicsTopic(store, id, isRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  if (isRoot) {
-    store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
-  } else {
-    store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_TOPIC);
-  }
-
+  store.dispatch('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
   const promises = [
     ContentNodeResource.getModel(id).fetch(), // the topic
-    ContentNodeResource.getCollection({ parent: id }).fetch(), // the topic's children
+    ContentNodeResource.getCollection({
+      parent: id,
+      by_role: true,
+    }).fetch(), // the topic's children
     ContentNodeResource.fetchAncestors(id), // the topic's ancestors
     setChannelInfo(store),
   ];
@@ -237,24 +186,20 @@ export function showTopicsTopic(store, id, isRoot = false) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      const topicContents = _collectionState(children);
-      const pageState = {
-        isRoot,
-        channel: currentChannel,
-        topic: _topicState(topic, ancestors),
-        contents: topicContents,
-      };
-      pageState.channel = currentChannel;
       if (isRoot) {
         topic.description = currentChannel.description;
       }
-      pageState.topic = _topicState(topic, ancestors);
-
+      const pageState = {
+        isRoot,
+        channel: currentChannel,
+        topic: normalizeContentNode(topic, ancestors),
+        contents: _collectionState(children),
+      };
       store.dispatch('SET_PAGE_STATE', pageState);
 
       // Only load subtopic progress if the user is logged in
       if (isUserLoggedIn(store.state)) {
-        const subtopicIds = topicContents
+        const subtopicIds = children
           .filter(({ kind }) => kind === ContentNodeKinds.TOPIC)
           .map(({ id }) => id);
 
@@ -304,16 +249,13 @@ export function showTopicsContent(store, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
 
-  const contentPromise = ContentNodeResource.getModel(id).fetch();
-  const nextContentPromise = ContentNodeResource.fetchNextContent(id);
-  const channelsPromise = setChannelInfo(store);
-  const ancestorsPromise = ContentNodeResource.fetchAncestors(id);
-  ConditionalPromise.all([
-    contentPromise,
-    nextContentPromise,
-    ancestorsPromise,
-    channelsPromise,
-  ]).only(
+  const promises = [
+    ContentNodeResource.getModel(id).fetch(),
+    ContentNodeResource.fetchNextContent(id),
+    ContentNodeResource.fetchAncestors(id),
+    setChannelInfo(store),
+  ];
+  ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([content, nextContent, ancestors]) => {
       const currentChannel = getChannelObject(store.state, content.channel_id);
@@ -321,17 +263,16 @@ export function showTopicsContent(store, id) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      const pageState = {
+      store.dispatch('SET_PAGE_STATE', {
         content: contentState(content, nextContent, ancestors),
         channel: currentChannel,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
+      });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch(
         'CORE_SET_TITLE',
         translator.$tr('currentContentForChannelPageTitle', {
-          currentContentTitle: pageState.content.title,
+          currentContentTitle: content.title,
           currentChannelTitle: currentChannel.title,
         })
       );
@@ -344,35 +285,56 @@ export function showTopicsContent(store, id) {
 
 export function triggerSearch(store, searchTerm) {
   if (!searchTerm) {
-    const searchState = {
-      searchTerm,
-      topics: [],
-      contents: [],
-    };
-    store.dispatch('SET_PAGE_STATE', searchState);
-    return;
+    return clearSearch(store, searchTerm);
   }
 
-  const contentCollection = ContentNodeResource.getPagedCollection({ search: searchTerm });
-  const searchResultsPromise = contentCollection.fetch();
-
-  searchResultsPromise
+  return ContentNodeResource.getPagedCollection({ search: searchTerm })
+    .fetch()
     .then(results => {
-      const searchState = { searchTerm };
-      searchState.contents = _collectionState(results);
-      store.dispatch('SET_PAGE_STATE', searchState);
+      const contents = _collectionState(results);
+      store.dispatch('SET_PAGE_STATE', {
+        searchTerm,
+        contents,
+      });
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+
+      const contentIds = contents
+        .filter(
+          content =>
+            content.kind !== ContentNodeKinds.TOPIC && content.kind !== ContentNodeKinds.CHANNEL
+        )
+        .map(content => content.content_id);
+      if (contentIds.length) {
+        ContentNodeResource.getCopiesCount({
+          content_ids: contentIds,
+        })
+          .fetch()
+          .then(copiesCount => {
+            const updatedContents = contents.map(content => {
+              const updatedContent = content;
+              const matchingContent = copiesCount.find(
+                copyCount => copyCount.content_id === content.content_id
+              );
+              if (matchingContent) {
+                updatedContent.copies_count = matchingContent.count;
+              }
+              return updatedContent;
+            });
+            store.dispatch('SET_CONTENT', updatedContents);
+          })
+          .catch(error => handleApiError(store, error));
+      }
     })
     .catch(error => {
       handleApiError(store, error);
     });
 }
 
-export function clearSearch(store) {
+export function clearSearch(store, searchTerm = '') {
   store.dispatch('SET_PAGE_STATE', {
     topics: [],
     contents: [],
-    searchTerm: '',
+    searchTerm,
   });
 }
 
@@ -483,7 +445,7 @@ export function showExam(store, classId, examId, questionNumber) {
         const attemptLogs = {};
 
         if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
-          store.dispatch('SET_EXAM_LOG', _examLoggingState(examLogs.find(log => !log.closed)));
+          store.dispatch('SET_EXAM_LOG', examLogs.find(log => !log.closed));
         } else {
           ExamLogResource.createModel({ ...examParams, closed: false })
             .save()
@@ -498,6 +460,15 @@ export function showExam(store, classId, examId, questionNumber) {
             .getInstance()
             .replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS, params: { classId } });
         }
+        // Sort through all the exam attempt logs retrieved and organize them into objects
+        // keyed first by content_id and then item id under that.
+        examAttemptLogs.forEach(log => {
+          const { content_id, item } = log;
+          if (!attemptLogs[content_id]) {
+            attemptLogs[content_id] = {};
+          }
+          attemptLogs[content_id][item] = { ...log };
+        });
 
         // Sort through all the exam attempt logs retrieved and organize them into objects
         // keyed first by content_id and then item id under that.
@@ -528,9 +499,8 @@ export function showExam(store, classId, examId, questionNumber) {
           handleError(store, `Question number ${questionNumber} is not valid for this exam`);
         } else {
           const contentPromise = ContentNodeResource.getCollection({
-            ids: questionSources.map(item => item.exercise_id),
+            in_exam: exam.id,
           }).fetch();
-
           contentPromise.only(
             samePageCheckGenerator(store),
             contentNodes => {
@@ -562,7 +532,7 @@ export function showExam(store, classId, examId, questionNumber) {
                 );
 
                 const pageState = {
-                  exam: _examState(exam),
+                  exam,
                   itemId,
                   questions,
                   currentQuestion,
@@ -618,16 +588,21 @@ export function showExam(store, classId, examId, questionNumber) {
   }
 }
 
-export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemptLog) {
+export function setAndSaveCurrentExamAttemptLog(
+  store,
+  contentId,
+  itemId,
+  currentAttemptLog,
+  examId
+) {
   // As soon as this has happened, we should clear any previous cache for the
   // UserExamResource - as that data has now changed.
   UserExamResource.clearCache();
 
   store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
-    // prettier-ignore
-    [contentId]: ({
+    [contentId]: {
       [itemId]: currentAttemptLog,
-    })
+    },
   });
   const pageState = Object.assign(store.state.pageState);
   pageState.currentAttempt = currentAttemptLog;
@@ -640,7 +615,7 @@ export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, curren
     item: itemId,
   });
   const attributes = Object.assign({}, currentAttemptLog);
-  attributes.user = store.state.core.session.user_id;
+  attributes.user = currentUserId(store.state);
   attributes.examlog = store.state.examLog.id;
   // If the above findModel returned no matching model, then we can do
   // getModel to get the new model instead.
@@ -653,16 +628,15 @@ export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, curren
       new Promise(resolve => {
         const log = Object.assign({}, newExamAttemptLog);
         store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
-          // prettier-ignore
-          [contentId]: ({
-          [itemId]: log,
-        })
+          [contentId]: {
+            [itemId]: log,
+          },
         });
         const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
         store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
         const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
-          user: store.state.core.session.user_id,
-          exam: store.state.pageState.exam.id,
+          user: currentUserId(store.state),
+          exam: examId,
         });
         // Add this attempt log to the Collection for future caching.
         examAttemptLogCollection.set(examAttemptLogModel);
@@ -675,12 +649,13 @@ export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, curren
 }
 
 export function closeExam(store) {
-  const examLog = Object.assign({}, store.state.examLog, {
-    completion_timestamp: now(),
-  });
-  examLog.closed = true;
+  const { examLog } = store.state;
   return ExamLogResource.getModel(examLog.id)
-    .save(examLog)
+    .save({
+      ...examLog,
+      completion_timestamp: now(),
+      closed: true,
+    })
     .then(UserExamResource.clearCache())
     .catch(error => {
       handleApiError(store, error);

@@ -20,21 +20,24 @@
           v-if="isUserLoggedIn && userHasMemberships"
           type="icon-and-title"
           :title="$tr('classes')"
-          icon="business"
           :link="allClassesLink"
-        />
+        >
+          <mat-svg name="business" category="communication" />
+        </k-navbar-link>
         <k-navbar-link
           type="icon-and-title"
           :title="$tr('channels')"
-          icon="apps"
           :link="channelsLink"
-        />
+        >
+          <mat-svg name="apps" category="navigation" />
+        </k-navbar-link>
         <k-navbar-link
           type="icon-and-title"
           :title="$tr('recommended')"
-          icon="forum"
           :link="recommendedLink"
-        />
+        >
+          <mat-svg name="forum" category="communication" />
+        </k-navbar-link>
       </k-navbar>
     </div>
 
@@ -54,21 +57,21 @@
 
 <script>
 
-  import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import coreBase from 'kolibri.coreVue.components.coreBase';
+  import kNavbar from 'kolibri.coreVue.components.kNavbar';
+  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
+  import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import channelsPage from './channels-page';
   import topicsPage from './topics-page';
   import contentPage from './content-page';
   import recommendedPage from './recommended-page';
   import recommendedSubpage from './recommended-subpage';
   import contentUnavailablePage from './content-unavailable-page';
-  import coreBase from 'kolibri.coreVue.components.coreBase';
   import breadcrumbs from './breadcrumbs';
   import searchPage from './search-page';
-  import kNavbar from 'kolibri.coreVue.components.kNavbar';
-  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   import examPage from './exam-page';
   import examReportViewer from './exam-report-viewer';
   import totalPoints from './total-points';
@@ -78,7 +81,7 @@
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import actionBarSearchBox from './action-bar-search-box';
 
-  const BOTTOM_SPACED_RESERVED = 88;
+  const BOTTOM_SPACED_RESERVED = 117;
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: channelsPage,
@@ -214,10 +217,11 @@
       bottomSpaceReserved() {
         const isContentPage =
           this.pageName === PageNames.TOPICS_CONTENT ||
-          this.pageName === PageNames.RECOMMENDED_CONTENT;
+          this.pageName === PageNames.RECOMMENDED_CONTENT ||
+          ClassesPageNames.LESSON_PLAYLIST;
         const isAssessment = isContentPage && this.content && this.content.assessment;
-        // height of .attemptprogress-container.mobile in assessment-wrapper
-        return isAssessment && this.windowSize.breakpoint <= 1 ? BOTTOM_SPACED_RESERVED : 0;
+        // height of .attempts-container in assessment-wrapper
+        return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
       },
     },
 

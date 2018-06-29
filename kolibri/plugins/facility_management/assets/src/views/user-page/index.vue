@@ -78,22 +78,22 @@
 
 <script>
 
-  import userTable from '../user-table';
   import UiIcon from 'keen-ui/src/UiIcon';
+  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
+  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import userTable from '../user-table';
   import { Modals } from '../../constants';
   import { displayModal } from '../../state/actions';
-  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import userRole from '../user-role';
+  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import userCreateModal from './user-create-modal';
   import editUserModal from './edit-user-modal';
   import resetUserPasswordModal from './reset-user-password-modal';
   import deleteUserModal from './delete-user-modal';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
-  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
-  import userRole from '../user-role';
-  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
-  import { currentUserId, isSuperuser } from 'kolibri.coreVue.vuex.getters';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
 
   const ALL_FILTER = 'all';
 

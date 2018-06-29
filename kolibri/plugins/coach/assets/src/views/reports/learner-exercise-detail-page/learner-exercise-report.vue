@@ -1,50 +1,50 @@
 <template>
 
-  <div class="learner-exercise-report">
-    <div class="pure-u-1-1">
-      <attempt-summary
-        :exerciseTitle="exercise.title"
-        :userName="user.full_name"
+  <multi-pane-layout ref="multiPaneLayout">
+    <attempt-summary
+      slot="header"
+      :exerciseTitle="exercise.title"
+      :userName="user.full_name"
+      :kind="exercise.kind"
+      :summaryLog="summaryLog"
+    />
+    <attempt-log-list
+      slot="aside"
+      :attemptLogs="attemptLogs"
+      :selectedQuestionNumber="attemptLogIndex"
+      @select="navigateToNewAttempt($event)"
+    />
+    <div slot="main" class="exercise-section">
+      <h3>{{ $tr('question', {questionNumber: currentAttemptLog.questionNumber}) }}</h3>
+      <k-checkbox
+        :label="$tr('showCorrectAnswerLabel')"
+        :checked="showCorrectAnswer"
+        @change="toggleShowCorrectAnswer"
+      />
+      <interaction-list
+        v-if="!showCorrectAnswer"
+        :interactions="currentInteractionHistory"
+        :selectedInteractionIndex="interactionIndex"
+        @select="navigateToNewInteraction($event)"
+      />
+      <content-renderer
+        v-if="currentInteraction"
+        :id="exercise.pk"
+        :itemId="currentAttemptLog.item"
+        :assessment="true"
+        :allowHints="false"
         :kind="exercise.kind"
-        :summaryLog="summaryLog"
+        :files="exercise.files"
+        :contentId="exercise.content_id"
+        :channelId="channelId"
+        :available="exercise.available"
+        :answerState="answerState"
+        :showCorrectAnswer="showCorrectAnswer"
+        :interactive="false"
+        :extraFields="exercise.extra_fields"
       />
     </div>
-    <div class="details-container">
-      <div class="attempt-log-container pure-u-1-3">
-        <attempt-log-list
-          v-if="isExercise"
-          :attemptLogs="attemptLogs"
-          :selectedQuestionNumber="attemptLogIndex"
-          @select="navigateToNewAttempt($event)"
-        />
-      </div>
-      <div class="exercise-container pure-u-2-3">
-        <interaction-list
-          v-if="isExercise"
-          :interactions="currentInteractionHistory"
-          :selectedInteractionIndex="interactionIndex"
-          :attemptNumber="currentAttemptLog.questionNumber"
-          @select="navigateToNewInteraction($event)"
-        />
-
-        <content-renderer
-          v-if="currentInteraction"
-          :id="exercise.pk"
-          :itemId="currentAttemptLog.item"
-          :assessment="true"
-          :allowHints="false"
-          :kind="exercise.kind"
-          :files="exercise.files"
-          :contentId="exercise.content_id"
-          :channelId="channelId"
-          :available="exercise.available"
-          :answerState="currentInteraction.answer"
-          :interactive="false"
-          :extraFields="exercise.extra_fields"
-        />
-      </div>
-    </div>
-  </div>
+  </multi-pane-layout>
 
 </template>
 
@@ -52,26 +52,49 @@
 <script>
 
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import attemptSummary from './attempt-summary';
   import attemptLogList from 'kolibri.coreVue.components.attemptLogList';
   import interactionList from 'kolibri.coreVue.components.interactionList';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import multiPaneLayout from 'kolibri.coreVue.components.multiPaneLayout';
+  import attemptSummary from './attempt-summary';
+
   export default {
     name: 'learnerExerciseReport',
-    $trs: { backPrompt: 'Back to { backTitle }' },
+    $trs: {
+      backPrompt: 'Back to { backTitle }',
+      showCorrectAnswerLabel: 'Show correct answer',
+      question: 'Question { questionNumber, number }',
+    },
     components: {
       contentRenderer,
       attemptSummary,
       attemptLogList,
       interactionList,
+      kCheckbox,
+      multiPaneLayout,
+    },
+    data() {
+      return {
+        showCorrectAnswer: false,
+      };
     },
     computed: {
-      isExercise() {
-        return this.exercise.kind === ContentNodeKinds.EXERCISE;
+      // Do not pass in answerState if showCorrectAnswer is set to true
+      // answerState has a precedence over showCorrectAnswer
+      answerState() {
+        if (
+          !this.showCorrectAnswer &&
+          this.currentInteraction &&
+          this.currentInteraction.type === 'answer'
+        ) {
+          return this.currentInteraction.answer;
+        }
+        return null;
       },
     },
     methods: {
       navigateToNewAttempt(attemptLogIndex) {
+        this.showCorrectAnswer = false;
         this.$router.push({
           name: this.pageName,
           params: {
@@ -82,6 +105,7 @@
             attemptLogIndex,
           },
         });
+        this.$refs.multiPaneLayout.scrollMainToTop();
       },
       navigateToNewInteraction(interactionIndex) {
         this.$router.push({
@@ -95,12 +119,20 @@
           },
         });
       },
+      toggleShowCorrectAnswer() {
+        this.showCorrectAnswer = !this.showCorrectAnswer;
+        this.$forceUpdate();
+      },
     },
     vuex: {
       getters: {
         interactionIndex: state => state.pageState.interactionIndex,
         currentAttemptLog: state => state.pageState.currentAttemptLog,
-        attemptLogs: state => state.pageState.attemptLogs,
+        attemptLogs: state =>
+          state.pageState.attemptLogs.map(attempt => ({
+            ...attempt,
+            num_coach_contents: state.pageState.exercise.num_coach_contents,
+          })),
         currentInteraction: state => state.pageState.currentInteraction,
         currentInteractionHistory: state => state.pageState.currentInteractionHistory,
         classId: state => state.classId,
@@ -121,24 +153,10 @@
 
   @require '~kolibri.styles.definitions'
 
-  $container-side-padding = 15px
-
-  .details-container
-    width: 100%
-    height: 85%
-    padding-top: $container-side-padding
-    clearfix()
-
-  .attempt-log-container
-    width: 30%
-    height: 100%
-    overflow-y: auto
-    float: left
-
-  .exercise-container
-    width: 70%
-    height: 100%
-    padding: $containerSidePadding
-    float: left
+  .exercise-section
+    background-color: $core-bg-light
+    padding: 16px
+    h3
+      margin-top: 0
 
 </style>

@@ -26,20 +26,40 @@
       </span>
       <ui-icon-button
         type="primary"
-        :icon="isRtl ? 'chevron_right' : 'chevron_left'"
         :ariaLabel="$tr('previousResults')"
         :disabled="pageNum === 1"
         size="small"
         @click="goToPage(pageNum - 1)"
-      />
+      >
+        <mat-svg
+          v-if="isRtl"
+          name="chevron_right"
+          category="navigation"
+        />
+        <mat-svg
+          v-else
+          name="chevron_left"
+          category="navigation"
+        />
+      </ui-icon-button>
       <ui-icon-button
         type="primary"
-        :icon="isRtl ? 'chevron_left' : 'chevron_right'"
         :ariaLabel="$tr('nextResults')"
         :disabled="pageNum === numPages"
         size="small"
         @click="goToPage(pageNum + 1)"
-      />
+      >
+        <mat-svg
+          v-if="isRtl"
+          name="chevron_left"
+          category="navigation"
+        />
+        <mat-svg
+          v-else
+          name="chevron_right"
+          category="navigation"
+        />
+      </ui-icon-button>
     </nav>
 
     <div class="footer">
@@ -58,9 +78,7 @@
 
 <script>
 
-  import { Modals } from './../constants';
   import differenceWith from 'lodash/differenceWith';
-  import userTable from './user-table';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -69,6 +87,8 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
+  import userTable from './user-table';
+  import { Modals } from './../constants';
 
   export default {
     name: 'managementClassEnroll',

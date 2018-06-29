@@ -4,15 +4,17 @@
     <ui-icon
       v-if="isInProgress"
       :ariaLabel="$tr('inProgress')"
-      icon="schedule"
       class="inprogress"
-    />
+    >
+      <mat-svg name="schedule" category="action" />
+    </ui-icon>
     <ui-icon
       v-else-if="isCompleted"
       :ariaLabel="$tr('completed')"
-      icon="star"
       class="completed"
-    />
+    >
+      <mat-svg name="star" category="toggle" />
+    </ui-icon>
     <ui-tooltip trigger="progress-icon">
       {{ isInProgress ? $tr('inProgress') : $tr('completed') }}
     </ui-tooltip>
@@ -25,6 +27,7 @@
 
   import uiIcon from 'keen-ui/src/UiIcon';
   import uiTooltip from 'keen-ui/src/UiTooltip';
+
   export default {
     name: 'progressIcon',
     $trs: {

@@ -5,34 +5,39 @@
       {{ $tr('rendererNotAvailable') }}
     </ui-alert>
     <template v-else-if="available">
-      <loading-spinner id="spinner" v-if="!currentViewClass" />
-      <component
-        v-else
-        :is="currentViewClass"
-        @startTracking="startTracking"
-        @stopTracking="stopTracking"
-        @updateProgress="updateProgress"
-        @answerGiven="answerGiven"
-        @hintTaken="hintTaken"
-        @itemError="itemError"
-        @interaction="interaction"
-        :files="availableFiles"
-        :defaultFile="defaultFile"
-        :itemId="itemId"
-        :answerState="answerState"
-        :allowHints="allowHints"
-        :supplementaryFiles="supplementaryFiles"
-        :thumbnailFiles="thumbnailFiles"
-        :interactive="interactive"
-        :lang="lang"
-        :showCorrectAnswer="showCorrectAnswer"
-        ref="contentView"
-      />
+      <transition mode="out-in">
+        <k-circular-loader
+          v-if="!currentViewClass"
+          :delay="false"
+        />
+        <component
+          class="content-renderer-component"
+          v-else
+          :is="currentViewClass"
+          @startTracking="startTracking"
+          @stopTracking="stopTracking"
+          @updateProgress="updateProgress"
+          @answerGiven="answerGiven"
+          @hintTaken="hintTaken"
+          @itemError="itemError"
+          @interaction="interaction"
+          :files="availableFiles"
+          :defaultFile="defaultFile"
+          :itemId="itemId"
+          :answerState="answerState"
+          :allowHints="allowHints"
+          :supplementaryFiles="supplementaryFiles"
+          :thumbnailFiles="thumbnailFiles"
+          :interactive="interactive"
+          :lang="lang"
+          :showCorrectAnswer="showCorrectAnswer"
+          ref="contentView"
+        />
+      </transition>
     </template>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
     </div>
-    <slot></slot>
   </div>
 
 </template>
@@ -41,10 +46,14 @@
 <script>
 
   import logger from 'kolibri.lib.logging';
-  const logging = logger.getLogger(__filename);
-  import loadingSpinner from 'kolibri.coreVue.components.loadingSpinner';
+  import heartbeat from 'kolibri.heartbeat';
+  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
+
   import uiAlert from 'keen-ui/src/UiAlert';
   import { defaultLanguage, languageValidator } from 'kolibri.utils.i18n';
+
+  const logging = logger.getLogger(__filename);
+
   export default {
     name: 'contentRender',
     $trs: {
@@ -52,7 +61,7 @@
       rendererNotAvailable: 'Kolibri is unable to render this content',
     },
     components: {
-      loadingSpinner,
+      kCircularLoader,
       uiAlert,
     },
     props: {
@@ -177,21 +186,27 @@
       },
       answerGiven(...args) {
         this.$emit('answerGiven', ...args);
+        heartbeat.setActive();
       },
       hintTaken(...args) {
         this.$emit('hintTaken', ...args);
+        heartbeat.setActive();
       },
       itemError(...args) {
         this.$emit('itemError', ...args);
+        heartbeat.setActive();
       },
       interaction(...args) {
         this.$emit('interaction', ...args);
+        heartbeat.setActive();
       },
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);
+        heartbeat.setActive();
       },
       startTracking(...args) {
         this.$emit('startTracking', ...args);
+        heartbeat.setActive();
       },
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
@@ -206,6 +221,7 @@
         } else if (!this.$refs.contentView.checkAnswer) {
           logging.warn('This content renderer has not implemented the checkAnswer method');
         }
+        heartbeat.setActive();
         return null;
       },
     },
@@ -216,12 +232,9 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
-
-  .content-renderer
-    height: 100%
-
-  #spinner
-    height: 160px
+  .content-renderer-component
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2),
+                0 1px 1px 0 rgba(0, 0, 0, 0.14),
+                0 2px 1px -1px rgba(0, 0, 0, 0.12)
 
 </style>

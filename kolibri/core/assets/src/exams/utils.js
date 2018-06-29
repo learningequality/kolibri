@@ -52,7 +52,7 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
         const questionList = createQuestionList(questionSources);
 
         const contentPromise = ContentNodeResource.getCollection({
-          ids: questionSources.map(item => item.exercise_id),
+          in_exam: exam.id,
         }).fetch();
 
         contentPromise.only(
@@ -102,12 +102,19 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
             const itemId = currentQuestion.itemId;
             const exercise = contentNodeMap[currentQuestion.contentId];
             const currentAttempt = allQuestions[questionNumber];
-            const currentInteractionHistory = currentAttempt.interaction_history;
+            // filter out interactions without answers but keep hints and errors
+            const currentInteractionHistory = currentAttempt.interaction_history.filter(
+              interaction =>
+                Boolean(
+                  interaction.answer || interaction.type === 'hint' || interaction.type === 'error'
+                )
+            );
             const currentInteraction = currentInteractionHistory[interactionIndex];
             if (examLog.completion_timestamp) {
               examLog.completion_timestamp = new Date(examLog.completion_timestamp);
             }
             const payload = {
+              exerciseContentNodes: [...contentNodes],
               exam,
               itemId,
               questions,

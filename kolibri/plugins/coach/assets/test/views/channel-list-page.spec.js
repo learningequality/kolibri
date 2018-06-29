@@ -1,11 +1,11 @@
 /* eslint-env mocha */
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import Vuex from 'vuex';
-import assert from 'assert';
 import sinon from 'sinon';
+import { mount } from '@vue/test-utils';
 import ChannelListPage from '../../src/views/reports/channel-list-page';
 import { ViewBy } from '../../src/constants/reportConstants';
-import { mount } from '@vue/test-utils';
 
 const initialState = () => ({
   classId: '',
@@ -80,14 +80,14 @@ describe('channel list page component', () => {
     it('shows the correct header', () => {
       const wrapper = makeWrapper({}, state);
       const { headerText } = getElements(wrapper);
-      assert.equal(headerText().text(), 'Content');
+      expect(headerText().text()).to.equal('Content');
     });
 
     it('shows all channels, regardless of activity', () => {
       const wrapper = makeWrapper({}, state);
       const { channelRows } = getElements(wrapper);
       // only checks the number of rows, not whether they are correct
-      assert.equal(channelRows().length, 3);
+      expect(channelRows().length).to.equal(3);
     });
   });
 
@@ -99,13 +99,13 @@ describe('channel list page component', () => {
     it('shows the "recent activity" header', () => {
       const wrapper = makeWrapper({}, state);
       const { headerText } = getElements(wrapper);
-      assert.equal(headerText().text(), 'Recent activity');
+      expect(headerText().text()).to.equal('Recent activity');
     });
 
     it('hides channels that have null or not-recent activity', () => {
       const wrapper = makeWrapper({}, state);
       const { channelRows } = getElements(wrapper);
-      assert.equal(channelRows().length, 1);
+      expect(channelRows().length).to.equal(1);
     });
   });
 });

@@ -1,11 +1,11 @@
-import { ViewBy, SortOrders, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
-import { PageNames } from '../../constants';
 import { ContentNodeKinds, USER } from 'kolibri.coreVue.vuex.constants';
 import { now } from 'kolibri.utils.serverClock';
-import * as ReportUtils from './reportUtils';
-import { classMemberCount } from './classes';
 import differenceInDays from 'date-fns/difference_in_days';
 import logger from 'kolibri.lib.logging';
+import { ViewBy, SortOrders, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
+import { PageNames } from '../../constants';
+import * as ReportUtils from './reportUtils';
+import { classMemberCount } from './classes';
 
 const logging = logger.getLogger(__filename);
 
@@ -21,18 +21,19 @@ export const completionCount = state => {
   }
   return undefined;
 };
+
 export const userCount = state => {
   return state.pageState.contentScopeSummary.numUsers;
 };
+
 export const exerciseCount = state => {
-  const summary = state.pageState.contentScopeSummary;
-  if (summary.kind === ContentNodeKinds.TOPIC || summary.kind === ContentNodeKinds.CHANNEL) {
-    return ReportUtils.countNodes(summary.progress, ReportUtils.onlyExercises);
-  } else if (summary.kind === ContentNodeKinds.EXERCISE) {
-    return 1;
+  const { kind, progress } = state.pageState.contentScopeSummary;
+  if (kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL) {
+    return ReportUtils.countNodes(progress, ReportUtils.onlyExercises);
   }
-  return 0;
+  return kind === ContentNodeKinds.EXERCISE ? 1 : 0;
 };
+
 export const exerciseProgress = state => {
   return ReportUtils.calcProgress(
     state.pageState.contentScopeSummary.progress,
@@ -41,15 +42,15 @@ export const exerciseProgress = state => {
     userCount(state)
   );
 };
+
 export const contentCount = state => {
-  const summary = state.pageState.contentScopeSummary;
-  if (summary.kind === ContentNodeKinds.TOPIC || summary.kind === ContentNodeKinds.CHANNEL) {
-    return ReportUtils.countNodes(summary.progress, ReportUtils.onlyContent);
-  } else if (summary.kind !== ContentNodeKinds.EXERCISE) {
-    return 1;
+  const { kind, progress } = state.pageState.contentScopeSummary;
+  if (kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL) {
+    return ReportUtils.countNodes(progress, ReportUtils.onlyContent);
   }
-  return 0;
+  return kind !== ContentNodeKinds.EXERCISE ? 1 : 0;
 };
+
 export const contentProgress = state => {
   return ReportUtils.calcProgress(
     state.pageState.contentScopeSummary.progress,
@@ -89,8 +90,10 @@ function _genRow(state, item) {
   } else if (state.pageState.viewBy === ViewBy.CHANNEL) {
     row.id = item.id;
     row.title = item.title;
+    row.num_coach_contents = item.num_coach_contents;
   } else {
     // CONTENT NODES
+    row.num_coach_contents = item.num_coach_contents;
     row.kind = item.kind;
     row.id = item.id;
     row.contentId = item.contentId;
@@ -137,15 +140,14 @@ function _genRow(state, item) {
 }
 
 export const standardDataTable = state => {
-  const data = state.pageState.tableData.map(item => _genRow(state, item));
-  if (state.pageState.sortOrder !== SortOrders.NONE) {
-    data.sort(ReportUtils.genCompareFunc(state.pageState.sortColumn, state.pageState.sortOrder));
+  const { tableData, sortOrder, sortColumn, showRecentOnly } = state.pageState;
+  const data = tableData.map(item => _genRow(state, item));
+  if (sortOrder !== SortOrders.NONE) {
+    data.sort(ReportUtils.genCompareFunc(sortColumn, sortOrder));
   }
-  if (state.pageState.showRecentOnly) {
+  if (showRecentOnly) {
     return data.filter(
-      row =>
-        Boolean(row.lastActive) &&
-        differenceInDays(now(), row.lastActive) <= RECENCY_THRESHOLD_IN_DAYS
+      row => row.lastActive && differenceInDays(now(), row.lastActive) <= RECENCY_THRESHOLD_IN_DAYS
     );
   }
   return data;

@@ -5,7 +5,7 @@
     @cancel="displayModal(false)"
     width="400px"
   >
-    <form @submit.prevent="submitForm">
+    <form class="edit-user-form" @submit.prevent="submitForm">
 
       <ui-alert
         v-if="error"
@@ -82,7 +82,6 @@
 
 <script>
 
-  import { updateUser, displayModal } from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
@@ -92,6 +91,7 @@
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import { updateUser, displayModal } from '../../state/actions';
 
   export default {
     name: 'editUserModal',
@@ -106,6 +106,7 @@
       save: 'Save',
       cancel: 'Cancel',
       required: 'This field is required',
+      usernameAlreadyExists: 'Username already exists',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
@@ -180,10 +181,23 @@
       nameIsInvalid() {
         return Boolean(this.nameIsInvalidText);
       },
+      usernameAlreadyExists() {
+        // Just return if it's the same username with a different case
+        if (this.username.toLowerCase() === this.newUsername.toLowerCase()) {
+          return false;
+        }
+
+        return this.facilityUsers.find(
+          ({ username }) => username.toLowerCase() === this.newUsername.toLowerCase()
+        );
+      },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.newUsername === '') {
             return this.$tr('required');
+          }
+          if (this.usernameAlreadyExists) {
+            return this.$tr('usernameAlreadyExists');
           }
           if (!validateUsername(this.newUsername)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
@@ -230,6 +244,8 @@
             username: this.newUsername,
             full_name: this.newName,
             role: roleUpdate,
+          }).then(() => {
+            this.displayModal(false);
           });
           if (
             this.currentUserId === this.id &&
@@ -256,6 +272,7 @@
         currentFacilityId,
         currentUserId: state => state.core.session.user_id,
         currentUserKind: state => state.core.session.kind[0],
+        facilityUsers: state => state.pageState.facilityUsers,
         error: state => state.pageState.error,
         isBusy: state => state.pageState.isBusy,
       },
@@ -272,5 +289,8 @@
     margin: 0
     padding: 0
     border: none
+
+  .edit-user-form
+    min-height: 350px
 
 </style>

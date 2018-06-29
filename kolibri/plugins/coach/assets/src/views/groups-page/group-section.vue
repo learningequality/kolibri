@@ -86,7 +86,6 @@
 <script>
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
-  import { displayModal } from '../../state/actions/group';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -94,6 +93,7 @@
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import sortBy from 'lodash/sortBy';
+  import { displayModal } from '../../state/actions/group';
 
   export default {
     name: 'groupSection',

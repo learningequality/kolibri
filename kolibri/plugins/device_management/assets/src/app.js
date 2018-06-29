@@ -1,17 +1,17 @@
 import KolibriApp from 'kolibri_app'; // eslint-disable-line
-import RootVue from './views';
-import mutations from './state/mutations';
-import initialState from './state/initialState';
-import { PageNames } from './constants';
-import preparePage from './state/preparePage';
+import store from 'kolibri.coreVue.vuex.store';
+import { createTranslator } from 'kolibri.utils.i18n';
+import { showDeviceInfoPage } from './state/actions/deviceInfoActions';
+import { showManageContentPage } from './state/actions/manageContentActions';
 import {
   showManagePermissionsPage,
   showUserPermissionsPage,
 } from './state/actions/managePermissionsActions';
-import { showManageContentPage } from './state/actions/manageContentActions';
-import { showDeviceInfoPage } from './state/actions/deviceInfoActions';
-import store from 'kolibri.coreVue.vuex.store';
-import { createTranslator } from 'kolibri.utils.i18n';
+import preparePage from './state/preparePage';
+import { PageNames } from './constants';
+import initialState from './state/initialState';
+import mutations from './state/mutations';
+import RootVue from './views';
 import wizardTransitionRoutes from './wizardTransitionRoutes';
 
 const translator = createTranslator('deviceAppPageTitles', {
@@ -82,6 +82,10 @@ const routes = [
     },
   },
   ...wizardTransitionRoutes,
+  {
+    path: '/content/*',
+    redirect: '/content',
+  },
 ];
 
 class DeviceManagementModule extends KolibriApp {

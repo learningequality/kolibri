@@ -48,6 +48,12 @@ module.exports = function(locale) {
           resolve(require('vue-intl/locale-data/hi.js'));
         });
       });
+    case 'ka':
+      return new Promise(function(resolve) {
+        require.ensure(['vue-intl/locale-data/ka.js'], function(require) {
+          resolve(require('vue-intl/locale-data/ka.js'));
+        });
+      });
     case 'mr':
       return new Promise(function(resolve) {
         require.ensure(['vue-intl/locale-data/mr.js'], function(require) {

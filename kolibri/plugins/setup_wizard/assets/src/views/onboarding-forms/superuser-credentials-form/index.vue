@@ -58,9 +58,9 @@
 <script>
 
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import { validateUsername } from 'kolibri.utils.validators';
   import { submitSuperuserCredentials } from '../../../state/actions/forms';
   import onboardingForm from '../onboarding-form';
-  import { validateUsername } from 'kolibri.utils.validators';
 
   export default {
     name: 'superuserCredentialsForm',

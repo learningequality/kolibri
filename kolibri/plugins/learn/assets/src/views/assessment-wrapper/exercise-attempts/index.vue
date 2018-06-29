@@ -1,11 +1,11 @@
 <template>
 
-  <div class="wrapper">
+  <div class="exercise-attempts">
     <div
-      class="answer"
+      class="attempt"
       v-for="(item, index) in itemsToRender"
       :style="styleForIndex(index, item.originalIndex)"
-      :key="item.originalIndex"
+      :key="`attempt-${item.originalIndex}`"
     >
       <transition name="fade">
         <answer-icon :answer="item.answer" />
@@ -15,8 +15,9 @@
       class="placeholder"
       v-for="i in numSpaces"
       :class="{ 'placeholder-first': i === 1 }"
-      :key="i"
-    ></div>
+      :key="`placeholder-${i}`"
+    >
+    </div>
   </div>
 
 </template>
@@ -25,6 +26,7 @@
 <script>
 
   import answerIcon from './answer-icon';
+
   export default {
     components: { answerIcon },
     props: {
@@ -43,7 +45,7 @@
       log: {
         type: Array,
         validator(arr) {
-          return arr.every(val => ['right', 'wrong', 'hint'].includes(val));
+          return arr.every(val => ['right', 'wrong', 'hint', 'rectified'].includes(val));
         },
       },
     },
@@ -99,34 +101,37 @@
   $size = 30px
   $margin = 4px
 
-  .wrapper
+  .exercise-attempts
+    position: relative
     white-space: nowrap
+    overflow-x: auto
+    overflow-y: hidden
 
-  .answer
-    width: $size
-    height: 20px
+  .attempt, .placeholder
     display: inline-block
+    width: $size
+    height: $size
     margin: $margin
+
+  .attempt
     text-align: center
     position: absolute
     transition: all 0.5s ease-in-out
-
     // try to improve performance - http://stackoverflow.com/a/10133679
     backface-visibility: hidden
     perspective: 1000
 
-  .fade-enter, .fade-leave-active
-    opacity: 0
-
   .placeholder
-    display: inline-block
-    height: $size
-    width: $size
-    margin: $margin
-    border-bottom: 1px solid $core-text-annotation
+    border-bottom: 2px solid $core-text-annotation
     transition: border-bottom 0.1s linear
 
   .placeholder-first
-    border-bottom: 3px solid $core-text-annotation
+    border: 2px solid $core-text-annotation
+
+  .fade-enter, .fade-leave-to
+    opacity: 0
+
+  .fade-enter-active, .fade-leave-active
+    transition: opacity 0.5s
 
 </style>

@@ -3,11 +3,30 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+
+0.10.0
+------
+
+ - Support for coach-specific content
+ - Content import/export is more reliable and easier to use
+ - Search has improved results and handles duplicate items
+ - Display of answer history in learner exercises is improved
+ - Login page is more responsive
+ - Windows-specific improvements and bug fixes
+ - New Kolibri configuration file
+ - Overall improved performance
+ - Auto-play videos
+ - Various improvements to PDF renderer
+ - Command to migrate content directory location
+
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.10.0+label%3Achangelog>`_ of changes on Github.
+
+
 0.9.2
 -----
 
  - Various bug fixes
- - Languages: English, Arabic, Bengali, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese, Spanish, Swahili, Tamil,   Telugu, Urdu, Yoruba, and Zulu
+ - Languages: English, Arabic, Bengali, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Tamil,   Telugu, Urdu, Yoruba, and Zulu
 
 See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.2+label%3Achangelog>`_ of changes on Github.
 
@@ -22,9 +41,9 @@ See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=
  - Fixed issue with password-less sign-on
  - Fixed issue with editing lessons
  - Various other fixes
- - Languages: English, Arabic, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese, Spanish, Swahili, Tamil, Telugu, and Urdu
+ - Languages: English, Arabic, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Tamil, Telugu, and Urdu
 
-See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.1+label%3Achangelog>`_ of changes on Github.
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.1+label%3Achangelog>`__ of changes on Github.
 
 
 0.9.0
@@ -43,7 +62,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=
  - Added icon next to language-switching functionality
  - Languages: English, Arabic, Farsi, French, Hindi, Spanish, Swahili, and Urdu
 
-See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.0+label%3Achangelog>`_ of changes on Github.
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.0+label%3Achangelog>`__ of changes on Github.
 
 
 0.8.0
@@ -56,7 +75,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=
  - Languages: English, Spanish, Arabic, Farsi, Urdu, French, Haitian Creole, and Burmese
  - Various bug fixes
 
-See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.8.0+label%3Achangelog>`_ of changes on Github.
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.8.0+label%3Achangelog>`__ of changes on Github.
 
 
 0.7.2
@@ -244,7 +263,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=
  - Updated Spanish translations
 
 
-0.3.2
+0.3.1
 -----
 
  - Portuguese and Kaswihili updates

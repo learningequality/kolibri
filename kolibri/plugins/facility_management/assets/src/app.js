@@ -1,5 +1,4 @@
 import store from 'kolibri.coreVue.vuex.store';
-import KolibriApp from 'kolibri_app';
 
 import RootVue from './views';
 
@@ -17,6 +16,7 @@ import { showFacilityConfigPage } from './state/actions/facilityConfig';
 
 import * as mutations from './state/mutations';
 import initialState from './state/initialState';
+import KolibriApp from 'kolibri_app';
 
 const routes = [
   {

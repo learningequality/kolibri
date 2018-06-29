@@ -17,14 +17,18 @@
       >
       <div class="search-buttons-wrapper">
         <ui-icon-button
-          icon="clear"
           color="black"
           size="small"
           class="search-clear-button"
           :class="searchQuery === '' ? '' : 'search-clear-button-visble'"
           :ariaLabel="$tr('clearButtonLabel')"
           @click="searchQuery = ''"
-        />
+        >
+          <mat-svg
+            name="clear"
+            category="content"
+          />
+        </ui-icon-button>
 
         <div class="search-submit-button-wrapper">
           <ui-icon-button
@@ -32,10 +36,20 @@
             color="white"
             class="search-submit-button"
             :class="{ 'rtl-icon': icon === 'arrow_forward' && isRtl }"
-            :icon="icon"
             :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"
-          />
+          >
+            <mat-svg
+              v-if="icon === 'search'"
+              name="search"
+              category="action"
+            />
+            <mat-svg
+              v-if="icon === 'arrow_forward'"
+              name="arrow_forward"
+              category="navigation"
+            />
+          </ui-icon-button>
         </div>
       </div>
     </div>
@@ -46,8 +60,8 @@
 
 <script>
 
-  import { PageNames } from '../constants';
   import uiIconButton from 'keen-ui/src/UiIconButton';
+  import { PageNames } from '../constants';
 
   export default {
     name: 'searchBox',
@@ -63,6 +77,9 @@
       icon: {
         type: String,
         default: 'search',
+        validator(val) {
+          return ['search', 'arrow_forward'].includes(val);
+        },
       },
     },
     data() {
@@ -110,6 +127,7 @@
     display: table
     width: 100%
     max-width: 450px
+    margin-right: 8px
     background-color: white
 
   .search-box-within-action-bar
@@ -159,6 +177,7 @@
   .search-submit-button
     width: 36px
     height: 36px
+    fill: white
 
   .search-submit-button-wrapper
     display: inline-block

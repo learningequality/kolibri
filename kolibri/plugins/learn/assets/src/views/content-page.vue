@@ -2,8 +2,12 @@
 
   <div>
 
-    <!-- TODO: RTL - Remove ta-l -->
-    <page-header :title="content.title" dir="auto" class="ta-l" />
+    <page-header :title="content.title" dir="auto" />
+    <coach-content-label
+      class="coach-content-label"
+      :value="content.coach_content ? 1 : 0"
+      :isTopic="isTopic"
+    />
 
     <content-renderer
       v-if="!content.assessment"
@@ -20,16 +24,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"
       :initSession="initSession"
-    >
-      <k-button
-        :primary="true"
-        @click="nextContentClicked"
-        v-if="showNextBtn"
-        class="float"
-        :text="$tr('nextContent')"
-        alignment="right"
-      />
-    </content-renderer>
+    />
 
     <assessment-wrapper
       v-else
@@ -45,22 +40,11 @@
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields"
-      :checkButtonIsPrimary="!showNextBtn"
       :initSession="initSession"
-    >
-      <k-button
-        :primary="true"
-        @click="nextContentClicked"
-        v-if="showNextBtn"
-        class="float"
-        :text="$tr('nextContent')"
-        alignment="right"
-      />
-    </assessment-wrapper>
+    />
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
-    <!-- TODO: RTL - Remove ta-l -->
-    <p v-html="description" dir="auto" class="ta-l"></p>
+    <p v-html="description" dir="auto"></p>
 
 
     <section class="metadata">
@@ -74,13 +58,15 @@
 
         <template v-if="content.license_description">
           <ui-icon-button
-            :icon="licenceDescriptionIsVisible ? 'expand_less' : 'expand_more'"
             :ariaLabel="$tr('toggleLicenseDescription')"
             size="small"
             type="secondary"
             @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
-          />
-          <p v-if="licenceDescriptionIsVisible" dir="auto" class="ta-l">
+          >
+            <mat-svg v-if="licenceDescriptionIsVisible" name="expand_less" category="navigation" />
+            <mat-svg v-else name="expand_more" category="navigation" />
+          </ui-icon-button>
+          <p v-if="licenceDescriptionIsVisible" dir="auto">
             {{ content.license_description }}
           </p>
         </template>
@@ -98,6 +84,13 @@
     />
 
     <slot name="below_content">
+      <template v-if="progress >= 1 && content.next_content">
+        <h2>{{ $tr('nextResource') }}</h2>
+        <content-card-group-carousel
+          :genContentLink="genContentLink"
+          :contents="[content.next_content]"
+        />
+      </template>
       <template v-if="showRecommended">
         <h2>{{ $tr('recommended') }}</h2>
         <content-card-group-carousel
@@ -108,26 +101,12 @@
       </template>
     </slot>
 
-    <template v-if="progress >= 1 && wasIncomplete">
-      <points-popup
-        v-if="showPopup"
-        @close="markAsComplete"
-        :nextContent="content.next_content"
-      >
-        <k-button
-          v-if="nextContent"
-          :primary="true"
-          slot="nextItemBtn"
-          @click="nextContentClicked"
-          :text="$tr('nextContent')"
-          alignment="right"
-        />
-      </points-popup>
-
-      <transition v-else name="slidein" appear>
-        <points-slidein @close="markAsComplete" />
-      </transition>
-    </template>
+    <mastered-snackbars
+      v-if="progress >= 1 && wasIncomplete"
+      :nextContent="content.next_content"
+      :nextContentLink="nextContentLink"
+      @close="markAsComplete"
+    />
 
   </div>
 
@@ -142,43 +121,41 @@
     startTrackingProgress as startTracking,
     stopTrackingProgress as stopTracking,
   } from 'kolibri.coreVue.vuex.actions';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { isUserLoggedIn, facilityConfig, contentPoints } from 'kolibri.coreVue.vuex.getters';
+  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
+  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import downloadButton from 'kolibri.coreVue.components.downloadButton';
+  import { isAndroidWebView } from 'kolibri.utils.browser';
+  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import markdownIt from 'markdown-it';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { pageMode } from '../state/getters';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { isUserLoggedIn, facilityConfig } from 'kolibri.coreVue.vuex.getters';
   import { updateContentNodeProgress } from '../state/actions/main';
   import pageHeader from './page-header';
   import contentCardGroupCarousel from './content-card-group-carousel';
-  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import downloadButton from 'kolibri.coreVue.components.downloadButton';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import { isAndroidWebView } from 'kolibri.utils.browser';
   import assessmentWrapper from './assessment-wrapper';
-  import pointsPopup from './points-popup';
-  import pointsSlidein from './points-slidein';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
-  import markdownIt from 'markdown-it';
+  import masteredSnackbars from './mastered-snackbars';
   import { lessonResourceViewerLink } from './classes/classPageLinks';
 
   export default {
     name: 'contentPage',
     $trs: {
       recommended: 'Recommended',
-      nextContent: 'Go to next item',
       author: 'Author: {author}',
       license: 'License: {license}',
       toggleLicenseDescription: 'Toggle license description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
+      nextResource: 'Next resource',
     },
     components: {
+      coachContentLabel,
       pageHeader,
       contentCardGroupCarousel,
       contentRenderer,
       downloadButton,
-      kButton,
       assessmentWrapper,
-      pointsPopup,
-      pointsSlidein,
+      masteredSnackbars,
       uiIconButton,
     },
     data: () => ({
@@ -186,6 +163,9 @@
       licenceDescriptionIsVisible: false,
     }),
     computed: {
+      isTopic() {
+        return this.content.kind === ContentNodeKinds.TOPIC;
+      },
       canDownload() {
         if (this.facilityConfig.showDownloadButtonInLearn && this.content) {
           return (
@@ -202,9 +182,6 @@
           return md.render(this.content.description);
         }
       },
-      showNextBtn() {
-        return this.progress >= 1 && this.content && this.nextContentLink;
-      },
       recommendedText() {
         return this.$tr('recommended');
       },
@@ -214,40 +191,32 @@
         }
         return this.sessionProgress;
       },
-      nextContentLink() {
-        if (this.content.next_content) {
-          // HACK Use a the Resource Viewer Link instead
-          if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-            return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
-          }
-          return this.genContentLink(this.content.next_content.id, this.content.next_content.kind);
-        }
-        return null;
-      },
       showRecommended() {
-        if (this.recommended && this.pageMode === PageModes.RECOMMENDED) {
-          return true;
-        }
-        return false;
-      },
-      showPopup() {
         return (
-          this.content.kind === ContentNodeKinds.EXERCISE ||
-          this.content.kind === ContentNodeKinds.VIDEO ||
-          this.content.kind === ContentNodeKinds.AUDIO
+          this.recommended && this.recommended.length && this.pageMode === PageModes.RECOMMENDED
         );
       },
       downloadableFiles() {
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
+      },
+      nextContentLink() {
+        // HACK Use a the Resource Viewer Link instead
+        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
+        }
+        return {
+          name:
+            this.content.next_content.kind === ContentNodeKinds.TOPIC
+              ? PageNames.TOPICS_TOPIC
+              : PageNames.RECOMMENDED_CONTENT,
+          params: { id: this.content.next_content.id },
+        };
       },
     },
     beforeDestroy() {
       this.stopTracking();
     },
     methods: {
-      nextContentClicked() {
-        this.$router.push(this.nextContentLink);
-      },
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
@@ -262,15 +231,12 @@
         this.wasIncomplete = false;
       },
       genContentLink(id, kind) {
-        let name;
-        if (kind === ContentNodeKinds.TOPIC) {
-          name = PageNames.TOPICS_TOPIC;
-        } else {
-          name = PageNames.RECOMMENDED_CONTENT;
-        }
         return {
-          name,
-          params: { channel_id: this.channelId, id },
+          name:
+            kind === ContentNodeKinds.TOPIC
+              ? PageNames.TOPICS_TOPIC
+              : PageNames.RECOMMENDED_CONTENT,
+          params: { id },
         };
       },
     },
@@ -287,6 +253,7 @@
         pageMode,
         isUserLoggedIn,
         facilityConfig,
+        contentPoints,
       },
       actions: {
         initSessionAction,
@@ -302,6 +269,12 @@
 
 <style lang="stylus" scoped>
 
+  .coach-content-label
+    margin: 8px 0
+
+  .content-renderer
+    margin-top: 24px
+
   .float
     float: right
 
@@ -310,8 +283,5 @@
 
   .download-button
     display: block
-
-  .ta-l
-    text-align: left
 
 </style>

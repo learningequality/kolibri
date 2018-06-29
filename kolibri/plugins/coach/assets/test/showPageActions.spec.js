@@ -152,7 +152,7 @@ describe('showPage actions for coach exams section', () => {
     ClassroomResource.__resetMocks();
     ContentNodeResource.__resetMocks();
     ExamResource.__resetMocks();
-    dispatchSpy.reset();
+    dispatchSpy.resetHistory();
   });
 
   describe('showExamsPage', () => {

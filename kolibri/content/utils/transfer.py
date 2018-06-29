@@ -1,18 +1,11 @@
 import logging as logger
 import os
 import shutil
+
 import requests
-from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError
-from requests.packages.urllib3.util.retry import Retry
 
 logging = logger.getLogger(__name__)
-
-
-# policy for retrying downloads with exponential backoff delay
-retries = Retry(total=5,
-                backoff_factor=0.1,
-                status_forcelist=[500, 502, 503, 504])
 
 
 class ExistingTransferInProgress(Exception):
@@ -136,17 +129,21 @@ class Transfer(object):
 class FileDownload(Transfer):
 
     def __init__(self, *args, **kwargs):
-        # Set block size to None, to always get the largest chunk available from the socket
-        kwargs["block_size"] = None
+
+        # allow an existing requests.Session instance to be passed in, so it can be reused for speed
+        if "session" in kwargs:
+            self.session = kwargs.pop("session")
+        else:
+            # initialize a fresh requests session, if one wasn't provided
+            self.session = requests.Session()
+
         super(FileDownload, self).__init__(*args, **kwargs)
 
     def start(self):
-        assert not self.started, "File download has already been started, and cannot be started again"
-
-        # initialize the requests session, with backoff-retries enabled
-        self.session = requests.Session()
-        self.session.mount('http://', HTTPAdapter(max_retries=retries))
-        self.session.mount('https://', HTTPAdapter(max_retries=retries))
+        # If a file download was stopped by Internet connection error,
+        # then open the temp file again.
+        if self.started:
+            self.dest_file_obj = open(self.dest_tmp, "wb")
 
         # initiate the download, check for status errors, and calculate download size
         self.response = self.session.get(

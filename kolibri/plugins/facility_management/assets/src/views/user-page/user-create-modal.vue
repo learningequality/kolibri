@@ -9,7 +9,7 @@
       {{ errorMessage }}
     </ui-alert>
 
-    <form @submit.prevent="createNewUser">
+    <form class="user-create-form" @submit.prevent="createNewUser">
       <section>
         <k-textbox
           ref="name"
@@ -96,7 +96,6 @@
 
 <script>
 
-  import { createUser, displayModal } from '../../state/actions';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
   import { validateUsername } from 'kolibri.utils.validators';
@@ -106,6 +105,8 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import { createUser, displayModal } from '../../state/actions';
+
   export default {
     name: 'userCreateModal',
     $trs: {
@@ -186,7 +187,9 @@
         return Boolean(this.nameIsInvalidText);
       },
       usernameAlreadyExists() {
-        return this.facilityUsers.find(({ username }) => username === this.username);
+        return this.facilityUsers.find(
+          ({ username }) => username.toLowerCase() === this.username.toLowerCase()
+        );
       },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
@@ -289,10 +292,15 @@
         }
       },
       focusOnInvalidField() {
-        this.nameIsInvalid && this.$refs.name.focus();
-        this.usernameIsInvalid && this.$refs.username.focus();
-        this.passwordIsInvalid && this.$refs.password.focus();
-        this.confirmedPasswordIsInvalid && this.$refs.confirmedPassword.focus();
+        if (this.nameIsInvalid) {
+          this.$refs.name.focus();
+        } else if (this.usernameIsInvalid) {
+          this.$refs.username.focus();
+        } else if (this.passwordIsInvalid) {
+          this.$refs.password.focus();
+        } else if (this.confirmedPasswordIsInvalid) {
+          this.$refs.confirmedPassword.focus();
+        }
       },
       close() {
         this.displayModal(false);
@@ -314,6 +322,9 @@
 
 
 <style lang="stylus" scoped>
+
+  .user-create-form
+    min-height: 500px
 
   .coach-selector
     margin-bottom: 3em

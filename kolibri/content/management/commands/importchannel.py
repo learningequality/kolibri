@@ -1,17 +1,30 @@
 import logging as logger
 import os
 
-from django.conf import settings
 from django.core.management.base import CommandError
-from kolibri.tasks.management.commands.base import AsyncCommand
 
-from ...utils import channel_import, paths, transfer
+from ...utils import channel_import
+from ...utils import paths
+from ...utils import transfer
+from kolibri.core.errors import KolibriUpgradeError
+from kolibri.tasks.management.commands.base import AsyncCommand
+from kolibri.utils import conf
 
 logging = logger.getLogger(__name__)
 
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
+
+
+def import_channel_by_id(channel_id, cancel_check):
+    try:
+        channel_import.import_channel_from_local_db(channel_id, cancel_check=cancel_check)
+    except channel_import.InvalidSchemaVersionError:
+        raise CommandError(
+            "Database file had an invalid database schema, the file may be corrupted or have been modified.")
+    except channel_import.FutureSchemaError:
+        raise KolibriUpgradeError("Database file uses a future database schema that this version of Kolibri does not support.")
 
 
 class Command(AsyncCommand):
@@ -34,7 +47,7 @@ class Command(AsyncCommand):
             help="Download the database for the given channel_id."
         )
 
-        default_studio_url = settings.CENTRAL_CONTENT_DOWNLOAD_BASE_URL
+        default_studio_url = conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL']
         network_subparser.add_argument(
             "--baseurl",
             type=str,
@@ -95,10 +108,12 @@ class Command(AsyncCommand):
                         filetransfer.cancel()
                         break
                     progress_update(len(chunk), progress_extra_data)
-
-                if not self.is_cancelled():
-                    channel_import.import_channel_from_local_db(channel_id)
-                else:
+                try:
+                    import_channel_by_id(channel_id, self.is_cancelled)
+                except channel_import.ImportCancelError:
+                    # This will only occur if is_cancelled is True.
+                    pass
+                if self.is_cancelled():
                     try:
                         os.remove(dest)
                     except IOError:

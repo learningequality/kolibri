@@ -38,9 +38,19 @@
     "english_name": "Hindi"
   },
   {
+    "language_code": "kn",
+    "language_name": "ಕನ್ನಡ",
+    "english_name": "Kannada"
+  },
+  {
     "language_code": "mr",
     "language_name": "मराठी",
     "english_name": "Marathi"
+  },
+  {
+    "language_code": "my",
+    "language_name": "ဗမာစာ",
+    "english_name": "Burmese"
   },
   {
     "language_code": "nyn",
@@ -51,7 +61,7 @@
     "language_code": "pt",
     "territory_code": "br",
     "language_name": "Português",
-    "english_name": "Portuguese"
+    "english_name": "Portuguese (Brazilian)"
   },
   {
     "language_code": "sw",

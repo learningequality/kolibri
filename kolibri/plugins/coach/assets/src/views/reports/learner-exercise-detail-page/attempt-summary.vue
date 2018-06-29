@@ -1,7 +1,7 @@
 <template>
 
   <div class="attempt-summary">
-    <div class="column pure-u-3-4">
+    <div class="pure-u-3-4">
       <div class="summary-item">
         <div class="icon">
           <mat-svg
@@ -44,7 +44,7 @@
 
     </div>
 
-    <div class="column pure-u-1-4">
+    <div class="pure-u-1-4">
       <div class="status">
         <div class="status-text">
           <progress-icon
@@ -71,6 +71,7 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+
   export default {
     name: 'attemptSummary',
     $trs: {
@@ -197,11 +198,7 @@
     display: inline-block
     vertical-align: middle
 
-  .column
-    float: left
-
   .status
-    float: right
     text-align: right
 
   .icon

@@ -68,12 +68,9 @@
 
   $item-content-height = 56px
   $item-division-height = 2px
-  $item-height = ($item-content-height + $item-division-height)
 
   .question-list
     background-color: white
-    // position: relative
-    padding: 0
 
   .header, .list, .item, .button
     display: block
@@ -83,9 +80,6 @@
 
   .list
     list-style: none
-    // NOTE stylus specific - calc + variable interpolation
-    max-height: 'calc(100% - %s)' % $item-height
-    overflow-y: auto
 
   // normalize styles for the 2
   .button, .header

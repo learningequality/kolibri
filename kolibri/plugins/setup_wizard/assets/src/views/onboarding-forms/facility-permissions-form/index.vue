@@ -111,12 +111,11 @@
 
 <script>
 
-  import { submitFacilityPermissions } from '../../../state/actions/forms';
-
-  import onboardingForm from '../onboarding-form';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import coreModal from 'kolibri.coreVue.components.coreModal';
+  import onboardingForm from '../onboarding-form';
+  import { submitFacilityPermissions } from '../../../state/actions/forms';
 
   export default {
     name: 'selectPermissionsForm',

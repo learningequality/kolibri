@@ -1,5 +1,5 @@
-import lessonsRoutes from './lessonsRoutes';
-import examRoutes from './examRoutes';
+import store from 'kolibri.coreVue.vuex.store';
+import router from 'kolibri.coreVue.router';
 import { showClassListPage, shouldRedirectToClassRootPage } from '../state/actions/main';
 import { showGroupsPage } from '../state/actions/group';
 import {
@@ -15,8 +15,8 @@ import {
   showTopicLearnerItemDetails,
 } from '../state/actions/reports';
 import { PageNames } from '../constants';
-import store from 'kolibri.coreVue.vuex.store';
-import router from 'kolibri.coreVue.router';
+import examRoutes from './examRoutes';
+import lessonsRoutes from './lessonsRoutes';
 
 export default [
   ...lessonsRoutes,

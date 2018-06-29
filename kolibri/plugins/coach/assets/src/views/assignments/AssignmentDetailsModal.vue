@@ -30,7 +30,6 @@
         v-if="showDescriptionField"
         :label="$tr('description')"
         :maxlength="200"
-        :textArea="true"
         v-model="description"
         :disabled="formIsSubmitted"
       />
@@ -69,8 +68,8 @@
   import coreModal from 'kolibri.coreVue.components.coreModal';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import RecipientSelector from './RecipientSelector';
   import UiAlert from 'keen-ui/src/UiAlert';
+  import RecipientSelector from './RecipientSelector';
 
   export default {
     name: 'assignmentDetailsModal',

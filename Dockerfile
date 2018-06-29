@@ -4,7 +4,6 @@ FROM ubuntu:xenial
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     curl
-RUN add-apt-repository ppa:voronov84/andreyv
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
 
 # add yarn ppa
@@ -13,7 +12,6 @@ RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources
 
 RUN apt-get update && apt-get install -y \
     python2.7 \
-    python3.6 \
     python-pip \
     git \
     nodejs \
@@ -24,4 +22,4 @@ COPY . /kolibri
 
 VOLUME /kolibridist/  # for mounting the whl files into other docker containers
 # add buildkite pipeline specific installation here:
-CMD cd /kolibri && pip install -r requirements/dev.txt && pip install -r requirements/build.txt && yarn install && make dist pex && cp /kolibri/dist/* /kolibridist/
+CMD cd /kolibri && pip install -r requirements/dev.txt && pip install -r requirements/build.txt && pip install -e . && yarn install && make dist pex && cp /kolibri/dist/* /kolibridist/

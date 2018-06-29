@@ -1,12 +1,12 @@
 import logger from 'kolibri.lib.logging';
 import { currentUserId, connected, reconnectTime } from 'kolibri.coreVue.vuex.getters';
 import store from 'kolibri.coreVue.vuex.store';
-import { SIGNED_OUT_DUE_TO_INACTIVITY } from './constants';
 import Lockr from 'lockr';
 import urls from 'kolibri.urls';
-import baseClient from './core-app/baseClient';
 import mime from 'rest/interceptor/mime';
 import interceptor from 'rest/interceptor';
+import baseClient from './core-app/baseClient';
+import { SIGNED_OUT_DUE_TO_INACTIVITY } from './constants';
 import errorCodes from './disconnectionErrorCodes';
 import {
   createTryingToReconnectSnackbar,
@@ -33,26 +33,38 @@ export class HeartBeat {
     this.setActive = this.setActive.bind(this);
     this.beat = this.beat.bind(this);
     this.setInactive();
+    this.enabled = false;
   }
   start() {
     logging.debug('Starting heartbeat');
+    this.enabled = true;
     this.setActivityListeners();
     // No need to start it straight away, can wait.
     this.beat();
   }
+  stop() {
+    logging.debug('Stopping heartbeat');
+    this.enabled = false;
+    this.clearActivityListeners();
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+    }
+  }
   setActivityListeners() {
     this.events.forEach(event => {
-      document.addEventListener(event, this.setActive, true);
+      document.addEventListener(event, this.setActive, { capture: true, passive: true });
     });
   }
   clearActivityListeners() {
     this.events.forEach(event => {
-      document.removeEventListener(event, this.setActive, true);
+      document.removeEventListener(event, this.setActive, { capture: true, passive: true });
     });
   }
   setActive() {
-    this.active = true;
-    this.clearActivityListeners();
+    if (this.active !== true) {
+      this.active = true;
+      this.clearActivityListeners();
+    }
   }
   setInactive() {
     this.active = false;
@@ -179,8 +191,10 @@ export class HeartBeat {
       clearTimeout(this.timerId);
     }
     return this.checkSession().finally(() => {
-      this.setInactive();
-      this.wait();
+      if (this.enabled) {
+        this.setInactive();
+        this.wait();
+      }
     });
   }
   get events() {

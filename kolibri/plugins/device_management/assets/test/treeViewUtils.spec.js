@@ -1,16 +1,16 @@
 /* eslint-env mocha */
+import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
-import assert from 'assert';
+import pick from 'lodash/pick';
 import { annotateNode } from '../src/views/select-content-page/treeViewUtils';
 import { makeNode } from './utils/data';
-import pick from 'lodash/pick';
 
-function simplePath(pks) {
-  return pks.map(makeNode);
+function simplePath(ids) {
+  return ids.map(makeNode);
 }
 
 function assertAnnotationsEqual(annotated, expected) {
-  assert.deepEqual(pick(annotated, ['message', 'disabled', 'checkboxType']), expected);
+  expect(pick(annotated, ['message', 'disabled', 'checkboxType'])).to.deep.equal(expected);
 }
 
 function makeNodeWithResources(id, total = 1, onDevice = 0) {

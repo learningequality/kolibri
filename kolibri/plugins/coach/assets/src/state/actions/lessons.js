@@ -1,16 +1,16 @@
-import { LessonsPageNames } from '../../constants/lessonsConstants';
 import { getChannels } from 'kolibri.coreVue.vuex.getters';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
-import { setClassState } from './main';
 import { LearnerGroupResource, LessonResource, ContentNodeResource } from 'kolibri.resources';
-import LessonReportResource from '../../apiResources/lessonReport';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import { handleApiError, createSnackbar } from 'kolibri.coreVue.vuex.actions';
 import { error as logError } from 'kolibri.lib.logging';
 import router from 'kolibri.coreVue.router';
+import LessonReportResource from '../../apiResources/lessonReport';
+import { LessonsPageNames } from '../../constants/lessonsConstants';
 import { lessonSummaryLink } from '../../views/lessons/lessonsRouterUtils';
+import { setClassState } from './main';
 
 const translator = createTranslator('lessonsPageTitles', {
   lessons: 'Lessons',
@@ -196,6 +196,7 @@ export function showLessonResourceSelectionRootPage(store, classId, lessonId) {
       description: channel.description,
       title: channel.title,
       thumbnail: channel.thumbnail,
+      num_coach_contents: channel.num_coach_contents,
       kind: ContentNodeKinds.CHANNEL,
     };
   });
@@ -228,6 +229,7 @@ export function showLessonResourceSelectionTopicPage(store, classId, lessonId, t
           content_id: node.content_id,
           channel_id: node.channel_id,
           description: node.description,
+          num_coach_contents: node.num_coach_contents,
           title: node.title,
           thumbnail: getContentNodeThumbnail(node),
           kind: node.kind,

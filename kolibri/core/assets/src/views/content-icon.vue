@@ -83,8 +83,8 @@
 
 <script>
 
+  import { validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds, USER } from 'kolibri.coreVue.vuex.constants';
-  import values from 'lodash/values';
   import uiIcon from 'keen-ui/src/UiIcon';
   import uiTooltip from 'keen-ui/src/UiTooltip';
 
@@ -111,9 +111,7 @@
         type: String,
         required: true,
         validator(value) {
-          const validValues = values(ContentNodeKinds);
-          validValues.push(USER);
-          return validValues.includes(value);
+          return validateContentNodeKind(value, [USER]);
         },
       },
       colorstyle: {

@@ -28,18 +28,18 @@ const defaultNode = {
   importable: true,
 };
 
-export function makeNode(pk, attrs = {}) {
+export function makeNode(id, attrs = {}) {
   return {
     ...defaultNode,
-    pk,
-    title: `node_${pk}`,
+    id,
+    title: `node_${id}`,
     ...attrs,
   };
 }
 
 export function contentNodeGranularPayload() {
   return {
-    pk: 'topic_1',
+    id: 'topic_1',
     title: 'Addition and subtraction intro',
     available: false,
     importable: true,
@@ -48,7 +48,7 @@ export function contentNodeGranularPayload() {
     [ON_DEVICE_RESOURCES]: 0,
     children: [
       {
-        pk: 'ee73cfd40eec4260a1f302157dda69d4',
+        id: 'ee73cfd40eec4260a1f302157dda69d4',
         title: 'Put together, take apart',
         available: false,
         importable: true,
@@ -57,7 +57,7 @@ export function contentNodeGranularPayload() {
         [ON_DEVICE_RESOURCES]: 0,
       },
       {
-        pk: 'f3cb61172a114c21a32982d1316ec786',
+        id: 'f3cb61172a114c21a32982d1316ec786',
         title: 'Addition and subtraction word problems',
         available: false,
         kind: 'video',

@@ -12,7 +12,7 @@ from django.core.management import call_command
 from .system import kill_pid
 from .system import pid_exists
 from kolibri.content.utils import paths
-from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils import conf
 
 logger = logging.getLogger(__name__)
 
@@ -30,15 +30,15 @@ STATUS_PID_FILE_INVALID = 100
 STATUS_UNKNOWN = 101
 
 # Used to store PID and port number (both in foreground and daemon mode)
-PID_FILE = os.path.join(KOLIBRI_HOME, "server.pid")
+PID_FILE = os.path.join(conf.KOLIBRI_HOME, "server.pid")
 
 # Used to PID, port during certain exclusive startup process, before we fork
 # to daemon mode
-STARTUP_LOCK = os.path.join(KOLIBRI_HOME, "server.lock")
+STARTUP_LOCK = os.path.join(conf.KOLIBRI_HOME, "server.lock")
 
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
-DAEMON_LOG = os.path.join(KOLIBRI_HOME, "server.log")
+DAEMON_LOG = os.path.join(conf.KOLIBRI_HOME, "server.log")
 
 # Currently non-configurable until we know how to properly handle this
 LISTEN_ADDRESS = "0.0.0.0"
@@ -109,7 +109,7 @@ def stop(pid=None, force=False):
     """
 
     if not force:
-        # Kill the KA lite server
+        # Kill the Kolibri server
         kill_pid(pid)
     else:
         try:
@@ -133,13 +133,14 @@ def run_server(port):
     from kolibri.deployment.default.wsgi import application
     cherrypy.tree.graft(application, "/")
 
-    cherrypy.config.update({"environment": "production"})
+    cherrypy.config.update({
+        "environment": "production",
+        "tools.gzip.on": True,
+        "tools.gzip.mime_types": ["text/*", "application/javascript"],
+    })
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
-    serve_static_dir(settings.CONTENT_DATABASE_DIR,
-                     paths.get_content_database_url("/"))
-    serve_static_dir(settings.CONTENT_STORAGE_DIR,
-                     paths.get_content_storage_url("/"))
+    serve_static_dir(paths.get_content_dir_path(), paths.get_content_url("/"))
 
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()
@@ -150,7 +151,10 @@ def run_server(port):
     # Configure the server
     server.socket_host = LISTEN_ADDRESS
     server.socket_port = port
-    server.thread_pool = 30
+    server.thread_pool = conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"]
+    server.socket_timeout = conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"]
+    server.accepted_queue_size = conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"]
+    server.accepted_queue_timeout = conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"]
 
     # Subscribe this server
     server.subscribe()
@@ -253,7 +257,7 @@ def get_status():  # noqa: max-complexity=16
 
     try:
         # Timeout is 3 seconds, we don't want the status command to be slow
-        # TODO: Using 127.0.0.1 is a hardcode default from KA Lite, it could
+        # TODO: Using 127.0.0.1 is a hardcode default from Kolibri, it could
         # be configurable
         # TODO: HTTP might not be the protocol if server has SSL
         response = requests.get(

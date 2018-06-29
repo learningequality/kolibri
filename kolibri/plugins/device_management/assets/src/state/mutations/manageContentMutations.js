@@ -1,7 +1,11 @@
 import { manageContentPageState } from '../wizardState';
 
 export function RESET_MANAGE_CONTENT_PAGESTATE(state) {
-  state.pageState = manageContentPageState();
+  const oldTasks = [...state.pageState.taskList];
+  state.pageState = {
+    ...manageContentPageState(),
+    taskList: oldTasks,
+  };
 }
 
 export function SET_CONTENT_PAGE_STATE(state, newPageState) {
@@ -9,7 +13,7 @@ export function SET_CONTENT_PAGE_STATE(state, newPageState) {
 }
 
 export function SET_CONTENT_PAGE_TASKS(state, taskList) {
-  state.pageState.taskList = taskList;
+  state.pageState.taskList = [...taskList];
 }
 
 export function SET_CHANNEL_LIST(state, channelList) {

@@ -12,6 +12,11 @@ oriented data synchronization.
   <div>
     <ui-alert v-if="itemError" :dismissible="false" type="error">
       {{ $tr('itemError') }}
+      <k-button
+        appearance="basic-link"
+        :text="$tr('tryDifferentQuestion')"
+        @click="nextQuestion"
+      />
     </ui-alert>
     <div>
       <content-renderer
@@ -36,48 +41,62 @@ oriented data synchronization.
       />
     </div>
 
-    <div>
-      <transition mode="out-in">
-        <k-button
-          :text="$tr('check')"
-          :primary="checkButtonIsPrimary"
-          appearance="raised-button"
-          v-if="!complete"
-          @click="checkAnswer"
-          class="question-btn"
-          :class="{shaking: shake}"
-          :disabled="checkingAnswer"
-        />
-        <k-button
-          :text="$tr('next')"
-          :primary="true"
-          appearance="raised-button"
-          v-else
-          @click="nextQuestion"
-          class="question-btn"
-        />
-      </transition>
-      <slot></slot>
-    </div>
+    <div
+      class="attempts-container"
+      :class="{ 'mobile': windowSize.breakpoint < 2}"
+    >
+      <div class="margin-wrapper">
+        <div class="overall-status">
+          <mat-svg
+            name="stars"
+            category="action"
+            :class="success ? 'mastered' : 'not-mastered'"
+          />
+          <div class="overall-status-text">
+            <div v-if="success" class="completed">
+              {{ $tr('completed') }}
+            </div>
+            <div>
+              {{ $tr('goal', {count: totalCorrectRequiredM}) }}
+            </div>
+          </div>
+        </div>
+        <div class="table">
+          <div class="row">
+            <div class="left">
+              <transition mode="out-in">
+                <k-button
+                  v-if="!complete"
+                  appearance="raised-button"
+                  class="question-btn"
+                  :text="$tr('check')"
+                  :primary="true"
+                  :class="{shaking: shake}"
+                  :disabled="checkingAnswer"
+                  @click="checkAnswer"
+                />
+                <k-button
+                  v-else
+                  appearance="raised-button"
+                  class="question-btn"
+                  :text="$tr('next')"
+                  :primary="true"
+                  @click="nextQuestion"
+                />
+              </transition>
+            </div>
 
-    <div class="attemptprogress-container" :class="{ mobile: isMobile }">
-      <p class="message">
-        {{ $tr('goal', {count: totalCorrectRequiredM}) }}
-      </p>
-      <exercise-attempts
-        class="attemptprogress"
-        :waitingForAttempt="firstAttemptAtQuestion"
-        :numSpaces="attemptsWindowN"
-        :log="recentAttempts"
-      />
-      <p class="status">
-        <span class="try-again" v-if="!correct && !firstAttemptAtQuestion && !hintWasTaken">
-          {{ $tr('tryAgain') }}
-        </span>
-        <span class="correct" v-if="correct && !firstAttemptAtQuestion && !hintWasTaken">
-          {{ $tr('correct') }}
-        </span>
-      </p>
+            <div class="right">
+              <exercise-attempts
+                :waitingForAttempt="firstAttemptAtQuestion || itemError"
+                :numSpaces="attemptsWindowN"
+                :log="recentAttempts"
+              />
+              <p class="current-status">{{ currentStatus }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -86,7 +105,6 @@ oriented data synchronization.
 
 <script>
 
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
   import {
     initMasteryLog,
@@ -104,11 +122,13 @@ oriented data synchronization.
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import seededShuffle from 'kolibri.lib.seededshuffle';
   import { now } from 'kolibri.utils.serverClock';
-  import { updateContentNodeProgress } from '../../state/actions/main';
-  import exerciseAttempts from './exercise-attempts';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import { updateContentNodeProgress } from '../../state/actions/main';
+  import exerciseAttempts from './exercise-attempts';
 
   export default {
     name: 'assessmentWrapper',
@@ -117,16 +137,22 @@ oriented data synchronization.
       contentRenderer,
       kButton,
       uiAlert,
+      kRouterLink,
     },
     mixins: [responsiveWindow],
     $trs: {
-      goal:
-        'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',
+      goal: 'Get {count, number, integer} {count, plural, other {correct}}',
       tryAgain: 'Try again',
       correct: 'Correct!',
       check: 'Check',
-      next: 'Next question',
+      next: 'Next',
       itemError: 'There was an error showing this item',
+      completed: 'Completed',
+      inputAnswer: 'Please enter an answer above',
+      hintUsed: 'Hint used',
+      greatKeepGoing: 'Great! Keep going',
+      tryDifferentQuestion: 'Try a different question',
+      tryNextQuestion: 'Try next question',
     },
     props: {
       id: {
@@ -161,10 +187,6 @@ oriented data synchronization.
         type: Function,
         default: () => Promise.resolve(),
       },
-      checkButtonIsPrimary: {
-        type: Boolean,
-        default: false,
-      },
     },
     data: () => ({
       ready: false,
@@ -177,6 +199,7 @@ oriented data synchronization.
       hintWasTaken: false,
       // Attempted fix for #1725
       checkingAnswer: false,
+      checkWasAttempted: false,
     }),
     computed: {
       recentAttempts() {
@@ -184,11 +207,25 @@ oriented data synchronization.
           return [];
         }
         return this.pastattempts
-          .map(attempt => {
-            if (attempt.hinted) {
-              return 'hint';
+          .map((attempt, index) => {
+            // if first item and not a current attempt
+            if (index === 0 && !this.firstAttemptAtQuestion) {
+              if (attempt.correct === 1) {
+                // first attempt was correct
+                return 'right';
+              } else if (this.correct === 1 && this.complete === true) {
+                // correct but not in first attempt
+                return 'rectified';
+              } else if (this.correct === 0 && this.hintWasTaken) {
+                // not correct and hint
+                return 'hint';
+              } else {
+                // not correct and no hint
+                return 'wrong';
+              }
+            } else {
+              return attempt.correct === 1 ? 'right' : 'rectified';
             }
-            return attempt.correct ? 'right' : 'wrong';
           })
           .reverse();
       },
@@ -226,8 +263,25 @@ oriented data synchronization.
       success() {
         return this.exerciseProgress === 1;
       },
-      isMobile() {
-        return this.windowSize.breakpoint <= 1;
+      currentStatus() {
+        if (this.itemError) {
+          return this.$tr('tryNextQuestion');
+        } else if (this.firstAttemptAtQuestion && this.checkWasAttempted) {
+          return this.$tr('inputAnswer');
+        } else if (
+          this.correct === 1 &&
+          this.recentAttempts[this.recentAttempts.length - 1] === 'right'
+        ) {
+          return this.$tr('correct');
+        } else if (this.correct === 1 && this.complete === true) {
+          // rectified
+          return this.$tr('greatKeepGoing');
+        } else if (this.correct === 0 && this.hintWasTaken) {
+          return this.$tr('hintUsed');
+        } else if (this.checkWasAttempted) {
+          return this.$tr('tryAgain');
+        }
+        return null;
       },
     },
     watch: { exerciseProgress: 'updateExerciseProgressMethod' },
@@ -242,6 +296,7 @@ oriented data synchronization.
         hinted,
         answerState,
         simpleAnswer,
+        error,
       }) {
         this.updateMasteryAttemptState({
           currentTime: now(),
@@ -251,6 +306,7 @@ oriented data synchronization.
           hinted,
           answerState,
           simpleAnswer,
+          error,
         });
       },
       saveAttemptLogMasterLog(updateStore = true) {
@@ -270,6 +326,7 @@ oriented data synchronization.
         }
       },
       checkAnswer() {
+        this.checkWasAttempted = true;
         if (!this.checkingAnswer) {
           this.checkingAnswer = true;
           const answer = this.$refs.contentRenderer.checkAnswer();
@@ -333,10 +390,10 @@ oriented data synchronization.
             simpleAnswer: '',
           });
           this.firstAttemptAtQuestion = false;
-          this.hintWasTaken = true;
           // Only save if this was the first attempt to capture this
           this.saveAttemptLogMasterLog();
         }
+        this.hintWasTaken = true;
       },
       setItemId() {
         const index = this.totalattempts % this.assessmentIds.length;
@@ -358,6 +415,7 @@ oriented data synchronization.
         this.itemError = false;
         this.setItemId();
         this.callCreateAttemptLog();
+        this.checkWasAttempted = false;
       },
       callInitMasteryLog() {
         this.initMasteryLog(this.masterySpacingTime, this.masteryModel);
@@ -391,6 +449,7 @@ oriented data synchronization.
             correct: 0,
             complete: this.complete,
             firstAttempt: true,
+            error: true,
           });
           this.firstAttemptAtQuestion = false;
         } else {
@@ -426,7 +485,8 @@ oriented data synchronization.
         isUserLoggedIn,
         mastered: state => state.core.logging.mastery.complete,
         totalattempts: state => state.core.logging.mastery.totalattempts,
-        pastattempts: state => state.core.logging.mastery.pastattempts,
+        pastattempts: state =>
+          (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
         userid: state => state.core.session.user_id,
         content: state => state.pageState.content,
         assessmentIds: state => state.pageState.content.assessmentIds,
@@ -443,42 +503,68 @@ oriented data synchronization.
 
   @require '~kolibri.styles.definitions'
 
-  .message
-    color: $core-text-annotation
-    margin: 0
-
-  .status
-    font-weight: bold
-    min-height: 14px
-    margin: 0
-
-  .try-again
-    color: $core-status-wrong
-
-  .correct
-    color: $core-status-correct
-
-  .attemptprogress-container
-    position: relative
-    margin-top: 8px
-
-  .attemptprogress-container.mobile
-    font-size: smaller
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), 0 3px 6px rgba(0, 0, 0, 0.6)
-    background-color: $core-bg-light
-    margin: 0
-    padding: 8px
+  // BOTTOM_SPACED_RESERVED depends on the height of this container
+  .attempts-container
     position: fixed
-    width: 100%
-    height: 88px // if changed, also change BOTTOM_SPACED_RESERVED in top-level index
+    bottom: 0
+    right: 0
+    left: 0
+    margin: 0
+    padding: 8px 16px
+    overflow-x: hidden
+    z-index: 8 // material - Bottom app bar
+    font-size: 14px
+    background-color: $core-bg-light
+    box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2),
+                0 16px 24px 2px rgba(0, 0, 0, 0.14),
+                0 6px 30px 5px rgba(0, 0, 0, 0.12)
+
+  .margin-wrapper
+    max-width: 1000px - 64px // account for page padding
+    margin: auto
+
+  .mobile
+      padding: 8px
+
+  .overall-status
+    color: $core-text-default
+    margin-bottom: 8px
+
+  .mastered, .not-mastered
+    vertical-align: bottom
+
+  .mastered
+    fill: $core-status-mastered
+
+  .not-mastered
+    fill: $core-grey
+
+  .overall-status-text
+    display: inline-block
+    margin-left: 4px
+
+  .completed
+    color: $core-text-annotation
+    font-size: 12px
+
+  .table
+    display: table
+
+  .row
+    display: table-row
+
+  .left, .right
+    display: table-cell
+    vertical-align: top
+
+  .right
     overflow-x: auto
     overflow-y: hidden
-    z-index: 3 // material - Quick entry / Search bar (scrolled state)
-    bottom: 0
-    left: 0
+    padding-left: 8px
+    width: 99%
 
   .question-btn
-    margin-left: 1.5em
+    margin: 0
 
   // checkAnswer btn animation
   .shaking
@@ -496,5 +582,9 @@ oriented data synchronization.
       transform: translate3d(-4px, 0, 0)
     40%, 60%
       transform: translate3d(4px, 0, 0)
+
+  .current-status
+    margin: 0
+    height: 18px
 
 </style>

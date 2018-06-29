@@ -2,25 +2,21 @@
 To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
 import datetime
-import tempfile
+
 from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
 from django.utils import timezone
-from kolibri.auth.constants import collection_kinds, role_kinds
-from kolibri.content import models as content
 from rest_framework.test import APITestCase
-from kolibri.auth.models import Facility, FacilityUser, Role
+
+from kolibri.auth.constants import collection_kinds
+from kolibri.auth.constants import role_kinds
+from kolibri.auth.models import Facility
+from kolibri.auth.models import FacilityUser
+from kolibri.auth.models import Role
 from kolibri.auth.test.helpers import provision_device
+from kolibri.content import models as content
 from kolibri.logger.models import ContentSummaryLog
 
-CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
-CONTENT_DATABASE_DIR_TEMP = tempfile.mkdtemp()
 
-
-@override_settings(
-    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
-    CONTENT_DATABASE_DIR=CONTENT_DATABASE_DIR_TEMP,
-)
 class ContentReportAPITestCase(APITestCase):
     """
     Testcase for content API methods
@@ -78,10 +74,11 @@ class ContentReportAPITestCase(APITestCase):
         # Topic so None
         assert_progress(root, [
             [{'log_count_total': 0, 'total_progress': 0.0, 'log_count_complete': 0}],
+            [{'log_count_total': 0, 'total_progress': 0.0, 'log_count_complete': 0}],
             [
                 {'kind': 'audio', 'node_count': 1, 'total_progress': 0.5},
                 {'kind': 'document', 'node_count': 1, 'total_progress': 0.0},
-                {'kind': 'exercise', 'node_count': 1, 'total_progress': 0.7}
+                {'kind': 'exercise', 'node_count': 1, 'total_progress': 0.7},
             ]
         ])
         assert_progress(c2, [

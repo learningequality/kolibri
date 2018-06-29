@@ -4,16 +4,20 @@
 
     <div :style="contentControlsContainerStyles">
 
-      <div class="content-carousel-previous-control" @click="previousSet">
+      <div
+        class="content-carousel-previous-control"
+        @click="previousSet"
+        v-show="!isFirstSet"
+      >
         <ui-icon-button
           class="content-carousel-previous-control-button"
           :style="buttonTransforms"
-          v-show="!isFirstSet"
           :disabled="isFirstSet"
           :disableRipple="true"
-          icon="arrow_back"
           size="large"
-        />
+        >
+          <mat-svg name="arrow_back" category="navigation" />
+        </ui-icon-button>
       </div>
 
       <transition-group
@@ -34,20 +38,25 @@
           :thumbnail="content.thumbnail"
           :kind="content.kind"
           :progress="content.progress"
+          :numCoachContents="content.num_coach_contents"
           :link="genContentLink(content.id, content.kind)"
         />
       </transition-group>
 
-      <div class="content-carousel-next-control" @click="nextSet">
+      <div
+        class="content-carousel-next-control"
+        @click="nextSet"
+        v-show="!isLastSet"
+      >
         <ui-icon-button
           class="content-carousel-next-control-button"
           :style="buttonTransforms"
-          v-show="!isLastSet"
           :disabled="isLastSet"
           :disableRipple="true"
-          icon="arrow_forward"
           size="large"
-        />
+        >
+          <mat-svg name="arrow_forward" category="navigation" />
+        </ui-icon-button>
       </div>
 
     </div>

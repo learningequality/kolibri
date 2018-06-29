@@ -1,0 +1,22 @@
+<template>
+
+  <div>
+    <k-linear-loader :delay="false" type="indeterminate"></k-linear-loader>
+    <br>
+    <k-linear-loader :delay="true" type="indeterminate"></k-linear-loader>
+    <br>
+    <k-linear-loader :delay="false" type="determinate" :progress="progress"></k-linear-loader>
+  </div>
+
+</template>
+
+
+<script>
+
+  module.exports = {
+    data: () => ({
+      progress: 50,
+    }),
+  };
+
+</script>

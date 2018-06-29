@@ -24,6 +24,9 @@ def get_engine(connection_string):
     return django_connection_engine()
 
 
+test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+
 @patch('kolibri.content.utils.sqlalchemybridge.get_engine', new=get_engine)
 class AnnotationFromLocalFileAvailability(TransactionTestCase):
 
@@ -31,25 +34,36 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
 
     def test_all_local_files_available(self):
         LocalFile.objects.all().update(available=True)
-        set_leaf_node_availability_from_local_file_availability()
+        set_leaf_node_availability_from_local_file_availability(test_channel_id)
         self.assertTrue(all(File.objects.all().values_list('available', flat=True)))
         self.assertTrue(all(
             ContentNode.objects.exclude(kind=content_kinds.TOPIC).exclude(files=None).values_list('available', flat=True)))
 
     def test_no_local_files_available(self):
         LocalFile.objects.all().update(available=False)
-        set_leaf_node_availability_from_local_file_availability()
+        set_leaf_node_availability_from_local_file_availability(test_channel_id)
         self.assertEqual(File.objects.filter(available=True).count(), 0)
         self.assertEqual(ContentNode.objects.exclude(kind=content_kinds.TOPIC).filter(available=True).count(), 0)
 
     def test_one_local_file_available(self):
         LocalFile.objects.all().update(available=False)
-        LocalFile.objects.filter(id='9f9438fe6b0d42dd8e913d7d04cfb2b2').update(available=True)
-        set_leaf_node_availability_from_local_file_availability()
+        LocalFile.objects.filter(id='6bdfea4a01830fdd4a585181c0b8068c').update(available=True)
+        set_leaf_node_availability_from_local_file_availability(test_channel_id)
         self.assertTrue(ContentNode.objects.get(id='32a941fb77c2576e8f6b294cde4c3b0c').available)
         self.assertFalse(all(
             ContentNode.objects.exclude(
                 kind=content_kinds.TOPIC).exclude(id='32a941fb77c2576e8f6b294cde4c3b0c').values_list('available', flat=True)))
+
+    def test_other_channel_node_still_available(self):
+        test = ContentNode.objects.filter(kind=content_kinds.VIDEO).first()
+        test.id = uuid.uuid4().hex
+        test.channel_id = uuid.uuid4().hex
+        test.available = True
+        test.parent = None
+        test.save()
+        set_leaf_node_availability_from_local_file_availability(test_channel_id)
+        test.refresh_from_db()
+        self.assertTrue(test.available)
 
     def tearDown(self):
         call_command('flush', interactive=False)
@@ -74,14 +88,83 @@ class AnnotationTreeRecursion(TransactionTestCase):
     def test_no_content_nodes_available(self):
         ContentNode.objects.filter(kind=content_kinds.TOPIC).update(available=True)
         recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
-        # 2, as there are two childless topics in the fixture, these cannot exist in real databases
-        self.assertEqual(ContentNode.objects.filter(kind=content_kinds.TOPIC).filter(available=True).count(), 2)
+        # 3, as there are three childless topics in the fixture, these cannot exist in real databases
+        self.assertEqual(ContentNode.objects.filter(kind=content_kinds.TOPIC).filter(available=True).count(), 3)
 
     def test_one_content_node_available(self):
         ContentNode.objects.filter(id='32a941fb77c2576e8f6b294cde4c3b0c').update(available=True)
         recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
         # Check parent is available
         self.assertTrue(ContentNode.objects.get(id='da7ecc42e62553eebc8121242746e88a').available)
+
+    def test_all_content_nodes_available_coach_content(self):
+        ContentNode.objects.exclude(kind=content_kinds.TOPIC).update(available=True, coach_content=True)
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        self.assertTrue(ContentNode.objects.get(id="da7ecc42e62553eebc8121242746e88a").coach_content)
+        self.assertTrue(ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").coach_content)
+
+    def test_no_content_nodes_coach_content(self):
+        ContentNode.objects.filter(kind=content_kinds.TOPIC).update(available=True)
+        ContentNode.objects.all().update(coach_content=False)
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        self.assertEqual(ContentNode.objects.filter(coach_content=True).count(), 0)
+
+    def test_one_content_node_many_siblings_coach_content(self):
+        ContentNode.objects.filter(kind=content_kinds.TOPIC).update(available=True)
+        ContentNode.objects.filter(id='32a941fb77c2576e8f6b294cde4c3b0c').update(coach_content=True)
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        # Check parent is not marked as coach_content True because there are non-coach_content siblings
+        self.assertFalse(ContentNode.objects.get(id='da7ecc42e62553eebc8121242746e88a').coach_content)
+
+    def test_two_channels_no_annotation_collision_child_false(self):
+        root_node = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            kind=content_kinds.TOPIC,
+            available=True,
+            coach_content=True,
+        )
+        ContentNode.objects.create(
+            title='test1',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=root_node,
+            kind=content_kinds.VIDEO,
+            available=False,
+            coach_content=False,
+        )
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        root_node.refresh_from_db()
+        self.assertTrue(root_node.available)
+        self.assertTrue(root_node.coach_content)
+
+    def test_two_channels_no_annotation_collision_child_true(self):
+        root_node = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            kind=content_kinds.TOPIC,
+            available=False,
+            coach_content=False,
+        )
+        ContentNode.objects.create(
+            title='test1',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=root_node,
+            kind=content_kinds.VIDEO,
+            available=True,
+            coach_content=True,
+        )
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        root_node.refresh_from_db()
+        self.assertFalse(root_node.available)
+        self.assertFalse(root_node.coach_content)
 
     def tearDown(self):
         call_command('flush', interactive=False)
@@ -98,13 +181,13 @@ class LocalFileByChecksum(TransactionTestCase):
         LocalFile.objects.all().update(available=False)
 
     def test_set_one_file(self):
-        file_id = '9f9438fe6b0d42dd8e913d7d04cfb2b2'
+        file_id = '6bdfea4a01830fdd4a585181c0b8068c'
         mark_local_files_as_available([file_id])
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 1)
         self.assertTrue(LocalFile.objects.get(id=file_id).available)
 
     def test_set_two_files(self):
-        file_id_1 = '9f9438fe6b0d42dd8e913d7d04cfb2b2'
+        file_id_1 = '6bdfea4a01830fdd4a585181c0b8068c'
         file_id_2 = 'e00699f859624e0f875ac6fe1e13d648'
         mark_local_files_as_available([file_id_1, file_id_2])
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 2)
@@ -124,7 +207,7 @@ class LocalFileByDisk(TransactionTestCase):
 
     fixtures = ['content_test.json']
 
-    file_id_1 = '9f9438fe6b0d42dd8e913d7d04cfb2b2'
+    file_id_1 = '6bdfea4a01830fdd4a585181c0b8068c'
     file_id_2 = 'e00699f859624e0f875ac6fe1e13d648'
 
     def setUp(self):

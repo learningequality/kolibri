@@ -104,18 +104,18 @@
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import { PageNames } from '../../../constants';
   import sumBy from 'lodash/sumBy';
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import { USER, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import { PageNames } from '../../../constants';
   import { setExamsModal } from '../../../state/actions/exam';
   import { Modals as ExamModals } from '../../../constants/examConstants';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import AssignmentSummary from '../../assignments/AssignmentSummary';
   import ManageExamModals from './ManageExamModals';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
 
   export default {
     name: 'examReportPage',

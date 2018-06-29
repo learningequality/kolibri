@@ -19,21 +19,24 @@
         <k-navbar-link
           type="icon-and-title"
           title="Trending"
-          icon="trending_up"
           :link="a"
-        />
+        >
+          <mat-svg name="trending_up" category="action" />
+        </k-navbar-link>
         <k-navbar-link
           type="icon-and-title"
           title="Lit"
-          icon="whatshot"
           :link="b"
-        />
+        >
+          <mat-svg name="whatshot" category="social" />
+        </k-navbar-link>
         <k-navbar-link
           type="icon-and-title"
           title="Favorites"
-          icon="favorite"
           :link="c"
-        />
+        >
+          <mat-svg name="favorite" category="action" />
+        </k-navbar-link>
       </k-navbar>
     </show>
 
@@ -59,19 +62,18 @@
 
 <script>
 
+  import FullVue from 'vue/dist/vue.common';
+  import kNavbar from 'kolibri.coreVue.components.kNavbar';
+  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   import componentDocs from '../../shell/component-docs';
   import vueExample from '../../shell/vue-example';
   import pageTemplate from '../../shell/page-template';
   import show from '../../shell/show';
-
   import example from 'raw-loader!./example.html';
   import kNavbarApi from '!vue-doc!kolibri.coreVue.components.kNavbar';
   import kNavbarLinkApi from '!vue-doc!kolibri.coreVue.components.kNavbarLink';
 
-  import FullVue from 'vue/dist/vue.common';
-  import kNavbar from 'kolibri.coreVue.components.kNavbar';
   FullVue.component('k-navbar', kNavbar);
-  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
   FullVue.component('k-navbar-link', kNavbarLink);
 
   export default {

@@ -1,46 +1,6 @@
 import { RemoteChannelResource } from 'kolibri.resources';
-import { ContentWizardPages, TransferTypes } from '../../constants';
-import { driveChannelList, installedChannelList, wizardState } from '../getters';
-import router from 'kolibri.coreVue.router';
 import differenceBy from 'lodash/differenceBy';
-
-/**
- * Prepares the Available Channels Page for import/export flows
- *
- */
-export function showAvailableChannelsPage(store) {
-  router.push({
-    name: 'GOTO_AVAILABLE_CHANNELS_PAGE',
-  });
-  store.dispatch('SET_WIZARD_PAGENAME', ContentWizardPages.AVAILABLE_CHANNELS);
-  const { transferType, selectedDrive } = wizardState(store.state);
-  const setAvailableChannels = store.dispatch.bind(null, 'SET_AVAILABLE_CHANNELS');
-
-  // REMOTEIMPORT -> get Available Channels from RemoteChannel API
-  if (transferType === TransferTypes.REMOTEIMPORT) {
-    store.dispatch('SET_WIZARD_STATUS', 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO');
-    return RemoteChannelResource.getCollection()
-      .fetch({}, true)
-      ._promise.then(publicChannels => {
-        return getAllRemoteChannels(store, publicChannels);
-      })
-      .then(allChannels => {
-        setAvailableChannels(allChannels);
-        store.dispatch('SET_WIZARD_STATUS', '');
-      });
-  }
-
-  // LOCALIMPORT -> get Available Channels from selected drive's metadata
-  if (transferType === TransferTypes.LOCALIMPORT) {
-    setAvailableChannels(driveChannelList(store.state)(selectedDrive.id));
-  }
-
-  // LOCALEXPORT -> get Available Channels from store
-  if (transferType === TransferTypes.LOCALEXPORT) {
-    setAvailableChannels(installedChannelList(store.state));
-  }
-  return Promise.resolve();
-}
+import { installedChannelList } from '../getters';
 
 /**
  * Makes request to RemoteChannel API with a token. Does not actually interact
@@ -50,7 +10,7 @@ export function showAvailableChannelsPage(store) {
  * @returns Promise
  */
 export function getRemoteChannelByToken(token) {
-  return RemoteChannelResource.getModel(token).fetch()._promise;
+  return RemoteChannelResource.getModel(token).fetch({}, true)._promise;
 }
 
 /**
@@ -64,12 +24,12 @@ export function getRemoteChannelByToken(token) {
  */
 export function getAllRemoteChannels(store, publicChannels) {
   const installedChannels = installedChannelList(store.state);
-  const potentiallyUnlisted = differenceBy(installedChannels, publicChannels, 'id').filter(
-    channel => channel.on_device_resources > 0
+  const privateChannels = differenceBy(installedChannels, publicChannels, 'id').filter(
+    channel => channel.available
   );
-  const promises = potentiallyUnlisted.map(channel =>
-    getRemoteChannelByToken(channel.id)
-      .then(([channel]) => Promise.resolve(channel))
+  const promises = privateChannels.map(privateChannel =>
+    getRemoteChannelByToken(privateChannel.id)
+      .then(([channel]) => Promise.resolve({ ...channel, ...privateChannel }))
       .catch(() => Promise.resolve())
   );
   return Promise.all(promises).then(unlisted => {

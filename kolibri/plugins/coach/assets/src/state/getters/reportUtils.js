@@ -1,5 +1,6 @@
-import { TableColumns, SortOrders } from '../../constants/reportConstants';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import { localeCompare } from 'kolibri.utils.i18n';
+import { TableColumns, SortOrders } from '../../constants/reportConstants';
 
 /* given an array of objects sum the keys on those that pass the filter */
 function _sumOfKeys(array, key, filter = () => true) {
@@ -52,10 +53,6 @@ export function genCompareFunc(sortColumn, sortOrder) {
       return flipped(-1);
     }
     // standard comparisons
-    return flipped(
-      String(a[key]).localeCompare(String(b[key]), 'default', {
-        usage: 'search',
-      })
-    );
+    return localeCompare(a[key], b[key]);
   };
 }

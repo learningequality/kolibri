@@ -1,5 +1,5 @@
-import { Resource } from '../api-resource';
 import pickBy from 'lodash/pickBy';
+import { Resource } from '../api-resource';
 
 export default class TaskResource extends Resource {
   static resourceName() {
