@@ -30,5 +30,6 @@ class IgnoreGUIMiddleware(object):
         return response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        if request.META["HTTP_USER_AGENT"] == "Kolibri session":
+        if request.META.get("HTTP_USER_AGENT", None) == "Kolibri session":
             return HttpResponse('')
+        return None
