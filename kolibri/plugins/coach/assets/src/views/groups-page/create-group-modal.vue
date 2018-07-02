@@ -13,6 +13,7 @@
           :autofocus="true"
           :invalid="nameIsInvalid"
           :invalidText="nameIsInvalidText"
+          :maxlength="100"
           @blur="nameBlurred = true"
           v-model.trim="name"
         />
