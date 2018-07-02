@@ -13,6 +13,7 @@ from .sqlalchemybridge import Bridge
 from .sqlalchemybridge import ClassNotFoundError
 from kolibri.content.apps import KolibriContentConfig
 from kolibri.content.legacy_models import License
+from kolibri.content.models import AssessmentMetaData
 from kolibri.content.models import ChannelMetadata
 from kolibri.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.content.models import ContentNode
@@ -35,6 +36,7 @@ merge_models = [
     ContentTag,
     LocalFile,
     Language,
+    ChannelMetadata,
 ]
 
 
@@ -376,6 +378,7 @@ class ChannelImport(object):
             existing_channel = ChannelMetadata.objects.get(id=self.channel_id)
         except ChannelMetadata.DoesNotExist:
             existing_channel = None
+
         if existing_channel:
 
             if existing_channel.version < self.channel_version:
@@ -383,25 +386,48 @@ class ChannelImport(object):
                 logging.info(('Older version {channel_version} of channel {channel_id} already exists in database; removing old entries ' +
                               'so we can upgrade to version {new_channel_version}').format(
                     channel_version=existing_channel.version, channel_id=self.channel_id, new_channel_version=self.channel_version))
+                self.delete_old_channel_data(existing_channel.root.tree_id)
             else:
                 # We have previously loaded this channel, with the same or newer version, so our work here is done
                 logging.warn(('Version {channel_version} of channel {channel_id} already exists in database; cancelling import of ' +
                               'version {new_channel_version}').format(
                     channel_version=existing_channel.version, channel_id=self.channel_id, new_channel_version=self.channel_version))
                 return False
-            self.check_cancelled()
-            root_id = ChannelMetadata.objects.get(pk=self.channel_id).root_id
-            ContentNodeClass = self.destination.get_class(ContentNode)
-            root_node = self.destination.session.query(ContentNodeClass).get(root_id)
-            # We set cascade behaviour on relationships on the default database
-            # So calling delete on the root node of a channel will delete everything else
-            self.destination.session.delete(root_node)
-            # Deletion/cascade is not enacted on the session until we call flush
-            # Note: as this function is generally called inside a explicitly managed
-            # transaction, this will not be committed to the database unless the entire
-            # update operation succeeds.
-            self.destination.session.flush()
+
         return True
+
+    def _can_use_optimized_pre_deletion(self):
+        # check whether we can skip fully deleting these three models, if we'll be using REPLACE on them anyway
+        for model in [ContentNode, File, AssessmentMetaData]:
+            mapping = self.schema_mapping.get(model, {})
+            row_mapper = self.generate_row_mapper(mapping.get('per_row'))
+            table_mapper = self.generate_table_mapper(mapping.get('per_table'))
+            if not self.can_use_sqlite_attach_method(model, row_mapper, table_mapper):
+                return False
+        return True
+
+    def delete_old_channel_data(self, old_tree_id):
+
+        # construct a template for deleting records for models that have a foreign key onto ContentNode
+        delete_related_template = "DELETE FROM {table} WHERE contentnode_id IN (SELECT id FROM content_contentnode WHERE tree_id = '{tree_id}')"
+
+        # construct a query for deleting old ContentNode records
+        delete_contentnode_query = "DELETE FROM content_contentnode WHERE tree_id = '{}'".format(old_tree_id)
+
+        if self._can_use_optimized_pre_deletion():
+            # if the external database is attached and there are no mappings for the relevant tables,
+            # we can skip deleting records that will be REPLACED during import, which helps efficiency
+            delete_related_template += " AND NOT id IN (SELECT id FROM sourcedb.{table})"
+            delete_contentnode_query += " AND NOT id IN (SELECT id FROM sourcedb.content_contentnode)"
+
+        # construct queries for deletion of File and AssessmentMetaData model records
+        delete_file_query = delete_related_template.format(table="content_file", tree_id=old_tree_id)
+        delete_assessment_query = delete_related_template.format(table="content_assessmentmetadata", tree_id=old_tree_id)
+
+        # run our deletion queries, starting with the related models (as they depend on the ContentNode records still existing)
+        for query in [delete_file_query, delete_assessment_query, delete_contentnode_query]:
+            self.destination.session.execute(text(query))
+            self.check_cancelled()
 
     def check_cancelled(self):
         if callable(self.cancel_check):
