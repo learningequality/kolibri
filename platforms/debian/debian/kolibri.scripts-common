@@ -213,7 +213,6 @@ kolibri_debconf_ask()
     fi
     db_go || true
 
-
     # Which user should run the script?
     KOLIBRI_USER=""
     while [ "$KOLIBRI_USER" = "" ]; do
@@ -222,6 +221,10 @@ kolibri_debconf_ask()
       db_get kolibri/user
       export KOLIBRI_USER="$RET"
     done
+
+    # Give instructions for <0.10 upgrades
+    db_input high kolibri/pre-010-upgrade-system-user || true
+    db_go || true
 
 }
 
@@ -295,10 +298,16 @@ kolibri_debconf_set_defaults()
     db_fget kolibri/user seen
     USER_SEEN="$RET"
     
-    # Because of some weird issue, we cannot avoid having
-    # kolibri_debconf_set_defaults called during upgrades. So to avoid changing
-    # the "kolibri" user on systems before 0.10, we make an extra check that
-    # there isn't already a kolibri user present and in use on the system:
+    # Extra sensitivity for upgrades from <0.10 - this can be deleted at some
+    # point without causing serious harm, it's just nice to have for the bulk of
+    # users upgrading upon release.
+    #
+    # Because of some weird issue, we cannot *avoid* having
+    # kolibri_debconf_set_defaults called during upgrades, because we cannot
+    # reliably detect all upgrades from args[0]=="uprade". So to avoid
+    # suggesting the desktop user account to systems installed before 0.10, we
+    # make an extra check that there isn't already a "kolibri" configured using
+    # the old convention:
     if cat /etc/default/kolibri | grep -q 'KOLIBRI_USER="kolibri"'
     then
         USER_SEEN="true"
