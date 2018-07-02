@@ -118,7 +118,7 @@ EOF
 ########################################################
 
 
-export STATE_FILE=/tmp/kolibriinstall.state
+export STATE_FILE=/tmp/kolibri_dpkg.state
 
 has_state() {
     debug "Checking for state $1"
@@ -240,17 +240,19 @@ kolibri_configure()
     # Fetch configuration settings
     kolibri_get_config
 
-    if ! [ -e "/etc/kolibri/username" ]
-    then
-        echo -n "$KOLIBRI_USER" > /etc/kolibri/username
-    fi
-
     # This way of writing if statements with failing sub commands will work
     # while using errexit
     ( ! getent passwd "$KOLIBRI_USER" ) && {
         echo "Creating new user $KOLIBRI_USER"
         adduser --system --shell /bin/bash --home "/var/$KOLIBRI_USER" "$KOLIBRI_USER"
     }
+
+    # After the user has been successfully created, save it in the configuration
+    # for the system service.
+    if ! [ -e "/etc/kolibri/username" ]
+    then
+        echo -n "$KOLIBRI_USER" > /etc/kolibri/username
+    fi
 
     # Remove because we might re-register as systemd during an upgrade
     update-rc.d -f kolibri remove
@@ -292,6 +294,19 @@ kolibri_debconf_set_defaults()
     # mark it as unseen (changing a db value automatically marks it as seen)
     db_fget kolibri/user seen
     USER_SEEN="$RET"
+    
+    # Because of some weird issue, we cannot avoid having
+    # kolibri_debconf_set_defaults called during upgrades. So to avoid changing
+    # the "kolibri" user on systems before 0.10, we make an extra check that
+    # there isn't already a kolibri user present and in use on the system:
+    if cat /etc/default/kolibri | grep -q 'KOLIBRI_USER="kolibri"'
+    then
+        USER_SEEN="true"
+        db_fset kolibri/pre-010-upgrade-system-user seen false
+    else
+        db_fset kolibri/pre-010-upgrade-system-user seen true
+    fi
+    
     if [ "$USER_SEEN" == "false" ]
     then
         # DESKTOP_USER=`getent passwd | awk -F: '$3 >= 1000 && $3 < 2000 {print $1}'`
@@ -317,19 +332,34 @@ kolibri_debconf_set_defaults()
 kolibri_preinst()
 {
     
-    # Initialize: Remove the states file.
-    # benjaoming: This seems to work, but uncommented for debugging
+    # Initialize: Remove the states file. This is expected to work fine, and
+    # also HAS to be done somewhere, otherwise state may be transferred between
+    # different dpkg processes! For instance, "apt-get install" followed by
+    # "apt-get remove" should not transfer state!
     # https://github.com/learningequality/ka-lite-installers/issues/474
     rm_states
 
-    # Only do this if install or upgrade
+    # Because of a perceived bug in some Ubuntu version, we reliably feel like
+    # our scripts are run with the "install" even though it's an upgrade on
+    # top of a previous package. There for DO NOT distungish behavior according
+    # to whether or not something is an upgrade. Just assume both and find
+    # other was to detect if it's an upgrade.
     if [ "${args[0]}" = "install" ] ||
        [ "${args[0]}" = "upgrade" ]
     then
+    
+        # Step 1: Stop the system service
         stop_kolibri_service
+
+        # Setting the defaults should only happen during a new installation. The
+        # installation may happen on an unclean system, for instance if kolibri
+        # was removed with "apt-get remove" instead of "apt-get purge"
+        # NB! Using "dpkg -i" on 16.04 most definitely triggers that the preinst
+        # scripts are run with the "install" flag, even though they are upgrades :/
+        kolibri_debconf_set_defaults
+
         # Ask questions - consider not doing that during upgrade, but this is
         # not a good idea in case we add new entries in kolibri.template
-        kolibri_debconf_set_defaults
         kolibri_debconf_ask
     fi
 

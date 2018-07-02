@@ -1,3 +1,16 @@
+kolibri-source (0.10.0~b9-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Upgrade notes for pre 0.0.10
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 02 Jul 2018 22:01:37 +0200
+
+kolibri-source (0.10.0~b8-0ubuntu2) trusty; urgency=medium
+
+  * Only set defaults during install, not for upgrades
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 29 Jun 2018 16:07:51 +0200
+
 kolibri-source (0.10.0~b8-0ubuntu1) trusty; urgency=medium
 
   * New upstream release

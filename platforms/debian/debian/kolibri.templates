@@ -44,3 +44,12 @@ Description: Which user account should own the Kolibri server?
  .
  Entering a username that doesn't exist will create a new system user with
  home directory /var/<username>.
+
+Template: kolibri/pre-010-upgrade-system-user
+Type: note
+Description: Changing system service owner:
+ You are updating from an older version of Kolibri and we recommend that you switch the user account that runs the system service to your normal desktop user. This allows Kolibri to access your USB devices for importing and exporting content channels.
+ .
+ After finishing the installation/upgrade, follow these instructions to change the user setting and move your previous content channels and database:
+ .
+    https://learningequality.org/r/deb-installer-upgrade-note-system-user
