@@ -3,7 +3,6 @@ import logging as logger
 import os
 
 from le_utils.constants import content_kinds
-from sqlalchemy import all_
 from sqlalchemy import and_
 from sqlalchemy import exists
 from sqlalchemy import func
@@ -201,7 +200,7 @@ def recurse_availability_up_tree(channel_id):
         # but otherwise false.
         # Everything after the select statement should be identical to the available_nodes expression above.
         if bridge.engine.name == 'sqlite':
-            coach_content_nodes = select([all_(child.c.coach_content)]).where(
+            coach_content_nodes = select([func.min(child.c.coach_content)]).where(
                 and_(
                     child.c.available == True,  # noqa
                     child.c.level == level,
