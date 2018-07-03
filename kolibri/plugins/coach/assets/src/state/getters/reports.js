@@ -13,7 +13,6 @@ const logging = logger.getLogger(__filename);
 export const sortColumn = state => (state.pageState || {}).sortColumn;
 export const sortOrder = state => (state.pageState || {}).sortOrder;
 
-// public vuex getters
 export const completionCount = state => {
   const summary = state.pageState.contentScopeSummary;
   if (summary.kind !== ContentNodeKinds.TOPIC) {

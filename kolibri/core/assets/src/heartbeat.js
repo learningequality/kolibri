@@ -59,11 +59,11 @@ export class HeartBeat {
     this.active = false;
   }
   wait() {
-    const reconnect = store.getters.reconnectTime;
+    const { reconnectTime } = store.getters;
     // If we are currently engaged in exponential backoff in trying to reconnect to the server
     // use the current reconnect time preferentially instead of the standard delay.
     // The reconnect time is stored in seconds, so multiply by 1000 to give the milliseconds.
-    this.timerId = setTimeout(this.beat, reconnect * 1000 || this.delay);
+    this.timerId = setTimeout(this.beat, reconnectTime * 1000 || this.delay);
     return this.timerId;
   }
   /*
@@ -74,7 +74,7 @@ export class HeartBeat {
    * @return {Promise} promise that resolves when the endpoint check is complete.
    */
   checkSession() {
-    const { currentUserId: userId, connected, reconnectTime } = store.getters;
+    const { currentUserId, connected, reconnectTime } = store.getters;
     // Record the current user id to check if a different one is returned by the server.
     // Don't use the regular client, to avoid circular imports, and to use different custom
     // interceptors on the request specific to the behaviour here.
@@ -118,7 +118,7 @@ export class HeartBeat {
     })
       .then(response => {
         // Check the user id in the response
-        if (response.entity.user_id !== userId) {
+        if (response.entity.user_id !== currentUserId) {
           // If it is different, then our user has been signed out.
           this.signOutDueToInactivity();
         }
