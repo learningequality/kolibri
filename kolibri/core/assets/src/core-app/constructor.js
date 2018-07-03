@@ -3,9 +3,10 @@
  * @module Facade
  */
 
-import vue from 'vue';
-import vuex from 'vuex';
-import router from 'vue-router';
+import Vue from 'vue';
+import VueMeta from 'vue-meta';
+import VueRouter from 'vue-router';
+import Vuex from 'vuex';
 import merge from 'lodash/merge';
 import { setUpIntl } from '../utils/i18n';
 import Mediator from './mediator';
@@ -48,12 +49,12 @@ export default class CoreApp {
 
     const mediator = new Mediator();
 
-    vue.prototype.Kolibri = this;
-    /**
-     * Use vuex and vue-router.
-     */
-    vue.use(vuex);
-    vue.use(router);
+    Vue.prototype.Kolibri = this;
+
+    // Register Vue plugins
+    Vue.use(Vuex);
+    Vue.use(VueRouter);
+    Vue.use(VueMeta);
 
     // Shim window.location.origin for IE.
     if (!window.location.origin) {
