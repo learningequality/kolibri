@@ -4,16 +4,14 @@
 
 import interceptor from 'rest/interceptor';
 import mime from 'rest/interceptor/mime';
-
 import heartbeat from 'kolibri.heartbeat';
-import { connected } from 'kolibri.coreVue.vuex.getters';
 import store from 'kolibri.coreVue.vuex.store';
 import errorCodes from '../disconnectionErrorCodes';
 import baseClient from './baseClient';
 
 const disconnectInterceptor = interceptor({
   request: function(request) {
-    if (!connected(store.state)) {
+    if (!store.getters.connected) {
       // If the vuex state records that we are not currently connected then cancel all
       // outgoing requests.
       if (request.cancel) {

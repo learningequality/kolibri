@@ -8,7 +8,7 @@ export const trs = createTranslator('disconnectionSnackbars', {
 });
 
 export function createTryingToReconnectSnackbar(store) {
-  store.dispatch('CORE_CREATE_SNACKBAR', {
+  store.commit('CORE_CREATE_SNACKBAR', {
     text: trs.$tr('tryingToReconnect'),
     backdrop: true,
   });
@@ -23,7 +23,7 @@ export function createDisconnectedSnackbar(store, beatCallback) {
   // set proper time
   setDynamicReconnectTime(store.state.core.connection.reconnectTime);
   // create snackbar
-  store.dispatch('CORE_CREATE_SNACKBAR', {
+  store.commit('CORE_CREATE_SNACKBAR', {
     text: generateDisconnectedSnackbarText(),
     actionText: trs.$tr('tryNow'),
     actionCallback: beatCallback,
@@ -33,7 +33,7 @@ export function createDisconnectedSnackbar(store, beatCallback) {
   // start timeout
   timer = setInterval(() => {
     setDynamicReconnectTime(dynamicReconnectTime - 1);
-    store.dispatch('CORE_SET_SNACKBAR_TEXT', generateDisconnectedSnackbarText());
+    store.commit('CORE_SET_SNACKBAR_TEXT', generateDisconnectedSnackbarText());
   }, 1000);
 }
 
@@ -55,7 +55,7 @@ function clearTimer() {
 
 export function createReconnectedSnackbar(store) {
   clearTimer();
-  store.dispatch('CORE_CREATE_SNACKBAR', {
+  store.commit('CORE_CREATE_SNACKBAR', {
     text: trs.$tr('successfullyReconnected'),
     autoDismiss: true,
   });

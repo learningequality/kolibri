@@ -89,6 +89,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import countBy from 'lodash/countBy';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -98,7 +99,6 @@
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import StatusIcon from '../assignments/StatusIcon';
-  import { createLesson } from '../../state/actions/lessons';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import { lessonSummaryLink } from './lessonsRouterUtils';
 
@@ -122,6 +122,11 @@
       };
     },
     computed: {
+      ...mapState({
+        lessons: state => state.pageState.lessons,
+        classId: state => state.classId,
+        learnerGroups: state => state.pageState.learnerGroups,
+      }),
       filterOptions() {
         const filters = ['allLessons', 'activeLessons', 'inactiveLessons'];
         return filters.map(filter => ({
@@ -137,6 +142,7 @@
       this.filterSelection = this.filterOptions[0];
     },
     methods: {
+      ...mapActions(['createLesson']),
       showLesson(lesson) {
         switch (this.filterSelection.value) {
           case 'activeLessons':
@@ -161,22 +167,15 @@
         return this.$tr('numberOfGroups', { count: numOfAssignments });
       },
       handleDetailsModalContinue(payload) {
-        this.createLesson(this.classId, {
-          ...payload,
-          lesson_assignments: payload.assignments,
+        this.createLesson({
+          classId: this.classId,
+          payload: {
+            ...payload,
+            lesson_assignments: payload.assignments,
+          },
         })
           .then()
           .catch(() => this.$refs.detailsModal.handleSubmitFailure());
-      },
-    },
-    vuex: {
-      actions: {
-        createLesson,
-      },
-      getters: {
-        lessons: state => state.pageState.lessons,
-        classId: state => state.classId,
-        learnerGroups: state => state.pageState.learnerGroups,
       },
     },
     $trs: {

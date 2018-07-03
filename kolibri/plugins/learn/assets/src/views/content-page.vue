@@ -115,14 +115,8 @@
 
 <script>
 
-  import {
-    initContentSession as initSessionAction,
-    updateProgress as updateProgressAction,
-    startTrackingProgress as startTracking,
-    stopTrackingProgress as stopTracking,
-  } from 'kolibri.coreVue.vuex.actions';
+  import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { isUserLoggedIn, facilityConfig, contentPoints } from 'kolibri.coreVue.vuex.getters';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import downloadButton from 'kolibri.coreVue.components.downloadButton';
@@ -130,7 +124,6 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
-  import { pageMode } from '../state/getters';
   import { updateContentNodeProgress } from '../state/actions/main';
   import pageHeader from './page-header';
   import contentCardGroupCarousel from './content-card-group-carousel';
@@ -163,6 +156,17 @@
       licenceDescriptionIsVisible: false,
     }),
     computed: {
+      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'contentPoints', 'pageMode']),
+      ...mapState(['pageName']),
+      ...mapState({
+        content: state => state.pageState.content,
+        contentId: state => state.pageState.content.content_id,
+        contentNodeId: state => state.pageState.content.id,
+        channelId: state => state.pageState.content.channel_id,
+        recommended: state => state.pageState.recommended,
+        summaryProgress: state => state.core.logging.summary.progress,
+        sessionProgress: state => state.core.logging.session.progress,
+      }),
       isTopic() {
         return this.content.kind === ContentNodeKinds.TOPIC;
       },
@@ -222,14 +226,24 @@
       this.stopTracking();
     },
     methods: {
+      ...mapActions({
+        initSessionAction: 'initContentSession',
+        updateProgressAction: 'updateProgress',
+        startTracking: 'startTrackingProgress',
+        stopTracking: 'stopTrackingProgress',
+      }),
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
       initSession() {
-        return this.initSessionAction(this.channelId, this.contentId, this.content.kind);
+        return this.initSessionAction({
+          channelId: this.channelId,
+          contentId: this.contentId,
+          contentKind: this.content.kind,
+        });
       },
       updateProgress(progressPercent, forceSave = false) {
-        const summaryProgress = this.updateProgressAction(progressPercent, forceSave);
+        const summaryProgress = this.updateProgressAction({ progressPercent, forceSave });
         updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
       },
       markAsComplete() {
@@ -243,28 +257,6 @@
               : PageNames.RECOMMENDED_CONTENT,
           params: { id },
         };
-      },
-    },
-    vuex: {
-      getters: {
-        content: state => state.pageState.content,
-        contentId: state => state.pageState.content.content_id,
-        contentNodeId: state => state.pageState.content.id,
-        channelId: state => state.pageState.content.channel_id,
-        pageName: state => state.pageName,
-        recommended: state => state.pageState.recommended,
-        summaryProgress: state => state.core.logging.summary.progress,
-        sessionProgress: state => state.core.logging.session.progress,
-        pageMode,
-        isUserLoggedIn,
-        facilityConfig,
-        contentPoints,
-      },
-      actions: {
-        initSessionAction,
-        updateProgressAction,
-        startTracking,
-        stopTracking,
       },
     },
   };

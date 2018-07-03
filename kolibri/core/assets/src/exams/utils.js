@@ -8,7 +8,7 @@ import {
   ContentNodeResource,
 } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 
 function createQuestionList(questionSources) {
   return questionSources.reduce(

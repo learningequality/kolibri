@@ -44,6 +44,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import Epub from 'epubjs/lib/epub';
   import manager from 'epubjs/lib/managers/default';
   import iFrameView from 'epubjs/lib/managers/views/iframe';
@@ -53,7 +54,6 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
-  import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
   import throttle from 'lodash/throttle';
 
   // How often should we respond to changes in scrolling to render new pages?
@@ -74,6 +74,7 @@
       totalPages: null,
     }),
     computed: {
+      ...mapGetters(['sessionTimeSpent']),
       epubURL() {
         return this.defaultFile.storage_url;
       },
@@ -137,11 +138,6 @@
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
-    },
-    vuex: {
-      getters: {
-        sessionTimeSpent,
-      },
     },
   };
 

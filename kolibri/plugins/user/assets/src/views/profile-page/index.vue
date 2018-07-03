@@ -113,27 +113,15 @@
 
 <script>
 
-  import {
-    facilityConfig,
-    isSuperuser,
-    isAdmin,
-    isCoach,
-    isLearner,
-    totalPoints,
-    getUserKind,
-    getUserPermissions,
-    userHasPermissions,
-  } from 'kolibri.coreVue.vuex.getters';
+  import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { validateUsername } from 'kolibri.utils.validators';
-  import { fetchPoints } from 'kolibri.coreVue.vuex.actions';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
   import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
   import uiAlert from 'keen-ui/src/UiAlert';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import { updateUserProfile, resetProfileState } from '../../state/actions';
   import changeUserPasswordModal from './change-user-password-modal';
 
   export default {
@@ -170,14 +158,33 @@
     mixins: [responsiveWindow],
     data() {
       return {
-        username: this.session.username,
-        name: this.session.full_name,
+        username: this.$store.state.core.session.username,
+        name: this.$store.state.core.session.full_name,
         usernameBlurred: false,
         nameBlurred: false,
         formSubmitted: false,
       };
     },
     computed: {
+      ...mapGetters([
+        'facilityConfig',
+        'getUserKind',
+        'getUserPermissions',
+        'isAdmin',
+        'isCoach',
+        'isLearner',
+        'isSuperuser',
+        'totalPoints',
+        'userHasPermissions',
+      ]),
+      ...mapState({
+        backendErrorMessage: state => state.pageState.errorMessage,
+        busy: state => state.pageState.busy,
+        errorCode: state => state.pageState.errorCode,
+        passwordModalVisible: state => state.pageState.passwordState.modal,
+        session: state => state.core.session,
+        success: state => state.pageState.success,
+      }),
       role() {
         if (this.getUserKind === UserKinds.ADMIN) {
           return this.$tr('isAdmin');
@@ -267,6 +274,11 @@
       this.fetchPoints();
     },
     methods: {
+      ...mapActions(['fetchPoints', 'updateUserProfile']),
+      ...mapMutations({
+        resetProfileState: 'RESET_PROFILE_STATE',
+        setPasswordModalVisible: 'SET_PROFILE_PASSWORD_MODAL',
+      }),
       submitEdits() {
         this.formSubmitted = true;
         this.resetProfileState();
@@ -291,33 +303,6 @@
           return this.$tr('manageContent');
         }
         return permission;
-      },
-    },
-    vuex: {
-      getters: {
-        facilityConfig,
-        isSuperuser,
-        isAdmin,
-        isCoach,
-        isLearner,
-        totalPoints,
-        session: state => state.core.session,
-        busy: state => state.pageState.busy,
-        errorCode: state => state.pageState.errorCode,
-        backendErrorMessage: state => state.pageState.errorMessage,
-        success: state => state.pageState.success,
-        passwordModalVisible: state => state.pageState.passwordState.modal,
-        getUserKind,
-        getUserPermissions,
-        userHasPermissions,
-      },
-      actions: {
-        updateUserProfile,
-        resetProfileState,
-        fetchPoints,
-        setPasswordModalVisible(store, visibility) {
-          store.dispatch('SET_PROFILE_PASSWORD_MODAL', visibility);
-        },
       },
     },
   };

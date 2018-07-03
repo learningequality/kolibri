@@ -5,7 +5,7 @@ import SelectDriveModal from '../../src/views/manage-content-page/select-transfe
 import { wizardState } from '../../src/state/getters';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
-SelectDriveModal.vuex.actions.refreshDriveList = () => Promise.resolve();
+SelectDriveModal.methods.refreshDriveList = () => Promise.resolve();
 
 function makeWrapper(options = {}) {
   const { props = {}, store } = options;
@@ -20,7 +20,7 @@ function makeWrapper(options = {}) {
 
 function makeStore() {
   const store = makeAvailableChannelsPageStore();
-  store.dispatch('SET_DRIVE_LIST', [
+  store.commit('SET_DRIVE_LIST', [
     {
       id: 'unwritable_drive',
       metadata: { channels: [{ id: 'installed_channel' }] },
@@ -109,7 +109,7 @@ describe('selectDriveModal component', () => {
       id: 'channel_1',
       version: 1,
     };
-    store.dispatch('SET_TRANSFERRED_CHANNEL', channel);
+    store.commit('SET_TRANSFERRED_CHANNEL', channel);
     store.state.pageState.channelList = [{ ...channel }];
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio } = getElements(wrapper);
@@ -122,7 +122,7 @@ describe('selectDriveModal component', () => {
       id: 'channel_2',
       version: 6,
     };
-    store.dispatch('SET_TRANSFERRED_CHANNEL', channel);
+    store.commit('SET_TRANSFERRED_CHANNEL', channel);
     store.state.pageState.channelList = [{ ...channel }];
     const wrapper = makeWrapper({ store });
     const { incompatibleRadio } = getElements(wrapper);

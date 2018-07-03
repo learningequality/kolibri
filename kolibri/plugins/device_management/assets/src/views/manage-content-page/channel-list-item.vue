@@ -91,11 +91,11 @@
 
 <script>
 
+  import { mapState, mapGetters } from 'vuex';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import { channelIsInstalled } from '../../state/getters';
   import bytesForHumans from './bytesForHumans';
   import { selectContentPageLink } from './manageContentLinks';
 
@@ -136,6 +136,8 @@
       },
     },
     computed: {
+      ...mapGetters(['channelIsInstalled']),
+      ...mapState(['pageState']),
       manageChannelActions() {
         return [
           {
@@ -188,12 +190,6 @@
           return this.$emit('clickdelete');
         }
         return this.$emit('import_more', { ...this.channel });
-      },
-    },
-    vuex: {
-      getters: {
-        pageState: ({ pageState }) => pageState,
-        channelIsInstalled,
       },
     },
     $trs: {

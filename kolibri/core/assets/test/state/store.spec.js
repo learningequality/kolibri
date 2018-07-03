@@ -1,30 +1,26 @@
 import Vue from 'vue';
-import Vuex from 'vuex';
 import { SessionResource, AttemptLogResource } from 'kolibri.resources';
-import coreStore from '../../src/state/store';
-import * as coreActions from '../../src/state/actions';
 import * as constants from '../../src/constants';
 import * as browser from '../../src/utils/browser';
 import ConditionalPromise from '../../src/conditionalPromise';
-
-Vue.use(Vuex);
+import { coreStoreFactory as makeStore } from '../../src/state/store';
 
 describe('Vuex store/actions for core module', () => {
   describe('error handling', () => {
     const errorMessage = 'testError';
     Vue.prototype.$formatMessage = () => errorMessage;
     it('handleError action updates core state', () => {
-      const store = coreStore.factory();
-      coreActions.handleError(store, 'catastrophic failure');
+      const store = makeStore();
+      store.dispatch('handleError', 'catastrophic failure');
       expect(store.state.core.error).toEqual('catastrophic failure');
       expect(store.state.core.loading).toBeFalsy();
       expect(store.state.core.title).toEqual(errorMessage);
     });
 
     it('handleApiError action updates core state', () => {
-      const store = coreStore.factory();
+      const store = makeStore();
       const apiError = { message: 'Too Bad' };
-      coreActions.handleApiError(store, apiError);
+      store.dispatch('handleApiError', apiError);
       expect(store.state.core.error.match(/Too Bad/)).toHaveLength(1);
       expect(store.state.core.loading).toBeFalsy();
       expect(store.state.core.title).toEqual(errorMessage);
@@ -36,7 +32,7 @@ describe('Vuex store/actions for core module', () => {
     let assignStub;
 
     beforeEach(() => {
-      store = coreStore.factory();
+      store = makeStore();
       assignStub = jest.spyOn(browser, 'redirectBrowser');
     });
 
@@ -57,7 +53,7 @@ describe('Vuex store/actions for core module', () => {
         }),
       });
 
-      await coreActions.kolibriLogin(store, {});
+      await store.dispatch('kolibriLogin', {});
       const { session } = store.state.core;
       expect(session.id).toEqual('123');
       expect(session.username).toEqual('e_fermi');
@@ -72,7 +68,7 @@ describe('Vuex store/actions for core module', () => {
         }),
       });
 
-      await coreActions.kolibriLogin(store, {});
+      await store.dispatch('kolibriLogin', {});
       expect(store.state.core.loginError).toEqual(constants.LoginErrors.INVALID_CREDENTIALS);
     });
   });
@@ -81,8 +77,8 @@ describe('Vuex store/actions for core module', () => {
 describe('Vuex core logging actions', () => {
   describe('attempt log saving', () => {
     it('saveAndStoreAttemptLog does not overwrite state if item id has changed', async () => {
-      const store = coreStore.factory();
-      coreActions.createAttemptLog(store, 'first');
+      const store = makeStore();
+      store.dispatch('createAttemptLog', 'first');
       let externalResolve;
       const firstState = Object.assign({}, store.state.core.logging.attempt);
       const findModelStub = jest.spyOn(AttemptLogResource, 'findModel');
@@ -92,8 +88,8 @@ describe('Vuex core logging actions', () => {
             externalResolve = resolve;
           }),
       });
-      const promise = coreActions.saveAndStoreAttemptLog(store);
-      coreActions.createAttemptLog(store, 'second');
+      const promise = store.dispatch('saveAndStoreAttemptLog');
+      store.dispatch('createAttemptLog', 'second');
       store.state.core.logging.attempt.id = 'assertion';
       externalResolve(firstState);
       await promise;

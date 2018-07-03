@@ -1,29 +1,28 @@
 import { ChannelResource } from 'kolibri.resources';
-import { canManageContent } from 'kolibri.coreVue.vuex.getters';
 
 /**
  * Force-refresh the ChannelResource Collection
  *
  */
 export function refreshChannelList(store) {
-  store.dispatch('SET_CHANNEL_LIST_LOADING', true);
+  store.commit('SET_CHANNEL_LIST_LOADING', true);
   return ChannelResource.getCollection()
     .fetch({ file_sizes: true }, true)
     .then(channels => {
-      store.dispatch('SET_CHANNEL_LIST', [...channels]);
-      store.dispatch('SET_CHANNEL_LIST_LOADING', false);
+      store.commit('SET_CHANNEL_LIST', [...channels]);
+      store.commit('SET_CHANNEL_LIST_LOADING', false);
       return [...channels];
     });
 }
 
 export function showManageContentPage(store) {
-  store.dispatch('RESET_MANAGE_CONTENT_PAGESTATE');
-  if (canManageContent(store.state)) {
+  store.commit('RESET_MANAGE_CONTENT_PAGESTATE');
+  if (store.getters.canManageContent) {
     return refreshChannelList(store);
   }
   return Promise.resolve();
 }
 
 export function setToolbarTitle(store, newTitle) {
-  store.dispatch('SET_TOOLBAR_TITLE', newTitle);
+  store.commit('SET_TOOLBAR_TITLE', newTitle);
 }

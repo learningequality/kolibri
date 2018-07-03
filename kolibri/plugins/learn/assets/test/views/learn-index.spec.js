@@ -1,7 +1,7 @@
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import LearnIndex from '../../src/views/index.vue';
-import makeStore from '../util/makeStore';
+import makeStore from '../makeStore';
 
 const router = new VueRouter({
   routes: [
@@ -15,9 +15,11 @@ function makeWrapper(options) {
   return mount(LearnIndex, {
     ...options,
     stubs: {
+      breadcrumbs: true,
+      contentUnavailablePage: true,
       coreBase: '<div><slot></slot></div>',
       topicsPage: true,
-      contentUnavailablePage: true,
+      totalPoints: true,
     },
     router,
   });
@@ -48,6 +50,7 @@ describe('learn plugin index page', () => {
 
   beforeEach(() => {
     store = makeStore();
+    store.state.pageState.topic = {};
   });
 
   it('there are no tabs if showing content unavailable page', () => {

@@ -24,6 +24,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import examReport from 'kolibri.coreVue.components.examReport';
   import { ClassesPageNames } from '../constants';
 
@@ -33,6 +34,22 @@
       examReport,
     },
     computed: {
+      ...mapState({
+        classId: state => state.pageState.exam.collection,
+        examAttempts: state => state.pageState.examAttempts,
+        exam: state => state.pageState.exam,
+        userName: state => state.pageState.user.full_name,
+        userId: state => state.pageState.user.id,
+        currentAttempt: state => state.pageState.currentAttempt,
+        currentInteractionHistory: state => state.pageState.currentInteractionHistory,
+        currentInteraction: state => state.pageState.currentInteraction,
+        selectedInteractionIndex: state => state.pageState.interactionIndex,
+        questionNumber: state => state.pageState.questionNumber,
+        exercise: state => state.pageState.exercise,
+        itemId: state => state.pageState.itemId,
+        completionTimestamp: state => state.pageState.examLog.completion_timestamp,
+        closed: state => state.pageState.examLog.closed,
+      }),
       backPageLink() {
         return {
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
@@ -59,24 +76,6 @@
             examId: this.exam.id,
           },
         });
-      },
-    },
-    vuex: {
-      getters: {
-        classId: state => state.pageState.exam.collection,
-        examAttempts: state => state.pageState.examAttempts,
-        exam: state => state.pageState.exam,
-        userName: state => state.pageState.user.full_name,
-        userId: state => state.pageState.user.id,
-        currentAttempt: state => state.pageState.currentAttempt,
-        currentInteractionHistory: state => state.pageState.currentInteractionHistory,
-        currentInteraction: state => state.pageState.currentInteraction,
-        selectedInteractionIndex: state => state.pageState.interactionIndex,
-        questionNumber: state => state.pageState.questionNumber,
-        exercise: state => state.pageState.exercise,
-        itemId: state => state.pageState.itemId,
-        completionTimestamp: state => state.pageState.examLog.completion_timestamp,
-        closed: state => state.pageState.examLog.closed,
       },
     },
   };

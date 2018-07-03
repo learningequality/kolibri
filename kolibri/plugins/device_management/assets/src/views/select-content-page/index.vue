@@ -97,6 +97,7 @@
 
 <script>
 
+  import { mapState, mapActions, mapGetters } from 'vuex';
   import kButton from 'kolibri.coreVue.components.kButton';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import uiAlert from 'keen-ui/src/UiAlert';
@@ -104,12 +105,7 @@
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
   import subpageContainer from '../containers/subpage-container';
-  import { channelIsInstalled, wizardState, nodeTransferCounts } from '../../state/getters';
-  import {
-    downloadChannelMetadata,
-    transferChannelContent,
-  } from '../../state/actions/contentTransferActions';
-  import { setToolbarTitle } from '../../state/actions/manageContentActions';
+  import { wizardState } from '../../state/getters';
   import taskProgress from '../manage-content-page/task-progress';
   import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../manage-content-page/manageContentLinks';
@@ -138,6 +134,20 @@
       };
     },
     computed: {
+      ...mapGetters(['channelIsInstalled', 'nodeTransferCounts']),
+      ...mapState({
+        availableSpace: state => wizardState(state).availableSpace,
+        transferredChannel: state => wizardState(state).transferredChannel || {},
+        databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
+        firstTask: ({ pageState }) => pageState.taskList[0],
+        taskList: ({ pageState }) => pageState.taskList,
+        mode: state => (wizardState(state).transferType === 'localexport' ? 'export' : 'import'),
+        onDeviceInfoIsReady: state => !isEmpty(wizardState(state).currentTopicNode),
+        selectedItems: state => wizardState(state).nodesForTransfer || {},
+        transferType: state => wizardState(state).transferType,
+        wizardStatus: state => wizardState(state).status,
+        topicNode: state => wizardState(state).currentTopicNode,
+      }),
       metadataDownloadTask() {
         return find(this.taskList, { type: TaskTypes.REMOTECHANNELIMPORT });
       },
@@ -195,6 +205,16 @@
       this.cancelMetadataDownloadTask();
     },
     methods: {
+      ...mapActions(['setToolbarTitle', 'downloadChannelMetadata', 'transferChannelContent']),
+      cancelMetadataDownloadTask() {
+        const { taskList } = this.$store.state.pageState;
+        const task = find(taskList, { type: TaskTypes.REMOTECHANNELIMPORT });
+        // TODO can remove this guard once cancelTask resolves even if Task is not there
+        if (task) {
+          return TaskResource.cancelTask(task.id);
+        }
+        return Promise.resolve();
+      },
       updateChannelMetadata() {
         // NOTE: This only updates the metadata, not the underlying content.
         // This could produced unexpected behavior for users.
@@ -222,37 +242,6 @@
       },
       returnToChannelsList() {
         this.$router.push(manageContentPageLink());
-      },
-    },
-    vuex: {
-      getters: {
-        availableSpace: state => wizardState(state).availableSpace,
-        transferredChannel: state => wizardState(state).transferredChannel || {},
-        channelIsInstalled,
-        databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
-        firstTask: ({ pageState }) => pageState.taskList[0],
-        taskList: ({ pageState }) => pageState.taskList,
-        mode: state => (wizardState(state).transferType === 'localexport' ? 'export' : 'import'),
-        nodeTransferCounts,
-        onDeviceInfoIsReady: state => !isEmpty(wizardState(state).currentTopicNode),
-        selectedItems: state => wizardState(state).nodesForTransfer || {},
-        transferType: state => wizardState(state).transferType,
-        wizardStatus: state => wizardState(state).status,
-        topicNode: state => wizardState(state).currentTopicNode,
-      },
-      actions: {
-        setToolbarTitle,
-        cancelMetadataDownloadTask(store) {
-          const { taskList } = store.state.pageState;
-          const task = find(taskList, { type: TaskTypes.REMOTECHANNELIMPORT });
-          // TODO can remove this guard once cancelTask resolves even if Task is not there
-          if (task) {
-            return TaskResource.cancelTask(task.id);
-          }
-          return Promise.resolve();
-        },
-        downloadChannelMetadata,
-        transferChannelContent,
       },
     },
     $trs: {

@@ -8,12 +8,7 @@ import {
 } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
-import {
-  handleError,
-  handleApiError,
-  createSnackbar,
-  samePageCheckGenerator,
-} from 'kolibri.coreVue.vuex.actions';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { getExamReport } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
@@ -96,8 +91,8 @@ export function _createExam(store, exam) {
  */
 
 export function showExamsPage(store, classId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXAMS);
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', PageNames.EXAMS);
 
   const promises = [
     ExamResource.getCollection({ collection: classId }).fetch({}, true),
@@ -107,21 +102,21 @@ export function showExamsPage(store, classId) {
   return ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([exams]) => {
-      store.dispatch('SET_PAGE_STATE', {
+      store.commit('SET_PAGE_STATE', {
         exams: _examsState(exams),
         examsModalSet: false,
         busy: false,
       });
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamListPageTitle'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_ERROR', null);
+      store.commit('CORE_SET_TITLE', translator.$tr('coachExamListPageTitle'));
+      store.commit('CORE_SET_PAGE_LOADING', false);
     },
-    error => handleError(store, error)
+    error => store.dispatch('handleError', error)
   );
 }
 
 export function setExamsModal(store, modalName) {
-  store.dispatch('SET_EXAMS_MODAL', modalName);
+  store.commit('SET_EXAMS_MODAL', modalName);
 }
 
 function updateExamStatus(store, { examId, isActive }) {
@@ -129,14 +124,14 @@ function updateExamStatus(store, { examId, isActive }) {
     .save({ active: isActive })
     .then(
       () => {
-        store.dispatch('SET_EXAM_STATUS', { examId, isActive });
+        store.commit('SET_EXAM_STATUS', { examId, isActive });
         setExamsModal(store, false);
-        createSnackbar(store, {
+        store.dispatch('createSnackbar', {
           text: snackbarTranslator.$tr(isActive ? 'examIsNowActive' : 'examIsNowInactive'),
           autoDismiss: true,
         });
       },
-      error => handleError(store, error)
+      error => store.dispatch('handleError', error)
     );
 }
 
@@ -148,23 +143,23 @@ export function deactivateExam(store, examId) {
   return updateExamStatus(store, { examId, isActive: false });
 }
 
-export function copyExam(store, exam, className) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+export function copyExam(store, { exam, className }) {
+  store.commit('CORE_SET_PAGE_LOADING', true);
   _createExam(store, exam).then(
     () => {
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_PAGE_LOADING', false);
       setExamsModal(store, false);
-      createSnackbar(store, {
+      store.dispatch('createSnackbar', {
         text: snackbarTranslator.$tr('copiedExamToClass', { className }),
         autoDismiss: true,
       });
     },
-    error => handleApiError(store, error)
+    error => store.dispatch('handleApiError', error)
   );
 }
 
-export function updateExamDetails(store, examId, payload) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+export function updateExamDetails(store, { examId, payload }) {
+  store.commit('CORE_SET_PAGE_LOADING', true);
   return new Promise((resolve, reject) => {
     ExamResource.getModel(examId)
       .save(payload)
@@ -174,17 +169,17 @@ export function updateExamDetails(store, examId, payload) {
           const examIndex = exams.findIndex(exam => exam.id === examId);
           exams[examIndex] = _examState(exam);
 
-          store.dispatch('SET_EXAMS', exams);
+          store.commit('SET_EXAMS', exams);
           setExamsModal(store, false);
-          createSnackbar(store, {
+          store.dispatch('createSnackbar', {
             text: snackbarTranslator.$tr('changesToExamSaved'),
             autoDismiss: true,
           });
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.commit('CORE_SET_PAGE_LOADING', false);
           resolve();
         },
         error => {
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.commit('CORE_SET_PAGE_LOADING', false);
           reject(error);
         }
       );
@@ -198,16 +193,16 @@ export function deleteExam(store, examId) {
       () => {
         const exams = store.state.pageState.exams;
         const updatedExams = exams.filter(exam => exam.id !== examId);
-        store.dispatch('SET_EXAMS', updatedExams);
+        store.commit('SET_EXAMS', updatedExams);
 
         router.replace({ name: PageNames.EXAMS });
-        createSnackbar(store, {
+        store.dispatch('createSnackbar', {
           text: snackbarTranslator.$tr('examDeleted'),
           autoDismiss: true,
         });
         setExamsModal(store, false);
       },
-      error => handleError(store, error)
+      error => store.dispatch('handleError', error)
     );
 }
 
@@ -216,10 +211,10 @@ export function deleteExam(store, examId) {
  */
 
 export function showCreateExamPage(store, classId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.CREATE_EXAM);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamCreationPageTitle'));
-  store.dispatch('SET_PAGE_STATE', {
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', PageNames.CREATE_EXAM);
+  store.commit('CORE_SET_TITLE', translator.$tr('coachExamCreationPageTitle'));
+  store.commit('SET_PAGE_STATE', {
     topic: {},
     subtopics: [],
     exercises: [],
@@ -236,11 +231,11 @@ export function showCreateExamPage(store, classId) {
   ConditionalPromise.all([examsPromise, setClassState(store, classId), goToTopLevelPromise]).only(
     samePageCheckGenerator(store),
     ([exams]) => {
-      store.dispatch('SET_EXAMS', exams);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('SET_EXAMS', exams);
+      store.commit('CORE_SET_ERROR', null);
+      store.commit('CORE_SET_PAGE_LOADING', false);
     },
-    error => handleError(store, error)
+    error => store.dispatch('handleError', error)
   );
 }
 
@@ -278,9 +273,9 @@ export function goToTopLevel(store) {
               id: null,
               title: translator.$tr('allChannels'),
             };
-            store.dispatch('SET_TOPIC', topic);
-            store.dispatch('SET_SUBTOPICS', subtopics);
-            store.dispatch('SET_EXERCISES', []);
+            store.commit('SET_TOPIC', topic);
+            store.commit('SET_SUBTOPICS', subtopics);
+            store.commit('SET_EXERCISES', []);
             resolve();
           },
           error => reject(error)
@@ -364,9 +359,9 @@ export function goToTopic(store, topicId) {
   return new Promise((resolve, reject) => {
     fetchTopic(store, topicId).then(
       content => {
-        store.dispatch('SET_TOPIC', content.topic);
-        store.dispatch('SET_SUBTOPICS', content.subtopics);
-        store.dispatch('SET_EXERCISES', content.exercises);
+        store.commit('SET_TOPIC', content.topic);
+        store.commit('SET_SUBTOPICS', content.subtopics);
+        store.commit('SET_EXERCISES', content.exercises);
         resolve();
       },
       error => reject(error)
@@ -390,20 +385,20 @@ export function removeExercise(store, exercise) {
 }
 
 export function setSelectedExercises(store, selectedExercises) {
-  store.dispatch('SET_SELECTED_EXERCISES', selectedExercises);
+  store.commit('SET_SELECTED_EXERCISES', selectedExercises);
 }
 
 export function createExamAndRoute(store, exam) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.commit('CORE_SET_PAGE_LOADING', true);
   _createExam(store, exam).then(
     () => {
       router.getInstance().push({ name: PageNames.EXAMS });
-      createSnackbar(store, {
+      store.dispatch('createSnackbar', {
         text: snackbarTranslator.$tr('newExamCreated'),
         autoDismiss: true,
       });
     },
-    error => handleApiError(store, error)
+    error => store.dispatch('handleApiError', error)
   );
 }
 
@@ -411,9 +406,10 @@ export function createExamAndRoute(store, exam) {
  * EXAM REPORTS
  */
 
-export function showExamReportPage(store, classId, examId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT);
+export function showExamReportPage(store, params) {
+  const { classId, examId } = params;
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', PageNames.EXAM_REPORT);
 
   ConditionalPromise.all([ExamResource.getModel(examId).fetch()]).only(
     samePageCheckGenerator(store),
@@ -446,7 +442,7 @@ export function showExamReportPage(store, classId, examId) {
               closed: examTakenByUser.closed,
             };
           });
-          store.dispatch('SET_PAGE_STATE', {
+          store.commit('SET_PAGE_STATE', {
             examTakers,
             exam,
             examsModalSet: null,
@@ -454,12 +450,12 @@ export function showExamReportPage(store, classId, examId) {
             learnerGroups,
             exerciseContentNodes: [...contentNodes],
           });
-          store.dispatch('CORE_SET_ERROR', null);
-          store.dispatch('CORE_SET_TITLE', exam.title);
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.commit('CORE_SET_ERROR', null);
+          store.commit('CORE_SET_TITLE', exam.title);
+          store.commit('CORE_SET_PAGE_LOADING', false);
         },
         error => {
-          handleApiError(store, error);
+          store.dispatch('handleApiError', error);
         }
       );
     },
@@ -478,18 +474,12 @@ export function showExamReportPage(store, classId, examId) {
  * EXAM REPORT DETAILS
  */
 
-export function showExamReportDetailPage(
-  store,
-  classId,
-  userId,
-  examId,
-  questionNumber,
-  interactionIndex
-) {
+export function showExamReportDetailPage(store, params) {
+  const { classId, userId, examId, questionNumber, interactionIndex } = params;
   // idk what this is for
   if (store.state.pageName !== PageNames.EXAM_REPORT_DETAIL) {
-    store.dispatch('CORE_SET_PAGE_LOADING', true);
-    store.dispatch('SET_PAGE_NAME', PageNames.EXAM_REPORT_DETAIL);
+    store.commit('CORE_SET_PAGE_LOADING', true);
+    store.commit('SET_PAGE_NAME', PageNames.EXAM_REPORT_DETAIL);
   }
   const promises = [
     getExamReport(store, examId, userId, questionNumber, interactionIndex),
@@ -497,17 +487,17 @@ export function showExamReportDetailPage(
   ];
   ConditionalPromise.all(promises).then(
     ([examReport]) => {
-      store.dispatch('SET_PAGE_STATE', examReport);
-      store.dispatch('SET_TOOLBAR_ROUTE', { name: PageNames.EXAM_REPORT });
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', translator.$tr('coachExamReportDetailPageTitle'));
-      store.dispatch(
+      store.commit('SET_PAGE_STATE', examReport);
+      store.commit('SET_TOOLBAR_ROUTE', { name: PageNames.EXAM_REPORT });
+      store.commit('CORE_SET_ERROR', null);
+      store.commit('CORE_SET_TITLE', translator.$tr('coachExamReportDetailPageTitle'));
+      store.commit(
         'SET_TOOLBAR_TITLE',
         translator.$tr('examReportTitle', {
           examTitle: examReport.exam.title,
         })
       );
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_PAGE_LOADING', false);
     },
     () =>
       router.replace({

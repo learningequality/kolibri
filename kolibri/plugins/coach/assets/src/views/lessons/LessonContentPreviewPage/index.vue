@@ -39,6 +39,7 @@
 
 <script>
 
+  import { mapState, mapMutations } from 'vuex';
   import kButton from 'kolibri.coreVue.components.kButton';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
@@ -63,6 +64,12 @@
       };
     },
     computed: {
+      ...mapState({
+        content: state => state.pageState.currentContentNode,
+        questions: state => state.pageState.questions,
+        completionData: state => state.pageState.completionData,
+        workingResources: state => state.pageState.workingResources,
+      }),
       isPerseusExercise() {
         return this.content.kind === 'exercise';
       },
@@ -74,25 +81,18 @@
       },
     },
     methods: {
+      ...mapMutations({
+        addToResourceCache: 'ADD_TO_RESOURCE_CACHE',
+      }),
+      addToCache() {
+        this.addToResourceCache(this.content);
+      },
       questionLabel(questionIndex) {
         if (!this.isPerseusExercise) {
           return '';
         }
         const questionNumber = questionIndex + 1;
         return this.$tr('questionLabel', { questionNumber });
-      },
-    },
-    vuex: {
-      getters: {
-        content: state => state.pageState.currentContentNode,
-        questions: state => state.pageState.questions,
-        completionData: state => state.pageState.completionData,
-        workingResources: state => state.pageState.workingResources,
-      },
-      actions: {
-        addToCache(store) {
-          store.dispatch('ADD_TO_RESOURCE_CACHE', this.content);
-        },
       },
     },
   };

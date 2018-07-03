@@ -13,7 +13,7 @@ export function cancelTask(store, taskId) {
 }
 
 function updateTasks(store, tasks) {
-  store.dispatch('SET_CONTENT_PAGE_TASKS', tasks);
+  store.commit('SET_CONTENT_PAGE_TASKS', tasks);
 }
 
 function triggerTask(store, taskPromise) {
@@ -28,7 +28,7 @@ function triggerTask(store, taskPromise) {
       } else {
         errorText = error.status.text;
       }
-      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', errorText);
+      store.commit('SET_CONTENT_PAGE_WIZARD_ERROR', errorText);
     });
 }
 
@@ -66,7 +66,7 @@ export function refreshTaskList(store) {
  */
 export function refreshDriveList(store) {
   return TaskResource.localDrives().then(({ entity }) => {
-    store.dispatch('SET_DRIVE_LIST', entity);
+    store.commit('SET_DRIVE_LIST', entity);
     return entity;
   });
 }

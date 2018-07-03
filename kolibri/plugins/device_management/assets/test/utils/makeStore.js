@@ -1,6 +1,6 @@
-import Vuex from 'vuex';
-import { importExportWizardState } from '../../src/state/wizardState';
-import mutations from '../../src/state/mutations';
+import cloneDeep from 'lodash/cloneDeep';
+import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
+import pluginModule from '../../src/state/pluginModule';
 import { contentNodeGranularPayload } from './data';
 
 const allChannels = [
@@ -65,64 +65,39 @@ const channelsOnDevice = [
 
 // Use for availableChannelsPage and all children:
 // channel-list-item
-//
 export function makeAvailableChannelsPageStore() {
-  return new Vuex.Store({
-    state: {
-      core: {
-        session: {
-          kind: [],
-        },
+  const store = coreStoreFactory(cloneDeep(pluginModule));
+  store.state.pageState.channelList = [...channelsOnDevice];
+  Object.assign(store.state.pageState.wizardState, {
+    driveList: [
+      {
+        id: 'f9e29616935fbff37913ed46bf20e2c1',
+        name: 'SANDISK (F:)',
       },
-      pageState: {
-        channelList: channelsOnDevice,
-        taskList: [],
-        channelListLoading: false,
-        wizardState: {
-          ...importExportWizardState(),
-          driveList: [
-            {
-              id: 'f9e29616935fbff37913ed46bf20e2c1',
-              name: 'SANDISK (F:)',
-            },
-            {
-              id: 'f9e29616935fbff37913ed46bf20e2c0',
-              name: 'SANDISK (G:)',
-            },
-          ],
-          availableChannels: allChannels,
-          transferType: 'localimport',
-        },
+      {
+        id: 'f9e29616935fbff37913ed46bf20e2c0',
+        name: 'SANDISK (G:)',
       },
-    },
-    mutations,
+    ],
+    availableChannels: [...allChannels],
+    transferType: 'localimport',
   });
+  return store;
 }
 
 // Use for selectContentPage and all children:
 // contentTreeViewer
 export function makeSelectContentPageStore() {
-  return new Vuex.Store({
-    state: {
-      pageState: {
-        channelList: channelsOnDevice,
-        taskList: [],
-        wizardState: {
-          ...importExportWizardState(),
-          availableChannels: allChannels,
-          transferType: 'localimport',
-          transferredChannel: { ...allChannels[0] },
-          currentTopicNode: contentNodeGranularPayload(),
-        },
-      },
-    },
-    mutations: {
-      ...mutations,
-      CORE_SET_PAGE_LOADING() {},
-      // test-only mutation
-      addTask(state, task) {
-        state.pageState.taskList.push(task);
-      },
-    },
+  const store = coreStoreFactory(cloneDeep(pluginModule));
+  Object.assign(store.state.pageState, {
+    channelList: channelsOnDevice,
+    taskList: [],
   });
+  Object.assign(store.state.pageState.wizardState, {
+    availableChannels: [...allChannels],
+    transferType: 'localimport',
+    transferredChannel: { ...allChannels[0] },
+    currentTopicNode: contentNodeGranularPayload(),
+  });
+  return store;
 }

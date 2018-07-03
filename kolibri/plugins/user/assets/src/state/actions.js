@@ -1,6 +1,4 @@
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri.coreVue.vuex.constants';
-import * as coreActions from 'kolibri.coreVue.vuex.actions';
-import { currentFacilityId, facilities } from 'kolibri.coreVue.vuex.getters';
 import { SignUpResource, FacilityUserResource, FacilityResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import Lockr from 'lockr';
@@ -12,19 +10,17 @@ const translator = createTranslator('userPageTitles', {
   userSignUpPageTitle: 'User Sign Up',
 });
 
-export function resetSignUpState(store) {
-  store.dispatch('RESET_SIGN_UP_STATE');
-}
-
-export function resetProfileState(store) {
-  store.dispatch('RESET_PROFILE_STATE');
-}
+const snackbarTranslator = createTranslator('userPageSnackbars', {
+  passwordChangeSuccessMessage: 'Password changed',
+  signedOut: 'You were automatically signed out due to inactivity',
+  dismiss: 'Dismiss',
+});
 
 function resetAndSetPageName(store, { pageName, title }) {
-  store.dispatch('SET_PAGE_NAME', pageName);
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', title);
+  store.commit('SET_PAGE_NAME', pageName);
+  store.commit('CORE_SET_PAGE_LOADING', false);
+  store.commit('CORE_SET_ERROR', null);
+  store.commit('CORE_SET_TITLE', title);
 }
 
 export function updateUserProfile(store, { edits, session }) {
@@ -49,14 +45,14 @@ export function updateUserProfile(store, { edits, session }) {
     return Promise.resolve();
   }
 
-  store.dispatch('SET_PROFILE_BUSY', true);
+  store.commit('SET_PROFILE_BUSY', true);
 
   return savedUserModel.save(changedValues).then(
     () => {
-      coreActions.getCurrentSession(store, true);
-      store.dispatch('SET_PROFILE_SUCCESS', true);
-      store.dispatch('SET_PROFILE_BUSY', false);
-      store.dispatch('SET_PROFILE_ERROR', { isError: false });
+      store.dispatch('getCurrentSession', true);
+      store.commit('SET_PROFILE_SUCCESS', true);
+      store.commit('SET_PROFILE_BUSY', false);
+      store.commit('SET_PROFILE_ERROR', { isError: false });
     },
     error => {
       const { status, entity } = error;
@@ -66,9 +62,9 @@ export function updateUserProfile(store, { edits, session }) {
       } else if (status.code === 403) {
         errorMessage = entity[0];
       }
-      store.dispatch('SET_PROFILE_SUCCESS', false);
-      store.dispatch('SET_PROFILE_BUSY', false);
-      store.dispatch('SET_PROFILE_ERROR', {
+      store.commit('SET_PROFILE_SUCCESS', false);
+      store.commit('SET_PROFILE_BUSY', false);
+      store.commit('SET_PROFILE_ERROR', {
         isError: true,
         errorMessage,
         errorCode: status.code,
@@ -81,22 +77,20 @@ export function updateUserProfilePassword(store, password) {
   const session = store.state.core.session;
   const savedUserModel = FacilityUserResource.getModel(session.user_id);
 
-  store.dispatch('SET_PROFILE_BUSY', true);
+  store.commit('SET_PROFILE_BUSY', true);
 
   return savedUserModel.save({ password }).then(
     () => {
-      store.dispatch('SET_PROFILE_BUSY', false);
-      store.dispatch('SET_PROFILE_PASSWORD_MODAL', false);
-      coreActions.createSnackbar(store, {
-        text: createTranslator('updatePassword', {
-          passwordChangeSuccessMessage: 'Password changed',
-        }).$tr('passwordChangeSuccessMessage'),
+      store.commit('SET_PROFILE_BUSY', false);
+      store.commit('SET_PROFILE_PASSWORD_MODAL', false);
+      store.commit('CORE_CREATE_SNACKBAR', {
+        text: snackbarTranslator.$tr('passwordChangeSuccessMessage'),
         autoDismiss: true,
       });
     },
     () => {
-      store.dispatch('SET_PROFILE_BUSY', false);
-      store.dispatch('SET_PROFILE_PASSWORD_ERROR', true);
+      store.commit('SET_PROFILE_BUSY', false);
+      store.commit('SET_PROFILE_PASSWORD_ERROR', true);
     }
   );
 }
@@ -106,33 +100,29 @@ export function showProfilePage(store) {
     pageName: PageNames.PROFILE,
     title: translator.$tr('userProfilePageTitle'),
   });
-  resetProfileState(store);
+  store.commit('RESET_PROFILE_STATE');
 }
 
 export function setFacilitiesAndConfig(store) {
-  return coreActions.getFacilities(store).then(() => {
-    return coreActions.getFacilityConfig(store);
+  return store.dispatch('getFacilities').then(() => {
+    return store.dispatch('getFacilityConfig');
   });
 }
 
 export function showSignInPage(store) {
-  const trs = createTranslator('signedOutSnackbar', {
-    signedOut: 'You were automatically signed out due to inactivity',
-    dismiss: 'Dismiss',
-  });
   if (Lockr.get(SIGNED_OUT_DUE_TO_INACTIVITY)) {
-    coreActions.createSnackbar(store, {
-      text: trs.$tr('signedOut'),
-      actionText: trs.$tr('dismiss'),
-      actionCallback: () => coreActions.clearSnackbar(store),
+    store.commit('CORE_CREATE_SNACKBAR', {
+      text: snackbarTranslator.$tr('signedOut'),
+      actionText: snackbarTranslator.$tr('dismiss'),
+      actionCallback: () => store.commit('CORE_CLEAR_SNACKBAR'),
     });
     Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, null);
   }
   setFacilitiesAndConfig(store).then(() => {
     // grabs facilityId from session, which is the backend's default on sign in page
-    store.dispatch('SET_FACILITY_ID', currentFacilityId(store.state));
-    store.dispatch('SET_PAGE_STATE', {
-      hasMultipleFacilities: facilities(store.state).length > 1,
+    store.commit('SET_FACILITY_ID', store.getters.currentFacilityId);
+    store.commit('SET_PAGE_STATE', {
+      hasMultipleFacilities: store.getters.facilities.length > 1,
     });
     resetAndSetPageName(store, {
       pageName: PageNames.SIGN_IN,
@@ -145,23 +135,23 @@ export function showSignUpPage(store) {
   return FacilityResource.getCollection()
     .fetch()
     .then(facilities => {
-      store.dispatch('CORE_SET_FACILITIES', facilities);
+      store.commit('CORE_SET_FACILITIES', facilities);
       resetAndSetPageName(store, {
         pageName: PageNames.SIGN_UP,
         title: translator.$tr('userSignUpPageTitle'),
       });
-      resetSignUpState(store);
+      store.commit('RESET_SIGN_UP_STATE');
     })
-    .catch(error => coreActions.handleApiError(store, error));
+    .catch(error => store.dispatch('handleApiError', error));
 }
 
 export function signUpNewUser(store, signUpCreds) {
-  store.dispatch('SET_SIGN_UP_BUSY', true);
-  resetSignUpState(store);
+  store.commit('SET_SIGN_UP_BUSY', true);
+  store.commit('RESET_SIGN_UP_STATE');
   return SignUpResource.createModel(signUpCreds)
     .save(signUpCreds)
     .then(() => {
-      store.dispatch('SET_SIGN_UP_ERROR', { errorCode: null });
+      store.commit('SET_SIGN_UP_ERROR', { errorCode: null });
       window.location = '/';
     })
     .catch(error => {
@@ -170,10 +160,10 @@ export function signUpNewUser(store, signUpCreds) {
       if (status.code === 400 || status.code === 200) {
         errorMessage = entity[0];
       }
-      store.dispatch('SET_SIGN_UP_ERROR', {
+      store.commit('SET_SIGN_UP_ERROR', {
         errorCode: status.code,
         errorMessage,
       });
-      store.dispatch('SET_SIGN_UP_BUSY', false);
+      store.commit('SET_SIGN_UP_BUSY', false);
     });
 }

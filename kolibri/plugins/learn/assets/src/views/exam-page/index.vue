@@ -87,6 +87,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
@@ -96,7 +97,6 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kModal from 'kolibri.coreVue.components.kModal';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
-  import { setAndSaveCurrentExamAttemptLog, closeExam } from '../../state/actions/main';
   import { ClassesPageNames } from '../../constants';
   import answerHistory from './answer-history';
 
@@ -128,23 +128,17 @@
         submitModalOpen: false,
       };
     },
-    vuex: {
-      getters: {
-        exam: state => state.pageState.exam,
+    computed: {
+      ...mapState(['examAttemptLogs']),
+      ...mapState({
         channelId: state => state.pageState.channelId,
+        exam: state => state.pageState.exam,
         content: state => state.pageState.content,
         itemId: state => state.pageState.itemId,
         questionNumber: state => state.pageState.questionNumber,
-        attemptLogs: state => state.examAttemptLogs,
         currentAttempt: state => state.pageState.currentAttempt,
         questionsAnswered: state => state.pageState.questionsAnswered,
-      },
-      actions: {
-        setAndSaveCurrentExamAttemptLog,
-        closeExam,
-      },
-    },
-    computed: {
+      }),
       backPageLink() {
         return {
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
@@ -160,6 +154,7 @@
       });
     },
     methods: {
+      ...mapActions(['setAndSaveCurrentExamAttemptLog', 'closeExam']),
       checkAnswer() {
         if (this.$refs.contentRenderer) {
           return this.$refs.contentRenderer.checkAnswer();
@@ -190,7 +185,11 @@
             correct: answer.correct,
             timestamp: now(),
           });
-          return this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
+          return this.setAndSaveCurrentExamAttemptLog({
+            contentId: this.content.id,
+            itemId: this.itemId,
+            currentAttemptLog: attempt,
+          });
         }
         return Promise.resolve();
       },

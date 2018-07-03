@@ -17,6 +17,8 @@
 
 <script>
 
+  import { mapState } from 'vuex';
+
   export default {
     name: 'error',
     $trs: {
@@ -25,14 +27,14 @@
       explanation: `Sorry, something went wrong. Please try refreshing the page`,
       errorLabel: `Error details:`,
     },
-    vuex: {
-      getters: {
-        error: state => state.core.error,
-      },
-    },
     data: () => ({
       isHidden: false,
     }),
+    computed: {
+      ...mapState({
+        error: state => state.core.error,
+      }),
+    },
     methods: {
       hideErrorbox() {
         this.isHidden = true;

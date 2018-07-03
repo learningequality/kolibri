@@ -35,12 +35,10 @@
 
 <script>
 
+  import { mapActions, mapState } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import { provisionDevice, goToNextStep, goToPreviousStep } from '../state/actions/main';
-
   import loadingPage from './submission-states/loading-page';
   import errorPage from './submission-states/error-page';
-
   import progressToolbar from './progress-toolbar';
   import defaultLanguageForm from './onboarding-forms/default-language-form';
   import facilityNameForm from './onboarding-forms/facility-name-form';
@@ -61,6 +59,7 @@
       };
     },
     computed: {
+      ...mapState(['onboardingStep', 'onboardingData', 'loading', 'error']),
       currentOnboardingForm() {
         switch (this.onboardingStep) {
           case 1:
@@ -88,25 +87,13 @@
       },
     },
     methods: {
+      ...mapActions(['goToNextStep', 'goToPreviousStep', 'provisionDevice']),
       continueOnboarding() {
         if (this.isLastStep) {
           this.provisionDevice(this.onboardingData);
         } else {
           this.goToNextStep();
         }
-      },
-    },
-    vuex: {
-      getters: {
-        onboardingStep: state => state.onboardingStep,
-        onboardingData: state => state.onboardingData,
-        loading: state => state.loading,
-        error: state => state.error,
-      },
-      actions: {
-        goToNextStep,
-        goToPreviousStep,
-        provisionDevice,
       },
     },
   };

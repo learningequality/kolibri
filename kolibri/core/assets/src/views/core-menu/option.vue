@@ -68,7 +68,6 @@
           'is-active': this.active,
         };
       },
-
       isDivider() {
         return this.type === 'divider';
       },

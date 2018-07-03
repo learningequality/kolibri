@@ -17,8 +17,8 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kModal from 'kolibri.coreVue.components.kModal';
-  import { displayModal } from '../../state/actions';
 
   export default {
     name: 'userRemoveModal',
@@ -43,16 +43,12 @@
       },
     },
     methods: {
+      ...mapActions(['displayModal']),
       confirmRemoval() {
         this.$emit('confirm');
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        displayModal,
       },
     },
   };

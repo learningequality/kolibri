@@ -1,6 +1,5 @@
 import { RemoteChannelResource } from 'kolibri.resources';
 import differenceBy from 'lodash/differenceBy';
-import { installedChannelList } from '../getters';
 
 /**
  * Makes request to RemoteChannel API with a token. Does not actually interact
@@ -23,7 +22,7 @@ export function getRemoteChannelByToken(token) {
  * @returns {Promise<Array<Channel>>}
  */
 export function getAllRemoteChannels(store, publicChannels) {
-  const installedChannels = installedChannelList(store.state);
+  const installedChannels = store.getters.installedChannelList;
   const privateChannels = differenceBy(installedChannels, publicChannels, 'id').filter(
     channel => channel.on_device_resources > 0
   );

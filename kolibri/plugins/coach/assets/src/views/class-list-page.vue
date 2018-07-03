@@ -55,6 +55,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import authMessage from 'kolibri.coreVue.components.authMessage';
@@ -80,6 +81,10 @@
       kRouterLink,
     },
     computed: {
+      ...mapState(['classList']),
+      noClassesExist() {
+        return this.classList.length === 0;
+      },
       CLASSROOM: () => ContentNodeKinds.CLASSROOM,
       sortedClasses() {
         return orderBy(this.classList, [classroom => classroom.name.toUpperCase()], ['asc']);
@@ -120,12 +125,6 @@
           return coach_names.join('\n');
         }
         return null;
-      },
-    },
-    vuex: {
-      getters: {
-        classList: state => state.classList,
-        noClassesExist: state => state.classList.length === 0,
       },
     },
     $trs: {

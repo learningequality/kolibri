@@ -47,29 +47,21 @@ export default [
     name: PageNames.RECENT_CHANNELS,
     path: '/:classId/recent',
     handler: to => {
-      const showRecentOnly = true;
-      showChannelListForReports(store, to.params.classId, showRecentOnly);
+      showChannelListForReports(store, { ...to.params, showRecentOnly: true });
     },
   },
   {
     name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
     path: '/:classId/recent/:channelId',
     handler: to => {
-      showRecentItemsForChannel(store, to.params.classId, to.params.channelId);
+      showRecentItemsForChannel(store, to.params);
     },
   },
   {
     name: PageNames.RECENT_LEARNERS_FOR_ITEM,
     path: '/:classId/recent/:channelId/:contentId',
     handler: to => {
-      const showRecentOnly = true;
-      showLearnerReportsForItem(
-        store,
-        to.params.classId,
-        to.params.channelId,
-        to.params.contentId,
-        showRecentOnly
-      );
+      showLearnerReportsForItem(store, { ...to.params, showRecentOnly: true });
     },
   },
   {
@@ -96,36 +88,28 @@ export default [
     name: PageNames.TOPIC_CHANNELS,
     path: '/:classId/topics',
     handler: to => {
-      const showRecentOnly = false;
-      showChannelListForReports(store, to.params.classId, showRecentOnly);
+      showChannelListForReports(store, { ...to.params, showRecentOnly: false });
     },
   },
   {
     name: PageNames.TOPIC_CHANNEL_ROOT,
     path: '/:classId/topics/:channelId',
     handler: to => {
-      showChannelRootReport(store, to.params.classId, to.params.channelId);
+      showChannelRootReport(store, to.params);
     },
   },
   {
     name: PageNames.TOPIC_ITEM_LIST,
     path: '/:classId/topics/:channelId/topic/:topicId',
     handler: to => {
-      showItemListReports(store, to.params.classId, to.params.channelId, to.params.topicId);
+      showItemListReports(store, to.params);
     },
   },
   {
     name: PageNames.TOPIC_LEARNERS_FOR_ITEM,
     path: '/:classId/topics/:channelId/item/:contentId',
     handler: to => {
-      const showRecentOnly = false;
-      showLearnerReportsForItem(
-        store,
-        to.params.classId,
-        to.params.channelId,
-        to.params.contentId,
-        showRecentOnly
-      );
+      showLearnerReportsForItem(store, { ...to.params, showRecentOnly: false });
     },
   },
   {
@@ -159,27 +143,21 @@ export default [
     name: PageNames.LEARNER_CHANNELS,
     path: '/:classId/learners/:userId',
     handler: to => {
-      showLearnerChannels(store, to.params.classId, to.params.userId);
+      showLearnerChannels(store, to.params);
     },
   },
   {
     name: PageNames.LEARNER_CHANNEL_ROOT,
     path: '/:classId/learners/:userId/:channelId',
     handler: to => {
-      showChannelRootReport(store, to.params.classId, to.params.channelId, to.params.userId);
+      showChannelRootReport(store, to.params);
     },
   },
   {
     name: PageNames.LEARNER_ITEM_LIST,
     path: '/:classId/learners/:userId/:channelId/topic/:topicId',
     handler: to => {
-      showItemListReports(
-        store,
-        to.params.classId,
-        to.params.channelId,
-        to.params.topicId,
-        to.params.userId
-      );
+      showItemListReports(store, to.params);
     },
   },
   {

@@ -26,7 +26,7 @@ export default [
     name: PageNames.EXAM_REPORT,
     path: '/:classId/exams/:examId',
     handler: toRoute => {
-      showExamReportPage(store, toRoute.params.classId, toRoute.params.examId);
+      showExamReportPage(store, toRoute.params);
     },
   },
   {
@@ -38,14 +38,7 @@ export default [
     name: PageNames.EXAM_REPORT_DETAIL,
     path: '/:classId/exams/:examId/users/:userId/:question/:interaction',
     handler: toRoute => {
-      showExamReportDetailPage(
-        store,
-        toRoute.params.classId,
-        toRoute.params.userId,
-        toRoute.params.examId,
-        toRoute.params.question,
-        toRoute.params.interaction
-      );
+      showExamReportDetailPage(store, toRoute.params);
     },
   },
 ];

@@ -104,6 +104,7 @@
 
 <script>
 
+  import { mapActions, mapState, mapMutations } from 'vuex';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
@@ -111,11 +112,13 @@
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
-  import { createSnackbar, clearSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { resourceUserSummaryLink } from '../lessonsRouterUtils';
-  import { saveLessonResources, updateCurrentLesson } from '../../../state/actions/lessons';
 
   const removalSnackbarTime = 5000;
+
+  function workingResources(state) {
+    return state.pageState.workingResources;
+  }
 
   export default {
     name: 'resourceListTable',
@@ -130,11 +133,32 @@
     },
     data() {
       return {
-        workingResourcesBackup: Array.from(this.workingResources),
+        workingResourcesBackup: Array.from(workingResources(this.$store.state)),
         firstRemovalTitle: '',
       };
     },
     computed: {
+      ...mapState({
+        lessonId: state => state.pageState.currentLesson.id,
+        workingResources,
+        // consider loading this async?
+        resourceContentNodes: state => state.pageState.resourceCache,
+        totalLearners: state => state.pageState.lessonReport.total_learners,
+        getCachedResource(state) {
+          return function getter(resourceId) {
+            return state.pageState.resourceCache[resourceId] || {};
+          };
+        },
+        numLearnersCompleted(state) {
+          return function counter(contentNodeId) {
+            const report =
+              state.pageState.lessonReport.progress.find(p => p.contentnode_id === contentNodeId) ||
+              {};
+            // If progress couldn't be found, assume 0 learners completed
+            return report.num_learners_completed || 0;
+          };
+        },
+      }),
       removalMessage() {
         const numberOfRemovals = this.workingResourcesBackup.length - this.workingResources.length;
 
@@ -152,6 +176,16 @@
       },
     },
     methods: {
+      ...mapActions([
+        'createSnackbar',
+        'clearSnackbar',
+        'saveLessonResources',
+        'updateCurrentLesson',
+      ]),
+      ...mapMutations({
+        removeFromWorkingResources: 'REMOVE_FROM_WORKING_RESOURCES',
+        setWorkingResources: 'SET_WORKING_RESOURCES',
+      }),
       resourceUserSummaryLink,
       resourceTitle(resourceId) {
         return this.resourceContentNodes[resourceId].title;
@@ -219,48 +253,13 @@
         });
       },
       autoSave(id, resources) {
-        this.saveLessonResources(id, resources).catch(() => {
+        this.saveLessonResources({ lessonId: id, resourceIds: resources }).catch(() => {
           this.updateCurrentLesson(id).then(currentLesson => {
             this.setWorkingResources(
               currentLesson.resources.map(resourceObj => resourceObj.contentnode_id)
             );
           });
         });
-      },
-    },
-    vuex: {
-      getters: {
-        lessonId: state => state.pageState.currentLesson.id,
-        workingResources: state => state.pageState.workingResources,
-        // consider loading this async?
-        resourceContentNodes: state => state.pageState.resourceCache,
-        totalLearners: state => state.pageState.lessonReport.total_learners,
-        getCachedResource(state) {
-          return function getter(resourceId) {
-            return state.pageState.resourceCache[resourceId] || {};
-          };
-        },
-        numLearnersCompleted(state) {
-          return function counter(contentNodeId) {
-            const report =
-              state.pageState.lessonReport.progress.find(p => p.contentnode_id === contentNodeId) ||
-              {};
-            // If progress couldn't be found, assume 0 learners completed
-            return report.num_learners_completed || 0;
-          };
-        },
-      },
-      actions: {
-        saveLessonResources,
-        updateCurrentLesson,
-        createSnackbar,
-        clearSnackbar,
-        removeFromWorkingResources(store, resourceId) {
-          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', resourceId);
-        },
-        setWorkingResources(store, resourceArray) {
-          store.dispatch('SET_WORKING_RESOURCES', resourceArray);
-        },
       },
     },
     $trs: {

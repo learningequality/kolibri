@@ -1,56 +1,16 @@
-import Vuex from 'vuex';
 import { mount } from '@vue/test-utils';
 import { now } from 'kolibri.utils.serverClock';
 import ChannelListPage from '../../src/views/reports/channel-list-page';
 import { ViewBy } from '../../src/constants/reportConstants';
+import makeStore from '../makeStore';
 
 jest.mock('kolibri.utils.serverClock');
 
-const initialState = () => ({
-  classId: '',
-  pageName: '',
-  core: {
-    channels: {
-      list: [
-        { id: 'recent_channel', title: 'Recent Channel' },
-        { id: 'not_recent_channel', title: 'Not Recent Channel' },
-        { id: 'null_channel', title: 'Null Channel' },
-      ],
-    },
-  },
-  pageState: {
-    showRecentOnly: false,
-    tableData: [
-      {
-        title: 'recent_channel',
-        lastActive: new Date('2017-04-20T21:17:58.810Z'),
-        id: 'test1',
-      },
-      {
-        title: 'not_recent_channel',
-        lastActive: new Date('2017-03-20T21:17:58.810Z'),
-        id: 'test2',
-      },
-      {
-        title: 'null_channel',
-        lastActive: null,
-        id: 'test3',
-      },
-    ],
-    viewBy: ViewBy.CHANNEL,
-    sortColumn: '',
-    sortOrder: '',
-  },
-});
-
-function makeWrapper(options = {}, state) {
-  const store = new Vuex.Store({
-    state: state || initialState(),
-  });
+function makeWrapper(options = {}) {
   return mount(ChannelListPage, {
     ...options,
     stubs: ['report-subheading', 'name-cell', 'breadcrumbs'],
-    store,
+    store: options.store || {},
   });
 }
 
@@ -62,23 +22,51 @@ function getElements(wrapper) {
 }
 
 describe('channel list page component', () => {
-  let state;
+  let store;
 
   beforeEach(() => {
+    store = makeStore();
+    store.state.core.channels.list = [
+      { id: 'recent_channel', title: 'Recent Channel' },
+      { id: 'not_recent_channel', title: 'Not Recent Channel' },
+      { id: 'null_channel', title: 'Null Channel' },
+    ];
+    store.state.pageState = {
+      showRecentOnly: false,
+      tableData: [
+        {
+          title: 'recent_channel',
+          lastActive: new Date('2017-04-20T21:17:58.810Z'),
+          id: 'test1',
+        },
+        {
+          title: 'not_recent_channel',
+          lastActive: new Date('2017-03-20T21:17:58.810Z'),
+          id: 'test2',
+        },
+        {
+          title: 'null_channel',
+          lastActive: null,
+          id: 'test3',
+        },
+      ],
+      viewBy: ViewBy.CHANNEL,
+      sortColumn: '',
+      sortOrder: '',
+    };
     // sets clock to 4/19/2017
     now.mockReturnValue(new Date(2017, 3, 19));
-    state = initialState();
   });
 
   describe('in "show everything" mode', () => {
     it('shows the correct header', () => {
-      const wrapper = makeWrapper({}, state);
+      const wrapper = makeWrapper({ store });
       const { headerText } = getElements(wrapper);
       expect(headerText().text()).toEqual('Content');
     });
 
     it('shows all channels, regardless of activity', () => {
-      const wrapper = makeWrapper({}, state);
+      const wrapper = makeWrapper({ store });
       const { channelRows } = getElements(wrapper);
       // only checks the number of rows, not whether they are correct
       expect(channelRows().length).toEqual(3);
@@ -87,17 +75,17 @@ describe('channel list page component', () => {
 
   describe('in "show recent only" mode', () => {
     beforeEach(() => {
-      state.pageState.showRecentOnly = true;
+      store.state.pageState.showRecentOnly = true;
     });
 
     it('shows the "recent activity" header', () => {
-      const wrapper = makeWrapper({}, state);
+      const wrapper = makeWrapper({ store });
       const { headerText } = getElements(wrapper);
       expect(headerText().text()).toEqual('Recent activity');
     });
 
     it('hides channels that have null or not-recent activity', () => {
-      const wrapper = makeWrapper({}, state);
+      const wrapper = makeWrapper({ store });
       const { channelRows } = getElements(wrapper);
       expect(channelRows().length).toEqual(1);
     });

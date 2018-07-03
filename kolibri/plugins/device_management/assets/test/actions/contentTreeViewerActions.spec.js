@@ -6,7 +6,6 @@ import {
   removeNodeForTransfer,
 } from '../../src/state/actions/contentTreeViewerActions';
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
-import { nodesForTransfer, wizardState, nodeTransferCounts } from '../../src/state/getters';
 import { updateTreeViewTopic } from '../../src/state/actions/selectContentActions';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
@@ -21,11 +20,11 @@ describe('contentTreeViewer actions', () => {
 
   function assertIncludeEquals(expected) {
     // HACK add the hard-coded file sizes to the expected array
-    expect(nodesForTransfer(store.state).included).toEqual(expected.map(addFileSizes));
+    expect(store.getters.nodesForTransfer.included).toEqual(expected.map(addFileSizes));
   }
 
   function assertOmitEquals(expected) {
-    expect(nodesForTransfer(store.state).omitted).toEqual(expected.map(addFileSizes));
+    expect(store.getters.nodesForTransfer.omitted).toEqual(expected.map(addFileSizes));
   }
 
   function assertFilesResourcesEqual(
@@ -33,17 +32,17 @@ describe('contentTreeViewer actions', () => {
     expectedResources,
     transferType = 'remoteimport'
   ) {
-    const { fileSize, resources } = nodeTransferCounts(store.state)(transferType);
+    const { fileSize, resources } = store.getters.nodeTransferCounts(transferType);
     expect(fileSize).toEqual(expectedFiles);
     expect(resources).toEqual(expectedResources);
   }
 
   function setIncludedNodes(nodes) {
-    nodesForTransfer(store.state).included = nodes.map(addFileSizes);
+    store.getters.nodesForTransfer.included = nodes.map(addFileSizes);
   }
 
   function setOmittedNodes(nodes) {
-    nodesForTransfer(store.state).omitted = nodes.map(addFileSizes);
+    store.getters.nodesForTransfer.omitted = nodes.map(addFileSizes);
   }
 
   beforeEach(() => {
@@ -379,7 +378,7 @@ describe('updateTreeViewTopic action', () => {
   });
 
   function assertPathEquals(expected) {
-    expect(wizardState(store.state).path).toEqual(expected.map(omit('path')));
+    expect(store.getters.wizardState.path).toEqual(expected.map(omit('path')));
   }
 
   it('moving forward by one topic', () => {

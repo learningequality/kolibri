@@ -90,6 +90,7 @@
 
 <script>
 
+  import { mapGetters, mapState, mapActions } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import uiIconButton from 'keen-ui/src/UiIconButton';
@@ -141,6 +142,10 @@
       userMenuDropdownIsOpen: false,
     }),
     computed: {
+      ...mapGetters(['isUserLoggedIn', 'isAdmin', 'isCoach', 'isLearner']),
+      ...mapState({
+        username: state => state.core.session.username,
+      }),
       menuOptions() {
         return navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
@@ -164,11 +169,7 @@
         }
         return event;
       },
-    },
-    vuex: {
-      getters: {
-        username: state => state.core.session.username,
-      },
+      ...mapActions(['kolibriLogout']),
     },
   };
 

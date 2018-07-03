@@ -22,9 +22,9 @@ import logging from '../logging';
 import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
 import * as constants from '../constants';
-import * as getters from '../state/getters';
-import * as actions from '../state/actions';
-import * as store from '../state/store';
+import * as getters from '../state/modules/core/getters';
+import * as actions from '../state/modules/core/actions';
+import store from '../state/store';
 import * as mappers from '../state/mappers';
 import contentRenderer from '../views/content-renderer';
 import downloadButton from '../views/content-renderer/download-button';
@@ -69,6 +69,7 @@ import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
+import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
 import coreMenu from '../views/core-menu';
@@ -184,5 +185,6 @@ export default {
     serverClock,
     i18n,
     navComponents,
+    samePageCheckGenerator,
   },
 };

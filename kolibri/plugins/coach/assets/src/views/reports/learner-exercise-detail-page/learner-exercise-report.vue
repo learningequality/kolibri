@@ -51,6 +51,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import attemptLogList from 'kolibri.coreVue.components.attemptLogList';
@@ -67,6 +68,23 @@
       interactionList,
     },
     computed: {
+      ...mapState(['pageName', 'classId']),
+      ...mapState({
+        channelId: state => state.pageState.channelId,
+        interactionIndex: state => state.pageState.interactionIndex,
+        currentAttemptLog: state => state.pageState.currentAttemptLog,
+        attemptLogs: state =>
+          state.pageState.attemptLogs.map(attempt => ({
+            ...attempt,
+            num_coach_contents: state.pageState.exercise.num_coach_contents,
+          })),
+        currentInteraction: state => state.pageState.currentInteraction,
+        currentInteractionHistory: state => state.pageState.currentInteractionHistory,
+        user: state => state.pageState.user,
+        exercise: state => state.pageState.exercise,
+        summaryLog: state => state.pageState.summaryLog,
+        attemptLogIndex: state => state.pageState.attemptLogIndex,
+      }),
       isExercise() {
         return this.exercise.kind === ContentNodeKinds.EXERCISE;
       },
@@ -95,26 +113,6 @@
             interactionIndex,
           },
         });
-      },
-    },
-    vuex: {
-      getters: {
-        interactionIndex: state => state.pageState.interactionIndex,
-        currentAttemptLog: state => state.pageState.currentAttemptLog,
-        attemptLogs: state =>
-          state.pageState.attemptLogs.map(attempt => ({
-            ...attempt,
-            num_coach_contents: state.pageState.exercise.num_coach_contents,
-          })),
-        currentInteraction: state => state.pageState.currentInteraction,
-        currentInteractionHistory: state => state.pageState.currentInteractionHistory,
-        classId: state => state.classId,
-        channelId: state => state.pageState.channelId,
-        user: state => state.pageState.user,
-        exercise: state => state.pageState.exercise,
-        summaryLog: state => state.pageState.summaryLog,
-        pageName: state => state.pageName,
-        attemptLogIndex: state => state.pageState.attemptLogIndex,
       },
     },
   };

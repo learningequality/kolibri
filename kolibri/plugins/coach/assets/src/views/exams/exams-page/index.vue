@@ -73,6 +73,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
@@ -118,6 +119,9 @@
       };
     },
     computed: {
+      ...mapState({
+        exams: state => state.pageState.exams,
+      }),
       examIcon() {
         return ContentNodeKinds.EXAM;
       },
@@ -167,19 +171,12 @@
         }
       },
     },
-    vuex: {
-      getters: {
-        exams: state => state.pageState.exams,
-      },
-    },
   };
 
 </script>
 
 
 <style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
 
   .filter-and-button
     display: flex

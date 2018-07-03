@@ -26,9 +26,9 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import { updateClass, displayModal } from '../../state/actions';
 
   export default {
     name: 'classRenameModal',
@@ -99,23 +99,18 @@
       },
     },
     methods: {
+      ...mapActions(['updateClass', 'displayModal']),
       updateName() {
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
-          this.updateClass(this.classid, { name: this.name });
+          this.updateClass({ id: this.classid, updateData: { name: this.name } });
         } else {
           this.$refs.name.focus();
         }
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        updateClass,
-        displayModal,
       },
     },
   };

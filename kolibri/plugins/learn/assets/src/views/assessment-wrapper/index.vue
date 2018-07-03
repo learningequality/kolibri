@@ -105,20 +105,7 @@ oriented data synchronization.
 
 <script>
 
-  import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
-  import {
-    initMasteryLog,
-    createDummyMasteryLog,
-    saveMasteryLog,
-    saveAndStoreMasteryLog,
-    setMasteryLogComplete,
-    createAttemptLog,
-    saveAttemptLog,
-    saveAndStoreAttemptLog,
-    updateMasteryAttemptState,
-    updateAttemptLogInteractionHistory,
-    updateExerciseProgress,
-  } from 'kolibri.coreVue.vuex.actions';
+  import { mapState, mapGetters, mapActions } from 'vuex';
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import seededShuffle from 'kolibri.lib.seededshuffle';
   import { now } from 'kolibri.utils.serverClock';
@@ -202,6 +189,18 @@ oriented data synchronization.
       checkWasAttempted: false,
     }),
     computed: {
+      ...mapGetters(['isUserLoggedIn']),
+      ...mapState({
+        mastered: state => state.core.logging.mastery.complete,
+        totalattempts: state => state.core.logging.mastery.totalattempts,
+        pastattempts: state =>
+          (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
+        userid: state => state.core.session.user_id,
+        content: state => state.pageState.content,
+        assessmentIds: state => state.pageState.content.assessmentIds,
+        masteryModel: state => state.pageState.content.masteryModel,
+        randomize: state => state.pageState.content.randomize,
+      }),
       recentAttempts() {
         if (!this.pastattempts) {
           return [];
@@ -289,6 +288,19 @@ oriented data synchronization.
       this.saveAttemptLogMasterLog(false);
     },
     methods: {
+      ...mapActions([
+        'createAttemptLog',
+        'createDummyMasteryLog',
+        'initMasteryLog',
+        'saveAndStoreAttemptLog',
+        'saveAndStoreMasteryLog',
+        'saveAttemptLog',
+        'saveMasteryLog',
+        'setMasteryLogComplete',
+        'updateAttemptLogInteractionHistory',
+        'updateExerciseProgress',
+        'updateMasteryAttemptState',
+      ]),
       updateAttemptLogMasteryLog({
         correct,
         complete,
@@ -418,7 +430,10 @@ oriented data synchronization.
         this.checkWasAttempted = false;
       },
       callInitMasteryLog() {
-        this.initMasteryLog(this.masterySpacingTime, this.masteryModel);
+        this.initMasteryLog({
+          masterySpacingTime: this.masterySpacingTime,
+          masteryCriterion: this.masteryModel,
+        });
       },
       callCreateAttemptLog() {
         this.ready = false;
@@ -426,7 +441,7 @@ oriented data synchronization.
         this.ready = true;
       },
       updateExerciseProgressMethod() {
-        this.updateExerciseProgress(this.exerciseProgress);
+        this.updateExerciseProgress({ progressPercent: this.exerciseProgress });
         updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
       },
       sessionInitialized() {
@@ -465,33 +480,6 @@ oriented data synchronization.
       },
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
-      },
-    },
-    vuex: {
-      actions: {
-        initMasteryLog,
-        createDummyMasteryLog,
-        saveMasteryLog,
-        saveAndStoreMasteryLog,
-        setMasteryLogComplete,
-        createAttemptLog,
-        saveAttemptLog,
-        saveAndStoreAttemptLog,
-        updateMasteryAttemptState,
-        updateAttemptLogInteractionHistory,
-        updateExerciseProgress,
-      },
-      getters: {
-        isUserLoggedIn,
-        mastered: state => state.core.logging.mastery.complete,
-        totalattempts: state => state.core.logging.mastery.totalattempts,
-        pastattempts: state =>
-          (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
-        userid: state => state.core.session.user_id,
-        content: state => state.pageState.content,
-        assessmentIds: state => state.pageState.content.assessmentIds,
-        masteryModel: state => state.pageState.content.masteryModel,
-        randomize: state => state.pageState.content.randomize,
       },
     },
   };

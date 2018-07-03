@@ -17,8 +17,8 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kModal from 'kolibri.coreVue.components.kModal';
-  import { deleteClass, displayModal } from '../../state/actions';
 
   export default {
     name: 'classDeleteModal',
@@ -44,17 +44,12 @@
       },
     },
     methods: {
+      ...mapActions(['deleteClass', 'displayModal']),
       classDelete() {
         this.deleteClass(this.classid);
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        deleteClass,
-        displayModal,
       },
     },
   };

@@ -79,6 +79,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
   import orderBy from 'lodash/orderBy';
@@ -86,7 +87,6 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { Modals, PageNames } from '../../constants';
-  import { displayModal } from '../../state/actions';
   import classCreateModal from './class-create-modal';
   import classDeleteModal from './class-delete-modal';
 
@@ -110,12 +110,18 @@
     mixins: [responsiveWindow],
     data: () => ({ currentClassDelete: null }),
     computed: {
+      ...mapState({
+        modalShown: state => state.pageState.modalShown,
+        classes: state => state.pageState.classes,
+        noClassesExist: state => state.pageState.classes.length === 0,
+      }),
       Modals: () => Modals,
       sortedClassrooms() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
     },
     methods: {
+      ...mapActions(['displayModal']),
       // Duplicated in class-list-page
       coachNames(classroom) {
         const { coaches } = classroom;
@@ -152,16 +158,6 @@
       openDeleteClassModal(classModel) {
         this.currentClassDelete = classModel;
         this.displayModal(Modals.DELETE_CLASS);
-      },
-    },
-    vuex: {
-      getters: {
-        modalShown: state => state.pageState.modalShown,
-        classes: state => state.pageState.classes,
-        noClassesExist: state => state.pageState.classes.length === 0,
-      },
-      actions: {
-        displayModal,
       },
     },
     $trs: {

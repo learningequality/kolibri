@@ -59,14 +59,14 @@
 
 <script>
 
+  import { mapState, mapGetters } from 'vuex';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import progressBar from 'kolibri.coreVue.components.progressBar';
+  import { standardDataTable } from '../../state/getters/reports';
   import { PageNames } from '../../constants';
   import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
-  import { classMemberCount } from '../../state/getters/classes';
-  import * as reportGetters from '../../state/getters/reports';
   import breadcrumbs from './breadcrumbs';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
@@ -98,6 +98,12 @@
       noRecentProgress: 'No activity in past {threshold} days',
     },
     computed: {
+      ...mapState(['classId', 'pageState']),
+      ...mapGetters(['classMemberCount']),
+      ...mapState({
+        channelId: state => state.pageState.channelId,
+        standardDataTable,
+      }),
       tableColumns() {
         return TableColumns;
       },
@@ -108,7 +114,7 @@
     methods: {
       progressString(row) {
         // string representation of a fraction, can't use completedProgress
-        const proportionCompleted = `${row.logCountComplete}` + `/${this.userCount}`;
+        const proportionCompleted = `${row.logCountComplete}` + `/${this.classMemberCount}`;
         switch (row.kind) {
           case ContentNodeKinds.AUDIO:
             return this.$tr('listened', { proportionCompleted });
@@ -129,18 +135,10 @@
           name: PageNames.RECENT_LEARNERS_FOR_ITEM,
           params: {
             classId: this.classId,
-            channelId: this.pageState.channelId,
+            channelId: this.channelId,
             contentId: row.id,
           },
         };
-      },
-    },
-    vuex: {
-      getters: {
-        classId: state => state.classId,
-        pageState: state => state.pageState,
-        userCount: classMemberCount,
-        standardDataTable: reportGetters.standardDataTable,
       },
     },
   };

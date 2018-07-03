@@ -15,8 +15,8 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import { PageNames } from '../constants';
-  import { assignCoachesToClass } from '../state/actions/class';
   import classEnrollForm from './class-enroll-form';
 
   export default {
@@ -24,23 +24,20 @@
     components: {
       classEnrollForm,
     },
-    computed: {},
+    computed: {
+      ...mapState({
+        className: state => state.pageState.class.name,
+        facilityUsers: state => state.pageState.facilityUsers,
+        classUsers: state => state.pageState.classUsers,
+      }),
+    },
     methods: {
+      ...mapActions(['assignCoachesToClass']),
       assignCoaches(coaches) {
         this.assignCoachesToClass(coaches).then(() => {
           // do this in action?
           this.$router.push({ name: PageNames.CLASS_EDIT_MGMT_PAGE });
         });
-      },
-    },
-    vuex: {
-      getters: {
-        className: state => state.pageState.class.name,
-        facilityUsers: state => state.pageState.facilityUsers,
-        classUsers: state => state.pageState.classUsers,
-      },
-      actions: {
-        assignCoachesToClass,
       },
     },
     $trs: {

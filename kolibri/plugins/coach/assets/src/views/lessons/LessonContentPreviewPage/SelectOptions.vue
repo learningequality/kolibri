@@ -54,17 +54,15 @@
         return this.workingResources.includes(this.contentId);
       },
     },
-    vuex: {
-      actions: {
-        // Maybe break these out to actual actions.
-        // Used by select page, summary page, and here
-        addToWorkingResources(store) {
-          this.$emit('addresource');
-          store.dispatch('ADD_TO_WORKING_RESOURCES', this.contentId);
-        },
-        removeFromWorkingResources(store) {
-          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', this.contentId);
-        },
+    methods: {
+      // Maybe break these out to actual actions.
+      // Used by select page, summary page, and here
+      addToWorkingResources() {
+        this.$emit('addresource');
+        this.$store.commit('ADD_TO_WORKING_RESOURCES', this.contentId);
+      },
+      removeFromWorkingResources() {
+        this.$store.commit('REMOVE_FROM_WORKING_RESOURCES', this.contentId);
       },
     },
   };

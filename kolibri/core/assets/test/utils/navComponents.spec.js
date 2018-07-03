@@ -1,6 +1,8 @@
 import navComponents from 'kolibri.utils.navComponents';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
 
+jest.mock('kolibri.lib.logging');
+
 describe('nav component', () => {
   afterEach(() => {
     // Clean up the registered components

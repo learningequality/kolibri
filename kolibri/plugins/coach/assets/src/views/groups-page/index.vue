@@ -63,12 +63,12 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
   import orderBy from 'lodash/orderBy';
   import flatMap from 'lodash/flatMap';
   import kButton from 'kolibri.coreVue.components.kButton';
   import { GroupModals } from '../../constants';
-  import { displayModal } from '../../state/actions/group';
   import createGroupModal from './create-group-modal';
   import groupSection from './group-section';
   import renameGroupModal from './rename-group-modal';
@@ -102,6 +102,11 @@
       };
     },
     computed: {
+      ...mapState({
+        classUsers: state => state.pageState.classUsers,
+        groupModalShown: state => state.pageState.groupModalShown,
+        groups: state => state.pageState.groups,
+      }),
       showCreateGroupModal() {
         return this.groupModalShown === GroupModals.CREATE_GROUP;
       },
@@ -131,6 +136,7 @@
       },
     },
     methods: {
+      ...mapActions(['displayModal']),
       openCreateGroupModal() {
         this.displayModal(GroupModals.CREATE_GROUP);
       },
@@ -157,14 +163,6 @@
         this.isUngrouped = isUngrouped;
         this.displayModal(GroupModals.MOVE_LEARNERS);
       },
-    },
-    vuex: {
-      getters: {
-        classUsers: state => state.pageState.classUsers,
-        groups: state => state.pageState.groups,
-        groupModalShown: state => state.pageState.groupModalShown,
-      },
-      actions: { displayModal },
     },
   };
 
