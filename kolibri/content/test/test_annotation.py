@@ -104,10 +104,96 @@ class AnnotationTreeRecursion(TransactionTestCase):
         self.assertTrue(ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").coach_content)
 
     def test_no_content_nodes_coach_content(self):
-        ContentNode.objects.filter(kind=content_kinds.TOPIC).update(available=True)
+        ContentNode.objects.all().update(available=True)
         ContentNode.objects.all().update(coach_content=False)
         recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
         self.assertEqual(ContentNode.objects.filter(coach_content=True).count(), 0)
+
+    def test_all_root_content_nodes_coach_content(self):
+        ContentNode.objects.all().update(available=True, coach_content=False)
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        ContentNode.objects.filter(parent=root_node).exclude(kind=content_kinds.TOPIC).update(coach_content=True)
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        root_node.refresh_from_db()
+        self.assertFalse(root_node.coach_content)
+
+    def test_one_root_content_node_coach_content(self):
+        ContentNode.objects.all().update(available=True, coach_content=False)
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        node = ContentNode.objects.filter(parent=root_node).exclude(kind=content_kinds.TOPIC).first()
+        node.coach_content = True
+        node.save()
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        root_node.refresh_from_db()
+        self.assertFalse(root_node.coach_content)
+
+    def test_one_root_topic_node_coach_content(self):
+        ContentNode.objects.all().update(available=True, coach_content=False)
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        node = ContentNode.objects.filter(parent=root_node, kind=content_kinds.TOPIC).first()
+        node.coach_content = True
+        node.save()
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        root_node.refresh_from_db()
+        self.assertFalse(root_node.coach_content)
+
+    def test_one_child_node_coach_content(self):
+        ContentNode.objects.all().update(available=True, coach_content=False)
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        node = ContentNode.objects.filter(parent=root_node, kind=content_kinds.TOPIC).first()
+        ContentNode.objects.create(
+            title='test1',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=node,
+            kind=content_kinds.VIDEO,
+            available=True,
+            coach_content=True,
+        )
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        root_node.refresh_from_db()
+        node.refresh_from_db()
+        self.assertFalse(root_node.coach_content)
+        self.assertFalse(node.coach_content)
+
+    def test_one_child_coach_content_parent_no_siblings(self):
+        ContentNode.objects.all().update(available=True, coach_content=False)
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        topic_node = ContentNode.objects.filter(parent=root_node, kind=content_kinds.TOPIC).first()
+        parent_node = ContentNode.objects.create(
+            title='test1',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=topic_node,
+            kind=content_kinds.TOPIC,
+            available=True,
+            coach_content=False,
+        )
+        ContentNode.objects.create(
+            title='test2',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=parent_node,
+            kind=content_kinds.VIDEO,
+            available=True,
+            coach_content=True,
+        )
+        ContentNode.objects.create(
+            title='test3',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=parent_node,
+            kind=content_kinds.VIDEO,
+            available=True,
+            coach_content=False,
+        )
+        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        parent_node.refresh_from_db()
+        self.assertFalse(parent_node.coach_content)
 
     def test_one_content_node_many_siblings_coach_content(self):
         ContentNode.objects.filter(kind=content_kinds.TOPIC).update(available=True)
