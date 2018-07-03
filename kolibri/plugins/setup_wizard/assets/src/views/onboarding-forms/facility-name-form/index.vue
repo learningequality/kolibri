@@ -14,6 +14,7 @@
       :invalidText="facilityNameErrorMessage"
       ref="facilityName"
       :label="$tr('facilityNameFieldLabel')"
+      :maxlength="50"
     />
   </onboarding-form>
 
