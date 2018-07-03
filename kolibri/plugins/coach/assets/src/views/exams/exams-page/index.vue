@@ -74,7 +74,6 @@
 <script>
 
   import coreTable from 'kolibri.coreVue.components.coreTable';
-  import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -122,7 +121,7 @@
         return ContentNodeKinds.EXAM;
       },
       sortedExams() {
-        return orderBy(this.exams, [exam => exam.title.toUpperCase()], ['asc']);
+        return this.exams.slice().reverse();
       },
       statusOptions() {
         return [
