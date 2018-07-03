@@ -1,6 +1,7 @@
 import logging as logger
 
 from django.apps import apps
+from django.db.models.fields.related import ForeignKey
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
@@ -376,6 +377,7 @@ class ChannelImport(object):
             existing_channel = ChannelMetadata.objects.get(id=self.channel_id)
         except ChannelMetadata.DoesNotExist:
             existing_channel = None
+
         if existing_channel:
 
             if existing_channel.version < self.channel_version:
@@ -383,25 +385,70 @@ class ChannelImport(object):
                 logging.info(('Older version {channel_version} of channel {channel_id} already exists in database; removing old entries ' +
                               'so we can upgrade to version {new_channel_version}').format(
                     channel_version=existing_channel.version, channel_id=self.channel_id, new_channel_version=self.channel_version))
+                self.delete_old_channel_data(existing_channel.root.tree_id)
             else:
                 # We have previously loaded this channel, with the same or newer version, so our work here is done
                 logging.warn(('Version {channel_version} of channel {channel_id} already exists in database; cancelling import of ' +
                               'version {new_channel_version}').format(
                     channel_version=existing_channel.version, channel_id=self.channel_id, new_channel_version=self.channel_version))
                 return False
-            self.check_cancelled()
-            root_id = ChannelMetadata.objects.get(pk=self.channel_id).root_id
-            ContentNodeClass = self.destination.get_class(ContentNode)
-            root_node = self.destination.session.query(ContentNodeClass).get(root_id)
-            # We set cascade behaviour on relationships on the default database
-            # So calling delete on the root node of a channel will delete everything else
-            self.destination.session.delete(root_node)
-            # Deletion/cascade is not enacted on the session until we call flush
-            # Note: as this function is generally called inside a explicitly managed
-            # transaction, this will not be committed to the database unless the entire
-            # update operation succeeds.
-            self.destination.session.flush()
+
         return True
+
+    def _can_use_optimized_pre_deletion(self, model):
+        # check whether we can skip fully deleting this model, if we'll be using REPLACE on it anyway
+        mapping = self.schema_mapping.get(model, {})
+        row_mapper = self.generate_row_mapper(mapping.get('per_row'))
+        table_mapper = self.generate_table_mapper(mapping.get('per_table'))
+        return self.can_use_sqlite_attach_method(model, row_mapper, table_mapper)
+
+    def delete_old_channel_data(self, old_tree_id):
+
+        # construct a template for deleting records for models that foreign key onto ContentNode
+        delete_related_template = """
+            DELETE FROM {table}
+                WHERE {fk_field} IN (
+                    SELECT id FROM {cn_table} WHERE tree_id = '{tree_id}'
+                )
+        """
+
+        # construct a template for deleting the ContentNode records themselves
+        delete_contentnode_template = "DELETE FROM {table} WHERE tree_id = '{tree_id}'"
+
+        # we want to delete all content models, but not "merge models" (ones that might also be used by other channels), and ContentNode last
+        models_to_delete = [model for model in self.content_models if model is not ContentNode and model not in merge_models] + [ContentNode]
+
+        for model in models_to_delete:
+
+            # we do a few things differently if it's the ContentNode model, vs a model related to ContentNode
+            if model is ContentNode:
+                template = delete_contentnode_template
+                fields = ["id"]
+            else:
+                template = delete_related_template
+                fields = [f.column for f in model._meta.fields if isinstance(f, ForeignKey) and f.target_field.model is ContentNode]
+
+            # if the external database is attached and there are no incompatible schema mappings for a table,
+            # we can skip deleting records that will be REPLACED during import, which helps efficiency
+            if self._can_use_optimized_pre_deletion(model):
+                template += " AND NOT id IN (SELECT id FROM sourcedb.{table})"
+
+            # run a query for each field this model has that foreignkeys onto ContentNode
+            for field in fields:
+
+                # construct the actual query by filling in variables
+                query = template.format(
+                    table=model._meta.db_table,
+                    fk_field=field,
+                    tree_id=old_tree_id,
+                    cn_table=ContentNode._meta.db_table
+                )
+
+                # check that the import operation hasn't since been cancelled
+                self.check_cancelled()
+
+                # execute the actual query
+                self.destination.session.execute(text(query))
 
     def check_cancelled(self):
         if callable(self.cancel_check):
