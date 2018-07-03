@@ -114,13 +114,13 @@
     metaInfo() {
       return {
         // Use arrow function to bind $tr to this component
-        titleTemplate: (title) => {
+        titleTemplate: title => {
           if (!title) {
-            return this.$tr('kolibriMessage')
+            return this.$tr('kolibriMessage');
           }
-          return this.$tr('kolibriTitleMessage', { title })
-        }
-      }
+          return this.$tr('kolibriTitleMessage', { title });
+        },
+      };
     },
     data: () => ({ navShown: false }),
     computed: {

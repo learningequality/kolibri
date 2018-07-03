@@ -146,6 +146,12 @@
       youCan: 'You can',
       changePasswordPrompt: 'Change password',
       usernameAlreadyExists: 'An account with that username already exists',
+      documentTitle: 'User Profile',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       kButton,
