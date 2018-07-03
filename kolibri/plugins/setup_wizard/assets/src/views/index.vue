@@ -52,6 +52,12 @@
     $trs: {
       onboardingNextStepButton: 'Continue',
       onboardingFinishButton: 'Finish',
+      documentTitle: 'Setup Wizard',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     data() {
       return {

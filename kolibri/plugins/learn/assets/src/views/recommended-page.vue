@@ -109,6 +109,12 @@
       suggestedNextStepsSectionHeader: 'Next steps',
       resumeSectionHeader: 'Resume',
       featuredSectionHeader: "Featured in '{ channelTitle }'",
+      documentTitle: 'Learn',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       contentCardGroupCarousel,

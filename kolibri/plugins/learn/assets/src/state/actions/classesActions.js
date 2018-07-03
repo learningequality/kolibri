@@ -1,20 +1,12 @@
 import { ContentNodeResource } from 'kolibri.resources';
-import { createTranslator } from 'kolibri.utils.i18n';
 import { LearnerClassroomResource, LearnerLessonResource } from '../../apiResources';
 import { ClassesPageNames } from '../../constants';
-
-const translator = createTranslator('classesPageTitles', {
-  allClasses: 'All classes',
-  classAssignments: 'Class assignments',
-  lessonContents: 'Lesson contents',
-});
 
 // WARNING: Only call  _after_ to allow the previous page (often `content-page`)
 // to finish destruction with the expected state in place
 function preparePage(store, params) {
-  const { pageName, title, initialState } = params;
+  const { pageName, initialState } = params;
   store.commit('SET_PAGE_NAME', pageName);
-  store.commit('CORE_SET_TITLE', title || '');
   store.commit('SET_PAGE_STATE', initialState);
 }
 
@@ -29,7 +21,6 @@ export function showAllClassesPage(store) {
       // to finish destruction with the expected state in place
       preparePage(store, {
         pageName: ClassesPageNames.ALL_CLASSES,
-        title: translator.$tr('allClasses'),
         initialState: {
           classrooms: [],
         },
@@ -53,7 +44,6 @@ export function showClassAssignmentsPage(store, classId) {
       // to finish destruction with the expected state in place
       preparePage(store, {
         pageName: ClassesPageNames.CLASS_ASSIGNMENTS,
-        title: translator.$tr('classAssignments'),
         initialState: {
           currentClassroom: {},
         },
@@ -83,7 +73,6 @@ export function showLessonPlaylist(store, { lessonId }) {
       // to finish destruction with the expected state in place
       preparePage(store, {
         pageName: ClassesPageNames.LESSON_PLAYLIST,
-        title: translator.$tr('lessonContents'),
         initialState: {
           currentLesson: {},
           contentNodes: [],

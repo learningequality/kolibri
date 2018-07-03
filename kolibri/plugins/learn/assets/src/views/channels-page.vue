@@ -25,6 +25,12 @@
     name: 'channelsPage',
     $trs: {
       channels: 'Channels',
+      documentTitle: 'All channels',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       pageHeader,

@@ -29,11 +29,20 @@
       nextStepsPageHeader: 'Next steps',
       featuredPageHeader: "Featured in '{channelTitle}'",
       recommended: 'Recommended',
+      documentTitleForPopular: 'Popular',
+      documentTitleForResume: 'Resume',
+      documentTitleForNextSteps: 'Next Steps',
+      documentTitleForFeatured: 'Featured - { channelTitle }',
     },
     components: {
       contentCardGroupGrid,
       contentCardGroupHeader,
       kBreadcrumbs,
+    },
+    metaInfo() {
+      return {
+        title: this.documentTitle,
+      };
     },
     computed: {
       ...mapState({
@@ -41,6 +50,20 @@
         recommendations: state => state.pageState.recommendations,
         channelTitle: state => state.pageState.channelTitle,
       }),
+      documentTitle() {
+        switch (this.pageName) {
+          case PageNames.RECOMMENDED_POPULAR:
+            return this.$tr('documentTitleForPopular');
+          case PageNames.RECOMMENDED_RESUME:
+            return this.$tr('documentTitleForResume');
+          case PageNames.RECOMMENDED_NEXT_STEPS:
+            return this.$tr('documentTitleForNextSteps');
+          case PageNames.RECOMMENDED_FEATURED:
+            return this.$tr('documentTitleForFeatured', { channelTitle: this.channelTitle });
+          default:
+            return '';
+        }
+      },
       header() {
         switch (this.pageName) {
           case PageNames.RECOMMENDED_POPULAR:
