@@ -111,10 +111,20 @@
         required: false,
       },
     },
+    metaInfo() {
+      return {
+        // Use arrow function to bind $tr to this component
+        titleTemplate: (title) => {
+          if (!title) {
+            return this.$tr('kolibriMessage')
+          }
+          return this.$tr('kolibriTitleMessage', { title })
+        }
+      }
+    },
     data: () => ({ navShown: false }),
     computed: {
       ...mapState({
-        documentTitle: state => state.core.title,
         toolbarTitle: state => state.pageState.toolbarTitle,
       }),
       mobile() {
@@ -125,20 +135,6 @@
       },
       navWidth() {
         return this.headerHeight * 4;
-      },
-    },
-    watch: {
-      documentTitle: 'updateDocumentTitle',
-    },
-    created() {
-      this.updateDocumentTitle();
-    },
-    methods: {
-      // move this responsibility to state?
-      updateDocumentTitle() {
-        document.title = this.documentTitle
-          ? this.$tr('kolibriTitleMessage', { title: this.documentTitle })
-          : this.$tr('kolibriMessage');
       },
     },
   };
