@@ -52,4 +52,4 @@ Description: Changing system service owner:
  .
  After finishing the installation/upgrade, follow these instructions to change the user setting and move your previous content channels and database:
  .
-    https://learningequality.org/r/deb-installer-upgrade-note-system-user
+    https://learningequality.org/r/docs-debian-change-user
