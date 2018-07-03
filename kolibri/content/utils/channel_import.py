@@ -1,6 +1,7 @@
 import logging as logger
 
 from django.apps import apps
+from django.db.models.fields.related import ForeignKey
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
@@ -13,7 +14,6 @@ from .sqlalchemybridge import Bridge
 from .sqlalchemybridge import ClassNotFoundError
 from kolibri.content.apps import KolibriContentConfig
 from kolibri.content.legacy_models import License
-from kolibri.content.models import AssessmentMetaData
 from kolibri.content.models import ChannelMetadata
 from kolibri.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.content.models import ContentNode
@@ -36,7 +36,6 @@ merge_models = [
     ContentTag,
     LocalFile,
     Language,
-    ChannelMetadata,
 ]
 
 
@@ -396,38 +395,60 @@ class ChannelImport(object):
 
         return True
 
-    def _can_use_optimized_pre_deletion(self):
-        # check whether we can skip fully deleting these three models, if we'll be using REPLACE on them anyway
-        for model in [ContentNode, File, AssessmentMetaData]:
-            mapping = self.schema_mapping.get(model, {})
-            row_mapper = self.generate_row_mapper(mapping.get('per_row'))
-            table_mapper = self.generate_table_mapper(mapping.get('per_table'))
-            if not self.can_use_sqlite_attach_method(model, row_mapper, table_mapper):
-                return False
-        return True
+    def _can_use_optimized_pre_deletion(self, model):
+        # check whether we can skip fully deleting this model, if we'll be using REPLACE on it anyway
+        mapping = self.schema_mapping.get(model, {})
+        row_mapper = self.generate_row_mapper(mapping.get('per_row'))
+        table_mapper = self.generate_table_mapper(mapping.get('per_table'))
+        return self.can_use_sqlite_attach_method(model, row_mapper, table_mapper)
 
     def delete_old_channel_data(self, old_tree_id):
 
-        # construct a template for deleting records for models that have a foreign key onto ContentNode
-        delete_related_template = "DELETE FROM {table} WHERE contentnode_id IN (SELECT id FROM content_contentnode WHERE tree_id = '{tree_id}')"
+        # construct a template for deleting records for models that foreign key onto ContentNode
+        delete_related_template = """
+            DELETE FROM {table}
+                WHERE {fk_field} IN (
+                    SELECT id FROM {cn_table} WHERE tree_id = '{tree_id}'
+                )
+        """
 
-        # construct a query for deleting old ContentNode records
-        delete_contentnode_query = "DELETE FROM content_contentnode WHERE tree_id = '{}'".format(old_tree_id)
+        # construct a template for deleting the ContentNode records themselves
+        delete_contentnode_template = "DELETE FROM {table} WHERE tree_id = '{tree_id}'"
 
-        if self._can_use_optimized_pre_deletion():
-            # if the external database is attached and there are no mappings for the relevant tables,
+        # we want to delete all content models, but not "merge models" (ones that might also be used by other channels), and ContentNode last
+        models_to_delete = [model for model in self.content_models if model is not ContentNode and model not in merge_models] + [ContentNode]
+
+        for model in models_to_delete:
+
+            # we do a few things differently if it's the ContentNode model, vs a model related to ContentNode
+            if model is ContentNode:
+                template = delete_contentnode_template
+                fields = ["id"]
+            else:
+                template = delete_related_template
+                fields = [f.column for f in model._meta.fields if isinstance(f, ForeignKey) and f.target_field.model is ContentNode]
+
+            # if the external database is attached and there are no incompatible schema mappings for a table,
             # we can skip deleting records that will be REPLACED during import, which helps efficiency
-            delete_related_template += " AND NOT id IN (SELECT id FROM sourcedb.{table})"
-            delete_contentnode_query += " AND NOT id IN (SELECT id FROM sourcedb.content_contentnode)"
+            if self._can_use_optimized_pre_deletion(model):
+                template += " AND NOT id IN (SELECT id FROM sourcedb.{table})"
 
-        # construct queries for deletion of File and AssessmentMetaData model records
-        delete_file_query = delete_related_template.format(table="content_file", tree_id=old_tree_id)
-        delete_assessment_query = delete_related_template.format(table="content_assessmentmetadata", tree_id=old_tree_id)
+            # run a query for each field this model has that foreignkeys onto ContentNode
+            for field in fields:
 
-        # run our deletion queries, starting with the related models (as they depend on the ContentNode records still existing)
-        for query in [delete_file_query, delete_assessment_query, delete_contentnode_query]:
-            self.destination.session.execute(text(query))
-            self.check_cancelled()
+                # construct the actual query by filling in variables
+                query = template.format(
+                    table=model._meta.db_table,
+                    fk_field=field,
+                    tree_id=old_tree_id,
+                    cn_table=ContentNode._meta.db_table
+                )
+
+                # check that the import operation hasn't since been cancelled
+                self.check_cancelled()
+
+                # execute the actual query
+                self.destination.session.execute(text(query))
 
     def check_cancelled(self):
         if callable(self.cancel_check):
