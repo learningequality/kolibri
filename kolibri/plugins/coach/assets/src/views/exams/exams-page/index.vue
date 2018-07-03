@@ -104,6 +104,12 @@
       entireClass: 'Entire class',
       groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
       nobody: 'Nobody',
+      documentTitle: 'Exams',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       coreTable,

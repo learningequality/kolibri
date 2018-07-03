@@ -156,6 +156,11 @@
 
   export default {
     name: 'createExamPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       kCircularLoader,
       kButton,
@@ -189,6 +194,7 @@
       selected:
         '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
       name: 'Name',
+      documentTitle: 'Create new exam',
     },
     data() {
       return {

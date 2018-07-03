@@ -123,7 +123,6 @@ export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
       return getAllLessonContentNodes([currentResource, nextResource].filter(Boolean));
     })
     .then(resources => {
-      store.commit('CORE_SET_TITLE', resources[0].title);
       store.commit('SET_CURRENT_AND_NEXT_LESSON_RESOURCES', resources);
       store.commit('CORE_SET_PAGE_LOADING', false);
     })

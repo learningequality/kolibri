@@ -32,6 +32,11 @@
 
   export default {
     name: 'lessonResourceViewer',
+    metaInfo() {
+      return {
+        title: this.currentLessonResource.title,
+      }
+    },
     components: {
       ContentCard,
       ContentPage,
