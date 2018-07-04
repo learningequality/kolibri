@@ -2,15 +2,10 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import logger from 'kolibri.lib.logging';
 import { LearnerGroupResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
-import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
 import { setClassState, handleCoachPageError } from './main';
 
 const logging = logger.getLogger(__filename);
-
-const translator = createTranslator('groupManagementPageTitles', {
-  groupManagementPageTitle: 'Groups',
-});
 
 function _userState(user) {
   return {
@@ -71,7 +66,6 @@ export function showGroupsPage(store, classId) {
           });
           store.commit('CORE_SET_PAGE_LOADING', false);
           store.commit('CORE_SET_ERROR', null);
-          store.commit('CORE_SET_TITLE', translator.$tr('groupManagementPageTitle'));
         },
         error => store.dispatch('handleError', error)
       );

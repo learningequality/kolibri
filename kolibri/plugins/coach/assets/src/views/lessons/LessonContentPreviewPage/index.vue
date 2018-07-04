@@ -48,6 +48,11 @@
 
   export default {
     name: 'lessonContentPreviewPage',
+    metaInfo() {
+      return {
+        title: this.content.title,
+      };
+    },
     components: {
       QuestionList,
       ContentArea,

@@ -61,6 +61,11 @@
   export default {
     name: 'learnerExerciseReport',
     $trs: { backPrompt: 'Back to { backTitle }' },
+    metaInfo() {
+      return {
+        title: this.exercise.title,
+      };
+    },
     components: {
       contentRenderer,
       attemptSummary,

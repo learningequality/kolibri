@@ -28,7 +28,6 @@ import { setClassState, handleCoachPageError } from './main';
 const translator = createTranslator('coachReportPageTitles', {
   recentChannelsPageTitle: 'Recent - All channels',
   recentItemsForChannelPageTitle: 'Recent - Items',
-  recentPageTitle: 'Recent',
   recentLearnerActivityReportPageTitle: 'Recent - Learners',
   recentActivityLearnerDetailsReportPageTitle: 'Recent - Learner Details',
   topicsReportAllChannelsPageTitle: 'Topics - All channels',
@@ -48,20 +47,29 @@ const ContentSummaryResource = new ContentSummaryResourceConstructor();
 const ContentReportResource = new ContentReportResourceConstructor();
 
 const pageNameToTitleMap = {
+  // channelListPage
   [PageNames.LEARNER_CHANNELS]: 'learnersReportAllChannelsPageTitle',
-  [PageNames.LEARNER_CHANNEL_ROOT]: 'learnersReportForChannelPageTitle',
-  [PageNames.LEARNER_ITEM_DETAILS]: 'learnersItemDetailsReportPageTitle',
-  [PageNames.LEARNER_ITEM_LIST]: 'learnersReportForContentItemsPageTitle',
-  [PageNames.LEARNER_LIST]: 'learnersReportPageTitle',
   [PageNames.RECENT_CHANNELS]: 'recentChannelsPageTitle',
-  [PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recentItemsForChannelPageTitle',
-  [PageNames.RECENT_LEARNERS_FOR_ITEM]: 'recentLearnerActivityReportPageTitle',
-  [PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'recentActivityLearnerDetailsReportPageTitle',
   [PageNames.TOPIC_CHANNELS]: 'topicsReportAllChannelsPageTitle',
+
+  // recentItemsPage
+  [PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recentItemsForChannelPageTitle',
+
+  // learnerListPage
+  [PageNames.LEARNER_LIST]: 'learnersReportPageTitle',
+  [PageNames.RECENT_LEARNERS_FOR_ITEM]: 'recentLearnerActivityReportPageTitle',
+  [PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'topicsLearnersReportForContentItemPageTitle',
+
+  // learnerExerciseDetailPage
+  [PageNames.LEARNER_ITEM_DETAILS]: 'learnersItemDetailsReportPageTitle',
+  [PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'recentActivityLearnerDetailsReportPageTitle',
+  [PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'topicsLearnerDetailReportPageTitle',
+
+  // itemListPage
+  [PageNames.LEARNER_CHANNEL_ROOT]: 'learnersReportForChannelPageTitle',
+  [PageNames.LEARNER_ITEM_LIST]: 'learnersReportForContentItemsPageTitle',
   [PageNames.TOPIC_CHANNEL_ROOT]: 'topicsForChannelReportPageTitle',
   [PageNames.TOPIC_ITEM_LIST]: 'topicsContentItemsReportPageTitle',
-  [PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'topicsLearnersReportForContentItemPageTitle',
-  [PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'topicsLearnerDetailReportPageTitle',
 };
 
 function preparePageNameAndTitle(store, pageName) {
@@ -463,7 +471,6 @@ export function showRecentItemsForChannel(store, params) {
           });
           store.commit('CORE_SET_PAGE_LOADING', false);
           store.commit('CORE_SET_ERROR', null);
-          store.commit('CORE_SET_TITLE', translator.$tr('recentPageTitle'));
         },
         error => handleCoachPageError(store, error)
       );
