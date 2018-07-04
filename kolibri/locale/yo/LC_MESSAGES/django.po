@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 17:34-0800\n"
-"PO-Revision-Date: 2018-05-10 13:33-0400\n"
+"POT-Creation-Date: 2018-05-30 19:55-0700\n"
+"PO-Revision-Date: 2018-06-21T02:41:12+0000\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Yoruba\n"
 "Language: yo_NG\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: yo\n"
-"X-Crowdin-File: /release-v0.9.x/django.po\n"
+"X-Crowdin-File: /release-v0.10.x/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:14
 #: kolibri/plugins/facility_management/kolibri_plugin.py:30
@@ -29,47 +29,53 @@ msgstr "Kíláásì"
 msgid "Learner group"
 msgstr "Ẹgbẹ́ akẹ́kọ̀ọ́"
 
-#: kolibri/auth/constants/role_kinds.py:12
+#: kolibri/auth/constants/role_kinds.py:13
 msgid "Admin"
 msgstr "Alábójútó"
 
-#: kolibri/auth/constants/role_kinds.py:13
+#: kolibri/auth/constants/role_kinds.py:14
 msgid "Coach"
-msgstr "Olùkọni"
+msgstr "Olùkọ́ni "
 
-#: kolibri/auth/models.py:210
+#: kolibri/auth/constants/role_kinds.py:15
+msgid "Classroom Assignable Coach"
+msgstr "Olùkọ́ ti a fiṣẹ́ àfiránni nise si yàrá ìkàwé"
+
+#: kolibri/auth/models.py:227
 msgid "username"
 msgstr "Orúkọ olùṣàmúlò"
 
-#: kolibri/auth/models.py:212
+#: kolibri/auth/models.py:229
 msgid "Required. 30 characters or fewer. Letters and digits only"
 msgstr "Nílò. Ìṣọwọ́ kọ̀wé ọgbọ̀n tàbí ó kéré. Àwọn lẹ́tà àti díjítì nìkan"
 
-#: kolibri/auth/models.py:216
+#: kolibri/auth/models.py:233
 msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
 msgstr "Ṣàmúlò orúkọ aṣàmúlò tíó tọ̀nà. Iye yìí gbọ́dọ̀ ní àwọn lẹ́tà, nọ́ḿbà, àti ìlà abẹ́ nìkan."
 
-#: kolibri/auth/models.py:220
+#: kolibri/auth/models.py:237
 msgid "full name"
 msgstr "orúko ní kíkún"
 
-#: kolibri/auth/models.py:221
+#: kolibri/auth/models.py:238
 msgid "date joined"
 msgstr "Ọjọ́ tí o darapọ̀"
 
-#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
+#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
+#: kolibri/auth/serializers.py:55
 msgid "An account with that username already exists"
-msgstr "Ẹgbẹ kan pẹlú orúkọ amulo yẹn ti wà"
+msgstr "Àkọọ́lẹ̀ kan pẹlú orúkọ olùṣàmúlò yẹn ti wà"
 
-#: kolibri/content/api.py:74
+#: kolibri/content/api.py:93
 msgid "Content"
-msgstr "Àkoónú"
+msgstr "Àkóónú"
 
-#: kolibri/content/api.py:363
+#: kolibri/content/api.py:523
 msgid "The requested channel does not exist on the content server"
 msgstr "Ìkànnì tí a bèèrè ni kòsí lóri àpèsè àkoonú"
 
-#: kolibri/content/models.py:187
+#: kolibri/content/models.py:242
 msgid "Unknown format"
 msgstr "Fọ́màtì aimọ̀"
 
@@ -101,15 +107,15 @@ msgstr "O tún lè gbìyànjú ní ṣíṣàfikún aṣàwákiri tí o n
 msgid "Device"
 msgstr "Ẹ̀rọ"
 
-#: kolibri/tasks/api.py:31
+#: kolibri/tasks/api.py:33
 msgid "There was a network error."
 msgstr "Àṣìṣe alásopọ̀ wà."
 
-#: kolibri/tasks/api.py:33
+#: kolibri/tasks/api.py:35
 msgid "There was a disk access error."
 msgstr "Àṣìṣe ìráàyèsì dísíkì wáyé."
 
-#: kolibri/tasks/api.py:35
+#: kolibri/tasks/api.py:37
 msgid "There was an unknown error."
 msgstr "Àṣìṣe àìmọ̀ wáyé."
 

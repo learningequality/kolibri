@@ -195,6 +195,27 @@ def recurse_availability_up_tree(channel_id):
             )
         ).where(ContentNodeTable.c.id == child.c.parent_id)
 
+        # Create an expression that will resolve a boolean value for all the available children
+        # of a content node, whereby if they all have coach_content flagged on them, it will be true,
+        # but otherwise false.
+        # Everything after the select statement should be identical to the available_nodes expression above.
+        if bridge.engine.name == 'sqlite':
+            coach_content_nodes = select([func.min(child.c.coach_content)]).where(
+                and_(
+                    child.c.available == True,  # noqa
+                    child.c.level == level,
+                    child.c.channel_id == channel_id,
+                )
+            ).where(ContentNodeTable.c.id == child.c.parent_id)
+        elif bridge.engine.name == 'postgresql':
+            coach_content_nodes = select([func.bool_and(child.c.coach_content)]).where(
+                and_(
+                    child.c.available == True,  # noqa
+                    child.c.level == level,
+                    child.c.channel_id == channel_id,
+                )
+            ).where(ContentNodeTable.c.id == child.c.parent_id)
+
         logging.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
         # Only modify topic availability here
         connection.execute(ContentNodeTable.update().where(
@@ -202,6 +223,16 @@ def recurse_availability_up_tree(channel_id):
                 ContentNodeTable.c.level == level - 1,
                 ContentNodeTable.c.channel_id == channel_id,
                 ContentNodeTable.c.kind == content_kinds.TOPIC)).values(available=exists(available_nodes)))
+
+        # Update all ContentNodes
+        connection.execute(ContentNodeTable.update().where(
+            and_(
+                # In this level
+                ContentNodeTable.c.level == level - 1,
+                # In this channel
+                ContentNodeTable.c.channel_id == channel_id,
+                # That are topics, and that have children that are flagged as available, with the coach content expression above
+                ContentNodeTable.c.kind == content_kinds.TOPIC)).where(exists(available_nodes)).values(coach_content=coach_content_nodes))
 
     # commit the transaction
     trans.commit()

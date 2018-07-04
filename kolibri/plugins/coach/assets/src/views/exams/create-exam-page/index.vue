@@ -10,6 +10,7 @@
           :autofocus="true"
           :invalid="titleIsInvalid"
           :invalidText="titleIsInvalidText"
+          :maxlength="100"
           @blur="titleBlurred = true"
           v-model.trim="inputTitle"
         />

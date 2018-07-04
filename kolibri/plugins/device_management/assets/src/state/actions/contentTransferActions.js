@@ -30,8 +30,14 @@ export function downloadChannelMetadata(store) {
       const { taskId, cancelled } = completedTask;
       if (taskId && !cancelled) {
         return TaskResource.cancelTask(taskId).then(() => {
-          return ChannelResource.getModel(transferredChannel.id).fetch({ file_sizes: true })
-            ._promise;
+          return ChannelResource.getModel(transferredChannel.id).fetch({
+            include_fields: [
+              'total_resources',
+              'total_file_size',
+              'on_device_resources',
+              'on_device_file_size',
+            ],
+          })._promise;
         });
       }
       return Promise.reject({ errorType: ErrorTypes.CHANNEL_TASK_ERROR });

@@ -16,12 +16,17 @@ from django.db.utils import DatabaseError
 from docopt import docopt
 
 import kolibri
-from . import server
-from .conf import OPTIONS
-from .sanity_checks import check_content_directory_exists_and_writable
-from .sanity_checks import check_other_kolibri_running
-from .system import become_daemon
-from kolibri.core.deviceadmin.utils import IncompatibleDatabase
+from .debian_check import check_debian_user
+# Check if the current user is the kolibri user when running kolibri from .deb.
+# Putting it here because importing server module creates KOLIBRI_HOME directory.
+check_debian_user()
+
+from . import server  # noqa
+from .conf import OPTIONS  # noqa
+from .sanity_checks import check_content_directory_exists_and_writable  # noqa
+from .sanity_checks import check_other_kolibri_running  # noqa
+from .system import become_daemon  # noqa
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
 
 
 USAGE = """
@@ -310,7 +315,7 @@ def stop():
         pid, __, __ = server.get_status()
         server.stop(pid=pid)
         stopped = True
-        logger.info("Kolibri server has successfully been stoppped.")
+        logger.info("Kolibri server has successfully been stopped.")
     except server.NotRunning as e:
         verbose_status = "{msg:s} ({code:d})".format(
             code=e.status_code,

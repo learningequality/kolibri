@@ -115,8 +115,6 @@
       width: 90%
       max-width: 550px
       &.mobile
-        margin: 48px auto
-        width: auto
-        margin-top: 40px
+        margin: 40px auto
 
 </style>

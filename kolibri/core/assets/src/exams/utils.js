@@ -102,7 +102,13 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
             const itemId = currentQuestion.itemId;
             const exercise = contentNodeMap[currentQuestion.contentId];
             const currentAttempt = allQuestions[questionNumber];
-            const currentInteractionHistory = currentAttempt.interaction_history;
+            // filter out interactions without answers but keep hints and errors
+            const currentInteractionHistory = currentAttempt.interaction_history.filter(
+              interaction =>
+                Boolean(
+                  interaction.answer || interaction.type === 'hint' || interaction.type === 'error'
+                )
+            );
             const currentInteraction = currentInteractionHistory[interactionIndex];
             if (examLog.completion_timestamp) {
               examLog.completion_timestamp = new Date(examLog.completion_timestamp);
