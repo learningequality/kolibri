@@ -83,6 +83,11 @@
 
   export default {
     name: 'facilityConfigPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       confirmResetModal,
       notifications,
@@ -143,6 +148,7 @@
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to default settings',
       saveChanges: 'Save changes',
+      documentTitle: 'Configure Facility',
     },
   };
 

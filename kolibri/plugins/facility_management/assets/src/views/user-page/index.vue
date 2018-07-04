@@ -98,6 +98,11 @@
 
   export default {
     name: 'userPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       userCreateModal,
       editUserModal,
@@ -202,6 +207,7 @@
       resetUserPassword: 'Reset password',
       deleteUser: 'Delete',
       userActions: 'User management actions',
+      documentTitle: 'Manage Users',
     },
   };
 

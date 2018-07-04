@@ -21,6 +21,11 @@
 
   export default {
     name: 'coachClassAssignmentPage',
+    metaInfo() {
+      return {
+        title: this.$tr('pageHeader', { className: this.className }),
+      };
+    },
     components: {
       classEnrollForm,
     },
