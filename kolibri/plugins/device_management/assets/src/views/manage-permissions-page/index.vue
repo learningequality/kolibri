@@ -35,6 +35,11 @@
 
   export default {
     name: 'deviceManagementPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       authMessage,
       kFilterTextbox,
@@ -56,6 +61,7 @@
       devicePermissionsHeader: 'Device permissions',
       devicePermissionsDescription: 'Make changes to what users can manage on your device',
       searchPlaceholder: 'Search for a user...',
+      documentTitle: 'Manage Device Permissions',
     },
   };
 

@@ -35,7 +35,7 @@
     metaInfo() {
       return {
         title: this.currentLessonResource.title,
-      }
+      };
     },
     components: {
       ContentCard,
