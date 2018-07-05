@@ -66,6 +66,11 @@ class ChannelImport(object):
                 'tree_id': 'get_tree_id',
             },
         },
+        LocalFile: {
+            'per_row': {
+                'available': 'get_none',
+            },
+        },
     }
 
     def __init__(self, channel_id, channel_version=None):
@@ -88,6 +93,9 @@ class ChannelImport(object):
 
     def get_tree_id(self, source_object):
         return self.tree_id
+
+    def get_none(self, source_object):
+        return None
 
     def get_all_destination_tree_ids(self):
         ContentNodeRecord = self.destination.get_class(ContentNode)
@@ -297,9 +305,6 @@ class NoVersionChannelImport(ChannelImport):
     }
 
     licenses = {}
-
-    def get_none(self, source_object):
-        return None
 
     def infer_channel_id_from_source(self, source_object):
         return self.channel_id
