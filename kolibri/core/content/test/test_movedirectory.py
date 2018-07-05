@@ -70,7 +70,7 @@ class ContentMoveDirectoryTestCase(TestCase):
     @patch('kolibri.core.content.management.commands.content.input', return_value='random')
     @patch('kolibri.core.content.management.commands.content.os.listdir', return_value=['test'])
     @patch('kolibri.core.content.management.commands.content.os.path.exists', return_value=True)
-    def test_migrate_while_dest_content_exists_random(self, path_exists_mock, listdir_mock, input_mock, update_mock):
+    def test_migrate_while_dest_content_exists_random(self, path_exists_mock, listdir_mock, input_mock, update_mock, update_options_mock):
         destination = '/test/content_exists_random'
         with self.assertRaises(SystemExit):
             call_command('content', 'movedirectory', destination)

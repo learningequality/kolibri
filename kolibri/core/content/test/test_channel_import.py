@@ -357,7 +357,7 @@ class ContentImportTestBase(TransactionTestCase):
 
         super(ContentImportTestBase, self).setUp()
 
-    @patch('kolibri.content.utils.channel_import.get_content_database_file_path')
+    @patch('kolibri.core.content.utils.channel_import.get_content_database_file_path')
     def set_content_fixture(self, db_path_mock):
         _, self.content_db_path = tempfile.mkstemp(suffix='.sqlite3')
         db_path_mock.return_value = self.content_db_path
