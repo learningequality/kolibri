@@ -1,6 +1,6 @@
 <template>
 
-  <div @keydown.esc="toggleNav" ref="sideNav">
+  <div @keydown.esc="toggleNav" ref="sideNav" class="side-nav-wrapper">
     <transition name="side-nav">
       <div
         v-show="navShown"
@@ -222,6 +222,9 @@
 
   // matches keen-ui toolbar's spec
   $side-nav-header-box-shadow = 0 0 2px rgba(black, 0.12), 0 2px 2px rgba(black, 0.2)
+
+  .side-nav-wrapper
+    overflow-x: hidden
 
   .side-nav
     position: fixed
