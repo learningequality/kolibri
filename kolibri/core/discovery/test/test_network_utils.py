@@ -105,17 +105,6 @@ class TestURLParsing(TestCase):
             get_normalized_url_variations("www.nomansland.com:1231d")
 
 
-def mock_patch_decorator(func):
-
-    def wrapper(*args, **kwargs):
-        mock_object = mock.Mock()
-        mock_object.json.return_value = [{'id': 1, 'name': 'studio'}]
-        with mock.patch.object(requests, 'get', return_value=mock_object):
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
 def mock_request(session, url, *args, **kwargs):
     response = mock.Mock()
     if url == "https://nonexistent.qqq/":
