@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`side nav component should be hidden if navShown is false 1`] = `
-<div style="position: relative;">
+<div class="side-nav-wrapper" style="position: relative;">
   <div class="side-nav" style="width: 100px; display: none;" name="side-nav">
     <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 4px;">
       <button aria-label="Close navigation" type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-white ui-icon-button--size-large">
@@ -57,7 +57,7 @@ exports[`side nav component should be hidden if navShown is false 1`] = `
 `;
 
 exports[`side nav component should show nothing if no components are added and user is not logged in 1`] = `
-<div style="position: relative;">
+<div class="side-nav-wrapper" style="position: relative;">
   <div class="side-nav" style="width: 100px;" name="side-nav">
     <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 4px;">
       <button aria-label="Close navigation" type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-white ui-icon-button--size-large">
