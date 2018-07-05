@@ -1,5 +1,8 @@
+import mock
+import requests
 from django.test import TestCase
 
+from ..utils.network.client import NetworkClient
 from ..utils.network.urls import get_normalized_url_variations
 from ..utils.network.urls import InvalidHostname
 from ..utils.network.urls import InvalidPort
@@ -100,3 +103,43 @@ class TestURLParsing(TestCase):
     def test_valid_domain_name_with_invalid_nonnumeric_port(self):
         with self.assertRaises(InvalidPort):
             get_normalized_url_variations("www.nomansland.com:1231d")
+
+
+def mock_patch_decorator(func):
+
+    def wrapper(*args, **kwargs):
+        mock_object = mock.Mock()
+        mock_object.json.return_value = [{'id': 1, 'name': 'studio'}]
+        with mock.patch.object(requests, 'get', return_value=mock_object):
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def mock_request(session, url, *args, **kwargs):
+    response = mock.Mock()
+    if url == "https://nonexistent.qqq/":
+        response.status_code = 200
+        return response
+    else:
+        raise requests.ConnectionError("No can do!")
+
+
+@mock.patch.object(requests.Session, 'head', mock_request)
+class TestNetworkClientConnections(TestCase):
+
+    def test_successful_connection_to_address(self):
+        nc = NetworkClient(address="nonexistent.qqq")
+        self.assertEqual(nc.base_url, "https://nonexistent.qqq/")
+
+    def test_unsuccessful_connection_to_address(self):
+        with self.assertRaises(requests.ConnectionError):
+            NetworkClient(address="nonexistentandnotmocked.qqq")
+
+    def test_successful_connection_to_base_url(self):
+        nc = NetworkClient(base_url="https://nonexistent.qqq/")
+        self.assertEqual(nc.base_url, "https://nonexistent.qqq/")
+
+    def test_unsuccessful_connection_to_base_url(self):
+        with self.assertRaises(requests.ConnectionError):
+            NetworkClient(base_url="https://nonexistentandnotmocked.qqq")
