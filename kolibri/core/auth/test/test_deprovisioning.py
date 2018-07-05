@@ -14,11 +14,11 @@ from ..management.commands import deprovision
 from .helpers import setup_device
 from .test_api import ClassroomFactory
 from .test_api import LearnerGroupFactory
-from kolibri.content import models as content_models
-from kolibri.logger.test.factory_logger import ContentSessionLogFactory
-from kolibri.logger.test.factory_logger import ContentSummaryLogFactory
-from kolibri.logger.test.factory_logger import FacilityUserFactory
-from kolibri.logger.test.factory_logger import UserSessionLogFactory
+from kolibri.core.content import models as content_models
+from kolibri.core.logger.test.factory_logger import ContentSessionLogFactory
+from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
+from kolibri.core.logger.test.factory_logger import FacilityUserFactory
+from kolibri.core.logger.test.factory_logger import UserSessionLogFactory
 
 
 def count_instances(models):

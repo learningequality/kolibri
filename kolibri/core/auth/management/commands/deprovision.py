@@ -9,14 +9,14 @@ from morango.models import DatabaseIDModel
 from morango.models import DeletedModels
 from morango.models import Store
 
-from kolibri.auth.models import FacilityDataset
-from kolibri.auth.models import FacilityUser
+from kolibri.core.auth.models import FacilityDataset
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
-from kolibri.logger.models import AttemptLog
-from kolibri.logger.models import ContentSessionLog
-from kolibri.logger.models import ContentSummaryLog
-from kolibri.tasks.management.commands.base import AsyncCommand
+from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.models import ContentSessionLog
+from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils.cli import server
 
 logging = logger.getLogger(__name__)
