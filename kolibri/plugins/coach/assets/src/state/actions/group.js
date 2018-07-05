@@ -203,7 +203,7 @@ export function addUsersToGroup(store, { groupId, userIds }) {
     .catch(error => store.dispatch('handleError', error))
     .finally(() => {
       store.commit('CORE_SET_PAGE_LOADING', false);
-      this.displayModal(false);
+      displayModal(store, false);
     });
 }
 
@@ -213,7 +213,7 @@ export function removeUsersFromGroup(store, { groupId, userIds }) {
     .catch(error => store.dispatch('handleError', error))
     .finally(() => {
       store.commit('CORE_SET_PAGE_LOADING', false);
-      this.displayModal(false);
+      displayModal(store, false);
     });
 }
 
@@ -226,6 +226,6 @@ export function moveUsersBetweenGroups(store, { currentGroupId, newGroupId, user
     .catch(error => store.dispatch('handleError', error))
     .finally(() => {
       store.commit('CORE_SET_PAGE_LOADING', false);
-      this.displayModal(false);
+      displayModal(store, false);
     });
 }

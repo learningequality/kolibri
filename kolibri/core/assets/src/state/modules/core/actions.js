@@ -171,10 +171,10 @@ export function handleApiError(store, errorObject) {
  * `state.core.blockDoubleClicks` with a single function.
  */
 export function blockDoubleClicks(store) {
-  if (!store.state.core.blockDoubleClicks) {
-    store.dispatch('CORE_BLOCK_CLICKS', true);
+  if (!store.state.blockDoubleClicks) {
+    store.commit('CORE_BLOCK_CLICKS', true);
     setTimeout(() => {
-      store.dispatch('CORE_BLOCK_CLICKS', false);
+      store.commit('CORE_BLOCK_CLICKS', false);
     }, 500);
   }
 }
