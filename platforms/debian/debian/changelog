@@ -1,3 +1,10 @@
+kolibri-source (0.10.0-0ubuntu3) UNRELEASED; urgency=medium
+
+  * WIP...
+  * Adding a test that KOLIBRI_USER is set in init script
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 06 Jul 2018 01:01:32 +0200
+
 kolibri-source (0.10.0-0ubuntu2) trusty; urgency=medium
 
   * Keep the upgrade note from displaying when irrelevant
