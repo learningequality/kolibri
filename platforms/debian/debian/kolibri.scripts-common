@@ -245,7 +245,7 @@ kolibri_configure()
 
     # This way of writing if statements with failing sub commands will work
     # while using errexit
-    ( ! getent passwd "$KOLIBRI_USER" ) && {
+    ( ! getent passwd "$KOLIBRI_USER" 1>/dev/null ) && {
         echo "Creating new user $KOLIBRI_USER"
         adduser --system --shell /bin/bash --home "/var/$KOLIBRI_USER" "$KOLIBRI_USER"
     }
@@ -308,7 +308,9 @@ kolibri_debconf_set_defaults()
     # suggesting the desktop user account to systems installed before 0.10, we
     # make an extra check that there isn't already a "kolibri" configured using
     # the old convention:
-    if cat /etc/default/kolibri | grep -q 'KOLIBRI_USER="kolibri"'
+    db_fget kolibri/pre-010-upgrade-system-user seen
+    UPGRADE_010_SEEN="$RET"
+    if [ "$UPGRADE_010_SEEN" == "false" ] && cat /etc/default/kolibri | grep -q '^KOLIBRI_USER="kolibri"'
     then
         USER_SEEN="true"
         db_fset kolibri/pre-010-upgrade-system-user seen false

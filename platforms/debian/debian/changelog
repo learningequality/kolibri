@@ -1,3 +1,16 @@
+kolibri-source (0.10.0-0ubuntu2) trusty; urgency=medium
+
+  * Keep the upgrade note from displaying when irrelevant
+  * Silence confusing redundant script output during install
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 05 Jul 2018 20:45:44 +0200
+
+kolibri-source (0.10.0-0ubuntu1) trusty; urgency=medium
+
+  * New stable upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 05 Jul 2018 11:57:35 +0200
+
 kolibri-source (0.10.0~b10-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
