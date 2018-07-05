@@ -22,9 +22,6 @@ export default {
   CORE_SET_ERROR(state, error) {
     state.error = error;
   },
-  CORE_SET_TITLE(state, title) {
-    state.title = title;
-  },
   SET_TOTAL_PROGRESS(state, progress) {
     state.totalProgress = progress;
   },

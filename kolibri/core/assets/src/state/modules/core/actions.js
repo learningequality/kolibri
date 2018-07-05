@@ -15,7 +15,6 @@ import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { redirectBrowser } from 'kolibri.utils.browser';
-import { createTranslator } from 'kolibri.utils.i18n';
 import intervalTimer from '../../../timer';
 import {
   MasteryLoggingMap,
@@ -24,10 +23,6 @@ import {
   LoginErrors,
 } from '../../../constants';
 import samePageCheckGenerator from '../../../utils/samePageCheckGenerator';
-
-const translator = createTranslator('coreTitles', {
-  errorPageTitle: 'Error',
-});
 
 const logging = logger.getLogger(__filename);
 const intervalTime = 5000; // Frequency at which time logging is updated
@@ -156,7 +151,6 @@ function _channelListState(data) {
 export function handleError(store, errorString) {
   store.commit('CORE_SET_ERROR', errorString);
   store.commit('CORE_SET_PAGE_LOADING', false);
-  store.commit('CORE_SET_TITLE', translator.$tr('errorPageTitle'));
 }
 
 export function handleApiError(store, errorObject) {

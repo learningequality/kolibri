@@ -10,7 +10,6 @@ export default {
   state: {
     error: '',
     loading: true,
-    title: '',
     pageSessionId: 0,
     loginError: null,
     signInBusy: false,

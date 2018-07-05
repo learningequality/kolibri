@@ -66,6 +66,7 @@
     $trs: {
       kolibriMessage: 'Kolibri',
       kolibriTitleMessage: '{ title } - Kolibri',
+      errorPageTitle: 'Error',
     },
     components: {
       appBar,
@@ -115,6 +116,9 @@
       return {
         // Use arrow function to bind $tr to this component
         titleTemplate: title => {
+          if (this.error) {
+            return this.$tr('errorPageTitle');
+          }
           if (!title) {
             return this.$tr('kolibriMessage');
           }
@@ -126,6 +130,7 @@
     computed: {
       ...mapState({
         toolbarTitle: state => state.pageState.toolbarTitle,
+        error: state => state.error,
       }),
       mobile() {
         return this.windowSize.breakpoint < 2;
