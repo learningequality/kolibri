@@ -285,17 +285,19 @@ def main():
     parser.add_option('--debug', action='store_true')
     opts, args = parser.parse_args()
 
-    if opts.debug:
+    if opts.quiet:
+        set_up_logging(logging.WARNING)
+    elif opts.debug:
         enable_http_debugging()
         install_request_counter()
         set_up_logging(logging.DEBUG)
     elif opts.verbose > 1:
         install_request_counter()
         set_up_logging(logging.DEBUG)
-    elif opts.verbose:
-        set_up_logging(logging.INFO)
     else:
-        set_up_logging(logging.WARNING)
+        set_up_logging(logging.INFO)
+
+    log.info("Spinning up the Launchpad API to copy targets in {}".format(", ".join(PACKAGE_WHITELIST)))
 
     lp = LaunchpadWrapper()
 

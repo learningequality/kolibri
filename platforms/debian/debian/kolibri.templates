@@ -34,3 +34,22 @@ Description: Running Kolibri manually:
  Start Kolibri when the system boots:
  .
    sudo systemctl enable kolibri
+
+Template: kolibri/user
+Type: string
+Default: kolibri
+Description: Which user account should own the Kolibri server?
+ The default is to choose your preferred desktop user account, for instance
+ to ensure access to importing data from external USB devices.
+ .
+ Entering a username that doesn't exist will create a new system user with
+ home directory /var/<username>.
+
+Template: kolibri/pre-010-upgrade-system-user
+Type: note
+Description: Changing system service owner:
+ You are updating from an older version of Kolibri and we recommend that you switch the user account that runs the system service to your normal desktop user. This allows Kolibri to access your USB devices for importing and exporting content channels.
+ .
+ After finishing the installation/upgrade, follow these instructions to change the user setting and move your previous content channels and database:
+ .
+    https://learningequality.org/r/docs-debian-change-user

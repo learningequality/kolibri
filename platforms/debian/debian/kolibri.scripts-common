@@ -3,6 +3,8 @@
 # Thanks to the openldap debian package for this
 # method!
 
+# Uncomment to have debug output while for instance doing 'gdebi package.deb'
+# KOLIBRI_DEB_DEBUG="YES"
 
 ###########################################
 # TRACEBACK & DEBUG
@@ -67,7 +69,7 @@ function traceback
 
 debug()
 {
-    if ! [ "$kolibri_DEB_DEBUG" = "" ]
+    if ! [ "$KOLIBRI_DEB_DEBUG" = "" ]
     then
         echo "$1"
     fi
@@ -101,7 +103,7 @@ default_user_conf() {
 #
 # Example environment vars to set (shell syntax)
 #
-# KOLIBRI_USER="kolibri"
+# KOLIBRI_USER="kolibri"  # Default is to use content of /etc/kolibri/username
 # KOLIBRI_HOME="~/.kolibri"
 # KOLIBRI_LISTEN_PORT="8080"
 # KOLIBRI_COMMAND="kolibri"
@@ -116,7 +118,7 @@ EOF
 ########################################################
 
 
-export STATE_FILE=/tmp/kolibriinstall.state
+export STATE_FILE=/tmp/kolibri_dpkg.state
 
 has_state() {
     debug "Checking for state $1"
@@ -173,6 +175,10 @@ kolibri_get_config()
     db_get kolibri/init
     [ "$RET" = "true" ] && export ENABLE_INIT_D=true || export ENABLE_INIT_D=false
 
+    # Create user for kolibri if it doesn't exist
+    db_get kolibri/user
+    export KOLIBRI_USER="$RET"
+
 }
 
 
@@ -207,6 +213,19 @@ kolibri_debconf_ask()
     fi
     db_go || true
 
+    # Which user should run the script?
+    KOLIBRI_USER=""
+    while [ "$KOLIBRI_USER" = "" ]; do
+      db_input critical kolibri/user || true
+      db_go || true
+      db_get kolibri/user
+      export KOLIBRI_USER="$RET"
+    done
+
+    # Give instructions for <0.10 upgrades
+    db_input high kolibri/pre-010-upgrade-system-user || true
+    db_go || true
+
 }
 
 
@@ -218,24 +237,28 @@ kolibri_configure()
 
     if ! [ -e "/etc/kolibri/daemon.conf" ]
     then
-      default_user_conf > /etc/kolibri/daemon.conf
+        default_user_conf > /etc/kolibri/daemon.conf
     fi
 
-    # Fetch the $KOLIBRI_USER setting
-    . /etc/default/kolibri
+    # Fetch configuration settings
+    kolibri_get_config
 
     # This way of writing if statements with failing sub commands will work
     # while using errexit
     ( ! getent passwd "$KOLIBRI_USER" ) && {
         echo "Creating new user $KOLIBRI_USER"
         adduser --system --shell /bin/bash --home "/var/$KOLIBRI_USER" "$KOLIBRI_USER"
-    }    
+    }
+
+    # After the user has been successfully created, save it in the configuration
+    # for the system service.
+    if ! [ -e "/etc/kolibri/username" ]
+    then
+        echo -n "$KOLIBRI_USER" > /etc/kolibri/username
+    fi
 
     # Remove because we might re-register as systemd during an upgrade
     update-rc.d -f kolibri remove
-
-    # Fetch configuration settings
-    kolibri_get_config
 
     if $ENABLE_INIT_D
     then
@@ -254,7 +277,7 @@ kolibri_configure()
     fi
 
     add_state "after_postinst"
-    
+
 }
 
 # This is run at the beginning of kolibri_debconf_ask
@@ -268,31 +291,84 @@ kolibri_debconf_set_defaults()
     fi
 
     add_state "did_set_defaults"
-  
-    if [ "${args[0]}" = "configure" ]
+
+    # Ask for user name, default is "kolibri"
+    # First, test if the username is already seen. Otherwise, change it and
+    # mark it as unseen (changing a db value automatically marks it as seen)
+    db_fget kolibri/user seen
+    USER_SEEN="$RET"
+    
+    # Extra sensitivity for upgrades from <0.10 - this can be deleted at some
+    # point without causing serious harm, it's just nice to have for the bulk of
+    # users upgrading upon release.
+    #
+    # Because of some weird issue, we cannot *avoid* having
+    # kolibri_debconf_set_defaults called during upgrades, because we cannot
+    # reliably detect all upgrades from args[0]=="uprade". So to avoid
+    # suggesting the desktop user account to systems installed before 0.10, we
+    # make an extra check that there isn't already a "kolibri" configured using
+    # the old convention:
+    if cat /etc/default/kolibri | grep -q 'KOLIBRI_USER="kolibri"'
     then
-        # Because of some strange bug in debconf, we always purge the notes
-        # separately -- and this cannot be done in kolibri_purge because then
-        # debconf will assume that the note should be displayed unconditionally
-        # without calling db_input
-        # Furthermore, the note contents may have changed
-        db_fset kolibri/manual-instructions seen false
-        db_fset kolibri/init-instructions seen false
+        USER_SEEN="true"
+        db_fset kolibri/pre-010-upgrade-system-user seen false
+    else
+        db_fset kolibri/pre-010-upgrade-system-user seen true
     fi
     
+    if [ "$USER_SEEN" == "false" ]
+    then
+        # DESKTOP_USER=`getent passwd | awk -F: '$3 >= 1000 && $3 < 2000 {print $1}'`
+        DESKTOP_USER=`getent passwd | cut -d: -f1,3 | egrep ':[0-9]{4}$' | cut -d: -f1 | head -1`
+        if ! [ "$DESKTOP_USER" == "" ]
+        then
+            # Set default to the user running the installation
+            db_set kolibri/user "$DESKTOP_USER"
+            db_fset kolibri/user seen false
+        fi
+    fi
+
+    # Because of some strange bug in debconf, we always purge the notes
+    # separately -- and this cannot be done in kolibri_purge because then
+    # debconf will assume that the note should be displayed unconditionally
+    # without calling db_input
+    # Furthermore, the note contents may have changed
+    db_fset kolibri/manual-instructions seen false
+    db_fset kolibri/init-instructions seen false
+
 }
 
 kolibri_preinst()
 {
     
-    # Only do this if install, abort-upgrade
+    # Initialize: Remove the states file. This is expected to work fine, and
+    # also HAS to be done somewhere, otherwise state may be transferred between
+    # different dpkg processes! For instance, "apt-get install" followed by
+    # "apt-get remove" should not transfer state!
+    # https://github.com/learningequality/ka-lite-installers/issues/474
+    rm_states
+
+    # Because of a perceived bug in some Ubuntu version, we reliably feel like
+    # our scripts are run with the "install" even though it's an upgrade on
+    # top of a previous package. There for DO NOT distungish behavior according
+    # to whether or not something is an upgrade. Just assume both and find
+    # other was to detect if it's an upgrade.
     if [ "${args[0]}" = "install" ] ||
        [ "${args[0]}" = "upgrade" ]
     then
+    
+        # Step 1: Stop the system service
         stop_kolibri_service
+
+        # Setting the defaults should only happen during a new installation. The
+        # installation may happen on an unclean system, for instance if kolibri
+        # was removed with "apt-get remove" instead of "apt-get purge"
+        # NB! Using "dpkg -i" on 16.04 most definitely triggers that the preinst
+        # scripts are run with the "install" flag, even though they are upgrades :/
+        kolibri_debconf_set_defaults
+
         # Ask questions - consider not doing that during upgrade, but this is
         # not a good idea in case we add new entries in kolibri.template
-        kolibri_debconf_set_defaults
         kolibri_debconf_ask
     fi
 
@@ -307,4 +383,13 @@ kolibri_prerm()
     # Removes .pyc files in the Kolibri directory
     # so that the Kolibri package can be completely removed later.
     py3clean -p kolibri
+}
+
+kolibri_purge()
+{
+    # Remove the username file such that a prompt will be shown at next install
+    rm -f /etc/kolibri/username
+    # Make sure that there are no more state persistent data saved for another
+    # install
+    rm_states
 }

@@ -1,8 +1,36 @@
-kolibri-source (0.9.3~b1-0ubuntu1) trusty; urgency=medium
+kolibri-source (0.10.0~b10-0ubuntu1) trusty; urgency=medium
 
-  * Beta release for Kolibri 0.9.3
+  * New upstream release
+  * Changed URL upgrade note for changing system service owner
 
- -- Lingyi Wang <lingyi@learningequality.org>  Wed, 13 Jun 2018 17:32:13 +0000
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 03 Jul 2018 17:22:10 +0200
+
+kolibri-source (0.10.0~b9-0ubuntu2) trusty; urgency=medium
+
+  * Display a note for upgrades from <0.10
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 02 Jul 2018 23:47:00 +0200
+
+kolibri-source (0.10.0~b9-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Upgrade notes for pre 0.0.10
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 02 Jul 2018 22:01:37 +0200
+
+kolibri-source (0.10.0~b8-0ubuntu2) trusty; urgency=medium
+
+  * Only set defaults during install, not for upgrades
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 29 Jun 2018 16:07:51 +0200
+
+kolibri-source (0.10.0~b8-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Use desktop user for system service and prompt through debconf
+  * Removed python3-distutils dependency
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 29 Jun 2018 00:52:18 +0200
 
 kolibri-source (0.9.2-0ubuntu4) trusty; urgency=medium
 
