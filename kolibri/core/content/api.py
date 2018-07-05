@@ -314,11 +314,15 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         """
         Returns the number of node copies for each content id.
         """
-        content_ids = self.request.query_params.get('content_ids', []).split(',')
-        counts = models.ContentNode.objects.filter(content_id__in=content_ids, available=True) \
-                                           .values('content_id') \
-                                           .order_by() \
-                                           .annotate(count=Count('content_id'))
+        content_id_string = self.request.query_params.get('content_ids')
+        if content_id_string:
+            content_ids = content_id_string.split(',')
+            counts = models.ContentNode.objects.filter(content_id__in=content_ids, available=True) \
+                                               .values('content_id') \
+                                               .order_by() \
+                                               .annotate(count=Count('content_id'))
+        else:
+            counts = 0
         return Response(counts)
 
     @detail_route(methods=['get'])
