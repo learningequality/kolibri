@@ -1,7 +1,7 @@
 django-filter==1.1.0
 django-js-reverse==0.8.1
 djangorestframework==3.8.2
-django==1.11.13  # pyup: >=1.11,<2
+django==1.11.14  # pyup: >=1.11,<2
 six==1.11.0
 colorlog==3.1.4
 configobj==5.0.6
@@ -9,7 +9,7 @@ docopt==0.6.2
 django-mptt==0.9.0
 djangorestframework-csv==2.1.0
 tqdm==4.23.4                     # progress bars
-requests==2.18.4
+requests==2.19.1
 cherrypy==13.0.1  # Temporarily pinning this until CherryPy stops depending on namespaced package, see #2971 # pyup: <13.1.0
 tempora<1.13  # derived no-upper-bounds dependency of cherrypy causing issues  # pyup: <1.13
 cheroot<6.2.0  # 6.2.0 introduced a namespaced pkg # pyup: <6.2.0
@@ -25,8 +25,8 @@ morango==0.3.3
 requests-toolbelt==0.8.0
 clint==0.5.1
 tzlocal==1.5.1
-pytz==2018.4
+pytz==2018.5
 python-dateutil==2.7.3
-ifcfg==0.15
-sqlalchemy==1.2.8
+ifcfg==0.16
+sqlalchemy==1.2.9
 user-agents==1.1.0
