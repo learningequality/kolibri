@@ -7,7 +7,7 @@
         :delay="true"
       />
     </div>
-    <div
+    <fullscreen
       v-show="!loading"
       class="fill-space"
       ref="container"
@@ -45,7 +45,7 @@
           >
         </template>
       </audio>
-    </div>
+    </fullscreen>
   </div>
 
 </template>
@@ -60,7 +60,8 @@
   import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
-  import fullscreen from 'kolibri.coreVue.mixins.fullscreen';
+  import fullscreen from 'kolibri.coreVue.components.fullscreen';
+  import { fullscreenApiIsSupported } from 'kolibri.utils.browser';
   import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import audioIconPoster from './audio-icon-poster.svg';
 
@@ -95,9 +96,9 @@
       sourceError: 'No compatible source was found for this media',
       encryptionError: 'The media is encrypted and we do not have the keys to decrypt it',
     },
-    components: { kCircularLoader },
+    components: { kCircularLoader, fullscreen },
 
-    mixins: [ResponsiveElement, contentRendererMixin, fullscreen],
+    mixins: [ResponsiveElement, contentRendererMixin],
 
     data: () => ({
       dummyTime: 0,
@@ -233,7 +234,7 @@
         }
 
         // Add appropriate fullscreen button
-        if (this.fullscreenIsSupported) {
+        if (fullscreenApiIsSupported) {
           videojsConfig.controlBar.children.push({ name: 'fullscreenToggle' });
         } else {
           videojs.registerComponent('MimicFullscreenToggle', MimicFullscreenToggle);
@@ -256,7 +257,7 @@
         this.player.on('pause', () => this.setPlayState(false));
         this.player.on('ended', () => this.setPlayState(false));
         this.player.on('mimicFullscreenToggled', () => {
-          this.toggleFullscreen(this.$refs.container);
+          this.$refs.container.toggleFullscreen();
         });
         this.$watch('elSize.width', this.updatePlayerSizeClass);
         this.updatePlayerSizeClass();

@@ -1,5 +1,5 @@
 export default function displayModal(store, modalName) {
-  store.dispatch('SET_MODAL', modalName);
-  store.dispatch('SET_ERROR', '');
-  store.dispatch('SET_BUSY', false);
+  store.commit('SET_MODAL', modalName);
+  store.commit('SET_ERROR', '');
+  store.commit('SET_BUSY', false);
 }

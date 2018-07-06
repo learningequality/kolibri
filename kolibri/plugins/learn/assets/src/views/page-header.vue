@@ -12,14 +12,15 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
 
   export default {
     name: 'pageHeader',
     components: { progressIcon },
     props: { title: { type: String } },
-    vuex: {
-      getters: {
+    computed: {
+      ...mapState({
         progress: state => {
           if (state.pageState.content) {
             if (
@@ -32,7 +33,7 @@
           }
           return null;
         },
-      },
+      }),
     },
   };
 

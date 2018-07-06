@@ -1,5 +1,5 @@
 import { convertKeysToCamelCase, convertKeysToSnakeCase } from 'kolibri.coreVue.vuex.mappers';
-import { samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { PageNames, defaultFacilityConfig, notificationTypes } from '../../constants';
@@ -15,12 +15,12 @@ function resolveOnlyIfOnSamePage(promises, store) {
 }
 
 function showNotification(store, notificationType) {
-  store.dispatch('CONFIG_PAGE_NOTIFY', notificationType);
+  store.commit('CONFIG_PAGE_NOTIFY', notificationType);
 }
 
 export function showFacilityConfigPage(store) {
   const FACILITY_ID = store.state.core.session.facility_id;
-  preparePage(store.dispatch, {
+  preparePage(store.commit, {
     name: PageNames.FACILITY_CONFIG_PAGE,
     title: 'Configure Facility',
   });
@@ -32,7 +32,7 @@ export function showFacilityConfigPage(store) {
   return resolveOnlyIfOnSamePage(resourceRequests, store)
     .then(function onSuccess([facility, facilityDatasets]) {
       const dataset = facilityDatasets[0]; // assumes for now is only one facility being managed
-      store.dispatch('SET_PAGE_STATE', {
+      store.commit('SET_PAGE_STATE', {
         facilityDatasetId: dataset.id,
         facilityName: facility.name,
         // this part of state is mutated as user interacts with form
@@ -41,15 +41,15 @@ export function showFacilityConfigPage(store) {
         settingsCopy: convertKeysToCamelCase(dataset),
         notification: null,
       });
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_PAGE_LOADING', false);
     })
     .catch(function onFailure() {
-      store.dispatch('SET_PAGE_STATE', {
+      store.commit('SET_PAGE_STATE', {
         facilityName: '',
         settings: null,
         notification: notificationTypes.PAGELOAD_FAILURE,
       });
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_PAGE_LOADING', false);
     });
 }
 
@@ -62,15 +62,15 @@ export function saveFacilityConfig(store) {
   return resolveOnlyIfOnSamePage(resourceRequests, store)
     .then(function onSuccess() {
       showNotification(store, notificationTypes.SAVE_SUCCESS);
-      store.dispatch('CONFIG_PAGE_COPY_SETTINGS');
+      store.commit('CONFIG_PAGE_COPY_SETTINGS');
     })
     .catch(function onFailure() {
       showNotification(store, notificationTypes.SAVE_FAILURE);
-      store.dispatch('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
+      store.commit('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
     });
 }
 
 export function resetFacilityConfig(store) {
-  store.dispatch('CONFIG_PAGE_MODIFY_ALL_SETTINGS', defaultFacilityConfig);
+  store.commit('CONFIG_PAGE_MODIFY_ALL_SETTINGS', defaultFacilityConfig);
   return saveFacilityConfig(store);
 }

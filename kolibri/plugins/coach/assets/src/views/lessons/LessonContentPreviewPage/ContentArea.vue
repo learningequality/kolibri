@@ -1,15 +1,11 @@
 <template>
 
-  <section
-    class="content-area"
-    :class="{perseus: isPerseusExercise}"
-  >
+  <section :class="{'content-area-perseus': isPerseusExercise}">
     <h2 v-if="isPerseusExercise" class="header">
       {{ header }}
     </h2>
     <content-renderer
-      class="content"
-      :class="{perseus: isPerseusExercise}"
+      :class="{ hof: isPerseusExercise}"
       :showCorrectAnswer="true"
       :id="content.pk"
       :itemId="selectedQuestion"
@@ -69,25 +65,17 @@
 
 <style scoped lang="stylus">
 
-  $perseus-padding = 15px
-  $header-height = 56px // dupe from question-list
+  @require '~kolibri.styles.definitions'
 
-  .content-area
-    padding: 0
-    &.perseus
-      padding-left: 1px // give same margin as question-list (16px)
+  .content-area-perseus
+    padding: 16px
+    background-color: $core-bg-light
 
-  .content
-    // NOTE stylus exclusive. Variable/calc interpolation
-    &.perseus
-      max-height: 'calc(100% - %s)' % $header-height
-      overflow-x: hidden // .solutionarea's negative margin oversteps
+  .hof
+    overflow-x: hidden // .solutionarea's negative margin oversteps
 
   .header
     margin: 0
-    margin-left: $perseus-padding
-    line-height: $header-height
-    vertical-align: middle
     font-size: 16px // same as question-list
 
 </style>

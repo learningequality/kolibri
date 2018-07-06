@@ -1,7 +1,6 @@
-import store from 'kolibri.coreVue.vuex.store';
 import KolibriApp from '../src/kolibri_app';
+import coreModule from '../src/state/modules/core';
 
-const mockRegisterModule = store.registerModule;
 jest.mock(
   'kolibri',
   () => {
@@ -12,28 +11,55 @@ jest.mock(
   { virtual: true }
 );
 
-jest.mock('kolibri.coreVue.vuex.store', () => {
-  return {
-    registerModule: jest.fn(),
-  };
-});
+jest.mock('kolibri.heartbeat', () => ({
+  start() {},
+}));
+
+class TestApp extends KolibriApp {
+  get pluginModule() {
+    return {
+      state: {
+        count: 0,
+      },
+      getters: {
+        countGetter(state) {
+          return state.count;
+        },
+      },
+      actions: {
+        incrementTwice(store) {
+          store.commit('increment');
+          store.commit('increment');
+        },
+      },
+      mutations: {
+        increment(state) {
+          return (state.count = state.count + 1);
+        },
+      },
+    };
+  }
+}
 
 describe('KolibriApp', function() {
-  let app;
-  describe('ready method', function() {
-    beforeEach(function() {
-      app = new KolibriApp();
+  it('it should register the core vuex component', () => {
+    const app = new TestApp();
+    expect(app.store.state.core).toMatchObject(coreModule.state);
+    // just checking on keys, since vuex transforms the actions
+    expect(Object.keys(app.store._actions)).toEqual(Object.keys(coreModule.actions));
+    // only checks intersection with core getters; doesn't include sub-modules
+    expect(Object.keys(app.store.getters)).toEqual(
+      expect.arrayContaining(Object.keys(coreModule.getters))
+    );
+  });
+
+  it('it should register the plugin vuex components', async function() {
+    const app = new TestApp();
+    app.store.hotUpdate({
+      modules: { core: { actions: { getCurrentSession: jest.fn().mockResolvedValue() } } },
     });
-    it('should call store registerModule', function() {
-      app.ready();
-      expect(mockRegisterModule.mock.calls).toHaveLength(1);
-    });
-    it('should call store registerModule with app state and mutations', function() {
-      app.ready();
-      expect(mockRegisterModule.mock.calls[0][0]).toEqual({
-        state: app.initialState,
-        mutations: app.mutations,
-      });
-    });
+    await app.ready();
+    app.store.dispatch('incrementTwice');
+    expect(app.store.getters.countGetter).toEqual(2);
   });
 });

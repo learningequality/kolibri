@@ -36,11 +36,9 @@
 
 <script>
 
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import { mapState, mapActions } from 'vuex';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import { handleApiError } from 'kolibri.coreVue.vuex.actions';
-  import { displayModal } from '../../state/actions';
-  import { updateFacilityUser } from '../../state/actions/user';
+  import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
     name: 'resetUserPasswordModal',
@@ -72,6 +70,9 @@
       };
     },
     computed: {
+      ...mapState({
+        isBusy: state => state.pageState.isBusy,
+      }),
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.submittedForm) {
           if (this.password === '') {
@@ -102,6 +103,7 @@
       },
     },
     methods: {
+      ...mapActions(['updateFacilityUser', 'displayModal', 'handleApiError']),
       submitForm() {
         this.submittedForm = true;
         if (this.formIsValid) {
@@ -116,16 +118,6 @@
             this.$refs.confirmedPassword.focus();
           }
         }
-      },
-    },
-    vuex: {
-      actions: {
-        updateFacilityUser,
-        displayModal,
-        handleApiError,
-      },
-      getters: {
-        isBusy: state => state.pageState.isBusy,
       },
     },
     $trs: {

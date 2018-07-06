@@ -60,6 +60,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import { PageNames } from '../constants';
 
@@ -84,8 +85,13 @@
     },
     data() {
       return {
-        searchQuery: this.searchTerm,
+        searchQuery: this.$store.state.pageState.searchTerm,
       };
+    },
+    computed: {
+      ...mapState({
+        searchTerm: state => state.pageState.searchTerm,
+      }),
     },
     watch: {
       searchTerm(val) {
@@ -107,11 +113,6 @@
             query: { query: this.searchQuery },
           });
         }
-      },
-    },
-    vuex: {
-      getters: {
-        searchTerm: state => state.pageState.searchTerm,
       },
     },
   };

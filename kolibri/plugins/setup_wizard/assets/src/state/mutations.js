@@ -1,26 +1,4 @@
-import { currentLanguage } from 'kolibri.utils.i18n';
-import findKey from 'lodash/findKey';
-import { permissionPresets } from './constants';
-
-export const initialState = {
-  onboardingData: {
-    language_id: currentLanguage,
-    facility: {
-      name: '',
-    },
-    superuser: {
-      full_name: '',
-      username: '',
-      password: '',
-    },
-    preset: findKey(permissionPresets, preset => preset.default) || '',
-  },
-  loading: false,
-  error: false,
-  onboardingStep: 1,
-};
-
-export const mutations = {
+export default {
   SET_LANGUAGE(state, language_id) {
     state.onboardingData.language_id = language_id;
   },

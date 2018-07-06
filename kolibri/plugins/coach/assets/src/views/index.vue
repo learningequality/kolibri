@@ -29,11 +29,11 @@
 
 <script>
 
-  import { isAdmin, isCoach, isSuperuser } from 'kolibri.coreVue.vuex.getters';
+  import { mapState, mapGetters } from 'vuex';
+  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import { PageNames } from '../constants';
-  import { className, classCoaches } from '../state/getters/classes';
   import { LessonsPageNames } from '../constants/lessonsConstants';
   import topNav from './top-nav';
   import classListPage from './class-list-page';
@@ -121,6 +121,12 @@
       navTitle,
     },
     computed: {
+      ...mapGetters(['classCoaches', 'isAdmin', 'isCoach', 'isSuperuser']),
+      ...mapState(['pageName', 'classList', 'className', 'classId']),
+      ...mapState({
+        toolbarRoute: state => state.pageState.toolbarRoute,
+      }),
+      topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
         if (!this.userCanAccessPage) {
           // TODO better solution
@@ -175,19 +181,6 @@
           return false;
         }
         return true;
-      },
-    },
-    vuex: {
-      getters: {
-        toolbarRoute: state => state.pageState.toolbarRoute,
-        pageName: state => state.pageName,
-        isAdmin,
-        isCoach,
-        isSuperuser,
-        className,
-        classCoaches,
-        classList: state => state.classList,
-        classId: state => state.classId,
       },
     },
   };

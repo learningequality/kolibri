@@ -55,11 +55,10 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
   import kButton from 'kolibri.coreVue.components.kButton';
-  import { refreshChannelList } from '../../state/actions/manageContentActions';
-  import { cancelTask } from '../../state/actions/taskActions';
   import { TaskTypes, TaskStatuses } from '../../constants';
 
   const RequiredString = {
@@ -155,17 +154,12 @@
       },
     },
     methods: {
+      ...mapActions(['cancelTask', 'refreshChannelList']),
       endTask() {
         this.uiBlocked = true;
         this.$emit('cleartask', () => {
           this.uiBlocked = false;
         });
-      },
-    },
-    vuex: {
-      actions: {
-        cancelTask,
-        refreshChannelList,
       },
     },
     $trs: {

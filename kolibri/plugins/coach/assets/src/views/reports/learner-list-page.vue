@@ -6,14 +6,14 @@
     <template v-if="!isRootLearnerPage">
       <h1>
         <content-icon
-          :kind="pageState.contentScopeSummary.kind"
+          :kind="contentScopeSummary.kind"
           colorstyle="text-default"
         />
-        {{ pageState.contentScopeSummary.title }}
+        {{ contentScopeSummary.title }}
       </h1>
       <coach-content-label
-        :isTopic="isTopic(pageState.contentScopeSummary)"
-        :value="pageState.contentScopeSummary.num_coach_contents"
+        :isTopic="isTopic(contentScopeSummary)"
+        :value="contentScopeSummary.num_coach_contents"
       />
     </template>
     <h1 v-else>{{ $tr('learners') }}</h1>
@@ -79,12 +79,13 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import { standardDataTable, exerciseCount, contentCount } from '../../state/getters/reports';
   import { PageNames } from '../../constants';
-  import { exerciseCount, contentCount, standardDataTable } from '../../state/getters/reports';
   import { TableColumns } from '../../constants/reportConstants';
   import breadcrumbs from './breadcrumbs';
   import headerCell from './table-cells/header-cell';
@@ -122,8 +123,16 @@
       noLearners: 'There are no learners enrolled in this class',
     },
     computed: {
+      ...mapState(['classId', 'pageState', 'pageName']),
+      ...mapState({
+        channelId: state => state.pageState.channelId,
+        contentCount,
+        contentScopeSummary: state => state.pageState.contentScopeSummary,
+        exerciseCount,
+        standardDataTable,
+      }),
       isExercisePage() {
-        return this.pageState.contentScopeSummary.kind === ContentNodeKinds.EXERCISE;
+        return this.contentScopeSummary.kind === ContentNodeKinds.EXERCISE;
       },
       isRootLearnerPage() {
         return this.pageName === PageNames.LEARNER_LIST;
@@ -147,8 +156,8 @@
             params: {
               classId: this.classId,
               userId: row.id,
-              channelId: this.pageState.channelId,
-              contentId: this.pageState.contentScopeSummary.id,
+              channelId: this.channelId,
+              contentId: this.contentScopeSummary.id,
             },
           };
         } else if (this.isRootLearnerPage) {
@@ -161,16 +170,6 @@
           };
         }
         return undefined;
-      },
-    },
-    vuex: {
-      getters: {
-        classId: state => state.classId,
-        pageState: state => state.pageState,
-        pageName: state => state.pageName,
-        exerciseCount,
-        contentCount,
-        standardDataTable,
       },
     },
   };

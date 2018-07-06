@@ -22,9 +22,9 @@ import logging from '../logging';
 import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
 import * as constants from '../constants';
-import * as getters from '../state/getters';
-import * as actions from '../state/actions';
-import * as store from '../state/store';
+import * as getters from '../state/modules/core/getters';
+import * as actions from '../state/modules/core/actions';
+import store from '../state/store';
 import * as mappers from '../state/mappers';
 import contentRenderer from '../views/content-renderer';
 import downloadButton from '../views/content-renderer/download-button';
@@ -42,7 +42,6 @@ import kTextbox from '../views/k-textbox';
 import kNavbar from '../views/k-navbar';
 import kNavbarLink from '../views/k-navbar/link';
 import logo from '../views/logo';
-import languageSwitcherMixin from '../views/language-switcher/mixin.js';
 import languageSwitcherList from '../views/language-switcher/list.vue';
 import immersiveFullScreen from '../views/immersive-full-screen';
 import elapsedTime from '../views/elapsed-time';
@@ -59,7 +58,7 @@ import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
 import contentRendererMixin from '../mixins/contentRenderer';
-import fullscreen from '../mixins/fullscreen';
+import fullscreen from '../views/fullscreen';
 import theme from '../styles/core-theme.styl';
 import definitions from '../styles/definitions.styl';
 import keenVars from '../keen-config/variables.scss';
@@ -69,6 +68,7 @@ import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
+import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import appBar from '../views/app-bar';
 import coreSnackbar from '../views/core-snackbar';
 import coreMenu from '../views/core-menu';
@@ -89,6 +89,7 @@ import textTruncator from '../views/text-truncator';
 import kLinearLoader from '../views/k-linear-loader';
 import kCircularLoader from '../views/k-circular-loader';
 
+import multiPaneLayout from '../views/multi-pane-layout';
 import navComponents from '../utils/navComponents';
 import * as client from './client';
 import urls from './urls';
@@ -158,14 +159,14 @@ export default {
       textTruncator,
       kLinearLoader,
       kCircularLoader,
+      multiPaneLayout,
+      fullscreen,
     },
     router,
     mixins: {
       responsiveWindow,
       responsiveElement,
-      languageSwitcherMixin,
       contentRenderer: contentRendererMixin,
-      fullscreen,
     },
   },
   resources,
@@ -184,5 +185,6 @@ export default {
     serverClock,
     i18n,
     navComponents,
+    samePageCheckGenerator,
   },
 };

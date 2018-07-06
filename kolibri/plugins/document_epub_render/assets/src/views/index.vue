@@ -1,9 +1,9 @@
 <template>
 
-  <div
+  <fullscreen
     ref="docViewer"
     class="doc-viewer"
-    allowfullscreen
+    @changeFullscreen="isInFullscreen = $event"
   >
 
     <k-button
@@ -11,7 +11,7 @@
       aria-controls="pdf-container"
       :text="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       :primary="true"
-      @click="toggleFullscreen($refs.docViewer)"
+      @click="$refs.docViewer.toggleFullscreen()"
     />
 
     <ui-icon-button
@@ -37,24 +37,24 @@
       id="epub-container"
     >
     </div>
-  </div>
+  </fullscreen>
 
 </template>
 
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import Epub from 'epubjs/lib/epub';
   import manager from 'epubjs/lib/managers/default';
   import iFrameView from 'epubjs/lib/managers/views/iframe';
-  import fullscreen from 'kolibri.coreVue.mixins.fullscreen';
   import kButton from 'kolibri.coreVue.components.kButton';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
-  import { sessionTimeSpent } from 'kolibri.coreVue.vuex.getters';
   import throttle from 'lodash/throttle';
+  import fullscreen from 'kolibri.coreVue.components.fullscreen';
 
   // How often should we respond to changes in scrolling to render new pages?
   const renderDebounceTime = 300;
@@ -66,14 +66,17 @@
     components: {
       kButton,
       uiIconButton,
+      fullscreen,
     },
-    mixins: [responsiveWindow, responsiveElement, contentRendererMixin, fullscreen],
+    mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
       progress: 0,
       timeout: null,
       totalPages: null,
+      isInFullscreen: false,
     }),
     computed: {
+      ...mapGetters(['sessionTimeSpent']),
       epubURL() {
         return this.defaultFile.storage_url;
       },
@@ -137,11 +140,6 @@
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
-    },
-    vuex: {
-      getters: {
-        sessionTimeSpent,
-      },
     },
   };
 

@@ -56,7 +56,8 @@
 
 <script>
 
-  import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
+  import { mapState, mapGetters } from 'vuex';
+  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
@@ -113,15 +114,26 @@
       examReportTitle: '{examTitle} report',
     },
     components: {
-      coreBase,
+      actionBarSearchBox,
       breadcrumbs,
+      coreBase,
       kNavbar,
       kNavbarLink,
       totalPoints,
-      actionBarSearchBox,
     },
     mixins: [responsiveWindow],
     computed: {
+      ...mapGetters(['isUserLoggedIn']),
+      ...mapState({
+        memberships: state => state.learnAppState.memberships,
+        pageName: state => state.pageName,
+        searchTerm: state => state.pageState.searchTerm,
+        content: state => state.pageState.content,
+        exam: state => state.pageState.exam,
+      }),
+      topLevelPageName() {
+        return TopLevelPageNames.LEARN;
+      },
       userHasMemberships() {
         return this.memberships.length > 0;
       },
@@ -217,17 +229,6 @@
         const isAssessment = isContentPage && this.content && this.content.assessment;
         // height of .attempts-container in assessment-wrapper
         return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
-      },
-    },
-
-    vuex: {
-      getters: {
-        memberships: state => state.learnAppState.memberships,
-        pageName: state => state.pageName,
-        searchTerm: state => state.pageState.searchTerm,
-        isUserLoggedIn,
-        content: state => state.pageState.content,
-        exam: state => state.pageState.exam,
       },
     },
   };

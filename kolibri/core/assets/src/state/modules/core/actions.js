@@ -1,9 +1,3 @@
-import {
-  isUserLoggedIn,
-  currentUserId,
-  currentFacilityId,
-  facilities,
-} from 'kolibri.coreVue.vuex.getters';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import logger from 'kolibri.lib.logging';
 import {
@@ -22,16 +16,18 @@ import urls from 'kolibri.urls';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import { createTranslator } from 'kolibri.utils.i18n';
-import intervalTimer from '../timer';
-import { MasteryLoggingMap, AttemptLoggingMap, InteractionTypes, LoginErrors } from '../constants';
+import intervalTimer from '../../../timer';
+import {
+  MasteryLoggingMap,
+  AttemptLoggingMap,
+  InteractionTypes,
+  LoginErrors,
+} from '../../../constants';
+import samePageCheckGenerator from '../../../utils/samePageCheckGenerator';
 
-const name = 'coreTitles';
-
-const messages = {
+const translator = createTranslator('coreTitles', {
   errorPageTitle: 'Error',
-};
-
-const translator = createTranslator(name, messages);
+});
 
 const logging = logger.getLogger(__filename);
 const intervalTime = 5000; // Frequency at which time logging is updated
@@ -46,7 +42,7 @@ const timeThreshold = 60; // Update logs if 60 seconds have passed since last up
  */
 
 function _contentSummaryLoggingState(data) {
-  const state = {
+  return {
     id: data.pk,
     start_timestamp: data.start_timestamp,
     completion_timestamp: data.completion_timestamp,
@@ -57,11 +53,10 @@ function _contentSummaryLoggingState(data) {
     time_spent_before_current_session: data.time_spent,
     progress_before_current_session: data.progress,
   };
-  return state;
 }
 
 function _contentSessionLoggingState(data) {
-  const state = {
+  return {
     id: data.pk,
     start_timestamp: data.start_timestamp,
     end_timestamp: data.end_timestamp,
@@ -71,13 +66,12 @@ function _contentSessionLoggingState(data) {
     progress: data.progress,
     progress_at_last_save: data.progress,
   };
-  return state;
 }
 
 function _contentSummaryModel(store) {
-  const summaryLog = store.state.core.logging.summary;
-  const mapping = {
-    user: store.state.core.session.user_id,
+  const summaryLog = store.getters.logging.summary;
+  return {
+    user: store.getters.session.user_id,
     start_timestamp: summaryLog.start_timestamp,
     end_timestamp: summaryLog.end_timestamp,
     completion_timestamp: summaryLog.completion_timestamp,
@@ -85,18 +79,17 @@ function _contentSummaryModel(store) {
     time_spent: summaryLog.time_spent,
     extra_fields: summaryLog.extra_fields,
   };
-  return mapping;
 }
 
 function _contentSessionModel(store) {
-  const sessionLog = store.state.core.logging.session;
+  const sessionLog = store.getters.logging.session;
   return {
     start_timestamp: sessionLog.start_timestamp,
     end_timestamp: sessionLog.end_timestamp,
     time_spent: sessionLog.time_spent,
     progress: sessionLog.progress,
     extra_fields: sessionLog.extra_fields,
-    user: store.state.core.session.user_id,
+    user: store.getters.session.user_id,
   };
 }
 
@@ -115,11 +108,11 @@ function _sessionState(data) {
 
 function _masteryLogModel(store) {
   const mapping = {};
-  const masteryLog = store.state.core.logging.mastery;
+  const masteryLog = store.getters.logging.mastery;
   Object.keys(MasteryLoggingMap).forEach(key => {
     mapping[MasteryLoggingMap[key]] = masteryLog[key];
   });
-  mapping.summarylog = store.state.core.logging.summary.id;
+  mapping.summarylog = store.getters.logging.summary.id;
   return mapping;
 }
 
@@ -133,11 +126,11 @@ function _attemptLoggingState(data) {
 
 function _attemptLogModel(store) {
   const mapping = {};
-  const attemptLog = store.state.core.logging.attempt;
+  const attemptLog = store.getters.logging.attempt;
   Object.keys(AttemptLoggingMap).forEach(key => {
     mapping[AttemptLoggingMap[key]] = attemptLog[key];
   });
-  mapping.masterylog = store.state.core.logging.mastery.id;
+  mapping.masterylog = store.getters.logging.mastery.id;
   return mapping;
 }
 
@@ -160,14 +153,30 @@ function _channelListState(data) {
  * These methods are used to update client-side state
  */
 
-function handleError(store, errorString) {
-  store.dispatch('CORE_SET_ERROR', errorString);
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('errorPageTitle'));
+export function handleError(store, errorString) {
+  store.commit('CORE_SET_ERROR', errorString);
+  store.commit('CORE_SET_PAGE_LOADING', false);
+  store.commit('CORE_SET_TITLE', translator.$tr('errorPageTitle'));
 }
 
-function handleApiError(store, errorObject) {
+export function handleApiError(store, errorObject) {
   handleError(store, JSON.stringify(errorObject, null, '\t'));
+}
+
+/**
+ * Used to prevent inadvertent actions if a user double-clicks to navigate
+ *
+ * Something of a hack. A better strategy would be to create a new
+ * `setLoading` action which handles both `state.core.loading` and
+ * `state.core.blockDoubleClicks` with a single function.
+ */
+export function blockDoubleClicks(store) {
+  if (!store.state.blockDoubleClicks) {
+    store.commit('CORE_BLOCK_CLICKS', true);
+    setTimeout(() => {
+      store.commit('CORE_BLOCK_CLICKS', false);
+    }, 500);
+  }
 }
 
 /**
@@ -176,33 +185,33 @@ function handleApiError(store, errorObject) {
  * @param {object} store The store.
  * @param {object} sessionPayload The session payload.
  */
-function kolibriLogin(store, sessionPayload) {
-  store.dispatch('CORE_SET_SIGN_IN_BUSY', true);
+export function kolibriLogin(store, sessionPayload) {
+  store.commit('CORE_SET_SIGN_IN_BUSY', true);
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
   return sessionPromise
     .then(session => {
-      store.dispatch('CORE_SET_SESSION', _sessionState(session));
+      store.commit('CORE_SET_SESSION', _sessionState(session));
       redirectBrowser();
     })
     .catch(error => {
-      store.dispatch('CORE_SET_SIGN_IN_BUSY', false);
+      store.commit('CORE_SET_SIGN_IN_BUSY', false);
       if (error.status.code === 401) {
-        store.dispatch('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
+        store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
       } else if (error.status.code === 400 && error.entity.missing_field === 'password') {
-        store.dispatch('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_MISSING);
+        store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_MISSING);
       } else {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       }
     });
 }
 
-function kolibriLogout() {
+export function kolibriLogout() {
   // Use the logout backend URL to initiate logout
   redirectBrowser(urls['kolibri:logout']());
 }
 
-function getCurrentSession(store, force = false) {
+export function getCurrentSession(store, force = false) {
   let sessionPromise;
   if (force) {
     sessionPromise = SessionResource.getModel('current').fetch({}, true)._promise;
@@ -212,31 +221,33 @@ function getCurrentSession(store, force = false) {
   return sessionPromise
     .then(session => {
       logging.info('Session set.');
-      store.dispatch('CORE_SET_SESSION', _sessionState(session));
+      store.commit('CORE_SET_SESSION', _sessionState(session));
       return session;
     })
     .catch(error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     });
 }
 
-function getFacilities(store) {
+export function getFacilities(store) {
   return FacilityResource.getCollection()
     .fetch()
     .then(facilities => {
-      store.dispatch('CORE_SET_FACILITIES', facilities);
+      store.commit('CORE_SET_FACILITIES', facilities);
     });
 }
 
-function getFacilityConfig(store, facilityId = currentFacilityId(store.state)) {
-  const currentFacility = facilities(store.state).find(facility => facility.id === facilityId);
+export function getFacilityConfig(store, facilityId) {
+  const { facilities, currentFacilityId } = store.getters;
+  let facId = facilityId || currentFacilityId;
+  const currentFacility = facilities.find(facility => facility.id === facId);
   let datasetPromise;
   if (currentFacility && typeof currentFacility.dataset === 'object') {
     datasetPromise = Promise.resolve([currentFacility.dataset]);
   } else {
     datasetPromise = FacilityDatasetResource.getCollection({
       // getCollection for currentSession's facilityId if none was passed
-      facility_id: facilityId,
+      facility_id: facId,
     }).fetch();
   }
 
@@ -246,7 +257,7 @@ function getFacilityConfig(store, facilityId = currentFacilityId(store.state)) {
     if (facility) {
       config = CoreMappers.convertKeysToCamelCase(facility);
     }
-    store.dispatch('CORE_SET_FACILITY_CONFIG', config);
+    store.commit('CORE_SET_FACILITY_CONFIG', config);
   });
 }
 
@@ -254,19 +265,19 @@ function getFacilityConfig(store, facilityId = currentFacilityId(store.state)) {
  * Create models to store logging information
  * To be called on page load for content renderers
  */
-function initContentSession(store, channelId, contentId, contentKind) {
+export function initContentSession(store, { channelId, contentId, contentKind }) {
   // Always clear the logging state when we init the content session,
   // to avoid state pollution.
-  store.dispatch('SET_EMPTY_LOGGING_STATE');
+  store.commit('SET_EMPTY_LOGGING_STATE');
 
   const promises = [];
 
   /* Create summary log iff user exists */
-  if (store.state.core.session.user_id) {
+  if (store.getters.session.user_id) {
     /* Fetch collection matching content and user */
     const summaryCollection = ContentSummaryLogResource.getCollection({
       content_id: contentId,
-      user_id: store.state.core.session.user_id,
+      user_id: store.getters.session.user_id,
     });
     const summaryCollectionPromise = summaryCollection.fetch({}, true);
 
@@ -275,19 +286,19 @@ function initContentSession(store, channelId, contentId, contentKind) {
       summaryCollectionPromise.then(summary => {
         /* If a summary model exists, map that to the state */
         if (summary.length > 0) {
-          store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState(summary[0]));
+          store.commit('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState(summary[0]));
           if (summary[0].currentmasterylog) {
             // If a mastery model has been sent along with the summary log payload,
             // then bootstrap that data into the MasteryLog resource. Cheeky!
             const masteryModel = MasteryLogResource.createModel(summary[0].currentmasterylog);
             masteryModel.synced = true;
 
-            store.dispatch('SET_LOGGING_MASTERY_STATE', summary[0].currentmasterylog);
+            store.commit('SET_LOGGING_MASTERY_STATE', summary[0].currentmasterylog);
           }
           resolve();
         } else {
           /* If a summary model does not exist, create default state */
-          store.dispatch(
+          store.commit(
             'SET_LOGGING_SUMMARY_STATE',
             _contentSummaryLoggingState({
               pk: null,
@@ -315,7 +326,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
           const summaryModel = ContentSummaryLogResource.createModel(summaryData);
           const summaryModelPromise = summaryModel.save();
           summaryModelPromise.then(newSummary => {
-            store.dispatch('SET_LOGGING_SUMMARY_ID', newSummary.pk);
+            store.commit('SET_LOGGING_SUMMARY_ID', newSummary.pk);
             resolve();
           });
         }
@@ -325,7 +336,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
   }
 
   /* Set session log state to default */
-  store.dispatch(
+  store.commit(
     'SET_LOGGING_SESSION_STATE',
     _contentSessionLoggingState({
       pk: null,
@@ -353,7 +364,7 @@ function initContentSession(store, channelId, contentId, contentKind) {
   // ensure the store has finished update for sessionLog.
   const sessionPromise = new Promise(resolve => {
     sessionModelPromise.then(newSession => {
-      store.dispatch('SET_LOGGING_SESSION_ID', newSession.pk);
+      store.commit('SET_LOGGING_SESSION_ID', newSession.pk);
       resolve();
     });
   });
@@ -362,16 +373,16 @@ function initContentSession(store, channelId, contentId, contentKind) {
   return Promise.all(promises);
 }
 
-function setChannelInfo(store) {
+export function setChannelInfo(store) {
   return ChannelResource.getCollection({ available: true })
     .fetch()
     .then(
       channelsData => {
-        store.dispatch('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
+        store.commit('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
         return channelsData;
       },
       error => {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
         return error;
       }
     );
@@ -381,19 +392,22 @@ function setChannelInfo(store) {
  * Do a PATCH to update existing logging models
  * Must be called after initContentSession
  */
-function saveLogs(store) {
+export function saveLogs(store) {
   /* Create aliases for logs */
-  const summaryLog = store.state.core.logging.summary;
-  const sessionLog = store.state.core.logging.session;
+  const summaryLog = store.getters.logging.summary;
+  const sessionLog = store.getters.logging.session;
 
   /* Reset values used for threshold checking */
-  store.dispatch('SET_LOGGING_THRESHOLD_CHECKS', sessionLog.progress, sessionLog.time_spent);
+  store.commit('SET_LOGGING_THRESHOLD_CHECKS', {
+    progress: sessionLog.progress,
+    timeSpent: sessionLog.time_spent,
+  });
 
   /* If a session model exists, save it with updated values */
   if (sessionLog.id) {
     const sessionModel = ContentSessionLogResource.getModel(sessionLog.id);
     sessionModel.save(_contentSessionModel(store)).catch(error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     });
   }
 
@@ -401,16 +415,17 @@ function saveLogs(store) {
   if (summaryLog.id) {
     const summaryModel = ContentSummaryLogResource.getModel(summaryLog.id);
     summaryModel.save(_contentSummaryModel(store)).catch(error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     });
   }
 }
 
-function fetchPoints(store) {
-  if (isUserLoggedIn(store.state)) {
-    const userProgressModel = UserProgressResource.getModel(currentUserId(store.state));
+export function fetchPoints(store) {
+  const { isUserLoggedIn, currentUserId } = store.getters;
+  if (isUserLoggedIn) {
+    const userProgressModel = UserProgressResource.getModel(currentUserId);
     userProgressModel.fetch().then(progress => {
-      store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
+      store.commit('SET_TOTAL_PROGRESS', progress.progress);
     });
   }
 }
@@ -424,23 +439,24 @@ function fetchPoints(store) {
  */
 function _updateProgress(store, sessionProgress, summaryProgress, forceSave = false) {
   /* Create aliases for logs */
-  const summaryLog = store.state.core.logging.summary;
-  const sessionLog = store.state.core.logging.session;
+  const summaryLog = store.getters.logging.summary;
+  const sessionLog = store.getters.logging.session;
 
   /* Store original value to check if 100% reached this iteration */
   const originalProgress = summaryLog.progress;
 
   /* Update the logging state with new progress information */
-  store.dispatch('SET_LOGGING_PROGRESS', sessionProgress, summaryProgress);
+  store.commit('SET_LOGGING_PROGRESS', { sessionProgress, summaryProgress });
 
   /* Mark completion time if 100% progress reached
    * Also, increase totalProgress model to avoid a refetch from server
    */
   const completedContent = originalProgress < 1 && summaryProgress === 1;
+  const { isUserLoggedIn, currentUserId } = store.getters;
   if (completedContent) {
-    store.dispatch('SET_LOGGING_COMPLETION_TIME', now());
-    if (isUserLoggedIn(store.state)) {
-      const userProgressModel = UserProgressResource.getModel(currentUserId(store.state));
+    store.commit('SET_LOGGING_COMPLETION_TIME', now());
+    if (isUserLoggedIn) {
+      const userProgressModel = UserProgressResource.getModel(currentUserId);
       // Fetch first to ensure we never accidentally have an undefined progress
       userProgressModel.fetch().then(progress => {
         userProgressModel.set({
@@ -468,10 +484,10 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
  * @param {float} progressPercent
  * @param {boolean} forceSave
  */
-function updateProgress(store, progressPercent, forceSave = false) {
+export function updateProgress(store, { progressPercent, forceSave = false }) {
   /* Create aliases for logs */
-  const summaryLog = store.state.core.logging.summary;
-  const sessionLog = store.state.core.logging.session;
+  const summaryLog = store.getters.logging.summary;
+  const sessionLog = store.getters.logging.session;
 
   /* Calculate progress based on progressPercent */
   // TODO rtibbles: Delegate this to the renderers?
@@ -487,7 +503,7 @@ function updateProgress(store, progressPercent, forceSave = false) {
 /**
 summary and session log progress update for exercise
 **/
-function updateExerciseProgress(store, progressPercent, forceSave = false) {
+export function updateExerciseProgress(store, { progressPercent, forceSave = false }) {
   /* Update the logging state with new progress information */
   progressPercent = progressPercent || 0;
   return _updateProgress(store, progressPercent, progressPercent, forceSave);
@@ -499,10 +515,10 @@ function updateExerciseProgress(store, progressPercent, forceSave = false) {
  * Must be called after initContentSession
  * @param {boolean} forceSave
  */
-function updateTimeSpent(store, forceSave = false) {
+export function updateTimeSpent(store, forceSave = false) {
   /* Create aliases for logs */
-  const summaryLog = store.state.core.logging.summary;
-  const sessionLog = store.state.core.logging.session;
+  const summaryLog = store.getters.logging.summary;
+  const sessionLog = store.getters.logging.session;
 
   /* Calculate new times based on how much time has passed since last save */
   const sessionTime = intervalTimer.getNewTimeElapsed() + sessionLog.time_spent;
@@ -511,7 +527,7 @@ function updateTimeSpent(store, forceSave = false) {
     : 0;
 
   /* Update the logging state with new timing information */
-  store.dispatch('SET_LOGGING_TIME', sessionTime, summaryTime, now());
+  store.commit('SET_LOGGING_TIME', { sessionTime, summaryTime, currentTime: now() });
 
   /* Determine if time threshold has been met */
   const timeThresholdMet =
@@ -527,53 +543,41 @@ function updateTimeSpent(store, forceSave = false) {
  * Start interval timer and set start time
  * @param {int} interval
  */
-function startTrackingProgress(store, interval = intervalTime) {
+export function startTrackingProgress(store, interval = intervalTime) {
   intervalTimer.startTimer(interval, () => {
     updateTimeSpent(store, false);
   });
 }
 
 /**
- * Action inhibition check
- *
- * This generator function produces checks that help determine whether the
- * asynchronous outcomes should still be run based on whether the user is
- * still on the same page as when the action was first triggered.
- */
-function samePageCheckGenerator(store) {
-  const pageId = store.state.core.pageSessionId;
-  return () => store.state.core.pageSessionId === pageId;
-}
-
-/**
  * Stop interval timer and update latest times
  * Must be called after startTrackingProgress
  */
-function stopTrackingProgress(store) {
+export function stopTrackingProgress(store) {
   intervalTimer.stopTimer();
   updateTimeSpent(store, true);
 }
 
-function saveMasteryLog(store) {
-  const masteryLogModel = MasteryLogResource.getModel(store.state.core.logging.mastery.id);
+export function saveMasteryLog(store) {
+  const masteryLogModel = MasteryLogResource.getModel(store.getters.logging.mastery.id);
   return masteryLogModel.save(_masteryLogModel(store));
 }
 
-function saveAndStoreMasteryLog(store) {
+export function saveAndStoreMasteryLog(store) {
   return saveMasteryLog(store).only(samePageCheckGenerator(store), newMasteryLog => {
-    store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
+    store.commit('SET_LOGGING_MASTERY_STATE', newMasteryLog);
   });
 }
 
-function setMasteryLogComplete(store, completetime) {
-  store.dispatch('SET_LOGGING_MASTERY_COMPLETE', completetime);
+export function setMasteryLogComplete(store, completetime) {
+  store.commit('SET_LOGGING_MASTERY_COMPLETE', completetime);
 }
 
-function createMasteryLog(store, masteryLevel, masteryCriterion) {
+function createMasteryLog(store, { masteryLevel, masteryCriterion }) {
   const masteryLogModel = MasteryLogResource.createModel({
     id: null,
-    user: store.state.core.session.user_id,
-    summarylog: store.state.core.logging.summary.id,
+    user: store.getters.session.user_id,
+    summarylog: store.getters.logging.summary.id,
     start_timestamp: now(),
     completion_timestamp: null,
     end_timestamp: null,
@@ -585,17 +589,17 @@ function createMasteryLog(store, masteryLevel, masteryCriterion) {
     mastery_criterion: masteryCriterion,
   });
   // Preemptively set attributes
-  store.dispatch('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
+  store.commit('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
   // Save to the server
   return masteryLogModel
     .save(masteryLogModel.attributes)
     .only(samePageCheckGenerator(store), newMasteryLog => {
       // Update store in case an id has been set.
-      store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
+      store.commit('SET_LOGGING_MASTERY_STATE', newMasteryLog);
     });
 }
 
-function createDummyMasteryLog(store) {
+export function createDummyMasteryLog(store) {
   /*
   Create a client side masterylog for anonymous user for tracking attempt-progress.
   This masterylog will never be saved in the database.
@@ -613,12 +617,12 @@ function createDummyMasteryLog(store) {
     mastery_criterion: null,
     totalattempts: 0,
   });
-  store.dispatch('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
+  store.commit('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
 }
 
-function saveAttemptLog(store) {
+export function saveAttemptLog(store) {
   const attemptLogModel = AttemptLogResource.findModel({
-    item: store.state.core.logging.attempt.item,
+    item: store.getters.logging.attempt.item,
   });
   if (attemptLogModel) {
     return attemptLogModel.save(_attemptLogModel(store));
@@ -626,9 +630,9 @@ function saveAttemptLog(store) {
   return ConditionalPromise.resolve();
 }
 
-function saveAndStoreAttemptLog(store) {
-  const attemptLogId = store.state.core.logging.attempt.id;
-  const attemptLogItem = store.state.core.logging.attempt.item;
+export function saveAndStoreAttemptLog(store) {
+  const attemptLogId = store.getters.logging.attempt.id;
+  const attemptLogItem = store.getters.logging.attempt.item;
   /*
    * Create a 'same item' check instead of same page check, which only allows the resulting save
    * payload to be set if two conditions are met: firstly, that at the time the save was
@@ -639,20 +643,21 @@ function saveAndStoreAttemptLog(store) {
    * different question.
    */
   const sameItemAndNoLogIdCheck = () =>
-    !attemptLogId && attemptLogItem === store.state.core.logging.attempt.item;
+    !attemptLogId && attemptLogItem === store.getters.logging.attempt.item;
   return saveAttemptLog(store).only(sameItemAndNoLogIdCheck, newAttemptLog => {
     // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
-    store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
+    store.commit('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
   });
 }
 
-function createAttemptLog(store, itemId) {
-  const user = isUserLoggedIn(store.state) ? currentUserId(store.state) : null;
+export function createAttemptLog(store, itemId) {
+  const { isUserLoggedIn, currentUserId, logging } = store.getters;
+  const user = isUserLoggedIn ? currentUserId : null;
   const attemptLogModel = AttemptLogResource.createModel({
     id: null,
     user,
-    masterylog: store.state.core.logging.mastery.id || null,
-    sessionlog: store.state.core.logging.session.id,
+    masterylog: logging.mastery.id || null,
+    sessionlog: logging.session.id,
     start_timestamp: now(),
     completion_timestamp: null,
     end_timestamp: null,
@@ -665,12 +670,12 @@ function createAttemptLog(store, itemId) {
     interaction_history: [],
     hinted: false,
   });
-  store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
+  store.commit('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
 }
 
 const interactionHistoryProperties = ['type', 'correct', 'answer', 'timestamp'];
 
-function updateAttemptLogInteractionHistory(store, interaction) {
+export function updateAttemptLogInteractionHistory(store, interaction) {
   Object.keys(interaction).forEach(key => {
     if (interactionHistoryProperties.indexOf(key) === -1) {
       throw new TypeError(`${key} not allowed for interaction log`);
@@ -682,41 +687,41 @@ function updateAttemptLogInteractionHistory(store, interaction) {
   if (!interaction.timestamp) {
     interaction.timestamp = now();
   }
-  store.dispatch('UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY', interaction);
+  store.commit('UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY', interaction);
   // Also update end timestamp on Mastery model.
-  store.dispatch('UPDATE_LOGGING_MASTERY', now());
+  store.commit('UPDATE_LOGGING_MASTERY', { currentTime: now() });
 }
 
 /**
  * Initialize assessment mastery log
  */
-function initMasteryLog(store, masterySpacingTime, masteryCriterion) {
-  if (!store.state.core.logging.mastery.id) {
+export function initMasteryLog(store, { masterySpacingTime, masteryCriterion }) {
+  const { mastery } = store.getters.logging;
+  if (!mastery.id) {
     // id has not been set on the masterylog state, so this is undefined.
     // Either way, we need to create a new masterylog, with a masterylevel of 1!
-    return createMasteryLog(store, 1, masteryCriterion);
+    return createMasteryLog(store, { masteryLevel: 1, masteryCriterion });
   } else if (
-    store.state.core.logging.mastery.complete &&
-    now() - new Date(store.state.core.logging.mastery.completion_timestamp) > masterySpacingTime
+    mastery.complete &&
+    now() - new Date(mastery.completion_timestamp) > masterySpacingTime
   ) {
     // The most recent masterylog is complete, and they completed it more than
     // masterySpacingTime time ago!
     // This means we need to level the user up.
-    return createMasteryLog(
-      store,
-      store.state.core.logging.mastery.mastery_level + 1,
-      masteryCriterion
-    );
+    return createMasteryLog(store, {
+      masteryLevel: mastery.mastery_level + 1,
+      masteryCriterion,
+    });
   }
   return Promise.resolve();
 }
 
-function updateMasteryAttemptState(
+export function updateMasteryAttemptState(
   store,
   { currentTime, correct, complete, firstAttempt, hinted, answerState, simpleAnswer, error }
 ) {
-  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt, hinted, error);
-  store.dispatch('UPDATE_LOGGING_ATTEMPT', {
+  store.commit('UPDATE_LOGGING_MASTERY', { currentTime, correct, firstAttempt, hinted, error });
+  store.commit('UPDATE_LOGGING_ATTEMPT', {
     currentTime,
     correct,
     firstAttempt,
@@ -728,41 +733,10 @@ function updateMasteryAttemptState(
   });
 }
 
-function createSnackbar(store, snackbarOptions) {
-  store.dispatch('CORE_CREATE_SNACKBAR', snackbarOptions);
-}
-function clearSnackbar(store) {
-  store.dispatch('CORE_CLEAR_SNACKBAR');
+export function createSnackbar(store, snackbarOptions) {
+  store.commit('CORE_CREATE_SNACKBAR', snackbarOptions);
 }
 
-export {
-  handleError,
-  handleApiError,
-  kolibriLogin,
-  kolibriLogout,
-  getCurrentSession,
-  getFacilities,
-  getFacilityConfig,
-  initContentSession,
-  setChannelInfo,
-  startTrackingProgress,
-  stopTrackingProgress,
-  updateTimeSpent,
-  updateProgress,
-  updateExerciseProgress,
-  saveLogs,
-  samePageCheckGenerator,
-  initMasteryLog,
-  saveMasteryLog,
-  saveAndStoreMasteryLog,
-  setMasteryLogComplete,
-  createDummyMasteryLog,
-  createAttemptLog,
-  saveAttemptLog,
-  saveAndStoreAttemptLog,
-  updateMasteryAttemptState,
-  updateAttemptLogInteractionHistory,
-  fetchPoints,
-  createSnackbar,
-  clearSnackbar,
-};
+export function clearSnackbar(store) {
+  store.commit('CORE_CLEAR_SNACKBAR');
+}

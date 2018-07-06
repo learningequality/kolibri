@@ -5,16 +5,7 @@ import {
   ExamLogResource,
   ExamAttemptLogResource,
 } from 'kolibri.resources';
-
-import { getChannelObject, isUserLoggedIn, currentUserId } from 'kolibri.coreVue.vuex.getters';
-import {
-  setChannelInfo,
-  handleError,
-  handleApiError,
-  samePageCheckGenerator,
-  getFacilities,
-  getFacilityConfig,
-} from 'kolibri.coreVue.vuex.actions';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import {
   createQuestionList,
   selectQuestionFromExercise,
@@ -92,7 +83,7 @@ export function updateContentNodeProgress(channelId, contentId, progressFraction
 }
 
 export function setAndCheckChannels(store) {
-  return setChannelInfo(store).then(
+  return store.dispatch('setChannelInfo').then(
     channels => {
       if (!channels.length) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -100,7 +91,7 @@ export function setAndCheckChannels(store) {
       return channels;
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
       return error;
     }
   );
@@ -120,9 +111,9 @@ export function showRoot(store) {
 }
 
 export function showChannels(store) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_ROOT);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('allChannels'));
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', PageNames.TOPICS_ROOT);
+  store.commit('CORE_SET_TITLE', translator.$tr('allChannels'));
 
   setAndCheckChannels(store).then(
     channels => {
@@ -145,13 +136,13 @@ export function showChannels(store) {
               }
             })
             .filter(Boolean);
-          store.dispatch('SET_PAGE_STATE', { rootNodes });
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-          store.dispatch('CORE_SET_ERROR', null);
+          store.commit('SET_PAGE_STATE', { rootNodes });
+          store.commit('CORE_SET_PAGE_LOADING', false);
+          store.commit('CORE_SET_ERROR', null);
         });
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
       return error;
     }
   );
@@ -165,9 +156,9 @@ export function getCopies(store, contentId) {
   });
 }
 
-export function showTopicsTopic(store, id, isRoot = false) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
+export function showTopicsTopic(store, { id, isRoot = false }) {
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
   const promises = [
     ContentNodeResource.getModel(id).fetch(), // the topic
     ContentNodeResource.getCollection({
@@ -175,16 +166,19 @@ export function showTopicsTopic(store, id, isRoot = false) {
       by_role: true,
     }).fetch(), // the topic's children
     ContentNodeResource.fetchAncestors(id), // the topic's ancestors
-    setChannelInfo(store),
+    store.dispatch('setChannelInfo'),
   ];
 
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([topic, children, ancestors]) => {
-      const currentChannel = getChannelObject(store.state, topic.channel_id);
+      const currentChannel = store.getters.getChannelObject(topic.channel_id);
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
+      }
+      if (isRoot) {
+        topic.description = currentChannel.description;
       }
       const pageState = {
         isRoot,
@@ -195,10 +189,10 @@ export function showTopicsTopic(store, id, isRoot = false) {
       if (isRoot) {
         topic.description = currentChannel.description;
       }
-      store.dispatch('SET_PAGE_STATE', pageState);
+      store.commit('SET_PAGE_STATE', pageState);
 
       // Only load subtopic progress if the user is logged in
-      if (isUserLoggedIn(store.state)) {
+      if (store.getters.isUserLoggedIn) {
         const subtopicIds = children
           .filter(({ kind }) => kind === ContentNodeKinds.TOPIC)
           .map(({ id }) => id);
@@ -207,23 +201,23 @@ export function showTopicsTopic(store, id, isRoot = false) {
           ContentNodeProgressResource.getCollection({ ids: subtopicIds })
             .fetch()
             .then(progresses => {
-              store.dispatch('SET_TOPIC_PROGRESS', progresses);
+              store.commit('SET_TOPIC_PROGRESS', progresses);
             });
         }
       }
 
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_ERROR', null);
 
       if (isRoot) {
-        store.dispatch(
+        store.commit(
           'CORE_SET_TITLE',
           translator.$tr('topicsForChannelPageTitle', {
             currentChannelTitle: currentChannel.title,
           })
         );
       } else {
-        store.dispatch(
+        store.commit(
           'CORE_SET_TITLE',
           translator.$tr('currentTopicForChannelPageTitle', {
             currentTopicTitle: pageState.topic.title,
@@ -233,43 +227,43 @@ export function showTopicsTopic(store, id, isRoot = false) {
       }
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     }
   );
 }
 
 export function showTopicsChannel(store, id) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
-  showTopicsTopic(store, id, true);
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
+  showTopicsTopic(store, { id, isRoot: true });
 }
 
 export function showTopicsContent(store, id) {
-  store.dispatch('SET_EMPTY_LOGGING_STATE');
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
+  store.commit('SET_EMPTY_LOGGING_STATE');
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
 
   const promises = [
     ContentNodeResource.getModel(id).fetch(),
     ContentNodeResource.fetchNextContent(id),
     ContentNodeResource.fetchAncestors(id),
-    setChannelInfo(store),
+    store.dispatch('setChannelInfo'),
   ];
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([content, nextContent, ancestors]) => {
-      const currentChannel = getChannelObject(store.state, content.channel_id);
+      const currentChannel = store.getters.getChannelObject(content.channel_id);
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      store.dispatch('SET_PAGE_STATE', {
+      store.commit('SET_PAGE_STATE', {
         content: contentState(content, nextContent, ancestors),
         channel: currentChannel,
       });
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch(
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_ERROR', null);
+      store.commit(
         'CORE_SET_TITLE',
         translator.$tr('currentContentForChannelPageTitle', {
           currentContentTitle: content.title,
@@ -278,7 +272,7 @@ export function showTopicsContent(store, id) {
       );
     },
     error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     }
   );
 }
@@ -292,11 +286,11 @@ export function triggerSearch(store, searchTerm) {
     .fetch()
     .then(results => {
       const contents = _collectionState(results);
-      store.dispatch('SET_PAGE_STATE', {
+      store.commit('SET_PAGE_STATE', {
         searchTerm,
         contents,
       });
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_PAGE_LOADING', false);
 
       const contentIds = contents
         .filter(
@@ -320,18 +314,18 @@ export function triggerSearch(store, searchTerm) {
               }
               return updatedContent;
             });
-            store.dispatch('SET_CONTENT', updatedContents);
+            store.commit('SET_CONTENT', updatedContents);
           })
-          .catch(error => handleApiError(store, error));
+          .catch(error => store.dispatch('handleApiError', error));
       }
     })
     .catch(error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     });
 }
 
 export function clearSearch(store, searchTerm = '') {
-  store.dispatch('SET_PAGE_STATE', {
+  store.commit('SET_PAGE_STATE', {
     topics: [],
     contents: [],
     searchTerm,
@@ -339,19 +333,19 @@ export function clearSearch(store, searchTerm = '') {
 }
 
 export function showContentUnavailable(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
-  store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('contentUnavailablePageTitle'));
+  store.commit('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
+  store.commit('SET_PAGE_STATE', {});
+  store.commit('CORE_SET_PAGE_LOADING', false);
+  store.commit('CORE_SET_ERROR', null);
+  store.commit('CORE_SET_TITLE', translator.$tr('contentUnavailablePageTitle'));
 }
 
 export function showSearch(store, searchTerm) {
-  store.dispatch('SET_PAGE_NAME', PageNames.SEARCH);
-  store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', translator.$tr('searchPageTitle'));
+  store.commit('SET_PAGE_NAME', PageNames.SEARCH);
+  store.commit('SET_PAGE_STATE', {});
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('CORE_SET_ERROR', null);
+  store.commit('CORE_SET_TITLE', translator.$tr('searchPageTitle'));
   clearSearch(store);
   setAndCheckChannels(store).then(channels => {
     if (!channels.length) {
@@ -360,7 +354,7 @@ export function showSearch(store, searchTerm) {
     if (searchTerm) {
       triggerSearch(store, searchTerm);
     } else {
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_PAGE_LOADING', false);
     }
   });
 }
@@ -375,11 +369,12 @@ export function calcQuestionsAnswered(attemptLogs) {
   return questionsAnswered;
 }
 
-export function showExamReport(store, classId, examId, questionNumber, questionInteraction) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_REPORT_VIEWER);
+export function showExamReport(store, params) {
+  const { classId, examId, questionNumber, questionInteraction } = params;
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_REPORT_VIEWER);
 
-  const userId = currentUserId(store.state);
+  const userId = store.getters.currentUserId;
   const examReportPromise = getExamReport(
     store,
     examId,
@@ -390,15 +385,15 @@ export function showExamReport(store, classId, examId, questionNumber, questionI
   ConditionalPromise.all([examReportPromise]).then(
     ([examReport]) => {
       if (canViewExamReport(examReport.exam, examReport.examLog)) {
-        store.dispatch('SET_PAGE_STATE', examReport);
-        store.dispatch('CORE_SET_ERROR', null);
-        store.dispatch(
+        store.commit('SET_PAGE_STATE', examReport);
+        store.commit('CORE_SET_ERROR', null);
+        store.commit(
           'CORE_SET_TITLE',
           translator.$tr('examReportTitle', {
             examTitle: examReport.exam.title,
           })
         );
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.commit('CORE_SET_PAGE_LOADING', false);
       } else {
         router.replace({
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
@@ -413,17 +408,19 @@ export function showExamReport(store, classId, examId, questionNumber, questionI
       })
   );
 }
-export function showExam(store, classId, examId, questionNumber) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
+export function showExam(store, params) {
+  let questionNumber = params.questionNumber;
+  const { classId, examId } = params;
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
   // Reset examAttemptLogs, so that it will not merge into another exam.
-  store.dispatch('RESET_EXAM_ATTEMPT_LOGS');
-  const userId = currentUserId(store.state);
+  store.commit('RESET_EXAM_ATTEMPT_LOGS');
+  const userId = store.getters.currentUserId;
   const examParams = { user: userId, exam: examId };
 
   if (!userId) {
-    store.dispatch('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.commit('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
+    store.commit('CORE_SET_PAGE_LOADING', false);
   } else {
     questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
 
@@ -436,7 +433,7 @@ export function showExam(store, classId, examId, questionNumber) {
     ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttemptLogs]) => {
-        const currentChannel = getChannelObject(store.state, exam.channel_id);
+        const currentChannel = store.getters.getChannelObject(exam.channel_id);
         if (!currentChannel) {
           return router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         }
@@ -445,12 +442,12 @@ export function showExam(store, classId, examId, questionNumber) {
         const attemptLogs = {};
 
         if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
-          store.dispatch('SET_EXAM_LOG', examLogs.find(log => !log.closed));
+          store.commit('SET_EXAM_LOG', examLogs.find(log => !log.closed));
         } else {
           ExamLogResource.createModel({ ...examParams, closed: false })
             .save()
             .then(newExamLog => {
-              store.dispatch('SET_EXAM_LOG', newExamLog);
+              store.commit('SET_EXAM_LOG', newExamLog);
               return ExamLogResource.unCacheCollection(examParams);
             });
         }
@@ -496,7 +493,10 @@ export function showExam(store, classId, examId, questionNumber) {
 
         if (!shuffledQuestions[questionNumber]) {
           // Illegal question number!
-          handleError(store, `Question number ${questionNumber} is not valid for this exam`);
+          store.dispatch(
+            'handleError',
+            `Question number ${questionNumber} is not valid for this exam`
+          );
         } else {
           const contentPromise = ContentNodeResource.getCollection({
             in_exam: exam.id,
@@ -521,7 +521,7 @@ export function showExam(store, classId, examId, questionNumber) {
 
               if (questions.every(question => !question.itemId)) {
                 // Exam is drawing solely on malformed exercise data, best to quit now
-                handleError(store, `This exam has no valid questions`);
+                store.dispatch('handleError', `This exam has no valid questions`);
               } else {
                 const itemId = questions[questionNumber].itemId;
                 const channelId = exam.channel_id;
@@ -562,11 +562,11 @@ export function showExam(store, classId, examId, questionNumber) {
                   };
                 }
                 pageState.currentAttempt = attemptLogs[currentQuestion.contentId][itemId];
-                store.dispatch('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
-                store.dispatch('SET_PAGE_STATE', pageState);
-                store.dispatch('CORE_SET_PAGE_LOADING', false);
-                store.dispatch('CORE_SET_ERROR', null);
-                store.dispatch(
+                store.commit('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
+                store.commit('SET_PAGE_STATE', pageState);
+                store.commit('CORE_SET_PAGE_LOADING', false);
+                store.commit('CORE_SET_ERROR', null);
+                store.commit(
                   'CORE_SET_TITLE',
                   translator.$tr('currentExamPageTitle', {
                     currentExamTitle: pageState.exam.title,
@@ -576,31 +576,34 @@ export function showExam(store, classId, examId, questionNumber) {
               }
             },
             error => {
-              handleApiError(store, error);
+              store.dispatch('handleApiError', error);
             }
           );
         }
       },
       error => {
-        handleApiError(store, error);
+        store.dispatch('handleApiError', error);
       }
     );
   }
 }
 
-export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemptLog) {
+export function setAndSaveCurrentExamAttemptLog(
+  store,
+  { contentId, itemId, currentAttemptLog, examId }
+) {
   // As soon as this has happened, we should clear any previous cache for the
   // UserExamResource - as that data has now changed.
   UserExamResource.clearCache();
 
-  store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+  store.commit('SET_EXAM_ATTEMPT_LOGS', {
     [contentId]: {
       [itemId]: currentAttemptLog,
     },
   });
   const pageState = Object.assign(store.state.pageState);
   pageState.currentAttempt = currentAttemptLog;
-  store.dispatch('SET_PAGE_STATE', pageState);
+  store.commit('SET_PAGE_STATE', pageState);
   // If a save has already been fired for this particular attempt log,
   // it may not have an id yet, so we can look for it by its uniquely
   // identifying fields, contentId and itemId.
@@ -609,7 +612,7 @@ export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, curren
     item: itemId,
   });
   const attributes = Object.assign({}, currentAttemptLog);
-  attributes.user = currentUserId(store.state);
+  attributes.user = store.getters.currentUserId;
   attributes.examlog = store.state.examLog.id;
   // If the above findModel returned no matching model, then we can do
   // getModel to get the new model instead.
@@ -621,23 +624,23 @@ export function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, curren
     newExamAttemptLog =>
       new Promise(resolve => {
         const log = Object.assign({}, newExamAttemptLog);
-        store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+        store.commit('SET_EXAM_ATTEMPT_LOGS', {
           [contentId]: {
             [itemId]: log,
           },
         });
         const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
-        store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
+        store.commit('SET_QUESTIONS_ANSWERED', questionsAnswered);
         const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
-          user: currentUserId(store.state),
-          exam: store.state.pageState.exam.id,
+          user: store.getters.currentUserId,
+          exam: examId,
         });
         // Add this attempt log to the Collection for future caching.
         examAttemptLogCollection.set(examAttemptLogModel);
         resolve();
       }),
     () => {
-      this.$router.replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
+      router.replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
     }
   );
 }
@@ -652,12 +655,12 @@ export function closeExam(store) {
     })
     .then(UserExamResource.clearCache())
     .catch(error => {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     });
 }
 
 export function setFacilitiesAndConfig(store) {
-  return getFacilities(store).then(() => {
-    return getFacilityConfig(store);
+  return store.dispatch('getFacilities').then(() => {
+    return store.dispatch('getFacilityConfig');
   });
 }

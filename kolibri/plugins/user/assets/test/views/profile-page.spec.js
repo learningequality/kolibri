@@ -1,13 +1,14 @@
 import { mount } from '@vue/test-utils';
 import ProfilePage from '../../src/views/profile-page';
-import makeStore from '../util/makeStore';
+import makeStore from '../makeStore';
 
-ProfilePage.vuex.actions.fetchPoints = () => {};
+ProfilePage.methods.fetchPoints = () => {};
+ProfilePage.mixins = [];
 
 function makeWrapper() {
   const store = makeStore();
   store.state.pageState.passwordState = {};
-  store.dispatch('SET_PROFILE_PASSWORD_MODAL', false);
+  store.commit('SET_PROFILE_PASSWORD_MODAL', false);
   return mount(ProfilePage, {
     store,
   });

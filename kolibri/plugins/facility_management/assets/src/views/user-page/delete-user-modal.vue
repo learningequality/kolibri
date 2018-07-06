@@ -17,8 +17,8 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kModal from 'kolibri.coreVue.components.kModal';
-  import { deleteUser, displayModal } from '../../state/actions';
 
   export default {
     name: 'deleteUserModal',
@@ -52,18 +52,13 @@
       };
     },
     methods: {
+      ...mapActions(['deleteUser', 'displayModal']),
       handleDeleteUser() {
         this.submitting = true;
         this.deleteUser(this.id);
       },
       closeModal() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        deleteUser,
-        displayModal,
       },
     },
   };

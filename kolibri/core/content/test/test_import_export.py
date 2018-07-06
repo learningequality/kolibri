@@ -5,11 +5,19 @@ from django.core.management import call_command
 from django.test import TestCase
 from mock import call
 from mock import patch
+from requests import Session
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 
 from kolibri.core.content.models import LocalFile
 from kolibri.utils.tests.helpers import override_option
+
+# helper class for mocking that is equal to anything
+def Any(cls):
+    class Any(cls):
+        def __eq__(self, other):
+            return True
+    return Any()
 
 
 @patch('kolibri.core.content.management.commands.importchannel.channel_import.import_channel_from_local_db')
@@ -108,7 +116,7 @@ class ImportContentTestCase(TestCase):
         # is_cancelled should be called thrice.
         is_cancelled_mock.assert_has_calls([call(), call(), call()])
         # Should be set to the local path we mocked
-        FileDownloadMock.assert_called_with('notest', local_path)
+        FileDownloadMock.assert_called_with('notest', local_path, session=Any(Session))
         # Check that it was cancelled when the command was cancelled, this ensures cleanup
         FileDownloadMock.assert_has_calls([call().cancel()])
         # Check that the command itself was also cancelled.

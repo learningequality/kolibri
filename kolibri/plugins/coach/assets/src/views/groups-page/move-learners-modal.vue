@@ -32,14 +32,9 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kModal from 'kolibri.coreVue.components.kModal';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import {
-    displayModal,
-    addUsersToGroup,
-    removeUsersFromGroup,
-    moveUsersBetweenGroups,
-  } from '../../state/actions/group';
 
   export default {
     name: 'moveLearnersModal',
@@ -88,27 +83,35 @@
       },
     },
     methods: {
+      ...mapActions([
+        'addUsersToGroup',
+        'displayModal',
+        'moveUsersBetweenGroups',
+        'removeUsersFromGroup',
+      ]),
       moveUsers() {
         if (this.groupId) {
           if (this.groupSelected === 'ungrouped') {
-            this.removeUsersFromGroup(this.groupId, this.usersToMove);
+            this.removeUsersFromGroup({
+              groupId: this.groupId,
+              userIds: this.usersToMove,
+            });
           } else {
-            this.moveUsersBetweenGroups(this.groupId, this.groupSelected, this.usersToMove);
+            this.moveUsersBetweenGroups({
+              currentGroupId: this.groupId,
+              newGroupId: this.groupSelected,
+              userIds: this.usersToMove,
+            });
           }
         } else {
-          this.addUsersToGroup(this.groupSelected, this.usersToMove);
+          this.addUsersToGroup({
+            groupId: this.groupSelected,
+            userIds: this.usersToMove,
+          });
         }
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        displayModal,
-        addUsersToGroup,
-        removeUsersFromGroup,
-        moveUsersBetweenGroups,
       },
     },
   };
@@ -117,11 +120,6 @@
 
 
 <style lang="stylus" scoped>
-
-  label
-    display: block
-    padding-bottom: 0.5em
-    padding-top: 0.5em
 
   .button-section
     margin-top: 1em

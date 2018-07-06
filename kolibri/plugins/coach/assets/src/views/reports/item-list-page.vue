@@ -5,10 +5,10 @@
     <breadcrumbs />
     <h1>
       <content-icon
-        :kind="pageState.contentScopeSummary.kind"
+        :kind="contentScopeSummary.kind || ''"
         colorstyle="text-default"
       />
-      {{ pageState.contentScopeSummary.title }}
+      {{ contentScopeSummary.title || '' }}
     </h1>
     <div>
       <ul>
@@ -77,11 +77,12 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import { standardDataTable, exerciseCount, contentCount } from '../../state/getters/reports';
   import { TopicReports, LearnerReports, PageNames } from '../../constants';
-  import { exerciseCount, contentCount, standardDataTable } from '../../state/getters/reports';
   import { TableColumns } from '../../constants/reportConstants';
   import breadcrumbs from './breadcrumbs';
   import headerCell from './table-cells/header-cell';
@@ -115,6 +116,14 @@
       emptyTableMessage: 'No exercises or resources in this topic',
     },
     computed: {
+      ...mapState(['classId', 'pageName', 'pageState']),
+      ...mapState({
+        contentScopeSummary: state => state.pageState.contentScopeSummary,
+        channelId: state => state.pageState.channelId,
+        standardDataTable,
+        exerciseCount,
+        contentCount,
+      }),
       tableColumns() {
         return TableColumns;
       },
@@ -124,7 +133,7 @@
         const rowIsTopic = row.kind === ContentNodeKinds.TOPIC;
         const params = {
           classId: this.classId,
-          channelId: this.pageState.channelId,
+          channelId: this.channelId,
           [rowIsTopic ? 'topicId' : 'contentId']: row.id,
         };
         if (TopicReports.includes(this.pageName)) {
@@ -146,16 +155,6 @@
           }
         }
         return null;
-      },
-    },
-    vuex: {
-      getters: {
-        classId: state => state.classId,
-        pageName: state => state.pageName,
-        pageState: state => state.pageState,
-        exerciseCount,
-        contentCount,
-        standardDataTable,
       },
     },
   };

@@ -24,10 +24,10 @@
 
 <script>
 
-  import { canManageContent } from 'kolibri.coreVue.vuex.getters';
+  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import { ContentWizardPages, PageNames } from '../constants';
-  import { refreshTaskList } from '../state/actions/taskActions';
   import topNavigation from './device-top-nav';
   import manageContentPage from './manage-content-page';
   import managePermissionsPage from './manage-permissions-page';
@@ -54,6 +54,19 @@
       topNavigation,
     },
     computed: {
+      ...mapGetters(['canManageContent']),
+      ...mapState(['pageName', 'welcomeModalVisible']),
+      ...mapState({
+        toolbarTitle: ({ pageState }) => pageState.toolbarTitle,
+        inContentManagementPage: ({ pageName }) => {
+          return [
+            ContentWizardPages.AVAILABLE_CHANNELS,
+            ContentWizardPages.SELECT_CONTENT,
+            PageNames.MANAGE_CONTENT_PAGE,
+          ].includes(pageName);
+        },
+      }),
+      DEVICE: () => TopLevelPageNames.DEVICE,
       currentPage() {
         return pageNameComponentMap[this.pageName];
       },
@@ -85,6 +98,10 @@
       this.stopTaskPolling();
     },
     methods: {
+      hideWelcomeModal() {
+        this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
+      },
+      ...mapActions(['refreshTaskList']),
       startTaskPolling() {
         if (!this.intervalId && this.canManageContent) {
           this.intervalId = setInterval(this.refreshTaskList, 1000);
@@ -94,27 +111,6 @@
         if (this.intervalId) {
           this.intervalId = clearInterval(this.intervalId);
         }
-      },
-    },
-    vuex: {
-      getters: {
-        pageName: ({ pageName }) => pageName,
-        welcomeModalVisible: ({ welcomeModalVisible }) => welcomeModalVisible,
-        canManageContent,
-        toolbarTitle: ({ pageState }) => pageState.toolbarTitle,
-        inContentManagementPage: ({ pageName }) => {
-          return [
-            ContentWizardPages.AVAILABLE_CHANNELS,
-            ContentWizardPages.SELECT_CONTENT,
-            PageNames.MANAGE_CONTENT_PAGE,
-          ].includes(pageName);
-        },
-      },
-      actions: {
-        refreshTaskList,
-        hideWelcomeModal(store) {
-          store.dispatch('SET_WELCOME_MODAL_VISIBLE', false);
-        },
       },
     },
     $trs: {

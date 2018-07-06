@@ -19,14 +19,18 @@ function makeWrapper(options) {
     titleField: () => wrapper.findAll({ name: 'kTextbox' }).at(0),
     descriptionField: () => wrapper.findAll({ name: 'kTextbox' }).at(1),
     form: () => wrapper.find('form'),
-    uiError: () => wrapper.find({ name: 'ui-alert' }),
   };
-  return { wrapper, els };
+  const actions = {
+    inputTitle: text => els.titleField().vm.$emit('input', text),
+    inputDescription: text => els.descriptionField().vm.$emit('input', text),
+    submitForm: () => els.form().trigger('submit'),
+  };
+  return { wrapper, els, actions };
 }
 
 describe('AssignmentDetailsModal', () => {
   it('in new assignment mode, if data is valid, makes a request after clicking submit', () => {
-    const { wrapper, els } = makeWrapper({
+    const { wrapper, actions } = makeWrapper({
       propsData: { ...defaultProps },
     });
     const expected = {
@@ -34,17 +38,17 @@ describe('AssignmentDetailsModal', () => {
       description: 'The first lesson',
       assignments: [],
     };
-    els.titleField().vm.$emit('input', 'Lesson 1');
-    els.descriptionField().vm.$emit('input', 'The first lesson');
-    els.form().trigger('submit');
+    actions.inputTitle('Lesson 1');
+    actions.inputDescription('The first lesson');
+    actions.submitForm();
     expect(wrapper.emitted().continue[0][0]).toEqual(expected);
   });
 
   it('does not submit when form data is invalid', () => {
-    const { wrapper, els } = makeWrapper({
+    const { wrapper, actions } = makeWrapper({
       propsData: { ...defaultProps },
     });
-    els.form().trigger('submit');
+    actions.submitForm();
     expect(wrapper.emitted().continue).toBeUndefined();
   });
 
@@ -57,16 +61,16 @@ describe('AssignmentDetailsModal', () => {
     };
 
     it('in edit mode, if there are no changes, closes modal without making a server request', () => {
-      const { wrapper, els } = makeWrapper({
+      const { wrapper, actions } = makeWrapper({
         propsData: props,
       });
-      els.form().trigger('submit');
+      actions.submitForm();
       expect(wrapper.emitted().save).toBeUndefined();
       expect(wrapper.emitted().cancel.length).toEqual(1);
     });
 
     it('in edit mode, if the name has changed, makes a request after clicking submit', () => {
-      const { wrapper, els } = makeWrapper({
+      const { wrapper, actions } = makeWrapper({
         propsData: props,
       });
       const expected = {
@@ -74,13 +78,13 @@ describe('AssignmentDetailsModal', () => {
         description: props.initialDescription,
         assignments: [],
       };
-      els.titleField().vm.$emit('input', 'Old Lesson V2');
-      els.form().trigger('submit');
+      actions.inputTitle('Old Lesson V2');
+      actions.submitForm();
       expect(wrapper.emitted().save[0][0]).toEqual(expected);
     });
 
     it('in edit mode, if the description has changed, makes a request after clicking submit', () => {
-      const { wrapper, els } = makeWrapper({
+      const { wrapper, actions } = makeWrapper({
         propsData: props,
       });
       const expected = {
@@ -88,8 +92,8 @@ describe('AssignmentDetailsModal', () => {
         description: 'Its da remix',
         assignments: [],
       };
-      els.descriptionField().vm.$emit('input', 'Its da remix');
-      els.form().trigger('submit');
+      actions.inputDescription('Its da remix');
+      actions.submitForm();
       expect(wrapper.emitted().save[0][0]).toEqual(expected);
     });
   });

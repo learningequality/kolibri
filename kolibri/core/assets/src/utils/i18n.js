@@ -228,3 +228,13 @@ export function setUpIntl() {
     }
   });
 }
+
+export function localeCompare(str1, str2) {
+  // Catch if browser does not support extended localeCompare arguments
+  try {
+    // use 'search' option to ignore case rather than use locale defaults
+    return String(str1).localeCompare(String(str2), 'default', { usage: 'search' });
+  } catch (e) {
+    return String(str1).localeCompare(String(str2));
+  }
+}

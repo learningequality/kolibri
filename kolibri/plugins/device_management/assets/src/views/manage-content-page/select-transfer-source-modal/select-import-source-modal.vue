@@ -30,15 +30,13 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
   import { RemoteChannelResource } from 'kolibri.resources';
   import kModal from 'kolibri.coreVue.components.kModal';
-  import {
-    goForwardFromSelectImportSourceModal,
-    LOCAL_DRIVE,
-    KOLIBRI_STUDIO,
-    resetContentWizardState,
-  } from '../../../state/actions/contentWizardActions';
+  import { ContentSources } from '../../../constants';
+
+  const { LOCAL_DRIVE, KOLIBRI_STUDIO } = ContentSources;
 
   export default {
     name: 'selectImportSourceModal',
@@ -70,16 +68,11 @@
       selectLocalRemoteSourceTitle: 'Import from',
     },
     methods: {
+      ...mapActions(['goForwardFromSelectImportSourceModal', 'resetContentWizardState']),
       goForward() {
         if (!this.formIsDisabled) {
           this.goForwardFromSelectImportSourceModal(this.source);
         }
-      },
-    },
-    vuex: {
-      actions: {
-        goForwardFromSelectImportSourceModal,
-        resetContentWizardState,
       },
     },
   };

@@ -4,8 +4,7 @@ import {
   FacilityUserResource,
 } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { handleApiError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
-import { currentFacilityId } from 'kolibri.coreVue.vuex.getters';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
 import head from 'lodash/head';
@@ -16,7 +15,7 @@ const translator = createTranslator('managePermissionsPageTitles', {
 });
 
 function fetchFacilityUsers(store) {
-  const facilityId = currentFacilityId(store.state);
+  const facilityId = store.getters.currentFacilityId;
   return FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
 }
 
@@ -73,13 +72,13 @@ export function showManagePermissionsPage(store) {
   ]).only(samePageCheckGenerator(store))._promise;
   return promises
     .then(function onSuccess([users, permissions]) {
-      store.dispatch('SET_PERMISSIONS_PAGE_STATE', {
+      store.commit('SET_PERMISSIONS_PAGE_STATE', {
         facilityUsers: users,
         permissions,
       });
     })
     .catch(function onFailure(error) {
-      handleApiError(store, error);
+      store.dispatch('handleApiError', error);
     });
 }
 
@@ -96,20 +95,20 @@ export function showUserPermissionsPage(store, userId) {
   )._promise;
   return promise
     .then(function onUserSuccess([data]) {
-      store.dispatch(
+      store.commit(
         'CORE_SET_TITLE',
         translator.$tr('userPermissionsPageTitle', { name: data.user.full_name })
       );
-      return store.dispatch('SET_USER_PERMISSIONS_PAGE_STATE', data);
+      return store.commit('SET_USER_PERMISSIONS_PAGE_STATE', data);
     })
     .catch(function onUserFailure(error) {
       if (error.status.code === 404) {
-        return store.dispatch('SET_USER_PERMISSIONS_PAGE_STATE', {
+        return store.commit('SET_USER_PERMISSIONS_PAGE_STATE', {
           user: null,
           permissions: {},
         });
       }
-      return handleApiError(store, error);
+      return store.dispatch('handleApiError', error);
     });
 }
 

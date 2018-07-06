@@ -1,7 +1,7 @@
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import SignUpPage from '../../src/views/sign-up-page';
-import makeStore from '../util/makeStore';
+import makeStore from '../makeStore';
 
 function makeWrapper() {
   return mount(SignUpPage, {

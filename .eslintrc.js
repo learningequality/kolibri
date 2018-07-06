@@ -17,7 +17,7 @@ module.exports = {
       },
       parserOptions: {
         ecmaVersion: 8,
-      }
+      },
     },
   ],
   parserOptions: {

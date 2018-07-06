@@ -56,13 +56,13 @@
 
 <script>
 
+  import { mapState, mapGetters } from 'vuex';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { getChannels } from 'kolibri.coreVue.vuex.getters';
+  import { standardDataTable } from '../../state/getters/reports';
   import { PageNames } from '../../constants';
   import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
-  import { standardDataTable } from '../../state/getters/reports';
   import headerCell from './table-cells/header-cell';
   import nameCell from './table-cells/name-cell';
   import activityCell from './table-cells/activity-cell';
@@ -91,6 +91,14 @@
       noChannels: 'You do not have any content yet',
     },
     computed: {
+      ...mapState(['classId', 'pageName']),
+      ...mapState({
+        standardDataTable,
+        showRecentOnly: state => state.pageState.showRecentOnly,
+      }),
+      ...mapGetters({
+        channels: 'getChannels',
+      }),
       CHANNEL() {
         return ContentNodeKinds.CHANNEL;
       },
@@ -115,15 +123,6 @@
             channelId,
           },
         };
-      },
-    },
-    vuex: {
-      getters: {
-        channels: getChannels,
-        standardDataTable,
-        classId: state => state.classId,
-        pageName: state => state.pageName,
-        showRecentOnly: state => state.pageState.showRecentOnly,
       },
     },
   };

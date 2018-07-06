@@ -25,7 +25,8 @@
 
 <script>
 
-  import { isAdmin, isSuperuser } from 'kolibri.coreVue.vuex.getters';
+  import { mapState, mapGetters } from 'vuex';
+  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import { PageNames } from '../constants';
@@ -64,6 +65,12 @@
       topNav,
     },
     computed: {
+      ...mapGetters(['isAdmin', 'isSuperuser']),
+      ...mapState(['pageName']),
+      ...mapState({
+        isEnrollmentPage: state => classEnrollmentPages.includes(state.pageName),
+      }),
+      topLevelPageName: () => TopLevelPageNames.MANAGE,
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
       },
@@ -83,14 +90,6 @@
       },
       isImmersive() {
         return this.isEnrollmentPage;
-      },
-    },
-    vuex: {
-      getters: {
-        pageName: state => state.pageName,
-        isEnrollmentPage: state => classEnrollmentPages.includes(state.pageName),
-        isAdmin,
-        isSuperuser,
       },
     },
   };

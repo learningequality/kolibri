@@ -52,6 +52,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import map from 'lodash/map';
@@ -59,7 +60,6 @@
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import { selectionRootLink } from '../lessonsRouterUtils';
   import AssignmentSummary from '../../assignments/AssignmentSummary';
-  import { setLessonsModal } from '../../../state/actions/lessons';
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';
 
@@ -73,6 +73,17 @@
       AssignmentSummary,
     },
     computed: {
+      ...mapState({
+        // IDEA refactor, make actions get all this information themselves.
+        classId: state => state.classId,
+        lessonId: state => state.pageState.currentLesson.id,
+        lessonTitle: state => state.pageState.currentLesson.title,
+        lessonActive: state => state.pageState.currentLesson.is_active,
+        lessonDescription: state => state.pageState.currentLesson.description,
+        lessonAssignments: state => state.pageState.currentLesson.lesson_assignments,
+        lessonResources: state => state.pageState.currentLesson.resources,
+        learnerGroups: state => state.pageState.learnerGroups,
+      }),
       lessonOptions() {
         return map(this.actionsToLabelMap, (label, action) => ({
           label: this.$tr(label),
@@ -97,24 +108,9 @@
       },
     },
     methods: {
+      ...mapActions(['setLessonsModal']),
       handleSelectOption({ action }) {
         this.setLessonsModal(action);
-      },
-    },
-    vuex: {
-      actions: {
-        setLessonsModal,
-      },
-      getters: {
-        // IDEA refactor, make actions get all this information themselves.
-        classId: state => state.classId,
-        lessonId: state => state.pageState.currentLesson.id,
-        lessonTitle: state => state.pageState.currentLesson.title,
-        lessonActive: state => state.pageState.currentLesson.is_active,
-        lessonDescription: state => state.pageState.currentLesson.description,
-        lessonAssignments: state => state.pageState.currentLesson.lesson_assignments,
-        lessonResources: state => state.pageState.currentLesson.resources,
-        learnerGroups: state => state.pageState.learnerGroups,
       },
     },
     $trs: {

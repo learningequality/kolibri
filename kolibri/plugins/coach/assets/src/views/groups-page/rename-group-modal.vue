@@ -16,6 +16,7 @@
       :autofocus="true"
       :invalid="nameIsInvalid"
       :invalidText="nameIsInvalidText"
+      :maxlength="50"
       @blur="nameBlurred = true"
       v-model.trim="name"
     />
@@ -26,9 +27,9 @@
 
 <script>
 
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import { mapActions } from 'vuex';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import { renameGroup, displayModal } from '../../state/actions/group';
+  import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
     name: 'renameGroupModal',
@@ -99,23 +100,21 @@
       },
     },
     methods: {
+      ...mapActions(['renameGroup', 'displayModal']),
       callRenameGroup() {
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
-          this.renameGroup(this.groupId, this.name);
+          this.renameGroup({
+            groupId: this.groupId,
+            newGroupName: this.name,
+          });
         } else {
           this.$refs.name.focus();
         }
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        renameGroup,
-        displayModal,
       },
     },
   };

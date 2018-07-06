@@ -8,9 +8,6 @@ export default {
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
-  SET_FEATURED_CHANNEL_CONTENTS(state, channelId, contents) {
-    state.pageState.featured[channelId] = contents;
-  },
   SET_EXAM_LOG(state, examLog) {
     state.examLog = examLog;
   },
@@ -28,6 +25,9 @@ export default {
       Object.assign(newState[contentId], examAttemptLogs[contentId]);
     });
     state.examAttemptLogs = newState;
+  },
+  RESET_EXAM_ATTEMPT_LOGS(state) {
+    state.examAttemptLogs = {};
   },
   SET_QUESTIONS_ANSWERED(state, questionsAnswered) {
     state.pageState.questionsAnswered = questionsAnswered;

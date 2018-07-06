@@ -28,9 +28,8 @@
 
 <script>
 
-  import { sortColumn, sortOrder } from '../../../state/getters/reports';
+  import { mapState, mapMutations } from 'vuex';
   import { SortOrders } from '../../../constants/reportConstants';
-  import { setReportSorting } from '../../../state/actions/reports';
 
   export default {
     name: 'headerCell',
@@ -55,6 +54,10 @@
       },
     },
     computed: {
+      ...mapState({
+        sortColumn: state => state.pageState.sortColumn,
+        sortOrder: state => state.pageState.sortOrder,
+      }),
       sorted() {
         return (
           this.column === this.sortColumn && (this.sortOrder && this.sortOrder !== SortOrders.NONE)
@@ -68,6 +71,9 @@
       },
     },
     methods: {
+      ...mapMutations({
+        setReportSorting: 'SET_REPORT_SORTING',
+      }),
       setSortOrder() {
         let sortOrder;
         if (!this.sorted) {
@@ -78,16 +84,7 @@
         } else {
           sortOrder = SortOrders.NONE;
         }
-        this.setReportSorting(this.column, sortOrder);
-      },
-    },
-    vuex: {
-      getters: {
-        sortColumn,
-        sortOrder,
-      },
-      actions: {
-        setReportSorting,
+        this.setReportSorting({ sortColumn: this.column, sortOrder });
       },
     },
   };

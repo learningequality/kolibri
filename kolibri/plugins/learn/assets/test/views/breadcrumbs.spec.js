@@ -2,7 +2,7 @@ import VueRouter from 'vue-router';
 import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
 import { mount } from '@vue/test-utils';
 import Breadcrumbs from '../../src/views/breadcrumbs';
-import makeStore from '../util/makeStore';
+import makeStore from '../makeStore';
 import { PageNames } from '../../src/constants';
 
 const router = new VueRouter({

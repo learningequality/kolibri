@@ -5,81 +5,82 @@
     :backPageLink="backPageLink"
     :backPageText="$tr('backToExamList')"
   >
-    <template>
-      <div class="container">
-        <div class="exam-status-container">
-          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late" />
-          <h1 class="exam-title">{{ exam.title }}</h1>
-          <div class="exam-status">
-            <p class="questions-answered">
-              {{
-                $tr(
-                  'questionsAnswered',
-                  { numAnswered: questionsAnswered, numTotal: exam.question_count }
-                )
-              }}
-            </p>
-            <k-button @click="toggleModal" :text="$tr('submitExam')" :primary="true" />
-          </div>
+    <multi-pane-layout ref="multiPaneLayout">
+      <div class="exam-status-container" slot="header">
+        <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late" />
+        <h1 class="exam-title">{{ exam.title }}</h1>
+        <div class="exam-status">
+          <p class="questions-answered">
+            {{
+              $tr(
+                'questionsAnswered',
+                { numAnswered: questionsAnswered, numTotal: exam.question_count }
+              )
+            }}
+          </p>
+          <k-button @click="toggleModal" :text="$tr('submitExam')" :primary="true" />
         </div>
-        <div class="question-container">
-          <div class="outer-container">
-            <div class="answer-history-container column">
-              <answer-history
-                :questionNumber="questionNumber"
-                @goToQuestion="goToQuestion"
-              />
-            </div>
-            <div class="exercise-container column">
-              <content-renderer
-                ref="contentRenderer"
-                v-if="itemId"
-                :id="content.id"
-                :kind="content.kind"
-                :files="content.files"
-                :contentId="content.content_id"
-                :channelId="channelId"
-                :available="content.available"
-                :extraFields="content.extra_fields"
-                :itemId="itemId"
-                :assessment="true"
-                :allowHints="false"
-                :answerState="currentAttempt.answer"
-                @interaction="throttledSaveAnswer"
-              />
-              <ui-alert v-else :dismissible="false" type="error">
-                {{ $tr('noItemId') }}
-              </ui-alert>
-              <div class="question-navbutton-container">
-                <k-button
-                  :disabled="questionNumber===0"
-                  @click="goToQuestion(questionNumber - 1)"
-                  :text="$tr('previousQuestion')"
-                />
-                <k-button
-                  :disabled="questionNumber===exam.question_count-1"
-                  @click="goToQuestion(questionNumber + 1)"
-                  :text="$tr('nextQuestion')"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <div style="clear: both;"></div>
       </div>
-      <k-modal
-        v-if="submitModalOpen"
-        :title="$tr('submitExam')"
-        :submitText="$tr('submitExam')"
-        :cancelText="$tr('goBack')"
-        @submit="finishExam"
-        @cancel="toggleModal"
+
+      <answer-history
+        slot="aside"
+        :questionNumber="questionNumber"
+        @goToQuestion="goToQuestion"
+      />
+
+      <div
+        slot="main"
+        class="question-container"
       >
-        <p>{{ $tr('areYouSure') }}</p>
-        <p v-if="questionsUnanswered">
-          {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
-        </p>
-      </k-modal>
-    </template>
+        <content-renderer
+          ref="contentRenderer"
+          v-if="itemId"
+          :id="content.id"
+          :kind="content.kind"
+          :files="content.files"
+          :contentId="content.content_id"
+          :channelId="channelId"
+          :available="content.available"
+          :extraFields="content.extra_fields"
+          :itemId="itemId"
+          :assessment="true"
+          :allowHints="false"
+          :answerState="currentAttempt.answer"
+          @interaction="saveAnswer"
+        />
+        <ui-alert v-else :dismissible="false" type="error">
+          {{ $tr('noItemId') }}
+        </ui-alert>
+      </div>
+
+      <div class="question-navbutton-container" slot="footer">
+        <k-button
+          :disabled="questionNumber===0"
+          @click="goToQuestion(questionNumber - 1)"
+          :text="$tr('previousQuestion')"
+        />
+        <k-button
+          :disabled="questionNumber===exam.question_count-1"
+          @click="goToQuestion(questionNumber + 1)"
+          :text="$tr('nextQuestion')"
+        />
+      </div>
+    </multi-pane-layout>
+
+    <k-modal
+      v-if="submitModalOpen"
+      :title="$tr('submitExam')"
+      :submitText="$tr('submitExam')"
+      :cancelText="$tr('goBack')"
+      @submit="finishExam"
+      @cancel="toggleModal"
+    >
+      <p>{{ $tr('areYouSure') }}</p>
+      <p v-if="questionsUnanswered">
+        {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
+      </p>
+    </k-modal>
   </immersive-full-screen>
 
 </template>
@@ -87,16 +88,17 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
-  import throttle from 'lodash/throttle';
+  import debounce from 'lodash/debounce';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kModal from 'kolibri.coreVue.components.kModal';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
-  import { setAndSaveCurrentExamAttemptLog, closeExam } from '../../state/actions/main';
+  import multiPaneLayout from 'kolibri.coreVue.components.multiPaneLayout';
   import { ClassesPageNames } from '../../constants';
   import answerHistory from './answer-history';
 
@@ -122,29 +124,24 @@
       answerHistory,
       kModal,
       uiAlert,
+      multiPaneLayout,
     },
     data() {
       return {
         submitModalOpen: false,
       };
     },
-    vuex: {
-      getters: {
-        exam: state => state.pageState.exam,
+    computed: {
+      ...mapState(['examAttemptLogs']),
+      ...mapState({
         channelId: state => state.pageState.channelId,
+        exam: state => state.pageState.exam,
         content: state => state.pageState.content,
         itemId: state => state.pageState.itemId,
         questionNumber: state => state.pageState.questionNumber,
-        attemptLogs: state => state.examAttemptLogs,
         currentAttempt: state => state.pageState.currentAttempt,
         questionsAnswered: state => state.pageState.questionsAnswered,
-      },
-      actions: {
-        setAndSaveCurrentExamAttemptLog,
-        closeExam,
-      },
-    },
-    computed: {
+      }),
       backPageLink() {
         return {
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
@@ -153,30 +150,29 @@
       questionsUnanswered() {
         return this.exam.question_count - this.questionsAnswered;
       },
-    },
-    created() {
-      this._throttledSaveAnswer = throttle(this.saveAnswer.bind(this), 500, {
-        leading: false,
-      });
+      debouncedSetAndSaveCurrentExamAttemptLog() {
+        // So as not to share debounced functions between instances of the same component
+        // and also to allow access to the cancel method of the debounced function
+        // best practice seems to be to do it as a computed property and not a method:
+        // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
+        return debounce(this.setAndSaveCurrentExamAttemptLog, 5000);
+      },
     },
     methods: {
+      ...mapActions(['setAndSaveCurrentExamAttemptLog', 'closeExam']),
       checkAnswer() {
         if (this.$refs.contentRenderer) {
           return this.$refs.contentRenderer.checkAnswer();
         }
         return null;
       },
-      throttledSaveAnswer(...args) {
-        return this._throttledSaveAnswer(...args);
-      },
-      saveAnswer() {
-        const answer = this.checkAnswer() || {
-          answerState: null,
-          simpleAnswer: '',
-          correct: 0,
-        };
-        if (!isEqual(answer.answerState, this.currentAttempt.answer)) {
+      saveAnswer(force = false) {
+        const answer = this.checkAnswer();
+        if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
           const attempt = Object.assign({}, this.currentAttempt);
+          // Copy the interaction history separately, as otherwise we
+          // will still be modifying the underlying object
+          attempt.interaction_history = Array(...attempt.interaction_history);
           attempt.answer = answer.answerState;
           attempt.simple_answer = answer.simpleAnswer;
           attempt.correct = answer.correct;
@@ -190,12 +186,29 @@
             correct: answer.correct,
             timestamp: now(),
           });
-          return this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
+          if (force) {
+            // Cancel any pending debounce
+            this.debouncedSetAndSaveCurrentExamAttemptLog.cancel();
+            // Force the save now instead
+            return this.setAndSaveCurrentExamAttemptLog({
+              contentId: this.content.id,
+              itemId: this.itemId,
+              currentAttemptLog: attempt,
+              examId: this.exam.id,
+            });
+          } else {
+            return this.debouncedSetAndSaveCurrentExamAttemptLog({
+              contentId: this.content.id,
+              itemId: this.itemId,
+              currentAttemptLog: attempt,
+              examId: this.exam.id,
+            });
+          }
         }
         return Promise.resolve();
       },
       goToQuestion(questionNumber) {
-        this.saveAnswer().then(() => {
+        this.saveAnswer(true).then(() => {
           this.$router.push({
             name: ClassesPageNames.EXAM_VIEWER,
             params: {
@@ -203,20 +216,18 @@
               questionNumber,
             },
           });
+          this.$refs.multiPaneLayout.scrollMainToTop();
         });
-      },
-      submitExam() {
-        if (!this.submitModalOpen) {
-          this.saveAnswer().then(this.toggleModal);
-        }
       },
       toggleModal() {
         this.submitModalOpen = !this.submitModalOpen;
       },
       finishExam() {
-        this.closeExam().then(() => {
-          this.$router.push(this.backPageLink);
-        });
+        this.saveAnswer(true).then(
+          this.closeExam().then(() => {
+            this.$router.push(this.backPageLink);
+          })
+        );
       },
     },
   };
@@ -228,13 +239,8 @@
 
   @require '~kolibri.styles.definitions'
 
-  .container
-    width: 90%
-    margin: 30px auto
-    position: relative
-
   .exam-status-container
-    padding: 10px 25px
+    padding: 16px
     background: $core-bg-light
 
   .exam-status
@@ -242,7 +248,8 @@
     width: 50%
     max-width: 400px
     text-align: right
-    margin-top: 15px
+    button
+      margin: 0 0 0 8px
 
   .exam-icon
     position: relative
@@ -256,28 +263,12 @@
   .questions-answered
     display: inline-block
     position: relative
-    top: 2px
+    margin-top: 0
 
   .question-container
-    height: 100%
-    width: 100%
-    padding: 10px
     background: $core-bg-light
-
-  .outer-container > div
-    float: left
-
-  .answer-history-container
-    width: 25%
-    height: 100%
-    max-height: 500px
-    overflow-y: auto
-
-  .exercise-container
-    width: 75%
 
   .question-navbutton-container
     text-align: right
-    margin-right: 15px
 
 </style>

@@ -44,7 +44,6 @@
     mixins: [responsiveWindow],
     data() {
       return {
-        searchQuery: this.searchTerm,
         searchBoxIsOpen: false,
       };
     },

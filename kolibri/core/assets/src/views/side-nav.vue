@@ -1,6 +1,6 @@
 <template>
 
-  <div @keydown.esc="toggleNav" ref="sideNav">
+  <div @keydown.esc="toggleNav" ref="sideNav" class="side-nav-wrapper">
     <transition name="side-nav">
       <div
         v-show="navShown"
@@ -52,7 +52,7 @@
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
-              <p>© 2017 Learning Equality</p>
+              <p>© 2018 Learning Equality</p>
             </div>
           </div>
         </div>
@@ -73,7 +73,12 @@
 
 <script>
 
-  import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+  import { mapState, mapGetters } from 'vuex';
+  import {
+    TopLevelPageNames,
+    UserKinds,
+    NavComponentSections,
+  } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import coreMenu from 'kolibri.coreVue.components.coreMenu';
@@ -131,6 +136,13 @@
       };
     },
     computed: {
+      TopLevelPageNames() {
+        return TopLevelPageNames;
+      },
+      ...mapGetters(['isUserLoggedIn', 'isSuperuser', 'isAdmin', 'isCoach', 'canManageContent']),
+      ...mapState({
+        session: state => state.core.session,
+      }),
       mobile() {
         return this.windowSize.breakpoint < 2;
       },
@@ -194,11 +206,6 @@
         return event;
       },
     },
-    vuex: {
-      getters: {
-        session: state => state.core.session,
-      },
-    },
   };
 
 </script>
@@ -215,6 +222,9 @@
 
   // matches keen-ui toolbar's spec
   $side-nav-header-box-shadow = 0 0 2px rgba(black, 0.12), 0 2px 2px rgba(black, 0.2)
+
+  .side-nav-wrapper
+    overflow-x: hidden
 
   .side-nav
     position: fixed

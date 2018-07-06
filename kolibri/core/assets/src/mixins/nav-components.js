@@ -1,14 +1,17 @@
-import {
-  isUserLoggedIn,
-  isSuperuser,
-  isAdmin,
-  isCoach,
-  isLearner,
-  canManageContent,
-} from 'kolibri.coreVue.vuex.getters';
+import { mapGetters } from 'vuex';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 
 export default {
+  computed: {
+    ...mapGetters([
+      'isUserLoggedIn',
+      'isSuperuser',
+      'isAdmin',
+      'isCoach',
+      'isLearner',
+      'canManageContent',
+    ]),
+  },
   methods: {
     filterByRole(navItem) {
       if (!navItem.role) {
@@ -33,17 +36,6 @@ export default {
       if (navItem.role === UserKinds.LEARNER) {
         return this.isLearner || this.isCoach || this.isAdmin || this.isSuperuser;
       }
-    },
-  },
-  vuex: {
-    getters: {
-      session: state => state.core.session,
-      isUserLoggedIn,
-      isSuperuser,
-      isAdmin,
-      isCoach,
-      isLearner,
-      canManageContent,
     },
   },
 };

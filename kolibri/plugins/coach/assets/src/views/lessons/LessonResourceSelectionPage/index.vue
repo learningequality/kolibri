@@ -61,12 +61,11 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { saveLessonResources } from '../../../state/actions/lessons';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { lessonSummaryLink, topicListingLink } from '../lessonsRouterUtils';
   import searchTools from './searchTools';
@@ -82,6 +81,15 @@
       searchTools,
     },
     computed: {
+      ...mapState(['classId']),
+      ...mapState({
+        currentLesson: state => state.pageState.currentLesson,
+        lessonId: state => state.pageState.currentLesson.id,
+        workingResources: state => state.pageState.workingResources,
+        contentList: state => state.pageState.contentList,
+        resourceCache: state => state.pageState.resourceCache,
+        ancestorCounts: state => state.pageState.ancestorCounts,
+      }),
       lessonPage() {
         return lessonSummaryLink(this.routerParams);
       },
@@ -90,6 +98,14 @@
       },
     },
     methods: {
+      ...mapActions(['createSnackbar', 'saveLessonResources']),
+      addToSelectedResources(contentId) {
+        this.$store.commit('ADD_TO_RESOURCE_CACHE', this.contentList.find(n => n.id === contentId));
+        this.$store.commit('ADD_TO_WORKING_RESOURCES', contentId);
+      },
+      removeFromSelectedResources(contentId) {
+        this.$store.commit('REMOVE_FROM_WORKING_RESOURCES', contentId);
+      },
       // IDEA refactor router logic into actions
       contentIsDirectoryKind({ kind }) {
         return kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL;
@@ -108,7 +124,10 @@
         };
       },
       saveResources() {
-        this.saveLessonResources(this.lessonId, this.workingResources).then(() => {
+        this.saveLessonResources({
+          lessonId: this.lessonId,
+          resourceIds: this.workingResources,
+        }).then(() => {
           // route to summary page with confirmation message
           this.createSnackbar({
             text: this.$tr('resourceSaveConfirmation'),
@@ -135,29 +154,6 @@
         } else {
           this.removeFromSelectedResources(contentId);
         }
-      },
-    },
-    vuex: {
-      getters: {
-        currentLesson: state => state.pageState.currentLesson,
-        lessonId: state => state.pageState.currentLesson.id,
-        workingResources: state => state.pageState.workingResources,
-        // TODO remove since we don't need it in template; use actions
-        classId: state => state.classId,
-        contentList: state => state.pageState.contentList,
-        resourceCache: state => state.pageState.resourceCache,
-        ancestorCounts: state => state.pageState.ancestorCounts,
-      },
-      actions: {
-        saveLessonResources,
-        createSnackbar,
-        addToSelectedResources(store, contentId) {
-          store.dispatch('ADD_TO_RESOURCE_CACHE', this.contentList.find(n => n.id === contentId));
-          store.dispatch('ADD_TO_WORKING_RESOURCES', contentId);
-        },
-        removeFromSelectedResources(store, contentId) {
-          store.dispatch('REMOVE_FROM_WORKING_RESOURCES', contentId);
-        },
       },
     },
     $trs: {

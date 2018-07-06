@@ -31,9 +31,9 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import kNavbar from 'kolibri.coreVue.components.kNavbar';
   import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
-  import { canManageContent, isSuperuser } from 'kolibri.coreVue.vuex.getters';
   import { PageNames } from '../constants';
 
   export default {
@@ -43,17 +43,12 @@
       kNavbarLink,
     },
     computed: {
+      ...mapGetters(['canManageContent', 'isSuperuser']),
       PageNames: () => PageNames,
     },
     methods: {
       linkify(name) {
         return { name };
-      },
-    },
-    vuex: {
-      getters: {
-        canManageContent,
-        isSuperuser,
       },
     },
     $trs: {

@@ -41,7 +41,7 @@
       v-else-if="lessonsModalSet === AssignmentActions.DELETE"
       :modalTitle="$tr('deleteLessonTitle')"
       :modalDescription="$tr('deleteLessonDescription', { title: currentLesson.title })"
-      @delete="deleteLesson(currentLesson.id, classId)"
+      @delete="deleteLesson({ lessonId: currentLesson.id, classId })"
       @cancel="setLessonsModal(null)"
     />
   </div>
@@ -51,18 +51,12 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
-  import {
-    setLessonsModal,
-    updateLessonStatus,
-    copyLesson,
-    deleteLesson,
-    updateLesson,
-  } from '../../../state/actions/lessons';
 
   export default {
     name: 'manageLessonModals',
@@ -73,6 +67,12 @@
       AssignmentDeleteModal,
     },
     computed: {
+      ...mapState(['classId', 'classList', 'className']),
+      ...mapState({
+        currentLesson: state => state.pageState.currentLesson,
+        lessonsModalSet: state => state.pageState.lessonsModalSet,
+        learnerGroups: state => state.pageState.learnerGroups,
+      }),
       AssignmentActions() {
         return AssignmentActions;
       },
@@ -81,8 +81,15 @@
       },
     },
     methods: {
+      ...mapActions([
+        'setLessonsModal',
+        'updateLessonStatus',
+        'deleteLesson',
+        'copyLesson',
+        'updateLesson',
+      ]),
       handleChangeStatus(isActive) {
-        this.updateLessonStatus(this.currentLesson.id, isActive);
+        this.updateLessonStatus({ lessonId: this.currentLesson.id, isActive });
       },
       handleCopy(selectedClassroomId, selectedCollectionIds) {
         const payload = {
@@ -95,32 +102,18 @@
           collection: selectedClassroomId,
           lesson_assignments: selectedCollectionIds.map(id => ({ collection: id })),
         };
-        this.copyLesson(payload, this.className);
+        this.copyLesson({ payload, classroomName: this.className });
       },
       handleDetailsModalSave(payload) {
-        this.updateLesson(this.currentLesson.id, {
-          ...payload,
-          lesson_assignments: payload.assignments,
+        this.updateLesson({
+          lessonId: this.currentLesson.id,
+          payload: {
+            ...payload,
+            lesson_assignments: payload.assignments,
+          },
         })
           .then()
           .catch(() => this.$refs.detailsModal.handleSubmitFailure());
-      },
-    },
-    vuex: {
-      getters: {
-        currentLesson: state => state.pageState.currentLesson,
-        lessonsModalSet: state => state.pageState.lessonsModalSet,
-        classId: state => state.classId,
-        classList: state => state.classList,
-        className: state => state.className,
-        learnerGroups: state => state.pageState.learnerGroups,
-      },
-      actions: {
-        setLessonsModal,
-        updateLessonStatus,
-        deleteLesson,
-        copyLesson,
-        updateLesson,
       },
     },
     $trs: {

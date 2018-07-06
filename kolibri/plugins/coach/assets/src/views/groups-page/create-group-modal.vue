@@ -16,6 +16,7 @@
       :autofocus="true"
       :invalid="nameIsInvalid"
       :invalidText="nameIsInvalidText"
+      :maxlength="50"
       @blur="nameBlurred = true"
       v-model.trim="name"
     />
@@ -26,9 +27,9 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import { displayModal, createGroup } from '../../state/actions/group';
 
   export default {
     name: 'createGroupModal',
@@ -87,6 +88,7 @@
       },
     },
     methods: {
+      ...mapActions(['displayModal', 'createGroup']),
       callCreateGroup() {
         this.formSubmitted = true;
         if (this.formIsValid) {
@@ -98,12 +100,6 @@
       },
       close() {
         this.displayModal(false);
-      },
-    },
-    vuex: {
-      actions: {
-        displayModal,
-        createGroup,
       },
     },
   };

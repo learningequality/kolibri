@@ -14,6 +14,7 @@
       :invalidText="facilityNameErrorMessage"
       ref="facilityName"
       :label="$tr('facilityNameFieldLabel')"
+      :maxlength="50"
     />
   </onboarding-form>
 
@@ -22,9 +23,8 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import { submitFacilityName } from '../../../state/actions/forms';
-
   import onboardingForm from '../onboarding-form';
 
   export default {
@@ -49,7 +49,7 @@
     },
     data() {
       return {
-        facilityName: this.currentFacilityName,
+        facilityName: this.$store.state.onboardingData.facility.name,
         fieldVisited: false,
       };
     },
@@ -68,6 +68,7 @@
       },
     },
     methods: {
+      ...mapActions(['submitFacilityName']),
       validateFacilityName() {
         this.fieldVisited = true;
       },
@@ -79,14 +80,6 @@
           this.submitFacilityName(this.facilityName);
           this.$emit('submit');
         }
-      },
-    },
-    vuex: {
-      actions: {
-        submitFacilityName,
-      },
-      getters: {
-        currentFacilityName: state => state.onboardingData.facility.name,
       },
     },
   };

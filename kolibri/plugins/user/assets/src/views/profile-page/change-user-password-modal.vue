@@ -35,9 +35,9 @@
 
 <script>
 
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import { mapState, mapActions } from 'vuex';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import { updateUserProfilePassword } from '../../state/actions';
+  import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
     name: 'changeUserPasswordModal',
@@ -55,6 +55,9 @@
       };
     },
     computed: {
+      ...mapState({
+        isBusy: state => state.pageState.busy,
+      }),
       newPasswordInvalidErrorText() {
         if (this.newPasswordBlurred || this.submittedForm) {
           if (this.newPassword === '') {
@@ -85,6 +88,7 @@
       },
     },
     methods: {
+      ...mapActions(['updateUserProfilePassword']),
       closeModal() {
         this.$emit('cancel');
       },
@@ -99,14 +103,6 @@
             this.$refs.confirmedNewPassword.focus();
           }
         }
-      },
-    },
-    vuex: {
-      actions: {
-        updateUserProfilePassword,
-      },
-      getters: {
-        isBusy: state => state.pageState.busy,
       },
     },
     $trs: {

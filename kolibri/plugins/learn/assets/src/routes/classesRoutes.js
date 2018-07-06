@@ -44,16 +44,14 @@ export default [
     name: ClassesPageNames.EXAM_VIEWER,
     path: '/classes/:classId/exam/:examId/:questionNumber',
     handler: toRoute => {
-      const { classId, examId, questionNumber } = toRoute.params;
-      showExam(store, classId, examId, questionNumber);
+      showExam(store, toRoute.params);
     },
   },
   {
     name: ClassesPageNames.EXAM_REPORT_VIEWER,
     path: '/classes/:classId/examReport/:examId/:questionNumber/:questionInteraction',
     handler: toRoute => {
-      const { classId, examId, questionNumber, questionInteraction } = toRoute.params;
-      showExamReport(store, classId, examId, questionNumber, questionInteraction);
+      showExamReport(store, toRoute.params);
     },
   },
 ];

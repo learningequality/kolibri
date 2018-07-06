@@ -86,6 +86,7 @@
 
 <script>
 
+  import { mapState, mapActions, mapGetters } from 'vuex';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
@@ -96,14 +97,7 @@
   import subpageContainer from '../containers/subpage-container';
   import channelListItem from '../manage-content-page/channel-list-item';
   import contentWizardUiAlert from '../select-content-page/content-wizard-ui-alert';
-  import {
-    installedChannelsWithResources,
-    wizardState,
-    inLocalImportMode,
-    inRemoteImportMode,
-    inExportMode,
-  } from '../../state/getters';
-  import { setToolbarTitle } from '../../state/actions/manageContentActions';
+  import { wizardState } from '../../state/getters';
   import { selectContentPageLink } from '../manage-content-page/manageContentLinks';
   import { TransferTypes } from '../../constants';
 
@@ -130,6 +124,18 @@
       };
     },
     computed: {
+      ...mapGetters([
+        'inLocalImportMode',
+        'inRemoteImportMode',
+        'inExportMode',
+        'installedChannelsWithResources',
+      ]),
+      ...mapState({
+        availableChannels: state => wizardState(state).availableChannels,
+        selectedDrive: state => wizardState(state).selectedDrive,
+        transferType: state => wizardState(state).transferType,
+        wizardStatus: state => wizardState(state).status,
+      }),
       channelsAreLoading() {
         return this.wizardStatus === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
       },
@@ -170,6 +176,7 @@
       }
     },
     methods: {
+      ...mapActions(['setToolbarTitle']),
       toolbarTitle(transferType) {
         switch (transferType) {
           case TransferTypes.LOCALEXPORT:
@@ -209,21 +216,6 @@
           titleMatches = tokens.every(token => channel.name.toLowerCase().includes(token));
         }
         return languageMatches && titleMatches && isOnDevice;
-      },
-    },
-    vuex: {
-      getters: {
-        availableChannels: state => wizardState(state).availableChannels,
-        selectedDrive: state => wizardState(state).selectedDrive,
-        installedChannelsWithResources,
-        transferType: state => wizardState(state).transferType,
-        wizardStatus: state => wizardState(state).status,
-        inLocalImportMode,
-        inRemoteImportMode,
-        inExportMode,
-      },
-      actions: {
-        setToolbarTitle,
       },
     },
     $trs: {

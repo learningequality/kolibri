@@ -10,6 +10,7 @@
           :autofocus="true"
           :invalid="titleIsInvalid"
           :invalidText="titleIsInvalidText"
+          :maxlength="100"
           @blur="titleBlurred = true"
           v-model.trim="inputTitle"
         />
@@ -135,6 +136,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
@@ -146,19 +148,9 @@
   import shuffle from 'lodash/shuffle';
   import orderBy from 'lodash/orderBy';
   import random from 'lodash/random';
-  import { createSnackbar } from 'kolibri.coreVue.vuex.actions';
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import flatMap from 'lodash/flatMap';
   import { Modals as ExamModals } from '../../../constants/examConstants';
-  import {
-    goToTopic,
-    goToTopLevel,
-    createExamAndRoute,
-    addExercise,
-    removeExercise,
-    setExamsModal,
-    setSelectedExercises,
-  } from '../../../state/actions/exam';
   import previewNewExamModal from './preview-new-exam-modal';
   import exerciseRow from './exercise-row';
   import topicRow from './topic-row';
@@ -217,6 +209,14 @@
       };
     },
     computed: {
+      ...mapState(['classId']),
+      ...mapState({
+        topic: state => state.pageState.topic,
+        subtopics: state => state.pageState.subtopics,
+        exercises: state => state.pageState.exercises,
+        selectedExercises: state => state.pageState.selectedExercises,
+        examsModalSet: state => state.pageState.examsModalSet,
+      }),
       numCols() {
         return this.windowSize.breakpoint > 3 ? 2 : 1;
       },
@@ -341,6 +341,16 @@
       },
     },
     methods: {
+      ...mapActions([
+        'createSnackbar',
+        'goToTopic',
+        'goToTopLevel',
+        'createExamAndRoute',
+        'addExercise',
+        'removeExercise',
+        'setExamsModal',
+        'setSelectedExercises',
+      ]),
       setDummyChannelId(id) {
         if (!this.dummyChannelId) {
           this.dummyChannelId = id;
@@ -446,26 +456,6 @@
       randomize() {
         this.seed = this.generateRandomSeed();
         this.setSelectedExercises(shuffle(this.selectedExercises));
-      },
-    },
-    vuex: {
-      getters: {
-        classId: state => state.classId,
-        topic: state => state.pageState.topic,
-        subtopics: state => state.pageState.subtopics,
-        exercises: state => state.pageState.exercises,
-        selectedExercises: state => state.pageState.selectedExercises,
-        examsModalSet: state => state.pageState.examsModalSet,
-      },
-      actions: {
-        goToTopic,
-        goToTopLevel,
-        createExamAndRoute,
-        addExercise,
-        removeExercise,
-        setExamsModal,
-        createSnackbar,
-        setSelectedExercises,
       },
     },
   };

@@ -1,11 +1,14 @@
 <template>
 
   <k-modal
+    ref="modal"
     :title="$tr('preview')"
     :submitText="$tr('close')"
     size="large"
     @submit="close"
     @cancel="close"
+    :width="`${windowSize.width - 16}px`"
+    :height="`${windowSize.height - 16}px`"
   >
     <transition mode="out-in">
       <k-circular-loader
@@ -13,11 +16,14 @@
         :delay="false"
       />
       <div v-else @keyup.enter.stop>
-        <div>
+        <div ref="header">
           <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
           <slot name="randomize-button"></slot>
         </div>
-        <k-grid class="exam-preview-container">
+        <k-grid
+          class="exam-preview-container"
+          :style="{ maxHeight: `${maxHeight}px` }"
+        >
           <k-grid-item size="1" cols="3" class="question-selector">
             <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
               <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
@@ -72,6 +78,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import find from 'lodash/find';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
@@ -82,7 +89,8 @@
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
-  import { setExamsModal } from '../../../state/actions/exam';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import debounce from 'lodash/debounce';
 
   export default {
     name: 'previewExamModal',
@@ -102,6 +110,7 @@
       kGridItem,
       kCircularLoader,
     },
+    mixins: [responsiveWindow],
     props: {
       examQuestionSources: {
         type: Array,
@@ -124,8 +133,15 @@
       currentQuestionIndex: 0,
       exercises: {},
       loading: true,
+      maxHeight: null,
     }),
     computed: {
+      ...mapState({
+        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
+      }),
+      debouncedSetMaxHeight() {
+        return debounce(this.setMaxHeight, 250);
+      },
       questions() {
         return Object.keys(this.exercises).length
           ? createQuestionList(this.examQuestionSources).map(question => ({
@@ -151,10 +167,26 @@
     watch: {
       examQuestionSources: 'setExercises',
     },
+    updated() {
+      this.debouncedSetMaxHeight();
+    },
     created() {
       this.setExercises();
     },
     methods: {
+      ...mapActions(['setExamsModal']),
+      setMaxHeight() {
+        const title = this.$refs.modal.$el.querySelector('#modal-title');
+        const header = this.$refs.header;
+        if (title && header) {
+          const titleHeight = title.clientHeight;
+          const headerHeight = header.clientHeight;
+          const closeBtnHeight = 44;
+          const margins = 16 * 6;
+          this.maxHeight =
+            this.windowSize.height - titleHeight - headerHeight - closeBtnHeight - margins;
+        }
+      },
       numCoachContents(exercise) {
         return find(this.exerciseContentNodes, { id: exercise.exercise_id }).num_coach_contents;
       },
@@ -198,14 +230,6 @@
         return this.questions.filter(q => q.contentId === exerciseId);
       },
     },
-    vuex: {
-      actions: {
-        setExamsModal,
-      },
-      getters: {
-        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
-      },
-    },
   };
 
 </script>
@@ -223,8 +247,17 @@
     vertical-align: inherit
 
   .exam-preview-container
-    padding-top: 1em
-    max-height: calc(100vh - 215px)
+    margin-top: 16px
+
+  .close-btn-wrapper
+    text-align: right
+    button
+      margin-right: 0
+      margin-bottom: 0
+
+  >>>.modal
+    max-width: unset
+    max-height: unset
 
   .question-selector, .exercise-container
     overflow-y: auto

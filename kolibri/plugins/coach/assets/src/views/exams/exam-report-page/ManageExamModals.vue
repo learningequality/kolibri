@@ -57,6 +57,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import xorWith from 'lodash/xorWith';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import previewExamModal from '../exams-page/preview-exam-modal';
@@ -65,14 +66,6 @@
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
   import { Modals as ExamModals } from '../../../constants/examConstants';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
-  import {
-    setExamsModal,
-    activateExam,
-    deactivateExam,
-    updateExamDetails,
-    copyExam,
-    deleteExam,
-  } from '../../../state/actions/exam';
 
   export default {
     name: 'manageExamModals',
@@ -84,6 +77,12 @@
       AssignmentDeleteModal,
     },
     computed: {
+      ...mapState(['classId', 'className', 'classList']),
+      ...mapState({
+        exam: state => state.pageState.exam,
+        examsModalSet: state => state.pageState.examsModalSet,
+        learnerGroups: state => state.pageState.learnerGroups,
+      }),
       AssignmentActions() {
         return AssignmentActions;
       },
@@ -95,6 +94,14 @@
       },
     },
     methods: {
+      ...mapActions([
+        'setExamsModal',
+        'activateExam',
+        'deactivateExam',
+        'deleteExam',
+        'copyExam',
+        'updateExamDetails',
+      ]),
       handleChangeStatus(isActive) {
         if (isActive === true) {
           this.activateExam(this.exam.id);
@@ -121,7 +128,7 @@
           this.setExamsModal(null);
           return;
         }
-        this.updateExamDetails(this.exam.id, payload)
+        this.updateExamDetails({ examId: this.exam.id, payload })
           .then()
           .catch(() => this.$refs.detailsModal.handleSubmitFailure());
       },
@@ -138,25 +145,7 @@
           seed: this.exam.seed,
           assignments: selectedCollectionIds.map(id => ({ collection: id })),
         };
-        this.copyExam(exam, this.className);
-      },
-    },
-    vuex: {
-      getters: {
-        exam: state => state.pageState.exam,
-        examsModalSet: state => state.pageState.examsModalSet,
-        classId: state => state.classId,
-        className: state => state.className,
-        classList: state => state.classList,
-        learnerGroups: state => state.pageState.learnerGroups,
-      },
-      actions: {
-        setExamsModal,
-        activateExam,
-        deactivateExam,
-        deleteExam,
-        copyExam,
-        updateExamDetails,
+        this.copyExam({ exam, className: this.className });
       },
     },
     $trs: {

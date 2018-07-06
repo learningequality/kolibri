@@ -13,8 +13,8 @@
 
 <script>
 
+  import { mapActions, mapState } from 'vuex';
   import languageSwitcherList from 'kolibri.coreVue.components.languageSwitcherList';
-  import { submitDefaultLanguage } from '../../../state/actions/forms';
 
   import onboardingForm from '../onboarding-form';
 
@@ -37,18 +37,16 @@
         required: false,
       },
     },
+    computed: {
+      ...mapState({
+        currentLanguageId: state => state.onboardingData.language_id,
+      }),
+    },
     methods: {
+      ...mapActions(['submitDefaultLanguage']),
       setLanguage() {
         this.submitDefaultLanguage(this.currentLanguageId);
         this.$emit('submit');
-      },
-    },
-    vuex: {
-      actions: {
-        submitDefaultLanguage,
-      },
-      getters: {
-        currentLanguageId: state => state.onboardingData.language_id,
       },
     },
   };

@@ -13,7 +13,7 @@ jestMockResource(TaskResource);
 // resolves successfully
 function hackStoreWatcher(store) {
   setTimeout(() => {
-    store.dispatch('addTask', { id: 'task_1', status: 'COMPLETED' });
+    store.commit('SET_CONTENT_PAGE_TASKS', [{ id: 'task_1', status: 'COMPLETED' }]);
   }, 1);
 }
 
@@ -28,8 +28,8 @@ describe('loadChannelMetaData action', () => {
 
   beforeEach(() => {
     store = makeSelectContentPageStore();
-    store.dispatch('SET_TRANSFERRED_CHANNEL', defaultChannel);
-    store.dispatch('SET_CHANNEL_LIST', [
+    store.commit('SET_TRANSFERRED_CHANNEL', defaultChannel);
+    store.commit('SET_CHANNEL_LIST', [
       { id: 'channel_1', name: 'Installed Channel', root: 'channel_1_root', available: true },
     ]);
     hackStoreWatcher(store);
@@ -57,21 +57,21 @@ describe('loadChannelMetaData action', () => {
   });
 
   function setUpStateForTransferType(transferType) {
-    store.dispatch('SET_TRANSFER_TYPE', transferType);
-    store.dispatch('SET_DRIVE_LIST', [
+    store.commit('SET_TRANSFER_TYPE', transferType);
+    store.commit('SET_DRIVE_LIST', [
       {
         id: `${transferType}_specs_drive`,
         name: 'test drive',
       },
     ]);
-    store.dispatch('SET_SELECTED_DRIVE', `${transferType}_specs_drive`);
-    store.dispatch('SET_TRANSFERRED_CHANNEL', {
+    store.commit('SET_SELECTED_DRIVE', `${transferType}_specs_drive`);
+    store.commit('SET_TRANSFERRED_CHANNEL', {
       id: `${transferType}_brand_new_channel`,
     });
   }
 
   function useInstalledChannel() {
-    store.dispatch('SET_TRANSFERRED_CHANNEL', { id: 'channel_1' });
+    store.commit('SET_TRANSFERRED_CHANNEL', { id: 'channel_1' });
   }
 
   // Tests for common behavior

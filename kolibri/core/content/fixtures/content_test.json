@@ -313,7 +313,7 @@
       "lang": 3,
       "local_file": "e00699f859624e0f875ac6fe1e13d648",
       "thumbnail": false,
-      "available": true,
+      "available": false,
       "preset": "vector_video",
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": false
@@ -326,7 +326,7 @@
       "lang": null,
       "local_file": "4c30dc7619f74f97ae2ccd4fffd09bf2",
       "thumbnail": false,
-      "available": true,
+      "available": false,
       "preset": "low_res_video",
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": false
@@ -339,7 +339,7 @@
       "lang": null,
       "local_file": "8ad3fffedf144cba9492e16daec1e39a",
       "thumbnail": false,
-      "available": true,
+      "available": false,
       "preset": "caption",
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": true
@@ -368,7 +368,7 @@
   {
     "fields": {
       "file_size": null,
-      "available": true,
+      "available": false,
       "extension": ""
     },
     "pk": "e00699f859624e0f875ac6fe1e13d648",

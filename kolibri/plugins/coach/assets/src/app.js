@@ -1,7 +1,7 @@
 import { setChannelInfo } from 'kolibri.coreVue.vuex.actions';
 import RootVue from './views';
-import { initialState, mutations } from './state/store';
 import routes from './routes';
+import pluginModule from './state/pluginModule';
 import KolibriApp from 'kolibri_app';
 
 class CoachToolsModule extends KolibriApp {
@@ -15,11 +15,8 @@ class CoachToolsModule extends KolibriApp {
   get RootVue() {
     return RootVue;
   }
-  get initialState() {
-    return initialState;
-  }
-  get mutations() {
-    return mutations;
+  get pluginModule() {
+    return pluginModule;
   }
 }
 

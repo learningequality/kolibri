@@ -3,7 +3,6 @@ import find from 'lodash/find';
 import matches from 'lodash/matches';
 import isEqual from 'lodash/isEqual';
 import urls from 'kolibri.urls';
-import client from 'kolibri.client';
 import cloneDeep from './cloneDeep';
 import ConditionalPromise from './conditionalPromise';
 
@@ -734,7 +733,9 @@ export class Resource {
     }
     const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
     const cacheKey = this.cacheKey(getParams, filteredResourceIds);
-    this.collections[cacheKey].synced = false;
+    if (this.collections[cacheKey]) {
+      this.collections[cacheKey].synced = false;
+    }
   }
 
   removeModel(model) {
@@ -807,6 +808,7 @@ export class Resource {
   }
 
   get client() {
+    const client = require('./core-app/client').default;
     return client;
   }
 

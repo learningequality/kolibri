@@ -73,8 +73,8 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import coreTable from 'kolibri.coreVue.components.coreTable';
-  import orderBy from 'lodash/orderBy';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -118,11 +118,14 @@
       };
     },
     computed: {
+      ...mapState({
+        exams: state => state.pageState.exams,
+      }),
       examIcon() {
         return ContentNodeKinds.EXAM;
       },
       sortedExams() {
-        return orderBy(this.exams, [exam => exam.title.toUpperCase()], ['asc']);
+        return this.exams.slice().reverse();
       },
       statusOptions() {
         return [
@@ -167,19 +170,12 @@
         }
       },
     },
-    vuex: {
-      getters: {
-        exams: state => state.pageState.exams,
-      },
-    },
   };
 
 </script>
 
 
 <style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
 
   .filter-and-button
     display: flex

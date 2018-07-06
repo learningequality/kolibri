@@ -176,7 +176,7 @@ def get_git_changeset():
         return None
 
 
-def get_git_describe():
+def get_git_describe(version):
     """
     Detects a valid tag, 1.2.3-<alpha|beta|rc>(-123-sha123)
     :returns: None if no git tag available (no git, no tags, or not in a repo)
@@ -185,7 +185,12 @@ def get_git_describe():
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     try:
         p = subprocess.Popen(
-            "git describe --tags --match 'v[0-9]*'",
+            # Match based on the current minor version, as all tags in the same
+            # minor version series should share a commit history, and so the nearest
+            # commit for this minor version should be in accordance to the current version.
+            # This prevents cascade merges from patch releases in earlier versions necessitating
+            # a new tag in the higher minor version branch.
+            "git describe --tags --match 'v{0}.{1}*'".format(*version),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             shell=True,
@@ -265,7 +270,7 @@ def get_prerelease_version(version):
     major_and_release = major + mapping[version[3]] + str(version[4])
 
     # Calculate suffix...
-    tag_describe = get_git_describe()
+    tag_describe = get_git_describe(version)
 
     # If the detected git describe data is not valid, then either respect
     # that we are in alpha-0 mode or raise an error

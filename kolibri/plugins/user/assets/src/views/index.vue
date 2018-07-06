@@ -18,6 +18,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import { PageNames } from '../constants';
   import signInPage from './sign-in-page';
@@ -39,6 +40,7 @@
       profilePage,
     },
     computed: {
+      ...mapState(['pageName']),
       appBarTitle() {
         if (this.pageName === PageNames.PROFILE) {
           return this.$tr('userProfileTitle');
@@ -50,11 +52,6 @@
       },
       navBarNeeded() {
         return this.pageName !== PageNames.SIGN_IN && this.pageName !== PageNames.SIGN_UP;
-      },
-    },
-    vuex: {
-      getters: {
-        pageName: state => state.pageName,
       },
     },
     $trs: {
