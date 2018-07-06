@@ -1,8 +1,4 @@
-import {
-  DevicePermissionsResource,
-  NewDevicePermissionsResource,
-  FacilityUserResource,
-} from 'kolibri.resources';
+import { DevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import groupBy from 'lodash/groupBy';
@@ -118,12 +114,5 @@ export function addOrUpdateUserPermissions(store, payload) {
     can_manage_content: payload.can_manage_content,
   };
 
-  const savePromise = DevicePermissionsResource.getModel(userId).save(permissions)._promise;
-  return savePromise.catch(function onFailure(error) {
-    // Save attempt with DevicePermissionsResource will fail if model does not exist.
-    // Fallback is to use NewDevicePermissionResource.createModel to create it.
-    if (error.status && error.status.code === 404) {
-      return NewDevicePermissionsResource.createModel(permissions).save()._promise;
-    }
-  });
+  return DevicePermissionsResource.getModel(userId).save(permissions);
 }

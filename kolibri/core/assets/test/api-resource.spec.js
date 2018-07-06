@@ -1048,6 +1048,13 @@ describe('Model', function() {
             done();
           });
         });
+        it('should set new to false', function(done) {
+          model.new = true;
+          model.fetch().then(() => {
+            expect(model.new).toEqual(false);
+            done();
+          });
+        });
         it('should leave no promises in promises property', function(done) {
           model.synced = false;
           model.fetch().then(() => {
@@ -1214,6 +1221,40 @@ describe('Model', function() {
           model.synced = false;
           model.save(payload).then(() => {
             expect(model.promises).toEqual([]);
+            done();
+          });
+        });
+      });
+      describe('and the model has new set to true', function() {
+        beforeEach(function() {
+          setSpy = jest.spyOn(model, 'set');
+          payload = { somethingNew: 'new' };
+          response = { entity: payload };
+          client = jest.fn();
+          client.mockResolvedValue(response);
+          resource.client = client;
+        });
+        afterEach(function() {
+          model.set.mockRestore();
+        });
+        it('should call the client once', function(done) {
+          model.synced = false;
+          model.save(payload).then(() => {
+            expect(client).toHaveBeenCalledTimes(1);
+            done();
+          });
+        });
+        it('should call the client with no explicit method', function(done) {
+          model.synced = false;
+          model.save(payload).then(() => {
+            expect(client.mock.calls[0]['method']).toBeUndefined();
+            done();
+          });
+        });
+        it('should call the client with the collection url', function(done) {
+          model.synced = false;
+          model.save(payload).then(() => {
+            expect(client.mock.calls[0]['path']).toEqual(resource.collectionUrl());
             done();
           });
         });
