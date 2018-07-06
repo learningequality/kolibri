@@ -96,14 +96,6 @@
         type: String,
         required: true,
       },
-      userId: {
-        type: String,
-        required: true,
-      },
-      currentAttempt: {
-        type: Object,
-        required: true,
-      },
       currentInteractionHistory: {
         type: Array,
         required: true,
@@ -136,10 +128,6 @@
       },
       closed: {
         type: Boolean,
-        required: true,
-      },
-      backPageLink: {
-        type: Object,
         required: true,
       },
       navigateToQuestion: {

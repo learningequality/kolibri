@@ -4,8 +4,6 @@
     :examAttempts="examAttempts"
     :exam="exam"
     :userName="userName"
-    :userId="userId"
-    :currentAttempt="currentAttempt"
     :currentInteractionHistory="currentInteractionHistory"
     :currentInteraction="currentInteraction"
     :selectedInteractionIndex="selectedInteractionIndex"
@@ -14,7 +12,6 @@
     :itemId="itemId"
     :completionTimestamp="completionTimestamp"
     :closed="closed"
-    :backPageLink="backPageLink"
     :navigateToQuestion="navigateToQuestion"
     :navigateToQuestionAttempt="navigateToQuestionAttempt"
   />
