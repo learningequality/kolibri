@@ -65,6 +65,7 @@ class LoggerViewSet(viewsets.ModelViewSet):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
         try:
             instance = model.objects.get(id=self.kwargs[lookup_url_kwarg])
+            self.check_object_permissions(request, instance)
         except (ValueError, ObjectDoesNotExist):
             raise Http404
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -76,7 +77,7 @@ class LoggerViewSet(viewsets.ModelViewSet):
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
         default_response = request.data
-        # First look if the fields to be updated are listed:
+        # First look if the computed fields to be updated are listed:
         updating_fields = getattr(serializer.root, 'update_fields', None)
         # If not, fetch all the fields that are computed methods:
         if updating_fields is None:
