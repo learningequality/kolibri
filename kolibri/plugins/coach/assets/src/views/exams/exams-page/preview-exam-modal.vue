@@ -12,6 +12,9 @@
         v-if="loading"
         :delay="false"
       />
+      <div v-else-if="exerciseContentNodes.length === 0">
+        {{ $tr('previewNotAvailableForExam') }}
+      </div>
       <div v-else>
         <div ref="header">
           <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
@@ -104,6 +107,7 @@
       question: 'Question { num }',
       numQuestions: '{num} {num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
+      previewNotAvailableForExam: 'Preview is not available for this exam',
     },
     components: {
       coachContentLabel,
