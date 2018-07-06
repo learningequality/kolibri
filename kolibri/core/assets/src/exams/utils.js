@@ -64,14 +64,22 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
               contentNodeMap[node.pk] = node;
             });
 
-            const questions = questionList.map(question => ({
-              itemId: selectQuestionFromExercise(
-                question.assessmentItemIndex,
-                seed,
-                contentNodeMap[question.contentId]
-              ),
-              contentId: question.contentId,
-            }));
+            // Only pick questions that are still on server
+            const questions = questionList
+              .filter(question => contentNodeMap[question.contentId])
+              .map(question => ({
+                itemId: selectQuestionFromExercise(
+                  question.assessmentItemIndex,
+                  seed,
+                  contentNodeMap[question.contentId]
+                ),
+                contentId: question.contentId,
+              }));
+
+            // When all the Exercises are not available on the server
+            if (questions.length === 0) {
+              return resolve({ exam, examLog, user });
+            }
 
             const allQuestions = questions.map((question, index) => {
               const attemptLog = examAttempts.filter(
