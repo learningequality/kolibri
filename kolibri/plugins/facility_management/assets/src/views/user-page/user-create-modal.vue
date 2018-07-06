@@ -279,10 +279,15 @@
         }
       },
       focusOnInvalidField() {
-        this.nameIsInvalid && this.$refs.name.focus();
-        this.usernameIsInvalid && this.$refs.username.focus();
-        this.passwordIsInvalid && this.$refs.password.focus();
-        this.confirmedPasswordIsInvalid && this.$refs.confirmedPassword.focus();
+        if (this.nameIsInvalid) {
+          this.$refs.name.focus();
+        } else if (this.usernameIsInvalid) {
+          this.$refs.username.focus();
+        } else if (this.passwordIsInvalid) {
+          this.$refs.password.focus();
+        } else if (this.confirmedPasswordIsInvalid) {
+          this.$refs.confirmedPassword.focus();
+        }
       },
       close() {
         this.displayModal(false);

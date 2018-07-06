@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 17:34-0800\n"
-"PO-Revision-Date: 2018-03-28 13:12-0400\n"
+"POT-Creation-Date: 2018-05-30 19:55-0700\n"
+"PO-Revision-Date: 2018-06-21T02:38:52+0000\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Arabic\n"
 "Language: ar_SA\n"
@@ -14,62 +14,68 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: ar\n"
-"X-Crowdin-File: /release-v0.9.x/django.po\n"
+"X-Crowdin-File: /release-v0.10.x/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:14
 #: kolibri/plugins/facility_management/kolibri_plugin.py:30
 msgid "Facility"
-msgstr "مرفق تعليمي"
+msgstr "المَرْفق التّعليمي"
 
 #: kolibri/auth/constants/collection_kinds.py:15
 msgid "Classroom"
-msgstr "الفصل"
+msgstr "الصف الدراسي"
 
 #: kolibri/auth/constants/collection_kinds.py:16
 msgid "Learner group"
-msgstr "مجموعة متعلمين"
-
-#: kolibri/auth/constants/role_kinds.py:12
-msgid "Admin"
-msgstr "مشرف"
+msgstr "مجموعة المتعلّمين"
 
 #: kolibri/auth/constants/role_kinds.py:13
-msgid "Coach"
-msgstr "مدرب"
+msgid "Admin"
+msgstr "المُشرف"
 
-#: kolibri/auth/models.py:210
+#: kolibri/auth/constants/role_kinds.py:14
+msgid "Coach"
+msgstr "المدرّب"
+
+#: kolibri/auth/constants/role_kinds.py:15
+msgid "Classroom Assignable Coach"
+msgstr "المدرّب الذي تم تعيينه لهذا الصف"
+
+#: kolibri/auth/models.py:227
 msgid "username"
 msgstr "اسم المستخدم"
 
-#: kolibri/auth/models.py:212
+#: kolibri/auth/models.py:229
 msgid "Required. 30 characters or fewer. Letters and digits only"
 msgstr "مطلوب. 30 حرفا أو أقل. حروف وأرقام فقط"
 
-#: kolibri/auth/models.py:216
+#: kolibri/auth/models.py:233
 msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
-msgstr "أدخل إسم مستخدم صالح. يمكنك استخدام الأحرف والأرقام والمحارف السفلية فقط."
+msgstr "أدخل اسم مستخدم صحيح. يمكنك استخدام الأرقام والاحرف فقط."
 
-#: kolibri/auth/models.py:220
+#: kolibri/auth/models.py:237
 msgid "full name"
 msgstr "الاسم الكامل"
 
-#: kolibri/auth/models.py:221
+#: kolibri/auth/models.py:238
 msgid "date joined"
 msgstr "تاريخ الانضمام"
 
-#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
+#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
+#: kolibri/auth/serializers.py:55
 msgid "An account with that username already exists"
-msgstr "يوجد بالفعل حساب بهذا الاسم"
+msgstr "يوجد حساب بهذا الاسم"
 
-#: kolibri/content/api.py:74
+#: kolibri/content/api.py:93
 msgid "Content"
 msgstr "المحتوى"
 
-#: kolibri/content/api.py:363
+#: kolibri/content/api.py:523
 msgid "The requested channel does not exist on the content server"
 msgstr "القناة المطلوبة غير موجودة على خادم المحتوى"
 
-#: kolibri/content/models.py:187
+#: kolibri/content/models.py:242
 msgid "Unknown format"
 msgstr "صيغة غير معروفة"
 
@@ -87,7 +93,7 @@ msgstr "متصفح غير مدعوم"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:29
 msgid "Sorry, your browser version is not supported."
-msgstr "نعتذر، الإصدار الحالي لمتصفحك غير مدعوم."
+msgstr "نعتذر، النسخة الحالية لمتصفحك غير مدعومة."
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:30
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
@@ -101,15 +107,15 @@ msgstr "يمكنك أيضاً محاولة تحديث متصفحك الحالي.
 msgid "Device"
 msgstr "الجهاز"
 
-#: kolibri/tasks/api.py:31
-msgid "There was a network error."
-msgstr "حصل خطأ في الشبكة."
-
 #: kolibri/tasks/api.py:33
-msgid "There was a disk access error."
-msgstr "حصل خطأ أثناء الوصول إلى القرص."
+msgid "There was a network error."
+msgstr "وقع خطأ ما في الشبكة."
 
 #: kolibri/tasks/api.py:35
+msgid "There was a disk access error."
+msgstr "وقع خطأ ما أثناء محاولة الوصول إلى القرص التخزيني."
+
+#: kolibri/tasks/api.py:37
 msgid "There was an unknown error."
-msgstr "حصل خطأ غير معروف."
+msgstr "وقع خطأ غير معروف."
 

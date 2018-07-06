@@ -10,7 +10,6 @@ const translator = createTranslator('learnerRecommendationPageTitles', {
   popularPageTitle: 'Popular',
   resumePageTitle: 'Resume',
   nextStepsPageTitle: 'Next Steps',
-  featuredInChannelPageTitle: 'Featured - { currentChannel }',
   learnContentPageTitle: '{ currentContent } - { currentChannel }',
   learnPageTitle: 'Learn',
 });
@@ -18,13 +17,6 @@ const translator = createTranslator('learnerRecommendationPageTitles', {
 // User-agnostic recommendations
 function _getPopular() {
   return ContentNodeResource.getCollection({ popular: 'true', by_role: true }).fetch();
-}
-
-function _getFeatured(state, channelId) {
-  return ContentNodeResource.getAllContentCollection({
-    channel_id: channelId,
-    by_role: true,
-  }).fetch();
 }
 
 // User-specific recommendations
@@ -108,7 +100,6 @@ export function showLearn(store) {
       if (!channels.length) {
         return;
       }
-      const featuredChannels = channels.slice(0, 3);
       const pageState = {
         // Hard to guarantee this uniqueness on the database side, so
         // do a uniqBy content_id here, to prevent confusing repeated
@@ -116,22 +107,9 @@ export function showLearn(store) {
         nextSteps: _mapContentSet(nextSteps),
         popular: _mapContentSet(popular),
         resume: _mapContentSet(resume),
-        featured: {},
       };
-      featuredChannels.forEach(channel => {
-        pageState.featured[channel.id] = [];
-      });
 
       store.commit('SET_PAGE_STATE', pageState);
-
-      featuredChannels.forEach(channel => {
-        _getFeatured(state, channel.id).only(samePageCheckGenerator(store), featured => {
-          store.commit('SET_FEATURED_CHANNEL_CONTENTS', {
-            channelId: channel.id,
-            contents: _mapContentSet(featured),
-          });
-        });
-      });
 
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
@@ -155,16 +133,6 @@ export function showResumePage(store) {
 
 export function showNextStepsPage(store) {
   _showRecSubpage(store, _getNextSteps, PageNames.RECOMMENDED_NEXT_STEPS, 'nextStepsPageTitle');
-}
-
-export function showFeaturedPage(store, channelId) {
-  _showRecSubpage(
-    store,
-    _getFeatured,
-    PageNames.RECOMMENDED_FEATURED,
-    'featuredInChannelPageTitle',
-    channelId
-  );
 }
 
 export function showLearnContent(store, id) {

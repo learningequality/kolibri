@@ -5,12 +5,8 @@
       class="thumbnail"
       v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
     />
-
-    <div
-      class="text"
-      dir="auto"
-    >
-      <h3 class="title">
+    <div class="text">
+      <h3 class="title" dir="auto">
         <text-truncator
           :text="title"
           :maxHeight="maxTitleHeight"
@@ -23,9 +19,7 @@
       >
         {{ subtitle }}
       </p>
-      <div
-        class="footer"
-      >
+      <div class="footer">
         <coach-content-label
           class="coach-content-label"
           :value="numCoachContents"

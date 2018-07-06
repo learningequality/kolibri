@@ -48,6 +48,7 @@ describe('HeartBeat', function() {
     beforeEach(function() {
       heartBeat = new HeartBeat();
       heartBeat.active = false;
+      heartBeat.enabled = true;
       checkSessionStub = jest.spyOn(heartBeat, 'checkSession').mockReturnValue(Promise.resolve());
     });
     it('should call setInactive', function() {

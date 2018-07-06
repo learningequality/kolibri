@@ -177,6 +177,9 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
+      if (isRoot) {
+        topic.description = currentChannel.description;
+      }
       const pageState = {
         isRoot,
         channel: currentChannel,
@@ -585,7 +588,10 @@ export function showExam(store, params) {
   }
 }
 
-export function setAndSaveCurrentExamAttemptLog(store, { contentId, itemId, currentAttemptLog }) {
+export function setAndSaveCurrentExamAttemptLog(
+  store,
+  { contentId, itemId, currentAttemptLog, examId }
+) {
   // As soon as this has happened, we should clear any previous cache for the
   // UserExamResource - as that data has now changed.
   UserExamResource.clearCache();
@@ -627,7 +633,7 @@ export function setAndSaveCurrentExamAttemptLog(store, { contentId, itemId, curr
         store.commit('SET_QUESTIONS_ANSWERED', questionsAnswered);
         const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
           user: store.getters.currentUserId,
-          exam: store.state.pageState.exam.id,
+          exam: examId,
         });
         // Add this attempt log to the Collection for future caching.
         examAttemptLogCollection.set(examAttemptLogModel);

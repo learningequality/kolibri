@@ -171,7 +171,7 @@
     color: $core-text-annotation // same as table header
     font-size: $table-header-size
     margin-top: 16px
-    margin-bottom: 16px
+    margin-bottom: 8px
 
   dd
     margin-left: 0

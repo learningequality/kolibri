@@ -1,3 +1,5 @@
+import { localeCompare } from 'kolibri.utils.i18n';
+
 export function userMatchesFilter(user, searchFilter) {
   const searchTerms = searchFilter.split(/\s+/).map(val => val.toLowerCase());
   const fullName = user.full_name.toLowerCase();
@@ -9,9 +11,7 @@ export function filterAndSortUsers(users, pred = () => true, sortByKey = 'full_n
   return users.filter(pred).sort(
     // use 'search' option to ignore case rather than use locale defaults
     (a, b) => {
-      return String(a[sortByKey]).localeCompare(String(b[sortByKey]), 'default', {
-        usage: 'search',
-      });
+      return localeCompare(a[sortByKey], b[sortByKey]);
     }
   );
 }

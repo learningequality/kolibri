@@ -22,6 +22,9 @@ export default {
   CORE_SET_ERROR(state, error) {
     state.error = error;
   },
+  CORE_BLOCK_CLICKS(state, blocked) {
+    state.blockDoubleClicks = blocked;
+  },
   CORE_SET_TITLE(state, title) {
     state.title = title;
   },

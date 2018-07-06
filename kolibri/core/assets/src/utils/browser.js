@@ -1,3 +1,5 @@
+import ScreenFull from 'screenfull';
+
 export function redirectBrowser(url) {
   window.location.href = url || window.location.origin;
 }
@@ -15,3 +17,5 @@ export function isAndroidWebView() {
 
   return isAndroid && isWebview;
 }
+
+export const fullscreenApiIsSupported = ScreenFull.enabled && !isAndroidWebView();

@@ -410,7 +410,8 @@
 
   .main-row
     display: table-row
-    background-color: lighten($core-action-normal, 85%)
+    background-color: $core-action-normal
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.jpg)
     background-repeat: no-repeat
     background-size: cover
     background-position: center

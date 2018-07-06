@@ -38,9 +38,19 @@
     "english_name": "Hindi"
   },
   {
+    "language_code": "kn",
+    "language_name": "ಕನ್ನಡ",
+    "english_name": "Kannada"
+  },
+  {
     "language_code": "mr",
     "language_name": "मराठी",
     "english_name": "Marathi"
+  },
+  {
+    "language_code": "my",
+    "language_name": "ဗမာစာ",
+    "english_name": "Burmese"
   },
   {
     "language_code": "nyn",

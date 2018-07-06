@@ -32,12 +32,22 @@ export class HeartBeat {
     this.setActive = this.setActive.bind(this);
     this.beat = this.beat.bind(this);
     this.setInactive();
+    this.enabled = false;
   }
   start() {
     logging.debug('Starting heartbeat');
+    this.enabled = true;
     this.setActivityListeners();
     // No need to start it straight away, can wait.
     this.beat();
+  }
+  stop() {
+    logging.debug('Stopping heartbeat');
+    this.enabled = false;
+    this.clearActivityListeners();
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+    }
   }
   setActivityListeners() {
     this.events.forEach(event => {
@@ -180,8 +190,10 @@ export class HeartBeat {
       clearTimeout(this.timerId);
     }
     return this.checkSession().finally(() => {
-      this.setInactive();
-      this.wait();
+      if (this.enabled) {
+        this.setInactive();
+        this.wait();
+      }
     });
   }
   get events() {
