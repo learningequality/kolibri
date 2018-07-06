@@ -88,7 +88,7 @@
 
   .main-with-aside
     display: inline-block
-    width: calc(75% - 14px)
+    width: calc(75% - 8px)
     vertical-align: top
 
   .footer
