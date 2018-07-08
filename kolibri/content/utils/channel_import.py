@@ -101,6 +101,11 @@ class ChannelImport(object):
                 'available': 'default_to_not_available',
             },
         },
+        LocalFile: {
+            'per_row': {
+                'available': 'get_none',
+            },
+        },
     }
 
     def __init__(self, channel_id, channel_version=None, cancel_check=None):
@@ -126,6 +131,9 @@ class ChannelImport(object):
         self.available_tree_id = self.find_unique_tree_id()
 
         self.default_to_not_available = 0
+
+    def get_none(self, source_object):
+        return None
 
     def get_none(self, source_object):
         return None

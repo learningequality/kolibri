@@ -1,8 +1,12 @@
+import io
+import zipfile
+
 import requests
 from clint.textui.progress import Bar as ProgressBar
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
+from requests_toolbelt import MultipartEncoder
+from requests_toolbelt import MultipartEncoderMonitor
 
 DB_PATH = settings.DATABASES["default"]["NAME"]
 
@@ -28,9 +32,17 @@ class Command(BaseCommand):
 
         self.stdout.write("Uploading database to central server...\n")
 
+        buff = io.BytesIO()
+
+        zip_archive = zipfile.ZipFile(buff, mode='w', compression=zipfile.ZIP_DEFLATED)
+
+        zip_archive.write(DB_PATH, "db.sqlite3")
+
+        zip_archive.close()
+
         encoder = MultipartEncoder({
             "project": options['project'],
-            "file": ("db.sqlite3", open(DB_PATH, "rb"), "application/octet-stream")
+            "file": ("db.sqlite3.zip", buff, "application/octet-stream")
         })
         monitor = MultipartEncoderMonitor(encoder, create_callback(encoder))
         r = requests.post(CENTRAL_SERVER_DB_UPLOAD_URL, data=monitor, headers={"Content-Type": monitor.content_type})
