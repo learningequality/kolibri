@@ -18,15 +18,11 @@ import {
   UserScopes,
   ViewBy,
 } from '../../constants/reportConstants';
-import RecentReportResourceConstructor from '../../apiResources/recentReport';
+import RecentReportResource from '../../apiResources/recentReport';
 import UserReportResource from '../../apiResources/userReport';
-import ContentSummaryResourceConstructor from '../../apiResources/contentSummary';
-import ContentReportResourceConstructor from '../../apiResources/contentReport';
+import ContentSummaryResource from '../../apiResources/contentSummary';
+import ContentReportResource from '../../apiResources/contentReport';
 import { setClassState, handleCoachPageError } from './main';
-
-const RecentReportResource = new RecentReportResourceConstructor();
-const ContentSummaryResource = new ContentSummaryResourceConstructor();
-const ContentReportResource = new ContentReportResourceConstructor();
 
 function preparePageNameAndTitle(store, pageName) {
   store.commit('SET_PAGE_NAME', pageName);

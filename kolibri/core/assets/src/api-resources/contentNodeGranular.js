@@ -10,19 +10,14 @@ import { Resource } from '../api-resource';
  *
  * Note: if the top-level of the channel is desired, then `pk` must be the channels's `root` id.
  */
-export default class ContentNodeGranularResource extends Resource {
-  static resourceName() {
-    return 'contentnode_granular';
-  }
-
-  static idKey() {
-    return 'pk';
-  }
+export default new Resource({
+  name: 'contentnode_granular',
+  idKey: 'pk',
 
   // Given a node ID, returns the {total_file_size, on_device_file_size}
   getFileSizes(pk) {
     return this.client({
       path: `${this.urls['contentnodefilesize_list']()}${pk}`,
     });
-  }
-}
+  },
+});

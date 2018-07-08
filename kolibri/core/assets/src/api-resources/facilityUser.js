@@ -1,13 +1,11 @@
 import logger from 'kolibri.lib.logging';
+import urls from 'kolibri.urls';
 import { Resource } from '../api-resource';
 
 const logging = logger.getLogger(__filename);
 
-export default class FacilityUserResource extends Resource {
-  static resourceName() {
-    return 'facilityuser';
-  }
-
+export default new Resource({
+  name: 'facilityuser',
   getCurrentFacility() {
     const promise = new Promise(
       resolve => {
@@ -25,9 +23,9 @@ export default class FacilityUserResource extends Resource {
       }
     );
     return promise;
-  }
+  },
 
   get currentFacilityUrl() {
-    return this.urls[`currentfacility_list`];
-  }
-}
+    return () => urls[`currentfacility_list`]();
+  },
+});

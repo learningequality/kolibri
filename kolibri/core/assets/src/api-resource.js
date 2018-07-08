@@ -541,7 +541,24 @@ export class Resource {
   /**
    * Create a resource with a Django REST API name corresponding to the name parameter.
    */
-  constructor() {
+  constructor({ name, idKey = 'id', resourceIds = [], ...options } = {}) {
+    if (!name) {
+      throw ReferenceError('Resource must be instantiated with a name property');
+    }
+    this.name = name;
+    this.idKey = idKey;
+    /*
+    An ordered Array that corresponds to the order in which parameters are filled in the Django URL.
+    Should be a list of the kwarg names that fill these in - note: this is by convention,
+    they could technically be anything, as long as those values were passed into the Models and
+    Collections with these names, but to make our code less opaque, we standardize around using
+    the same kwargs that the Django URLs also use.
+     */
+    this.resourceIds = resourceIds;
+    const optionsDefinitions = Object.getOwnPropertyDescriptors(options);
+    Object.keys(optionsDefinitions).forEach(key => {
+      Object.defineProperty(this, key, optionsDefinitions[key]);
+    });
     this.clearCache();
   }
 
@@ -790,27 +807,6 @@ export class Resource {
     return this.urls[`${this.name}_list`];
   }
 
-  static idKey() {
-    return 'id';
-  }
-
-  get idKey() {
-    // In IE <= 10, static methods are not properly inherited
-    // Do this to still return a value.
-    // N.B. This will prevent a resource being subclassed from another
-    // resource, but then being able to reference its parent's
-    // idKey.
-    return this.constructor.idKey ? this.constructor.idKey() : 'id';
-  }
-
-  static resourceName() {
-    throw new ReferenceError('name is not defined for the base Resource class - please subclass.');
-  }
-
-  get name() {
-    return this.constructor.resourceName();
-  }
-
   get client() {
     const client = require('./core-app/client').default;
     return client;
@@ -818,21 +814,6 @@ export class Resource {
 
   get hasResourceIds() {
     return this.resourceIds.length > 0;
-  }
-
-  get resourceIds() {
-    return this.constructor.resourceIdentifiers();
-  }
-
-  /*
-  An ordered Array that corresponds to the order in which parameters are filled in the Django URL.
-  Should be a list of the kwarg names that fill these in - note: this is by convention,
-  they could technically be anything, as long as those values were passed into the Models and
-  Collections with these names, but to make our code less opaque, we standardize around using
-  the same kwargs that the Django URLs also use.
-   */
-  static resourceIdentifiers() {
-    return [];
   }
 
   // Determines if this resource can save multiple new resources at once

@@ -3,13 +3,9 @@ import { Resource } from '../api-resource';
 
 const logging = logger.getLogger(__filename);
 
-export default class ContentNodeResource extends Resource {
-  static resourceName() {
-    return 'contentnode';
-  }
-  static idKey() {
-    return 'pk';
-  }
+export default new Resource({
+  name: 'contentnode',
+  idKey: 'pk',
   getDescendantsCollection(id, getParams = {}) {
     if (!id) {
       throw TypeError('An id must be specified');
@@ -25,7 +21,7 @@ export default class ContentNodeResource extends Resource {
       collection = this.collections[key];
     }
     return collection;
-  }
+  },
   fetchAncestors(id) {
     if (!id) {
       throw TypeError('An id must be specified');
@@ -47,8 +43,7 @@ export default class ContentNodeResource extends Resource {
       promise = Promise.resolve(this.ancestor_cache[key]);
     }
     return promise;
-  }
-
+  },
   getCopies(content_id) {
     if (!content_id) {
       throw TypeError('A content_id must be specified');
@@ -71,14 +66,12 @@ export default class ContentNodeResource extends Resource {
       promise = Promise.resolve(this.copies_cache[key]);
     }
     return promise;
-  }
-
+  },
   getCopiesCount(getParams = {}) {
     const collection = this.createCollection({}, getParams, []);
     collection.url = (...args) => this.urls[`${this.name}-copies-count`](...args);
     return collection;
-  }
-
+  },
   fetchNextContent(id) {
     if (!id) {
       throw TypeError('An id must be specified');
@@ -100,10 +93,9 @@ export default class ContentNodeResource extends Resource {
       promise = Promise.resolve(this.next_cache[key]);
     }
     return promise;
-  }
+  },
   /*
    * Method to return a collection that queries the all_content list endpoint.
-   * @param resourceIds {Object} the resource ids required for this resource.
    * @param getParams {Object} any getParams for query - most likely the a cursor
    * key to query a different page of the all content endpoint by cursor reference.
    * @return {Collection} returns a collection that will fetch from the all content endpoint.
@@ -121,5 +113,5 @@ export default class ContentNodeResource extends Resource {
       collection = this.collections[key];
     }
     return collection;
-  }
-}
+  },
+});

@@ -6,14 +6,9 @@ const logging = logger.getLogger(__filename);
 /**
  * TODO
  */
-export default class ContentNodeSlimResource extends Resource {
-  static resourceName() {
-    return 'contentnode_slim';
-  }
-
-  static idKey() {
-    return 'pk';
-  }
+export default new Resource ({
+  name: 'contentnode_slim',
+  idKey: 'pk',
 
   fetchAncestors(id) {
     if (!id) {
@@ -37,4 +32,4 @@ export default class ContentNodeSlimResource extends Resource {
     }
     return promise;
   }
-}
+});

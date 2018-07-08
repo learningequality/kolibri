@@ -6,8 +6,9 @@ if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
 
 describe('Resource', function() {
   let resource, modelData;
+  const testName = 'test';
   beforeEach(function() {
-    resource = new Resources.Resource();
+    resource = new Resources.Resource({ name: testName });
     modelData = { id: 'test' };
   });
   afterEach(function() {
@@ -23,27 +24,13 @@ describe('Resource', function() {
       expect(resource.models).toEqual({});
     });
   });
-  describe('resourceName method', function() {
-    it('should throw a ReferenceError', function() {
-      expect(Resources.Resource.resourceName).toThrow(ReferenceError);
-    });
-  });
-  describe('static idKey method', function() {
-    it('should be "id" by default', function() {
-      expect(Resources.Resource.idKey()).toEqual('id');
-    });
-  });
   describe('idKey property', function() {
     it('should be "id" by default', function() {
       expect(resource.idKey).toEqual('id');
     });
   });
   describe('name property', function() {
-    it('should return the resourceName static method of the Resource class', function() {
-      const testName = 'test';
-      Resources.Resource.resourceName = function() {
-        return testName;
-      };
+    it('should return the passed in name property of the Resource', function() {
       expect(resource.name).toEqual(testName);
     });
   });
@@ -166,26 +153,20 @@ describe('Resource', function() {
       expect(resource.filterAndCheckResourceIds({ test: 'test' })).toEqual({});
     });
     it('should throw a TypeError when resourceIds are missing', function() {
-      const stub = jest
-        .spyOn(Resources.Resource, 'resourceIdentifiers')
-        .mockReturnValue(['thisisatest']);
+      resource.resourceIds = ['thisisatest'];
       function testCall() {
         resource.filterAndCheckResourceIds({ test: 'test' });
       }
       expect(testCall).toThrow(TypeError);
-      stub.mockRestore();
     });
     it('should return an object with only resourceIds', function() {
-      const stub = jest
-        .spyOn(Resources.Resource, 'resourceIdentifiers')
-        .mockReturnValue(['thisisatest']);
+      resource.resourceIds = ['thisisatest'];
       const filtered = resource.filterAndCheckResourceIds({
         test: 'test',
         thisisatest: 'testtest',
       });
       expect(Object.keys(filtered)).toHaveLength(1);
       expect(filtered.thisisatest).toEqual('testtest');
-      stub.mockRestore();
     });
   });
 });
@@ -910,7 +891,8 @@ describe('Model', function() {
   let resource, model, resourceIds, data, payload, client, logstub, setSpy;
   beforeEach(function() {
     resource = {
-      modelUrl: () => '',
+      modelUrl: () => 'modelUrl',
+      collectionUrl: () => 'collectionUrl',
       idKey: 'id',
       client: () => Promise.resolve({ entity: {} }),
       removeModel: () => {},
@@ -1254,7 +1236,7 @@ describe('Model', function() {
         it('should call the client with the collection url', function(done) {
           model.synced = false;
           model.save(payload).then(() => {
-            expect(client.mock.calls[0]['path']).toEqual(resource.collectionUrl());
+            expect(client.mock.calls[0][0]['path']).toEqual(resource.collectionUrl());
             done();
           });
         });
@@ -1325,7 +1307,7 @@ describe('Model', function() {
           });
         });
       });
-      describe('and model has an id', function() {
+      describe('and model is not new', function() {
         it('should call the client with a PATCH method', function(done) {
           payload = { somethingNew: 'new' };
           response = { entity: payload };
@@ -1333,6 +1315,7 @@ describe('Model', function() {
           client.mockResolvedValue(response);
           resource.client = client;
           model.synced = false;
+          model.new = false;
           model.save(payload).then(() => {
             expect(client.mock.calls[0][0].method).toEqual('PATCH');
             done();
