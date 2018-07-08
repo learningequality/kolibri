@@ -76,14 +76,14 @@ class LoggerViewSet(viewsets.ModelViewSet):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
-        default_response = request.data
+        default_response = dict(request.data)
         # First look if the computed fields to be updated are listed:
         updating_fields = getattr(serializer.root, 'update_fields', None)
         # If not, fetch all the fields that are computed methods:
         if updating_fields is None:
-            updating_fields = [ field for field in serializer.fields if getattr(serializer.fields[field],'method_name', None)]
+            updating_fields = [field for field in serializer.fields if getattr(serializer.fields[field], 'method_name', None)]
         for field in updating_fields:
-            method_name = getattr(serializer.fields[field],'method_name', None)
+            method_name = getattr(serializer.fields[field], 'method_name', None)
             if method_name:
                 method = getattr(serializer.root, method_name)
                 default_response[field] = method(instance)

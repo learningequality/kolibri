@@ -113,6 +113,8 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
 
 class UserSessionLogSerializer(KolibriModelSerializer):
 
+    update_fields = ()
+
     class Meta:
         model = UserSessionLog
         fields = ('pk', 'user', 'channels', 'start_timestamp', 'last_interaction_timestamp', 'pages')
