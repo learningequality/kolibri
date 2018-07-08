@@ -3,6 +3,15 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.9.3
+-----
+
+ - Compressed database upload
+ - Various bug fixes
+
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.3+label%3Achangelog>`_ of changes on Github.
+
+
 0.9.2
 -----
 
