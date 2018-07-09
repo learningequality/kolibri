@@ -2,7 +2,9 @@
 @import '~kolibri.styles.definitions';
 
 $transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-$raised-shadow: 0 1px 5px rgba(0, 0, 0, 0.2) 0 2px 2px rgba(0, 0, 0, 0.14) 0 3px 1px -2px rgba(0, 0, 0, 0.12);
+$raised-shadow: 0 1px 5px rgba(0, 0, 0, 0.2),
+                0 2px 2px rgba(0, 0, 0, 0.14),
+                0 3px 1px -2px rgba(0, 0, 0, 0.12);
 
 $primary-raised-color: white;
 $primary-raised-disabled-color: rgba(white, 0.45);
