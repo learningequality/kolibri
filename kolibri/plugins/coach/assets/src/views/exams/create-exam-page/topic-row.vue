@@ -89,26 +89,22 @@
         return this.allExercisesWithinTopic.length;
       },
       numExercisesWithinTopicSelected() {
-        return this.allExercisesWithinTopic.filter(exercise =>
-          this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
-        ).length;
+        return this.allExercisesWithinTopic.filter(this.exerciseIsSelected).length;
       },
       allExercisesWithinTopicSelected() {
-        return this.allExercisesWithinTopic.every(exercise =>
-          this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
-        );
+        return this.allExercisesWithinTopic.every(this.exerciseIsSelected);
       },
       noExercisesWithinTopicSelected() {
-        return this.allExercisesWithinTopic.every(
-          exercise =>
-            !this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
-        );
+        return this.allExercisesWithinTopic.every(exercise => !this.exerciseIsSelected(exercise));
       },
       someExercisesWithinTopicSelected() {
         return !this.allExercisesWithinTopicSelected && !this.noExercisesWithinTopicSelected;
       },
     },
     methods: {
+      exerciseIsSelected(exercise) {
+        return this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id);
+      },
       changeSelection() {
         if (this.allExercisesWithinTopicSelected) {
           this.$emit('removeTopicExercises', this.allExercisesWithinTopic, this.topicTitle);
