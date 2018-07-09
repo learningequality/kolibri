@@ -7,17 +7,15 @@
         :showLabel="false"
         :checked="allExercisesWithinTopicSelected"
         :indeterminate="someExercisesWithinTopicSelected"
-        :disabled="!topicHasExercises"
         @change="changeSelection"
       />
     </th>
     <td class="core-table-main-col">
       <div class="topic-title">
-        <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }" />
-        <button v-if="topicHasExercises" class="title" @click="$emit('goToTopic', topicId)">
+        <content-icon :kind="topic" />
+        <button class="title" @click="$emit('goToTopic', topicId)">
           {{ topicTitle }}
         </button>
-        <span v-else class="disabled">{{ topicTitle }}</span>
       </div>
       <coach-content-label
         class="coach-content-label"
@@ -87,9 +85,6 @@
       topic() {
         return ContentNodeKinds.TOPIC;
       },
-      topicHasExercises() {
-        return this.allExercisesWithinTopic.length !== 0;
-      },
       numExercisesWithinTopic() {
         return this.allExercisesWithinTopic.length;
       },
@@ -99,9 +94,6 @@
         ).length;
       },
       allExercisesWithinTopicSelected() {
-        if (!this.topicHasExercises) {
-          return false;
-        }
         return this.allExercisesWithinTopic.every(exercise =>
           this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
         );
