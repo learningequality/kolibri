@@ -41,7 +41,7 @@
     font-size: 14px;
   }
 
-  >>>thead {
+  /deep/ thead {
     border-bottom: solid 1px $core-grey;
     tr {
       font-size: 12px;
@@ -49,36 +49,36 @@
     }
   }
 
-  >>>tbody {
+  /deep/ tbody {
     tr:not(:last-child) {
       border-bottom: solid 1px $core-grey;
     }
   }
 
-  >>>tr {
+  /deep/ tr {
     text-align: left;
   }
 
-  >>>th, >>>td {
+  /deep/ th, /deep/ td {
     padding: 12px 16px 12px 0;
   }
 
-  >>>th:not(.core-table-icon-col):not(.core-table-checkbox-col), 
-  >>>td:not(.core-table-icon-col):not(.core-table-checkbox-col) {
+  /deep/ th:not(.core-table-icon-col):not(.core-table-checkbox-col),
+  /deep/ td:not(.core-table-icon-col):not(.core-table-checkbox-col) {
     min-width: 120px;
   }
 
-  >>>.core-table-icon-col, 
-  >>>.core-table-checkbox-col {
+  /deep/ .core-table-icon-col,
+  /deep/ .core-table-checkbox-col {
     width: 40px;
   }
 
-  >>>.core-table-main-col {
+  /deep/ .core-table-main-col {
     font-weight: bold;
   }
 
 
-  >>>.core-table-icon-col {
+  /deep/ .core-table-icon-col {
     .ui-icon {
       display: inline-block;
       height: 24px;
@@ -87,13 +87,13 @@
     }
   }
 
-  >>>.core-table-checkbox-col {
+  /deep/ .core-table-checkbox-col {
     .k-checkbox-container {
       margin: 0 0 0 2px;
     }
   }
 
-  >>>.core-table-rows-selectable {
+  /deep/ .core-table-rows-selectable {
     tr {
       cursor: pointer;
       &:hover {
@@ -102,7 +102,7 @@
     }
   }
 
-  >>>.core-table-row-selected {
+  /deep/ .core-table-row-selected {
     background-color: $core-bg-canvas;
   }
 

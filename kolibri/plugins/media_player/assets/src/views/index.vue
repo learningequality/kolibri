@@ -422,7 +422,7 @@
   $video-player-font-size: 12px;
 
   /* Hide control bar when playing & inactive */
-  >>>.vjs-has-started.vjs-playing.vjs-user-inactive {
+  /deep/ .vjs-has-started.vjs-playing.vjs-user-inactive {
     .vjs-control-bar {
       visibility: hidden;
     }
@@ -430,7 +430,7 @@
 
 
   /*** CUSTOM VIDEOJS SKIN ***/
-  >>>.custom-skin {
+  /deep/ .custom-skin {
     $button-height-normal: 40px;
     $button-font-size-normal: 24px;
 
@@ -614,7 +614,7 @@
 
 
   /*** MEDIUM: < 600px ***/
-  >>>.player-medium {
+  /deep/ .player-medium {
     /* Seek bar moves up. */
     .vjs-progress-control {
       position: absolute;
@@ -633,7 +633,7 @@
 
 
   /*** SMALL: < 480px ***/
-  >>>.player-small {
+  /deep/ .player-small {
     $button-height-small: 40px;
     $button-font-size-normal: 24px;
 
@@ -718,7 +718,7 @@
 
 
   /*** TINY: < 360px ***/
-  >>>.player-tiny {
+  /deep/ .player-tiny {
     /* Time divider is hidden */
     .vjs-time-divider {
       display: none;

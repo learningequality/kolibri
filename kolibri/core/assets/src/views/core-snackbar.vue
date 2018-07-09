@@ -117,12 +117,12 @@
     z-index: 24;
     margin: 16px;
 
-    >>>.ui-snackbar__action-button {
+    /deep/ .ui-snackbar__action-button {
       color: $core-bg-light;
       font-weight: bold;
     }
 
-    >>>.ui-button--type-secondary:hover:not(.is-disabled) {
+    /deep/ .ui-button--type-secondary:hover:not(.is-disabled) {
       background-color: hsla(0, 0, 100%, 0.05);
     }
   }

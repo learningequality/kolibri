@@ -146,7 +146,7 @@
     margin-right: 16px;
   }
 
-  >>>.ui-select__display-value {
+  /deep/ .ui-select__display-value {
     line-height: 1.3;
   }
 

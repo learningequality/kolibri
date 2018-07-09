@@ -196,7 +196,7 @@
     display: inline-block;
     font-size: 1.8em;
     margin-right: 0.5em;
-    >>>.ui-icon {
+    /deep/ .ui-icon {
       vertical-align: bottom;
     }
   }

@@ -260,7 +260,7 @@
     }
   }
 
-  >>>.modal {
+  /deep/ .modal {
     max-width: unset;
     max-height: unset;
   }

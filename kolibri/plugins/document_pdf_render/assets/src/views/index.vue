@@ -341,7 +341,7 @@
     fill: white;
   }
 
-  .button-zoom-in, 
+  .button-zoom-in,
   .button-zoom-out {
     right: 27px;
   }
@@ -361,7 +361,7 @@
   }
 
   // enable horizontal scrolling
-  >>>.recycle-list {
+  /deep/ .recycle-list {
     .item-wrapper {
       overflow-x: auto;
     }

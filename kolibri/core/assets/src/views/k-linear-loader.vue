@@ -69,7 +69,7 @@
   }
 
   .k-linear-loader {
-    >>>.ui-progress-linear__progress-bar {
+    /deep/ .ui-progress-linear__progress-bar {
       background-color: $core-loading;
     }
   }

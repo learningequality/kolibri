@@ -174,7 +174,7 @@
   }
 
   .description {
-    >>>p {
+    /deep/ p {
       margin: 0;
     }
   }

@@ -326,14 +326,14 @@
 
 
   /* keen menu */
-  >>>.ui-menu {
+  /deep/ .ui-menu {
     max-height: none;
     padding: 0;
     background: $core-bg-light;
     border: none;
   }
 
-  >>>.ui-menu-option {
+  /deep/ .ui-menu-option {
     &:not(.is-divider) {
       padding-top: 4px;
       padding-bottom: 4px;

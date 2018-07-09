@@ -180,7 +180,7 @@
 
   @import '~kolibri.styles.definitions';
 
-  >>>.override-ui-toolbar {
+  /deep/ .override-ui-toolbar {
     color: $core-text-default;
   }
 

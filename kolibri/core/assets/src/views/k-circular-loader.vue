@@ -44,7 +44,7 @@
     animation-fill-mode: backwards;
     animation-duration: 0s;
 
-    >>>.ui-progress-circular__indeterminate-path {
+    /deep/ .ui-progress-circular__indeterminate-path {
       stroke: $core-loading;
     }
   }

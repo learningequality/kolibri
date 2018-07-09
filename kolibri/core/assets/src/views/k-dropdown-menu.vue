@@ -174,7 +174,7 @@
   }
 
   .button-container {
-    >>>.button {
+    /deep/ .button {
       margin: 0;
     }
   }
