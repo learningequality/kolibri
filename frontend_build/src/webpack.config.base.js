@@ -133,10 +133,6 @@ module.exports = {
         use: [MiniCssExtractPlugin.loader, cssLoader, postCSSLoader],
       },
       {
-        test: /\.styl(us)*$/,
-        use: [MiniCssExtractPlugin.loader, cssLoader, postCSSLoader, 'stylus-loader'],
-      },
-      {
         test: /\.s[a|c]ss$/,
         use: sassLoaders,
       },
