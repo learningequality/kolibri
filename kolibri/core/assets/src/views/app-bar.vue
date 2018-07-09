@@ -209,14 +209,14 @@
   }
 
   // Will display icon in app bar if variables are defined
-  .app-bar-title-icon {
-    background: $app-bar-title-icon;
-    height: $app-bar-title-icon-height;
-    width: $app-bar-title-icon-height;
-    display: inline-block;
-    vertical-align: middle;
-    background-size: cover;
-  }
+  // .app-bar-title-icon {
+  //   background: $app-bar-title-icon;
+  //   height: $app-bar-title-icon-height;
+  //   width: $app-bar-title-icon-height;
+  //   display: inline-block;
+  //   vertical-align: middle;
+  //   background-size: cover;
+  // }
 
   .icon {
     fill: white;
