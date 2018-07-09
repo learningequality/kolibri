@@ -99,67 +99,81 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .attempt-log-list
-    background-color: $core-bg-light
+  .attempt-log-list {
+    background-color: $core-bg-light;
+  }
 
-  .title
-    display: inline-block
+  .title {
+    display: inline-block;
+  }
 
-  .coach-content-label
-    display: inline-block
-    vertical-align: middle
-    margin-left: 8px
+  .coach-content-label {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 8px;
+  }
 
-  .header
-    margin: 0
-    padding-left: 20px
-    padding-top: 10px
-    padding-bottom: 10px
+  .header {
+    margin: 0;
+    padding-left: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
 
-  .history-list
-    list-style-type: none
-    max-height: inherit
-    margin: 0
-    padding-left: 0
+  .history-list {
+    list-style-type: none;
+    max-height: inherit;
+    margin: 0;
+    padding-left: 0;
+  }
 
-  .item
-    display: inline-block
-    height: 24px
+  .item {
+    display: inline-block;
+    height: 24px;
+  }
 
-  .svg-item
-    vertical-align: middle
-    height: auto
-    width: 32px
-    margin-right: 8px
+  .svg-item {
+    vertical-align: middle;
+    height: auto;
+    width: 32px;
+    margin-right: 8px;
+  }
 
-  .svg-hint, .svg-error
-    fill: $core-text-annotation
+  .svg-hint, .svg-error {
+    fill: $core-text-annotation;
+  }
 
-  .svg-wrong
-    fill: $core-status-wrong
+  .svg-wrong {
+    fill: $core-status-wrong;
+  }
 
-  .svg-correct
-    fill: $core-status-correct
+  .svg-correct {
+    fill: $core-status-correct;
+  }
 
-  .svg-noattempt
-    fill: $core-text-annotation
+  .svg-noattempt {
+    fill: $core-text-annotation;
+  }
 
-  .attempt-item
-    clear: both
-    min-width: 120px
-    border-bottom: 2px solid $core-text-disabled
-    padding-left: 20px
-    display: block
+  .attempt-item {
+    clear: both;
+    min-width: 120px;
+    border-bottom: 2px solid $core-text-disabled;
+    padding-left: 20px;
+    display: block;
+  }
 
-  .clickable
-    cursor: pointer
-    display: block
+  .clickable {
+    cursor: pointer;
+    display: block;
+  }
 
-  .selected
-    background-color: $core-text-disabled
+  .selected {
+    background-color: $core-text-disabled;
+  }
 
 </style>

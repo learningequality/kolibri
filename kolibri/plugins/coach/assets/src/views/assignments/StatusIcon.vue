@@ -38,25 +38,30 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .status-icon
-    vertical-align: middle
+  .status-icon {
+    vertical-align: middle;
+  }
 
-  .status-icon-active,
-  .status-icon-inactive
-    vertical-align: middle
+  .status-icon-active, 
+  .status-icon-inactive {
+    vertical-align: middle;
+  }
 
-  .status-icon-active
-    fill: $core-status-correct
+  .status-icon-active {
+    fill: $core-status-correct;
+  }
 
-  .status-icon-inactive
-    fill: $core-grey
+  .status-icon-inactive {
+    fill: $core-grey;
+  }
 
-  .active-text
-    margin-left: 8px
-    vertical-align: inherit
+  .active-text {
+    margin-left: 8px;
+    vertical-align: inherit;
+  }
 
 </style>

@@ -75,11 +75,12 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .page-description
-    margin-top: 1em
-    margin-bottom: 1em
-    line-height: 1.5em
+  .page-description {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    line-height: 1.5em;
+  }
 
 </style>

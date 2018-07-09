@@ -259,21 +259,26 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .coach-content-label
-    margin: 8px 0
+  .coach-content-label {
+    margin: 8px 0;
+  }
 
-  .content-renderer
-    margin-top: 24px
+  .content-renderer {
+    margin-top: 24px;
+  }
 
-  .float
-    float: right
+  .float {
+    float: right;
+  }
 
-  .metadata
-    font-size: smaller
+  .metadata {
+    font-size: smaller;
+  }
 
-  .download-button
-    display: block
+  .download-button {
+    display: block;
+  }
 
 </style>

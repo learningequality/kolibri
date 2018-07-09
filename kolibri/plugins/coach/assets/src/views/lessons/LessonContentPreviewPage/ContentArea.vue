@@ -63,19 +63,22 @@
 </script>
 
 
-<style scoped lang="stylus">
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .content-area-perseus
-    padding: 16px
-    background-color: $core-bg-light
+  .content-area-perseus {
+    padding: 16px;
+    background-color: $core-bg-light;
+  }
 
-  .hof
-    overflow-x: hidden // .solutionarea's negative margin oversteps
+  .hof {
+    overflow-x: hidden; // .solutionarea's negative margin oversteps
+  }
 
-  .header
-    margin: 0
-    font-size: 16px // same as question-list
+  .header {
+    margin: 0;
+    font-size: 16px; // same as question-list
+  }
 
 </style>

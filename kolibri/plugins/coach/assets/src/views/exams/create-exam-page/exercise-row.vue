@@ -99,14 +99,16 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .exercise-title
-    display: inline-block
+  .exercise-title {
+    display: inline-block;
+  }
 
-  .coach-content-label
-    display: inline-block
-    vertical-align: bottom
-    margin-left: 8px
+  .coach-content-label {
+    display: inline-block;
+    vertical-align: bottom;
+    margin-left: 8px;
+  }
 
 </style>

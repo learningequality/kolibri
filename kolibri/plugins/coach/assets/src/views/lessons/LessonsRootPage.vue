@@ -206,16 +206,19 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .lesson-title-col
-    width: 40%
+  .lesson-title-col {
+    width: 40%;
+  }
 
-  .filter-and-button
-    display: flex
-    flex-wrap: wrap-reverse
-    justify-content: space-between
-    button
-      align-self: flex-end
+  .filter-and-button {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: space-between;
+    button {
+      align-self: flex-end;
+    }
+  }
 
 </style>

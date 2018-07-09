@@ -298,15 +298,17 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .user-create-form
-    min-height: 500px
+  .user-create-form {
+    min-height: 500px;
+  }
 
-  .coach-selector
-    margin-bottom: 3em
-    margin: 0
-    padding: 0
-    border: none
+  .coach-selector {
+    margin-bottom: 3em;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
 
 </style>

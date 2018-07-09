@@ -138,35 +138,45 @@
 </script>
 
 
-<style scoped lang="stylus">
+<style lang="scss" scoped>
 
-  $standard-data-spacing = 8px
+  $standard-data-spacing: 8px;
 
-  .header
-    margin-top: 0
-    font-size: 28px // bumping half an increment
-    text-align: left
+  .header {
+    margin-top: 0;
+    font-size: 28px; // bumping half an increment
+    text-align: left;
+  }
 
-  .primary-data
-    margin-bottom: $standard-data-spacing * 2
+  .primary-data {
+    margin-bottom: $standard-data-spacing * 2;
+  }
 
-  .secondary-data
-    margin-bottom: $standard-data-spacing
-    font-size: 12px // bumping half an increment, 8 way too small
+  .secondary-data {
+    margin-bottom: $standard-data-spacing;
+    font-size: 12px; // bumping half an increment, 8 way too small
+  }
 
-  dt, dd
-    display: inline-block
-    margin: 0
+  dt, dd {
+    display: inline-block;
+    margin: 0;
+  }
 
-  dt
-    &:not(.visuallyhidden):after
-      content: ':'
-  dd
-    &:not(.description)
-      margin-left: 8px
+  dt {
+    &:not(.visuallyhidden):after {
+      content: ':';
+    }
+  }
+  dd {
+    &:not(.description) {
+      margin-left: 8px;
+    }
+  }
 
-  .description
-    >>>p
-      margin: 0
+  .description {
+    >>>p {
+      margin: 0;
+    }
+  }
 
 </style>

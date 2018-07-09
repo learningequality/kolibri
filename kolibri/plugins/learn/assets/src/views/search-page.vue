@@ -83,12 +83,14 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .search-results
-    margin-top: 32px
+  .search-results {
+    margin-top: 32px;
+  }
 
-  .search-channel
-    font-size: smaller
+  .search-channel {
+    font-size: smaller;
+  }
 
 </style>

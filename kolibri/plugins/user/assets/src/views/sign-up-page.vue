@@ -315,61 +315,71 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
-  $iphone-5-width = 320px
-  $vertical-page-margin = 100px
-  $logo-size = (1.64 * 1.125)rem
-  $logo-margin = (0.38 * $logo-size)rem
+  @import '~kolibri.styles.definitions';
+  $iphone-5-width: 320px;
+  $vertical-page-margin: 100px;
+  $logo-size: 1.64 * 1.125 rem;
+  $logo-margin: 0.38 * $logo-size rem;
 
   // component, highest level
-  #signup-page
-    width: 100%
-    height: 100%
-    overflow-y: auto
+  #signup-page {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+  }
 
   // Action Bar
-  #logo
+  #logo {
     // 1.63 * font height
-    height: $logo-size
-    display: inline-block
-    margin-left: $logo-margin
+    height: $logo-size;
+    display: inline-block;
+    margin-left: $logo-margin;
+  }
 
-  #signin
-    margin-right: 1em
-    color: white
-    text-decoration: none
+  #signin {
+    margin-right: 1em;
+    color: white;
+    text-decoration: none;
+  }
 
   // Form
-  .signup-title
-    text-align: center
+  .signup-title {
+    text-align: center;
+  }
 
-  .signup-form
-    margin-top: $vertical-page-margin
-    margin-left: auto
-    margin-right: auto
-    width: ($iphone-5-width - 20)px
+  .signup-form {
+    margin-top: $vertical-page-margin;
+    margin-left: auto;
+    margin-right: auto;
+    width: $iphone-5-width - 20 px;
+  }
 
-  .terms
-    background-color: $core-bg-light
-    color: $core-text-annotation
-    height: 6em
-    overflow-y: scroll
-    padding: 0.5em
-    margin-bottom: 1em
-    p
-      margin-top: 0
+  .terms {
+    background-color: $core-bg-light;
+    color: $core-text-annotation;
+    height: 6em;
+    overflow-y: scroll;
+    padding: 0.5em;
+    margin-bottom: 1em;
+    p {
+      margin-top: 0;
+    }
+  }
 
-  .app-bar-icon
-    height: 40px
-    margin-left: 0.25em
+  .app-bar-icon {
+    height: 40px;
+    margin-left: 0.25em;
+  }
 
-  .footer
-    margin: 36px
-    margin-top: 96px
+  .footer {
+    margin: 36px;
+    margin-top: 96px;
+  }
 
-  .submit
-    margin-left: 0
+  .submit {
+    margin-left: 0;
+  }
 
 </style>

@@ -167,13 +167,16 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .dib
-    display: inline-block
+  .dib {
+    display: inline-block;
+  }
 
-  .button-container
-    >>>.button
-      margin: 0
+  .button-container {
+    >>>.button {
+      margin: 0;
+    }
+  }
 
 </style>

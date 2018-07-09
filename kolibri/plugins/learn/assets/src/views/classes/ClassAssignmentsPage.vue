@@ -47,9 +47,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .classroom-name
-    margin-bottom: 32px
+  .classroom-name {
+    margin-bottom: 32px;
+  }
 
 </style>

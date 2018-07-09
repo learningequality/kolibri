@@ -40,9 +40,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .title
-    display: inline-block
+  .title {
+    display: inline-block;
+  }
 
 </style>

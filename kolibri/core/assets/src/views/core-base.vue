@@ -146,27 +146,31 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .align-to-parent
-    position: absolute
-    top: 0
-    left: 0
+  .align-to-parent {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
 
-  .app-bar
-    height: 64px
-    width: 100%
+  .app-bar {
+    height: 64px;
+    width: 100%;
+  }
 
-  .app-bar-actions
-    display: inline-block
+  .app-bar-actions {
+    display: inline-block;
+  }
 
-  .content-container
-    position: absolute
-    overflow-x: hidden
-    right: 0
-    bottom: 0
-    padding-bottom: 40px
+  .content-container {
+    position: absolute;
+    overflow-x: hidden;
+    right: 0;
+    bottom: 0;
+    padding-bottom: 40px;
+  }
 
 </style>

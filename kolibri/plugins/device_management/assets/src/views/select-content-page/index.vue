@@ -260,9 +260,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .updates
-    text-align: right
+  .updates {
+    text-align: right;
+  }
 
 </style>

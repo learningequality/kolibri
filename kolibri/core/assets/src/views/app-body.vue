@@ -73,29 +73,33 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .app-body
-    left: 0
-    right: 0
-    position: absolute
-    overflow-x: hidden
+  .app-body {
+    left: 0;
+    right: 0;
+    position: absolute;
+    overflow-x: hidden;
+  }
 
-  .wrapper
-    max-width: 1000px
-    margin: auto
+  .wrapper {
+    max-width: 1000px;
+    margin: auto;
+  }
 
-  .toolbar-loader
-    position: fixed
-    right: 0
-    left: 0
+  .toolbar-loader {
+    position: fixed;
+    right: 0;
+    left: 0;
+  }
 
-  .click-mask
-    position: fixed
-    top: 0
-    left: 0
-    width: 100%
-    height: 100%
-    z-index: 24
+  .click-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 24;
+  }
 
 </style>

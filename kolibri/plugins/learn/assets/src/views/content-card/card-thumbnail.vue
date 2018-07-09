@@ -138,82 +138,97 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
-  @require './card.styl'
+  @import '~kolibri.styles.definitions';
+  @import './card.scss';
 
-  .card-thumbnail-wrapper
-    width: $thumb-width-desktop
-    height: $thumb-height-desktop
-    position: relative
-    background-size: contain
-    background-repeat: no-repeat
-    background-position: center
-    background-color: $core-bg-light
+  .card-thumbnail-wrapper {
+    width: $thumb-width-desktop;
+    height: $thumb-height-desktop;
+    position: relative;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: $core-bg-light;
+  }
 
-  .type-icon
-    position: absolute
-    top: 50%
-    left: 50%
-    transform: translate(-50%, -50%) scale(3)
-    color: $core-text-annotation
+  .type-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(3);
+    color: $core-text-annotation;
+  }
 
-  .progress-icon
-    position: absolute
-    top: 4px
-    right: 4px
+  .progress-icon {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+  }
 
-  .content-icon-wrapper
-    position: absolute
-    width: 56px
-    height: 56px
+  .content-icon-wrapper {
+    position: absolute;
+    width: 56px;
+    height: 56px;
+  }
 
-  .content-icon
-    position: absolute
-    color: white
-    transform: translate(25%, 0)
-    font-size: 20px
+  .content-icon {
+    position: absolute;
+    color: white;
+    transform: translate(25%, 0);
+    font-size: 20px;
+  }
 
-  .content-icon-bg
-    position: absolute
-    width: 100%
-    height: 100%
-    fill-opacity: 0.9
+  .content-icon-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    fill-opacity: 0.9;
+  }
 
-  .progress-bar-wrapper
-    position: absolute
-    bottom: 0
-    background-color: $core-grey
-    width: 100%
-    height: 5px
-    opacity: 0.9
+  .progress-bar-wrapper {
+    position: absolute;
+    bottom: 0;
+    background-color: $core-grey;
+    width: 100%;
+    height: 5px;
+    opacity: 0.9;
+  }
 
-  .progress-bar
-    height: 100%
+  .progress-bar {
+    height: 100%;
+  }
 
-  .progress-bar-mastered
-    background-color: $core-status-mastered
+  .progress-bar-mastered {
+    background-color: $core-status-mastered;
+  }
 
-  .progress-bar-progress
-    background-color: $core-status-progress
+  .progress-bar-progress {
+    background-color: $core-status-progress;
+  }
 
 
   /* MOBILE OVERRIDES */
-  .mobile-thumbnail.card-thumbnail-wrapper
-    width: $thumb-width-mobile
-    height: $thumb-height-mobile
+  .mobile-thumbnail.card-thumbnail-wrapper {
+    width: $thumb-width-mobile;
+    height: $thumb-height-mobile;
+  }
 
-  .mobile-thumbnail
+  .mobile-thumbnail {
 
-    .type-icon
-      transform: translate(-50%, -50%) scale(2)
+    .type-icon {
+      transform: translate(-50%, -50%) scale(2);
+    }
 
-    .content-icon-wrapper
-      width: 48px
-      height: 48px
+    .content-icon-wrapper {
+      width: 48px;
+      height: 48px;
+    }
 
-    .content-icon
-      font-size: 18px
+    .content-icon {
+      font-size: 18px;
+    }
+  }
 
 </style>

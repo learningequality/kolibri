@@ -83,9 +83,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  h1
-    font-size: 21px
+  h1 {
+    font-size: 21px;
+  }
 
 </style>

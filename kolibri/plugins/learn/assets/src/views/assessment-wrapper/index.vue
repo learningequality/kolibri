@@ -487,92 +487,113 @@ oriented data synchronization.
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
   // BOTTOM_SPACED_RESERVED depends on the height of this container
-  .attempts-container
-    position: fixed
-    bottom: 0
-    right: 0
-    left: 0
-    margin: 0
-    padding: 8px 16px
-    overflow-x: hidden
-    z-index: 8 // material - Bottom app bar
-    font-size: 14px
-    background-color: $core-bg-light
-    box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2),
-                0 16px 24px 2px rgba(0, 0, 0, 0.14),
-                0 6px 30px 5px rgba(0, 0, 0, 0.12)
+  .attempts-container {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: 0;
+    padding: 8px 16px;
+    overflow-x: hidden;
+    z-index: 8; // material - Bottom app bar
+    font-size: 14px;
+    background-color: $core-bg-light;
+    box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2), 
+                0 16px 24px 2px rgba(0, 0, 0, 0.14), 
+                0 6px 30px 5px rgba(0, 0, 0, 0.12);
+  }
 
-  .margin-wrapper
-    max-width: 1000px - 64px // account for page padding
-    margin: auto
+  .margin-wrapper {
+    max-width: 1000px - 64px; // account for page padding
+    margin: auto;
+  }
 
-  .mobile
-      padding: 8px
+  .mobile {
+    padding: 8px;
+  }
 
-  .overall-status
-    color: $core-text-default
-    margin-bottom: 8px
+  .overall-status {
+    color: $core-text-default;
+    margin-bottom: 8px;
+  }
 
-  .mastered, .not-mastered
-    vertical-align: bottom
+  .mastered, .not-mastered {
+    vertical-align: 0;
+  }
 
-  .mastered
-    fill: $core-status-mastered
+  .mastered {
+    fill: $core-status-mastered;
+  }
 
-  .not-mastered
-    fill: $core-grey
+  .not-mastered {
+    fill: $core-grey;
+  }
 
-  .overall-status-text
-    display: inline-block
-    margin-left: 4px
+  .overall-status-text {
+    display: inline-block;
+    margin-left: 4px;
+  }
 
-  .completed
-    color: $core-text-annotation
-    font-size: 12px
+  .completed {
+    color: $core-text-annotation;
+    font-size: 12px;
+  }
 
-  .table
-    display: table
+  .table {
+    display: table;
+  }
 
-  .row
-    display: table-row
+  .row {
+    display: table-row;
+  }
 
-  .left, .right
-    display: table-cell
-    vertical-align: top
+  .left, .right {
+    display: table-cell;
+    vertical-align: top;
+  }
 
-  .right
-    overflow-x: auto
-    overflow-y: hidden
-    padding-left: 8px
-    width: 99%
+  .right {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-left: 8px;
+    width: 99%;
+  }
 
-  .question-btn
-    margin: 0
+  .question-btn {
+    margin: 0;
+  }
 
   // checkAnswer btn animation
-  .shaking
-    animation: shake 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) both
-    transform: translate3d(0, 0, 0)
-    backface-visibility: hidden
-    perspective: 1000px
+  .shaking {
+    animation: shake 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
 
-  @keyframes shake
-    10%, 90%
-      transform: translate3d(-1px, 0, 0)
-    20%, 80%
-      transform: translate3d(2px, 0, 0)
-    30%, 50%, 70%
-      transform: translate3d(-4px, 0, 0)
-    40%, 60%
-      transform: translate3d(4px, 0, 0)
+  @keyframes shake {
+    10%, 90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+    20%, 80% {
+      transform: translate3d(2px, 0, 0);
+    }
+    30%, 50%, 70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+    40%, 60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
 
-  .current-status
-    margin: 0
-    height: 18px
+  .current-status {
+    margin: 0;
+    height: 18px;
+  }
 
 </style>

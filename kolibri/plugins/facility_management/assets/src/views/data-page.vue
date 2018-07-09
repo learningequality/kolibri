@@ -96,19 +96,21 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .infobox
-    background-color: $core-bg-warning
-    border-radius: $radius
-    font-size: 0.8em
-    padding: 8px
+  .infobox {
+    background-color: $core-bg-warning;
+    border-radius: $radius;
+    font-size: 0.8em;
+    padding: 8px;
+  }
 
-  .no-dl
-    font-size: 0.8em
-    color: $core-text-annotation
-    display: inline-block
+  .no-dl {
+    font-size: 0.8em;
+    color: $core-text-annotation;
+    display: inline-block;
+  }
 
 </style>

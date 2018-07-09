@@ -170,65 +170,78 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .points-icon
-    display: inline-block
-    width: 24px
-    height: 24px
-    vertical-align: middle
-    margin-right: 4px
+  .points-icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
 
-  .icon-bg
-    border-radius: 50%
+  .icon-bg {
+    border-radius: 50%;
+  }
 
-  .points-amount
-    display: inline-block
-    vertical-align: middle
-    font-weight: bold
-    color: $core-status-correct
+  .points-amount {
+    display: inline-block;
+    vertical-align: middle;
+    font-weight: bold;
+    color: $core-status-correct;
+  }
 
-  .content-icon
-    font-size: 18px
-    color: white
-    border-radius: 50%
-    display: block
-    height: 24px
-    width: 24px
-    text-align: center
+  .content-icon {
+    font-size: 18px;
+    color: white;
+    border-radius: 50%;
+    display: block;
+    height: 24px;
+    width: 24px;
+    text-align: center;
+  }
 
-  .next-content-heading
-    margin: 0 0 4px
-    font-size: 12px
-    font-weight: normal
-    color: $core-text-annotation
+  .next-content-heading {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: normal;
+    color: $core-text-annotation;
+  }
 
-  .next-content-title
-    font-weight: bold
+  .next-content-title {
+    font-weight: bold;
+  }
 
-  .slidein-enter-active
-    animation-name: slidein
+  .slidein-enter-active {
+    animation-name: slidein;
+  }
 
-  .slidein-leave-active
-    animation-name: slidein
-    animation-direction: reverse
+  .slidein-leave-active {
+    animation-name: slidein;
+    animation-direction: reverse;
+  }
 
-  @keyframes slidein
-    from
-      transform: translate3d(0, 100%, 0)
-      visibility: visible
-    to
-      transform: translate3d(0, 0, 0)
+  @keyframes slidein {
+    from {
+      transform: translate3d(0, 100%, 0);
+      visibility: visible;
+    }
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
 
-  .alert
-    margin-top: 8px
-    margin-bottom: 0
+  .alert {
+    margin-top: 8px;
+    margin-bottom: 0;
+  }
 
-  .rm-link-style
-    color: $core-text-default
-    text-decoration: none
-    display: block
+  .rm-link-style {
+    color: $core-text-default;
+    text-decoration: none;
+    display: block;
+  }
 
 </style>

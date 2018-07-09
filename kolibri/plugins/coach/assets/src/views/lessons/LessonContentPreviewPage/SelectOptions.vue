@@ -70,11 +70,12 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .selected-icon
-    height: 20px
-    width: 20px
-    vertical-align: bottom
+  .selected-icon {
+    height: 20px;
+    width: 20px;
+    vertical-align: bottom;
+  }
 
 </style>

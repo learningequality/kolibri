@@ -39,31 +39,35 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  $header-size = 21px
+  $header-size: 21px;
 
-  .card-group-details
-    width: 100%
-    vertical-align: bottom
-    margin-top: $header-size
-    margin-bottom: ($header-size / 2)
+  .card-group-details {
+    width: 100%;
+    vertical-align: bottom;
+    margin-top: $header-size;
+    margin-bottom: $header-size / 2;
 
-    &-header, &-view-more
-      width: 50%
-      display: inline-block
+    &-header, &-view-more {
+      width: 50%;
+      display: inline-block;
+    }
 
-    &-header
-      text-align: left
-      clear: none
-      color: $core-text-default
-      font-size: $header-size
-      margin: 0
+    &-header {
+      text-align: left;
+      clear: none;
+      color: $core-text-default;
+      font-size: $header-size;
+      margin: 0;
+    }
 
-    &-view-more
-      text-decoration: underline
-      text-align: right
+    &-view-more {
+      text-decoration: underline;
+      text-align: right;
+    }
+  }
 
 </style>

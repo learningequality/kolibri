@@ -135,78 +135,94 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
-  @require './card.styl'
+  @import '~kolibri.styles.definitions';
+  @import './card.scss';
 
-  $margin = 16px
+  $margin: 16px;
 
-  .coach-content-label
-    display: inline-block
+  .coach-content-label {
+    display: inline-block;
+  }
 
-  .card
-    text-decoration: none
-    display: inline-block
-    width: $thumb-width-desktop
-    vertical-align: top
-    border-radius: 2px
-    background-color: $core-bg-light
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                0 3px 1px -2px rgba(0, 0, 0, 0.2),
-                0 1px 5px 0 rgba(0, 0, 0, 0.12)
-    transition: box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)
-    &:hover, &:focus
-      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
-                  0 3px 14px 2px rgba(0, 0, 0, 0.12),
-                  0 5px 5px -3px rgba(0, 0, 0, 0.2)
+  .card {
+    text-decoration: none;
+    display: inline-block;
+    width: $thumb-width-desktop;
+    vertical-align: top;
+    border-radius: 2px;
+    background-color: $core-bg-light;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 
+                0 3px 1px -2px rgba(0, 0, 0, 0.2), 
+                0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    transition: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 
+                0 3px 1px -2px rgba(0, 0, 0, 0.2), 
+                0 1px 5px 0 rgba(0, 0, 0, 0.12) 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    &:hover, &:focus {
+      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 
+                  0 3px 14px 2px rgba(0, 0, 0, 0.12), 
+                  0 5px 5px -3px rgba(0, 0, 0, 0.2);
+    }
+  }
 
-  .text
-    color: $core-text-default
-    overflow: hidden
-    padding: $margin
-    height: 92px
-    position: relative
+  .text {
+    color: $core-text-default;
+    overflow: hidden;
+    padding: $margin;
+    height: 92px;
+    position: relative;
+  }
 
-  .title, .subtitle
-    margin: 0
+  .title, .subtitle {
+    margin: 0;
+  }
 
-  .subtitle
-    position: absolute
-    top: 38px
-    left: $margin
-    right: $margin
-    font-size: 14px
-    white-space: nowrap
-    overflow: hidden
-    text-overflow: ellipsis
+  .subtitle {
+    position: absolute;
+    top: 38px;
+    left: $margin;
+    right: $margin;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-  .footer
-    position: absolute
-    font-size: 12px
-    bottom: $margin
-    right: $margin
-    left: $margin
+  .footer {
+    position: absolute;
+    font-size: 12px;
+    bottom: $margin;
+    right: $margin;
+    left: $margin;
+  }
 
-  .subtitle.no-footer
-    top: unset
-    bottom: $margin
+  .subtitle.no-footer {
+    top: unset;
+    bottom: $margin;
+  }
 
-  .copies
-    display: inline-block
-    float: right
+  .copies {
+    display: inline-block;
+    float: $margin;
+  }
 
-  .mobile-card.card
-    width: 100%
-    height: $thumb-height-mobile
+  .mobile-card.card {
+    width: 100%;
+    height: $thumb-height-mobile;
+  }
 
-  .mobile-card
-    .thumbnail
-      position: absolute
-    .text
-      margin-left: $thumb-width-mobile
-      height: 84px
-    .subtitle
-      top: 36px
+  .mobile-card {
+    .thumbnail {
+      position: absolute;
+    }
+    .text {
+      margin-left: $thumb-width-mobile;
+      height: 84px;
+    }
+    .subtitle {
+      top: 36px;
+    }
+  }
 
 </style>

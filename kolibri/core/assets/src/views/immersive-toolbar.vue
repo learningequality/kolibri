@@ -121,29 +121,36 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
   // only used when using a link. Otherwise, uses uiToolbar's styles
-  .icon
+  .icon {
     // copied from keen
-    height: 3em
-    width: 3em
-    fill: white
+    height: 3em;
+    width: 3em;
+    fill: white;
+  }
 
-  .secondary
-    background-color: $core-text-default
+  .secondary {
+    background-color: $core-text-default;
+  }
 
-  .link
-    display: inline-block
-    border-radius: 50%
-    &:focus, &:hover
-      background-color: $core-action-dark
+  .link {
+    display: inline-block;
+    border-radius: 50%;
+    &:focus, &:hover {
+      background-color: $core-action-dark;
+    }
+  }
 
-  .secondary
-    .link
-      &:focus, &:hover
-        background-color: darken($core-text-default, 25%)
+  .secondary {
+    .link {
+      &:focus, &:hover {
+        background-color: darken($core-text-default, 25%);
+      }
+    }
+  }
 
 </style>

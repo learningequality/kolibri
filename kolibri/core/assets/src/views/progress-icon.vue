@@ -60,19 +60,22 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .inprogress, .completed
-    border-radius: 50%
-    color: white
-    cursor: default
+  .inprogress, .completed {
+    border-radius: 50%;
+    color: white;
+    cursor: default;
+  }
 
-  .inprogress
-    background-color: $core-status-progress
+  .inprogress {
+    background-color: $core-status-progress;
+  }
 
-  .completed
-    background-color: $core-status-mastered
+  .completed {
+    background-color: $core-status-mastered;
+  }
 
 </style>

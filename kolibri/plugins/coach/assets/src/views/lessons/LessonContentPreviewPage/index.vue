@@ -106,23 +106,27 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .header
-    background-color: $core-bg-light
-    padding: 16px
+  .header {
+    background-color: $core-bg-light;
+    padding: 16px;
+  }
 
-  .select-options
-    width: 20%
-    text-align: right
-    vertical-align: top
+  .select-options {
+    width: 20%;
+    text-align: right;
+    vertical-align: top;
+  }
 
-  .ib
-    display: inline-block
+  .ib {
+    display: inline-block;
+  }
 
-  .left
-    width: 80%
+  .left {
+    width: 80%;
+  }
 
 </style>

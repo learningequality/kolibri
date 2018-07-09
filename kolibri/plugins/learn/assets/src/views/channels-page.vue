@@ -48,9 +48,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .grid
-    margin-top: 24px
+  .grid {
+    margin-top: 24px;
+  }
 
 </style>

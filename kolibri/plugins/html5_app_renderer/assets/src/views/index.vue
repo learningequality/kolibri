@@ -78,23 +78,26 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .btn
-    position: absolute
-    right: 21px
-    top: 8px
-    fill: white
+  .btn {
+    position: absolute;
+    right: 21px;
+    top: 8px;
+    fill: white;
+  }
 
-  .html5-renderer
-    position: relative
-    text-align: center
-    height: 500px
-    overflow-x: auto
-    overflow-y: hidden
+  .html5-renderer {
+    position: relative;
+    text-align: center;
+    height: 500px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
 
-  .iframe
-    height: 100%
-    width: 100%
+  .iframe {
+    height: 100%;
+    width: 100%;
+  }
 
 </style>

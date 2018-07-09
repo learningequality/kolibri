@@ -76,19 +76,22 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  svg
-    transition: transform $core-time ease-in
-    fill: $core-text-annotation
-    height: 30px
+  svg {
+    transition: transform $core-time ease-in;
+    fill: $core-text-annotation;
+    height: 30px;
+  }
 
-  .correct
-    fill: $core-status-correct
+  .correct {
+    fill: $core-status-correct;
+  }
 
-  .rectified
-    width: 12px
+  .rectified {
+    width: 12px;
+  }
 
 </style>
