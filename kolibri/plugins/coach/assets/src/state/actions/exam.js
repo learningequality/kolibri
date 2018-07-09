@@ -340,10 +340,12 @@ function fetchTopic(store, topicId) {
         ConditionalPromise.all(subtopicsExercisesPromises).only(
           samePageCheckGenerator(store),
           subtopicsExercises => {
-            subtopics = subtopics.map((subtopic, index) => {
-              subtopic.allExercisesWithinTopic = subtopicsExercises[index];
-              return subtopic;
-            });
+            subtopics = subtopics
+              .map((subtopic, index) => {
+                subtopic.allExercisesWithinTopic = subtopicsExercises[index];
+                return subtopic;
+              })
+              .filter(subtopic => subtopic.allExercisesWithinTopic.length > 0);
 
             resolve({ topic, subtopics, exercises });
           },
