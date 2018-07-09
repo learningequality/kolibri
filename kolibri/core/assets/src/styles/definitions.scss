@@ -14,20 +14,23 @@
 
 
 // Also include values defined in the theme. These can be overridden.
-@require '~kolibri.styles.theme'
+@import '~kolibri.styles.theme';
 
-$radius = 4px
-$core-time = 0.25s
-$login-overlay = #201A21
+$radius: 4px;
+$core-time: 0.25s;
+$login-overlay: #201A21;
 
 // from http://nicolasgallagher.com/micro-clearfix-hack/
-clearfix()
-  zoom: 1
-  &:after
-  &:before
-    content: ''
-    display: table
-  &:after
-    clear: both
+@mixin clearfix() {
+  zoom: 1;
+  &:after,
+  &:before {
+    content: '';
+    display: table;
+  }
+  &:after {
+    clear: both;
+  };
+}
 
-$core-outline = $core-action-light 2px solid
+$core-outline: $core-action-light 2px solid;

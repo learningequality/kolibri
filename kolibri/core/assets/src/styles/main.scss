@@ -12,132 +12,152 @@
 */
 
 
-@require 'definitions.styl'
+@import 'definitions.scss';
 
 
 // http://www.paulirish.com/2012/box-sizing-border-box-ftw/
 // @stylint off
 // Stylint disapproves of * selectors, as it should, but we use them
 // here to enforce global behaviour.
-*, *:before, *:after
+*, *:before, *:after {
   // @stylint on
-  box-sizing: inherit
+  box-sizing: inherit;
+}
 
 
-html
+html {
   // https://davidwalsh.name/html5-boilerplate
-  font-size: 100%
-  text-size-adjust: 100%
-  box-sizing: border-box
+  font-size: 100%;
+  text-size-adjust: 100%;
+  box-sizing: border-box;
   // from normalize v5
-  line-height: 1.3
+  line-height: 1.3;
+}
 
-html, body
-  height:100%
-  color: $core-text-default
-  background-color: $core-bg-canvas
-  letter-spacing: 0.01em
-  overflow-y: auto // fixes #3318
+html, body {
+  height: 100%;
+  color: $core-text-default;
+  background-color: $core-bg-canvas;
+  letter-spacing: 0.01em;
+  overflow-y: auto; // fixes #3318
+}
 
 // https://purecss.io/grids/#using-grids-with-custom-fonts
-html, button, input, select, textarea, .pure-g [class *= 'pure-u']
-  font-family: $core-font
+html, button, input, select, textarea, .pure-g [class *= 'pure-u'] {
+  font-family: $core-font;
+}
 
-h1
-  font-size: 1.5em
+h1 {
+  font-size: 1.5em;
+}
 
-h2
-  font-size: 1.17em
+h2 {
+  font-size: 1.17em;
+}
 
-h3, h4, h5, h6
-  font-size: 1em
+h3, h4, h5, h6 {
+  font-size: 1em;
+}
 
-:focus
-  outline: $core-outline
+:focus {
+  outline: $core-outline;
+}
 
 // https://davidwalsh.name/html5-boilerplate
-img
-  -ms-interpolation-mode: bicubic
+img {
+  -ms-interpolation-mode: bicubic;
+}
 
 
 // https://davidwalsh.name/html5-boilerplate
-svg:not(:root)
-  overflow: hidden
+svg:not(:root) {
+  overflow: hidden;
+}
 
-.visuallyhidden
-  border: none
-  clip: rect(0 0 0 0)
-  height: 1px
-  margin: -1px
-  overflow: hidden
-  padding: 0
-  position: absolute
-  width: 1px
+.visuallyhidden {
+  border: none;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
 
 // Definitions for Google Material Design Icons
 // from http://google.github.io/material-design-icons/
 
-@font-face
-  font-family: 'Material Icons'
-  font-style: normal
-  font-weight: 400
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
   src: local('Material Icons'),
-local('MaterialIcons-Regular'),
-url('~material-design-icons/iconfont/MaterialIcons-Regular.woff') format('woff')
+       local('MaterialIcons-Regular'),
+       url('~material-design-icons/iconfont/MaterialIcons-Regular.woff') format('woff');
+}
 
-.material-icons
-  font-family: 'Material Icons'
-  font-weight: normal
-  font-style: normal
-  font-size: 24px /* Preferred icon size */
-  display: inline-block
-  line-height: 1
-  text-transform: none
-  letter-spacing: normal
-  word-wrap: normal
-  white-space: nowrap
-  direction: ltr
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px; /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
 
   /* Support for all WebKit browsers. */
-  -webkit-font-smoothing: antialiased
+  -webkit-font-smoothing: antialiased;
   /* Support for Safari and Chrome. */
-  text-rendering: optimizeLegibility
+  text-rendering: optimizeLegibility;
 
   /* Support for Firefox. */
-  -moz-osx-font-smoothing: grayscale
+  -moz-osx-font-smoothing: grayscale;
 
   /* Support for IE. */
-  font-feature-settings: 'liga'
+  font-feature-settings: 'liga';
+}
 
 /*
   helper classes to add padding to grid elements
   (set globally in core-base.vue)
 */
-.gutter-16 [class *= 'pure-u']
-  padding: 8px
-.gutter-24 [class *= 'pure-u']
-  padding: 12px
+.gutter-16 [class *= 'pure-u'] {
+  padding: 8px;
+}
+.gutter-24 [class *= 'pure-u'] {
+  padding: 12px;
+}
 
 /* Button reset for consistency. */
-button
-  background: none
-  border: none
-  display: inline-block
-  cursor: pointer
-  outline: none
-  overflow: hidden
-  text-align: center
-  text-decoration: none
-  user-select: none
-  white-space: nowrap
+button {
+  background: none;
+  border: none;
+  display: inline-block;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  white-space: nowrap;
 
-  &::-moz-focus-inner
-    border: none
+  &::-moz-focus-inner {
+    border: none;
+  }
+}
 
-.rtl-icon
-  transform: scaleX(-1)
+.rtl-icon {
+  transform: scaleX(-1);
+}
 
 // TODO: move these inside scoped styles in own wrapper components
-.ui-icon-button, .ui-icon
-  svg
-    vertical-align: middle
+.ui-icon-button, .ui-icon {
+  svg {
+    vertical-align: middle;
+  }
+}
