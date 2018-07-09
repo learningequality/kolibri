@@ -192,7 +192,7 @@
   .text {
     padding-left: 8px;
     line-height: $radio-height;
-    max-width: 'calc(100% - %s)' % $radio-height; // stylus specific
+    max-width: calc(100% -  #{$radio-height});
   }
   .description {
     &:not(.disabled) {
