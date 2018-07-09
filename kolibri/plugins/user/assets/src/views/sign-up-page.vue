@@ -320,8 +320,8 @@
   @import '~kolibri.styles.definitions';
   $iphone-5-width: 320px;
   $vertical-page-margin: 100px;
-  $logo-size: 1.64 * 1.125 rem;
-  $logo-margin: 0.38 * $logo-size rem;
+  $logo-size: 1.64 * 1.125;
+  $logo-margin: 0.38 * $logo-size;
 
   // component, highest level
   #signup-page {
@@ -333,9 +333,9 @@
   // Action Bar
   #logo {
     // 1.63 * font height
-    height: $logo-size;
+    height: $logo-size rem;
     display: inline-block;
-    margin-left: $logo-margin;
+    margin-left: $logo-margin rem;
   }
 
   #signin {
