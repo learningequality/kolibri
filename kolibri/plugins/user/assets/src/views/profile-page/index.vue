@@ -316,13 +316,13 @@
 
   // taken from docs, assumes 1rem = 16px
   $vertical-page-margin: 50px;
-  $iphone-width: 320;
+  $iphone-width: 320px;
 
   .content {
     padding-top: $vertical-page-margin;
     margin-left: auto;
     margin-right: auto;
-    width: $iphone-width - 20 px;
+    width: $iphone-width - 20px;
   }
 
   .points-icon, .points-num {
