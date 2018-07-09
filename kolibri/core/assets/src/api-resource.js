@@ -545,6 +545,15 @@ export class Resource {
     if (!name) {
       throw ReferenceError('Resource must be instantiated with a name property');
     }
+    if (process.env.NODE_ENV !== 'production') {
+      if (window.schema && window.schema.content) {
+        if (!window.schema.content[name]) {
+          logging.error(`${name} is not a recognized basename of an API endpoint on the server`);
+        } else {
+          this.__schema = window.schema.content[name];
+        }
+      }
+    }
     this.name = name;
     this.idKey = idKey;
     /*

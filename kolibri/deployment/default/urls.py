@@ -67,3 +67,11 @@ if getattr(settings, 'REDIRECT_WEBPACK', False):
     urlpatterns += [
         url(r'^__open-in-editor/', webpack_redirect_view)
     ]
+
+if getattr(settings, 'DEBUG', False):
+    from kolibri.utils.api import Generator
+    from rest_framework.documentation import include_docs_urls
+
+    urlpatterns += [
+        url(r'^docs/', include_docs_urls(title='Kolibri API', generator_class=Generator))
+    ]
