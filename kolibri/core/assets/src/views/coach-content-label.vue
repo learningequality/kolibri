@@ -5,7 +5,7 @@
       <mat-svg name="local_library" category="maps" />
     </ui-icon>
     <span class="counter" v-if="isTopic">
-      {{ value }}
+      {{ $formatNumber(value) }}
     </span>
   </div>
 
@@ -42,7 +42,7 @@
     },
     $trs: {
       coachResourceLabel: 'Coach resource',
-      topicTitle: 'Contains {count} {count, plural, one {coach resource} other {coach resources}}',
+      topicTitle: 'Contains {count, number, integer} {count, plural, one {coach resource} other {coach resources}}',
     },
   };
 
