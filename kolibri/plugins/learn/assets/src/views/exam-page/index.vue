@@ -117,6 +117,11 @@
         'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
       noItemId: 'This question has an error, please move on to the next question',
     },
+    metaInfo() {
+      return {
+        title: this.exam.title,
+      };
+    },
     components: {
       immersiveFullScreen,
       contentRenderer,
@@ -235,40 +240,48 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .exam-status-container
-    padding: 16px
-    background: $core-bg-light
+  .exam-status-container {
+    padding: 16px;
+    background: $core-bg-light;
+  }
 
-  .exam-status
-    float: right
-    width: 50%
-    max-width: 400px
-    text-align: right
-    button
-      margin: 0 0 0 8px
+  .exam-status {
+    float: right;
+    width: 50%;
+    max-width: 400px;
+    text-align: right;
+    button {
+      margin: 0 0 0 8px;
+    }
+  }
 
-  .exam-icon
-    position: relative
-    top: 4px
-    margin-right: 5px
-    fill: $core-text-default
+  .exam-icon {
+    position: relative;
+    top: 4px;
+    margin-right: 5px;
+    fill: $core-text-default;
+  }
 
-  .exam-title
-    display: inline-block
+  .exam-title {
+    display: inline-block;
+  }
 
-  .questions-answered
-    display: inline-block
-    position: relative
-    margin-top: 0
+  .questions-answered {
+    display: inline-block;
+    position: relative;
+    margin-top: 0;
+  }
 
-  .question-container
-    background: $core-bg-light
+  .question-container {
+    background: $core-bg-light;
+  }
 
-  .question-navbutton-container
-    text-align: right
+  .question-navbutton-container {
+    text-align: right;
+  }
 
 </style>

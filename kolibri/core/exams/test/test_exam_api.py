@@ -13,6 +13,7 @@ from kolibri.core.auth.test.helpers import provision_device
 
 DUMMY_PASSWORD = "password"
 
+
 class UserExamAPITestCase(APITestCase):
 
     def setUp(self):

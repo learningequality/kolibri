@@ -13,6 +13,8 @@ from kolibri.core.content.models import LocalFile
 from kolibri.utils.tests.helpers import override_option
 
 # helper class for mocking that is equal to anything
+
+
 def Any(cls):
     class Any(cls):
         def __eq__(self, other):
@@ -240,13 +242,13 @@ class ImportContentTestCase(TestCase):
     @patch('kolibri.core.content.utils.transfer.os.path.getsize')
     @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path')
     def test_local_import_oserror_permission_denied(self, path_mock, getsize_mock, logging_mock, annotation_mock):
-            dest_path = tempfile.mkstemp()[1]
-            path_mock.side_effect = [dest_path, '/test/dne']
-            getsize_mock.side_effect = ['1', OSError('Permission denied')]
-            with self.assertRaises(OSError):
-                call_command('importcontent', 'disk', self.the_channel_id, 'destination')
-                self.assertTrue('Permission denied' in logging_mock.call_args_list[0][0][0])
-                annotation_mock.assert_not_called()
+        dest_path = tempfile.mkstemp()[1]
+        path_mock.side_effect = [dest_path, '/test/dne']
+        getsize_mock.side_effect = ['1', OSError('Permission denied')]
+        with self.assertRaises(OSError):
+            call_command('importcontent', 'disk', self.the_channel_id, 'destination')
+            self.assertTrue('Permission denied' in logging_mock.call_args_list[0][0][0])
+            annotation_mock.assert_not_called()
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())

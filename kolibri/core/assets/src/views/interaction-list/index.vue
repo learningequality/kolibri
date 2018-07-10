@@ -59,33 +59,39 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .header
-    margin-top: 0
-    padding-top: 10px
+  .header {
+    margin-top: 0;
+    padding-top: 10px;
+  }
 
-  .attempt-container
-    overflow-x: auto
-    white-space: nowrap
+  .attempt-container {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
 
-  .pagination-btn
-    width: 40px
-    height: 40px
-    margin: 10px
+  .pagination-btn {
+    width: 40px;
+    height: 40px;
+    margin: 10px;
+  }
 
-  .pagination-right
-    right: 0
-    position: absolute
+  .pagination-right {
+    right: 0;
+    position: absolute;
+  }
 
-  .enable
-    fill: $core-text-default
-    cursor: pointer
+  .enable {
+    fill: $core-text-default;
+    cursor: pointer;
+  }
 
-  .disable
-    fill: $core-text-disabled
-    pointer-events: none
+  .disable {
+    fill: $core-text-disabled;
+    pointer-events: none;
+  }
 
 </style>

@@ -52,38 +52,42 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .wrapper
-    position: relative
-    white-space: nowrap
-    padding-right: 40px
+  .wrapper {
+    position: relative;
+    white-space: nowrap;
+    padding-right: 40px;
+  }
 
-  .progress-bar-wrapper
-    display: inline-block
-    position: relative
-    width: 100%
-    max-width: 125px
-    height: 1.2em
-    background-color: $core-grey
-    border-radius: 15px
-    float: left
-    margin-right: 5px
-    overflow: hidden
+  .progress-bar-wrapper {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    max-width: 125px;
+    height: 1.2em;
+    background-color: $core-grey;
+    border-radius: 15px;
+    float: left;
+    margin-right: 5px;
+    overflow: hidden;
+  }
 
-  .progress-bar-complete
-    height: 100%
-    width: 0
-    background-color: $core-action-normal
-    transition: width, $core-time, ease
+  .progress-bar-complete {
+    height: 100%;
+    width: 0;
+    background-color: $core-action-normal;
+    transition: 0, $core-time, ease;
+  }
 
-  .progress-bar-text
-    display: inline-block
-    position: relative
-    right: 0
-    width: 30px
-    text-align: left
+  .progress-bar-text {
+    display: inline-block;
+    position: relative;
+    right: 0;
+    width: 30px;
+    text-align: left;
+  }
 
 </style>

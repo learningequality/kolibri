@@ -89,32 +89,39 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .page-status
-    background-color: $core-bg-light
+  .page-status {
+    background-color: $core-bg-light;
+  }
 
-  .user-name-container
-    display: block
+  .user-name-container {
+    display: block;
+  }
 
-  .svg-icon
-    font-size: 1.3em
+  .svg-icon {
+    font-size: 1.3em;
+  }
 
-  .questions
-    margin-top: 10px
+  .questions {
+    margin-top: 10px;
+  }
 
-  .svg-item
-    display: inline-block
-    vertical-align: middle
+  .svg-item {
+    display: inline-block;
+    vertical-align: middle;
+  }
 
-  .user-name
-    display: inline-block
-    vertical-align: middle
-    margin: 0
+  .user-name {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+  }
 
-  .inner-column
-    float: right
+  .inner-column {
+    float: right;
+  }
 
 </style>

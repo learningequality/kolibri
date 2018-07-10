@@ -154,12 +154,14 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .textbox
-    max-width: 400px
+  .textbox {
+    max-width: 400px;
+  }
 
-  .mh
-    min-height: 72px
+  .mh {
+    min-height: 72px;
+  }
 
 </style>

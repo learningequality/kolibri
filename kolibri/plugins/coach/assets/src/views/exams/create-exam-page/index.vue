@@ -157,6 +157,11 @@
 
   export default {
     name: 'createExamPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       kCircularLoader,
       kButton,
@@ -190,6 +195,7 @@
       selected:
         '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
       name: 'Name',
+      documentTitle: 'Create new exam',
     },
     data() {
       return {
@@ -463,43 +469,54 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .footer
-    text-align: center
+  .footer {
+    text-align: center;
 
-    button
-      margin: auto
-      margin-bottom: 1em
+    button {
+      margin: auto;
+      margin-bottom: 1em;
+    }
+  }
 
-  ol
-    padding: 0.5em
+  ol {
+    padding: 0.5em;
+  }
 
-  li
-    display: inline-block
+  li {
+    display: inline-block;
 
-    button
-      vertical-align: baseline
-      padding: 0
-      border: none
-      font-size: 1em
+    button {
+      vertical-align: baseline;
+      padding: 0;
+      border: none;
+      font-size: 1em;
+    }
+  }
 
+  .not-last {
+    &:after {
+      content: '/';
+      padding-right: 0.5em;
+      padding-left: 0.5em;
+    }
+  }
 
-  .not-last
-    &:after
-      content: '/'
-      padding-right: 0.5em
-      padding-left: 0.5em
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.1s;
+  }
 
-  .fade-enter-active, .fade-leave-active
-    transition: opacity 0.1s
+  .fade-enter,
+  .fade-leave-to .fade-leave-active {
+    opacity: 0;
+  }
 
-  .fade-enter, .fade-leave-to .fade-leave-active
-    opacity: 0
-
-  .validation-error
-    color: $core-text-error
+  .validation-error {
+    color: $core-text-error;
+  }
 
 </style>

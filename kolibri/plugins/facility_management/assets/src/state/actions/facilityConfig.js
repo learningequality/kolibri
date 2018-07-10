@@ -22,7 +22,6 @@ export function showFacilityConfigPage(store) {
   const FACILITY_ID = store.state.core.session.facility_id;
   preparePage(store.commit, {
     name: PageNames.FACILITY_CONFIG_PAGE,
-    title: 'Configure Facility',
   });
   const resourceRequests = [
     FacilityResource.getModel(FACILITY_ID).fetch(),

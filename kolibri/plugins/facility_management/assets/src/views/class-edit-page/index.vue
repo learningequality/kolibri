@@ -119,6 +119,12 @@
       remove: 'Remove',
       noUsersExist: 'No users in this class',
       edit: 'Edit class name',
+      documentTitle: 'Edit Class',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       userTable,
@@ -171,29 +177,35 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .title-header
-    display: inline-block
+  .title-header {
+    display: inline-block;
+  }
 
-  .edit-button
-    display: inline-block
-    position: relative
-    left: 10px
-    top: -4px
-    fill: $core-action-normal
+  .edit-button {
+    display: inline-block;
+    position: relative;
+    left: 10px;
+    top: -4px;
+    fill: $core-action-normal;
+  }
 
-  .right
-    text-align: right
+  .right {
+    text-align: right;
+  }
 
-  .top-margin
-    margin-top: 24px
+  .top-margin {
+    margin-top: 24px;
+  }
 
   // overwrite global styling
   // TODO - find a better way of doing this
-  .gutter-24 [class *= 'pure-u'], .gutter-16 [class *= 'pure-u']
-    padding: 0
+  .gutter-24 [class*='pure-u'],
+  .gutter-16 [class*='pure-u'] {
+    padding: 0;
+  }
 
 </style>

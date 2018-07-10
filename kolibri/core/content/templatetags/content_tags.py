@@ -23,6 +23,7 @@ from kolibri.core.webpack.utils import webpack_asset_render
 
 register = template.Library()
 
+
 @register.simple_tag()
 def content_renderer_assets():
     """

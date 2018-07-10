@@ -63,14 +63,16 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .title
-    display: inline-block
+  .title {
+    display: inline-block;
+  }
 
-  .coach-content-label
-    display: inline-block
-    vertical-align: bottom
-    margin-left: 8px
+  .coach-content-label {
+    display: inline-block;
+    vertical-align: bottom;
+    margin-left: 8px;
+  }
 
 </style>

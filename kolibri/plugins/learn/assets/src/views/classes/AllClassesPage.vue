@@ -34,6 +34,11 @@
 
   export default {
     name: 'allClassesPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       AuthMessage,
       ContentCard,
@@ -56,16 +61,18 @@
     },
     $trs: {
       allClassesHeader: 'Classes',
+      documentTitle: 'All classes',
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .content-card
-    margin-right: 16px
-    margin-bottom: 16px
+  .content-card {
+    margin-right: 16px;
+    margin-bottom: 16px;
+  }
 
 </style>

@@ -5,6 +5,7 @@ from mock import patch
 
 from kolibri.core.content import models as content
 
+
 class DeleteChannelTestCase(TestCase):
     """
     Testcase for delete channel management command
@@ -56,4 +57,4 @@ class DeleteChannelTestCase(TestCase):
         content_file_path.return_value = path
         num_files = content.LocalFile.objects.filter(available=True).count()
         self.delete_channel()
-        os_remove_mock.assert_has_calls([call(path)]*num_files)
+        os_remove_mock.assert_has_calls([call(path)] * num_files)

@@ -77,6 +77,7 @@ class UserReportSerializer(serializers.ModelSerializer):
 def sum_progress_dicts(total_progress, progress_dict):
     return total_progress + progress_dict.get('total_progress', 0.0)
 
+
 def get_progress_and_last_active(target_nodes, **kwargs):
     # Prepare dictionaries to output the progress and last active, keyed by content_id
     output_progress_dict = {}

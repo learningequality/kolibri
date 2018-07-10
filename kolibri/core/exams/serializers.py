@@ -19,6 +19,7 @@ class NestedCollectionSerializer(serializers.ModelSerializer):
             'id', 'name', 'kind',
         )
 
+
 class NestedExamAssignmentSerializer(serializers.ModelSerializer):
 
     collection = NestedCollectionSerializer(read_only=True)

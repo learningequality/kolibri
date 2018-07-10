@@ -32,6 +32,11 @@
 
   export default {
     name: 'lessonResourceViewer',
+    metaInfo() {
+      return {
+        title: this.currentLessonResource.title,
+      };
+    },
     components: {
       ContentCard,
       ContentPage,
@@ -57,9 +62,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .below-content-area
-    max-width: 800px
+  .below-content-area {
+    max-width: 800px;
+  }
 
 </style>

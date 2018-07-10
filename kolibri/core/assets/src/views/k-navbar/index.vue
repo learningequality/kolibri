@@ -87,24 +87,27 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .k-navbar
-    white-space: nowrap
-    overflow-x: auto
-    overflow-y: hidden
-    margin: 0
-    padding: 0
-    display: inline-block
-    vertical-align: middle
+  .k-navbar {
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    vertical-align: middle;
+  }
 
-  .k-navbar-scroll-button
-    width: 36px
-    height: 36px
-    vertical-align: middle
-    &:focus
-      outline: $core-outline
+  .k-navbar-scroll-button {
+    width: 36px;
+    height: 36px;
+    vertical-align: middle;
+    &:focus {
+      outline: $core-outline;
+    }
+  }
 
 </style>

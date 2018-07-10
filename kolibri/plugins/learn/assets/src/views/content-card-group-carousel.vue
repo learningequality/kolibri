@@ -255,58 +255,66 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
   // width of card + gutter
-  $card-height = 210px
-  $control-hit-height = 100px
-  $control-hit-width = $control-hit-height
+  $card-height: 210px;
+  $control-hit-height: 100px;
+  $control-hit-width: $control-hit-height;
 
+  .content-carousel {
+    margin-top: 1em;
+    @include clearfix();
+    position: relative;
 
-  .content-carousel
-    margin-top: 1em
-    clearfix()
-    position: relative
+    &-control-container {
+      overflow: visible;
+      position: relative;
+    }
 
-    &-control-container
-      overflow: visible
-      position: relative
+    &-card {
+      left: 0;
+      transition: 0 0.4s linear;
+      position: absolute;
+    }
 
-    &-card
-      left: 0
-      transition: left 0.4s linear
-      position: absolute
-
-    &-next-control, &-previous-control
-
+    &-next-control,
+    &-previous-control {
       // styles that apply to both control buttons
-      &:active
-        z-index: 8 // material
+      &:active {
+        z-index: 8; // material
+      }
 
-      z-index: 2 // material
-      position: absolute
-      top: ($card-height / 2)
-      transform: translateY(-($control-hit-height / 2))
-      height: $control-hit-height
-      width: $control-hit-width
-      text-align: center
-      vertical-align: middle
+      z-index: 2; // material
+      position: absolute;
+      top: $card-height / 2;
+      transform: translateY(-($control-hit-height / 2));
+      height: $control-hit-height;
+      width: $control-hit-width;
+      text-align: center;
+      vertical-align: middle;
 
-      &-button
-        &:active
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23) // material
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)
+      &-button {
+        &:active {
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23); // material
+        }
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
         // center align within hitbox
-        position: absolute
-        top: 50%
-        left: 50%
+        position: absolute;
+        top: 50%;
+        left: 50%;
+      }
+    }
 
     // position-specific styles for each control button
-    &-next-control
-      right: -($control-hit-width/2)
-    &-previous-control
-      left: -($control-hit-width/2)
+    &-next-control {
+      right: -($control-hit-width / 2);
+    }
+    &-previous-control {
+      left: -($control-hit-width / 2);
+    }
+  }
 
 </style>

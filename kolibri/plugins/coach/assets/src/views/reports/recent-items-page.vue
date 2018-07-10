@@ -75,6 +75,11 @@
 
   export default {
     name: 'coachRecentReports',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       coreTable,
       breadcrumbs,
@@ -96,6 +101,7 @@
       mastered: '{proportionCompleted} completed',
       lastActivity: 'Last activity',
       noRecentProgress: 'No activity in past {threshold} days',
+      documentTitle: 'Recent',
     },
     computed: {
       ...mapState(['classId', 'pageState']),
@@ -146,4 +152,4 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="scss" scoped></style>

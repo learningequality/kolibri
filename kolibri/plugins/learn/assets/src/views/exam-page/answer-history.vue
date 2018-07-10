@@ -76,38 +76,45 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .answer-history
-    background-color: $core-bg-light
+  .answer-history {
+    background-color: $core-bg-light;
+  }
 
-  .history-list
-    list-style-type: none
-    max-height: inherit
-    margin: 0
-    padding-left: 0
+  .history-list {
+    list-style-type: none;
+    max-height: inherit;
+    margin: 0;
+    padding-left: 0;
+  }
 
-  .item
-    float: left
-    margin: 0
-    line-height: 64px
-    font-size: 0.9em
+  .item {
+    float: left;
+    margin: 0;
+    line-height: 64px;
+    font-size: 0.9em;
+  }
 
-  .svg-item
-    height: 64px
-    width: 64px
+  .svg-item {
+    height: 64px;
+    width: 64px;
+  }
 
-  li
-    clear: both
-    border: none
-    height: 64px
+  li {
+    clear: both;
+    border: none;
+    height: 64px;
+  }
 
-  .clickable
-    cursor: pointer
+  .clickable {
+    cursor: pointer;
+  }
 
-  .selected
-    background-color: $core-grey
+  .selected {
+    background-color: $core-grey;
+  }
 
 </style>

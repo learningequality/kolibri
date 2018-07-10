@@ -4,8 +4,10 @@ from sqlalchemy.orm import RelationshipProperty
 
 # Modified from https://gist.github.com/miohtama/278fd4eeb9e5272d061c
 
+
 class DBSchemaError(Exception):
     pass
+
 
 def db_matches_schema(Base, session):
     """

@@ -10,6 +10,7 @@ from kolibri.core.tasks.management.commands.base import AsyncCommand
 
 logging = logger.getLogger(__name__)
 
+
 class Command(AsyncCommand):
 
     def add_arguments(self, parser):

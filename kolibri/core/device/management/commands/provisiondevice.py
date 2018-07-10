@@ -14,6 +14,7 @@ from kolibri.core.device.models import DeviceSettings
 
 logging = logger.getLogger(__name__)
 
+
 def get_user_response(prompt, valid_answers=None):
     answer = None
     while not answer or (valid_answers is not None and answer.lower() not in valid_answers):

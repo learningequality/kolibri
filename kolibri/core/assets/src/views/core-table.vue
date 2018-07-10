@@ -20,9 +20,9 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
   // SPECIAL CLASSES
   // core-table-icon-col - Icon Column
@@ -31,60 +31,79 @@
   // core-table-rows-selectable - Rows are selectable
   // core-table-row-selected - Row is selected
 
-  .core-table-container
-    overflow-x: auto
-    overflow-y: hidden
+  .core-table-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
 
-  .core-table
-    width: 100%
-    font-size: 14px
+  .core-table {
+    width: 100%;
+    font-size: 14px;
+  }
 
-  >>>thead
-    border-bottom: solid 1px $core-grey
-    tr
-      font-size: 12px
-      color: $core-text-annotation
+  /deep/ thead {
+    border-bottom: solid 1px $core-grey;
+    tr {
+      font-size: 12px;
+      color: $core-text-annotation;
+    }
+  }
 
-  >>>tbody
-    tr:not(:last-child)
-      border-bottom: solid 1px $core-grey
+  /deep/ tbody {
+    tr:not(:last-child) {
+      border-bottom: solid 1px $core-grey;
+    }
+  }
 
-  >>>tr
-    text-align: left
+  /deep/ tr {
+    text-align: left;
+  }
 
-  >>>th, >>>td
-    padding: 12px 16px 12px 0
+  /deep/ th,
+  /deep/ td {
+    padding: 12px 16px 12px 0;
+  }
 
-  >>>th:not(.core-table-icon-col):not(.core-table-checkbox-col),
-  >>>td:not(.core-table-icon-col):not(.core-table-checkbox-col)
-    min-width: 120px
+  /deep/ th:not(.core-table-icon-col):not(.core-table-checkbox-col),
+  /deep/ td:not(.core-table-icon-col):not(.core-table-checkbox-col) {
+    min-width: 120px;
+  }
 
-  >>>.core-table-icon-col,
-  >>>.core-table-checkbox-col
-    width: 40px
+  /deep/ .core-table-icon-col,
+  /deep/ .core-table-checkbox-col {
+    width: 40px;
+  }
 
-  >>>.core-table-main-col
-    font-weight: bold
+  /deep/ .core-table-main-col {
+    font-weight: bold;
+  }
 
+  /deep/ .core-table-icon-col {
+    .ui-icon {
+      display: inline-block;
+      height: 24px;
+      font-size: 24px;
+      vertical-align: inherit;
+    }
+  }
 
-  >>>.core-table-icon-col
-    .ui-icon
-      display: inline-block
-      height: 24px
-      font-size: 24px
-      vertical-align: inherit
+  /deep/ .core-table-checkbox-col {
+    .k-checkbox-container {
+      margin: 0 0 0 2px;
+    }
+  }
 
-  >>>.core-table-checkbox-col
-    .k-checkbox-container
-      margin: 0 0 0 2px
+  /deep/ .core-table-rows-selectable {
+    tr {
+      cursor: pointer;
+      &:hover {
+        background-color: $core-grey;
+      }
+    }
+  }
 
-  >>>.core-table-rows-selectable
-    tr
-      cursor: pointer
-      &:hover
-        background-color: $core-grey
-
-  >>>.core-table-row-selected
-    background-color: $core-bg-canvas
+  /deep/ .core-table-row-selected {
+    background-color: $core-bg-canvas;
+  }
 
 </style>

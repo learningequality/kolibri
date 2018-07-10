@@ -93,15 +93,17 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .error-svg
-    margin-right: 0.2em
-    margin-bottom: -6px
+  .error-svg {
+    margin-right: 0.2em;
+    margin-bottom: -6px;
+  }
 
-  h2
-    font-size: 1em
+  h2 {
+    font-size: 1em;
+  }
 
 </style>

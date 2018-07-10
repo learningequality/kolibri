@@ -49,9 +49,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .randomize-btn
-    margin: 0 0 0 8px
+  .randomize-btn {
+    margin: 0 0 0 8px;
+  }
 
 </style>

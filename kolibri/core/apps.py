@@ -11,6 +11,7 @@ from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
 logger = logging.getLogger(__name__)
 
+
 class KolibriCoreConfig(AppConfig):
     name = 'kolibri.core'
 

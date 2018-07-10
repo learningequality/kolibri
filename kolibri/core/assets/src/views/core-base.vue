@@ -66,6 +66,7 @@
     $trs: {
       kolibriMessage: 'Kolibri',
       kolibriTitleMessage: '{ title } - Kolibri',
+      errorPageTitle: 'Error',
     },
     components: {
       appBar,
@@ -111,11 +112,27 @@
         required: false,
       },
     },
+    metaInfo() {
+      return {
+        // Use arrow function to bind $tr to this component
+        titleTemplate: title => {
+          if (this.error) {
+            return this.$tr('errorPageTitle');
+          }
+          if (!title) {
+            // If no child component sets title, it reads 'Kolibri'
+            return this.$tr('kolibriMessage');
+          }
+          // If child component sets title, it reads 'Child Title - Kolibri'
+          return this.$tr('kolibriTitleMessage', { title });
+        },
+      };
+    },
     data: () => ({ navShown: false }),
     computed: {
       ...mapState({
-        documentTitle: state => state.core.title,
         toolbarTitle: state => state.pageState.toolbarTitle,
+        error: state => state.error,
       }),
       mobile() {
         return this.windowSize.breakpoint < 2;
@@ -127,46 +144,36 @@
         return this.headerHeight * 4;
       },
     },
-    watch: {
-      documentTitle: 'updateDocumentTitle',
-    },
-    created() {
-      this.updateDocumentTitle();
-    },
-    methods: {
-      // move this responsibility to state?
-      updateDocumentTitle() {
-        document.title = this.documentTitle
-          ? this.$tr('kolibriTitleMessage', { title: this.documentTitle })
-          : this.$tr('kolibriMessage');
-      },
-    },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .align-to-parent
-    position: absolute
-    top: 0
-    left: 0
+  .align-to-parent {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
 
-  .app-bar
-    height: 64px
-    width: 100%
+  .app-bar {
+    height: 64px;
+    width: 100%;
+  }
 
-  .app-bar-actions
-    display: inline-block
+  .app-bar-actions {
+    display: inline-block;
+  }
 
-  .content-container
-    position: absolute
-    overflow-x: hidden
-    right: 0
-    bottom: 0
-    padding-bottom: 40px
+  .content-container {
+    position: absolute;
+    overflow-x: hidden;
+    right: 0;
+    bottom: 0;
+    padding-bottom: 40px;
+  }
 
 </style>

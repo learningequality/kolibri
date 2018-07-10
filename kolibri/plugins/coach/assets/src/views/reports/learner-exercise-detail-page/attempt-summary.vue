@@ -174,51 +174,64 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .attempt-summary
-    background-color: $core-bg-light
+  .attempt-summary {
+    background-color: $core-bg-light;
+  }
 
-  .user-name
-    font-size: 24px
-    font-weight: bold
+  .user-name {
+    font-size: 24px;
+    font-weight: bold;
+  }
 
-  .exercise-name
-    font-weight: bold
+  .exercise-name {
+    font-weight: bold;
+  }
 
-  .svg-icon
-    font-size: 1.3em
+  .svg-icon {
+    font-size: 1.3em;
+  }
 
-  .in-progress
-    color: $core-grey
+  .in-progress {
+    color: $core-grey;
+  }
 
-  .svg-item
-    display: inline-block
-    vertical-align: middle
+  .svg-item {
+    display: inline-block;
+    vertical-align: middle;
+  }
 
-  .status
-    text-align: right
+  .status {
+    text-align: right;
+  }
 
-  .icon
-    display: inline-block
-    margin-right: 16px
-    width: 24px
+  .icon {
+    display: inline-block;
+    margin-right: 16px;
+    width: 24px;
+  }
 
-  .summary-item
-    margin: 8px 0
-    vertical-align: baseline
-    span
-      vertical-align: inherit
+  .summary-item {
+    margin: 8px 0;
+    vertical-align: baseline;
+    span {
+      vertical-align: inherit;
+    }
+  }
 
-  .status-text
-    margin-top: 8px
-    .svg-icon
-      margin-right: 8px
+  .status-text {
+    margin-top: 8px;
+    .svg-icon {
+      margin-right: 8px;
+    }
+  }
 
-  .update-time
-    padding: 4px 0
-    font-size: 12px
+  .update-time {
+    padding: 4px 0;
+    font-size: 12px;
+  }
 
 </style>

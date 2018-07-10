@@ -52,6 +52,12 @@
     $trs: {
       onboardingNextStepButton: 'Continue',
       onboardingFinishButton: 'Finish',
+      documentTitle: 'Setup Wizard',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     data() {
       return {
@@ -101,20 +107,23 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .onboarding
-    width: 100%
-    clearfix() // child margin leaks up into otherwise empty parent
-    &-body
-      margin-top: 64px
-      margin-left: auto
-      margin-right: auto
-      width: 90%
-      max-width: 550px
-      &.mobile
-        margin: 40px auto
+  .onboarding {
+    width: 100%;
+    @include clearfix(); // child margin leaks up into otherwise empty parent
+    &-body {
+      margin-top: 64px;
+      margin-left: auto;
+      margin-right: auto;
+      width: 90%;
+      max-width: 550px;
+      &.mobile {
+        margin: 40px auto;
+      }
+    }
+  }
 
 </style>

@@ -8,9 +8,11 @@ from ..middleware import _get_user
 from ..middleware import CustomAuthenticationMiddleware
 from ..models import KolibriAnonymousUser
 
+
 class DummyRequestObject(object):
     def __init__(self):
         self.session = {}
+
 
 class AuthMiddlewareTestCase(TestCase):
 

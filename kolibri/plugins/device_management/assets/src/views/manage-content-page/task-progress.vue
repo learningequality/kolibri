@@ -180,48 +180,59 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .progress-icon
-    text-align: center
-    width: 5%
-    .inprogress
-      display: inline-block
-    .complete
-      fill: $core-status-correct
-    .error
-      fill: $core-text-error
+  .progress-icon {
+    text-align: center;
+    width: 5%;
+    .inprogress {
+      display: inline-block;
+    }
+    .complete {
+      fill: $core-status-correct;
+    }
+    .error {
+      fill: $core-text-error;
+    }
+  }
 
-  .task-progress
-    display: table
-    width: 100%
-    height: 5em
-    vertical-align: middle
-    padding-left: 1em
-    padding-right: 1em
+  .task-progress {
+    display: table;
+    width: 100%;
+    height: 5em;
+    vertical-align: middle;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
 
-  .task-stage
-    margin-bottom: 0.5em
+  .task-stage {
+    margin-bottom: 0.5em;
+  }
 
-  .progress-bar
-    width: 50%
-    font-size: 0.75em
-    padding-bottom: 10px
+  .progress-bar {
+    width: 50%;
+    font-size: 0.75em;
+    padding-bottom: 10px;
+  }
 
-  .progress-messages
-    padding-left: 1em
-    padding-right: 1em
+  .progress-messages {
+    padding-left: 1em;
+    padding-right: 1em;
+  }
 
-  .percentage
-    font-weight: bold
+  .percentage {
+    font-weight: bold;
+  }
 
-  .buttons
-    text-align: right
+  .buttons {
+    text-align: right;
+  }
 
-  .dtc
-    display: table-cell
-    vertical-align: inherit
+  .dtc {
+    display: table-cell;
+    vertical-align: inherit;
+  }
 
 </style>

@@ -193,11 +193,13 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .select-all
-    white-space: nowrap
-    .k-checkbox-container
-      margin-right: -70px
+  .select-all {
+    white-space: nowrap;
+    .k-checkbox-container {
+      margin-right: -70px;
+    }
+  }
 
 </style>

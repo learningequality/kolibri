@@ -2,7 +2,7 @@
 require('purecss/build/base-min.css');
 require('purecss/build/grids-min.css');
 require('../styles/font-NotoSans.css');
-require('../styles/main.styl');
+require('../styles/main.scss');
 
 // Required to setup Keen UI, should be imported only once in your project
 require('keen-ui/src/bootstrap');

@@ -345,6 +345,7 @@ class SuperuserTestCase(TestCase):
         self.assertTrue(superuser.has_perms(["someperm"], object()))
         self.assertTrue(superuser.has_module_perms("module.someapp"))
 
+
 class StringMethodTestCase(TestCase):
 
     def setUp(self):

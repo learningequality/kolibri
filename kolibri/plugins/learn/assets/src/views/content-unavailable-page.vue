@@ -16,21 +16,28 @@
 
   export default {
     name: 'contentUnavailablePage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       kExternalLink,
     },
     $trs: {
       header: 'No content channels available',
       adminLink: 'You can import content from the Content page if you have the proper permissions',
+      documentTitle: 'Content Unavailable',
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  h1
-    margin-top: 42px // height of toolbar
+  h1 {
+    margin-top: 42px; // height of toolbar
+  }
 
 </style>
