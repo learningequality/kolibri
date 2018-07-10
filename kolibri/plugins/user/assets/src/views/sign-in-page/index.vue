@@ -419,6 +419,7 @@
   .main-row {
     display: table-row;
     background-color: $core-action-normal;
+    // Workaround for print-width css issue https://github.com/prettier/prettier/issues/4460
     $bk-img: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.jpg);
     background-image: $bk-img;
     background-repeat: no-repeat;
