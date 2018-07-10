@@ -18,6 +18,7 @@ VALID_STORAGE_FILENAME = re.compile("[0-9a-f]{32}(-data)?\.[0-9a-z]+")
 POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".perseus", ".zip"])
 # TODO: add ".epub" and ".epub3" if epub-equivalent of ZipContentView implemented
 
+
 def get_content_file_name(obj):
     return '{checksum}.{extension}'.format(checksum=obj.id, extension=obj.extension)
 
@@ -29,6 +30,7 @@ def get_content_dir_path(datafolder=None):
         datafolder,
         "content",
     ) if datafolder else conf.OPTIONS["Paths"]["CONTENT_DIR"]
+
 
 def get_content_database_dir_path(datafolder=None):
     """
@@ -48,6 +50,7 @@ def get_content_database_dir_path(datafolder=None):
             pass
     return path
 
+
 def get_content_database_file_path(channel_id, datafolder=None):
     """
     Given a channel_id, returns the path to the sqlite3 file
@@ -58,6 +61,7 @@ def get_content_database_file_path(channel_id, datafolder=None):
         "{}.sqlite3".format(channel_id),
     )
 
+
 def get_content_storage_dir_path(datafolder=None):
     path = os.path.join(
         get_content_dir_path(datafolder),
@@ -66,6 +70,7 @@ def get_content_storage_dir_path(datafolder=None):
     if not os.path.isdir(path):
         os.makedirs(path)
     return path
+
 
 def get_content_storage_file_path(filename, datafolder=None):
     assert VALID_STORAGE_FILENAME.match(filename), "'{}' is not a valid content storage filename".format(filename)
@@ -85,11 +90,13 @@ def get_content_url(baseurl=None):
         "content/",
     )
 
+
 def get_content_database_url(baseurl=None):
     return urljoin(
         get_content_url(baseurl),
         "databases/",
     )
+
 
 def get_content_database_file_url(channel_id, baseurl=None):
     return urljoin(
@@ -97,14 +104,17 @@ def get_content_database_file_url(channel_id, baseurl=None):
         "{}.sqlite3".format(channel_id),
     )
 
+
 def get_content_storage_url(baseurl=None):
     return urljoin(
         get_content_url(baseurl),
         "storage/",
     )
 
+
 def get_content_storage_remote_url(filename, baseurl=None):
     return "{}{}/{}/{}".format(get_content_storage_url(baseurl), filename[0], filename[1], filename)
+
 
 def get_channel_lookup_url(identifier=None, baseurl=None):
     studio_url = "/api/public/v1/channels"
@@ -114,6 +124,7 @@ def get_channel_lookup_url(identifier=None, baseurl=None):
         baseurl or conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'],
         studio_url
     )
+
 
 def get_content_storage_file_url(filename, baseurl=None):
     """

@@ -9,6 +9,7 @@ from kolibri.utils.uuids import is_valid_uuid
 
 logging = logger.getLogger(__name__)
 
+
 def get_channel_ids_for_content_database_dir(content_database_dir):
     """
     Returns a list of channel IDs for the channel databases that exist in a content database directory.
@@ -44,10 +45,12 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
 
     return valid_dbs
 
+
 def enumerate_content_database_file_paths(content_database_dir):
     full_dir_template = os.path.join(content_database_dir, "{}.sqlite3")
     channel_ids = get_channel_ids_for_content_database_dir(content_database_dir)
     return [full_dir_template.format(f) for f in channel_ids]
+
 
 def read_channel_metadata_from_db_file(channeldbpath):
     # import here to avoid circular imports whenever kolibri.core.content.models imports utils too
@@ -73,6 +76,7 @@ def read_channel_metadata_from_db_file(channeldbpath):
 
     return source_channel_metadata
 
+
 def get_channels_for_data_folder(datafolder):
     channels = []
     for path in enumerate_content_database_file_paths(get_content_database_dir_path(datafolder)):
@@ -93,11 +97,13 @@ def get_channels_for_data_folder(datafolder):
         channels.append(channel_data)
     return channels
 
+
 def get_mounted_drives_with_channel_info():
     drives = enumerate_mounted_disk_partitions()
     for drive in drives.values():
         drive.metadata["channels"] = get_channels_for_data_folder(drive.datafolder) if drive.datafolder else []
     return drives
+
 
 def get_current_or_first_channel(request):
     # import here to avoid circular imports whenever kolibri.core.content.models imports utils too

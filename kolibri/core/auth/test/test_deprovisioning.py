@@ -24,6 +24,7 @@ from kolibri.core.logger.test.factory_logger import UserSessionLogFactory
 def count_instances(models):
     return sum([model.objects.count() for model in models])
 
+
 class UserImportCommandTestCase(TestCase):
     """
     Tests for the deprovision command.

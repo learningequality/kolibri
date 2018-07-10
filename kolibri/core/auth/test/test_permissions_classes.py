@@ -14,6 +14,7 @@ from ..permissions.general import AllowAll
 from ..permissions.general import DenyAll
 from .helpers import create_superuser
 
+
 class BasePermissionsThrowExceptionsTestCase(TestCase):
 
     def setUp(self):

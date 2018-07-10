@@ -16,6 +16,7 @@ from kolibri.core.content.utils.sqlalchemybridge import SCHEMA_PATH_TEMPLATE
 
 DATA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../../fixtures/{name}_content_data.json')
 
+
 class Command(BaseCommand):
     """
     This management command produces SQLAlchemy schema reflections of the content database app.

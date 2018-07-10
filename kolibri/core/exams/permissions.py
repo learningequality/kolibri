@@ -25,6 +25,7 @@ class UserCanReadExamAssignmentData(DenyAll):
             ancestor_collection=F("collection"),
         ).filter(Q(exam__active=True) | Q(exam__examlogs__user=user))
 
+
 class UserCanReadExamData(DenyAll):
 
     def user_can_read_object(self, user, obj):

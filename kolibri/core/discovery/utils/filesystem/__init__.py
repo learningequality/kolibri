@@ -28,6 +28,7 @@ DriveData = namedtuple(
     ]
 )
 
+
 def enumerate_mounted_disk_partitions():
     """
     Searches the local device for attached partitions/drives, and computes metadata about each one.
