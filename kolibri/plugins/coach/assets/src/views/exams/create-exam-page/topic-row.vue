@@ -140,7 +140,4 @@
     border: none
     font-size: 1em
 
-  .disabled
-    color: $core-text-disabled
-
 </style>
