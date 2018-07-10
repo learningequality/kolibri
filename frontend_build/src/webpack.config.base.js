@@ -25,7 +25,6 @@ var OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 var prettierOptions = require('../../.prettier');
 var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 
-
 var production = process.env.NODE_ENV === 'production';
 
 var base_dir = path.join(__dirname, '..', '..');

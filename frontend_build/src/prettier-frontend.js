@@ -10,7 +10,7 @@ const noChange = 0;
   Modifications to match our component linting conventions.
   Surround style and script blocks by 2 new lines and ident.
 */
-function identAndAddNewLines(str) {
+function indentAndAddNewLines(str) {
   str = str.replace(/^(\n)*/, '\n\n');
   str = str.replace(/(\n)*$/, '\n\n');
   str = str.replace(/(.*\S.*)/g, '  $1');
@@ -52,7 +52,7 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
 
             const js = source.slice(scriptStart, scriptEnd).replace(/(\n) {2}/g, '$1');
             let formattedJs = prettier.format(js, vueComponentOptions);
-            formattedJs = identAndAddNewLines(formattedJs);
+            formattedJs = indentAndAddNewLines(formattedJs);
             formatted = source.replace(source.slice(scriptStart, scriptEnd), formattedJs);
           }
 
@@ -60,7 +60,7 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
           for (let i = 0; i < vueComponent.styles.length; i++) {
             // Reparse to get updated line numbers
             const styleBlock = compiler.parseComponent(formatted).styles[i];
-            // Skip if not scss or css
+            // Skip if not scss
             if (styleBlock.lang !== 'scss') {
               return;
             }
@@ -77,7 +77,7 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
 
             const scss = formatted.slice(start, end);
             let formattedScss = prettier.format(scss, vueComponentOptions);
-            formattedScss = identAndAddNewLines(formattedScss);
+            formattedScss = indentAndAddNewLines(formattedScss);
             formatted = formatted.replace(formatted.slice(start, end), formattedScss);
           }
         }
