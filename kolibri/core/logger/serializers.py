@@ -22,6 +22,7 @@ class ContentSessionLogSerializer(KolibriModelSerializer):
         fields = ('pk', 'user', 'content_id', 'channel_id', 'start_timestamp',
                   'end_timestamp', 'time_spent', 'kind', 'extra_fields', 'progress')
 
+
 class ExamLogSerializer(KolibriModelSerializer):
     progress = serializers.SerializerMethodField()
     score = serializers.SerializerMethodField()
@@ -43,6 +44,7 @@ class ExamLogSerializer(KolibriModelSerializer):
             instance.completion_timestamp = now()
         return super(ExamLogSerializer, self).update(instance, validated_data)
 
+
 class MasteryLogSerializer(KolibriModelSerializer):
 
     pastattempts = serializers.SerializerMethodField()
@@ -61,6 +63,7 @@ class MasteryLogSerializer(KolibriModelSerializer):
     def get_totalattempts(self, obj):
         return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).count()
 
+
 class AttemptLogSerializer(KolibriModelSerializer):
     answer = serializers.JSONField(default='{}')
     interaction_history = serializers.JSONField(default='[]')
@@ -70,6 +73,7 @@ class AttemptLogSerializer(KolibriModelSerializer):
         fields = ('id', 'masterylog', 'start_timestamp', 'sessionlog',
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent', 'user',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history', 'error')
+
 
 class ExamAttemptLogSerializer(KolibriModelSerializer):
     answer = serializers.JSONField(default='{}', allow_null=True)
@@ -92,6 +96,7 @@ class ExamAttemptLogSerializer(KolibriModelSerializer):
                 raise serializers.ValidationError('Invalid exam log')
         return data
 
+
 class ContentSummaryLogSerializer(KolibriModelSerializer):
 
     currentmasterylog = serializers.SerializerMethodField()
@@ -109,11 +114,13 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
         except MasteryLog.DoesNotExist:
             return None
 
+
 class UserSessionLogSerializer(KolibriModelSerializer):
 
     class Meta:
         model = UserSessionLog
         fields = ('pk', 'user', 'channels', 'start_timestamp', 'last_interaction_timestamp', 'pages')
+
 
 class TotalContentProgressSerializer(serializers.ModelSerializer):
 

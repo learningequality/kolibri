@@ -33,6 +33,7 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 
+
 class ContentSessionLogAPITestCase(APITestCase):
 
     def setUp(self):

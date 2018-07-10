@@ -79,6 +79,7 @@ class LessonProgressSerializer(ModelSerializer):
             'total_resources': len(instance.resources),
         }
 
+
 class LearnerClassroomSerializer(ModelSerializer):
     assignments = SerializerMethodField()
 

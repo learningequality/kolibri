@@ -9,6 +9,7 @@ from .server import NotRunning
 
 logger = logging.getLogger(__name__)
 
+
 def check_other_kolibri_running(port):
     try:
         # Check if there are other kolibri instances running

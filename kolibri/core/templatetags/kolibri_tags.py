@@ -96,6 +96,7 @@ def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
                                json.dumps(url_params)))
     return mark_safe(html)
 
+
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
     response, kwargs, url_params = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
@@ -110,10 +111,12 @@ def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
                                ))
     return mark_safe(html)
 
+
 def _replace_dict_values(check, replace, dict):
     for (key, value) in iteritems(dict):
         if dict[key] is check:
             dict[key] = replace
+
 
 def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs):
     reversal = dict()

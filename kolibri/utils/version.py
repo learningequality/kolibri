@@ -204,6 +204,7 @@ def get_git_describe(version):
     except EnvironmentError:
         return None
 
+
 def get_version_from_git(get_git_describe_string):
     """
     Fetches the latest git tag (NB! broken behavior!)

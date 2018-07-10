@@ -16,10 +16,12 @@ logging = logger.getLogger(__name__)
 
 DEFAULT_PASSWORD = "kolibri"
 
+
 def validate_username(user):
     # Check if username is specified, if not, throw an error
     if 'username' not in user or user['username'] is None:
         raise CommandError('No usernames specified, this is required for user creation')
+
 
 def infer_facility(user, default_facility):
     if 'facility' in user and user['facility']:
@@ -34,6 +36,7 @@ def infer_facility(user, default_facility):
     else:
         return default_facility
 
+
 def infer_and_create_class(user, facility):
     if 'class' in user and user['class']:
         try:
@@ -45,6 +48,7 @@ def infer_and_create_class(user, facility):
             except Classroom.DoesNotExist:
                 classroom = Classroom.objects.create(name=user['class'], parent=facility)
         return classroom
+
 
 def create_user(i, user, default_facility=None):
     validate_username(user)

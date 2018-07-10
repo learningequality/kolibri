@@ -5,6 +5,7 @@ from rest_framework.serializers import ModelSerializer
 
 from .fields import DateTimeTzField as DjangoDateTimeTzField
 
+
 class DateTimeTzField(DateTimeField):
 
     def to_internal_value(self, data):
@@ -20,6 +21,7 @@ serializer_field_mapping = {
 }
 
 serializer_field_mapping.update(ModelSerializer.serializer_field_mapping)
+
 
 class KolibriModelSerializer(ModelSerializer):
 

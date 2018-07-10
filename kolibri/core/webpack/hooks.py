@@ -49,6 +49,7 @@ class WebpackError(EnvironmentError):
 
 logger = logging.getLogger(__name__)
 
+
 def filter_by_bidi(bidi, chunk):
     if chunk['name'].split('.')[-1] != 'css':
         return True

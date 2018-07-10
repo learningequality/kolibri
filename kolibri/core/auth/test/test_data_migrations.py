@@ -9,6 +9,7 @@ from kolibri.core.auth.models import FacilityUser
 
 # Modified from https://www.caktusgroup.com/blog/2016/02/02/writing-unit-tests-django-migrations/
 
+
 class TestMigrations(TestCase):
 
     migrate_from = None

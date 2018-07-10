@@ -15,6 +15,7 @@ from kolibri.core.content.utils.sqlalchemybridge import make_session
 from kolibri.core.content.utils.sqlalchemybridge import set_all_class_defaults
 from kolibri.core.content.utils.sqlalchemybridge import sqlite_connection_string
 
+
 @patch('kolibri.core.content.utils.sqlalchemybridge.db_matches_schema')
 @patch('kolibri.core.content.utils.sqlalchemybridge.make_session', return_value=(0, 0))
 @patch('kolibri.core.content.utils.sqlalchemybridge.sqlite_connection_string', return_value='test')
@@ -74,6 +75,7 @@ class SQLAlchemyBridgeClassTestCase(TestCase):
         session_mock.close.assert_called_once_with()
         connection.close.assert_called_once_with()
 
+
 class SQLAlchemyBridgeSQLAlchemyFunctionsTestCase(TestCase):
 
     def test_sqlite_string(self):
@@ -126,6 +128,7 @@ def setUp(self, apps_mock, get_class_mock):
     self.DjangoModelMock = MagicMock()
     self.DjangoModelMock._meta.fields = []
     apps_mock.get_models.return_value = [self.DjangoModelMock]
+
 
 @patch('kolibri.core.content.utils.sqlalchemybridge.get_class')
 @patch('kolibri.core.content.utils.sqlalchemybridge.apps')

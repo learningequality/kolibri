@@ -2,6 +2,7 @@ from django.test.utils import TestContextDecorator
 
 from kolibri.utils import conf
 
+
 class override_option(TestContextDecorator):
     """
     Acts as either a decorator or a context manager. If it's a decorator it
@@ -11,6 +12,7 @@ class override_option(TestContextDecorator):
 
     Note: adapted from django.test.utils.override_settings
     """
+
     def __init__(self, section, key, value):
         self.section = section
         self.key = key
