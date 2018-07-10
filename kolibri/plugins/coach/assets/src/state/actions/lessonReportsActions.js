@@ -65,7 +65,6 @@ export function showLessonResourceUserSummaryPage(store, params) {
             contentNode: { ...contentNode },
             userData,
           });
-          store.commit('CORE_SET_TITLE', contentNode.title);
           store.commit('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.SUMMARY });
           store.commit('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_SUMMARY);
           store.commit('CORE_SET_PAGE_LOADING', false);
@@ -91,7 +90,6 @@ export function showLessonResourceUserReportPage(store, params) {
     .fetch()
     .then(
       contentNode => {
-        store.commit('CORE_SET_TITLE', contentNode.title);
         // NOTE: returning the result causes problems for some reason
         showExerciseDetailView(
           store,

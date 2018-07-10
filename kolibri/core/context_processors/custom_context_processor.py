@@ -27,6 +27,7 @@ browser_requirements = [
     },
 ]
 
+
 def pass_browser_entry(agent, entry):
     if agent.browser.family == entry['family']:
         if 'blacklist' in entry and entry['blacklist']:

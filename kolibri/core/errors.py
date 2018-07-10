@@ -8,6 +8,7 @@ class KolibriError(Exception):
 class KolibriValidationError(ValidationError, KolibriError):
     pass
 
+
 class KolibriUpgradeError(KolibriError):
     """
     Should be used whenever an error arises that is due to an anticipated future incompatible change,

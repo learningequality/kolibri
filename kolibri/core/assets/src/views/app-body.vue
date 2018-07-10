@@ -52,7 +52,6 @@
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
         error: state => state.core.error,
-        documentTitle: state => state.core.title,
       }),
       isMobile() {
         return this.windowSize.breakpoint < 2;

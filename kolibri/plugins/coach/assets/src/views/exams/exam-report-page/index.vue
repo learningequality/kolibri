@@ -119,6 +119,11 @@
 
   export default {
     name: 'examReportPage',
+    metaInfo() {
+      return {
+        title: this.exam.title,
+      };
+    },
     components: {
       contentIcon,
       coreTable,

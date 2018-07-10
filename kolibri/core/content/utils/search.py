@@ -3,6 +3,7 @@ from porter2stemmer import Porter2Stemmer
 
 stemmer = Porter2Stemmer()
 
+
 def fuzz(text):
     """
     Apply porter stemming algorithm then double metaphone algorithm to the passed in String

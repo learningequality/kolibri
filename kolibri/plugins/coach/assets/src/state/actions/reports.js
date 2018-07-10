@@ -9,7 +9,6 @@ import {
   ContentSummaryLogResource,
   LearnerGroupResource,
 } from 'kolibri.resources';
-import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
 import {
   ContentScopes,
@@ -25,48 +24,12 @@ import ContentSummaryResourceConstructor from '../../apiResources/contentSummary
 import ContentReportResourceConstructor from '../../apiResources/contentReport';
 import { setClassState, handleCoachPageError } from './main';
 
-const translator = createTranslator('coachReportPageTitles', {
-  recentChannelsPageTitle: 'Recent - All channels',
-  recentItemsForChannelPageTitle: 'Recent - Items',
-  recentPageTitle: 'Recent',
-  recentLearnerActivityReportPageTitle: 'Recent - Learners',
-  recentActivityLearnerDetailsReportPageTitle: 'Recent - Learner Details',
-  topicsReportAllChannelsPageTitle: 'Topics - All channels',
-  topicsForChannelReportPageTitle: 'Topics - Channel',
-  topicsContentItemsReportPageTitle: 'Topics - Items',
-  topicsLearnersReportForContentItemPageTitle: 'Topics - Learners',
-  topicsLearnerDetailReportPageTitle: 'Topics - Learner Details',
-  learnersReportPageTitle: 'Learners',
-  learnersReportAllChannelsPageTitle: 'Learners - All channels',
-  learnersReportForChannelPageTitle: 'Learners - Channel',
-  learnersReportForContentItemsPageTitle: 'Learners - Items',
-  learnersItemDetailsReportPageTitle: 'Learners - Item Details',
-});
-
 const RecentReportResource = new RecentReportResourceConstructor();
 const ContentSummaryResource = new ContentSummaryResourceConstructor();
 const ContentReportResource = new ContentReportResourceConstructor();
 
-const pageNameToTitleMap = {
-  [PageNames.LEARNER_CHANNELS]: 'learnersReportAllChannelsPageTitle',
-  [PageNames.LEARNER_CHANNEL_ROOT]: 'learnersReportForChannelPageTitle',
-  [PageNames.LEARNER_ITEM_DETAILS]: 'learnersItemDetailsReportPageTitle',
-  [PageNames.LEARNER_ITEM_LIST]: 'learnersReportForContentItemsPageTitle',
-  [PageNames.LEARNER_LIST]: 'learnersReportPageTitle',
-  [PageNames.RECENT_CHANNELS]: 'recentChannelsPageTitle',
-  [PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recentItemsForChannelPageTitle',
-  [PageNames.RECENT_LEARNERS_FOR_ITEM]: 'recentLearnerActivityReportPageTitle',
-  [PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'recentActivityLearnerDetailsReportPageTitle',
-  [PageNames.TOPIC_CHANNELS]: 'topicsReportAllChannelsPageTitle',
-  [PageNames.TOPIC_CHANNEL_ROOT]: 'topicsForChannelReportPageTitle',
-  [PageNames.TOPIC_ITEM_LIST]: 'topicsContentItemsReportPageTitle',
-  [PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'topicsLearnersReportForContentItemPageTitle',
-  [PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'topicsLearnerDetailReportPageTitle',
-};
-
 function preparePageNameAndTitle(store, pageName) {
   store.commit('SET_PAGE_NAME', pageName);
-  store.commit('CORE_SET_TITLE', translator.$tr(pageNameToTitleMap[pageName]));
   store.commit('CORE_SET_PAGE_LOADING', true);
 }
 
@@ -469,7 +432,6 @@ export function showRecentItemsForChannel(store, params) {
           });
           store.commit('CORE_SET_PAGE_LOADING', false);
           store.commit('CORE_SET_ERROR', null);
-          store.commit('CORE_SET_TITLE', translator.$tr('recentPageTitle'));
         },
         error => handleCoachPageError(store, error)
       );

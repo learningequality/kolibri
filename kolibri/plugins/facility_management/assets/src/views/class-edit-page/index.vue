@@ -119,6 +119,12 @@
       remove: 'Remove',
       noUsersExist: 'No users in this class',
       edit: 'Edit class name',
+      documentTitle: 'Edit Class',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       userTable,

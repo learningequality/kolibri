@@ -148,7 +148,7 @@ class ChannelImport(object):
         # Do a binary search to find the lowest unused tree_id
         def find_hole_in_list(ids):
             last = len(ids) - 1
-            middle = int(last/2 + 1)
+            middle = int(last / 2 + 1)
             # Check if the lower half of ids has a hole in it
             if ids[middle] - ids[0] != middle:
                 # List is only two ids, so hole must be between them

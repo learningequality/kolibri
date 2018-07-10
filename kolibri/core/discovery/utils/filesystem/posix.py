@@ -31,6 +31,7 @@ FILESYSTEM_BLACKLIST = set(["anon_inodefs", "bdev", "binfmt_misc", "cgroup", "cp
 # so they should not be shown in the list of import/export drives.
 PATH_PREFIX_BLACKLIST = ["/proc", "/sys", "/tmp", "/var", "/boot", "/dev"]
 
+
 def get_drive_list():
     """
     Gets a list of drives and metadata by parsing the output of `mount`, and adding additional info from various commands.
@@ -84,6 +85,7 @@ def get_drive_list():
 
     return drives
 
+
 def _get_drive_usage(path):
     """
     Use Python libraries to get drive space/usage statistics. Prior to v3.3, use `os.statvfs`;
@@ -106,6 +108,7 @@ def _get_drive_usage(path):
             "free": free,
             "used": total - free,
         }
+
 
 def _try_to_get_drive_info_from_dbus(device):
     """
@@ -152,6 +155,7 @@ def _try_to_get_drive_info_from_dbus(device):
     except dbus.exceptions.DBusException:
         return {}
 
+
 def _get_drivetype_from_dbus_drive_properties(drive_props):
     """
     Read the block and drive properties from dbus drive props object to determine our best guess at the drive type.
@@ -166,6 +170,7 @@ def _get_drivetype_from_dbus_drive_properties(drive_props):
         return drivetypes.USB_DEVICE
     else:
         return drivetypes.UNKNOWN
+
 
 def _try_to_get_drive_info_from_diskutil(device):
     """

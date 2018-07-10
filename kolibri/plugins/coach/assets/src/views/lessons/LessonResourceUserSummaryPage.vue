@@ -216,6 +216,11 @@
 
   export default {
     name: 'lessonResourceUserSummaryPage',
+    metaInfo() {
+      return {
+        title: this.resourceTitle,
+      };
+    },
     components: {
       coachContentLabel,
       contentIcon,

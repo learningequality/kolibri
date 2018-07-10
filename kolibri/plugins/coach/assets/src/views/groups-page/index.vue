@@ -82,6 +82,12 @@
       newGroup: 'New group',
       ungrouped: 'Ungrouped',
       noGroups: 'You do not have any groups',
+      documentTitle: 'Groups',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       kButton,

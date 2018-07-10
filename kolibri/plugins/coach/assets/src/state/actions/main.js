@@ -1,10 +1,5 @@
 import { ClassroomResource } from 'kolibri.resources';
-import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
-
-const translator = createTranslator('classListTitles', {
-  classListPageTitle: 'Classes',
-});
 
 /**
  * Checks how many Classrooms the Coach user is assigned to and provides data to
@@ -44,7 +39,6 @@ export function showClassListPage(store) {
       store.commit('SET_PAGE_STATE', {});
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
-      store.commit('CORE_SET_TITLE', translator.$tr('classListPageTitle'));
     },
     error => store.dispatch('handleApiError', error)
   );

@@ -17,6 +17,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSummaryLog
 
+
 class LessonReportTestCase(APITestCase):
 
     def setUp(self):
@@ -81,12 +82,12 @@ class LessonReportTestCase(APITestCase):
         learner_user.set_password('password')
         learner_user.save()
         self.client.login(username='learner', password='password')
-        get_response = self.client.get(reverse(self.lessonreport_basename+'-detail', kwargs={'pk': self.lesson.id}))
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-detail', kwargs={'pk': self.lesson.id}))
         self.assertEqual(get_response.status_code, 403)
 
     def test_no_progress_logged(self):
         self.client.login(username='admin', password='password')
-        get_response = self.client.get(reverse(self.lessonreport_basename+'-detail', kwargs={'pk': self.lesson.id}))
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-detail', kwargs={'pk': self.lesson.id}))
         progress = get_response.data['progress']
         self.assertEqual(len(progress), 1)
         self.assertEqual(progress[0], {
@@ -104,7 +105,7 @@ class LessonReportTestCase(APITestCase):
             start_timestamp=datetime.datetime.now(),
         )
         self.client.login(username='admin', password='password')
-        get_response = self.client.get(reverse(self.lessonreport_basename+'-detail', kwargs={'pk': self.lesson.id}))
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-detail', kwargs={'pk': self.lesson.id}))
         progress = get_response.data['progress']
         self.assertEqual(progress[0], {
             'num_learners_completed': 0,
@@ -121,7 +122,7 @@ class LessonReportTestCase(APITestCase):
             start_timestamp=datetime.datetime.now(),
         )
         self.client.login(username='admin', password='password')
-        get_response = self.client.get(reverse(self.lessonreport_basename+'-detail', kwargs={'pk': self.lesson.id}))
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-detail', kwargs={'pk': self.lesson.id}))
         progress = get_response.data['progress']
         self.assertEqual(progress[0], {
             'num_learners_completed': 1,
@@ -130,5 +131,5 @@ class LessonReportTestCase(APITestCase):
 
     def test_total_learners_value(self):
         self.client.login(username='admin', password='password')
-        get_response = self.client.get(reverse(self.lessonreport_basename+'-detail', kwargs={'pk': self.lesson.id}))
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-detail', kwargs={'pk': self.lesson.id}))
         self.assertEqual(get_response.data['total_learners'], 1)

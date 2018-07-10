@@ -9,6 +9,7 @@ DB_PATH = settings.DATABASES["default"]["NAME"]
 
 CENTRAL_SERVER_DB_UPLOAD_URL = "http://kolibridataupload.learningequality.org/upload/"
 
+
 def create_callback(encoder):
     encoder_len = encoder.len
     bar = ProgressBar(expected_size=encoder_len, filled_char="=")
@@ -17,6 +18,7 @@ def create_callback(encoder):
         bar.show(monitor.bytes_read)
 
     return callback
+
 
 class Command(BaseCommand):
     help = "Uploads the local database to a central server for backup and reporting"

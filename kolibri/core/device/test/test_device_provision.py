@@ -60,10 +60,12 @@ class DeviceProvisionTestCase(TestCase):
         create_device_settings(language_id='en', facility=facility)
         self.assertEqual(DeviceSettings.objects.get().default_facility, facility)
 
+
 class DeviceProvisionCommandTestCase(TestCase):
     """
     Tests for provisiondevice command.
     """
+
     def setUp(self):
         self.preset = list(presets.keys())[0]
         call_command(

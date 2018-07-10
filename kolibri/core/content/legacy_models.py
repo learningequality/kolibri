@@ -6,6 +6,7 @@ All models in here must have Meta property abstract = True so that they are avai
 but otherwise have no impact on the content app models
 """
 
+
 class License(models.Model):
     """
     Normalize the license of ContentNode model

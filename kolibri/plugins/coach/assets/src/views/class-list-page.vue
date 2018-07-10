@@ -74,6 +74,11 @@
 
   export default {
     name: 'classListPage',
+    metaInfo() {
+      return {
+        title: this.$tr('classPageHeader'),
+      };
+    },
     components: {
       authMessage,
       coreTable,

@@ -53,6 +53,11 @@
 
   export default {
     name: 'lessonPlaylistPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       ContentCard,
       ContentIcon,
@@ -85,6 +90,7 @@
     $trs: {
       noResourcesInLesson: 'There are no resources in this lesson',
       teacherNote: 'Coach note',
+      documentTitle: 'Lesson contents',
     },
   };
 

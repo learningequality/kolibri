@@ -30,6 +30,11 @@
 
   export default {
     name: 'coachExamDetailPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       examReport,
     },
@@ -79,6 +84,9 @@
           },
         });
       },
+    },
+    $trs: {
+      documentTitle: 'Exam Report Detail',
     },
   };
 

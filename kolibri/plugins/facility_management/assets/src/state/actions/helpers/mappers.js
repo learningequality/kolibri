@@ -29,11 +29,3 @@ export function _userState(facilityUser) {
     roles: facilityUser.roles,
   };
 }
-
-/**
- * Title Helper
- */
-
-export function _managePageTitle(title) {
-  return `Manage ${title}`;
-}

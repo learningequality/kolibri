@@ -90,6 +90,11 @@
 
   export default {
     name: 'userPermissionsPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle', { name: this.userFullName }),
+      };
+    },
     components: {
       authMessage,
       immersiveFullScreen,
@@ -110,6 +115,7 @@
       ...mapGetters(['isSuperuser']),
       ...mapState({
         user: ({ pageState }) => pageState.user,
+        userFullName: state => state.pageState.user.full_name,
         permissions: ({ pageState }) => pageState.permissions,
         isCurrentUser: ({ core, pageState }) => core.session.username === pageState.user.username,
       }),
@@ -202,6 +208,7 @@
       saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
       you: 'You',
+      documentTitle: "{ name }'s Device Permissions",
     },
   };
 

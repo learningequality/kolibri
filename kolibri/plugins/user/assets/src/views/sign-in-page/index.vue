@@ -151,6 +151,12 @@
       poweredBy: 'Kolibri {version}',
       required: 'This field is required',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
+      documentTitle: 'User Sign In',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       kButton,
@@ -413,7 +419,8 @@
   .main-row {
     display: table-row;
     background-color: $core-action-normal;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.jpg);
+    $bk-img: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.jpg);
+    background-image: $bk-img;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;

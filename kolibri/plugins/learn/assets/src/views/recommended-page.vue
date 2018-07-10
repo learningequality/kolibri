@@ -86,6 +86,12 @@
       popularSectionHeader: 'Most popular',
       suggestedNextStepsSectionHeader: 'Next steps',
       resumeSectionHeader: 'Resume',
+      documentTitle: 'Learn',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       contentCardGroupCarousel,

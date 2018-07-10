@@ -143,6 +143,12 @@
       finish: 'Finish',
       facility: 'Facility',
       required: 'This field is required',
+      documentTitle: 'User Sign Up',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       kButton,

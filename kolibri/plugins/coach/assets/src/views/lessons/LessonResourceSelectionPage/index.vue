@@ -73,6 +73,11 @@
 
   export default {
     name: 'lessonResourceSelectionPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       uiToolbar,
       contentCard,
@@ -167,6 +172,7 @@
       // TODO add search page check for this
       sourceInformation: 'from {sourceName}',
       resourceSaveConfirmation: 'Changes to lesson saved',
+      documentTitle: 'Select resources',
     },
   };
 

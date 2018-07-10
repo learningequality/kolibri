@@ -117,6 +117,7 @@ class MasteryFilter(FilterSet):
         model = MasteryLog
         fields = ['summarylog']
 
+
 class MasteryLogViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
@@ -124,6 +125,7 @@ class MasteryLogViewSet(viewsets.ModelViewSet):
     serializer_class = MasteryLogSerializer
     pagination_class = OptionalPageNumberPagination
     filter_class = MasteryFilter
+
 
 class AttemptFilter(FilterSet):
     content = CharFilter(method="filter_content")
@@ -134,6 +136,7 @@ class AttemptFilter(FilterSet):
     class Meta:
         model = AttemptLog
         fields = ['masterylog', 'complete', 'user', 'content']
+
 
 class AttemptLogViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
@@ -160,6 +163,7 @@ class ExamAttemptFilter(FilterSet):
         model = ExamAttemptLog
         fields = ['examlog', 'exam', 'user']
 
+
 class ExamAttemptLogViewSet(viewsets.ModelViewSet):
     permission_classes = (ExamActivePermissions, KolibriAuthPermissions, )
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend, filters.OrderingFilter)
@@ -167,6 +171,7 @@ class ExamAttemptLogViewSet(viewsets.ModelViewSet):
     serializer_class = ExamAttemptLogSerializer
     pagination_class = OptionalPageNumberPagination
     filter_class = ExamAttemptFilter
+
 
 class ExamLogFilter(BaseLogFilter):
 
@@ -181,6 +186,7 @@ class ExamLogFilter(BaseLogFilter):
     class Meta:
         model = ExamLog
         fields = ['user', 'exam']
+
 
 class ExamLogViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)

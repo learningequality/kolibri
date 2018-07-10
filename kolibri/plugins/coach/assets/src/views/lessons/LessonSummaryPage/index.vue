@@ -65,6 +65,11 @@
 
   export default {
     name: 'lessonSummaryPage',
+    metaInfo() {
+      return {
+        title: this.lessonTitle,
+      };
+    },
     components: {
       kDropdownMenu,
       ResourceListTable,

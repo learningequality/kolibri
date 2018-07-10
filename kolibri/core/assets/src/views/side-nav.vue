@@ -52,7 +52,7 @@
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
-              <p>© 2018 Learning Equality</p>
+              <p>© {{ copyrightYear }} Learning Equality</p>
             </div>
           </div>
         </div>
@@ -133,6 +133,8 @@
     data() {
       return {
         previouslyFocusedElement: null,
+        // __copyrightYear is injected by Webpack DefinePlugin
+        copyrightYear: __copyrightYear,
       };
     },
     computed: {

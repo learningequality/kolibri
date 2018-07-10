@@ -16,10 +16,12 @@ from ..models import Classroom
 from ..models import FacilityUser
 from .helpers import setup_device
 
+
 class UserImportTestCase(TestCase):
     """
     Tests for functions used in userimport command.
     """
+
     def setUp(self):
         self.facility, self.superuser = setup_device()
 
@@ -128,6 +130,7 @@ class UserImportCommandTestCase(TestCase):
     """
     Tests for userimport command.
     """
+
     def setUp(self):
         self.csvfile, self.csvpath = tempfile.mkstemp(suffix='csv')
 

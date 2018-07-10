@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 _JSON_CONTENT_TYPES_CACHE = {}
 
+
 class ContentRendererHook(WebpackBundleHook):
     """
     An inheritable hook that allows special behaviour for a frontend module that defines

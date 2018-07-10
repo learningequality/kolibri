@@ -19,22 +19,9 @@ import { now } from 'kolibri.utils.serverClock';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import seededShuffle from 'kolibri.lib.seededshuffle';
-import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import tail from 'lodash/tail';
 import { PageNames, ClassesPageNames } from '../../constants';
-
-const translator = createTranslator('topicTreeExplorationPageTitles', {
-  allChannels: 'All channels',
-  topicsForChannelPageTitle: 'Topics - { currentChannelTitle }',
-  currentTopicForChannelPageTitle: '{ currentTopicTitle } - { currentChannelTitle }',
-  currentContentForChannelPageTitle: '{ currentContentTitle } - { currentChannelTitle }',
-  contentUnavailablePageTitle: 'Content Unavailable',
-  searchPageTitle: 'Search',
-  examsListPageTitle: 'Exams',
-  currentExamPageTitle: '{ currentExamTitle} - { currentChannelTitle }',
-  examReportTitle: '{examTitle} report',
-});
 
 // adds progress, thumbnail, and breadcrumbs. normalizes pk/id and kind
 function normalizeContentNode(node, ancestors = []) {
@@ -113,7 +100,6 @@ export function showRoot(store) {
 export function showChannels(store) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', PageNames.TOPICS_ROOT);
-  store.commit('CORE_SET_TITLE', translator.$tr('allChannels'));
 
   setAndCheckChannels(store).then(
     channels => {
@@ -208,23 +194,6 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
 
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
-
-      if (isRoot) {
-        store.commit(
-          'CORE_SET_TITLE',
-          translator.$tr('topicsForChannelPageTitle', {
-            currentChannelTitle: currentChannel.title,
-          })
-        );
-      } else {
-        store.commit(
-          'CORE_SET_TITLE',
-          translator.$tr('currentTopicForChannelPageTitle', {
-            currentTopicTitle: pageState.topic.title,
-            currentChannelTitle: currentChannel.title,
-          })
-        );
-      }
     },
     error => {
       store.dispatch('handleApiError', error);
@@ -263,13 +232,6 @@ export function showTopicsContent(store, id) {
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
-      store.commit(
-        'CORE_SET_TITLE',
-        translator.$tr('currentContentForChannelPageTitle', {
-          currentContentTitle: content.title,
-          currentChannelTitle: currentChannel.title,
-        })
-      );
     },
     error => {
       store.dispatch('handleApiError', error);
@@ -337,7 +299,6 @@ export function showContentUnavailable(store) {
   store.commit('SET_PAGE_STATE', {});
   store.commit('CORE_SET_PAGE_LOADING', false);
   store.commit('CORE_SET_ERROR', null);
-  store.commit('CORE_SET_TITLE', translator.$tr('contentUnavailablePageTitle'));
 }
 
 export function showSearch(store, searchTerm) {
@@ -345,7 +306,6 @@ export function showSearch(store, searchTerm) {
   store.commit('SET_PAGE_STATE', {});
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('CORE_SET_ERROR', null);
-  store.commit('CORE_SET_TITLE', translator.$tr('searchPageTitle'));
   clearSearch(store);
   setAndCheckChannels(store).then(channels => {
     if (!channels.length) {
@@ -387,12 +347,6 @@ export function showExamReport(store, params) {
       if (canViewExamReport(examReport.exam, examReport.examLog)) {
         store.commit('SET_PAGE_STATE', examReport);
         store.commit('CORE_SET_ERROR', null);
-        store.commit(
-          'CORE_SET_TITLE',
-          translator.$tr('examReportTitle', {
-            examTitle: examReport.exam.title,
-          })
-        );
         store.commit('CORE_SET_PAGE_LOADING', false);
       } else {
         router.replace({
@@ -566,13 +520,6 @@ export function showExam(store, params) {
                 store.commit('SET_PAGE_STATE', pageState);
                 store.commit('CORE_SET_PAGE_LOADING', false);
                 store.commit('CORE_SET_ERROR', null);
-                store.commit(
-                  'CORE_SET_TITLE',
-                  translator.$tr('currentExamPageTitle', {
-                    currentExamTitle: pageState.exam.title,
-                    currentChannelTitle: currentChannel.title,
-                  })
-                );
               }
             },
             error => {

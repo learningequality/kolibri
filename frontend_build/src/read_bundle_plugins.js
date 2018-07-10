@@ -104,6 +104,7 @@ var readBundlePlugins = function() {
         bundle.plugins.push(
           new webpack.DefinePlugin({
             __coreAPISpec: '{}',
+            __copyrightYear: new Date().getFullYear(),
           })
         );
       }

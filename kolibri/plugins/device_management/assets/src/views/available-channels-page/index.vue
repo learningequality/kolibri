@@ -105,6 +105,11 @@
 
   export default {
     name: 'availableChannelsPage',
+    metaInfo() {
+      return {
+        title: this.documentTitle,
+      };
+    },
     components: {
       channelListItem,
       channelTokenModal,
@@ -136,6 +141,20 @@
         transferType: state => wizardState(state).transferType,
         wizardStatus: state => wizardState(state).status,
       }),
+      documentTitle() {
+        switch (this.transferType) {
+          case TransferTypes.LOCALEXPORT:
+            return this.$tr('documentTitleForExport');
+          case TransferTypes.LOCALIMPORT:
+            return this.$tr('documentTitleForLocalImport', {
+              driveName: this.selectedDrive.name,
+            });
+          case TransferTypes.REMOTEIMPORT:
+            return this.$tr('documentTitleForRemoteImport');
+          default:
+            return '';
+        }
+      },
       channelsAreLoading() {
         return this.wizardStatus === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
       },
@@ -233,6 +252,9 @@
       channelTokenButtonLabel: 'Try adding a token',
       channelNotListedExplanation: "Don't see your channel listed?",
       pageLoadError: 'There was a problem loading this page…',
+      documentTitleForLocalImport: "Available Channels on '{driveName}'",
+      documentTitleForRemoteImport: 'Available Channels on Kolibri Studio',
+      documentTitleForExport: 'Available Channels on this device',
     },
   };
 
