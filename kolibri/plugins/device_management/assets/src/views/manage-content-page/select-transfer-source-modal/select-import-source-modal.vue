@@ -2,13 +2,14 @@
 
   <k-modal
     :title="$tr('selectLocalRemoteSourceTitle')"
+    size="small"
     :submitText="$tr('continue')"
     :cancelText="$tr('cancel')"
     :submitDisabled="formIsDisabled"
     @submit="goForward"
     @cancel="resetContentWizardState"
   >
-    <div class="options">
+    <div>
       <k-radio-button
         :label="$tr('network')"
         v-model="source"
@@ -80,9 +81,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .options
-    margin: 2em 0
-
-</style>
+<style lang="stylus" scoped></style>
