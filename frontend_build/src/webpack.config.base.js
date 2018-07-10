@@ -179,6 +179,7 @@ module.exports = {
     new StyleLintPlugin({
       files: ['**/*.scss', '**/*.vue'],
       fix: true,
+      // lintDirtyModulesOnly: true,
     }),
   ],
   resolve: {
