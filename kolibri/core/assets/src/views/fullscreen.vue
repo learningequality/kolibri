@@ -73,8 +73,6 @@
 
 <style lang="scss" scoped>
 
-  // @stylint off
-
   .normalize-fullscreen {
     width: 100% !important;
     height: 100% !important;
@@ -94,7 +92,6 @@
     width: 100% !important;
     height: 100% !important;
     background-color: black !important;
-    // @stylint on
   }
 
 </style>
