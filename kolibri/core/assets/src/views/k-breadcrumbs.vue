@@ -300,7 +300,8 @@
   .breadcrumbs-visible-item {
     display: inline-block;
     vertical-align: middle;
-    a, span {
+    a,
+    span {
       display: inline-block;
       max-width: 300px;
       overflow: hidden;

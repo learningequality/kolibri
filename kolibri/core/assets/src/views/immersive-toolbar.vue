@@ -140,14 +140,16 @@
   .link {
     display: inline-block;
     border-radius: 50%;
-    &:focus, &:hover {
+    &:focus,
+    &:hover {
       background-color: $core-action-dark;
     }
   }
 
   .secondary {
     .link {
-      &:focus, &:hover {
+      &:focus,
+      &:hover {
         background-color: darken($core-text-default, 25%);
       }
     }

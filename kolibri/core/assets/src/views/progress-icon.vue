@@ -64,7 +64,8 @@
 
   @import '~kolibri.styles.definitions';
 
-  .inprogress, .completed {
+  .inprogress,
+  .completed {
     border-radius: 50%;
     color: white;
     cursor: default;

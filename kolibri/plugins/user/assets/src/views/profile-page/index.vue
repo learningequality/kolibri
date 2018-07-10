@@ -325,7 +325,8 @@
     width: $iphone-width - 20px;
   }
 
-  .points-icon, .points-num {
+  .points-icon,
+  .points-num {
     display: inline-block;
   }
 

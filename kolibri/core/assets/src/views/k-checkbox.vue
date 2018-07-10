@@ -184,7 +184,8 @@
     cursor: pointer;
   }
 
-  .k-checkbox-checked, .k-checkbox-indeterminate {
+  .k-checkbox-checked,
+  .k-checkbox-indeterminate {
     fill: $core-action-normal;
   }
 
@@ -193,7 +194,8 @@
   }
 
   .k-checkbox-active {
-    .k-checkbox-checked, .k-checkbox-indeterminate {
+    .k-checkbox-checked,
+    .k-checkbox-indeterminate {
       outline: $core-outline;
     }
 
@@ -215,7 +217,9 @@
       fill: $core-grey-300;
     }
 
-    .k-checkbox, .k-checkbox-input, .k-checkbox-label {
+    .k-checkbox,
+    .k-checkbox-input,
+    .k-checkbox-label {
       cursor: default;
     }
 

@@ -265,7 +265,8 @@
     max-height: unset;
   }
 
-  .question-selector, .exercise-container {
+  .question-selector,
+  .exercise-container {
     overflow-y: auto;
   }
 

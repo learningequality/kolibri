@@ -413,8 +413,7 @@
   .main-row {
     display: table-row;
     background-color: $core-action-normal;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-                      url(./background.jpg);
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.jpg);
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -431,9 +430,8 @@
     width: 300px;
     background-color: $core-bg-light;
     margin: 16px auto;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2),
-                0 1px 1px 0 rgba(0, 0, 0, 0.14),
-                0 2px 1px -1px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+      0 2px 1px -1px rgba(0, 0, 0, 0.12);
   }
 
   .logo {

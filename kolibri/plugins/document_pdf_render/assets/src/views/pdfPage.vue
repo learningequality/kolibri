@@ -153,7 +153,7 @@
     position: relative;
     margin: $page-margin auto;
     z-index: 2; // material spec - card (resting)
-    background: #FFFFFF;
+    background: #ffffff;
   }
 
   .loading {

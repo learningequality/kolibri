@@ -1,10 +1,8 @@
-
 @import '~kolibri.styles.definitions';
 
 $transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-$raised-shadow: 0 1px 5px rgba(0, 0, 0, 0.2),
-                0 2px 2px rgba(0, 0, 0, 0.14),
-                0 3px 1px -2px rgba(0, 0, 0, 0.12);
+$raised-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14),
+  0 3px 1px -2px rgba(0, 0, 0, 0.12);
 
 $primary-raised-color: white;
 $primary-raised-disabled-color: rgba(white, 0.45);
@@ -56,7 +54,8 @@ a.button {
 .button.primary.raised {
   background-color: $core-action-normal;
   color: $primary-raised-color;
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background-color: $core-action-dark;
   }
   &:disabled {
@@ -71,10 +70,10 @@ a.button {
   }
 }
 
-
 .button.primary.flat {
   color: $primary-flat-color;
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background-color: $core-grey-300;
   }
   &:disabled {
@@ -91,7 +90,8 @@ a.button {
 .button.secondary.raised {
   background-color: $core-grey-200;
   color: $secondary-raised-color;
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background-color: $core-grey-300;
   }
   &:disabled {
@@ -108,7 +108,8 @@ a.button {
 
 .button.secondary.flat {
   color: $secondary-flat-color;
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background-color: $core-grey-300;
   }
   &:disabled {
@@ -122,11 +123,15 @@ a.button {
   }
 }
 
-.button.primary.raised, .button.secondary.raised {
+.button.primary.raised,
+.button.secondary.raised {
   box-shadow: $raised-shadow;
 }
 
-.button.primary.raised, .button.primary.flat, .button.secondary.raised, .button.secondary.flat {
+.button.primary.raised,
+.button.primary.flat,
+.button.secondary.raised,
+.button.secondary.flat {
   &:disabled {
     box-shadow: none;
     cursor: default;

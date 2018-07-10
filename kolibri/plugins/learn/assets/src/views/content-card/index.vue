@@ -153,16 +153,14 @@
     vertical-align: top;
     border-radius: 2px;
     background-color: $core-bg-light;
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 
-                0 3px 1px -2px rgba(0, 0, 0, 0.2), 
-                0 1px 5px 0 rgba(0, 0, 0, 0.12);
-    transition: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 
-                0 3px 1px -2px rgba(0, 0, 0, 0.2), 
-                0 1px 5px 0 rgba(0, 0, 0, 0.12) 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    &:hover, &:focus {
-      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 
-                  0 3px 14px 2px rgba(0, 0, 0, 0.12), 
-                  0 5px 5px -3px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+      0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    transition: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+      0 1px 5px 0 rgba(0, 0, 0, 0.12) 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    &:hover,
+    &:focus {
+      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12),
+        0 5px 5px -3px rgba(0, 0, 0, 0.2);
     }
   }
 
@@ -174,7 +172,8 @@
     position: relative;
   }
 
-  .title, .subtitle {
+  .title,
+  .subtitle {
     margin: 0;
   }
 

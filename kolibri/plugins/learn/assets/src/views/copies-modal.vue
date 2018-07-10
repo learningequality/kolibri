@@ -109,7 +109,8 @@
     text-align: right;
   }
 
-  ul, ol {
+  ul,
+  ol {
     padding: 0;
   }
 

@@ -404,7 +404,6 @@
     transform: translate(-50%, -50%);
   }
 
-
   /***** PLAYER OVERRIDES *****/
 
   @import '~kolibri.styles.definitions';
@@ -428,12 +427,10 @@
     }
   }
 
-
   /*** CUSTOM VIDEOJS SKIN ***/
   /deep/ .custom-skin {
     $button-height-normal: 40px;
     $button-font-size-normal: 24px;
-
 
     font-size: $video-player-font-size;
     font-family: $core-font;
@@ -443,7 +440,6 @@
     .vjs-slider {
       background-color: $video-player-color-2;
     }
-
 
     /* Seek Bar */
     .vjs-progress-control {
@@ -473,7 +469,6 @@
         }
       }
     }
-
 
     /* Control Bar */
     .vjs-control-bar {
@@ -510,7 +505,8 @@
     }
 
     /* Replay & Forward Buttons */
-    .vjs-icon-replay_10, .vjs-icon-forward_10 {
+    .vjs-icon-replay_10,
+    .vjs-icon-forward_10 {
       &:before {
         line-height: $button-height-normal;
         font-size: $button-font-size-normal;
@@ -543,7 +539,8 @@
         font-size: $video-player-font-size;
         background-color: $video-player-color;
 
-        &:focus, &:hover {
+        &:focus,
+        &:hover {
           background-color: $video-player-color-3;
         }
       }
@@ -553,7 +550,8 @@
         color: $video-player-font-color;
         font-weight: bold;
 
-        &:focus, &:hover {
+        &:focus,
+        &:hover {
           background-color: $video-player-color-3;
         }
       }
@@ -570,7 +568,6 @@
     .vjs-playback-rate .vjs-menu {
       min-width: 4em;
     }
-
 
     /* Time */
     .vjs-current-time {
@@ -597,21 +594,17 @@
       text-align: center;
     }
 
-
     /* Rate Button */
     .vjs-playback-rate-value {
       line-height: $button-height-normal;
       font-size: 20px;
     }
 
-
     /* Captions Settings */
     .vjs-texttrack-settings {
       display: none;
     }
   }
-
-
 
   /*** MEDIUM: < 600px ***/
   /deep/ .player-medium {
@@ -630,13 +623,10 @@
     }
   }
 
-
-
   /*** SMALL: < 480px ***/
   /deep/ .player-small {
     $button-height-small: 40px;
     $button-font-size-normal: 24px;
-
 
     /* Control bar buttons increase size. */
     .vjs-control-bar {
@@ -651,14 +641,17 @@
       }
     }
 
-    .vjs-icon-replay_10, .vjs-icon-forward_10 {
+    .vjs-icon-replay_10,
+    .vjs-icon-forward_10 {
       &:before {
         line-height: $button-height-small;
       }
     }
 
     /* Play, replay, and forward buttons move up. */
-    .vjs-play-control, .vjs-icon-replay_10, .vjs-icon-forward_10 {
+    .vjs-play-control,
+    .vjs-icon-replay_10,
+    .vjs-icon-forward_10 {
       position: absolute;
       transform: translate(-50%, -50%);
       top: -75px;
@@ -716,7 +709,6 @@
     }
   }
 
-
   /*** TINY: < 360px ***/
   /deep/ .player-tiny {
     /* Time divider is hidden */
@@ -730,7 +722,9 @@
     }
 
     /* Adjust play, replay, and forward buttons positioning. */
-    .vjs-play-control, .vjs-icon-replay_10, .vjs-icon-forward_10 {
+    .vjs-play-control,
+    .vjs-icon-replay_10,
+    .vjs-icon-forward_10 {
       top: -45px;
     }
 

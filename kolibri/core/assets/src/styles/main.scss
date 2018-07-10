@@ -1,4 +1,3 @@
-
 /*
   Styles defined in this file are attached to the document head, and
   apply globally to everything in the document. They are added after
@@ -11,15 +10,14 @@
   definitions.scss.
 */
 
-
 @import 'definitions.scss';
 
-
 // http://www.paulirish.com/2012/box-sizing-border-box-ftw/
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   box-sizing: inherit;
 }
-
 
 html {
   // https://davidwalsh.name/html5-boilerplate
@@ -30,7 +28,8 @@ html {
   line-height: 1.3;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   color: $core-text-default;
   background-color: $core-bg-canvas;
@@ -39,7 +38,12 @@ html, body {
 }
 
 // https://purecss.io/grids/#using-grids-with-custom-fonts
-html, button, input, select, textarea, .pure-g [class *= 'pure-u'] {
+html,
+button,
+input,
+select,
+textarea,
+.pure-g [class*='pure-u'] {
   font-family: $core-font;
 }
 
@@ -51,7 +55,10 @@ h2 {
   font-size: 1.17em;
 }
 
-h3, h4, h5, h6 {
+h3,
+h4,
+h5,
+h6 {
   font-size: 1em;
 }
 
@@ -63,7 +70,6 @@ h3, h4, h5, h6 {
 img {
   -ms-interpolation-mode: bicubic;
 }
-
 
 // https://davidwalsh.name/html5-boilerplate
 svg:not(:root) {
@@ -88,9 +94,8 @@ svg:not(:root) {
   font-family: 'Material Icons';
   font-style: normal;
   font-weight: 400;
-  src: local('Material Icons'),
-       local('MaterialIcons-Regular'),
-       url('~material-design-icons/iconfont/MaterialIcons-Regular.woff') format('woff');
+  src: local('Material Icons'), local('MaterialIcons-Regular'),
+    url('~material-design-icons/iconfont/MaterialIcons-Regular.woff') format('woff');
 }
 
 .material-icons {
@@ -122,10 +127,10 @@ svg:not(:root) {
   helper classes to add padding to grid elements
   (set globally in core-base.vue)
 */
-.gutter-16 [class *= 'pure-u'] {
+.gutter-16 [class*='pure-u'] {
   padding: 8px;
 }
-.gutter-24 [class *= 'pure-u'] {
+.gutter-24 [class*='pure-u'] {
   padding: 12px;
 }
 
@@ -152,7 +157,8 @@ button {
 }
 
 // TODO: move these inside scoped styles in own wrapper components
-.ui-icon-button, .ui-icon {
+.ui-icon-button,
+.ui-icon {
   svg {
     vertical-align: middle;
   }

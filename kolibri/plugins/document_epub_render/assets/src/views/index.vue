@@ -167,7 +167,7 @@
 
   #epub-container {
     height: 100%;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
 
     // prevents a never-visible spot underneath the fullscreen button
     padding-top: $fullscreen-button-height + $page-padding;

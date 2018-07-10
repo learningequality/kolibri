@@ -55,9 +55,8 @@
     z-index: 24;
     padding: 8px;
     background-color: $core-bg-canvas;
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 
-                0 4px 5px 0 rgba(0, 0, 0, 0.14), 
-                0 1px 10px 0 rgba(0, 0, 0, 0.12);
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+      0 1px 10px 0 rgba(0, 0, 0, 0.12);
     animation-fill-mode: both;
     animation-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
     animation-duration: 0.3s;

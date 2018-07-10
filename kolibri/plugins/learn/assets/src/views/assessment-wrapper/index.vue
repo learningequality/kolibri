@@ -503,9 +503,8 @@ oriented data synchronization.
     z-index: 8; // material - Bottom app bar
     font-size: 14px;
     background-color: $core-bg-light;
-    box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2), 
-                0 16px 24px 2px rgba(0, 0, 0, 0.14), 
-                0 6px 30px 5px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2), 0 16px 24px 2px rgba(0, 0, 0, 0.14),
+      0 6px 30px 5px rgba(0, 0, 0, 0.12);
   }
 
   .margin-wrapper {
@@ -522,7 +521,8 @@ oriented data synchronization.
     margin-bottom: 8px;
   }
 
-  .mastered, .not-mastered {
+  .mastered,
+  .not-mastered {
     vertical-align: 0;
   }
 
@@ -552,7 +552,8 @@ oriented data synchronization.
     display: table-row;
   }
 
-  .left, .right {
+  .left,
+  .right {
     display: table-cell;
     vertical-align: top;
   }
@@ -577,16 +578,21 @@ oriented data synchronization.
   }
 
   @keyframes shake {
-    10%, 90% {
+    10%,
+    90% {
       transform: translate3d(-1px, 0, 0);
     }
-    20%, 80% {
+    20%,
+    80% {
       transform: translate3d(2px, 0, 0);
     }
-    30%, 50%, 70% {
+    30%,
+    50%,
+    70% {
       transform: translate3d(-4px, 0, 0);
     }
-    40%, 60% {
+    40%,
+    60% {
       transform: translate3d(4px, 0, 0);
     }
   }

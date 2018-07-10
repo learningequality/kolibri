@@ -310,7 +310,9 @@
     }
   }
 
-  dl, dt, dd {
+  dl,
+  dt,
+  dd {
     margin: 0;
     display: block;
   }

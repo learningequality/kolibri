@@ -491,7 +491,6 @@
     }
   }
 
-
   .not-last {
     &:after {
       content: '/';
@@ -500,11 +499,13 @@
     }
   }
 
-  .fade-enter-active, .fade-leave-active {
+  .fade-enter-active,
+  .fade-leave-active {
     transition: opacity 0.1s;
   }
 
-  .fade-enter, .fade-leave-to .fade-leave-active {
+  .fade-enter,
+  .fade-leave-to .fade-leave-active {
     opacity: 0;
   }
 

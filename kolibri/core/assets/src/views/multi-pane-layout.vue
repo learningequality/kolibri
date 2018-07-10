@@ -79,7 +79,8 @@
     margin-bottom: 8px;
   }
 
-  .aside, .main {
+  .aside,
+  .main {
     overflow-y: auto;
   }
 

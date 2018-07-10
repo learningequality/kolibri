@@ -152,7 +152,8 @@
     margin-bottom: 8px;
   }
 
-  .input, .text {
+  .input,
+  .text {
     // consistent look in inline and block displays
     vertical-align: top;
   }
@@ -164,7 +165,8 @@
     height: $radio-height;
   }
 
-  .checked, .unchecked {
+  .checked,
+  .unchecked {
     &.active {
       // setting opacity to 0 hides input's default outline
       outline: $core-outline;
@@ -186,13 +188,14 @@
     fill: $core-text-annotation;
   }
 
-  .text, .description {
+  .text,
+  .description {
     display: inline-block;
   }
   .text {
     padding-left: 8px;
     line-height: $radio-height;
-    max-width: calc(100% -  #{$radio-height});
+    max-width: calc(100% - #{$radio-height});
   }
   .description {
     &:not(.disabled) {

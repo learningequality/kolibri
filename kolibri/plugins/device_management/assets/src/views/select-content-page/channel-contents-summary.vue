@@ -137,7 +137,8 @@
     }
   }
 
-  tr.total-size, tr.on-device {
+  tr.total-size,
+  tr.on-device {
     td {
       text-align: right;
       padding: 8px 0;

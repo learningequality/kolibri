@@ -19,14 +19,16 @@ li {
   font-size: 14px;
   text-decoration: none;
   color: $core-text-annotation;
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background-color: $core-action-light;
     color: $core-action-normal;
     outline: none;
   }
 }
 
-.router-link-active, .tab-selected {
+.router-link-active,
+.tab-selected {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: $core-action-normal;
@@ -42,7 +44,6 @@ li {
   padding-bottom: 11px;
 }
 
-
 .tab-title {
   font-weight: bold;
   text-transform: uppercase;
@@ -53,7 +54,6 @@ li {
 }
 
 .tab-has-icon-and-title {
-
   .tab-icon {
     padding-top: 10px;
     padding-bottom: 10px;

@@ -50,7 +50,8 @@
 
   // Reset some of the styles inherited from the main Kolibri theme.
   // TODO: Remove that inheritance and have a clean slate style-wise.
-  html, body {
+  html,
+  body {
     height: auto;
     background: white;
     font-size: 14px;
@@ -78,7 +79,8 @@
     display: initial;
     height: initial;
 
-    .vuep-preview, .vuep-editor {
+    .vuep-preview,
+    .vuep-editor {
       width: 100%;
     }
 

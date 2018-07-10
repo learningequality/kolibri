@@ -109,7 +109,6 @@
     width: 100%;
   }
 
-
   .choose-message {
     display: table-row;
     padding: 8px 0;

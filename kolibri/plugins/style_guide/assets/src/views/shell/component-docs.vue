@@ -157,12 +157,15 @@
   @import '~kolibri.styles.definitions';
   @import '../../styles/style-guide.scss';
 
-  table, th, td {
+  table,
+  th,
+  td {
     border: 1px solid darkgray;
     border-collapse: collapse;
   }
 
-  th, td {
+  th,
+  td {
     padding: 0.5em;
   }
 

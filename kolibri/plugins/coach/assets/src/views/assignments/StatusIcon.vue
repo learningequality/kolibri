@@ -46,7 +46,7 @@
     vertical-align: middle;
   }
 
-  .status-icon-active, 
+  .status-icon-active,
   .status-icon-inactive {
     vertical-align: middle;
   }

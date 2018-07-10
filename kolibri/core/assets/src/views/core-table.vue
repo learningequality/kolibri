@@ -59,7 +59,8 @@
     text-align: left;
   }
 
-  /deep/ th, /deep/ td {
+  /deep/ th,
+  /deep/ td {
     padding: 12px 16px 12px 0;
   }
 
@@ -76,7 +77,6 @@
   /deep/ .core-table-main-col {
     font-weight: bold;
   }
-
 
   /deep/ .core-table-icon-col {
     .ui-icon {

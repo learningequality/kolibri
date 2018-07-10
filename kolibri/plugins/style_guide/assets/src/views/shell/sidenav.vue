@@ -51,7 +51,7 @@
     left: 0;
     overflow-y: auto;
     width: $sidenav-width;
-    background: #F7F7F7;
+    background: #f7f7f7;
     border-right: 1px solid #e0e0e0;
   }
 
@@ -83,7 +83,7 @@
 
     &.router-link-active {
       font-weight: bold;
-      background-color: #E0E0E0;
+      background-color: #e0e0e0;
     }
   }
 

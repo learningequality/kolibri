@@ -157,7 +157,8 @@
     font-size: 12px; // bumping half an increment, 8 way too small
   }
 
-  dt, dd {
+  dt,
+  dd {
     display: inline-block;
     margin: 0;
   }

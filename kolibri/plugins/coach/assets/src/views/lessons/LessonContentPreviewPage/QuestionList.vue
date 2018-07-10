@@ -73,7 +73,10 @@
     background-color: white;
   }
 
-  .header, .list, .item, .button {
+  .header,
+  .list,
+  .item,
+  .button {
     display: block;
     width: 100%;
     padding: 0;
@@ -85,7 +88,8 @@
   }
 
   // normalize styles for the 2
-  .button, .header {
+  .button,
+  .header {
     line-height: $item-content-height;
     vertical-align: middle;
     padding-left: 16px;

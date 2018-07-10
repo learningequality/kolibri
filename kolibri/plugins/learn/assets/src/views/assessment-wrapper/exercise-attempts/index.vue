@@ -108,7 +108,8 @@
     overflow-y: hidden;
   }
 
-  .attempt, .placeholder {
+  .attempt,
+  .placeholder {
     display: inline-block;
     width: $size;
     height: $size;
@@ -133,11 +134,13 @@
     border: 2px solid $core-text-annotation;
   }
 
-  .fade-enter, .fade-leave-to {
+  .fade-enter,
+  .fade-leave-to {
     opacity: 0;
   }
 
-  .fade-enter-active, .fade-leave-active {
+  .fade-enter-active,
+  .fade-leave-active {
     transition: 0 0.5s;
   }
 

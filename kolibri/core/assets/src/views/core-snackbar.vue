@@ -137,13 +137,15 @@
     background-color: rgba(0, 0, 0, 0.7);
   }
 
-  .snackbar-enter-active, .snackbar-leave-active {
+  .snackbar-enter-active,
+  .snackbar-leave-active {
     transition-property: transform, opacity;
     transition-duration: 0.4s;
     transition-timing-function: ease;
   }
 
-  .snackbar-enter, .snackbar-leave-to {
+  .snackbar-enter,
+  .snackbar-leave-to {
     opacity: 0;
     transform: translateY(100px);
   }

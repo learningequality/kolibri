@@ -216,7 +216,9 @@
 
   @import '~kolibri.styles.definitions';
 
-  .actions-header, .footer, nav {
+  .actions-header,
+  .footer,
+  nav {
     text-align: right;
   }
 

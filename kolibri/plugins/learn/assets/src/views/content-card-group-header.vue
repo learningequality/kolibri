@@ -51,7 +51,8 @@
     margin-top: $header-size;
     margin-bottom: $header-size / 2;
 
-    &-header, &-view-more {
+    &-header,
+    &-view-more {
       width: 50%;
       display: inline-block;
     }

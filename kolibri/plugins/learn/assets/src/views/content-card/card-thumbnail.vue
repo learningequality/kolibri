@@ -208,7 +208,6 @@
     background-color: $core-status-progress;
   }
 
-
   /* MOBILE OVERRIDES */
   .mobile-thumbnail.card-thumbnail-wrapper {
     width: $thumb-width-mobile;
@@ -216,7 +215,6 @@
   }
 
   .mobile-thumbnail {
-
     .type-icon {
       transform: translate(-50%, -50%) scale(2);
     }

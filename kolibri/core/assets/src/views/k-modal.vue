@@ -298,11 +298,13 @@
     }
   }
 
-  .fade-enter-active, .fade-leave-active {
+  .fade-enter-active,
+  .fade-leave-active {
     transition: all 0.3s ease;
   }
 
-  .fade-enter, .fade-leave-active {
+  .fade-enter,
+  .fade-leave-active {
     opacity: 0;
   }
 
@@ -317,10 +319,10 @@
   }
 
   .scroll-shadow {
-    background: linear-gradient(white 30%, hsla(0, 0%, 100%, 0)), 
-                linear-gradient(hsla(0, 0%, 100%, 0) 10px, white 70%) bottom, 
-                radial-gradient(at top, rgba(0, 0, 0, 0.2), transparent 70%), 
-                radial-gradient(at bottom, rgba(0, 0, 0, 0.2), transparent 70%) bottom;
+    background: linear-gradient(white 30%, hsla(0, 0%, 100%, 0)),
+      linear-gradient(hsla(0, 0%, 100%, 0) 10px, white 70%) bottom,
+      radial-gradient(at top, rgba(0, 0, 0, 0.2), transparent 70%),
+      radial-gradient(at bottom, rgba(0, 0, 0, 0.2), transparent 70%) bottom;
     background-repeat: no-repeat;
     background-size: 100% 20px, 100% 20px, 100% 10px, 100% 10px;
     background-attachment: local, local, scroll, scroll;

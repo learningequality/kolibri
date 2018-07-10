@@ -143,7 +143,8 @@
     margin-right: 8px;
   }
 
-  .svg-hint, .svg-error {
+  .svg-hint,
+  .svg-error {
     fill: $core-text-annotation;
   }
 

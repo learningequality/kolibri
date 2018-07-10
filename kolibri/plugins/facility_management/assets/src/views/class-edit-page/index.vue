@@ -197,7 +197,8 @@
 
   // overwrite global styling
   // TODO - find a better way of doing this
-  .gutter-24 [class *= 'pure-u'], .gutter-16 [class *= 'pure-u'] {
+  .gutter-24 [class*='pure-u'],
+  .gutter-16 [class*='pure-u'] {
     padding: 0;
   }
 
