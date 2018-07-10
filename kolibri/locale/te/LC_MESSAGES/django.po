@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 17:34-0800\n"
-"PO-Revision-Date: 2018-04-19 20:08-0400\n"
+"POT-Creation-Date: 2018-05-30 19:55-0700\n"
+"PO-Revision-Date: 2018-06-21T02:40:01+0000\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Telugu\n"
 "Language: te_IN\n"
@@ -14,12 +14,12 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: te\n"
-"X-Crowdin-File: /release-v0.9.x/django.po\n"
+"X-Crowdin-File: /release-v0.10.x/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:14
 #: kolibri/plugins/facility_management/kolibri_plugin.py:30
 msgid "Facility"
-msgstr "సదుపాయం"
+msgstr "సౌకర్యం"
 
 #: kolibri/auth/constants/collection_kinds.py:15
 msgid "Classroom"
@@ -29,47 +29,53 @@ msgstr "తరగతిగది"
 msgid "Learner group"
 msgstr "విద్యార్థుల సమూహం"
 
-#: kolibri/auth/constants/role_kinds.py:12
-msgid "Admin"
-msgstr "నిర్వాహకుడు"
-
 #: kolibri/auth/constants/role_kinds.py:13
+msgid "Admin"
+msgstr "పరిపాలకుడు"
+
+#: kolibri/auth/constants/role_kinds.py:14
 msgid "Coach"
-msgstr "శిక్షకుడు"
+msgstr "కోచ్"
 
-#: kolibri/auth/models.py:210
+#: kolibri/auth/constants/role_kinds.py:15
+msgid "Classroom Assignable Coach"
+msgstr "తరగతికి కేటాయించదగిన కోచ్"
+
+#: kolibri/auth/models.py:227
 msgid "username"
-msgstr "వినియోగదారు పేరు"
+msgstr "వాడుకరి పేరు"
 
-#: kolibri/auth/models.py:212
+#: kolibri/auth/models.py:229
 msgid "Required. 30 characters or fewer. Letters and digits only"
-msgstr "ఆవశ్యకం. 30 లేదా దానికంటే తక్కువ అక్షరాలు ఉండాలి. అక్షరాలు మరియు అంకెలు మాత్రమే"
+msgstr "30 లేదా దానికి తక్కువ పదాలు కావాలి. అక్షరాలు మరియు అంకెలు మాత్రమే"
 
-#: kolibri/auth/models.py:216
+#: kolibri/auth/models.py:233
 msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
 msgstr "చెల్లుబాటయ్యే వినియోగదారు పేరుని నమోదు చేయండి. ఈ విలువ కేవలం అక్షరాలు, నంబర్‌లు మరియు అండర్‌స్కోర్‌లను కలిగి ఉండవచ్చు."
 
-#: kolibri/auth/models.py:220
+#: kolibri/auth/models.py:237
 msgid "full name"
 msgstr "పూర్తి పేరు"
 
-#: kolibri/auth/models.py:221
+#: kolibri/auth/models.py:238
 msgid "date joined"
-msgstr "చేరిన తేదీ"
+msgstr "చేరుకున్న తేదీన"
 
-#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
+#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
+#: kolibri/auth/serializers.py:55
 msgid "An account with that username already exists"
-msgstr "ఈ వినియోగదారు పేరుతో ఒక ఖాతా ఇప్పటికే ఉనికిలో ఉంది"
+msgstr "ఈ ఇమెయిల్‌ చిరునామాతో ఇదివరకే ఒక ఖాతా మనుగడలో ఉంది"
 
-#: kolibri/content/api.py:74
+#: kolibri/content/api.py:93
 msgid "Content"
-msgstr "కంటెంట్"
+msgstr "కాంటెంట్"
 
-#: kolibri/content/api.py:363
+#: kolibri/content/api.py:523
 msgid "The requested channel does not exist on the content server"
-msgstr "కావలసిన ఛానల్ కంటెంట్ సర్వర్‌లో లేదు"
+msgstr "కావలసిన ఛానల్ కంటెంట్ సర్వర్ ఫై లేదు"
 
-#: kolibri/content/models.py:187
+#: kolibri/content/models.py:242
 msgid "Unknown format"
 msgstr "తెలియని రకం"
 
@@ -79,7 +85,7 @@ msgstr "Kolibri భాషకి మద్దతు ఇవ్వదు"
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
-msgstr "Kolibri"
+msgstr "కొలిబ్రి"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:28
 msgid "Unsupported browser"
@@ -101,15 +107,15 @@ msgstr "మీరు మీ ప్రస్తుత బ్రౌజర్‌న
 msgid "Device"
 msgstr "పరికరం"
 
-#: kolibri/tasks/api.py:31
+#: kolibri/tasks/api.py:33
 msgid "There was a network error."
 msgstr "నెట్‌వర్క్ లోపం ఏర్పడింది."
 
-#: kolibri/tasks/api.py:33
+#: kolibri/tasks/api.py:35
 msgid "There was a disk access error."
 msgstr "డిస్క్ యాక్సెస్ లోపం ఏర్పడింది."
 
-#: kolibri/tasks/api.py:35
+#: kolibri/tasks/api.py:37
 msgid "There was an unknown error."
 msgstr "తెలియని దోషం ఏర్పడింది."
 

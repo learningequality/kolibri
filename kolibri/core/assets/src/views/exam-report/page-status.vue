@@ -1,7 +1,7 @@
 <template>
 
   <div class="page-status">
-    <div class="column pure-u-3-4">
+    <div class="pure-u-3-4">
       <div class="user-name-container">
         <mat-svg
           class="svg-item"
@@ -17,7 +17,7 @@
         {{ $tr('questionsCorrect', { correct: questionsCorrect, total: questions.length }) }}
       </div>
     </div>
-    <div class="column pure-u-1-4">
+    <div class="pure-u-1-4">
       <div class="inner-column">
         <progress-icon class="svg-icon" :progress="progress" />
         <span v-if="completed">
@@ -94,7 +94,7 @@
   @require '~kolibri.styles.definitions'
 
   .page-status
-    height: 130px
+    background-color: $core-bg-light
 
   .user-name-container
     display: block
@@ -113,9 +113,6 @@
     display: inline-block
     vertical-align: middle
     margin: 0
-
-  .column
-    float: left
 
   .inner-column
     float: right

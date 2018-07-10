@@ -26,7 +26,7 @@ class SanityCheckTestCase(TestCase):
             logging_mock.assert_called()
 
     @patch('kolibri.utils.sanity_checks.logging.error')
-    @patch('kolibri.utils.sanity_checks.os.path.exists', side_effect=[True, False])
+    @patch('kolibri.utils.sanity_checks.os.path.exists', return_value=False)
     def test_content_dir_dne(self, path_mock, logging_mock):
         with self.assertRaises(SystemExit):
             cli.main({'start': True})

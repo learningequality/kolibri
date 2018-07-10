@@ -25,6 +25,9 @@ def get_path_with_arch(platform, path, abi, implementation, python_version):
     # Windows 32-bit's machine name is x86.
     if platform_split[0] == 'win32':
         return os.path.join(path, 'Windows', 'x86')
+    # Windows 64-bit
+    elif platform_split[0] == 'win':
+        return os.path.join(path, 'Windows', 'AMD64')
 
     # Prior to CPython 3.3, there were two ABI-incompatible ways of building CPython
     # There could be abi tag 'm' for narrow-unicode and abi tag 'mu' for wide-unicode
@@ -96,7 +99,7 @@ def parse_package_page(files, pk_version, index_url):
                 file_name[1] != pk_version or
                 file_name[2][2:] == '26' or
                 'macosx' in file_name[4].split('.')[0] or
-                'win_amd64' in file_name[4].split('.')[0]):
+                ('win_amd64' in file_name[4].split('.')[0] and file_name[2][2:] != '34')):
 
             continue
 

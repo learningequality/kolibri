@@ -17,6 +17,7 @@
 
   import { mapState } from 'vuex';
   import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import contentCardGroupGrid from './content-card-group-grid';
   import contentCardGroupHeader from './content-card-group-header';
@@ -27,7 +28,6 @@
       popularPageHeader: 'Most popular',
       resumePageHeader: 'Resume',
       nextStepsPageHeader: 'Next steps',
-      featuredPageHeader: "Featured in '{channelTitle}'",
       recommended: 'Recommended',
       documentTitleForPopular: 'Popular',
       documentTitleForResume: 'Resume',
@@ -72,8 +72,6 @@
             return this.$tr('resumePageHeader');
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('nextStepsPageHeader');
-          case PageNames.RECOMMENDED_FEATURED:
-            return this.$tr('featuredPageHeader', { channelTitle: this.channelTitle });
           default:
             return null;
         }
@@ -93,9 +91,12 @@
       },
     },
     methods: {
-      genContentLink(id) {
+      genContentLink(id, kind) {
         return {
-          name: PageNames.RECOMMENDED_CONTENT,
+          name:
+            kind === ContentNodeKinds.TOPIC
+              ? PageNames.TOPICS_TOPIC
+              : PageNames.RECOMMENDED_CONTENT,
           params: { id },
         };
       },

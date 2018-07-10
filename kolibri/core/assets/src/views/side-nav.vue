@@ -1,6 +1,6 @@
 <template>
 
-  <div @keydown.esc="toggleNav" ref="sideNav">
+  <div @keydown.esc="toggleNav" ref="sideNav" class="side-nav-wrapper">
     <transition name="side-nav">
       <div
         v-show="navShown"
@@ -52,7 +52,7 @@
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
-              <p>© 2017 Learning Equality</p>
+              <p>© {{ copyrightYear }} Learning Equality</p>
             </div>
           </div>
         </div>
@@ -133,6 +133,8 @@
     data() {
       return {
         previouslyFocusedElement: null,
+        // __copyrightYear is injected by Webpack DefinePlugin
+        copyrightYear: __copyrightYear,
       };
     },
     computed: {
@@ -222,6 +224,9 @@
 
   // matches keen-ui toolbar's spec
   $side-nav-header-box-shadow = 0 0 2px rgba(black, 0.12), 0 2px 2px rgba(black, 0.2)
+
+  .side-nav-wrapper
+    overflow-x: hidden
 
   .side-nav
     position: fixed

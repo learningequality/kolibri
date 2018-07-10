@@ -13,26 +13,25 @@ export default {
         global.location.reload(true);
       });
     },
+    compareLanguages(a, b) {
+      if (a.id === currentLanguage) {
+        return -1;
+      }
+      if (b.id === currentLanguage) {
+        return 1;
+      }
+      if (a.lang_name.toLowerCase() < b.lang_name.toLowerCase()) {
+        return -1;
+      }
+      if (b.lang_name.toLowerCase() < a.lang_name.toLowerCase()) {
+        return 1;
+      }
+      return 0;
+    },
   },
   computed: {
     languageOptions() {
-      return Object.keys(availableLanguages)
-        .sort((a, b) => {
-          if (a === currentLanguage) {
-            return -1;
-          }
-          if (b === currentLanguage) {
-            return 1;
-          }
-          if (a[0] < b[0]) {
-            return -1;
-          }
-          if (b[0] < a[0]) {
-            return 1;
-          }
-          return 0;
-        })
-        .map(key => availableLanguages[key]);
+      return Object.values(availableLanguages).sort(this.compareLanguages);
     },
   },
 };

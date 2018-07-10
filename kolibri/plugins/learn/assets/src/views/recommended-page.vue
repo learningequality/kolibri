@@ -61,29 +61,6 @@
       />
     </template>
 
-    <template v-for="(contents, channelId) in featured" v-if="contents.length">
-      <!-- TODO: RTL - Do not interpolate strings -->
-      <content-card-group-header
-        :key="`${channelId}-header`"
-        :header="$tr('featuredSectionHeader', { channelTitle: getChannelTitle(channelId) })"
-        :viewMorePageLink="featuredPageLink(channelId)"
-        :showViewMore="contents.length > trimContent(contents).length"
-      />
-      <content-card-group-grid
-        v-if="isMobile"
-        :key="`${channelId}-groupgrid`"
-        :genContentLink="genContentLink"
-        :contents="trimContent(contents)"
-        :showContentKindFilter="false"
-      />
-      <content-card-group-carousel
-        v-else
-        :key="`${channelId}-carousel`"
-        :genContentLink="genContentLink"
-        :contents="trimContent(contents)"
-      />
-    </template>
-
   </div>
 
 </template>
@@ -93,6 +70,7 @@
 
   import { mapState, mapGetters } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import contentCardGroupCarousel from './content-card-group-carousel';
   import contentCardGroupGrid from './content-card-group-grid';
@@ -108,7 +86,6 @@
       popularSectionHeader: 'Most popular',
       suggestedNextStepsSectionHeader: 'Next steps',
       resumeSectionHeader: 'Resume',
-      featuredSectionHeader: "Featured in '{ channelTitle }'",
       documentTitle: 'Learn',
     },
     metaInfo() {
@@ -130,7 +107,6 @@
         nextSteps: state => state.pageState.nextSteps,
         popular: state => state.pageState.popular,
         resume: state => state.pageState.resume,
-        featured: state => state.pageState.featured,
       }),
       isMobile() {
         return this.windowSize.breakpoint <= 1;
@@ -162,25 +138,19 @@
       trimmedResume() {
         return this.resume.slice(0, this.carouselLimit);
       },
-      trimmedFeatured() {
-        return this.featured.slice(0, this.carouselLimit);
-      },
     },
     methods: {
-      genContentLink(id) {
+      genContentLink(id, kind) {
         return {
-          name: PageNames.RECOMMENDED_CONTENT,
+          name:
+            kind === ContentNodeKinds.TOPIC
+              ? PageNames.TOPICS_TOPIC
+              : PageNames.RECOMMENDED_CONTENT,
           params: { id },
         };
       },
       trimContent(content) {
         return content.slice(0, this.carouselLimit);
-      },
-      featuredPageLink(channel_id) {
-        return {
-          name: PageNames.RECOMMENDED_FEATURED,
-          params: { channel_id },
-        };
       },
       getChannelTitle(channel_id) {
         return this.channels.find(channel => channel.id === channel_id).title;

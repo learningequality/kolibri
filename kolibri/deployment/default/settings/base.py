@@ -84,6 +84,7 @@ LOCALE_PATHS += [
 ]
 
 MIDDLEWARE = [
+    'kolibri.core.device.middleware.IgnoreGUIMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'kolibri.core.device.middleware.KolibriLocaleMiddleware',
@@ -338,6 +339,19 @@ JS_REVERSE_JS_VAR_NAME = 'kolibriUrls'
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
 
 ENABLE_DATA_BOOTSTRAPPING = True
+
+# Session configuration
+
+SESSION_ENGINE = "django.contrib.sessions.backends.file"
+
+SESSION_FILE_PATH = os.path.join(conf.KOLIBRI_HOME, "sessions")
+
+if not os.path.exists(SESSION_FILE_PATH):
+    if not os.path.exists(conf.KOLIBRI_HOME):
+        raise RuntimeError("The KOLIBRI_HOME dir does not exist")
+    os.mkdir(SESSION_FILE_PATH)
+
+SESSION_COOKIE_NAME = "kolibri"
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 

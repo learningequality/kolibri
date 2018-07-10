@@ -355,7 +355,13 @@ export function showExerciseDetailView(
           }
 
           const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
-          const currentInteractionHistory = currentAttemptLog.interaction_history || [];
+          let currentInteractionHistory = currentAttemptLog.interaction_history || [];
+          // filter out interactions without answers but keep hints and errors
+          currentInteractionHistory = currentInteractionHistory.filter(interaction =>
+            Boolean(
+              interaction.answer || interaction.type === 'hint' || interaction.type === 'error'
+            )
+          );
           Object.assign(exercise, { ancestors });
           const pageState = {
             // hack, allows caryover of custom state

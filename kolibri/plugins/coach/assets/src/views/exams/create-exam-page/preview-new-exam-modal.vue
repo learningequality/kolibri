@@ -9,7 +9,8 @@
     <k-button
       slot="randomize-button"
       :text="$tr('randomize')"
-      :primary="true"
+      :primary="false"
+      class="randomize-btn"
       @click="$emit('randomize')"
     />
   </preview-exam-modal>
@@ -48,4 +49,9 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .randomize-btn
+    margin: 0 0 0 8px
+
+</style>

@@ -33,6 +33,7 @@
 
   .core-table-container
     overflow-x: auto
+    overflow-y: hidden
 
   .core-table
     width: 100%

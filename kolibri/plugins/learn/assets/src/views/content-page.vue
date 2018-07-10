@@ -47,7 +47,7 @@
     <p v-html="description" dir="auto"></p>
 
 
-    <section class="metadata" v-if="showMetadata">
+    <section class="metadata">
       <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.author">
         {{ $tr('author', {author: content.author}) }}
@@ -210,17 +210,12 @@
         return this.sessionProgress;
       },
       showRecommended() {
-        if (this.recommended && this.pageMode === PageModes.RECOMMENDED) {
-          return true;
-        }
-        return false;
+        return (
+          this.recommended && this.recommended.length && this.pageMode === PageModes.RECOMMENDED
+        );
       },
       downloadableFiles() {
         return this.content.files.filter(file => file.preset !== 'Thumbnail');
-      },
-      showMetadata() {
-        // Hide metadata when viewing Resource in a Lesson
-        return !this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
       },
       nextContentLink() {
         // HACK Use a the Resource Viewer Link instead

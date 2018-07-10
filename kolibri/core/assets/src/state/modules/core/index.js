@@ -9,6 +9,7 @@ import mutations from './mutations';
 export default {
   state: {
     error: '',
+    blockDoubleClicks: false,
     loading: true,
     pageSessionId: 0,
     loginError: null,

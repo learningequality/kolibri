@@ -733,7 +733,9 @@ export class Resource {
     }
     const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
     const cacheKey = this.cacheKey(getParams, filteredResourceIds);
-    this.collections[cacheKey].synced = false;
+    if (this.collections[cacheKey]) {
+      this.collections[cacheKey].synced = false;
+    }
   }
 
   removeModel(model) {

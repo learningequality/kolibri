@@ -189,6 +189,7 @@
     position: relative
     left: 10px
     top: -4px
+    fill: $core-action-normal
 
   .right
     text-align: right

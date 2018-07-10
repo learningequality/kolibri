@@ -1,3 +1,5 @@
+import router from 'kolibri.coreVue.router';
+import store from 'kolibri.coreVue.vuex.store';
 import RootVue from './views';
 import prepareLearnApp from './state/prepareLearnApp';
 import routes from './routes';
@@ -17,6 +19,14 @@ class LearnModule extends KolibriApp {
   }
   get pluginModule() {
     return pluginModule;
+  }
+  ready() {
+    // after every navigation, block double-clicks
+    return super.ready().then(() => {
+      router.getInstance().afterEach(() => {
+        store.dispatch('blockDoubleClicks');
+      });
+    });
   }
 }
 

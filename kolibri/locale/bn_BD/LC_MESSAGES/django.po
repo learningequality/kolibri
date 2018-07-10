@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 17:34-0800\n"
-"PO-Revision-Date: 2018-05-10 13:33-0400\n"
+"POT-Creation-Date: 2018-05-30 19:55-0700\n"
+"PO-Revision-Date: 2018-06-21T02:39:52+0000\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Bengali\n"
 "Language: bn_BD\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: bn\n"
-"X-Crowdin-File: /release-v0.9.x/django.po\n"
+"X-Crowdin-File: /release-v0.10.x/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:14
 #: kolibri/plugins/facility_management/kolibri_plugin.py:30
@@ -29,49 +29,55 @@ msgstr "শ্রেণীকক্ষ"
 msgid "Learner group"
 msgstr "শিক্ষার্থী দল"
 
-#: kolibri/auth/constants/role_kinds.py:12
+#: kolibri/auth/constants/role_kinds.py:13
 msgid "Admin"
 msgstr "অ্যাডমিন"
 
-#: kolibri/auth/constants/role_kinds.py:13
+#: kolibri/auth/constants/role_kinds.py:14
 msgid "Coach"
 msgstr "প্রশিক্ষক"
 
-#: kolibri/auth/models.py:210
+#: kolibri/auth/constants/role_kinds.py:15
+msgid "Classroom Assignable Coach"
+msgstr "শ্রেণি প্রশিক্ষক"
+
+#: kolibri/auth/models.py:227
 msgid "username"
 msgstr "ব্যবহারকারীর নাম"
 
-#: kolibri/auth/models.py:212
+#: kolibri/auth/models.py:229
 msgid "Required. 30 characters or fewer. Letters and digits only"
-msgstr "সর্বাধিক ৩০টি অক্ষর ব্যবহার করা যাবে। শুধুমাত্র বর্ণ এবং সংখ্যা"
+msgstr "প্রয়োজন। ৩০ বা তার কম অক্ষর। শুধুমাত্র অক্ষর এবং সংখ্যা"
 
-#: kolibri/auth/models.py:216
+#: kolibri/auth/models.py:233
 msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
 msgstr "একটি সঠিক ব্যবহারকারীর নাম লিখুন। এতে শুধুমাত্র বর্ণ, সংখ্যা ও আন্ডারস্কোর থাকতে পারে।"
 
-#: kolibri/auth/models.py:220
+#: kolibri/auth/models.py:237
 msgid "full name"
-msgstr "পুরো নাম"
+msgstr "পূর্ণ নাম"
 
-#: kolibri/auth/models.py:221
+#: kolibri/auth/models.py:238
 msgid "date joined"
 msgstr "যোগদানের তারিখ"
 
-#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
+#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
+#: kolibri/auth/serializers.py:55
 msgid "An account with that username already exists"
-msgstr "এই ব্যবহারকারী নামে একটি অ্যাকাউন্ট ইতিমধ্যেই রয়েছে"
+msgstr "এই ব্যবহারকারী নামে একটি অ্যাকাউন্ট ইতিমধ্যেই বিদ্যমান"
 
-#: kolibri/content/api.py:74
+#: kolibri/content/api.py:93
 msgid "Content"
 msgstr "বিষয়বস্তু"
 
-#: kolibri/content/api.py:363
+#: kolibri/content/api.py:523
 msgid "The requested channel does not exist on the content server"
-msgstr "এই চ্যানেলটি বিষয়বস্তুর সার্ভারে নেই"
+msgstr "এই চ্যানেলের বিষয়বস্তু সার্ভারে বিদ্যমান নয়"
 
-#: kolibri/content/models.py:187
+#: kolibri/content/models.py:242
 msgid "Unknown format"
-msgstr "অজানা ফরম্যাট"
+msgstr "ভুল হয়েছে"
 
 #: kolibri/core/device/serializers.py:44
 msgid "Language is not supported by Kolibri"
@@ -101,15 +107,15 @@ msgstr "আপনার বর্তমান ব্রাউজারটি আ
 msgid "Device"
 msgstr "ডিভাইস"
 
-#: kolibri/tasks/api.py:31
+#: kolibri/tasks/api.py:33
 msgid "There was a network error."
 msgstr "নেটওয়ার্কে সমস্যা হয়েছে।"
 
-#: kolibri/tasks/api.py:33
+#: kolibri/tasks/api.py:35
 msgid "There was a disk access error."
 msgstr "ডিস্ক অ্যাক্সেস করতে সমস্যা হচ্ছে।"
 
-#: kolibri/tasks/api.py:35
+#: kolibri/tasks/api.py:37
 msgid "There was an unknown error."
 msgstr "একটা অজানা সমস্যা হয়েছে।"
 

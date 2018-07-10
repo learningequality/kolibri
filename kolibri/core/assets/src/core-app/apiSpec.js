@@ -42,7 +42,6 @@ import kTextbox from '../views/k-textbox';
 import kNavbar from '../views/k-navbar';
 import kNavbarLink from '../views/k-navbar/link';
 import logo from '../views/logo';
-import languageSwitcherMixin from '../views/language-switcher/mixin.js';
 import languageSwitcherList from '../views/language-switcher/list.vue';
 import immersiveFullScreen from '../views/immersive-full-screen';
 import elapsedTime from '../views/elapsed-time';
@@ -59,7 +58,7 @@ import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
 import contentRendererMixin from '../mixins/contentRenderer';
-import fullscreen from '../mixins/fullscreen';
+import fullscreen from '../views/fullscreen';
 import theme from '../styles/core-theme.styl';
 import definitions from '../styles/definitions.styl';
 import keenVars from '../keen-config/variables.scss';
@@ -90,6 +89,7 @@ import textTruncator from '../views/text-truncator';
 import kLinearLoader from '../views/k-linear-loader';
 import kCircularLoader from '../views/k-circular-loader';
 
+import multiPaneLayout from '../views/multi-pane-layout';
 import navComponents from '../utils/navComponents';
 import * as client from './client';
 import urls from './urls';
@@ -159,14 +159,14 @@ export default {
       textTruncator,
       kLinearLoader,
       kCircularLoader,
+      multiPaneLayout,
+      fullscreen,
     },
     router,
     mixins: {
       responsiveWindow,
       responsiveElement,
-      languageSwitcherMixin,
       contentRenderer: contentRendererMixin,
-      fullscreen,
     },
   },
   resources,
