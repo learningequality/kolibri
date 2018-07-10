@@ -71,28 +71,30 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
   // @stylint off
 
-  .normalize-fullscreen
-    width: 100% !important
-    height: 100% !important
-    min-height: inherit !important
-    max-height: inherit !important
+  .normalize-fullscreen {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: inherit !important;
+    max-height: inherit !important;
+  }
 
-  .mimic-fullscreen
-    position: fixed !important
-    top: 0 !important
-    right: 0 !important
-    bottom: 0 !important
-    left: 0 !important
-    z-index: 24 !important
-    max-width: 100% !important
-    max-height: 100% !important
-    width: 100% !important
-    height: 100% !important
-    background-color: black !important
+  .mimic-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    z-index: 24 !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: black !important;
     // @stylint on
+  }
 
 </style>

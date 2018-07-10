@@ -49,19 +49,22 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.theme'
+  @import '~kolibri.styles.theme';
 
-  .vab
-    vertical-align: bottom
+  .vab {
+    vertical-align: bottom;
+  }
 
-  .counter
-    font-size: 11px
-    vertical-align: inherit
+  .counter {
+    font-size: 11px;
+    vertical-align: inherit;
+  }
 
-  .coach-mat-icon.ui-icon
-    font-size: 16px
-    color: $core-status-progress
+  .coach-mat-icon.ui-icon {
+    font-size: 16px;
+    color: $core-status-progress;
+  }
 
 </style>

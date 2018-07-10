@@ -32,12 +32,15 @@ logger = logging.getLogger(__name__)
 
 BASES = {}
 
+
 class ClassNotFoundError(Exception):
     pass
+
 
 def sqlite_connection_string(db_path):
     # Call normpath to ensure that Windows paths are properly formatted
     return 'sqlite:///{db_path}'.format(db_path=os.path.normpath(db_path))
+
 
 def get_engine(connection_string):
     """
@@ -59,6 +62,7 @@ def get_engine(connection_string):
 
     return engine
 
+
 def make_session(connection_string):
     """
     Make a session for a particular SQLAlchemy database, this handles opening a connection
@@ -69,6 +73,7 @@ def make_session(connection_string):
     engine = get_engine(connection_string)
     Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
     return Session(), engine
+
 
 def get_class(DjangoModel, Base):
     """
@@ -82,6 +87,7 @@ def get_class(DjangoModel, Base):
         return Base.classes[DjangoModel._meta.db_table]
     except KeyError:
         raise ClassNotFoundError('No SQL Alchemy ORM Mapping for this Django model found in this database')
+
 
 def set_all_class_defaults(Base):
     """
@@ -118,6 +124,7 @@ def set_all_class_defaults(Base):
 
 
 SCHEMA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{name}_content_schema')
+
 
 def prepare_bases():
 
@@ -185,8 +192,10 @@ def get_default_db_string():
             dbname=destination_db['NAME'],
         )
 
+
 class SchemaNotFoundError(Exception):
     pass
+
 
 class Bridge(object):
 

@@ -68,14 +68,17 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .icon
-    .superuser
-      color: $core-status-mastered
-    .some-permissions
-      color: $core-text-default
+  .icon {
+    .superuser {
+      color: $core-status-mastered;
+    }
+    .some-permissions {
+      color: $core-text-default;
+    }
+  }
 
 </style>

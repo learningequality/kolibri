@@ -2,17 +2,8 @@ import { ContentNodeResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniqBy from 'lodash/uniqBy';
-import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
 import { contentState, setAndCheckChannels } from './main';
-
-const translator = createTranslator('learnerRecommendationPageTitles', {
-  popularPageTitle: 'Popular',
-  resumePageTitle: 'Resume',
-  nextStepsPageTitle: 'Next Steps',
-  learnContentPageTitle: '{ currentContent } - { currentChannel }',
-  learnPageTitle: 'Learn',
-});
 
 // User-agnostic recommendations
 function _getPopular() {
@@ -44,7 +35,7 @@ function _mapContentSet(contentSet) {
   return uniqBy(contentSet, 'content_id').map(contentState);
 }
 
-function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, channelId = null) {
+function _showRecSubpage(store, getContentPromise, pageName, channelId = null) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   // promise that resolves with content array, already mapped to state
   const pagePrep = Promise.all([
@@ -61,20 +52,15 @@ function _showRecSubpage(store, getContentPromise, pageName, windowTitleId, chan
       const recPageState = {
         recommendations,
       };
-      let pageTitle;
       if (channelId) {
         const currentChannel = store.getters.getChannelObject(channelId);
         const channelTitle = currentChannel.title;
         recPageState.channelTitle = channelTitle;
-        pageTitle = translator.$tr(windowTitleId, { currentChannel: channelTitle });
-      } else {
-        pageTitle = translator.$tr(windowTitleId);
       }
       store.commit('SET_PAGE_STATE', recPageState);
       store.commit('SET_PAGE_NAME', pageName);
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
-      store.commit('CORE_SET_TITLE', pageTitle);
     },
     error => store.dispatch('handleApiError', error)
   );
@@ -114,8 +100,6 @@ export function showLearn(store) {
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
       store.commit('SET_PAGE_NAME', PageNames.RECOMMENDED);
-
-      store.commit('CORE_SET_TITLE', translator.$tr('learnPageTitle'));
     },
     error => {
       store.dispatch('handleApiError', error);
@@ -124,15 +108,15 @@ export function showLearn(store) {
 }
 
 export function showPopularPage(store) {
-  _showRecSubpage(store, _getPopular, PageNames.RECOMMENDED_POPULAR, 'popularPageTitle');
+  _showRecSubpage(store, _getPopular, PageNames.RECOMMENDED_POPULAR);
 }
 
 export function showResumePage(store) {
-  _showRecSubpage(store, _getResume, PageNames.RECOMMENDED_RESUME, 'resumePageTitle');
+  _showRecSubpage(store, _getResume, PageNames.RECOMMENDED_RESUME);
 }
 
 export function showNextStepsPage(store) {
-  _showRecSubpage(store, _getNextSteps, PageNames.RECOMMENDED_NEXT_STEPS, 'nextStepsPageTitle');
+  _showRecSubpage(store, _getNextSteps, PageNames.RECOMMENDED_NEXT_STEPS);
 }
 
 export function showLearnContent(store, id) {
@@ -141,42 +125,18 @@ export function showLearnContent(store, id) {
   const promises = [
     ContentNodeResource.getModel(id).fetch(),
     ContentNodeResource.fetchNextContent(id),
+    ContentNodeResource.getCollection({ recommendations_for: id, by_role: true }).fetch(),
     store.dispatch('setChannelInfo'),
   ];
-  const recommendedPromise = ContentNodeResource.getCollection({
-    recommendations_for: id,
-    by_role: true,
-  }).fetch();
-  ConditionalPromise.all(promises).only(
+  return ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([content, nextContent]) => {
-      const pageState = {
-        content: contentState(content, nextContent),
-        recommended: store.state.pageState.recommended,
-      };
-      const currentChannel = store.getters.getChannelObject(content.channel_id);
-      store.commit('SET_PAGE_STATE', pageState);
-      store.commit('CORE_SET_PAGE_LOADING', false);
-      store.commit('CORE_SET_ERROR', null);
-      store.commit(
-        'CORE_SET_TITLE',
-        translator.$tr('learnContentPageTitle', {
-          currentContent: pageState.content.title,
-          currentChannel: currentChannel.title,
-        })
-      );
-    },
-    error => {
-      store.dispatch('handleApiError', error);
-    }
-  );
-  recommendedPromise.only(
-    samePageCheckGenerator(store),
-    recommended => {
+    ([content, nextContent, recommended]) => {
       store.commit('SET_PAGE_STATE', {
-        content: store.state.pageState.content,
+        content: contentState(content, nextContent),
+        channel: store.getters.getChannelObject(content.channel_id),
         recommended: recommended.map(contentState),
       });
+      store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
     },
     error => {

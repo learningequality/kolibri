@@ -33,6 +33,7 @@ from kolibri.core.content.utils.channels import read_channel_metadata_from_db_fi
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 
+
 @patch('kolibri.core.content.utils.channel_import.Bridge')
 @patch('kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id')
 @patch('kolibri.core.content.utils.channel_import.apps')
@@ -68,6 +69,7 @@ class BaseChannelImportClassMethodUniqueTreeIdTestCase(TestCase):
     """
     Testcase for the base channel import class unique tree id generator
     """
+
     def test_empty(self, apps_mock, tree_ids_mock, BridgeMock):
         tree_ids_mock.return_value = []
         channel_import = ChannelImport('test')
@@ -209,7 +211,7 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         record_mock = MagicMock(spec=['__table__'])
         record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
-        channel_import.table_import(MagicMock(), lambda x, y: 'test_val', lambda x: [{}]*100, 0)
+        channel_import.table_import(MagicMock(), lambda x, y: 'test_val', lambda x: [{}] * 100, 0)
         channel_import.destination.session.flush.assert_not_called()
 
     def test_no_merge_records_bulk_insert_flush(self, apps_mock, tree_id_mock, BridgeMock):
@@ -217,7 +219,7 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         record_mock = MagicMock(spec=['__table__'])
         record_mock.__table__.columns.items.return_value = [('test_attr', MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
-        channel_import.table_import(MagicMock(), lambda x, y: 'test_val', lambda x: [{}]*10000, 0)
+        channel_import.table_import(MagicMock(), lambda x, y: 'test_val', lambda x: [{}] * 10000, 0)
         channel_import.destination.session.flush.assert_called_once_with()
 
     @patch('kolibri.core.content.utils.channel_import.merge_models', new=[])
@@ -231,7 +233,7 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         model_mock._meta.pk.name = 'test_attr'
         merge_models.append(model_mock)
         channel_import.merge_record = Mock()
-        channel_import.table_import(model_mock, lambda x, y: 'test_val', lambda x: [{}]*100, 0)
+        channel_import.table_import(model_mock, lambda x, y: 'test_val', lambda x: [{}] * 100, 0)
         channel_import.destination.session.flush.assert_not_called()
 
     @patch('kolibri.core.content.utils.channel_import.merge_models', new=[])
@@ -245,7 +247,7 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         model_mock._meta.pk.name = 'test_attr'
         merge_models.append(model_mock)
         channel_import.merge_record = Mock()
-        channel_import.table_import(model_mock, lambda x, y: 'test_val', lambda x: [{}]*10000, 0)
+        channel_import.table_import(model_mock, lambda x, y: 'test_val', lambda x: [{}] * 10000, 0)
         channel_import.destination.session.flush.assert_called_once_with()
 
 
@@ -300,6 +302,7 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             call.session.query(class_mock),
             call.session.query().all()
         ])
+
 
 class MaliciousDatabaseTestCase(TestCase):
 

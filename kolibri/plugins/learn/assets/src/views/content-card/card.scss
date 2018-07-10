@@ -1,0 +1,7 @@
+$ratio: 16 / 9;
+
+$thumb-width-desktop: 210px;
+$thumb-height-desktop: round($thumb-width-desktop / $ratio);
+
+$thumb-height-mobile: 92px;
+$thumb-width-mobile: round($thumb-height-mobile * $ratio);

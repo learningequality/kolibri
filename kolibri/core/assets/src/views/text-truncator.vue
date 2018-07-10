@@ -98,9 +98,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .ar
-    text-align: right
+  .ar {
+    text-align: right;
+  }
 
 </style>

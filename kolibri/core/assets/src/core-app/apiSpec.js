@@ -59,8 +59,8 @@ import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
 import contentRendererMixin from '../mixins/contentRenderer';
 import fullscreen from '../views/fullscreen';
-import theme from '../styles/core-theme.styl';
-import definitions from '../styles/definitions.styl';
+import theme from '../styles/core-theme.scss';
+import definitions from '../styles/definitions.scss';
 import keenVars from '../keen-config/variables.scss';
 import * as exams from '../exams/utils';
 import * as validators from '../validators';
@@ -79,7 +79,7 @@ import kDropdownMenu from '../views/k-dropdown-menu';
 import coachContentLabel from '../views/coach-content-label';
 
 // webpack optimization
-import buttonAndLinkStyles from '../views/buttons-and-links/buttons.styl';
+import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
 import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
 import attemptLogList from '../views/attempt-log-list';

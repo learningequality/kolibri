@@ -3,6 +3,7 @@ import os
 import platform
 import sys
 
+
 def get_cext_path(dist_path):
     """
     Get the directory of dist/cext.
@@ -16,10 +17,10 @@ def get_cext_path(dist_path):
     if system_name == 'Linux' and int(python_version[2:]) < 33:
         # encode with ucs2
         if sys.maxunicode == 65535:
-            dirname = os.path.join(dirname, python_version+'m')
+            dirname = os.path.join(dirname, python_version + 'm')
         # encode with ucs4
         else:
-            dirname = os.path.join(dirname, python_version+'mu')
+            dirname = os.path.join(dirname, python_version + 'mu')
 
     dirname = os.path.join(dirname, machine_name)
     sys.path = [os.path.realpath(str(dirname))] + sys.path

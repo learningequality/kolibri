@@ -14,8 +14,10 @@ from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import parse_timezonestamp
 from kolibri.core.serializers import DateTimeTzField as DateTimeTzSerializerField
 
+
 def aware_datetime():
     return timezone.get_current_timezone().localize(datetime.datetime(2000, 12, 11, 10, 9, 8))
+
 
 class DateTimeTzModel(models.Model):
     timestamp = DateTimeTzField(null=True)

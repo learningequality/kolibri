@@ -4,23 +4,16 @@ import { createTranslator } from 'kolibri.utils.i18n';
 import Lockr from 'lockr';
 import { PageNames } from '../constants';
 
-const translator = createTranslator('userPageTitles', {
-  userProfilePageTitle: 'User Profile',
-  userSignInPageTitle: 'User Sign In',
-  userSignUpPageTitle: 'User Sign Up',
-});
-
 const snackbarTranslator = createTranslator('userPageSnackbars', {
   passwordChangeSuccessMessage: 'Password changed',
   signedOut: 'You were automatically signed out due to inactivity',
   dismiss: 'Dismiss',
 });
 
-function resetAndSetPageName(store, { pageName, title }) {
+function resetAndSetPageName(store, { pageName }) {
   store.commit('SET_PAGE_NAME', pageName);
   store.commit('CORE_SET_PAGE_LOADING', false);
   store.commit('CORE_SET_ERROR', null);
-  store.commit('CORE_SET_TITLE', title);
 }
 
 export function updateUserProfile(store, { edits, session }) {
@@ -98,7 +91,6 @@ export function updateUserProfilePassword(store, password) {
 export function showProfilePage(store) {
   resetAndSetPageName(store, {
     pageName: PageNames.PROFILE,
-    title: translator.$tr('userProfilePageTitle'),
   });
   store.commit('RESET_PROFILE_STATE');
 }
@@ -126,7 +118,6 @@ export function showSignInPage(store) {
     });
     resetAndSetPageName(store, {
       pageName: PageNames.SIGN_IN,
-      title: translator.$tr('userSignInPageTitle'),
     });
   });
 }
@@ -138,7 +129,6 @@ export function showSignUpPage(store) {
       store.commit('CORE_SET_FACILITIES', facilities);
       resetAndSetPageName(store, {
         pageName: PageNames.SIGN_UP,
-        title: translator.$tr('userSignUpPageTitle'),
       });
       store.commit('RESET_SIGN_UP_STATE');
     })

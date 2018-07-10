@@ -135,10 +135,13 @@ def _windows_become_daemon(our_home_dir='.', out_log=None, err_log=None, umask=0
     old_stderr.flush()
     old_stdout.flush()
 
+
 class _WindowsNullDevice:
     "A writeable object that writes to nowhere -- like /dev/null."
+
     def write(self, s):
         pass
+
 
 def get_free_space(path=KOLIBRI_HOME):
     if sys.platform.startswith('win'):

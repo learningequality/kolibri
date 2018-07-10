@@ -50,17 +50,19 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .info-icon-container
-    display: inline-block
+  .info-icon-container {
+    display: inline-block;
+  }
 
-  .info-icon
-    font-size: 1.2em
-    vertical-align: top
-    color: $core-accent-color
-    cursor: pointer
+  .info-icon {
+    font-size: 1.2em;
+    vertical-align: top;
+    color: $core-accent-color;
+    cursor: pointer;
+  }
 
 </style>

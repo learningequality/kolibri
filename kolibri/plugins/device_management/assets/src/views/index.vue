@@ -123,12 +123,14 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .delay-entry-enter
-      opacity: 0
+  .delay-entry-enter {
+    opacity: 0;
+  }
 
-  .delay-entry-enter-active
-      transition: opacity 0.75s
+  .delay-entry-enter-active {
+    transition: 0 0.75s;
+  }
 
 </style>

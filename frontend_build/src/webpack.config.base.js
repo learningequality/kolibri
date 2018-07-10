@@ -20,11 +20,10 @@ var mkdirp = require('mkdirp');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 // adds custom rules
 require('./htmlhint_custom');
-var prettierOptions = require('../../.prettier');
-var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
-
 var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 var OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+var prettierOptions = require('../../.prettier');
+var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 
 var production = process.env.NODE_ENV === 'production';
 
@@ -133,10 +132,6 @@ module.exports = {
         use: [MiniCssExtractPlugin.loader, cssLoader, postCSSLoader],
       },
       {
-        test: /\.styl(us)*$/,
-        use: [MiniCssExtractPlugin.loader, cssLoader, postCSSLoader, 'stylus-loader'],
-      },
-      {
         test: /\.s[a|c]ss$/,
         use: sassLoaders,
       },
@@ -176,13 +171,13 @@ module.exports = {
   },
   plugins: [
     new PrettierFrontendPlugin({
-      extensions: ['.js', '.vue'],
+      extensions: ['.js', '.vue', '.scss'],
       logLevel: 'warn',
       prettierOptions,
     }),
   ],
   resolve: {
-    extensions: ['.js', '.vue', '.styl'],
+    extensions: ['.js', '.vue', '.scss'],
     alias: {},
     modules: [
       // Add resolution paths for modules to allow any plugin to

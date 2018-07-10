@@ -123,21 +123,24 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .topic-title
-    display: inline-block
+  .topic-title {
+    display: inline-block;
+  }
 
-  .coach-content-label
-    display: inline-block
-    vertical-align: bottom
-    margin-left: 8px
+  .coach-content-label {
+    display: inline-block;
+    vertical-align: bottom;
+    margin-left: 8px;
+  }
 
-  .title
-    padding: 0
-    border: none
-    font-size: 1em
-
+  .title {
+    padding: 0;
+    border: none;
+    font-size: 1em;
+  }
+  
 </style>

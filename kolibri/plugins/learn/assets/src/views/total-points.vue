@@ -41,26 +41,30 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .points
-    font-weight: bold
-    font-size: small
+  .points {
+    font-weight: bold;
+    font-size: small;
+  }
 
-  .icon
-    display: inline-block
-    width: 20px
-    height: 20px
-    position: relative
-    top: 2px
+  .icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    position: relative;
+    top: 2px;
+  }
 
-  .description
-    display: inline-block
-    margin-left: 8px
+  .description {
+    display: inline-block;
+    margin-left: 8px;
+  }
 
-  .description-value
-    font-size: x-large
+  .description-value {
+    font-size: x-large;
+  }
 
 </style>

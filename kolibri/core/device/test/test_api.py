@@ -26,6 +26,7 @@ from kolibri.core.device.models import DeviceSettings
 
 DUMMY_PASSWORD = "password"
 
+
 class DeviceProvisionTestCase(APITestCase):
 
     superuser_data = {"username": "superuser", "password": "password"}
@@ -165,7 +166,7 @@ class DevicePermissionsTestCase(APITestCase):
 
     def test_superuser_update_own_permissions(self):
         response = self.client.patch(reverse('devicepermissions-detail',
-                                     kwargs={'pk': self.superuser.devicepermissions.pk}),
+                                             kwargs={'pk': self.superuser.devicepermissions.pk}),
                                      {'is_superuser': False},
                                      format="json")
         self.assertEqual(response.status_code, 403)

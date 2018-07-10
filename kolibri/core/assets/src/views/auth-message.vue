@@ -52,9 +52,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .auth-message
-    text-align: center
+  .auth-message {
+    text-align: center;
+  }
 
 </style>

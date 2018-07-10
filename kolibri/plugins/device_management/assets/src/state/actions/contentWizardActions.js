@@ -27,10 +27,6 @@ import { getAllRemoteChannels } from './availableChannelsActions';
 const translator = createTranslator('contentWizardTexts', {
   loadingChannelsToolbar: 'Loading channels…',
   loadingChannelToolbar: 'Loading channel…',
-  availableChannelsOnDrive: "Available Channels on '{driveName}'",
-  availableChannelsOnStudio: 'Available Channels on Kolibri Studio',
-  availableChannelsOnDevice: 'Available Channels on this device',
-  selectContentFromChannel: "Select Content from '{channelName}'",
 });
 
 const { LOCAL_DRIVE, KOLIBRI_STUDIO } = ContentSources;
@@ -168,7 +164,6 @@ function handleError(store, error) {
 export function showAvailableChannelsPage(store, params) {
   let availableChannelsPromise;
   let selectedDrivePromise;
-  let pageTitle;
   const transferType = getTransferType(params);
 
   store.commit('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
@@ -184,13 +179,11 @@ export function showAvailableChannelsPage(store, params) {
     availableChannelsPromise = getInstalledChannelsPromise(store).then(channels =>
       channels.filter(c => c.available)
     );
-    pageTitle = translator.$tr('availableChannelsOnDevice');
   }
 
   if (transferType === TransferTypes.LOCALIMPORT) {
     selectedDrivePromise = getSelectedDrive(store, params.drive_id);
     availableChannelsPromise = selectedDrivePromise.then(drive => {
-      pageTitle = translator.$tr('availableChannelsOnDrive', { driveName: drive.name });
       return [...drive.metadata.channels];
     });
   }
@@ -207,7 +200,6 @@ export function showAvailableChannelsPage(store, params) {
           .catch(() => reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE }));
       });
     });
-    pageTitle = translator.$tr('availableChannelsOnStudio');
   }
 
   return ConditionalPromise.all([availableChannelsPromise, selectedDrivePromise]).only(
@@ -218,7 +210,6 @@ export function showAvailableChannelsPage(store, params) {
         selectedDrive,
         transferType,
       });
-      store.commit('CORE_SET_TITLE', pageTitle);
       store.commit('CORE_SET_PAGE_LOADING', false);
     },
     function onFailure(error) {
@@ -331,10 +322,6 @@ export function showSelectContentPage(store, params) {
         transferType,
         transferredChannel,
       });
-      store.commit(
-        'CORE_SET_TITLE',
-        translator.$tr('selectContentFromChannel', { channelName: transferredChannel.name })
-      );
       store.commit('CORE_SET_PAGE_LOADING', false);
 
       const isSamePage = samePageCheckGenerator(store);

@@ -43,38 +43,42 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .snackbar
-    position: fixed
-    bottom: 8px
-    right: 8px
-    width: 304px
-    z-index: 24
-    padding: 8px
-    background-color: $core-bg-canvas
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-                0 4px 5px 0 rgba(0, 0, 0, 0.14),
-                0 1px 10px 0 rgba(0, 0, 0, 0.12)
-    animation-fill-mode: both
-    animation-timing-function: cubic-bezier(0.35, 0, 0.25, 1)
-    animation-duration: 0.3s
-    font-size: 14px
+  .snackbar {
+    position: fixed;
+    bottom: 8px;
+    right: 8px;
+    width: 304px;
+    z-index: 24;
+    padding: 8px;
+    background-color: $core-bg-canvas;
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+      0 1px 10px 0 rgba(0, 0, 0, 0.12);
+    animation-fill-mode: both;
+    animation-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
+    animation-duration: 0.3s;
+    font-size: 14px;
+  }
 
-  .table
-    display: table
+  .table {
+    display: table;
+  }
 
-  .row
-    display: table-row
+  .row {
+    display: table-row;
+  }
 
-  .cell
-    display: table-cell
-    vertical-align: middle
+  .cell {
+    display: table-cell;
+    vertical-align: middle;
+  }
 
-  .content-container
-    width: 99%
-    padding: 0 16px
+  .content-container {
+    width: 99%;
+    padding: 0 16px;
+  }
 
 </style>

@@ -30,6 +30,11 @@
 
   export default {
     name: 'learnExamReportViewer',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle', { examTitle: this.exam.title }),
+      };
+    },
     components: {
       examReport,
     },
@@ -78,9 +83,12 @@
         });
       },
     },
+    $trs: {
+      documentTitle: '{ examTitle } report',
+    },
   };
 
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="scss" scoped></style>

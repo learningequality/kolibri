@@ -146,46 +146,54 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  $keen-button-height = 48px
-  $fullscreen-button-height = 36px
-  $page-padding = 5px
+  $keen-button-height: 48px;
+  $fullscreen-button-height: 36px;
+  $page-padding: 5px;
 
-  .doc-viewer
-    position: relative
-    width: 90%
-    margin-left: auto
-    margin-right: auto
+  .doc-viewer {
+    position: relative;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
 
-    &-controls
-      position: absolute
+    &-controls {
+      position: absolute;
+    }
+  }
 
-  #epub-container
-    height: 100%
-    background-color: #FFFFFF
+  #epub-container {
+    height: 100%;
+    background-color: #ffffff;
 
     // prevents a never-visible spot underneath the fullscreen button
-    padding-top: $fullscreen-button-height + $page-padding
-    padding-bottom: $page-padding
+    padding-top: $fullscreen-button-height + $page-padding;
+    padding-bottom: $page-padding;
+  }
 
-  .doc-viewer-controls
-    z-index: 6 // material spec - snackbar and FAB
+  .doc-viewer-controls {
+    z-index: 6; // material spec - snackbar and FAB
+  }
 
-  .button
-    &-fullscreen
-      transform: translateX(-50%)
-      left: 50%
-      top: $page-padding
+  .button {
+    &-fullscreen {
+      transform: translateX(-50%);
+      left: 50%;
+      top: $page-padding;
+    }
 
-    &-prev-page
-      left: ($keen-button-height / 2)
-      top: $page-padding
+    &-prev-page {
+      left: $keen-button-height / 2;
+      top: $page-padding;
+    }
 
-    &-next-page
-      right: ($keen-button-height / 2)
-      top: $page-padding
+    &-next-page {
+      right: $keen-button-height / 2;
+      top: $page-padding;
+    }
+  }
 
 </style>

@@ -119,9 +119,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .button-section
-    margin-top: 1em
+  .button-section {
+    margin-top: 1em;
+  }
 
 </style>

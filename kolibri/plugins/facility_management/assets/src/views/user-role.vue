@@ -52,18 +52,19 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .user-role
-    background-color: $core-text-annotation
-    color: $core-bg-light
-    padding-left: 1em
-    padding-right: 1em
-    border-radius: 0.5em
-    font-size: small
-    display: inline-block
-    white-space: nowrap
+  .user-role {
+    background-color: $core-text-annotation;
+    color: $core-bg-light;
+    padding-left: 1em;
+    padding-right: 1em;
+    border-radius: 0.5em;
+    font-size: small;
+    display: inline-block;
+    white-space: nowrap;
+  }
 
 </style>

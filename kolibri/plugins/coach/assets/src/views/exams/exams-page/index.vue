@@ -103,6 +103,12 @@
       entireClass: 'Entire class',
       groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
       nobody: 'Nobody',
+      documentTitle: 'Exams',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       coreTable,
@@ -175,16 +181,19 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .filter-and-button
-    display: flex
-    flex-wrap: wrap-reverse
-    justify-content: space-between
-    button
-      align-self: flex-end
+  .filter-and-button {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: space-between;
+    button {
+      align-self: flex-end;
+    }
+  }
 
-  .center-text
-    text-align: center
+  .center-text {
+    text-align: center;
+  }
 
 </style>

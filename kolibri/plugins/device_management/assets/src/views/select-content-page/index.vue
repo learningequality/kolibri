@@ -116,6 +116,11 @@
 
   export default {
     name: 'selectContentPage',
+    metaInfo() {
+      return {
+        title: this.$tr('selectContent', { channelName: this.transferredChannel.name }),
+      };
+    },
     components: {
       channelContentsSummary,
       contentTreeViewer,
@@ -260,9 +265,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .updates
-    text-align: right
+  .updates {
+    text-align: right;
+  }
 
 </style>

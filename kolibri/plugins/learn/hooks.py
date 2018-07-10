@@ -12,6 +12,7 @@ class LearnSyncHook(webpack_hooks.WebpackInclusionHook):
     class Meta:
         abstract = True
 
+
 class LearnAsyncHook(webpack_hooks.WebpackInclusionHook):
     """
     Inherit a hook defining assets to be loaded sychronously in learn/learn.html

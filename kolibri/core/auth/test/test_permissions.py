@@ -789,6 +789,7 @@ class MembershipPermissionsTestCase(TestCase):
         self.assertTrue(self.superuser.can_delete(membership))
         self.assertFalse(self.anon_user.can_delete(membership))
 
+
 class FacilityDatasetCertificateNamespacingTestCase(TestCase):
 
     def test_unsaved_facility_validation_only_create_one_dataset(self):

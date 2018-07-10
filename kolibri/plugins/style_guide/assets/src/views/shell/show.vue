@@ -16,10 +16,11 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .show-wrapper
-    border: 1px solid #eee
-    padding: 8px
+  .show-wrapper {
+    border: 1px solid #eee;
+    padding: 8px;
+  }
 
 </style>

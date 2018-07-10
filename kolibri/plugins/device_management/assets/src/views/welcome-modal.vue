@@ -45,13 +45,16 @@
 </script>
 
 
-<style scoped lang="stylus">
+<style lang="scss" scoped>
 
-  .welcome-modal
-    &-description
-      margin-top: 16px
-    &-dismiss-button
-      margin-top: 24px
-      margin-bottom: 16px
+  .welcome-modal {
+    &-description {
+      margin-top: 16px;
+    }
+    &-dismiss-button {
+      margin-top: 24px;
+      margin-bottom: 16px;
+    }
+  }
 
 </style>

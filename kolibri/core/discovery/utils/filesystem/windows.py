@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 _DRIVE_TYPES = [drivetypes.UNKNOWN, "#noroot", drivetypes.USB_DEVICE, drivetypes.INTERNAL_DRIVE, drivetypes.NETWORK_DRIVE, drivetypes.OPTICAL_DRIVE, "#ram"]
 
+
 def get_drive_list():
 
     drives = []
@@ -91,6 +92,7 @@ def _wmic_output():
     os.remove(OUTPUT_PATH)
 
     return output
+
 
 def _parse_wmic_csv_output(text):
     """

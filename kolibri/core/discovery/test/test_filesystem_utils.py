@@ -1,15 +1,21 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
-from django.test import TestCase
-from mock import patch
 import ntpath
 import os
 import posixpath
 import sys
 
-from .dummydata import windows_data, osx_data, linux_data
+from django.test import TestCase
+from mock import patch
 
-from ..utils.filesystem import enumerate_mounted_disk_partitions, EXPORT_FOLDER_NAME
+from ..utils.filesystem import enumerate_mounted_disk_partitions
+from ..utils.filesystem import EXPORT_FOLDER_NAME
+from .dummydata import linux_data
+from .dummydata import osx_data
+from .dummydata import windows_data
+
 
 def _get_mocked_popen(cmd_resp):
 
@@ -72,6 +78,7 @@ class patch_disk_usage(object):
         else:
             return patch("os.statvfs", self.mocked_disk_usage)(f)
 
+
 def patch_os_access(readable, writable):
 
     def wrapper(f):
@@ -91,6 +98,7 @@ def patch_os_access(readable, writable):
         return patch("os.access", check_os_access)(f)
 
     return wrapper
+
 
 def patch_os_path_exists_for_kolibri_folder(folder_lookup):
 

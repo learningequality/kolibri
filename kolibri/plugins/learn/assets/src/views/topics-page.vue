@@ -41,6 +41,8 @@
     $trs: {
       topics: 'Topics',
       navigate: 'Navigate content using headings',
+      documentTitleForChannel: 'Topics - { channelTitle }',
+      documentTitleForTopic: '{ topicTitle } - { channelTitle }',
     },
     components: {
       pageHeader,
@@ -48,12 +50,27 @@
       contentCardGroupGrid,
       textTruncator,
     },
+    metaInfo() {
+      let title;
+      if (this.isRoot) {
+        title = this.$tr('documentTitleForChannel', {
+          channelTitle: this.channelTitle,
+        });
+      } else {
+        title = this.$tr('documentTitleForTopic', {
+          channelTitle: this.channelTitle,
+          topicTitle: this.topic.title,
+        });
+      }
+      return { title };
+    },
     computed: {
       ...mapState({
         topic: state => state.pageState.topic,
         contents: state => state.pageState.contents,
         isRoot: state => state.pageState.isRoot,
         channelId: state => state.pageState.channel.id,
+        channelTitle: state => state.pageState.channel.title,
       }),
     },
     methods: {
@@ -75,11 +92,12 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .page-description
-    margin-top: 1em
-    margin-bottom: 1em
-    line-height: 1.5em
+  .page-description {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    line-height: 1.5em;
+  }
 
 </style>

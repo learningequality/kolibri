@@ -25,9 +25,6 @@ export default {
   CORE_BLOCK_CLICKS(state, blocked) {
     state.blockDoubleClicks = blocked;
   },
-  CORE_SET_TITLE(state, title) {
-    state.title = title;
-  },
   SET_TOTAL_PROGRESS(state, progress) {
     state.totalProgress = progress;
   },

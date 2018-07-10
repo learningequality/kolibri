@@ -90,6 +90,11 @@
 
   export default {
     name: 'userPermissionsPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle', { name: this.userFullName }),
+      };
+    },
     components: {
       authMessage,
       immersiveFullScreen,
@@ -110,6 +115,7 @@
       ...mapGetters(['isSuperuser']),
       ...mapState({
         user: ({ pageState }) => pageState.user,
+        userFullName: state => state.pageState.user.full_name,
         permissions: ({ pageState }) => pageState.permissions,
         isCurrentUser: ({ core, pageState }) => core.session.username === pageState.user.username,
       }),
@@ -202,23 +208,27 @@
       saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
       you: 'You',
+      documentTitle: "{ name }'s Device Permissions",
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .no-margin
-    margin-left: 0
+  .no-margin {
+    margin-left: 0;
+  }
 
-  .section
-    padding: 1em
+  .section {
+    padding: 1em;
+  }
 
-  .permissions-icon
-    padding-right: 8px
+  .permissions-icon {
+    padding-right: 8px;
+  }
 
 </style>

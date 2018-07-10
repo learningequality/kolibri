@@ -119,6 +119,7 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
 
     bridge.end()
 
+
 def mark_local_files_as_available(checksums):
     """
     Shortcut method to update database if we are sure that the files are available.
@@ -134,12 +135,13 @@ def mark_local_files_as_available(checksums):
         bridge.session.bulk_update_mappings(LocalFileClass, ({
             'id': checksum,
             'available': True
-        } for checksum in checksums[i:i+CHUNKSIZE]))
+        } for checksum in checksums[i:i + CHUNKSIZE]))
         bridge.session.flush()
 
     bridge.session.commit()
 
     bridge.end()
+
 
 def set_local_file_availability_from_disk(checksums=None):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
@@ -164,6 +166,7 @@ def set_local_file_availability_from_disk(checksums=None):
     bridge.end()
 
     mark_local_files_as_available(checksums_to_update)
+
 
 def recurse_availability_up_tree(channel_id):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
@@ -241,6 +244,7 @@ def recurse_availability_up_tree(channel_id):
     logging.debug("Availability annotation took {} seconds".format(elapsed.seconds))
 
     bridge.end()
+
 
 def set_availability(channel_id, checksums=None):
     if checksums is None:

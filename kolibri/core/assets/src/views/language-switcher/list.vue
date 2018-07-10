@@ -90,28 +90,33 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .globe
-    position: relative
-    top: -2px
-    right: -4px
+  .globe {
+    position: relative;
+    top: -2px;
+    right: -4px;
+  }
 
-  .selected
-    margin: 8px
+  .selected {
+    margin: 8px;
+  }
 
-  .lang
-    margin-left: 8px
-    margin-right: 8px
+  .lang {
+    margin-left: 8px;
+    margin-right: 8px;
+  }
 
-  .more
-    margin: 0
-    margin-top: 8px
-    margin-bottom: 8px
+  .more {
+    margin: 0;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
 
-  .modal
-    text-align: left
+  .modal {
+    text-align: left;
+  }
 
 </style>

@@ -151,7 +151,7 @@ If this does not work, you should run the commands it is invoking in two separat
 
 .. code-block:: bash
 
-  (kolibri)$ kolibri --debug manage devserver --settings=kolibri.deployment.default.settings.dev
+  (kolibri)$ kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev
 
 The second runs the webpack build process for frontend assets in 'watch' mode, meaning they will be automatically rebuilt if you modify them.
 

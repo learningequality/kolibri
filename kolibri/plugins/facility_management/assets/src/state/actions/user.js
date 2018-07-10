@@ -3,7 +3,7 @@ import { FacilityUserResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
-import { _userState, _managePageTitle } from './helpers/mappers';
+import { _userState } from './helpers/mappers';
 import preparePage from './helpers/preparePage';
 import displayModal from './helpers/displayModal';
 import { updateFacilityLevelRoles } from './rolesActions';
@@ -143,7 +143,6 @@ export function deleteUser(store, id) {
 export function showUserPage(store) {
   preparePage(store.commit, {
     name: PageNames.USER_MGMT_PAGE,
-    title: _managePageTitle('Users'),
   });
 
   const facilityId = store.getters.currentFacilityId;

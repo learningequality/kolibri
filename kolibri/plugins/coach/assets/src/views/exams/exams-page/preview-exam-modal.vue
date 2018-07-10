@@ -235,42 +235,53 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .question-list-item
-    vertical-align: middle
+  .question-list-item {
+    vertical-align: middle;
+  }
 
-  .coach-content-label
-    display: inline-block
-    vertical-align: inherit
+  .coach-content-label {
+    display: inline-block;
+    vertical-align: inherit;
+  }
 
-  .exam-preview-container
-    margin-top: 16px
+  .exam-preview-container {
+    margin-top: 16px;
+  }
 
-  .close-btn-wrapper
-    text-align: right
-    button
-      margin-right: 0
-      margin-bottom: 0
+  .close-btn-wrapper {
+    text-align: right;
+    button {
+      margin-right: 0;
+      margin-bottom: 0;
+    }
+  }
 
-  >>>.modal
-    max-width: unset
-    max-height: unset
+  /deep/ .modal {
+    max-width: unset;
+    max-height: unset;
+  }
 
-  .question-selector, .exercise-container
-    overflow-y: auto
+  .question-selector,
+  .exercise-container {
+    overflow-y: auto;
+  }
 
-  ol
-    padding: 0
-    margin: 0
+  ol {
+    padding: 0;
+    margin: 0;
+  }
 
-  li
-    list-style-type: none
+  li {
+    list-style-type: none;
+  }
 
-  h3
-    margin-top: 1em
-    margin-bottom: 0.25em
+  h3 {
+    margin-top: 1em;
+    margin-bottom: 0.25em;
+  }
 
 </style>

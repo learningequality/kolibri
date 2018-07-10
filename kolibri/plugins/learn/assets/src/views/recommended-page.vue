@@ -86,6 +86,12 @@
       popularSectionHeader: 'Most popular',
       suggestedNextStepsSectionHeader: 'Next steps',
       resumeSectionHeader: 'Resume',
+      documentTitle: 'Learn',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       contentCardGroupCarousel,
@@ -155,4 +161,4 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="scss" scoped></style>

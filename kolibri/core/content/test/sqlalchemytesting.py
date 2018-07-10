@@ -6,15 +6,21 @@ from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 # get_conn and SharingPool code modified from:
 # http://nathansnoggin.blogspot.com/2013/11/integrating-sqlalchemy-into-django.html
 
-# custom connection factory, so we can share with django
+
 def get_conn(self):
+    """
+    custom connection factory, so we can share with django
+    """
     from django.db import connections
     conn = connections['default']
     return conn.connection
 
-# custom connection pool that doesn't close connections, and uses our
-# custom connection factory
+
 class SharingPool(NullPool):
+    """
+    custom connection pool that doesn't close connections, and uses our
+    custom connection factory
+    """
     def __init__(self, get_connection, **kwargs):
         kwargs['reset_on_return'] = False
         super(SharingPool, self).__init__(get_conn, **kwargs)
@@ -33,6 +39,7 @@ class SharingPool(NullPool):
 
     def dispose(self):
         pass
+
 
 def django_connection_engine():
     if get_default_db_string().startswith('sqlite'):

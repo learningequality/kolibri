@@ -38,6 +38,7 @@ class ContentSessionLogPermissionsTestCase(TestCase):
         self.assertTrue(learner.can_update(self.data['interaction_log']))
         self.assertTrue(learner.can_delete(self.data['interaction_log']))
 
+
 class ContentSummaryLogPermissionsTestCase(TestCase):
 
     def setUp(self):

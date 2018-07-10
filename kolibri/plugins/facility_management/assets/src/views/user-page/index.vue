@@ -98,6 +98,11 @@
 
   export default {
     name: 'userPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       userCreateModal,
       editUserModal,
@@ -202,37 +207,45 @@
       resetUserPassword: 'Reset password',
       deleteUser: 'Delete',
       userActions: 'User management actions',
+      documentTitle: 'Manage Users',
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .toolbar
-    margin-bottom: 32px
+  .toolbar {
+    margin-bottom: 32px;
+  }
 
-  .toolbar:after
-    content: ''
-    display: table
-    clear: both
+  .toolbar:after {
+    content: '';
+    display: table;
+    clear: both;
+  }
 
   // Toolbar Styling
-  .create
-    float: right
+  .create {
+    float: right;
+  }
 
-  .header h1
-    display: inline-block
+  .header h1 {
+    display: inline-block;
+  }
 
-  .user-roster
-    overflow-x: auto
-    overflow-y: hidden
+  .user-roster {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
 
-  .kind-select
-    margin-bottom: 0
+  .kind-select {
+    margin-bottom: 0;
+  }
 
-  .user-filter
-    width: 300px
+  .user-filter {
+    width: 300px;
+  }
 
 </style>

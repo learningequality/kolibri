@@ -25,6 +25,12 @@
     name: 'channelsPage',
     $trs: {
       channels: 'Channels',
+      documentTitle: 'All channels',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       pageHeader,
@@ -48,9 +54,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .grid
-    margin-top: 24px
+  .grid {
+    margin-top: 24px;
+  }
 
 </style>

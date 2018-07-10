@@ -96,6 +96,11 @@
 
   export default {
     name: 'learnerReportPage',
+    metaInfo() {
+      return {
+        title: this.documentTitle,
+      };
+    },
     components: {
       coachContentLabel,
       coreTable,
@@ -121,6 +126,9 @@
       contentCountText:
         '{count, number, integer} {count, plural, one {resource} other {resources}}',
       noLearners: 'There are no learners enrolled in this class',
+      documentTitleForRecentItems: 'Recent - Learners',
+      documentTitleForTopicItems: 'Topics - Learners',
+      documentTitleForLearners: 'Learners',
     },
     computed: {
       ...mapState(['classId', 'pageState', 'pageName']),
@@ -131,6 +139,16 @@
         exerciseCount,
         standardDataTable,
       }),
+      documentTitle() {
+        switch (this.pageName) {
+          case PageNames.LEARNER_LIST:
+            return this.$tr('documentTitleForLearners');
+          case PageNames.RECENT_LEARNERS_FOR_ITEM:
+            return this.$tr('documentTitleForRecentItems');
+          case PageNames.TOPIC_LEARNERS_FOR_ITEM:
+            return this.$tr('documentTitleForTopicItems');
+        }
+      },
       isExercisePage() {
         return this.contentScopeSummary.kind === ContentNodeKinds.EXERCISE;
       },
@@ -177,4 +195,4 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="scss" scoped></style>

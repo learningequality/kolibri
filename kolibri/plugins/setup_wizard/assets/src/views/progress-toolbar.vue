@@ -51,11 +51,12 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .progress-toolbar
-    fill: white
+  .progress-toolbar {
+    fill: white;
+  }
 
 </style>

@@ -33,6 +33,7 @@ module.exports = {
     __coreAPISpec: true,
     __filename: true,
     __publicPath: true,
+    __copyrightYear: true,
   },
   extends: [
     'eslint:recommended',

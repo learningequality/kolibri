@@ -27,6 +27,11 @@
 
   export default {
     name: 'ClassAssignmentsPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       AssignedExamsCards,
       AssignedLessonsCards,
@@ -42,14 +47,18 @@
         return this.windowSize.breakpoint <= 1;
       },
     },
+    $trs: {
+      documentTitle: 'Class assignments',
+    },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .classroom-name
-    margin-bottom: 32px
+  .classroom-name {
+    margin-bottom: 32px;
+  }
 
 </style>

@@ -87,6 +87,7 @@ CONTENT_DB_SCHEMA_VERSIONS = [
 # The schema version for this version of Kolibri
 CONTENT_SCHEMA_VERSION = VERSION_2
 
+
 class UUIDField(models.CharField):
     """
     Adaptation of Django's UUIDField, but with 32-char hex representation as Python representation rather than a UUID instance.
