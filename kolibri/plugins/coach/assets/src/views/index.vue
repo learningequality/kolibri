@@ -188,12 +188,14 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .top-nav
-    margin-bottom: 32px
+  .top-nav {
+    margin-bottom: 32px;
+  }
 
-  .nav-title
-    margin-bottom: 32px
+  .nav-title {
+    margin-bottom: 32px;
+  }
 
 </style>

@@ -261,37 +261,44 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .channel-list-header
-    font-size: 14px
-    padding: 16px 0
-    color: $core-text-annotation
+  .channel-list-header {
+    font-size: 14px;
+    padding: 16px 0;
+    color: $core-text-annotation;
+  }
 
-  .channel-list-item:first-of-type
-    border-top: 1px solid $core-grey
+  .channel-list-item:first-of-type {
+    border-top: 1px solid $core-grey;
+  }
 
-  .top-matter
-    margin-bottom: 32px
+  .top-matter {
+    margin-bottom: 32px;
+  }
 
-  .channels
-    width: 30%
-    display: inline-block
+  .channels {
+    width: 30%;
+    display: inline-block;
+  }
 
-  .filters
-    width: 70%
-    vertical-align: top
-    margin: 16px 0
-    display: inline-block
+  .filters {
+    width: 70%;
+    vertical-align: top;
+    margin: 16px 0;
+    display: inline-block;
+  }
 
-  .title-filter
-    width: 50%
-    float: right
-    margin-top: 10px
+  .title-filter {
+    width: 50%;
+    float: right;
+    margin-top: 10px;
+  }
 
-  .unlisted-channels
-    padding: 16px 0
+  .unlisted-channels {
+    padding: 16px 0;
+  }
 
 </style>

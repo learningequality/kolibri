@@ -25,4 +25,4 @@
 </script>
 
 
-<style scoped lang="stylus"></style>
+<style lang="scss" scoped></style>

@@ -316,46 +316,56 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
   // taken from docs, assumes 1rem = 16px
-  $vertical-page-margin = 50px
-  $iphone-width = 320
+  $vertical-page-margin: 50px;
+  $iphone-width: 320px;
 
-  .content
-    padding-top: $vertical-page-margin
-    margin-left: auto
-    margin-right: auto
-    width: ($iphone-width - 20)px
+  .content {
+    padding-top: $vertical-page-margin;
+    margin-left: auto;
+    margin-right: auto;
+    width: $iphone-width - 20px;
+  }
 
-  .points-icon, .points-num
-    display: inline-block
+  .points-icon,
+  .points-num {
+    display: inline-block;
+  }
 
-  .points-icon
-    width: 2em
-    height: 2em
+  .points-icon {
+    width: 2em;
+    height: 2em;
+  }
 
-  .points-num
-    color: $core-status-correct
-    font-size: 3em
-    font-weight: bold
-    margin-left: 16px
+  .points-num {
+    color: $core-status-correct;
+    font-size: 3em;
+    font-weight: bold;
+    margin-left: 16px;
+  }
 
-  section
-    margin-bottom: 36px
+  section {
+    margin-bottom: 36px;
+  }
 
-  .permissions-list
-    padding-left: 37px
+  .permissions-list {
+    padding-left: 37px;
+  }
 
-  .permissions-icon
-    padding-right: 8px
+  .permissions-icon {
+    padding-right: 8px;
+  }
 
-  .submit
-    margin-left: 0
+  .submit {
+    margin-left: 0;
+  }
 
-  .change-password
-    margin-top: 8px
+  .change-password {
+    margin-top: 8px;
+  }
 
 </style>

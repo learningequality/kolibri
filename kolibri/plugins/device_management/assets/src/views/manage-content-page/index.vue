@@ -122,26 +122,31 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .table-title
-    margin-top: 16px
-    &:after
-      content: ''
-      display: table
-      clear: both
+  .table-title {
+    margin-top: 16px;
+    &:after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+  }
 
-  .page-title
-    float: left
+  .page-title {
+    float: left;
+  }
 
-  .buttons
-    float: right
+  .buttons {
+    float: right;
+  }
 
-  .main
-    padding: 16px 32px
-    padding-bottom: 48px
-    margin-top: 32px
-    width: 100%
-    border-radius: 4px
+  .main {
+    padding: 16px 32px;
+    padding-bottom: 48px;
+    margin-top: 32px;
+    width: 100%;
+    border-radius: 4px;
+  }
 
 </style>

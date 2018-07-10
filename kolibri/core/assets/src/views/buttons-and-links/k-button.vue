@@ -91,11 +91,12 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require './buttons.styl'
+  @import './buttons.scss';
 
-  .dropdown-arrow
-    vertical-align: middle
+  .dropdown-arrow {
+    vertical-align: middle;
+  }
 
 </style>

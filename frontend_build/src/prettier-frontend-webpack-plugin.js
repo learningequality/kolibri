@@ -1,8 +1,8 @@
-const prettierFrontend = require('./prettier-frontend');
 const path = require('path');
+const prettierFrontend = require('./prettier-frontend');
 
 class PrettierFrontendPlugin {
-  constructor({ encoding = 'utf-8', extensions = ['vue', 'js'], prettierOptions }) {
+  constructor({ encoding = 'utf-8', extensions = ['vue', 'js', 'scss'], prettierOptions }) {
     // Encoding to use when reading / writing files
     this.encoding = encoding;
     this.extensions = extensions;

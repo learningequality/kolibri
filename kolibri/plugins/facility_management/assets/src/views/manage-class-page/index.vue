@@ -184,25 +184,28 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .header
-    position: relative
-    padding-right: 150px
-    margin-bottom: 16px
+  .header {
+    position: relative;
+    padding-right: 150px;
+    margin-bottom: 16px;
+  }
 
-  .create-btn
-    position: absolute
-    display: block
-    top: 0
-    right: 0
+  .create-btn {
+    position: absolute;
+    display: block;
+    top: 0;
+    right: 0;
+  }
 
-  .create-btn-mobile
-    position: relative
-    display: inline-block
-    right: 10px
-    min-width: 150px
+  .create-btn-mobile {
+    position: relative;
+    display: inline-block;
+    right: 10px;
+    min-width: 150px;
+  }
 
 </style>

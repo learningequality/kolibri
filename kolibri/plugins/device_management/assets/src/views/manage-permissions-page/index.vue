@@ -68,13 +68,15 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .description
-    margin-bottom: 2em
+  .description {
+    margin-bottom: 2em;
+  }
 
-  .filter-box
-    text-align: right
-    margin-bottom: 1em
+  .filter-box {
+    text-align: right;
+    margin-bottom: 1em;
+  }
 
 </style>

@@ -193,30 +193,36 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  $gutters = 16px
+  $gutters: 16px;
 
-  .grid-item
-    margin-right: $gutters
-    margin-bottom: $gutters
+  .grid-item {
+    margin-right: $gutters;
+    margin-bottom: $gutters;
+  }
 
-  .filter-icon
-    vertical-align: middle
-    margin-right: 12px
+  .filter-icon {
+    vertical-align: middle;
+    margin-right: 12px;
+  }
 
-  .filter:nth-of-type(1)
-    margin-right: 32px
+  .filter:nth-of-type(1) {
+    margin-right: 32px;
+  }
 
-  .filter
-    margin-bottom: 0
+  .filter {
+    margin-bottom: 0;
+  }
 
-  .filters
-    margin-bottom: 24px
+  .filters {
+    margin-bottom: 24px;
+  }
 
-  .ib
-    display: inline-block
+  .ib {
+    display: inline-block;
+  }
 
 </style>

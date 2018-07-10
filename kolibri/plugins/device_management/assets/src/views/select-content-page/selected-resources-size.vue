@@ -99,27 +99,30 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .selected-resources-size
+  .selected-resources-size {
     // using table to separate element by alignment while keeping them on the same line
     // avoids magic numbers, keeps text lined up.
-    display: table
-    line-height: 1em
-    width: 100%
+    display: table;
+    line-height: 1em;
+    width: 100%;
+  }
 
+  .choose-message {
+    display: table-row;
+    padding: 8px 0;
+    font-weight: bold;
+  }
 
-  .choose-message
-    display: table-row
-    padding: 8px 0
-    font-weight: bold
+  .remaining-space {
+    text-align: left;
+    display: table-cell;
+  }
 
-  .remaining-space
-    text-align: left
-    display: table-cell
-
-  .resources-selected
-    text-align: right
-    display: table-cell
+  .resources-selected {
+    text-align: right;
+    display: table-cell;
+  }
 
 </style>

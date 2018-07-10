@@ -175,14 +175,16 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .new-group-button
-    float: right
+  .new-group-button {
+    float: right;
+  }
 
-  .header
-    display: inline-block
-    vertical-align: middle
-    margin-right: 16px
+  .header {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 16px;
+  }
 
 </style>

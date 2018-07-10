@@ -94,44 +94,54 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  $size = 30px
-  $margin = 4px
+  $size: 30px;
+  $margin: 4px;
 
-  .exercise-attempts
-    position: relative
-    white-space: nowrap
-    overflow-x: auto
-    overflow-y: hidden
+  .exercise-attempts {
+    position: relative;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
 
-  .attempt, .placeholder
-    display: inline-block
-    width: $size
-    height: $size
-    margin: $margin
+  .attempt,
+  .placeholder {
+    display: inline-block;
+    width: $size;
+    height: $size;
+    margin: $margin;
+  }
 
-  .attempt
-    text-align: center
-    position: absolute
-    transition: all 0.5s ease-in-out
+  .attempt {
+    text-align: center;
+    position: absolute;
+    transition: all 0.5s ease-in-out;
     // try to improve performance - http://stackoverflow.com/a/10133679
-    backface-visibility: hidden
-    perspective: 1000
+    backface-visibility: hidden;
+    perspective: 1000;
+  }
 
-  .placeholder
-    border-bottom: 2px solid $core-text-annotation
-    transition: border-bottom 0.1s linear
+  .placeholder {
+    border-bottom: 2px solid $core-text-annotation;
+    transition: 2px solid $core-text-annotation 0.1s linear;
+  }
 
-  .placeholder-first
-    border: 2px solid $core-text-annotation
+  .placeholder-first {
+    border: 2px solid $core-text-annotation;
+  }
 
-  .fade-enter, .fade-leave-to
-    opacity: 0
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
+  }
 
-  .fade-enter-active, .fade-leave-active
-    transition: opacity 0.5s
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: 0 0.5s;
+  }
 
 </style>

@@ -215,17 +215,20 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .no-margin
-    margin-left: 0
+  .no-margin {
+    margin-left: 0;
+  }
 
-  .section
-    padding: 1em
+  .section {
+    padding: 1em;
+  }
 
-  .permissions-icon
-    padding-right: 8px
+  .permissions-icon {
+    padding-right: 8px;
+  }
 
 </style>

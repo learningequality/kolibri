@@ -155,17 +155,20 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .mb
-    margin-bottom: 2rem
+  .mb {
+    margin-bottom: 2rem;
+  }
 
-  .settings
-    max-width: 35rem
+  .settings {
+    max-width: 35rem;
+  }
 
-  .settings > label
-    cursor: pointer
-    font-weight: bold
-    margin-bottom: 2rem
+  .settings > label {
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 2rem;
+  }
 
 </style>

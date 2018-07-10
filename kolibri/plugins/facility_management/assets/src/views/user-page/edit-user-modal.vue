@@ -261,15 +261,17 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .coach-selector
-    margin-bottom: 3em
-    margin: 0
-    padding: 0
-    border: none
+  .coach-selector {
+    margin-bottom: 3em;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
 
-  .edit-user-form
-    min-height: 350px
+  .edit-user-form {
+    min-height: 350px;
+  }
 
 </style>

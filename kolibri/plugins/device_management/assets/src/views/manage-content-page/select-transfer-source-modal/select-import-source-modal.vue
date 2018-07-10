@@ -80,9 +80,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .options
-    margin: 2em 0
+  .options {
+    margin: 2em 0;
+  }
 
 </style>

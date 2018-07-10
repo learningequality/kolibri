@@ -99,25 +99,30 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  table
-    margin-top: 16px
-    width: 100%
+  table {
+    margin-top: 16px;
+    width: 100%;
+  }
 
-  th
-    text-align: left
-    vertical-align: top
-    padding-bottom: 24px
-    padding-right: 24px
+  th {
+    text-align: left;
+    vertical-align: top;
+    padding-bottom: 24px;
+    padding-right: 24px;
+  }
 
-  td
-    padding-bottom: 24px
+  td {
+    padding-bottom: 24px;
+  }
 
-  .link
-    display: block
+  .link {
+    display: block;
+  }
 
-  .link:not(:last-child)
-    margin-bottom: 8px
+  .link:not(:last-child) {
+    margin-bottom: 8px;
+  }
 
 </style>

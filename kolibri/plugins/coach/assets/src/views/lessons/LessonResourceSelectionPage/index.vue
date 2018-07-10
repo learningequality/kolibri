@@ -179,34 +179,40 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .content-list
-    list-style: none
-    display: block
-    padding: 0
+  .content-list {
+    list-style: none;
+    display: block;
+    padding: 0;
+  }
 
-  .content-list-item
-    position: relative
-    text-align: right
-    display: block
+  .content-list-item {
+    position: relative;
+    text-align: right;
+    display: block;
+  }
 
-  .content-checkbox
-    display: inline-block
-    position: absolute
-    top: 34% // offset accouting for shadow on card
-    left: -32px
+  .content-checkbox {
+    display: inline-block;
+    position: absolute;
+    top: 34%; // offset accouting for shadow on card
+    left: -32px;
+  }
 
-  .content-card
-    width: 100%
+  .content-card {
+    width: 100%;
+  }
 
-  .resource-selection-page
+  .resource-selection-page {
     // offset to maintain straight lines in form w/ dynamic checkbox
-    margin-left:64px
+    margin-left: 64px;
+  }
 
-  .information
-    text-align: right
+  .information {
+    text-align: right;
+  }
 
 </style>

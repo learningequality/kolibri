@@ -54,29 +54,37 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .k-linear-loader
-    animation: fadeIn
-    animation-fill-mode: backwards
-    animation-duration: 0s
+  .k-linear-loader {
+    animation: fadeIn;
+    animation-fill-mode: backwards;
+    animation-duration: 0s;
+  }
 
-  .k-linear-loader.ui-progress-linear
-    background-color: rgba($core-loading, 0.4)
+  .k-linear-loader.ui-progress-linear {
+    background-color: rgba($core-loading, 0.4);
+  }
 
-  .k-linear-loader
-    >>>.ui-progress-linear__progress-bar
-      background-color: $core-loading
+  .k-linear-loader {
+    /deep/ .ui-progress-linear__progress-bar {
+      background-color: $core-loading;
+    }
+  }
 
-  .delay
-    animation-delay: 1s
+  .delay {
+    animation-delay: 1s;
+  }
 
-  @keyframes fadeIn
-    from
-      opacity: 0
-    to
-      opacity: 1
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 
 </style>

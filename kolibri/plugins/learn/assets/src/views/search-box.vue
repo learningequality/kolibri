@@ -120,69 +120,80 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .search-box
-    display: table
-    width: 100%
-    max-width: 450px
-    margin-right: 8px
-    background-color: white
+  .search-box {
+    display: table;
+    width: 100%;
+    max-width: 450px;
+    margin-right: 8px;
+    background-color: white;
+  }
 
-  .search-box-within-action-bar
-    width: 235px
+  .search-box-within-action-bar {
+    width: 235px;
+  }
 
-  .search-box-row
-    display: table-row
+  .search-box-row {
+    display: table-row;
+  }
 
-  .search-input
-    display: table-cell
-    width: 100%
-    height: 36px
-    margin: 0
-    padding: 0
-    padding-left: 8px
-    vertical-align: middle
-    border: none
-    background-color: white
-    color: $core-text-default
+  .search-input {
+    display: table-cell;
+    width: 100%;
+    height: 36px;
+    margin: 0;
+    padding: 0;
+    padding-left: 8px;
+    vertical-align: middle;
+    border: none;
+    background-color: white;
+    color: $core-text-default;
 
-    &::placeholder
-      color: $core-text-annotation
+    &::placeholder {
+      color: $core-text-annotation;
+    }
 
     // removes the IE clear button
-    &::-ms-clear
-      display: none
+    &::-ms-clear {
+      display: none;
+    }
+  }
 
-  .search-buttons-wrapper
-    display: table-cell
-    text-align: right
-    width: 78px
-    height: 36px
-    vertical-align: middle
+  .search-buttons-wrapper {
+    display: table-cell;
+    text-align: right;
+    width: 78px;
+    height: 36px;
+    vertical-align: middle;
+  }
 
-  .search-clear-button
-    visibility: hidden
-    width: 24px
-    height: 24px
-    margin-right: 6px
-    margin-left: 6px
-    vertical-align: middle
-    color: $core-text-default
+  .search-clear-button {
+    visibility: hidden;
+    width: 24px;
+    height: 24px;
+    margin-right: 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+    color: $core-text-default;
+  }
 
-  .search-clear-button-visble
-    visibility: visible
+  .search-clear-button-visble {
+    visibility: visible;
+  }
 
-  .search-submit-button
-    width: 36px
-    height: 36px
-    fill: white
+  .search-submit-button {
+    width: 36px;
+    height: 36px;
+    fill: white;
+  }
 
-  .search-submit-button-wrapper
-    display: inline-block
-    vertical-align: middle
-    background-color: $core-action-dark
+  .search-submit-button-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+    background-color: $core-action-dark;
+  }
 
 </style>

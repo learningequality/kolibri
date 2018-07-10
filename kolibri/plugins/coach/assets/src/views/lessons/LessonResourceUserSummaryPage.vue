@@ -298,38 +298,48 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .coach-content-label
-    padding: 8px 0
+  .coach-content-label {
+    padding: 8px 0;
+  }
 
-  .kind-icon
-    display: inline-block
-    font-size: 1.8em
-    margin-right: 0.5em
-    >>>.ui-icon
-      vertical-align: bottom
+  .kind-icon {
+    display: inline-block;
+    font-size: 1.8em;
+    margin-right: 0.5em;
+    /deep/ .ui-icon {
+      vertical-align: bottom;
+    }
+  }
 
-  dl, dt, dd
-    margin: 0
-    display: block
+  dl,
+  dt,
+  dd {
+    margin: 0;
+    display: block;
+  }
 
-  .top
-    position: relative
+  .top {
+    position: relative;
+  }
 
-  .preview-button
-    position: absolute
-    top: 0
-    right: 0
-    max-width: 10%
+  .preview-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    max-width: 10%;
+  }
 
-  .resource-data
-    max-width: 90%
+  .resource-data {
+    max-width: 90%;
+  }
 
-  .header-button
-    text-decoration: none
-    color: $core-text-default
+  .header-button {
+    text-decoration: none;
+    color: $core-text-default;
+  }
 
 </style>

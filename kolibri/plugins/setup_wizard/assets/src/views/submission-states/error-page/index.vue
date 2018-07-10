@@ -48,17 +48,21 @@
 </script>
 
 
-<style scoped lang="stylus">
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .error-page
-    &-subheader
-      margin-bottom: 24px
-    &-retry-button
-      margin-bottom: 16px
-    &-subtext
-      font-size: 12px
-      color: $core-text-annotation
+  .error-page {
+    &-subheader {
+      margin-bottom: 24px;
+    }
+    &-retry-button {
+      margin-bottom: 16px;
+    }
+    &-subtext {
+      font-size: 12px;
+      color: $core-text-annotation;
+    }
+  }
 
 </style>

@@ -198,15 +198,17 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  fieldset
-    border: none
-    margin: 0
-    padding: 0
+  fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
 
-  legend
-    padding-top: 16px
-    padding-bottom: 8px
+  legend {
+    padding-top: 16px;
+    padding-bottom: 8px;
+  }
 
 </style>

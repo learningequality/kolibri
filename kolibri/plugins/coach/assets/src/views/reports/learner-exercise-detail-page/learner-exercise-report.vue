@@ -152,14 +152,16 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .exercise-section
-    background-color: $core-bg-light
-    padding: 16px
-    h3
-      margin-top: 0
+  .exercise-section {
+    background-color: $core-bg-light;
+    padding: 16px;
+    h3 {
+      margin-top: 0;
+    }
+  }
 
 </style>

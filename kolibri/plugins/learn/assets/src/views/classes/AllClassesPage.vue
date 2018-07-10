@@ -68,10 +68,11 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .content-card
-    margin-right: 16px
-    margin-bottom: 16px
+  .content-card {
+    margin-right: 16px;
+    margin-bottom: 16px;
+  }
 
 </style>

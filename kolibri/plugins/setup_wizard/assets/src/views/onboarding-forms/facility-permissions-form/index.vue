@@ -172,26 +172,32 @@
 </script>
 
 
-<style scoped lang="stylus">
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  $margin-of-radio-button-text = 32px
+  $margin-of-radio-button-text: 32px;
 
-  .permission-preset
-    cursor: pointer
+  .permission-preset {
+    cursor: pointer;
 
-    &-modal
-      &-dismiss-button
-        text-transform: uppercase
+    &-modal {
+      &-dismiss-button {
+        text-transform: uppercase;
+      }
+    }
+  }
 
-  .permission-preset-human
-    margin-bottom: 8px
-    &-title
-      font-weight: bold
-    &-detail
-      line-height: 1.4em
-      display: list-item
-      margin-left: 20px
+  .permission-preset-human {
+    margin-bottom: 8px;
+    &-title {
+      font-weight: bold;
+    }
+    &-detail {
+      line-height: 1.4em;
+      display: list-item;
+      margin-left: 20px;
+    }
+  }
 
 </style>

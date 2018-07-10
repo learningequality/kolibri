@@ -73,25 +73,31 @@
 </script>
 
 
-<style scoped lang="stylus">
+<style lang="scss" scoped>
 
-  .header
-    margin-bottom: 8px
+  .header {
+    margin-bottom: 8px;
+  }
 
-  .aside, .main
-    overflow-y: auto
+  .aside,
+  .main {
+    overflow-y: auto;
+  }
 
-  .aside
-    display: inline-block
-    width: 25%
-    margin-right: 8px
+  .aside {
+    display: inline-block;
+    width: 25%;
+    margin-right: 8px;
+  }
 
-  .main-with-aside
-    display: inline-block
-    width: calc(75% - 8px)
-    vertical-align: top
+  .main-with-aside {
+    display: inline-block;
+    width: calc(75% - 8px);
+    vertical-align: top;
+  }
 
-  .footer
-    margin-top: 8px
+  .footer {
+    margin-top: 8px;
+  }
 
 </style>

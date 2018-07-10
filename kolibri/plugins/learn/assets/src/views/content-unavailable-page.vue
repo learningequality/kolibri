@@ -34,9 +34,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  h1
-    margin-top: 42px // height of toolbar
+  h1 {
+    margin-top: 42px; // height of toolbar
+  }
 
 </style>

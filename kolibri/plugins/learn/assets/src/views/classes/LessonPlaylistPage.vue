@@ -97,31 +97,38 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .lesson-details
-    margin-bottom: 32px
+  .lesson-details {
+    margin-bottom: 32px;
+  }
 
-  .title
-    display: inline-block
+  .title {
+    display: inline-block;
+  }
 
-  .content-cards
-    max-width: 800px
+  .content-cards {
+    max-width: 800px;
+  }
 
-  .content-card
-    margin-bottom: 16px
+  .content-card {
+    margin-bottom: 16px;
+  }
 
-  .no-resources-message
-    text-align: center
-    font-weight: bold
-    padding: 48px 0
+  .no-resources-message {
+    text-align: center;
+    font-weight: bold;
+    padding: 48px 0;
+  }
 
   // Copied from LessonSummaryPage
-  .lesson-icon
-    display: inline-block
-    font-size: 1.8em
-    margin-right: 0.5em
-    >>>.ui-icon
-      vertical-align: bottom
+  .lesson-icon {
+    display: inline-block;
+    font-size: 1.8em;
+    margin-right: 0.5em;
+    /deep/ .ui-icon {
+      vertical-align: bottom;
+    }
+  }
 
 </style>
