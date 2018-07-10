@@ -67,6 +67,11 @@
 
   export default {
     name: 'deviceInfoPage',
+    metaInfo() {
+      return {
+        title: this.$tr('header'),
+      };
+    },
     components: {
       authMessage,
       subpageContainer,

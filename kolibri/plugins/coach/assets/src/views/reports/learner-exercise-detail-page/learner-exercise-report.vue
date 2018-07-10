@@ -61,6 +61,11 @@
 
   export default {
     name: 'learnerExerciseReport',
+    metaInfo() {
+      return {
+        title: this.exercise.title,
+      };
+    },
     $trs: {
       backPrompt: 'Back to { backTitle }',
       showCorrectAnswerLabel: 'Show correct answer',

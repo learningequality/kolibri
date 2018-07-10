@@ -53,6 +53,11 @@
 
   export default {
     name: 'dataPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       kButton,
       kGrid,
@@ -74,6 +79,7 @@
       download: 'Download',
       note: 'Note',
       noDownload: 'Download is not supported on Android',
+      documentTitle: 'Manage Data',
     },
     computed: {
       cannotDownload() {

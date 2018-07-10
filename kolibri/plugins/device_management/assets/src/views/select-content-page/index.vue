@@ -116,6 +116,11 @@
 
   export default {
     name: 'selectContentPage',
+    metaInfo() {
+      return {
+        title: this.$tr('selectContent', { channelName: this.transferredChannel.name }),
+      };
+    },
     components: {
       channelContentsSummary,
       contentTreeViewer,

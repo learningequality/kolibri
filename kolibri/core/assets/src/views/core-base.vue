@@ -66,6 +66,7 @@
     $trs: {
       kolibriMessage: 'Kolibri',
       kolibriTitleMessage: '{ title } - Kolibri',
+      errorPageTitle: 'Error',
     },
     components: {
       appBar,
@@ -111,11 +112,27 @@
         required: false,
       },
     },
+    metaInfo() {
+      return {
+        // Use arrow function to bind $tr to this component
+        titleTemplate: title => {
+          if (this.error) {
+            return this.$tr('errorPageTitle');
+          }
+          if (!title) {
+            // If no child component sets title, it reads 'Kolibri'
+            return this.$tr('kolibriMessage');
+          }
+          // If child component sets title, it reads 'Child Title - Kolibri'
+          return this.$tr('kolibriTitleMessage', { title });
+        },
+      };
+    },
     data: () => ({ navShown: false }),
     computed: {
       ...mapState({
-        documentTitle: state => state.core.title,
         toolbarTitle: state => state.pageState.toolbarTitle,
+        error: state => state.error,
       }),
       mobile() {
         return this.windowSize.breakpoint < 2;
@@ -125,20 +142,6 @@
       },
       navWidth() {
         return this.headerHeight * 4;
-      },
-    },
-    watch: {
-      documentTitle: 'updateDocumentTitle',
-    },
-    created() {
-      this.updateDocumentTitle();
-    },
-    methods: {
-      // move this responsibility to state?
-      updateDocumentTitle() {
-        document.title = this.documentTitle
-          ? this.$tr('kolibriTitleMessage', { title: this.documentTitle })
-          : this.$tr('kolibriMessage');
       },
     },
   };

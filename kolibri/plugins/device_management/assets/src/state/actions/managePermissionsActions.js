@@ -8,11 +8,6 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
 import head from 'lodash/head';
-import { createTranslator } from 'kolibri.utils.i18n';
-
-const translator = createTranslator('managePermissionsPageTitles', {
-  userPermissionsPageTitle: "{name}'s Device Permissions",
-});
 
 function fetchFacilityUsers(store) {
   const facilityId = store.getters.currentFacilityId;
@@ -95,10 +90,6 @@ export function showUserPermissionsPage(store, userId) {
   )._promise;
   return promise
     .then(function onUserSuccess([data]) {
-      store.commit(
-        'CORE_SET_TITLE',
-        translator.$tr('userPermissionsPageTitle', { name: data.user.full_name })
-      );
       return store.commit('SET_USER_PERMISSIONS_PAGE_STATE', data);
     })
     .catch(function onUserFailure(error) {

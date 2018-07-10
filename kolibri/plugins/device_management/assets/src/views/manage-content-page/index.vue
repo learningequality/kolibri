@@ -67,6 +67,12 @@
       export: 'Export',
       noAccessDetails:
         'You must be signed in as a superuser or have content management permissions to view this page',
+      documentTitle: 'Manage Device Content',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       authMessage,

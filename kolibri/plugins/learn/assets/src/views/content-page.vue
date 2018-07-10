@@ -140,6 +140,7 @@
       toggleLicenseDescription: 'Toggle license description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
       nextResource: 'Next resource',
+      documentTitle: '{ contentTitle } - { channelTitle }',
     },
     components: {
       coachContentLabel,
@@ -151,6 +152,18 @@
       masteredSnackbars,
       uiIconButton,
     },
+    metaInfo() {
+      // Do not overwrite metaInfo of LessonResourceViewer
+      if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+        return {};
+      }
+      return {
+        title: this.$tr('documentTitle', {
+          contentTitle: this.content.title,
+          channelTitle: this.channel.title,
+        }),
+      };
+    },
     data: () => ({
       wasIncomplete: false,
       licenceDescriptionIsVisible: false,
@@ -160,6 +173,7 @@
       ...mapState(['pageName']),
       ...mapState({
         content: state => state.pageState.content,
+        channel: state => state.pageState.channel,
         contentId: state => state.pageState.content.content_id,
         contentNodeId: state => state.pageState.content.id,
         channelId: state => state.pageState.content.channel_id,

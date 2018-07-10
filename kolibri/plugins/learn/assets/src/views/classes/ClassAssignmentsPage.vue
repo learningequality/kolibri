@@ -27,6 +27,11 @@
 
   export default {
     name: 'ClassAssignmentsPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       AssignedExamsCards,
       AssignedLessonsCards,
@@ -41,6 +46,9 @@
       isMobile() {
         return this.windowSize.breakpoint <= 1;
       },
+    },
+    $trs: {
+      documentTitle: 'Class assignments',
     },
   };
 

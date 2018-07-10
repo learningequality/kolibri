@@ -104,6 +104,11 @@
 
   export default {
     name: 'lessonsRootPage',
+    metaInfo() {
+      return {
+        title: this.$tr('classLessons'),
+      };
+    },
     components: {
       coreTable,
       CoreInfoIcon,

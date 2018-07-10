@@ -45,6 +45,12 @@
       noSearch: 'Search by typing in the box above',
       showingResultsFor: "Results for '{searchTerm}'",
       noResultsMsg: "No results for '{searchTerm}'",
+      documentTitle: 'Search',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       contentCard,

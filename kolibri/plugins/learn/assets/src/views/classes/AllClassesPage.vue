@@ -34,6 +34,11 @@
 
   export default {
     name: 'allClassesPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       AuthMessage,
       ContentCard,
@@ -56,6 +61,7 @@
     },
     $trs: {
       allClassesHeader: 'Classes',
+      documentTitle: 'All classes',
     },
   };
 

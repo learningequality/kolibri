@@ -24,6 +24,11 @@
     components: {
       classEnrollForm,
     },
+    metaInfo() {
+      return {
+        title: this.$tr('pageHeader', { className: this.className }),
+      };
+    },
     computed: {
       ...mapState({
         className: state => state.pageState.class.name,

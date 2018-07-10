@@ -10,11 +10,6 @@ import { LessonsPageNames } from '../../constants/lessonsConstants';
 import { lessonSummaryLink } from '../../views/lessons/lessonsRouterUtils';
 import { setClassState } from './main';
 
-const translator = createTranslator('lessonsPageTitles', {
-  lessons: 'Lessons',
-  selectResources: 'Select resources',
-});
-
 // Show the Lessons Root Page, where all the Lessons are listed for a given Classroom
 export function showLessonsRootPage(store, classId) {
   store.commit('CORE_SET_PAGE_LOADING', true);
@@ -32,7 +27,6 @@ export function showLessonsRootPage(store, classId) {
     ([learnerGroups]) => {
       store.commit('SET_LEARNER_GROUPS', learnerGroups);
       store.commit('SET_PAGE_NAME', LessonsPageNames.ROOT);
-      store.commit('CORE_SET_TITLE', translator.$tr('lessons'));
       store.commit('CORE_SET_PAGE_LOADING', false);
     },
     error => {
@@ -104,7 +98,6 @@ export function showLessonSummaryPage(store, params) {
         store.commit('SET_LESSON_REPORT', lessonReport);
         store.commit('CORE_SET_PAGE_LOADING', false);
         store.commit('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
-        store.commit('CORE_SET_TITLE', currentLesson.title);
       });
     })
     .catch(error => {
@@ -175,7 +168,6 @@ function showResourceSelectionPage(
           store.commit('SET_CONTENT_LIST', contentList);
           store.commit('SET_PAGE_NAME', pageName);
           store.commit('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.SUMMARY });
-          store.commit('CORE_SET_TITLE', translator.$tr('selectResources'));
           store.commit('CORE_SET_PAGE_LOADING', false);
         }
       );
@@ -356,7 +348,6 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
         pageState.questions = contentMetadata.assessmentIds;
         pageState.completionData = contentMetadata.masteryModel;
         store.commit('SET_PAGE_STATE', pageState);
-        store.commit('CORE_SET_TITLE', contentNode.title);
         store.commit('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
         return contentNode;
       },

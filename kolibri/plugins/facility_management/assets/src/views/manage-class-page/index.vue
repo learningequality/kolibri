@@ -99,6 +99,11 @@
 
   export default {
     name: 'manageClassPage',
+    metaInfo() {
+      return {
+        title: this.$tr('adminClassPageHeader'),
+      };
+    },
     components: {
       coreTable,
       classCreateModal,
