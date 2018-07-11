@@ -178,17 +178,15 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
       }
       store.commit('SET_PAGE_STATE', pageState);
 
-      // Only load subtopic progress if the user is logged in
+      // Only load contentnode progress if the user is logged in
       if (store.getters.isUserLoggedIn) {
-        const subtopicIds = children
-          .filter(({ kind }) => kind === ContentNodeKinds.TOPIC)
-          .map(({ id }) => id);
+        const contentNodeIds = children.map(({ id }) => id);
 
-        if (subtopicIds.length > 0) {
-          ContentNodeProgressResource.getCollection({ ids: subtopicIds })
+        if (contentNodeIds.length > 0) {
+          ContentNodeProgressResource.getCollection({ ids: contentNodeIds })
             .fetch()
             .then(progresses => {
-              store.commit('SET_TOPIC_PROGRESS', progresses);
+              store.commit('SET_NODE_PROGRESS', progresses);
             });
         }
       }
