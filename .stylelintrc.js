@@ -8,6 +8,7 @@ module.exports = {
     'stylelint-config-prettier',
   ],
   rules: {
+    'color-hex-length': 'long',
     'csstree/validator': true,
 
     /*

@@ -172,7 +172,7 @@
     // prevents a never-visible spot underneath the fullscreen button
     padding-top: $fullscreen-button-height + $page-padding;
     padding-bottom: $page-padding;
-    background-color: #fff;
+    background-color: #ffffff;
   }
 
   .button {

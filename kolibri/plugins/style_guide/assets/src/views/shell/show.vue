@@ -20,7 +20,7 @@
 
   .show-wrapper {
     padding: 8px;
-    border: 1px solid #eee;
+    border: 1px solid #eeeeee;
   }
 
 </style>

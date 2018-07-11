@@ -120,7 +120,7 @@
 
       &:hover:not(.is-disabled),
       body[modality='keyboard'] &:focus {
-        background-color: #eee; // rgba(black, 0.1);
+        background-color: #eeeeee; // rgba(black, 0.1);
       }
 
       &.is-disabled {

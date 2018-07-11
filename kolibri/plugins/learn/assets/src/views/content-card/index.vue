@@ -202,7 +202,7 @@
 
   .copies {
     display: inline-block;
-    float: $margin;
+    float: right;
   }
 
   .mobile-card.card {
