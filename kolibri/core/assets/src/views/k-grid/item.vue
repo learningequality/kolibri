@@ -9,6 +9,9 @@
 
 <script>
 
+  /**
+   * Grid layout items
+   */
   export default {
     name: 'kGridItem',
     props: {
@@ -25,6 +28,9 @@
       unitClass() {
         return `pure-u-${this.size}-${this.cols}`;
       },
+    },
+    mounted() {
+      // console.log('mounted', this.$parent);
     },
   };
 

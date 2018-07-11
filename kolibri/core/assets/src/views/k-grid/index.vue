@@ -9,6 +9,9 @@
 
 <script>
 
+  /**
+   * Grid layouts
+   */
   export default {
     name: 'kGrid',
   };

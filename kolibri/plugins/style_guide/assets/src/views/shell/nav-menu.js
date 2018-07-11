@@ -16,6 +16,7 @@ import filtersPage from '../content/filters';
 import dropdownMenusPage from '../content/dropdown-menus';
 import loadersPage from '../content/loaders';
 import modalsPage from '../content/modals';
+import gridsPage from '../content/grids';
 
 function sortSectionItems(items) {
   return sortBy(items, [item => item.itemName]);
@@ -123,6 +124,13 @@ const navMenu = [
         itemRoute: {
           path: `/components/modals`,
           component: modalsPage,
+        },
+      },
+      {
+        itemName: 'Grids',
+        itemRoute: {
+          path: `/components/grids`,
+          component: gridsPage,
         },
       },
     ]),
