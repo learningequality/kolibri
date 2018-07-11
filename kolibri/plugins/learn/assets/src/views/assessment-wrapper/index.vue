@@ -175,19 +175,24 @@ oriented data synchronization.
         default: () => Promise.resolve(),
       },
     },
-    data: () => ({
-      ready: false,
-      itemId: '',
-      shake: false,
-      firstAttemptAtQuestion: true,
-      complete: false,
-      correct: 0,
-      itemError: false,
-      hintWasTaken: false,
-      // Attempted fix for #1725
-      checkingAnswer: false,
-      checkWasAttempted: false,
-    }),
+    data() {
+      return {
+        ready: false,
+        itemId: '',
+        shake: false,
+        firstAttemptAtQuestion: true,
+        complete: false,
+        correct: 0,
+        itemError: false,
+        hintWasTaken: false,
+        // Attempted fix for #1725
+        checkingAnswer: false,
+        checkWasAttempted: false,
+        // Placing these here so they are available at beforeDestroy
+        masteryModel: this.$store.state.pageState.content.masteryModel,
+        assessmentIds: this.$store.state.pageState.content.assessmentIds,
+      };
+    },
     computed: {
       ...mapGetters(['isUserLoggedIn']),
       ...mapState({
@@ -197,8 +202,6 @@ oriented data synchronization.
           (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
         userid: state => state.core.session.user_id,
         content: state => state.pageState.content,
-        assessmentIds: state => state.pageState.content.assessmentIds,
-        masteryModel: state => state.pageState.content.masteryModel,
         randomize: state => state.pageState.content.randomize,
       }),
       recentAttempts() {
