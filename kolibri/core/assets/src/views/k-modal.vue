@@ -278,7 +278,7 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
     background-attachment: fixed;
-    transition: opacity 0.3s ease;
+    transition: opacity $core-time ease;
   }
 
   // TODO: margins for stacked buttons.
@@ -300,7 +300,7 @@
 
   .fade-enter-active,
   .fade-leave-active {
-    transition: all 0.3s ease;
+    transition: all $core-time ease;
   }
 
   .fade-enter,
