@@ -19,8 +19,8 @@
 <style lang="scss" scoped>
 
   .show-wrapper {
-    border: 1px solid #eee;
     padding: 8px;
+    border: 1px solid #eee;
   }
 
 </style>

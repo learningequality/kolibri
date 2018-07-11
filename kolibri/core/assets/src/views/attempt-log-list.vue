@@ -113,22 +113,22 @@
 
   .coach-content-label {
     display: inline-block;
-    vertical-align: middle;
     margin-left: 8px;
+    vertical-align: middle;
   }
 
   .header {
-    margin: 0;
-    padding-left: 20px;
     padding-top: 10px;
     padding-bottom: 10px;
+    padding-left: 20px;
+    margin: 0;
   }
 
   .history-list {
-    list-style-type: none;
     max-height: inherit;
-    margin: 0;
     padding-left: 0;
+    margin: 0;
+    list-style-type: none;
   }
 
   .item {
@@ -137,10 +137,10 @@
   }
 
   .svg-item {
-    vertical-align: middle;
-    height: auto;
     width: 32px;
+    height: auto;
     margin-right: 8px;
+    vertical-align: middle;
   }
 
   .svg-hint,
@@ -161,16 +161,16 @@
   }
 
   .attempt-item {
-    clear: both;
-    min-width: 120px;
-    border-bottom: 2px solid $core-text-disabled;
-    padding-left: 20px;
     display: block;
+    min-width: 120px;
+    padding-left: 20px;
+    clear: both;
+    border-bottom: 2px solid $core-text-disabled;
   }
 
   .clickable {
-    cursor: pointer;
     display: block;
+    cursor: pointer;
   }
 
   .selected {

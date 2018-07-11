@@ -116,11 +116,11 @@
 
     width: 100%;
     &-body {
-      margin-top: 64px;
-      margin-left: auto;
-      margin-right: auto;
       width: 90%;
       max-width: 550px;
+      margin-top: 64px;
+      margin-right: auto;
+      margin-left: auto;
       &.mobile {
         margin: 40px auto;
       }

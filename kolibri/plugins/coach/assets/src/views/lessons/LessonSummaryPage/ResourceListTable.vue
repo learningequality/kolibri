@@ -291,8 +291,8 @@
 
   .resource-title {
     display: inline-block;
-    margin-right: 8px;
     max-width: 75%;
+    margin-right: 8px;
   }
 
   .coach-content-label {
@@ -306,8 +306,8 @@
   }
 
   .resource-reorder-move {
-    transition: transform 0.5s;
     background-color: $core-bg-canvas; // duping color set in core-table for selected
+    transition: transform 0.5s;
   }
 
   .lesson-summary {
@@ -320,11 +320,11 @@
   }
 
   .channel-title {
-    color: $core-text-annotation;
     margin-top: 8px;
-    margin-left: 0;
     margin-right: 0;
     margin-bottom: 0;
+    margin-left: 0;
+    color: $core-text-annotation;
   }
 
 </style>

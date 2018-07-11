@@ -82,22 +82,22 @@
 
   .btn {
     position: absolute;
-    right: 21px;
     top: 8px;
+    right: 21px;
     fill: white;
   }
 
   .html5-renderer {
     position: relative;
-    text-align: center;
     height: 500px;
     overflow-x: auto;
     overflow-y: hidden;
+    text-align: center;
   }
 
   .iframe {
-    height: 100%;
     width: 100%;
+    height: 100%;
   }
 
 </style>

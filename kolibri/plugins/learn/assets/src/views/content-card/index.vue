@@ -147,12 +147,12 @@
   }
 
   .card {
-    text-decoration: none;
     display: inline-block;
     width: $thumb-width-desktop;
+    text-decoration: none;
     vertical-align: top;
-    border-radius: 2px;
     background-color: $core-bg-light;
+    border-radius: 2px;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
       0 1px 5px 0 rgba(0, 0, 0, 0.12);
     transition: box-shadow 0.4s ease;
@@ -164,11 +164,11 @@
   }
 
   .text {
-    color: $core-text-default;
-    overflow: hidden;
-    padding: $margin;
-    height: 92px;
     position: relative;
+    height: 92px;
+    padding: $margin;
+    overflow: hidden;
+    color: $core-text-default;
   }
 
   .title,
@@ -179,20 +179,20 @@
   .subtitle {
     position: absolute;
     top: 38px;
-    left: $margin;
     right: $margin;
-    font-size: 14px;
-    white-space: nowrap;
+    left: $margin;
     overflow: hidden;
+    font-size: 14px;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .footer {
     position: absolute;
-    font-size: 12px;
-    bottom: $margin;
     right: $margin;
+    bottom: $margin;
     left: $margin;
+    font-size: 12px;
   }
 
   .subtitle.no-footer {
@@ -215,8 +215,8 @@
       position: absolute;
     }
     .text {
-      margin-left: $thumb-width-mobile;
       height: 84px;
+      margin-left: $thumb-width-mobile;
     }
     .subtitle {
       top: 36px;

@@ -184,22 +184,22 @@
   @import '~kolibri.styles.definitions';
 
   .content-list {
-    list-style: none;
     display: block;
     padding: 0;
+    list-style: none;
   }
 
   .content-list-item {
     position: relative;
-    text-align: right;
     display: block;
+    text-align: right;
   }
 
   .content-checkbox {
-    display: inline-block;
     position: absolute;
     top: 34%; // offset accouting for shadow on card
     left: -32px;
+    display: inline-block;
   }
 
   .content-card {

@@ -49,8 +49,8 @@
     top: 0;
     bottom: 0;
     left: 0;
-    overflow-y: auto;
     width: $sidenav-width;
+    overflow-y: auto;
     background: #f7f7f7;
     border-right: 1px solid #e0e0e0;
   }
@@ -58,21 +58,21 @@
   .sidenav-heading {
     display: block;
     padding: 32px 24px;
-    text-decoration: none;
     font-size: 1.25em;
+    text-decoration: none;
   }
 
   .section-heading {
-    font-weight: bold;
-    margin-right: 24px;
-    margin-left: 24px;
     margin-top: 24px;
+    margin-right: 24px;
     margin-bottom: 12px;
+    margin-left: 24px;
+    font-weight: bold;
   }
 
   ul {
-    margin: 0;
     padding: 0;
+    margin: 0;
     list-style-type: none;
   }
 

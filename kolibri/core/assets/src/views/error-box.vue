@@ -50,12 +50,12 @@
   @import '~kolibri.styles.definitions';
 
   .error-box-wrapper {
+    position: relative;
     padding: 10px;
     margin-top: 50px;
-    position: relative;
+    color: $core-text-error;
     background-color: $core-bg-error;
     border: 1px solid $core-text-error;
-    color: $core-text-error;
   }
 
   .hidden {
@@ -64,8 +64,8 @@
 
   .close-button {
     position: absolute;
-    right: 5px;
     top: 5px;
+    right: 5px;
     border: 0;
   }
 
@@ -76,9 +76,9 @@
     overflow: auto;
     font-family: monospace;
     font-size: 10px;
-    border: 1px solid black;
-    background-color: white;
     color: $core-text-default;
+    background-color: white;
+    border: 1px solid black;
   }
 
 </style>

@@ -127,9 +127,9 @@
   .table-title {
     margin-top: 16px;
     &::after {
-      content: '';
       display: table;
       clear: both;
+      content: '';
     }
   }
 
@@ -142,10 +142,10 @@
   }
 
   .main {
+    width: 100%;
     padding: 16px 32px;
     padding-bottom: 48px;
     margin-top: 32px;
-    width: 100%;
     border-radius: 4px;
   }
 

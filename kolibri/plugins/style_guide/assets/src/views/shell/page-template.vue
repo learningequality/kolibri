@@ -36,9 +36,9 @@
   }
 
   .in-progress {
-    text-align: right;
-    color: red;
     font-weight: bold;
+    color: red;
+    text-align: right;
   }
 
 </style>

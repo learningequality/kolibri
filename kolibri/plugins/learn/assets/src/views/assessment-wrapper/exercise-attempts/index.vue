@@ -103,9 +103,9 @@
 
   .exercise-attempts {
     position: relative;
-    white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
+    white-space: nowrap;
   }
 
   .attempt,
@@ -117,8 +117,8 @@
   }
 
   .attempt {
-    text-align: center;
     position: absolute;
+    text-align: center;
     transition: all 0.5s ease-in-out;
     // try to improve performance - http://stackoverflow.com/a/10133679
     backface-visibility: hidden;

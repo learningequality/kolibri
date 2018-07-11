@@ -258,10 +258,10 @@
     display: inline-block;
     vertical-align: middle;
     &::after {
-      content: '\203A';
       margin-right: 8px;
       margin-left: 8px;
       vertical-align: middle;
+      content: '\203A';
     }
   }
 
@@ -281,19 +281,19 @@
     padding-top: 8px;
     padding-bottom: 8px;
     a {
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      max-width: 300px;
       display: inline-block;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 
   .breadcrumbs-visible-items {
     display: inline-block;
-    vertical-align: middle;
-    margin: 0;
     padding: 0;
+    margin: 0;
+    vertical-align: middle;
     list-style: none;
   }
 
@@ -305,18 +305,18 @@
       display: inline-block;
       max-width: 300px;
       overflow: hidden;
-      white-space: nowrap;
       text-overflow: ellipsis;
+      white-space: nowrap;
       vertical-align: middle;
     }
   }
 
   .breadcrumbs-visible-item-notlast {
     &::after {
-      content: '\203A';
       margin-right: 8px;
       margin-left: 8px;
       vertical-align: middle;
+      content: '\203A';
     }
   }
 

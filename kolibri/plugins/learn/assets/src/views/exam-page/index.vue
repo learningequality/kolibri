@@ -271,8 +271,8 @@
   }
 
   .questions-answered {
-    display: inline-block;
     position: relative;
+    display: inline-block;
     margin-top: 0;
   }
 

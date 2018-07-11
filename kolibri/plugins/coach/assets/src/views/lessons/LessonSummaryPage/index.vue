@@ -158,8 +158,8 @@
   }
 
   .no-resources-message {
-    text-align: center;
     padding: 48px 0;
+    text-align: center;
   }
 
 </style>

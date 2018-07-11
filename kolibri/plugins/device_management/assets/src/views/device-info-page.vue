@@ -102,15 +102,15 @@
 <style lang="scss" scoped>
 
   table {
-    margin-top: 16px;
     width: 100%;
+    margin-top: 16px;
   }
 
   th {
+    padding-right: 24px;
+    padding-bottom: 24px;
     text-align: left;
     vertical-align: top;
-    padding-bottom: 24px;
-    padding-right: 24px;
   }
 
   td {

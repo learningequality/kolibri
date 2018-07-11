@@ -73,16 +73,16 @@
 
   .onboarding-form {
     &-fields {
-      border: 0;
       padding: 0;
       margin: 0;
       margin-bottom: 24px;
+      border: 0;
     }
 
     &-header {
       margin-top: 0;
-      font-size: $core-title-md;
       margin-bottom: 16px;
+      font-size: $core-title-md;
     }
 
     &-legend {

@@ -17,28 +17,28 @@ $secondary-flat-color: $core-text-default;
 $secondary-flat-disabled-color: rgba($core-text-default, 0.25);
 
 .button {
-  background: none;
-  border: 0;
   display: inline-block;
-  cursor: pointer;
-  outline: none;
-  text-align: center;
-  text-decoration: none;
-  user-select: none;
-  margin: 8px;
-  padding: 0 16px;
   min-width: 64px;
+  max-width: 100%;
   min-height: 36px;
-  border-radius: 2px;
-  transition: $transition;
+  padding: 0 16px;
+  margin: 8px;
+  overflow: hidden;
   font-size: 14px;
   font-weight: bold;
   line-height: 36px;
-  text-transform: uppercase;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
+  text-align: center;
+  text-decoration: none;
   text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  background: none;
+  border: 0;
+  border-radius: 2px;
+  outline: none;
+  transition: $transition;
 
   &::-moz-focus-inner {
     border: 0;
@@ -50,15 +50,15 @@ a.button {
 }
 
 .button.primary.raised {
-  background-color: $core-action-normal;
   color: $primary-raised-color;
+  background-color: $core-action-normal;
   &:hover,
   &:focus {
     background-color: $core-action-dark;
   }
   &:disabled {
-    background-color: rgba($core-action-normal, 0.75);
     color: $primary-raised-disabled-color;
+    background-color: rgba($core-action-normal, 0.75);
     svg {
       fill: $primary-raised-disabled-color;
     }
@@ -86,15 +86,15 @@ a.button {
 }
 
 .button.secondary.raised {
-  background-color: $core-grey-200;
   color: $secondary-raised-color;
+  background-color: $core-grey-200;
   &:hover,
   &:focus {
     background-color: $core-grey-300;
   }
   &:disabled {
-    background-color: rgba($core-text-default, 0.1);
     color: $secondary-raised-disabled-color;
+    background-color: rgba($core-text-default, 0.1);
     svg {
       fill: $secondary-raised-disabled-color;
     }
@@ -131,19 +131,19 @@ a.button {
 .button.secondary.raised,
 .button.secondary.flat {
   &:disabled {
-    box-shadow: none;
-    cursor: default;
     pointer-events: none;
+    cursor: default;
+    box-shadow: none;
   }
 }
 
 .link {
+  display: inline;
+  padding: 0;
   color: $core-action-normal;
-  transition: $transition;
   text-decoration: underline;
   cursor: pointer;
-  padding: 0;
-  display: inline;
+  transition: $transition;
 
   &:hover {
     color: $core-action-dark;

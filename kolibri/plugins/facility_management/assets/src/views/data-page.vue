@@ -107,16 +107,16 @@
   @import '~kolibri.styles.definitions';
 
   .infobox {
+    padding: 8px;
+    font-size: 0.8em;
     background-color: $core-bg-warning;
     border-radius: $radius;
-    font-size: 0.8em;
-    padding: 8px;
   }
 
   .no-dl {
+    display: inline-block;
     font-size: 0.8em;
     color: $core-text-annotation;
-    display: inline-block;
   }
 
 </style>

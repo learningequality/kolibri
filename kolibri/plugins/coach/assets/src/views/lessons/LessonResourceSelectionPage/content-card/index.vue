@@ -111,13 +111,13 @@
   }
 
   .content-card {
-    text-decoration: none;
-    border-radius: 2px;
-    background-color: $core-bg-light;
+    display: block;
     height: $thumb-height;
     margin-bottom: 16px;
     text-align: left;
-    display: block;
+    text-decoration: none;
+    background-color: $core-bg-light;
+    border-radius: 2px;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
       0 1px 5px 0 rgba(0, 0, 0, 0.12);
     transition: box-shadow 0.4s ease;
@@ -129,7 +129,6 @@
   }
 
   .text {
-    color: $core-text-default;
     position: absolute;
     top: 0;
     bottom: 0;
@@ -137,6 +136,7 @@
     width: calc(100% - #{$thumb-width});
     padding: 24px;
     overflow-y: auto;
+    color: $core-text-default;
   }
 
   .title,
@@ -157,8 +157,8 @@
   }
 
   .title {
-    font-size: 16px;
     padding-bottom: 8px;
+    font-size: 16px;
   }
 
   .description {
@@ -166,10 +166,10 @@
   }
 
   .message {
-    color: $core-text-default;
     position: absolute;
     top: 24px;
     right: 24px;
+    color: $core-text-default;
   }
 
 </style>

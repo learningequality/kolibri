@@ -116,8 +116,8 @@
 
   .user-name {
     display: inline-block;
-    vertical-align: middle;
     margin: 0;
+    vertical-align: middle;
   }
 
   .inner-column {

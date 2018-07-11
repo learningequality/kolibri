@@ -305,9 +305,9 @@
   }
 
   .coach-selector {
-    margin-bottom: 3em;
-    margin: 0;
     padding: 0;
+    margin: 0;
+    margin-bottom: 3em;
     border: 0;
   }
 

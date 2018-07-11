@@ -348,19 +348,19 @@
   }
 
   .signup-form {
-    margin-top: $vertical-page-margin;
-    margin-left: auto;
-    margin-right: auto;
     width: $iphone-5-width - 20;
+    margin-top: $vertical-page-margin;
+    margin-right: auto;
+    margin-left: auto;
   }
 
   .terms {
-    background-color: $core-bg-light;
-    color: $core-text-annotation;
     height: 6em;
-    overflow-y: scroll;
     padding: 0.5em;
     margin-bottom: 1em;
+    overflow-y: scroll;
+    color: $core-text-annotation;
+    background-color: $core-bg-light;
     p {
       margin-top: 0;
     }

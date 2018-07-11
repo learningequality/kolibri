@@ -157,8 +157,8 @@
   .doc-viewer {
     position: relative;
     width: 90%;
-    margin-left: auto;
     margin-right: auto;
+    margin-left: auto;
 
     &-controls {
       position: absolute;
@@ -168,28 +168,28 @@
 
   .epub-container {
     height: 100%;
-    background-color: #fff;
 
     // prevents a never-visible spot underneath the fullscreen button
     padding-top: $fullscreen-button-height + $page-padding;
     padding-bottom: $page-padding;
+    background-color: #fff;
   }
 
   .button {
     &-fullscreen {
-      transform: translateX(-50%);
-      left: 50%;
       top: $page-padding;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
     &-prev-page {
-      left: $keen-button-height / 2;
       top: $page-padding;
+      left: $keen-button-height / 2;
     }
 
     &-next-page {
-      right: $keen-button-height / 2;
       top: $page-padding;
+      right: $keen-button-height / 2;
     }
   }
 

@@ -144,13 +144,13 @@
     display: table-cell;
     width: 100%;
     height: 36px;
-    margin: 0;
     padding: 0;
     padding-left: 8px;
-    vertical-align: middle;
-    border: 0;
-    background-color: white;
+    margin: 0;
     color: $core-text-default;
+    vertical-align: middle;
+    background-color: white;
+    border: 0;
 
     &::placeholder {
       color: $core-text-annotation;
@@ -164,20 +164,20 @@
 
   .search-buttons-wrapper {
     display: table-cell;
-    text-align: right;
     width: 78px;
     height: 36px;
+    text-align: right;
     vertical-align: middle;
   }
 
   .search-clear-button {
-    visibility: hidden;
     width: 24px;
     height: 24px;
     margin-right: 6px;
     margin-left: 6px;
-    vertical-align: middle;
     color: $core-text-default;
+    vertical-align: middle;
+    visibility: hidden;
   }
 
   .search-clear-button-visble {

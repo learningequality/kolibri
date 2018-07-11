@@ -185,8 +185,8 @@
   @import '~kolibri.styles.definitions';
 
   .progress-icon {
-    text-align: center;
     width: 5%;
+    text-align: center;
     .inprogress {
       display: inline-block;
     }
@@ -202,9 +202,9 @@
     display: table;
     width: 100%;
     height: 5em;
-    vertical-align: middle;
-    padding-left: 1em;
     padding-right: 1em;
+    padding-left: 1em;
+    vertical-align: middle;
   }
 
   .task-stage {
@@ -213,13 +213,13 @@
 
   .progress-bar {
     width: 50%;
-    font-size: 0.75em;
     padding-bottom: 10px;
+    font-size: 0.75em;
   }
 
   .progress-messages {
-    padding-left: 1em;
     padding-right: 1em;
+    padding-left: 1em;
   }
 
   .percentage {

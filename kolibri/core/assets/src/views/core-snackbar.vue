@@ -118,8 +118,8 @@
     margin: 16px;
 
     /deep/ .ui-snackbar__action-button {
-      color: $core-bg-light;
       font-weight: bold;
+      color: $core-bg-light;
     }
 
     /deep/ .ui-button--type-secondary:hover:not(.is-disabled) {
@@ -128,20 +128,20 @@
   }
 
   .snackbar-backdrop {
-    z-index: 16;
     position: fixed;
     top: 0;
-    bottom: 0;
     right: 0;
+    bottom: 0;
     left: 0;
+    z-index: 16;
     background-color: rgba(0, 0, 0, 0.7);
   }
 
   .snackbar-enter-active,
   .snackbar-leave-active {
-    transition-property: transform, opacity;
-    transition-duration: 0.4s;
     transition-timing-function: ease;
+    transition-duration: 0.4s;
+    transition-property: transform, opacity;
   }
 
   .snackbar-enter,

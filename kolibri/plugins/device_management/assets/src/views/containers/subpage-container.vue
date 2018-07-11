@@ -30,18 +30,18 @@
   @import '~kolibri.styles.definitions';
 
   .side-margin {
+    margin-right: 2em;
     // to match .content-container in core-base
     margin-left: 2em;
-    margin-right: 2em;
   }
 
   .subpage-container {
     padding: 1em 2em;
     padding-bottom: 3em;
     margin-top: 2em;
-    border-radius: 4px;
-    background-color: $core-bg-light;
     overflow-x: auto;
+    background-color: $core-bg-light;
+    border-radius: 4px;
   }
 
   .wrapper {

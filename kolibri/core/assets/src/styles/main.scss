@@ -20,21 +20,21 @@
 }
 
 html {
+  box-sizing: border-box;
   // https://davidwalsh.name/html5-boilerplate
   font-size: 100%;
-  text-size-adjust: 100%;
-  box-sizing: border-box;
   // from normalize v5
   line-height: 1.3;
+  text-size-adjust: 100%;
 }
 
 html,
 body {
   height: 100%;
-  color: $core-text-default;
-  background-color: $core-bg-canvas;
-  letter-spacing: 0.01em;
   overflow-y: auto; // fixes #3318
+  color: $core-text-default;
+  letter-spacing: 0.01em;
+  background-color: $core-bg-canvas;
 }
 
 // https://purecss.io/grids/#using-grids-with-custom-fonts
@@ -72,14 +72,14 @@ svg:not(:root) {
 }
 
 .visuallyhidden {
-  border: 0;
-  clip: rect(0 0 0 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
   position: absolute;
   width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
 }
 
 /*
@@ -95,16 +95,16 @@ svg:not(:root) {
 
 /* Button reset for consistency. */
 button {
-  background: none;
-  border: 0;
   display: inline-block;
-  cursor: pointer;
-  outline: none;
   overflow: hidden;
   text-align: center;
   text-decoration: none;
-  user-select: none;
   white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  background: none;
+  border: 0;
+  outline: none;
 
   &::-moz-focus-inner {
     border: 0;

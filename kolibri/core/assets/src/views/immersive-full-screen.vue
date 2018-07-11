@@ -53,12 +53,12 @@
   @import '~kolibri.styles.definitions';
 
   .whole-page {
-    left: 0;
+    position: fixed;
     top: 0;
+    left: 0;
     z-index: 24;
     width: 100%;
     height: 100%;
-    position: fixed;
     background-color: $core-bg-canvas;
   }
 
@@ -69,24 +69,24 @@
   }
 
   .back-btn {
+    position: relative;
     top: 8px;
     left: 28px;
-    position: relative;
-    cursor: pointer;
     display: inline-block;
     padding: 10px;
+    cursor: pointer;
   }
 
   .svg-back {
-    fill: $core-bg-light;
     margin-right: 10px;
+    fill: $core-bg-light;
   }
 
   .back {
-    color: $core-bg-light;
     float: left;
-    font-weight: bold;
     font-size: 1.2em;
+    font-weight: bold;
+    color: $core-bg-light;
   }
 
   p {

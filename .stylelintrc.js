@@ -4,6 +4,7 @@ module.exports = {
     'stylelint-config-standard',
     'stylelint-config-recommended-scss',
     'stylelint-config-sass-guidelines',
+    "stylelint-config-recess-order",
     'stylelint-config-prettier',
   ],
   rules: {
@@ -23,6 +24,6 @@ module.exports = {
     'selector-max-compound-selectors': null, // Would require refactor
     'selector-class-pattern': null, // Deep selector classes do not follow this
 
-    'order/properties-alphabetical-order': null, // Maybe?
+    'order/properties-alphabetical-order': null,
   },
 };

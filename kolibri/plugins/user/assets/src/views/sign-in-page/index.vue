@@ -410,10 +410,10 @@
   }
 
   .wrapper-table {
-    text-align: center;
+    display: table;
     width: 100%;
     height: 100%;
-    display: table;
+    text-align: center;
   }
 
   .main-row {
@@ -421,24 +421,24 @@
     $bk-img: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./background.jpg');
 
     display: table-row;
+    text-align: center;
     background-color: $core-action-normal;
     background-image: $bk-img;
     background-repeat: no-repeat;
-    background-size: cover;
     background-position: center;
-    text-align: center;
+    background-size: cover;
   }
 
   .main-cell {
     display: table-cell;
-    vertical-align: middle;
     height: 100%;
+    vertical-align: middle;
   }
 
   .box {
     width: 300px;
-    background-color: $core-bg-light;
     margin: 16px auto;
+    background-color: $core-bg-light;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
       0 2px 1px -1px rgba(0, 0, 0, 0.12);
   }
@@ -448,11 +448,11 @@
   }
 
   .login-form {
+    position: relative;
     width: 70%;
     max-width: 300px;
-    position: relative;
-    text-align: left;
     margin: auto;
+    text-align: left;
   }
 
   .login-btn {
@@ -460,10 +460,10 @@
   }
 
   .version {
-    font-size: 0.8em;
+    padding-bottom: 16px;
     margin-top: 24px;
     margin-bottom: 0;
-    padding-bottom: 16px;
+    font-size: 0.8em;
   }
 
   .footer-row {
@@ -473,22 +473,22 @@
 
   .footer-cell {
     display: table-cell;
-    vertical-align: middle;
     min-height: 56px;
     padding: 16px;
+    vertical-align: middle;
   }
 
   .suggestions {
-    background-color: white;
-    box-shadow: 1px 2px 8px #e6e6e6;
-    list-style-type: none;
-    margin: 0;
+    position: absolute;
+    z-index: 8;
     width: 100%;
     padding: 0;
-    z-index: 8;
+    margin: 0;
     // Move up snug against the textbox
     margin-top: -2em;
-    position: absolute;
+    list-style-type: none;
+    background-color: white;
+    box-shadow: 1px 2px 8px #e6e6e6;
   }
 
   .highlighted {
@@ -512,10 +512,10 @@
   }
 
   h1 {
+    margin-top: 0;
     font-size: 1.5em;
     font-weight: 100;
     color: #9174a9;
-    margin-top: 0;
   }
 
   .create-button {

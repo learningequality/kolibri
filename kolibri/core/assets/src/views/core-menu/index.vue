@@ -94,18 +94,18 @@
   /* stylelint-disable csstree/validator */
 
   .ui-menu {
-    background-color: white;
-    border: rem-calc(1px) solid rgba(black, 0.08);
-    font-family: $font-stack;
-    list-style: none;
-    margin: 0;
-    max-height: 100vh;
-    max-width: rem-calc(272px);
     min-width: rem-calc(168px);
-    outline: none;
+    max-width: rem-calc(272px);
+    max-height: 100vh;
+    padding: rem-calc(4px 0);
+    margin: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    padding: rem-calc(4px 0);
+    font-family: $font-stack;
+    list-style: none;
+    background-color: white;
+    border: rem-calc(1px) solid rgba(black, 0.08);
+    outline: none;
 
     &.is-raised {
       border: 0;
@@ -126,9 +126,9 @@
 
   .ui-menu-header {
     padding: 1rem;
-    border-bottom: solid 1px rgba(black, 0.08);
-    color: $primary-text-color;
     font-size: $ui-dropdown-item-font-size;
+    color: $primary-text-color;
+    border-bottom: solid 1px rgba(black, 0.08);
   }
 
   .ui-menu-header-lp {

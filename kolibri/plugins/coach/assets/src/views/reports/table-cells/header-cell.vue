@@ -99,20 +99,20 @@
   $size: 15px;
 
   .icon-wrapper {
-    display: inline-block;
     position: relative;
-    height: $size;
+    display: inline-block;
     width: $size;
+    height: $size;
   }
 
   .icon {
-    height: $size;
-    width: $size;
     position: absolute;
-    left: 0;
     top: 4px;
-    transition: opacity $core-time ease;
+    left: 0;
+    width: $size;
+    height: $size;
     opacity: 0;
+    transition: opacity $core-time ease;
   }
 
   .sorted {

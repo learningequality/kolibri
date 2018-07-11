@@ -67,15 +67,15 @@
   @import '~kolibri.styles.definitions';
 
   .attempt-box {
-    border-radius: 10px;
-    height: 60px;
-    width: 60px;
-    padding: 10px;
+    display: inline-block;
     float: left;
+    width: 60px;
+    height: 60px;
+    padding: 10px;
     margin-right: 10px;
     cursor: pointer;
-    display: inline-block;
     border: 2px solid $core-text-disabled;
+    border-radius: 10px;
   }
 
   .selected {
@@ -83,10 +83,10 @@
   }
 
   .svg-item {
-    height: 38px;
     width: auto;
-    border-bottom: 2px solid $core-text-default;
+    height: 38px;
     padding: 2px;
+    border-bottom: 2px solid $core-text-default;
   }
 
   .svg-hint,

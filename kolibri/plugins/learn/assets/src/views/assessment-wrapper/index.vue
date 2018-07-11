@@ -494,13 +494,13 @@ oriented data synchronization.
   // BOTTOM_SPACED_RESERVED depends on the height of this container
   .attempts-container {
     position: fixed;
-    bottom: 0;
     right: 0;
+    bottom: 0;
     left: 0;
-    margin: 0;
-    padding: 8px 16px;
-    overflow-x: hidden;
     z-index: 8; // material - Bottom app bar
+    padding: 8px 16px;
+    margin: 0;
+    overflow-x: hidden;
     font-size: 14px;
     background-color: $core-bg-light;
     box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2), 0 16px 24px 2px rgba(0, 0, 0, 0.14),
@@ -517,8 +517,8 @@ oriented data synchronization.
   }
 
   .overall-status {
-    color: $core-text-default;
     margin-bottom: 8px;
+    color: $core-text-default;
   }
 
   .mastered,
@@ -540,8 +540,8 @@ oriented data synchronization.
   }
 
   .completed {
-    color: $core-text-annotation;
     font-size: 12px;
+    color: $core-text-annotation;
   }
 
   .table {
@@ -559,10 +559,10 @@ oriented data synchronization.
   }
 
   .right {
+    width: 99%;
+    padding-left: 8px;
     overflow-x: auto;
     overflow-y: hidden;
-    padding-left: 8px;
-    width: 99%;
   }
 
   .question-btn {
@@ -571,8 +571,8 @@ oriented data synchronization.
 
   // checkAnswer btn animation
   .shaking {
-    animation: shake 0.8s ease-in-out both;
     transform: translate3d(0, 0, 0);
+    animation: shake 0.8s ease-in-out both;
     backface-visibility: hidden;
     perspective: 1000px;
   }
@@ -598,8 +598,8 @@ oriented data synchronization.
   }
 
   .current-status {
-    margin: 0;
     height: 18px;
+    margin: 0;
   }
 
 </style>

@@ -58,34 +58,34 @@
 
   .wrapper {
     position: relative;
-    white-space: nowrap;
     padding-right: 40px;
+    white-space: nowrap;
   }
 
   .progress-bar-wrapper {
-    display: inline-block;
     position: relative;
+    display: inline-block;
+    float: left;
     width: 100%;
     max-width: 125px;
     height: 1.2em;
-    background-color: $core-grey;
-    border-radius: 15px;
-    float: left;
     margin-right: 5px;
     overflow: hidden;
+    background-color: $core-grey;
+    border-radius: 15px;
   }
 
   .progress-bar-complete {
-    height: 100%;
     width: 0;
+    height: 100%;
     background-color: $core-action-normal;
     transition: width $core-time ease;
   }
 
   .progress-bar-text {
-    display: inline-block;
     position: relative;
     right: 0;
+    display: inline-block;
     width: 30px;
     text-align: left;
   }

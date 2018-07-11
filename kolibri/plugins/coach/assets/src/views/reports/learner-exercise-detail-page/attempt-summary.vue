@@ -210,8 +210,8 @@
 
   .icon {
     display: inline-block;
-    margin-right: 16px;
     width: 24px;
+    margin-right: 16px;
   }
 
   .summary-item {

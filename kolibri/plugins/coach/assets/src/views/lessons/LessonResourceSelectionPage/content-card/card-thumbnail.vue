@@ -100,20 +100,20 @@
 
   .card-thumbnail-wrapper {
     position: absolute;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-color: $core-bg-light;
     width: $thumb-width;
     height: $thumb-height;
+    background-color: $core-bg-light;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
   }
 
   .thumbnail-icon {
     position: absolute;
-    transform: translate(-50%, -50%) scale(2);
     top: 50%;
     left: 50%;
     color: $core-text-annotation;
+    transform: translate(-50%, -50%) scale(2);
   }
 
   .content-icon-wrapper {
@@ -124,9 +124,9 @@
 
   .content-icon {
     position: absolute;
+    font-size: 18px;
     color: white;
     transform: translate(25%, 0);
-    font-size: 18px;
   }
 
   .content-icon-bg {

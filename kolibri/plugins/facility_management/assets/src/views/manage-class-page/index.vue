@@ -196,15 +196,15 @@
 
   .create-btn {
     position: absolute;
-    display: block;
     top: 0;
     right: 0;
+    display: block;
   }
 
   .create-btn-mobile {
     position: relative;
-    display: inline-block;
     right: 10px;
+    display: inline-block;
     min-width: 150px;
   }
 

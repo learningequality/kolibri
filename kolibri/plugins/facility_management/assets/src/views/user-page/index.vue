@@ -221,9 +221,9 @@
   }
 
   .toolbar::after {
-    content: '';
     display: table;
     clear: both;
+    content: '';
   }
 
   // Toolbar Styling

@@ -23,8 +23,8 @@ $login-overlay: #201a21;
   zoom: 1;
   &::after,
   &::before {
-    content: '';
     display: table;
+    content: '';
   }
   &::after {
     clear: both;

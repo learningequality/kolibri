@@ -66,9 +66,9 @@
 
   .inprogress,
   .completed {
-    border-radius: 50%;
     color: white;
     cursor: default;
+    border-radius: 50%;
   }
 
   .inprogress {

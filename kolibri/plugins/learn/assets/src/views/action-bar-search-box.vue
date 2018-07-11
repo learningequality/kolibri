@@ -114,14 +114,14 @@
   .search-box-dropdown {
     position: fixed;
     top: 55px;
-    left: 0;
     right: 0;
+    left: 0;
     z-index: 4; // match app-bar
-    background-color: $core-action-normal;
-    padding-right: 16px;
-    padding-left: 16px;
     padding-top: 10px;
+    padding-right: 16px;
     padding-bottom: 10px;
+    padding-left: 16px;
+    background-color: $core-action-normal;
   }
 
   .search-box-dropdown-backdrop {

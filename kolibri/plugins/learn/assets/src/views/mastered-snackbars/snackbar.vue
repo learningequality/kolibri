@@ -49,18 +49,18 @@
 
   .snackbar {
     position: fixed;
-    bottom: 8px;
     right: 8px;
-    width: 304px;
+    bottom: 8px;
     z-index: 24;
+    width: 304px;
     padding: 8px;
+    font-size: 14px;
     background-color: $core-bg-canvas;
     box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
       0 1px 10px 0 rgba(0, 0, 0, 0.12);
-    animation-fill-mode: both;
-    animation-timing-function: ease;
     animation-duration: 0.3s;
-    font-size: 14px;
+    animation-timing-function: ease;
+    animation-fill-mode: both;
   }
 
   .table {

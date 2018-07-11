@@ -127,9 +127,9 @@
 
   // only used when using a link. Otherwise, uses uiToolbar's styles
   .icon {
+    width: 3em;
     // copied from keen
     height: 3em;
-    width: 3em;
     fill: white;
   }
 

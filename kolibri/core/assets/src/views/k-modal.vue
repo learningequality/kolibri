@@ -273,12 +273,12 @@
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 24;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
-    transition: opacity 0.3s ease;
     background-attachment: fixed;
-    z-index: 24;
+    transition: opacity 0.3s ease;
   }
 
   // TODO: margins for stacked buttons.
@@ -286,12 +286,12 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    background: $core-bg-light;
+    margin: 0 auto;
     overflow-y: auto;
+    background: $core-bg-light;
     border-radius: $radius;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
-    margin: 0 auto;
+    transform: translate(-50%, -50%);
 
     &:focus {
       outline: none;
@@ -309,8 +309,8 @@
   }
 
   .title {
-    margin: 0;
     padding: 24px;
+    margin: 0;
   }
 
   .content {
@@ -324,15 +324,15 @@
       radial-gradient(at top, rgba(0, 0, 0, 0.2), transparent 70%),
       radial-gradient(at bottom, rgba(0, 0, 0, 0.2), transparent 70%) bottom;
     background-repeat: no-repeat;
-    background-size: 100% 20px, 100% 20px, 100% 10px, 100% 10px;
     background-attachment: local, local, scroll, scroll;
+    background-size: 100% 20px, 100% 20px, 100% 10px, 100% 10px;
     border-top: 1px solid $core-grey;
     border-bottom: 1px solid $core-grey;
   }
 
   .actions {
-    text-align: right;
     padding: 24px;
+    text-align: right;
     button {
       margin: 0;
     }

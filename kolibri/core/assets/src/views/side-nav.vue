@@ -279,16 +279,16 @@
 
   .side-nav-header-name {
     margin-left: 8px;
-    vertical-align: middle;
-    color: $core-bg-light;
-    font-weight: bold;
     font-size: 18px;
+    font-weight: bold;
+    color: $core-bg-light;
+    vertical-align: middle;
   }
 
   .side-nav-scrollable-area {
     position: fixed;
-    left: 0;
     bottom: 0;
+    left: 0;
     overflow: auto;
   }
 
@@ -297,13 +297,13 @@
   }
 
   .side-nav-scrollable-area-footer {
-    color: $core-text-annotation;
     padding: 16px;
+    color: $core-text-annotation;
   }
 
   .side-nav-scrollable-area-footer-logo {
-    height: 77px;
     max-width: 100%;
+    height: 77px;
   }
 
   .side-nav-scrollable-area-footer-info {
@@ -319,12 +319,12 @@
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 15;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
-    transition: opacity 0.3s ease;
     background-attachment: fixed;
-    z-index: 15;
+    transition: opacity 0.3s ease;
   }
 
   /* keen menu */
@@ -342,20 +342,20 @@
 
       .ui-menu-option-text {
         overflow: visible;
-        white-space: normal;
-        color: $core-text-default;
         font-size: 14px;
+        color: $core-text-default;
+        white-space: normal;
       }
 
       .ui-menu-option-icon {
-        color: $core-text-default;
         font-size: 1.2em;
+        color: $core-text-default;
       }
 
       &.is-active {
         .ui-menu-option-text {
-          color: $core-accent-color;
           font-weight: bold;
+          color: $core-accent-color;
           opacity: 1;
         }
 

@@ -246,15 +246,15 @@
   }
 
   .points-link {
-    display: inline-block;
-    text-decoration: none;
-    color: $core-status-correct;
     position: relative;
+    display: inline-block;
+    color: $core-status-correct;
+    text-decoration: none;
   }
 
   .points-wrapper {
-    margin-top: -70px;
     float: right;
+    margin-top: -70px;
   }
 
 </style>
