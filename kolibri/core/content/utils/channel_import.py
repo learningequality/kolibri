@@ -469,12 +469,23 @@ class ChannelImport(object):
                 pass
 
     def try_detaching_sqlite_database(self):
+        from django.db import connection
         # detach the content database from the primary database so we don't get errors trying to attach it again later
         if self.destination.engine.name == "sqlite":
             try:
                 self.destination.session.execute(text("DETACH 'sourcedb'".format(path=self.source_db_path)))
             except OperationalError:
                 # silently ignore if the database was already detached, as then we're good to go
+                pass
+            try:
+                # Importing produces a big fragmentation in the db,
+                # let's vacuum it.
+                self.destination.session.close()
+                cursor = connection.cursor()
+                cursor.execute('VACUUM;')
+                connection.close()
+            except OperationalError:
+                # silently ignore if the connection was already closed
                 pass
             self._sqlite_db_attached = False
 
