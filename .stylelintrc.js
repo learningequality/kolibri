@@ -4,7 +4,7 @@ module.exports = {
     'stylelint-config-standard',
     'stylelint-config-recommended-scss',
     'stylelint-config-sass-guidelines',
-    "stylelint-config-recess-order",
+    'stylelint-config-recess-order',
     'stylelint-config-prettier',
   ],
   rules: {

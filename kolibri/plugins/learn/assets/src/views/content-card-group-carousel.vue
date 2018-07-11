@@ -278,7 +278,7 @@
     &-card {
       position: absolute;
       left: 0;
-      transition: left 0.4s ease;
+      transition: left 0.4s ease, box-shadow 0.4s ease;
     }
 
     &-next-control,
