@@ -32,7 +32,7 @@
 
 <style lang="scss" scoped>
 
-  @import '../styles/style-guide.scss';
+  @import '../styles/style-guide';
 
   .content {
     margin-right: auto;
@@ -70,7 +70,6 @@
     white-space: nowrap;
   }
 
-  @import '../styles/style-guide.scss';
   @import '~vuep/dist/vuep.css';
 
   .vuep {
@@ -90,4 +89,3 @@
   }
 
 </style>
-

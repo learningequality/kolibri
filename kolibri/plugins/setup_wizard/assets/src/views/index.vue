@@ -112,8 +112,9 @@
   @import '~kolibri.styles.definitions';
 
   .onboarding {
-    width: 100%;
     @include clearfix(); // child margin leaks up into otherwise empty parent
+
+    width: 100%;
     &-body {
       margin-top: 64px;
       margin-left: auto;

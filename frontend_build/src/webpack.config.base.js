@@ -180,6 +180,7 @@ module.exports = {
       files: ['**/*.scss', '**/*.vue'],
       fix: true,
       // lintDirtyModulesOnly: true,
+      emitErrors: false,
     }),
   ],
   resolve: {

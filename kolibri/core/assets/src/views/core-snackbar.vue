@@ -123,7 +123,7 @@
     }
 
     /deep/ .ui-button--type-secondary:hover:not(.is-disabled) {
-      background-color: hsla(0, 0, 100%, 0.05);
+      background-color: rgba(255, 255, 255, 0.05);
     }
   }
 

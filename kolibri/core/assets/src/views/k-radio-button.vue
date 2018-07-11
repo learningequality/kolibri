@@ -140,16 +140,16 @@
   $radio-height: 24px;
 
   .k-radio-button {
+    position: relative;
+    display: block;
+    margin-top: 8px;
+    margin-bottom: 8px;
     &.disabled {
       color: $core-text-disabled;
     }
     &:not(.disabled) {
       cursor: pointer;
     }
-    position: relative;
-    display: block;
-    margin-top: 8px;
-    margin-bottom: 8px;
   }
 
   .input,
@@ -167,6 +167,12 @@
 
   .checked,
   .unchecked {
+    // lay our custom radio buttons on top of the actual element
+    width: $radio-height;
+    height: $radio-height;
+    position: absolute;
+    left: 0;
+    top: 0;
     &.active {
       // setting opacity to 0 hides input's default outline
       outline: $core-outline;
@@ -174,12 +180,6 @@
     &.disabled {
       fill: $core-grey-300;
     }
-    // lay our custom radio buttons on top of the actual element
-    width: $radio-height;
-    height: $radio-height;
-    position: absolute;
-    left: 0;
-    top: 0;
   }
   .checked {
     fill: $core-action-normal;
@@ -198,12 +198,12 @@
     max-width: calc(100% - #{$radio-height});
   }
   .description {
-    &:not(.disabled) {
-      color: $core-text-annotation;
-    }
     width: 100%;
     line-height: normal;
     font-size: 12px;
+    &:not(.disabled) {
+      color: $core-text-annotation;
+    }
   }
 
 </style>

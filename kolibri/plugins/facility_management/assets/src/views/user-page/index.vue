@@ -220,7 +220,7 @@
     margin-bottom: 32px;
   }
 
-  .toolbar:after {
+  .toolbar::after {
     content: '';
     display: table;
     clear: both;

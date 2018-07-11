@@ -238,7 +238,7 @@
 
 <style lang="scss" scoped>
 
-  @import 'learn.scss';
+  @import './learn';
   @import '~kolibri.styles.definitions';
 
   .content {

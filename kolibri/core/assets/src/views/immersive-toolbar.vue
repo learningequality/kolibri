@@ -133,10 +133,6 @@
     fill: white;
   }
 
-  .secondary {
-    background-color: $core-text-default;
-  }
-
   .link {
     display: inline-block;
     border-radius: 50%;
@@ -147,6 +143,7 @@
   }
 
   .secondary {
+    background-color: $core-text-default;
     .link {
       &:focus,
       &:hover {

@@ -408,7 +408,7 @@
 
   @import '~kolibri.styles.definitions';
 
-  /*!!rtl:begin:ignore*/
+  /* !!rtl:begin:ignore */
 
   /** COLOR PALLETTE **/
   $video-player-color: #212121;
@@ -461,7 +461,7 @@
         .vjs-play-progress {
           background-color: $video-player-accent-color;
 
-          &:before {
+          &::before {
             color: $video-player-accent-color;
             font-size: 18px;
             top: -5px;
@@ -497,7 +497,7 @@
     /* Buttons */
     .vjs-button {
       .vjs-icon-placeholder {
-        &:before {
+        &::before {
           line-height: $button-height-normal;
           font-size: $button-font-size-normal;
         }
@@ -507,7 +507,7 @@
     /* Replay & Forward Buttons */
     .vjs-icon-replay_10,
     .vjs-icon-forward_10 {
-      &:before {
+      &::before {
         line-height: $button-height-normal;
         font-size: $button-font-size-normal;
       }
@@ -520,7 +520,7 @@
       top: 50%;
       left: 50%;
       margin: 0;
-      border: none;
+      border: 0;
       border-radius: 50%;
       line-height: $button-height-normal * 2;
       height: $button-height-normal * 2;
@@ -635,7 +635,7 @@
 
     .vjs-button {
       .vjs-icon-placeholder {
-        &:before {
+        &::before {
           line-height: $button-height-small;
         }
       }
@@ -643,7 +643,7 @@
 
     .vjs-icon-replay_10,
     .vjs-icon-forward_10 {
-      &:before {
+      &::before {
         line-height: $button-height-small;
       }
     }
@@ -739,6 +739,6 @@
     }
   }
 
-  /*!!rtl:end:ignore*/
+  /* !!rtl:end:ignore */
 
 </style>

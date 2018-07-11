@@ -267,7 +267,7 @@
     margin-bottom: 3em;
     margin: 0;
     padding: 0;
-    border: none;
+    border: 0;
   }
 
   .edit-user-form {

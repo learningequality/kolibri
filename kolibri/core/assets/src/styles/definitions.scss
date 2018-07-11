@@ -21,12 +21,12 @@ $login-overlay: #201a21;
 // from http://nicolasgallagher.com/micro-clearfix-hack/
 @mixin clearfix() {
   zoom: 1;
-  &:after,
-  &:before {
+  &::after,
+  &::before {
     content: '';
     display: table;
   }
-  &:after {
+  &::after {
     clear: both;
   }
 }

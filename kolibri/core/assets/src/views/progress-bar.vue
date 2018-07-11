@@ -79,7 +79,7 @@
     height: 100%;
     width: 0;
     background-color: $core-action-normal;
-    transition: 0, $core-time, ease;
+    transition: width $core-time ease;
   }
 
   .progress-bar-text {

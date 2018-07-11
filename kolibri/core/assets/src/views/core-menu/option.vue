@@ -88,9 +88,11 @@
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scoped>
 
   @import '~keen-ui/src/styles/imports';
+
+  /* stylelint-disable csstree/validator */
 
   .ui-menu-option {
     display: block;
@@ -118,7 +120,7 @@
 
       &:hover:not(.is-disabled),
       body[modality='keyboard'] &:focus {
-        background-color: #eeeeee; // rgba(black, 0.1);
+        background-color: #eee; // rgba(black, 0.1);
       }
 
       &.is-disabled {
@@ -148,6 +150,7 @@
 
   .ui-menu-option-text {
     @include text-truncation;
+
     flex-grow: 1;
     line-height: 2em;
   }
@@ -162,5 +165,7 @@
   .ui-menu-option-text-lp {
     padding-left: 40px;
   }
+
+  /* stylelint-enable */
 
 </style>

@@ -508,7 +508,7 @@ oriented data synchronization.
   }
 
   .margin-wrapper {
-    max-width: 1000px - 64px; // account for page padding
+    max-width: 936px; // account for page padding 1000 - 64
     margin: auto;
   }
 
@@ -571,7 +571,7 @@ oriented data synchronization.
 
   // checkAnswer btn animation
   .shaking {
-    animation: shake 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    animation: shake 0.8s ease-in-out both;
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
     perspective: 1000px;

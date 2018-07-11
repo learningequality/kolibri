@@ -105,7 +105,7 @@
 
   li {
     clear: both;
-    border: none;
+    border: 0;
     height: 64px;
   }
 

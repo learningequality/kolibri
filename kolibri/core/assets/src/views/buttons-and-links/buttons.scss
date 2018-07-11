@@ -1,6 +1,6 @@
 @import '~kolibri.styles.definitions';
 
-$transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+$transition: all 0.4s ease;
 $raised-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14),
   0 3px 1px -2px rgba(0, 0, 0, 0.12);
 
@@ -18,15 +18,13 @@ $secondary-flat-disabled-color: rgba($core-text-default, 0.25);
 
 .button {
   background: none;
-  border: none;
+  border: 0;
   display: inline-block;
   cursor: pointer;
   outline: none;
-  overflow: hidden;
   text-align: center;
   text-decoration: none;
   user-select: none;
-  white-space: nowrap;
   margin: 8px;
   padding: 0 16px;
   min-width: 64px;
@@ -43,7 +41,7 @@ $secondary-flat-disabled-color: rgba($core-text-default, 0.25);
   text-overflow: ellipsis;
 
   &::-moz-focus-inner {
-    border: none;
+    border: 0;
   }
 }
 

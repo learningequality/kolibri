@@ -151,7 +151,7 @@
 
   .title {
     padding: 0;
-    border: none;
+    border: 0;
     font-size: 1em;
   }
 

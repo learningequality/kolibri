@@ -2301,6 +2301,13 @@ css-selector-tokenizer@^0.7.0:
     fastparse "^1.1.1"
     regexpu-core "^1.0.0"
 
+css-tree@1.0.0-alpha.29:
+  version "1.0.0-alpha.29"
+  resolved "https://registry.yarnpkg.com/css-tree/-/css-tree-1.0.0-alpha.29.tgz#3fa9d4ef3142cbd1c301e7664c1f352bd82f5a39"
+  dependencies:
+    mdn-data "~1.1.0"
+    source-map "^0.5.3"
+
 css@^2.1.0:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/css/-/css-2.2.3.tgz#f861f4ba61e79bedc962aa548e5780fd95cbc6be"
@@ -5842,6 +5849,10 @@ mdast-util-compact@^1.0.0:
     unist-util-modify-children "^1.0.0"
     unist-util-visit "^1.1.0"
 
+mdn-data@~1.1.0:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-1.1.4.tgz#50b5d4ffc4575276573c4eedb8780812a8419f01"
+
 mdurl@^1.0.1, mdurl@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/mdurl/-/mdurl-1.0.1.tgz#fe85b2ec75a59037f2adfec100fd6c601761152e"
@@ -8872,9 +8883,11 @@ stylelint-config-standard@^18.2.0:
   dependencies:
     stylelint-config-recommended "^2.1.0"
 
-stylelint-high-performance-animation@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/stylelint-high-performance-animation/-/stylelint-high-performance-animation-1.1.0.tgz#307a30cf171ba48251db6207b8623f17099b0ae8"
+stylelint-csstree-validator@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/stylelint-csstree-validator/-/stylelint-csstree-validator-1.3.0.tgz#58293c688a50a02c122897202d60bcb37fae6ff1"
+  dependencies:
+    css-tree "1.0.0-alpha.29"
 
 stylelint-order@^0.8.0:
   version "0.8.1"

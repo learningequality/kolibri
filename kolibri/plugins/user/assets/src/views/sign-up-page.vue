@@ -1,6 +1,6 @@
 <template>
 
-  <div id="signup-page">
+  <div class="signup-page">
 
     <ui-toolbar type="colored" textColor="white">
       <template slot="icon">
@@ -11,7 +11,7 @@
       </template>
       <div slot="actions">
         <router-link
-          id="signin"
+          class="signin"
           :to="signInPage"
         >
           <span>{{ $tr('logIn') }}</span>
@@ -330,21 +330,13 @@
   $logo-margin: 0.38 * $logo-size;
 
   // component, highest level
-  #signup-page {
+  .signup-page {
     width: 100%;
     height: 100%;
     overflow-y: auto;
   }
 
-  // Action Bar
-  #logo {
-    // 1.63 * font height
-    height: $logo-size rem;
-    display: inline-block;
-    margin-left: $logo-margin rem;
-  }
-
-  #signin {
+  .signin {
     margin-right: 1em;
     color: white;
     text-decoration: none;
@@ -359,7 +351,7 @@
     margin-top: $vertical-page-margin;
     margin-left: auto;
     margin-right: auto;
-    width: $iphone-5-width - 20 px;
+    width: $iphone-5-width - 20;
   }
 
   .terms {

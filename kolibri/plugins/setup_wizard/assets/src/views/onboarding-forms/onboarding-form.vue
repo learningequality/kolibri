@@ -73,7 +73,7 @@
 
   .onboarding-form {
     &-fields {
-      border: none;
+      border: 0;
       padding: 0;
       margin: 0;
       margin-bottom: 24px;

@@ -126,7 +126,7 @@
 
   .table-title {
     margin-top: 16px;
-    &:after {
+    &::after {
       content: '';
       display: table;
       clear: both;

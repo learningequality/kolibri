@@ -93,7 +93,7 @@
 
 <style lang="scss" scoped>
 
-  @import './buttons.scss';
+  @import './buttons';
 
   .dropdown-arrow {
     vertical-align: middle;

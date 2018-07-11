@@ -116,7 +116,7 @@
   }
 
   .sorted {
-    opacity: 100;
+    opacity: 1;
   }
 
   .no-padding {

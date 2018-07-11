@@ -148,7 +148,7 @@
     padding: 0;
     padding-left: 8px;
     vertical-align: middle;
-    border: none;
+    border: 0;
     background-color: white;
     color: $core-text-default;
 

@@ -66,7 +66,7 @@
     position: absolute;
     right: 5px;
     top: 5px;
-    border: none;
+    border: 0;
   }
 
   .error-box {

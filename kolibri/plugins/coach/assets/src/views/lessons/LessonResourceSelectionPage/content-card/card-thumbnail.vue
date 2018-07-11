@@ -96,7 +96,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import './card.scss';
+  @import './card';
 
   .card-thumbnail-wrapper {
     position: absolute;

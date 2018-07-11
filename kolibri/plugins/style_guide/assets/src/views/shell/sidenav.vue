@@ -42,7 +42,7 @@
 
 <style lang="scss" scoped>
 
-  @import '../../styles/style-guide.scss';
+  @import '../../styles/style-guide';
 
   .sidenav {
     position: fixed;

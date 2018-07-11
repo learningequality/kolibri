@@ -10,12 +10,12 @@
   definitions.scss.
 */
 
-@import 'definitions.scss';
+@import 'definitions';
 
 // http://www.paulirish.com/2012/box-sizing-border-box-ftw/
 *,
-*:before,
-*:after {
+*::before,
+*::after {
   box-sizing: inherit;
 }
 
@@ -67,17 +67,12 @@ h6 {
 }
 
 // https://davidwalsh.name/html5-boilerplate
-img {
-  -ms-interpolation-mode: bicubic;
-}
-
-// https://davidwalsh.name/html5-boilerplate
 svg:not(:root) {
   overflow: hidden;
 }
 
 .visuallyhidden {
-  border: none;
+  border: 0;
   clip: rect(0 0 0 0);
   height: 1px;
   margin: -1px;
@@ -85,42 +80,6 @@ svg:not(:root) {
   padding: 0;
   position: absolute;
   width: 1px;
-}
-
-// Definitions for Google Material Design Icons
-// from http://google.github.io/material-design-icons/
-
-@font-face {
-  font-family: 'Material Icons';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Material Icons'), local('MaterialIcons-Regular'),
-    url('~material-design-icons/iconfont/MaterialIcons-Regular.woff') format('woff');
-}
-
-.material-icons {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px; /* Preferred icon size */
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
-
-  /* Support for all WebKit browsers. */
-  -webkit-font-smoothing: antialiased;
-  /* Support for Safari and Chrome. */
-  text-rendering: optimizeLegibility;
-
-  /* Support for Firefox. */
-  -moz-osx-font-smoothing: grayscale;
-
-  /* Support for IE. */
-  font-feature-settings: 'liga';
 }
 
 /*
@@ -137,7 +96,7 @@ svg:not(:root) {
 /* Button reset for consistency. */
 button {
   background: none;
-  border: none;
+  border: 0;
   display: inline-block;
   cursor: pointer;
   outline: none;
@@ -148,7 +107,7 @@ button {
   white-space: nowrap;
 
   &::-moz-focus-inner {
-    border: none;
+    border: 0;
   }
 }
 

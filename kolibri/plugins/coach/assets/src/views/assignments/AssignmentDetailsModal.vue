@@ -201,7 +201,7 @@
 <style lang="scss" scoped>
 
   fieldset {
-    border: none;
+    border: 0;
     margin: 0;
     padding: 0;
   }

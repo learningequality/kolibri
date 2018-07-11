@@ -62,16 +62,13 @@
     animation: fadeIn;
     animation-fill-mode: backwards;
     animation-duration: 0s;
+    /deep/ .ui-progress-linear__progress-bar {
+      background-color: $core-loading;
+    }
   }
 
   .k-linear-loader.ui-progress-linear {
     background-color: rgba($core-loading, 0.4);
-  }
-
-  .k-linear-loader {
-    /deep/ .ui-progress-linear__progress-bar {
-      background-color: $core-loading;
-    }
   }
 
   .delay {

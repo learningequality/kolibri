@@ -84,7 +84,7 @@
 
   .back {
     color: $core-bg-light;
-    float: 28px;
+    float: left;
     font-weight: bold;
     font-size: 1.2em;
   }

@@ -239,7 +239,7 @@
   }
 
   .side-nav-enter {
-    transform: translate3D(-100%, 0, 0);
+    transform: translate3d(-100%, 0, 0);
   }
 
   .side-nav-enter-active {
@@ -247,11 +247,11 @@
   }
 
   .side-nav-enter-to {
-    transform: translate3D(0, 0, 0);
+    transform: translate3d(0, 0, 0);
   }
 
   .side-nav-leave {
-    transform: translate3D(0, 0, 0);
+    transform: translate3d(0, 0, 0);
   }
 
   .side-nav-leave-active {
@@ -259,7 +259,7 @@
   }
 
   .side-nav-leave-to {
-    transform: translate3D(-100%, 0, 0);
+    transform: translate3d(-100%, 0, 0);
   }
 
   .side-nav-header {
@@ -332,7 +332,7 @@
     max-height: none;
     padding: 0;
     background: $core-bg-light;
-    border: none;
+    border: 0;
   }
 
   /deep/ .ui-menu-option {

@@ -131,7 +131,7 @@
   }
 
   .arrow {
-    &:after {
+    &::after {
       content: '\203A';
       margin-right: 8px;
       margin-left: 8px;

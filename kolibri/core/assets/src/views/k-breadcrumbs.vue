@@ -257,7 +257,7 @@
   .breadcrumbs-dropdown-wrapper {
     display: inline-block;
     vertical-align: middle;
-    &:after {
+    &::after {
       content: '\203A';
       margin-right: 8px;
       margin-left: 8px;
@@ -312,7 +312,7 @@
   }
 
   .breadcrumbs-visible-item-notlast {
-    &:after {
+    &::after {
       content: '\203A';
       margin-right: 8px;
       margin-left: 8px;

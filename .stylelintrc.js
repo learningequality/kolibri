@@ -1,5 +1,5 @@
 module.exports = {
-  plugins: ['stylelint-high-performance-animation'],
+  plugins: ['stylelint-csstree-validator'],
   extends: [
     'stylelint-config-standard',
     'stylelint-config-recommended-scss',
@@ -7,16 +7,22 @@ module.exports = {
     'stylelint-config-prettier',
   ],
   rules: {
-    'no-empty-source': null,
-    'font-family-no-missing-generic-family-keyword': null,
-    'no-duplicate-at-import-rules': null,
-    'no-descending-specificity': null,
-    'color-named': null,
+    'csstree/validator': true,
 
-    'scss/at-import-partial-extension-blacklist': null,
+    /*
+     * Ignored rules
+     * Inline comments explain why rule is ignored
+     */
+    'no-empty-source': null, // Empty style blocks in vue files
+    'font-family-no-missing-generic-family-keyword': null, // Noto Sans is always available
+    'color-named': null, // No opinion
 
-    'order/properties-alphabetical-order': null,
+    'no-descending-specificity': null, // Would require refactor
+    'selector-no-qualifying-type': null, // Would require refactor
+    'max-nesting-depth': null, // Would require refactor
+    'selector-max-compound-selectors': null, // Would require refactor
+    'selector-class-pattern': null, // Deep selector classes do not follow this
 
-    'plugin/no-low-performance-animation-properties': true,
+    'order/properties-alphabetical-order': null, // Maybe?
   },
 };

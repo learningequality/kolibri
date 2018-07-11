@@ -265,8 +265,9 @@
   $control-hit-width: $control-hit-height;
 
   .content-carousel {
-    margin-top: 1em;
     @include clearfix();
+
+    margin-top: 1em;
     position: relative;
 
     &-control-container {
@@ -276,17 +277,12 @@
 
     &-card {
       left: 0;
-      transition: 0 0.4s linear;
+      transition: left 0.4s ease;
       position: absolute;
     }
 
     &-next-control,
     &-previous-control {
-      // styles that apply to both control buttons
-      &:active {
-        z-index: 8; // material
-      }
-
       z-index: 2; // material
       position: absolute;
       top: $card-height / 2;
@@ -295,16 +291,20 @@
       width: $control-hit-width;
       text-align: center;
       vertical-align: middle;
+      // styles that apply to both control buttons
+      &:active {
+        z-index: 8; // material
+      }
 
       &-button {
-        &:active {
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23); // material
-        }
         box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
         // center align within hitbox
         position: absolute;
         top: 50%;
         left: 50%;
+        &:active {
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23); // material
+        }
       }
     }
 

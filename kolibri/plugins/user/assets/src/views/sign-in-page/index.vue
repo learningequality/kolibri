@@ -417,10 +417,11 @@
   }
 
   .main-row {
+    // Workaround for print-width css issue https://github.com/prettier/prettier/issues/4460
+    $bk-img: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./background.jpg');
+
     display: table-row;
     background-color: $core-action-normal;
-    // Workaround for print-width css issue https://github.com/prettier/prettier/issues/4460
-    $bk-img: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.jpg);
     background-image: $bk-img;
     background-repeat: no-repeat;
     background-size: cover;
@@ -479,7 +480,7 @@
 
   .suggestions {
     background-color: white;
-    box-shadow: 1px 2px 8px darken(white, 10%);
+    box-shadow: 1px 2px 8px #e6e6e6;
     list-style-type: none;
     margin: 0;
     width: 100%;
@@ -503,11 +504,11 @@
   }
 
   .list-leave-active {
-    transition: 0 0.1s;
+    transition: opacity 0.1s;
   }
 
   .textbox-leave {
-    transform: 0 0;
+    transition: opacity 0s;
   }
 
   h1 {

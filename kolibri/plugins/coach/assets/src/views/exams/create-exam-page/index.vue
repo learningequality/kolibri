@@ -492,13 +492,13 @@
     button {
       vertical-align: baseline;
       padding: 0;
-      border: none;
+      border: 0;
       font-size: 1em;
     }
   }
 
   .not-last {
-    &:after {
+    &::after {
       content: '/';
       padding-right: 0.5em;
       padding-left: 0.5em;
