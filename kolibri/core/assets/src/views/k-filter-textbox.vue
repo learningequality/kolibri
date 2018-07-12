@@ -94,35 +94,35 @@
   @import '~kolibri.styles.definitions';
 
   .k-filter {
-    display: inline-block;
     position: relative;
-    max-width: 100%;
+    display: inline-block;
     width: 540px;
+    max-width: 100%;
   }
 
   .k-filter-icon {
     position: absolute;
     top: 9px;
     left: 0;
-    margin-left: 8px;
     margin-right: 8px;
+    margin-left: 8px;
     font-size: 24px;
     color: $core-text-annotation;
   }
 
   .k-filter-input {
-    margin: 0;
+    width: calc(100% - 80px);
+    height: 40px;
     padding-top: 0;
     padding-right: 40px;
     padding-bottom: 0;
     padding-left: 40px;
-    width: calc(100% - 80px);
-    height: 40px;
+    margin: 0;
+    font-size: 14px;
+    color: $core-text-default;
+    background-color: white;
     border: 1px solid $core-grey-300;
     border-radius: 2px;
-    background-color: white;
-    color: $core-text-default;
-    font-size: 14px;
 
     &::placeholder {
       color: $core-text-annotation;
@@ -133,12 +133,12 @@
     position: absolute;
     top: 9px;
     right: 0;
-    margin-left: 8px;
-    margin-right: 8px;
     width: 24px;
     height: 24px;
-    visibility: hidden;
+    margin-right: 8px;
+    margin-left: 8px;
     color: $core-text-default;
+    visibility: hidden;
   }
 
   .k-filter-clear-button-visible {

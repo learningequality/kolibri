@@ -325,10 +325,10 @@
   $iphone-width: 320px;
 
   .content {
-    padding-top: $vertical-page-margin;
-    margin-left: auto;
-    margin-right: auto;
     width: $iphone-width - 20px;
+    padding-top: $vertical-page-margin;
+    margin-right: auto;
+    margin-left: auto;
   }
 
   .points-icon,
@@ -342,10 +342,10 @@
   }
 
   .points-num {
-    color: $core-status-correct;
+    margin-left: 16px;
     font-size: 3em;
     font-weight: bold;
-    margin-left: 16px;
+    color: $core-status-correct;
   }
 
   section {

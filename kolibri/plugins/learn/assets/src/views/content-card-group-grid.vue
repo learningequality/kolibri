@@ -205,8 +205,8 @@
   }
 
   .filter-icon {
-    vertical-align: middle;
     margin-right: 12px;
+    vertical-align: middle;
   }
 
   .filter:nth-of-type(1) {

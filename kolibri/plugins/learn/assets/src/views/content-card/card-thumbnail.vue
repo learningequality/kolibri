@@ -141,24 +141,24 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import './card.scss';
+  @import './card';
 
   .card-thumbnail-wrapper {
+    position: relative;
     width: $thumb-width-desktop;
     height: $thumb-height-desktop;
-    position: relative;
-    background-size: contain;
+    background-color: $core-bg-light;
     background-repeat: no-repeat;
     background-position: center;
-    background-color: $core-bg-light;
+    background-size: contain;
   }
 
   .type-icon {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(3);
     color: $core-text-annotation;
+    transform: translate(-50%, -50%) scale(3);
   }
 
   .progress-icon {
@@ -175,9 +175,9 @@
 
   .content-icon {
     position: absolute;
+    font-size: 20px;
     color: white;
     transform: translate(25%, 0);
-    font-size: 20px;
   }
 
   .content-icon-bg {
@@ -190,9 +190,9 @@
   .progress-bar-wrapper {
     position: absolute;
     bottom: 0;
-    background-color: $core-grey;
     width: 100%;
     height: 5px;
+    background-color: $core-grey;
     opacity: 0.9;
   }
 

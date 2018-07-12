@@ -45,10 +45,10 @@
     text-align: center;
 
     &-header {
-      font-size: 21px;
-      color: $core-accent-color;
       margin-top: 0;
       margin-bottom: 24px;
+      font-size: 21px;
+      color: $core-accent-color;
     }
 
     &-body {
@@ -56,9 +56,9 @@
     }
 
     &-spinner {
+      display: inline-block;
       height: 32px; // setting to the height of the spinner to make the wrapper hug it
       margin-bottom: 40px;
-      display: inline-block;
     }
   }
 

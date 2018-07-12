@@ -164,7 +164,7 @@
   }
 
   dt {
-    &:not(.visuallyhidden):after {
+    &:not(.visuallyhidden)::after {
       content: ':';
     }
   }

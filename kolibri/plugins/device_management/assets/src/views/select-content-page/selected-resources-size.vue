@@ -105,8 +105,8 @@
     // using table to separate element by alignment while keeping them on the same line
     // avoids magic numbers, keeps text lined up.
     display: table;
-    line-height: 1em;
     width: 100%;
+    line-height: 1em;
   }
 
   .choose-message {
@@ -116,13 +116,13 @@
   }
 
   .remaining-space {
-    text-align: left;
     display: table-cell;
+    text-align: left;
   }
 
   .resources-selected {
-    text-align: right;
     display: table-cell;
+    text-align: right;
   }
 
 </style>

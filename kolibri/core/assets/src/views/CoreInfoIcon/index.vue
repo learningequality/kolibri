@@ -60,8 +60,8 @@
 
   .info-icon {
     font-size: 1.2em;
-    vertical-align: top;
     color: $core-accent-color;
+    vertical-align: top;
     cursor: pointer;
   }
 

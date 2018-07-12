@@ -133,14 +133,14 @@
 
   .coach-content-label {
     display: inline-block;
-    vertical-align: bottom;
     margin-left: 8px;
+    vertical-align: bottom;
   }
 
   .title {
     padding: 0;
-    border: none;
     font-size: 1em;
+    border: 0;
   }
   
 </style>

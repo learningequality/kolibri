@@ -151,8 +151,8 @@
 
   .pdf-page {
     position: relative;
-    margin: $page-margin auto;
     z-index: 2; // material spec - card (resting)
+    margin: $page-margin auto;
     background: #ffffff;
   }
 
@@ -160,9 +160,9 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
     font-size: 2em;
     line-height: 100%;
+    transform: translate(-50%, -50%);
   }
 
   .canvas {

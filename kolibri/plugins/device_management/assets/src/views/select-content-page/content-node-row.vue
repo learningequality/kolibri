@@ -102,8 +102,8 @@
 
   .coach-content-label {
     display: inline-block;
-    vertical-align: bottom;
     margin-left: 16px;
+    vertical-align: bottom;
   }
 
   .display-cell {
@@ -112,8 +112,8 @@
   }
 
   .icon {
-    margin-left: 8px;
     margin-right: 4px;
+    margin-left: 8px;
   }
 
   .title {

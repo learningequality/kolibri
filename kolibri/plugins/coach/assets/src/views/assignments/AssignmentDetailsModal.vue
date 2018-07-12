@@ -201,9 +201,9 @@
 <style lang="scss" scoped>
 
   fieldset {
-    border: none;
-    margin: 0;
     padding: 0;
+    margin: 0;
+    border: 0;
   }
 
   legend {

@@ -386,8 +386,8 @@
 
   .wrapper {
     width: 854px;
-    height: 480px;
     max-width: 100%;
+    height: 480px;
     max-height: 480px;
   }
 
@@ -408,7 +408,7 @@
 
   @import '~kolibri.styles.definitions';
 
-  /*!!rtl:begin:ignore*/
+  /* !!rtl:begin:ignore */
 
   /** COLOR PALLETTE **/
   $video-player-color: #212121;
@@ -432,8 +432,8 @@
     $button-height-normal: 40px;
     $button-font-size-normal: 24px;
 
-    font-size: $video-player-font-size;
     font-family: $core-font;
+    font-size: $video-player-font-size;
     color: $video-player-font-color;
 
     /* Sliders */
@@ -443,14 +443,14 @@
 
     /* Seek Bar */
     .vjs-progress-control {
+      height: initial;
       visibility: inherit;
       opacity: inherit;
-      height: initial;
 
       .vjs-progress-holder {
         height: 8px;
-        margin-left: 16px;
         margin-right: 16px;
+        margin-left: 16px;
 
         .vjs-load-progress {
           div {
@@ -461,10 +461,10 @@
         .vjs-play-progress {
           background-color: $video-player-accent-color;
 
-          &:before {
-            color: $video-player-accent-color;
-            font-size: 18px;
+          &::before {
             top: -5px;
+            font-size: 18px;
+            color: $video-player-accent-color;
           }
         }
       }
@@ -497,9 +497,9 @@
     /* Buttons */
     .vjs-button {
       .vjs-icon-placeholder {
-        &:before {
-          line-height: $button-height-normal;
+        &::before {
           font-size: $button-font-size-normal;
+          line-height: $button-height-normal;
         }
       }
     }
@@ -507,25 +507,25 @@
     /* Replay & Forward Buttons */
     .vjs-icon-replay_10,
     .vjs-icon-forward_10 {
-      &:before {
-        line-height: $button-height-normal;
+      &::before {
         font-size: $button-font-size-normal;
+        line-height: $button-height-normal;
       }
     }
 
     .vjs-big-play-button {
-      background-color: $video-player-color;
       position: absolute;
-      transform: translate(-50%, -50%);
       top: 50%;
       left: 50%;
-      margin: 0;
-      border: none;
-      border-radius: 50%;
-      line-height: $button-height-normal * 2;
-      height: $button-height-normal * 2;
       width: $button-height-normal * 2;
+      height: $button-height-normal * 2;
+      margin: 0;
       font-size: $button-font-size-normal * 2;
+      line-height: $button-height-normal * 2;
+      background-color: $video-player-color;
+      border: 0;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
     }
 
     .vjs-volume-panel {
@@ -546,9 +546,9 @@
       }
 
       li.vjs-selected {
-        background-color: $video-player-color-2;
-        color: $video-player-font-color;
         font-weight: bold;
+        color: $video-player-font-color;
+        background-color: $video-player-color-2;
 
         &:focus,
         &:hover {
@@ -575,8 +575,8 @@
       padding-right: 0;
 
       .vjs-current-time-display {
-        line-height: $button-height-normal;
         font-size: $video-player-font-size;
+        line-height: $button-height-normal;
       }
     }
 
@@ -584,8 +584,8 @@
       display: block;
       padding-left: 0;
       .vjs-duration-display {
-        line-height: $button-height-normal;
         font-size: $video-player-font-size;
+        line-height: $button-height-normal;
       }
     }
 
@@ -596,8 +596,8 @@
 
     /* Rate Button */
     .vjs-playback-rate-value {
-      line-height: $button-height-normal;
       font-size: 20px;
+      line-height: $button-height-normal;
     }
 
     /* Captions Settings */
@@ -635,7 +635,7 @@
 
     .vjs-button {
       .vjs-icon-placeholder {
-        &:before {
+        &::before {
           line-height: $button-height-small;
         }
       }
@@ -643,7 +643,7 @@
 
     .vjs-icon-replay_10,
     .vjs-icon-forward_10 {
-      &:before {
+      &::before {
         line-height: $button-height-small;
       }
     }
@@ -653,12 +653,12 @@
     .vjs-icon-replay_10,
     .vjs-icon-forward_10 {
       position: absolute;
-      transform: translate(-50%, -50%);
       top: -75px;
+      width: $button-height-small;
+      height: $button-height-small;
       background-color: $video-player-color;
       border-radius: 50%;
-      height: $button-height-small;
-      width: $button-height-small;
+      transform: translate(-50%, -50%);
     }
 
     .vjs-big-play-button {
@@ -739,6 +739,6 @@
     }
   }
 
-  /*!!rtl:end:ignore*/
+  /* !!rtl:end:ignore */
 
 </style>

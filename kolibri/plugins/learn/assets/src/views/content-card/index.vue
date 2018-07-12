@@ -138,7 +138,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import './card.scss';
+  @import './card';
 
   $margin: 16px;
 
@@ -147,16 +147,15 @@
   }
 
   .card {
-    text-decoration: none;
     display: inline-block;
     width: $thumb-width-desktop;
+    text-decoration: none;
     vertical-align: top;
-    border-radius: 2px;
     background-color: $core-bg-light;
+    border-radius: 2px;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
       0 1px 5px 0 rgba(0, 0, 0, 0.12);
-    transition: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
-      0 1px 5px 0 rgba(0, 0, 0, 0.12) 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: box-shadow $core-time ease;
     &:hover,
     &:focus {
       box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12),
@@ -165,11 +164,11 @@
   }
 
   .text {
-    color: $core-text-default;
-    overflow: hidden;
-    padding: $margin;
-    height: 92px;
     position: relative;
+    height: 92px;
+    padding: $margin;
+    overflow: hidden;
+    color: $core-text-default;
   }
 
   .title,
@@ -180,20 +179,20 @@
   .subtitle {
     position: absolute;
     top: 38px;
-    left: $margin;
     right: $margin;
-    font-size: 14px;
-    white-space: nowrap;
+    left: $margin;
     overflow: hidden;
+    font-size: 14px;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .footer {
     position: absolute;
-    font-size: 12px;
-    bottom: $margin;
     right: $margin;
+    bottom: $margin;
     left: $margin;
+    font-size: 12px;
   }
 
   .subtitle.no-footer {
@@ -203,7 +202,7 @@
 
   .copies {
     display: inline-block;
-    float: $margin;
+    float: right;
   }
 
   .mobile-card.card {
@@ -216,8 +215,8 @@
       position: absolute;
     }
     .text {
-      margin-left: $thumb-width-mobile;
       height: 84px;
+      margin-left: $thumb-width-mobile;
     }
     .subtitle {
       top: 36px;

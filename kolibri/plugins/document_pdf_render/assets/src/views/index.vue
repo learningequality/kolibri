@@ -356,8 +356,8 @@
 
   .progress-bar {
     top: 50%;
-    margin: 0 auto;
     max-width: 200px;
+    margin: 0 auto;
   }
 
   // enable horizontal scrolling

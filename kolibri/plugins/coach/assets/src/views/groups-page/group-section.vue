@@ -217,8 +217,8 @@
   }
 
   .no-side-padding {
-    padding-left: 0;
     padding-right: 0;
+    padding-left: 0;
   }
 
   .small-text {
@@ -226,8 +226,8 @@
   }
 
   .mobile {
-    text-align: right;
     line-height: 50px;
+    text-align: right;
   }
 
 </style>

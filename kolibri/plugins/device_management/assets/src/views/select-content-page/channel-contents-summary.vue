@@ -104,9 +104,9 @@
   }
 
   .title {
+    display: inline;
     font-size: 32px;
     font-weight: bold;
-    display: inline;
   }
 
   .lock-icon {
@@ -119,8 +119,8 @@
   }
 
   .version {
-    font-size: 14px;
     margin-bottom: 32px;
+    font-size: 14px;
   }
 
   .channel-statistics {
@@ -128,10 +128,10 @@
   }
 
   tr.headers > th {
-    padding: 8px 0;
-    text-align: right;
-    font-weight: normal;
     min-width: 125px;
+    padding: 8px 0;
+    font-weight: normal;
+    text-align: right;
     &:nth-child(1) {
       min-width: 175px;
     }
@@ -140,8 +140,8 @@
   tr.total-size,
   tr.on-device {
     td {
-      text-align: right;
       padding: 8px 0;
+      text-align: right;
       &:first-of-type {
         text-align: left;
       }

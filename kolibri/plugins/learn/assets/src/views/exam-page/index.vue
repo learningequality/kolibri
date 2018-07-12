@@ -20,7 +20,7 @@
           </p>
           <k-button @click="toggleModal" :text="$tr('submitExam')" :primary="true" />
         </div>
-        <div style="clear: both;"></div>
+        <div :style="{ clear: 'both' }"></div>
       </div>
 
       <answer-history
@@ -271,8 +271,8 @@
   }
 
   .questions-answered {
-    display: inline-block;
     position: relative;
+    display: inline-block;
     margin-top: 0;
   }
 

@@ -116,16 +116,16 @@
   }
 
   .no-resources-message {
-    text-align: center;
-    font-weight: bold;
     padding: 48px 0;
+    font-weight: bold;
+    text-align: center;
   }
 
   // Copied from LessonSummaryPage
   .lesson-icon {
     display: inline-block;
-    font-size: 1.8em;
     margin-right: 0.5em;
+    font-size: 1.8em;
     /deep/ .ui-icon {
       vertical-align: bottom;
     }

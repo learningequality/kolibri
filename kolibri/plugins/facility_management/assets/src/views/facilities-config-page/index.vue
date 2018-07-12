@@ -166,9 +166,9 @@
   }
 
   .settings > label {
-    cursor: pointer;
-    font-weight: bold;
     margin-bottom: 2rem;
+    font-weight: bold;
+    cursor: pointer;
   }
 
 </style>

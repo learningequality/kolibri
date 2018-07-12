@@ -266,8 +266,8 @@
   @import '~kolibri.styles.definitions';
 
   .channel-list-header {
-    font-size: 14px;
     padding: 16px 0;
+    font-size: 14px;
     color: $core-text-annotation;
   }
 
@@ -280,20 +280,20 @@
   }
 
   .channels {
-    width: 30%;
     display: inline-block;
+    width: 30%;
   }
 
   .filters {
-    width: 70%;
-    vertical-align: top;
-    margin: 16px 0;
     display: inline-block;
+    width: 70%;
+    margin: 16px 0;
+    vertical-align: top;
   }
 
   .title-filter {
-    width: 50%;
     float: right;
+    width: 50%;
     margin-top: 10px;
   }
 

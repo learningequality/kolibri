@@ -130,7 +130,7 @@
   }
 
   .delay-entry-enter-active {
-    transition: 0 0.75s;
+    transition: opacity 0.75s;
   }
 
 </style>

@@ -53,8 +53,8 @@
 <style lang="scss" scoped>
 
   td {
-    text-align: center;
     width: 19%;
+    text-align: center;
   }
 
   .tal {

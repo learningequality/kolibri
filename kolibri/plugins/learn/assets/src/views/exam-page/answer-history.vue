@@ -85,28 +85,28 @@
   }
 
   .history-list {
-    list-style-type: none;
     max-height: inherit;
-    margin: 0;
     padding-left: 0;
+    margin: 0;
+    list-style-type: none;
   }
 
   .item {
     float: left;
     margin: 0;
-    line-height: 64px;
     font-size: 0.9em;
+    line-height: 64px;
   }
 
   .svg-item {
-    height: 64px;
     width: 64px;
+    height: 64px;
   }
 
   li {
-    clear: both;
-    border: none;
     height: 64px;
+    clear: both;
+    border: 0;
   }
 
   .clickable {

@@ -57,14 +57,14 @@
   @import '~kolibri.styles.definitions';
 
   .user-role {
-    background-color: $core-text-annotation;
-    color: $core-bg-light;
-    padding-left: 1em;
-    padding-right: 1em;
-    border-radius: 0.5em;
-    font-size: small;
     display: inline-block;
+    padding-right: 1em;
+    padding-left: 1em;
+    font-size: small;
+    color: $core-bg-light;
     white-space: nowrap;
+    background-color: $core-text-annotation;
+    border-radius: 0.5em;
   }
 
 </style>

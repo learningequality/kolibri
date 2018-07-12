@@ -107,8 +107,8 @@
 
   .coach-content-label {
     display: inline-block;
-    vertical-align: bottom;
     margin-left: 8px;
+    vertical-align: bottom;
   }
 
 </style>
