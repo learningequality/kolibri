@@ -43,4 +43,14 @@ export default {
       }
     });
   },
+  SET_RECOMMENDED_NODES_PROGRESS(state, progressArray) {
+    Object.keys(state.pageState).forEach(function(key) {
+      progressArray.forEach(progress => {
+        const contentNode = state.pageState[key].find(node => node.id === progress.pk);
+        if (contentNode) {
+          contentNode.progress = progress.progress_fraction;
+        }
+      });
+    });
+  },
 };
