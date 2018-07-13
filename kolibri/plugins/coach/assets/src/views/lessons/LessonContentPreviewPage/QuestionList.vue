@@ -90,21 +90,21 @@
   // normalize styles for the 2
   .button,
   .header {
-    line-height: $item-content-height;
-    vertical-align: middle;
     padding-left: 16px;
     font-size: 16px;
+    line-height: $item-content-height;
+    vertical-align: middle;
     border-bottom: $item-division-height solid $core-text-disabled;
   }
 
   .button {
-    text-align: left;
     font-weight: normal;
+    text-align: left;
     text-transform: none;
     border-radius: 0;
     &.selected {
-      background-color: $core-grey-300; // duped from k-button
       font-weight: bold;
+      background-color: $core-grey-300; // duped from k-button
     }
   }
 

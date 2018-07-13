@@ -92,12 +92,12 @@
   @import '~kolibri.styles.definitions';
 
   .k-navbar {
-    white-space: nowrap;
+    display: inline-block;
+    padding: 0;
+    margin: 0;
     overflow-x: auto;
     overflow-y: hidden;
-    margin: 0;
-    padding: 0;
-    display: inline-block;
+    white-space: nowrap;
     vertical-align: middle;
   }
 

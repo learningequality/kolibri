@@ -203,9 +203,9 @@
   }
 
   .role {
+    margin-bottom: 8px;
     font-size: small;
     font-weight: bold;
-    margin-bottom: 8px;
   }
 
   .icon {

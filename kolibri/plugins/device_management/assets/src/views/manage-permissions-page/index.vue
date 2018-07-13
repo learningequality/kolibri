@@ -75,8 +75,8 @@
   }
 
   .filter-box {
-    text-align: right;
     margin-bottom: 1em;
+    text-align: right;
   }
 
 </style>

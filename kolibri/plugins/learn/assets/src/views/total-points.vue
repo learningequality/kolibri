@@ -46,16 +46,16 @@
   @import '~kolibri.styles.definitions';
 
   .points {
-    font-weight: bold;
     font-size: small;
+    font-weight: bold;
   }
 
   .icon {
+    position: relative;
+    top: 2px;
     display: inline-block;
     width: 20px;
     height: 20px;
-    position: relative;
-    top: 2px;
   }
 
   .description {

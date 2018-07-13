@@ -103,9 +103,9 @@
 
   .exercise-attempts {
     position: relative;
-    white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
+    white-space: nowrap;
   }
 
   .attempt,
@@ -117,17 +117,17 @@
   }
 
   .attempt {
-    text-align: center;
     position: absolute;
+    text-align: center;
     transition: all 0.5s ease-in-out;
     // try to improve performance - http://stackoverflow.com/a/10133679
     backface-visibility: hidden;
-    perspective: 1000;
+    perspective: 1000px;
   }
 
   .placeholder {
     border-bottom: 2px solid $core-text-annotation;
-    transition: 2px solid $core-text-annotation 0.1s linear;
+    transition: border-bottom 0.1s linear;
   }
 
   .placeholder-first {
@@ -141,7 +141,7 @@
 
   .fade-enter-active,
   .fade-leave-active {
-    transition: 0 0.5s;
+    transition: opacity 0.5s;
   }
 
 </style>

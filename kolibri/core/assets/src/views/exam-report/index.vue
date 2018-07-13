@@ -204,8 +204,8 @@
   @import '~kolibri.styles.definitions';
 
   .exercise-container {
-    background-color: $core-bg-light;
     padding: 8px;
+    background-color: $core-bg-light;
   }
 
   h3 {

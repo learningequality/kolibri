@@ -186,10 +186,10 @@
   }
 
   .edit-button {
-    display: inline-block;
     position: relative;
-    left: 10px;
     top: -4px;
+    left: 10px;
+    display: inline-block;
     fill: $core-action-normal;
   }
 

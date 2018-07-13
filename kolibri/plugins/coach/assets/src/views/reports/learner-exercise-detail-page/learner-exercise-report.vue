@@ -157,8 +157,8 @@
   @import '~kolibri.styles.definitions';
 
   .exercise-section {
-    background-color: $core-bg-light;
     padding: 16px;
+    background-color: $core-bg-light;
     h3 {
       margin-top: 0;
     }

@@ -27,8 +27,8 @@
 <style lang="scss" scoped>
 
   td {
-    text-align: left;
     width: 150px;
+    text-align: left;
   }
 
 </style>

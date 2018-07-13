@@ -7,32 +7,32 @@ li {
 
 .tab {
   display: inline-block;
-  margin: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-right: 12px;
-  padding-left: 12px;
-  max-width: 264px;
   min-width: 72px;
-  border: none;
-  border-radius: 0;
+  max-width: 264px;
+  padding-top: 0;
+  padding-right: 12px;
+  padding-bottom: 0;
+  padding-left: 12px;
+  margin: 0;
   font-size: 14px;
-  text-decoration: none;
   color: $core-text-annotation;
+  text-decoration: none;
+  border: 0;
+  border-radius: 0;
   &:hover,
   &:focus {
-    background-color: $core-action-light;
     color: $core-action-normal;
+    background-color: $core-action-light;
     outline: none;
   }
 }
 
 .router-link-active,
 .tab-selected {
+  color: $core-action-normal;
+  border-bottom-color: $core-action-normal;
   border-bottom-style: solid;
   border-bottom-width: 2px;
-  border-bottom-color: $core-action-normal;
-  color: $core-action-normal;
 }
 
 .icon {
@@ -45,12 +45,12 @@ li {
 }
 
 .tab-title {
-  font-weight: bold;
-  text-transform: uppercase;
   padding-top: 15px;
   padding-bottom: 15px;
   overflow-x: hidden;
+  font-weight: bold;
   text-overflow: ellipsis;
+  text-transform: uppercase;
 }
 
 .tab-has-icon-and-title {

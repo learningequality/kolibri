@@ -64,8 +64,8 @@
   @import '~kolibri.styles.definitions';
 
   .header {
-    margin-top: 0;
     padding-top: 10px;
+    margin-top: 0;
   }
 
   .attempt-container {
@@ -80,18 +80,18 @@
   }
 
   .pagination-right {
-    right: 0;
     position: absolute;
+    right: 0;
   }
 
   .enable {
-    fill: $core-text-default;
     cursor: pointer;
+    fill: $core-text-default;
   }
 
   .disable {
-    fill: $core-text-disabled;
     pointer-events: none;
+    fill: $core-text-disabled;
   }
 
 </style>

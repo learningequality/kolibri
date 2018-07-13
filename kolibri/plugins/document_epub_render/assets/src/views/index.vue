@@ -34,7 +34,7 @@
     </ui-icon-button>
     <div
       ref="epubContainer"
-      id="epub-container"
+      class="epub-container"
     >
     </div>
   </fullscreen>
@@ -157,42 +157,39 @@
   .doc-viewer {
     position: relative;
     width: 90%;
-    margin-left: auto;
     margin-right: auto;
+    margin-left: auto;
 
     &-controls {
       position: absolute;
+      z-index: 6; // material spec - snackbar and FAB
     }
   }
 
-  #epub-container {
+  .epub-container {
     height: 100%;
-    background-color: #ffffff;
 
     // prevents a never-visible spot underneath the fullscreen button
     padding-top: $fullscreen-button-height + $page-padding;
     padding-bottom: $page-padding;
-  }
-
-  .doc-viewer-controls {
-    z-index: 6; // material spec - snackbar and FAB
+    background-color: #ffffff;
   }
 
   .button {
     &-fullscreen {
-      transform: translateX(-50%);
-      left: 50%;
       top: $page-padding;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
     &-prev-page {
-      left: $keen-button-height / 2;
       top: $page-padding;
+      left: $keen-button-height / 2;
     }
 
     &-next-page {
-      right: $keen-button-height / 2;
       top: $page-padding;
+      right: $keen-button-height / 2;
     }
   }
 

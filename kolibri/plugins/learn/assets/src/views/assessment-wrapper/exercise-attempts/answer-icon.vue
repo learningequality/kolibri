@@ -81,9 +81,9 @@
   @import '~kolibri.styles.definitions';
 
   svg {
-    transition: transform $core-time ease-in;
-    fill: $core-text-annotation;
     height: 30px;
+    fill: $core-text-annotation;
+    transition: transform $core-time ease-in;
   }
 
   .correct {

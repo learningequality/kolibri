@@ -32,13 +32,13 @@
 
 <style lang="scss" scoped>
 
-  @import '../styles/style-guide.scss';
+  @import '../styles/style-guide';
 
   .content {
+    max-width: 50em;
+    margin-top: 24px;
     margin-right: auto;
     margin-left: $sidenav-width + 32;
-    margin-top: 24px;
-    max-width: 50em;
   }
 
 </style>
@@ -53,9 +53,9 @@
   html,
   body {
     height: auto;
-    background: white;
     font-size: 14px;
     color: #424242;
+    background: white;
   }
 
   html {
@@ -63,21 +63,20 @@
   }
 
   code {
-    background: rgba(253, 246, 227, 0.5);
-    color: #268bd2;
-    font-size: smaller;
     padding: 4px;
+    font-size: smaller;
+    color: #268bd2;
     white-space: nowrap;
+    background: rgba(253, 246, 227, 0.5);
   }
 
-  @import '../styles/style-guide.scss';
   @import '~vuep/dist/vuep.css';
 
   .vuep {
-    // TODO: vuep pullutes the font-family
-    font-family: NotoSans;
     display: initial;
     height: initial;
+    // TODO: vuep pullutes the font-family
+    font-family: NotoSans;
 
     .vuep-preview,
     .vuep-editor {
@@ -90,4 +89,3 @@
   }
 
 </style>
-

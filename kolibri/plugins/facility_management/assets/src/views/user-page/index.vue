@@ -220,10 +220,10 @@
     margin-bottom: 32px;
   }
 
-  .toolbar:after {
-    content: '';
+  .toolbar::after {
     display: table;
     clear: both;
+    content: '';
   }
 
   // Toolbar Styling

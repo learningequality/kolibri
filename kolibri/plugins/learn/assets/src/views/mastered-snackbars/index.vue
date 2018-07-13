@@ -178,8 +178,8 @@
     display: inline-block;
     width: 24px;
     height: 24px;
-    vertical-align: middle;
     margin-right: 4px;
+    vertical-align: middle;
   }
 
   .icon-bg {
@@ -188,19 +188,19 @@
 
   .points-amount {
     display: inline-block;
-    vertical-align: middle;
     font-weight: bold;
     color: $core-status-correct;
+    vertical-align: middle;
   }
 
   .content-icon {
+    display: block;
+    width: 24px;
+    height: 24px;
     font-size: 18px;
     color: white;
-    border-radius: 50%;
-    display: block;
-    height: 24px;
-    width: 24px;
     text-align: center;
+    border-radius: 50%;
   }
 
   .next-content-heading {
@@ -225,8 +225,8 @@
 
   @keyframes slidein {
     from {
-      transform: translate3d(0, 100%, 0);
       visibility: visible;
+      transform: translate3d(0, 100%, 0);
     }
     to {
       transform: translate3d(0, 0, 0);
@@ -239,9 +239,9 @@
   }
 
   .rm-link-style {
+    display: block;
     color: $core-text-default;
     text-decoration: none;
-    display: block;
   }
 
 </style>

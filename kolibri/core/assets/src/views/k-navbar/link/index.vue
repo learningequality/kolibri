@@ -66,6 +66,6 @@
 
 <style lang="scss" scoped>
 
-  @import '../items.scss';
+  @import '../items';
 
 </style>

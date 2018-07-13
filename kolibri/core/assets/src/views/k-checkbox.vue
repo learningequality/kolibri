@@ -167,11 +167,11 @@
   }
 
   .k-checkbox {
-    display: table-cell;
     position: relative;
-    vertical-align: top;
+    display: table-cell;
     width: $checkbox-height;
     height: $checkbox-height;
+    vertical-align: top;
     cursor: pointer;
   }
 
@@ -179,9 +179,9 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0;
     cursor: pointer;
+    opacity: 0;
+    transform: translate(-50%, -50%);
   }
 
   .k-checkbox-checked,
@@ -207,8 +207,8 @@
   .k-checkbox-label {
     display: table-cell;
     padding-left: 8px;
-    cursor: pointer;
     line-height: 24px;
+    cursor: pointer;
     user-select: none;
   }
 

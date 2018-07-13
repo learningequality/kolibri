@@ -75,9 +75,9 @@
 <style lang="scss" scoped>
 
   .app-body {
-    left: 0;
-    right: 0;
     position: absolute;
+    right: 0;
+    left: 0;
     overflow-x: hidden;
   }
 
@@ -96,9 +96,9 @@
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 24;
     width: 100%;
     height: 100%;
-    z-index: 24;
   }
 
 </style>

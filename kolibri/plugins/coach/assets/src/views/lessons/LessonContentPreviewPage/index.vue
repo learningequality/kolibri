@@ -116,8 +116,8 @@
   @import '~kolibri.styles.definitions';
 
   .header {
-    background-color: $core-bg-light;
     padding: 16px;
+    background-color: $core-bg-light;
   }
 
   .select-options {

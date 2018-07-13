@@ -308,8 +308,8 @@
 
   .kind-icon {
     display: inline-block;
-    font-size: 1.8em;
     margin-right: 0.5em;
+    font-size: 1.8em;
     /deep/ .ui-icon {
       vertical-align: bottom;
     }
@@ -318,8 +318,8 @@
   dl,
   dt,
   dd {
-    margin: 0;
     display: block;
+    margin: 0;
   }
 
   .top {
@@ -338,8 +338,8 @@
   }
 
   .header-button {
-    text-decoration: none;
     color: $core-text-default;
+    text-decoration: none;
   }
 
 </style>

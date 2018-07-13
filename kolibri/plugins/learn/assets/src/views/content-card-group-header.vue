@@ -47,27 +47,27 @@
 
   .card-group-details {
     width: 100%;
-    vertical-align: bottom;
     margin-top: $header-size;
     margin-bottom: $header-size / 2;
+    vertical-align: bottom;
 
     &-header,
     &-view-more {
-      width: 50%;
       display: inline-block;
+      width: 50%;
     }
 
     &-header {
-      text-align: left;
-      clear: none;
-      color: $core-text-default;
-      font-size: $header-size;
       margin: 0;
+      clear: none;
+      font-size: $header-size;
+      color: $core-text-default;
+      text-align: left;
     }
 
     &-view-more {
-      text-decoration: underline;
       text-align: right;
+      text-decoration: underline;
     }
   }
 

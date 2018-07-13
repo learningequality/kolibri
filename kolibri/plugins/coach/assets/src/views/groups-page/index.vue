@@ -183,8 +183,8 @@
 
   .header {
     display: inline-block;
-    vertical-align: middle;
     margin-right: 16px;
+    vertical-align: middle;
   }
 
 </style>

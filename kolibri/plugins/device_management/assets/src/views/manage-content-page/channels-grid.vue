@@ -107,8 +107,8 @@
   @import '~kolibri.styles.definitions';
 
   .channel-list-header {
-    font-size: 12px;
     padding: 16px 0;
+    font-size: 12px;
     color: $core-text-annotation;
   }
 

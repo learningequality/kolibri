@@ -22,6 +22,7 @@ var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 require('./htmlhint_custom');
 var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 var OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+var StyleLintPlugin = require('stylelint-webpack-plugin');
 var prettierOptions = require('../../.prettier');
 var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 
@@ -174,6 +175,12 @@ module.exports = {
       extensions: ['.js', '.vue', '.scss'],
       logLevel: 'warn',
       prettierOptions,
+    }),
+    new StyleLintPlugin({
+      files: ['**/*.scss', '**/*.vue'],
+      fix: true,
+      lintDirtyModulesOnly: true,
+      emitErrors: production,
     }),
   ],
   resolve: {

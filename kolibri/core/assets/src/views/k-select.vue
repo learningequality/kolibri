@@ -141,9 +141,9 @@
 
   .k-select-inline {
     display: inline-block;
-    vertical-align: bottom;
     width: 150px;
     margin-right: 16px;
+    vertical-align: bottom;
   }
 
   /deep/ .ui-select__display-value {

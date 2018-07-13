@@ -8,7 +8,7 @@ Components
 
 We leverage `Vue.js components <https://vuejs.org/guide/components.html>`_ as the primary building blocks for our UI. For general UI development work, this is the most common tool a developer will use. It would be prudent to read through the `Vue.js guide <https://vuejs.org/guide/>`_ thoroughly.
 
-Each component contains HTML with dynamic Vue.js directives, styling which is scoped to that component (written using `Stylus <http://stylus-lang.com/>`_), and logic which is also scoped to that component (all code, including that in Vue components should be written using `Bublé compatible ES2015 JavaScript <https://buble.surge.sh/guide/#supported-features>`_). Non-scoped styles can also be added, but these should be carefully namespaced.
+Each component contains HTML with dynamic Vue.js directives, styling which is scoped to that component (written using `SCSS <https://sass-lang.com/>`_), and logic which is also scoped to that component (all code, including that in Vue components should be written using `Bublé compatible ES2015 JavaScript <https://buble.surge.sh/guide/#supported-features>`_). Non-scoped styles can also be added, but these should be carefully namespaced.
 
 Components allow us to define new custom tags that encapsulate a piece of self-contained, re-usable UI functionality. When composed together, they form a tree structure of parents and children. Each component has a well-defined interface used by its parent component, made up of `input properties <https://vuejs.org/guide/components.html#Props>`_, `events <https://vuejs.org/guide/components.html#Custom-Events>`_ and `content slots <https://vuejs.org/guide/components.html#Content-Distribution-with-Slots>`_. Components should never reference their parent.
 
@@ -32,8 +32,8 @@ For example:
         src/
           core-base.vue         # global base template, used by apps
           core-modal.vue        # example of another shared component
-          core-global.styl      # globally defined styles, indluded in head
-          core-theme.styl       # style variable values
+          core-global.scss      # globally defined styles, indluded in head
+          core-theme.scss       # style variable values
           font-NotoSans.css     # embedded font
         test/
           ...                   # tests for core assets
@@ -63,7 +63,7 @@ For example:
             app.js
 
 
-In the example above, the *vue/another-page/index.vue* file in *learn* can use other assets in the same directory (such as *child.vue*), components in *vue* (such as *shared.vue*), and assets in core (such as variables in *core-theme.styl*). However it cannot use files in other plugin directories (such as *management*).
+In the example above, the *vue/another-page/index.vue* file in *learn* can use other assets in the same directory (such as *child.vue*), components in *vue* (such as *shared.vue*), and assets in core (such as variables in *core-theme.scss*). However it cannot use files in other plugin directories (such as *management*).
 
 .. note::
 
@@ -237,8 +237,8 @@ Styling
 
 For shared styles, two mechanisms are provided:
 
-* The *core-theme.styl* file provides values for some globally-relevant Stylus variables. These variables can be used in any component's ``<style>`` block by adding the line ``@require '~core-theme.styl'``.
-* The *core-global.styl* file is always inserted into the ``<head>`` after normalize.css and provides some basic styling to global elements
+* The *core-theme.scss* file provides values for some globally-relevant SCSS variables. These variables can be used in any component's ``<style>`` block by adding the line ``@require '~core-theme.scss'``.
+* The *core-global.scss* file is always inserted into the ``<head>`` after normalize.css and provides some basic styling to global elements
 
 
 Additional functionality

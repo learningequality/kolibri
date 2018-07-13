@@ -155,13 +155,13 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import '../../styles/style-guide.scss';
+  @import '../../styles/style-guide';
 
   table,
   th,
   td {
-    border: 1px solid darkgray;
     border-collapse: collapse;
+    border: 1px solid darkgray;
   }
 
   th,
@@ -170,8 +170,8 @@
   }
 
   th {
-    background: #e0e0e0;
     text-align: left;
+    background: #e0e0e0;
   }
 
 </style>

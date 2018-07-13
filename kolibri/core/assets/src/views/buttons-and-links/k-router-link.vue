@@ -55,6 +55,6 @@
 
 <style lang="scss" scoped>
 
-  @import './buttons.scss';
+  @import './buttons';
 
 </style>

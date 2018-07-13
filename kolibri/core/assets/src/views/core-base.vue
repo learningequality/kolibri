@@ -160,8 +160,8 @@
   }
 
   .app-bar {
-    height: 64px;
     width: 100%;
+    height: 64px;
   }
 
   .app-bar-actions {
@@ -170,10 +170,10 @@
 
   .content-container {
     position: absolute;
-    overflow-x: hidden;
     right: 0;
     bottom: 0;
     padding-bottom: 40px;
+    overflow-x: hidden;
   }
 
 </style>

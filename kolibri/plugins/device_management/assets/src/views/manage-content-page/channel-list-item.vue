@@ -217,16 +217,16 @@
 
   .channel-list-item {
     display: table;
-    vertical-align: middle;
     padding: 2em 0;
+    vertical-align: middle;
     border-bottom: 1px solid $core-grey;
   }
 
   .title {
+    display: inline;
     font-size: 1.2em;
     font-weight: bold;
     line-height: 1.5em;
-    display: inline;
   }
 
   .version {
@@ -247,8 +247,8 @@
   }
 
   .default-icon {
-    background-color: $core-grey;
     text-align: center;
+    background-color: $core-grey;
     svg {
       width: 50%;
       height: 50%;
@@ -257,16 +257,16 @@
   }
 
   .details {
-    width: 100%;
     position: relative;
+    width: 100%;
     padding: 0 2em;
   }
 
   .other-details {
-    float: right;
-    line-height: 1.7em;
     position: relative;
     top: 16px;
+    float: right;
+    line-height: 1.7em;
   }
 
   .on-device {

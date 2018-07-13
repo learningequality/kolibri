@@ -490,18 +490,18 @@
     display: inline-block;
 
     button {
-      vertical-align: baseline;
       padding: 0;
-      border: none;
       font-size: 1em;
+      vertical-align: baseline;
+      border: 0;
     }
   }
 
   .not-last {
-    &:after {
-      content: '/';
+    &::after {
       padding-right: 0.5em;
       padding-left: 0.5em;
+      content: '/';
     }
   }
 

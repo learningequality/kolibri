@@ -26,3 +26,9 @@
           entry: node node_modules/eslint/bin/eslint.js
           language: system
           files: \.(js|vue)$
+      -   id: frontend-stylelint
+          name: Lint SCSS
+          description: This hook checks that SCSS conforms to our Stylelint standards.
+          entry: node node_modules/stylelint/bin/stylelint.js
+          language: system
+          files: \.(scss|vue)$
