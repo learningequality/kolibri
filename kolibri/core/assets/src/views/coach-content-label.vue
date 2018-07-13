@@ -42,7 +42,8 @@
     },
     $trs: {
       coachResourceLabel: 'Coach resource',
-      topicTitle: 'Contains {count, number, integer} {count, plural, one {coach resource} other {coach resources}}',
+      topicTitle:
+        'Contains {count, number, integer} {count, plural, one {coach resource} other {coach resources}}',
     },
   };
 
