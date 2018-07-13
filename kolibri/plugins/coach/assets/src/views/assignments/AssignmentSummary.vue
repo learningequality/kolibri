@@ -161,52 +161,63 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
-  $table-header-size = 12px
+  @import '~kolibri.styles.definitions';
+  $table-header-size: 12px;
 
   // TODO use classes
-  dt
-    color: $core-text-annotation // same as table header
-    font-size: $table-header-size
-    margin-top: 16px
-    margin-bottom: 8px
+  dt {
+    margin-top: 16px;
+    margin-bottom: 8px;
+    font-size: $table-header-size;
+    color: $core-text-annotation; // same as table header
+  }
 
-  dd
-    margin-left: 0
-    margin-bottom: 1.5em
+  dd {
+    margin-bottom: 1.5em;
+    margin-left: 0;
+  }
 
-  .group-list
-    margin: 0
-    padding: 0
-    &-item
-      margin: 0
-      list-style: none
-      display: inline
-      &:not(:last-child)::after
-        content: ', '
+  .group-list {
+    padding: 0;
+    margin: 0;
+    &-item {
+      display: inline;
+      margin: 0;
+      list-style: none;
+      &:not(:last-child)::after {
+        content: ', ';
+      }
+    }
+  }
 
-  .title-lesson-icon
-    display: inline-block
-    font-size: 1.8em
-    margin-right: 0.5em
-    >>>.ui-icon
-      vertical-align: bottom
+  .title-lesson-icon {
+    display: inline-block;
+    margin-right: 0.5em;
+    font-size: 1.8em;
+    /deep/ .ui-icon {
+      vertical-align: bottom;
+    }
+  }
 
-  .change-status-button
-    vertical-align: sub // hack for now
-    margin-left: 0.5em
+  .change-status-button {
+    margin-left: 0.5em;
+    vertical-align: sub; // hack for now
+  }
 
-  .lesson-summary-header
-    display: flex
-    justify-content: space-between
-    align-items: center
-    flex-wrap: wrap
-    button
-      align-self: flex-end
+  .lesson-summary-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    button {
+      align-self: flex-end;
+    }
+  }
 
-  .lesson-summary-header-title
-    display: inline-block
+  .lesson-summary-header-title {
+    display: inline-block;
+  }
 
 </style>

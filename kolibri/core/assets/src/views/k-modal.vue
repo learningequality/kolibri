@@ -265,78 +265,93 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .modal-overlay
-    position: fixed
-    top: 0
-    left: 0
-    width: 100%
-    height: 100%
-    background: rgba(0, 0, 0, 0.7)
-    transition: opacity 0.3s ease
-    background-attachment: fixed
-    z-index: 24
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 24;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    background-attachment: fixed;
+    transition: opacity $core-time ease;
+  }
 
   // TODO: margins for stacked buttons.
-  .modal
-    position: absolute
-    top: 50%
-    left: 50%
-    transform: translate(-50%, -50%)
-    background: $core-bg-light
-    overflow-y: auto
-    border-radius: $radius
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
-    margin: 0 auto
+  .modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: 0 auto;
+    overflow-y: auto;
+    background: $core-bg-light;
+    border-radius: $radius;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+    transform: translate(-50%, -50%);
 
-    &:focus
-      outline: none
+    &:focus {
+      outline: none;
+    }
+  }
 
-  .fade-enter-active, .fade-leave-active
-    transition: all 0.3s ease
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: all $core-time ease;
+  }
 
-  .fade-enter, .fade-leave-active
-    opacity: 0
+  .fade-enter,
+  .fade-leave-active {
+    opacity: 0;
+  }
 
-  .title
-    margin: 0
-    padding: 24px
+  .title {
+    padding: 24px;
+    margin: 0;
+  }
 
-  .content
-    padding: 0 24px
-    overflow-y: auto
+  .content {
+    padding: 0 24px;
+    overflow-y: auto;
+  }
 
-  .scroll-shadow
-    background:
-      linear-gradient(white 30%, hsla(0, 0%, 100%, 0)),
+  .scroll-shadow {
+    background: linear-gradient(white 30%, hsla(0, 0%, 100%, 0)),
       linear-gradient(hsla(0, 0%, 100%, 0) 10px, white 70%) bottom,
       radial-gradient(at top, rgba(0, 0, 0, 0.2), transparent 70%),
-      radial-gradient(at bottom, rgba(0, 0, 0, 0.2), transparent 70%) bottom
-    background-repeat: no-repeat
-    background-size: 100% 20px, 100% 20px, 100% 10px, 100% 10px
-    background-attachment: local, local, scroll, scroll
-    border-top: 1px solid $core-grey
-    border-bottom: 1px solid $core-grey
+      radial-gradient(at bottom, rgba(0, 0, 0, 0.2), transparent 70%) bottom;
+    background-repeat: no-repeat;
+    background-attachment: local, local, scroll, scroll;
+    background-size: 100% 20px, 100% 20px, 100% 10px, 100% 10px;
+    border-top: 1px solid $core-grey;
+    border-bottom: 1px solid $core-grey;
+  }
 
-  .actions
-    text-align: right
-    padding: 24px
-    button
-      margin: 0
+  .actions {
+    padding: 24px;
+    text-align: right;
+    button {
+      margin: 0;
+    }
+  }
 
-  .actions button:last-of-type
-    margin-left: 16px
+  .actions button:last-of-type {
+    margin-left: 16px;
+  }
 
-  .small
-    width: 300px
+  .small {
+    width: 300px;
+  }
 
-  .medium
-    width: 450px
+  .medium {
+    width: 450px;
+  }
 
-  .large
-    width: 100%
+  .large {
+    width: 100%;
+  }
 
 </style>

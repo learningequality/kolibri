@@ -8,5 +8,6 @@ from django.views.generic.base import TemplateView
 
 logging = logger.getLogger(__name__)
 
+
 class LearnView(TemplateView):
     template_name = "learn/learn.html"

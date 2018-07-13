@@ -53,6 +53,11 @@
 
   export default {
     name: 'dataPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       kButton,
       kGrid,
@@ -74,6 +79,7 @@
       download: 'Download',
       note: 'Note',
       noDownload: 'Download is not supported on Android',
+      documentTitle: 'Manage Data',
     },
     computed: {
       cannotDownload() {
@@ -96,19 +102,21 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .infobox
-    background-color: $core-bg-warning
-    border-radius: $radius
-    font-size: 0.8em
-    padding: 8px
+  .infobox {
+    padding: 8px;
+    font-size: 0.8em;
+    background-color: $core-bg-warning;
+    border-radius: $radius;
+  }
 
-  .no-dl
-    font-size: 0.8em
-    color: $core-text-annotation
-    display: inline-block
+  .no-dl {
+    display: inline-block;
+    font-size: 0.8em;
+    color: $core-text-annotation;
+  }
 
 </style>

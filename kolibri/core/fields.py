@@ -12,6 +12,7 @@ tz_format = "({tz})"
 tz_regex = re.compile("\(([^\)]+)\)")
 db_storage_string = "{date_time_string}{tz_string}"
 
+
 def parse_timezonestamp(value):
     if tz_regex.search(value):
         tz = pytz.timezone(tz_regex.search(value).groups()[0])
@@ -23,6 +24,7 @@ def parse_timezonestamp(value):
         # Naive datetime, make aware
         value = timezone.make_aware(value, pytz.utc)
     return value.astimezone(tz)
+
 
 def create_timezonestamp(value):
     if value.tzinfo and hasattr(value.tzinfo, 'zone'):
@@ -42,6 +44,7 @@ def create_timezonestamp(value):
     tz_string = tz_format.format(tz=tz)
     value = db_storage_string.format(date_time_string=date_time_string, tz_string=tz_string)
     return value
+
 
 class DateTimeTzField(Field):
     """

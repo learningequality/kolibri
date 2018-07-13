@@ -18,9 +18,6 @@ import { setClassState, handleCoachPageError } from './main';
 
 const translator = createTranslator('coachExamPageTitles', {
   allChannels: 'All channels',
-  coachExamListPageTitle: 'Exams',
-  coachExamCreationPageTitle: 'Create new exam',
-  coachExamReportDetailPageTitle: 'Exam Report Detail',
   examReportTitle: '{examTitle} report',
 });
 
@@ -108,7 +105,6 @@ export function showExamsPage(store, classId) {
         busy: false,
       });
       store.commit('CORE_SET_ERROR', null);
-      store.commit('CORE_SET_TITLE', translator.$tr('coachExamListPageTitle'));
       store.commit('CORE_SET_PAGE_LOADING', false);
     },
     error => store.dispatch('handleError', error)
@@ -213,7 +209,6 @@ export function deleteExam(store, examId) {
 export function showCreateExamPage(store, classId) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', PageNames.CREATE_EXAM);
-  store.commit('CORE_SET_TITLE', translator.$tr('coachExamCreationPageTitle'));
   store.commit('SET_PAGE_STATE', {
     topic: {},
     subtopics: [],
@@ -340,10 +335,12 @@ function fetchTopic(store, topicId) {
         ConditionalPromise.all(subtopicsExercisesPromises).only(
           samePageCheckGenerator(store),
           subtopicsExercises => {
-            subtopics = subtopics.map((subtopic, index) => {
-              subtopic.allExercisesWithinTopic = subtopicsExercises[index];
-              return subtopic;
-            });
+            subtopics = subtopics
+              .map((subtopic, index) => {
+                subtopic.allExercisesWithinTopic = subtopicsExercises[index];
+                return subtopic;
+              })
+              .filter(subtopic => subtopic.allExercisesWithinTopic.length > 0);
 
             resolve({ topic, subtopics, exercises });
           },
@@ -451,7 +448,6 @@ export function showExamReportPage(store, params) {
             exerciseContentNodes: [...contentNodes],
           });
           store.commit('CORE_SET_ERROR', null);
-          store.commit('CORE_SET_TITLE', exam.title);
           store.commit('CORE_SET_PAGE_LOADING', false);
         },
         error => {
@@ -490,7 +486,6 @@ export function showExamReportDetailPage(store, params) {
       store.commit('SET_PAGE_STATE', examReport);
       store.commit('SET_TOOLBAR_ROUTE', { name: PageNames.EXAM_REPORT });
       store.commit('CORE_SET_ERROR', null);
-      store.commit('CORE_SET_TITLE', translator.$tr('coachExamReportDetailPageTitle'));
       store.commit(
         'SET_TOOLBAR_TITLE',
         translator.$tr('examReportTitle', {

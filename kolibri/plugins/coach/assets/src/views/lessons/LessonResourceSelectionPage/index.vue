@@ -73,6 +73,11 @@
 
   export default {
     name: 'lessonResourceSelectionPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       uiToolbar,
       contentCard,
@@ -167,40 +172,47 @@
       // TODO add search page check for this
       sourceInformation: 'from {sourceName}',
       resourceSaveConfirmation: 'Changes to lesson saved',
+      documentTitle: 'Select resources',
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .content-list
-    list-style: none
-    display: block
-    padding: 0
+  .content-list {
+    display: block;
+    padding: 0;
+    list-style: none;
+  }
 
-  .content-list-item
-    position: relative
-    text-align: right
-    display: block
+  .content-list-item {
+    position: relative;
+    display: block;
+    text-align: right;
+  }
 
-  .content-checkbox
-    display: inline-block
-    position: absolute
-    top: 34% // offset accouting for shadow on card
-    left: -32px
+  .content-checkbox {
+    position: absolute;
+    top: 34%; // offset accouting for shadow on card
+    left: -32px;
+    display: inline-block;
+  }
 
-  .content-card
-    width: 100%
+  .content-card {
+    width: 100%;
+  }
 
-  .resource-selection-page
+  .resource-selection-page {
     // offset to maintain straight lines in form w/ dynamic checkbox
-    margin-left:64px
+    margin-left: 64px;
+  }
 
-  .information
-    text-align: right
+  .information {
+    text-align: right;
+  }
 
 </style>

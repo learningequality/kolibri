@@ -15,6 +15,7 @@ module.exports = {
     __version: 'testversion',
     __events: {},
     __once: {},
+    __copyrightYear: '2018',
   },
   rootDir: path.resolve(__dirname, '../'),
   moduleFileExtensions: ['js', 'json', 'vue'],

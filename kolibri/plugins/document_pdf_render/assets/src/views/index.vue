@@ -320,42 +320,51 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .pdf-renderer
-    position: relative
-    height: 500px
-    background-color: $core-text-default
+  .pdf-renderer {
+    position: relative;
+    height: 500px;
+    background-color: $core-text-default;
+  }
 
-  .controls
-    position: absolute
-    z-index: 6 // material spec - snackbar and FAB
+  .controls {
+    position: absolute;
+    z-index: 6; // material spec - snackbar and FAB
+  }
 
-  .button-fullscreen
-    top: 16px
-    right: 21px
-    fill: white
+  .button-fullscreen {
+    top: 16px;
+    right: 21px;
+    fill: white;
+  }
 
   .button-zoom-in,
-  .button-zoom-out
-    right: 27px
+  .button-zoom-out {
+    right: 27px;
+  }
 
-  .button-zoom-in
-    top: 80px
+  .button-zoom-in {
+    top: 80px;
+  }
 
-  .button-zoom-out
-    top: 132px
+  .button-zoom-out {
+    top: 132px;
+  }
 
-  .progress-bar
-    top: 50%
-    margin: 0 auto
-    max-width: 200px
+  .progress-bar {
+    top: 50%;
+    max-width: 200px;
+    margin: 0 auto;
+  }
 
   // enable horizontal scrolling
-  >>>.recycle-list
-    .item-wrapper
-      overflow-x: auto
+  /deep/ .recycle-list {
+    .item-wrapper {
+      overflow-x: auto;
+    }
+  }
 
 </style>

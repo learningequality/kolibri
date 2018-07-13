@@ -28,15 +28,17 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .template-wrapper
-    margin-right: 24px
-    margin-bottom: 240px
+  .template-wrapper {
+    margin-right: 24px;
+    margin-bottom: 240px;
+  }
 
-  .in-progress
-    text-align: right
-    color: red
-    font-weight: bold
+  .in-progress {
+    font-weight: bold;
+    color: red;
+    text-align: right;
+  }
 
 </style>

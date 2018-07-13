@@ -94,6 +94,11 @@
 
   export default {
     name: 'itemListPage',
+    metaInfo() {
+      return {
+        title: this.documentTitle,
+      };
+    },
     components: {
       coreTable,
       contentIcon,
@@ -114,6 +119,10 @@
       contentCountText:
         '{count, number, integer} {count, plural, one {resource} other {resources}}',
       emptyTableMessage: 'No exercises or resources in this topic',
+      documentTitleForChannelRoot: 'Topics - Channel',
+      documentTitleForTopicItems: 'Topics - Items',
+      documentTitleForLearnerChannelRoot: 'Learners - Channel',
+      documentTitleForLearnerItems: 'Learners - Items',
     },
     computed: {
       ...mapState(['classId', 'pageName', 'pageState']),
@@ -124,6 +133,18 @@
         exerciseCount,
         contentCount,
       }),
+      documentTitle() {
+        switch (this.pageName) {
+          case PageNames.LEARNER_CHANNEL_ROOT:
+            return this.$tr('documentTitleForLearnerChannelRoot');
+          case PageNames.LEARNER_ITEM_LIST:
+            return this.$tr('documentTitleForLearnerItems');
+          case PageNames.TOPIC_CHANNEL_ROOT:
+            return this.$tr('documentTitleForChannelRoot');
+          case PageNames.TOPIC_ITEM_LIST:
+            return this.$tr('documentTitleForTopicItems');
+        }
+      },
       tableColumns() {
         return TableColumns;
       },
@@ -162,4 +183,4 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="scss" scoped></style>

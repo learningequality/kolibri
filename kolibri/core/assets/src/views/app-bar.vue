@@ -176,42 +176,40 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  >>>.override-ui-toolbar
-    color: $core-text-default
+  /deep/ .override-ui-toolbar {
+    color: $core-text-default;
+  }
 
-  .app-bar
-    overflow: hidden
+  .app-bar {
+    overflow: hidden;
+  }
 
-  .user-menu-button
-    text-transform: none
-    vertical-align: middle
-    svg
-      fill: white
+  .user-menu-button {
+    text-transform: none;
+    vertical-align: middle;
+    svg {
+      fill: white;
+    }
+  }
 
-  .user-menu-dropdown
-    position: fixed
-    right: 0
-    z-index: 8
+  .user-menu-dropdown {
+    position: fixed;
+    right: 0;
+    z-index: 8;
+  }
 
-  .role
-    font-size: small
-    font-weight: bold
-    margin-bottom: 8px
+  .role {
+    margin-bottom: 8px;
+    font-size: small;
+    font-weight: bold;
+  }
 
-  // Will display icon in app bar if variables are defined
-  .app-bar-title-icon
-    background: $app-bar-title-icon
-    height: $app-bar-title-icon-height
-    width: $app-bar-title-icon-height
-    display: inline-block
-    vertical-align: middle
-    background-size: cover
-
-  .icon
-    fill: white
+  .icon {
+    fill: white;
+  }
 
 </style>

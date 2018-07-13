@@ -11,6 +11,7 @@ from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
 
+
 class Lesson(AbstractFacilityDataModel):
     """
     A Lesson is a collection of non-topic ContentNodes that is linked to

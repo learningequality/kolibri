@@ -45,6 +45,12 @@
       noSearch: 'Search by typing in the box above',
       showingResultsFor: "Results for '{searchTerm}'",
       noResultsMsg: "No results for '{searchTerm}'",
+      documentTitle: 'Search',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       contentCard,
@@ -83,12 +89,14 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .search-results
-    margin-top: 32px
+  .search-results {
+    margin-top: 32px;
+  }
 
-  .search-channel
-    font-size: smaller
+  .search-channel {
+    font-size: smaller;
+  }
 
 </style>

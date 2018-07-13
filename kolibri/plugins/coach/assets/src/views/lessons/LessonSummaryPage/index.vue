@@ -65,6 +65,11 @@
 
   export default {
     name: 'lessonSummaryPage',
+    metaInfo() {
+      return {
+        title: this.lessonTitle,
+      };
+    },
     components: {
       kDropdownMenu,
       ResourceListTable,
@@ -128,28 +133,33 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .resource-list-header
+  .resource-list-header {
     // TODO use shared class or mixin
     // maintaining a simple right/left alignment in a single text-line without floats. Simple RTL
-    display: table
-    width: 100%
+    display: table;
+    width: 100%;
 
-    &-title
-      display: inline-block
-      font-size: 1em
+    &-title {
+      display: inline-block;
+      font-size: 1em;
 
-      &-block
-        display: table-cell
-        text-align: left
+      &-block {
+        display: table-cell;
+        text-align: left;
+      }
+    }
 
-    &-add-resource-button
-      display: table-cell
-      text-align: right
+    &-add-resource-button {
+      display: table-cell;
+      text-align: right;
+    }
+  }
 
-  .no-resources-message
-    text-align: center
-    padding: 48px 0
+  .no-resources-message {
+    padding: 48px 0;
+    text-align: center;
+  }
 
 </style>

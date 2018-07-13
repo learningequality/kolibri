@@ -16,7 +16,17 @@
 
   export default {
     name: 'learnerExerciseDetailPage',
-    $trs: { backPrompt: 'Back to { backTitle }' },
+    $trs: {
+      backPrompt: 'Back to { backTitle }',
+      documentTitleForRecentLearnerItems: 'Recent - Learner Details',
+      documentTitleForLearnerTopic: 'Topics - Learner Details',
+      documentTitleForLearnerItem: 'Learners - Item Details',
+    },
+    metaInfo() {
+      return {
+        title: this.documentTitle,
+      };
+    },
     components: {
       immersiveFullScreen,
       learnerExerciseReport,
@@ -28,6 +38,16 @@
         exercise: state => state.pageState.exercise,
         user: state => state.pageState.user,
       }),
+      documentTitle() {
+        switch (this.pageName) {
+          case PageNames.LEARNER_ITEM_DETAILS:
+            return this.$tr('documentTitleForLearnerItem');
+          case PageNames.RECENT_LEARNER_ITEM_DETAILS:
+            return this.$tr('documentTitleForRecentLearnerItems');
+          case PageNames.TOPIC_LEARNER_ITEM_DETAILS:
+            return this.$tr('documentTitleForLearnerTopic');
+        }
+      },
       backPageLink() {
         if (this.pageName === PageNames.RECENT_LEARNER_ITEM_DETAILS) {
           return {
@@ -77,4 +97,4 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="scss" scoped></style>

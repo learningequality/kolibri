@@ -166,15 +166,18 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .empty-message
-    margin-bottom: 16px
+  .empty-message {
+    margin-bottom: 16px;
+  }
 
-  .user-action-button
-    text-align: right
+  .user-action-button {
+    text-align: right;
+  }
 
-  .role-badge
-    margin-left: 8px
+  .role-badge {
+    margin-left: 8px;
+  }
 
 </style>

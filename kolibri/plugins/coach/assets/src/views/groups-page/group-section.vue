@@ -200,28 +200,34 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .group-section
-    margin-top: 32px
+  .group-section {
+    margin-top: 32px;
+  }
 
-  .group-name
-    display: inline-block
+  .group-name {
+    display: inline-block;
+  }
 
-  .right-margin
-    margin-right: 8px
+  .right-margin {
+    margin-right: 8px;
+  }
 
-  .no-side-padding
-    padding-left: 0
-    padding-right: 0
+  .no-side-padding {
+    padding-right: 0;
+    padding-left: 0;
+  }
 
-  .small-text
-    font-size: small
+  .small-text {
+    font-size: small;
+  }
 
-  .mobile
-    text-align: right
-    line-height: 50px
+  .mobile {
+    line-height: 50px;
+    text-align: right;
+  }
 
 </style>

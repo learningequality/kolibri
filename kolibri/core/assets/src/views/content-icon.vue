@@ -160,9 +160,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .ui-icon
-    font-size: 1em
+  .ui-icon {
+    font-size: 1em;
+  }
 
 </style>

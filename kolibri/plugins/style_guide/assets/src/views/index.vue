@@ -30,55 +30,62 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '../styles/style-guide.styl'
+  @import '../styles/style-guide';
 
-  .content
-    margin-right: auto
-    margin-left: $sidenav-width + 32
-    margin-top: 24px
-    max-width: 50em
+  .content {
+    max-width: 50em;
+    margin-top: 24px;
+    margin-right: auto;
+    margin-left: $sidenav-width + 32;
+  }
 
 </style>
 
 
-<style lang="stylus">
+<style lang="scss">
 
   // NOT SCOPED
 
   // Reset some of the styles inherited from the main Kolibri theme.
   // TODO: Remove that inheritance and have a clean slate style-wise.
-  html, body
-    height: auto
-    background: white
-    font-size: 14px
-    color: #424242
+  html,
+  body {
+    height: auto;
+    font-size: 14px;
+    color: #424242;
+    background: white;
+  }
 
-  html
-    overflow: initial
+  html {
+    overflow: initial;
+  }
 
-  code
-    background: rgba(253, 246, 227, 0.5)
-    color: #268bd2
-    font-size: smaller
-    padding: 4px
-    white-space: nowrap
+  code {
+    padding: 4px;
+    font-size: smaller;
+    color: #268bd2;
+    white-space: nowrap;
+    background: rgba(253, 246, 227, 0.5);
+  }
 
-  @require '../styles/style-guide.styl'
-  @require '~vuep/dist/vuep.css'
+  @import '~vuep/dist/vuep.css';
 
-  .vuep
+  .vuep {
+    display: initial;
+    height: initial;
     // TODO: vuep pullutes the font-family
-    font-family: NotoSans
-    display: initial
-    height: initial
+    font-family: NotoSans;
 
-    .vuep-preview, .vuep-editor
-      width: 100%
+    .vuep-preview,
+    .vuep-editor {
+      width: 100%;
+    }
 
-    .vuep-preview
-      padding: 8px
+    .vuep-preview {
+      padding: 8px;
+    }
+  }
 
 </style>
-

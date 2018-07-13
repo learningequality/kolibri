@@ -64,8 +64,8 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '../items.styl'
+  @import '../items';
 
 </style>

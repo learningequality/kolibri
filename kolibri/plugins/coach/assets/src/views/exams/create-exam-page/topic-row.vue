@@ -7,17 +7,15 @@
         :showLabel="false"
         :checked="allExercisesWithinTopicSelected"
         :indeterminate="someExercisesWithinTopicSelected"
-        :disabled="!topicHasExercises"
         @change="changeSelection"
       />
     </th>
     <td class="core-table-main-col">
       <div class="topic-title">
-        <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }" />
-        <button v-if="topicHasExercises" class="title" @click="$emit('goToTopic', topicId)">
+        <content-icon :kind="topic" />
+        <button class="title" @click="$emit('goToTopic', topicId)">
           {{ topicTitle }}
         </button>
-        <span v-else class="disabled">{{ topicTitle }}</span>
       </div>
       <coach-content-label
         class="coach-content-label"
@@ -87,36 +85,26 @@
       topic() {
         return ContentNodeKinds.TOPIC;
       },
-      topicHasExercises() {
-        return this.allExercisesWithinTopic.length !== 0;
-      },
       numExercisesWithinTopic() {
         return this.allExercisesWithinTopic.length;
       },
       numExercisesWithinTopicSelected() {
-        return this.allExercisesWithinTopic.filter(exercise =>
-          this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
-        ).length;
+        return this.allExercisesWithinTopic.filter(this.exerciseIsSelected).length;
       },
       allExercisesWithinTopicSelected() {
-        if (!this.topicHasExercises) {
-          return false;
-        }
-        return this.allExercisesWithinTopic.every(exercise =>
-          this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
-        );
+        return this.allExercisesWithinTopic.every(this.exerciseIsSelected);
       },
       noExercisesWithinTopicSelected() {
-        return this.allExercisesWithinTopic.every(
-          exercise =>
-            !this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
-        );
+        return this.allExercisesWithinTopic.every(exercise => !this.exerciseIsSelected(exercise));
       },
       someExercisesWithinTopicSelected() {
         return !this.allExercisesWithinTopicSelected && !this.noExercisesWithinTopicSelected;
       },
     },
     methods: {
+      exerciseIsSelected(exercise) {
+        return this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id);
+      },
       changeSelection() {
         if (this.allExercisesWithinTopicSelected) {
           this.$emit('removeTopicExercises', this.allExercisesWithinTopic, this.topicTitle);
@@ -135,24 +123,24 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .topic-title
-    display: inline-block
+  .topic-title {
+    display: inline-block;
+  }
 
-  .coach-content-label
-    display: inline-block
-    vertical-align: bottom
-    margin-left: 8px
+  .coach-content-label {
+    display: inline-block;
+    margin-left: 8px;
+    vertical-align: bottom;
+  }
 
-  .title
-    padding: 0
-    border: none
-    font-size: 1em
-
-  .disabled
-    color: $core-text-disabled
-
+  .title {
+    padding: 0;
+    font-size: 1em;
+    border: 0;
+  }
+  
 </style>

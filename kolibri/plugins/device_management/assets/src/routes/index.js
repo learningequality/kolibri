@@ -1,5 +1,4 @@
 import store from 'kolibri.coreVue.vuex.store';
-import { createTranslator } from 'kolibri.utils.i18n';
 import { showDeviceInfoPage } from '../state/actions/deviceInfoActions';
 import { showManageContentPage } from '../state/actions/manageContentActions';
 import {
@@ -9,13 +8,6 @@ import {
 import preparePage from '../state/preparePage';
 import { PageNames } from '../constants';
 import wizardTransitionRoutes from './wizardTransitionRoutes';
-
-const translator = createTranslator('deviceAppPageTitles', {
-  manageDeviceContent: 'Manage Device Content',
-  manageDevicePermissions: 'Manage Device Permissions',
-  manageUserPermissions: 'Manage User Permissions',
-  deviceInfo: 'Device info',
-});
 
 function hideLoadingScreen() {
   store.commit('CORE_SET_PAGE_LOADING', false);
@@ -39,7 +31,6 @@ const routes = [
     handler: ({ name }) => {
       preparePage(store.commit, {
         name,
-        title: translator.$tr('manageDeviceContent'),
       });
       showManageContentPage(store).then(hideLoadingScreen);
     },
@@ -50,7 +41,6 @@ const routes = [
     handler: ({ name }) => {
       preparePage(store.commit, {
         name,
-        title: translator.$tr('manageDevicePermissions'),
       });
       showManagePermissionsPage(store).then(hideLoadingScreen);
     },
@@ -61,7 +51,6 @@ const routes = [
     handler: ({ params, name }) => {
       preparePage(store.commit, {
         name,
-        title: translator.$tr('manageUserPermissions'),
       });
       showUserPermissionsPage(store, params.userid).then(hideLoadingScreen);
     },
@@ -72,7 +61,6 @@ const routes = [
     handler: ({ name }) => {
       preparePage(store.commit, {
         name,
-        title: translator.$tr('deviceInfo'),
       });
       showDeviceInfoPage(store).then(hideLoadingScreen);
     },

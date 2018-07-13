@@ -103,33 +103,43 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .ar
-    text-align: right
+  .ar {
+    text-align: right;
+  }
 
-  ul, ol
-    padding: 0
+  ul,
+  ol {
+    padding: 0;
+  }
 
-  ol
-    font-size: small
+  ol {
+    font-size: small;
+  }
 
-  .copy
-    margin-bottom: 16px
+  .copy {
+    margin-bottom: 16px;
+  }
 
-  li
-    list-style: none
+  li {
+    list-style: none;
+  }
 
-  .ancestor
-    display: inline-block
+  .ancestor {
+    display: inline-block;
+  }
 
-  .arrow
-    &:after
-      content: '\203A'
-      margin-right: 8px
-      margin-left: 8px
+  .arrow {
+    &::after {
+      margin-right: 8px;
+      margin-left: 8px;
+      content: '\203A';
+    }
+  }
 
-  .title
-    margin-bottom: 4px
+  .title {
+    margin-bottom: 4px;
+  }
 
 </style>

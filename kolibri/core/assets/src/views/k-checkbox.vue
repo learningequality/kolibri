@@ -150,64 +150,82 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  $checkbox-height = 24px
+  $checkbox-height: 24px;
 
-  .k-checkbox-container
-    display: table
-    margin-top: 8px
-    margin-bottom: 8px
+  .k-checkbox-container {
+    display: table;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
 
-  .tr
-    display: table-row
+  .tr {
+    display: table-row;
+  }
 
-  .k-checkbox
-    display: table-cell
-    position: relative
-    vertical-align: top
-    width: $checkbox-height
-    height: $checkbox-height
-    cursor: pointer
+  .k-checkbox {
+    position: relative;
+    display: table-cell;
+    width: $checkbox-height;
+    height: $checkbox-height;
+    vertical-align: top;
+    cursor: pointer;
+  }
 
-  .k-checkbox-input
-    position: absolute
-    top: 50%
-    left: 50%
-    transform: translate(-50%, -50%)
-    opacity: 0
-    cursor: pointer
+  .k-checkbox-input {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+  }
 
-  .k-checkbox-checked, .k-checkbox-indeterminate
-    fill: $core-action-normal
+  .k-checkbox-checked,
+  .k-checkbox-indeterminate {
+    fill: $core-action-normal;
+  }
 
-  .k-checkbox-unchecked
-    fill: $core-text-annotation
+  .k-checkbox-unchecked {
+    fill: $core-text-annotation;
+  }
 
-  .k-checkbox-active
-    .k-checkbox-checked, .k-checkbox-indeterminate
-      outline: $core-outline
+  .k-checkbox-active {
+    .k-checkbox-checked,
+    .k-checkbox-indeterminate {
+      outline: $core-outline;
+    }
 
-    .k-checkbox-unchecked
-      outline: $core-outline
+    .k-checkbox-unchecked {
+      outline: $core-outline;
+    }
+  }
 
-  .k-checkbox-label
-    display: table-cell
-    padding-left: 8px
-    cursor: pointer
-    line-height: 24px
-    user-select: none
+  .k-checkbox-label {
+    display: table-cell;
+    padding-left: 8px;
+    line-height: 24px;
+    cursor: pointer;
+    user-select: none;
+  }
 
-  .k-checkbox-disabled
-    svg
-      fill: $core-grey-300
+  .k-checkbox-disabled {
+    svg {
+      fill: $core-grey-300;
+    }
 
-    .k-checkbox, .k-checkbox-input, .k-checkbox-label
-      cursor: default
+    .k-checkbox,
+    .k-checkbox-input,
+    .k-checkbox-label {
+      cursor: default;
+    }
 
-    .k-checkbox-label
-      color: $core-text-disabled
+    .k-checkbox-label {
+      color: $core-text-disabled;
+    }
+  }
 
 </style>

@@ -11,6 +11,7 @@ from kolibri.core.auth.test.test_api import FacilityFactory
 
 DUMMY_PASSWORD = "password"
 
+
 class KolibriTagNavigationTestCase(APITestCase):
 
     def test_redirect_to_setup_wizard(self):

@@ -52,7 +52,7 @@
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
-              <p>© 2018 Learning Equality</p>
+              <p>© {{ copyrightYear }} Learning Equality</p>
             </div>
           </div>
         </div>
@@ -133,6 +133,8 @@
     data() {
       return {
         previouslyFocusedElement: null,
+        // __copyrightYear is injected by Webpack DefinePlugin
+        copyrightYear: __copyrightYear,
       };
     },
     computed: {
@@ -211,137 +213,162 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
   // matches angular material's spec
-  $side-nav-box-shadow =  0 2px 4px -1px rgba(0, 0, 0, 0.2),
-                          0 4px 5px 0 rgba(0, 0, 0, 0.14),
-                          0 1px 10px 0 rgba(0, 0, 0, 0.12)
+  $side-nav-box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+    0 1px 10px 0 rgba(0, 0, 0, 0.12);
 
   // matches keen-ui toolbar's spec
-  $side-nav-header-box-shadow = 0 0 2px rgba(black, 0.12), 0 2px 2px rgba(black, 0.2)
+  $side-nav-header-box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
 
-  .side-nav-wrapper
-    overflow-x: hidden
+  .side-nav-wrapper {
+    overflow-x: hidden;
+  }
 
-  .side-nav
-    position: fixed
-    top: 0
-    bottom: 0
-    z-index: 16
-    color: $core-text-default
-    background: $core-bg-light
-    box-shadow: $side-nav-box-shadow
+  .side-nav {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    z-index: 16;
+    color: $core-text-default;
+    background: $core-bg-light;
+    box-shadow: $side-nav-box-shadow;
+  }
 
-  .side-nav-enter
-    transform: translate3D(-100%, 0, 0)
+  .side-nav-enter {
+    transform: translate3d(-100%, 0, 0);
+  }
 
-  .side-nav-enter-active
-    transition: all 0.2s ease-in-out
+  .side-nav-enter-active {
+    transition: all 0.2s ease-in-out;
+  }
 
-  .side-nav-enter-to
-    transform: translate3D(0, 0, 0)
+  .side-nav-enter-to {
+    transform: translate3d(0, 0, 0);
+  }
 
-  .side-nav-leave
-    transform: translate3D(0, 0, 0)
+  .side-nav-leave {
+    transform: translate3d(0, 0, 0);
+  }
 
-  .side-nav-leave-active
-    transition: all 0.2s ease-in-out
+  .side-nav-leave-active {
+    transition: all 0.2s ease-in-out;
+  }
 
-  .side-nav-leave-to
-    transform: translate3D(-100%, 0, 0)
+  .side-nav-leave-to {
+    transform: translate3d(-100%, 0, 0);
+  }
 
-  .side-nav-header
-    position: fixed
-    top: 0
-    left: 0
-    z-index: 17
-    font-size: 14px
-    text-transform: uppercase
-    background-color: $core-text-default
-    box-shadow: $side-nav-header-box-shadow
+  .side-nav-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 17;
+    font-size: 14px;
+    text-transform: uppercase;
+    background-color: $core-text-default;
+    box-shadow: $side-nav-header-box-shadow;
+  }
 
-  .side-nav-header-close
-    fill: white
+  .side-nav-header-close {
+    fill: white;
+  }
 
-  .side-nav-header-name
-    margin-left: 8px
-    vertical-align: middle
-    color: $core-bg-light
-    font-weight: bold
-    font-size: 18px
+  .side-nav-header-name {
+    margin-left: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    color: $core-bg-light;
+    vertical-align: middle;
+  }
 
-  .side-nav-scrollable-area
-    position: fixed
-    left: 0
-    bottom: 0
-    overflow: auto
+  .side-nav-scrollable-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    overflow: auto;
+  }
 
-  .side-nav-scrollable-area-menu
-    background: $core-bg-light
+  .side-nav-scrollable-area-menu {
+    background: $core-bg-light;
+  }
 
-  .side-nav-scrollable-area-footer
-    color: $core-text-annotation
-    padding: 16px
+  .side-nav-scrollable-area-footer {
+    padding: 16px;
+    color: $core-text-annotation;
+  }
 
-  .side-nav-scrollable-area-footer-logo
-    height: 77px
-    max-width: 100%
+  .side-nav-scrollable-area-footer-logo {
+    max-width: 100%;
+    height: 77px;
+  }
 
-  .side-nav-scrollable-area-footer-info
-    margin-top: 8px
-    font-size: 12px
-    line-height: 16px
-    p
-      margin: 0
+  .side-nav-scrollable-area-footer-info {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 16px;
+    p {
+      margin: 0;
+    }
+  }
 
-  .side-nav-backdrop
-    position: fixed
-    top: 0
-    left: 0
-    width: 100%
-    height: 100%
-    background: rgba(0, 0, 0, 0.7)
-    transition: opacity 0.3s ease
-    background-attachment: fixed
-    z-index: 15
-
+  .side-nav-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 15;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    background-attachment: fixed;
+    transition: opacity 0.3s ease;
+  }
 
   /* keen menu */
-  >>>.ui-menu
-    max-height: none
-    padding: 0
-    background: $core-bg-light
-    border: none
+  /deep/ .ui-menu {
+    max-height: none;
+    padding: 0;
+    background: $core-bg-light;
+    border: 0;
+  }
 
-  >>>.ui-menu-option
-    &:not(.is-divider)
-      padding-top: 4px
-      padding-bottom: 4px
+  /deep/ .ui-menu-option {
+    &:not(.is-divider) {
+      padding-top: 4px;
+      padding-bottom: 4px;
 
-      .ui-menu-option-text
-        overflow: visible
-        white-space: normal
-        color: $core-text-default
-        font-size: 14px
+      .ui-menu-option-text {
+        overflow: visible;
+        font-size: 14px;
+        color: $core-text-default;
+        white-space: normal;
+      }
 
-      .ui-menu-option-icon
-        color: $core-text-default
-        font-size: 1.2em
+      .ui-menu-option-icon {
+        font-size: 1.2em;
+        color: $core-text-default;
+      }
 
-      &.is-active
-        .ui-menu-option-text
-          color: $core-accent-color
-          font-weight: bold
-          opacity: 1
+      &.is-active {
+        .ui-menu-option-text {
+          font-weight: bold;
+          color: $core-accent-color;
+          opacity: 1;
+        }
 
-        .ui-menu-option-icon
-          color: $core-accent-color
+        .ui-menu-option-icon {
+          color: $core-accent-color;
+        }
+      }
+    }
 
-    &.is-divider
-      margin-top: 0
-      margin-bottom: 0
+    &.is-divider {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
 
 </style>

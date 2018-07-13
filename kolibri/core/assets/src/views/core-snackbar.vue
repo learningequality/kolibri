@@ -106,40 +106,48 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .snackbar
-    position: fixed
-    bottom: 0
-    left: 0
-    z-index: 24
-    margin: 16px
+  .snackbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 24;
+    margin: 16px;
 
-    >>>.ui-snackbar__action-button
-      color: $core-bg-light
-      font-weight: bold
+    /deep/ .ui-snackbar__action-button {
+      font-weight: bold;
+      color: $core-bg-light;
+    }
 
-    >>>.ui-button--type-secondary:hover:not(.is-disabled)
-      background-color: hsla(0, 0, 100%, 0.05)
+    /deep/ .ui-button--type-secondary:hover:not(.is-disabled) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
 
-  .snackbar-backdrop
-    z-index: 16
-    position: fixed
-    top: 0
-    bottom: 0
-    right: 0
-    left: 0
-    background-color: rgba(0, 0, 0, 0.7)
+  .snackbar-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 16;
+    background-color: rgba(0, 0, 0, 0.7);
+  }
 
-  .snackbar-enter-active, .snackbar-leave-active
-    transition-property: transform, opacity
-    transition-duration: 0.4s
-    transition-timing-function: ease
+  .snackbar-enter-active,
+  .snackbar-leave-active {
+    transition-timing-function: ease;
+    transition-duration: 0.4s;
+    transition-property: transform, opacity;
+  }
 
-  .snackbar-enter, .snackbar-leave-to
-    opacity: 0
-    transform: translateY(100px)
+  .snackbar-enter,
+  .snackbar-leave-to {
+    opacity: 0;
+    transform: translateY(100px);
+  }
 
 </style>

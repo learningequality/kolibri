@@ -152,20 +152,26 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
-  @require '../../styles/style-guide.styl'
+  @import '~kolibri.styles.definitions';
+  @import '../../styles/style-guide';
 
-  table, th, td
-    border: 1px solid darkgray
-    border-collapse: collapse
+  table,
+  th,
+  td {
+    border-collapse: collapse;
+    border: 1px solid darkgray;
+  }
 
-  th, td
-    padding: 0.5em
+  th,
+  td {
+    padding: 0.5em;
+  }
 
-  th
-    background: #e0e0e0
-    text-align: left
+  th {
+    text-align: left;
+    background: #e0e0e0;
+  }
 
 </style>

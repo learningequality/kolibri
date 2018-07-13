@@ -199,15 +199,17 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .exercise-container
-    background-color: $core-bg-light
-    padding: 8px
+  .exercise-container {
+    padding: 8px;
+    background-color: $core-bg-light;
+  }
 
-  h3
-    margin-top: 0
+  h3 {
+    margin-top: 0;
+  }
 
 </style>

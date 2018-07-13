@@ -137,15 +137,17 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .k-select-inline
-    display: inline-block
-    vertical-align: bottom
-    width: 150px
-    margin-right: 16px
+  .k-select-inline {
+    display: inline-block;
+    width: 150px;
+    margin-right: 16px;
+    vertical-align: bottom;
+  }
 
-  >>>.ui-select__display-value
-    line-height: 1.3
+  /deep/ .ui-select__display-value {
+    line-height: 1.3;
+  }
 
 </style>

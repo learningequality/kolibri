@@ -19,11 +19,12 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .list
-    margin-left: 36px
-    margin-right: 36px
-    text-align: center
+  .list {
+    margin-right: 36px;
+    margin-left: 36px;
+    text-align: center;
+  }
 
 </style>

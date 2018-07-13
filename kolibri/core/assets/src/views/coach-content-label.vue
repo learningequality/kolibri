@@ -5,7 +5,7 @@
       <mat-svg name="local_library" category="maps" />
     </ui-icon>
     <span class="counter" v-if="isTopic">
-      {{ value }}
+      {{ $formatNumber(value) }}
     </span>
   </div>
 
@@ -42,26 +42,29 @@
     },
     $trs: {
       coachResourceLabel: 'Coach resource',
-      topicTitle: 'Contains {count} {count, plural, one {coach resource} other {coach resources}}',
+      topicTitle: 'Contains {count, number, integer} {count, plural, one {coach resource} other {coach resources}}',
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.theme'
+  @import '~kolibri.styles.theme';
 
-  .vab
-    vertical-align: bottom
+  .vab {
+    vertical-align: bottom;
+  }
 
-  .counter
-    font-size: 11px
-    vertical-align: inherit
+  .counter {
+    font-size: 11px;
+    vertical-align: inherit;
+  }
 
-  .coach-mat-icon.ui-icon
-    font-size: 16px
-    color: $core-status-progress
+  .coach-mat-icon.ui-icon {
+    font-size: 16px;
+    color: $core-status-progress;
+  }
 
 </style>

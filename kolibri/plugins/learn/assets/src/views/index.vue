@@ -236,22 +236,25 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require 'learn.styl'
-  @require '~kolibri.styles.definitions'
+  @import './learn';
+  @import '~kolibri.styles.definitions';
 
-  .content
-    margin: auto
+  .content {
+    margin: auto;
+  }
 
-  .points-link
-    display: inline-block
-    text-decoration: none
-    color: $core-status-correct
-    position: relative
+  .points-link {
+    position: relative;
+    display: inline-block;
+    color: $core-status-correct;
+    text-decoration: none;
+  }
 
-  .points-wrapper
-    margin-top: -70px
-    float: right
+  .points-wrapper {
+    float: right;
+    margin-top: -70px;
+  }
 
 </style>

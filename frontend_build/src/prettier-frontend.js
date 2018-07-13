@@ -1,11 +1,21 @@
 /* eslint-disable no-console */
-const prettier = require('prettier');
-const compiler = require('vue-template-compiler');
 const fs = require('fs');
 const path = require('path');
+const prettier = require('prettier');
+const compiler = require('vue-template-compiler');
 
 const errorOrChange = 1;
 const noChange = 0;
+/*
+  Modifications to match our component linting conventions.
+  Surround style and script blocks by 2 new lines and ident.
+*/
+function indentAndAddNewLines(str) {
+  str = str.replace(/^(\n)*/, '\n\n');
+  str = str.replace(/(\n)*$/, '\n\n');
+  str = str.replace(/(.*\S.*)/g, '  $1');
+  return str;
+}
 
 function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) {
   return new Promise((resolve, reject) => {
@@ -15,7 +25,6 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
         return;
       }
       const source = buffer.toString();
-      const vueComponent = compiler.parseComponent(source);
       let formatted;
       const options = Object.assign(
         {
@@ -24,29 +33,53 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
         prettierOptions
       );
       try {
-        // Raw JS file, so assume is raw javascript to format.
-        if (file.endsWith('.js')) {
+        // Raw JS or SCSS file
+        if (file.endsWith('.js') || file.endsWith('.scss')) {
           formatted = prettier.format(source, options);
-        } else if (vueComponent && vueComponent.script) {
-          const start = vueComponent.script.start;
-          const end = vueComponent.script.end;
-          const code = source.slice(start, end).replace(/(\n) {2}/g, '$1');
+        } else if (file.endsWith('.vue')) {
+          let vueComponent = compiler.parseComponent(source);
           // Prettier strips the 2 space indentation that we enforce within script tags for vue
           // components. So here we account for those 2 spaces that will be added.
-          const vueComponentOptions = options;
+          const vueComponentOptions = Object.assign({}, options);
           vueComponentOptions.printWidth = vueComponentOptions.printWidth - 2;
-          // Force the prettier parser to parse this as JS
-          vueComponentOptions.filepath = 'dummy.js';
-          let formattedJs = prettier.format(code, vueComponentOptions);
-          // Ensure that the beginning and end of the JS has two newlines to fit our
-          // Component linting conventions
-          // Ensure it is indented by two spaces
-          formattedJs = formattedJs.replace(/^(\n)*/, '\n\n');
-          formattedJs = formattedJs.replace(/(\n)*$/, '\n\n');
-          formattedJs = formattedJs.replace(/(.*\S.*)/g, '  $1');
-          // Return reformatted Vue component, by replacing existing JS in component
-          // with the linted code.
-          formatted = source.replace(source.slice(start, end), formattedJs);
+
+          // Format script block
+          if (vueComponent.script) {
+            vueComponentOptions.parser = 'babylon';
+
+            const scriptStart = vueComponent.script.start;
+            const scriptEnd = vueComponent.script.end;
+
+            const js = source.slice(scriptStart, scriptEnd).replace(/(\n) {2}/g, '$1');
+            let formattedJs = prettier.format(js, vueComponentOptions);
+            formattedJs = indentAndAddNewLines(formattedJs);
+            formatted = source.replace(source.slice(scriptStart, scriptEnd), formattedJs);
+          }
+
+          // Format style blocks
+          for (let i = 0; i < vueComponent.styles.length; i++) {
+            // Reparse to get updated line numbers
+            const styleBlock = compiler.parseComponent(formatted).styles[i];
+            // Skip if not scss
+            if (styleBlock.lang !== 'scss') {
+              return;
+            }
+
+            vueComponentOptions.parser = 'scss';
+
+            const start = styleBlock.start;
+            const end = styleBlock.end;
+
+            // Skip if empty style block
+            if (start === end && !styleBlock.content.trim()) {
+              return;
+            }
+
+            const scss = formatted.slice(start, end);
+            let formattedScss = prettier.format(scss, vueComponentOptions);
+            formattedScss = indentAndAddNewLines(formattedScss);
+            formatted = formatted.replace(formatted.slice(start, end), formattedScss);
+          }
         }
       } catch (e) {
         // Something went wrong, return the source to be safe.
@@ -79,7 +112,7 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
 if (require.main === module) {
   const program = require('commander');
   const glob = require('glob');
-  const defaultGlobPattern = './{kolibri/**/assets,frontend_build,karma_config}/**/*.{js,vue}';
+  const defaultGlobPattern = './{kolibri/**/assets,frontend_build,karma_config}/**/*.{js,vue,scss}';
 
   program
     .version('0.0.1')

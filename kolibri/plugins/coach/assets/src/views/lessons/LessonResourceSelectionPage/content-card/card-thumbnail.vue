@@ -93,42 +93,47 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
-  @require './card.styl'
+  @import '~kolibri.styles.definitions';
+  @import './card';
 
-  .card-thumbnail-wrapper
-    position: absolute
-    background-size: contain
-    background-repeat: no-repeat
-    background-position: center
-    background-color: $core-bg-light
-    width: $thumb-width
-    height: $thumb-height
+  .card-thumbnail-wrapper {
+    position: absolute;
+    width: $thumb-width;
+    height: $thumb-height;
+    background-color: $core-bg-light;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+  }
 
-  .thumbnail-icon
-    position: absolute
-    transform: translate(-50%, -50%) scale(2)
-    top: 50%
-    left: 50%
-    color: $core-text-annotation
+  .thumbnail-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: $core-text-annotation;
+    transform: translate(-50%, -50%) scale(2);
+  }
 
-  .content-icon-wrapper
-    position: absolute
-    width: 48px
-    height: 48px
+  .content-icon-wrapper {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+  }
 
-  .content-icon
-    position: absolute
-    color: white
-    transform: translate(25%, 0)
-    font-size: 18px
+  .content-icon {
+    position: absolute;
+    font-size: 18px;
+    color: white;
+    transform: translate(25%, 0);
+  }
 
-  .content-icon-bg
-    position: absolute
-    width: 100%
-    height: 100%
-    fill-opacity: 0.9
+  .content-icon-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    fill-opacity: 0.9;
+  }
 
 </style>

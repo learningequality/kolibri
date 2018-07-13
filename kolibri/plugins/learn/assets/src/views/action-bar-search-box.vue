@@ -102,36 +102,40 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .search-box-wrapper
-    display: inline-block
-    vertical-align: middle
+  .search-box-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+  }
 
-  .search-box-dropdown
-    position: fixed
-    top: 55px
-    left: 0
-    right: 0
-    z-index: 4 // match app-bar
-    background-color: $core-action-normal
-    padding-right: 16px
-    padding-left: 16px
-    padding-top: 10px
-    padding-bottom: 10px
+  .search-box-dropdown {
+    position: fixed;
+    top: 55px;
+    right: 0;
+    left: 0;
+    z-index: 4; // match app-bar
+    padding-top: 10px;
+    padding-right: 16px;
+    padding-bottom: 10px;
+    padding-left: 16px;
+    background-color: $core-action-normal;
+  }
 
-  .search-box-dropdown-backdrop
-    position: fixed
-    top: 111px
-    right: 0
-    bottom: 0
-    left: 0
-    z-index: 4
-    background-color: rgba(0, 0, 0, 0.7)
+  .search-box-dropdown-backdrop {
+    position: fixed;
+    top: 111px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 4;
+    background-color: rgba(0, 0, 0, 0.7);
+  }
 
-  .search-icon
-    fill: white
+  .search-icon {
+    fill: white;
+  }
 
 </style>

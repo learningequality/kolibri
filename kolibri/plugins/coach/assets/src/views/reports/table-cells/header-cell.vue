@@ -92,31 +92,35 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  $size = 15px
+  $size: 15px;
 
-  .icon-wrapper
-    display: inline-block
-    position: relative
-    height: $size
-    width: $size
+  .icon-wrapper {
+    position: relative;
+    display: inline-block;
+    width: $size;
+    height: $size;
+  }
 
-  .icon
-    height: $size
-    width: $size
-    position: absolute
-    left: 0
-    top: 4px
-    transition: opacity $core-time ease
-    opacity: 0
+  .icon {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    width: $size;
+    height: $size;
+    opacity: 0;
+    transition: opacity $core-time ease;
+  }
 
-  .sorted
-    opacity: 100
+  .sorted {
+    opacity: 1;
+  }
 
-  .no-padding
-    padding: 0
+  .no-padding {
+    padding: 0;
+  }
 
 </style>

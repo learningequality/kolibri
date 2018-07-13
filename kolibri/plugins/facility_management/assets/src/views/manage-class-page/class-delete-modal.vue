@@ -57,9 +57,10 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  p
-    word-break: keep-all
+  p {
+    word-break: keep-all;
+  }
 
 </style>

@@ -377,304 +377,368 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
   // Unable to reference the videojs using require since videojs doesn't have good webpack support
-  @import './videojs-style/video-js.min.css'
+  @import './videojs-style/video-js.min.css';
   // Custom build icons.
-  @import './videojs-style/videojs-font/css/videojs-icons.css'
+  @import './videojs-style/videojs-font/css/videojs-icons.css';
 
-  .wrapper
-    width: 854px
-    height: 480px
-    max-width: 100%
-    max-height: 480px
+  .wrapper {
+    width: 854px;
+    max-width: 100%;
+    height: 480px;
+    max-height: 480px;
+  }
 
-  .fill-space
-    position: relative
-    width: 100%
-    height: 100%
+  .fill-space {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
 
-  .loader
-    position: absolute
-    top: 50%
-    left: 50%
-    transform: translate(-50%, -50%)
-
+  .loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 
   /***** PLAYER OVERRIDES *****/
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  /*!!rtl:begin:ignore*/
+  /* !!rtl:begin:ignore */
 
   /** COLOR PALLETTE **/
-  $video-player-color = #212121
+  $video-player-color: #212121;
   // tint if $video-player-color = black-ish, shade if $video-player-color = white-ish
-  $video-player-color-2 = tint($video-player-color , 7%)
-  $video-player-color-3 = tint($video-player-color , 15%)
-  $video-player-font-color = white
-  $video-player-accent-color = $core-action-normal
+  $video-player-color-2: tint($video-player-color, 7%);
+  $video-player-color-3: tint($video-player-color, 15%);
+  $video-player-font-color: white;
+  $video-player-accent-color: $core-action-normal;
 
-  $video-player-font-size = 12px
+  $video-player-font-size: 12px;
 
   /* Hide control bar when playing & inactive */
-  >>>.vjs-has-started.vjs-playing.vjs-user-inactive
-    .vjs-control-bar
-      visibility: hidden
-
+  /deep/ .vjs-has-started.vjs-playing.vjs-user-inactive {
+    .vjs-control-bar {
+      visibility: hidden;
+    }
+  }
 
   /*** CUSTOM VIDEOJS SKIN ***/
-  >>>.custom-skin
-    $button-height-normal = 40px
-    $button-font-size-normal = 24px
+  /deep/ .custom-skin {
+    $button-height-normal: 40px;
+    $button-font-size-normal: 24px;
 
-
-    font-size: $video-player-font-size
-    font-family: $core-font
-    color: $video-player-font-color
+    font-family: $core-font;
+    font-size: $video-player-font-size;
+    color: $video-player-font-color;
 
     /* Sliders */
-    .vjs-slider
-      background-color: $video-player-color-2
-
+    .vjs-slider {
+      background-color: $video-player-color-2;
+    }
 
     /* Seek Bar */
-    .vjs-progress-control
-      visibility: inherit
-      opacity: inherit
-      height: initial
+    .vjs-progress-control {
+      height: initial;
+      visibility: inherit;
+      opacity: inherit;
 
-      .vjs-progress-holder
-        height: 8px
-        margin-left: 16px
-        margin-right: 16px
+      .vjs-progress-holder {
+        height: 8px;
+        margin-right: 16px;
+        margin-left: 16px;
 
-        .vjs-load-progress
-          div
-            background: $video-player-color-3
+        .vjs-load-progress {
+          div {
+            background: $video-player-color-3;
+          }
+        }
 
-        .vjs-play-progress
-          background-color: $video-player-accent-color
+        .vjs-play-progress {
+          background-color: $video-player-accent-color;
 
-          &:before
-            color: $video-player-accent-color
-            font-size: 18px
-            top: -5px
-
+          &::before {
+            top: -5px;
+            font-size: 18px;
+            color: $video-player-accent-color;
+          }
+        }
+      }
+    }
 
     /* Control Bar */
-    .vjs-control-bar
-      display: flex
-      height: $button-height-normal
-      background-color: $video-player-color
+    .vjs-control-bar {
+      display: flex;
+      height: $button-height-normal;
+      background-color: $video-player-color;
+    }
 
     /* Fixes volume panel appearing on hover. */
-    .vjs-volume-vertical
-      display: none
+    .vjs-volume-vertical {
+      display: none;
+    }
 
-    .vjs-volume-panel-vertical
-      &:hover
-        .vjs-volume-vertical
-          display: block
+    .vjs-volume-panel-vertical {
+      &:hover {
+        .vjs-volume-vertical {
+          display: block;
+        }
+      }
+    }
 
-    .vjs-volume-level
-      background-color: $video-player-font-color
+    .vjs-volume-level {
+      background-color: $video-player-font-color;
+    }
 
     /* Buttons */
-    .vjs-button
-      .vjs-icon-placeholder
-        &:before
-          line-height:$button-height-normal
-          font-size: $button-font-size-normal
+    .vjs-button {
+      .vjs-icon-placeholder {
+        &::before {
+          font-size: $button-font-size-normal;
+          line-height: $button-height-normal;
+        }
+      }
+    }
 
     /* Replay & Forward Buttons */
-    .vjs-icon-replay_10, .vjs-icon-forward_10
-      &:before
-        line-height: $button-height-normal
-        font-size: $button-font-size-normal
+    .vjs-icon-replay_10,
+    .vjs-icon-forward_10 {
+      &::before {
+        font-size: $button-font-size-normal;
+        line-height: $button-height-normal;
+      }
+    }
 
-    .vjs-big-play-button
-      background-color: $video-player-color
-      position: absolute
-      transform: translate(-50%, -50%)
-      top: 50%
-      left: 50%
-      margin: 0
-      border: none
-      border-radius: 50%
-      line-height:$button-height-normal * 2
-      height: $button-height-normal * 2
-      width: $button-height-normal * 2
-      font-size: $button-font-size-normal * 2
+    .vjs-big-play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: $button-height-normal * 2;
+      height: $button-height-normal * 2;
+      margin: 0;
+      font-size: $button-font-size-normal * 2;
+      line-height: $button-height-normal * 2;
+      background-color: $video-player-color;
+      border: 0;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
 
-    .vjs-volume-panel
-      margin-left: auto
+    .vjs-volume-panel {
+      margin-left: auto;
+    }
 
     /* Menus */
-    .vjs-menu
-      li
-        padding: 8px
-        font-size: $video-player-font-size
-        background-color: $video-player-color
+    .vjs-menu {
+      li {
+        padding: 8px;
+        font-size: $video-player-font-size;
+        background-color: $video-player-color;
 
-        &:focus, &:hover
-          background-color:  $video-player-color-3
+        &:focus,
+        &:hover {
+          background-color: $video-player-color-3;
+        }
+      }
 
-      li.vjs-selected
-        background-color: $video-player-color-2
-        color: $video-player-font-color
-        font-weight: bold
+      li.vjs-selected {
+        font-weight: bold;
+        color: $video-player-font-color;
+        background-color: $video-player-color-2;
 
-        &:focus, &:hover
-          background-color: $video-player-color-3
+        &:focus,
+        &:hover {
+          background-color: $video-player-color-3;
+        }
+      }
+    }
 
-    .vjs-menu-content
-      font-family: $core-font
+    .vjs-menu-content {
+      font-family: $core-font;
+    }
 
-    .vjs-volume-control
-      background-color: $video-player-color
+    .vjs-volume-control {
+      background-color: $video-player-color;
+    }
 
-    .vjs-playback-rate .vjs-menu
-      min-width: 4em
-
+    .vjs-playback-rate .vjs-menu {
+      min-width: 4em;
+    }
 
     /* Time */
-    .vjs-current-time
-      display: block
-      padding-right: 0
+    .vjs-current-time {
+      display: block;
+      padding-right: 0;
 
-      .vjs-current-time-display
-        line-height: $button-height-normal
-        font-size: $video-player-font-size
+      .vjs-current-time-display {
+        font-size: $video-player-font-size;
+        line-height: $button-height-normal;
+      }
+    }
 
-    .vjs-duration
-      display: block
-      padding-left: 0
-      .vjs-duration-display
-        line-height: $button-height-normal
-        font-size: $video-player-font-size
+    .vjs-duration {
+      display: block;
+      padding-left: 0;
+      .vjs-duration-display {
+        font-size: $video-player-font-size;
+        line-height: $button-height-normal;
+      }
+    }
 
-    .vjs-time-divider
-      padding: 0
-      text-align: center
-
+    .vjs-time-divider {
+      padding: 0;
+      text-align: center;
+    }
 
     /* Rate Button */
-    .vjs-playback-rate-value
-      line-height: $button-height-normal
-      font-size: 20px
-
+    .vjs-playback-rate-value {
+      font-size: 20px;
+      line-height: $button-height-normal;
+    }
 
     /* Captions Settings */
-    .vjs-texttrack-settings
-      display: none
-
-
+    .vjs-texttrack-settings {
+      display: none;
+    }
+  }
 
   /*** MEDIUM: < 600px ***/
-  >>>.player-medium
+  /deep/ .player-medium {
     /* Seek bar moves up. */
-    .vjs-progress-control
-      position: absolute
-      top: -16px
-      right: 0
-      left: 0
-      width: auto
+    .vjs-progress-control {
+      position: absolute;
+      top: -16px;
+      right: 0;
+      left: 0;
+      width: auto;
+    }
 
     /* Time divider is displayed. */
-    .vjs-time-divider
-      display: block
-
-
+    .vjs-time-divider {
+      display: block;
+    }
+  }
 
   /*** SMALL: < 480px ***/
-  >>>.player-small
-    $button-height-small = 40px
-    $button-font-size-normal = 24px
-
+  /deep/ .player-small {
+    $button-height-small: 40px;
+    $button-font-size-normal: 24px;
 
     /* Control bar buttons increase size. */
-    .vjs-control-bar
-      height: $button-height-small
+    .vjs-control-bar {
+      height: $button-height-small;
+    }
 
-    .vjs-button
-      .vjs-icon-placeholder
-        &:before
-          line-height: $button-height-small
+    .vjs-button {
+      .vjs-icon-placeholder {
+        &::before {
+          line-height: $button-height-small;
+        }
+      }
+    }
 
-    .vjs-icon-replay_10, .vjs-icon-forward_10
-      &:before
-        line-height: $button-height-small
+    .vjs-icon-replay_10,
+    .vjs-icon-forward_10 {
+      &::before {
+        line-height: $button-height-small;
+      }
+    }
 
     /* Play, replay, and forward buttons move up. */
-    .vjs-play-control, .vjs-icon-replay_10, .vjs-icon-forward_10
-      position: absolute
-      transform: translate(-50%, -50%)
-      top: -75px
-      background-color: $video-player-color
-      border-radius: 50%
-      height: $button-height-small
-      width: $button-height-small
+    .vjs-play-control,
+    .vjs-icon-replay_10,
+    .vjs-icon-forward_10 {
+      position: absolute;
+      top: -75px;
+      width: $button-height-small;
+      height: $button-height-small;
+      background-color: $video-player-color;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
 
-    .vjs-big-play-button
-      display: none
+    .vjs-big-play-button {
+      display: none;
+    }
 
-    &.vjs-show-big-play-button-on-pause
-      .vjs-big-play-button
-        display: none
+    &.vjs-show-big-play-button-on-pause {
+      .vjs-big-play-button {
+        display: none;
+      }
+    }
 
     /* Play button in center. */
-    .vjs-play-control
-      left: 50%
+    .vjs-play-control {
+      left: 50%;
+    }
 
     /* Replay play button on left. */
-    .vjs-icon-replay_10
-      left: 33%
+    .vjs-icon-replay_10 {
+      left: 33%;
+    }
 
     /* Forward button on right */
-    .vjs-icon-forward_10
-      left: 66%
+    .vjs-icon-forward_10 {
+      left: 66%;
+    }
 
     /* Adjust rate button text */
-    .vjs-playback-rate-value
-      line-height: $button-height-small
+    .vjs-playback-rate-value {
+      line-height: $button-height-small;
+    }
 
     /* Adjust time text */
-    .vjs-current-time
-      .vjs-current-time-display
-        line-height: $button-height-small
+    .vjs-current-time {
+      .vjs-current-time-display {
+        line-height: $button-height-small;
+      }
+    }
 
-    .vjs-duration
-      .vjs-duration-display
-        line-height: $button-height-small
+    .vjs-duration {
+      .vjs-duration-display {
+        line-height: $button-height-small;
+      }
+    }
 
-    .vjs-time-divider
-      line-height: $button-height-small
-
+    .vjs-time-divider {
+      line-height: $button-height-small;
+    }
+  }
 
   /*** TINY: < 360px ***/
-  >>>.player-tiny
+  /deep/ .player-tiny {
     /* Time divider is hidden */
-    .vjs-time-divider
-      display: none
+    .vjs-time-divider {
+      display: none;
+    }
 
     /* Time duration is hidden */
-    .vjs-duration
-      display: none
+    .vjs-duration {
+      display: none;
+    }
 
     /* Adjust play, replay, and forward buttons positioning. */
-    .vjs-play-control, .vjs-icon-replay_10, .vjs-icon-forward_10
-      top: -45px
+    .vjs-play-control,
+    .vjs-icon-replay_10,
+    .vjs-icon-forward_10 {
+      top: -45px;
+    }
 
     /* Adjust replay button position. */
-    .vjs-icon-replay_10
-      left: 25%
+    .vjs-icon-replay_10 {
+      left: 25%;
+    }
 
     /* Adjust forward button position. */
-    .vjs-icon-forward_10
-      left: 75%
+    .vjs-icon-forward_10 {
+      left: 75%;
+    }
+  }
 
-  /*!!rtl:end:ignore*/
+  /* !!rtl:end:ignore */
 
 </style>

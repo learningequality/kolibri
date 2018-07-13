@@ -133,60 +133,77 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  $radio-height = 24px
+  $radio-height: 24px;
 
-  .k-radio-button
-    &.disabled
-      color: $core-text-disabled
-    &:not(.disabled)
-      cursor: pointer
-    position: relative
-    display:block
-    margin-top: 8px
-    margin-bottom: 8px
+  .k-radio-button {
+    position: relative;
+    display: block;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    &.disabled {
+      color: $core-text-disabled;
+    }
+    &:not(.disabled) {
+      cursor: pointer;
+    }
+  }
 
-  .input, .text
+  .input,
+  .text {
     // consistent look in inline and block displays
-    vertical-align: top
+    vertical-align: top;
+  }
 
-  .input
+  .input {
+    width: $radio-height;
+    height: $radio-height;
     // use opacity, not appearance:none because ie compatibility
-    opacity: 0
-    width: $radio-height
-    height: $radio-height
+    opacity: 0;
+  }
 
-  .checked, .unchecked
-    &.active
-      // setting opacity to 0 hides input's default outline
-      outline: $core-outline
-    &.disabled
-      fill: $core-grey-300
+  .checked,
+  .unchecked {
+    position: absolute;
+    top: 0;
+    left: 0;
     // lay our custom radio buttons on top of the actual element
-    width: $radio-height
-    height: $radio-height
-    position: absolute
-    left: 0
-    top:0
-  .checked
-    fill: $core-action-normal
-  .unchecked
-    fill: $core-text-annotation
+    width: $radio-height;
+    height: $radio-height;
+    &.active {
+      // setting opacity to 0 hides input's default outline
+      outline: $core-outline;
+    }
+    &.disabled {
+      fill: $core-grey-300;
+    }
+  }
+  .checked {
+    fill: $core-action-normal;
+  }
+  .unchecked {
+    fill: $core-text-annotation;
+  }
 
-  .text, .description
-    display: inline-block
-  .text
-    padding-left: 8px
-    line-height: $radio-height
-    max-width: 'calc(100% - %s)' % $radio-height // stylus specific
-  .description
-    &:not(.disabled)
-      color: $core-text-annotation
-    width:100%
-    line-height: normal
-    font-size: 12px
+  .text,
+  .description {
+    display: inline-block;
+  }
+  .text {
+    max-width: calc(100% - #{$radio-height});
+    padding-left: 8px;
+    line-height: $radio-height;
+  }
+  .description {
+    width: 100%;
+    font-size: 12px;
+    line-height: normal;
+    &:not(.disabled) {
+      color: $core-text-annotation;
+    }
+  }
 
 </style>

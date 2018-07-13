@@ -58,6 +58,7 @@ class BaseLogFilter(FilterSet):
             target_user=F("user"),
         )
 
+
 class LoggerViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -88,6 +89,7 @@ class LoggerViewSet(viewsets.ModelViewSet):
                 method = getattr(serializer.root, method_name)
                 default_response[field] = method(instance)
         return Response(default_response)
+
 
 class ContentSessionLogFilter(BaseLogFilter):
 
@@ -150,6 +152,7 @@ class MasteryFilter(FilterSet):
         model = MasteryLog
         fields = ['summarylog']
 
+
 class MasteryLogViewSet(LoggerViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
@@ -157,6 +160,7 @@ class MasteryLogViewSet(LoggerViewSet):
     serializer_class = MasteryLogSerializer
     pagination_class = OptionalPageNumberPagination
     filter_class = MasteryFilter
+
 
 class AttemptFilter(FilterSet):
     content = CharFilter(method="filter_content")
@@ -167,6 +171,7 @@ class AttemptFilter(FilterSet):
     class Meta:
         model = AttemptLog
         fields = ['masterylog', 'complete', 'user', 'content']
+
 
 class AttemptLogViewSet(LoggerViewSet):
     permission_classes = (KolibriAuthPermissions,)
@@ -193,6 +198,7 @@ class ExamAttemptFilter(FilterSet):
         model = ExamAttemptLog
         fields = ['examlog', 'exam', 'user']
 
+
 class ExamAttemptLogViewSet(LoggerViewSet):
     permission_classes = (ExamActivePermissions, KolibriAuthPermissions, )
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend, filters.OrderingFilter)
@@ -200,6 +206,7 @@ class ExamAttemptLogViewSet(LoggerViewSet):
     serializer_class = ExamAttemptLogSerializer
     pagination_class = OptionalPageNumberPagination
     filter_class = ExamAttemptFilter
+
 
 class ExamLogFilter(BaseLogFilter):
 
@@ -214,6 +221,7 @@ class ExamLogFilter(BaseLogFilter):
     class Meta:
         model = ExamLog
         fields = ['user', 'exam']
+
 
 class ExamLogViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)

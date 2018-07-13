@@ -105,6 +105,11 @@
 
   export default {
     name: 'availableChannelsPage',
+    metaInfo() {
+      return {
+        title: this.documentTitle,
+      };
+    },
     components: {
       channelListItem,
       channelTokenModal,
@@ -136,6 +141,20 @@
         transferType: state => wizardState(state).transferType,
         wizardStatus: state => wizardState(state).status,
       }),
+      documentTitle() {
+        switch (this.transferType) {
+          case TransferTypes.LOCALEXPORT:
+            return this.$tr('documentTitleForExport');
+          case TransferTypes.LOCALIMPORT:
+            return this.$tr('documentTitleForLocalImport', {
+              driveName: this.selectedDrive.name,
+            });
+          case TransferTypes.REMOTEIMPORT:
+            return this.$tr('documentTitleForRemoteImport');
+          default:
+            return '';
+        }
+      },
       channelsAreLoading() {
         return this.wizardStatus === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
       },
@@ -233,43 +252,53 @@
       channelTokenButtonLabel: 'Try adding a token',
       channelNotListedExplanation: "Don't see your channel listed?",
       pageLoadError: 'There was a problem loading this page…',
+      documentTitleForLocalImport: "Available Channels on '{driveName}'",
+      documentTitleForRemoteImport: 'Available Channels on Kolibri Studio',
+      documentTitleForExport: 'Available Channels on this device',
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .channel-list-header
-    font-size: 14px
-    padding: 16px 0
-    color: $core-text-annotation
+  .channel-list-header {
+    padding: 16px 0;
+    font-size: 14px;
+    color: $core-text-annotation;
+  }
 
-  .channel-list-item:first-of-type
-    border-top: 1px solid $core-grey
+  .channel-list-item:first-of-type {
+    border-top: 1px solid $core-grey;
+  }
 
-  .top-matter
-    margin-bottom: 32px
+  .top-matter {
+    margin-bottom: 32px;
+  }
 
-  .channels
-    width: 30%
-    display: inline-block
+  .channels {
+    display: inline-block;
+    width: 30%;
+  }
 
-  .filters
-    width: 70%
-    vertical-align: top
-    margin: 16px 0
-    display: inline-block
+  .filters {
+    display: inline-block;
+    width: 70%;
+    margin: 16px 0;
+    vertical-align: top;
+  }
 
-  .title-filter
-    width: 50%
-    float: right
-    margin-top: 10px
+  .title-filter {
+    float: right;
+    width: 50%;
+    margin-top: 10px;
+  }
 
-  .unlisted-channels
-    padding: 16px 0
+  .unlisted-channels {
+    padding: 16px 0;
+  }
 
 </style>

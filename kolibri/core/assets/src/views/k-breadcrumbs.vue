@@ -243,72 +243,86 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .breadcrumbs
-    margin-top: 8px
-    margin-bottom: 8px
-    font-size: 16px
-    font-weight: bold
+  .breadcrumbs {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: bold;
+  }
 
-  .breadcrumbs-dropdown-wrapper
-    display: inline-block
-    vertical-align: middle
-    &:after
-      content: '\203A'
-      margin-right: 8px
-      margin-left: 8px
-      vertical-align: middle
+  .breadcrumbs-dropdown-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+    &::after {
+      margin-right: 8px;
+      margin-left: 8px;
+      vertical-align: middle;
+      content: '\203A';
+    }
+  }
 
-  .breadcrumbs-dropdown
-    padding: 16px
-    font-weight: bold
+  .breadcrumbs-dropdown {
+    padding: 16px;
+    font-weight: bold;
+  }
 
-  .breadcrumbs-dropdown-items
-    padding: 0
-    margin: 0
-    list-style: none
+  .breadcrumbs-dropdown-items {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
 
-  .breadcrumbs-dropdown-item
-    display: block
-    padding-top: 8px
-    padding-bottom: 8px
-    a
-      overflow: hidden
-      white-space: nowrap
-      text-overflow: ellipsis
-      max-width: 300px
-      display: inline-block
+  .breadcrumbs-dropdown-item {
+    display: block;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    a {
+      display: inline-block;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 
-  .breadcrumbs-visible-items
-    display: inline-block
-    vertical-align: middle
-    margin: 0
-    padding: 0
-    list-style: none
+  .breadcrumbs-visible-items {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    vertical-align: middle;
+    list-style: none;
+  }
 
-  .breadcrumbs-visible-item
-    display: inline-block
-    vertical-align: middle
-    a, span
-      display: inline-block
-      max-width: 300px
-      overflow: hidden
-      white-space: nowrap
-      text-overflow: ellipsis
-      vertical-align: middle
+  .breadcrumbs-visible-item {
+    display: inline-block;
+    vertical-align: middle;
+    a,
+    span {
+      display: inline-block;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+  }
 
-  .breadcrumbs-visible-item-notlast
-    &:after
-      content: '\203A'
-      margin-right: 8px
-      margin-left: 8px
-      vertical-align: middle
+  .breadcrumbs-visible-item-notlast {
+    &::after {
+      margin-right: 8px;
+      margin-left: 8px;
+      vertical-align: middle;
+      content: '\203A';
+    }
+  }
 
-  .breadcrumbs-offscreen
-    position: absolute
-    left: -1000em
+  .breadcrumbs-offscreen {
+    position: absolute;
+    left: -1000em;
+  }
 
 </style>

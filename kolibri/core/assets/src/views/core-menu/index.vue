@@ -87,51 +87,54 @@
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scoped>
 
   @import '~keen-ui/src/styles/imports';
 
+  /* stylelint-disable csstree/validator */
+
   .ui-menu {
-      background-color: white;
-      border: rem-calc(1px) solid rgba(black, 0.08);
-      font-family: $font-stack;
-      list-style: none;
-      margin: 0;
-      max-height: 100vh;
-      max-width: rem-calc(272px);
-      min-width: rem-calc(168px);
-      outline: none;
-      overflow-x: hidden;
-      overflow-y: auto;
-      padding: rem-calc(4px 0);
+    min-width: rem-calc(168px);
+    max-width: rem-calc(272px);
+    max-height: 100vh;
+    padding: rem-calc(4px 0);
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: $font-stack;
+    list-style: none;
+    background-color: white;
+    border: rem-calc(1px) solid rgba(black, 0.08);
+    outline: none;
 
-      &.is-raised {
-          border: none;
-          box-shadow: 0 2px 4px -1px rgba(black, 0.2),
-                      0 4px 5px 0 rgba(black, 0.14),
-                      0 1px 10px 0 rgba(black, 0.12);
-      }
+    &.is-raised {
+      border: 0;
+      box-shadow: 0 2px 4px -1px rgba(black, 0.2), 0 4px 5px 0 rgba(black, 0.14),
+        0 1px 10px 0 rgba(black, 0.12);
+    }
 
-      &.has-secondary-text {
-          min-width: rem-calc(240px);
-          max-width: rem-calc(304px);
-      }
+    &.has-secondary-text {
+      min-width: rem-calc(240px);
+      max-width: rem-calc(304px);
+    }
   }
 
   .ui-menu-focus-redirector {
-      position: absolute;
-      opacity: 0;
+    position: absolute;
+    opacity: 0;
   }
 
   .ui-menu-header {
     padding: 1rem;
-    border-bottom: solid 1px rgba(black, 0.08);
-    color: $primary-text-color;
     font-size: $ui-dropdown-item-font-size;
+    color: $primary-text-color;
+    border-bottom: solid 1px rgba(black, 0.08);
   }
 
-  .ui-menu-header-lp{
-    padding-left: 56px // TODO make a variable?
+  .ui-menu-header-lp {
+    padding-left: 56px; // TODO make a variable?
   }
+
+  /* stylelint-enable */
 
 </style>

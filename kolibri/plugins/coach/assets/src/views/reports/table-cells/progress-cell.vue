@@ -50,21 +50,25 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  td
-    text-align: center
-    width: 19%
+  td {
+    width: 19%;
+    text-align: center;
+  }
 
-  .tal
-    text-align: left
+  .tal {
+    text-align: left;
+  }
 
-  .extra-text
-    font-size: smaller
+  .extra-text {
+    font-size: smaller;
+  }
 
-  .person-icon
-    position: relative
-    top: 8px
-    width: 15px
+  .person-icon {
+    position: relative;
+    top: 8px;
+    width: 15px;
+  }
 
 </style>

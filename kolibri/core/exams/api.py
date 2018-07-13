@@ -23,11 +23,13 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size = None
     page_size_query_param = "page_size"
 
+
 class ExamFilter(FilterSet):
 
     class Meta:
         model = models.Exam
         fields = ['collection', ]
+
 
 def _ensure_raw_dict(d):
     if hasattr(d, "dict"):
@@ -45,6 +47,7 @@ class ExamPermissions(KolibriAuthPermissions):
         # so this doesn't try to validate the Exam with a non-empty assignments list
         validated_data.pop('assignments')
         return request.user.can_create(model, validated_data)
+
 
 class ExamViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ExamSerializer

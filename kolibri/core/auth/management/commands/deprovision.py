@@ -27,6 +27,8 @@ MODELS_TO_DELETE = [
 ]
 
 # we want to disable the post_delete signal temporarily when deleting, so morango doesn't create DeletedModels objects
+
+
 class DisablePostDeleteSignal(object):
 
     def __enter__(self):

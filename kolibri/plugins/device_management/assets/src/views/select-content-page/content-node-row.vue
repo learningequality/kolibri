@@ -98,26 +98,31 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .coach-content-label
-    display: inline-block
-    vertical-align: bottom
-    margin-left: 16px
+  .coach-content-label {
+    display: inline-block;
+    margin-left: 16px;
+    vertical-align: bottom;
+  }
 
-  .display-cell
-    display: table-cell
-    vertical-align: inherit
+  .display-cell {
+    display: table-cell;
+    vertical-align: inherit;
+  }
 
-  .icon
-    margin-left: 8px
-    margin-right: 4px
+  .icon {
+    margin-right: 4px;
+    margin-left: 8px;
+  }
 
-  .title
-    width: 60%
+  .title {
+    width: 60%;
+  }
 
-  .message
-    width: 40%
-    text-align: right
+  .message {
+    width: 40%;
+    text-align: right;
+  }
 
 </style>

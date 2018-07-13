@@ -206,75 +206,92 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .dtc
-    display: table-cell
-    vertical-align: top
+  .dtc {
+    display: table-cell;
+    vertical-align: top;
+  }
 
-  .channel-list-item
-    display: table
-    vertical-align: middle
-    padding: 2em 0
-    border-bottom: 1px solid $core-grey
+  .channel-list-item {
+    display: table;
+    padding: 2em 0;
+    vertical-align: middle;
+    border-bottom: 1px solid $core-grey;
+  }
 
-  .title
-    font-size: 1.2em
-    font-weight: bold
-    line-height: 1.5em
-    display: inline
+  .title {
+    display: inline;
+    font-size: 1.2em;
+    font-weight: bold;
+    line-height: 1.5em;
+  }
 
-  .version
-    font-size: 0.85em
-    color: $core-text-annotation
+  .version {
+    font-size: 0.85em;
+    color: $core-text-annotation;
+  }
 
-  .description
-    padding: 1em 0
+  .description {
+    padding: 1em 0;
+  }
 
-  .thumbnail
-    width: 10%
-    text-align: left
-    img
-      width: 100%
+  .thumbnail {
+    width: 10%;
+    text-align: left;
+    img {
+      width: 100%;
+    }
+  }
 
-  .default-icon
-    background-color: $core-grey
-    text-align: center
-    svg
-      width: 50%
-      height: 50%
-      margin: 20px
+  .default-icon {
+    text-align: center;
+    background-color: $core-grey;
+    svg {
+      width: 50%;
+      height: 50%;
+      margin: 20px;
+    }
+  }
 
-  .details
-    width: 100%
-    position: relative
-    padding: 0 2em
+  .details {
+    position: relative;
+    width: 100%;
+    padding: 0 2em;
+  }
 
-  .other-details
-    float: right
-    line-height: 1.7em
-    position: relative
-    top: 16px
+  .other-details {
+    position: relative;
+    top: 16px;
+    float: right;
+    line-height: 1.7em;
+  }
 
-  .on-device
-    line-height: 1.7em
-    svg
-      fill: $core-status-correct
-    span
-      margin-left: 10px
-      vertical-align: top
+  .on-device {
+    line-height: 1.7em;
+    svg {
+      fill: $core-status-correct;
+    }
+    span {
+      margin-left: 10px;
+      vertical-align: 16px;
+    }
+  }
 
-  .buttons
-    width: 10%
-    text-align: right
-    vertical-align: baseline
+  .buttons {
+    width: 10%;
+    text-align: right;
+    vertical-align: baseline;
+  }
 
-  .lock-icon
-    vertical-align: sub
+  .lock-icon {
+    vertical-align: sub;
+  }
 
-  .channel-title
-    margin-bottom: 8px
+  .channel-title {
+    margin-bottom: 8px;
+  }
 
 </style>

@@ -144,28 +144,31 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
   // Also defined in index.vue
-  $page-margin = 8px
+  $page-margin: 8px;
 
-  .pdf-page
-    position: relative
-    margin: $page-margin auto
-    z-index: 2 // material spec - card (resting)
-    background: #FFFFFF
+  .pdf-page {
+    position: relative;
+    z-index: 2; // material spec - card (resting)
+    margin: $page-margin auto;
+    background: #ffffff;
+  }
 
-  .loading
-    position: absolute
-    top: 50%
-    left: 50%
-    transform: translate(-50%, -50%)
-    font-size: 2em
-    line-height: 100%
+  .loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 2em;
+    line-height: 100%;
+    transform: translate(-50%, -50%);
+  }
 
-  .canvas
-    position: absolute
-    top: 0
-    left: 0
+  .canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
 
 </style>

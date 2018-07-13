@@ -102,19 +102,22 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .channel-list-header
-    font-size: 12px
-    padding: 16px 0
-    color: $core-text-annotation
+  .channel-list-header {
+    padding: 16px 0;
+    font-size: 12px;
+    color: $core-text-annotation;
+  }
 
-  .channel-list-item:first-of-type
-    border-top: 1px solid $core-grey
+  .channel-list-item:first-of-type {
+    border-top: 1px solid $core-grey;
+  }
 
-  .no-channels
-    color: $core-text-error
+  .no-channels {
+    color: $core-text-error;
+  }
 
 </style>

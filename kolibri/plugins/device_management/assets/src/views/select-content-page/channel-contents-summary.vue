@@ -93,46 +93,59 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .thumbnail
-    max-width: 200px
+  .thumbnail {
+    max-width: 200px;
+  }
 
-  .description
-    max-width: 66%
+  .description {
+    max-width: 66%;
+  }
 
-  .title
-    font-size: 32px
-    font-weight: bold
-    display: inline
+  .title {
+    display: inline;
+    font-size: 32px;
+    font-weight: bold;
+  }
 
-  .lock-icon
-    font-size: 32px
-    vertical-align: sub
+  .lock-icon {
+    font-size: 32px;
+    vertical-align: sub;
+  }
 
-  .channel-title
-    margin-bottom: 8px
+  .channel-title {
+    margin-bottom: 8px;
+  }
 
-  .version
-    font-size: 14px
-    margin-bottom: 32px
+  .version {
+    margin-bottom: 32px;
+    font-size: 14px;
+  }
 
-  .channel-statistics
-    margin: 36px 0
+  .channel-statistics {
+    margin: 36px 0;
+  }
 
-  tr.headers > th
-    padding: 8px 0
-    text-align: right
-    font-weight: normal
-    min-width: 125px
-    &:nth-child(1)
-      min-width: 175px
+  tr.headers > th {
+    min-width: 125px;
+    padding: 8px 0;
+    font-weight: normal;
+    text-align: right;
+    &:nth-child(1) {
+      min-width: 175px;
+    }
+  }
 
-  tr.total-size, tr.on-device
-    td
-      text-align: right
-      padding: 8px 0
-      &:first-of-type
-        text-align: left
+  tr.total-size,
+  tr.on-device {
+    td {
+      padding: 8px 0;
+      text-align: right;
+      &:first-of-type {
+        text-align: left;
+      }
+    }
+  }
 
 </style>

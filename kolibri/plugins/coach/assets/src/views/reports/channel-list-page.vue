@@ -71,6 +71,11 @@
 
   export default {
     name: 'channelListPage',
+    metaInfo() {
+      return {
+        title: this.documentTitle,
+      };
+    },
     components: {
       breadcrumbs,
       contentIcon,
@@ -89,6 +94,9 @@
       showingRecent: 'Showing activity in past {threshold} days',
       noRecent: 'There has been no activity in the past {threshold} days',
       noChannels: 'You do not have any content yet',
+      documentTitleForRecentChannels: 'Recent - All channels',
+      documentTitleForTopicChannels: 'Topics - All channels',
+      documentTitleForLearnerChannels: 'Learners - All channels',
     },
     computed: {
       ...mapState(['classId', 'pageName']),
@@ -99,6 +107,16 @@
       ...mapGetters({
         channels: 'getChannels',
       }),
+      documentTitle() {
+        switch (this.pageName) {
+          case PageNames.LEARNER_CHANNELS:
+            return this.$tr('documentTitleForLearnerChannels');
+          case PageNames.RECENT_CHANNELS:
+            return this.$tr('documentTitleForRecentChannels');
+          case PageNames.TOPIC_CHANNELS:
+            return this.$tr('documentTitleForTopicChannels');
+        }
+      },
       CHANNEL() {
         return ContentNodeKinds.CHANNEL;
       },
@@ -130,4 +148,4 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="scss" scoped></style>

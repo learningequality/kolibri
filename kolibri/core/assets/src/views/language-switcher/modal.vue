@@ -53,4 +53,4 @@
 </script>
 
 
-<style lang="stylus"></style>
+<style lang="scss" scoped></style>

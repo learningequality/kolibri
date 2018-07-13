@@ -65,34 +65,41 @@
 </script>
 
 
-<style scoped lang="stylus">
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  $core-title-md = 21px // filling in for future typography styles
+  $core-title-md: 21px; // filling in for future typography styles
 
-  .onboarding-form
-    &-fields
-      border: none
-      padding: 0
-      margin: 0
-      margin-bottom: 24px
+  .onboarding-form {
+    &-fields {
+      padding: 0;
+      margin: 0;
+      margin-bottom: 24px;
+      border: 0;
+    }
 
-    &-header
-      margin-top: 0
-      font-size: $core-title-md
-      margin-bottom: 16px
+    &-header {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: $core-title-md;
+    }
 
-    &-legend
-      margin-bottom: 8px
+    &-legend {
+      margin-bottom: 8px;
+    }
 
-    &-description
-      margin-bottom: 8px
+    &-description {
+      margin-bottom: 8px;
+    }
 
-    &-submit
-      margin: 0
+    &-submit {
+      margin: 0;
+    }
+  }
 
-  .form-footer
-    margin-top: 24px
+  .form-footer {
+    margin-top: 24px;
+  }
 
 </style>

@@ -67,6 +67,11 @@
 
   export default {
     name: 'deviceInfoPage',
+    metaInfo() {
+      return {
+        title: this.$tr('header'),
+      };
+    },
     components: {
       authMessage,
       subpageContainer,
@@ -94,25 +99,30 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  table
-    margin-top: 16px
-    width: 100%
+  table {
+    width: 100%;
+    margin-top: 16px;
+  }
 
-  th
-    text-align: left
-    vertical-align: top
-    padding-bottom: 24px
-    padding-right: 24px
+  th {
+    padding-right: 24px;
+    padding-bottom: 24px;
+    text-align: left;
+    vertical-align: top;
+  }
 
-  td
-    padding-bottom: 24px
+  td {
+    padding-bottom: 24px;
+  }
 
-  .link
-    display: block
+  .link {
+    display: block;
+  }
 
-  .link:not(:last-child)
-    margin-bottom: 8px
+  .link:not(:last-child) {
+    margin-bottom: 8px;
+  }
 
 </style>

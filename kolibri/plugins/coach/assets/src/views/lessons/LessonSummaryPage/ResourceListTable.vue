@@ -285,39 +285,46 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .resource-title
-    display: inline-block
-    margin-right: 8px
-    max-width: 75%
+  .resource-title {
+    display: inline-block;
+    max-width: 75%;
+    margin-right: 8px;
+  }
 
-  .coach-content-label
-    display: inline-block
-    vertical-align: top
+  .coach-content-label {
+    display: inline-block;
+    vertical-align: top;
+  }
 
-  .position-adjustment-button
-    display: block
-    margin: 0
+  .position-adjustment-button {
+    display: block;
+    margin: 0;
+  }
 
-  .resource-reorder-move
-    transition: transform 0.5s
-    background-color: $core-bg-canvas // duping color set in core-table for selected
+  .resource-reorder-move {
+    background-color: $core-bg-canvas; // duping color set in core-table for selected
+    transition: transform 0.5s;
+  }
 
-  .lesson-summary
-    margin-bottom: 30px
+  .lesson-summary {
+    margin-bottom: 30px;
+  }
 
-  .progress-message
-    margin-left: 8px
-    white-space: nowrap
+  .progress-message {
+    margin-left: 8px;
+    white-space: nowrap;
+  }
 
-  .channel-title
-    color: $core-text-annotation
-    margin-top: 8px
-    margin-left: 0
-    margin-right: 0
-    margin-bottom: 0
+  .channel-title {
+    margin-top: 8px;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    color: $core-text-annotation;
+  }
 
 </style>

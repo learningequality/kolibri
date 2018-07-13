@@ -24,10 +24,11 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  td
-    text-align: left
-    width: 150px
+  td {
+    width: 150px;
+    text-align: left;
+  }
 
 </style>

@@ -46,7 +46,7 @@ Preparation of client-side resources involves:
 
 - ES6 to ES5
 - Transforming Vue.js component files (\*.vue) into JS and CSS
-- Stylus to CSS
+- SCSS to CSS
 - Auto-prefixing CSS
 - Bundling multiple JS dependencies into single files
 - Minifying and compressing code
@@ -68,6 +68,6 @@ We use a number of mechanisms to help encourage code quality and consistency. Mo
 - `tox <https://tox.readthedocs.io/en/latest/>`_ is used to run our test suites under a range of Python and Node environment versions
 - ``sphinx-build -b linkcheck`` checks the validity of documentation links
 - `pytest <http://pytest.org/latest/>`_ runs our Python unit tests. We also leverage the `Django test framework <https://docs.djangoproject.com/en/1.9/topics/testing/>`_.
-- In addition to building client assets, `webpack <https://webpack.github.io/>`_ runs linters on client-side code: `ESLint <http://eslint.org/>`_ for ES6 JavaScript, `Stylint <https://rosspatton.github.io/stylint/>`_ for Stylus, and `HTMLHint <http://htmlhint.com/>`_ for HTML and Vue.js components.
+- In addition to building client assets, `webpack <https://webpack.github.io/>`_ runs linters on client-side code: `ESLint <http://eslint.org/>`_ for ES6 JavaScript, `Stylelint <https://stylelint.io/>`_ for SCSS, and `HTMLHint <http://htmlhint.com/>`_ for HTML and Vue.js components.
 - Client-side code is tested using `Jest <https://facebook.github.io/jest/>`_
 - `codecov <https://codecov.io/>`_ reports on the test coverage

@@ -82,6 +82,12 @@
       newGroup: 'New group',
       ungrouped: 'Ungrouped',
       noGroups: 'You do not have any groups',
+      documentTitle: 'Groups',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       kButton,
@@ -169,14 +175,16 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .new-group-button
-    float: right
+  .new-group-button {
+    float: right;
+  }
 
-  .header
-    display: inline-block
-    vertical-align: middle
-    margin-right: 16px
+  .header {
+    display: inline-block;
+    margin-right: 16px;
+    vertical-align: middle;
+  }
 
 </style>

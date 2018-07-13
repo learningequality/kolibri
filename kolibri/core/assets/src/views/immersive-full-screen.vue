@@ -48,55 +48,63 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .whole-page
-    left: 0
-    top: 0
-    z-index: 24
-    width: 100%
-    height: 100%
-    position: fixed
-    background-color: $core-bg-canvas
+  .whole-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 24;
+    width: 100%;
+    height: 100%;
+    background-color: $core-bg-canvas;
+  }
 
-  .top-bar
-    height: 60px
-    background-color: $core-action-dark
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
+  .top-bar {
+    height: 60px;
+    background-color: $core-action-dark;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  }
 
-  .back-btn
-    top: 8px
-    left: 28px
-    position: relative
-    cursor: pointer
-    display: inline-block
-    padding: 10px
+  .back-btn {
+    position: relative;
+    top: 8px;
+    left: 28px;
+    display: inline-block;
+    padding: 10px;
+    cursor: pointer;
+  }
 
-  .svg-back
-    fill: $core-bg-light
-    margin-right: 10px
+  .svg-back {
+    margin-right: 10px;
+    fill: $core-bg-light;
+  }
 
-  .back
-    color: $core-bg-light
-    float: left
-    font-weight: bold
-    font-size: 1.2em
+  .back {
+    float: left;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: $core-bg-light;
+  }
 
-  p
-    margin: 0
+  p {
+    margin: 0;
+  }
 
-  .page-body
-    max-width: 1000px
-    margin: auto
+  .page-body {
+    max-width: 1000px;
+    margin: auto;
+  }
 
-  .wrapper
-    position: absolute
-    top: 60px
-    right: 0
-    bottom: 0
-    left: 0
-    overflow-y: auto
+  .wrapper {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;
+  }
 
 </style>

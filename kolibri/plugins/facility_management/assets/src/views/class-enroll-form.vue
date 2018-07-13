@@ -212,11 +212,14 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .actions-header, .footer, nav
-    text-align: right
+  .actions-header,
+  .footer,
+  nav {
+    text-align: right;
+  }
 
 </style>

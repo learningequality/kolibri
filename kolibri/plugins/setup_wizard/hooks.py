@@ -12,6 +12,7 @@ class SetupWizardSyncHook(webpack_hooks.WebpackInclusionHook):
     class Meta:
         abstract = True
 
+
 class SetupWizardAsyncHook(webpack_hooks.WebpackInclusionHook):
     """
     Inherit a hook defining assets to be loaded sychronously in setup_wizard/setup_wizard.html

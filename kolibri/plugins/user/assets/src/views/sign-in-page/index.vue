@@ -151,6 +151,12 @@
       poweredBy: 'Kolibri {version}',
       required: 'This field is required',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
+      documentTitle: 'User Sign In',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       kButton,
@@ -395,107 +401,129 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .fh
-    height: 100%
+  .fh {
+    height: 100%;
+  }
 
-  .wrapper-table
-    text-align: center
-    width: 100%
-    height: 100%
-    display: table
+  .wrapper-table {
+    display: table;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+  }
 
-  .main-row
-    display: table-row
-    background-color: $core-action-normal
-    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.jpg)
-    background-repeat: no-repeat
-    background-size: cover
-    background-position: center
-    text-align: center
+  .main-row {
+    // Workaround for print-width css issue https://github.com/prettier/prettier/issues/4460
+    $bk-img: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./background.jpg');
 
-  .main-cell
-    display: table-cell
-    vertical-align: middle
-    height: 100%
+    display: table-row;
+    text-align: center;
+    background-color: $core-action-normal;
+    background-image: $bk-img;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+  }
 
-  .box
-    width: 300px
-    background-color: $core-bg-light
-    margin: 16px auto
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2),
-                0 1px 1px 0 rgba(0, 0, 0, 0.14),
-                0 2px 1px -1px rgba(0, 0, 0, 0.12)
+  .main-cell {
+    display: table-cell;
+    height: 100%;
+    vertical-align: middle;
+  }
 
-  .logo
-    margin-top: 16px
+  .box {
+    width: 300px;
+    margin: 16px auto;
+    background-color: $core-bg-light;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+      0 2px 1px -1px rgba(0, 0, 0, 0.12);
+  }
 
-  .login-form
-    width: 70%
-    max-width: 300px
-    position: relative
-    text-align: left
-    margin: auto
+  .logo {
+    margin-top: 16px;
+  }
 
-  .login-btn
-    width: calc(100% - 16px)
+  .login-form {
+    position: relative;
+    width: 70%;
+    max-width: 300px;
+    margin: auto;
+    text-align: left;
+  }
 
-  .version
-    font-size: 0.8em
-    margin-top: 24px
-    margin-bottom: 0
-    padding-bottom: 16px
+  .login-btn {
+    width: calc(100% - 16px);
+  }
 
-  .footer-row
-    display: table-row
-    background-color: $core-bg-light
+  .version {
+    padding-bottom: 16px;
+    margin-top: 24px;
+    margin-bottom: 0;
+    font-size: 0.8em;
+  }
 
-  .footer-cell
-    display: table-cell
-    vertical-align: middle
-    min-height: 56px
-    padding: 16px
+  .footer-row {
+    display: table-row;
+    background-color: $core-bg-light;
+  }
 
-  .suggestions
-    background-color: white
-    box-shadow: 1px 2px 8px darken(white, 10%)
-    list-style-type: none
-    margin: 0
-    width: 100%
-    padding: 0
-    z-index: 8
+  .footer-cell {
+    display: table-cell;
+    min-height: 56px;
+    padding: 16px;
+    vertical-align: middle;
+  }
+
+  .suggestions {
+    position: absolute;
+    z-index: 8;
+    width: 100%;
+    padding: 0;
+    margin: 0;
     // Move up snug against the textbox
-    margin-top: -2em
-    position: absolute
+    margin-top: -2em;
+    list-style-type: none;
+    background-color: white;
+    box-shadow: 1px 2px 8px #e6e6e6;
+  }
 
-  .highlighted
-    background-color: $core-grey
+  .highlighted {
+    background-color: $core-grey;
+  }
 
-  .textbox-enter-active
-    transition: opacity 0.5s
+  .textbox-enter-active {
+    transition: opacity 0.5s;
+  }
 
-  .textbox-enter
-    opacity: 0
+  .textbox-enter {
+    opacity: 0;
+  }
 
-  .list-leave-active
-    transition: opacity 0.1s
+  .list-leave-active {
+    transition: opacity 0.1s;
+  }
 
-  .textbox-leave
-    transform: opacity 0
+  .textbox-leave {
+    transition: opacity 0s;
+  }
 
-  h1
-    font-size: 1.5em
-    font-weight: 100
-    color: #9174a9
-    margin-top: 0
+  h1 {
+    margin-top: 0;
+    font-size: 1.5em;
+    font-weight: 100;
+    color: #9174a9;
+  }
 
-  .create-button
-    margin-top: 16px
+  .create-button {
+    margin-top: 16px;
+  }
 
-  .guest-button
-    font-size: 14px
+  .guest-button {
+    font-size: 14px;
+  }
 
 </style>

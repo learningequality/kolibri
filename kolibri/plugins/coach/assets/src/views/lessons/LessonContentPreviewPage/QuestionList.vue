@@ -62,40 +62,50 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  $item-content-height = 56px
-  $item-division-height = 2px
+  $item-content-height: 56px;
+  $item-division-height: 2px;
 
-  .question-list
-    background-color: white
+  .question-list {
+    background-color: white;
+  }
 
-  .header, .list, .item, .button
-    display: block
-    width: 100%
-    padding: 0
-    margin: 0
+  .header,
+  .list,
+  .item,
+  .button {
+    display: block;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
 
-  .list
-    list-style: none
+  .list {
+    list-style: none;
+  }
 
   // normalize styles for the 2
-  .button, .header
-    line-height: $item-content-height
-    vertical-align: middle
-    padding-left: 16px
-    font-size: 16px
-    border-bottom: $item-division-height solid $core-text-disabled
+  .button,
+  .header {
+    padding-left: 16px;
+    font-size: 16px;
+    line-height: $item-content-height;
+    vertical-align: middle;
+    border-bottom: $item-division-height solid $core-text-disabled;
+  }
 
-  .button
-    text-align: left
-    font-weight: normal
-    text-transform: none
-    border-radius: 0
-    &.selected
-      background-color: $core-grey-300 // duped from k-button
-      font-weight: bold
+  .button {
+    font-weight: normal;
+    text-align: left;
+    text-transform: none;
+    border-radius: 0;
+    &.selected {
+      font-weight: bold;
+      background-color: $core-grey-300; // duped from k-button
+    }
+  }
 
 </style>

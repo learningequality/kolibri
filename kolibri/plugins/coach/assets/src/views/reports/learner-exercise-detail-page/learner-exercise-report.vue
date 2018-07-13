@@ -61,6 +61,11 @@
 
   export default {
     name: 'learnerExerciseReport',
+    metaInfo() {
+      return {
+        title: this.exercise.title,
+      };
+    },
     $trs: {
       backPrompt: 'Back to { backTitle }',
       showCorrectAnswerLabel: 'Show correct answer',
@@ -147,14 +152,16 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  @require '~kolibri.styles.definitions'
+  @import '~kolibri.styles.definitions';
 
-  .exercise-section
-    background-color: $core-bg-light
-    padding: 16px
-    h3
-      margin-top: 0
+  .exercise-section {
+    padding: 16px;
+    background-color: $core-bg-light;
+    h3 {
+      margin-top: 0;
+    }
+  }
 
 </style>

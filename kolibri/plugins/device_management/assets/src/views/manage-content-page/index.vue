@@ -67,6 +67,12 @@
       export: 'Export',
       noAccessDetails:
         'You must be signed in as a superuser or have content management permissions to view this page',
+      documentTitle: 'Manage Device Content',
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     components: {
       authMessage,
@@ -116,26 +122,31 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 
-  .table-title
-    margin-top: 16px
-    &:after
-      content: ''
-      display: table
-      clear: both
+  .table-title {
+    margin-top: 16px;
+    &::after {
+      display: table;
+      clear: both;
+      content: '';
+    }
+  }
 
-  .page-title
-    float: left
+  .page-title {
+    float: left;
+  }
 
-  .buttons
-    float: right
+  .buttons {
+    float: right;
+  }
 
-  .main
-    padding: 16px 32px
-    padding-bottom: 48px
-    margin-top: 32px
-    width: 100%
-    border-radius: 4px
+  .main {
+    width: 100%;
+    padding: 16px 32px;
+    padding-bottom: 48px;
+    margin-top: 32px;
+    border-radius: 4px;
+  }
 
 </style>
