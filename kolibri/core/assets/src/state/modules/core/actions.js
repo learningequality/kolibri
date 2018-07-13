@@ -208,7 +208,7 @@ export function kolibriLogout() {
 export function getCurrentSession(store, force = false) {
   let sessionPromise;
   if (force) {
-    sessionPromise = SessionResource.getModel('current').fetch({}, true)._promise;
+    sessionPromise = SessionResource.getModel('current').fetch(true)._promise;
   } else {
     sessionPromise = SessionResource.getModel('current').fetch()._promise;
   }
@@ -273,7 +273,7 @@ export function initContentSession(store, { channelId, contentId, contentKind })
       content_id: contentId,
       user_id: store.getters.session.user_id,
     });
-    const summaryCollectionPromise = summaryCollection.fetch({}, true);
+    const summaryCollectionPromise = summaryCollection.fetch(true);
 
     // ensure the store has finished update for summaryLog.
     const summaryPromise = new Promise(resolve => {

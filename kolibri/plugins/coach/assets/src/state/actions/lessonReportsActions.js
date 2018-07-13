@@ -10,7 +10,7 @@ import { showExerciseDetailView } from './reports';
  */
 export function refreshLessonReport(store, lessonId) {
   LessonReportResource.getModel(lessonId)
-    .fetch({}, true)
+    .fetch(true)
     .then(lessonReport => {
       store.commit('SET_LESSON_REPORT', lessonReport);
     });

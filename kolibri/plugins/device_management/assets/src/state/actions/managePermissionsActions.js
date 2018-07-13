@@ -12,7 +12,7 @@ function fetchFacilityUsers(store) {
 
 function fetchDevicePermissions() {
   return DevicePermissionsResource.getCollection()
-    .fetch({}, true)
+    .fetch(true)
     ._promise.then(function transform(permissions) {
       // returns object, where userid is the key
       return mapValues(groupBy(permissions, 'user'), head);
@@ -27,7 +27,7 @@ function fetchDevicePermissions() {
  * @returns Promise<{ permissions, user }, FacilityUserError>
  */
 function fetchUserPermissions(userId) {
-  const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch({}.true)._promise;
+  const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch(true)._promise;
   const userPromise = FacilityUserResource.getModel(userId).fetch()._promise;
   return permissionsPromise
     .then(function onPermissionsSuccess(permissions) {

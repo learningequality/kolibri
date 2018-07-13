@@ -93,7 +93,7 @@ export function showExamsPage(store, classId) {
   store.commit('SET_PAGE_NAME', PageNames.EXAMS);
 
   const promises = [
-    ExamResource.getCollection({ collection: classId }).fetch({}, true),
+    ExamResource.getCollection({ collection: classId }).fetch(true),
     setClassState(store, classId),
   ];
 
@@ -221,7 +221,7 @@ export function showCreateExamPage(store, classId) {
 
   const examsPromise = ExamResource.getCollection({
     collection: classId,
-  }).fetch({}, true);
+  }).fetch(true);
   const goToTopLevelPromise = goToTopLevel(store);
 
   ConditionalPromise.all([examsPromise, setClassState(store, classId), goToTopLevelPromise]).only(
@@ -429,7 +429,7 @@ export function showExamReportPage(store, params) {
         ExamLogResource.getCollection({ exam: examId, collection: classId }).fetch(),
         FacilityUserResource.getCollection({ member_of: classId }).fetch(),
         LearnerGroupResource.getCollection({ parent: classId }).fetch(),
-        ExamResource.getCollection({ collection: classId }).fetch({}, true),
+        ExamResource.getCollection({ collection: classId }).fetch(true),
         ContentNodeResource.getCollection({
           in_exam: exam.id,
           fields: ['id', 'num_coach_contents'],

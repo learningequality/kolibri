@@ -160,7 +160,7 @@ export function showClassesPage(store) {
   });
   const facilityId = store.getters.currentFacilityId;
   return ClassroomResource.getCollection({ parent: facilityId })
-    .fetch({}, true)
+    .fetch(true)
     .only(
       samePageCheckGenerator(store),
       classrooms => {
@@ -182,9 +182,9 @@ export function showClassEditPage(store, classId) {
   });
   const facilityId = store.getters.currentFacilityId;
   const promises = [
-    FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
+    FacilityUserResource.getCollection({ member_of: classId }).fetch(true),
     ClassroomResource.getModel(classId).fetch(),
-    ClassroomResource.getCollection({ parent: facilityId }).fetch({}, true),
+    ClassroomResource.getCollection({ parent: facilityId }).fetch(true),
   ];
 
   const transformResults = ([facilityUsers, classroom, classrooms]) => ({
@@ -217,7 +217,7 @@ export function showLearnerClassEnrollmentPage(store, classId) {
   // users in current class
   const classUsersPromise = FacilityUserResource.getCollection({
     member_of: classId,
-  }).fetch({}, true);
+  }).fetch(true);
 
   return ConditionalPromise.all([userPromise, classPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
@@ -242,7 +242,7 @@ export function showCoachClassAssignmentPage(store, classId) {
   // all users in facility
   const userPromise = FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
   // current class
-  const classPromise = ClassroomResource.getModel(classId).fetch({}, true);
+  const classPromise = ClassroomResource.getModel(classId).fetch(true);
 
   return ConditionalPromise.all([userPromise, classPromise]).only(
     samePageCheckGenerator(store),

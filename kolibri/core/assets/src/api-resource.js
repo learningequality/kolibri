@@ -14,10 +14,12 @@ export class Model {
    * Create a model instance.
    * @param {object} data - data to insert into the model at creation time - should include at
    * least an id for fetching, or data an no id if the intention is to save a new model.
+   * @param {object} getParams - an object of parameters to be parsed into GET parameters on the
+   * fetch.
    * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
    * behaviour for the model.
    */
-  constructor(data, resource) {
+  constructor(data, getParams = {}, resource) {
     this.resource = resource;
     if (!this.resource) {
       throw new TypeError('resource must be defined');
@@ -39,6 +41,8 @@ export class Model {
     this.attributes = {};
     this.set(data);
 
+    this.getParams = getParams;
+
     this.synced = false;
     // Set this property to track whether this model exists on the server or not
     // Assume it does until we learn otherwise
@@ -50,13 +54,11 @@ export class Model {
 
   /**
    * Method to fetch data from the server for this particular model.
-   * @param {object} getParams - an object of parameters to be parsed into GET parameters on the
-   * fetch.
    * @param {boolean} [force=false] - fetch whether or not it's been synced already.
    * @returns {Promise} - Promise is resolved with Model attributes when the XHR successfully
    * returns, otherwise reject is called with the response object.
    */
-  fetch(getParams = {}, force = false) {
+  fetch(force = false) {
     const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
@@ -65,7 +67,7 @@ export class Model {
           } else {
             this.synced = false;
             // Do a fetch on the URL.
-            this.resource.client({ path: this.url, params: getParams }).then(
+            this.resource.client({ path: this.url, params: this.getParams }).then(
               response => {
                 // Set the retrieved Object onto the Model instance.
                 this.set(response.entity);
@@ -269,14 +271,11 @@ export class Collection {
 
   /**
    * Method to fetch data from the server for this collection.
-   * @param {object} extraParams - an object of parameters to be parsed into GET parameters on the
-   * fetch.
    * @param {boolean} force - fetch whether or not it's been synced already.
    * @returns {Promise} - Promise is resolved with Array of Model attributes when the XHR
    * successfully returns, otherwise reject is called with the response object.
    */
-  fetch(extraParams = {}, force = false) {
-    const getParams = Object.assign({}, this.getParams, extraParams);
+  fetch(force = false) {
     const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
@@ -284,7 +283,7 @@ export class Collection {
             resolve(this.data);
           } else {
             this.synced = false;
-            this.resource.client({ path: this.url, params: getParams }).then(
+            this.resource.client({ path: this.url, params: this.getParams }).then(
               response => {
                 // Set response object - an Array - on the Collection to record the data.
                 // First check that the response *is* an Array
@@ -617,11 +616,11 @@ export class Resource {
    * @param {String} id - The primary key of the Model instance.
    * @returns {Model} - Returns a Model instance.
    */
-  getModel(id) {
+  getModel(id, getParams = {}) {
     let model;
-    const cacheKey = this.cacheKey({ [this.idKey]: id });
+    const cacheKey = this.cacheKey({ [this.idKey]: id }, getParams);
     if (!this.models[cacheKey]) {
-      model = this.createModel({ [this.idKey]: id });
+      model = this.createModel({ [this.idKey]: id }, getParams);
     } else {
       model = this.models[cacheKey];
     }
@@ -642,8 +641,8 @@ export class Resource {
    * @param {Object} data - The data for the model to add.
    * @returns {Model} - Returns the instantiated Model.
    */
-  createModel(data) {
-    const model = new Model(data, this);
+  createModel(data, getParams = {}) {
+    const model = new Model(data, getParams, this);
     return this.addModel(model);
   }
 
@@ -658,7 +657,7 @@ export class Resource {
     }
     // Add to the model cache using the default key if id is defined.
     if (model.id) {
-      const cacheKey = this.cacheKey({ [this.idKey]: model.id });
+      const cacheKey = this.cacheKey({ [this.idKey]: model.id }, model.getParams);
       if (!this.models[cacheKey]) {
         this.models[cacheKey] = model;
       } else {
@@ -682,8 +681,8 @@ export class Resource {
     this.collections = {};
   }
 
-  unCacheModel(id) {
-    const cacheKey = this.cacheKey({ [this.idKey]: id });
+  unCacheModel(id, getParams = {}) {
+    const cacheKey = this.cacheKey({ [this.idKey]: id }, getParams);
     this.models[cacheKey].synced = false;
   }
 
@@ -695,7 +694,7 @@ export class Resource {
   }
 
   removeModel(model) {
-    const cacheKey = this.cacheKey({ [this.idKey]: model.id });
+    const cacheKey = this.cacheKey({ [this.idKey]: model.id }, model.getParams);
     delete this.models[cacheKey];
   }
 

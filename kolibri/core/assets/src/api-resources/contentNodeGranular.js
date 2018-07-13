@@ -2,7 +2,7 @@ import { Resource } from '../api-resource';
 
 /**
  * @example Get ContentNode from a local USB drive for the purposes of importing from that drive.
- * ContentNodeGranular.getModel(pk).fetch({ importing_from_drive_id: 'drive_1' });
+ * ContentNodeGranular.getModel(pk, { importing_from_drive_id: 'drive_1' }).fetch();
  *
  * @example Get ContentNode from a remote channel (whose content DB has been downloaded).
  * OR exporting to a USB drive.

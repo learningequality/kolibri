@@ -38,7 +38,7 @@ export function showLessonsRootPage(store, classId) {
 
 export function refreshClassLessons(store, classId) {
   return LessonResource.getCollection({ collection: classId })
-    .fetch({}, true)
+    .fetch(true)
     ._promise.then(lessons => {
       store.commit('SET_CLASS_LESSONS', lessons);
       // resolve lessons in case it's needed
@@ -83,7 +83,7 @@ export function showLessonSummaryPage(store, params) {
   const loadRequirements = [
     updateCurrentLesson(store, lessonId),
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
-    LessonReportResource.getModel(lessonId).fetch({}, true),
+    LessonReportResource.getModel(lessonId).fetch(true),
     setClassState(store, classId),
   ];
 

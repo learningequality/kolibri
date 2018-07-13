@@ -298,7 +298,7 @@ export function showSelectContentPage(store, params) {
       RemoteChannelResource.getModel(channel_id)
         // Force fetching because using cached version switches
         // between returning an array and returning an object
-        .fetch({}, true)
+        .fetch(true)
         .then(
           channels => {
             resolve({ ...channels[0] });

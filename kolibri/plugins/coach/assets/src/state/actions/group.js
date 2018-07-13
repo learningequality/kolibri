@@ -37,8 +37,8 @@ export function showGroupsPage(store, classId) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', PageNames.GROUPS);
   const promises = [
-    FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
-    LearnerGroupResource.getCollection({ parent: classId }).fetch({}, true),
+    FacilityUserResource.getCollection({ member_of: classId }).fetch(true),
+    LearnerGroupResource.getCollection({ parent: classId }).fetch(true),
     FacilityUserResource.getCurrentFacility(),
     setClassState(store, classId),
   ];
@@ -47,7 +47,7 @@ export function showGroupsPage(store, classId) {
     ([classUsers, groupsCollection]) => {
       const groups = _groupsState(groupsCollection);
       const groupUsersPromises = groups.map(group =>
-        FacilityUserResource.getCollection({ member_of: group.id }).fetch({}, true)
+        FacilityUserResource.getCollection({ member_of: group.id }).fetch(true)
       );
 
       ConditionalPromise.all(groupUsersPromises).only(

@@ -38,7 +38,7 @@ export function showClassAssignmentsPage(store, classId) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   // Force fetch, so it doesn't re-use the assignments-less version in the cache
   return LearnerClassroomResource.getModel(classId)
-    .fetch({}, true)
+    .fetch(true)
     ._promise.then(classroom => {
       // set pageState _after_ to allow the previous page (often `content-page`)
       // to finish destruction with the expected state in place
@@ -67,7 +67,7 @@ export function showLessonPlaylist(store, { lessonId }) {
   store.commit('CORE_SET_PAGE_LOADING', true);
 
   return LearnerLessonResource.getModel(lessonId)
-    .fetch({}, true)
+    .fetch(true)
     ._promise.then(lesson => {
       // set pageState _after_ to allow the previous page (often `content-page`)
       // to finish destruction with the expected state in place
@@ -101,7 +101,7 @@ export function showLessonPlaylist(store, { lessonId }) {
 export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   return LearnerLessonResource.getModel(lessonId)
-    .fetch({}, true)
+    .fetch(true)
     ._promise.then(lesson => {
       // set pageState _after_ to allow the previous page (often `content-page`)
       // to finish destruction with the expected state in place

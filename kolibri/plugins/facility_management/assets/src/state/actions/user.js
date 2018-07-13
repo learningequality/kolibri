@@ -19,7 +19,7 @@ import { updateFacilityLevelRoles } from './rolesActions';
 function setUserRole(user, role) {
   return updateFacilityLevelRoles(user, role.kind).then(() => {
     // Force refresh the User to get updated roles
-    return FacilityUserResource.getModel(user.id).fetch({}, true);
+    return FacilityUserResource.getModel(user.id).fetch(true);
   });
 }
 
@@ -148,7 +148,7 @@ export function showUserPage(store) {
   const facilityId = store.getters.currentFacilityId;
 
   FacilityUserResource.getCollection({ member_of: facilityId })
-    .fetch({}, true)
+    .fetch(true)
     .only(
       samePageCheckGenerator(store),
       users => {

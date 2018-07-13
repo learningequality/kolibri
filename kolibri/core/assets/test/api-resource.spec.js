@@ -39,7 +39,7 @@ describe('Resource', function() {
       expect(resource.getModel('test')).toBeInstanceOf(Resources.Model);
     });
     it('should return an existing model from the cache', function() {
-      const testModel = new Resources.Model(modelData, resource);
+      const testModel = new Resources.Model(modelData, {}, resource);
       resource.addModel(testModel);
       expect(resource.getModel('test')).toEqual(testModel);
     });
@@ -70,15 +70,15 @@ describe('Resource', function() {
     });
     it('should not call createModel if passed a Model', function() {
       const spy = jest.spyOn(resource, 'createModel');
-      resource.addModel(new Resources.Model(modelData, resource));
+      resource.addModel(new Resources.Model(modelData, {}, resource));
       expect(spy).not.toHaveBeenCalled();
     });
     it('should add a model to the cache if no id', function() {
-      resource.addModel(new Resources.Model({ data: 'data' }, resource));
+      resource.addModel(new Resources.Model({ data: 'data' }, {}, resource));
       expect(Object.keys(resource.models)).toHaveLength(1);
     });
     it('should not return the added model from the cache if no id', function() {
-      resource.addModel(new Resources.Model({ data: 'data' }, resource));
+      resource.addModel(new Resources.Model({ data: 'data' }, {}, resource));
       const model = resource.getModel(undefined);
       expect(model.attributes.data).toBeUndefined();
     });
@@ -87,16 +87,16 @@ describe('Resource', function() {
       expect(resource.models[Object.keys(resource.models)[0]]).toEqual(model);
     });
     it('should update the model in the cache if a model with matching id is found', function() {
-      const model = new Resources.Model({ id: 'test' }, resource);
+      const model = new Resources.Model({ id: 'test' }, {}, resource);
       resource.addModel(model);
-      resource.addModel(new Resources.Model({ id: 'test', example: 'prop' }, resource));
+      resource.addModel(new Resources.Model({ id: 'test', example: 'prop' }, {}, resource));
       expect(Object.keys(resource.models)).toHaveLength(1);
       expect(model.attributes.example).toEqual('prop');
     });
   });
   describe('removeModel method', function() {
     it('should remove model from model cache', function() {
-      const model = new Resources.Model({ id: 'test' }, resource);
+      const model = new Resources.Model({ id: 'test' }, {}, resource);
       resource.addModel(model);
       resource.removeModel(model);
       expect(resource.models).toEqual({});
@@ -874,7 +874,7 @@ describe('Model', function() {
       removeModel: () => {},
     };
     data = { test: 'test', id: 'testing' };
-    model = new Resources.Model(data, resource);
+    model = new Resources.Model(data, {}, resource);
   });
   afterEach(function() {
     resource = undefined;
@@ -901,6 +901,11 @@ describe('Model', function() {
         expect(model.promises).toEqual([]);
       });
     });
+    describe('getParams property', function() {
+      it('should be an empty array', function() {
+        expect(model.getParams).toEqual({});
+      });
+    });
   });
   describe('constructor method', function() {
     describe('if resource is undefined', function() {
@@ -914,14 +919,14 @@ describe('Model', function() {
     describe('if data is passed in', function() {
       it('should call the set method once', function() {
         const spy = jest.spyOn(Resources.Model.prototype, 'set');
-        const testModel = new Resources.Model(data, resource);
+        const testModel = new Resources.Model(data, {}, resource);
         expect(testModel).toBeTruthy();
         expect(spy).toHaveBeenCalledTimes(1);
         Resources.Model.prototype.set.mockRestore();
       });
       it('should call the set method with the data', function() {
         const spy = jest.spyOn(Resources.Model.prototype, 'set');
-        const testModel = new Resources.Model(data, resource);
+        const testModel = new Resources.Model(data, {}, resource);
         expect(testModel).toBeTruthy();
         expect(spy).toHaveBeenCalledWith(data);
         Resources.Model.prototype.set.mockRestore();
@@ -930,7 +935,7 @@ describe('Model', function() {
     describe('if undefined data is passed in', function() {
       it('should throw a TypeError', function() {
         function testCall() {
-          new Resources.Model(undefined, resource);
+          new Resources.Model(undefined, {}, resource);
         }
         expect(testCall).toThrow(TypeError);
       });
@@ -938,7 +943,7 @@ describe('Model', function() {
     describe('if null data is passed in', function() {
       it('should throw a TypeError', function() {
         function testCall() {
-          new Resources.Model(null, resource);
+          new Resources.Model(null, {}, resource);
         }
         expect(testCall).toThrow(TypeError);
       });
@@ -946,7 +951,7 @@ describe('Model', function() {
     describe('if no data is passed in', function() {
       it('should throw a TypeError', function() {
         function testCall() {
-          new Resources.Model({}, resource);
+          new Resources.Model({}, {}, resource);
         }
         expect(testCall).toThrow(TypeError);
       });
@@ -1255,7 +1260,7 @@ describe('Model', function() {
           client.mockResolvedValue(response);
           resource.client = client;
           resource.collectionUrl = () => '';
-          model = new Resources.Model(payload, resource);
+          model = new Resources.Model(payload, {}, resource);
           model.synced = false;
           model.save(payload).then(() => {
             expect(typeof client.mock.calls[0].method).toEqual('undefined');
@@ -1270,7 +1275,7 @@ describe('Model', function() {
             client.mockResolvedValue(response);
             resource.client = client;
             resource.collectionUrl = () => '';
-            model = new Resources.Model(payload, resource);
+            model = new Resources.Model(payload, {}, resource);
             model.synced = false;
             resource.addModel = jest.fn();
             model.save(payload).then(() => {
