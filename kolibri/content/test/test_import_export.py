@@ -113,6 +113,8 @@ class ImportContentTestCase(TestCase):
         remote_path_mock.return_value = 'notest'
         # Mock this __iter__ so that the filetransfer can be looped over
         FileDownloadMock.return_value.__iter__.return_value = ['one', 'two', 'three']
+        FileDownloadMock.return_value.total_size = 1
+        LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
         call_command("importcontent", "network", self.the_channel_id)
         # is_cancelled should be called thrice.
         is_cancelled_mock.assert_has_calls([call(), call(), call()])
@@ -141,6 +143,8 @@ class ImportContentTestCase(TestCase):
         remote_path_mock.return_value = 'notest'
         # Mock this __iter__ so that the filetransfer can be looped over
         FileDownloadMock.return_value.__iter__.return_value = ['one', 'two', 'three']
+        FileDownloadMock.return_value.total_size = 1
+        LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
         call_command("importcontent", "network", self.the_channel_id)
         # Check that the command itself was also cancelled.
         cancel_mock.assert_called_with()
@@ -173,6 +177,8 @@ class ImportContentTestCase(TestCase):
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_dest_path, local_src_path]
         FileCopyMock.return_value.__iter__.return_value = ['one', 'two', 'three']
+        FileCopyMock.return_value.total_size = 1
+        LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
         call_command("importcontent", "disk", self.the_channel_id, tempfile.mkdtemp())
         is_cancelled_mock.assert_has_calls([call(), call(), call()])
         FileCopyMock.assert_called_with(local_src_path, local_dest_path)
@@ -185,6 +191,8 @@ class ImportContentTestCase(TestCase):
     @patch('kolibri.content.management.commands.importcontent.AsyncCommand.cancel')
     @patch('kolibri.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, True, True, True])
     def test_remote_cancel_during_connect_error(self, is_cancelled_mock, cancel_mock, next_mock, len_mock, annotation_mock):
+        LocalFile.objects.filter(pk='6bdfea4a01830fdd4a585181c0b8068c').update(file_size=2201062)
+        LocalFile.objects.filter(pk='211523265f53825b82f70ba19218a02e').update(file_size=336974)
         call_command('importcontent', 'network', self.the_channel_id, node_ids=['32a941fb77c2576e8f6b294cde4c3b0c'])
         cancel_mock.assert_called_with()
         len_mock.assert_not_called()
@@ -247,6 +255,19 @@ class ImportContentTestCase(TestCase):
                 call_command('importcontent', 'disk', self.the_channel_id, 'destination')
                 self.assertTrue('Permission denied' in logging_mock.call_args_list[0][0][0])
                 annotation_mock.assert_not_called()
+
+    @patch('kolibri.content.utils.transfer.os.path.getsize', return_value=0)
+    @patch('kolibri.content.management.commands.importcontent.os.path.isfile', return_value=False)
+    @patch('kolibri.content.management.commands.importcontent.paths.get_content_storage_file_path')
+    @patch('kolibri.content.management.commands.importcontent.AsyncCommand.cancel')
+    @patch('kolibri.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, True, True])
+    def test_local_import_source_corrupted(self, is_cancelled_mock, cancel_mock, path_mock, isfile_mock, getsize_mock, annotation_mock):
+        local_src_path = tempfile.mkstemp()[1]
+        local_dest_path = tempfile.mkstemp()[1]
+        LocalFile.objects.filter(files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c").update(file_size=1)
+        path_mock.side_effect = [local_dest_path, local_src_path]
+        call_command('importcontent', 'disk', self.the_channel_id, 'destination', node_ids=['32a941fb77c2576e8f6b294cde4c3b0c'])
+        cancel_mock.assert_called_with()
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
