@@ -18,7 +18,7 @@
    * Used to show determinate or indeterminate loading
    */
   export default {
-    name: 'kLinearLoader',
+    name: 'KLinearLoader',
     components: {
       uiProgressLinear,
     },

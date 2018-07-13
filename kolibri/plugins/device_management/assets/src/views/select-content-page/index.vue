@@ -115,7 +115,7 @@
   import contentWizardUiAlert from './content-wizard-ui-alert';
 
   export default {
-    name: 'selectContentPage',
+    name: 'SelectContentPage',
     metaInfo() {
       return {
         title: this.$tr('selectContent', { channelName: this.transferredChannel.name }),

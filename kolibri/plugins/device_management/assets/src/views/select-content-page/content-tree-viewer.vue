@@ -76,7 +76,7 @@
   }
 
   export default {
-    name: 'contentTreeViewer',
+    name: 'ContentTreeViewer',
     components: {
       contentNodeRow,
       kBreadcrumbs,

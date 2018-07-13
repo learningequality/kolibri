@@ -27,7 +27,7 @@
   import errorBox from './error-box';
 
   export default {
-    name: 'appBody',
+    name: 'AppBody',
     components: {
       errorBox,
       kLinearLoader,

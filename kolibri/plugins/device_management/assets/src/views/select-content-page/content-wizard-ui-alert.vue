@@ -28,7 +28,7 @@
   };
 
   export default {
-    name: 'contentWizardUiAlert',
+    name: 'ContentWizardUiAlert',
     components: {
       UiAlert,
     },

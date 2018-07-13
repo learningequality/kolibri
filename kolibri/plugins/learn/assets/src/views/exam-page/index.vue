@@ -103,7 +103,7 @@
   import answerHistory from './answer-history';
 
   export default {
-    name: 'examPage',
+    name: 'ExamPage',
     $trs: {
       submitExam: 'Submit exam',
       backToExamList: 'Back to exam list',

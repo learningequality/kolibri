@@ -101,7 +101,7 @@
   ];
 
   export default {
-    name: 'sideNav',
+    name: 'SideNav',
     components: {
       coreMenu,
       uiIconButton,

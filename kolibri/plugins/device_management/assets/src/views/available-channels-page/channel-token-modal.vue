@@ -41,7 +41,7 @@
   import { getRemoteChannelByToken } from '../../state/actions/availableChannelsActions';
 
   export default {
-    name: 'channelTokenModal',
+    name: 'ChannelTokenModal',
     components: {
       UiAlert,
       kModal,

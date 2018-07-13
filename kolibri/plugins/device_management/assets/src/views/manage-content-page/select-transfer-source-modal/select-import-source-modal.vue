@@ -40,7 +40,7 @@
   const { LOCAL_DRIVE, KOLIBRI_STUDIO } = ContentSources;
 
   export default {
-    name: 'selectImportSourceModal',
+    name: 'SelectImportSourceModal',
     components: {
       kRadioButton,
       kModal,

@@ -65,7 +65,7 @@
   import { validateContentNodeKind } from 'kolibri.utils.validators';
 
   export default {
-    name: 'cardThumbnail',
+    name: 'CardThumbnail',
     components: {
       contentIcon,
       progressIcon,

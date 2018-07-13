@@ -84,7 +84,7 @@
   import { PageNames } from '../../../constants';
 
   export default {
-    name: 'coachExamsPage',
+    name: 'CoachExamsPage',
     $trs: {
       exams: 'Exams',
       allExams: 'All exams',

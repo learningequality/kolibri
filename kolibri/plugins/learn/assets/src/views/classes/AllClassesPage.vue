@@ -33,7 +33,7 @@
   import { classAssignmentsLink } from './classPageLinks';
 
   export default {
-    name: 'allClassesPage',
+    name: 'AllClassesPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

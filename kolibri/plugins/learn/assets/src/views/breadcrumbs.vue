@@ -17,7 +17,7 @@
   import classesBreadcrumbItems from './classes/classesBreadcrumbItems';
 
   export default {
-    name: 'breadcrumbs',
+    name: 'Breadcrumbs',
     $trs: {
       recommended: 'Recommended',
       channels: 'Channels',

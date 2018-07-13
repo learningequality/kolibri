@@ -118,7 +118,7 @@ oriented data synchronization.
   import exerciseAttempts from './exercise-attempts';
 
   export default {
-    name: 'assessmentWrapper',
+    name: 'AssessmentWrapper',
     components: {
       exerciseAttempts,
       contentRenderer,

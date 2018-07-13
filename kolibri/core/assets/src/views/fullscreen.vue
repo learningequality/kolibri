@@ -20,7 +20,7 @@
   const MIMIC_FULLSCREEN_CLASS = 'mimic-fullscreen';
 
   export default {
-    name: 'fullscreen',
+    name: 'Fullscreen',
     data() {
       return {
         isInFullscreen: false,

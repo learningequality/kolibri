@@ -1,6 +1,6 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
-export const trs = createTranslator('disconnectionSnackbars', {
+export const trs = createTranslator('DisconnectionSnackbars', {
   disconnected: 'Disconnected from server. Will try to reconnect in { remainingTime }',
   tryNow: 'Try now',
   tryingToReconnect: 'Trying to reconnect…',

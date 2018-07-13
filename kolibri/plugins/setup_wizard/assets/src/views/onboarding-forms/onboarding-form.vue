@@ -37,7 +37,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    name: 'onboardingForm',
+    name: 'OnboardingForm',
     components: {
       kButton,
     },

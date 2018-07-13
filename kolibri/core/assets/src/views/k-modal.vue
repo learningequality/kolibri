@@ -97,7 +97,7 @@
    * Used to focus attention on a singular action/task
    */
   export default {
-    name: 'kModal',
+    name: 'KModal',
     components: {
       kButton,
     },

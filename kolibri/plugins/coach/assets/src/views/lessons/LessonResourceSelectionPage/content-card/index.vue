@@ -49,7 +49,7 @@
   import cardThumbnail from './card-thumbnail';
 
   export default {
-    name: 'lessonContentCard',
+    name: 'LessonContentCard',
     components: {
       cardThumbnail,
       textTruncator,

@@ -32,7 +32,7 @@
 <script>
 
   export default {
-    name: 'navTitle',
+    name: 'NavTitle',
     $trs: {
       coachPageHeader: 'Classes',
       coach: 'Coach: {name}',

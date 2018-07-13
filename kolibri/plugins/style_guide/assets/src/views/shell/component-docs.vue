@@ -87,7 +87,7 @@
   const logging = logger.getLogger(__filename);
 
   export default {
-    name: 'componentDocs',
+    name: 'ComponentDocs',
     props: {
       api: {
         type: Object,

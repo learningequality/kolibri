@@ -14,7 +14,7 @@
 <script>
 
   export default {
-    name: 'coreTable',
+    name: 'CoreTable',
   };
 
 </script>

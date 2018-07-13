@@ -32,7 +32,7 @@
   import { lessonPlaylistLink } from './classPageLinks';
 
   export default {
-    name: 'assignedLessonsCards',
+    name: 'AssignedLessonsCards',
     components: {
       ContentCard,
     },

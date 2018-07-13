@@ -104,7 +104,7 @@
   const ALL_FILTER = 'ALL';
 
   export default {
-    name: 'availableChannelsPage',
+    name: 'AvailableChannelsPage',
     metaInfo() {
       return {
         title: this.documentTitle,

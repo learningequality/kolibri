@@ -29,7 +29,7 @@
   import interactionItem from './interaction-item';
 
   export default {
-    name: 'interactionList',
+    name: 'InteractionList',
     components: { interactionItem },
     mixins: [responsiveElement],
     $trs: {

@@ -89,7 +89,7 @@
   import userRole from './user-role';
 
   export default {
-    name: 'userTable',
+    name: 'UserTable',
     components: {
       coreTable,
       kCheckbox,

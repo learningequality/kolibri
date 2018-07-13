@@ -52,7 +52,7 @@
   import { lessonResourceViewerLink } from './classPageLinks';
 
   export default {
-    name: 'lessonPlaylistPage',
+    name: 'LessonPlaylistPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

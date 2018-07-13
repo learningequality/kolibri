@@ -91,7 +91,7 @@
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
 
   export default {
-    name: 'userCreateModal',
+    name: 'UserCreateModal',
     $trs: {
       addNewAccountTitle: 'Add new account',
       cancel: 'Cancel',

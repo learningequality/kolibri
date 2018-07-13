@@ -65,7 +65,7 @@
    * Used for toggling boolean user input
    */
   export default {
-    name: 'kCheckbox',
+    name: 'KCheckbox',
     props: {
       /**
        * Label

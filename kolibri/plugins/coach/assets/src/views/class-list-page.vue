@@ -73,7 +73,7 @@
   }
 
   export default {
-    name: 'classListPage',
+    name: 'ClassListPage',
     metaInfo() {
       return {
         title: this.$tr('classPageHeader'),

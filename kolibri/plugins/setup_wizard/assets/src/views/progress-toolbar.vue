@@ -28,7 +28,7 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {
-    name: 'progressToolbar',
+    name: 'ProgressToolbar',
     components: {
       uiToolbar,
       uiIconButton,

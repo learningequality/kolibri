@@ -104,7 +104,7 @@
   };
 
   export default {
-    name: 'coachIndexPage',
+    name: 'CoachIndexPage',
     $trs: {
       coachToolbarHeader: 'Coach',
       selectPageToolbarHeader: 'Select resources',

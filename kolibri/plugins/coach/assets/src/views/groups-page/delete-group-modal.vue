@@ -21,7 +21,7 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
 
   export default {
-    name: 'deleteGroupModal',
+    name: 'DeleteGroupModal',
     $trs: {
       deleteLearnerGroup: 'Delete group',
       areYouSure: "Are you sure you want to delete '{ groupName }'?",

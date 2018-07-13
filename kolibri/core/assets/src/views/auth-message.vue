@@ -17,7 +17,7 @@
   const userRoles = ['admin', 'adminOrCoach', 'learner', 'registeredUser', 'superuser'];
 
   export default {
-    name: 'authMessage',
+    name: 'AuthMessage',
     props: {
       authorizedRole: {
         type: String,

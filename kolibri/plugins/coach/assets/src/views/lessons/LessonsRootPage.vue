@@ -103,7 +103,7 @@
   import { lessonSummaryLink } from './lessonsRouterUtils';
 
   export default {
-    name: 'lessonsRootPage',
+    name: 'LessonsRootPage',
     metaInfo() {
       return {
         title: this.$tr('classLessons'),

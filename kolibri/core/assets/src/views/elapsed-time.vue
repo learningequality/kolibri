@@ -13,7 +13,7 @@
   import { now } from 'kolibri.utils.serverClock';
 
   export default {
-    name: 'elapsedTime',
+    name: 'ElapsedTime',
     props: {
       date: {
         type: Date,

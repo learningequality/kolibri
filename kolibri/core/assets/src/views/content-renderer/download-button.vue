@@ -15,7 +15,7 @@
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
 
   export default {
-    name: 'downloadButton',
+    name: 'DownloadButton',
     components: {
       kDropdownMenu,
     },

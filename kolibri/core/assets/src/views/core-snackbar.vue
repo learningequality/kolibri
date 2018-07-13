@@ -29,7 +29,7 @@
 
   /* Snackbars are used to display notification. */
   export default {
-    name: 'coreSnackbar',
+    name: 'CoreSnackbar',
     components: {
       uiSnackbar,
     },

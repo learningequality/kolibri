@@ -52,7 +52,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    name: 'dataPage',
+    name: 'DataPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

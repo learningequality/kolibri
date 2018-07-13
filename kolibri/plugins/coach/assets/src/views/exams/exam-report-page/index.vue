@@ -118,7 +118,7 @@
   import ManageExamModals from './ManageExamModals';
 
   export default {
-    name: 'examReportPage',
+    name: 'ExamReportPage',
     metaInfo() {
       return {
         title: this.exam.title,

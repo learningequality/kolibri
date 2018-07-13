@@ -72,7 +72,7 @@
   import contentCard from './content-card';
 
   export default {
-    name: 'lessonResourceSelectionPage',
+    name: 'LessonResourceSelectionPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

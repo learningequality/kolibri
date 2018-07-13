@@ -37,7 +37,7 @@
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
 
   export default {
-    name: 'moveLearnersModal',
+    name: 'MoveLearnersModal',
     $trs: {
       moveLearners: 'Move learners',
       moveLearnerCount:

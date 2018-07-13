@@ -104,7 +104,7 @@
   import logout from './logout-side-nav-entry';
 
   export default {
-    name: 'appBar',
+    name: 'AppBar',
     components: {
       uiToolbar,
       uiIconButton,

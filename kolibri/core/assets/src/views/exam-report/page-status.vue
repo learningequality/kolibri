@@ -44,7 +44,7 @@
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
 
   export default {
-    name: 'pageStatus',
+    name: 'PageStatus',
     $trs: {
       title: '{name} - Exam performance',
       overallScore: 'Overall score: { score, number, percent }',

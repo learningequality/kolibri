@@ -28,7 +28,7 @@
   import onboardingForm from '../onboarding-form';
 
   export default {
-    name: 'facilityNameForm',
+    name: 'FacilityNameForm',
     components: {
       onboardingForm,
       kTextbox,

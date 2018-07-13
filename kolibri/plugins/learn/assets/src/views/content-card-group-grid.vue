@@ -87,7 +87,7 @@
   };
 
   export default {
-    name: 'contentCardGroupGrid',
+    name: 'ContentCardGroupGrid',
     $trs: {
       resourceType: 'Type',
       all: 'All',

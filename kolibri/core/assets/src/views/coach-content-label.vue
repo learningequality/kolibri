@@ -17,7 +17,7 @@
   import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
-    name: 'coachContentLabel',
+    name: 'CoachContentLabel',
     components: {
       UiIcon,
     },

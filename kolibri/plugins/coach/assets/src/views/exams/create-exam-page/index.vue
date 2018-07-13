@@ -156,7 +156,7 @@
   import topicRow from './topic-row';
 
   export default {
-    name: 'createExamPage',
+    name: 'CreateExamPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

@@ -98,7 +98,7 @@
   }
 
   export default {
-    name: 'manageClassPage',
+    name: 'ManageClassPage',
     metaInfo() {
       return {
         title: this.$tr('adminClassPageHeader'),

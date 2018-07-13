@@ -22,7 +22,7 @@
   import urls from 'kolibri.urls';
 
   export default {
-    name: 'logoutSideNavEntry',
+    name: 'LogoutSideNavEntry',
     components: {
       coreMenuOption,
     },

@@ -12,7 +12,7 @@
   import { PageNames } from '../../constants';
 
   export default {
-    name: 'breadcrumbs',
+    name: 'Breadcrumbs',
     $trs: {
       allClassroomsText: 'Classes',
       channels: 'Channels',

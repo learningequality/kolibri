@@ -50,7 +50,7 @@
   import languageSwitcherModal from './modal';
 
   export default {
-    name: 'languageSwitcherList',
+    name: 'LanguageSwitcherList',
     $trs: {
       showMoreLanguagesSelector: 'More languages',
     },

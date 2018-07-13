@@ -138,7 +138,7 @@
   }
 
   export default {
-    name: 'signInPage',
+    name: 'SignInPage',
     $trs: {
       kolibri: 'Kolibri',
       signIn: 'Sign in',

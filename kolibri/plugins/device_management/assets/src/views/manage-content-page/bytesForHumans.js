@@ -1,6 +1,6 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
-const translator = createTranslator('bytesForHumansStrings', {
+const translator = createTranslator('BytesForHumansStrings', {
   fileSizeInBytes: '{n, number, integer} B',
   fileSizeInKilobytes: '{n, number, integer} KB',
   fileSizeInMegabytes: '{n, number, integer} MB',

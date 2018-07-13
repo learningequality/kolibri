@@ -53,7 +53,7 @@
   import { PageNames } from '../constants';
 
   export default {
-    name: 'copiesModal',
+    name: 'CopiesModal',
     components: {
       kModal,
       kButton,

@@ -39,7 +39,7 @@
   import searchBox from './search-box';
 
   export default {
-    name: 'searchPage',
+    name: 'SearchPage',
     $trs: {
       searchPageHeader: 'Search',
       noSearch: 'Search by typing in the box above',

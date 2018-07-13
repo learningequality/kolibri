@@ -16,7 +16,7 @@
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
 
   export default {
-    name: 'pageHeader',
+    name: 'PageHeader',
     components: { progressIcon },
     props: { title: { type: String } },
     computed: {

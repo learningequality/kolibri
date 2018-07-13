@@ -33,7 +33,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    name: 'questionList',
+    name: 'QuestionList',
     components: {
       kButton,
     },

@@ -10,7 +10,7 @@
   import languageSwitcherList from 'kolibri.coreVue.components.languageSwitcherList';
 
   export default {
-    name: 'languageSwitcherFooter',
+    name: 'LanguageSwitcherFooter',
     components: {
       languageSwitcherList,
     },

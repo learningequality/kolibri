@@ -4,7 +4,7 @@ import sumBy from 'lodash/fp/sumBy';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { selectContentTopicLink } from '../manage-content-page/manageContentLinks';
 
-const translator = createTranslator('treeViewRowMessages', {
+const translator = createTranslator('TreeViewRowMessages', {
   alreadyOnYourDevice: 'Already on your device',
   fractionOfResourcesOnDevice:
     '{onDevice, number, useGrouping} of {total, number, useGrouping} resources on your device',

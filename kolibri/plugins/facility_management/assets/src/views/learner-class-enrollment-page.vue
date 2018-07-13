@@ -20,7 +20,7 @@
   import classEnrollForm from './class-enroll-form';
 
   export default {
-    name: 'learnerClassEnrollmentPage',
+    name: 'LearnerClassEnrollmentPage',
     components: {
       classEnrollForm,
     },

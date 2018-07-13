@@ -29,7 +29,7 @@
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
 
   export default {
-    name: 'assignmentChangeStatusModal',
+    name: 'AssignmentChangeStatusModal',
     components: {
       kModal,
       kRadioButton,

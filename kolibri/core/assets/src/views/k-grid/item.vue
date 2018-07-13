@@ -10,7 +10,7 @@
 <script>
 
   export default {
-    name: 'kGridItem',
+    name: 'KGridItem',
     props: {
       size: {
         type: [Number, String],

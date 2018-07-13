@@ -35,7 +35,7 @@
 <script>
 
   export default {
-    name: 'interactionItem',
+    name: 'InteractionItem',
     props: {
       interaction: {
         type: Object,

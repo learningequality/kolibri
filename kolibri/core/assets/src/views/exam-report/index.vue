@@ -65,7 +65,7 @@
   import pageStatus from './page-status';
 
   export default {
-    name: 'examReport',
+    name: 'ExamReport',
     $trs: {
       backTo: 'Back to exam report for { title }',
       correctAnswer: 'Correct answer',

@@ -19,7 +19,7 @@
   import onboardingForm from '../onboarding-form';
 
   export default {
-    name: 'defaultLanguageForm',
+    name: 'DefaultLanguageForm',
     $trs: {
       languageFormHeader: 'Please select the default language for Kolibri',
     },

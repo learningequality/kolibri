@@ -33,7 +33,7 @@
   import { mapState } from 'vuex';
 
   export default {
-    name: 'answerHistory',
+    name: 'AnswerHistory',
     $trs: {
       question: 'Question { num }',
     },

@@ -61,7 +61,7 @@
   };
 
   export default {
-    name: 'assignmentCopyModal',
+    name: 'AssignmentCopyModal',
     components: {
       kModal,
       kRadioButton,

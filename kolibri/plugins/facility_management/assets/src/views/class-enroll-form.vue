@@ -91,7 +91,7 @@
   import { Modals } from './../constants';
 
   export default {
-    name: 'managementClassEnroll',
+    name: 'ManagementClassEnroll',
     components: {
       kButton,
       kCheckbox,

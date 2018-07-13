@@ -46,7 +46,7 @@
   import facilityPermissionsForm from './onboarding-forms/facility-permissions-form';
 
   export default {
-    name: 'onboarding',
+    name: 'Onboarding',
     components: { progressToolbar, loadingPage, errorPage },
     mixins: [responsiveWindow],
     $trs: {

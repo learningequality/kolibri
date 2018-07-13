@@ -62,7 +62,7 @@
   import immersiveToolbar from './immersive-toolbar';
 
   export default {
-    name: 'coreBase',
+    name: 'CoreBase',
     $trs: {
       kolibriMessage: 'Kolibri',
       kolibriTitleMessage: '{ title } - Kolibri',

@@ -111,7 +111,7 @@
   };
 
   export default {
-    name: 'channelListItem',
+    name: 'ChannelListItem',
     components: {
       coachContentLabel,
       kDropdownMenu,

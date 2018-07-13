@@ -27,7 +27,7 @@
   import languageSwitcherMixin from './mixin';
 
   export default {
-    name: 'languageSwitcherModal',
+    name: 'LanguageSwitcherModal',
     components: { kModal, kRadioButton },
     mixins: [languageSwitcherMixin],
     $trs: {

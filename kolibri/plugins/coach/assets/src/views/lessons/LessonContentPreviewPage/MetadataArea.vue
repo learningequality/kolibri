@@ -72,7 +72,7 @@
   const completionDataRequired = ['m', 'n'];
 
   export default {
-    name: 'metadataArea',
+    name: 'MetadataArea',
     $trs: {
       completionModelDataHeader: 'Completion',
       completionRequirements: '{correct, number} out of {total, number} correct',

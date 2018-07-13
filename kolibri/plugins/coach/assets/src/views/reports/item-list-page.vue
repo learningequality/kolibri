@@ -93,7 +93,7 @@
   import alignMixin from './align-mixin';
 
   export default {
-    name: 'itemListPage',
+    name: 'ItemListPage',
     metaInfo() {
       return {
         title: this.documentTitle,

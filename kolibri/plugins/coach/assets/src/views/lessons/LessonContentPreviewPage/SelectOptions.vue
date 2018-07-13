@@ -30,7 +30,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    name: 'selectOptions',
+    name: 'SelectOptions',
     components: {
       kButton,
     },

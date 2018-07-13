@@ -32,7 +32,7 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
 
   export default {
-    name: 'classCreateModal',
+    name: 'ClassCreateModal',
     $trs: {
       addNewClassTitle: 'Add new class',
       classname: 'Class name',

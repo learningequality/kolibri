@@ -68,7 +68,7 @@
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
 
   export default {
-    name: 'manageExamModals',
+    name: 'ManageExamModals',
     components: {
       AssignmentChangeStatusModal,
       previewExamModal,

@@ -26,7 +26,7 @@
   import uiTooltip from 'keen-ui/src/UiTooltip';
 
   export default {
-    name: 'coreInfoIcon',
+    name: 'CoreInfoIcon',
     components: {
       uiIcon,
       uiTooltip,

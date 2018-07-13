@@ -57,7 +57,7 @@
   import RecipientSelector from './RecipientSelector';
 
   export default {
-    name: 'assignmentDetailsModal',
+    name: 'AssignmentDetailsModal',
     components: {
       kModal,
       kTextbox,

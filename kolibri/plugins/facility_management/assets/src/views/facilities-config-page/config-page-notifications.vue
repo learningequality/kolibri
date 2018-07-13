@@ -35,7 +35,7 @@
   import { notificationTypes } from '../../constants';
 
   export default {
-    name: 'configPageNotifications',
+    name: 'ConfigPageNotifications',
     components: { uiAlert },
     props: {
       notification: {

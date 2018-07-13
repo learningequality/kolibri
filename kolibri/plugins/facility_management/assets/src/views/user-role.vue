@@ -18,7 +18,7 @@
   };
 
   export default {
-    name: 'userRole',
+    name: 'UserRole',
     $trs: {
       admin: 'Admin',
       facilityCoachRoleLabel: 'Facility coach',

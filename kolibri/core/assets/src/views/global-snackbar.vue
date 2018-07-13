@@ -20,7 +20,7 @@
   import { mapGetters } from 'vuex';
 
   export default {
-    name: 'globalSnackbar',
+    name: 'GlobalSnackbar',
     components: {
       coreSnackbar,
     },

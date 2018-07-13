@@ -37,7 +37,7 @@
   import contentCardGroupGrid from './content-card-group-grid';
 
   export default {
-    name: 'topicsPage',
+    name: 'TopicsPage',
     $trs: {
       topics: 'Topics',
       navigate: 'Navigate content using headings',

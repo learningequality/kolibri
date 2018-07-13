@@ -18,7 +18,7 @@
   import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
-    name: 'deleteChannelModal',
+    name: 'DeleteChannelModal',
     components: {
       kModal,
     },

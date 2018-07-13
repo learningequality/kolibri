@@ -30,7 +30,7 @@
    Links for use inside the kNavbar
    */
   export default {
-    name: 'kNavbarLink',
+    name: 'KNavbarLink',
     components: { uiIcon },
     props: {
       /**

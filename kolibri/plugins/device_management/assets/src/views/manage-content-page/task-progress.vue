@@ -67,7 +67,7 @@
   };
 
   export default {
-    name: 'taskProgress',
+    name: 'TaskProgress',
     components: {
       kLinearLoader,
       kCircularLoader,

@@ -25,7 +25,7 @@
 <script>
 
   export default {
-    name: 'pdfPage',
+    name: 'PdfPage',
     props: {
       pageNum: {
         type: Number,

@@ -47,7 +47,7 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
 
   export default {
-    name: 'topicRow',
+    name: 'TopicRow',
     $trs: {
       exercisesSelected:
         '{selected, number} of {total, number} {total, plural, one {exercise} other {exercises}} selected',

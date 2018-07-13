@@ -30,7 +30,7 @@
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
 
   export default {
-    name: 'permissionsIcon',
+    name: 'PermissionsIcon',
     components: {
       uiIcon,
       uiTooltip,

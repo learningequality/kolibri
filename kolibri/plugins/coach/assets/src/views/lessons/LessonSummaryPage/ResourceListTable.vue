@@ -121,7 +121,7 @@
   }
 
   export default {
-    name: 'resourceListTable',
+    name: 'ResourceListTable',
     components: {
       coachContentLabel,
       uiIconButton,

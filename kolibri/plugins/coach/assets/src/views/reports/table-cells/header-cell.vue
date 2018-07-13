@@ -32,7 +32,7 @@
   import { SortOrders } from '../../../constants/reportConstants';
 
   export default {
-    name: 'headerCell',
+    name: 'HeaderCell',
     $trs: {
       ascending: '(sorted ascending)',
       descending: '(sorted descending)',

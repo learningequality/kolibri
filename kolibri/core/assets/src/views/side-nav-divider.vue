@@ -10,7 +10,7 @@
   import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
 
   export default {
-    name: 'sideNavDivider',
+    name: 'SideNavDivider',
     components: {
       coreMenuOption,
     },

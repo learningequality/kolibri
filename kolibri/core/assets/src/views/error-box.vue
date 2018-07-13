@@ -20,7 +20,7 @@
   import { mapState } from 'vuex';
 
   export default {
-    name: 'error',
+    name: 'Error',
     $trs: {
       errorHeader: 'Error',
       errorButtonLabel: 'Hide error',

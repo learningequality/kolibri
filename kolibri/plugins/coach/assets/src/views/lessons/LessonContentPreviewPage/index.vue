@@ -52,7 +52,7 @@
   import SelectOptions from './SelectOptions';
 
   export default {
-    name: 'lessonContentPreviewPage',
+    name: 'LessonContentPreviewPage',
     metaInfo() {
       return {
         title: this.content.title,

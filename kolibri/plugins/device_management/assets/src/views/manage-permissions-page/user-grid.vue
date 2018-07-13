@@ -57,7 +57,7 @@
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
 
   export default {
-    name: 'userGrid',
+    name: 'UserGrid',
     components: {
       kButton,
       permissionsIcon,

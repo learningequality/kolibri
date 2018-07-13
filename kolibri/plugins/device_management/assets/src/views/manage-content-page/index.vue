@@ -60,7 +60,7 @@
   import selectTransferSourceModal from './select-transfer-source-modal';
 
   export default {
-    name: 'manageContentPage',
+    name: 'ManageContentPage',
     $trs: {
       title: 'Content',
       import: 'Import',

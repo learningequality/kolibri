@@ -64,7 +64,7 @@ module.exports = {
       },
     ],
     'vue/attribute-hyphenation': [2, 'never'],
-    'vue/name-property-casing': [0],
+    'vue/name-property-casing': [2, 'PascalCase'],
     'vue/require-default-prop': 0,
     'vue/html-self-closing': [
       'error',

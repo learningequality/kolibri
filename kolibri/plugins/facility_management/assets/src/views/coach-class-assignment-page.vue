@@ -20,7 +20,7 @@
   import classEnrollForm from './class-enroll-form';
 
   export default {
-    name: 'coachClassAssignmentPage',
+    name: 'CoachClassAssignmentPage',
     metaInfo() {
       return {
         title: this.$tr('pageHeader', { className: this.className }),

@@ -24,7 +24,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    name: 'welcomeModal',
+    name: 'WelcomeModal',
     $trs: {
       welcomeModalHeader: 'Welcome to Kolibri!',
       welcomeModalContentDescription:

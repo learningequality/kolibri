@@ -32,7 +32,7 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
 
   export default {
-    name: 'createGroupModal',
+    name: 'CreateGroupModal',
     $trs: {
       newLearnerGroup: 'Add new group',
       learnerGroupName: 'Group name',

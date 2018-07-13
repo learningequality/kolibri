@@ -64,7 +64,7 @@
   import ResourceListTable from './ResourceListTable';
 
   export default {
-    name: 'lessonSummaryPage',
+    name: 'LessonSummaryPage',
     metaInfo() {
       return {
         title: this.lessonTitle,

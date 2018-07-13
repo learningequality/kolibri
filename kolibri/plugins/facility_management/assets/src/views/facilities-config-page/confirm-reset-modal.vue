@@ -21,7 +21,7 @@
   import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
-    name: 'confirmResetModal',
+    name: 'ConfirmResetModal',
     components: {
       kModal,
     },

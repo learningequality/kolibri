@@ -65,7 +65,7 @@
   import { PageNames } from '../constants';
 
   export default {
-    name: 'searchBox',
+    name: 'SearchBox',
     $trs: {
       searchBoxLabel: 'Search',
       clearButtonLabel: 'Clear',

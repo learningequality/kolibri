@@ -127,7 +127,7 @@
   import languageSwitcherFooter from './language-switcher-footer';
 
   export default {
-    name: 'signUpPage',
+    name: 'SignUpPage',
     $trs: {
       createAccount: 'Create an account',
       name: 'Full name',

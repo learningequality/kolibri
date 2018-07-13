@@ -28,7 +28,7 @@
    * The kButton component is used to trigger actions
    */
   export default {
-    name: 'kButton',
+    name: 'KButton',
     mixins: [buttonClassesMixin],
     props: {
       /**

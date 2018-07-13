@@ -66,7 +66,7 @@
   import subpageContainer from './containers/subpage-container';
 
   export default {
-    name: 'deviceInfoPage',
+    name: 'DeviceInfoPage',
     metaInfo() {
       return {
         title: this.$tr('header'),

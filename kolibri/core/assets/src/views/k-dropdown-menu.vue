@@ -47,7 +47,7 @@
    * The kDropdownMenu component is used to contain multiple actions
    */
   export default {
-    name: 'kDropdownMenu',
+    name: 'KDropdownMenu',
     components: {
       kButton,
       UiPopover,

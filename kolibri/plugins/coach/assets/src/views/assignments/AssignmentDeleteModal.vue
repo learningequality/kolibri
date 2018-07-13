@@ -18,7 +18,7 @@
   import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
-    name: 'assignmentDeleteModal',
+    name: 'AssignmentDeleteModal',
     components: {
       kModal,
     },

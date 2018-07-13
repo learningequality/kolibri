@@ -76,7 +76,7 @@
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
 
   export default {
-    name: 'editUserModal',
+    name: 'EditUserModal',
     $trs: {
       editUser: 'Edit user',
       fullName: 'Full name',

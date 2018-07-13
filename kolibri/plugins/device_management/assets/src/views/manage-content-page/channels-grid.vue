@@ -54,7 +54,7 @@
   import channelListItem from './channel-list-item';
 
   export default {
-    name: 'channelsGrid',
+    name: 'ChannelsGrid',
     components: {
       channelListItem,
       kLinearLoader,

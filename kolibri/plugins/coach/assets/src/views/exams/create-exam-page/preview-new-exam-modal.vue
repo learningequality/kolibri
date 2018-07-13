@@ -24,7 +24,7 @@
   import previewExamModal from '../exams-page/preview-exam-modal';
 
   export default {
-    name: 'previewNewExamModal',
+    name: 'PreviewNewExamModal',
     $trs: { randomize: 'Randomize questions' },
     components: {
       previewExamModal,

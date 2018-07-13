@@ -21,7 +21,7 @@
   import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
-    name: 'classDeleteModal',
+    name: 'ClassDeleteModal',
     $trs: {
       modalTitle: 'Delete class',
       delete: 'Delete class',

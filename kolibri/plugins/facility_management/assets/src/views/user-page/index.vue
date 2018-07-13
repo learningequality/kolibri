@@ -97,7 +97,7 @@
   const ALL_FILTER = 'all';
 
   export default {
-    name: 'userPage',
+    name: 'UserPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

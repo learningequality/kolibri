@@ -22,7 +22,7 @@
   import { selectionRootLink, topicListingLink } from '../../lessonsRouterUtils';
 
   export default {
-    name: 'searchTools',
+    name: 'SearchTools',
     components: {
       kBreadcrumbs,
     },

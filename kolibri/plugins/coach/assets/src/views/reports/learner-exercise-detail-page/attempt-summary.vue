@@ -73,7 +73,7 @@
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
 
   export default {
-    name: 'attemptSummary',
+    name: 'AttemptSummary',
     $trs: {
       statusMastered: 'Completed',
       statusInProgress: 'In progress',

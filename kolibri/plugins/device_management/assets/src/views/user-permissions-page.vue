@@ -89,7 +89,7 @@
   const FAILURE = 'FAILURE';
 
   export default {
-    name: 'userPermissionsPage',
+    name: 'UserPermissionsPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle', { name: this.userFullName }),

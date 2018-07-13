@@ -15,7 +15,7 @@
   import learnerExerciseReport from './learner-exercise-report';
 
   export default {
-    name: 'learnerExerciseDetailPage',
+    name: 'LearnerExerciseDetailPage',
     $trs: {
       backPrompt: 'Back to { backTitle }',
       documentTitleForRecentLearnerItems: 'Recent - Learner Details',

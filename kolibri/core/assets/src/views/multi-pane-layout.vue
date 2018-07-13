@@ -46,7 +46,7 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
 
   export default {
-    name: 'multiPaneLayout',
+    name: 'MultiPaneLayout',
     mixins: [responsiveWindow, responsiveElement],
     computed: {
       maxHeight() {

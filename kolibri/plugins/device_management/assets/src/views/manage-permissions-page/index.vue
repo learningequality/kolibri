@@ -34,7 +34,7 @@
   import userGrid from './user-grid';
 
   export default {
-    name: 'deviceManagementPage',
+    name: 'DeviceManagementPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

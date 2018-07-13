@@ -68,7 +68,7 @@
   const GlobalLangCode = vue.locale;
 
   export default {
-    name: 'videoRender',
+    name: 'VideoRender',
     $trs: {
       replay: 'Go back 10 seconds',
       // Pulled from https://github.com/videojs/video.js/blob/master/lang/en.json

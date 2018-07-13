@@ -12,7 +12,7 @@
 <script>
 
   export default {
-    name: 'subpageContainer',
+    name: 'SubpageContainer',
     props: {
       // set to true to match margins of core-base
       withSideMargin: {

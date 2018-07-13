@@ -80,7 +80,7 @@
   const desktopCarouselLimit = 15;
 
   export default {
-    name: 'recommendedPage',
+    name: 'RecommendedPage',
     $trs: {
       recommended: 'Recommended',
       popularSectionHeader: 'Most popular',

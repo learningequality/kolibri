@@ -24,7 +24,7 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
 
   export default {
-    name: 'contentCardGroupHeader',
+    name: 'ContentCardGroupHeader',
     components: { kRouterLink },
     $trs: {
       viewMoreFromSectionButton: 'View more',

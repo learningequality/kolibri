@@ -15,7 +15,7 @@
    * kRouterLink creates a styled router-link
    */
   export default {
-    name: 'kRouterLink',
+    name: 'KRouterLink',
     mixins: [buttonClassesMixin],
     props: {
       /**

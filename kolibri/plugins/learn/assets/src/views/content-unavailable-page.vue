@@ -15,7 +15,7 @@
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
 
   export default {
-    name: 'contentUnavailablePage',
+    name: 'ContentUnavailablePage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

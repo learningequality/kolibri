@@ -21,7 +21,7 @@
   import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
-    name: 'deleteUserModal',
+    name: 'DeleteUserModal',
     $trs: {
       deleteUser: 'Delete user',
       confirmation: "Are you sure you want to delete '{ username }'?",

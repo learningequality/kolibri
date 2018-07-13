@@ -24,7 +24,7 @@ import { refreshDriveList } from './taskActions';
 import { refreshChannelList, setToolbarTitle } from './manageContentActions';
 import { getAllRemoteChannels } from './availableChannelsActions';
 
-const translator = createTranslator('contentWizardTexts', {
+const translator = createTranslator('ContentWizardTexts', {
   loadingChannelsToolbar: 'Loading channels…',
   loadingChannelToolbar: 'Loading channel…',
 });

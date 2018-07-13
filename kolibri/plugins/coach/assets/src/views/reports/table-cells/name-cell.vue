@@ -29,7 +29,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
-    name: 'nameCell',
+    name: 'NameCell',
     components: {
       coachContentLabel,
       contentIcon,

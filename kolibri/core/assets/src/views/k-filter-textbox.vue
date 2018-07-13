@@ -40,7 +40,7 @@
    * Used to filter items via text input
    */
   export default {
-    name: 'kFilterTextbox',
+    name: 'KFilterTextbox',
     $trs: {
       filter: 'filter',
       clear: 'clear',

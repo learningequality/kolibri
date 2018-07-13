@@ -132,7 +132,7 @@
   import { lessonResourceViewerLink } from './classes/classPageLinks';
 
   export default {
-    name: 'contentPage',
+    name: 'ContentPage',
     $trs: {
       recommended: 'Recommended',
       author: 'Author: {author}',

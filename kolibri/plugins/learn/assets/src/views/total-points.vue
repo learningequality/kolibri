@@ -20,7 +20,7 @@
   import uiTooltip from 'keen-ui/src/UiTooltip';
 
   export default {
-    name: 'totalPoints',
+    name: 'TotalPoints',
     $trs: { pointsTooltip: 'You earned { points, number } points!' },
     components: {
       pointsIcon,

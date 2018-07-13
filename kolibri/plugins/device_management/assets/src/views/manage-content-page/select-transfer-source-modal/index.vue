@@ -22,7 +22,7 @@
   import selectDriveModal from './select-drive-modal';
 
   export default {
-    name: 'selectTransferSourceModal',
+    name: 'SelectTransferSourceModal',
     components: {
       selectImportSourceModal,
       selectDriveModal,

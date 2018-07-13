@@ -29,7 +29,7 @@
   import { ClassesPageNames } from '../constants';
 
   export default {
-    name: 'learnExamReportViewer',
+    name: 'LearnExamReportViewer',
     metaInfo() {
       return {
         title: this.$tr('documentTitle', { examTitle: this.exam.title }),

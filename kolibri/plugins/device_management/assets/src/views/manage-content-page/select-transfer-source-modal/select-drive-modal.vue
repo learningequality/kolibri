@@ -49,7 +49,7 @@
   import driveList from './drive-list';
 
   export default {
-    name: 'selectDriveModal',
+    name: 'SelectDriveModal',
     components: {
       driveList,
       UiAlert,

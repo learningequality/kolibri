@@ -73,7 +73,7 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
 
   export default {
-    name: 'immersiveToolbar',
+    name: 'ImmersiveToolbar',
     components: {
       uiToolbar,
       uiIconButton,

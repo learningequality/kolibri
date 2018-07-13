@@ -53,7 +53,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
-    name: 'contentNodeRow',
+    name: 'ContentNodeRow',
     components: {
       coachContentLabel,
       contentIcon,

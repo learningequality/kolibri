@@ -57,7 +57,7 @@
   import { LessonsPageNames } from '../constants/lessonsConstants';
 
   export default {
-    name: 'topNav',
+    name: 'TopNav',
     $trs: {
       recent: 'Recent',
       channels: 'Channels',

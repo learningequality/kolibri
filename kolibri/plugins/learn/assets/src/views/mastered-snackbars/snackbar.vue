@@ -31,7 +31,7 @@
   import UiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {
-    name: 'snackbar',
+    name: 'Snackbar',
     $trs: {
       close: 'Close',
     },

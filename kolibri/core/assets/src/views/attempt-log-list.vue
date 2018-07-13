@@ -64,7 +64,7 @@
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
 
   export default {
-    name: 'attemptLogList',
+    name: 'AttemptLogList',
     components: {
       coachContentLabel,
     },

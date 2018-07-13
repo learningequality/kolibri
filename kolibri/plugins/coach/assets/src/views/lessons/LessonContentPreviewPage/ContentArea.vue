@@ -28,7 +28,7 @@
   import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
 
   export default {
-    name: 'contentArea',
+    name: 'ContentArea',
     components: {
       contentRenderer,
     },

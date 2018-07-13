@@ -46,7 +46,7 @@
   import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
-    name: 'coreMenuOption',
+    name: 'CoreMenuOption',
     components: {
       UiIcon,
     },

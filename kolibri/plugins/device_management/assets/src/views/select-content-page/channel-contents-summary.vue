@@ -56,7 +56,7 @@
   import bytesForHumans from '../manage-content-page/bytesForHumans';
 
   export default {
-    name: 'channelContentsSummary',
+    name: 'ChannelContentsSummary',
     components: {
       UiIcon,
     },

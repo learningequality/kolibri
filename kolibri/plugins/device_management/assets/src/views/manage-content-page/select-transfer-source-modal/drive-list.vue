@@ -32,7 +32,7 @@
   import UiAlert from 'keen-ui/src/UiAlert';
 
   export default {
-    name: 'driveList',
+    name: 'DriveList',
     components: {
       kRadioButton,
       UiAlert,

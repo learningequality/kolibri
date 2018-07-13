@@ -41,7 +41,7 @@
   import { PageNames } from '../constants';
 
   export default {
-    name: 'topNav',
+    name: 'TopNav',
     $trs: {
       classes: 'Classes',
       data: 'Data',

@@ -32,7 +32,7 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
 
   export default {
-    name: 'classRenameModal',
+    name: 'ClassRenameModal',
     $trs: {
       modalTitle: 'Change class name',
       classname: 'Class name',

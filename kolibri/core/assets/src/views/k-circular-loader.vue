@@ -16,7 +16,7 @@
    * Used to show indeterminate loading
    */
   export default {
-    name: 'kCircularLoader',
+    name: 'KCircularLoader',
     components: {
       UiProgressCircular,
     },

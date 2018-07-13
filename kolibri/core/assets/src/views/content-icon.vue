@@ -89,7 +89,7 @@
   import uiTooltip from 'keen-ui/src/UiTooltip';
 
   export default {
-    name: 'contentIcon',
+    name: 'ContentIcon',
     $trs: {
       topic: 'Topic',
       channel: 'Channel',

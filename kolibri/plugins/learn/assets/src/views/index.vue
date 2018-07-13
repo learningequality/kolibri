@@ -105,7 +105,7 @@
   ];
 
   export default {
-    name: 'learn',
+    name: 'Learn',
     $trs: {
       learnTitle: 'Learn',
       recommended: 'Recommended',

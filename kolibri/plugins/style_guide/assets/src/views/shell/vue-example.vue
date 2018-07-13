@@ -10,7 +10,7 @@
 <script>
 
   export default {
-    name: 'vueExample',
+    name: 'VueExample',
     props: {
       code: {
         type: String,

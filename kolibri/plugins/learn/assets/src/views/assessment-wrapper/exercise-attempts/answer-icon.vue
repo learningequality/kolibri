@@ -38,7 +38,7 @@
   import UiTooltip from 'keen-ui/src/UiTooltip';
 
   export default {
-    name: 'answerIcon',
+    name: 'AnswerIcon',
     components: {
       UiTooltip,
     },

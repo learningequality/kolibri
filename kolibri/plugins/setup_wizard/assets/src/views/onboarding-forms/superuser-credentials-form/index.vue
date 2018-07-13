@@ -63,7 +63,7 @@
   import onboardingForm from '../onboarding-form';
 
   export default {
-    name: 'superuserCredentialsForm',
+    name: 'SuperuserCredentialsForm',
     components: {
       onboardingForm,
       kTextbox,

@@ -82,7 +82,7 @@
   ];
 
   export default {
-    name: 'facilityConfigPage',
+    name: 'FacilityConfigPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

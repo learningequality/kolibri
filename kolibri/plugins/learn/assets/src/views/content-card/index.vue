@@ -49,7 +49,7 @@
   import cardThumbnail from './card-thumbnail';
 
   export default {
-    name: 'contentCard',
+    name: 'ContentCard',
     $trs: {
       copies: '{ num, number} locations',
     },

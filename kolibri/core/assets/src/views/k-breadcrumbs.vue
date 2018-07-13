@@ -107,7 +107,7 @@
    * Used to aid deeply nested navigation of content channels, topics, and resources
    */
   export default {
-    name: 'kBreadcrumbs',
+    name: 'KBreadcrumbs',
     components: { uiIconButton, kRouterLink },
     mixins: [ResponsiveElement],
     props: {

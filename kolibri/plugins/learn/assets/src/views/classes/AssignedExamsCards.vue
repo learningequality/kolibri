@@ -34,7 +34,7 @@
   import { examViewerLink, examReportViewerLink } from './classPageLinks';
 
   export default {
-    name: 'assignedExamsCards',
+    name: 'AssignedExamsCards',
     components: {
       ContentCard,
     },

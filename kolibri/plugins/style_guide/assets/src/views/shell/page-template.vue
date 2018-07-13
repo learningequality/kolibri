@@ -12,7 +12,7 @@
 <script>
 
   export default {
-    name: 'pageTemplate',
+    name: 'PageTemplate',
     props: {
       title: {
         type: String,

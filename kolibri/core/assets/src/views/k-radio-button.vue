@@ -53,7 +53,7 @@
    * Used to display all options
    */
   export default {
-    name: 'kRadioButton',
+    name: 'KRadioButton',
     model: {
       prop: 'currentValue',
     },

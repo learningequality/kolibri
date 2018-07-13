@@ -29,7 +29,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
 
   export default {
-    name: 'textTruncator',
+    name: 'TextTruncator',
     components: {
       kButton,
     },

@@ -59,7 +59,7 @@
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
 
   export default {
-    name: 'manageLessonModals',
+    name: 'ManageLessonModals',
     components: {
       AssignmentChangeStatusModal,
       AssignmentDetailsModal,

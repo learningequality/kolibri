@@ -32,7 +32,7 @@
   import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
-    name: 'renameGroupModal',
+    name: 'RenameGroupModal',
     $trs: {
       renameLearnerGroup: 'Rename group',
       learnerGroupName: 'Group name',

@@ -41,7 +41,7 @@
   import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
-    name: 'resetUserPasswordModal',
+    name: 'ResetUserPasswordModal',
     components: {
       kModal,
       kTextbox,

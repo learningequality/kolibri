@@ -125,7 +125,7 @@
   import changeUserPasswordModal from './change-user-password-modal';
 
   export default {
-    name: 'profilePage',
+    name: 'ProfilePage',
     $trs: {
       genericError: 'Something went wrong',
       success: 'Profile details updated',

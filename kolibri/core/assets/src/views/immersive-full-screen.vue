@@ -31,7 +31,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   export default {
-    name: 'immersiveFullScreen',
+    name: 'ImmersiveFullScreen',
     mixins: [responsiveWindow],
     props: {
       backPageLink: {

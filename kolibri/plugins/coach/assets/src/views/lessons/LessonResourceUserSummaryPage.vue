@@ -215,7 +215,7 @@
   import { LessonsPageNames } from '../../constants/lessonsConstants';
 
   export default {
-    name: 'lessonResourceUserSummaryPage',
+    name: 'LessonResourceUserSummaryPage',
     metaInfo() {
       return {
         title: this.resourceTitle,

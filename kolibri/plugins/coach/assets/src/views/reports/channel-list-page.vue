@@ -70,7 +70,7 @@
   import breadcrumbs from './breadcrumbs';
 
   export default {
-    name: 'channelListPage',
+    name: 'ChannelListPage',
     metaInfo() {
       return {
         title: this.documentTitle,

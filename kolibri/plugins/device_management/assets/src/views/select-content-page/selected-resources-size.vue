@@ -51,7 +51,7 @@
   const RequiredNumber = { type: Number, required: true };
 
   export default {
-    name: 'selectedResourcesSize',
+    name: 'SelectedResourcesSize',
     components: {
       kButton,
       uiAlert,

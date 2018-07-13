@@ -107,7 +107,7 @@
 
   export default {
     // TODO update component name after string freeze
-    name: 'classEnrollForm',
+    name: 'ClassEnrollForm',
     $trs: {
       enrollLearnerButtonLabel: 'Enroll learners',
       assignCoachesButtonLabel: 'Assign coaches',

@@ -85,7 +85,7 @@
   const SNACKBARS = { POINTS: 'POINTS', NEXT_RESOURCE: 'NEXT_RESOURCE' };
 
   export default {
-    name: 'masteredSnackbars',
+    name: 'MasteredSnackbars',
     components: {
       pointsIcon,
       progressIcon,

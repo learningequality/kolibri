@@ -35,7 +35,7 @@
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
 
   export default {
-    name: 'exerciseRow',
+    name: 'ExerciseRow',
     $trs: {
       selectExercise: 'Select exercise',
     },

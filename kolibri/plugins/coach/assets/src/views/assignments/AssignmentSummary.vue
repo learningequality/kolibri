@@ -81,7 +81,7 @@
   import StatusIcon from './StatusIcon';
 
   export default {
-    name: 'assignmentSummary',
+    name: 'AssignmentSummary',
     components: {
       CoreInfoIcon,
       contentIcon,

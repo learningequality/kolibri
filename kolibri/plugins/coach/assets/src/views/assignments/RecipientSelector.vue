@@ -29,7 +29,7 @@
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
 
   export default {
-    name: 'recipientSelector',
+    name: 'RecipientSelector',
     components: {
       kButton,
       kCheckbox,

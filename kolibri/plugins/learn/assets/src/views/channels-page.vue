@@ -22,7 +22,7 @@
   import contentCardGroupGrid from './content-card-group-grid';
 
   export default {
-    name: 'channelsPage',
+    name: 'ChannelsPage',
     $trs: {
       channels: 'Channels',
       documentTitle: 'All channels',

@@ -42,7 +42,7 @@
    * Used to select or filter items
    */
   export default {
-    name: 'kSelect',
+    name: 'KSelect',
     components: {
       uiSelect,
     },

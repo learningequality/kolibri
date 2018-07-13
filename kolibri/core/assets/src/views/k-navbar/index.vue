@@ -47,7 +47,7 @@
    * Used for navigation between sub-pages of a top-level Kolibri section
    */
   export default {
-    name: 'kNavbar',
+    name: 'KNavbar',
     mixins: [responsiveElement],
     data: () => ({
       enoughSpace: true,

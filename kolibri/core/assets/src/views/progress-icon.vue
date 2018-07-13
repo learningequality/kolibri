@@ -29,7 +29,7 @@
   import uiTooltip from 'keen-ui/src/UiTooltip';
 
   export default {
-    name: 'progressIcon',
+    name: 'ProgressIcon',
     $trs: {
       inProgress: 'In progress',
       completed: 'Completed',

@@ -24,7 +24,7 @@
   import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
 
   export default {
-    name: 'submissionStatePage',
+    name: 'SubmissionStatePage',
     components: { kCircularLoader },
     props: {
       header: {

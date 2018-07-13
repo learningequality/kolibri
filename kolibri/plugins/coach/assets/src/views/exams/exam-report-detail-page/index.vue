@@ -29,7 +29,7 @@
   import { PageNames } from '../../../constants';
 
   export default {
-    name: 'coachExamDetailPage',
+    name: 'CoachExamDetailPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

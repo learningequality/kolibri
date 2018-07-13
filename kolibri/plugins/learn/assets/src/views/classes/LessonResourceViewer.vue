@@ -31,7 +31,7 @@
   import { lessonResourceViewerLink } from './classPageLinks';
 
   export default {
-    name: 'lessonResourceViewer',
+    name: 'LessonResourceViewer',
     metaInfo() {
       return {
         title: this.currentLessonResource.title,

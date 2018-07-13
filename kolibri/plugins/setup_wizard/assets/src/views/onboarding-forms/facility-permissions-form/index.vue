@@ -108,7 +108,7 @@
   import onboardingForm from '../onboarding-form';
 
   export default {
-    name: 'facilityPermissionsForm',
+    name: 'FacilityPermissionsForm',
     components: {
       onboardingForm,
       kRadioButton,

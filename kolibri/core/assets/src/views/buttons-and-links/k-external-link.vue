@@ -15,7 +15,7 @@
    * kExternalLink creates a styled external link
    */
   export default {
-    name: 'kExternalLink',
+    name: 'KExternalLink',
     mixins: [buttonClassesMixin],
     props: {
       /**

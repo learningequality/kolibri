@@ -96,7 +96,7 @@
   import sortBy from 'lodash/sortBy';
 
   export default {
-    name: 'groupSection',
+    name: 'GroupSection',
     $trs: {
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       moveLearners: 'Move Learners',
