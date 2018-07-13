@@ -39,7 +39,7 @@ export function showLessonsRootPage(store, classId) {
 export function refreshClassLessons(store, classId) {
   return LessonResource.getCollection({ collection: classId })
     .fetch(true)
-    ._promise.then(lessons => {
+    .then(lessons => {
       store.commit('SET_CLASS_LESSONS', lessons);
       // resolve lessons in case it's needed
       return lessons;
@@ -263,7 +263,7 @@ function getResourceCache(store, resourceIds) {
       ids: nonCachedResourceIds,
     })
       .fetch()
-      ._promise.then(contentNodes => {
+      .then(contentNodes => {
         contentNodes.forEach(contentNode => store.commit('ADD_TO_RESOURCE_CACHE', contentNode));
         return resourceCache;
       });
@@ -366,7 +366,7 @@ export function updateLessonStatus(store, { lessonId, isActive }) {
     .save({
       is_active: isActive,
     })
-    ._promise.then(lesson => {
+    .then(lesson => {
       store.commit('SET_CURRENT_LESSON', lesson);
       setLessonsModal(store, null);
 
@@ -390,7 +390,7 @@ export function updateLessonStatus(store, { lessonId, isActive }) {
 export function deleteLesson(store, { lessonId, classId }) {
   LessonResource.getModel(lessonId)
     .delete()
-    ._promise.then(() => refreshClassLessons(store, classId))
+    .then(() => refreshClassLessons(store, classId))
     .then(() => {
       router.replace({
         name: LessonsPageNames.ROOT,
@@ -416,7 +416,7 @@ export function deleteLesson(store, { lessonId, classId }) {
 export function copyLesson(store, { payload, classroomName }) {
   LessonResource.createModel(payload)
     .save()
-    ._promise.then(() => {
+    .then(() => {
       setLessonsModal(store, null);
       store.dispatch('createSnackbar', {
         text: createTranslator('LessonCopiedSnackbar', {

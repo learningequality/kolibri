@@ -55,6 +55,6 @@ export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
   if (FACILITY_ROLES.includes(newRoleKind)) {
     return RoleResource.getModel(currentFacilityRole.id)
       .delete()
-      ._promise.then(createFacilityRole);
+      .then(createFacilityRole);
   }
 }

@@ -13,7 +13,7 @@ function fetchFacilityUsers(store) {
 function fetchDevicePermissions() {
   return DevicePermissionsResource.getCollection()
     .fetch(true)
-    ._promise.then(function transform(permissions) {
+    .then(function transform(permissions) {
       // returns object, where userid is the key
       return mapValues(groupBy(permissions, 'user'), head);
     });
@@ -27,8 +27,8 @@ function fetchDevicePermissions() {
  * @returns Promise<{ permissions, user }, FacilityUserError>
  */
 function fetchUserPermissions(userId) {
-  const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch(true)._promise;
-  const userPromise = FacilityUserResource.getModel(userId).fetch()._promise;
+  const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch(true);
+  const userPromise = FacilityUserResource.getModel(userId).fetch();
   return permissionsPromise
     .then(function onPermissionsSuccess(permissions) {
       return userPromise.then(function onUserSuccess(user) {
@@ -60,7 +60,7 @@ export function showManagePermissionsPage(store) {
   const promises = ConditionalPromise.all([
     fetchFacilityUsers(store),
     fetchDevicePermissions(),
-  ]).only(samePageCheckGenerator(store))._promise;
+  ]).only(samePageCheckGenerator(store));
   return promises
     .then(function onSuccess([users, permissions]) {
       store.commit('SET_PERMISSIONS_PAGE_STATE', {
@@ -83,7 +83,7 @@ export function showManagePermissionsPage(store) {
 export function showUserPermissionsPage(store, userId) {
   const promise = ConditionalPromise.all([fetchUserPermissions(userId)]).only(
     samePageCheckGenerator(store)
-  )._promise;
+  );
   return promise
     .then(function onUserSuccess([data]) {
       return store.commit('SET_USER_PERMISSIONS_PAGE_STATE', data);

@@ -45,7 +45,7 @@ export function showLessonResourceUserSummaryPage(store, params) {
         content_node_id: contentNode.pk,
       })
         .fetch()
-        ._promise.then(userReports => {
+        .then(userReports => {
           const getUserReport = userId => find(userReports, { pk: userId }) || {};
           const userData = lesson.learner_ids.map(learnerId => {
             const { full_name, last_active, progress } = getUserReport(learnerId);

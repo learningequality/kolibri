@@ -37,7 +37,7 @@ export function downloadChannelMetadata(store) {
               'on_device_resources',
               'on_device_file_size',
             ],
-          }).fetch()._promise;
+          }).fetch();
         });
       }
       return Promise.reject({ errorType: ErrorTypes.CHANNEL_TASK_ERROR });

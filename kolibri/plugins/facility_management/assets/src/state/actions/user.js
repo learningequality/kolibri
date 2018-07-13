@@ -106,7 +106,7 @@ export function updateFacilityUser(store, { userId, updates }) {
   const facilityUserHasChanged = Object.keys(changedValues).length > 0;
 
   if (facilityUserHasChanged) {
-    return FacilityUserResource.getModel(userId).save(changedValues)._promise;
+    return FacilityUserResource.getModel(userId).save(changedValues);
   }
   return Promise.resolve({
     ...origUserState,

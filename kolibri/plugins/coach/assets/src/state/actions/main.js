@@ -10,7 +10,7 @@ import { PageNames } from '../../constants';
 export function shouldRedirectToClassRootPage() {
   return ClassroomResource.getCollection({ role: 'coach' })
     .fetch()
-    ._promise.then(classrooms => {
+    .then(classrooms => {
       if (classrooms.length === 1) {
         return classrooms[0].id;
       }

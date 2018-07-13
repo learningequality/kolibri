@@ -323,7 +323,7 @@ export function showExerciseDetailView(
 ) {
   return ContentNodeResource.getModel(contentId)
     .fetch()
-    ._promise.then(
+    .then(
       exercise => {
         return Promise.all([
           AttemptLogResource.getCollection({
@@ -463,7 +463,7 @@ export function showLearnerReportsForItem(store, params) {
 export function showLearnerList(store, classId) {
   preparePageNameAndTitle(store, PageNames.LEARNER_LIST);
   const promises = [
-    FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
+    FacilityUserResource.getCollection({ member_of: classId }).fetch(true),
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
     setClassState(store, classId),
   ];

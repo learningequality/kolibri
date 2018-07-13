@@ -208,9 +208,9 @@ export function kolibriLogout() {
 export function getCurrentSession(store, force = false) {
   let sessionPromise;
   if (force) {
-    sessionPromise = SessionResource.getModel('current').fetch(true)._promise;
+    sessionPromise = SessionResource.getModel('current').fetch(true);
   } else {
-    sessionPromise = SessionResource.getModel('current').fetch()._promise;
+    sessionPromise = SessionResource.getModel('current').fetch();
   }
   return sessionPromise
     .then(session => {

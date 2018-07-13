@@ -10,8 +10,7 @@ import preparePage from './helpers/preparePage';
 // ConditionalPromise does not chain with `catch` in the expected way
 function resolveOnlyIfOnSamePage(promises, store) {
   const ident = x => x;
-  return ConditionalPromise.all(promises).only(samePageCheckGenerator(store), ident, ident)
-    ._promise;
+  return ConditionalPromise.all(promises).only(samePageCheckGenerator(store), ident, ident);
 }
 
 function showNotification(store, notificationType) {

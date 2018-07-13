@@ -194,7 +194,7 @@ export function showAvailableChannelsPage(store, params) {
       getInstalledChannelsPromise(store).then(() => {
         return RemoteChannelResource.getCollection()
           .fetch()
-          ._promise.then(channels => {
+          .then(channels => {
             return getAllRemoteChannels(store, channels).then(allChannels => resolve(allChannels));
           })
           .catch(() => reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE }));
