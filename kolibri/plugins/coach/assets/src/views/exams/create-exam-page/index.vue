@@ -353,6 +353,8 @@
         'goToTopLevel',
         'createExamAndRoute',
         'addExercise',
+        'addExercisesToExam',
+        'removeExercisesFromExam',
         'removeExercise',
         'setExamsModal',
         'setSelectedExercises',
@@ -404,14 +406,14 @@
       },
       handleAddTopicExercises(allExercisesWithinTopic, topicTitle, topicId) {
         this.selectionMade = true;
-        allExercisesWithinTopic.forEach(exercise => this.addExercise(exercise));
+        this.addExercisesToExam(allExercisesWithinTopic);
         this.createSnackbar({ text: `${this.$tr('added')} ${topicTitle}`, autoDismiss: true });
         if (!this.dummyChannelId) {
           this.setDummyChannelId(topicId);
         }
       },
       handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
-        allExercisesWithinTopic.forEach(exercise => this.removeExercise(exercise));
+        this.removeExercisesFromExam(allExercisesWithinTopic);
         this.createSnackbar({ text: `${this.$tr('removed')} ${topicTitle}`, autoDismiss: true });
       },
       preview() {
