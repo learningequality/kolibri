@@ -258,11 +258,11 @@ class ImportContentTestCase(TestCase):
             self.assertTrue('Permission denied' in logging_mock.call_args_list[0][0][0])
             annotation_mock.assert_not_called()
 
-    @patch('kolibri.content.utils.transfer.os.path.getsize', return_value=0)
-    @patch('kolibri.content.management.commands.importcontent.os.path.isfile', return_value=False)
-    @patch('kolibri.content.management.commands.importcontent.paths.get_content_storage_file_path')
-    @patch('kolibri.content.management.commands.importcontent.AsyncCommand.cancel')
-    @patch('kolibri.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, True, True])
+    @patch('kolibri.core.content.utils.transfer.os.path.getsize', return_value=0)
+    @patch('kolibri.core.content.management.commands.importcontent.os.path.isfile', return_value=False)
+    @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path')
+    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel')
+    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, True, True])
     def test_local_import_source_corrupted(self, is_cancelled_mock, cancel_mock, path_mock, isfile_mock, getsize_mock, annotation_mock):
         local_src_path = tempfile.mkstemp()[1]
         local_dest_path = tempfile.mkstemp()[1]
