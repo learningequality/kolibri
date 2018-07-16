@@ -27,12 +27,6 @@ class ContentReportAPITestCase(APITestCase):
     def setUp(self):
         provision_device()
 
-    def _reverse_channel_url(self, pattern_name, extra_kwargs={}):
-        """Helper method to reverse a URL using the current channel ID"""
-        kwargs = {"channel_id": self.the_channel_id}
-        kwargs.update(extra_kwargs)
-        return reverse(pattern_name, kwargs=kwargs)
-
     def test_contentreport_progress(self):
 
         # set up data for testing progress_fraction field on content node endpoint
@@ -61,11 +55,12 @@ class ContentReportAPITestCase(APITestCase):
             )
 
         def assert_progress(node, progress):
-            response = self.client.get(self._reverse_channel_url("kolibri:coach:contentreport-list", {
+            response = self.client.get(reverse("kolibri:coach:contentreport-list"), {
                 'content_node_id': node.id,
                 'collection_kind': collection_kinds.FACILITY,
                 'collection_id': facility.id,
-            }))
+                'channel_id': self.the_channel_id,
+            })
             for i, prog in enumerate(progress):
                 self.assertEqual(response.data[i]["progress"], prog)
 
@@ -123,11 +118,12 @@ class ContentReportAPITestCase(APITestCase):
 
         # check that only the log less than 7 days ago returns from recent report
         self.client.login(username="admin", password="pass", facility=facility)
-        response = self.client.get(self._reverse_channel_url("kolibri:coach:recentreport-list", {
+        response = self.client.get(reverse("kolibri:coach:recentreport-list"), {
             'content_node_id': root.id,
             'collection_kind': collection_kinds.FACILITY,
             'collection_id': facility.id,
-        }))
+            'channel_id': self.the_channel_id,
+        })
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['pk'], c2c3.pk)
 
@@ -174,9 +170,10 @@ class ContentReportAPITestCase(APITestCase):
 
         # check that only the log less than 7 days ago returns from recent report
         self.client.login(username="admin", password="pass", facility=facility)
-        response = self.client.get(self._reverse_channel_url("kolibri:coach:recentreport-list", {
+        response = self.client.get(reverse("kolibri:coach:recentreport-list"), {
             'content_node_id': root.id,
             'collection_kind': collection_kinds.FACILITY,
             'collection_id': facility.id,
-        }))
+            'channel_id': self.the_channel_id,
+        })
         self.assertEqual(len(response.data), 1)

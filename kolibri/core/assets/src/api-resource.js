@@ -17,7 +17,7 @@ export class Model {
    * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
    * behaviour for the model.
    */
-  constructor(data, resourceIds = {}, resource) {
+  constructor(data, resource) {
     this.resource = resource;
     if (!this.resource) {
       throw new TypeError('resource must be defined');
@@ -34,9 +34,6 @@ export class Model {
     if (Object.keys(data).length === 0) {
       throw new TypeError('data must be instantiated with some data');
     }
-
-    const filteredResourceIds = this.resource.filterAndCheckResourceIds(resourceIds);
-    this.resourceIds = filteredResourceIds;
 
     // Assign any data to the attributes property of the Model.
     this.attributes = {};
@@ -224,12 +221,8 @@ export class Model {
     return promise;
   }
 
-  get orderedUrlParams() {
-    return this.resource.resourceIds.map(key => this.resourceIds[key]);
-  }
-
   get url() {
-    return this.resource.modelUrl(...this.orderedUrlParams, this.id);
+    return this.resource.modelUrl(this.id);
   }
 
   get id() {
@@ -260,11 +253,9 @@ export class Collection {
    * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
    * behaviour for the collection.
    */
-  constructor(resourceIds = {}, getParams = {}, data = [], resource) {
+  constructor(getParams = {}, data = [], resource) {
     this.resource = resource;
     this.getParams = getParams;
-    const filteredResourceIds = this.resource.filterAndCheckResourceIds(resourceIds);
-    this.resourceIds = filteredResourceIds;
     if (!this.resource) {
       throw new TypeError('resource must be defined');
     }
@@ -449,12 +440,8 @@ export class Collection {
     return promise;
   }
 
-  get orderedUrlParams() {
-    return this.resource.resourceIds.map(key => this.resourceIds[key]);
-  }
-
   get url() {
-    return (this._url ? this._url : this.resource.collectionUrl)(...this.orderedUrlParams);
+    return (this._url ? this._url : this.resource.collectionUrl)();
   }
 
   set url(url) {
@@ -488,12 +475,12 @@ export class Collection {
     modelsToSet.forEach(model => {
       // Note: this method ensures instantiation deduplication of models within the collection
       //  and across collections.
-      const setModel = this.resource.addModel(model, this.resourceIds);
+      const setModel = this.resource.addModel(model);
       let cacheKey;
       if (setModel.id) {
         cacheKey = setModel.id;
       } else {
-        cacheKey = this.resource.cacheKey(setModel.attributes, setModel.resourceIds);
+        cacheKey = this.resource.cacheKey(setModel.attributes);
       }
       if (!this._model_map[cacheKey]) {
         this._model_map[cacheKey] = setModel;
@@ -541,7 +528,7 @@ export class Resource {
   /**
    * Create a resource with a Django REST API name corresponding to the name parameter.
    */
-  constructor({ name, idKey = 'id', resourceIds = [], ...options } = {}) {
+  constructor({ name, idKey = 'id', ...options } = {}) {
     if (!name) {
       throw ReferenceError('Resource must be instantiated with a name property');
     }
@@ -556,14 +543,6 @@ export class Resource {
     }
     this.name = name;
     this.idKey = idKey;
-    /*
-    An ordered Array that corresponds to the order in which parameters are filled in the Django URL.
-    Should be a list of the kwarg names that fill these in - note: this is by convention,
-    they could technically be anything, as long as those values were passed into the Models and
-    Collections with these names, but to make our code less opaque, we standardize around using
-    the same kwargs that the Django URLs also use.
-     */
-    this.resourceIds = resourceIds;
     const optionsDefinitions = Object.getOwnPropertyDescriptors(options);
     Object.keys(optionsDefinitions).forEach(key => {
       Object.defineProperty(this, key, optionsDefinitions[key]);
@@ -591,22 +570,11 @@ export class Resource {
    * @param {Object} getParams - default parameters to use for Collection fetching.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  getCollection(resourceIds = {}, getParams = {}) {
-    if (!this.hasResourceIds) {
-      if (Object.keys(resourceIds).length && Object.keys(getParams).length) {
-        throw TypeError(
-          `resourceIds and getParams passed to getCollection method of ${this.name} ` +
-            'resource, which does not use resourceIds, only pass getParams for this resource'
-        );
-      } else if (Object.keys(resourceIds).length) {
-        getParams = resourceIds; // eslint-disable-line no-param-reassign
-      }
-    }
-    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
+  getCollection(getParams = {}) {
     let collection;
-    const key = this.cacheKey(getParams, filteredResourceIds);
+    const key = this.cacheKey(getParams);
     if (!this.collections[key]) {
-      collection = this.createCollection(filteredResourceIds, getParams, []);
+      collection = this.createCollection(getParams, []);
     } else {
       collection = this.collections[key];
     }
@@ -621,23 +589,9 @@ export class Resource {
    * details of data.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  createCollection(resourceIds = {}, getParams = {}, data = []) {
-    if (!this.hasResourceIds) {
-      if (Object.keys(resourceIds).length && Object.keys(getParams).length && data.length) {
-        throw TypeError(
-          `resourceIds and getParams passed to getCollection method of ${this.name} ` +
-            'resource, which does not use resourceIds, only pass getParams for this resource'
-        );
-      } else if (Object.keys(resourceIds).length) {
-        if (Object.keys(getParams).length) {
-          data = getParams; // eslint-disable-line no-param-reassign
-        }
-        getParams = resourceIds; // eslint-disable-line no-param-reassign
-      }
-    }
-    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
-    const collection = new Collection(filteredResourceIds, getParams, data, this);
-    const key = this.cacheKey(getParams, filteredResourceIds);
+  createCollection(getParams = {}, data = []) {
+    const collection = new Collection(getParams, data, this);
+    const key = this.cacheKey(getParams);
     this.collections[key] = collection;
     return collection;
   }
@@ -649,21 +603,10 @@ export class Resource {
    * @param {Number} [page=1] - Which page to return.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  getPagedCollection(resourceIds = {}, getParams = {}, pageSize = 20, page = 1) {
-    if (!this.hasResourceIds) {
-      if (Object.keys(resourceIds).length && Object.keys(getParams).length) {
-        throw TypeError(
-          `resourceIds and getParams passed to getPagedCollection method of ${this.name} ` +
-            'resource, which does not use resourceIds, only pass getParams for this resource'
-        );
-      } else if (Object.keys(resourceIds).length) {
-        getParams = resourceIds; // eslint-disable-line no-param-reassign
-      }
-    }
-    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
+  getPagedCollection(getParams = {}, pageSize = 20, page = 1) {
     const pagedParams = { page, page_size: pageSize };
     Object.assign(pagedParams, getParams);
-    const collection = this.getCollection(filteredResourceIds, pagedParams);
+    const collection = this.getCollection(pagedParams);
     collection.page = page;
     collection.pageSize = pageSize;
     return collection;
@@ -674,12 +617,11 @@ export class Resource {
    * @param {String} id - The primary key of the Model instance.
    * @returns {Model} - Returns a Model instance.
    */
-  getModel(id, resourceIds = {}) {
-    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
+  getModel(id) {
     let model;
-    const cacheKey = this.cacheKey({ [this.idKey]: id }, filteredResourceIds);
+    const cacheKey = this.cacheKey({ [this.idKey]: id });
     if (!this.models[cacheKey]) {
-      model = this.createModel({ [this.idKey]: id }, filteredResourceIds);
+      model = this.createModel({ [this.idKey]: id });
     } else {
       model = this.models[cacheKey];
     }
@@ -698,29 +640,25 @@ export class Resource {
   /**
    * Add a model to the resource for deduplication, dirty checking, and tracking purposes.
    * @param {Object} data - The data for the model to add.
-   * @param {Object} [resourceIds = {}]
    * @returns {Model} - Returns the instantiated Model.
    */
-  createModel(data, resourceIds = {}) {
-    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
-    const model = new Model(data, filteredResourceIds, this);
-    return this.addModel(model, filteredResourceIds);
+  createModel(data) {
+    const model = new Model(data, this);
+    return this.addModel(model);
   }
 
   /**
    * Add a model to the resource for deduplication, dirty checking, and tracking purposes.
    * @param {Object|Model} model - Either the data for the model to add, or the Model itself.
-   * @param {Object} [resourceIds = {}]
    * @returns {Model} - Returns the instantiated Model.
    */
-  addModel(model, resourceIds = {}) {
-    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
+  addModel(model) {
     if (!(model instanceof Model)) {
-      return this.createModel(model, filteredResourceIds);
+      return this.createModel(model);
     }
     // Add to the model cache using the default key if id is defined.
     if (model.id) {
-      const cacheKey = this.cacheKey({ [this.idKey]: model.id }, filteredResourceIds);
+      const cacheKey = this.cacheKey({ [this.idKey]: model.id });
       if (!this.models[cacheKey]) {
         this.models[cacheKey] = model;
       } else {
@@ -729,7 +667,7 @@ export class Resource {
       return this.models[cacheKey];
       // Otherwise use a hash of the models attributes to create a temporary cache key
     }
-    const cacheKey = this.cacheKey(model.attributes, filteredResourceIds);
+    const cacheKey = this.cacheKey(model.attributes);
     this.models[cacheKey] = model;
     // invalidate cache because this new model may be included in a collection
     this.collections = {};
@@ -744,62 +682,26 @@ export class Resource {
     this.collections = {};
   }
 
-  unCacheModel(id, resourceIds = {}) {
-    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
-    const cacheKey = this.cacheKey({ [this.idKey]: id }, filteredResourceIds);
+  unCacheModel(id) {
+    const cacheKey = this.cacheKey({ [this.idKey]: id });
     this.models[cacheKey].synced = false;
   }
 
-  unCacheCollection(resourceIds = {}, getParams = {}) {
-    if (!this.hasResourceIds) {
-      if (Object.keys(resourceIds).length && Object.keys(getParams).length) {
-        throw TypeError(
-          `resourceIds and getParams passed to getCollection method of ${this.name} ` +
-            'resource, which does not use resourceIds, only pass getParams for this resource'
-        );
-      } else if (Object.keys(resourceIds).length) {
-        getParams = resourceIds; // eslint-disable-line no-param-reassign
-      }
-    }
-    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
-    const cacheKey = this.cacheKey(getParams, filteredResourceIds);
+  unCacheCollection(getParams = {}) {
+    const cacheKey = this.cacheKey(getParams);
     if (this.collections[cacheKey]) {
       this.collections[cacheKey].synced = false;
     }
   }
 
   removeModel(model) {
-    const filteredResourceIds = this.filterAndCheckResourceIds(model.resourceIds);
-    const cacheKey = this.cacheKey({ [this.idKey]: model.id }, filteredResourceIds);
+    const cacheKey = this.cacheKey({ [this.idKey]: model.id });
     delete this.models[cacheKey];
   }
 
   removeCollection(collection) {
-    const filteredResourceIds = this.filterAndCheckResourceIds(collection.resourceIds);
-    const cacheKey = this.cacheKey(collection.getParams, filteredResourceIds);
+    const cacheKey = this.cacheKey(collection.getParams);
     delete this.collections[cacheKey];
-  }
-
-  /**
-   * Check resourceIds against those set on resource to ensure that
-   * a properly keyed object has been passed.
-   * @param  {Object} params an object of the resourceIds.
-   * @return {Object} an object containing only the permissible resourceIds.
-   */
-  filterAndCheckResourceIds(params) {
-    const filteredParams = {};
-    const missingParams = [];
-    this.resourceIds.forEach(key => {
-      if (!params[key]) {
-        missingParams.push(key);
-      } else {
-        filteredParams[key] = params[key];
-      }
-    });
-    if (missingParams.length > 0) {
-      throw TypeError(`Missing required resourceIds: ${missingParams}`);
-    }
-    return filteredParams;
   }
 
   get urls() {
@@ -819,10 +721,6 @@ export class Resource {
   get client() {
     const client = require('./core-app/client').default;
     return client;
-  }
-
-  get hasResourceIds() {
-    return this.resourceIds.length > 0;
   }
 
   // Determines if this resource can save multiple new resources at once

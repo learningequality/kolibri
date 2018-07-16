@@ -39,7 +39,7 @@ describe('Resource', function() {
       expect(resource.getModel('test')).toBeInstanceOf(Resources.Model);
     });
     it('should return an existing model from the cache', function() {
-      const testModel = new Resources.Model(modelData, {}, resource);
+      const testModel = new Resources.Model(modelData, resource);
       resource.addModel(testModel);
       expect(resource.getModel('test')).toEqual(testModel);
     });
@@ -70,15 +70,15 @@ describe('Resource', function() {
     });
     it('should not call createModel if passed a Model', function() {
       const spy = jest.spyOn(resource, 'createModel');
-      resource.addModel(new Resources.Model(modelData, {}, resource));
+      resource.addModel(new Resources.Model(modelData, resource));
       expect(spy).not.toHaveBeenCalled();
     });
     it('should add a model to the cache if no id', function() {
-      resource.addModel(new Resources.Model({ data: 'data' }, {}, resource));
+      resource.addModel(new Resources.Model({ data: 'data' }, resource));
       expect(Object.keys(resource.models)).toHaveLength(1);
     });
     it('should not return the added model from the cache if no id', function() {
-      resource.addModel(new Resources.Model({ data: 'data' }, {}, resource));
+      resource.addModel(new Resources.Model({ data: 'data' }, resource));
       const model = resource.getModel(undefined);
       expect(model.attributes.data).toBeUndefined();
     });
@@ -87,16 +87,16 @@ describe('Resource', function() {
       expect(resource.models[Object.keys(resource.models)[0]]).toEqual(model);
     });
     it('should update the model in the cache if a model with matching id is found', function() {
-      const model = new Resources.Model({ id: 'test' }, {}, resource);
+      const model = new Resources.Model({ id: 'test' }, resource);
       resource.addModel(model);
-      resource.addModel(new Resources.Model({ id: 'test', example: 'prop' }, {}, resource));
+      resource.addModel(new Resources.Model({ id: 'test', example: 'prop' }, resource));
       expect(Object.keys(resource.models)).toHaveLength(1);
       expect(model.attributes.example).toEqual('prop');
     });
   });
   describe('removeModel method', function() {
     it('should remove model from model cache', function() {
-      const model = new Resources.Model({ id: 'test' }, {}, resource);
+      const model = new Resources.Model({ id: 'test' }, resource);
       resource.addModel(model);
       resource.removeModel(model);
       expect(resource.models).toEqual({});
@@ -129,7 +129,7 @@ describe('Resource', function() {
       expect(resource.getCollection({})).toBeInstanceOf(Resources.Collection);
     });
     it('should return an existing collection from the cache', function() {
-      const testCollection = new Resources.Collection({}, {}, [], resource);
+      const testCollection = new Resources.Collection({}, [], resource);
       resource.collections['{}'] = testCollection;
       expect(resource.getCollection({})).toEqual(testCollection);
     });
@@ -148,31 +148,10 @@ describe('Resource', function() {
       expect(Object.keys(resource.collections)).toHaveLength(1);
     });
   });
-  describe('filterAndCheckResourceIds method', function() {
-    it('should return an empty object when there are no resourceIds', function() {
-      expect(resource.filterAndCheckResourceIds({ test: 'test' })).toEqual({});
-    });
-    it('should throw a TypeError when resourceIds are missing', function() {
-      resource.resourceIds = ['thisisatest'];
-      function testCall() {
-        resource.filterAndCheckResourceIds({ test: 'test' });
-      }
-      expect(testCall).toThrow(TypeError);
-    });
-    it('should return an object with only resourceIds', function() {
-      resource.resourceIds = ['thisisatest'];
-      const filtered = resource.filterAndCheckResourceIds({
-        test: 'test',
-        thisisatest: 'testtest',
-      });
-      expect(Object.keys(filtered)).toHaveLength(1);
-      expect(filtered.thisisatest).toEqual('testtest');
-    });
-  });
 });
 
 describe('Collection', function() {
-  let addModelStub, resource, params, data, collection, response, resourceIds;
+  let addModelStub, resource, params, data, collection, response;
   beforeEach(function() {
     addModelStub = jest.fn().mockImplementation(model => ({
       id: model.id,
@@ -182,8 +161,6 @@ describe('Collection', function() {
       addModel: addModelStub,
       collectionUrl: () => '',
       client: () => Promise.resolve({ entity: [] }),
-      filterAndCheckResourceIds: params => params,
-      resourceIds: [],
       cacheKey: (...params) => {
         const allParams = Object.assign({}, ...params);
         // Sort keys in order, then assign those keys to an empty object in that order.
@@ -198,10 +175,9 @@ describe('Collection', function() {
         );
       },
     };
-    resourceIds = {};
     params = {};
     data = [{ test: 'test', id: 'testing' }];
-    collection = new Resources.Collection(resourceIds, params, data, resource);
+    collection = new Resources.Collection(params, data, resource);
   });
   afterEach(function() {
     resource = undefined;
@@ -248,7 +224,7 @@ describe('Collection', function() {
     describe('if resource is undefined', function() {
       it('should throw a TypeError', function() {
         function testCall() {
-          new Resources.Collection(resourceIds, params, data);
+          new Resources.Collection(params, data);
         }
         expect(testCall).toThrow(TypeError);
       });
@@ -256,14 +232,14 @@ describe('Collection', function() {
     describe('if data is passed in', function() {
       it('should call the set method once', function() {
         const spy = jest.spyOn(Resources.Collection.prototype, 'set');
-        const testCollection = new Resources.Collection(resourceIds, params, data, resource);
+        const testCollection = new Resources.Collection(params, data, resource);
         expect(testCollection).toBeTruthy();
         expect(spy).toHaveBeenCalledTimes(1);
         Resources.Collection.prototype.set.mockRestore();
       });
       it('should call the set method with the data', function() {
         const spy = jest.spyOn(Resources.Collection.prototype, 'set');
-        const testCollection = new Resources.Collection(resourceIds, params, data, resource);
+        const testCollection = new Resources.Collection(params, data, resource);
         expect(testCollection).toBeTruthy();
         expect(spy).toHaveBeenCalledWith(data);
         Resources.Collection.prototype.set.mockRestore();
@@ -272,14 +248,14 @@ describe('Collection', function() {
     describe('if no data is passed in', function() {
       it('should call the set method once', function() {
         const spy = jest.spyOn(Resources.Collection.prototype, 'set');
-        const testCollection = new Resources.Collection(resourceIds, params, undefined, resource);
+        const testCollection = new Resources.Collection(params, undefined, resource);
         expect(testCollection).toBeTruthy();
         expect(spy).toHaveBeenCalledTimes(1);
         Resources.Collection.prototype.set.mockRestore();
       });
       it('should call the set method with an empty array', function() {
         const spy = jest.spyOn(Resources.Collection.prototype, 'set');
-        const testCollection = new Resources.Collection(resourceIds, params, undefined, resource);
+        const testCollection = new Resources.Collection(params, undefined, resource);
         expect(testCollection).toBeTruthy();
         expect(spy).toHaveBeenCalledWith([]);
         Resources.Collection.prototype.set.mockRestore();
@@ -549,7 +525,7 @@ describe('Collection', function() {
       });
     });
   });
-  describe('ave method', function() {
+  describe('save method', function() {
     let setSpy, client, logstub;
     describe('if called when Collection.new = false', function() {
       it('should reject the promise', function(done) {
@@ -888,7 +864,7 @@ describe('Collection', function() {
 });
 
 describe('Model', function() {
-  let resource, model, resourceIds, data, payload, client, logstub, setSpy;
+  let resource, model, data, payload, client, logstub, setSpy;
   beforeEach(function() {
     resource = {
       modelUrl: () => 'modelUrl',
@@ -896,12 +872,9 @@ describe('Model', function() {
       idKey: 'id',
       client: () => Promise.resolve({ entity: {} }),
       removeModel: () => {},
-      filterAndCheckResourceIds: params => params,
-      resourceIds: [],
     };
-    resourceIds = {};
     data = { test: 'test', id: 'testing' };
-    model = new Resources.Model(data, resourceIds, resource);
+    model = new Resources.Model(data, resource);
   });
   afterEach(function() {
     resource = undefined;
@@ -933,7 +906,7 @@ describe('Model', function() {
     describe('if resource is undefined', function() {
       it('should throw a TypeError', function() {
         function testCall() {
-          new Resources.Model(data, {});
+          new Resources.Model(data);
         }
         expect(testCall).toThrow(TypeError);
       });
@@ -941,14 +914,14 @@ describe('Model', function() {
     describe('if data is passed in', function() {
       it('should call the set method once', function() {
         const spy = jest.spyOn(Resources.Model.prototype, 'set');
-        const testModel = new Resources.Model(data, {}, resource);
+        const testModel = new Resources.Model(data, resource);
         expect(testModel).toBeTruthy();
         expect(spy).toHaveBeenCalledTimes(1);
         Resources.Model.prototype.set.mockRestore();
       });
       it('should call the set method with the data', function() {
         const spy = jest.spyOn(Resources.Model.prototype, 'set');
-        const testModel = new Resources.Model(data, {}, resource);
+        const testModel = new Resources.Model(data, resource);
         expect(testModel).toBeTruthy();
         expect(spy).toHaveBeenCalledWith(data);
         Resources.Model.prototype.set.mockRestore();
@@ -957,7 +930,7 @@ describe('Model', function() {
     describe('if undefined data is passed in', function() {
       it('should throw a TypeError', function() {
         function testCall() {
-          new Resources.Model(undefined, {}, resource);
+          new Resources.Model(undefined, resource);
         }
         expect(testCall).toThrow(TypeError);
       });
@@ -965,7 +938,7 @@ describe('Model', function() {
     describe('if null data is passed in', function() {
       it('should throw a TypeError', function() {
         function testCall() {
-          new Resources.Model(null, {}, resource);
+          new Resources.Model(null, resource);
         }
         expect(testCall).toThrow(TypeError);
       });
@@ -973,7 +946,7 @@ describe('Model', function() {
     describe('if no data is passed in', function() {
       it('should throw a TypeError', function() {
         function testCall() {
-          new Resources.Model({}, {}, resource);
+          new Resources.Model({}, resource);
         }
         expect(testCall).toThrow(TypeError);
       });
@@ -1282,7 +1255,7 @@ describe('Model', function() {
           client.mockResolvedValue(response);
           resource.client = client;
           resource.collectionUrl = () => '';
-          model = new Resources.Model(payload, {}, resource);
+          model = new Resources.Model(payload, resource);
           model.synced = false;
           model.save(payload).then(() => {
             expect(typeof client.mock.calls[0].method).toEqual('undefined');
@@ -1297,7 +1270,7 @@ describe('Model', function() {
             client.mockResolvedValue(response);
             resource.client = client;
             resource.collectionUrl = () => '';
-            model = new Resources.Model(payload, {}, resource);
+            model = new Resources.Model(payload, resource);
             model.synced = false;
             resource.addModel = jest.fn();
             model.save(payload).then(() => {
