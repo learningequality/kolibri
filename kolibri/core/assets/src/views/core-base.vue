@@ -134,11 +134,8 @@
         toolbarTitle: state => state.pageState.toolbarTitle,
         error: state => state.error,
       }),
-      mobile() {
-        return this.windowBreakpoint < 2;
-      },
       headerHeight() {
-        return this.mobile ? 56 : 64;
+        return this.windowIsSmall ? 56 : 64;
       },
       navWidth() {
         return this.headerHeight * 4;

@@ -224,7 +224,7 @@
         examsModalSet: state => state.pageState.examsModalSet,
       }),
       numCols() {
-        return this.windowBreakpoint > 3 ? 2 : 1;
+        return this.windowIsLarge ? 2 : 1;
       },
       titleIsInvalidText() {
         if (this.titleBlurred || this.previewOrSubmissionAttempt) {

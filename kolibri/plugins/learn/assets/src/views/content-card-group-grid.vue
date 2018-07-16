@@ -41,7 +41,7 @@
       v-for="content in contents"
       v-show="showContentCard(content)"
       class="grid-item"
-      :isMobile="isMobile"
+      :isMobile="windowIsSmall"
       :key="content.id"
       :title="content.title"
       :thumbnail="content.thumbnail"
@@ -138,9 +138,6 @@
       ...mapGetters({
         channels: 'getChannels',
       }),
-      isMobile() {
-        return this.windowBreakpoint <= 1;
-      },
       allFilter() {
         return { label: this.$tr('all'), value: ALL_FILTER };
       },

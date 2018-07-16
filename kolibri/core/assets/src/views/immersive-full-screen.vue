@@ -15,7 +15,7 @@
     <div class="wrapper">
       <div
         class="page-body"
-        :style="{ padding: windowBreakpoint < 2 ? '16px' : '32px' }"
+        :style="{ padding: windowIsSmall ? '16px' : '32px' }"
       >
         <slot></slot>
       </div>

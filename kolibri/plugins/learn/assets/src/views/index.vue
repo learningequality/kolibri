@@ -200,9 +200,7 @@
         );
       },
       pointsAreVisible() {
-        return (
-          this.windowBreakpoint > 0 && this.pageName !== PageNames.SEARCH && !this.isImmersivePage
-        );
+        return !this.windowIsSmall && this.pageName !== PageNames.SEARCH && !this.isImmersivePage;
       },
       recommendedLink() {
         return {

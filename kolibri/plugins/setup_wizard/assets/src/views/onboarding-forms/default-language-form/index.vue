@@ -32,10 +32,6 @@
         type: String,
         required: true,
       },
-      isMobile: {
-        type: Boolean,
-        required: false,
-      },
     },
     computed: {
       ...mapState({

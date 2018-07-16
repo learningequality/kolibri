@@ -13,7 +13,7 @@
           :showContentIcon="false"
           :title="c.name"
           :kind="CLASSROOM"
-          :isMobile="isMobile"
+          :isMobile="windowIsSmall"
         />
       </div>
     </div>
@@ -49,9 +49,6 @@
       ...mapState({
         classrooms: state => state.pageState.classrooms,
       }),
-      isMobile() {
-        return this.windowBreakpoint <= 1;
-      },
       CLASSROOM() {
         return ContentNodeKinds.CLASSROOM;
       },

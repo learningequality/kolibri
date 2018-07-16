@@ -7,11 +7,11 @@
 
     <assigned-exams-cards
       :exams="exams"
-      :isMobile="isMobile"
+      :isMobile="windowIsSmall"
     />
     <assigned-lessons-cards
       :lessons="lessons"
-      :isMobile="isMobile"
+      :isMobile="windowIsSmall"
     />
   </div>
 
@@ -43,9 +43,6 @@
         exams: state => state.pageState.currentClassroom.assignments.exams,
         lessons: state => state.pageState.currentClassroom.assignments.lessons,
       }),
-      isMobile() {
-        return this.windowBreakpoint <= 1;
-      },
     },
     $trs: {
       documentTitle: 'Class assignments',
