@@ -3,6 +3,7 @@ import {
   ChannelResource,
   LearnerGroupResource,
   ContentNodeResource,
+  ContentNodeSlimResource,
   ExamResource,
   ExamLogResource,
   FacilityUserResource,
@@ -305,11 +306,11 @@ export function getAllExercisesWithinTopic(store, topicId) {
 function fetchTopic(store, topicId) {
   return new Promise((resolve, reject) => {
     const topicPromise = ContentNodeResource.getModel(topicId).fetch();
-    const ancestorsPromise = ContentNodeResource.fetchAncestors(topicId);
-    const subtopicsPromise = ContentNodeResource.getCollection({
+    const ancestorsPromise = ContentNodeSlimResource.fetchAncestors(topicId);
+    const subtopicsPromise = ContentNodeSlimResource.getCollection({
       parent: topicId,
       kind: ContentNodeKinds.TOPIC,
-      fields: ['id', 'title', 'ancestors', 'num_coach_contents'],
+      fields: ['id', 'title', 'num_coach_contents'],
     }).fetch();
     const exercisesPromise = ContentNodeResource.getCollection({
       parent: topicId,

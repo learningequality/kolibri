@@ -5,9 +5,6 @@ export default new Resource({
   fetchDescendantsCollection(id, getParams = {}) {
     return this.fetchDetailCollection('descendants', id, getParams);
   },
-  fetchAncestors(id) {
-    return this.fetchDetailCollection('ancestors', id);
-  },
   fetchCopies(content_id) {
     return this.fetchDetailCollection('copies', content_id);
   },

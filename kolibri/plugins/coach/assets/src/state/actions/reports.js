@@ -5,6 +5,7 @@ import {
   AttemptLogResource,
   ChannelResource,
   ContentNodeResource,
+  ContentNodeSlimResource,
   FacilityUserResource,
   ContentSummaryLogResource,
   LearnerGroupResource,
@@ -335,7 +336,7 @@ export function showExerciseDetailView(
             content_id: exercise.content_id,
           }).fetch(),
           FacilityUserResource.getModel(userId).fetch(),
-          ContentNodeResource.fetchAncestors(contentId),
+          ContentNodeSlimResource.fetchAncestors(contentId),
           setClassState(store, classId),
         ]).then(([attemptLogs, summaryLog, user, ancestors]) => {
           attemptLogs.sort(

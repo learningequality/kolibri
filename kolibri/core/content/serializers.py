@@ -33,6 +33,21 @@ def _total_file_size(files_or_nodes):
     return localfiles.distinct().aggregate(Sum('file_size'))['file_size__sum'] or 0
 
 
+class DynamicFieldsModelSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        # Instantiate the superclass normally
+        super(DynamicFieldsModelSerializer, self).__init__(*args, **kwargs)
+
+        # enable dynamic fields specification!
+        if 'request' in self.context and self.context['request'].GET.get('fields', None):
+            fields = self.context['request'].GET['fields'].split(',')
+            # Drop any fields that are not specified in the `fields` argument.
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
+
+
 class ChannelMetadataSerializer(serializers.ModelSerializer):
     root = serializers.PrimaryKeyRelatedField(read_only=True)
     lang_code = serializers.SerializerMethodField()
@@ -318,7 +333,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         return result
 
 
-class ContentNodeSerializer(serializers.ModelSerializer):
+class ContentNodeSerializer(DynamicFieldsModelSerializer):
     num_coach_contents = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
@@ -356,19 +371,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         new.limit = limit
         return new
 
-    def __init__(self, *args, **kwargs):
-        # Instantiate the superclass normally
-        super(ContentNodeSerializer, self).__init__(*args, **kwargs)
-
-        # enable dynamic fields specification!
-        if 'request' in self.context and self.context['request'].GET.get('fields', None):
-            fields = self.context['request'].GET['fields'].split(',')
-            # Drop any fields that are not specified in the `fields` argument.
-            allowed = set(fields)
-            existing = set(self.fields.keys())
-            for field_name in existing - allowed:
-                self.fields.pop(field_name)
-
     def to_representation(self, instance, progress_fraction=None, annotate_progress_fraction=True):
         if progress_fraction is None and annotate_progress_fraction:
             if 'request' not in self.context or not self.context['request'].user.is_facility_user:
@@ -394,7 +396,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         return 0
 
 
-class ContentNodeSlimSerializer(serializers.ModelSerializer):
+class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
     """
     Lighter version of the ContentNodeSerializer whose purpose is to provide a minimum
     subset of ContentNode fields necessary for functional content browsing

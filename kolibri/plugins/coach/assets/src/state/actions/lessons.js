@@ -1,5 +1,10 @@
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
-import { LearnerGroupResource, LessonResource, ContentNodeResource } from 'kolibri.resources';
+import {
+  LearnerGroupResource,
+  LessonResource,
+  ContentNodeResource,
+  ContentNodeSlimResource,
+} from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
@@ -148,7 +153,7 @@ function showResourceSelectionPage(
       const ancestorCounts = {};
 
       const getResourceAncestors = store.state.pageState.workingResources.map(resourceId =>
-        ContentNodeResource.fetchAncestors(resourceId)
+        ContentNodeSlimResource.fetchAncestors(resourceId)
       );
 
       return Promise.all(getResourceAncestors).then(
@@ -209,7 +214,7 @@ export function showLessonResourceSelectionTopicPage(store, params) {
   const loadRequirements = [
     ContentNodeResource.getModel(topicId).fetch(),
     ContentNodeResource.getCollection({ parent: topicId }).fetch(),
-    ContentNodeResource.fetchAncestors(topicId),
+    ContentNodeSlimResource.fetchAncestors(topicId),
   ];
 
   return Promise.all(loadRequirements).then(

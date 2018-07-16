@@ -211,7 +211,7 @@ export function showTopicsContent(store, id) {
   const promises = [
     ContentNodeResource.getModel(id).fetch(),
     ContentNodeResource.fetchNextContent(id),
-    ContentNodeResource.fetchAncestors(id),
+    ContentNodeSlimResource.fetchAncestors(id),
     store.dispatch('setChannelInfo'),
   ];
   ConditionalPromise.all(promises).only(

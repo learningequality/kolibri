@@ -411,20 +411,6 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
     @detail_route(methods=['get'])
-    def ancestors(self, request, **kwargs):
-        cache_key = 'contentnode_ancestors_{pk}'.format(pk=kwargs.get('pk'))
-
-        if cache.get(cache_key) is not None:
-            return Response(cache.get(cache_key))
-
-        # TODO remove 'pk' once UI standardizes to 'id'
-        ancestors = list(self.get_object(prefetch=False).get_ancestors().values('pk', 'id', 'title'))
-
-        cache.set(cache_key, ancestors, 60 * 10)
-
-        return Response(ancestors)
-
-    @detail_route(methods=['get'])
     def copies(self, request, pk=None):
         """
         Returns each nodes that has this content id, along with their ancestors.
@@ -518,7 +504,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
 
-        ancestors = list(self.get_object(prefetch=False).get_ancestors().values('pk', 'title'))
+        ancestors = list(self.get_object(prefetch=False).get_ancestors().values('id', 'title'))
 
         cache.set(cache_key, ancestors, 60 * 10)
 
