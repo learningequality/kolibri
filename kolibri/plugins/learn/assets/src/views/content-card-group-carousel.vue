@@ -121,11 +121,11 @@
         return this.isRtl ? 'right' : 'left';
       },
       contentSetSize() {
-        if (this.elSize.width > 2 * contentCardWidth) {
-          const numOfCards = Math.floor(this.elSize.width / contentCardWidth);
+        if (this.elementWidth > 2 * contentCardWidth) {
+          const numOfCards = Math.floor(this.elementWidth / contentCardWidth);
           const numOfGutters = numOfCards - 1;
           const totalWidth = numOfCards * contentCardWidth + numOfGutters * gutterWidth;
-          if (this.elSize.width >= totalWidth) {
+          if (this.elementWidth >= totalWidth) {
             return numOfCards;
           }
           return numOfCards - 1;

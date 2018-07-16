@@ -149,7 +149,7 @@
         return this.crumbs.filter(crumb => crumb.collapsed === true).reverse();
       },
       parentWidth() {
-        return this.elSize.width;
+        return this.elementWidth;
       },
       lastCrumbMaxWidth() {
         if (this.collapsedCrumbs.length) {

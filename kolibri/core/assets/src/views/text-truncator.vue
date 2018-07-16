@@ -72,13 +72,17 @@
       },
     },
     watch: {
-      text: 'handleUpdate',
-      maxHeight: 'handleUpdate',
-      elSize: {
-        handler() {
-          this.handleUpdate();
-        },
-        deep: true,
+      text() {
+        this.handleUpdate();
+      },
+      maxHeight() {
+        this.handleUpdate();
+      },
+      elementWidth() {
+        this.handleUpdate();
+      },
+      elementHeight() {
+        this.handleUpdate();
       },
     },
     methods: {

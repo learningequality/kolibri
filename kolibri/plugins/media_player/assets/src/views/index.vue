@@ -259,7 +259,7 @@
         this.player.on('mimicFullscreenToggled', () => {
           this.$refs.container.toggleFullscreen();
         });
-        this.$watch('elSize.width', this.updatePlayerSizeClass);
+        this.$watch('elementWidth', this.updatePlayerSizeClass);
         this.updatePlayerSizeClass();
         this.resizePlayer();
         this.getDefaults();
@@ -361,13 +361,13 @@
         this.player.removeClass('player-small');
         this.player.removeClass('player-tiny');
 
-        if (this.elSize.width < 600) {
+        if (this.elementWidth < 600) {
           this.player.addClass('player-medium');
         }
-        if (this.elSize.width < 480) {
+        if (this.elementWidth < 480) {
           this.player.addClass('player-small');
         }
-        if (this.elSize.width < 360) {
+        if (this.elementWidth < 360) {
           this.player.addClass('player-tiny');
         }
       },

@@ -148,7 +148,7 @@
         return sortBy(this.group.users, user => user.full_name.toLowerCase());
       },
       isSmall() {
-        return this.elSize.width < 700;
+        return this.elementWidth < 700;
       },
       numCols() {
         return this.isSmall ? 1 : 2;
