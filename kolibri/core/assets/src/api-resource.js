@@ -78,7 +78,7 @@ export class Model {
                 // Flag that the model exists on the server.
                 this.new = false;
                 // Resolve the promise with the attributes of the Model.
-                resolve(this.attributes);
+                resolve(this.data);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
@@ -154,7 +154,7 @@ export class Model {
                 // Flag that the model exists on the server.
                 this.new = false;
                 // Resolve the promise with the Model.
-                resolve(response.entity);
+                resolve(this.data);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
@@ -235,6 +235,10 @@ export class Model {
 
   get id() {
     return this.attributes[this.resource.idKey];
+  }
+
+  get data() {
+    return cloneDeep(this.attributes);
   }
 
   set(attributes) {
@@ -496,7 +500,7 @@ export class Collection {
   }
 
   get data() {
-    return this.models.filter(model => !model.deleted).map(model => model.attributes);
+    return this.models.filter(model => !model.deleted).map(model => model.data);
   }
 
   get synced() {
