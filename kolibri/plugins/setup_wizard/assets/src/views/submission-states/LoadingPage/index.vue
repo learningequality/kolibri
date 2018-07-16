@@ -14,7 +14,7 @@
   import submissionStatePage from '../submission-state-page';
 
   export default {
-    name: 'OnboardingLoadingPage',
+    name: 'LoadingPage',
     components: { submissionStatePage },
     $trs: {
       loadingPageHeader: 'Setting up your facility...',

@@ -69,7 +69,7 @@
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { lessonSummaryLink, topicListingLink } from '../lessonsRouterUtils';
   import searchTools from './searchTools';
-  import contentCard from './content-card';
+  import contentCard from './LessonContentCard';
 
   export default {
     name: 'LessonResourceSelectionPage',

@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import { mount } from '@vue/test-utils';
-import ContentRenderer from '../src/views/content-renderer';
+import ContentRenderer from '../src/views/ContentRenderer';
 
 jest.mock('kolibri.lib.logging');
 

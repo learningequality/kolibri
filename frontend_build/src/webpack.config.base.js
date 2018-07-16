@@ -67,6 +67,7 @@ var eslintLoader = {
     emitWarning: !production,
     fix: !production,
     configFile: path.resolve(path.join(base_dir, '.eslintrc.js')),
+    rulePaths: [path.resolve(__dirname, './custom-eslint-rules')],
   },
 };
 

@@ -29,7 +29,7 @@
   import submissionStatePage from '../submission-state-page';
 
   export default {
-    name: 'OnboardingErrorPage',
+    name: 'ErrorPage',
     components: { submissionStatePage, KButton },
     $trs: {
       errorPageHeader: 'Something went wrong',

@@ -76,7 +76,7 @@
   import moveLearnersModal from './move-learners-modal';
 
   export default {
-    name: 'CoachGroupsPage',
+    name: 'GroupsPage',
     $trs: {
       classGroups: 'Class groups',
       newGroup: 'New group',

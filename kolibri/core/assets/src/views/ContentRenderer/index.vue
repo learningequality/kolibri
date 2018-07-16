@@ -55,7 +55,7 @@
   const logging = logger.getLogger(__filename);
 
   export default {
-    name: 'ContentRender',
+    name: 'ContentRenderer',
     $trs: {
       msgNotAvailable: 'This content is not available',
       rendererNotAvailable: 'Kolibri is unable to render this content',

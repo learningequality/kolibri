@@ -34,7 +34,7 @@
   import userGrid from './user-grid';
 
   export default {
-    name: 'DeviceManagementPage',
+    name: 'ManagePermissionsPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

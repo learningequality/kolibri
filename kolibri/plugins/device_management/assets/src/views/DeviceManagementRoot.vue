@@ -30,7 +30,7 @@
   import { ContentWizardPages, PageNames } from '../constants';
   import topNavigation from './device-top-nav';
   import manageContentPage from './manage-content-page';
-  import managePermissionsPage from './manage-permissions-page';
+  import managePermissionsPage from './ManagePermissionsPage';
   import userPermissionsPage from './user-permissions-page';
   import deviceInfoPage from './device-info-page';
   import welcomeModal from './welcome-modal';

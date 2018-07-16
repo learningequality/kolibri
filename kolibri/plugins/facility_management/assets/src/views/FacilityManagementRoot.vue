@@ -30,11 +30,11 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
-  import classEditPage from './class-edit-page';
+  import classEditPage from './ClassEditPage';
   import coachClassAssignmentPage from './coach-class-assignment-page';
   import learnerClassEnrollmentPage from './learner-class-enrollment-page';
   import dataPage from './data-page';
-  import facilitiesConfigPage from './facilities-config-page';
+  import facilitiesConfigPage from './FacilityConfigPage';
   import manageClassPage from './manage-class-page';
   import topNav from './top-nav';
   import userPage from './user-page';

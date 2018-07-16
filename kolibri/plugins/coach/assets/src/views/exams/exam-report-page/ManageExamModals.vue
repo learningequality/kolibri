@@ -60,7 +60,7 @@
   import { mapState, mapActions } from 'vuex';
   import xorWith from 'lodash/xorWith';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
-  import previewExamModal from '../exams-page/preview-exam-modal';
+  import previewExamModal from '../CoachExamsPage/preview-exam-modal';
   import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';

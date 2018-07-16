@@ -106,8 +106,7 @@
   import userRemoveConfirmationModal from './user-remove-confirmation-modal';
 
   export default {
-    // TODO update component name after string freeze
-    name: 'ClassEnrollForm',
+    name: 'ClassEditPage',
     $trs: {
       enrollLearnerButtonLabel: 'Enroll learners',
       assignCoachesButtonLabel: 'Assign coaches',

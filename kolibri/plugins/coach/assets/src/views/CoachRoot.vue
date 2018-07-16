@@ -37,11 +37,11 @@
   import { LessonsPageNames } from '../constants/lessonsConstants';
   import topNav from './top-nav';
   import classListPage from './class-list-page';
-  import examsPage from './exams/exams-page';
+  import examsPage from './exams/CoachExamsPage';
   import createExamPage from './exams/create-exam-page';
   import examReportPage from './exams/exam-report-page';
-  import examReportDetailPage from './exams/exam-report-detail-page';
-  import groupsPage from './groups-page';
+  import examReportDetailPage from './exams/CoachExamReport';
+  import groupsPage from './GroupsPage';
   import learnerExerciseDetailPage from './reports/learner-exercise-detail-page';
   import recentItemsPage from './reports/recent-items-page';
   import channelListPage from './reports/channel-list-page';

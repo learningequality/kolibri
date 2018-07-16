@@ -37,8 +37,8 @@
 
   import { mapActions, mapState } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import loadingPage from './submission-states/loading-page';
-  import errorPage from './submission-states/error-page';
+  import loadingPage from './submission-states/LoadingPage';
+  import errorPage from './submission-states/ErrorPage';
   import progressToolbar from './progress-toolbar';
   import defaultLanguageForm from './onboarding-forms/default-language-form';
   import facilityNameForm from './onboarding-forms/facility-name-form';

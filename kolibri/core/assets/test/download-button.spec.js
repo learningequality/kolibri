@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import DownloadButton from '../src/views/content-renderer/download-button.vue';
+import DownloadButton from '../src/views/ContentRenderer/download-button.vue';
 
 describe('download-button Component', function() {
   const samplesFiles = [
