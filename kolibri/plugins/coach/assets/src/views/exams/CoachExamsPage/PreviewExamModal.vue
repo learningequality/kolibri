@@ -55,7 +55,7 @@
             <ContentRenderer
               v-if="content && itemId"
               ref="contentRenderer"
-              :id="content.pk"
+              :id="content.id"
               :kind="content.kind"
               :files="content.files"
               :contentId="content.content_id"
@@ -198,7 +198,7 @@
           .fetch()
           .then(contentNodes => {
             contentNodes.forEach(node => {
-              this.$set(this.exercises, node.pk, node);
+              this.$set(this.exercises, node.id, node);
             });
             this.loading = false;
           });

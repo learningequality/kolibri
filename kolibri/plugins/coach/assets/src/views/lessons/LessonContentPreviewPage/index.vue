@@ -15,7 +15,7 @@
         v-if="workingResources"
         class="select-options ib"
         :workingResources="workingResources"
-        :contentId="content.pk"
+        :contentId="content.id"
         @addresource="addToCache"
       />
     </div>

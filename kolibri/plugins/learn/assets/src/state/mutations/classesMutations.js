@@ -21,7 +21,7 @@ export function SET_CURRENT_AND_NEXT_LESSON_RESOURCES(state, resources) {
   // HACK: duck-typing the pageState to work with content-page as-is
   state.pageState.content = {
     ...firstResource,
-    id: firstResource.pk,
+    id: firstResource.id,
     ...assessmentMetaDataState(firstResource),
   };
   // Needed for the content renderer to work

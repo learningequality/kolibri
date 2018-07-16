@@ -344,7 +344,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             'license_owner',
             'num_coach_contents',
             'parent',
-            'pk',  # TODO remove after UI standardizes on 'id'
             'sort_order',
             'title',
         )
@@ -415,7 +414,6 @@ class ContentNodeSlimSerializer(serializers.ModelSerializer):
             'num_coach_contents',
             'kind',
             'files',
-            'pk',  # TODO remove after UI standardizes on 'id'
             'title',
         )
 
@@ -447,7 +445,6 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             'kind',
             'num_coach_contents',
             'on_device_resources',
-            'pk',  # TODO remove once UI uses 'id' exclusively
             'title',
             'total_resources',
         )
@@ -544,7 +541,7 @@ class ContentNodeProgressSerializer(serializers.Serializer):
                 user = self.context["request"].user
                 progress_fraction = get_topic_and_content_progress_fraction(instance, user) or 0.0
         return {
-            'pk': instance.pk,
+            'id': instance.id,
             'progress_fraction': progress_fraction,
         }
 

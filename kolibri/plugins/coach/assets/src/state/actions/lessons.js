@@ -156,10 +156,10 @@ function showResourceSelectionPage(
         resourceAncestors => {
           resourceAncestors.forEach(ancestorArray =>
             ancestorArray.forEach(ancestor => {
-              if (ancestorCounts[ancestor.pk]) {
-                ancestorCounts[ancestor.pk]++;
+              if (ancestorCounts[ancestor.id]) {
+                ancestorCounts[ancestor.id]++;
               } else {
-                ancestorCounts[ancestor.pk] = 1;
+                ancestorCounts[ancestor.id] = 1;
               }
             })
           );
@@ -218,7 +218,7 @@ export function showLessonResourceSelectionTopicPage(store, params) {
       // TODO state mapper
       const topicContentList = childNodes.map(node => {
         return {
-          id: node.pk,
+          id: node.id,
           content_id: node.content_id,
           channel_id: node.channel_id,
           description: node.description,

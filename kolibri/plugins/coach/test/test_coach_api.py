@@ -125,7 +125,7 @@ class ContentReportAPITestCase(APITestCase):
             'channel_id': self.the_channel_id,
         })
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['pk'], c2c3.pk)
+        self.assertEqual(response.data[0]['id'], c2c3.pk)
 
     def test_recentreport_unique_filtering(self):
 

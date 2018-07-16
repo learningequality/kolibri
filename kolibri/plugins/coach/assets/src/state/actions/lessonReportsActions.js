@@ -42,11 +42,11 @@ export function showLessonResourceUserSummaryPage(store, params) {
         channel_id: contentNode.channel_id,
         collection_id: classId,
         collection_kind: CollectionTypes.CLASSROOM,
-        content_node_id: contentNode.pk,
+        content_node_id: contentNode.id,
       })
         .fetch()
         .then(userReports => {
-          const getUserReport = userId => find(userReports, { pk: userId }) || {};
+          const getUserReport = userId => find(userReports, { id: userId }) || {};
           const userData = lesson.learner_ids.map(learnerId => {
             const { full_name, last_active, progress } = getUserReport(learnerId);
             return {

@@ -189,7 +189,6 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(
             response.data,
             {
-                "pk": c1_id,
                 "id": c1_id,
                 "title": "root",
                 "kind": "topic",
@@ -201,7 +200,6 @@ class ContentNodeAPITestCase(APITestCase):
                 "num_coach_contents": 0,
                 "children": [
                     {
-                        "pk": c2_id,
                         "id": c2_id,
                         "title": "c1",
                         "kind": "video",
@@ -213,7 +211,6 @@ class ContentNodeAPITestCase(APITestCase):
                         "num_coach_contents": 0,
                     },
                     {
-                        "pk": c3_id,
                         "id": c3_id,
                         "title": "c2",
                         "kind": "topic",
@@ -244,7 +241,6 @@ class ContentNodeAPITestCase(APITestCase):
             reverse("contentnode_granular-detail", kwargs={"pk": c1_id}), {"importing_from_drive_id": "123"})
         self.assertEqual(
             response.data, {
-                "pk": c1_id,
                 "id": c1_id,
                 "title": "root",
                 "kind": "topic",
@@ -256,7 +252,6 @@ class ContentNodeAPITestCase(APITestCase):
                 "num_coach_contents": 0,
                 "children": [
                     {
-                        "pk": c2_id,
                         "id": c2_id,
                         "title": "c1",
                         "kind": "video",
@@ -268,7 +263,6 @@ class ContentNodeAPITestCase(APITestCase):
                         "num_coach_contents": 0,
                     },
                     {
-                        "pk": c3_id,
                         "id": c3_id,
                         "title": "c2",
                         "kind": "topic",
@@ -288,7 +282,6 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
             response.data, {
-                "pk": c1_id,
                 "id": c1_id,
                 "title": "c1",
                 "kind": "video",
@@ -308,7 +301,6 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(reverse("contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
             response.data, {
-                "pk": c1_id,
                 "id": c1_id,
                 "title": "c1",
                 "kind": "video",
@@ -340,14 +332,14 @@ class ContentNodeAPITestCase(APITestCase):
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': c1_id}))
-        self.assertEqual(response.data['pk'], c1_id.__str__())
+        self.assertEqual(response.data['id'], c1_id.__str__())
 
     def test_contentnode_field_filtering(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': c1_id}), data={"fields": "title,description"})
         self.assertEqual(response.data['title'], "c1")
         self.assertEqual(response.data['description'], "balbla2")
-        self.assertTrue("pk" not in response.data)
+        self.assertTrue("id" not in response.data)
 
     def test_contentnode_recommendations(self):
         id = content.ContentNode.objects.get(title="c2c2").id
@@ -583,7 +575,7 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("contentnodeprogress-list"))
 
         def get_progress_fraction(node):
-            return list(filter(lambda x: x['pk'] == node.pk, response.data))[0]['progress_fraction']
+            return list(filter(lambda x: x['id'] == node.id, response.data))[0]['progress_fraction']
 
         # check that there is no progress when not logged in
         self.assertEqual(get_progress_fraction(root), 0)

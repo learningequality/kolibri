@@ -24,19 +24,16 @@ import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import tail from 'lodash/tail';
 import { PageNames, ClassesPageNames } from '../../constants';
 
-// adds progress, thumbnail, and breadcrumbs. normalizes pk/id and kind
+// adds progress, thumbnail, and breadcrumbs. normalizes kind
 function normalizeContentNode(node, ancestors = []) {
   const normalized = {
     ...node,
-    // TODO change serializer to use ID
-    id: node.pk,
     kind: node.parent ? node.kind : ContentNodeKinds.CHANNEL,
     thumbnail: getContentNodeThumbnail(node) || undefined,
-    breadcrumbs: tail(ancestors).map(bc => ({ id: bc.pk, ...bc })),
+    breadcrumbs: tail(ancestors).map(bc => ({ id: bc.id, ...bc })),
     progress: Math.min(node.progress_fraction || 0, 1.0),
     copies_count: node.copies_count,
   };
-  delete normalized.pk;
   return normalized;
 }
 
@@ -460,7 +457,7 @@ export function showExam(store, params) {
               const contentNodeMap = {};
 
               contentNodes.forEach(node => {
-                contentNodeMap[node.pk] = node;
+                contentNodeMap[node.id] = node;
               });
 
               const questions = shuffledQuestions.map(question => ({

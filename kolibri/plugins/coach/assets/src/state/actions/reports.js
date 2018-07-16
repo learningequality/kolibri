@@ -128,7 +128,7 @@ function _contentReportState(data) {
     contentId: row.content_id,
     kind: row.kind,
     lastActive: row.last_active,
-    id: row.pk,
+    id: row.id,
     num_coach_contents: row.num_coach_contents,
     progress: row.progress.map(progressData => ({
       kind: progressData.kind,
@@ -148,7 +148,7 @@ function _recentReportState(data) {
     contentId: row.content_id,
     kind: row.kind,
     lastActive: row.last_active,
-    id: row.pk,
+    id: row.id,
     progress: row.progress.map(progressData => ({
       logCountComplete: progressData.log_count_complete,
       logCountTotal: progressData.log_count_total,
@@ -177,11 +177,11 @@ function _learnerReportState(userReportData, groupData) {
     return [];
   }
   return userReportData.map(row => ({
-    id: row.pk,
+    id: row.id,
     fullName: row.full_name,
     username: row.username,
     lastActive: row.last_active,
-    groupName: _getGroupName(row.pk, groupData),
+    groupName: _getGroupName(row.id, groupData),
     progress: row.progress.map(progressData => ({
       kind: progressData.kind,
       timeSpent: progressData.time_spent,
@@ -198,14 +198,14 @@ function _contentSummaryState(data) {
   return {
     num_coach_contents: data.num_coach_contents,
     ancestors: data.ancestors.map(item => ({
-      id: item.pk,
+      id: item.id,
       title: item.title,
     })),
     contentId: data.content_id,
     kind,
     lastActive: data.last_active,
     numUsers: data.num_users,
-    id: data.pk,
+    id: data.id,
     progress: data.progress.map(progressData => ({
       kind: progressData.kind,
       nodeCount: progressData.node_count,

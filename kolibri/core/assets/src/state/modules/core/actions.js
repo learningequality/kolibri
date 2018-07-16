@@ -38,7 +38,7 @@ const timeThreshold = 60; // Update logs if 60 seconds have passed since last up
 
 function _contentSummaryLoggingState(data) {
   return {
-    id: data.pk,
+    id: data.id,
     start_timestamp: data.start_timestamp,
     completion_timestamp: data.completion_timestamp,
     end_timestamp: data.end_timestamp,
@@ -52,7 +52,7 @@ function _contentSummaryLoggingState(data) {
 
 function _contentSessionLoggingState(data) {
   return {
-    id: data.pk,
+    id: data.id,
     start_timestamp: data.start_timestamp,
     end_timestamp: data.end_timestamp,
     time_spent: data.time_spent,
@@ -295,7 +295,7 @@ export function initContentSession(store, { channelId, contentId, contentKind })
           store.commit(
             'SET_LOGGING_SUMMARY_STATE',
             _contentSummaryLoggingState({
-              pk: null,
+              id: null,
               start_timestamp: now(),
               completion_timestamp: null,
               end_timestamp: now(),
@@ -320,7 +320,7 @@ export function initContentSession(store, { channelId, contentId, contentKind })
           const summaryModel = ContentSummaryLogResource.createModel(summaryData);
           const summaryModelPromise = summaryModel.save();
           summaryModelPromise.then(newSummary => {
-            store.commit('SET_LOGGING_SUMMARY_ID', newSummary.pk);
+            store.commit('SET_LOGGING_SUMMARY_ID', newSummary.id);
             resolve();
           });
         }
@@ -333,7 +333,7 @@ export function initContentSession(store, { channelId, contentId, contentKind })
   store.commit(
     'SET_LOGGING_SESSION_STATE',
     _contentSessionLoggingState({
-      pk: null,
+      id: null,
       start_timestamp: now(),
       end_timestamp: now(),
       time_spent: 0,
@@ -358,7 +358,7 @@ export function initContentSession(store, { channelId, contentId, contentKind })
   // ensure the store has finished update for sessionLog.
   const sessionPromise = new Promise(resolve => {
     sessionModelPromise.then(newSession => {
-      store.commit('SET_LOGGING_SESSION_ID', newSession.pk);
+      store.commit('SET_LOGGING_SESSION_ID', newSession.id);
       resolve();
     });
   });

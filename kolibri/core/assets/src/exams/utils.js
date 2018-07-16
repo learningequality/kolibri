@@ -61,7 +61,7 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
             const contentNodeMap = {};
 
             contentNodes.forEach(node => {
-              contentNodeMap[node.pk] = node;
+              contentNodeMap[node.id] = node;
             });
 
             const questions = questionList.map(question => ({

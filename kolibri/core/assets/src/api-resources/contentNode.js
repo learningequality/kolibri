@@ -5,7 +5,6 @@ const logging = logger.getLogger(__filename);
 
 export default new Resource({
   name: 'contentnode',
-  idKey: 'pk',
   getDescendantsCollection(id, getParams = {}) {
     if (!id) {
       throw TypeError('An id must be specified');

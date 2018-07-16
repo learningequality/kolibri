@@ -6,9 +6,8 @@ const logging = logger.getLogger(__filename);
 /**
  * TODO
  */
-export default new Resource ({
+export default new Resource({
   name: 'contentnode_slim',
-  idKey: 'pk',
 
   fetchAncestors(id) {
     if (!id) {
@@ -31,5 +30,5 @@ export default new Resource ({
       promise = Promise.resolve(this.ancestor_cache[key]);
     }
     return promise;
-  }
+  },
 });
