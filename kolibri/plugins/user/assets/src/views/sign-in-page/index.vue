@@ -255,7 +255,7 @@
       },
       logoHeight() {
         const CRITICAL_ACTIONS_HEIGHT = 350; // title + form + action buttons
-        let height = this.windowSize.height - CRITICAL_ACTIONS_HEIGHT - 32;
+        let height = this.windowHeight - CRITICAL_ACTIONS_HEIGHT - 32;
         height = Math.max(height, 32);
         height = Math.min(height, 80);
         return height;

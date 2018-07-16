@@ -50,7 +50,7 @@
         classrooms: state => state.pageState.classrooms,
       }),
       isMobile() {
-        return this.windowSize.breakpoint <= 1;
+        return this.windowBreakpoint <= 1;
       },
       CLASSROOM() {
         return ContentNodeKinds.CLASSROOM;

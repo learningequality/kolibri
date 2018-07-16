@@ -10,7 +10,7 @@
 
       <k-button
         class="create-btn"
-        :class="{ 'create-btn-mobile': windowSize.breakpoint <= 0}"
+        :class="{ 'create-btn-mobile': windowBreakpoint <= 0}"
         @click="displayModal(Modals.CREATE_CLASS)"
         :text="$tr('addNew')"
         :primary="true"

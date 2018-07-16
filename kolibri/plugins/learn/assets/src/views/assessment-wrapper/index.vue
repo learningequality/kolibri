@@ -43,7 +43,7 @@ oriented data synchronization.
 
     <div
       class="attempts-container"
-      :class="{ 'mobile': windowSize.breakpoint < 2}"
+      :class="{ 'mobile': windowBreakpoint < 2}"
     >
       <div class="margin-wrapper">
         <div class="overall-status">

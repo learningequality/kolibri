@@ -135,7 +135,7 @@
         error: state => state.error,
       }),
       mobile() {
-        return this.windowSize.breakpoint < 2;
+        return this.windowBreakpoint < 2;
       },
       headerHeight() {
         return this.mobile ? 56 : 64;

@@ -44,7 +44,7 @@
         lessons: state => state.pageState.currentClassroom.assignments.lessons,
       }),
       isMobile() {
-        return this.windowSize.breakpoint <= 1;
+        return this.windowBreakpoint <= 1;
       },
     },
     $trs: {

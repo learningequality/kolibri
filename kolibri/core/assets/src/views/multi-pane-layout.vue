@@ -50,10 +50,10 @@
     mixins: [responsiveWindow, responsiveElement],
     computed: {
       maxHeight() {
-        const APP_BAR_HEIGHT = this.windowSize.breakpoint < 2 ? 56 : 64;
-        const PADDING = this.windowSize.breakpoint < 2 ? 16 : 32;
+        const APP_BAR_HEIGHT = this.windowBreakpoint < 2 ? 56 : 64;
+        const PADDING = this.windowBreakpoint < 2 ? 16 : 32;
         const MARGIN = 16;
-        let maxHeight = this.windowSize.height - APP_BAR_HEIGHT - PADDING * 2 - MARGIN;
+        let maxHeight = this.windowHeight - APP_BAR_HEIGHT - PADDING * 2 - MARGIN;
         if (this.$refs.header) {
           maxHeight = maxHeight - this.$refs.header.clientHeight;
         }

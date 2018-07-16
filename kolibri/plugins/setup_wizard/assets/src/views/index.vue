@@ -89,7 +89,7 @@
           : this.$tr('onboardingNextStepButton');
       },
       isMobile() {
-        return this.windowSize.breakpoint < 4;
+        return this.windowBreakpoint < 4;
       },
     },
     methods: {

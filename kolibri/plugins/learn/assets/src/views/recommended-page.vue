@@ -109,7 +109,7 @@
         resume: state => state.pageState.resume,
       }),
       isMobile() {
-        return this.windowSize.breakpoint <= 1;
+        return this.windowBreakpoint <= 1;
       },
       carouselLimit() {
         return this.isMobile ? mobileCarouselLimit : desktopCarouselLimit;

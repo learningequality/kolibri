@@ -54,7 +54,7 @@
         error: state => state.core.error,
       }),
       isMobile() {
-        return this.windowSize.breakpoint < 2;
+        return this.windowBreakpoint < 2;
       },
       padding() {
         return this.isMobile ? 16 : 32;

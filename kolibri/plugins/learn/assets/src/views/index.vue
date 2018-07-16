@@ -201,9 +201,7 @@
       },
       pointsAreVisible() {
         return (
-          this.windowSize.breakpoint > 0 &&
-          this.pageName !== PageNames.SEARCH &&
-          !this.isImmersivePage
+          this.windowBreakpoint > 0 && this.pageName !== PageNames.SEARCH && !this.isImmersivePage
         );
       },
       recommendedLink() {

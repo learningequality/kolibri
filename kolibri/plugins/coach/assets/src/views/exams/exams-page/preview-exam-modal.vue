@@ -7,8 +7,8 @@
     size="large"
     @submit="close"
     @cancel="close"
-    :width="`${windowSize.width - 16}px`"
-    :height="`${windowSize.height - 16}px`"
+    :width="`${windowWidth - 16}px`"
+    :height="`${windowHeight - 16}px`"
   >
     <transition mode="out-in">
       <k-circular-loader
@@ -184,7 +184,7 @@
           const closeBtnHeight = 44;
           const margins = 16 * 6;
           this.maxHeight =
-            this.windowSize.height - titleHeight - headerHeight - closeBtnHeight - margins;
+            this.windowHeight - titleHeight - headerHeight - closeBtnHeight - margins;
         }
       },
       numCoachContents(exercise) {

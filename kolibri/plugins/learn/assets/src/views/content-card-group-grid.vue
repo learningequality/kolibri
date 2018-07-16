@@ -139,7 +139,7 @@
         channels: 'getChannels',
       }),
       isMobile() {
-        return this.windowSize.breakpoint <= 1;
+        return this.windowBreakpoint <= 1;
       },
       allFilter() {
         return { label: this.$tr('all'), value: ALL_FILTER };

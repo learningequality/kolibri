@@ -146,7 +146,7 @@
         session: state => state.core.session,
       }),
       mobile() {
-        return this.windowSize.breakpoint < 2;
+        return this.windowBreakpoint < 2;
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });

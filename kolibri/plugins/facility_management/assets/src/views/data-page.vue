@@ -86,7 +86,7 @@
         return isAndroidWebView();
       },
       numCols() {
-        return this.windowSize.breakpoint > 2 ? 2 : 1;
+        return this.windowBreakpoint > 2 ? 2 : 1;
       },
     },
     methods: {
