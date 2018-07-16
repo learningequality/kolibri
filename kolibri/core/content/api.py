@@ -417,7 +417,8 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
 
-        ancestors = list(self.get_object(prefetch=False).get_ancestors().values('pk', 'title'))
+        # TODO remove 'pk' once UI standardizes to 'id'
+        ancestors = list(self.get_object(prefetch=False).get_ancestors().values('pk', 'id', 'title'))
 
         cache.set(cache_key, ancestors, 60 * 10)
 
