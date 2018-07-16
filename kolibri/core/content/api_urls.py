@@ -6,6 +6,7 @@ from .api import ChannelMetadataViewSet
 from .api import ContentNodeFileSizeViewSet
 from .api import ContentNodeGranularViewset
 from .api import ContentNodeProgressViewset
+from .api import ContentNodeSlimViewset
 from .api import ContentNodeViewset
 from .api import FileViewset
 from .api import RemoteChannelViewSet
@@ -14,6 +15,7 @@ router = routers.SimpleRouter()
 router.register('channel', ChannelMetadataViewSet, base_name="channel")
 
 router.register(r'contentnode', ContentNodeViewset, base_name='contentnode')
+router.register(r'contentnode_slim', ContentNodeSlimViewset, base_name='contentnode_slim')
 router.register(r'file', FileViewset, base_name='file')
 router.register(r'contentnodeprogress', ContentNodeProgressViewset, base_name='contentnodeprogress')
 router.register(r'contentnode_granular', ContentNodeGranularViewset, base_name='contentnode_granular')

@@ -1,19 +1,24 @@
-import { ContentNodeResource } from 'kolibri.resources';
+import {
+  ContentNodeResource,
+  ContentNodeSlimResource,
+  ContentNodeProgressResource,
+} from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 import { PageNames } from '../../constants';
 import { contentState, setAndCheckChannels } from './main';
 
 // User-agnostic recommendations
 function _getPopular() {
-  return ContentNodeResource.getCollection({ popular: 'true', by_role: true }).fetch();
+  return ContentNodeSlimResource.getCollection({ popular: 'true', by_role: true }).fetch();
 }
 
 // User-specific recommendations
 function _getNextSteps(store) {
   if (store.getters.isUserLoggedIn) {
-    return ContentNodeResource.getCollection({
+    return ContentNodeSlimResource.getCollection({
       next_steps: store.getters.currentUserId,
       by_role: true,
     }).fetch();
@@ -23,7 +28,7 @@ function _getNextSteps(store) {
 
 function _getResume(store) {
   if (store.getters.isUserLoggedIn) {
-    return ContentNodeResource.getCollection({
+    return ContentNodeSlimResource.getCollection({
       resume: store.getters.currentUserId,
       by_role: true,
     }).fetch();
@@ -96,6 +101,21 @@ export function showLearn(store) {
       };
 
       store.commit('SET_PAGE_STATE', pageState);
+
+      // Only load contentnodes progress if the user is logged in
+      if (store.getters.isUserLoggedIn) {
+        const contentNodeIds = uniq([
+          ...nextSteps, ...popular, ...resume
+        ].map(({ id }) => id));
+
+        if (contentNodeIds.length > 0) {
+          ContentNodeProgressResource.getCollection({ ids: contentNodeIds })
+            .fetch()
+            .then(progresses => {
+              store.commit('SET_RECOMMENDED_NODES_PROGRESS', progresses);
+            });
+        }
+      }
 
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
