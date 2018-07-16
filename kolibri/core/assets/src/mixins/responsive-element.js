@@ -13,12 +13,11 @@
         props: {
     ...
 
-  This adds a new reactive property called `elSize` to your vue model:
+  This adds a couple reactive properties to your vue model:
 
-    elSize: {
-      width: 0,    // component's $el width (px)
-      height: 0,   // component's $el height (px)
-    },
+    this.elementHeight   // component's $el height in pixels
+    this.elementWidth    // component's $el width in pixels
+
 */
 
 import ResizeSensor from 'css-element-queries/src/ResizeSensor';
@@ -26,14 +25,14 @@ import ResizeSensor from 'css-element-queries/src/ResizeSensor';
 export default {
   data() {
     return {
-      // becomes available for use
-      elSize: { width: 0, height: 0 },
+      elementWidth: 0,
+      elementHeight: 0,
     };
   },
   methods: {
     _updateEl() {
-      this.elSize.width = this.$el.clientWidth;
-      this.elSize.height = this.$el.clientHeight;
+      this.elementWidth = this.$el.clientWidth;
+      this.elementHeight = this.$el.clientHeight;
     },
   },
   mounted() {

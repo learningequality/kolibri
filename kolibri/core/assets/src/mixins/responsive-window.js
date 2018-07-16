@@ -12,58 +12,57 @@
         props: {
     ...
 
-  This adds a new reactive property called `windowSize` to your vue model:
+  This adds a few new reactive properties to your vue model:
 
-    windowSize: {
-      width: 0,                   // window width (px)
-      height: 0,                  // window height (px)
-      breakpoint: 0,              // breakpoint constants
-      numCols: 0,                 // typical number of grid columns
-      gutterWidth: 0,             // typical grid gutter (px)
-      range: null,                // 'sm', 'md', or 'lg'
-    }
+    this.windowHeight       // height in pixels
+    this.windowWidth        // width in pixels
+    this.windowBreakpoint   // breakpoint level as described below
+    this.windowIsSmall      // boolean for small range
+    this.windowIsMedium     // boolean for medium range
+    this.windowIsLarge      // boolean for large range
+    this.windowColumns      // appropriate number of grid columns
 
-  The breakpoint constants are numbers following Material guidelinse:
+  The breakpoint levels are numbers following Material guidelinse:
     https://material.io/guidelines/layout/responsive-ui.html#responsive-ui-breakpoints
 
   Breakpoint Breakdown:
 
-    level 0
+    level 0 (small)
       < 480 px
       portrait handset, xsmall window
       4 columns, 16px gutter
 
-    level 1
+    level 1 (small)
       < 600 px
       landscape or large portait handset, small portrait tablet, xsmall window,
       4 columns, 16px gutter
 
-    level 2
+    level 2 (medium)
       < 840 px
       large landscape handset, large portrait tablet, small window,
       8 columns, 16px gutter
 
-    level 3
+    level 3 (large)
       < 960 px
       large landscape handset, large portrait tablet, small window,
       12 columns, 16px gutter
 
-    level 4
+    level 4 (large)
       < 1280 px
       landscape tablet, small or medium window
       12 columns, 24px gutter
 
-    level 5
+    level 5 (large)
       < 1440 px
       large landscape tablet, medium window
       12 columns, 24px gutter
 
-    level 6
+    level 6 (large)
       < 1600 px
       large window
       12 columns, 24px gutter
 
-    level 7
+    level 7 (large)
       >= 1600 px
       large or xlarge window
       12 columns, 24px gutter
@@ -77,75 +76,10 @@ const windowListeners = [];
 
 /* methods */
 
-function getBreakpoint() {
-  const SCROLL_BAR = 16;
-  const width = window.innerWidth;
-  if (width < 480) {
-    return 0;
-  }
-  if (width < 600) {
-    return 1;
-  }
-  if (width < 840) {
-    return 2;
-  }
-  if (width < 960 - SCROLL_BAR) {
-    return 3;
-  }
-  if (width < 1280 - SCROLL_BAR) {
-    return 4;
-  }
-  if (width < 1440 - SCROLL_BAR) {
-    return 5;
-  }
-  if (width < 1600 - SCROLL_BAR) {
-    return 6;
-  }
-  return 7;
-}
-
-function getNumCols(breakpoint) {
-  if (breakpoint <= 1) {
-    return 4;
-  }
-  if (breakpoint === 2) {
-    return 8;
-  }
-  return 12;
-}
-
-function getGutterWidth(breakpoint) {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  if (breakpoint <= 1) {
-    return 16;
-  }
-  // 16px when the smallest width of the device is <600
-  if (breakpoint <= 3 && Math.min(width, height) < 600) {
-    return 16;
-  }
-  return 24;
-}
-
-function getRange(breakpoint) {
-  if (breakpoint < 2) {
-    return 'sm';
-  }
-  if (breakpoint < 5) {
-    return 'md';
-  }
-  return 'lg';
-}
-
 function windowMetrics() {
-  const breakpoint = getBreakpoint();
   return {
     width: window.innerWidth,
     height: window.innerHeight,
-    breakpoint,
-    numCols: getNumCols(breakpoint),
-    gutterWidth: getGutterWidth(breakpoint),
-    range: getRange(breakpoint),
   };
 }
 
@@ -178,25 +112,59 @@ windowResizeHandler(); // call it once initially
 export default {
   data() {
     return {
-      // becomes available for use
-      windowSize: {
-        width: 0,
-        height: 0,
-        breakpoint: 0,
-        numCols: 0,
-        gutterWidth: 0,
-        range: null,
-      },
+      windowWidth: 0,
+      windowHeight: 0,
     };
+  },
+  computed: {
+    windowBreakpoint() {
+      const SCROLL_BAR = 16;
+      if (this.windowWidth < 480) {
+        return 0;
+      }
+      if (this.windowWidth < 600) {
+        return 1;
+      }
+      if (this.windowWidth < 840) {
+        return 2;
+      }
+      if (this.windowWidth < 960 - SCROLL_BAR) {
+        return 3;
+      }
+      if (this.windowWidth < 1280 - SCROLL_BAR) {
+        return 4;
+      }
+      if (this.windowWidth < 1440 - SCROLL_BAR) {
+        return 5;
+      }
+      if (this.windowWidth < 1600 - SCROLL_BAR) {
+        return 6;
+      }
+      return 7;
+    },
+    windowIsLarge() {
+      return this.windowBreakpoint > 2;
+    },
+    windowIsMedium() {
+      return this.windowBreakpoint === 2;
+    },
+    windowIsSmall() {
+      return this.windowBreakpoint < 2;
+    },
+    windowColumns() {
+      if (this.windowIsSmall) {
+        return 4;
+      }
+      if (this.windowIsMedium) {
+        return 8;
+      }
+      return 12;
+    },
   },
   methods: {
     _updateWindow(metrics) {
-      this.windowSize.width = metrics.width;
-      this.windowSize.height = metrics.height;
-      this.windowSize.breakpoint = metrics.breakpoint;
-      this.windowSize.numCols = metrics.numCols;
-      this.windowSize.gutterWidth = metrics.gutterWidth;
-      this.windowSize.range = metrics.range;
+      this.windowWidth = metrics.width;
+      this.windowHeight = metrics.height;
     },
   },
   mounted() {
