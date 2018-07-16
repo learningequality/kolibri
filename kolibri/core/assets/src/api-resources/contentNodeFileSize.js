@@ -1,5 +1,5 @@
 import { Resource } from '../api-resource';
 
 export default new Resource({
-  name: 'facilityuser',
+  name: 'contentnodefilesize',
 });

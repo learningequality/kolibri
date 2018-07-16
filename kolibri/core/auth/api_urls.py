@@ -1,7 +1,6 @@
 from rest_framework import routers
 
 from .api import ClassroomViewSet
-from .api import CurrentFacilityViewSet
 from .api import FacilityDatasetViewSet
 from .api import FacilityUsernameViewSet
 from .api import FacilityUserViewSet
@@ -20,7 +19,6 @@ router.register(r'facilitydataset', FacilityDatasetViewSet, base_name='facilityd
 router.register(r'facilityuser', FacilityUserViewSet, base_name='facilityuser')
 router.register(r'facilityusername', FacilityUsernameViewSet, base_name='facilityusername')
 router.register(r'facility', FacilityViewSet, base_name='facility')
-router.register(r'currentfacility', CurrentFacilityViewSet, base_name='currentfacility')
 router.register(r'session', SessionViewSet, base_name='session')
 router.register(r'classroom', ClassroomViewSet, base_name='classroom')
 router.register(r'learnergroup', LearnerGroupViewSet, base_name='learnergroup')

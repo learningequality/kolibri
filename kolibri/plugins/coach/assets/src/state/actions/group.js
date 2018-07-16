@@ -39,7 +39,6 @@ export function showGroupsPage(store, classId) {
   const promises = [
     FacilityUserResource.getCollection({ member_of: classId }).fetch(true),
     LearnerGroupResource.getCollection({ parent: classId }).fetch(true),
-    FacilityUserResource.getCurrentFacility(),
     setClassState(store, classId),
   ];
   return ConditionalPromise.all(promises).only(

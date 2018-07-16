@@ -12,11 +12,4 @@ import { Resource } from '../api-resource';
  */
 export default new Resource({
   name: 'contentnode_granular',
-
-  // Given a node ID, returns the {total_file_size, on_device_file_size}
-  getFileSizes(id) {
-    return this.client({
-      path: `${this.urls['contentnodefilesize_list']()}${id}`,
-    });
-  },
 });

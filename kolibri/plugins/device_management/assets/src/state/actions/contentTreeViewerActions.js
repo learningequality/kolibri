@@ -2,7 +2,7 @@ import sumBy from 'lodash/sumBy';
 import map from 'lodash/fp/map';
 import partition from 'lodash/partition';
 import find from 'lodash/find';
-import { ContentNodeGranularResource } from 'kolibri.resources';
+import { ContentNodeFileSizeResource } from 'kolibri.resources';
 
 const pluckIds = map('id');
 
@@ -18,9 +18,7 @@ function isDescendantOrSelf(testNode, selfNode) {
  *
  */
 export function getContentNodeFileSize(node) {
-  return ContentNodeGranularResource.getFileSizes(node.id).then(({ entity }) => {
-    return entity;
-  });
+  return ContentNodeFileSizeResource.getModel(node.id).fetch();
 }
 
 /**

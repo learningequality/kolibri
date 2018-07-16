@@ -1,4 +1,5 @@
 export { default as ClassroomResource } from './classroom';
+export { default as ContentNodeFileSizeResource } from './contentNodeFileSize';
 export { default as ContentNodeResource } from './contentNode';
 export { default as ContentNodeGranularResource } from './contentNodeGranular';
 export { default as ContentNodeSlimResource } from './contentNodeSlim';
@@ -25,6 +26,6 @@ export { default as UserProgressResource } from './userProgress';
 export { default as ContentNodeProgressResource } from './contentNodeProgress';
 export { default as DeviceProvisionResource } from './deviceProvision';
 export { default as DevicePermissionsResource } from './devicePermissions';
-export { default as RemoteChannel } from './remoteChannel';
+export { default as RemoteChannelResource } from './remoteChannel';
 export { default as LessonResource } from './lesson';
 export { default as AttemptLogResource } from './attemptLog';
