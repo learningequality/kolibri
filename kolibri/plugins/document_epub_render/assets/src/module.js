@@ -1,5 +1,5 @@
 import ContentRendererModule from 'content_renderer_module';
-import EPUBComponent from './views/index';
+import EPUBComponent from './views/EpubRendererRoot';
 
 class DocumentEPUBModule extends ContentRendererModule {
   get rendererComponent() {

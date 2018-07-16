@@ -62,7 +62,7 @@
   const scaleIncrement = 0.25;
 
   export default {
-    name: 'epubRender',
+    name: 'EpubRendererRoot',
     components: {
       KButton,
       uiIconButton,

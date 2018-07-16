@@ -1,4 +1,4 @@
-import MediaPlayerComponent from './views/index';
+import MediaPlayerComponent from './views/MediaPlayerRoot';
 import ContentRendererModule from 'content_renderer_module';
 
 class MediaPlayerModule extends ContentRendererModule {

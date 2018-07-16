@@ -1,5 +1,5 @@
 import { setChannelInfo } from 'kolibri.coreVue.vuex.actions';
-import RootVue from './views';
+import RootVue from './views/CoachRoot';
 import routes from './routes';
 import pluginModule from './state/pluginModule';
 import KolibriApp from 'kolibri_app';
