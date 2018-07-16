@@ -468,13 +468,6 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
             return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title, 'thumbnail': thumbnails[0]['storage_url']})
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
 
-    @list_route(methods=['get'])
-    def all_content(self, request, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset(prefetch=False)).exclude(kind=content_kinds.TOPIC)
-
-        serializer = self.get_serializer(queryset, many=True, limit=24)
-        return Response(serializer.data)
-
 
 class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeSlimSerializer
