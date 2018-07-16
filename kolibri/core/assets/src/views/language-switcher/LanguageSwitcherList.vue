@@ -47,7 +47,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import languageSwitcherMixin from './mixin';
-  import languageSwitcherModal from './modal';
+  import languageSwitcherModal from './LanguageSwitcherList';
 
   export default {
     name: 'LanguageSwitcherList',

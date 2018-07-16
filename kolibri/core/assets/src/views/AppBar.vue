@@ -100,8 +100,8 @@
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import navComponentsMixin from '../mixins/nav-components';
-  import languageSwitcherModal from './language-switcher/modal';
-  import logout from './logout-side-nav-entry';
+  import languageSwitcherModal from './language-switcher/LanguageSwitcherModal';
+  import logout from './LogoutSideNavEntry';
 
   export default {
     name: 'AppBar',

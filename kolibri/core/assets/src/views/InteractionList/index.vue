@@ -26,7 +26,7 @@
 <script>
 
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import interactionItem from './interaction-item';
+  import interactionItem from './InteractionItem';
 
   export default {
     name: 'InteractionList',

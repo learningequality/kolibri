@@ -62,7 +62,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
-  import pageStatus from './page-status';
+  import pageStatus from './PageStatus';
 
   export default {
     name: 'ExamReport',

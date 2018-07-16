@@ -87,8 +87,8 @@
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import navComponents from 'kolibri.utils.navComponents';
   import navComponentsMixin from '../mixins/nav-components';
-  import logout from './logout-side-nav-entry';
-  import divider from './side-nav-divider';
+  import logout from './LogoutSideNavEntry';
+  import divider from './SideNavDivider';
 
   // Explicit ordered list of roles for nav item sorting
   const navComponentRoleOrder = [

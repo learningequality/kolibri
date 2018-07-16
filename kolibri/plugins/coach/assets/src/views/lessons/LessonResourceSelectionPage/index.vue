@@ -69,7 +69,7 @@
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { lessonSummaryLink, topicListingLink } from '../lessonsRouterUtils';
   import searchTools from './searchTools';
-  import contentCard from './LessonContentCard';
+  import LessonContentCard from './LessonContentCard';
 
   export default {
     name: 'LessonResourceSelectionPage',
@@ -80,7 +80,7 @@
     },
     components: {
       uiToolbar,
-      contentCard,
+      LessonContentCard,
       KButton,
       KCheckbox,
       searchTools,
