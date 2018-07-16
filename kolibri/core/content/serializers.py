@@ -394,6 +394,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         # all other conditions return 0
         return 0
 
+
 class ContentNodeSlimSerializer(serializers.ModelSerializer):
     """
     Lighter version of the ContentNodeSerializer whose purpose is to provide a minimum

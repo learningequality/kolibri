@@ -498,7 +498,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(len(no_filter_response.data), 2)
         with_filter_response = self.client.get(reverse("channel-list"), {"has_exercise": True})
         self.assertEqual(len(with_filter_response.data), 1)
-        self.assertEqual(no_filter_response.data[0]["name"], "testing")
+        self.assertEqual(with_filter_response.data[0]["name"], "testing")
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
