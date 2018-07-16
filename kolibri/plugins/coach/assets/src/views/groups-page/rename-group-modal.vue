@@ -28,8 +28,8 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KModal from 'kolibri.coreVue.components.KModal';
 
   export default {
     name: 'RenameGroupModal',
@@ -42,8 +42,8 @@
       required: 'This field is required',
     },
     components: {
-      kModal,
-      kTextbox,
+      KModal,
+      KTextbox,
     },
     props: {
       groupName: {

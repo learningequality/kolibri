@@ -84,10 +84,10 @@
   import { mapActions, mapState, mapGetters } from 'vuex';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KSelect from 'kolibri.coreVue.components.KSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
 
   export default {
@@ -117,11 +117,11 @@
       required: 'This field is required',
     },
     components: {
-      kRadioButton,
-      kModal,
-      kTextbox,
+      KRadioButton,
+      KModal,
+      KTextbox,
       uiAlert,
-      kSelect,
+      KSelect,
     },
     data() {
       return {

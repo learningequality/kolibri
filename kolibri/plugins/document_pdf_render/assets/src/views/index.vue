@@ -1,6 +1,6 @@
 <template>
 
-  <fullscreen
+  <core-fullscreen
     ref="pdfRenderer"
     class="pdf-renderer"
     @changeFullscreen="isInFullscreen = $event"
@@ -63,7 +63,7 @@
         <mat-svg name="remove" category="content" />
       </ui-icon-button>
     </template>
-  </fullscreen>
+  </core-fullscreen>
 
 </template>
 
@@ -79,12 +79,12 @@
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
   import 'intersection-observer';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
-  import fullscreen from 'kolibri.coreVue.components.fullscreen';
+  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
+  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
 
   import uiIconButton from 'keen-ui/src/UiIconButton';
 
@@ -102,12 +102,12 @@
   export default {
     name: 'PdfRender',
     components: {
-      kButton,
-      kLinearLoader,
+      KButton,
+      KLinearLoader,
       uiIconButton,
       pdfPage,
       RecycleList,
-      fullscreen,
+      CoreFullscreen,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({

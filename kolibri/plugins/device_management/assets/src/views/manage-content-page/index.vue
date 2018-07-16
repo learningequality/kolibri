@@ -52,8 +52,8 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import authMessage from 'kolibri.coreVue.components.authMessage';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import subpageContainer from '../containers/subpage-container';
   import channelsGrid from './channels-grid';
   import taskProgress from './task-progress';
@@ -75,9 +75,9 @@
       };
     },
     components: {
-      authMessage,
+      AuthMessage,
       channelsGrid,
-      kButton,
+      KButton,
       selectTransferSourceModal,
       subpageContainer,
       taskProgress,

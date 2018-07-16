@@ -17,14 +17,14 @@
 <script>
 
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-  import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
+  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
 
   const component = {
     name: 'userProfileSideNavEntry',
     components: {
-      coreMenuOption,
+      CoreMenuOption,
     },
     $trs: {
       profile: 'Profile',

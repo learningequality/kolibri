@@ -25,14 +25,14 @@
 
 <script>
 
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
   export default {
     name: 'AssignmentChangeStatusModal',
     components: {
-      kModal,
-      kRadioButton,
+      KModal,
+      KRadioButton,
     },
     props: {
       modalTitle: {

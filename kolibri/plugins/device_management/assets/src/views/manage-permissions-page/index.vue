@@ -28,8 +28,8 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import authMessage from 'kolibri.coreVue.components.authMessage';
-  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
+  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import subpageContainer from '../containers/subpage-container';
   import userGrid from './user-grid';
 
@@ -41,8 +41,8 @@
       };
     },
     components: {
-      authMessage,
-      kFilterTextbox,
+      AuthMessage,
+      KFilterTextbox,
       subpageContainer,
       userGrid,
     },

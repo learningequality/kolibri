@@ -51,16 +51,16 @@
 <script>
 
   import xor from 'lodash/xor';
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import UiAlert from 'keen-ui/src/UiAlert';
   import RecipientSelector from './RecipientSelector';
 
   export default {
     name: 'AssignmentDetailsModal',
     components: {
-      kModal,
-      kTextbox,
+      KModal,
+      KTextbox,
       RecipientSelector,
       UiAlert,
     },

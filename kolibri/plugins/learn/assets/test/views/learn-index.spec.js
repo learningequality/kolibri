@@ -17,7 +17,7 @@ function makeWrapper(options) {
     stubs: {
       breadcrumbs: true,
       contentUnavailablePage: true,
-      coreBase: '<div><slot></slot></div>',
+      CoreBase: '<div><slot></slot></div>',
       topicsPage: true,
       totalPoints: true,
     },
@@ -31,7 +31,7 @@ function getElements(wrapper) {
     classesLink: () => wrapper.find('[href="#/classes"]'),
     recommendedLink: () => wrapper.find('[href="#/recommended"]'),
     topicsLink: () => wrapper.find('[href="#/topics"]'),
-    tabLinks: () => wrapper.findAll({ name: 'kNavbarLink' }),
+    tabLinks: () => wrapper.findAll({ name: 'KNavbarLink' }),
   };
 }
 

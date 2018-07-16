@@ -80,11 +80,11 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
   import orderBy from 'lodash/orderBy';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { Modals, PageNames } from '../../constants';
   import classCreateModal from './class-create-modal';
@@ -105,11 +105,11 @@
       };
     },
     components: {
-      coreTable,
+      CoreTable,
       classCreateModal,
       classDeleteModal,
-      kButton,
-      kRouterLink,
+      KButton,
+      KRouterLink,
       UiIcon,
     },
     mixins: [responsiveWindow],

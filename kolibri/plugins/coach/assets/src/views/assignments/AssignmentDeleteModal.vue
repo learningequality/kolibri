@@ -15,12 +15,12 @@
 
 <script>
 
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import KModal from 'kolibri.coreVue.components.KModal';
 
   export default {
     name: 'AssignmentDeleteModal',
     components: {
-      kModal,
+      KModal,
     },
     props: {
       modalTitle: {

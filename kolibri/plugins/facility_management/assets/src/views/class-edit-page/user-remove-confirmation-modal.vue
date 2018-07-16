@@ -18,7 +18,7 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import KModal from 'kolibri.coreVue.components.KModal';
 
   export default {
     name: 'UserRemoveModal',
@@ -30,7 +30,7 @@
       description: "You can still access this account from the 'Users' tab.",
     },
     components: {
-      kModal,
+      KModal,
     },
     props: {
       classname: {

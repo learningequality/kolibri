@@ -25,7 +25,7 @@
   import buttonClassesMixin from './buttonClassesMixin.js';
 
   /**
-   * The kButton component is used to trigger actions
+   * The KButton component is used to trigger actions
    */
   export default {
     name: 'KButton',

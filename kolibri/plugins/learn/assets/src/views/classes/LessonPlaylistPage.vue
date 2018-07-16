@@ -45,8 +45,8 @@
 
   import { mapState } from 'vuex';
   import sumBy from 'lodash/sumBy';
-  import ProgressIcon from 'kolibri.coreVue.components.progressIcon';
-  import ContentIcon from 'kolibri.coreVue.components.contentIcon';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
   import ContentCard from '../content-card';
   import { lessonResourceViewerLink } from './classPageLinks';

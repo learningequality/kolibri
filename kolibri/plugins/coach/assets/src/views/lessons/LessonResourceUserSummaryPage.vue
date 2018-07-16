@@ -201,14 +201,14 @@
 <script>
 
   import { mapState } from 'vuex';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import progressBar from 'kolibri.coreVue.components.progressBar';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
-  import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import ProgressBar from 'kolibri.coreVue.components.ProgressBar';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   // TODO add to core
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { filterAndSortUsers } from '../../../../../facility_management/assets/src/userSearchUtils';
@@ -222,14 +222,14 @@
       };
     },
     components: {
-      coachContentLabel,
-      contentIcon,
-      coreTable,
-      progressBar,
-      kRouterLink,
-      kButton,
+      CoachContentLabel,
+      ContentIcon,
+      CoreTable,
+      ProgressBar,
+      KRouterLink,
+      KButton,
       uiIconButton,
-      elapsedTime,
+      ElapsedTime,
     },
     data() {
       return {

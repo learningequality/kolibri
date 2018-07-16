@@ -8,7 +8,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
+  import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
   import { PageNames } from '../../constants';
 
   export default {
@@ -18,7 +18,7 @@
       channels: 'Channels',
       learners: 'Learners',
     },
-    components: { kBreadcrumbs },
+    components: { KBreadcrumbs },
     computed: {
       ...mapGetters({
         channels: 'getChannels',

@@ -58,7 +58,7 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
   import onboardingForm from '../onboarding-form';
 
@@ -66,7 +66,7 @@
     name: 'SuperuserCredentialsForm',
     components: {
       onboardingForm,
-      kTextbox,
+      KTextbox,
     },
     $trs: {
       adminAccountCreationHeader: 'Create your Admin account',

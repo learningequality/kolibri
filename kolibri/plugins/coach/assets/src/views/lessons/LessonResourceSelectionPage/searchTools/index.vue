@@ -18,13 +18,13 @@
 <script>
 
   import { mapState } from 'vuex';
-  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
+  import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
   import { selectionRootLink, topicListingLink } from '../../lessonsRouterUtils';
 
   export default {
     name: 'SearchTools',
     components: {
-      kBreadcrumbs,
+      KBreadcrumbs,
     },
     data() {
       return {

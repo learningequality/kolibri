@@ -50,8 +50,8 @@
   import find from 'lodash/find';
   import { mapActions } from 'vuex';
   import { error as logError } from 'kolibri.lib.logging';
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { LearnerGroupResource } from 'kolibri.resources';
   import RecipientSelector from './RecipientSelector';
 
@@ -63,8 +63,8 @@
   export default {
     name: 'AssignmentCopyModal',
     components: {
-      kModal,
-      kRadioButton,
+      KModal,
+      KRadioButton,
       RecipientSelector,
     },
     props: {

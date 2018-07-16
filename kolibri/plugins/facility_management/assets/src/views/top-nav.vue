@@ -36,8 +36,8 @@
 
 <script>
 
-  import kNavbar from 'kolibri.coreVue.components.kNavbar';
-  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
+  import KNavbar from 'kolibri.coreVue.components.KNavbar';
+  import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
   import { PageNames } from '../constants';
 
   export default {
@@ -49,8 +49,8 @@
       users: 'Users',
     },
     components: {
-      kNavbar,
-      kNavbarLink,
+      KNavbar,
+      KNavbarLink,
     },
     computed: {
       PageNames: () => PageNames,

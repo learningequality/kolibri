@@ -91,12 +91,12 @@
 
   import { mapState, mapActions } from 'vuex';
   import countBy from 'lodash/countBy';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KSelect from 'kolibri.coreVue.components.KSelect';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import StatusIcon from '../assignments/StatusIcon';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
@@ -110,13 +110,13 @@
       };
     },
     components: {
-      coreTable,
+      CoreTable,
       CoreInfoIcon,
       StatusIcon,
-      contentIcon,
-      kButton,
-      kRouterLink,
-      kSelect,
+      ContentIcon,
+      KButton,
+      KRouterLink,
+      KSelect,
       AssignmentDetailsModal,
     },
     data() {

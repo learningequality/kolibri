@@ -56,9 +56,9 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
-  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import { TaskTypes, TaskStatuses } from '../../constants';
 
   const RequiredString = {
@@ -69,9 +69,9 @@
   export default {
     name: 'TaskProgress',
     components: {
-      kLinearLoader,
-      kCircularLoader,
-      kButton,
+      KLinearLoader,
+      KCircularLoader,
+      KButton,
     },
     props: {
       type: RequiredString,

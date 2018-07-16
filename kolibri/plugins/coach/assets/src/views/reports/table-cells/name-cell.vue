@@ -23,17 +23,17 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'NameCell',
     components: {
-      coachContentLabel,
-      contentIcon,
-      kRouterLink,
+      CoachContentLabel,
+      ContentIcon,
+      KRouterLink,
     },
     props: {
       kind: {

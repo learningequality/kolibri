@@ -7,12 +7,12 @@
 
 <script>
 
-  import languageSwitcherList from 'kolibri.coreVue.components.languageSwitcherList';
+  import LanguageSwitcherList from 'kolibri.coreVue.components.LanguageSwitcherList';
 
   export default {
     name: 'LanguageSwitcherFooter',
     components: {
-      languageSwitcherList,
+      LanguageSwitcherList,
     },
   };
 

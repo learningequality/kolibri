@@ -24,7 +24,7 @@ function getElements(wrapper) {
     messageText: () => wrapper.find('.message').text().trim(),
     goToTopicButton: () => wrapper.find('button[name="select-node"]'),
     checkbox: () => wrapper.find('input[type="checkbox"]'),
-    kCheckbox: () => wrapper.find({ name: 'kCheckbox' }),
+    KCheckbox: () => wrapper.find({ name: 'KCheckbox' }),
   };
 }
 
@@ -86,8 +86,8 @@ describe('contentNodeRow component', () => {
       checked: true,
     });
     // For some reason, the HTML for the actual checkbox does not have checked attribute
-    const { kCheckbox } = getElements(wrapper);
-    expect(kCheckbox().props().checked).toEqual(true);
+    const { KCheckbox } = getElements(wrapper);
+    expect(KCheckbox().props().checked).toEqual(true);
   });
 
   it('when props.determinate, the checkbox is indeterminate', () => {
@@ -96,7 +96,7 @@ describe('contentNodeRow component', () => {
       checked: true,
       indeterminate: true,
     });
-    const { kCheckbox } = getElements(wrapper);
-    expect(kCheckbox().props().indeterminate).toEqual(true);
+    const { KCheckbox } = getElements(wrapper);
+    expect(KCheckbox().props().indeterminate).toEqual(true);
   });
 });

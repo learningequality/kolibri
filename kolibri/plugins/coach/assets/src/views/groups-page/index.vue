@@ -67,7 +67,7 @@
   import differenceWith from 'lodash/differenceWith';
   import orderBy from 'lodash/orderBy';
   import flatMap from 'lodash/flatMap';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import { GroupModals } from '../../constants';
   import createGroupModal from './create-group-modal';
   import groupSection from './group-section';
@@ -90,7 +90,7 @@
       };
     },
     components: {
-      kButton,
+      KButton,
       createGroupModal,
       groupSection,
       renameGroupModal,

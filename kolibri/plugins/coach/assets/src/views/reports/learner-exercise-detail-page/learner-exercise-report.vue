@@ -52,11 +52,11 @@
 <script>
 
   import { mapState } from 'vuex';
-  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import attemptLogList from 'kolibri.coreVue.components.attemptLogList';
-  import interactionList from 'kolibri.coreVue.components.interactionList';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import multiPaneLayout from 'kolibri.coreVue.components.multiPaneLayout';
+  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
+  import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
+  import InteractionList from 'kolibri.coreVue.components.InteractionList';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import attemptSummary from './attempt-summary';
 
   export default {
@@ -72,12 +72,12 @@
       question: 'Question { questionNumber, number }',
     },
     components: {
-      contentRenderer,
+      ContentRenderer,
       attemptSummary,
-      attemptLogList,
-      interactionList,
-      kCheckbox,
-      multiPaneLayout,
+      AttemptLogList,
+      InteractionList,
+      KCheckbox,
+      MultiPaneLayout,
     },
     data() {
       return {

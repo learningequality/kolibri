@@ -25,12 +25,12 @@
 
 <script>
 
-  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
+  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
 
   export default {
     name: 'ContentArea',
     components: {
-      contentRenderer,
+      ContentRenderer,
     },
     props: {
       content: {

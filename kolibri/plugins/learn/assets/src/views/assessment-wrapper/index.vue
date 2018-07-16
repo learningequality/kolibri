@@ -109,11 +109,11 @@ oriented data synchronization.
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import seededShuffle from 'kolibri.lib.seededshuffle';
   import { now } from 'kolibri.utils.serverClock';
-  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { updateContentNodeProgress } from '../../state/actions/main';
   import exerciseAttempts from './exercise-attempts';
 
@@ -121,10 +121,10 @@ oriented data synchronization.
     name: 'AssessmentWrapper',
     components: {
       exerciseAttempts,
-      contentRenderer,
-      kButton,
+      ContentRenderer,
+      KButton,
       uiAlert,
-      kRouterLink,
+      KRouterLink,
     },
     mixins: [responsiveWindow],
     $trs: {

@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import kButton from 'kolibri.coreVue.components.kButton';
+import KButton from 'kolibri.coreVue.components.KButton';
 import UiAlert from 'keen-ui/src/UiAlert.vue';
 import SelectedResourcesSize from '../../src/views/select-content-page/selected-resources-size.vue';
 
@@ -19,8 +19,8 @@ function makeWrapper(props = {}) {
 // prettier-ignore
 function getElements(wrapper) {
   return {
-    button: () => wrapper.find(kButton),
-    buttonText: () => wrapper.find(kButton).text().trim(),
+    button: () => wrapper.find(KButton),
+    buttonText: () => wrapper.find(KButton).text().trim(),
     chooseMsg: () => wrapper.find('.choose-message').text().trim(),
     notification: () => wrapper.find(UiAlert),
     remainingSpaceMsg: () => wrapper.find('.remaining-space').text().trim(),

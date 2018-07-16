@@ -117,9 +117,9 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
-  import downloadButton from 'kolibri.coreVue.components.downloadButton';
+  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
@@ -143,11 +143,11 @@
       documentTitle: '{ contentTitle } - { channelTitle }',
     },
     components: {
-      coachContentLabel,
+      CoachContentLabel,
       pageHeader,
       contentCardGroupCarousel,
-      contentRenderer,
-      downloadButton,
+      ContentRenderer,
+      DownloadButton,
       assessmentWrapper,
       masteredSnackbars,
       uiIconButton,

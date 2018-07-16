@@ -63,8 +63,8 @@
 
   import { mapState, mapActions } from 'vuex';
   import uiToolbar from 'keen-ui/src/UiToolbar';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { lessonSummaryLink, topicListingLink } from '../lessonsRouterUtils';
@@ -81,8 +81,8 @@
     components: {
       uiToolbar,
       contentCard,
-      kButton,
-      kCheckbox,
+      KButton,
+      KCheckbox,
       searchTools,
     },
     computed: {

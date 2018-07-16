@@ -74,11 +74,11 @@
 <script>
 
   import { mapState } from 'vuex';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KSelect from 'kolibri.coreVue.components.KSelect';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import StatusIcon from '../../assignments/StatusIcon';
   import { PageNames } from '../../../constants';
@@ -111,11 +111,11 @@
       };
     },
     components: {
-      coreTable,
-      kRouterLink,
-      kSelect,
+      CoreTable,
+      KRouterLink,
+      KSelect,
       CoreInfoIcon,
-      contentIcon,
+      ContentIcon,
       StatusIcon,
     },
     data() {

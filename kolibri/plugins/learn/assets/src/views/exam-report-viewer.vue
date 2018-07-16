@@ -25,7 +25,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import examReport from 'kolibri.coreVue.components.examReport';
+  import ExamReport from 'kolibri.coreVue.components.ExamReport';
   import { ClassesPageNames } from '../constants';
 
   export default {
@@ -36,7 +36,7 @@
       };
     },
     components: {
-      examReport,
+      ExamReport,
     },
     computed: {
       ...mapState({

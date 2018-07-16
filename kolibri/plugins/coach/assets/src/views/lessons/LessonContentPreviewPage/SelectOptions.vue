@@ -27,12 +27,12 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
     name: 'SelectOptions',
     components: {
-      kButton,
+      KButton,
     },
     $trs: {
       undoButtonLabel: 'Undo',

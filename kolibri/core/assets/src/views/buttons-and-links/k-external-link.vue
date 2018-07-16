@@ -12,7 +12,7 @@
   import buttonClassesMixin from './buttonClassesMixin.js';
 
   /**
-   * kExternalLink creates a styled external link
+   * KExternalLink creates a styled external link
    */
   export default {
     name: 'KExternalLink',

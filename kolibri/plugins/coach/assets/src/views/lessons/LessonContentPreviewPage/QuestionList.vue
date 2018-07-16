@@ -30,12 +30,12 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
     name: 'QuestionList',
     components: {
-      kButton,
+      KButton,
     },
     $trs: {
       questionListHeader: '{numOfQuestions, number} Questions',

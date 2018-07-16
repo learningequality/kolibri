@@ -29,17 +29,17 @@
   import componentDocs from '../../shell/component-docs';
   import vueExample from '../../shell/vue-example';
 
-  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
-  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
+  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
 
   import kLinearLoaderExample from 'raw-loader!./k-linear-loader-example.html';
   import kCircularLoaderExample from 'raw-loader!./k-circular-loader-example.html';
 
-  import kLinearLoaderApi from '!vue-doc!kolibri.coreVue.components.kLinearLoader';
-  import kCircularLoaderApi from '!vue-doc!kolibri.coreVue.components.kCircularLoader';
+  import kLinearLoaderApi from '!vue-doc!kolibri.coreVue.components.KLinearLoader';
+  import kCircularLoaderApi from '!vue-doc!kolibri.coreVue.components.KCircularLoader';
 
-  FullVue.component('k-linear-loader', kLinearLoader);
-  FullVue.component('k-circular-loader', kCircularLoader);
+  FullVue.component('k-linear-loader', KLinearLoader);
+  FullVue.component('k-circular-loader', KCircularLoader);
 
   export default {
     components: {

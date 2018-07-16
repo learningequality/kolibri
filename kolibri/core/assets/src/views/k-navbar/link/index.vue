@@ -27,7 +27,7 @@
   import uiIcon from 'keen-ui/src/UiIcon';
 
   /**
-   Links for use inside the kNavbar
+   Links for use inside the KNavbar
    */
   export default {
     name: 'KNavbarLink',

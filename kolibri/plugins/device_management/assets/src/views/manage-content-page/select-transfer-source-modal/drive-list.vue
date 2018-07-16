@@ -28,13 +28,13 @@
 
 <script>
 
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
 
   export default {
     name: 'DriveList',
     components: {
-      kRadioButton,
+      KRadioButton,
       UiAlert,
     },
     props: {

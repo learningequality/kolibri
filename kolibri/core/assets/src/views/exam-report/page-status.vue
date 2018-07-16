@@ -40,8 +40,8 @@
 
 <script>
 
-  import progressIcon from 'kolibri.coreVue.components.progressIcon';
-  import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
+  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
 
   export default {
     name: 'PageStatus',
@@ -54,8 +54,8 @@
       notStarted: 'Not started',
     },
     components: {
-      progressIcon,
-      elapsedTime,
+      ProgressIcon,
+      ElapsedTime,
     },
     props: {
       userName: {

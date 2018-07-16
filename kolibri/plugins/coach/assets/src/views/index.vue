@@ -31,8 +31,8 @@
 
   import { mapState, mapGetters } from 'vuex';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
-  import authMessage from 'kolibri.coreVue.components.authMessage';
-  import coreBase from 'kolibri.coreVue.components.coreBase';
+  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
   import topNav from './top-nav';
@@ -115,9 +115,9 @@
         'To start coaching a class, please consult your Kolibri administrator',
     },
     components: {
-      authMessage,
+      AuthMessage,
       topNav,
-      coreBase,
+      CoreBase,
       navTitle,
     },
     computed: {
@@ -130,7 +130,7 @@
       currentPage() {
         if (!this.userCanAccessPage) {
           // TODO better solution
-          return 'authMessage';
+          return 'AuthMessage';
         }
         return pageNameToComponentMap[this.pageName] || null;
       },

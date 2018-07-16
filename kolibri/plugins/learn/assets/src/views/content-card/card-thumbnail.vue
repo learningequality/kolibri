@@ -60,15 +60,15 @@
 
 <script>
 
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import progressIcon from 'kolibri.coreVue.components.progressIcon';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
 
   export default {
     name: 'CardThumbnail',
     components: {
-      contentIcon,
-      progressIcon,
+      ContentIcon,
+      ProgressIcon,
     },
     props: {
       thumbnail: {

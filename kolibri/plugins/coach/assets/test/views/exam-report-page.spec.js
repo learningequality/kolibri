@@ -17,7 +17,7 @@ function makeWrapper(options = {}) {
   if (options.examTakers) {
     store.state.pageState.examTakers = options.examTakers;
   }
-  return mount(ExamReportPage, { ...options, store, stubs: ['kRouterLink', 'assignmentSummary'] });
+  return mount(ExamReportPage, { ...options, store, stubs: ['KRouterLink', 'assignmentSummary'] });
 }
 
 function getElements(wrapper) {

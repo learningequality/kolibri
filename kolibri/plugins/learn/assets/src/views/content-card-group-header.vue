@@ -21,11 +21,11 @@
 
 <script>
 
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 
   export default {
     name: 'ContentCardGroupHeader',
-    components: { kRouterLink },
+    components: { KRouterLink },
     $trs: {
       viewMoreFromSectionButton: 'View more',
     },

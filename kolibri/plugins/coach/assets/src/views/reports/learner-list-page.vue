@@ -80,10 +80,10 @@
 <script>
 
   import { mapState } from 'vuex';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { standardDataTable, exerciseCount, contentCount } from '../../state/getters/reports';
   import { PageNames } from '../../constants';
   import { TableColumns } from '../../constants/reportConstants';
@@ -102,9 +102,9 @@
       };
     },
     components: {
-      coachContentLabel,
-      coreTable,
-      contentIcon,
+      CoachContentLabel,
+      CoreTable,
+      ContentIcon,
       breadcrumbs,
       headerCell,
       nameCell,

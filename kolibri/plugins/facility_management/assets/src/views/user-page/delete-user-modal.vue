@@ -18,7 +18,7 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import KModal from 'kolibri.coreVue.components.KModal';
 
   export default {
     name: 'DeleteUserModal',
@@ -30,7 +30,7 @@
       delete: 'Delete',
     },
     components: {
-      kModal,
+      KModal,
     },
     props: {
       id: {

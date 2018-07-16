@@ -81,10 +81,10 @@
   import { mapActions, mapState, mapGetters } from 'vuex';
   import UiIcon from 'keen-ui/src/UiIcon';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
-  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
+  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import KSelect from 'kolibri.coreVue.components.KSelect';
   import userTable from '../user-table';
   import { Modals } from '../../constants';
   import userRole from '../user-role';
@@ -108,11 +108,11 @@
       editUserModal,
       resetUserPasswordModal,
       deleteUserModal,
-      kButton,
-      kFilterTextbox,
-      kDropdownMenu,
+      KButton,
+      KFilterTextbox,
+      KDropdownMenu,
       userRole,
-      kSelect,
+      KSelect,
       userTable,
       UiIcon,
     },

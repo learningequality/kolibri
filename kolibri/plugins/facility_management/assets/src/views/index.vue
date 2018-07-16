@@ -27,8 +27,8 @@
 
   import { mapState, mapGetters } from 'vuex';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
-  import authMessage from 'kolibri.coreVue.components.authMessage';
-  import coreBase from 'kolibri.coreVue.components.coreBase';
+  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
   import classEditPage from './class-edit-page';
   import coachClassAssignmentPage from './coach-class-assignment-page';
@@ -60,8 +60,8 @@
     },
     name: 'ManagementRoot',
     components: {
-      authMessage,
-      coreBase,
+      AuthMessage,
+      CoreBase,
       topNav,
     },
     computed: {

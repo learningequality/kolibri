@@ -91,7 +91,7 @@
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
 
   /**
    * Used to focus attention on a singular action/task
@@ -99,7 +99,7 @@
   export default {
     name: 'KModal',
     components: {
-      kButton,
+      KButton,
     },
     mixins: [responsiveWindow],
     $trs: {

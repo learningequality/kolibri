@@ -54,14 +54,14 @@
 <script>
 
   import { mapState } from 'vuex';
-  import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
-  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import attemptLogList from 'kolibri.coreVue.components.attemptLogList';
-  import interactionList from 'kolibri.coreVue.components.interactionList';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
+  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
+  import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
+  import InteractionList from 'kolibri.coreVue.components.InteractionList';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import find from 'lodash/find';
-  import multiPaneLayout from 'kolibri.coreVue.components.multiPaneLayout';
+  import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import pageStatus from './page-status';
 
   export default {
@@ -75,14 +75,14 @@
       showCorrectAnswerLabel: 'Show correct answer',
     },
     components: {
-      immersiveFullScreen,
-      contentRenderer,
+      ImmersiveFullScreen,
+      ContentRenderer,
       pageStatus,
-      attemptLogList,
-      interactionList,
-      kButton,
-      kCheckbox,
-      multiPaneLayout,
+      AttemptLogList,
+      InteractionList,
+      KButton,
+      KCheckbox,
+      MultiPaneLayout,
     },
     props: {
       examAttempts: {

@@ -33,8 +33,8 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
   export default {
     name: 'MoveLearnersModal',
@@ -47,8 +47,8 @@
       move: 'Move',
     },
     components: {
-      kModal,
-      kRadioButton,
+      KModal,
+      KRadioButton,
     },
     props: {
       groupId: {

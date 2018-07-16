@@ -24,14 +24,14 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import onboardingForm from '../onboarding-form';
 
   export default {
     name: 'FacilityNameForm',
     components: {
       onboardingForm,
-      kTextbox,
+      KTextbox,
     },
     $trs: {
       facilityNamingFormHeader: 'Name your Facility',

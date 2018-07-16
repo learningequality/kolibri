@@ -43,9 +43,9 @@
 
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
-  import textTruncator from 'kolibri.coreVue.components.textTruncator';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import cardThumbnail from './card-thumbnail';
 
   export default {
@@ -55,9 +55,9 @@
     },
     components: {
       cardThumbnail,
-      coachContentLabel,
-      textTruncator,
-      kButton,
+      CoachContentLabel,
+      TextTruncator,
+      KButton,
     },
     props: {
       title: {

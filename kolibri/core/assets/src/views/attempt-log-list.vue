@@ -61,12 +61,12 @@
 
 <script>
 
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
 
   export default {
     name: 'AttemptLogList',
     components: {
-      coachContentLabel,
+      CoachContentLabel,
     },
     $trs: {
       header: 'Answer history',

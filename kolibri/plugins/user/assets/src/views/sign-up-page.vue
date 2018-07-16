@@ -4,7 +4,7 @@
 
     <ui-toolbar type="colored" textColor="white">
       <template slot="icon">
-        <logo class="app-bar-icon" />
+        <core-logo class="app-bar-icon" />
       </template>
       <template slot="brand">
         {{ $tr('kolibri') }}
@@ -117,12 +117,12 @@
 
   import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
   import { validateUsername } from 'kolibri.utils.validators';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import uiToolbar from 'keen-ui/src/UiToolbar';
-  import logo from 'kolibri.coreVue.components.logo';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+  import KSelect from 'kolibri.coreVue.components.KSelect';
   import { PageNames } from '../constants';
   import languageSwitcherFooter from './language-switcher-footer';
 
@@ -151,12 +151,12 @@
       };
     },
     components: {
-      kButton,
+      KButton,
       uiAlert,
-      kTextbox,
+      KTextbox,
       uiToolbar,
-      logo,
-      kSelect,
+      CoreLogo,
+      KSelect,
       languageSwitcherFooter,
     },
     data: () => ({

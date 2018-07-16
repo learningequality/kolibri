@@ -82,8 +82,8 @@
 
 <script>
 
-  import coreTable from 'kolibri.coreVue.components.coreTable';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import UiIcon from 'keen-ui/src/UiIcon';
   import difference from 'lodash/difference';
   import userRole from './user-role';
@@ -91,8 +91,8 @@
   export default {
     name: 'UserTable',
     components: {
-      coreTable,
-      kCheckbox,
+      CoreTable,
+      KCheckbox,
       userRole,
       UiIcon,
     },

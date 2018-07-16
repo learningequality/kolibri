@@ -12,7 +12,7 @@
   import buttonClassesMixin from './buttonClassesMixin.js';
 
   /**
-   * kRouterLink creates a styled router-link
+   * KRouterLink creates a styled router-link
    */
   export default {
     name: 'KRouterLink',

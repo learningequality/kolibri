@@ -48,8 +48,8 @@
 <script>
 
   import { mapState, mapActions, mapGetters } from 'vuex';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import deleteChannelModal from './delete-channel-modal';
   import channelListItem from './channel-list-item';
 
@@ -57,9 +57,9 @@
     name: 'ChannelsGrid',
     components: {
       channelListItem,
-      kLinearLoader,
+      KLinearLoader,
       deleteChannelModal,
-      kButton,
+      KButton,
     },
     data: () => ({
       selectedChannelId: null,

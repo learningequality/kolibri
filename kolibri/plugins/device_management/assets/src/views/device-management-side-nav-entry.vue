@@ -17,14 +17,14 @@
 <script>
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
+  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
 
   const component = {
     name: 'deviceManagementSideNavEntry',
     components: {
-      coreMenuOption,
+      CoreMenuOption,
     },
     $trs: {
       device: 'Device',

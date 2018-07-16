@@ -18,12 +18,12 @@
 
 <script>
 
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import KModal from 'kolibri.coreVue.components.KModal';
 
   export default {
     name: 'ConfirmResetModal',
     components: {
-      kModal,
+      KModal,
     },
     methods: {
       handleConfirm() {

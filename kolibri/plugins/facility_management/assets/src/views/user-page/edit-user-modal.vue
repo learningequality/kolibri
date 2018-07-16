@@ -69,11 +69,11 @@
   import { mapActions, mapState, mapGetters } from 'vuex';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KSelect from 'kolibri.coreVue.components.KSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
   export default {
     name: 'EditUserModal',
@@ -96,11 +96,11 @@
       facilityCoachDescription: 'Can instruct all classes in your facility',
     },
     components: {
-      kModal,
-      kTextbox,
-      kSelect,
+      KModal,
+      KTextbox,
+      KSelect,
       uiAlert,
-      kRadioButton,
+      KRadioButton,
     },
     props: {
       id: {

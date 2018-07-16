@@ -103,14 +103,14 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import sumBy from 'lodash/sumBy';
   import orderBy from 'lodash/orderBy';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { USER, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import { PageNames } from '../../../constants';
   import { Modals as ExamModals } from '../../../constants/examConstants';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
@@ -125,13 +125,13 @@
       };
     },
     components: {
-      contentIcon,
-      coreTable,
-      kRouterLink,
-      kDropdownMenu,
+      ContentIcon,
+      CoreTable,
+      KRouterLink,
+      KDropdownMenu,
       AssignmentSummary,
       ManageExamModals,
-      kCheckbox,
+      KCheckbox,
     },
     data() {
       return {

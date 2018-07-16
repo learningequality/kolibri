@@ -44,7 +44,7 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import uiAlert from 'keen-ui/src/UiAlert.vue';
   import bytesForHumans from '../manage-content-page/bytesForHumans';
 
@@ -53,7 +53,7 @@
   export default {
     name: 'SelectedResourcesSize',
     components: {
-      kButton,
+      KButton,
       uiAlert,
     },
     props: {

@@ -62,7 +62,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import authMessage from 'kolibri.coreVue.components.authMessage';
+  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import subpageContainer from './containers/subpage-container';
 
   export default {
@@ -73,7 +73,7 @@
       };
     },
     components: {
-      authMessage,
+      AuthMessage,
       subpageContainer,
     },
     computed: {

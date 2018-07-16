@@ -50,18 +50,18 @@
 <script>
 
   import { mapState } from 'vuex';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
 
   export default {
     name: 'UserGrid',
     components: {
-      kButton,
-      permissionsIcon,
-      coreTable,
+      KButton,
+      PermissionsIcon,
+      CoreTable,
     },
     props: {
       searchFilter: {

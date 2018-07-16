@@ -10,7 +10,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
+  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import { PageNames, LearnerReports } from '../../../constants';
   import learnerExerciseReport from './learner-exercise-report';
 
@@ -28,7 +28,7 @@
       };
     },
     components: {
-      immersiveFullScreen,
+      ImmersiveFullScreen,
       learnerExerciseReport,
     },
     computed: {

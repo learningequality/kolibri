@@ -106,12 +106,12 @@
 
   import { mapActions, mapState, mapMutations } from 'vuex';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import progressBar from 'kolibri.coreVue.components.progressBar';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import ProgressBar from 'kolibri.coreVue.components.ProgressBar';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { resourceUserSummaryLink } from '../lessonsRouterUtils';
 
   const removalSnackbarTime = 5000;
@@ -123,13 +123,13 @@
   export default {
     name: 'ResourceListTable',
     components: {
-      coachContentLabel,
+      CoachContentLabel,
       uiIconButton,
-      kButton,
-      kRouterLink,
-      progressBar,
-      coreTable,
-      contentIcon,
+      KButton,
+      KRouterLink,
+      ProgressBar,
+      CoreTable,
+      ContentIcon,
     },
     data() {
       return {

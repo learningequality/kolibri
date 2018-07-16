@@ -102,18 +102,18 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KModal from 'kolibri.coreVue.components.KModal';
   import onboardingForm from '../onboarding-form';
 
   export default {
     name: 'FacilityPermissionsForm',
     components: {
       onboardingForm,
-      kRadioButton,
-      kButton,
-      kModal,
+      KRadioButton,
+      KButton,
+      KModal,
     },
     $trs: {
       facilityPermissionsSetupFormHeader: 'Choose a Facility setup',

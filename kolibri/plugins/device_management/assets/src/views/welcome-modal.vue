@@ -20,8 +20,8 @@
 
 <script>
 
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
     name: 'WelcomeModal',
@@ -33,7 +33,7 @@
         'The admin account you created during setup has special permissions to do this. Learn more in the Permissions tab later.',
       welcomeButtonDismissText: 'OK',
     },
-    components: { kModal, kButton },
+    components: { KModal, KButton },
     methods: {
       emitCloseModal() {
         this.$emit('closeModal');

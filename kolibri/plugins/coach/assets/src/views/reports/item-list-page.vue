@@ -78,9 +78,9 @@
 <script>
 
   import { mapState } from 'vuex';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { standardDataTable, exerciseCount, contentCount } from '../../state/getters/reports';
   import { TopicReports, LearnerReports, PageNames } from '../../constants';
   import { TableColumns } from '../../constants/reportConstants';
@@ -100,8 +100,8 @@
       };
     },
     components: {
-      coreTable,
-      contentIcon,
+      CoreTable,
+      ContentIcon,
       breadcrumbs,
       headerCell,
       nameCell,

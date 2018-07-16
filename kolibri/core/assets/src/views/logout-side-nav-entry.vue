@@ -18,13 +18,13 @@
 <script>
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
+  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import urls from 'kolibri.urls';
 
   export default {
     name: 'LogoutSideNavEntry',
     components: {
-      coreMenuOption,
+      CoreMenuOption,
     },
     $trs: {
       signOut: 'Sign out',

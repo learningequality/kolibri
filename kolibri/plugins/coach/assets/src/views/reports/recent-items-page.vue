@@ -60,10 +60,10 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import progressBar from 'kolibri.coreVue.components.progressBar';
+  import ProgressBar from 'kolibri.coreVue.components.ProgressBar';
   import { standardDataTable } from '../../state/getters/reports';
   import { PageNames } from '../../constants';
   import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
@@ -81,13 +81,13 @@
       };
     },
     components: {
-      coreTable,
+      CoreTable,
       breadcrumbs,
       headerCell,
       nameCell,
       activityCell,
-      contentIcon,
-      progressBar,
+      ContentIcon,
+      ProgressBar,
     },
     mixins: [alignMixin],
     $trs: {

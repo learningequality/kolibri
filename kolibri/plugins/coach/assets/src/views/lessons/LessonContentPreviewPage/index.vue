@@ -44,8 +44,8 @@
 <script>
 
   import { mapState, mapMutations } from 'vuex';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import multiPaneLayout from 'kolibri.coreVue.components.multiPaneLayout';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
   import MetadataArea from './MetadataArea';
@@ -63,8 +63,8 @@
       ContentArea,
       MetadataArea,
       SelectOptions,
-      kButton,
-      multiPaneLayout,
+      KButton,
+      MultiPaneLayout,
     },
     $trs: {
       questionLabel: 'Question { questionNumber, number }',

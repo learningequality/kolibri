@@ -138,17 +138,17 @@
 
   import { mapState, mapActions } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kGrid from 'kolibri.coreVue.components.kGrid';
-  import kGridItem from 'kolibri.coreVue.components.kGridItem';
-  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import shuffle from 'lodash/shuffle';
   import orderBy from 'lodash/orderBy';
   import random from 'lodash/random';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import flatMap from 'lodash/flatMap';
   import { Modals as ExamModals } from '../../../constants/examConstants';
   import previewNewExamModal from './preview-new-exam-modal';
@@ -163,17 +163,17 @@
       };
     },
     components: {
-      kCircularLoader,
-      kButton,
-      kTextbox,
-      kGrid,
-      kGridItem,
+      KCircularLoader,
+      KButton,
+      KTextbox,
+      KGrid,
+      KGridItem,
       topicRow,
       exerciseRow,
       previewNewExamModal,
-      kCheckbox,
+      KCheckbox,
       uiAlert,
-      coreTable,
+      CoreTable,
     },
     mixins: [responsiveWindow],
     $trs: {

@@ -11,7 +11,7 @@ function makeWrapper(options) {
     },
   });
   const els = {
-    titleText: () => wrapper.find({ name: 'kModal' }).props().title,
+    titleText: () => wrapper.find({ name: 'KModal' }).props().title,
     selectImportSource: () => wrapper.find('[data-test="select-import-source"]'),
     selectDrive: () => wrapper.find('[data-test="select-drive"]'),
   };

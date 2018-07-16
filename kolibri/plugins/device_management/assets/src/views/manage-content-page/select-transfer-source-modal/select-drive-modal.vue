@@ -43,7 +43,7 @@
 
   import { mapActions, mapState, mapGetters } from 'vuex';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import KModal from 'kolibri.coreVue.components.KModal';
   import { wizardState } from '../../../state/getters';
   import { TransferTypes } from '../../../constants';
   import driveList from './drive-list';
@@ -53,7 +53,7 @@
     components: {
       driveList,
       UiAlert,
-      kModal,
+      KModal,
     },
     data() {
       return {

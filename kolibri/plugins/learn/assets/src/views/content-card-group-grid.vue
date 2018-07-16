@@ -70,7 +70,7 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import some from 'lodash/some';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import KSelect from 'kolibri.coreVue.components.KSelect';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentCard from './content-card';
   import copiesModal from './copies-modal';
@@ -101,7 +101,7 @@
     },
     components: {
       contentCard,
-      kSelect,
+      KSelect,
       copiesModal,
     },
     mixins: [responsiveWindow],

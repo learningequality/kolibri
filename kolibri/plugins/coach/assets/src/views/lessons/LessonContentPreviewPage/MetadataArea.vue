@@ -64,7 +64,7 @@
 
 <script>
 
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import markdownIt from 'markdown-it';
 
@@ -82,7 +82,7 @@
       copyrightHolderDataHeader: 'Copyright holder',
     },
     components: {
-      coachContentLabel,
+      CoachContentLabel,
       InfoIcon,
     },
     props: {

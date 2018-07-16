@@ -36,16 +36,16 @@
 <script>
 
   import UiAlert from 'keen-ui/src/UiAlert';
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { getRemoteChannelByToken } from '../../state/actions/availableChannelsActions';
 
   export default {
     name: 'ChannelTokenModal',
     components: {
       UiAlert,
-      kModal,
-      kTextbox,
+      KModal,
+      KTextbox,
     },
     data() {
       return {

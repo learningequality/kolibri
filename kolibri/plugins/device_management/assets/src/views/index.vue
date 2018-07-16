@@ -26,7 +26,7 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
-  import coreBase from 'kolibri.coreVue.components.coreBase';
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ContentWizardPages, PageNames } from '../constants';
   import topNavigation from './device-top-nav';
   import manageContentPage from './manage-content-page';
@@ -49,7 +49,7 @@
   export default {
     name: 'DeviceManagementRoot',
     components: {
-      coreBase,
+      CoreBase,
       welcomeModal,
       topNavigation,
     },

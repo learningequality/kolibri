@@ -75,10 +75,10 @@
 
   import { mapGetters } from 'vuex';
   import { MaxPointsPerContent, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
-  import progressIcon from 'kolibri.coreVue.components.progressIcon';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import uiAlert from 'keen-ui/src/UiAlert';
   import snackbar from './snackbar';
 
@@ -87,10 +87,10 @@
   export default {
     name: 'MasteredSnackbars',
     components: {
-      pointsIcon,
-      progressIcon,
-      contentIcon,
-      kRouterLink,
+      PointsIcon,
+      ProgressIcon,
+      ContentIcon,
+      KRouterLink,
       snackbar,
       uiAlert,
     },

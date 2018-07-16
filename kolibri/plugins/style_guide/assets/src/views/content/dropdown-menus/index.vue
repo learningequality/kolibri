@@ -18,15 +18,15 @@
 <script>
 
   import FullVue from 'vue/dist/vue.common';
-  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import componentDocs from '../../shell/component-docs';
   import vueExample from '../../shell/vue-example';
   import pageTemplate from '../../shell/page-template';
 
   import example from 'raw-loader!./example.html';
-  import kDropdownMenuApi from '!vue-doc!kolibri.coreVue.components.kDropdownMenu';
+  import kDropdownMenuApi from '!vue-doc!kolibri.coreVue.components.KDropdownMenu';
 
-  FullVue.component('k-dropdown-menu', kDropdownMenu);
+  FullVue.component('k-dropdown-menu', KDropdownMenu);
 
   export default {
     components: {

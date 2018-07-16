@@ -53,8 +53,8 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import map from 'lodash/map';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
@@ -71,10 +71,10 @@
       };
     },
     components: {
-      kDropdownMenu,
+      KDropdownMenu,
       ResourceListTable,
       ManageLessonModals,
-      kRouterLink,
+      KRouterLink,
       AssignmentSummary,
     },
     computed: {

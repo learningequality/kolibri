@@ -18,7 +18,7 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import KModal from 'kolibri.coreVue.components.KModal';
 
   export default {
     name: 'ClassDeleteModal',
@@ -31,7 +31,7 @@
         "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
     },
     components: {
-      kModal,
+      KModal,
     },
     props: {
       classname: {

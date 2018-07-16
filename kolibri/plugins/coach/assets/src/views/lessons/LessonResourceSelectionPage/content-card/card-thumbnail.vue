@@ -35,13 +35,13 @@
 
 <script>
 
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
 
   export default {
     name: 'CardThumbnail',
     components: {
-      contentIcon,
+      ContentIcon,
     },
     props: {
       thumbnail: {

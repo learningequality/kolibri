@@ -43,7 +43,7 @@
 <script>
 
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import languageSwitcherMixin from './mixin';
@@ -55,7 +55,7 @@
       showMoreLanguagesSelector: 'More languages',
     },
     components: {
-      kButton,
+      KButton,
       languageSwitcherModal,
       uiIconButton,
     },

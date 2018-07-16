@@ -7,12 +7,12 @@
 
 <script>
 
-  import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
+  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
 
   export default {
     name: 'SideNavDivider',
     components: {
-      coreMenuOption,
+      CoreMenuOption,
     },
   };
 

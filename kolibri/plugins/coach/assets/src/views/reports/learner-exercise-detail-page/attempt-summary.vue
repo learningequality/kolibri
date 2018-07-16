@@ -68,9 +68,9 @@
 
 <script>
 
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import progressIcon from 'kolibri.coreVue.components.progressIcon';
-  import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
+  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
 
   export default {
     name: 'AttemptSummary',
@@ -82,9 +82,9 @@
       notStarted: 'Not started',
     },
     components: {
-      contentIcon,
-      progressIcon,
-      elapsedTime,
+      ContentIcon,
+      ProgressIcon,
+      ElapsedTime,
     },
     props: {
       userName: {

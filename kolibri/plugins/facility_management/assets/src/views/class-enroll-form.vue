@@ -79,13 +79,13 @@
 <script>
 
   import differenceWith from 'lodash/differenceWith';
-  import kGrid from 'kolibri.coreVue.components.kGrid';
-  import kGridItem from 'kolibri.coreVue.components.kGridItem';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
+  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
   import userTable from './user-table';
   import { Modals } from './../constants';
@@ -93,12 +93,12 @@
   export default {
     name: 'ManagementClassEnroll',
     components: {
-      kButton,
-      kCheckbox,
+      KButton,
+      KCheckbox,
       uiIconButton,
-      kFilterTextbox,
-      kGrid,
-      kGridItem,
+      KFilterTextbox,
+      KGrid,
+      KGridItem,
       userTable,
     },
     mixins: [responsiveWindow],

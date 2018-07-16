@@ -55,8 +55,8 @@
 
   import { mapState } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import appBar from 'kolibri.coreVue.components.appBar';
-  import sideNav from 'kolibri.coreVue.components.sideNav';
+  import AppBar from 'kolibri.coreVue.components.AppBar';
+  import SideNav from 'kolibri.coreVue.components.SideNav';
   import appBody from './app-body';
   import globalSnackbar from './global-snackbar';
   import immersiveToolbar from './immersive-toolbar';
@@ -69,9 +69,9 @@
       errorPageTitle: 'Error',
     },
     components: {
-      appBar,
+      AppBar,
       immersiveToolbar,
-      sideNav,
+      SideNav,
       appBody,
       globalSnackbar,
     },

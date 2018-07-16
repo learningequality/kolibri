@@ -83,26 +83,26 @@
     <p>There are three components that all look the same, but are used for different purposes:</p>
     <ul>
       <li>
-        <code>kButton</code> is used to create <code>&lt;button&gt;</code> tags with
+        <code>KButton</code> is used to create <code>&lt;button&gt;</code> tags with
         <code>@click</code> event handlers.
       </li>
       <li>
-        <code>kRouterLink</code> is used to create Vue router <code>&lt;router-link&gt;</code>
+        <code>KRouterLink</code> is used to create Vue router <code>&lt;router-link&gt;</code>
         components with <code>:to</code> properties. These compile into <code>&lt;a&gt;</code> tags.
       </li>
       <li>
-        <code>kExternalLink</code> is used to create standard <code>&lt;a&gt;</code> tags with an
+        <code>KExternalLink</code> is used to create standard <code>&lt;a&gt;</code> tags with an
         <code>href</code> attribute.
       </li>
     </ul>
 
-    <h3>kButton</h3>
+    <h3>KButton</h3>
     <component-docs :api="kButtonApi" />
 
-    <h3>kRouterLink</h3>
+    <h3>KRouterLink</h3>
     <component-docs :api="kRouterLinkApi" />
 
-    <h3>kExternalLink</h3>
+    <h3>KExternalLink</h3>
     <component-docs :api="kExternalLinkApi" />
 
     <h2>Interactive code example</h2>
@@ -125,22 +125,22 @@
 <script>
 
   import FullVue from 'vue/dist/vue.common';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import componentDocs from '../../shell/component-docs';
   import vueExample from '../../shell/vue-example';
   import pageTemplate from '../../shell/page-template';
   import show from '../../shell/show';
 
   import example from 'raw-loader!./example.html';
-  import kButtonApi from '!vue-doc!kolibri.coreVue.components.kButton';
-  import kRouterLinkApi from '!vue-doc!kolibri.coreVue.components.kRouterLink';
-  import kExternalLinkApi from '!vue-doc!kolibri.coreVue.components.kExternalLink';
+  import kButtonApi from '!vue-doc!kolibri.coreVue.components.KButton';
+  import kRouterLinkApi from '!vue-doc!kolibri.coreVue.components.KRouterLink';
+  import kExternalLinkApi from '!vue-doc!kolibri.coreVue.components.KExternalLink';
 
-  FullVue.component('k-button', kButton);
-  FullVue.component('k-router-link', kRouterLink);
-  FullVue.component('k-external-link', kExternalLink);
+  FullVue.component('k-button', KButton);
+  FullVue.component('k-router-link', KRouterLink);
+  FullVue.component('k-external-link', KExternalLink);
 
   export default {
     components: {
@@ -148,9 +148,9 @@
       componentDocs,
       vueExample,
       show,
-      kButton,
-      kRouterLink,
-      kExternalLink,
+      KButton,
+      KRouterLink,
+      KExternalLink,
     },
     data: () => ({
       kButtonApi,

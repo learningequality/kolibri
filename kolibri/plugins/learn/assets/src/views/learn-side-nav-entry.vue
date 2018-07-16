@@ -16,14 +16,14 @@
 
 <script>
 
-  import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
+  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
 
   const component = {
     name: 'learnSideNavEntry',
     components: {
-      coreMenuOption,
+      CoreMenuOption,
     },
     $trs: {
       learn: 'Learn',

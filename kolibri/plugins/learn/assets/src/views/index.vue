@@ -59,9 +59,9 @@
   import { mapState, mapGetters } from 'vuex';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import coreBase from 'kolibri.coreVue.components.coreBase';
-  import kNavbar from 'kolibri.coreVue.components.kNavbar';
-  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import KNavbar from 'kolibri.coreVue.components.KNavbar';
+  import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import channelsPage from './channels-page';
   import topicsPage from './topics-page';
@@ -116,9 +116,9 @@
     components: {
       actionBarSearchBox,
       breadcrumbs,
-      coreBase,
-      kNavbar,
-      kNavbarLink,
+      CoreBase,
+      KNavbar,
+      KNavbarLink,
       totalPoints,
     },
     mixins: [responsiveWindow],

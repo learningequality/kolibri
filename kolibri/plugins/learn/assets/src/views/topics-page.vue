@@ -30,7 +30,7 @@
 
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import textTruncator from 'kolibri.coreVue.components.textTruncator';
+  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { PageNames } from '../constants';
   import pageHeader from './page-header';
   import contentCard from './content-card';
@@ -48,7 +48,7 @@
       pageHeader,
       contentCard,
       contentCardGroupGrid,
-      textTruncator,
+      TextTruncator,
     },
     metaInfo() {
       let title;

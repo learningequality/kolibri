@@ -87,11 +87,11 @@
 <script>
 
   import { mapState, mapActions, mapGetters } from 'vuex';
-  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
-  import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
-  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+  import KSelect from 'kolibri.coreVue.components.KSelect';
+  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
+  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import uniqBy from 'lodash/uniqBy';
   import channelTokenModal from '../available-channels-page/channel-token-modal';
   import subpageContainer from '../containers/subpage-container';
@@ -114,12 +114,12 @@
       channelListItem,
       channelTokenModal,
       contentWizardUiAlert,
-      immersiveFullScreen,
-      kButton,
-      kFilterTextbox,
+      ImmersiveFullScreen,
+      KButton,
+      KFilterTextbox,
       subpageContainer,
-      kLinearLoader,
-      kSelect,
+      KLinearLoader,
+      KSelect,
     },
     data() {
       return {

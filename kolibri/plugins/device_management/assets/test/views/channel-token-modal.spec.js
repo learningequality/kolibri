@@ -8,7 +8,7 @@ function makeWrapper() {
 function getElements(wrapper) {
   return {
     cancelButton: () => wrapper.find('button[name="cancel"]'),
-    tokenTextbox: () => wrapper.find({ name: 'kTextbox' }),
+    tokenTextbox: () => wrapper.find({ name: 'KTextbox' }),
     networkErrorAlert: () => wrapper.find({ name: 'ui-alert' }),
     lookupTokenStub: () => {
       wrapper.vm.lookupToken = jest.fn();

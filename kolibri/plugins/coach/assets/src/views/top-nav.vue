@@ -51,8 +51,8 @@
 <script>
 
   import { mapState } from 'vuex';
-  import kNavbar from 'kolibri.coreVue.components.kNavbar';
-  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
+  import KNavbar from 'kolibri.coreVue.components.KNavbar';
+  import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
 
@@ -67,8 +67,8 @@
       lessons: 'Lessons',
     },
     components: {
-      kNavbar,
-      kNavbarLink,
+      KNavbar,
+      KNavbarLink,
     },
     computed: {
       ...mapState(['pageName', 'classId']),

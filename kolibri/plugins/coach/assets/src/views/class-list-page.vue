@@ -57,11 +57,11 @@
 
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
-  import authMessage from 'kolibri.coreVue.components.authMessage';
-  import ContentIcon from 'kolibri.coreVue.components.contentIcon';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import orderBy from 'lodash/orderBy';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { PageNames } from '../constants';
   import { filterAndSortUsers } from '../../../../facility_management/assets/src/userSearchUtils';
 
@@ -80,10 +80,10 @@
       };
     },
     components: {
-      authMessage,
-      coreTable,
+      AuthMessage,
+      CoreTable,
       ContentIcon,
-      kRouterLink,
+      KRouterLink,
     },
     computed: {
       ...mapState(['classList']),

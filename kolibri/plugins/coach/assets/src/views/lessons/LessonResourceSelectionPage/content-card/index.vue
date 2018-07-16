@@ -41,20 +41,20 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
-  import textTruncator from 'kolibri.coreVue.components.textTruncator';
+  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import cardThumbnail from './card-thumbnail';
 
   export default {
     name: 'LessonContentCard',
     components: {
       cardThumbnail,
-      textTruncator,
-      coachContentLabel,
-      kButton,
+      TextTruncator,
+      CoachContentLabel,
+      KButton,
     },
     props: {
       title: {

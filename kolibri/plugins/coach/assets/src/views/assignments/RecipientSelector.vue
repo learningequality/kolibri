@@ -24,16 +24,16 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
   export default {
     name: 'RecipientSelector',
     components: {
-      kButton,
-      kCheckbox,
-      kRadioButton,
+      KButton,
+      KCheckbox,
+      KRadioButton,
     },
     props: {
       // Needs to equal [classId] if entire class is selected

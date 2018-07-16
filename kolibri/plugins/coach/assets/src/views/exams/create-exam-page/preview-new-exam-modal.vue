@@ -20,7 +20,7 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import previewExamModal from '../exams-page/preview-exam-modal';
 
   export default {
@@ -28,7 +28,7 @@
     $trs: { randomize: 'Randomize questions' },
     components: {
       previewExamModal,
-      kButton,
+      KButton,
     },
     props: {
       examQuestionSources: {

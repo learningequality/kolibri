@@ -29,10 +29,10 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
 
   export default {
     name: 'ExerciseRow',
@@ -40,10 +40,10 @@
       selectExercise: 'Select exercise',
     },
     components: {
-      coachContentLabel,
-      contentIcon,
-      kButton,
-      kCheckbox,
+      CoachContentLabel,
+      ContentIcon,
+      KButton,
+      KCheckbox,
     },
     props: {
       exerciseId: {

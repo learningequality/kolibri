@@ -21,14 +21,14 @@
 
 <script>
 
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { currentLanguage } from 'kolibri.utils.i18n';
   import languageSwitcherMixin from './mixin';
 
   export default {
     name: 'LanguageSwitcherModal',
-    components: { kModal, kRadioButton },
+    components: { KModal, KRadioButton },
     mixins: [languageSwitcherMixin],
     $trs: {
       changeLanguageModalHeader: 'Change language',

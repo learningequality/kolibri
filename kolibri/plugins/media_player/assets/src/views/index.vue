@@ -7,7 +7,7 @@
         :delay="true"
       />
     </div>
-    <fullscreen
+    <core-fullscreen
       v-show="!loading"
       class="fill-space"
       ref="container"
@@ -45,7 +45,7 @@
           >
         </template>
       </audio>
-    </fullscreen>
+    </core-fullscreen>
   </div>
 
 </template>
@@ -57,10 +57,10 @@
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
-  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
+  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
-  import fullscreen from 'kolibri.coreVue.components.fullscreen';
+  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
+  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import { fullscreenApiIsSupported } from 'kolibri.utils.browser';
   import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import audioIconPoster from './audio-icon-poster.svg';
@@ -96,7 +96,7 @@
       sourceError: 'No compatible source was found for this media',
       encryptionError: 'The media is encrypted and we do not have the keys to decrypt it',
     },
-    components: { kCircularLoader, fullscreen },
+    components: { KCircularLoader, CoreFullscreen },
 
     mixins: [ResponsiveElement, contentRendererMixin],
 

@@ -82,13 +82,13 @@
   import find from 'lodash/find';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kGrid from 'kolibri.coreVue.components.kGrid';
-  import kGridItem from 'kolibri.coreVue.components.kGridItem';
-  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
 
@@ -102,13 +102,13 @@
       exercise: 'Exercise { num }',
     },
     components: {
-      coachContentLabel,
-      kModal,
-      contentRenderer,
-      kButton,
-      kGrid,
-      kGridItem,
-      kCircularLoader,
+      CoachContentLabel,
+      KModal,
+      ContentRenderer,
+      KButton,
+      KGrid,
+      KGridItem,
+      KCircularLoader,
     },
     mixins: [responsiveWindow],
     props: {

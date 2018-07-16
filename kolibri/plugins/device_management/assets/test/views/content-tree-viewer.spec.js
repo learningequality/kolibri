@@ -25,7 +25,7 @@ function makeWrapper(options = {}) {
 function getElements(wrapper) {
   return {
     // Need to filter out checkboxes in content-node-rows
-    selectAllCheckbox: () => wrapper.findAll({ name: 'kCheckbox' }).filter(el => el.props().label === 'Select all').at(0),
+    selectAllCheckbox: () => wrapper.findAll({ name: 'KCheckbox' }).filter(el => el.props().label === 'Select all').at(0),
     emptyState: () => wrapper.find('.no-contents'),
     contentsSection: () => wrapper.findAll('.contents'),
     firstTopicButton: () => wrapper.find({ name: 'contentNodeRow' }).find('button'),

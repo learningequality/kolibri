@@ -76,11 +76,11 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import authMessage from 'kolibri.coreVue.components.authMessage';
-  import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
+  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import { PageNames } from '../constants';
   import subpageContainer from './containers/subpage-container';
 
@@ -96,12 +96,12 @@
       };
     },
     components: {
-      authMessage,
-      immersiveFullScreen,
-      kButton,
-      kCheckbox,
+      AuthMessage,
+      ImmersiveFullScreen,
+      KButton,
+      KCheckbox,
       subpageContainer,
-      permissionsIcon,
+      PermissionsIcon,
     },
     data() {
       return {

@@ -94,8 +94,8 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiToolbar from 'keen-ui/src/UiToolbar';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import coreMenu from 'kolibri.coreVue.components.coreMenu';
-  import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
+  import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
+  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import uiButton from 'keen-ui/src/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
@@ -108,10 +108,10 @@
     components: {
       uiToolbar,
       uiIconButton,
-      coreMenu,
+      CoreMenu,
       uiButton,
       languageSwitcherModal,
-      coreMenuOption,
+      CoreMenuOption,
       logout,
     },
     mixins: [responsiveWindow, navComponentsMixin],

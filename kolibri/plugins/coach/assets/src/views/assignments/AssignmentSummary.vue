@@ -75,8 +75,8 @@
 <script>
 
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import StatusIcon from './StatusIcon';
 
@@ -84,9 +84,9 @@
     name: 'AssignmentSummary',
     components: {
       CoreInfoIcon,
-      contentIcon,
+      ContentIcon,
       StatusIcon,
-      kButton,
+      KButton,
     },
     props: {
       kind: {

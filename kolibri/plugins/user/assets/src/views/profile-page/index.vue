@@ -116,10 +116,10 @@
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { validateUsername } from 'kolibri.utils.validators';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
-  import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
+  import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import uiAlert from 'keen-ui/src/UiAlert';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
   import changeUserPasswordModal from './change-user-password-modal';
@@ -154,11 +154,11 @@
       };
     },
     components: {
-      kButton,
-      kTextbox,
+      KButton,
+      KTextbox,
       uiAlert,
-      pointsIcon,
-      permissionsIcon,
+      PointsIcon,
+      PermissionsIcon,
       changeUserPasswordModal,
     },
     mixins: [responsiveWindow],

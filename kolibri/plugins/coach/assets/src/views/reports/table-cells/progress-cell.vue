@@ -20,7 +20,7 @@
 
 <script>
 
-  import progressBar from 'kolibri.coreVue.components.progressBar';
+  import ProgressBar from 'kolibri.coreVue.components.ProgressBar';
 
   export default {
     name: 'ProgressIndicator',
@@ -28,7 +28,7 @@
       completed: 'completed by {0, number, integer} learners',
       pct: '{0, number, percent}',
     },
-    components: { progressBar },
+    components: { ProgressBar },
     props: {
       num: { type: Number },
       isExercise: {

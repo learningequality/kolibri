@@ -12,7 +12,7 @@
 
 <script>
 
-  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
+  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
 
   export default {
     name: 'ContentUnavailablePage',
@@ -22,7 +22,7 @@
       };
     },
     components: {
-      kExternalLink,
+      KExternalLink,
     },
     $trs: {
       header: 'No content channels available',

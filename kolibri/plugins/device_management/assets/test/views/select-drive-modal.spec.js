@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import kModal from 'kolibri.coreVue.components.kModal';
+import KModal from 'kolibri.coreVue.components.KModal';
 import UiAlert from 'keen-ui/src/UiAlert';
 import SelectDriveModal from '../../src/views/manage-content-page/select-transfer-source-modal/select-drive-modal';
 import { wizardState } from '../../src/state/getters';
@@ -52,7 +52,7 @@ function makeStore() {
 // prettier-ignore
 function getElements(wrapper) {
   return {
-    titleText: () => wrapper.find(kModal).props().title,
+    titleText: () => wrapper.find(KModal).props().title,
     driveListLoading: () => wrapper.find('.drive-list-loading'),
     driveListLoadingText: () => wrapper.find('.drive-list-loading').text().trim(),
     driveListContainer: () => wrapper.find('.drive-list'),
@@ -64,7 +64,7 @@ function getElements(wrapper) {
     continueButton: () => wrapper.find('button[name="submit"]'),
     UiAlerts: () => wrapper.find(UiAlert),
     findingLocalDrives: () => wrapper.find('.finding-local-drives'),
-    selectDriveModal: () => wrapper.find({ name: 'kModal'}),
+    selectDriveModal: () => wrapper.find({ name: 'KModal'}),
   };
 }
 

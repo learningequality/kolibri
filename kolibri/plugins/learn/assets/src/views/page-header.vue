@@ -13,11 +13,11 @@
 <script>
 
   import { mapState } from 'vuex';
-  import progressIcon from 'kolibri.coreVue.components.progressIcon';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
 
   export default {
     name: 'PageHeader',
-    components: { progressIcon },
+    components: { ProgressIcon },
     props: { title: { type: String } },
     computed: {
       ...mapState({

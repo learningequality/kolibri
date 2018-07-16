@@ -92,9 +92,9 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from './bytesForHumans';
   import { selectContentPageLink } from './manageContentLinks';
@@ -113,9 +113,9 @@
   export default {
     name: 'ChannelListItem',
     components: {
-      coachContentLabel,
-      kDropdownMenu,
-      kRouterLink,
+      CoachContentLabel,
+      KDropdownMenu,
+      KRouterLink,
       UiIcon,
     },
     props: {

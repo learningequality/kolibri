@@ -126,18 +126,18 @@
 <script>
 
   import FullVue from 'vue/dist/vue.common';
-  import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
-  import kSelect from 'kolibri.coreVue.components.kSelect';
+  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
+  import KSelect from 'kolibri.coreVue.components.KSelect';
   import componentDocs from '../../shell/component-docs';
   import vueExample from '../../shell/vue-example';
   import pageTemplate from '../../shell/page-template';
   import kFilterTextboxExample from 'raw-loader!./k-filter-textbox-example.html';
-  import kFilterTextboxApi from '!vue-doc!kolibri.coreVue.components.kFilterTextbox';
+  import kFilterTextboxApi from '!vue-doc!kolibri.coreVue.components.KFilterTextbox';
   import kSelectExample from 'raw-loader!./k-select-example.html';
-  import kSelectApi from '!vue-doc!kolibri.coreVue.components.kSelect';
+  import kSelectApi from '!vue-doc!kolibri.coreVue.components.KSelect';
 
-  FullVue.component('k-filter-textbox', kFilterTextbox);
-  FullVue.component('k-select', kSelect);
+  FullVue.component('k-filter-textbox', KFilterTextbox);
+  FullVue.component('k-select', KSelect);
 
   export default {
     components: {

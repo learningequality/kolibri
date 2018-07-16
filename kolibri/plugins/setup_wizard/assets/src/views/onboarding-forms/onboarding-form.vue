@@ -34,12 +34,12 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
     name: 'OnboardingForm',
     components: {
-      kButton,
+      KButton,
     },
     props: {
       header: {

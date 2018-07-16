@@ -9,11 +9,11 @@
 
 <script>
 
-  import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
 
   export default {
     name: 'ActivityCell',
-    components: { elapsedTime },
+    components: { ElapsedTime },
     props: {
       date: {
         type: Date,

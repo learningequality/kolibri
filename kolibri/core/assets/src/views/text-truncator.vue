@@ -26,12 +26,12 @@
 
   import shave from 'shave';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
     name: 'TextTruncator',
     components: {
-      kButton,
+      KButton,
     },
     mixins: [responsiveElement],
     props: {

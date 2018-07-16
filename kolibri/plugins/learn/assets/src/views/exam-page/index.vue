@@ -93,12 +93,12 @@
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
   import debounce from 'lodash/debounce';
-  import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
-  import contentRenderer from 'kolibri.coreVue.components.contentRenderer';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
+  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KModal from 'kolibri.coreVue.components.KModal';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
-  import multiPaneLayout from 'kolibri.coreVue.components.multiPaneLayout';
+  import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import { ClassesPageNames } from '../../constants';
   import answerHistory from './answer-history';
 
@@ -123,13 +123,13 @@
       };
     },
     components: {
-      immersiveFullScreen,
-      contentRenderer,
-      kButton,
+      ImmersiveFullScreen,
+      ContentRenderer,
+      KButton,
       answerHistory,
-      kModal,
+      KModal,
       uiAlert,
-      multiPaneLayout,
+      MultiPaneLayout,
     },
     data() {
       return {

@@ -46,19 +46,19 @@
 
 <script>
 
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'ContentNodeRow',
     components: {
-      coachContentLabel,
-      contentIcon,
-      kButton,
-      kCheckbox,
+      CoachContentLabel,
+      ContentIcon,
+      KButton,
+      KCheckbox,
     },
     props: {
       node: {

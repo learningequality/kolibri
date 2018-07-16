@@ -47,9 +47,9 @@
   import urls from 'kolibri.urls';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import kGrid from 'kolibri.coreVue.components.kGrid';
-  import kGridItem from 'kolibri.coreVue.components.kGridItem';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
     name: 'DataPage',
@@ -59,9 +59,9 @@
       };
     },
     components: {
-      kButton,
-      kGrid,
-      kGridItem,
+      KButton,
+      KGrid,
+      KGridItem,
     },
     mixins: [responsiveWindow],
     $trs: {

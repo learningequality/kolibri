@@ -22,7 +22,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
+  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import errorBox from './error-box';
 
@@ -30,7 +30,7 @@
     name: 'AppBody',
     components: {
       errorBox,
-      kLinearLoader,
+      KLinearLoader,
     },
     mixins: [responsiveWindow],
     props: {

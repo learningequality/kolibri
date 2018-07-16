@@ -1,6 +1,6 @@
 <template>
 
-  <fullscreen
+  <core-fullscreen
     ref="docViewer"
     class="doc-viewer"
     @changeFullscreen="isInFullscreen = $event"
@@ -37,7 +37,7 @@
       class="epub-container"
     >
     </div>
-  </fullscreen>
+  </core-fullscreen>
 
 </template>
 
@@ -48,13 +48,13 @@
   import Epub from 'epubjs/lib/epub';
   import manager from 'epubjs/lib/managers/default';
   import iFrameView from 'epubjs/lib/managers/views/iframe';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
+  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import throttle from 'lodash/throttle';
-  import fullscreen from 'kolibri.coreVue.components.fullscreen';
+  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
 
   // How often should we respond to changes in scrolling to render new pages?
   const renderDebounceTime = 300;
@@ -64,9 +64,9 @@
   export default {
     name: 'epubRender',
     components: {
-      kButton,
+      KButton,
       uiIconButton,
-      fullscreen,
+      CoreFullscreen,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({

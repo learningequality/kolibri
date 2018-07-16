@@ -12,12 +12,12 @@
 <script>
 
   import filesize from 'filesize';
-  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
 
   export default {
     name: 'DownloadButton',
     components: {
-      kDropdownMenu,
+      KDropdownMenu,
     },
     $trs: { downloadContent: 'Download content' },
     props: {

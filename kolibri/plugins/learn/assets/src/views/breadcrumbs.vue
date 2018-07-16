@@ -12,7 +12,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
+  import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
   import { PageNames, PageModes } from '../constants';
   import classesBreadcrumbItems from './classes/classesBreadcrumbItems';
 
@@ -22,7 +22,7 @@
       recommended: 'Recommended',
       channels: 'Channels',
     },
-    components: { kBreadcrumbs },
+    components: { KBreadcrumbs },
     mixins: [classesBreadcrumbItems],
     computed: {
       ...mapGetters(['pageMode']),

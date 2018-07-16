@@ -24,16 +24,16 @@
 <script>
 
   import { mapGetters, mapActions, mapMutations } from 'vuex';
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
     name: 'FacilityModal',
     components: {
-      kModal,
-      kRadioButton,
-      kButton,
+      KModal,
+      KRadioButton,
+      KButton,
     },
     data() {
       return {

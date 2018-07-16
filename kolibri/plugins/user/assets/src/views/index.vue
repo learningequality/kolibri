@@ -19,7 +19,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import coreBase from 'kolibri.coreVue.components.coreBase';
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
   import signInPage from './sign-in-page';
   import signUpPage from './sign-up-page';
@@ -34,7 +34,7 @@
   export default {
     name: 'UserPlugin',
     components: {
-      coreBase,
+      CoreBase,
       signInPage,
       signUpPage,
       profilePage,

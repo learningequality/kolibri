@@ -16,13 +16,13 @@
 
 <script>
 
-  import coreSnackbar from 'kolibri.coreVue.components.coreSnackbar';
+  import CoreSnackbar from 'kolibri.coreVue.components.CoreSnackbar';
   import { mapGetters } from 'vuex';
 
   export default {
     name: 'GlobalSnackbar',
     components: {
-      coreSnackbar,
+      CoreSnackbar,
     },
     computed: {
       ...mapGetters(['snackbarIsVisible', 'snackbarOptions']),

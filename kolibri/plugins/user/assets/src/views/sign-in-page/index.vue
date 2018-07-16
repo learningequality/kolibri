@@ -11,7 +11,7 @@
       <div class="main-row">
         <div class="main-cell">
           <div class="box">
-            <logo
+            <core-logo
               class="logo"
               :style="{'height': `${logoHeight}px`}"
             />
@@ -120,11 +120,11 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import logo from 'kolibri.coreVue.components.logo';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -159,12 +159,12 @@
       };
     },
     components: {
-      kButton,
-      kRouterLink,
-      kExternalLink,
-      kTextbox,
+      KButton,
+      KRouterLink,
+      KExternalLink,
+      KTextbox,
       facilityModal,
-      logo,
+      CoreLogo,
       uiAutocompleteSuggestion,
       uiAlert,
       languageSwitcherFooter,

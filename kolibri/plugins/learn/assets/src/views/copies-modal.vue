@@ -45,20 +45,20 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCircularLoader from 'kolibri.coreVue.components.kCircularLoader';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import sortBy from 'lodash/sortBy';
   import { PageNames } from '../constants';
 
   export default {
     name: 'CopiesModal',
     components: {
-      kModal,
-      kButton,
-      kCircularLoader,
-      kRouterLink,
+      KModal,
+      KButton,
+      KCircularLoader,
+      KRouterLink,
     },
     props: {
       uniqueId: {

@@ -16,14 +16,14 @@
 <script>
 
   import { mapGetters, mapActions } from 'vuex';
-  import pointsIcon from 'kolibri.coreVue.components.pointsIcon';
+  import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import uiTooltip from 'keen-ui/src/UiTooltip';
 
   export default {
     name: 'TotalPoints',
     $trs: { pointsTooltip: 'You earned { points, number } points!' },
     components: {
-      pointsIcon,
+      PointsIcon,
       uiTooltip,
     },
     computed: {

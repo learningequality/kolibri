@@ -41,7 +41,7 @@ describe('AssignmentCopyModal', () => {
       propsData: { ...defaultProps },
       store,
     });
-    const classroomRadios = els.selectClassroomForm().findAll({ name: 'kRadioButton' });
+    const classroomRadios = els.selectClassroomForm().findAll({ name: 'KRadioButton' });
     expect(classroomRadios.length).toEqual(2);
   });
 
@@ -52,7 +52,7 @@ describe('AssignmentCopyModal', () => {
     });
     const currentClassroomRadio = els
       .selectClassroomForm()
-      .findAll({ name: 'kRadioButton' })
+      .findAll({ name: 'KRadioButton' })
       .at(0);
     expect(currentClassroomRadio.props().label).toEqual('Class Two (current class)');
   });

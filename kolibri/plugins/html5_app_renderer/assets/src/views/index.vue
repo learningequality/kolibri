@@ -1,6 +1,6 @@
 <template>
 
-  <fullscreen
+  <core-fullscreen
     ref="html5Renderer"
     class="html5-renderer"
     @changeFullscreen="isInFullscreen = $event"
@@ -22,22 +22,22 @@
       :src="rooturl"
     >
     </iframe>
-  </fullscreen>
+  </core-fullscreen>
 
 </template>
 
 
 <script>
 
-  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
+  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import fullscreen from 'kolibri.coreVue.components.fullscreen';
+  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
 
   export default {
     name: 'Html5Renderer',
     components: {
       uiIconButton,
-      fullscreen,
+      CoreFullscreen,
     },
     mixins: [contentRendererMixin],
     props: {

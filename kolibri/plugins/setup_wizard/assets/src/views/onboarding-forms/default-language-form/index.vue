@@ -14,7 +14,7 @@
 <script>
 
   import { mapActions, mapState } from 'vuex';
-  import languageSwitcherList from 'kolibri.coreVue.components.languageSwitcherList';
+  import LanguageSwitcherList from 'kolibri.coreVue.components.LanguageSwitcherList';
 
   import onboardingForm from '../onboarding-form';
 
@@ -25,7 +25,7 @@
     },
     components: {
       onboardingForm,
-      languageSwitcherList,
+      LanguageSwitcherList,
     },
     props: {
       submitText: {

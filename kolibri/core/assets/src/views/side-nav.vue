@@ -48,7 +48,7 @@
           </core-menu>
 
           <div class="side-nav-scrollable-area-footer">
-            <logo class="side-nav-scrollable-area-footer-logo" />
+            <core-logo class="side-nav-scrollable-area-footer-logo" />
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
@@ -81,10 +81,10 @@
   } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import coreMenu from 'kolibri.coreVue.components.coreMenu';
-  import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
+  import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
+  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import logo from 'kolibri.coreVue.components.logo';
+  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import navComponents from 'kolibri.utils.navComponents';
   import navComponentsMixin from '../mixins/nav-components';
   import logout from './logout-side-nav-entry';
@@ -103,10 +103,10 @@
   export default {
     name: 'SideNav',
     components: {
-      coreMenu,
+      CoreMenu,
       uiIconButton,
-      logo,
-      coreMenuOption,
+      CoreLogo,
+      CoreMenuOption,
       divider,
     },
     mixins: [responsiveWindow, responsiveElement, navComponentsMixin],

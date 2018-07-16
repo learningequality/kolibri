@@ -57,8 +57,8 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { standardDataTable } from '../../state/getters/reports';
   import { PageNames } from '../../constants';
@@ -78,8 +78,8 @@
     },
     components: {
       breadcrumbs,
-      contentIcon,
-      coreTable,
+      ContentIcon,
+      CoreTable,
       headerCell,
       nameCell,
       activityCell,

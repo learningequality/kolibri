@@ -96,10 +96,10 @@
 
   import { mapState, mapActions } from 'vuex';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kGrid from 'kolibri.coreVue.components.kGrid';
-  import kGridItem from 'kolibri.coreVue.components.kGridItem';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import userTable from '../user-table';
   import { PageNames, Modals } from '../../constants';
   import classRenameModal from './class-rename-modal';
@@ -131,10 +131,10 @@
       classRenameModal,
       userRemoveConfirmationModal,
       uiIconButton,
-      kGrid,
-      kGridItem,
-      kRouterLink,
-      kButton,
+      KGrid,
+      KGridItem,
+      KRouterLink,
+      KButton,
     },
     data() {
       return {

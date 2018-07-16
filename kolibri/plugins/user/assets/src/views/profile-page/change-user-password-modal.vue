@@ -36,14 +36,14 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KModal from 'kolibri.coreVue.components.KModal';
 
   export default {
     name: 'ChangeUserPasswordModal',
     components: {
-      kModal,
-      kTextbox,
+      KModal,
+      KTextbox,
     },
     data() {
       return {

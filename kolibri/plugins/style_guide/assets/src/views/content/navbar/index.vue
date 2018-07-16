@@ -63,26 +63,26 @@
 <script>
 
   import FullVue from 'vue/dist/vue.common';
-  import kNavbar from 'kolibri.coreVue.components.kNavbar';
-  import kNavbarLink from 'kolibri.coreVue.components.kNavbarLink';
+  import KNavbar from 'kolibri.coreVue.components.KNavbar';
+  import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
   import componentDocs from '../../shell/component-docs';
   import vueExample from '../../shell/vue-example';
   import pageTemplate from '../../shell/page-template';
   import show from '../../shell/show';
   import example from 'raw-loader!./example.html';
-  import kNavbarApi from '!vue-doc!kolibri.coreVue.components.kNavbar';
-  import kNavbarLinkApi from '!vue-doc!kolibri.coreVue.components.kNavbarLink';
+  import kNavbarApi from '!vue-doc!kolibri.coreVue.components.KNavbar';
+  import kNavbarLinkApi from '!vue-doc!kolibri.coreVue.components.KNavbarLink';
 
-  FullVue.component('k-navbar', kNavbar);
-  FullVue.component('k-navbar-link', kNavbarLink);
+  FullVue.component('k-navbar', KNavbar);
+  FullVue.component('k-navbar-link', KNavbarLink);
 
   export default {
     components: {
       pageTemplate,
       componentDocs,
       vueExample,
-      kNavbarLink,
-      kNavbar,
+      KNavbarLink,
+      KNavbar,
       show,
     },
     data: () => ({

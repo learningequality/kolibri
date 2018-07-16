@@ -32,9 +32,9 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { RemoteChannelResource } from 'kolibri.resources';
-  import kModal from 'kolibri.coreVue.components.kModal';
+  import KModal from 'kolibri.coreVue.components.KModal';
   import { ContentSources } from '../../../constants';
 
   const { LOCAL_DRIVE, KOLIBRI_STUDIO } = ContentSources;
@@ -42,8 +42,8 @@
   export default {
     name: 'SelectImportSourceModal',
     components: {
-      kRadioButton,
-      kModal,
+      KRadioButton,
+      KModal,
     },
     data() {
       return {
