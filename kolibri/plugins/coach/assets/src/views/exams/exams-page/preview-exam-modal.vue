@@ -17,7 +17,7 @@
       </div>
       <div v-else>
         <div ref="header">
-          <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
+          <strong>{{ $tr('numQuestions', { num: availableExamQuestionSources.length }) }}</strong>
           <slot name="randomize-button"></slot>
         </div>
         <k-grid
@@ -25,7 +25,10 @@
           :style="{ maxHeight: `${maxHeight}px` }"
         >
           <k-grid-item size="1" cols="3" class="question-selector">
-            <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
+            <div
+              v-for="(exercise, exerciseIndex) in availableExamQuestionSources"
+              :key="exerciseIndex"
+            >
               <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
                 <li
@@ -147,9 +150,14 @@
       debouncedSetMaxHeight() {
         return debounce(this.setMaxHeight, 250);
       },
+      availableExamQuestionSources() {
+        return this.examQuestionSources.filter(questionSource => {
+          return this.exercises[questionSource.exercise_id];
+        });
+      },
       questions() {
         return Object.keys(this.exercises).length
-          ? createQuestionList(this.examQuestionSources).map(question => ({
+          ? createQuestionList(this.availableExamQuestionSources).map(question => ({
               itemId: selectQuestionFromExercise(
                 question.assessmentItemIndex,
                 this.examSeed,
