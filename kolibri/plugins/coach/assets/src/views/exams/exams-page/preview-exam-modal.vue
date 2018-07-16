@@ -24,7 +24,7 @@
           class="exam-preview-container"
           :style="{ maxHeight: `${maxHeight}px` }"
         >
-          <k-grid-item size="1" cols="3" class="question-selector">
+          <k-grid-item :sizes="[1, 3, 4]">
             <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
               <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
@@ -51,7 +51,7 @@
               </ol>
             </div>
           </k-grid-item>
-          <k-grid-item size="2" cols="3" class="exercise-container">
+          <k-grid-item :sizes="[3, 5, 8]">
             <content-renderer
               v-if="content && itemId"
               ref="contentRenderer"
@@ -263,11 +263,6 @@
   /deep/ .modal {
     max-width: unset;
     max-height: unset;
-  }
-
-  .question-selector,
-  .exercise-container {
-    overflow-y: auto;
   }
 
   ol {

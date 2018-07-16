@@ -1,7 +1,7 @@
 <template>
 
-  <div class="attempt-summary">
-    <div class="pure-u-3-4">
+  <k-grid class="attempt-summary">
+    <k-grid-item size="75" percentage>
       <div class="summary-item">
         <div class="icon">
           <mat-svg
@@ -42,9 +42,9 @@
         </span>
       </div>
 
-    </div>
+    </k-grid-item>
 
-    <div class="pure-u-1-4">
+    <k-grid-item size="25" percentage>
       <div class="status">
         <div class="status-text">
           <progress-icon
@@ -60,8 +60,8 @@
           <elapsed-time :date="updateTime" />
         </div>
       </div>
-    </div>
-  </div>
+    </k-grid-item>
+  </k-grid>
 
 </template>
 
@@ -71,6 +71,8 @@
   import contentIcon from 'kolibri.coreVue.components.contentIcon';
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
 
   export default {
     name: 'attemptSummary',
@@ -85,6 +87,8 @@
       contentIcon,
       progressIcon,
       elapsedTime,
+      kGrid,
+      kGridItem,
     },
     props: {
       userName: {

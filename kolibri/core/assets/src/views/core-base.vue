@@ -39,7 +39,6 @@
     <app-body
       :topGap="headerHeight"
       :bottomGap="bottomMargin"
-      :class="`gutter-${windowSize.gutterWidth}`"
     >
       <slot></slot>
     </app-body>

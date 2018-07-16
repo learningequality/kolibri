@@ -1,7 +1,8 @@
 <template>
 
-  <div class="page-status">
-    <div class="pure-u-3-4">
+
+  <k-grid class="page-status">
+    <k-grid-item size="75" percentage>
       <div class="user-name-container">
         <mat-svg
           class="svg-item"
@@ -16,24 +17,21 @@
       <div class="questions">
         {{ $tr('questionsCorrect', { correct: questionsCorrect, total: questions.length }) }}
       </div>
-    </div>
-    <div class="pure-u-1-4">
-      <div class="inner-column">
+    </k-grid-item>
+    <k-grid-item size="25" percentage align="right">
+      <div>
         <progress-icon class="svg-icon" :progress="progress" />
-        <span v-if="completed">
-          <strong> {{ $tr('completed') }} </strong>
-          <br>
-          <elapsed-time :date="completionTimestamp" />
-        </span>
-        <span v-else-if="completed !== null">
-          <strong> {{ $tr('inProgress') }} </strong>
-        </span>
-        <span v-else>
-          <strong> {{ $tr('notStarted') }} </strong>
-        </span>
+        <strong>
+          <template v-if="completed">{{ $tr('completed') }}</template>
+          <template v-else-if="completed !== null">{{ $tr('inProgress') }}</template>
+          <template v-else>{{ $tr('notStarted') }}</template>
+        </strong>
       </div>
-    </div>
-  </div>
+      <div v-if="completed">
+        <elapsed-time :date="completionTimestamp" />
+      </div>
+    </k-grid-item>
+  </k-grid>
 
 </template>
 
@@ -42,6 +40,8 @@
 
   import progressIcon from 'kolibri.coreVue.components.progressIcon';
   import elapsedTime from 'kolibri.coreVue.components.elapsedTime';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
 
   export default {
     name: 'pageStatus',
@@ -56,6 +56,8 @@
     components: {
       progressIcon,
       elapsedTime,
+      kGrid,
+      kGridItem,
     },
     props: {
       userName: {
@@ -94,6 +96,7 @@
   @import '~kolibri.styles.definitions';
 
   .page-status {
+    padding: 8px;
     background-color: $core-bg-light;
   }
 
@@ -102,6 +105,7 @@
   }
 
   .svg-icon {
+    margin-right: 8px;
     font-size: 1.3em;
   }
 
@@ -111,6 +115,7 @@
 
   .svg-item {
     display: inline-block;
+    margin-right: 8px;
     vertical-align: middle;
   }
 
@@ -118,10 +123,6 @@
     display: inline-block;
     margin: 0;
     vertical-align: middle;
-  }
-
-  .inner-column {
-    float: right;
   }
 
 </style>

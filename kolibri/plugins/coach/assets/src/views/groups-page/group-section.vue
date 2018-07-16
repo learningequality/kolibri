@@ -3,19 +3,17 @@
   <div class="group-section">
 
     <k-grid>
-      <k-grid-item
-        class="no-side-padding"
-        size="1"
-        :cols="numCols"
-      >
+      <k-grid-item :sizes="[100, 100, 50]" percentage>
         <h2 class="group-name right-margin">{{ group.name }}</h2>
-        <span class="small-text">{{ $tr('numLearners', {count: group.users.length }) }}</span>
+        <span class="small-text">
+          {{ $tr('numLearners', {count: group.users.length }) }}
+        </span>
       </k-grid-item>
       <k-grid-item
-        class="no-side-padding"
-        size="1"
-        :cols="numCols"
-        :class="{mobile : isSmall}"
+        :sizes="[100, 100, 50]"
+        percentage
+        align="right"
+        :class="{ mobile : windowIsSmall || windowIsMedium }"
       >
         <span v-if="group.users.length" class="right-margin small-text">
           {{ `${selectedUsers.length} ${$tr('selected')}` }}
@@ -89,7 +87,7 @@
   import coreTable from 'kolibri.coreVue.components.coreTable';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import ResponsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
@@ -119,7 +117,7 @@
       kGrid,
       kGridItem,
     },
-    mixins: [ResponsiveElement],
+    mixins: [ResponsiveWindow],
     props: {
       group: {
         type: Object,
@@ -146,12 +144,6 @@
       }),
       sortedGroupUsers() {
         return sortBy(this.group.users, user => user.full_name.toLowerCase());
-      },
-      isSmall() {
-        return this.elementWidth < 700;
-      },
-      numCols() {
-        return this.isSmall ? 1 : 2;
       },
       menuOptions() {
         return [this.$tr('renameGroup'), this.$tr('deleteGroup')];
@@ -214,11 +206,6 @@
 
   .right-margin {
     margin-right: 8px;
-  }
-
-  .no-side-padding {
-    padding-right: 0;
-    padding-left: 0;
   }
 
   .small-text {

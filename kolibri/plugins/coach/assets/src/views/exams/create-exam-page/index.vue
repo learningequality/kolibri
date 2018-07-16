@@ -3,7 +3,7 @@
   <div>
     <h1>{{ $tr('createNewExam') }}</h1>
     <k-grid>
-      <k-grid-item size="1" :cols="numCols">
+      <k-grid-item size="4">
         <k-textbox
           ref="title"
           :label="$tr('title')"
@@ -15,7 +15,7 @@
           v-model.trim="inputTitle"
         />
       </k-grid-item>
-      <k-grid-item size="1" :cols="numCols">
+      <k-grid-item size="3">
         <k-textbox
           ref="numQuest"
           type="number"
@@ -223,9 +223,6 @@
         selectedExercises: state => state.pageState.selectedExercises,
         examsModalSet: state => state.pageState.examsModalSet,
       }),
-      numCols() {
-        return this.windowIsLarge ? 2 : 1;
-      },
       titleIsInvalidText() {
         if (this.titleBlurred || this.previewOrSubmissionAttempt) {
           if (this.inputTitle === '') {

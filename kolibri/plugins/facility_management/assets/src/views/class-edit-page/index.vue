@@ -35,10 +35,10 @@
     <!-- /Modals -->
 
     <k-grid>
-      <k-grid-item size="3" cols="4">
+      <k-grid-item :sizes="[100, 50, 50]" percentage>
         <h2>{{ $tr('coachTableTitle') }}</h2>
       </k-grid-item>
-      <k-grid-item size="1" cols="4" class="right">
+      <k-grid-item :sizes="[100, 50, 50]" class="right" percentage>
         <k-router-link
           :text="$tr('assignCoachesButtonLabel')"
           :to="coachAssignmentLink"
@@ -62,10 +62,10 @@
     </user-table>
 
     <k-grid class="top-margin">
-      <k-grid-item size="3" cols="4">
+      <k-grid-item :sizes="[100, 50, 50]" percentage>
         <h2>{{ $tr('learnerTableTitle') }}</h2>
       </k-grid-item>
-      <k-grid-item size="1" cols="4" class="right">
+      <k-grid-item :sizes="[100, 50, 50]" class="right" percentage>
         <k-router-link
           :text="$tr('enrollLearnerButtonLabel')"
           :to="learnerEnrollmentLink"
@@ -199,13 +199,6 @@
 
   .top-margin {
     margin-top: 24px;
-  }
-
-  // overwrite global styling
-  // TODO - find a better way of doing this
-  .gutter-24 [class*='pure-u'],
-  .gutter-16 [class*='pure-u'] {
-    padding: 0;
   }
 
 </style>

@@ -2,14 +2,15 @@
 
   <k-grid>
 
-    <k-grid-item size="1" cols="1">
+    <k-grid-item size="100" percentage>
       <h1>{{ $tr('pageHeading') }}</h1>
     </k-grid-item>
-    <k-grid-item size="1" cols="1">
+
+    <k-grid-item size="100" percentage>
       <p>{{ $tr('pageSubHeading') }}</p>
     </k-grid-item>
 
-    <k-grid-item size="1" :cols="numCols">
+    <k-grid-item :sizes="[100, 50, 50]" percentage>
       <h2>{{ $tr('detailsHeading') }}</h2>
       <p>
         {{ $tr('detailsSubHeading') }}
@@ -23,7 +24,7 @@
       </p>
     </k-grid-item>
 
-    <k-grid-item size="1" :cols="numCols">
+    <k-grid-item :sizes="[100, 50, 50]" percentage>
       <h2>{{ $tr('summaryHeading') }}</h2>
       <p>
         {{ $tr('summarySubHeading') }}
@@ -84,9 +85,6 @@
     computed: {
       cannotDownload() {
         return isAndroidWebView();
-      },
-      numCols() {
-        return this.windowIsLarge ? 2 : 1;
       },
     },
     methods: {
