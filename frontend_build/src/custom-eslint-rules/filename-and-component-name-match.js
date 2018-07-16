@@ -64,7 +64,6 @@ function create(context) {
         return;
       }
     }
-    return;
 
     if (componentName !== fileName) {
       context.report({
