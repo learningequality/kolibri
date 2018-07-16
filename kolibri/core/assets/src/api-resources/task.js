@@ -1,5 +1,4 @@
 import pickBy from 'lodash/pickBy';
-import urls from 'kolibri.urls';
 import { Resource } from '../api-resource';
 
 export default new Resource({
@@ -12,12 +11,8 @@ export default new Resource({
    *
    */
   startRemoteChannelImport({ channel_id }) {
-    return this.client({
-      path: urls[`${this.name}_startremotechannelimport`](),
-      method: 'POST',
-      entity: {
-        channel_id,
-      },
+    return this.postListEndpoint('startremotechannelimport', {
+      channel_id,
     });
   },
 
@@ -29,13 +24,9 @@ export default new Resource({
    *
    */
   startDiskChannelImport({ channel_id, drive_id }) {
-    return this.client({
-      path: urls[`${this.name}_startdiskchannelimport`](),
-      method: 'POST',
-      entity: {
-        channel_id,
-        drive_id,
-      },
+    return this.postListEndpoint('startdiskchannelimport', {
+      channel_id,
+      drive_id,
     });
   },
 
@@ -50,11 +41,7 @@ export default new Resource({
    *
    */
   startRemoteContentImport(params) {
-    return this.client({
-      path: urls[`${this.name}_startremotecontentimport`](),
-      method: 'POST',
-      entity: pickBy(params),
-    });
+    return this.postListEndpoint('startremotecontentimport', pickBy(params));
   },
 
   /**
@@ -68,11 +55,7 @@ export default new Resource({
    *
    */
   startDiskContentImport(params) {
-    return this.client({
-      path: urls[`${this.name}_startdiskcontentimport`](),
-      method: 'POST',
-      entity: pickBy(params),
-    });
+    return this.postListEndpoint('startdiskcontentimport', pickBy(params));
   },
 
   /**
@@ -87,63 +70,27 @@ export default new Resource({
    */
   startDiskContentExport(params) {
     // Not naming it after URL to keep internal consistency
-    return this.client({
-      path: urls[`${this.name}_startdiskexport`](),
-      method: 'POST',
-      entity: pickBy(params),
-    });
-  },
-
-  /**
-   * Gets all the Tasks outside of the Resource Layer mechanism
-   *
-   */
-  getTasks() {
-    return this.client({
-      path: urls[`${this.name}_list`](),
-      method: 'GET',
-    });
+    return this.postListEndpoint('startdiskexport', pickBy(params));
   },
 
   deleteChannel(channelId) {
-    const clientObj = {
-      path: this.deleteChannelUrl(),
-      entity: { channel_id: channelId },
-    };
-    return this.client(clientObj);
+    return this.postListEndpoint('startdeletechannel', {
+      channel_id: channelId,
+    });
   },
 
   localDrives() {
-    const clientObj = { path: this.localDrivesUrl() };
-    return this.client(clientObj);
+    return this.postListEndpoint('localdrive');
   },
 
   // TODO: switch to Model.delete()
   cancelTask(taskId) {
-    const clientObj = {
-      path: this.cancelTaskUrl(),
-      entity: { task_id: taskId },
-    };
-    return this.client(clientObj);
+    return this.postListEndpoint('canceltask', {
+      task_id: taskId,
+    });
   },
 
   clearTasks() {
-    const clientObj = {
-      path: this.clearTasksUrl(),
-      entity: {},
-    };
-    return this.client(clientObj);
-  },
-  get deleteChannelUrl() {
-    return urls[`${this.name}_startdeletechannel`];
-  },
-  get localDrivesUrl() {
-    return urls[`${this.name}_localdrive`];
-  },
-  get cancelTaskUrl() {
-    return urls[`${this.name}_canceltask`];
-  },
-  get clearTasksUrl() {
-    return urls[`${this.name}_cleartasks`];
+    return this.postListEndpoint('cleartasks');
   },
 });

@@ -600,9 +600,9 @@ export class Resource {
   createCollection(getParams = {}, data = [], detailName, detailId) {
     let url;
     if (detailName && detailId) {
-      url = this.urls[`${this.name}_${detailName}`](detailId);
+      url = this.getUrlFunction(detailName)(detailId);
     } else if (detailName) {
-      url = this.urls[`${this.name}_${detailName}`]();
+      url = this.getUrlFunction(detailName)();
     }
     const cacheName = detailName ? `detail-${detailName}` : 'default';
     this.collections[cacheName] = this.collections[cacheName] || {};
@@ -663,7 +663,7 @@ export class Resource {
     let url;
     if (detailName) {
       const detailId = data[this.idKey];
-      url = this.urls[`${this.name}_${detailName}`](detailId);
+      url = this.getUrlFunction(detailName)(detailId);
     }
     const model = new Model(data, getParams, this, url);
     return this.addModel(model, getParams, detailName);
@@ -706,6 +706,13 @@ export class Resource {
     if (!detailName) {
       throw TypeError('A detailName must be specified');
     }
+    if (process.env.NODE_ENV !== 'production') {
+      if (!this.__schema[detailName]) {
+        logging.error(`${detailName} detail endpoint does not exist on ${this.name}.`);
+      } else if (!this.__schema[detailName].method === 'get') {
+        logging.error(`${detailName} detail endpoint does not accept get requests.`);
+      }
+    }
     return this.getModel(id, getParams, detailName).fetch();
   }
 
@@ -716,6 +723,13 @@ export class Resource {
     if (!detailName) {
       throw TypeError('A detailName must be specified');
     }
+    if (process.env.NODE_ENV !== 'production') {
+      if (!this.__schema[detailName]) {
+        logging.error(`${detailName} detail endpoint does not exist on ${this.name}.`);
+      } else if (!this.__schema[detailName].method === 'get') {
+        logging.error(`${detailName} detail endpoint does not accept get requests.`);
+      }
+    }
     return this.getCollection(getParams, detailName, id).fetch();
   }
 
@@ -723,7 +737,49 @@ export class Resource {
     if (!detailName) {
       throw TypeError('A detailName must be specified');
     }
+    if (process.env.NODE_ENV !== 'production') {
+      if (!this.__schema[detailName]) {
+        logging.error(`${detailName} detail endpoint does not exist on ${this.name}.`);
+      } else if (!this.__schema[detailName].method === 'get') {
+        logging.error(`${detailName} detail endpoint does not accept get requests.`);
+      }
+    }
     return this.getCollection(getParams, detailName).fetch();
+  }
+
+  accessEndpoint(method, listName, args = {}) {
+    if (!listName) {
+      throw TypeError('A listName must be specified');
+    }
+    if (process.env.NODE_ENV !== 'production') {
+      if (!this.__schema[listName]) {
+        logging.error(`${listName} list endpoint does not exist on ${this.name}.`);
+      } else if (!this.__schema[listName].method === method.toLowerCase()) {
+        logging.error(
+          `${listName} list endpoint does not accept ${method.toLowerCase()} requests.`
+        );
+      }
+    }
+    let entity, params;
+    if (method === 'GET') {
+      params = args;
+    } else {
+      entity = args;
+    }
+    return this.client({
+      path: this.getUrlFunction(listName)(),
+      method,
+      entity,
+      params,
+    });
+  }
+
+  getListEndpoint(listName, params = {}) {
+    return this.accessEndpoint('GET', listName, params);
+  }
+
+  postListEndpoint(listName, params = {}) {
+    return this.accessEndpoint('POST', listName, params);
   }
 
   /**
@@ -760,14 +816,18 @@ export class Resource {
     return urls;
   }
 
+  getUrlFunction(endpoint) {
+    return this.urls[`${this.name}_${endpoint}`];
+  }
+
   get modelUrl() {
     // Leveraging Django REST Framework generated URL patterns.
-    return this.urls[`${this.name}_detail`];
+    return this.getUrlFunction('detail');
   }
 
   get collectionUrl() {
     // Leveraging Django REST Framework generated URL patterns.
-    return this.urls[`${this.name}_list`];
+    return this.getUrlFunction('list');
   }
 
   get client() {
