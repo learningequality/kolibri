@@ -141,6 +141,7 @@
   FullVue.component('k-textbox', KTextbox);
 
   export default {
+    name: 'TextFields',
     components: {
       pageTemplate,
       componentDocs,

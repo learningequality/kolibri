@@ -58,6 +58,7 @@
   import pageTemplate from '../shell/page-template';
 
   export default {
+    name: 'Writing',
     components: {
       pageTemplate,
     },

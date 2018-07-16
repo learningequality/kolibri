@@ -182,6 +182,7 @@
   FullVue.component('k-button', KButton);
 
   export default {
+    name: 'Modals',
     components: {
       pageTemplate,
       componentDocs,

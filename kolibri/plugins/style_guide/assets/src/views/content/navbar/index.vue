@@ -77,6 +77,7 @@
   FullVue.component('k-navbar-link', KNavbarLink);
 
   export default {
+    name: 'Navbar',
     components: {
       pageTemplate,
       componentDocs,

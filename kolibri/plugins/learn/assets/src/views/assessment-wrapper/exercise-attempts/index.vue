@@ -28,6 +28,7 @@
   import answerIcon from './answer-icon';
 
   export default {
+    name: 'ExerciseAttempts',
     components: { answerIcon },
     props: {
       // Creates an empty space awaiting a new attempt

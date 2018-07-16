@@ -140,6 +140,7 @@
   FullVue.component('k-select', KSelect);
 
   export default {
+    name: 'Filters',
     components: {
       pageTemplate,
       componentDocs,

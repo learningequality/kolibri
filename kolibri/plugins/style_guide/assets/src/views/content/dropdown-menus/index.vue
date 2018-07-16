@@ -29,6 +29,7 @@
   FullVue.component('k-dropdown-menu', KDropdownMenu);
 
   export default {
+    name: 'DropdownMenus',
     components: {
       pageTemplate,
       componentDocs,

@@ -42,6 +42,7 @@
   FullVue.component('k-circular-loader', KCircularLoader);
 
   export default {
+    name: 'Loaders',
     components: {
       pageTemplate,
       componentDocs,

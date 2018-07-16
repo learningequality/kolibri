@@ -151,6 +151,7 @@
   import pageTemplate from '../shell/page-template';
 
   export default {
+    name: 'Inclusive',
     components: {
       pageTemplate,
     },

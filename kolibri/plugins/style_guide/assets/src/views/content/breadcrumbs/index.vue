@@ -44,6 +44,7 @@
   FullVue.component('k-breadcrumbs', KBreadcrumbs);
 
   export default {
+    name: 'Breadcrumbs',
     components: {
       pageTemplate,
       componentDocs,

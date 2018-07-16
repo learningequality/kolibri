@@ -11,6 +11,7 @@
 <script>
 
   export default {
+    name: 'PointsIcon',
     props: {
       active: {
         type: Boolean,

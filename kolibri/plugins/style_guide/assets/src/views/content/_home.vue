@@ -57,6 +57,7 @@
   import pageTemplate from '../shell/page-template';
 
   export default {
+    name: 'Home',
     components: {
       pageTemplate,
     },

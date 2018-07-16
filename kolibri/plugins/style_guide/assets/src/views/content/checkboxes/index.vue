@@ -57,6 +57,7 @@
   FullVue.component('k-checkbox', KCheckbox);
 
   export default {
+    name: 'Checkboxes',
     components: {
       pageTemplate,
       componentDocs,

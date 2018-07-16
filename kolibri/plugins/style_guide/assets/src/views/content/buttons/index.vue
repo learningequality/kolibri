@@ -143,6 +143,7 @@
   FullVue.component('k-external-link', KExternalLink);
 
   export default {
+    name: 'Buttons',
     components: {
       pageTemplate,
       componentDocs,

@@ -47,6 +47,7 @@
   FullVue.component('k-radio-button', KRadioButton);
 
   export default {
+    name: 'RadioButtons',
     components: {
       pageTemplate,
       componentDocs,
