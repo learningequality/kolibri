@@ -150,7 +150,10 @@ def run_server(port):
     # Configure the server
     server.socket_host = LISTEN_ADDRESS
     server.socket_port = port
-    server.thread_pool = 30
+    server.thread_pool = 10
+    server.socket_timeout = 10
+    server.accepted_queue_size = 30
+    server.accepted_queue_timeout = 0.1
 
     # Subscribe this server
     server.subscribe()
