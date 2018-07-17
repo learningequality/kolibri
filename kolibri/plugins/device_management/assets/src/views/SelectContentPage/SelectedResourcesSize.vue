@@ -46,7 +46,7 @@
 
   import KButton from 'kolibri.coreVue.components.KButton';
   import uiAlert from 'keen-ui/src/UiAlert.vue';
-  import bytesForHumans from '../manage-content-page/bytesForHumans';
+  import bytesForHumans from '../ManageContentPage/bytesForHumans';
 
   const RequiredNumber = { type: Number, required: true };
 

@@ -18,7 +18,7 @@
       class="k-navbar"
       :style="{ maxWidth: `${ maxWidth }px` }"
     >
-      <!-- Contains k-navbar-link components -->
+      <!-- Contains KNavbarLink components -->
       <slot></slot>
     </ul>
 

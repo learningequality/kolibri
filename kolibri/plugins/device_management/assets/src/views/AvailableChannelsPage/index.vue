@@ -94,10 +94,10 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import uniqBy from 'lodash/uniqBy';
   import subpageContainer from '../containers/SubpageContainer';
-  import channelListItem from '../manage-content-page/ChannelListItem';
-  import contentWizardUiAlert from '../select-content-page/ContentWizardUiAlert';
+  import channelListItem from '../ManageContentPage/ChannelListItem';
+  import contentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { wizardState } from '../../state/getters';
-  import { selectContentPageLink } from '../manage-content-page/manageContentLinks';
+  import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
   import { TransferTypes } from '../../constants';
   import channelTokenModal from './ChannelTokenModal';
 

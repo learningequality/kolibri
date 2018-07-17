@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import KButton from 'kolibri.coreVue.components.KButton';
 import UiAlert from 'keen-ui/src/UiAlert.vue';
-import SelectedResourcesSize from '../../src/views/select-content-page/SelectedResourcesSize.vue';
+import SelectedResourcesSize from '../../src/views/SelectContentPage/SelectedResourcesSize.vue';
 
 function makeWrapper(props = {}) {
   const defaultProps = {

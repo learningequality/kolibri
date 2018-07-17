@@ -53,7 +53,7 @@ module.exports = {
     },
   },
   rules: {
-    // 'filename-and-component-name-match': 2,
+    'filename-and-component-name-match': 2,
     // 'component-registration-casing': 1,
     'comma-style': 2,
     'max-len': [

@@ -29,13 +29,13 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ContentWizardPages, PageNames } from '../constants';
   import topNavigation from './DeviceTopNav';
-  import manageContentPage from './manage-content-page';
+  import manageContentPage from './ManageContentPage';
   import managePermissionsPage from './ManagePermissionsPage';
   import userPermissionsPage from './UserPermissionsPage';
   import deviceInfoPage from './DeviceInfoPage';
   import welcomeModal from './WelcomeModal';
   import availableChannelsPage from './AvailableChannelsPage';
-  import selectContentPage from './select-content-page';
+  import selectContentPage from './SelectContentPage';
 
   const pageNameComponentMap = {
     [PageNames.MANAGE_CONTENT_PAGE]: manageContentPage,

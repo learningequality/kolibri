@@ -53,7 +53,7 @@
 <script>
 
   import UiIcon from 'keen-ui/src/UiIcon';
-  import bytesForHumans from '../manage-content-page/bytesForHumans';
+  import bytesForHumans from '../ManageContentPage/bytesForHumans';
 
   export default {
     name: 'ChannelContentsSummary',

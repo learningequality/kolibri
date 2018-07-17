@@ -6,7 +6,6 @@
 
 const path = require('path');
 const utils = require('../../../node_modules/eslint-plugin-vue/lib/utils');
-const casing = require('../../../node_modules/eslint-plugin-vue/lib/utils/casing');
 
 function create(context) {
   return utils.executeOnVue(context, obj => {
@@ -62,7 +61,6 @@ function create(context) {
       }
     }
 
-    return;
     if (componentName !== fileName) {
       context.report({
         message: 'Filename of "{{filePath}}" does not match component name {{componentName}}.',
@@ -88,11 +86,11 @@ function create(context) {
 module.exports = {
   meta: {
     docs: {
-      description: 'enforce filenames anc component names to match',
+      description: 'enforce filenames and component names to match',
       category: undefined,
-      url: 'https://github.com/vuejs/eslint-plugin-vue/blob/v4.5.0/docs/rules/file-name-casing.md',
+      url: undefined,
     },
-    fixable: null,
+    fixable: undefined,
   },
   create,
 };

@@ -106,9 +106,9 @@
   import find from 'lodash/find';
   import subpageContainer from '../containers/SubpageContainer';
   import { wizardState } from '../../state/getters';
-  import taskProgress from '../manage-content-page/TaskProgress';
+  import taskProgress from '../ManageContentPage/TaskProgress';
   import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
-  import { manageContentPageLink } from '../manage-content-page/manageContentLinks';
+  import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
   import channelContentsSummary from './ChannelContentsSummary';
   import contentTreeViewer from './ContentTreeViewer';
   import selectedResourcesSize from './SelectedResourcesSize';

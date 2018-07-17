@@ -14,7 +14,7 @@ import {
   availableChannelsPageLink,
   selectContentPageLink,
   manageContentPageLink,
-} from '../../views/manage-content-page/manageContentLinks';
+} from '../../views/ManageContentPage/manageContentLinks';
 import {
   getAvailableSpaceOnDrive,
   loadChannelMetaData,

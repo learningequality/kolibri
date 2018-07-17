@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import SelectTransferSourceModal from '../../src/views/manage-content-page/select-transfer-source-modal';
+import SelectTransferSourceModal from '../../src/views/ManageContentPage/select-transfer-source-modal';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 function makeWrapper(options) {

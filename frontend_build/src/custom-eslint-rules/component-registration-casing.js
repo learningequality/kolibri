@@ -50,9 +50,9 @@ module.exports = {
     docs: {
       description: 'enforce specific casing for component registration',
       category: undefined,
-      url: 'https://github.com/vuejs/eslint-plugin-vue/blob/v4.5.0/docs/rules/prop-name-casing.md',
+      url: undefined,
     },
-    fixable: null,
+    fixable: undefined,
     schema: [
       {
         enum: allowedCaseOptions,
