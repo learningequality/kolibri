@@ -12,7 +12,7 @@
 
   import FullVue from 'vue/dist/vue.common';
   import VueRouter from 'vue-router';
-  import sidenav from './shell/sidenav';
+  import sidenav from './shell/SideNav';
 
   // To illustrate how user-facing text should always be translated, we will
   // set up a fake $tr, and use it in the code example.

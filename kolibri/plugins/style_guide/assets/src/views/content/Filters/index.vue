@@ -128,9 +128,9 @@
   import FullVue from 'vue/dist/vue.common';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import componentDocs from '../../shell/component-docs';
-  import vueExample from '../../shell/vue-example';
-  import pageTemplate from '../../shell/page-template';
+  import componentDocs from '../../shell/ComponentDocs';
+  import vueExample from '../../shell/VueExample';
+  import pageTemplate from '../../shell/PageTemplate';
   import kFilterTextboxExample from 'raw-loader!./k-filter-textbox-example.html';
   import kFilterTextboxApi from '!vue-doc!kolibri.coreVue.components.KFilterTextbox';
   import kSelectExample from 'raw-loader!./k-select-example.html';

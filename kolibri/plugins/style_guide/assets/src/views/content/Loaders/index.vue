@@ -25,9 +25,9 @@
 <script>
 
   import FullVue from 'vue/dist/vue.common';
-  import pageTemplate from '../../shell/page-template';
-  import componentDocs from '../../shell/component-docs';
-  import vueExample from '../../shell/vue-example';
+  import pageTemplate from '../../shell/PageTemplate';
+  import componentDocs from '../../shell/ComponentDocs';
+  import vueExample from '../../shell/VueExample';
 
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';

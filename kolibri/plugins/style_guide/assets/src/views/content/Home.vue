@@ -54,7 +54,7 @@
 
 <script>
 
-  import pageTemplate from '../shell/page-template';
+  import pageTemplate from '../shell/PageTemplate';
 
   export default {
     name: 'Home',

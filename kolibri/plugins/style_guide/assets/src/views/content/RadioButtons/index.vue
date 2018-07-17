@@ -37,9 +37,9 @@
 
   import FullVue from 'vue/dist/vue.common';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import componentDocs from '../../shell/component-docs';
-  import vueExample from '../../shell/vue-example';
-  import pageTemplate from '../../shell/page-template';
+  import componentDocs from '../../shell/ComponentDocs';
+  import vueExample from '../../shell/VueExample';
+  import pageTemplate from '../../shell/PageTemplate';
 
   import example from 'raw-loader!./example.html';
   import kRadioButtonApi from '!vue-doc!kolibri.coreVue.components.KRadioButton';

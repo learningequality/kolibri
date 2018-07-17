@@ -46,10 +46,10 @@
 
   import FullVue from 'vue/dist/vue.common';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import componentDocs from '../../shell/component-docs';
-  import vueExample from '../../shell/vue-example';
-  import pageTemplate from '../../shell/page-template';
-  import show from '../../shell/show';
+  import componentDocs from '../../shell/ComponentDocs';
+  import vueExample from '../../shell/VueExample';
+  import pageTemplate from '../../shell/PageTemplate';
+  import show from '../../shell/Show';
 
   import example from 'raw-loader!./example.html';
   import kCheckboxApi from '!vue-doc!kolibri.coreVue.components.KCheckbox';

@@ -172,9 +172,9 @@
   import FullVue from 'vue/dist/vue.common';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import pageTemplate from '../../shell/page-template';
-  import componentDocs from '../../shell/component-docs';
-  import vueExample from '../../shell/vue-example';
+  import pageTemplate from '../../shell/PageTemplate';
+  import componentDocs from '../../shell/ComponentDocs';
+  import vueExample from '../../shell/VueExample';
   import kModalExample from 'raw-loader!./example.html';
   import kModalApi from '!vue-doc!kolibri.coreVue.components.KModal';
 

@@ -29,10 +29,10 @@
 
 <script>
 
-  import componentDocs from '../../shell/component-docs';
-  import vueExample from '../../shell/vue-example';
-  import pageTemplate from '../../shell/page-template';
-  import show from '../../shell/show';
+  import componentDocs from '../../shell/ComponentDocs';
+  import vueExample from '../../shell/VueExample';
+  import pageTemplate from '../../shell/PageTemplate';
+  import show from '../../shell/Show';
 
   import example from 'raw-loader!./example.html';
 
