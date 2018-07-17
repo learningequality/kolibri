@@ -68,7 +68,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { lessonSummaryLink, topicListingLink } from '../lessonsRouterUtils';
-  import searchTools from './searchTools';
+  import searchTools from './SearchTools';
   import LessonContentCard from './LessonContentCard';
 
   export default {

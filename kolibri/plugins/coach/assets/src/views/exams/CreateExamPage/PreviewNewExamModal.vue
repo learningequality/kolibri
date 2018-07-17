@@ -21,7 +21,7 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import previewExamModal from '../CoachExamsPage/preview-exam-modal';
+  import previewExamModal from '../CoachExamsPage/PreviewExamModal';
 
   export default {
     name: 'PreviewNewExamModal',

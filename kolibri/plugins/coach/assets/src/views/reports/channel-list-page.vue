@@ -63,11 +63,11 @@
   import { standardDataTable } from '../../state/getters/reports';
   import { PageNames } from '../../constants';
   import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
-  import headerCell from './table-cells/header-cell';
-  import nameCell from './table-cells/name-cell';
-  import activityCell from './table-cells/activity-cell';
+  import headerCell from './table-cells/HeaderCell';
+  import nameCell from './table-cells/NameCell';
+  import activityCell from './table-cells/ActivityCell';
   import alignMixin from './align-mixin';
-  import breadcrumbs from './breadcrumbs';
+  import breadcrumbs from './Breadcrumbs';
 
   export default {
     name: 'ChannelListPage',

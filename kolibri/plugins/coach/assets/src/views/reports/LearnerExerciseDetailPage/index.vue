@@ -12,7 +12,7 @@
   import { mapState } from 'vuex';
   import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import { PageNames, LearnerReports } from '../../../constants';
-  import learnerExerciseReport from './learner-exercise-report';
+  import learnerExerciseReport from './LearnerExerciseReport';
 
   export default {
     name: 'LearnerExerciseDetailPage',

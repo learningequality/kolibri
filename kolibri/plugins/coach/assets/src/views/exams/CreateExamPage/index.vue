@@ -151,9 +151,9 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import flatMap from 'lodash/flatMap';
   import { Modals as ExamModals } from '../../../constants/examConstants';
-  import previewNewExamModal from './preview-new-exam-modal';
-  import exerciseRow from './exercise-row';
-  import topicRow from './topic-row';
+  import previewNewExamModal from './PreviewNewExamModal';
+  import exerciseRow from './ExerciseRow';
+  import topicRow from './TopicRow';
 
   export default {
     name: 'CreateExamPage',

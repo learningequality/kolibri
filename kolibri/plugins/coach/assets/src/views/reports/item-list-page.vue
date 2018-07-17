@@ -84,11 +84,11 @@
   import { standardDataTable, exerciseCount, contentCount } from '../../state/getters/reports';
   import { TopicReports, LearnerReports, PageNames } from '../../constants';
   import { TableColumns } from '../../constants/reportConstants';
-  import breadcrumbs from './breadcrumbs';
-  import headerCell from './table-cells/header-cell';
-  import nameCell from './table-cells/name-cell';
-  import progressCell from './table-cells/progress-cell';
-  import activityCell from './table-cells/activity-cell';
+  import breadcrumbs from './Breadcrumbs';
+  import headerCell from './table-cells/HeaderCell';
+  import nameCell from './table-cells/NameCell';
+  import progressCell from './table-cells/ProgressCell';
+  import activityCell from './table-cells/ActivityCell';
 
   import alignMixin from './align-mixin';
 

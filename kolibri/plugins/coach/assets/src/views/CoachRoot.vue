@@ -35,24 +35,24 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
-  import topNav from './top-nav';
-  import classListPage from './class-list-page';
+  import topNav from './TopNav';
+  import classListPage from './ClassListPage';
   import examsPage from './exams/CoachExamsPage';
-  import createExamPage from './exams/create-exam-page';
-  import examReportPage from './exams/exam-report-page';
+  import createExamPage from './exams/CreateExamPage';
+  import examReportPage from './exams/ExamReportPage';
   import examReportDetailPage from './exams/CoachExamReport';
   import groupsPage from './GroupsPage';
-  import learnerExerciseDetailPage from './reports/learner-exercise-detail-page';
+  import learnerExerciseDetailPage from './reports/LearnerExerciseDetailPage';
   import recentItemsPage from './reports/recent-items-page';
   import channelListPage from './reports/channel-list-page';
   import itemListPage from './reports/item-list-page';
   import learnerListPage from './reports/learner-list-page';
-  import navTitle from './nav-title';
+  import navTitle from './NavTitle';
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
   import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';
   import LessonContentPreviewPage from './lessons/LessonContentPreviewPage';
-  import LessonResourceUserReportPage from './reports/learner-exercise-detail-page/learner-exercise-report';
+  import LessonResourceUserReportPage from './reports/LearnerExerciseDetailPage/LearnerExerciseReport';
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
 
   // IDEA set up routenames that all use the same PageName instead of doing this?

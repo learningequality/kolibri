@@ -39,11 +39,8 @@ function create(context) {
 
     const fileName = path.basename(filePath, '.vue');
     const parentDirName = path.basename(path.dirname(filePath));
-    if (fileName.toLowerCase() === 'index') {
-      if (
-        casing.getConverter('PascalCase')(componentName) !==
-        casing.getConverter('PascalCase')(parentDirName)
-      ) {
+    if (fileName === 'index') {
+      if (componentName !== parentDirName) {
         context.report({
           message: 'Parent dir of "{{filePath}}" does not match component name {{componentName}}.',
           data: {
@@ -65,6 +62,7 @@ function create(context) {
       }
     }
 
+    return;
     if (componentName !== fileName) {
       context.report({
         message: 'Filename of "{{filePath}}" does not match component name {{componentName}}.',

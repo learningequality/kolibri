@@ -57,7 +57,7 @@
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
-  import attemptSummary from './attempt-summary';
+  import attemptSummary from './AttemptSummary';
 
   export default {
     name: 'LearnerExerciseReport',
