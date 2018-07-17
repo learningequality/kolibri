@@ -33,7 +33,7 @@
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import searchBox from './search-box';
+  import searchBox from './SearchBox';
 
   export default {
     name: 'ActionBarSearchBox',

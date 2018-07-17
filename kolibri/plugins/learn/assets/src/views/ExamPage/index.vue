@@ -100,7 +100,7 @@
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import { ClassesPageNames } from '../../constants';
-  import answerHistory from './answer-history';
+  import answerHistory from './AnswerHistory';
 
   export default {
     name: 'ExamPage',

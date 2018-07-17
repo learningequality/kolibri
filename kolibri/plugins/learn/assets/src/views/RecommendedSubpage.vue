@@ -19,8 +19,8 @@
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
-  import contentCardGroupGrid from './content-card-group-grid';
-  import contentCardGroupHeader from './content-card-group-header';
+  import contentCardGroupGrid from './ContentCardGroupGrid';
+  import contentCardGroupHeader from './ContentCardGroupHeader';
 
   export default {
     name: 'RecommendedSubpage',

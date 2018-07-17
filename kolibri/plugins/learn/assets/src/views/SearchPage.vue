@@ -34,9 +34,9 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import sortBy from 'lodash/sortBy';
   import { PageNames } from '../constants';
-  import contentCard from './content-card';
-  import contentCardGroupGrid from './content-card-group-grid';
-  import searchBox from './search-box';
+  import contentCard from './ContentCard';
+  import contentCardGroupGrid from './ContentCardGroupGrid';
+  import searchBox from './SearchBox';
 
   export default {
     name: 'SearchPage',

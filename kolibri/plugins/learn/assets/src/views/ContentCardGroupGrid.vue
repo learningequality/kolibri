@@ -72,8 +72,8 @@
   import some from 'lodash/some';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import contentCard from './content-card';
-  import copiesModal from './copies-modal';
+  import contentCard from './ContentCard';
+  import copiesModal from './CopiesModal';
 
   const ALL_FILTER = 'all';
 

@@ -115,7 +115,7 @@ oriented data synchronization.
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { updateContentNodeProgress } from '../../state/actions/main';
-  import exerciseAttempts from './exercise-attempts';
+  import exerciseAttempts from './ExerciseAttempts';
 
   export default {
     name: 'AssessmentWrapper',

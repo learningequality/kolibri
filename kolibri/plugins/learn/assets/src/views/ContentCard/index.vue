@@ -46,7 +46,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import cardThumbnail from './card-thumbnail';
+  import cardThumbnail from './CardThumbnail';
 
   export default {
     name: 'ContentCard',

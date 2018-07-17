@@ -63,22 +63,22 @@
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
-  import channelsPage from './channels-page';
-  import topicsPage from './topics-page';
-  import contentPage from './content-page';
-  import recommendedPage from './recommended-page';
-  import recommendedSubpage from './recommended-subpage';
-  import contentUnavailablePage from './content-unavailable-page';
-  import breadcrumbs from './breadcrumbs';
-  import searchPage from './search-page';
-  import examPage from './exam-page';
-  import examReportViewer from './exam-report-viewer';
-  import totalPoints from './total-points';
+  import channelsPage from './ChannelsPage';
+  import topicsPage from './TopicsPage';
+  import contentPage from './ContentPage';
+  import recommendedPage from './RecommendedPage';
+  import recommendedSubpage from './RecommendedSubpage';
+  import contentUnavailablePage from './ContentUnavailablePage';
+  import breadcrumbs from './Breadcrumbs';
+  import searchPage from './SearchPage';
+  import examPage from './ExamPage';
+  import examReportViewer from './ExamReportViewer';
+  import totalPoints from './TotalPoints';
   import AllClassesPage from './classes/AllClassesPage';
   import ClassAssignmentsPage from './classes/ClassAssignmentsPage';
   import LessonPlaylistPage from './classes/LessonPlaylistPage';
   import LessonResourceViewer from './classes/LessonResourceViewer';
-  import actionBarSearchBox from './action-bar-search-box';
+  import actionBarSearchBox from './AcionBarSearchBox';
 
   const BOTTOM_SPACED_RESERVED = 117;
 
@@ -227,7 +227,7 @@
           this.pageName === PageNames.RECOMMENDED_CONTENT ||
           ClassesPageNames.LESSON_PLAYLIST;
         const isAssessment = isContentPage && this.content && this.content.assessment;
-        // height of .attempts-container in assessment-wrapper
+        // height of .attempts-container in AssessmentWrapper
         return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
       },
     },

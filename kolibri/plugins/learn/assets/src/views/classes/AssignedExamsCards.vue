@@ -30,7 +30,7 @@
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { canViewExam } from 'kolibri.utils.exams';
-  import ContentCard from '../content-card';
+  import ContentCard from '../ContentCard';
   import { examViewerLink, examReportViewerLink } from './classPageLinks';
 
   export default {

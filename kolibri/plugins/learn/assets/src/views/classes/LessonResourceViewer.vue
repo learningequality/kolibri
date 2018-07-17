@@ -26,8 +26,8 @@
 
   import { mapState } from 'vuex';
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-  import ContentCard from '../content-card';
-  import ContentPage from '../content-page';
+  import ContentCard from '../ContentCard';
+  import ContentPage from '../ContentPage';
   import { lessonResourceViewerLink } from './classPageLinks';
 
   export default {

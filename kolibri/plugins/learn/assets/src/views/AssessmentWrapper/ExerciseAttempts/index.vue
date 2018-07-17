@@ -25,7 +25,7 @@
 
 <script>
 
-  import answerIcon from './answer-icon';
+  import answerIcon from './AnswerIcon';
 
   export default {
     name: 'ExerciseAttempts',

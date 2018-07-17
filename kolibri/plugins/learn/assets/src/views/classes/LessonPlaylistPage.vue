@@ -48,7 +48,7 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-  import ContentCard from '../content-card';
+  import ContentCard from '../ContentCard';
   import { lessonResourceViewerLink } from './classPageLinks';
 
   export default {

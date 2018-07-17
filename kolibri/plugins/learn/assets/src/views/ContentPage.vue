@@ -125,10 +125,10 @@
   import markdownIt from 'markdown-it';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../state/actions/main';
-  import pageHeader from './page-header';
-  import contentCardGroupCarousel from './content-card-group-carousel';
-  import assessmentWrapper from './assessment-wrapper';
-  import masteredSnackbars from './mastered-snackbars';
+  import pageHeader from './PageHeader';
+  import contentCardGroupCarousel from './ContentCardGroupCarousel';
+  import assessmentWrapper from './AssessmentWrapper';
+  import masteredSnackbars from './MasteredSnackbars';
   import { lessonResourceViewerLink } from './classes/classPageLinks';
 
   export default {

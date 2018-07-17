@@ -32,9 +32,9 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { PageNames } from '../constants';
-  import pageHeader from './page-header';
-  import contentCard from './content-card';
-  import contentCardGroupGrid from './content-card-group-grid';
+  import pageHeader from './PageHeader';
+  import contentCard from './ContentCard';
+  import contentCardGroupGrid from './ContentCardGroupGrid';
 
   export default {
     name: 'TopicsPage',

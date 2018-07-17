@@ -29,7 +29,7 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import ContentCard from '../content-card';
+  import ContentCard from '../ContentCard';
   import { classAssignmentsLink } from './classPageLinks';
 
   export default {

@@ -80,7 +80,7 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import uiAlert from 'keen-ui/src/UiAlert';
-  import snackbar from './snackbar';
+  import snackbar from './Snackbar';
 
   const SNACKBARS = { POINTS: 'POINTS', NEXT_RESOURCE: 'NEXT_RESOURCE' };
 
