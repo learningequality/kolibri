@@ -117,7 +117,7 @@
         // Use arrow function to bind $tr to this component
         titleTemplate: title => {
           if (this.error) {
-            return this.$tr('errorPageTitle');
+            return this.$tr('kolibriTitleMessage', { title: this.$tr('errorPageTitle') });
           }
           if (!title) {
             // If no child component sets title, it reads 'Kolibri'
