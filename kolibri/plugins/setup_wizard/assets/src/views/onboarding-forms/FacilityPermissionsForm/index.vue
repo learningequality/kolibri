@@ -105,7 +105,7 @@
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import onboardingForm from '../onboarding-form';
+  import onboardingForm from '../OnboardingForm';
 
   export default {
     name: 'FacilityPermissionsForm',

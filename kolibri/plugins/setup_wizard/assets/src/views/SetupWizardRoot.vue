@@ -39,11 +39,11 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import loadingPage from './submission-states/LoadingPage';
   import errorPage from './submission-states/ErrorPage';
-  import progressToolbar from './progress-toolbar';
-  import defaultLanguageForm from './onboarding-forms/default-language-form';
-  import facilityNameForm from './onboarding-forms/facility-name-form';
-  import superuserCredentialsForm from './onboarding-forms/superuser-credentials-form';
-  import facilityPermissionsForm from './onboarding-forms/facility-permissions-form';
+  import progressToolbar from './ProgressToolbar';
+  import defaultLanguageForm from './onboarding-forms/DefaultLanguageForm';
+  import facilityNameForm from './onboarding-forms/FacilityNameForm';
+  import superuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm';
+  import facilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
 
   export default {
     name: 'Onboarding',

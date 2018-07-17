@@ -11,7 +11,7 @@
 
 <script>
 
-  import submissionStatePage from '../submission-state-page';
+  import submissionStatePage from '../SubmissionStatePage';
 
   export default {
     name: 'LoadingPage',

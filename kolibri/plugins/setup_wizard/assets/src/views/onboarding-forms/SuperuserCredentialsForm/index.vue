@@ -60,7 +60,7 @@
   import { mapActions } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
-  import onboardingForm from '../onboarding-form';
+  import onboardingForm from '../OnboardingForm';
 
   export default {
     name: 'SuperuserCredentialsForm',
