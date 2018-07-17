@@ -574,17 +574,33 @@ export class Resource {
     );
   }
 
+  cacheName(endpointName) {
+    return endpointName ? `endpoint-${endpointName}` : 'default';
+  }
+
+  getCache(type, endpointName) {
+    const cacheName = this.cacheName(endpointName);
+    this[type][cacheName] = this[type][cacheName] || {};
+    return this[type][cacheName];
+  }
+
+  collectionCache(endpointName) {
+    return this.getCache('collections', endpointName);
+  }
+
+  modelCache(endpointName) {
+    return this.getCache('models', endpointName);
+  }
+
   /**
    * @param {Object} getParams - default parameters to use for Collection fetching.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  getCollection(getParams = {}, detailName, detailId) {
-    const cacheName = detailName ? `detail-${detailName}` : 'default';
-    this.collections[cacheName] = this.collections[cacheName] || {};
-    const cache = this.collections[cacheName];
+  getCollection(getParams = {}, endpointName, detailId) {
+    const cache = this.collectionCache(endpointName);
     const key = this.cacheKey(getParams, { detailId });
     if (!cache[key]) {
-      cache[key] = this.createCollection(getParams, [], detailName, detailId);
+      cache[key] = this.createCollection(getParams, [], endpointName, detailId);
     }
     return cache[key];
   }
@@ -597,16 +613,14 @@ export class Resource {
    * details of data.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  createCollection(getParams = {}, data = [], detailName, detailId) {
+  createCollection(getParams = {}, data = [], endpointName, detailId) {
     let url;
-    if (detailName && detailId) {
-      url = this.getUrlFunction(detailName)(detailId);
-    } else if (detailName) {
-      url = this.getUrlFunction(detailName)();
+    if (endpointName && detailId) {
+      url = this.getUrlFunction(endpointName)(detailId);
+    } else if (endpointName) {
+      url = this.getUrlFunction(endpointName)();
     }
-    const cacheName = detailName ? `detail-${detailName}` : 'default';
-    this.collections[cacheName] = this.collections[cacheName] || {};
-    const cache = this.collections[cacheName];
+    const cache = this.collectionCache(endpointName);
     const key = this.cacheKey(getParams, { detailId });
     const collection = new Collection(getParams, data, this, url);
     cache[key] = collection;
@@ -634,13 +648,11 @@ export class Resource {
    * @param {String} id - The primary key of the Model instance.
    * @returns {Model} - Returns a Model instance.
    */
-  getModel(id, getParams = {}, detailName) {
-    const cacheName = detailName ? `detail-${detailName}` : 'default';
-    this.models[cacheName] = this.models[cacheName] || {};
-    const cache = this.models[cacheName];
+  getModel(id, getParams = {}, endpointName) {
+    const cache = this.modelCache(endpointName);
     const cacheKey = this.cacheKey({ [this.idKey]: id }, getParams);
     if (!cache[cacheKey]) {
-      this.createModel({ [this.idKey]: id }, getParams, detailName);
+      this.createModel({ [this.idKey]: id }, getParams, endpointName);
     }
     return cache[cacheKey];
   }
@@ -659,14 +671,14 @@ export class Resource {
    * @param {Object} data - The data for the model to add.
    * @returns {Model} - Returns the instantiated Model.
    */
-  createModel(data, getParams = {}, detailName) {
+  createModel(data, getParams = {}, endpointName) {
     let url;
-    if (detailName) {
+    if (endpointName) {
       const detailId = data[this.idKey];
-      url = this.getUrlFunction(detailName)(detailId);
+      url = this.getUrlFunction(endpointName)(detailId);
     }
     const model = new Model(data, getParams, this, url);
-    return this.addModel(model, getParams, detailName);
+    return this.addModel(model, getParams, endpointName);
   }
 
   /**
@@ -674,14 +686,12 @@ export class Resource {
    * @param {Object|Model} model - Either the data for the model to add, or the Model itself.
    * @returns {Model} - Returns the instantiated Model.
    */
-  addModel(model, getParams = {}, detailName) {
+  addModel(model, getParams = {}, endpointName) {
     if (!(model instanceof Model)) {
-      return this.createModel(model, getParams, detailName);
+      return this.createModel(model, getParams, endpointName);
     }
     // Add to the model cache using the default key if id is defined.
-    const cacheName = detailName ? `detail-${detailName}` : 'default';
-    this.models[cacheName] = this.models[cacheName] || {};
-    const cache = this.models[cacheName];
+    const cache = this.modelCache(endpointName);
     if (model.id) {
       const cacheKey = this.cacheKey({ [this.idKey]: model.id }, model.getParams);
       if (!cache[cacheKey]) {
@@ -733,18 +743,18 @@ export class Resource {
     return this.getCollection(getParams, detailName, id).fetch();
   }
 
-  fetchListCollection(detailName, getParams = {}) {
-    if (!detailName) {
-      throw TypeError('A detailName must be specified');
+  fetchListCollection(listName, getParams = {}) {
+    if (!listName) {
+      throw TypeError('A listName must be specified');
     }
     if (process.env.NODE_ENV !== 'production') {
-      if (!this.__schema[detailName]) {
-        logging.error(`${detailName} detail endpoint does not exist on ${this.name}.`);
-      } else if (!this.__schema[detailName].method === 'get') {
-        logging.error(`${detailName} detail endpoint does not accept get requests.`);
+      if (!this.__schema[listName]) {
+        logging.error(`${listName} list endpoint does not exist on ${this.name}.`);
+      } else if (!this.__schema[listName].method === 'get') {
+        logging.error(`${listName} list endpoint does not accept get requests.`);
       }
     }
-    return this.getCollection(getParams, detailName).fetch();
+    return this.getCollection(getParams, listName).fetch();
   }
 
   accessEndpoint(method, listName, args = {}) {
@@ -790,26 +800,28 @@ export class Resource {
     this.collections = {};
   }
 
-  unCacheModel(id, getParams = {}) {
+  unCacheModel(id, getParams = {}, endpointName) {
     const cacheKey = this.cacheKey({ [this.idKey]: id }, getParams);
-    this.models[cacheKey].synced = false;
-  }
-
-  unCacheCollection(getParams = {}) {
-    const cacheKey = this.cacheKey(getParams);
-    if (this.collections[cacheKey]) {
-      this.collections[cacheKey].synced = false;
+    if (this.modelCache(endpointName)[cacheKey]) {
+      this.modelCache(endpointName)[cacheKey].synced = false;
     }
   }
 
-  removeModel(model) {
-    const cacheKey = this.cacheKey({ [this.idKey]: model.id }, model.getParams);
-    delete this.models[cacheKey];
+  unCacheCollection(getParams = {}, endpointName) {
+    const cacheKey = this.cacheKey(getParams);
+    if (this.collectionCache(endpointName)[cacheKey]) {
+      this.collectionCache(endpointName)[cacheKey].synced = false;
+    }
   }
 
-  removeCollection(collection) {
+  removeModel(model, endpointName) {
+    const cacheKey = this.cacheKey({ [this.idKey]: model.id }, model.getParams);
+    delete this.modelCache(endpointName)[cacheKey];
+  }
+
+  removeCollection(collection, endpointName) {
     const cacheKey = this.cacheKey(collection.getParams);
-    delete this.collections[cacheKey];
+    delete this.collectionCache(endpointName)[cacheKey];
   }
 
   get urls() {

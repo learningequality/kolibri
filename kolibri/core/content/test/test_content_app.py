@@ -354,11 +354,6 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": id})
         self.assertEqual(len(response.data), 2)
 
-    def test_contentnode_allcontent(self):
-        nodes = content.ContentNode.objects.exclude(kind=content_kinds.TOPIC).filter(available=True).count()
-        response = self.client.get(self._reverse_channel_url("contentnode-all-content"))
-        self.assertEqual(len(response.data), nodes)
-
     def test_contentnodeslim_ids(self):
         titles = ["c2c2", "c2c3"]
         nodes = [content.ContentNode.objects.get(title=title) for title in titles]

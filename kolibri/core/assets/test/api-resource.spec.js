@@ -84,7 +84,7 @@ describe('Resource', function() {
     });
     it('should add a model to the cache if it has an id', function() {
       const model = resource.addModel(new Resources.Model({ id: 'test' }, {}, resource));
-      expect(resource.models[Object.keys(resource.models)[0]]).toEqual(model);
+      expect(resource.models['default'][Object.keys(resource.models['default'])[0]]).toEqual(model);
     });
     it('should update the model in the cache if a model with matching id is found', function() {
       const model = new Resources.Model({ id: 'test' }, {}, resource);
@@ -99,7 +99,7 @@ describe('Resource', function() {
       const model = new Resources.Model({ id: 'test' }, {}, resource);
       resource.addModel(model);
       resource.removeModel(model);
-      expect(resource.models).toEqual({});
+      expect(resource.models['default']).toEqual({});
     });
   });
   describe('unCacheModel method', function() {
@@ -278,6 +278,7 @@ describe('Collection', function() {
     describe('if called when Collection.synced = true and force is false', function() {
       it('should return current data immediately', function(done) {
         collection.synced = true;
+        collection.models[0].data = data[0];
         const promise = collection.fetch();
         promise.then(result => {
           expect(result).toEqual(data);
@@ -1279,7 +1280,7 @@ describe('Model', function() {
             model.synced = false;
             resource.addModel = jest.fn();
             model.save(payload).then(() => {
-              expect(resource.addModel).toHaveBeenCalledWith(model);
+              expect(resource.addModel).toHaveBeenCalledWith(model, {});
               done();
             });
           });

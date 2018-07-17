@@ -1,6 +1,11 @@
 import omit from 'lodash/fp/omit';
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
-import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
+import {
+  ChannelResource,
+  ContentNodeFileSizeResource,
+  ContentNodeGranularResource,
+  TaskResource,
+} from 'kolibri.resources';
 import {
   addNodeForTransfer,
   removeNodeForTransfer,
@@ -12,6 +17,7 @@ import { makeSelectContentPageStore } from '../utils/makeStore';
 const simplePath = (...ids) => ids.map(id => ({ id, title: `node_${id}` }));
 
 jestMockResource(ChannelResource);
+jestMockResource(ContentNodeFileSizeResource);
 jestMockResource(ContentNodeGranularResource);
 jestMockResource(TaskResource);
 
@@ -46,23 +52,17 @@ describe('contentTreeViewer actions', () => {
   }
 
   beforeEach(() => {
-    ContentNodeGranularResource.getFileSizes = jest.fn();
-  });
-
-  beforeEach(() => {
-    store = makeSelectContentPageStore();
     // For now, just keep it simple and make the file size result 0/1
     // TODO extend this mock to return arbitrary file sizes
-    ContentNodeGranularResource.getFileSizes.mockResolvedValue({
-      entity: {
-        total_file_size: 1,
-        on_device_file_size: 0,
-      },
+    ContentNodeFileSizeResource.__getModelFetchReturns({
+      total_file_size: 1,
+      on_device_file_size: 0,
     });
+    store = makeSelectContentPageStore();
   });
 
   afterEach(() => {
-    ContentNodeGranularResource.getFileSizes.mockReset();
+    ContentNodeFileSizeResource.__resetMocks();
   });
 
   function addFileSizes(node) {
