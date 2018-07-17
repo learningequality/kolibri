@@ -20,8 +20,6 @@ class KolibriCoreConfig(AppConfig):
         Sets up PRAGMAs.
         """
         connection_created.connect(self.activate_pragmas_per_connection)
-        # Defragment the db on Kolibri start
-        self.vacuum_db()
         self.activate_pragmas_on_start()
         # Log the settings file that we are running Kolibri with.
         # Do this logging here, as this will be after Django has done its processing of
@@ -70,17 +68,3 @@ class KolibriCoreConfig(AppConfig):
             # and writes (vs. the default exclusive write lock)
             # at the cost of a slight penalty to all reads.
             cursor.execute(START_PRAGMAS)
-
-    @staticmethod
-    def vacuum_db():
-        """
-        Do a vacuum command on the sqlite database to purge all the
-        fragmented space (usually in the wal file).
-        :return:
-        """
-        from django.db import connection
-
-        if connection.vendor == "sqlite":
-            cursor = connection.cursor()
-            cursor.execute('VACUUM;')
-            connection.close()
