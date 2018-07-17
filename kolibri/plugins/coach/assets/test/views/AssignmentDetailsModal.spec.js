@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import AssignmentDetailsModal from '../../src/views/assignments/AssignmentDetailsModal.vue';
+import AssignmentDetailsModal from '../../src/views/assignments/AssignmentDetailsModal';
 
 const defaultProps = {
   initialDescription: '',

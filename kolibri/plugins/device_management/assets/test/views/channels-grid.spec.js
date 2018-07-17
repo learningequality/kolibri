@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import ChannelsGrid from '../../src/views/ManageContentPage/ChannelsGrid.vue';
+import ChannelsGrid from '../../src/views/ManageContentPage/ChannelsGrid';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 function makeWrapper(options) {
@@ -20,7 +20,7 @@ function makeWrapper(options) {
 
 function getElements(wrapper) {
   return {
-    channelListItems: () => wrapper.findAll({ name: 'channelListItem' }),
+    channelListItems: () => wrapper.findAll({ name: 'ChannelListItem' }),
     emptyState: () => wrapper.find('.no-channels'),
     ProgressBar: () => wrapper.find({ name: 'ui-progress-linear' }),
     deleteChannelModal: () => wrapper.find({ name: 'KModal' }),

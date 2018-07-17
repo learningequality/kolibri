@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
 import navComponents from 'kolibri.utils.navComponents';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-import SideNav from '../../src/views/side-nav';
-import logoutSideNavEntry from '../../src/views/logout-side-nav-entry';
+import SideNav from '../../src/views/SideNav';
+import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
 
 jest.mock('kolibri.urls');

@@ -1,7 +1,7 @@
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import urls from 'kolibri.urls';
-import Index from '../../src/views/index.vue';
+import Index from '../../src/views/DeviceIndex';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 urls.freespace = () => '';

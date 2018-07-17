@@ -1,7 +1,7 @@
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import omit from 'lodash/fp/omit';
-import ContentTreeViewer from '../../src/views/SelectContentPage/ContentTreeViewer.vue';
+import ContentTreeViewer from '../../src/views/SelectContentPage/ContentTreeViewer';
 import { makeNode } from '../utils/data';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
@@ -28,8 +28,8 @@ function getElements(wrapper) {
     selectAllCheckbox: () => wrapper.findAll({ name: 'KCheckbox' }).filter(el => el.props().label === 'Select all').at(0),
     emptyState: () => wrapper.find('.no-contents'),
     contentsSection: () => wrapper.findAll('.contents'),
-    firstTopicButton: () => wrapper.find({ name: 'contentNodeRow' }).find('button'),
-    contentNodeRows: () => wrapper.findAll({ name: 'contentNodeRow' }),
+    firstTopicButton: () => wrapper.find({ name: 'ContentNodeRow' }).find('button'),
+    contentNodeRows: () => wrapper.findAll({ name: 'ContentNodeRow' }),
     addNodeForTransferMock: () => {
       const mock = wrapper.vm.addNodeForTransfer = jest.fn().mockResolvedValue();
       return mock;
@@ -79,7 +79,7 @@ describe('contentTreeViewer component', () => {
       ],
     });
     const wrapper = makeWrapper({ store });
-    const rows = wrapper.findAll({ name: 'contentNodeRow' });
+    const rows = wrapper.findAll({ name: 'ContentNodeRow' });
     expect(rows).toHaveLength(2);
   });
 
@@ -232,7 +232,7 @@ describe('contentTreeViewer component', () => {
       const wrapper = makeWrapper({ store });
       const { removeNodeForTransferMock } = getElements(wrapper);
       const { mock } = removeNodeForTransferMock();
-      const topicRow = wrapper.find({ name: 'contentNodeRow' });
+      const topicRow = wrapper.find({ name: 'ContentNodeRow' });
       expect(topicRow.props().checked).toEqual(true);
       expect(topicRow.props().disabled).toEqual(false);
       topicRow.find('input[type="checkbox"]').trigger('click');
@@ -256,7 +256,7 @@ describe('contentTreeViewer component', () => {
       const wrapper = makeWrapper({ store });
       const { addNodeForTransferMock } = getElements(wrapper);
       const { mock } = addNodeForTransferMock();
-      const topicRow = wrapper.find({ name: 'contentNodeRow' });
+      const topicRow = wrapper.find({ name: 'ContentNodeRow' });
       expect(topicRow.props().checked).toEqual(false);
       topicRow.find('input[type="checkbox"]').trigger('click');
       expect(mock.calls).toHaveLength(1);
@@ -283,7 +283,7 @@ describe('contentTreeViewer component', () => {
       const wrapper = makeWrapper({ store });
       const { addNodeForTransferMock } = getElements(wrapper);
       const { mock } = addNodeForTransferMock();
-      const topicRow = wrapper.find({ name: 'contentNodeRow' });
+      const topicRow = wrapper.find({ name: 'ContentNodeRow' });
       expect(topicRow.props().checked).toEqual(false);
       expect(topicRow.props().indeterminate).toEqual(true);
       topicRow.find('input[type="checkbox"]').trigger('click');

@@ -3,8 +3,8 @@ import navComponents from 'kolibri.utils.navComponents';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
 import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
 import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
-import AppBar from '../../src/views/app-bar';
-import logoutSideNavEntry from '../../src/views/logout-side-nav-entry';
+import AppBar from '../../src/views/AppBar';
+import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
 
 jest.mock('kolibri.urls');

@@ -71,8 +71,8 @@ describe('AssignmentCopyModal', () => {
       const explanation = wrapper.find('p').text();
       expect(explanation).toEqual(`Will be copied to 'Class Two'`);
       // Recipient selector gets all of the groups
-      const recipientSelector = els.selectLearnerGroupForm().find({ name: 'recipientSelector' });
-      expect(recipientSelector.props().groups).toEqual(groups);
+      const RecipientSelector = els.selectLearnerGroupForm().find({ name: 'RecipientSelector' });
+      expect(RecipientSelector.props().groups).toEqual(groups);
     });
   });
 

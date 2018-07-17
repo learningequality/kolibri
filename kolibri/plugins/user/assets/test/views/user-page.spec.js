@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import UserPage from '../../src/views/index.vue';
+import UserPage from '../../src/views/UserIndex';
 import makeStore from '../makeStore';
 
 jest.mock('kolibri.urls');

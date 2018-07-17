@@ -1,6 +1,6 @@
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
-import SelectContentPage from '../../src/views/select-content-page';
+import SelectContentPage from '../../src/views/SelectContentPage';
 import { wizardState } from '../../src/state/getters';
 import SelectedResourcesSize from '../../src/views/SelectContentPage/SelectedResourcesSize';
 import { makeSelectContentPageStore } from '../utils/makeStore';

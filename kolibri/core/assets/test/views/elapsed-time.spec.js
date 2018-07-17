@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import ElapsedTime from '../../src/views/elapsed-time';
+import ElapsedTime from '../../src/views/ElapsedTime';
 
 const DUMMY_CURRENT_DATE = new Date(2017, 0, 1, 1, 1, 1);
 
