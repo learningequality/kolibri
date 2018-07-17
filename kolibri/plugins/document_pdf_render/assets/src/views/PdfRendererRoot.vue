@@ -88,7 +88,7 @@
 
   import uiIconButton from 'keen-ui/src/UiIconButton';
 
-  import pdfPage from './pdfPage';
+  import pdfPage from './PdfPage';
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
   // renderer's own webpack config
