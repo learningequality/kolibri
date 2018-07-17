@@ -50,6 +50,7 @@ class MasteryLogSerializer(KolibriModelSerializer):
     pastattempts = serializers.SerializerMethodField()
     totalattempts = serializers.SerializerMethodField()
     mastery_criterion = serializers.JSONField(default='{}')
+    update_fields = ('pastattempts', )
 
     class Meta:
         model = MasteryLog
@@ -101,6 +102,7 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
 
     currentmasterylog = serializers.SerializerMethodField()
     extra_fields = serializers.JSONField(default='{}')
+    update_fields = ()
 
     class Meta:
         model = ContentSummaryLog
@@ -116,6 +118,8 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
 
 
 class UserSessionLogSerializer(KolibriModelSerializer):
+
+    update_fields = ()
 
     class Meta:
         model = UserSessionLog
