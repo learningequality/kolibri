@@ -1,34 +1,36 @@
 <template>
 
-  <section class="selected-resources-size">
-    <div class="choose-message">
-      <span v-if="isInImportMode">
-        {{ $tr('chooseContentToImport') }}
-      </span>
-      <span v-else>
-        {{ $tr('chooseContentToExport') }}
-      </span>
+  <section>
+    <div class="counters">
+      <div class="choose-message">
+        <span v-if="isInImportMode">
+          {{ $tr('chooseContentToImport') }}
+        </span>
+        <span v-else>
+          {{ $tr('chooseContentToExport') }}
+        </span>
+      </div>
+
+      <div class="table-row">
+        <span class="remaining-space">
+          {{ $tr('remainingSpace', { space: bytesForHumans(remainingSpaceAfterTransfer) }) }}
+        </span>
+
+        <div class="resources-selected">
+          <span class="resources-selected-message">
+            {{ fileSizeText }}
+          </span>
+
+          <k-button
+            class="confirm-button"
+            :text="buttonText"
+            :primary="true"
+            :disabled="buttonIsDisabled"
+            @click="$emit('clickconfirm')"
+          />
+        </div>
+      </div>
     </div>
-
-    <span class="remaining-space">
-      {{ $tr('remainingSpace', { space: bytesForHumans(remainingSpaceAfterTransfer) }) }}
-    </span>
-
-    <div class="resources-selected">
-      <span class="resources-selected-message">
-        {{
-          $tr('resourcesSelected', { fileSize: bytesForHumans(fileSize), resources: resourceCount })
-        }}
-      </span>
-
-      <k-button
-        :text="buttonText"
-        :primary="true"
-        :disabled="buttonIsDisabled"
-        @click="$emit('clickconfirm')"
-      />
-    </div>
-
 
     <ui-alert
       v-if="remainingSpaceAfterTransfer<=0"
@@ -81,6 +83,12 @@
       remainingSpaceAfterTransfer() {
         return Math.max(this.spaceOnDrive - this.fileSize, 0);
       },
+      fileSizeText() {
+        return this.$tr('resourcesSelected', {
+          fileSize: bytesForHumans(this.fileSize),
+          resources: this.resourceCount,
+        });
+      },
     },
     methods: {
       bytesForHumans,
@@ -101,7 +109,7 @@
 
 <style lang="scss" scoped>
 
-  .selected-resources-size {
+  .counters {
     // using table to separate element by alignment while keeping them on the same line
     // avoids magic numbers, keeps text lined up.
     display: table;
@@ -123,6 +131,14 @@
   .resources-selected {
     display: table-cell;
     text-align: right;
+  }
+
+  .table-row {
+    display: table-row;
+  }
+
+  .confirm-button {
+    margin-right: 0;
   }
 
 </style>

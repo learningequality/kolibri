@@ -2,6 +2,7 @@ import io
 import json
 import os
 import pickle
+import sys
 
 from django.apps import apps
 from django.core.management import call_command
@@ -62,5 +63,11 @@ class Command(BaseCommand):
             pickle.dump(metadata, f, protocol=2)
 
         data_path = DATA_PATH_TEMPLATE.format(name=options['version'])
-        with io.open(data_path, mode='w', encoding='utf-8') as f:
-            json.dump(data, f)
+        # Handle Python 2 unicode issue by opening the file in binary mode
+        # with no encoding as the data has already been encoded
+        if sys.version[0] == '2':
+            with io.open(data_path, mode='wb') as f:
+                json.dump(data, f)
+        else:
+            with io.open(data_path, mode='w', encoding='utf-8') as f:
+                json.dump(data, f)
