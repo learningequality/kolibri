@@ -16,7 +16,6 @@ import {
   showPopularPage,
   showNextStepsPage,
   showResumePage,
-  showFeaturedPage,
   showLearnContent,
 } from './state/actions/recommended';
 import { initialState, mutations } from './state/store';
@@ -100,13 +99,6 @@ const routes = [
     path: '/recommended/nextsteps',
     handler: () => {
       showNextStepsPage(store);
-    },
-  },
-  {
-    name: PageNames.RECOMMENDED_FEATURED,
-    path: '/recommended/featured/:channel_id',
-    handler: toRoute => {
-      showFeaturedPage(store, toRoute.params.channel_id);
     },
   },
   {
