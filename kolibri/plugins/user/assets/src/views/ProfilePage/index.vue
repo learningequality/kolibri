@@ -122,7 +122,7 @@
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import uiAlert from 'keen-ui/src/UiAlert';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import changeUserPasswordModal from './change-user-password-modal';
+  import changeUserPasswordModal from './ChangeUserPasswordModal';
 
   export default {
     name: 'ProfilePage',

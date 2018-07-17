@@ -124,7 +124,7 @@
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import { PageNames } from '../constants';
-  import languageSwitcherFooter from './language-switcher-footer';
+  import languageSwitcherFooter from './LanguageSwitcherFooter';
 
   export default {
     name: 'SignUpPage',

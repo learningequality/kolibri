@@ -21,9 +21,9 @@
   import { mapState } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
-  import signInPage from './sign-in-page';
-  import signUpPage from './sign-up-page';
-  import profilePage from './profile-page';
+  import signInPage from './SignInPage';
+  import signUpPage from './SignUpPage';
+  import profilePage from './ProfilePage';
 
   const pageNameComponentMap = {
     [PageNames.SIGN_IN]: signInPage,

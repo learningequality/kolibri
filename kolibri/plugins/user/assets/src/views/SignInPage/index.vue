@@ -130,8 +130,8 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import urls from 'kolibri.urls';
   import { PageNames } from '../../constants';
-  import languageSwitcherFooter from '../language-switcher-footer';
-  import facilityModal from './facility-modal';
+  import languageSwitcherFooter from '../LanguageSwitcherFooter';
+  import facilityModal from './FacilityModal';
 
   function hasMultipleFacilities(state) {
     return state.pageState.hasMultipleFacilities;
