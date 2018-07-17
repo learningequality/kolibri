@@ -70,8 +70,8 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import isEqual from 'lodash/isEqual';
-  import confirmResetModal from './confirm-reset-modal';
-  import notifications from './config-page-notifications';
+  import confirmResetModal from './ConfirmResetModal';
+  import notifications from './ConfigPageNotifications';
 
   const settingsList = [
     'learnerCanEditUsername',

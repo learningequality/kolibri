@@ -87,8 +87,8 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { Modals, PageNames } from '../../constants';
-  import classCreateModal from './class-create-modal';
-  import classDeleteModal from './class-delete-modal';
+  import classCreateModal from './ClassCreateModal';
+  import classDeleteModal from './ClassDeleteModal';
 
   function classEditLink(classId) {
     return {

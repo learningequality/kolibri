@@ -17,7 +17,7 @@
 
   import { mapState, mapActions } from 'vuex';
   import { PageNames } from '../constants';
-  import classEnrollForm from './class-enroll-form';
+  import classEnrollForm from './ClassEnrollForm';
 
   export default {
     name: 'CoachClassAssignmentPage',

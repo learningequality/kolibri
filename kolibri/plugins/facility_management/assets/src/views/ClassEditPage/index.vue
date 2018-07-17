@@ -100,10 +100,10 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import userTable from '../user-table';
+  import userTable from '../UserTable';
   import { PageNames, Modals } from '../../constants';
-  import classRenameModal from './class-rename-modal';
-  import userRemoveConfirmationModal from './user-remove-confirmation-modal';
+  import classRenameModal from './ClassRenameModal';
+  import userRemoveConfirmationModal from './UserRemoveConfirmationModal';
 
   export default {
     name: 'ClassEditPage',

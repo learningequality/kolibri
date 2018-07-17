@@ -1,7 +1,7 @@
 import Vuex from 'vuex';
 import { mount } from '@vue/test-utils';
 import ConfigPage from '../../src/views/FacilityConfigPage';
-import confirmResetModal from '../../src/views/FacilityConfigPage/confirm-reset-modal';
+import confirmResetModal from '../../src/views/FacilityConfigPage/ConfirmResetModal';
 
 function makeWrapper(propsData = {}) {
   const store = new Vuex.Store({

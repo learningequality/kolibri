@@ -86,7 +86,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import UiIcon from 'keen-ui/src/UiIcon';
   import difference from 'lodash/difference';
-  import userRole from './user-role';
+  import userRole from './UserRole';
 
   export default {
     name: 'UserTable',

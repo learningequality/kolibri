@@ -31,13 +31,13 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
   import classEditPage from './ClassEditPage';
-  import coachClassAssignmentPage from './coach-class-assignment-page';
-  import learnerClassEnrollmentPage from './learner-class-enrollment-page';
-  import dataPage from './data-page';
+  import coachClassAssignmentPage from './CoachClassAssignmentPage';
+  import learnerClassEnrollmentPage from './LearnerClassEnrollmentPage';
+  import dataPage from './DataPage';
   import facilitiesConfigPage from './FacilityConfigPage';
-  import manageClassPage from './manage-class-page';
-  import topNav from './top-nav';
-  import userPage from './user-page';
+  import manageClassPage from './ManageClassPage';
+  import topNav from './TopNav';
+  import userPage from './UserPage';
 
   const classEnrollmentPages = [PageNames.CLASS_ENROLL_LEARNER, PageNames.CLASS_ASSIGN_COACH];
 

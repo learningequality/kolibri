@@ -87,7 +87,7 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
-  import userTable from './user-table';
+  import userTable from './UserTable';
   import { Modals } from './../constants';
 
   export default {
