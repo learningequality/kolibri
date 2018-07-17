@@ -1,6 +1,6 @@
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
-import ChannelListItem from '../../src/views/manage-content-page/channel-list-item.vue';
+import ChannelListItem from '../../src/views/manage-content-page/ChannelListItem.vue';
 import { defaultChannel } from '../utils/data';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 

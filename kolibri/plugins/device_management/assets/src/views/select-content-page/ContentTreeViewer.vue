@@ -68,7 +68,7 @@
   import { navigateToTopicUrl } from '../../routes/wizardTransitionRoutes';
   import { TransferTypes } from '../../constants';
   import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
-  import contentNodeRow from './content-node-row';
+  import contentNodeRow from './ContentNodeRow';
 
   // Removes annotations (except path) added to nodes in ContentTreeViewer before putting in store.
   function sanitizeNode(node) {

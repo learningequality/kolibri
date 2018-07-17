@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
+import ChannelTokenModal from '../../src/views/AvailableChannelsPage/ChannelTokenModal';
 
 function makeWrapper() {
   return mount(ChannelTokenModal);

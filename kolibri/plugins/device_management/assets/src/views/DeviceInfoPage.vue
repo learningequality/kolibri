@@ -63,7 +63,7 @@
 
   import { mapState, mapGetters } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import subpageContainer from './containers/subpage-container';
+  import subpageContainer from './containers/SubpageContainer';
 
   export default {
     name: 'DeviceInfoPage',

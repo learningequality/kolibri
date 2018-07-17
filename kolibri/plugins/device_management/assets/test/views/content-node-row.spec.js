@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import ContentNodeRow from '../../src/views/select-content-page/content-node-row.vue';
+import ContentNodeRow from '../../src/views/select-content-page/ContentNodeRow.vue';
 import { makeNode } from '../utils/data';
 
 const defaultProps = {

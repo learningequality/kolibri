@@ -50,8 +50,8 @@
   import { mapState, mapActions, mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
-  import deleteChannelModal from './delete-channel-modal';
-  import channelListItem from './channel-list-item';
+  import deleteChannelModal from './DeleteChannelModal';
+  import channelListItem from './ChannelListItem';
 
   export default {
     name: 'ChannelsGrid',

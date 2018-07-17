@@ -18,8 +18,8 @@
 
   import { mapState } from 'vuex';
   import { ContentWizardPages } from '../../../constants';
-  import selectImportSourceModal from './select-import-source-modal';
-  import selectDriveModal from './select-drive-modal';
+  import selectImportSourceModal from './SelectImportSourceModal';
+  import selectDriveModal from './SelectDriveModal';
 
   export default {
     name: 'SelectTransferSourceModal',

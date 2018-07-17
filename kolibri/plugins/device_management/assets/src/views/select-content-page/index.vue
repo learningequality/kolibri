@@ -104,15 +104,15 @@
   import { TaskResource } from 'kolibri.resources';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
-  import subpageContainer from '../containers/subpage-container';
+  import subpageContainer from '../containers/SubpageContainer';
   import { wizardState } from '../../state/getters';
-  import taskProgress from '../manage-content-page/task-progress';
+  import taskProgress from '../manage-content-page/TaskProgress';
   import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../manage-content-page/manageContentLinks';
-  import channelContentsSummary from './channel-contents-summary';
-  import contentTreeViewer from './content-tree-viewer';
-  import selectedResourcesSize from './selected-resources-size';
-  import contentWizardUiAlert from './content-wizard-ui-alert';
+  import channelContentsSummary from './ChannelContentsSummary';
+  import contentTreeViewer from './ContentTreeViewer';
+  import selectedResourcesSize from './SelectedResourcesSize';
+  import contentWizardUiAlert from './ContentWizardUiAlert';
 
   export default {
     name: 'SelectContentPage',

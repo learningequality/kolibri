@@ -28,13 +28,13 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ContentWizardPages, PageNames } from '../constants';
-  import topNavigation from './device-top-nav';
+  import topNavigation from './DeviceTopNav';
   import manageContentPage from './manage-content-page';
   import managePermissionsPage from './ManagePermissionsPage';
-  import userPermissionsPage from './user-permissions-page';
-  import deviceInfoPage from './device-info-page';
-  import welcomeModal from './welcome-modal';
-  import availableChannelsPage from './available-channels-page';
+  import userPermissionsPage from './UserPermissionsPage';
+  import deviceInfoPage from './DeviceInfoPage';
+  import welcomeModal from './WelcomeModal';
+  import availableChannelsPage from './AvailableChannelsPage';
   import selectContentPage from './select-content-page';
 
   const pageNameComponentMap = {

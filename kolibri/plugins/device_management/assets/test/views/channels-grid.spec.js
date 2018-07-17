@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import ChannelsGrid from '../../src/views/manage-content-page/channels-grid.vue';
+import ChannelsGrid from '../../src/views/manage-content-page/ChannelsGrid.vue';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 function makeWrapper(options) {

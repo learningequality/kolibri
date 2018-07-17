@@ -93,13 +93,13 @@
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import uniqBy from 'lodash/uniqBy';
-  import channelTokenModal from '../available-channels-page/channel-token-modal';
-  import subpageContainer from '../containers/subpage-container';
-  import channelListItem from '../manage-content-page/channel-list-item';
-  import contentWizardUiAlert from '../select-content-page/content-wizard-ui-alert';
+  import subpageContainer from '../containers/SubpageContainer';
+  import channelListItem from '../manage-content-page/ChannelListItem';
+  import contentWizardUiAlert from '../select-content-page/ContentWizardUiAlert';
   import { wizardState } from '../../state/getters';
   import { selectContentPageLink } from '../manage-content-page/manageContentLinks';
   import { TransferTypes } from '../../constants';
+  import channelTokenModal from './ChannelTokenModal';
 
   const ALL_FILTER = 'ALL';
 

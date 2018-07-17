@@ -82,7 +82,7 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import { PageNames } from '../constants';
-  import subpageContainer from './containers/subpage-container';
+  import subpageContainer from './containers/SubpageContainer';
 
   const SUCCESS = 'SUCCESS';
   const IN_PROGRESS = 'IN_PROGRESS';

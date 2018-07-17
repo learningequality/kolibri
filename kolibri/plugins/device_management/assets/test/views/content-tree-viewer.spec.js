@@ -1,7 +1,7 @@
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import omit from 'lodash/fp/omit';
-import ContentTreeViewer from '../../src/views/select-content-page/content-tree-viewer.vue';
+import ContentTreeViewer from '../../src/views/select-content-page/ContentTreeViewer.vue';
 import { makeNode } from '../utils/data';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 

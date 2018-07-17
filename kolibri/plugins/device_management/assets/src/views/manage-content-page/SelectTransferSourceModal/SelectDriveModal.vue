@@ -46,7 +46,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import { wizardState } from '../../../state/getters';
   import { TransferTypes } from '../../../constants';
-  import driveList from './drive-list';
+  import driveList from './DriveList';
 
   export default {
     name: 'SelectDriveModal',
