@@ -1,5 +1,5 @@
 import heartbeat from 'kolibri.heartbeat';
-import RootVue from './views/SetupWizardRoot';
+import RootVue from './views/SetupWizardIndex';
 import pluginModule from './state/pluginModule';
 import KolibriApp from 'kolibri_app';
 

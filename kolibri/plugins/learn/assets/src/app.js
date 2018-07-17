@@ -1,6 +1,6 @@
 import router from 'kolibri.coreVue.router';
 import store from 'kolibri.coreVue.vuex.store';
-import RootVue from './views/LearnRoot';
+import RootVue from './views/LearnIndex';
 import prepareLearnApp from './state/prepareLearnApp';
 import routes from './routes';
 import { setFacilitiesAndConfig } from './state/actions/main';

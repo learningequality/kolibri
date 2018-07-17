@@ -47,7 +47,7 @@
   };
 
   export default {
-    name: 'DeviceManagementRoot',
+    name: 'DeviceIndex',
     components: {
       CoreBase,
       welcomeModal,

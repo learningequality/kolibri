@@ -21,7 +21,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
 
   export default {
-    name: 'UserRemoveModal',
+    name: 'UserRemoveConfirmationModal',
     $trs: {
       modalTitle: 'Remove user',
       remove: 'Remove',

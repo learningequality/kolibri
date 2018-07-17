@@ -1,7 +1,7 @@
 import Vue from 'kolibri.lib.vue';
 import router from 'kolibri.coreVue.router';
 import Vuep from 'vuep';
-import RootVue from './views/StyleGuideRoot';
+import RootVue from './views/StyleGuideIndex';
 import { navMenuRoutes } from './views/shell/nav-menu';
 import KolibriModule from 'kolibri_module';
 

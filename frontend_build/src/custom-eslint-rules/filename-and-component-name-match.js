@@ -1,8 +1,8 @@
 /**
  * @fileoverview Requires filename and component names to match
- * @author christianmemije
  */
-'use strict';
+
+ 'use strict';
 
 const path = require('path');
 const utils = require('../../../node_modules/eslint-plugin-vue/lib/utils');
@@ -11,15 +11,16 @@ function create(context) {
   return utils.executeOnVue(context, obj => {
     const filePath = context.getFilename();
 
+    if(!filePath.endsWith('vue')) {
+      return;
+    }
+
     const node = obj.properties.find(
       item => item.type === 'Property' && item.key.name === 'name' && item.value.type === 'Literal'
     );
     if (!node) {
       context.report({
-        message: '"{{filePath}}" is missing a component name',
-        data: {
-          filePath,
-        },
+        message: 'Component is missing a component name',
         loc: {
           start: {
             line: 1,
@@ -41,9 +42,9 @@ function create(context) {
     if (fileName === 'index') {
       if (componentName !== parentDirName) {
         context.report({
-          message: 'Parent dir of "{{filePath}}" does not match component name {{componentName}}.',
+          message: 'Parent dir name "{{parentDirName}}" does not match component name "{{componentName}}".',
           data: {
-            filePath,
+            parentDirName,
             componentName,
           },
           loc: {
@@ -57,15 +58,15 @@ function create(context) {
             },
           },
         });
-        return;
       }
+      return;
     }
 
     if (componentName !== fileName) {
       context.report({
-        message: 'Filename of "{{filePath}}" does not match component name {{componentName}}.',
+        message: 'Filename "{{fileName}}" does not match component name {{componentName}}.',
         data: {
-          filePath,
+          fileName,
           componentName,
         },
         loc: {

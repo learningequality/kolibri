@@ -46,7 +46,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
-  import cardThumbnail from './card-thumbnail';
+  import cardThumbnail from './CardThumbnail';
 
   export default {
     name: 'LessonContentCard',

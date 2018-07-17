@@ -100,7 +100,7 @@
   const MARGIN = 16;
 
   export default {
-    name: 'PdfRendererRoot',
+    name: 'PdfRendererIndex',
     components: {
       KButton,
       KLinearLoader,

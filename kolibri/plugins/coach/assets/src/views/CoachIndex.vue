@@ -43,10 +43,10 @@
   import examReportDetailPage from './exams/CoachExamReport';
   import groupsPage from './GroupsPage';
   import learnerExerciseDetailPage from './reports/LearnerExerciseDetailPage';
-  import recentItemsPage from './reports/recent-items-page';
-  import channelListPage from './reports/channel-list-page';
-  import itemListPage from './reports/item-list-page';
-  import learnerListPage from './reports/learner-list-page';
+  import recentItemsPage from './reports/RecentItemsPage';
+  import channelListPage from './reports/ChannelListPage';
+  import itemListPage from './reports/ItemListPage';
+  import learnerListPage from './reports/LearnerListPage';
   import navTitle from './NavTitle';
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
@@ -104,7 +104,7 @@
   };
 
   export default {
-    name: 'CoachRoot',
+    name: 'CoachIndex',
     $trs: {
       coachToolbarHeader: 'Coach',
       selectPageToolbarHeader: 'Select resources',

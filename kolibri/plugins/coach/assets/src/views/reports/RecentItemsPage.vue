@@ -74,7 +74,7 @@
   import alignMixin from './align-mixin';
 
   export default {
-    name: 'CoachRecentReports',
+    name: 'RecentItemsPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

@@ -34,7 +34,7 @@
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
 
   export default {
-    name: 'Html5AppRendererRoot',
+    name: 'Html5AppRendererIndex',
     components: {
       uiIconButton,
       CoreFullscreen,

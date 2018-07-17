@@ -22,7 +22,7 @@
   FullVue.use(VueRouter);
 
   export default {
-    name: 'StyleGuide',
+    name: 'StyleGuideIndex',
     components: {
       sidenav,
     },

@@ -32,7 +32,7 @@
   };
 
   export default {
-    name: 'UserPlugin',
+    name: 'UserIndex',
     components: {
       CoreBase,
       signInPage,

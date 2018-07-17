@@ -72,13 +72,13 @@
   import breadcrumbs from './Breadcrumbs';
   import searchPage from './SearchPage';
   import examPage from './ExamPage';
-  import examReportViewer from './ExamReportViewer';
+  import examReportViewer from './LearnExamReportViewer';
   import totalPoints from './TotalPoints';
   import AllClassesPage from './classes/AllClassesPage';
   import ClassAssignmentsPage from './classes/ClassAssignmentsPage';
   import LessonPlaylistPage from './classes/LessonPlaylistPage';
   import LessonResourceViewer from './classes/LessonResourceViewer';
-  import actionBarSearchBox from './AcionBarSearchBox';
+  import actionBarSearchBox from './ActionBarSearchBox';
 
   const BOTTOM_SPACED_RESERVED = 117;
 
@@ -105,7 +105,7 @@
   ];
 
   export default {
-    name: 'Learn',
+    name: 'LearnIndex',
     $trs: {
       learnTitle: 'Learn',
       recommended: 'Recommended',

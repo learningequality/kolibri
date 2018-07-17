@@ -58,7 +58,7 @@
       // here because going to use immersive-page
       detailPageReturnPrompt: 'Class details',
     },
-    name: 'ManagementRoot',
+    name: 'FacilityIndex',
     components: {
       AuthMessage,
       CoreBase,
