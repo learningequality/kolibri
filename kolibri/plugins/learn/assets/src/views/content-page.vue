@@ -260,10 +260,7 @@
       },
       genContentLink(id, kind) {
         return {
-          name:
-            kind === ContentNodeKinds.TOPIC
-              ? PageNames.TOPICS_TOPIC
-              : PageNames.RECOMMENDED_CONTENT,
+          name: kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT,
           params: { id },
         };
       },

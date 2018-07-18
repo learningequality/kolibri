@@ -145,7 +145,7 @@
           name:
             kind === ContentNodeKinds.TOPIC
               ? PageNames.TOPICS_TOPIC
-              : PageNames.RECOMMENDED_CONTENT,
+              : PageNames.TOPICS_CONTENT,
           params: { id },
         };
       },
