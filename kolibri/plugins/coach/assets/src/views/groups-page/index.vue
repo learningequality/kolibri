@@ -1,18 +1,20 @@
 <template>
 
   <div>
-    <section>
-      <h1 :class="{header: sortedGroups.length}">{{ $tr('classGroups') }}</h1>
-
-      <span v-if="!sortedGroups.length">{{ $tr('noGroups') }}</span>
-
-      <k-button
-        class="new-group-button"
-        :text="$tr('newGroup')"
-        :primary="true"
-        @click="openCreateGroupModal"
-      />
-    </section>
+    <k-grid>
+      <k-grid-item :sizes="[100, 50, 50]" percentage>
+        <h1>{{ $tr('classGroups') }}</h1>
+        <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>
+      </k-grid-item>
+      <k-grid-item :sizes="[100, 50, 50]" percentage align="right">
+        <k-button
+          class="new-group-button"
+          :text="$tr('newGroup')"
+          :primary="true"
+          @click="openCreateGroupModal"
+        />
+      </k-grid-item>
+    </k-grid>
 
     <create-group-modal
       v-if="showCreateGroupModal"
@@ -68,6 +70,8 @@
   import orderBy from 'lodash/orderBy';
   import flatMap from 'lodash/flatMap';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import { GroupModals } from '../../constants';
   import createGroupModal from './create-group-modal';
   import groupSection from './group-section';
@@ -91,6 +95,8 @@
     },
     components: {
       kButton,
+      kGrid,
+      kGridItem,
       createGroupModal,
       groupSection,
       renameGroupModal,
@@ -175,16 +181,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .new-group-button {
-    float: right;
-  }
-
-  .header {
-    display: inline-block;
-    margin-right: 16px;
-    vertical-align: middle;
-  }
-
-</style>
+<style lang="scss" scoped></style>

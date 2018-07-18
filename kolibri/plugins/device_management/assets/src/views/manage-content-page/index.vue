@@ -11,28 +11,29 @@
           @cleartask="clearFirstTask"
         />
 
-        <div class="table-title">
-          <h1 class="page-title">
-            {{ $tr('title') }}
-          </h1>
-          <div
-            class="buttons"
+        <k-grid>
+          <k-grid-item size="50" percentage>
+            <h1>{{ $tr('title') }}</h1>
+          </k-grid-item>
+          <k-grid-item
+            size="50"
+            percentage
+            align="right"
             v-if="!tasksInQueue"
           >
             <k-button
               :text="$tr('import')"
-              class="button"
               @click="startImportWorkflow()"
               :primary="true"
             />
             <k-button
               v-if="deviceHasChannels"
               :text="$tr('export')"
-              class="button"
               @click="startExportWorkflow()"
+              class="flush-right"
             />
-          </div>
-        </div>
+          </k-grid-item>
+        </k-grid>
 
         <channels-grid />
 
@@ -54,6 +55,8 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import subpageContainer from '../containers/subpage-container';
   import channelsGrid from './channels-grid';
   import taskProgress from './task-progress';
@@ -78,6 +81,8 @@
       authMessage,
       channelsGrid,
       kButton,
+      kGrid,
+      kGridItem,
       selectTransferSourceModal,
       subpageContainer,
       taskProgress,
@@ -124,29 +129,8 @@
 
 <style lang="scss" scoped>
 
-  .table-title {
-    margin-top: 16px;
-    &::after {
-      display: table;
-      clear: both;
-      content: '';
-    }
-  }
-
-  .page-title {
-    float: left;
-  }
-
-  .buttons {
-    float: right;
-  }
-
-  .main {
-    width: 100%;
-    padding: 16px 32px;
-    padding-bottom: 48px;
-    margin-top: 32px;
-    border-radius: 4px;
+  .flush-right {
+    margin-right: 0;
   }
 
 </style>
