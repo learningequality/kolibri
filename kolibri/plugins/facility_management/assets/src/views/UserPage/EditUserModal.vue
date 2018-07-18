@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('editUser')"
     :submitText="$tr('save')"
     :cancelText="$tr('cancel')"
@@ -8,15 +8,15 @@
     @submit="submitForm"
     @cancel="displayModal(false)"
   >
-    <ui-alert
+    <UiAlert
       v-if="error"
       type="error"
       :dismissible="false"
     >
       {{ error }}
-    </ui-alert>
+    </UiAlert>
 
-    <k-textbox
+    <KTextbox
       ref="name"
       type="text"
       :label="$tr('fullName')"
@@ -28,7 +28,7 @@
       v-model="newName"
     />
 
-    <k-textbox
+    <KTextbox
       ref="username"
       type="text"
       :label="$tr('username')"
@@ -39,27 +39,27 @@
       v-model="newUsername"
     />
 
-    <k-select
+    <KSelect
       :label="$tr('userType')"
       :options="userKinds"
       v-model="newKind"
     />
 
     <fieldset class="coach-selector" v-if="coachIsSelected">
-      <k-radio-button
+      <KRadioButton
         :label="$tr('classCoachLabel')"
         :description="$tr('classCoachDescription')"
         :value="true"
         v-model="classCoachIsSelected"
       />
-      <k-radio-button
+      <KRadioButton
         :label="$tr('facilityCoachLabel')"
         :description="$tr('facilityCoachDescription')"
         :value="false"
         v-model="classCoachIsSelected"
       />
     </fieldset>
-  </k-modal>
+  </KModal>
 
 </template>
 

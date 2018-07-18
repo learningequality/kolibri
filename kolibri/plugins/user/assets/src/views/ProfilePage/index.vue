@@ -4,7 +4,7 @@
 
     <section>
       <h2>{{ $tr('points') }}</h2>
-      <points-icon class="points-icon" :active="true" />
+      <PointsIcon class="points-icon" :active="true" />
       <span class="points-num">{{ $formatNumber(totalPoints) }}</span>
     </section>
 
@@ -16,7 +16,7 @@
     <section v-if="userHasPermissions">
       <h2>{{ $tr('devicePermissions') }}</h2>
       <p>
-        <permissions-icon :permissionType="permissionType" class="permissions-icon" />
+        <PermissionsIcon :permissionType="permissionType" class="permissions-icon" />
         {{ permissionTypeText }}
       </p>
       <p>
@@ -30,22 +30,22 @@
     </section>
 
     <form @submit.prevent="submitEdits">
-      <ui-alert
+      <UiAlert
         v-if="success"
         type="success"
         :dismissible="false"
       >
         {{ $tr('success') }}
-      </ui-alert>
-      <ui-alert
+      </UiAlert>
+      <UiAlert
         v-if="unknownError"
         type="error"
         :dismissible="false"
       >
         {{ errorMessage }}
-      </ui-alert>
+      </UiAlert>
 
-      <k-textbox
+      <KTextbox
         ref="name"
         v-if="canEditName"
         type="text"
@@ -63,7 +63,7 @@
         <p>{{ name }}</p>
       </template>
 
-      <k-textbox
+      <KTextbox
         ref="username"
         v-if="canEditUsername"
         type="text"
@@ -82,7 +82,7 @@
         <p>{{ session.username }}</p>
       </template>
 
-      <k-button
+      <KButton
         v-if="canEditUsername || canEditName"
         type="submit"
         class="submit"
@@ -93,7 +93,7 @@
 
     </form>
 
-    <k-button
+    <KButton
       v-if="canEditPassword"
       appearance="basic-link"
       :text="$tr('changePasswordPrompt')"
@@ -102,7 +102,7 @@
       @click="setPasswordModalVisible(true)"
     />
 
-    <change-user-password-modal
+    <ChangeUserPasswordModal
       v-if="passwordModalVisible"
       @cancel="setPasswordModalVisible(false)"
     />

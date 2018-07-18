@@ -10,16 +10,16 @@ oriented data synchronization.
 <template v-if="ready">
 
   <div>
-    <ui-alert v-if="itemError" :dismissible="false" type="error">
+    <UiAlert v-if="itemError" :dismissible="false" type="error">
       {{ $tr('itemError') }}
-      <k-button
+      <KButton
         appearance="basic-link"
         :text="$tr('tryDifferentQuestion')"
         @click="nextQuestion"
       />
-    </ui-alert>
+    </UiAlert>
     <div>
-      <content-renderer
+      <ContentRenderer
         ref="contentRenderer"
         :id="content.id"
         :kind="content.kind"
@@ -65,7 +65,7 @@ oriented data synchronization.
           <div class="row">
             <div class="left">
               <transition mode="out-in">
-                <k-button
+                <KButton
                   v-if="!complete"
                   appearance="raised-button"
                   class="question-btn"
@@ -75,7 +75,7 @@ oriented data synchronization.
                   :disabled="checkingAnswer"
                   @click="checkAnswer"
                 />
-                <k-button
+                <KButton
                   v-else
                   appearance="raised-button"
                   class="question-btn"
@@ -87,7 +87,7 @@ oriented data synchronization.
             </div>
 
             <div class="right">
-              <exercise-attempts
+              <ExerciseAttempts
                 :waitingForAttempt="firstAttemptAtQuestion || itemError"
                 :numSpaces="attemptsWindowN"
                 :log="recentAttempts"

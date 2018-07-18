@@ -9,7 +9,7 @@
         {{ $tr('noExamsMessage') }}
       </p>
     </div>
-    <content-card
+    <ContentCard
       class="content-card"
       v-for="exam in exams"
       :key="exam.id"

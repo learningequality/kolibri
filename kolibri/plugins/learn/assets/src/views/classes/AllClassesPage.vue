@@ -5,7 +5,7 @@
       <h2>{{ $tr('allClassesHeader') }}</h2>
 
       <div class="classrooms">
-        <content-card
+        <ContentCard
           class="content-card"
           v-for="c in classrooms"
           :key="c.id"
@@ -17,7 +17,7 @@
         />
       </div>
     </div>
-    <auth-message authorizedRole="learner" v-else />
+    <AuthMessage authorizedRole="learner" v-else />
   </div>
 
 </template>

@@ -9,7 +9,7 @@
         @click="previousSet"
         v-show="!isFirstSet"
       >
-        <ui-icon-button
+        <UiIconButton
           class="content-carousel-previous-control-button"
           :style="buttonTransforms"
           :disabled="isFirstSet"
@@ -17,7 +17,7 @@
           size="large"
         >
           <mat-svg name="arrow_back" category="navigation" />
-        </ui-icon-button>
+        </UiIconButton>
       </div>
 
       <transition-group
@@ -28,7 +28,7 @@
         @enter="slide"
       >
 
-        <content-card
+        <ContentCard
           class="content-carousel-card"
           v-for="(content, index) in contents"
           v-if="isInThisSet(index)"
@@ -48,7 +48,7 @@
         @click="nextSet"
         v-show="!isLastSet"
       >
-        <ui-icon-button
+        <UiIconButton
           class="content-carousel-next-control-button"
           :style="buttonTransforms"
           :disabled="isLastSet"
@@ -56,7 +56,7 @@
           size="large"
         >
           <mat-svg name="arrow_forward" category="navigation" />
-        </ui-icon-button>
+        </UiIconButton>
       </div>
 
     </div>

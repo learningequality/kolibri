@@ -2,7 +2,7 @@
 
   <div>
 
-    <core-table>
+    <CoreTable>
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
@@ -15,7 +15,7 @@
       <tbody slot="tbody">
         <tr v-for="user in visibleUsers" :key="user.id">
           <td class="core-table-icon-col">
-            <permissions-icon
+            <PermissionsIcon
               v-if="Boolean(getPermissionType(user.id))"
               :permissionType="getPermissionType(user.id)"
             />
@@ -28,7 +28,7 @@
             {{ user.username }}
           </td>
           <td>
-            <k-button
+            <KButton
               @click="goToUserPermissionsPage(user.id)"
               appearance="flat-button"
               :text="permissionsButtonText(user.username)"
@@ -36,7 +36,7 @@
           </td>
         </tr>
       </tbody>
-    </core-table>
+    </CoreTable>
 
     <p v-if="!visibleUsers.length">
       {{ $tr('noUsersMatching', { searchFilter }) }}

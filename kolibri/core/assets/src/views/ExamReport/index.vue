@@ -1,7 +1,7 @@
 <template>
 
-  <multi-pane-layout ref="multiPaneLayout">
-    <page-status
+  <MultiPaneLayout ref="multiPaneLayout">
+    <PageStatus
       slot="header"
       :contentName="exam.title"
       :userName="userName"
@@ -10,7 +10,7 @@
       :completed="closed"
     />
 
-    <attempt-log-list
+    <AttemptLogList
       slot="aside"
       :attemptLogs="attemptLogs"
       :selectedQuestionNumber="questionNumber"
@@ -20,18 +20,18 @@
     <div slot="main" class="exercise-container">
       <h3>{{ $tr('question', {questionNumber: questionNumber + 1}) }}</h3>
 
-      <k-checkbox
+      <KCheckbox
         :label="$tr('showCorrectAnswerLabel')"
         :checked="showCorrectAnswer"
         @change="toggleShowCorrectAnswer"
       />
-      <interaction-list
+      <InteractionList
         v-if="!showCorrectAnswer"
         :interactions="currentInteractionHistory"
         :selectedInteractionIndex="selectedInteractionIndex"
         @select="navigateToQuestionAttempt"
       />
-      <content-renderer
+      <ContentRenderer
         :id="exercise.pk"
         :itemId="itemId"
         :allowHints="false"
@@ -46,7 +46,7 @@
         :showCorrectAnswer="showCorrectAnswer"
       />
     </div>
-  </multi-pane-layout>
+  </MultiPaneLayout>
 
 </template>
 

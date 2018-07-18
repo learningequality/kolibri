@@ -1,6 +1,6 @@
 <template>
 
-  <core-menu-option
+  <CoreMenuOption
     :label="$tr('learn')"
     :link="url"
   >
@@ -9,7 +9,7 @@
       name="school"
       category="social"
     />
-  </core-menu-option>
+  </CoreMenuOption>
 
 </template>
 

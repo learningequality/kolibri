@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('addNewAccountTitle')"
     :submitText="$tr('createAccount')"
     :cancelText="$tr('cancel')"
@@ -8,12 +8,12 @@
     @submit="createNewUser"
     @cancel="close"
   >
-    <ui-alert type="error" v-if="errorMessage" @dismiss="errorMessage = ''">
+    <UiAlert type="error" v-if="errorMessage" @dismiss="errorMessage = ''">
       {{ errorMessage }}
-    </ui-alert>
+    </UiAlert>
 
     <section>
-      <k-textbox
+      <KTextbox
         ref="name"
         type="text"
         :label="$tr('name')"
@@ -24,7 +24,7 @@
         @blur="nameBlurred = true"
         v-model.trim="fullName"
       />
-      <k-textbox
+      <KTextbox
         ref="username"
         type="text"
         :label="$tr('username')"
@@ -34,7 +34,7 @@
         @blur="usernameBlurred = true"
         v-model="username"
       />
-      <k-textbox
+      <KTextbox
         ref="password"
         type="password"
         :label="$tr('password')"
@@ -43,7 +43,7 @@
         @blur="passwordBlurred = true"
         v-model="password"
       />
-      <k-textbox
+      <KTextbox
         ref="confirmedPassword"
         type="password"
         :label="$tr('reEnterPassword')"
@@ -53,20 +53,20 @@
         v-model="confirmedPassword"
       />
 
-      <k-select
+      <KSelect
         :label="$tr('userType')"
         :options="userKindDropdownOptions"
         v-model="kind"
       />
 
       <fieldset class="coach-selector" v-if="coachIsSelected">
-        <k-radio-button
+        <KRadioButton
           :label="$tr('classCoachLabel')"
           :description="$tr('classCoachDescription')"
           :value="true"
           v-model="classCoach"
         />
-        <k-radio-button
+        <KRadioButton
           :label="$tr('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
@@ -74,7 +74,7 @@
         />
       </fieldset>
     </section>
-  </k-modal>
+  </KModal>
 
 </template>
 

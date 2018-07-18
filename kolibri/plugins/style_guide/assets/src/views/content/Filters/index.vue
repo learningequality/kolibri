@@ -1,19 +1,19 @@
 <template>
 
-  <page-template title="Filters" :completed="false">
+  <PageTemplate title="Filters" :completed="false">
 
     <h3><code>{{ kFilterTextboxApi.name }}</code> API</h3>
-    <component-docs :api="kFilterTextboxApi" />
+    <ComponentDocs :api="kFilterTextboxApi" />
 
     <h3>Code Example</h3>
-    <vue-example :code="kFilterTextboxExample" />
+    <VueExample :code="kFilterTextboxExample" />
 
 
     <h3><code>{{ kSelectApi.name }}</code> API</h3>
-    <component-docs :api="kSelectApi" />
+    <ComponentDocs :api="kSelectApi" />
 
     <h3>Code Example</h3>
-    <vue-example :code="kSelectExample" />
+    <VueExample :code="kSelectExample" />
 
     <h3>Guidelines</h3>
     <h3>How they behave together</h3>
@@ -118,7 +118,7 @@
       </li>
     </ul>
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 

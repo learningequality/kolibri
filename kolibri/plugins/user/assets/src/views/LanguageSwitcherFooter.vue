@@ -1,6 +1,6 @@
 <template>
 
-  <language-switcher-list class="list" />
+  <LanguageSwitcherList class="list" />
 
 </template>
 

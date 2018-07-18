@@ -1,6 +1,6 @@
 <template>
 
-  <ui-toolbar
+  <UiToolbar
     :title="appBarTitle"
     textColor="white"
     type="colored"
@@ -16,7 +16,7 @@
       class="link"
     >
       <!-- TODO add aria label? -->
-      <ui-icon-button
+      <UiIconButton
         type="flat"
         @click="$emit('navIconClick')"
         class="icon"
@@ -36,10 +36,10 @@
           name="arrow_forward"
           category="navigation"
         />
-      </ui-icon-button>
+      </UiIconButton>
     </router-link>
 
-    <ui-icon-button
+    <UiIconButton
       v-else
       type="flat"
       @click="$emit('navIconClick')"
@@ -60,8 +60,8 @@
         name="arrow_forward"
         category="navigation"
       />
-    </ui-icon-button>
-  </ui-toolbar>
+    </UiIconButton>
+  </UiToolbar>
 
 </template>
 

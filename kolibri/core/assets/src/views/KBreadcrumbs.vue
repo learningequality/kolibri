@@ -3,7 +3,7 @@
   <div v-show="showSingleItem || crumbs.length > 1">
     <nav class="breadcrumbs">
       <div v-show="collapsedCrumbs.length" class="breadcrumbs-dropdown-wrapper">
-        <ui-icon-button :hasDropdown="true" size="small">
+        <UiIconButton :hasDropdown="true" size="small">
           <mat-svg
             name="expand_more"
             category="navigation"
@@ -15,7 +15,7 @@
                 class="breadcrumbs-dropdown-item"
                 :key="index"
               >
-                <k-router-link
+                <KRouterLink
                   :text="crumb.text"
                   :to="crumb.link"
                   :style="{ maxWidth: `${collapsedCrumbMaxWidth}px` }"
@@ -24,7 +24,7 @@
               </li>
             </ol>
           </div>
-        </ui-icon-button>
+        </UiIconButton>
       </div>
 
       <ol class="breadcrumbs-visible-items">
@@ -35,7 +35,7 @@
             v-show="!crumb.collapsed"
             :key="index"
           >
-            <k-router-link
+            <KRouterLink
               :text="crumb.text"
               :to="crumb.link"
               dir="auto"
@@ -69,7 +69,7 @@
             class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
             :key="index"
           >
-            <k-router-link :text="crumb.text" :to="crumb.link" tabindex="-1" />
+            <KRouterLink :text="crumb.text" :to="crumb.link" tabindex="-1" />
           </li>
 
           <li

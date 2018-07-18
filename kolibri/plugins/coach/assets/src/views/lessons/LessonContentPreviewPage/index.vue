@@ -1,17 +1,17 @@
 <template>
 
-  <multi-pane-layout>
+  <MultiPaneLayout>
     <div
       slot="header"
       class="header"
     >
-      <metadata-area
+      <MetadataArea
         class="ib"
         :class="{left: workingResources}"
         :content="content"
         :completionData="completionData"
       />
-      <select-options
+      <SelectOptions
         v-if="workingResources"
         class="select-options ib"
         :workingResources="workingResources"
@@ -20,7 +20,7 @@
       />
     </div>
 
-    <question-list
+    <QuestionList
       slot="aside"
       v-if="isPerseusExercise"
       @select="selectedQuestionIndex = $event"
@@ -29,14 +29,14 @@
       :selectedIndex="selectedQuestionIndex"
     />
 
-    <content-area
+    <ContentArea
       slot="main"
       :header="questionLabel(selectedQuestionIndex)"
       :selectedQuestion="selectedQuestion"
       :content="content"
       :isPerseusExercise="isPerseusExercise"
     />
-  </multi-pane-layout>
+  </MultiPaneLayout>
 
 </template>
 

@@ -1,11 +1,11 @@
 <template>
 
   <div>
-    <content-page>
+    <ContentPage>
       <div slot="below_content" class="below-content-area">
         <template v-if="nextLessonResource">
           <h1>{{ $tr('nextInLesson') }}</h1>
-          <content-card
+          <ContentCard
             :isMobile="true"
             :kind="nextLessonResource.kind"
             :link="nextResourceLink"
@@ -16,7 +16,7 @@
           />
         </template>
       </div>
-    </content-page>
+    </ContentPage>
   </div>
 
 </template>

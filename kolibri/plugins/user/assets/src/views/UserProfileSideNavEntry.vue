@@ -1,6 +1,6 @@
 <template>
 
-  <core-menu-option
+  <CoreMenuOption
     :label="$tr('profile')"
     :link="url"
   >
@@ -9,7 +9,7 @@
       name="account_circle"
       category="action"
     />
-  </core-menu-option>
+  </CoreMenuOption>
 
 </template>
 

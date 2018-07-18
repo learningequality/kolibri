@@ -1,8 +1,8 @@
 <template>
 
   <div>
-    <page-header :title="$tr('channels')" class="visuallyhidden" />
-    <content-card-group-grid
+    <PageHeader :title="$tr('channels')" class="visuallyhidden" />
+    <ContentCardGroupGrid
       class="grid"
       :contents="channels"
       :genContentLink="genChannelLink"

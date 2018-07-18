@@ -1,49 +1,49 @@
 <template>
 
-  <k-navbar>
-    <k-navbar-link
+  <KNavbar>
+    <KNavbarLink
       type="icon-and-title"
       :title="$tr('learners')"
       :link="learnersLink"
     >
       <mat-svg name="people" category="social" />
-    </k-navbar-link>
-    <k-navbar-link
+    </KNavbarLink>
+    <KNavbarLink
       type="icon-and-title"
       :title="$tr('groups')"
       :link="groupsLink"
     >
       <mat-svg name="group_work" category="action" />
-    </k-navbar-link>
-    <k-navbar-link
+    </KNavbarLink>
+    <KNavbarLink
       type="icon-and-title"
       :title="$tr('lessons')"
       :link="lessonsLink"
     >
       <mat-svg name="import_contacts" category="communication" />
-    </k-navbar-link>
-    <k-navbar-link
+    </KNavbarLink>
+    <KNavbarLink
       type="icon-and-title"
       :title="$tr('exams')"
       :link="examsLink"
     >
       <mat-svg name="assignment_late" category="action" />
-    </k-navbar-link>
-    <k-navbar-link
+    </KNavbarLink>
+    <KNavbarLink
       type="icon-and-title"
       :title="$tr('recent')"
       :link="recentLink"
     >
       <mat-svg name="access_time" category="device" />
-    </k-navbar-link>
-    <k-navbar-link
+    </KNavbarLink>
+    <KNavbarLink
       type="icon-and-title"
       :title="$tr('channels')"
       :link="channelsLink"
     >
       <mat-svg name="apps" category="navigation" />
-    </k-navbar-link>
-  </k-navbar>
+    </KNavbarLink>
+  </KNavbar>
 
 </template>
 

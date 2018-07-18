@@ -1,6 +1,6 @@
 <template>
 
-  <core-menu-option
+  <CoreMenuOption
     :label="$tr('coach')"
     :link="url"
   >
@@ -9,7 +9,7 @@
       name="assessment"
       category="action"
     />
-  </core-menu-option>
+  </CoreMenuOption>
 
 </template>
 

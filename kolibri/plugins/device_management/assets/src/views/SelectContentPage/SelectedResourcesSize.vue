@@ -21,7 +21,7 @@
             {{ fileSizeText }}
           </span>
 
-          <k-button
+          <KButton
             class="confirm-button"
             :text="buttonText"
             :primary="true"
@@ -32,13 +32,13 @@
       </div>
     </div>
 
-    <ui-alert
+    <UiAlert
       v-if="remainingSpaceAfterTransfer<=0"
       type="error"
       :dismissible="false"
     >
       {{ $tr('notEnoughSpace') }}
-    </ui-alert>
+    </UiAlert>
   </section>
 
 </template>

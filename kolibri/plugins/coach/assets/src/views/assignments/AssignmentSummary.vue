@@ -3,7 +3,7 @@
   <div>
     <div class="lesson-summary-header">
       <div class="lesson-summary-header-title-block">
-        <content-icon
+        <ContentIcon
           :kind="kind"
           class="title-lesson-icon"
         />
@@ -17,15 +17,15 @@
     <dl>
       <dt>
         {{ $tr('status') }}
-        <core-info-icon
+        <CoreInfoIcon
           :iconAriaLabel="$tr('statusDescription')"
           :tooltipText="$tr('statusTooltipText')"
           tooltipPosition="bottom left"
         />
       </dt>
       <dd>
-        <status-icon :active="active" />
-        <k-button
+        <StatusIcon :active="active" />
+        <KButton
           appearance="basic-link"
           class="change-status-button"
           :text="$tr('changeStatus')"

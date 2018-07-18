@@ -13,7 +13,7 @@
         class="item"
         :key="index"
       >
-        <k-button
+        <KButton
           @click="$emit('select',index)"
           :class="{selected: index === selectedIndex}"
           class="button"

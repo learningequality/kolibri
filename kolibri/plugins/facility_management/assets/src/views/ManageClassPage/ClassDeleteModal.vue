@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('modalTitle')"
     :submitText="$tr('delete')"
     :cancelText="$tr('cancel')"
@@ -10,7 +10,7 @@
   >
     <p>{{ $tr('confirmation', { classname: classname }) }}</p>
     <p>{{ $tr('description') }}</p>
-  </k-modal>
+  </KModal>
 
 </template>
 

@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('passwordChangeFormHeader')"
     size="small"
     :submitText="$tr('updateButtonLabel')"
@@ -9,7 +9,7 @@
     @submit="submitForm"
     @cancel="closeModal"
   >
-    <k-textbox
+    <KTextbox
       ref="newPassword"
       type="password"
       :label="$tr('newPasswordFieldLabel')"
@@ -19,7 +19,7 @@
       @blur="newPasswordBlurred = true"
       v-model="newPassword"
     />
-    <k-textbox
+    <KTextbox
       ref="confirmedNewPassword"
       type="password"
       :label="$tr('confirmNewPasswordFieldLabel')"
@@ -28,7 +28,7 @@
       @blur="confirmedNewPasswordBlurred = true"
       v-model="confirmedNewPassword"
     />
-  </k-modal>
+  </KModal>
 
 </template>
 

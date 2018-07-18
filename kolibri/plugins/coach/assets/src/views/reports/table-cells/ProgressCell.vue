@@ -2,7 +2,7 @@
 
   <td>
     <template v-if="num !== undefined">
-      <progress-bar :progress="num" />
+      <ProgressBar :progress="num" />
       <div v-if="extraText" class="extra-text">
         <mat-svg category="social" name="person" class="person-icon" />
         {{ extraText }}

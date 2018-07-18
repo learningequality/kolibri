@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('modalTitle')"
     size="small"
     :submitText="$tr('update')"
@@ -9,7 +9,7 @@
     @submit="updateName"
     @cancel="close"
   >
-    <k-textbox
+    <KTextbox
       ref="name"
       type="text"
       :label="$tr('classname')"
@@ -20,7 +20,7 @@
       @blur="nameBlurred = true"
       v-model.trim="name"
     />
-  </k-modal>
+  </KModal>
 
 </template>
 

@@ -8,7 +8,7 @@
         <p>{{ $tr('adminClassPageSubheader') }}</p>
       </section>
 
-      <k-button
+      <KButton
         class="create-btn"
         :class="{ 'create-btn-mobile': windowSize.breakpoint <= 0}"
         @click="displayModal(Modals.CREATE_CLASS)"
@@ -16,7 +16,7 @@
         :primary="true"
       />
     </div>
-    <core-table>
+    <CoreTable>
       <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
       <thead slot="thead">
         <tr>
@@ -33,12 +33,12 @@
           :key="classroom.id"
         >
           <td class="core-table-icon-col">
-            <ui-icon>
+            <UiIcon>
               <mat-svg name="business" category="communication" />
-            </ui-icon>
+            </UiIcon>
           </td>
           <td class="core-table-main-col">
-            <k-router-link
+            <KRouterLink
               :text="classroom.name"
               :to="classEditLink(classroom.id)"
             />
@@ -50,7 +50,7 @@
             {{ classroom.learner_count }}
           </td>
           <td>
-            <k-button
+            <KButton
               appearance="flat-button"
               @click="openDeleteClassModal(classroom)"
               :text="$tr('deleteClass')"
@@ -58,16 +58,16 @@
           </td>
         </tr>
       </tbody>
-    </core-table>
+    </CoreTable>
 
     <p v-if="noClassesExist">{{ $tr('noClassesExist') }}</p>
 
-    <class-delete-modal
+    <ClassDeleteModal
       v-if="modalShown===Modals.DELETE_CLASS"
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
     />
-    <class-create-modal
+    <ClassCreateModal
       v-if="modalShown===Modals.CREATE_CLASS"
       :classes="sortedClassrooms"
     />

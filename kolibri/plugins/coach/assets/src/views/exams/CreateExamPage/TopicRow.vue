@@ -2,7 +2,7 @@
 
   <tr>
     <th class="core-table-checkbox-col">
-      <k-checkbox
+      <KCheckbox
         :label="$tr('selectTopic')"
         :showLabel="false"
         :checked="allExercisesWithinTopicSelected"
@@ -12,12 +12,12 @@
     </th>
     <td class="core-table-main-col">
       <div class="topic-title">
-        <content-icon :kind="topic" />
+        <ContentIcon :kind="topic" />
         <button class="title" @click="$emit('goToTopic', topicId)">
           {{ topicTitle }}
         </button>
       </div>
-      <coach-content-label
+      <CoachContentLabel
         class="coach-content-label"
         :value="numCoachContents"
         :isTopic="true"

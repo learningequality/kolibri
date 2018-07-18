@@ -17,7 +17,7 @@
 
       <div class="summary-item">
         <div class="icon">
-          <content-icon
+          <ContentIcon
             class="svg-icon"
             :kind="kind"
           />
@@ -32,7 +32,7 @@
         class="summary-item"
       >
         <div class="icon">
-          <progress-icon
+          <ProgressIcon
             class="svg-icon"
             :progress="summaryLog.progress"
           />
@@ -47,7 +47,7 @@
     <div class="pure-u-1-4">
       <div class="status">
         <div class="status-text">
-          <progress-icon
+          <ProgressIcon
             class="svg-icon"
             :progress="summaryLog.progress"
           />
@@ -57,7 +57,7 @@
           class="update-time"
           v-if="isCompleted || isCompleted !== null"
         >
-          <elapsed-time :date="updateTime" />
+          <ElapsedTime :date="updateTime" />
         </div>
       </div>
     </div>

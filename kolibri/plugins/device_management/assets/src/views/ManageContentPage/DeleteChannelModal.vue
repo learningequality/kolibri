@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('title')"
     :submitText="$tr('confirmButtonLabel')"
     :cancelText="$tr('cancelButtonLabel')"
@@ -8,7 +8,7 @@
     @cancel="handleClickCancel"
   >
     <p>{{ $tr('confirmationQuestion', { channelTitle }) }}</p>
-  </k-modal>
+  </KModal>
 
 </template>
 

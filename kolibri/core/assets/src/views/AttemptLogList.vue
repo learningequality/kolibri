@@ -46,7 +46,7 @@
               {{ $tr('question', {questionNumber: attemptLog.questionNumber}) }}
             </h3>
           </div>
-          <coach-content-label
+          <CoachContentLabel
             class="coach-content-label"
             :value="attemptLog.num_coach_contents"
             :isTopic="false"

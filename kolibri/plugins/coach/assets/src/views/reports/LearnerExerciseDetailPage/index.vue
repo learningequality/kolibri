@@ -1,8 +1,8 @@
 <template>
 
-  <immersive-full-screen :backPageLink="backPageLink" :backPageText="backPageText">
-    <learner-exercise-report />
-  </immersive-full-screen>
+  <ImmersiveFullScreen :backPageLink="backPageLink" :backPageText="backPageText">
+    <LearnerExerciseReport />
+  </ImmersiveFullScreen>
 
 </template>
 

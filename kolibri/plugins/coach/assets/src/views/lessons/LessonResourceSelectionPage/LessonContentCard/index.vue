@@ -2,7 +2,7 @@
 
   <router-link :to="link" class="content-card">
 
-    <card-thumbnail
+    <CardThumbnail
       class="thumbnail"
       :thumbnail="thumbnail"
       :kind="kind"
@@ -21,13 +21,13 @@
         {{ message }}
       </div>
 
-      <text-truncator
+      <TextTruncator
         :text="description"
         :maxHeight="40"
         :showViewMore="true"
         class="description"
       />
-      <coach-content-label
+      <CoachContentLabel
         class="coach-content-label"
         :value="numCoachContents"
         :isTopic="isTopic"

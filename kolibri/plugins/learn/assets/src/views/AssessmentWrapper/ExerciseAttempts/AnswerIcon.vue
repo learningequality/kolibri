@@ -25,9 +25,9 @@
         class="rectified"
       />
     </div>
-    <ui-tooltip trigger="icon">
+    <UiTooltip trigger="icon">
       {{ tooltipText }}
-    </ui-tooltip>
+    </UiTooltip>
   </div>
 
 </template>

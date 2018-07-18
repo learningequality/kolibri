@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('enterChannelToken')"
     :submitText="$tr('confirm')"
     :cancelText="$tr('cancel')"
@@ -11,15 +11,15 @@
   >
     <p>{{ $tr('tokenExplanation') }}</p>
 
-    <ui-alert
+    <UiAlert
       v-if="tokenNetworkError"
       :dismissible="false"
       type="error"
     >
       {{ $tr('networkErrorMessage') }}
-    </ui-alert>
+    </UiAlert>
 
-    <k-textbox
+    <KTextbox
       :label="$tr('channelTokenLabel')"
       v-model.trim="token"
       :invalid="!tokenIsValid"
@@ -28,7 +28,7 @@
       @blur="tokenIsBlurred=true"
       :disabled="formIsDisabled"
     />
-  </k-modal>
+  </KModal>
 
 </template>
 

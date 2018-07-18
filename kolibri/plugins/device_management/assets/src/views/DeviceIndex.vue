@@ -1,13 +1,13 @@
 <template>
 
-  <core-base
+  <CoreBase
     :appBarTitle="currentPageAppBarTitle"
     :immersivePage="currentPageIsImmersive"
     :immersivePagePrimary="true"
     :immersivePageRoute="exitWizardLink"
   >
     <transition name="delay-entry">
-      <welcome-modal
+      <WelcomeModal
         v-if="welcomeModalVisible"
         @closeModal="hideWelcomeModal"
       />
@@ -17,7 +17,7 @@
       <DeviceTopNav v-if="canManageContent && !currentPageIsImmersive" />
       <component :is="currentPage" />
     </div>
-  </core-base>
+  </CoreBase>
 
 </template>
 

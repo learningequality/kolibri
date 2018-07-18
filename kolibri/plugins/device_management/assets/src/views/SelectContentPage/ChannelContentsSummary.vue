@@ -11,12 +11,12 @@
         <h2 class="title">
           {{ channel.name }}
         </h2>
-        <ui-icon
+        <UiIcon
           class="lock-icon"
           v-if="channel.public === false"
         >
           <mat-svg name="lock_open" category="action" />
-        </ui-icon>
+        </UiIcon>
       </div>
       <p class="version">
         {{ $tr('version', { version: versionNumber }) }}

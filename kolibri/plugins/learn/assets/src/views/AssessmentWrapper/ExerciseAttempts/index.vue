@@ -8,7 +8,7 @@
       :key="`attempt-${item.originalIndex}`"
     >
       <transition name="fade">
-        <answer-icon :answer="item.answer" />
+        <AnswerIcon :answer="item.answer" />
       </transition>
     </div>
     <div

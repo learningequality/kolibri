@@ -1,13 +1,13 @@
 <template>
 
   <div v-if="isUserLoggedIn" class="points" ref="points">
-    <points-icon class="icon" :active="true" />
+    <PointsIcon class="icon" :active="true" />
     <div class="description">
       <div class="description-value">{{ $formatNumber(totalPoints) }}</div>
     </div>
-    <ui-tooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">
+    <UiTooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">
       {{ $tr('pointsTooltip', { points: totalPoints }) }}
-    </ui-tooltip>
+    </UiTooltip>
   </div>
 
 </template>

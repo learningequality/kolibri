@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('moveLearners')"
     :cancelText="$tr('cancel')"
     :submitText="$tr('move')"
@@ -9,7 +9,7 @@
     @submit="moveUsers"
   >
     <p>{{ $tr('moveLearnerCount', {count: usersToMove.length }) }}</p>
-    <k-radio-button
+    <KRadioButton
       v-for="group in groupsExcludingCurrent"
       :key="group.id"
       :value="group.id"
@@ -19,13 +19,13 @@
 
     <div v-if="!isUngrouped">
       <hr>
-      <k-radio-button
+      <KRadioButton
         value="ungrouped"
         :label="$tr('ungrouped')"
         v-model="groupSelected"
       />
     </div>
-  </k-modal>
+  </KModal>
 
 </template>
 

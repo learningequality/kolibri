@@ -1,6 +1,6 @@
 <template>
 
-  <page-template :completed="true">
+  <PageTemplate :completed="true">
     <h1>Kolibri Style Guide</h1>
     <h2>A shared vocabulary for developers and designers</h2>
     <p>
@@ -47,7 +47,7 @@
       preferred over piece-meal improvements.
     </p>
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 

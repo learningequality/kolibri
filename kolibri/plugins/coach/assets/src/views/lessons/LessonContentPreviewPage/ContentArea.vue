@@ -4,7 +4,7 @@
     <h2 v-if="isPerseusExercise" class="header">
       {{ header }}
     </h2>
-    <content-renderer
+    <ContentRenderer
       :class="{ hof: isPerseusExercise}"
       :showCorrectAnswer="true"
       :id="content.pk"

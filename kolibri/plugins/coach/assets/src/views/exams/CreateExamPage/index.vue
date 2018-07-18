@@ -2,9 +2,9 @@
 
   <div>
     <h1>{{ $tr('createNewExam') }}</h1>
-    <k-grid>
-      <k-grid-item size="1" :cols="numCols">
-        <k-textbox
+    <KGrid>
+      <KGridItem size="1" :cols="numCols">
+        <KTextbox
           ref="title"
           :label="$tr('title')"
           :autofocus="true"
@@ -14,9 +14,9 @@
           @blur="titleBlurred = true"
           v-model.trim="inputTitle"
         />
-      </k-grid-item>
-      <k-grid-item size="1" :cols="numCols">
-        <k-textbox
+      </KGridItem>
+      <KGridItem size="1" :cols="numCols">
+        <KTextbox
           ref="numQuest"
           type="number"
           :label="$tr('numQuestions')"
@@ -25,8 +25,8 @@
           @blur="numQuestBlurred = true"
           v-model.trim.number="inputNumQuestions"
         />
-      </k-grid-item>
-    </k-grid>
+      </KGridItem>
+    </KGrid>
 
     <h2>{{ $tr('chooseExercises') }}</h2>
 
@@ -48,20 +48,20 @@
 
       <div>
         <transition name="fade" mode="out-in">
-          <k-circular-loader
+          <KCircularLoader
             v-if="loading"
             key="progress"
             :delay="false"
           />
 
-          <core-table
+          <CoreTable
             v-else
             key="table"
           >
             <thead slot="thead">
               <tr>
                 <th class="core-table-checkbox-col">
-                  <k-checkbox
+                  <KCheckbox
                     :label="$tr('selectAll')"
                     :showLabel="false"
                     :checked="allExercisesWithinCurrentTopicSelected"
@@ -75,7 +75,7 @@
               </tr>
             </thead>
             <tbody slot="tbody">
-              <exercise-row
+              <ExerciseRow
                 v-for="exercise in exercises"
                 :key="exercise.id"
                 :exerciseId="exercise.id"
@@ -86,7 +86,7 @@
                 @addExercise="handleAddExercise"
                 @removeExercise="handleRemoveExercise"
               />
-              <topic-row
+              <TopicRow
                 v-for="topic in subtopics"
                 :key="topic.id"
                 :topicId="topic.id"
@@ -99,7 +99,7 @@
                 @removeTopicExercises="handleRemoveTopicExercises"
               />
             </tbody>
-          </core-table>
+          </CoreTable>
         </transition>
       </div>
     </div>
@@ -107,21 +107,21 @@
     <div class="footer">
       <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
 
-      <ui-alert
+      <UiAlert
         v-if="formIsInvalid"
         type="error"
         :dismissible="false"
       >
         {{ formIsInvalidText }}
-      </ui-alert>
+      </UiAlert>
 
-      <k-button :text="$tr('preview')" @click="preview" />
+      <KButton :text="$tr('preview')" @click="preview" />
 
       <br>
-      <k-button :text="$tr('finish')" :primary="true" @click="finish" :disabled="submitting" />
+      <KButton :text="$tr('finish')" :primary="true" @click="finish" :disabled="submitting" />
     </div>
 
-    <preview-new-exam-modal
+    <PreviewNewExamModal
       v-if="showPreviewNewExamModal"
       :examQuestionSources="questionSources"
       :examSeed="seed"

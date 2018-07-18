@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <assignment-summary
+    <AssignmentSummary
       :kind="examKind"
       :title="exam.title"
       :active="exam.active"
@@ -9,18 +9,18 @@
       :groups="learnerGroups"
       @changeStatus="setExamsModal(AssignmentActions.CHANGE_STATUS)"
     >
-      <k-dropdown-menu
+      <KDropdownMenu
         slot="optionsDropdown"
         :text="$tr('options')"
         :options="actionOptions"
         appearance="raised-button"
         @select="handleSelection"
       />
-    </assignment-summary>
+    </AssignmentSummary>
 
     <h2>{{ $tr('examReport') }}</h2>
 
-    <k-checkbox
+    <KCheckbox
       :label="$tr('viewByGroups')"
       :checked="viewByGroups"
       @change="viewByGroups = !viewByGroups"
@@ -37,7 +37,7 @@
         </h3>
         <p class="average-score">{{ getAverageScore(reportGrouping) }}</p>
 
-        <core-table>
+        <CoreTable>
           <caption class="visuallyhidden">{{ $tr('examReport') }}</caption>
           <thead slot="thead">
             <tr>
@@ -51,10 +51,10 @@
           <tbody slot="tbody">
             <tr v-for="(examTaker, i) in reportGrouping" :key="i">
               <td class="core-table-icon-col">
-                <content-icon :kind="USER" />
+                <ContentIcon :kind="USER" />
               </td>
               <td class="core-table-main-col">
-                <k-router-link
+                <KRouterLink
                   v-if="examTaker.progress !== undefined"
                   :text="examTaker.name"
                   :to="examDetailPageLink(examTaker.id)"
@@ -88,13 +88,13 @@
               <td v-if="!viewByGroups">{{ examTaker.group.name || '–' }}</td>
             </tr>
           </tbody>
-        </core-table>
+        </CoreTable>
       </div>
     </template>
 
     <p v-else>{{ $tr('noExamData') }}</p>
 
-    <manage-exam-modals />
+    <ManageExamModals />
   </div>
 
 </template>

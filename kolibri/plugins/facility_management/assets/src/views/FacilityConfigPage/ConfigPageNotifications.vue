@@ -1,29 +1,29 @@
 <template>
 
   <div>
-    <ui-alert
+    <UiAlert
       type="error"
       v-if="notification===notificationTypes.PAGELOAD_FAILURE"
       @dismiss="dismiss()"
     >
       {{ $tr('pageloadFailure') }}
-    </ui-alert>
+    </UiAlert>
 
-    <ui-alert
+    <UiAlert
       type="success"
       v-if="notification===notificationTypes.SAVE_SUCCESS"
       @dismiss="dismiss()"
     >
       {{ $tr('saveSuccess') }}
-    </ui-alert>
+    </UiAlert>
 
-    <ui-alert
+    <UiAlert
       type="success"
       v-if="notification===notificationTypes.SAVE_FAILURE"
       @dismiss="dismiss()"
     >
       {{ $tr('saveFailure') }}
-    </ui-alert>
+    </UiAlert>
   </div>
 
 </template>

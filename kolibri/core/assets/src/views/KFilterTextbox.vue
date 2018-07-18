@@ -1,12 +1,12 @@
 <template>
 
   <div class="k-filter">
-    <ui-icon
+    <UiIcon
       class="k-filter-icon"
       :ariaLabel="$tr('filter')"
     >
       <mat-svg name="search" category="action" />
-    </ui-icon>
+    </UiIcon>
 
     <input
       v-model.trim="model"
@@ -17,7 +17,7 @@
       :autofocus="autofocus"
     >
 
-    <ui-icon-button
+    <UiIconButton
       color="black"
       size="small"
       class="k-filter-clear-button"
@@ -26,7 +26,7 @@
       @click="model = ''"
     >
       <mat-svg name="clear" category="content" />
-    </ui-icon-button>
+    </UiIconButton>
   </div>
 
 </template>

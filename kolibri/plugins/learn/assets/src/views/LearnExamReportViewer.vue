@@ -1,6 +1,6 @@
 <template>
 
-  <exam-report
+  <ExamReport
     :examAttempts="examAttempts"
     :exam="exam"
     :userName="userName"

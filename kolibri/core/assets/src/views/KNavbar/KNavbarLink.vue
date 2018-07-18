@@ -7,10 +7,10 @@
       :to="link"
     >
       <div v-if="type === 'icon' || type === 'icon-and-title'" class="tab-icon">
-        <ui-icon :ariaLabel="title" class="icon">
+        <UiIcon :ariaLabel="title" class="icon">
           <!--The icon svg-->
           <slot></slot>
-        </ui-icon>
+        </UiIcon>
       </div>
       <div v-if="type === 'title' || type === 'icon-and-title'" class="tab-title">
         {{ title }}

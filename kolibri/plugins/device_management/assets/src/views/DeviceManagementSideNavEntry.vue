@@ -1,6 +1,6 @@
 <template>
 
-  <core-menu-option
+  <CoreMenuOption
     :label="$tr('device')"
     :link="url"
   >
@@ -9,7 +9,7 @@
       name="tablet_mac"
       category="hardware"
     />
-  </core-menu-option>
+  </CoreMenuOption>
 
 </template>
 

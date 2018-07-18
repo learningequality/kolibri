@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <content-wizard-ui-alert
+    <ContentWizardUiAlert
       v-if="wizardStatus"
       :errorType="wizardStatus"
     />
@@ -21,13 +21,13 @@
       </div>
 
       <div class="filters">
-        <k-select
+        <KSelect
           :options="languageFilterOptions"
           v-model="languageFilter"
           :label="$tr('languageFilterLabel')"
           :inline="true"
         />
-        <k-filter-textbox
+        <KFilterTextbox
           :placeholder="$tr('titleFilterPlaceholder')"
           v-model="titleFilter"
           class="title-filter"
@@ -39,14 +39,14 @@
       v-if="showUnlistedChannels"
       class="unlisted-channels"
     >
-      <channel-token-modal
+      <ChannelTokenModal
         v-if="showTokenModal"
         @closemodal="showTokenModal=false"
         @channelfound="goToSelectContentPageForChannel"
       />
       <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
 
-      <k-button
+      <KButton
         :text="$tr('channelTokenButtonLabel')"
         appearance="basic-link"
         name="showtokenmodal"
@@ -54,7 +54,7 @@
       />
     </section>
 
-    <k-linear-loader
+    <KLinearLoader
       v-if="channelsAreLoading"
       type="indeterminate"
       :delay="false"
@@ -67,7 +67,7 @@
       </div>
 
       <div class="channels-list">
-        <channel-list-item
+        <ChannelListItem
           v-for="channel in availableChannels"
           v-show="channelIsVisible(channel)"
           :channel="channel"

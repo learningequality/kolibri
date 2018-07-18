@@ -1,6 +1,6 @@
 <template>
 
-  <k-dropdown-menu
+  <KDropdownMenu
     :text="$tr('downloadContent')"
     :options="fileOptions"
     @select="download"

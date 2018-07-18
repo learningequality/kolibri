@@ -11,18 +11,18 @@
         @close="currentSnackbar = SNACKBARS.NEXT_RESOURCE"
       >
         <template slot="icon">
-          <progress-icon :progress="1" />
+          <ProgressIcon :progress="1" />
         </template>
 
         <template slot="content">
-          <points-icon
+          <PointsIcon
             class="points-icon"
             :active="true"
           />
           <div class="points-amount">{{ $tr('plusPoints', { maxPoints }) }}</div>
         </template>
 
-        <ui-alert
+        <UiAlert
           v-if="!isUserLoggedIn"
           :dismissible="false"
           :removeIcon="true"
@@ -31,7 +31,7 @@
           slot="alert"
         >
           {{ $tr('signIn') }}
-        </ui-alert>
+        </UiAlert>
       </Snackbar>
 
       <Snackbar
@@ -40,7 +40,7 @@
         @close="$emit('close')"
       >
         <template slot="icon">
-          <content-icon
+          <ContentIcon
             class="content-icon icon-bg"
             :kind="nextContent.kind"
             :showTooltip="true"
@@ -54,7 +54,7 @@
             :to="nextContentLink"
           >
             <h2 class="next-content-heading">{{ $tr('next') }}</h2>
-            <k-router-link
+            <KRouterLink
               :text="nextContent.title"
               :to="nextContentLink"
               class="next-content-title"

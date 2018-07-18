@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('selectLocalRemoteSourceTitle')"
     size="small"
     :submitText="$tr('continue')"
@@ -10,21 +10,21 @@
     @cancel="resetContentWizardState"
   >
     <div>
-      <k-radio-button
+      <KRadioButton
         :label="$tr('network')"
         v-model="source"
         value="network"
         :disabled="formIsDisabled || kolibriStudioIsOffline"
         :autofocus="!kolibriStudioIsOffline"
       />
-      <k-radio-button
+      <KRadioButton
         :label="$tr('localDrives')"
         v-model="source"
         value="local"
         :disabled="formIsDisabled"
       />
     </div>
-  </k-modal>
+  </KModal>
 
 </template>
 

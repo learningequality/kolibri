@@ -2,9 +2,9 @@
 
   <div>
 
-    <page-header :title="topic.title" />
+    <PageHeader :title="topic.title" />
 
-    <text-truncator
+    <TextTruncator
       v-if="topic.description"
       :text="topic.description"
       :maxHeight="50"
@@ -14,7 +14,7 @@
       class="page-description"
     />
 
-    <content-card-group-grid
+    <ContentCardGroupGrid
       v-if="contents.length"
       :contents="contents"
       :genContentLink="genContentLink"

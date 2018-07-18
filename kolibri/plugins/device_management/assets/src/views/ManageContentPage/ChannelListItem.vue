@@ -43,12 +43,12 @@
           <div class="title" dir="auto">
             {{ channel.name }}
           </div>
-          <ui-icon
+          <UiIcon
             class="lock-icon"
             v-if="channel.public === false"
           >
             <mat-svg name="lock_open" category="action" />
-          </ui-icon>
+          </UiIcon>
         </div>
         <div class="version">
           {{ $tr('version', { version: versionNumber }) }}
@@ -60,7 +60,7 @@
           {{ channel.description || $tr('defaultDescription') }}
         </div>
 
-        <coach-content-label
+        <CoachContentLabel
           :value="channel.num_coach_contents"
           :isTopic="true"
         />
@@ -69,14 +69,14 @@
     </div>
 
     <div class="buttons dtc">
-      <k-router-link
+      <KRouterLink
         v-if="inImportMode || inExportMode"
         :text="$tr('selectButton')"
         :disabled="tasksInQueue"
         :to="selectContentLink"
         appearance="raised-button"
       />
-      <k-dropdown-menu
+      <KDropdownMenu
         v-if="inManageMode"
         :text="$tr('manageChannelActions')"
         :disabled="tasksInQueue"

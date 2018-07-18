@@ -3,14 +3,14 @@
   <td scope="row" class="core-table-main-col">
     <div class="title">
       <div>
-        <k-router-link v-if="link" :text="title" :to="link" class="link" />
+        <KRouterLink v-if="link" :text="title" :to="link" class="link" />
         <span v-else>{{ title }}</span>
       </div>
       <div>
         <slot name="details"></slot>
       </div>
     </div>
-    <coach-content-label
+    <CoachContentLabel
       class="coach-content-label"
       :value="numCoachContents"
       :isTopic="isTopic"

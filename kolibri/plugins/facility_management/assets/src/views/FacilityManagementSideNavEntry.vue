@@ -1,6 +1,6 @@
 <template>
 
-  <core-menu-option
+  <CoreMenuOption
     :label="$tr('facility')"
     :link="url"
   >
@@ -9,7 +9,7 @@
       name="settings_input_antenna"
       category="action"
     />
-  </core-menu-option>
+  </CoreMenuOption>
 
 </template>
 

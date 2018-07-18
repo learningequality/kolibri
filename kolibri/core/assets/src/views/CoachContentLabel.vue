@@ -1,9 +1,9 @@
 <template>
 
   <div class="vab" v-if="value > 0" :title="titleText">
-    <ui-icon class="coach-mat-icon">
+    <UiIcon class="coach-mat-icon">
       <mat-svg name="local_library" category="maps" />
-    </ui-icon>
+    </UiIcon>
     <span class="counter" v-if="isTopic">
       {{ $formatNumber(value) }}
     </span>

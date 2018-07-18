@@ -1,6 +1,6 @@
 <template>
 
-  <core-base
+  <CoreBase
     :appBarTitle="appBarTitle"
     :immersivePage="isImmersive"
     immersivePageIcon="arrow_back"
@@ -11,14 +11,14 @@
     <div v-if="isAdmin || isSuperuser">
       <div class="facility-management">
         <!-- QUESTION should we explicitly define this in every page? -->
-        <top-nav v-if="!isEnrollmentPage" />
+        <TopNav v-if="!isEnrollmentPage" />
         <component :is="currentPage" />
       </div>
     </div>
 
-    <auth-message v-else :details="$tr('adminOrSuperuser')" />
+    <AuthMessage v-else :details="$tr('adminOrSuperuser')" />
 
-  </core-base>
+  </CoreBase>
 
 </template>
 

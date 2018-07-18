@@ -1,23 +1,23 @@
 <template>
 
   <span class="icon" ref="icon">
-    <ui-icon
+    <UiIcon
       v-if="permissionType === PermissionTypes.SUPERUSER"
       :ariaLabel="$tr('superuserTooltip')"
       class="superuser"
     >
       <mat-svg name="vpn_key" category="communication" />
-    </ui-icon>
+    </UiIcon>
 
-    <ui-icon
+    <UiIcon
       v-else-if="permissionType === PermissionTypes.LIMITED_PERMISSIONS"
       :ariaLabel="$tr('limitedPermissionsTooltip')"
       class="some-permissions"
     >
       <mat-svg name="vpn_key" category="communication" />
-    </ui-icon>
+    </UiIcon>
 
-    <ui-tooltip trigger="icon">{{ tooltipText }}</ui-tooltip>
+    <UiTooltip trigger="icon">{{ tooltipText }}</UiTooltip>
   </span>
 
 </template>

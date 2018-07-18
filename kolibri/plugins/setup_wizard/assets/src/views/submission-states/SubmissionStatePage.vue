@@ -1,7 +1,7 @@
 <template>
 
   <div class="submission-state-page">
-    <k-circular-loader
+    <KCircularLoader
       class="submission-state-page-spinner"
       :delay="false"
     />

@@ -2,7 +2,7 @@
 
   <tr>
     <td class="core-table-checkbox-col">
-      <k-checkbox
+      <KCheckbox
         class="checkbox display-cell"
         :label="node.title"
         :showLabel="false"
@@ -14,11 +14,11 @@
     </td>
 
     <td class="title display-cell core-table-main-col">
-      <content-icon
+      <ContentIcon
         class="icon"
         :kind="node.kind"
       />
-      <k-button
+      <KButton
         v-if="showButton"
         :text="node.title"
         appearance="basic-link"
@@ -28,7 +28,7 @@
       <span v-else>
         {{ node.title }}
       </span>
-      <coach-content-label
+      <CoachContentLabel
         class="coach-content-label"
         :value="node.num_coach_contents"
         :isTopic="isTopic"

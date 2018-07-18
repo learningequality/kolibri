@@ -2,14 +2,14 @@
 
   <div>
 
-    <page-header :title="content.title" dir="auto" />
-    <coach-content-label
+    <PageHeader :title="content.title" dir="auto" />
+    <CoachContentLabel
       class="coach-content-label"
       :value="content.coach_content ? 1 : 0"
       :isTopic="isTopic"
     />
 
-    <content-renderer
+    <ContentRenderer
       v-if="!content.assessment"
       class="content-renderer"
       @sessionInitialized="setWasIncomplete"
@@ -26,7 +26,7 @@
       :initSession="initSession"
     />
 
-    <assessment-wrapper
+    <AssessmentWrapper
       v-else
       class="content-renderer"
       @sessionInitialized="setWasIncomplete"
@@ -57,7 +57,7 @@
         {{ $tr('license', {license: content.license_name}) }}
 
         <template v-if="content.license_description">
-          <ui-icon-button
+          <UiIconButton
             :ariaLabel="$tr('toggleLicenseDescription')"
             size="small"
             type="secondary"
@@ -65,7 +65,7 @@
           >
             <mat-svg v-if="licenceDescriptionIsVisible" name="expand_less" category="navigation" />
             <mat-svg v-else name="expand_more" category="navigation" />
-          </ui-icon-button>
+          </UiIconButton>
           <p v-if="licenceDescriptionIsVisible" dir="auto">
             {{ content.license_description }}
           </p>
@@ -77,7 +77,7 @@
       </p>
     </section>
 
-    <download-button
+    <DownloadButton
       v-if="canDownload"
       :files="downloadableFiles"
       class="download-button"
@@ -86,14 +86,14 @@
     <slot name="below_content">
       <template v-if="progress >= 1 && content.next_content">
         <h2>{{ $tr('nextResource') }}</h2>
-        <content-card-group-carousel
+        <ContentCardGroupCarousel
           :genContentLink="genContentLink"
           :contents="[content.next_content]"
         />
       </template>
       <template v-if="showRecommended">
         <h2>{{ $tr('recommended') }}</h2>
-        <content-card-group-carousel
+        <ContentCardGroupCarousel
           :genContentLink="genContentLink"
           :header="recommendedText"
           :contents="recommended"
@@ -101,7 +101,7 @@
       </template>
     </slot>
 
-    <mastered-snackbars
+    <MasteredSnackbars
       v-if="progress >= 1 && wasIncomplete"
       :nextContent="content.next_content"
       :nextContentLink="nextContentLink"

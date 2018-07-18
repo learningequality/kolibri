@@ -6,7 +6,7 @@
 
       <span v-if="!sortedGroups.length">{{ $tr('noGroups') }}</span>
 
-      <k-button
+      <KButton
         class="new-group-button"
         :text="$tr('newGroup')"
         :primary="true"
@@ -14,25 +14,25 @@
       />
     </section>
 
-    <create-group-modal
+    <CreateGroupModal
       v-if="showCreateGroupModal"
       :groups="sortedGroups"
     />
 
-    <rename-group-modal
+    <RenameGroupModal
       v-if="showRenameGroupModal"
       :groupName="selectedGroup.name"
       :groupId="selectedGroup.id"
       :groups="sortedGroups"
     />
 
-    <delete-group-modal
+    <DeleteGroupModal
       v-if="showDeleteGroupModal"
       :groupName="selectedGroup.name"
       :groupId="selectedGroup.id"
     />
 
-    <move-learners-modal
+    <MoveLearnersModal
       v-if="showMoveLearnersModal"
       :groupId="selectedGroup.id"
       :groups="sortedGroups"
@@ -40,7 +40,7 @@
       :isUngrouped="isUngrouped"
     />
 
-    <group-section
+    <GroupSection
       v-for="group in sortedGroups"
       :key="group.id"
       :canMove="Boolean(sortedGroups.length)"
@@ -50,7 +50,7 @@
       @move="openMoveLearnersModal"
     />
 
-    <group-section
+    <GroupSection
       :canMove="Boolean(sortedGroups.length)"
       :group="ungroupedUsersObject"
       :isUngrouped="true"

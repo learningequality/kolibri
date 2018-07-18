@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('resetPassword')"
     :submitText="$tr('save')"
     :cancelText="$tr('cancel')"
@@ -10,7 +10,7 @@
   >
     <p>{{ $tr('username') }}<strong>{{ username }}</strong></p>
 
-    <k-textbox
+    <KTextbox
       ref="password"
       type="password"
       :label="$tr('newPassword')"
@@ -20,7 +20,7 @@
       @blur="passwordBlurred = true"
       v-model="password"
     />
-    <k-textbox
+    <KTextbox
       ref="confirmedPassword"
       type="password"
       :label="$tr('confirmNewPassword')"
@@ -29,7 +29,7 @@
       @blur="confirmedPasswordBlurred = true"
       v-model="confirmedPassword"
     />
-  </k-modal>
+  </KModal>
 
 </template>
 

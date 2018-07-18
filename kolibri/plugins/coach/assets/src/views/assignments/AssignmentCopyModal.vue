@@ -2,7 +2,7 @@
 
   <div>
     <!-- Classroom Selection Form -->
-    <k-modal
+    <KModal
       v-if="stage === Stages.SELECT_CLASSROOM"
       id="select-classroom"
       :title="modalTitle"
@@ -12,17 +12,17 @@
       @submit="goToAvailableGroups"
     >
       <p>{{ copyExplanation }}</p>
-      <k-radio-button
+      <KRadioButton
         v-for="classroom in availableClassrooms"
         :key="classroom.id"
         :label="classroomLabel(classroom)"
         :value="classroom.id"
         v-model="selectedClassroomId"
       />
-    </k-modal>
+    </KModal>
 
     <!-- Learner Group Selection Form -->
-    <k-modal
+    <KModal
       v-else
       id="select-learnergroup"
       :title="modalTitle"
@@ -33,12 +33,12 @@
     >
       <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>
       <p>{{ assignmentQuestion }}</p>
-      <recipient-selector
+      <RecipientSelector
         v-model="selectedCollectionIds"
         :groups="availableGroups"
         :classId="selectedClassroomId"
       />
-    </k-modal>
+    </KModal>
   </div>
 
 </template>

@@ -2,12 +2,12 @@
 
   <div ref="wrapper" class="wrapper">
     <div v-show="loading" class="fill-space">
-      <k-circular-loader
+      <KCircularLoader
         class="loader"
         :delay="true"
       />
     </div>
-    <core-fullscreen
+    <CoreFullscreen
       v-show="!loading"
       class="fill-space"
       ref="container"
@@ -45,7 +45,7 @@
           >
         </template>
       </audio>
-    </core-fullscreen>
+    </CoreFullscreen>
   </div>
 
 </template>

@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('facilitySelectionModalHeader')"
     :submitText="$tr('submitFacilitySelectionButtonPrompt')"
     :cancelText="$tr('close')"
@@ -9,14 +9,14 @@
   >
     {{ $tr('facilitySelectionPrompt') }}
 
-    <k-radio-button
+    <KRadioButton
       v-for="facility in facilities"
       v-model="selectedFacility"
       :key="facility.id"
       :label="facility.name"
       :value="facility.id"
     />
-  </k-modal>
+  </KModal>
 
 </template>
 

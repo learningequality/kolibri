@@ -17,7 +17,7 @@
         <slot></slot>
       </fieldset>
 
-      <k-button
+      <KButton
         class="onboarding-form-submit"
         :primary="true"
         type="submit"

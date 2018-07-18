@@ -11,7 +11,7 @@
           name="filter_list"
           class="filter-icon"
         />
-        <k-select
+        <KSelect
           :label="$tr('resourceType')"
           :options="contentKindFilterOptions"
           :inline="true"
@@ -28,7 +28,7 @@
           name="apps"
           class="filter-icon"
         />
-        <k-select
+        <KSelect
           :label="$tr('channels')"
           :options="channelFilterOptions"
           :inline="true"
@@ -37,7 +37,7 @@
         />
       </div>
     </div>
-    <content-card
+    <ContentCard
       v-for="content in contents"
       v-show="showContentCard(content)"
       class="grid-item"
@@ -53,7 +53,7 @@
       :copiesCount="content.copies_count"
       @openCopiesModal="openCopiesModal"
     />
-    <copies-modal
+    <CopiesModal
       v-if="modalIsOpen"
       :uniqueId="uniqueId"
       :sharedContentId="sharedContentId"

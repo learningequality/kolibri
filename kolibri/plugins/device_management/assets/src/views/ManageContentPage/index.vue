@@ -2,10 +2,10 @@
 
   <div>
     <template v-if="canManageContent">
-      <select-transfer-source-modal v-if="wizardPageName!==''" />
+      <SelectTransferSourceModal v-if="wizardPageName!==''" />
 
-      <subpage-container>
-        <task-progress
+      <SubpageContainer>
+        <TaskProgress
           v-if="firstTask"
           v-bind="firstTask"
           @cleartask="clearFirstTask"
@@ -19,13 +19,13 @@
             class="buttons"
             v-if="!tasksInQueue"
           >
-            <k-button
+            <KButton
               :text="$tr('import')"
               class="button"
               @click="startImportWorkflow()"
               :primary="true"
             />
-            <k-button
+            <KButton
               v-if="deviceHasChannels"
               :text="$tr('export')"
               class="button"
@@ -34,12 +34,12 @@
           </div>
         </div>
 
-        <channels-grid />
+        <ChannelsGrid />
 
-      </subpage-container>
+      </SubpageContainer>
     </template>
 
-    <auth-message
+    <AuthMessage
       v-else
       :details="$tr('noAccessDetails')"
     />

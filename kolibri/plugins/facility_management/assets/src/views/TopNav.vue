@@ -1,35 +1,35 @@
 <template>
 
-  <k-navbar>
-    <k-navbar-link
+  <KNavbar>
+    <KNavbarLink
       type="icon-and-title"
       :title="$tr('classes')"
       :link="linkify(PageNames.CLASS_MGMT_PAGE)"
     >
       <mat-svg name="domain" category="social" />
-    </k-navbar-link>
-    <k-navbar-link
+    </KNavbarLink>
+    <KNavbarLink
       type="icon-and-title"
       :title="$tr('users')"
       :link="linkify(PageNames.USER_MGMT_PAGE)"
     >
       <mat-svg name="people" category="social" />
-    </k-navbar-link>
-    <k-navbar-link
+    </KNavbarLink>
+    <KNavbarLink
       type="icon-and-title"
       :title="$tr('settings')"
       :link="linkify(PageNames.FACILITY_CONFIG_PAGE)"
     >
       <mat-svg name="settings" category="action" />
-    </k-navbar-link>
-    <k-navbar-link
+    </KNavbarLink>
+    <KNavbarLink
       type="icon-and-title"
       :title="$tr('data')"
       :link="linkify(PageNames.DATA_EXPORT_PAGE)"
     >
       <mat-svg name="save" category="content" />
-    </k-navbar-link>
-  </k-navbar>
+    </KNavbarLink>
+  </KNavbar>
 
 </template>
 

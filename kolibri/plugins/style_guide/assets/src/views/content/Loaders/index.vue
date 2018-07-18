@@ -1,23 +1,23 @@
 <template>
 
-  <page-template title="Loaders" :completed="false">
+  <PageTemplate title="Loaders" :completed="false">
 
     <h3><code>{{ kCircularLoaderApi.name }}</code> API</h3>
-    <component-docs :api="kCircularLoaderApi" />
+    <ComponentDocs :api="kCircularLoaderApi" />
     <h3>Code Example</h3>
-    <vue-example :code="kCircularLoaderExample" />
+    <VueExample :code="kCircularLoaderExample" />
 
 
     <h3><code>{{ kLinearLoaderApi.name }}</code> API</h3>
-    <component-docs :api="kLinearLoaderApi" />
+    <ComponentDocs :api="kLinearLoaderApi" />
     <h3>Code Example</h3>
-    <vue-example :code="kLinearLoaderExample" />
+    <VueExample :code="kLinearLoaderExample" />
 
 
     <h3>Guidelines</h3>
     <p>TODO</p>
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 

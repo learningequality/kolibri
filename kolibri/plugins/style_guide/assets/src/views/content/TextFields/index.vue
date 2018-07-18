@@ -1,12 +1,12 @@
 <template>
 
-  <page-template title="Text Fields" :completed="false">
+  <PageTemplate title="Text Fields" :completed="false">
 
     <h2><code>{{ kTextboxApi.name }}</code> API</h2>
-    <component-docs :api="kTextboxApi" />
+    <ComponentDocs :api="kTextboxApi" />
 
     <h2>Code Example</h2>
-    <vue-example :code="example" />
+    <VueExample :code="example" />
 
     <h2>Guidelines</h2>
     <h3>Labels</h3>
@@ -122,7 +122,7 @@
     </p>
 
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 

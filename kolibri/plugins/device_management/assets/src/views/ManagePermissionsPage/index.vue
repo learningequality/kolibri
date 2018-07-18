@@ -1,8 +1,8 @@
 <template>
 
-  <subpage-container :withSideMargin="false">
+  <SubpageContainer :withSideMargin="false">
 
-    <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
+    <AuthMessage v-if="!isSuperuser" authorizedRole="superuser" />
 
     <div v-else>
       <div class="description">
@@ -11,16 +11,16 @@
       </div>
 
       <div class="filter-box">
-        <k-filter-textbox
+        <KFilterTextbox
           v-model="searchFilterText"
           :placeholder="$tr('searchPlaceholder')"
         />
       </div>
 
-      <user-grid :searchFilter="searchFilterText" />
+      <UserGrid :searchFilter="searchFilterText" />
     </div>
 
-  </subpage-container>
+  </SubpageContainer>
 
 </template>
 

@@ -2,7 +2,7 @@
 
   <div class="search-box-wrapper">
     <div ref="toggleBtnAndSearchBox">
-      <ui-icon-button
+      <UiIconButton
         v-show="searchBoxIsDropdown"
         ref="toggleBtn"
         type="primary"
@@ -11,10 +11,10 @@
         @click="toggleDropdownSearchBox"
       >
         <mat-svg name="search" category="action" class="search-icon" />
-      </ui-icon-button>
+      </UiIconButton>
 
       <div v-show="searchBoxIsVisible" :class="{ 'search-box-dropdown': searchBoxIsDropdown }">
-        <search-box
+        <SearchBox
           ref="searchBox"
           :icon="searchBoxIsDropdown ? 'arrow_forward' : 'search'"
           :class="searchBoxIsDropdown ? '' : 'search-box-within-action-bar'"

@@ -4,7 +4,7 @@
 
     <!-- Cannot match spec with current core modal -->
     <!-- Should be its own component -->
-    <k-modal
+    <KModal
       v-if="permissionPresetDetailsModalShown"
       :title=" $tr('facilityPermissionsPresetDetailsHeader')"
       :submitText="$tr('permissionsModalDismissText')"
@@ -50,16 +50,16 @@
           {{ $tr('enabledAccountEditPermissionDetail') }}
         </dd>
       </dl>
-    </k-modal>
+    </KModal>
 
-    <onboarding-form
+    <OnboardingForm
       :header="$tr('facilityPermissionsSetupFormHeader')"
       :description="$tr('facilityPermissionsSetupFormDescription')"
       :submitText="submitText"
       @submit="setPermissions"
     >
 
-      <k-radio-button
+      <KRadioButton
         ref="first-button"
         class="permission-preset-radio-button"
         v-model="selectedPreset"
@@ -68,7 +68,7 @@
         :description="$tr('selfManagedSetupDescription')"
       />
 
-      <k-radio-button
+      <KRadioButton
         class="permission-preset-radio-button"
         v-model="selectedPreset"
         value="formal"
@@ -76,7 +76,7 @@
         :description="$tr('adminManagedSetupDescription')"
       />
 
-      <k-radio-button
+      <KRadioButton
         class="permission-preset-radio-button"
         v-model="selectedPreset"
         value="informal"
@@ -84,7 +84,7 @@
         :description="$tr('informalSetupDescription')"
       />
 
-      <k-button
+      <KButton
         slot="footer"
         appearance="basic-link"
         :text="$tr('facilityPermissionsPresetDetailsLink')"
@@ -92,7 +92,7 @@
       />
 
 
-    </onboarding-form>
+    </OnboardingForm>
 
   </div>
 

@@ -1,12 +1,12 @@
 <template>
 
   <div class="content-renderer">
-    <ui-alert v-if="noRendererAvailable" :dismissible="false" type="error">
+    <UiAlert v-if="noRendererAvailable" :dismissible="false" type="error">
       {{ $tr('rendererNotAvailable') }}
-    </ui-alert>
+    </UiAlert>
     <template v-else-if="available">
       <transition mode="out-in">
-        <k-circular-loader
+        <KCircularLoader
           v-if="!currentViewClass"
           :delay="false"
         />

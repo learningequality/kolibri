@@ -1,10 +1,10 @@
 <template>
 
-  <submission-state-page :header="$tr('loadingPageHeader')">
+  <SubmissionStatePage :header="$tr('loadingPageHeader')">
 
     {{ $tr('loadingPageSubheader') }}
 
-  </submission-state-page>
+  </SubmissionStatePage>
 
 </template>
 

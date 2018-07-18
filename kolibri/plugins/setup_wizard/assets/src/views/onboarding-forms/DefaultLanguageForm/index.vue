@@ -1,12 +1,12 @@
 <template>
 
-  <onboarding-form
+  <OnboardingForm
     :header="$tr('languageFormHeader')"
     :submitText="submitText"
     @submit="setLanguage"
   >
-    <language-switcher-list />
-  </onboarding-form>
+    <LanguageSwitcherList />
+  </OnboardingForm>
 
 </template>
 

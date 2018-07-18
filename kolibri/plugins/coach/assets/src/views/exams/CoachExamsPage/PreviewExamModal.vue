@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     ref="modal"
     :title="$tr('preview')"
     :submitText="$tr('close')"
@@ -11,7 +11,7 @@
     :height="`${windowSize.height - 16}px`"
   >
     <transition mode="out-in">
-      <k-circular-loader
+      <KCircularLoader
         v-if="loading"
         :delay="false"
       />
@@ -20,11 +20,11 @@
           <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
           <slot name="randomize-button"></slot>
         </div>
-        <k-grid
+        <KGrid
           class="exam-preview-container"
           :style="{ maxHeight: `${maxHeight}px` }"
         >
-          <k-grid-item size="1" cols="3" class="question-selector">
+          <KGridItem size="1" cols="3" class="question-selector">
             <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
               <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
@@ -33,7 +33,7 @@
                   v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
                   :key="questionIndex"
                 >
-                  <k-button
+                  <KButton
                     @click="goToQuestion(question.itemId, exercise.exercise_id)"
                     :primary="isSelected(question.itemId, exercise.exercise_id)"
                     appearance="flat-button"
@@ -42,7 +42,7 @@
                       { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
                     )"
                   />
-                  <coach-content-label
+                  <CoachContentLabel
                     class="coach-content-label"
                     :value="numCoachContents(exercise)"
                     :isTopic="false"
@@ -50,9 +50,9 @@
                 </li>
               </ol>
             </div>
-          </k-grid-item>
-          <k-grid-item size="2" cols="3" class="exercise-container">
-            <content-renderer
+          </KGridItem>
+          <KGridItem size="2" cols="3" class="exercise-container">
+            <ContentRenderer
               v-if="content && itemId"
               ref="contentRenderer"
               :id="content.pk"
@@ -67,11 +67,11 @@
               :showCorrectAnswer="true"
               :interactive="false"
             />
-          </k-grid-item>
-        </k-grid>
+          </KGridItem>
+        </KGrid>
       </div>
     </transition>
-  </k-modal>
+  </KModal>
 
 </template>
 

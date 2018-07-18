@@ -1,14 +1,14 @@
 <template>
 
-  <multi-pane-layout ref="multiPaneLayout">
-    <attempt-summary
+  <MultiPaneLayout ref="multiPaneLayout">
+    <AttemptSummary
       slot="header"
       :exerciseTitle="exercise.title"
       :userName="user.full_name"
       :kind="exercise.kind"
       :summaryLog="summaryLog"
     />
-    <attempt-log-list
+    <AttemptLogList
       slot="aside"
       :attemptLogs="attemptLogs"
       :selectedQuestionNumber="attemptLogIndex"
@@ -16,18 +16,18 @@
     />
     <div slot="main" class="exercise-section">
       <h3>{{ $tr('question', {questionNumber: currentAttemptLog.questionNumber}) }}</h3>
-      <k-checkbox
+      <KCheckbox
         :label="$tr('showCorrectAnswerLabel')"
         :checked="showCorrectAnswer"
         @change="toggleShowCorrectAnswer"
       />
-      <interaction-list
+      <InteractionList
         v-if="!showCorrectAnswer"
         :interactions="currentInteractionHistory"
         :selectedInteractionIndex="interactionIndex"
         @select="navigateToNewInteraction($event)"
       />
-      <content-renderer
+      <ContentRenderer
         v-if="currentInteraction"
         :id="exercise.pk"
         :itemId="currentAttemptLog.item"
@@ -44,7 +44,7 @@
         :extraFields="exercise.extra_fields"
       />
     </div>
-  </multi-pane-layout>
+  </MultiPaneLayout>
 
 </template>
 

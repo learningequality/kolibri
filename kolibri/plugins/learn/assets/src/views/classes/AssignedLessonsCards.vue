@@ -9,7 +9,7 @@
         {{ $tr('noLessonsMessage') }}
       </p>
     </div>
-    <content-card
+    <ContentCard
       class="content-card"
       v-for="lesson in lessons"
       :key="lesson.id"

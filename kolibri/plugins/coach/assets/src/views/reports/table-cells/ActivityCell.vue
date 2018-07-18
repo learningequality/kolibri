@@ -1,7 +1,7 @@
 <template>
 
   <td>
-    <elapsed-time :date="date" />
+    <ElapsedTime :date="date" />
   </td>
 
 </template>

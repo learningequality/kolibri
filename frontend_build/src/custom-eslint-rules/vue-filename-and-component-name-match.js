@@ -1,8 +1,8 @@
 /**
- * @fileoverview Requires filename and component names to match
+ * @fileoverview Requires filename and component names for vue files to match
  */
 
- 'use strict';
+'use strict';
 
 const path = require('path');
 const utils = require('../../../node_modules/eslint-plugin-vue/lib/utils');
@@ -11,13 +11,16 @@ function create(context) {
   return utils.executeOnVue(context, obj => {
     const filePath = context.getFilename();
 
-    if(!filePath.endsWith('vue')) {
+    // Skip if not .vue file
+    if (!filePath.endsWith('vue')) {
       return;
     }
 
     const node = obj.properties.find(
       item => item.type === 'Property' && item.key.name === 'name' && item.value.type === 'Literal'
     );
+
+    // Components require a name
     if (!node) {
       context.report({
         message: 'Component is missing a component name',
@@ -39,10 +42,13 @@ function create(context) {
 
     const fileName = path.basename(filePath, '.vue');
     const parentDirName = path.basename(path.dirname(filePath));
+
+    // If index.vue, parent dir should match component name
     if (fileName === 'index') {
       if (componentName !== parentDirName) {
         context.report({
-          message: 'Parent dir name "{{parentDirName}}" does not match component name "{{componentName}}".',
+          message:
+            'Parent dir name "{{parentDirName}}" does not match component name "{{componentName}}".',
           data: {
             parentDirName,
             componentName,
@@ -62,6 +68,8 @@ function create(context) {
       return;
     }
 
+    // Filename should match component name.
+    // Assumes component name is already PascalCase since we use vue/name-property-casing
     if (componentName !== fileName) {
       context.report({
         message: 'Filename "{{fileName}}" does not match component name {{componentName}}.',

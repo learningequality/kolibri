@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('copies')"
     :submitText="$tr('close')"
     @submit="closeModal"
@@ -8,7 +8,7 @@
   >
     <transition mode="out-in">
 
-      <k-circular-loader
+      <KCircularLoader
         v-if="loading"
         :delay="false"
       />
@@ -19,7 +19,7 @@
           class="copy"
         >
           <div class="title">
-            <k-router-link
+            <KRouterLink
               :text="copy[copy.length - 1].title"
               :to="generateCopyLink(copy[copy.length - 1].id)"
             />
@@ -37,7 +37,7 @@
         </li>
       </ul>
     </transition>
-  </k-modal>
+  </KModal>
 
 </template>
 

@@ -1,11 +1,11 @@
 <template>
 
-  <core-fullscreen
+  <CoreFullscreen
     ref="html5Renderer"
     class="html5-renderer"
     @changeFullscreen="isInFullscreen = $event"
   >
-    <ui-icon-button
+    <UiIconButton
       class="btn"
       :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       color="primary"
@@ -14,7 +14,7 @@
     >
       <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
       <mat-svg v-else name="fullscreen" category="navigation" />
-    </ui-icon-button>
+    </UiIconButton>
     <iframe
       class="iframe"
       sandbox="allow-scripts"
@@ -22,7 +22,7 @@
       :src="rooturl"
     >
     </iframe>
-  </core-fullscreen>
+  </CoreFullscreen>
 
 </template>
 

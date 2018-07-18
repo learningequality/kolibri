@@ -1,11 +1,11 @@
 <template>
 
-  <ui-toolbar
+  <UiToolbar
     class="progress-toolbar"
     type="colored"
     textColor="white"
   >
-    <ui-icon-button
+    <UiIconButton
       slot="icon"
       v-show="currentStep > 1"
       type="secondary"
@@ -14,10 +14,10 @@
       :class="{ 'rtl-icon': isRtl }"
     >
       <mat-svg name="arrow_back" category="navigation" />
-    </ui-icon-button>
+    </UiIconButton>
     {{ $tr('progressIndicator', {currentStep , totalSteps}) }}
 
-  </ui-toolbar>
+  </UiToolbar>
 
 </template>
 

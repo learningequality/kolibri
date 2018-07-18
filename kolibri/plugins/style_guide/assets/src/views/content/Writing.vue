@@ -1,6 +1,6 @@
 <template>
 
-  <page-template :completed="true">
+  <PageTemplate :completed="true">
     <h1>Writing style</h1>
 
     <p>
@@ -48,7 +48,7 @@
       </li>
     </ul>
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 

@@ -1,13 +1,13 @@
 <template>
 
-  <immersive-full-screen v-bind="{ backPageLink, backPageText }">
-    <auth-message v-if="!isSuperuser" authorizedRole="superuser" />
+  <ImmersiveFullScreen v-bind="{ backPageLink, backPageText }">
+    <AuthMessage v-if="!isSuperuser" authorizedRole="superuser" />
 
-    <subpage-container v-else-if="user===null" withSideMargin>
+    <SubpageContainer v-else-if="user===null" withSideMargin>
       <h1>{{ $tr('userDoesNotExist') }}</h1>
-    </subpage-container>
+    </SubpageContainer>
 
-    <subpage-container v-else withSideMargin>
+    <SubpageContainer v-else withSideMargin>
       <div class="section">
         <h1>
           {{ user.full_name }}
@@ -19,14 +19,14 @@
       </div>
 
       <div class="section">
-        <k-checkbox
+        <KCheckbox
           :disabled="superuserDisabled"
           :label="$tr('makeSuperuser')"
           :checked="superuserChecked"
           @change="superuserChecked=$event"
         />
         <p>
-          <permissions-icon permissionType="SUPERUSER" class="permissions-icon" />
+          <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
           {{ $tr('makeSuperuserDetails') }}
         </p>
       </div>
@@ -35,7 +35,7 @@
 
       <div class="section">
         <h2>{{ $tr('devicePermissions') }}</h2>
-        <k-checkbox
+        <KCheckbox
           :disabled="devicePermissionsDisabled"
           :label="$tr('devicePermissionsDetails')"
           :checked="devicePermissionsChecked"
@@ -44,7 +44,7 @@
       </div>
 
       <div class="buttons">
-        <k-button
+        <KButton
           :disabled="saveDisabled"
           :text="$tr('saveButton')"
           class="no-margin"
@@ -52,7 +52,7 @@
           appearance="raised-button"
           @click="save()"
         />
-        <k-button
+        <KButton
           :disabled="uiBlocked"
           :text="$tr('cancelButton')"
           :primary="false"
@@ -66,9 +66,9 @@
       <div v-show="saveProgress==='FAILURE'">
         {{ $tr('saveFailureNotification') }}
       </div>
-    </subpage-container>
+    </SubpageContainer>
 
-  </immersive-full-screen>
+  </ImmersiveFullScreen>
 
 </template>
 

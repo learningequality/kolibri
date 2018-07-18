@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <k-breadcrumbs
+    <KBreadcrumbs
       v-if="!noContentOnDevice"
       :items="selectionCrumbs"
       :showSingleItem="true"

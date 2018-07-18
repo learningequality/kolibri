@@ -1,12 +1,12 @@
 <template>
 
   <div>
-    <core-table>
+    <CoreTable>
 
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col" v-if="selectable">
-            <k-checkbox
+            <KCheckbox
               @change="selectAll($event)"
               :label="selectAllLabel"
               :showLabel="false"
@@ -35,7 +35,7 @@
           :key="user.id"
         >
           <td class="core-table-icon-col" v-if="selectable">
-            <k-checkbox
+            <KCheckbox
               @change="selectUser(user.id, $event)"
               :label="userCheckboxLabel"
               :showLabel="false"
@@ -44,13 +44,13 @@
 
           </td>
           <td aria-hidden="true" class="core-table-icon-col">
-            <ui-icon>
+            <UiIcon>
               <mat-svg name="person" category="social" />
-            </ui-icon>
+            </UiIcon>
           </td>
           <td>
             {{ user.full_name }}
-            <user-role
+            <UserRole
               aria-hidden="true"
               class="role-badge"
               :role="user.kind"
@@ -66,7 +66,7 @@
           </td>
         </tr>
       </tbody>
-    </core-table>
+    </CoreTable>
 
     <p
       v-if="!users.length"

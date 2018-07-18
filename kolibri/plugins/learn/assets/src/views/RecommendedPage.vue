@@ -5,18 +5,18 @@
     <h1 class="visuallyhidden">{{ $tr('recommended') }}</h1>
 
     <template v-if="popular.length">
-      <content-card-group-header
+      <ContentCardGroupHeader
         :header="$tr('popularSectionHeader')"
         :viewMorePageLink="popularPageLink"
         :showViewMore="popular.length > trimmedPopular.length"
       />
-      <content-card-group-grid
+      <ContentCardGroupGrid
         v-if="isMobile"
         :genContentLink="genContentLink"
         :contents="trimmedPopular"
         :showContentKindFilter="false"
       />
-      <content-card-group-carousel
+      <ContentCardGroupCarousel
         v-else
         :genContentLink="genContentLink"
         :contents="trimmedPopular"
@@ -24,18 +24,18 @@
     </template>
 
     <template v-if="nextSteps.length">
-      <content-card-group-header
+      <ContentCardGroupHeader
         :header="$tr('suggestedNextStepsSectionHeader')"
         :viewMorePageLink="nextStepsPageLink"
         :showViewMore="nextSteps.length > trimmedNextSteps.length"
       />
-      <content-card-group-grid
+      <ContentCardGroupGrid
         v-if="isMobile"
         :genContentLink="genContentLink"
         :contents="trimmedNextSteps"
         :showContentKindFilter="false"
       />
-      <content-card-group-carousel
+      <ContentCardGroupCarousel
         v-else
         :genContentLink="genContentLink"
         :contents="trimmedNextSteps"
@@ -43,18 +43,18 @@
     </template>
 
     <template v-if="resume.length">
-      <content-card-group-header
+      <ContentCardGroupHeader
         :header="$tr('resumeSectionHeader')"
         :viewMorePageLink="resumePageLink"
         :showViewMore="resume.length > trimmedResume.length"
       />
-      <content-card-group-grid
+      <ContentCardGroupGrid
         v-if="isMobile"
         :genContentLink="genContentLink"
         :contents="trimmedResume"
         :showContentKindFilter="false"
       />
-      <content-card-group-carousel
+      <ContentCardGroupCarousel
         v-else
         :genContentLink="genContentLink"
         :contents="trimmedResume"

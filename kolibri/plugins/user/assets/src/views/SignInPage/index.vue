@@ -2,7 +2,7 @@
 
   <div class="fh">
 
-    <facility-modal
+    <FacilityModal
       v-if="facilityModalVisible"
       @close="closeFacilityModal"
     />
@@ -11,7 +11,7 @@
       <div class="main-row">
         <div class="main-cell">
           <div class="box">
-            <core-logo
+            <CoreLogo
               class="logo"
               :style="{'height': `${logoHeight}px`}"
             />
@@ -19,15 +19,15 @@
               {{ $tr('kolibri') }}
             </h1>
             <form class="login-form" ref="form" @submit.prevent="signIn">
-              <ui-alert
+              <UiAlert
                 v-if="invalidCredentials"
                 type="error"
                 :dismissible="false"
               >
                 {{ $tr('signInError') }}
-              </ui-alert>
+              </UiAlert>
               <transition name="textbox">
-                <k-textbox
+                <KTextbox
                   ref="username"
                   id="username"
                   autocomplete="username"
@@ -47,7 +47,7 @@
                   v-show="showDropdown"
                   class="suggestions"
                 >
-                  <ui-autocomplete-suggestion
+                  <UiAutocompleteSuggestion
                     v-for="(suggestion, i) in suggestions"
                     :key="i"
                     :suggestion="suggestion"
@@ -57,7 +57,7 @@
                 </ul>
               </transition>
               <transition name="textbox">
-                <k-textbox
+                <KTextbox
                   v-if="needPasswordField"
                   ref="password"
                   id="password"
@@ -74,7 +74,7 @@
                 />
               </transition>
               <div>
-                <k-button
+                <KButton
                   class="login-btn"
                   type="submit"
                   :text="$tr('signIn')"
@@ -84,7 +84,7 @@
               </div>
             </form>
 
-            <k-router-link
+            <KRouterLink
               v-if="canSignUp"
               class="create-button"
               :text="$tr('createAccount')"
@@ -93,7 +93,7 @@
               appearance="flat-button"
             />
             <div>
-              <k-external-link
+              <KExternalLink
                 class="guest-button"
                 :text="$tr('accessAsGuest')"
                 :href="guestURL"
@@ -106,7 +106,7 @@
         </div>
       </div>
       <div class="footer-row">
-        <language-switcher-footer class="footer-cell" />
+        <LanguageSwitcherFooter class="footer-cell" />
       </div>
     </div>
 

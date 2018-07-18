@@ -4,7 +4,7 @@
     <!-- temporary hack, resolves flicker when using other templates -->
     <template v-if="navBarNeeded">
 
-      <immersive-toolbar
+      <ImmersiveToolbar
         v-if="immersivePage"
         :appBarTitle="toolbarTitle || appBarTitle"
         :icon="immersivePageIcon"
@@ -15,7 +15,7 @@
       />
 
       <template v-else>
-        <app-bar
+        <AppBar
           class="app-bar align-to-parent"
           :title="toolbarTitle || appBarTitle"
           :height="headerHeight"
@@ -25,8 +25,8 @@
           <div slot="app-bar-actions" class="app-bar-actions">
             <slot name="app-bar-actions"></slot>
           </div>
-        </app-bar>
-        <side-nav
+        </AppBar>
+        <SideNav
           :navShown="navShown"
           :headerHeight="headerHeight"
           :width="navWidth"
@@ -36,15 +36,15 @@
 
     </template>
 
-    <app-body
+    <AppBody
       :topGap="headerHeight"
       :bottomGap="bottomMargin"
       :class="`gutter-${windowSize.gutterWidth}`"
     >
       <slot></slot>
-    </app-body>
+    </AppBody>
 
-    <global-snackbar />
+    <GlobalSnackbar />
 
   </div>
 

@@ -1,6 +1,6 @@
 <template>
 
-  <core-snackbar
+  <CoreSnackbar
     v-if="snackbarIsVisible"
     :text="snackbarOptions.text"
     :key="key"

@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <k-breadcrumbs :items="breadcrumbItems" />
+    <KBreadcrumbs :items="breadcrumbItems" />
     <h1>{{ header }}</h1>
-    <content-card-group-grid
+    <ContentCardGroupGrid
       :contents="recommendations"
       :genContentLink="genContentLink"
       :showContentKindFilter="false"

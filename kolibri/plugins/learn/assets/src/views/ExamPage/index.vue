@@ -1,11 +1,11 @@
 <template>
 
-  <immersive-full-screen
+  <ImmersiveFullScreen
     v-if="exam"
     :backPageLink="backPageLink"
     :backPageText="$tr('backToExamList')"
   >
-    <multi-pane-layout ref="multiPaneLayout">
+    <MultiPaneLayout ref="multiPaneLayout">
       <div class="exam-status-container" slot="header">
         <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late" />
         <h1 class="exam-title">{{ exam.title }}</h1>
@@ -18,12 +18,12 @@
               )
             }}
           </p>
-          <k-button @click="toggleModal" :text="$tr('submitExam')" :primary="true" />
+          <KButton @click="toggleModal" :text="$tr('submitExam')" :primary="true" />
         </div>
         <div :style="{ clear: 'both' }"></div>
       </div>
 
-      <answer-history
+      <AnswerHistory
         slot="aside"
         :questionNumber="questionNumber"
         @goToQuestion="goToQuestion"
@@ -33,7 +33,7 @@
         slot="main"
         class="question-container"
       >
-        <content-renderer
+        <ContentRenderer
           ref="contentRenderer"
           v-if="itemId"
           :id="content.id"
@@ -49,26 +49,26 @@
           :answerState="currentAttempt.answer"
           @interaction="saveAnswer"
         />
-        <ui-alert v-else :dismissible="false" type="error">
+        <UiAlert v-else :dismissible="false" type="error">
           {{ $tr('noItemId') }}
-        </ui-alert>
+        </UiAlert>
       </div>
 
       <div class="question-navbutton-container" slot="footer">
-        <k-button
+        <KButton
           :disabled="questionNumber===0"
           @click="goToQuestion(questionNumber - 1)"
           :text="$tr('previousQuestion')"
         />
-        <k-button
+        <KButton
           :disabled="questionNumber===exam.question_count-1"
           @click="goToQuestion(questionNumber + 1)"
           :text="$tr('nextQuestion')"
         />
       </div>
-    </multi-pane-layout>
+    </MultiPaneLayout>
 
-    <k-modal
+    <KModal
       v-if="submitModalOpen"
       :title="$tr('submitExam')"
       :submitText="$tr('submitExam')"
@@ -80,8 +80,8 @@
       <p v-if="questionsUnanswered">
         {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
       </p>
-    </k-modal>
-  </immersive-full-screen>
+    </KModal>
+  </ImmersiveFullScreen>
 
 </template>
 

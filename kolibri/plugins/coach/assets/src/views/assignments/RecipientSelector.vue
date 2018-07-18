@@ -1,14 +1,14 @@
 <template>
 
   <div>
-    <k-radio-button
+    <KRadioButton
       :value="true"
       :label="$tr('entireClass')"
       :currentValue="entireClassIsSelected"
       @change="selectEntireClass()"
       :disabled="disabled"
     />
-    <k-checkbox
+    <KCheckbox
       v-for="group in groups"
       :key="group.id"
       :label="group.name"

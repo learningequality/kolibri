@@ -1,20 +1,20 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('changeLanguageModalHeader')"
     :submitText="$tr('confirmButtonText')"
     :cancelText="$tr('cancelButtonText')"
     @submit="setLang"
     @cancel="closeModal"
   >
-    <k-radio-button
+    <KRadioButton
       v-for="language in languageOptions"
       :key="language.id"
       :value="language.id"
       :label="language.lang_name"
       v-model="selectedLanguage"
     />
-  </k-modal>
+  </KModal>
 
 </template>
 

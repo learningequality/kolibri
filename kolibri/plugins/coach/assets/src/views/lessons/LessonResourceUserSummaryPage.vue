@@ -5,7 +5,7 @@
       <div class="resource-data">
         <!-- IDEA use datalist for h1 too -->
         <h1>
-          <content-icon :kind="resourceKind" />
+          <ContentIcon :kind="resourceKind" />
           {{ resourceTitle }}
         </h1>
         <dl>
@@ -16,7 +16,7 @@
             {{ channelTitle }}
           </dd>
           <dd>
-            <coach-content-label
+            <CoachContentLabel
               class="coach-content-label"
               :value="contentNode.num_coach_contents"
               :isTopic="false"
@@ -25,7 +25,7 @@
         </dl>
       </div>
 
-      <k-router-link
+      <KRouterLink
         class="preview-button"
         appearance="raised-button"
         :text="$tr('previewContentButtonLabel')"
@@ -35,7 +35,7 @@
 
     <!-- TODO consolidate with facility_management user-list -->
     <section>
-      <core-table>
+      <CoreTable>
         <thead>
           <tr>
             <th class="visuallyhidden core-table-icon-col">
@@ -43,14 +43,14 @@
               <!-- {{ $tr('userIconTableColumnHeader') }} -->
             </th>
             <th>
-              <k-button
+              <KButton
                 @click="setSort('name')"
                 class="header-button"
                 appearance="basic-link"
                 :text="$tr('nameTableColumnHeader')"
               />
               <!-- TODO should probably use constants -->
-              <ui-icon-button
+              <UiIconButton
                 v-if="sortBy==='name'"
                 @click="invert=!invert"
                 size="small"
@@ -66,16 +66,16 @@
                   name="keyboard_arrow_down"
                   category="hardware"
                 />
-              </ui-icon-button>
+              </UiIconButton>
             </th>
             <th>
-              <k-button
+              <KButton
                 @click="setSort('progress')"
                 class="header-button"
                 appearance="basic-link"
                 :text="progressHeader"
               />
-              <ui-icon-button
+              <UiIconButton
                 v-if="sortBy==='progress'"
                 @click="invert=!invert"
                 size="small"
@@ -91,16 +91,16 @@
                   name="keyboard_arrow_down"
                   category="hardware"
                 />
-              </ui-icon-button>
+              </UiIconButton>
             </th>
             <th>
-              <k-button
+              <KButton
                 @click="setSort('groupName')"
                 class="header-button"
                 appearance="basic-link"
                 :text="$tr('groupTableColumnHeader')"
               />
-              <ui-icon-button
+              <UiIconButton
                 v-if="sortBy==='groupName'"
                 @click="invert=!invert"
                 size="small"
@@ -116,17 +116,17 @@
                   name="keyboard_arrow_down"
                   category="hardware"
                 />
-              </ui-icon-button>
+              </UiIconButton>
 
             </th>
             <th>
-              <k-button
+              <KButton
                 @click="setSort('lastActive')"
                 class="header-button"
                 appearance="basic-link"
                 :text="$tr('lastActiveTableColumnHeader')"
               />
-              <ui-icon-button
+              <UiIconButton
                 v-if="sortBy==='lastActive'"
                 @click="invert=!invert"
                 size="small"
@@ -142,7 +142,7 @@
                   name="keyboard_arrow_down"
                   category="hardware"
                 />
-              </ui-icon-button>
+              </UiIconButton>
             </th>
           </tr>
         </thead>
@@ -153,11 +153,11 @@
           >
             <td class="core-table-icon-col">
               <!-- IDEA separate column? -->
-              <content-icon kind="user" />
+              <ContentIcon kind="user" />
             </td>
             <td>
               <!-- IDEA separate column? -->
-              <k-router-link
+              <KRouterLink
                 v-if="isExercise"
                 :text="user.name"
                 :to="userReportRoute(user.id)"
@@ -167,7 +167,7 @@
               </template>
             </td>
             <td>
-              <progress-bar
+              <ProgressBar
                 :progress="user.progress"
                 :showPercentage="true"
               />
@@ -176,7 +176,7 @@
               {{ user.groupName }}
             </td>
             <td>
-              <elapsed-time
+              <ElapsedTime
                 v-if="user.lastActive"
                 :date="new Date(user.lastActive)"
               />
@@ -186,7 +186,7 @@
             </td>
           </tr>
         </tbody>
-      </core-table>
+      </CoreTable>
 
       <p v-if="!userData.length">
         {{ $tr('userTableEmptyMessage') }}

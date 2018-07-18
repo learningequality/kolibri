@@ -10,13 +10,13 @@
           <slot name="content"></slot>
         </div>
         <div class="close-container cell">
-          <ui-icon-button
+          <UiIconButton
             size="small"
             :ariaLabel="$tr('close')"
             @click="$emit('close')"
           >
             <mat-svg name="close" category="navigation" />
-          </ui-icon-button>
+          </UiIconButton>
         </div>
       </div>
     </div>

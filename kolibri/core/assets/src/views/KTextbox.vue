@@ -1,7 +1,7 @@
 <template>
 
   <div class="mh">
-    <ui-textbox
+    <UiTextbox
       ref="textbox"
       class="textbox"
       v-model.trim="currentText"

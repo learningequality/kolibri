@@ -2,18 +2,18 @@
 
   <div class="onboarding">
 
-    <error-page
+    <ErrorPage
       v-if="error"
       :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
     />
 
-    <loading-page
+    <LoadingPage
       v-else-if="loading"
       :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
     />
 
     <template v-else>
-      <progress-toolbar
+      <ProgressToolbar
         @backButtonClicked="goToPreviousStep"
         :currentStep="onboardingStep"
         :totalSteps="totalOnboardingSteps"

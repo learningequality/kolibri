@@ -3,20 +3,20 @@
   <div>
     <h1>{{ $tr('exams') }}</h1>
     <div class="filter-and-button">
-      <k-select
+      <KSelect
         :label="$tr('show')"
         :options="statusOptions"
         :inline="true"
         v-model="statusSelected"
       />
-      <k-router-link
+      <KRouterLink
         :primary="true"
         appearance="raised-button"
         :to="newExamRoute"
         :text="$tr('newExam')"
       />
     </div>
-    <core-table>
+    <CoreTable>
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
@@ -24,7 +24,7 @@
           <th>{{ $tr('recipients') }}</th>
           <th>
             {{ $tr('status') }}
-            <core-info-icon
+            <CoreInfoIcon
               :iconAriaLabel="$tr('statusDescription')"
               :tooltipText="$tr('statusTooltipText')"
               tooltipPosition="bottom right"
@@ -38,11 +38,11 @@
           :key="exam.id"
         >
           <td class="core-table-icon-col">
-            <content-icon :kind="examIcon" />
+            <ContentIcon :kind="examIcon" />
           </td>
 
           <td class="core-table-main-col">
-            <k-router-link
+            <KRouterLink
               :text="exam.title"
               :to="genExamRoute(exam.id)"
             />
@@ -51,11 +51,11 @@
           <td> {{ genRecipientsString(exam.assignments) }} </td>
 
           <td>
-            <status-icon :active="exam.active" />
+            <StatusIcon :active="exam.active" />
           </td>
         </tr>
       </tbody>
-    </core-table>
+    </CoreTable>
 
     <p v-if="!exams.length">
       {{ $tr('noExams') }}

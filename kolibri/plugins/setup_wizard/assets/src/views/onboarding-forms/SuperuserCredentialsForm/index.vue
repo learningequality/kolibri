@@ -1,13 +1,13 @@
 <template>
 
-  <onboarding-form
+  <OnboardingForm
     :header="$tr('adminAccountCreationHeader')"
     :description="$tr('adminAccountCreationDescription')"
     :submitText="submitText"
     @submit="setSuperuserCredentials"
   >
 
-    <k-textbox
+    <KTextbox
       v-model="name"
       :label="$tr('adminNameFieldLabel')"
       :autofocus="true"
@@ -18,7 +18,7 @@
       :invalidText="nameErrorMessage"
       ref="name"
     />
-    <k-textbox
+    <KTextbox
       v-model="username"
       :label="$tr('adminUsernameFieldLabel')"
       type="username"
@@ -29,7 +29,7 @@
       :invalidText="usernameErrorMessage"
       ref="username"
     />
-    <k-textbox
+    <KTextbox
       v-model="password"
       :label="$tr('adminPasswordFieldLabel')"
       type="password"
@@ -39,7 +39,7 @@
       :invalidText="passwordErrorMessage"
       ref="password"
     />
-    <k-textbox
+    <KTextbox
       v-model="passwordConfirm"
       :label="$tr('adminPasswordConfirmationFieldLabel')"
       type="password"
@@ -50,7 +50,7 @@
       ref="passwordConfirm"
     />
 
-  </onboarding-form>
+  </OnboardingForm>
 
 </template>
 

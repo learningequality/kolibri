@@ -1,17 +1,17 @@
 <template>
 
-  <page-template :completed="true">
+  <PageTemplate :completed="true">
 
     <h1>Checkboxes</h1>
 
     <p>This is a standard 'checkbox' component:</p>
 
-    <show>
-      <k-checkbox
+    <Show>
+      <KCheckbox
         label="I agree"
         :checked="true"
       />
-    </show>
+    </Show>
 
     <h2>Usage guidelines</h2>
 
@@ -32,12 +32,12 @@
     </ul>
 
     <h2>API</h2>
-    <component-docs :api="kCheckboxApi" />
+    <ComponentDocs :api="kCheckboxApi" />
 
     <h2>Code Example</h2>
-    <vue-example :code="example" />
+    <VueExample :code="example" />
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 

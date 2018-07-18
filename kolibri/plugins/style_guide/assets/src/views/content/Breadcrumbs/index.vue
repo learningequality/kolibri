@@ -1,6 +1,6 @@
 <template>
 
-  <page-template :completed="true">
+  <PageTemplate :completed="true">
 
     <h1>Topic tree breadcrumbs</h1>
 
@@ -14,17 +14,17 @@
       This text might be redundant with the same name in an adjacent header, which is ok.
     </p>
 
-    <show>
-      <k-breadcrumbs :items="breadcrumbs" />
-    </show>
+    <Show>
+      <KBreadcrumbs :items="breadcrumbs" />
+    </Show>
 
     <h2>API</h2>
-    <component-docs :api="kBreadcrumbsApi" />
+    <ComponentDocs :api="kBreadcrumbsApi" />
 
     <h2>Code Example</h2>
-    <vue-example :code="example" />
+    <VueExample :code="example" />
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 

@@ -4,7 +4,7 @@
 
     <h3>{{ $tr('searchPageHeader') }}</h3>
 
-    <search-box />
+    <SearchBox />
 
     <p v-if="!searchTerm">{{ $tr('noSearch') }}</p>
 
@@ -13,7 +13,7 @@
 
       <p v-if="contents.length === 0">{{ $tr('noResultsMsg', { searchTerm }) }}</p>
 
-      <content-card-group-grid
+      <ContentCardGroupGrid
         v-else
         :genContentLink="genContentLink"
         :contents="searchContents"

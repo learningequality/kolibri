@@ -6,7 +6,7 @@
       <h1 class="title-header">
         {{ currentClass.name }}
       </h1>
-      <ui-icon-button
+      <UiIconButton
         type="secondary"
         color="primary"
         class="edit-button"
@@ -14,19 +14,19 @@
         @click="displayModal(Modals.EDIT_CLASS_NAME)"
       >
         <mat-svg name="edit" category="image" />
-      </ui-icon-button>
+      </UiIconButton>
     </div>
 
     <p>{{ $tr('coachEnrollmentPageTitle') }}</p>
 
     <!-- Modals -->
-    <class-rename-modal
+    <ClassRenameModal
       v-if="modalShown===Modals.EDIT_CLASS_NAME"
       :classname="currentClass.name"
       :classid="currentClass.id"
       :classes="classes"
     />
-    <user-remove-confirmation-modal
+    <UserRemoveConfirmationModal
       v-if="modalShown===Modals.REMOVE_USER"
       @confirm="removalAction({ classId: currentClass.id, userId: userToBeRemoved.id })"
       :classname="currentClass.name"
@@ -34,59 +34,59 @@
     />
     <!-- /Modals -->
 
-    <k-grid>
-      <k-grid-item size="3" cols="4">
+    <KGrid>
+      <KGridItem size="3" cols="4">
         <h2>{{ $tr('coachTableTitle') }}</h2>
-      </k-grid-item>
-      <k-grid-item size="1" cols="4" class="right">
-        <k-router-link
+      </KGridItem>
+      <KGridItem size="1" cols="4" class="right">
+        <KRouterLink
           :text="$tr('assignCoachesButtonLabel')"
           :to="coachAssignmentLink"
           appearance="raised-button"
         />
-      </k-grid-item>
-    </k-grid>
+      </KGridItem>
+    </KGrid>
 
-    <user-table
+    <UserTable
       :users="classCoaches"
       :emptyMessage="$tr('noCoachesInClassMessge')"
     >
       <!-- Don't need template in Vue 2.5+ -->
       <template slot="action" slot-scope="userRow">
-        <k-button
+        <KButton
           :text="$tr('remove')"
           appearance="flat-button"
           @click="confirmRemoval(userRow.user, removeClassCoach)"
         />
       </template>
-    </user-table>
+    </UserTable>
 
-    <k-grid class="top-margin">
-      <k-grid-item size="3" cols="4">
+    <KGrid class="top-margin">
+      <KGridItem size="3" cols="4">
         <h2>{{ $tr('learnerTableTitle') }}</h2>
-      </k-grid-item>
-      <k-grid-item size="1" cols="4" class="right">
-        <k-router-link
+      </KGridItem>
+      <KGridItem size="1" cols="4" class="right">
+        <KRouterLink
           :text="$tr('enrollLearnerButtonLabel')"
           :to="learnerEnrollmentLink"
           :primary="true"
           appearance="raised-button"
         />
-      </k-grid-item>
-    </k-grid>
+      </KGridItem>
+    </KGrid>
 
-    <user-table
+    <UserTable
       :users="classLearners"
       :emptyMessage="$tr('noLearnersInClassMessage')"
     >
       <template slot="action" slot-scope="userRow">
-        <k-button
+        <KButton
           :text="$tr('remove')"
           appearance="flat-button"
           @click="confirmRemoval(userRow.user, removeClassLearner)"
         />
       </template>
-    </user-table>
+    </UserTable>
   </div>
 
 </template>

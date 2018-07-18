@@ -1,6 +1,6 @@
 <template>
 
-  <ui-progress-linear
+  <UiProgressLinear
     class="k-linear-loader"
     :class="{ delay }"
     :type="progress ? 'determinate' : 'indeterminate'"

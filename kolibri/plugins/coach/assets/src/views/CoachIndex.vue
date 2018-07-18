@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <core-base
+    <CoreBase
       :immersivePage="currentPageIsImmersive"
       :appBarTitle="appBarTitle"
       :immersivePageIcon="immersivePageIcon"
@@ -10,8 +10,8 @@
     >
 
       <template v-if="showCoachNav">
-        <top-nav class="top-nav" />
-        <nav-title
+        <TopNav class="top-nav" />
+        <NavTitle
           class="nav-title"
           :className="className"
           :classCoaches="classCoaches"
@@ -21,7 +21,7 @@
       <!-- TODO need a better solution for passing in authMessage -->
       <component authorizedRole="adminOrCoach" :is="currentPage" />
 
-    </core-base>
+    </CoreBase>
   </div>
 
 </template>

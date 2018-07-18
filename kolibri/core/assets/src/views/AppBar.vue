@@ -1,13 +1,13 @@
 <template>
 
-  <ui-toolbar
+  <UiToolbar
     :title="title"
     type="colored"
     textColor="white"
     class="app-bar"
     :style="{ height: height + 'px' }"
   >
-    <ui-icon-button
+    <UiIconButton
       slot="icon"
       type="secondary"
       @click="$emit('toggleSideNav')"
@@ -17,7 +17,7 @@
         name="menu"
         category="navigation"
       />
-    </ui-icon-button>
+    </UiIconButton>
 
     <div>
       <div class="app-bar-title-icon"></div>
@@ -27,7 +27,7 @@
     <div slot="actions">
       <slot name="app-bar-actions"></slot>
 
-      <ui-button
+      <UiButton
         ref="userMenuButton"
         type="primary"
         color="primary"
@@ -42,9 +42,9 @@
         />
         <template v-if="isUserLoggedIn">{{ username }}</template>
         <mat-svg name="arrow_drop_down" category="navigation" />
-      </ui-button>
+      </UiButton>
 
-      <core-menu
+      <CoreMenu
         v-show="userMenuDropdownIsOpen"
         ref="userMenuDropdown"
         class="user-menu-dropdown"
@@ -62,7 +62,7 @@
 
         <template slot="options">
           <component v-for="component in menuOptions" :is="component" :key="component.name" />
-          <core-menu-option
+          <CoreMenuOption
             :label="$tr('languageSwitchMenuOption')"
             @select="showLanguageModal = true"
           >
@@ -71,19 +71,19 @@
               name="language"
               category="action"
             />
-          </core-menu-option>
+          </CoreMenuOption>
           <LogoutSideNavEntry v-if="isUserLoggedIn" />
         </template>
 
-      </core-menu>
+      </CoreMenu>
 
-      <language-switcher-modal
+      <LanguageSwitcherModal
         v-if="showLanguageModal"
         @close="showLanguageModal = false"
         class="override-ui-toolbar"
       />
     </div>
-  </ui-toolbar>
+  </UiToolbar>
 
 </template>
 

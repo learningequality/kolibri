@@ -1,11 +1,11 @@
 <template>
 
-  <core-fullscreen
+  <CoreFullscreen
     ref="pdfRenderer"
     class="pdf-renderer"
     @changeFullscreen="isInFullscreen = $event"
   >
-    <k-linear-loader
+    <KLinearLoader
       v-if="documentLoading || firstPageHeight === null"
       class="progress-bar"
       :delay="false"
@@ -14,7 +14,7 @@
     />
 
     <template v-else>
-      <recycle-list
+      <RecycleList
         ref="recycleList"
         :items="pdfPages"
         :itemHeight="itemHeight"
@@ -25,7 +25,7 @@
         @update="handleUpdate"
       >
         <template slot-scope="{ item }">
-          <pdf-page
+          <PdfPage
             :key="item.index"
             :pageNum="item.index + 1"
             :pdfPage="pdfPages[item.index].page"
@@ -35,9 +35,9 @@
             :scale="scale || 1"
           />
         </template>
-      </recycle-list>
+      </RecycleList>
 
-      <ui-icon-button
+      <UiIconButton
         class="controls button-fullscreen"
         aria-controls="pdf-container"
         :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
@@ -47,23 +47,23 @@
       >
         <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
         <mat-svg v-else name="fullscreen" category="navigation" />
-      </ui-icon-button>
-      <ui-icon-button
+      </UiIconButton>
+      <UiIconButton
         class="controls button-zoom-in"
         aria-controls="pdf-container"
         @click="zoomIn"
       >
         <mat-svg name="add" category="content" />
-      </ui-icon-button>
-      <ui-icon-button
+      </UiIconButton>
+      <UiIconButton
         class="controls button-zoom-out"
         aria-controls="pdf-container"
         @click="zoomOut"
       >
         <mat-svg name="remove" category="content" />
-      </ui-icon-button>
+      </UiIconButton>
     </template>
-  </core-fullscreen>
+  </CoreFullscreen>
 
 </template>
 

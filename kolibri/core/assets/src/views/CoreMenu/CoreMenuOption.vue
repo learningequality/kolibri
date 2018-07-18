@@ -12,12 +12,12 @@
     >
       <slot v-if="!isDivider">
         <div class="ui-menu-option-content">
-          <ui-icon
+          <UiIcon
             v-if="$slots.icon"
             class="ui-menu-option-icon"
           >
             <slot name="icon"></slot>
-          </ui-icon>
+          </UiIcon>
 
           <!-- if anything in the dropdown menu has an icon, then we are
           going to add padding to make all the items align -->

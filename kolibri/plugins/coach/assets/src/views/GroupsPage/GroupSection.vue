@@ -2,16 +2,16 @@
 
   <div class="group-section">
 
-    <k-grid>
-      <k-grid-item
+    <KGrid>
+      <KGridItem
         class="no-side-padding"
         size="1"
         :cols="numCols"
       >
         <h2 class="group-name right-margin">{{ group.name }}</h2>
         <span class="small-text">{{ $tr('numLearners', {count: group.users.length }) }}</span>
-      </k-grid-item>
-      <k-grid-item
+      </KGridItem>
+      <KGridItem
         class="no-side-padding"
         size="1"
         :cols="numCols"
@@ -20,27 +20,27 @@
         <span v-if="group.users.length" class="right-margin small-text">
           {{ `${selectedUsers.length} ${$tr('selected')}` }}
         </span>
-        <k-button
+        <KButton
           class="right-margin"
           :text="$tr('moveLearners')"
           :primary="false"
           :disabled="!canMove || selectedUsers.length === 0"
           @click="emitMove"
         />
-        <k-dropdown-menu
+        <KDropdownMenu
           v-if="!isUngrouped"
           :text="$tr('options')"
           :options="menuOptions"
           @select="handleSelection"
         />
-      </k-grid-item>
-    </k-grid>
+      </KGridItem>
+    </KGrid>
 
-    <core-table>
+    <CoreTable>
       <thead slot="thead">
         <tr>
           <th class="core-table-checkbox-col">
-            <k-checkbox
+            <KCheckbox
               :label="$tr('selectAll')"
               :showLabel="false"
               :checked="allUsersAreSelected"
@@ -60,7 +60,7 @@
           @click="toggleSelection(user.id)"
         >
           <td class="core-table-checkbox-col">
-            <k-checkbox
+            <KCheckbox
               :label="$tr('selectLearner')"
               :showLabel="false"
               :checked="isSelected(user.id)"
@@ -72,7 +72,7 @@
           <td>{{ user.username }}</td>
         </tr>
       </tbody>
-    </core-table>
+    </CoreTable>
 
     <p v-if="!group.users.length">
       {{ $tr('noLearners') }}

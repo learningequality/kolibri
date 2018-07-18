@@ -1,6 +1,6 @@
 <template>
 
-  <core-base
+  <CoreBase
     :appBarTitle="appBarTitle"
     :bottomMargin="bottomSpaceReserved"
     :immersivePage="isImmersivePage"
@@ -9,12 +9,12 @@
     :immersivePageRoute="immersiveToolbarRoute"
   >
     <template slot="app-bar-actions">
-      <action-bar-search-box v-if="!isWithinSearchPage" />
+      <ActionBarSearchBox v-if="!isWithinSearchPage" />
     </template>
 
     <div v-if="tabLinksAreVisible" class="k-navbar-links">
-      <k-navbar>
-        <k-navbar-link
+      <KNavbar>
+        <KNavbarLink
           name="classes-link"
           v-if="isUserLoggedIn && userHasMemberships"
           type="icon-and-title"
@@ -22,26 +22,26 @@
           :link="allClassesLink"
         >
           <mat-svg name="business" category="communication" />
-        </k-navbar-link>
-        <k-navbar-link
+        </KNavbarLink>
+        <KNavbarLink
           type="icon-and-title"
           :title="$tr('channels')"
           :link="channelsLink"
         >
           <mat-svg name="apps" category="navigation" />
-        </k-navbar-link>
-        <k-navbar-link
+        </KNavbarLink>
+        <KNavbarLink
           type="icon-and-title"
           :title="$tr('recommended')"
           :link="recommendedLink"
         >
           <mat-svg name="forum" category="communication" />
-        </k-navbar-link>
-      </k-navbar>
+        </KNavbarLink>
+      </KNavbar>
     </div>
 
     <div v-if="pointsAreVisible" class="points-wrapper">
-      <a class="points-link" href="/user"><total-points /></a>
+      <a class="points-link" href="/user"><TotalPoints /></a>
     </div>
 
     <div>
@@ -49,7 +49,7 @@
       <component :is="currentPage" />
     </div>
 
-  </core-base>
+  </CoreBase>
 
 </template>
 

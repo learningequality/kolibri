@@ -8,7 +8,7 @@
     <h1 class="header primary-data">
       {{ content.title }}
     </h1>
-    <coach-content-label
+    <CoachContentLabel
       :value="content.num_coach_contents"
       :isTopic="false"
     />
@@ -41,7 +41,7 @@
         <dt>{{ $tr('licenseDataHeader') }}</dt>
         <dd>
           '{{ license }}'
-          <info-icon
+          <InfoIcon
             v-if="licenseInfo"
             tooltipPosition="right middle"
             :tooltipText="licenseInfo"

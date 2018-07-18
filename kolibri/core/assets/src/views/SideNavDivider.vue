@@ -1,6 +1,6 @@
 <template>
 
-  <core-menu-option type="divider" />
+  <CoreMenuOption type="divider" />
 
 </template>
 

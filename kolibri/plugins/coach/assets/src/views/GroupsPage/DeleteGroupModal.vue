@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('deleteLearnerGroup')"
     :submitText="$tr('deleteGroup')"
     :cancelText="$tr('cancel')"
@@ -9,7 +9,7 @@
   >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
     <p>{{ $tr('learnersWillBecomeUngrouped') }}</p>
-  </k-modal>
+  </KModal>
 
 </template>
 

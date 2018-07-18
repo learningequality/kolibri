@@ -1,14 +1,14 @@
 <template>
 
   <div>
-    <preview-exam-modal
+    <PreviewExamModal
       v-if="examsModalSet === ExamModals.PREVIEW_EXAM"
       :examQuestionSources="exam.question_sources"
       :examSeed="exam.seed"
       :examNumQuestions="exam.question_count"
     />
 
-    <assignment-change-status-modal
+    <AssignmentChangeStatusModal
       v-else-if="examsModalSet === AssignmentActions.CHANGE_STATUS"
       :modalTitle="$tr('changeExamStatusTitle')"
       :modalDescription="$tr('changeExamStatusDescription')"
@@ -17,7 +17,7 @@
       @cancel="setExamsModal(null)"
     />
 
-    <assignment-details-modal
+    <AssignmentDetailsModal
       v-else-if="examsModalSet === AssignmentActions.EDIT_DETAILS"
       :modalTitle="$tr('editExamDetails')"
       :submitErrorMessage="$tr('saveExamError')"
@@ -32,7 +32,7 @@
       ref="detailsModal"
     />
 
-    <assignment-copy-modal
+    <AssignmentCopyModal
       v-else-if="examsModalSet === AssignmentActions.COPY"
       :modalTitle="$tr('copyExamTitle')"
       :copyExplanation="$tr('copyExplanation')"
@@ -43,7 +43,7 @@
       @cancel="setExamsModal(null)"
     />
 
-    <assignment-delete-modal
+    <AssignmentDeleteModal
       v-else-if="examsModalSet === AssignmentActions.DELETE"
       :modalTitle="$tr('deleteExamTitle')"
       :modalDescription="$tr('deleteExamDescription', { title: exam.title })"

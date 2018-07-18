@@ -3,20 +3,20 @@
   <div>
     <h1>{{ $tr('classLessons') }}</h1>
     <div class="filter-and-button">
-      <k-select
+      <KSelect
         :label="$tr('show')"
         :options="filterOptions"
         :inline="true"
         v-model="filterSelection"
       />
-      <k-button
+      <KButton
         :primary="true"
         :text="$tr('newLesson')"
         @click="showModal=true"
       />
     </div>
 
-    <core-table>
+    <CoreTable>
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
@@ -25,7 +25,7 @@
           <th>{{ $tr('recipients') }}</th>
           <th>
             {{ $tr('status') }}
-            <core-info-icon
+            <CoreInfoIcon
               :iconAriaLabel="$tr('lessonStatusDescription')"
               :tooltipText="$tr('statusTooltipText')"
               tooltipPosition="bottom right"
@@ -40,10 +40,10 @@
           :key="lesson.id"
         >
           <td class="core-table-icon-col">
-            <content-icon :kind="lessonKind" />
+            <ContentIcon :kind="lessonKind" />
           </td>
           <td class="core-table-main-col lesson-title-col">
-            <k-router-link
+            <KRouterLink
               :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
               :text="lesson.title"
             />
@@ -51,11 +51,11 @@
           <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
           <td>{{ getLessonVisibility(lesson.lesson_assignments) }}</td>
           <td>
-            <status-icon :active="lesson.is_active" />
+            <StatusIcon :active="lesson.is_active" />
           </td>
         </tr>
       </tbody>
-    </core-table>
+    </CoreTable>
 
     <p v-if="!lessons.length">
       {{ $tr('noLessons') }}
@@ -67,7 +67,7 @@
       {{ $tr('noInactiveLessons') }}
     </p>
 
-    <assignment-details-modal
+    <AssignmentDetailsModal
       v-if="showModal"
       :modalTitle="$tr('newLesson')"
       :submitErrorMessage="$tr('saveLessonError')"

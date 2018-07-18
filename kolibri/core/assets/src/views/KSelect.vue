@@ -1,6 +1,6 @@
 <template>
 
-  <ui-select
+  <UiSelect
     class="k-select"
     :class="{'k-select-inline': inline}"
     :value="selection"

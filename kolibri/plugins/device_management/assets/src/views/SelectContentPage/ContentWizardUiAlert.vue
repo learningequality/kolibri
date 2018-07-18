@@ -1,11 +1,11 @@
 <template>
 
-  <ui-alert
+  <UiAlert
     type="error"
     :dismissible="false"
   >
     {{ alertText }}
-  </ui-alert>
+  </UiAlert>
 
 </template>
 

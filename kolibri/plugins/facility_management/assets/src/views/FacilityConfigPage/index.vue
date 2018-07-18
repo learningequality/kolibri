@@ -23,7 +23,7 @@
       <div class="mb">
         <div class="settings">
           <template v-for="setting in settingsList">
-            <k-checkbox
+            <KCheckbox
               :label="$tr(setting)"
               :checked="settings[setting]"
               @change="toggleSetting(setting)"
@@ -33,7 +33,7 @@
         </div>
 
         <div>
-          <k-button
+          <KButton
             :primary="false"
             appearance="raised-button"
             @click="showModal=true"
@@ -41,7 +41,7 @@
             name="reset-settings"
           />
 
-          <k-button
+          <KButton
             :primary="true"
             appearance="raised-button"
             @click="saveConfig()"
@@ -53,7 +53,7 @@
       </div>
     </template>
 
-    <confirm-reset-modal
+    <ConfirmResetModal
       id="confirm-reset"
       v-if="showModal"
       @click-confirm="resetToDefaultSettings"

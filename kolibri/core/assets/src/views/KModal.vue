@@ -61,7 +61,7 @@
             >
             </slot>
             <template v-else>
-              <k-button
+              <KButton
                 v-if="cancelText"
                 name="cancel"
                 :text="cancelText"
@@ -69,7 +69,7 @@
                 :disabled="cancelDisabled"
                 @click="emitCancelEvent"
               />
-              <k-button
+              <KButton
                 v-if="submitText"
                 name="submit"
                 :text="submitText"

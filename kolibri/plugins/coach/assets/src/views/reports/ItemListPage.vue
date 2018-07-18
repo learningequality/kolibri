@@ -4,7 +4,7 @@
 
     <Breadcrumbs />
     <h1>
-      <content-icon
+      <ContentIcon
         :kind="contentScopeSummary.kind || ''"
         colorstyle="text-default"
       />
@@ -17,27 +17,27 @@
       </ul>
     </div>
 
-    <core-table>
+    <CoreTable>
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
-          <header-cell
+          <HeaderCell
             :text="$tr('name')"
             :align="alignStart"
             :sortable="true"
             :column="tableColumns.NAME"
           />
-          <header-cell
+          <HeaderCell
             :text="$tr('avgExerciseProgress')"
             :sortable="true"
             :column="tableColumns.EXERCISE"
           />
-          <header-cell
+          <HeaderCell
             :text="$tr('avgContentProgress')"
             :sortable="true"
             :column="tableColumns.CONTENT"
           />
-          <header-cell
+          <HeaderCell
             :text="$tr('lastActivity')"
             :align="alignStart"
             :sortable="true"
@@ -48,9 +48,9 @@
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
           <td class="core-table-icon-col">
-            <content-icon :kind="row.kind" />
+            <ContentIcon :kind="row.kind" />
           </td>
-          <name-cell
+          <NameCell
             :kind="row.kind"
             :title="row.title"
             :link="genRowLink(row)"
@@ -59,13 +59,13 @@
             {{ $tr('exerciseCountText', {count: row.exerciseCount}) }}
             •
             {{ $tr('contentCountText', {count: row.contentCount}) }}
-          </name-cell>
-          <progress-cell :num="row.exerciseProgress" :isExercise="true" />
-          <progress-cell :num="row.contentProgress" :isExercise="false" />
-          <activity-cell :date="row.lastActive" />
+          </NameCell>
+          <ProgressCell :num="row.exerciseProgress" :isExercise="true" />
+          <ProgressCell :num="row.contentProgress" :isExercise="false" />
+          <ActivityCell :date="row.lastActive" />
         </tr>
       </tbody>
-    </core-table>
+    </CoreTable>
     <p v-if="!standardDataTable.length">
       {{ $tr('emptyTableMessage') }}
     </p>

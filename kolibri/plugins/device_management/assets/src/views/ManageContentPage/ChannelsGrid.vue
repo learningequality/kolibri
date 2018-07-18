@@ -9,7 +9,7 @@
         {{ $tr('emptyChannelListMessage') }}
       </p>
 
-      <k-linear-loader
+      <KLinearLoader
         v-else-if="installedChannelListLoading"
         type="indeterminate"
         :delay="false"
@@ -21,7 +21,7 @@
         </div>
 
         <div class="channel-list">
-          <channel-list-item
+          <ChannelListItem
             class="channel-list-item"
             v-for="channel in sortedChannels"
             :key="channel.id"
@@ -34,7 +34,7 @@
       </div>
     </transition>
 
-    <delete-channel-modal
+    <DeleteChannelModal
       v-if="channelIsSelected"
       :channelTitle="selectedChannelTitle"
       @confirm="handleDeleteChannel"

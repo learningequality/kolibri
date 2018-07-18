@@ -1,6 +1,6 @@
 <template>
 
-  <ui-progress-circular
+  <UiProgressCircular
     class="k-circular-loader"
     :class="{ delay }"
   />

@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="modalTitle"
     :hasError="showServerError || !formIsValid"
     :submitText="isInEditMode ? $tr('save') : $tr('continue')"
@@ -8,14 +8,14 @@
     @submit="submitData"
     @cancel="closeModal"
   >
-    <ui-alert
+    <UiAlert
       v-if="showServerError"
       type="error"
       :dismissible="false"
     >
       {{ submitErrorMessage }}
-    </ui-alert>
-    <k-textbox
+    </UiAlert>
+    <KTextbox
       @blur="titleIsVisited = true"
       ref="titleField"
       :label="$tr('title')"
@@ -26,7 +26,7 @@
       v-model="title"
       :disabled="formIsSubmitted"
     />
-    <k-textbox
+    <KTextbox
       v-if="showDescriptionField"
       :label="$tr('description')"
       :maxlength="200"
@@ -36,14 +36,14 @@
 
     <fieldset>
       <legend>{{ $tr('recipients') }}</legend>
-      <recipient-selector
+      <RecipientSelector
         v-model="selectedCollectionIds"
         :groups="groups"
         :classId="classId"
         :disabled="formIsSubmitted"
       />
     </fieldset>
-  </k-modal>
+  </KModal>
 
 </template>
 

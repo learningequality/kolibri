@@ -8,11 +8,11 @@
       {{ $tr('addResourcesHeader') }}
     </h1>
 
-    <search-tools />
+    <SearchTools />
 
     <div class="information">
       <p> {{ $tr('totalResourcesSelected', { total: workingResources.length }) }} </p>
-      <k-button
+      <KButton
         type="submit"
         :primary="true"
         :text="$tr('save')"
@@ -25,7 +25,7 @@
         :key="content.id"
         v-for="content in contentList"
       >
-        <k-checkbox
+        <KCheckbox
           class="content-checkbox"
           :label="content.title"
           v-if="!contentIsDirectoryKind(content)"
@@ -33,7 +33,7 @@
           :checked="isSelected(content.id)"
           @change="toggleSelected($event, content.id)"
         />
-        <content-card
+        <ContentCard
           class="content-card"
           :title="content.title"
           :thumbnail="content.thumbnail"
@@ -48,7 +48,7 @@
 
     <div class="information" v-if="contentList.length > 2">
       <p> {{ $tr('totalResourcesSelected', { total: workingResources.length }) }} </p>
-      <k-button
+      <KButton
         type="submit"
         :primary="true"
         :text="$tr('save')"

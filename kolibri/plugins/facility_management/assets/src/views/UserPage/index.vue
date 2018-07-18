@@ -9,14 +9,14 @@
 
     <div class="toolbar">
       <div class="create">
-        <k-button
+        <KButton
           @click="displayModal(Modals.CREATE_USER)"
           :text="$tr('addNew')"
           :primary="true"
         />
       </div>
 
-      <k-select
+      <KSelect
         class="kind-select"
         :label="$tr('filterUserType')"
         :options="userKinds"
@@ -24,19 +24,19 @@
         v-model="roleFilter"
       />
 
-      <k-filter-textbox
+      <KFilterTextbox
         :placeholder="$tr('searchText')"
         v-model="searchFilter"
         class="user-filter"
       />
     </div>
 
-    <user-table
+    <UserTable
       :users="visibleUsers"
       :emptyMessage="emptyMessage"
     >
       <template slot="action" slot-scope="userRow">
-        <k-dropdown-menu
+        <KDropdownMenu
           :text="$tr('manage')"
           :options="manageUserOptions(userRow.user.id)"
           :disabled="!userCanBeEdited(userRow.user)"
@@ -44,12 +44,12 @@
           @select="handleManageUserSelection($event, userRow.user)"
         />
       </template>
-    </user-table>
+    </UserTable>
 
     <!-- Modals -->
-    <user-create-modal v-if="modalShown===Modals.CREATE_USER" />
+    <UserCreateModal v-if="modalShown===Modals.CREATE_USER" />
 
-    <edit-user-modal
+    <EditUserModal
       v-if="modalShown===Modals.EDIT_USER"
       :id="selectedUser.id"
       :name="selectedUser.full_name"
@@ -57,14 +57,14 @@
       :kind="selectedUser.kind"
     />
 
-    <reset-user-password-modal
+    <ResetUserPasswordModal
       v-if="modalShown===Modals.RESET_USER_PASSWORD"
       :id="selectedUser.id"
       :name="selectedUser.full_name"
       :username="selectedUser.username"
     />
 
-    <delete-user-modal
+    <DeleteUserModal
       v-if="modalShown===Modals.DELETE_USER"
       :id="selectedUser.id"
       :name="selectedUser.full_name"

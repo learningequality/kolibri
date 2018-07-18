@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <vuep :template="code" />
+    <Vuep :template="code" />
   </div>
 
 </template>

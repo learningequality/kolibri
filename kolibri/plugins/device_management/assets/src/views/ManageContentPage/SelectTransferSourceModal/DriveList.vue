@@ -2,17 +2,17 @@
 
   <div class="drive-list">
     <div v-if="drives.length === 0">
-      <ui-alert
+      <UiAlert
         type="info"
         :dismissible="false"
       >
         {{ noDrivesText }}
-      </ui-alert>
+      </UiAlert>
     </div>
 
     <div v-else>
       <h2>{{ $tr('drivesFound') }}</h2>
-      <k-radio-button
+      <KRadioButton
         v-for="drive in drives"
         :key="drive.id"
         :label="enabledDriveLabel(drive)"

@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="modalTitle"
     :submitText="$tr('save')"
     :cancelText="$tr('cancel')"
@@ -8,17 +8,17 @@
     @cancel="closeModal"
   >
     <p>{{ modalDescription }}</p>
-    <k-radio-button
+    <KRadioButton
       :label="$tr('activeOption')"
       :value="true"
       v-model="activeIsSelected"
     />
-    <k-radio-button
+    <KRadioButton
       :label="$tr('inactiveOption')"
       :value="false"
       v-model="activeIsSelected"
     />
-  </k-modal>
+  </KModal>
 
 </template>
 

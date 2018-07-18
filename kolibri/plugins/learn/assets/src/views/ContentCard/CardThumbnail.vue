@@ -6,13 +6,13 @@
     :style="thumbnailBackground"
   >
 
-    <content-icon
+    <ContentIcon
       v-if="!thumbnail"
       :kind="kind"
       class="type-icon"
     />
 
-    <progress-icon
+    <ProgressIcon
       v-if="progress > 0"
       class="progress-icon"
       :progress="progress"
@@ -34,7 +34,7 @@
           :points="contentIconBgCoords"
         />
       </svg>
-      <content-icon
+      <ContentIcon
         :kind="kind"
         :showTooltip="true"
         class="content-icon"

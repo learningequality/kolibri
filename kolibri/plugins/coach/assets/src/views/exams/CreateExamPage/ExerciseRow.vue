@@ -2,7 +2,7 @@
 
   <tr>
     <th class="core-table-checkbox-col">
-      <k-checkbox
+      <KCheckbox
         :label="$tr('selectExercise')"
         :showLabel="false"
         :checked="isSelected"
@@ -11,10 +11,10 @@
     </th>
     <td class="col-table-main-col">
       <div class="exercise-title">
-        <content-icon :kind="exercise" />
+        <ContentIcon :kind="exercise" />
         <span>{{ exerciseTitle }}</span>
       </div>
-      <coach-content-label
+      <CoachContentLabel
         class="coach-content-label"
         :value="numCoachContents"
         :isTopic="false"

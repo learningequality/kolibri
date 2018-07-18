@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <ui-icon-button
+    <UiIconButton
       type="secondary"
       @click="showLanguageModal = true"
       class="globe"
@@ -10,12 +10,12 @@
         name="language"
         category="action"
       />
-    </ui-icon-button>
+    </UiIconButton>
 
     <span class="selected">
       {{ selectedLanguage }}
     </span>
-    <k-button
+    <KButton
       v-for="language in buttonLanguages"
       @click="switchLanguage(language.id)"
       :key="language.id"
@@ -23,14 +23,14 @@
       class="lang"
       appearance="basic-link"
     />
-    <k-button
+    <KButton
       :text="$tr('showMoreLanguagesSelector')"
       :primary="false"
       appearance="flat-button"
       class="more"
       @click="showLanguageModal = true"
     />
-    <language-switcher-modal
+    <LanguageSwitcherModal
       v-if="showLanguageModal"
       @close="showLanguageModal = false"
       class="modal"

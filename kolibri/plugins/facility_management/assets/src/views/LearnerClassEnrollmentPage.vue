@@ -3,7 +3,7 @@
   <div>
     <h1>{{ $tr('pageHeader', {className}) }}</h1>
     <p>{{ $tr('pageSubheader') }}</p>
-    <class-enroll-form
+    <ClassEnrollForm
       @submit="enrollLearners"
       :facilityUsers="facilityUsers"
       :classUsers="classUsers"

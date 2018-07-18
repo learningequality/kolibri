@@ -7,7 +7,7 @@
 const utils = require('../../../node_modules/eslint-plugin-vue/lib/utils');
 const casing = require('../../../node_modules/eslint-plugin-vue/lib/utils/casing');
 
-const allowedCaseOptions = ['PascalCase', 'kebab-case', 'camelCase', 'snake_case'];
+const allowedCaseOptions = ['PascalCase', 'camelCase', 'snake_case'];
 
 function create(context) {
   const selectedCase = context.options[0];

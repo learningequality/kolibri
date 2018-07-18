@@ -1,11 +1,11 @@
 <template>
 
   <div>
-    <select-import-source-modal
+    <SelectImportSourceModal
       v-if="atSelectImportSource"
       ref="selectImportSourceModal"
     />
-    <select-drive-modal
+    <SelectDriveModal
       v-if="atSelectDrive"
       ref="selectDriveModal"
     />

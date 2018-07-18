@@ -1,11 +1,11 @@
 <template>
 
-  <page-template title="Modals" :completed="false">
+  <PageTemplate title="Modals" :completed="false">
 
     <h3><code>{{ kModalApi.name }}</code> API</h3>
-    <component-docs :api="kModalApi" />
+    <ComponentDocs :api="kModalApi" />
     <h3>Code Example</h3>
-    <vue-example :code="kModalExample" />
+    <VueExample :code="kModalExample" />
 
     <h3>Guidelines</h3>
 
@@ -162,7 +162,7 @@
     <p>
       There should never be horizontal scrolling inside a modal
     </p>
-  </page-template>
+  </PageTemplate>
 
 </template>
 

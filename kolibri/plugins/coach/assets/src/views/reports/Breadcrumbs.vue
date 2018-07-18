@@ -1,6 +1,6 @@
 <template>
 
-  <k-breadcrumbs v-if="breadcrumbs.length" :items="breadcrumbs" />
+  <KBreadcrumbs v-if="breadcrumbs.length" :items="breadcrumbs" />
 
 </template>
 

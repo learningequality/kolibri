@@ -1,12 +1,12 @@
 <template>
 
-  <onboarding-form
+  <OnboardingForm
     :header="$tr('facilityNamingFormHeader')"
     :description="$tr('facilityNamingFormDescription')"
     :submitText="submitText"
     @submit="setFacilityName"
   >
-    <k-textbox
+    <KTextbox
       :autofocus="true"
       v-model="facilityName"
       @blur="validateFacilityName"
@@ -16,7 +16,7 @@
       :label="$tr('facilityNameFieldLabel')"
       :maxlength="50"
     />
-  </onboarding-form>
+  </OnboardingForm>
 
 </template>
 

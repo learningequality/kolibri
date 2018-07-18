@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <subpage-container v-if="canManageContent">
+    <SubpageContainer v-if="canManageContent">
       <h1>{{ $tr('header') }}</h1>
       <table>
         <tr>
@@ -50,10 +50,10 @@
         </tr>
 
       </table>
-    </subpage-container>
+    </SubpageContainer>
 
     <!-- TODO: Update to: Anyone who can manage content -->
-    <auth-message v-else authorizedRole="admin" />
+    <AuthMessage v-else authorizedRole="admin" />
   </div>
 
 </template>

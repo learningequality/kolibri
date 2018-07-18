@@ -5,22 +5,22 @@
     <Breadcrumbs />
     <h1>{{ $tr('title') }}</h1>
 
-    <core-table>
+    <CoreTable>
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
-          <header-cell
+          <HeaderCell
             :text="$tr('name')"
             :align="alignStart"
             :sortable="true"
             :column="tableColumns.NAME"
           />
-          <header-cell
+          <HeaderCell
             :text="$tr('progress')"
             :sortable="true"
             :column="tableColumns.CONTENT"
           />
-          <header-cell
+          <HeaderCell
             :text="$tr('lastActivity')"
             :align="alignStart"
             :sortable="true"
@@ -31,22 +31,22 @@
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
           <td class="core-table-icon-col">
-            <content-icon :kind="row.kind" />
+            <ContentIcon :kind="row.kind" />
           </td>
-          <name-cell
+          <NameCell
             :kind="row.kind"
             :title="row.title"
             :link="genLink(row)"
             :numCoachContents="row.num_coach_contents"
           />
           <td>
-            <progress-bar :showPercentage="false" :progress="row.contentProgress" />
+            <ProgressBar :showPercentage="false" :progress="row.contentProgress" />
             {{ progressString(row) }}
           </td>
-          <activity-cell :date="row.lastActive" />
+          <ActivityCell :date="row.lastActive" />
         </tr>
       </tbody>
-    </core-table>
+    </CoreTable>
 
     <p v-if="!standardDataTable.length">
       {{ noProgressText }}

@@ -2,9 +2,9 @@
 
   <div class="signup-page">
 
-    <ui-toolbar type="colored" textColor="white">
+    <UiToolbar type="colored" textColor="white">
       <template slot="icon">
-        <core-logo class="app-bar-icon" />
+        <CoreLogo class="app-bar-icon" />
       </template>
       <template slot="brand">
         {{ $tr('kolibri') }}
@@ -17,24 +17,24 @@
           <span>{{ $tr('logIn') }}</span>
         </router-link>
       </div>
-    </ui-toolbar>
+    </UiToolbar>
 
     <form
       class="signup-form"
       ref="form"
       @submit.prevent="signUp"
     >
-      <ui-alert
+      <UiAlert
         v-if="unknownError"
         type="error"
         @dismiss="resetSignUpState"
       >
         {{ errorMessage }}
-      </ui-alert>
+      </UiAlert>
 
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
 
-      <k-textbox
+      <KTextbox
         ref="name"
         id="name"
         type="text"
@@ -48,7 +48,7 @@
         v-model="name"
       />
 
-      <k-textbox
+      <KTextbox
         ref="username"
         id="username"
         type="text"
@@ -62,7 +62,7 @@
         v-model="username"
       />
 
-      <k-textbox
+      <KTextbox
         ref="password"
         id="password"
         type="password"
@@ -74,7 +74,7 @@
         v-model="password"
       />
 
-      <k-textbox
+      <KTextbox
         ref="confirmedPassword"
         id="confirmed-password"
         type="password"
@@ -86,7 +86,7 @@
         v-model="confirmedPassword"
       />
 
-      <k-select
+      <KSelect
         :label="$tr('facility')"
         v-model="selectedFacility"
         :options="facilityList"
@@ -95,7 +95,7 @@
         @blur="facilityBlurred = true"
       />
 
-      <k-button
+      <KButton
         :disabled="busy"
         :primary="true"
         :text="$tr('finish')"
@@ -106,7 +106,7 @@
     </form>
 
     <div class="footer">
-      <language-switcher-footer />
+      <LanguageSwitcherFooter />
     </div>
   </div>
 

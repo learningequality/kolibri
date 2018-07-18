@@ -6,7 +6,7 @@
       ref="buttonContainer"
       class="button-container dib"
     >
-      <k-button
+      <KButton
         ref="button"
         :text="text"
         :appearance="appearance"
@@ -16,7 +16,7 @@
       />
     </div>
 
-    <ui-popover
+    <UiPopover
       v-if="!disabled"
       ref="popover"
       trigger="buttonContainer"
@@ -25,11 +25,11 @@
       @close="handleClose"
       @open="handleOpen"
     >
-      <ui-menu
+      <UiMenu
         :options="options"
         @select="handleSelection"
       />
-    </ui-popover>
+    </UiPopover>
 
   </div>
 

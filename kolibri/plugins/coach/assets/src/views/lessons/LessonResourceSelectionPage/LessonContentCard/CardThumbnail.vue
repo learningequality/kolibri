@@ -5,7 +5,7 @@
     :style="thumbnailBackground"
   >
 
-    <content-icon
+    <ContentIcon
       v-if="!thumbnail"
       :kind="kind"
       class="thumbnail-icon"
@@ -21,7 +21,7 @@
       >
         <polygon stroke-width="0" :points="contentIconBgCoords" />
       </svg>
-      <content-icon
+      <ContentIcon
         :kind="kind"
         :showTooltip="true"
         class="content-icon"

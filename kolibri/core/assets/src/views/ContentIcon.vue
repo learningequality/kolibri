@@ -1,7 +1,7 @@
 <template>
 
   <span>
-    <ui-icon ref="type-icon">
+    <UiIcon ref="type-icon">
       <mat-svg
         v-if="is(ContentNodeKinds.CHANNEL)"
         category="navigation"
@@ -68,14 +68,14 @@
         name="business"
         :class="[colorClass]"
       />
-    </ui-icon>
-    <ui-tooltip
+    </UiIcon>
+    <UiTooltip
       v-if="tooltipText && showTooltip"
       trigger="type-icon"
       position="top middle"
     >
       {{ tooltipText }}
-    </ui-tooltip>
+    </UiTooltip>
   </span>
 
 </template>

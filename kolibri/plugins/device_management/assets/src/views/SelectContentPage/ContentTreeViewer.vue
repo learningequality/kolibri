@@ -2,7 +2,7 @@
 
   <section class="content-tree-viewer">
     <div class="breadcrumbs">
-      <k-breadcrumbs
+      <KBreadcrumbs
         :items="breadcrumbs"
         :showSingleItem="true"
       />
@@ -12,11 +12,11 @@
       v-if="annotatedChildNodes.length > 0"
       class="contents"
     >
-      <core-table>
+      <CoreTable>
         <thead slot="thead">
           <tr>
             <th class="core-table-checkbox-col select-all">
-              <k-checkbox
+              <KCheckbox
                 :label="$tr('selectAll')"
                 :checked="nodeIsChecked(annotatedTopicNode)"
                 :disabled="disableAll || annotatedTopicNode.disabled"
@@ -28,7 +28,7 @@
           </tr>
         </thead>
         <tbody slot="tbody">
-          <content-node-row
+          <ContentNodeRow
             v-for="node in annotatedChildNodes"
             v-if="showNode(node)"
             :checked="nodeIsChecked(node)"
@@ -41,7 +41,7 @@
             @changeselection="toggleSelection(node)"
           />
         </tbody>
-      </core-table>
+      </CoreTable>
     </div>
 
     <div

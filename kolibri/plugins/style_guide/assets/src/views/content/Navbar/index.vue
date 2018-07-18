@@ -1,6 +1,6 @@
 <template>
 
-  <page-template :completed="true">
+  <PageTemplate :completed="true">
 
     <h1>Horizontal Navbar</h1>
 
@@ -14,31 +14,31 @@
       visually selected.
     </p>
 
-    <show>
-      <k-navbar>
-        <k-navbar-link
+    <Show>
+      <KNavbar>
+        <KNavbarLink
           type="icon-and-title"
           title="Trending"
           :link="a"
         >
           <mat-svg name="trending_up" category="action" />
-        </k-navbar-link>
-        <k-navbar-link
+        </KNavbarLink>
+        <KNavbarLink
           type="icon-and-title"
           title="Lit"
           :link="b"
         >
           <mat-svg name="whatshot" category="social" />
-        </k-navbar-link>
-        <k-navbar-link
+        </KNavbarLink>
+        <KNavbarLink
           type="icon-and-title"
           title="Favorites"
           :link="c"
         >
           <mat-svg name="favorite" category="action" />
-        </k-navbar-link>
-      </k-navbar>
-    </show>
+        </KNavbarLink>
+      </KNavbar>
+    </Show>
 
     <h2>Usage guidelines</h2>
 
@@ -47,15 +47,15 @@
     <h2>Component APIs</h2>
 
     <h3>Navbar</h3>
-    <component-docs :api="kNavbarApi" />
+    <ComponentDocs :api="kNavbarApi" />
 
     <h3>Navbar Link</h3>
-    <component-docs :api="kNavbarLinkApi" />
+    <ComponentDocs :api="kNavbarLinkApi" />
 
     <h2>Code Example</h2>
-    <vue-example :code="example" />
+    <VueExample :code="example" />
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 

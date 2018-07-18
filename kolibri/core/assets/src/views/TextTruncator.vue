@@ -10,7 +10,7 @@
       {{ text }}
     </div>
     <div class="ar">
-      <k-button
+      <KButton
         v-if="showViewMore && (textIsTruncated || viewAllText)"
         appearance="basic-link"
         :text="viewAllText ? $tr('viewLessButtonPrompt') : $tr('viewMoreButtonPrompt')"

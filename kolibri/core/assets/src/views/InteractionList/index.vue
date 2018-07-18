@@ -9,7 +9,7 @@
     <p v-else>{{ $tr('noInteractions') }}</p>
     <div class="attempt-container">
 
-      <interaction-item
+      <InteractionItem
         v-for="(interaction, index) in interactions"
         :key="index"
         @click.native="setCurrentInteractionIndex(index)"

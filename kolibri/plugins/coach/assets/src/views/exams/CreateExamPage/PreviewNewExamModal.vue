@@ -1,19 +1,19 @@
 <template>
 
-  <preview-exam-modal
+  <PreviewExamModal
     :examQuestionSources="examQuestionSources"
     :examSeed="examSeed"
     :examNumQuestions="examNumQuestions"
     :examCreation="true"
   >
-    <k-button
+    <KButton
       slot="randomize-button"
       :text="$tr('randomize')"
       :primary="false"
       class="randomize-btn"
       @click="$emit('randomize')"
     />
-  </preview-exam-modal>
+  </PreviewExamModal>
 
 </template>
 

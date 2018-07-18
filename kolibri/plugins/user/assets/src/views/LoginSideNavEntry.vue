@@ -1,6 +1,6 @@
 <template>
 
-  <core-menu-option
+  <CoreMenuOption
     :label="$tr('signIn')"
     :link="url"
   >
@@ -10,7 +10,7 @@
       category="action"
       :class="{ 'rtl-icon': isRtl }"
     />
-  </core-menu-option>
+  </CoreMenuOption>
 
 </template>
 

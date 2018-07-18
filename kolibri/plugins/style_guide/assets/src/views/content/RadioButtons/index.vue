@@ -1,12 +1,12 @@
 <template>
 
-  <page-template title="Radio Buttons" :completed="false">
+  <PageTemplate title="Radio Buttons" :completed="false">
 
     <h2><code>{{ kRadioButtonApi.name }}</code> API</h2>
-    <component-docs :api="kRadioButtonApi" />
+    <ComponentDocs :api="kRadioButtonApi" />
 
     <h2>Code Example</h2>
-    <vue-example :code="example" />
+    <VueExample :code="example" />
 
     <h2>Guidelines</h2>
     <h3>Usage</h3>
@@ -28,7 +28,7 @@
       <li>Labels should be short and concise. Should not be sentences.</li>
     </ul>
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 

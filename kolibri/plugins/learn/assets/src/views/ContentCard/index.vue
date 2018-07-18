@@ -1,13 +1,13 @@
 <template>
 
   <router-link :to="link" class="card" :class="{ 'mobile-card': isMobile }">
-    <card-thumbnail
+    <CardThumbnail
       class="thumbnail"
       v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
     />
     <div class="text">
       <h3 class="title" dir="auto">
-        <text-truncator
+        <TextTruncator
           :text="title"
           :maxHeight="maxTitleHeight"
         />
@@ -20,12 +20,12 @@
         {{ subtitle }}
       </p>
       <div class="footer">
-        <coach-content-label
+        <CoachContentLabel
           class="coach-content-label"
           :value="numCoachContents"
           :isTopic="isTopic"
         />
-        <k-button
+        <KButton
           v-if="copiesCount > 1"
           appearance="basic-link"
           class="copies"

@@ -1,12 +1,12 @@
 <template>
 
-  <submission-state-page :header="$tr('errorPageHeader')">
+  <SubmissionStatePage :header="$tr('errorPageHeader')">
 
     <p class="error-page-subheader">
       {{ $tr('errorPageSubheader') }}
     </p>
 
-    <k-button
+    <KButton
       class="error-page-retry-button"
       :text="$tr('errorPageRetryButtonLabel')"
       :primary="true"
@@ -18,7 +18,7 @@
     </p>
 
 
-  </submission-state-page>
+  </SubmissionStatePage>
 
 </template>
 

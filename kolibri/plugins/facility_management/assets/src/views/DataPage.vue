@@ -1,43 +1,43 @@
 <template>
 
-  <k-grid>
+  <KGrid>
 
-    <k-grid-item size="1" cols="1">
+    <KGridItem size="1" cols="1">
       <h1>{{ $tr('pageHeading') }}</h1>
-    </k-grid-item>
-    <k-grid-item size="1" cols="1">
+    </KGridItem>
+    <KGridItem size="1" cols="1">
       <p>{{ $tr('pageSubHeading') }}</p>
-    </k-grid-item>
+    </KGridItem>
 
-    <k-grid-item size="1" :cols="numCols">
+    <KGridItem size="1" :cols="numCols">
       <h2>{{ $tr('detailsHeading') }}</h2>
       <p>
         {{ $tr('detailsSubHeading') }}
       </p>
       <div>
-        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSessionLog" />
+        <KButton :text="$tr('download')" :disabled="cannotDownload" @click="downloadSessionLog" />
         <span class="no-dl" v-if="cannotDownload">{{ $tr('noDownload') }}</span>
       </div>
       <p class="infobox">
         <b>{{ $tr('note') }}</b>: {{ $tr('detailsInfo') }}
       </p>
-    </k-grid-item>
+    </KGridItem>
 
-    <k-grid-item size="1" :cols="numCols">
+    <KGridItem size="1" :cols="numCols">
       <h2>{{ $tr('summaryHeading') }}</h2>
       <p>
         {{ $tr('summarySubHeading') }}
       </p>
       <div>
-        <k-button :text="$tr('download')" :disabled="cannotDownload" @click="downloadSummaryLog" />
+        <KButton :text="$tr('download')" :disabled="cannotDownload" @click="downloadSummaryLog" />
         <span class="no-dl" v-if="cannotDownload">{{ $tr('noDownload') }}</span>
       </div>
       <p class="infobox">
         <b>{{ $tr('note') }}</b>: {{ $tr('summaryInfo') }}
       </p>
-    </k-grid-item>
+    </KGridItem>
 
-  </k-grid>
+  </KGrid>
 
 </template>
 

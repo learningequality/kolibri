@@ -2,7 +2,7 @@
 
   <div>
 
-    <auth-message
+    <AuthMessage
       v-if="noClassesExist"
       :header="$tr('noAssignedClassesHeader')"
       :details="$tr('noAssignedClassesDetails')"
@@ -14,7 +14,7 @@
         <p>{{ $tr('classPageSubheader') }}</p>
       </section>
 
-      <core-table>
+      <CoreTable>
         <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
         <thead slot="thead">
           <tr>
@@ -31,10 +31,10 @@
             :key="classroom.id"
           >
             <td class="core-table-icon-col">
-              <content-icon :kind="CLASSROOM" />
+              <ContentIcon :kind="CLASSROOM" />
             </td>
             <td class="core-table-main-col">
-              <k-router-link
+              <KRouterLink
                 :text="classroom.name"
                 :to="learnerPageLink(classroom.id)"
               />
@@ -45,7 +45,7 @@
             <td>{{ classroom.learner_count }}</td>
           </tr>
         </tbody>
-      </core-table>
+      </CoreTable>
     </template>
 
   </div>

@@ -5,42 +5,42 @@
     <Breadcrumbs />
     <template v-if="!isRootLearnerPage">
       <h1>
-        <content-icon
+        <ContentIcon
           :kind="contentScopeSummary.kind"
           colorstyle="text-default"
         />
         {{ contentScopeSummary.title }}
       </h1>
-      <coach-content-label
+      <CoachContentLabel
         :isTopic="isTopic(contentScopeSummary)"
         :value="contentScopeSummary.num_coach_contents"
       />
     </template>
     <h1 v-else>{{ $tr('learners') }}</h1>
 
-    <core-table>
+    <CoreTable>
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
-          <header-cell
+          <HeaderCell
             :align="alignStart"
             :text="$tr('name')"
             :column="TableColumns.NAME"
             :sortable="true"
           />
-          <header-cell
+          <HeaderCell
             v-if="!isRootLearnerPage"
             :text="isExercisePage ? $tr('exerciseProgress') : $tr('contentProgress')"
             :column="isExercisePage ? TableColumns.EXERCISE : TableColumns.CONTENT"
             :sortable="true"
           />
-          <header-cell
+          <HeaderCell
             :align="alignStart"
             :text="$tr('group')"
             :column="TableColumns.GROUP"
             :sortable="true"
           />
-          <header-cell
+          <HeaderCell
             :align="alignStart"
             v-if="!isRootLearnerPage"
             :text="$tr('lastActivity')"
@@ -52,23 +52,23 @@
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
           <td class="core-table-icon-col">
-            <content-icon :kind="row.kind" />
+            <ContentIcon :kind="row.kind" />
           </td>
-          <name-cell
+          <NameCell
             :kind="row.kind"
             :title="row.title"
             :link="genLink(row)"
           />
-          <progress-cell
+          <ProgressCell
             v-if="!isRootLearnerPage"
             :num="isExercisePage ? row.exerciseProgress : row.contentProgress"
             :isExercise="isExercisePage"
           />
           <td>{{ row.groupName || '–' }}</td>
-          <activity-cell v-if="!isRootLearnerPage" :date="row.lastActive" />
+          <ActivityCell v-if="!isRootLearnerPage" :date="row.lastActive" />
         </tr>
       </tbody>
-    </core-table>
+    </CoreTable>
 
     <p v-if="!standardDataTable.length">{{ $tr('noLearners') }}</p>
 

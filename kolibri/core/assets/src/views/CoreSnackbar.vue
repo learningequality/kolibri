@@ -7,7 +7,7 @@
     >
     </div>
     <transition name="snackbar">
-      <ui-snackbar
+      <UiSnackbar
         v-show="isVisible"
         ref="snackbar"
         class="snackbar"

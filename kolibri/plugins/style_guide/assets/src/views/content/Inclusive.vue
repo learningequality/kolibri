@@ -1,6 +1,6 @@
 <template>
 
-  <page-template :completed="true">
+  <PageTemplate :completed="true">
     <h1>Inclusive design</h1>
 
     <p>
@@ -141,7 +141,7 @@
       subset of icons</a> need to be flipped in RTL languages.
     </p>
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 

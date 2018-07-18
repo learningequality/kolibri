@@ -14,7 +14,7 @@
             width: `${width}px`, paddingTop: mobile ? '4px' : '8px'
           }"
         >
-          <ui-icon-button
+          <UiIconButton
             ref="toggleButton"
             :aria-label="$tr('closeNav')"
             type="secondary"
@@ -27,7 +27,7 @@
               category="navigation"
               class="side-nav-header-close"
             />
-          </ui-icon-button>
+          </UiIconButton>
           <span class="side-nav-header-name">{{ $tr('kolibri') }}</span>
         </div>
 
@@ -35,7 +35,7 @@
           class="side-nav-scrollable-area"
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
-          <core-menu
+          <CoreMenu
             class="side-nav-scrollable-area-menu"
             role="navigation"
             :hasIcons="true"
@@ -45,10 +45,10 @@
               <component v-for="component in menuOptions" :is="component" :key="component.name" />
               <SideNavDivider />
             </template>
-          </core-menu>
+          </CoreMenu>
 
           <div class="side-nav-scrollable-area-footer">
-            <core-logo class="side-nav-scrollable-area-footer-logo" />
+            <CoreLogo class="side-nav-scrollable-area-footer-logo" />
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
@@ -158,7 +158,9 @@
         const accountComponents = navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents);
-        return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(this.filterByRole);
+        return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(
+          this.filterByRole
+        );
       },
     },
     watch: {

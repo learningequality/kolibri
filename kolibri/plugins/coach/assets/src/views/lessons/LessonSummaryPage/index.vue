@@ -2,7 +2,7 @@
 
   <div class="lesson-summary">
 
-    <assignment-summary
+    <AssignmentSummary
       :kind="lessonKind"
       :title="lessonTitle"
       :active="lessonActive"
@@ -11,13 +11,13 @@
       :groups="learnerGroups"
       @changeStatus="setLessonsModal(AssignmentActions.CHANGE_STATUS)"
     >
-      <k-dropdown-menu
+      <KDropdownMenu
         slot="optionsDropdown"
         :text="$tr('options')"
         :options="lessonOptions"
         @select="handleSelectOption"
       />
-    </assignment-summary>
+    </AssignmentSummary>
 
     <div>
       <div class="resource-list">
@@ -26,7 +26,7 @@
             <h2 class="resource-list-header-title">{{ $tr('resources') }}</h2>
           </div>
           <div class="resource-list-header-add-resource-button">
-            <k-router-link
+            <KRouterLink
               :to="lessonSelectionRootPage"
               :text="$tr('addResourcesButtonPrompt')"
               :primary="true"
@@ -36,13 +36,13 @@
         </div>
       </div>
 
-      <resource-list-table v-if="lessonResources.length" />
+      <ResourceListTable v-if="lessonResources.length" />
 
       <p v-else class="no-resources-message">
         {{ $tr('noResourcesInLesson') }}
       </p>
 
-      <manage-lesson-modals />
+      <ManageLessonModals />
     </div>
 
   </div>

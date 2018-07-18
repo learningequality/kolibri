@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="title"
     size="small"
     :submitText="$tr('continue')"
@@ -9,16 +9,16 @@
     @submit="goForward"
     @cancel="resetContentWizardState"
   >
-    <ui-alert
+    <UiAlert
       v-if="driveStatus==='ERROR'"
       type="error"
       :dismissible="false"
     >
       {{ $tr('problemFindingLocalDrives') }}
-    </ui-alert>
+    </UiAlert>
 
     <transition mode="out-in">
-      <ui-alert
+      <UiAlert
         v-if="driveStatus==='LOADING'"
         type="info"
         :dismissible="false"
@@ -26,15 +26,15 @@
         <span class="finding-local-drives">
           {{ $tr('findingLocalDrives') }}
         </span>
-      </ui-alert>
-      <drive-list
+      </UiAlert>
+      <DriveList
         v-if="driveStatus===''"
         v-model="selectedDriveId"
         :drives="enabledDrives"
         :mode="driveListMode"
       />
     </transition>
-  </k-modal>
+  </KModal>
 
 </template>
 

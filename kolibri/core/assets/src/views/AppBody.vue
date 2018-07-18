@@ -3,7 +3,7 @@
   <!-- class unused, used as identifier when debugging from DOM -->
   <div class="app-body" :style="contentStyle">
     <div v-if="blockDoubleClicks" class="click-mask"></div>
-    <k-linear-loader
+    <KLinearLoader
       v-if="loading"
       class="toolbar-loader"
       :style="{ top: isMobile ? '56px' : '64px' }"
@@ -11,7 +11,7 @@
       :delay="false"
     />
     <div v-else class="wrapper">
-      <error-box v-if="error" />
+      <ErrorBox v-if="error" />
       <slot></slot>
     </div>
   </div>

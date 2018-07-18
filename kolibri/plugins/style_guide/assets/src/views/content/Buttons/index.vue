@@ -1,6 +1,6 @@
 <template>
 
-  <page-template :completed="true">
+  <PageTemplate :completed="true">
 
     <h1>Buttons and links</h1>
 
@@ -36,11 +36,11 @@
       </li>
     </ul>
 
-    <show>
-      <k-button text="Raised button" :primary="true" appearance="raised-button" />
-      <k-button text="Flat button" :primary="true" appearance="flat-button" />
-      <k-button text="Basic link" :primary="true" appearance="basic-link" />
-    </show>
+    <Show>
+      <KButton text="Raised button" :primary="true" appearance="raised-button" />
+      <KButton text="Flat button" :primary="true" appearance="flat-button" />
+      <KButton text="Basic link" :primary="true" appearance="basic-link" />
+    </Show>
 
     <p>
       Actions with a button-like appearance can also be <strong>primary</strong> or
@@ -48,13 +48,13 @@
       and it should be a common or default action.
     </p>
 
-    <show>
-      <k-button text="Primary" :primary="true" appearance="raised-button" />
-      <k-button text="Secondary" :primary="false" appearance="raised-button" />
+    <Show>
+      <KButton text="Primary" :primary="true" appearance="raised-button" />
+      <KButton text="Secondary" :primary="false" appearance="raised-button" />
       <br>
-      <k-button text="Primary" :primary="true" appearance="flat-button" />
-      <k-button text="Secondary" :primary="false" appearance="flat-button" />
-    </show>
+      <KButton text="Primary" :primary="true" appearance="flat-button" />
+      <KButton text="Secondary" :primary="false" appearance="flat-button" />
+    </Show>
 
     <p>
       Note that we don't use a "secondary basic link" style.
@@ -97,16 +97,16 @@
     </ul>
 
     <h3>KButton</h3>
-    <component-docs :api="kButtonApi" />
+    <ComponentDocs :api="kButtonApi" />
 
     <h3>KRouterLink</h3>
-    <component-docs :api="kRouterLinkApi" />
+    <ComponentDocs :api="kRouterLinkApi" />
 
     <h3>KExternalLink</h3>
-    <component-docs :api="kExternalLinkApi" />
+    <ComponentDocs :api="kExternalLinkApi" />
 
     <h2>Interactive code example</h2>
-    <vue-example :code="example" />
+    <VueExample :code="example" />
 
     <h2>Known exceptions</h2>
     <ul>
@@ -117,7 +117,7 @@
       </li>
     </ul>
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 

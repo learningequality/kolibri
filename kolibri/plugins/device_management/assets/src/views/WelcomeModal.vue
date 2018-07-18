@@ -1,6 +1,6 @@
 <template>
 
-  <k-modal
+  <KModal
     :title="$tr('welcomeModalHeader')"
     :submitText="$tr('welcomeButtonDismissText')"
     @submit="emitCloseModal"
@@ -13,7 +13,7 @@
     <p class="welcome-modal-description">
       {{ $tr('welcomeModalPermissionsDescription') }}
     </p>
-  </k-modal>
+  </KModal>
 
 </template>
 

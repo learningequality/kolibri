@@ -1,6 +1,6 @@
 <template>
 
-  <core-table>
+  <CoreTable>
     <thead slot="thead">
       <tr>
         <th class="core-table-icon-col">
@@ -37,7 +37,7 @@
         v-for="(resourceId, index) in workingResources"
       >
         <td class="core-table-icon-col">
-          <ui-icon-button
+          <UiIconButton
             type="flat"
             :ariaLabel="$tr('moveResourceUpButtonDescription')"
             :disabled="index === 0"
@@ -45,8 +45,8 @@
             class="position-adjustment-button"
           >
             <mat-svg name="keyboard_arrow_up" category="hardware" />
-          </ui-icon-button>
-          <ui-icon-button
+          </UiIconButton>
+          <UiIconButton
             type="flat"
             :ariaLabel="$tr('moveResourceDownButtonDescription')"
             :disabled="index === (workingResources.length - 1)"
@@ -54,14 +54,14 @@
             class="position-adjustment-button"
           >
             <mat-svg name="keyboard_arrow_down" category="hardware" />
-          </ui-icon-button>
+          </UiIconButton>
         </td>
         <td class="core-table-icon-col">
-          <content-icon :kind="resourceKind(resourceId)" />
+          <ContentIcon :kind="resourceKind(resourceId)" />
         </td>
         <td>
           <div class="resource-title">
-            <k-router-link
+            <KRouterLink
               :to="resourceUserSummaryLink(resourceId)"
               :text="resourceTitle(resourceId)"
             />
@@ -70,14 +70,14 @@
               {{ resourceChannelTitle(resourceId) }}
             </p>
           </div>
-          <coach-content-label
+          <CoachContentLabel
             class="coach-content-label"
             :value="getCachedResource(resourceId).num_coach_contents"
             :isTopic="false"
           />
         </td>
         <td>
-          <progress-bar
+          <ProgressBar
             v-if="resourceProgress(resourceId)!==null"
             class="resource-progress-bar"
             :progress="resourceProgress(resourceId)"
@@ -89,7 +89,7 @@
           </span>
         </td>
         <td>
-          <k-button
+          <KButton
             :text="$tr('resourceRemovalButtonLabel')"
             @click="removeResource(resourceId)"
             appearance="flat-button"
@@ -97,7 +97,7 @@
         </td>
       </tr>
     </transition-group>
-  </core-table>
+  </CoreTable>
 
 </template>
 

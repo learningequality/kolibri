@@ -2,7 +2,7 @@
 
   <form @submit.prevent="$emit('submit', selectedUsers)">
     <div class="actions-header">
-      <k-filter-textbox
+      <KFilterTextbox
         :placeholder="$tr('searchForUser')"
         v-model.trim="filterInput"
         @input="pageNum = 1"
@@ -11,7 +11,7 @@
 
     <h2>{{ $tr('userTableLabel') }}</h2>
 
-    <user-table
+    <UserTable
       v-model="selectedUsers"
       :users="visibleFilteredUsers"
       :selectable="true"
@@ -24,7 +24,7 @@
       <span>
         {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
       </span>
-      <ui-icon-button
+      <UiIconButton
         type="primary"
         :ariaLabel="$tr('previousResults')"
         :disabled="pageNum === 1"
@@ -41,8 +41,8 @@
           name="chevron_left"
           category="navigation"
         />
-      </ui-icon-button>
-      <ui-icon-button
+      </UiIconButton>
+      <UiIconButton
         type="primary"
         :ariaLabel="$tr('nextResults')"
         :disabled="pageNum === numPages"
@@ -59,11 +59,11 @@
           name="chevron_right"
           category="navigation"
         />
-      </ui-icon-button>
+      </UiIconButton>
     </nav>
 
     <div class="footer">
-      <k-button
+      <KButton
         :text="$tr('confirmSelectionButtonLabel')"
         :primary="true"
         type="submit"

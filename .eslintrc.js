@@ -53,8 +53,6 @@ module.exports = {
     },
   },
   rules: {
-    'filename-and-component-name-match': 2,
-    'component-registration-casing': 1,
     'comma-style': 2,
     'max-len': [
       'error',
@@ -98,10 +96,16 @@ module.exports = {
       },
     ],
     'vue/html-closing-bracket-spacing': ['error'],
+    // Waiting on https://github.com/vuejs/eslint-plugin-vue/pull/397
+    // 'vue/component-name-in-template-casing': 3
 
     'import/first': 1,
     'import/no-duplicates': 1,
     'import/newline-after-import': 1,
     'import/order': 1,
+
+    // Custom vue rules
+    'vue-filename-and-component-name-match': 2,
+    'vue-component-registration-casing': 2,
   },
 };

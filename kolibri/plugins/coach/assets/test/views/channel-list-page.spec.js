@@ -9,7 +9,7 @@ jest.mock('kolibri.utils.serverClock');
 function makeWrapper(options = {}) {
   return mount(ChannelListPage, {
     ...options,
-    stubs: ['report-subheading', 'name-cell', 'breadcrumbs'],
+    stubs: ['report-subheading', 'NameCell', 'Breadcrumbs'],
     store: options.store || {},
   });
 }

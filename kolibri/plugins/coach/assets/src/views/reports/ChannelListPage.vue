@@ -10,17 +10,17 @@
     <template v-else>
       <h1>{{ $tr('topicsTitle') }}</h1>
     </template>
-    <core-table :caption="$tr('channelList')">
+    <CoreTable :caption="$tr('channelList')">
       <thead slot="thead">
         <tr>
           <th class="core-table-icon-col"></th>
-          <header-cell
+          <HeaderCell
             :text="$tr('channels')"
             :align="alignStart"
             :sortable="true"
             :column="tableColumns.NAME"
           />
-          <header-cell
+          <HeaderCell
             :text="$tr('lastActivity')"
             :align="alignStart"
             :sortable="true"
@@ -31,18 +31,18 @@
       <tbody slot="tbody">
         <tr v-for="channel in standardDataTable" :key="channel.id">
           <td class="core-table-icon-col">
-            <content-icon :kind="CHANNEL" />
+            <ContentIcon :kind="CHANNEL" />
           </td>
-          <name-cell
+          <NameCell
             :kind="CHANNEL"
             :title="channel.title"
             :link="reportLink(channel.id)"
             :numCoachContents="channel.num_coach_contents"
           />
-          <activity-cell :date="channel.lastActive" />
+          <ActivityCell :date="channel.lastActive" />
         </tr>
       </tbody>
-    </core-table>
+    </CoreTable>
 
     <template v-if="!standardDataTable.length">
       <p v-if="showRecentOnly">{{ $tr('noRecent', { threshold }) }}</p>

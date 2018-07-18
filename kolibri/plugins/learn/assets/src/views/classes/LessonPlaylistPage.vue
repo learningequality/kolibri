@@ -3,13 +3,13 @@
   <div>
     <section class="lesson-details">
       <div>
-        <content-icon
+        <ContentIcon
           kind="lesson"
           class="lesson-icon"
         />
         <h1 class="title">
           {{ currentLesson.title }}
-          <progress-icon v-if="lessonHasResources" :progress="lessonProgress" />
+          <ProgressIcon v-if="lessonHasResources" :progress="lessonProgress" />
         </h1>
       </div>
       <div v-if="currentLesson.description!==''">
@@ -19,7 +19,7 @@
     </section>
 
     <section class="content-cards">
-      <content-card
+      <ContentCard
         v-for="(c, idx) in contentNodes"
         :key="c.pk"
         class="content-card"

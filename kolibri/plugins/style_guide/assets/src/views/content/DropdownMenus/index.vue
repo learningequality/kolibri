@@ -1,16 +1,16 @@
 <template>
 
-  <page-template title="Dropdown Menus" :completed="false">
+  <PageTemplate title="Dropdown Menus" :completed="false">
 
     <h2><code>{{ kDropdownMenuApi.name }}</code> API</h2>
-    <component-docs :api="kDropdownMenuApi" />
+    <ComponentDocs :api="kDropdownMenuApi" />
 
     <h2>Code Example</h2>
-    <vue-example :code="example" />
+    <VueExample :code="example" />
 
     <h2>Guidelines</h2>
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 

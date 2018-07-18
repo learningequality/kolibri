@@ -15,7 +15,7 @@
           name="check_circle"
           class="complete"
         />
-        <k-circular-loader
+        <KCircularLoader
           v-else
           class="inprogress"
           :delay="false"
@@ -27,7 +27,7 @@
       <div class="task-stage">
         {{ stageText }}
       </div>
-      <k-linear-loader
+      <KLinearLoader
         :type="taskIsPreparing ? 'indeterminate' : 'determinate'"
         :progress="formattedPercentage"
         :delay="false"
@@ -39,7 +39,7 @@
     </div>
 
     <div v-if="showButtons" class="buttons dtc">
-      <k-button
+      <KButton
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
         :primary="true"

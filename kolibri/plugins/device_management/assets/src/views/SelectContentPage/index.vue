@@ -1,13 +1,13 @@
 <template>
 
   <div>
-    <content-wizard-ui-alert
+    <ContentWizardUiAlert
       v-if="wholePageError"
       :errorType="wholePageError"
     />
 
     <template v-else>
-      <task-progress
+      <TaskProgress
         v-if="showUpdateProgressBar"
         type="UPDATING_CHANNEL"
         status="QUEUED"
@@ -17,7 +17,7 @@
         @cleartask="cancelMetadataDownloadTask()"
         id="updatingchannel"
       />
-      <task-progress
+      <TaskProgress
         v-else-if="metadataDownloadTask"
         type="DOWNLOADING_CHANNEL_CONTENTS"
         v-bind="metadataDownloadTask"
@@ -28,14 +28,14 @@
 
       <template v-if="!taskInProgress && onDeviceInfoIsReady">
         <section class="notifications">
-          <ui-alert
+          <UiAlert
             v-if="newVersionAvailable"
             type="info"
             :removeIcon="true"
             :dismissible="false"
           >
             {{ $tr('newVersionAvailableNotification') }}
-          </ui-alert>
+          </UiAlert>
         </section>
         <section
           class="updates"
@@ -48,7 +48,7 @@
             <span>
               {{ $tr('newVersionAvailable', { version: transferredChannel.version }) }}
             </span>
-            <k-button
+            <KButton
               :text="$tr('update')"
               :primary="true"
               name="update"
@@ -57,28 +57,28 @@
           </div>
           <span v-else>{{ $tr('channelUpToDate') }}</span>
         </section>
-        <channel-contents-summary
+        <ChannelContentsSummary
           :channel="transferredChannel"
           :channelOnDevice="channelOnDevice"
         />
 
-        <ui-alert
+        <UiAlert
           v-if="wizardStatus!==''"
           type="error"
           :dismissible="false"
         >
           {{ $tr('problemFetchingChannel') }}
-        </ui-alert>
+        </UiAlert>
 
-        <ui-alert
+        <UiAlert
           v-if="contentTransferError"
           type="error"
           :dismissible="false"
         >
           {{ $tr('problemTransferringContents') }}
-        </ui-alert>
+        </UiAlert>
         <!-- Contains size estimates + submit button -->
-        <selected-resources-size
+        <SelectedResourcesSize
           v-if="availableSpace!==null"
           :mode="mode"
           :fileSize="nodeCounts.fileSize"
@@ -87,7 +87,7 @@
           @clickconfirm="startContentTransfer()"
         />
         <hr>
-        <content-tree-viewer />
+        <ContentTreeViewer />
       </template>
     </template>
   </div>

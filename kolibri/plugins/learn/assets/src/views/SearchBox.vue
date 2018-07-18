@@ -16,7 +16,7 @@
         :placeholder="$tr('searchBoxLabel')"
       >
       <div class="search-buttons-wrapper">
-        <ui-icon-button
+        <UiIconButton
           color="black"
           size="small"
           class="search-clear-button"
@@ -28,10 +28,10 @@
             name="clear"
             category="content"
           />
-        </ui-icon-button>
+        </UiIconButton>
 
         <div class="search-submit-button-wrapper">
-          <ui-icon-button
+          <UiIconButton
             type="secondary"
             color="white"
             class="search-submit-button"
@@ -49,7 +49,7 @@
               name="arrow_forward"
               category="navigation"
             />
-          </ui-icon-button>
+          </UiIconButton>
         </div>
       </div>
     </div>
