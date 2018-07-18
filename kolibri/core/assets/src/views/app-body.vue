@@ -10,8 +10,9 @@
       type="indeterminate"
       :delay="false"
     />
+
     <div v-else class="wrapper">
-      <error-box v-if="error" />
+      <app-error v-if="error" />
       <slot></slot>
     </div>
   </div>
@@ -24,12 +25,12 @@
   import { mapState } from 'vuex';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import errorBox from './error-box';
+  import appError from './app-error';
 
   export default {
     name: 'appBody',
     components: {
-      errorBox,
+      appError,
       kLinearLoader,
     },
     mixins: [responsiveWindow],

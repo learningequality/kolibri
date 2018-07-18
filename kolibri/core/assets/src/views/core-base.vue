@@ -168,12 +168,4 @@
     display: inline-block;
   }
 
-  .content-container {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    padding-bottom: 40px;
-    overflow-x: hidden;
-  }
-
 </style>
