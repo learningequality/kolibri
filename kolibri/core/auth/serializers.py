@@ -14,6 +14,7 @@ from .models import FacilityUser
 from .models import LearnerGroup
 from .models import Membership
 from .models import Role
+from kolibri.core import error_constants
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -38,23 +39,14 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
         fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles', 'is_superuser')
 
-    def create(self, validated_data):
-        if FacilityUser.objects.filter(username__iexact=validated_data['username']).exists():
-            raise serializers.ValidationError(_('An account with that username already exists'))
-        return super(FacilityUserSerializer, self).create(validated_data)
-
-    def update(self, instance, validated_data):
-        if validated_data.get('username') and FacilityUser.objects.exclude(id__exact=instance.id).filter(username__iexact=validated_data['username']).exists():
-            raise serializers.ValidationError(_('An account with that username already exists'))
-        return super(FacilityUserSerializer, self).update(instance, validated_data)
+    def validate_username(self, value):
+        if FacilityUser.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError(detail=_('An account with that username already exists'), code=error_constants.USERNAME_ALREADY_EXISTS)
+        return value
 
 
 class FacilityUserSignupSerializer(FacilityUserSerializer):
-
-    def validate_username(self, value):
-        if FacilityUser.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError(_('An account with that username already exists'))
-        return value
+    pass
 
 
 class FacilityUsernameSerializer(serializers.ModelSerializer):

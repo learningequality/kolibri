@@ -305,17 +305,13 @@ class SignUpViewSet(viewsets.ViewSet):
 
         # we validate the user's input, and if valid, login as user
         serialized_user = self.serializer_class(data=data)
-        if serialized_user.is_valid():
+        if serialized_user.is_valid(raise_exception=True):
             serialized_user.save()
             serialized_user.instance.set_password(data['password'])
             serialized_user.instance.save()
             authenticated_user = authenticate(username=data['username'], password=data['password'], facility=data['facility'])
             login(request, authenticated_user)
             return Response(serialized_user.data, status=status.HTTP_201_CREATED)
-        else:
-            # grab error if related to username
-            error = serialized_user.errors.get('username', None)
-            return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SessionViewSet(viewsets.ViewSet):
