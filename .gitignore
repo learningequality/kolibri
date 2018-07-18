@@ -103,3 +103,6 @@ kolibri/VERSION
 
 # Ignore downloaded crowdin client
 build_tools/crowdin-cli.jar
+
+# Ignore pytest cache directory
+.pytest_cache/
