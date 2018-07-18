@@ -6,34 +6,36 @@
       :errorType="wizardStatus"
     />
 
-    <section
-      v-if="channelsAreAvailable"
-      class="top-matter"
-    >
-      <div class="channels">
-        <h1 class="channels-header">
-          <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
-          <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
-          <span v-else>{{ $tr('channels') }}</span>
-        </h1>
+    <h1>
+      <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
+      <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
+      <span v-else>{{ $tr('channels') }}</span>
+    </h1>
 
-        <p>{{ $tr('channelsAvailable', { channels: availableChannels.length }) }}</p>
-      </div>
-
-      <div class="filters">
+    <k-grid v-if="channelsAreAvailable" class="top-matter">
+      <k-grid-item :sizes="[4, 8, 4]">
+        <p :class="{ 'text-offset': windowIsLarge }">
+          {{ $tr('channelsAvailable', { channels: availableChannels.length }) }}
+        </p>
+      </k-grid-item>
+      <k-grid-item :sizes="[4, 3, 3]" :alignments="['left', 'left', 'right']">
         <k-select
+          class="align-left"
           :options="languageFilterOptions"
           v-model="languageFilter"
           :label="$tr('languageFilterLabel')"
           :inline="true"
         />
+      </k-grid-item>
+      <k-grid-item :sizes="[4, 5, 5]">
         <k-filter-textbox
+          :class="{ 'search-box-offset': !windowIsSmall }"
           :placeholder="$tr('titleFilterPlaceholder')"
+          class="seach-box"
           v-model="titleFilter"
-          class="title-filter"
         />
-      </div>
-    </section>
+      </k-grid-item>
+    </k-grid>
 
     <section
       v-if="showUnlistedChannels"
@@ -92,6 +94,9 @@
   import immersiveFullScreen from 'kolibri.coreVue.components.immersiveFullScreen';
   import kFilterTextbox from 'kolibri.coreVue.components.kFilterTextbox';
   import kButton from 'kolibri.coreVue.components.kButton';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uniqBy from 'lodash/uniqBy';
   import channelTokenModal from '../available-channels-page/channel-token-modal';
   import subpageContainer from '../containers/subpage-container';
@@ -117,10 +122,13 @@
       immersiveFullScreen,
       kButton,
       kFilterTextbox,
+      kGrid,
+      kGridItem,
       subpageContainer,
       kLinearLoader,
       kSelect,
     },
+    mixins: [responsiveWindow],
     data() {
       return {
         languageFilter: {},
@@ -276,29 +284,27 @@
   }
 
   .top-matter {
-    margin-bottom: 32px;
-  }
-
-  .channels {
-    display: inline-block;
-    width: 30%;
-  }
-
-  .filters {
-    display: inline-block;
-    width: 70%;
-    margin: 16px 0;
-    vertical-align: top;
-  }
-
-  .title-filter {
-    float: right;
-    width: 50%;
-    margin-top: 10px;
+    margin-bottom: 24px;
   }
 
   .unlisted-channels {
     padding: 16px 0;
+  }
+
+  .text-offset {
+    margin-top: 24px;
+  }
+
+  .align-left {
+    text-align: left;
+  }
+
+  .seach-box {
+    width: 100%;
+  }
+
+  .search-box-offset {
+    margin-top: 12px;
   }
 
 </style>
