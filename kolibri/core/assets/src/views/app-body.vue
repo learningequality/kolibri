@@ -13,7 +13,10 @@
 
     <div v-else class="wrapper">
       <app-error v-if="error" />
-      <slot></slot>
+
+      <slot v-else>
+      </slot>
+
     </div>
   </div>
 
