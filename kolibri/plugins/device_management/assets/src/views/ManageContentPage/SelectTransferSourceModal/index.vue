@@ -18,14 +18,14 @@
 
   import { mapState } from 'vuex';
   import { ContentWizardPages } from '../../../constants';
-  import selectImportSourceModal from './SelectImportSourceModal';
-  import selectDriveModal from './SelectDriveModal';
+  import SelectImportSourceModal from './SelectImportSourceModal';
+  import SelectDriveModal from './SelectDriveModal';
 
   export default {
     name: 'SelectTransferSourceModal',
     components: {
-      selectImportSourceModal,
-      selectDriveModal,
+      SelectImportSourceModal,
+      SelectDriveModal,
     },
     computed: {
       ...mapState({

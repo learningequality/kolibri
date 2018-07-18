@@ -144,16 +144,16 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-  import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import shuffle from 'lodash/shuffle';
   import orderBy from 'lodash/orderBy';
   import random from 'lodash/random';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import flatMap from 'lodash/flatMap';
   import { Modals as ExamModals } from '../../../constants/examConstants';
-  import previewNewExamModal from './PreviewNewExamModal';
-  import exerciseRow from './ExerciseRow';
-  import topicRow from './TopicRow';
+  import PreviewNewExamModal from './PreviewNewExamModal';
+  import ExerciseRow from './ExerciseRow';
+  import TopicRow from './TopicRow';
 
   export default {
     name: 'CreateExamPage',
@@ -168,11 +168,11 @@
       KTextbox,
       KGrid,
       KGridItem,
-      topicRow,
-      exerciseRow,
-      previewNewExamModal,
+      TopicRow,
+      ExerciseRow,
+      PreviewNewExamModal,
       KCheckbox,
-      uiAlert,
+      UiAlert,
       CoreTable,
     },
     mixins: [responsiveWindow],

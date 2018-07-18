@@ -47,7 +47,7 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'keen-ui/src/UiAlert';
   import bytesForHumans from '../ManageContentPage/bytesForHumans';
 
   const RequiredNumber = { type: Number, required: true };
@@ -56,7 +56,7 @@
     name: 'SelectedResourcesSize',
     components: {
       KButton,
-      uiAlert,
+      UiAlert,
     },
     props: {
       mode: {

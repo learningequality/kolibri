@@ -12,7 +12,7 @@
   import { mapState } from 'vuex';
   import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import { PageNames, LearnerReports } from '../../../constants';
-  import learnerExerciseReport from './LearnerExerciseReport';
+  import LearnerExerciseReport from './LearnerExerciseReport';
 
   export default {
     name: 'LearnerExerciseDetailPage',
@@ -29,7 +29,7 @@
     },
     components: {
       ImmersiveFullScreen,
-      learnerExerciseReport,
+      LearnerExerciseReport,
     },
     computed: {
       ...mapState(['classId', 'pageName']),

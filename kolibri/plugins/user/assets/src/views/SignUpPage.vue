@@ -118,13 +118,13 @@
   import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import uiToolbar from 'keen-ui/src/UiToolbar';
+  import UiToolbar from 'keen-ui/src/UiToolbar';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import { PageNames } from '../constants';
-  import languageSwitcherFooter from './LanguageSwitcherFooter';
+  import LanguageSwitcherFooter from './LanguageSwitcherFooter';
 
   export default {
     name: 'SignUpPage',
@@ -152,12 +152,12 @@
     },
     components: {
       KButton,
-      uiAlert,
+      UiAlert,
       KTextbox,
-      uiToolbar,
+      UiToolbar,
       CoreLogo,
       KSelect,
-      languageSwitcherFooter,
+      LanguageSwitcherFooter,
     },
     data: () => ({
       name: '',

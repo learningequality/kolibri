@@ -54,10 +54,10 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import subpageContainer from '../containers/SubpageContainer';
-  import channelsGrid from './ChannelsGrid';
-  import taskProgress from './TaskProgress';
-  import selectTransferSourceModal from './SelectTransferSourceModal';
+  import SubpageContainer from '../containers/SubpageContainer';
+  import ChannelsGrid from './ChannelsGrid';
+  import TaskProgress from './TaskProgress';
+  import SelectTransferSourceModal from './SelectTransferSourceModal';
 
   export default {
     name: 'ManageContentPage',
@@ -76,11 +76,11 @@
     },
     components: {
       AuthMessage,
-      channelsGrid,
+      ChannelsGrid,
       KButton,
-      selectTransferSourceModal,
-      subpageContainer,
-      taskProgress,
+      SelectTransferSourceModal,
+      SubpageContainer,
+      TaskProgress,
     },
     computed: {
       ...mapGetters(['canManageContent']),

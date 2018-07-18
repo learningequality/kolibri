@@ -172,9 +172,9 @@
   import FullVue from 'vue/dist/vue.common';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import pageTemplate from '../../shell/PageTemplate';
-  import componentDocs from '../../shell/ComponentDocs';
-  import vueExample from '../../shell/VueExample';
+  import PageTemplate from '../../shell/PageTemplate';
+  import ComponentDocs from '../../shell/ComponentDocs';
+  import VueExample from '../../shell/VueExample';
   import kModalExample from 'raw-loader!./example.html';
   import kModalApi from '!vue-doc!kolibri.coreVue.components.KModal';
 
@@ -184,9 +184,9 @@
   export default {
     name: 'Modals',
     components: {
-      pageTemplate,
-      componentDocs,
-      vueExample,
+      PageTemplate,
+      ComponentDocs,
+      VueExample,
       KButton,
     },
     data: () => ({

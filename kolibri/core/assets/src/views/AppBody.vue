@@ -24,12 +24,12 @@
   import { mapState } from 'vuex';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import errorBox from './ErrorBox';
+  import ErrorBox from './ErrorBox';
 
   export default {
     name: 'AppBody',
     components: {
-      errorBox,
+      ErrorBox,
       KLinearLoader,
     },
     mixins: [responsiveWindow],

@@ -96,7 +96,7 @@
   import filter from 'lodash/filter';
   import startsWith from 'lodash/startsWith';
   import throttle from 'lodash/throttle';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 
   const DROPDOWN_BTN_WIDTH = 55;
@@ -108,7 +108,7 @@
    */
   export default {
     name: 'KBreadcrumbs',
-    components: { uiIconButton, KRouterLink },
+    components: { UiIconButton, KRouterLink },
     mixins: [ResponsiveElement],
     props: {
       /**

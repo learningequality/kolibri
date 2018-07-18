@@ -35,9 +35,9 @@ function create(context) {
       if (convertedName !== componentName) {
         context.report({
           node: item,
-          message: 'Component "{{name}}" is not in {{caseType}}.',
+          message: 'Component "{{componentName}}" is not in {{caseType}}.',
           data: {
-            name: componentName,
+            componentName,
             caseType,
           },
         });

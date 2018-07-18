@@ -26,11 +26,11 @@
 <script>
 
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import interactionItem from './InteractionItem';
+  import InteractionItem from './InteractionItem';
 
   export default {
     name: 'InteractionList',
-    components: { interactionItem },
+    components: { InteractionItem },
     mixins: [responsiveElement],
     $trs: {
       currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} answer',

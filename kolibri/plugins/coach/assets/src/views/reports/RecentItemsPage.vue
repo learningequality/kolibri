@@ -2,7 +2,7 @@
 
   <div>
 
-    <breadcrumbs />
+    <Breadcrumbs />
     <h1>{{ $tr('title') }}</h1>
 
     <core-table>
@@ -67,10 +67,10 @@
   import { standardDataTable } from '../../state/getters/reports';
   import { PageNames } from '../../constants';
   import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
-  import breadcrumbs from './Breadcrumbs';
-  import headerCell from './table-cells/HeaderCell';
-  import nameCell from './table-cells/NameCell';
-  import activityCell from './table-cells/ActivityCell';
+  import Breadcrumbs from './Breadcrumbs';
+  import HeaderCell from './table-cells/HeaderCell';
+  import NameCell from './table-cells/NameCell';
+  import ActivityCell from './table-cells/ActivityCell';
   import alignMixin from './align-mixin';
 
   export default {
@@ -82,10 +82,10 @@
     },
     components: {
       CoreTable,
-      breadcrumbs,
-      headerCell,
-      nameCell,
-      activityCell,
+      Breadcrumbs,
+      HeaderCell,
+      NameCell,
+      ActivityCell,
       ContentIcon,
       ProgressBar,
     },

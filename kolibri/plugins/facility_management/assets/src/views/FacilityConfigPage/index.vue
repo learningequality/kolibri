@@ -2,7 +2,7 @@
 
   <div>
 
-    <notifications
+    <Notifications
       :notification="notification"
       @dismiss="dismissNotification()"
     />
@@ -70,8 +70,8 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import isEqual from 'lodash/isEqual';
-  import confirmResetModal from './ConfirmResetModal';
-  import notifications from './ConfigPageNotifications';
+  import ConfirmResetModal from './ConfirmResetModal';
+  import Notifications from './ConfigPageNotifications';
 
   const settingsList = [
     'learnerCanEditUsername',
@@ -89,8 +89,8 @@
       };
     },
     components: {
-      confirmResetModal,
-      notifications,
+      ConfirmResetModal,
+      Notifications,
       KCheckbox,
       KButton,
     },

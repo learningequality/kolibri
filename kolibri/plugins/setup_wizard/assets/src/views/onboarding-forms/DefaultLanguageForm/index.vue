@@ -16,7 +16,7 @@
   import { mapActions, mapState } from 'vuex';
   import LanguageSwitcherList from 'kolibri.coreVue.components.LanguageSwitcherList';
 
-  import onboardingForm from '../OnboardingForm';
+  import OnboardingForm from '../OnboardingForm';
 
   export default {
     name: 'DefaultLanguageForm',
@@ -24,7 +24,7 @@
       languageFormHeader: 'Please select the default language for Kolibri',
     },
     components: {
-      onboardingForm,
+      OnboardingForm,
       LanguageSwitcherList,
     },
     props: {

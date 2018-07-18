@@ -20,7 +20,7 @@
 
 <script>
 
-  import uiSelect from 'keen-ui/src/UiSelect';
+  import UiSelect from 'keen-ui/src/UiSelect';
   import isObject from 'lodash/isObject';
 
   function areValidOptions(array) {
@@ -44,7 +44,7 @@
   export default {
     name: 'KSelect',
     components: {
-      uiSelect,
+      UiSelect,
     },
     model: {
       event: 'change',

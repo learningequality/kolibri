@@ -57,9 +57,9 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import SideNav from 'kolibri.coreVue.components.SideNav';
-  import appBody from './AppBody';
-  import globalSnackbar from './GlobalSnackbar';
-  import immersiveToolbar from './ImmersiveToolbar';
+  import AppBody from './AppBody';
+  import GlobalSnackbar from './GlobalSnackbar';
+  import ImmersiveToolbar from './ImmersiveToolbar';
 
   export default {
     name: 'CoreBase',
@@ -70,10 +70,10 @@
     },
     components: {
       AppBar,
-      immersiveToolbar,
+      ImmersiveToolbar,
       SideNav,
-      appBody,
-      globalSnackbar,
+      AppBody,
+      GlobalSnackbar,
     },
     mixins: [responsiveWindow],
     props: {

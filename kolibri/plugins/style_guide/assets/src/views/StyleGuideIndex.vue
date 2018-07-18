@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <sidenav />
+    <SideNav />
     <router-view class="content" />
   </div>
 
@@ -12,7 +12,7 @@
 
   import FullVue from 'vue/dist/vue.common';
   import VueRouter from 'vue-router';
-  import sidenav from './shell/SideNav';
+  import SideNav from './shell/SideNav';
 
   // To illustrate how user-facing text should always be translated, we will
   // set up a fake $tr, and use it in the code example.
@@ -24,7 +24,7 @@
   export default {
     name: 'StyleGuideIndex',
     components: {
-      sidenav,
+      SideNav,
     },
   };
 

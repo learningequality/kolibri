@@ -105,7 +105,7 @@
 <script>
 
   import { mapActions, mapState, mapMutations } from 'vuex';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import ProgressBar from 'kolibri.coreVue.components.ProgressBar';
@@ -124,7 +124,7 @@
     name: 'ResourceListTable',
     components: {
       CoachContentLabel,
-      uiIconButton,
+      UiIconButton,
       KButton,
       KRouterLink,
       ProgressBar,

@@ -120,9 +120,9 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'keen-ui/src/UiAlert';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import changeUserPasswordModal from './ChangeUserPasswordModal';
+  import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 
   export default {
     name: 'ProfilePage',
@@ -156,10 +156,10 @@
     components: {
       KButton,
       KTextbox,
-      uiAlert,
+      UiAlert,
       PointsIcon,
       PermissionsIcon,
-      changeUserPasswordModal,
+      ChangeUserPasswordModal,
     },
     mixins: [responsiveWindow],
     data() {

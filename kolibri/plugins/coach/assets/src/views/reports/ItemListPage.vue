@@ -2,7 +2,7 @@
 
   <div>
 
-    <breadcrumbs />
+    <Breadcrumbs />
     <h1>
       <content-icon
         :kind="contentScopeSummary.kind || ''"
@@ -84,11 +84,11 @@
   import { standardDataTable, exerciseCount, contentCount } from '../../state/getters/reports';
   import { TopicReports, LearnerReports, PageNames } from '../../constants';
   import { TableColumns } from '../../constants/reportConstants';
-  import breadcrumbs from './Breadcrumbs';
-  import headerCell from './table-cells/HeaderCell';
-  import nameCell from './table-cells/NameCell';
-  import progressCell from './table-cells/ProgressCell';
-  import activityCell from './table-cells/ActivityCell';
+  import Breadcrumbs from './Breadcrumbs';
+  import HeaderCell from './table-cells/HeaderCell';
+  import NameCell from './table-cells/NameCell';
+  import ProgressCell from './table-cells/ProgressCell';
+  import ActivityCell from './table-cells/ActivityCell';
 
   import alignMixin from './align-mixin';
 
@@ -102,11 +102,11 @@
     components: {
       CoreTable,
       ContentIcon,
-      breadcrumbs,
-      headerCell,
-      nameCell,
-      progressCell,
-      activityCell,
+      Breadcrumbs,
+      HeaderCell,
+      NameCell,
+      ProgressCell,
+      ActivityCell,
     },
     mixins: [alignMixin],
     $trs: {

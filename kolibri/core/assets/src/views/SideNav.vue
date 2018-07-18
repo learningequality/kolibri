@@ -43,7 +43,7 @@
           >
             <template slot="options">
               <component v-for="component in menuOptions" :is="component" :key="component.name" />
-              <divider />
+              <SideNavDivider />
             </template>
           </core-menu>
 
@@ -83,12 +83,12 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import navComponents from 'kolibri.utils.navComponents';
   import navComponentsMixin from '../mixins/nav-components';
   import logout from './LogoutSideNavEntry';
-  import divider from './SideNavDivider';
+  import SideNavDivider from './SideNavDivider';
 
   // Explicit ordered list of roles for nav item sorting
   const navComponentRoleOrder = [
@@ -104,10 +104,10 @@
     name: 'SideNav',
     components: {
       CoreMenu,
-      uiIconButton,
+      UiIconButton,
       CoreLogo,
       CoreMenuOption,
-      divider,
+      SideNavDivider,
     },
     mixins: [responsiveWindow, responsiveElement, navComponentsMixin],
     $trs: {
@@ -158,7 +158,7 @@
         const accountComponents = navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents);
-        return [...topComponents, divider, ...accountComponents, logout].filter(this.filterByRole);
+        return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(this.filterByRole);
       },
     },
     watch: {

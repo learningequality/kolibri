@@ -25,9 +25,9 @@
 <script>
 
   import FullVue from 'vue/dist/vue.common';
-  import pageTemplate from '../../shell/PageTemplate';
-  import componentDocs from '../../shell/ComponentDocs';
-  import vueExample from '../../shell/VueExample';
+  import PageTemplate from '../../shell/PageTemplate';
+  import ComponentDocs from '../../shell/ComponentDocs';
+  import VueExample from '../../shell/VueExample';
 
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
@@ -44,9 +44,9 @@
   export default {
     name: 'Loaders',
     components: {
-      pageTemplate,
-      componentDocs,
-      vueExample,
+      PageTemplate,
+      ComponentDocs,
+      VueExample,
     },
     data: () => ({
       kCircularLoaderExample,

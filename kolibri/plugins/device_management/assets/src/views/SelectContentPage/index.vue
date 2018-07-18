@@ -100,19 +100,19 @@
   import { mapState, mapActions, mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'keen-ui/src/UiAlert';
   import { TaskResource } from 'kolibri.resources';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
-  import subpageContainer from '../containers/SubpageContainer';
+  import SubpageContainer from '../containers/SubpageContainer';
   import { wizardState } from '../../state/getters';
-  import taskProgress from '../ManageContentPage/TaskProgress';
+  import TaskProgress from '../ManageContentPage/TaskProgress';
   import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
-  import channelContentsSummary from './ChannelContentsSummary';
-  import contentTreeViewer from './ContentTreeViewer';
-  import selectedResourcesSize from './SelectedResourcesSize';
-  import contentWizardUiAlert from './ContentWizardUiAlert';
+  import ChannelContentsSummary from './ChannelContentsSummary';
+  import ContentTreeViewer from './ContentTreeViewer';
+  import SelectedResourcesSize from './SelectedResourcesSize';
+  import ContentWizardUiAlert from './ContentWizardUiAlert';
 
   export default {
     name: 'SelectContentPage',
@@ -122,15 +122,15 @@
       };
     },
     components: {
-      channelContentsSummary,
-      contentTreeViewer,
-      contentWizardUiAlert,
+      ChannelContentsSummary,
+      ContentTreeViewer,
+      ContentWizardUiAlert,
       ImmersiveFullScreen,
       KButton,
-      selectedResourcesSize,
-      subpageContainer,
-      taskProgress,
-      uiAlert,
+      SelectedResourcesSize,
+      SubpageContainer,
+      TaskProgress,
+      UiAlert,
     },
     data() {
       return {

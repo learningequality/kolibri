@@ -71,13 +71,13 @@
 
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
-  import contentCard from './ContentCard';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import ContentCard from './ContentCard';
 
-  if (!contentCard.mixins) {
-    contentCard.mixins = [];
+  if (!ContentCard.mixins) {
+    ContentCard.mixins = [];
   }
-  contentCard.mixins.push(responsiveElement); //including because carousel breaks without it
+  ContentCard.mixins.push(responsiveElement); //including because carousel breaks without it
 
   const contentCardWidth = 210;
   const gutterWidth = 20;
@@ -85,8 +85,8 @@
   export default {
     name: 'ContentCardGroupCarousel',
     components: {
-      uiIconButton,
-      contentCard,
+      UiIconButton,
+      ContentCard,
     },
     mixins: [responsiveElement],
     $trs: { viewAllButtonLabel: 'View all' },

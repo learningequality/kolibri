@@ -25,15 +25,15 @@
 
 <script>
 
-  import uiIcon from 'keen-ui/src/UiIcon';
-  import uiTooltip from 'keen-ui/src/UiTooltip';
+  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiTooltip from 'keen-ui/src/UiTooltip';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'PermissionsIcon',
     components: {
-      uiIcon,
-      uiTooltip,
+      UiIcon,
+      UiTooltip,
     },
     props: {
       permissionType: {

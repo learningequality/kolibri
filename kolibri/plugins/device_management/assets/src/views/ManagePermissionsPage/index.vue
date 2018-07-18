@@ -30,8 +30,8 @@
   import { mapState, mapGetters } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
-  import subpageContainer from '../containers/SubpageContainer';
-  import userGrid from './UserGrid';
+  import SubpageContainer from '../containers/SubpageContainer';
+  import UserGrid from './UserGrid';
 
   export default {
     name: 'ManagePermissionsPage',
@@ -43,8 +43,8 @@
     components: {
       AuthMessage,
       KFilterTextbox,
-      subpageContainer,
-      userGrid,
+      SubpageContainer,
+      UserGrid,
     },
     data() {
       return {

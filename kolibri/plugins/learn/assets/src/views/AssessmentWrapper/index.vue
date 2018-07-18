@@ -111,19 +111,19 @@ oriented data synchronization.
   import { now } from 'kolibri.utils.serverClock';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { updateContentNodeProgress } from '../../state/actions/main';
-  import exerciseAttempts from './ExerciseAttempts';
+  import ExerciseAttempts from './ExerciseAttempts';
 
   export default {
     name: 'AssessmentWrapper',
     components: {
-      exerciseAttempts,
+      ExerciseAttempts,
       ContentRenderer,
       KButton,
-      uiAlert,
+      UiAlert,
       KRouterLink,
     },
     mixins: [responsiveWindow],

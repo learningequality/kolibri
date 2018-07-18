@@ -19,9 +19,9 @@
 
   import FullVue from 'vue/dist/vue.common';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
-  import componentDocs from '../../shell/ComponentDocs';
-  import vueExample from '../../shell/VueExample';
-  import pageTemplate from '../../shell/PageTemplate';
+  import ComponentDocs from '../../shell/ComponentDocs';
+  import VueExample from '../../shell/VueExample';
+  import PageTemplate from '../../shell/PageTemplate';
 
   import example from 'raw-loader!./example.html';
   import kDropdownMenuApi from '!vue-doc!kolibri.coreVue.components.KDropdownMenu';
@@ -31,9 +31,9 @@
   export default {
     name: 'DropdownMenus',
     components: {
-      pageTemplate,
-      componentDocs,
-      vueExample,
+      PageTemplate,
+      ComponentDocs,
+      VueExample,
     },
     data: () => ({
       kDropdownMenuApi,

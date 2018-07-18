@@ -25,11 +25,11 @@
 
 <script>
 
-  import answerIcon from './AnswerIcon';
+  import AnswerIcon from './AnswerIcon';
 
   export default {
     name: 'ExerciseAttempts',
-    components: { answerIcon },
+    components: { AnswerIcon },
     props: {
       // Creates an empty space awaiting a new attempt
       waitingForAttempt: {

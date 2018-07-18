@@ -55,12 +55,12 @@
 
 <script>
 
-  import pageTemplate from '../shell/PageTemplate';
+  import PageTemplate from '../shell/PageTemplate';
 
   export default {
     name: 'Writing',
     components: {
-      pageTemplate,
+      PageTemplate,
     },
   };
 

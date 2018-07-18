@@ -93,13 +93,13 @@
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import uniqBy from 'lodash/uniqBy';
-  import subpageContainer from '../containers/SubpageContainer';
-  import channelListItem from '../ManageContentPage/ChannelListItem';
-  import contentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
+  import SubpageContainer from '../containers/SubpageContainer';
+  import ChannelListItem from '../ManageContentPage/ChannelListItem';
+  import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { wizardState } from '../../state/getters';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
   import { TransferTypes } from '../../constants';
-  import channelTokenModal from './ChannelTokenModal';
+  import ChannelTokenModal from './ChannelTokenModal';
 
   const ALL_FILTER = 'ALL';
 
@@ -111,13 +111,13 @@
       };
     },
     components: {
-      channelListItem,
-      channelTokenModal,
-      contentWizardUiAlert,
+      ChannelListItem,
+      ChannelTokenModal,
+      ContentWizardUiAlert,
       ImmersiveFullScreen,
       KButton,
       KFilterTextbox,
-      subpageContainer,
+      SubpageContainer,
       KLinearLoader,
       KSelect,
     },

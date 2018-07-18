@@ -34,8 +34,8 @@
 
 <script>
 
-  import uiIcon from 'keen-ui/src/UiIcon';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   /**
    * Used to filter items via text input
    */
@@ -46,8 +46,8 @@
       clear: 'clear',
     },
     components: {
-      uiIcon,
-      uiIconButton,
+      UiIcon,
+      UiIconButton,
     },
     props: {
       /**

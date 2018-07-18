@@ -21,13 +21,13 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import previewExamModal from '../CoachExamsPage/PreviewExamModal';
+  import PreviewExamModal from '../CoachExamsPage/PreviewExamModal';
 
   export default {
     name: 'PreviewNewExamModal',
     $trs: { randomize: 'Randomize questions' },
     components: {
-      previewExamModal,
+      PreviewExamModal,
       KButton,
     },
     props: {

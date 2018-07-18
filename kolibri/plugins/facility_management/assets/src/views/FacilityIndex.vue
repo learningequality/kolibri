@@ -36,7 +36,7 @@
   import dataPage from './DataPage';
   import facilitiesConfigPage from './FacilityConfigPage';
   import manageClassPage from './ManageClassPage';
-  import topNav from './TopNav';
+  import TopNav from './TopNav';
   import userPage from './UserPage';
 
   const classEnrollmentPages = [PageNames.CLASS_ENROLL_LEARNER, PageNames.CLASS_ASSIGN_COACH];
@@ -62,7 +62,7 @@
     components: {
       AuthMessage,
       CoreBase,
-      topNav,
+      TopNav,
     },
     computed: {
       ...mapGetters(['isAdmin', 'isSuperuser']),

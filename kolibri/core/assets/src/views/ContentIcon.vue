@@ -85,8 +85,8 @@
 
   import { validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds, USER } from 'kolibri.coreVue.vuex.constants';
-  import uiIcon from 'keen-ui/src/UiIcon';
-  import uiTooltip from 'keen-ui/src/UiTooltip';
+  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiTooltip from 'keen-ui/src/UiTooltip';
 
   export default {
     name: 'ContentIcon',
@@ -103,8 +103,8 @@
       user: 'User',
     },
     components: {
-      uiIcon,
-      uiTooltip,
+      UiIcon,
+      UiTooltip,
     },
     props: {
       kind: {

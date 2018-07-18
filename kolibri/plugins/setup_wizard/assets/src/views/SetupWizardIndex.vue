@@ -37,9 +37,9 @@
 
   import { mapActions, mapState } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import loadingPage from './submission-states/LoadingPage';
-  import errorPage from './submission-states/ErrorPage';
-  import progressToolbar from './ProgressToolbar';
+  import LoadingPage from './submission-states/LoadingPage';
+  import ErrorPage from './submission-states/ErrorPage';
+  import ProgressToolbar from './ProgressToolbar';
   import defaultLanguageForm from './onboarding-forms/DefaultLanguageForm';
   import facilityNameForm from './onboarding-forms/FacilityNameForm';
   import superuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm';
@@ -47,7 +47,7 @@
 
   export default {
     name: 'SetupWizardIndex',
-    components: { progressToolbar, loadingPage, errorPage },
+    components: { ProgressToolbar, LoadingPage, ErrorPage },
     mixins: [responsiveWindow],
     $trs: {
       onboardingNextStepButton: 'Continue',

@@ -72,7 +72,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
   export default {
@@ -99,7 +99,7 @@
       KModal,
       KTextbox,
       KSelect,
-      uiAlert,
+      UiAlert,
       KRadioButton,
     },
     props: {

@@ -131,9 +131,9 @@
 
   import FullVue from 'vue/dist/vue.common';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import componentDocs from '../../shell/ComponentDocs';
-  import vueExample from '../../shell/VueExample';
-  import pageTemplate from '../../shell/PageTemplate';
+  import ComponentDocs from '../../shell/ComponentDocs';
+  import VueExample from '../../shell/VueExample';
+  import PageTemplate from '../../shell/PageTemplate';
 
   import example from 'raw-loader!./example.html';
   import kTextboxApi from '!vue-doc!kolibri.coreVue.components.KTextbox';
@@ -143,9 +143,9 @@
   export default {
     name: 'TextFields',
     components: {
-      pageTemplate,
-      componentDocs,
-      vueExample,
+      PageTemplate,
+      ComponentDocs,
+      VueExample,
     },
     data: () => ({
       kTextboxApi,

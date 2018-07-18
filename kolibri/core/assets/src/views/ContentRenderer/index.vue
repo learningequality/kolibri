@@ -49,7 +49,7 @@
   import heartbeat from 'kolibri.heartbeat';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
 
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'keen-ui/src/UiAlert';
   import { defaultLanguage, languageValidator } from 'kolibri.utils.i18n';
 
   const logging = logger.getLogger(__filename);
@@ -62,7 +62,7 @@
     },
     components: {
       KCircularLoader,
-      uiAlert,
+      UiAlert,
     },
     props: {
       id: {

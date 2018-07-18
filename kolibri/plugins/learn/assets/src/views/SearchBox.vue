@@ -61,7 +61,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import { PageNames } from '../constants';
 
   export default {
@@ -72,7 +72,7 @@
       startSearchButtonLabel: 'Start search',
     },
     components: {
-      uiIconButton,
+      UiIconButton,
     },
     props: {
       icon: {

@@ -40,7 +40,7 @@
 
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiPopover from 'keen-ui/src/UiPopover';
-  import uiMenu from 'keen-ui/src/UiMenu';
+  import UiMenu from 'keen-ui/src/UiMenu';
   import { validator } from './buttons-and-links/appearances';
 
   /**
@@ -51,7 +51,7 @@
     components: {
       KButton,
       UiPopover,
-      uiMenu,
+      UiMenu,
     },
     props: {
       /**

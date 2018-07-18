@@ -24,14 +24,14 @@
 
 <script>
 
-  import uiSnackbar from 'keen-ui/src/UiSnackbar';
+  import UiSnackbar from 'keen-ui/src/UiSnackbar';
   import { mapActions } from 'vuex';
 
   /* Snackbars are used to display notification. */
   export default {
     name: 'CoreSnackbar',
     components: {
-      uiSnackbar,
+      UiSnackbar,
     },
     props: {
       /* Text of notification to be displayed */

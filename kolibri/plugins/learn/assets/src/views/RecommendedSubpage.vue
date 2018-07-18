@@ -19,8 +19,8 @@
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
-  import contentCardGroupGrid from './ContentCardGroupGrid';
-  import contentCardGroupHeader from './ContentCardGroupHeader';
+  import ContentCardGroupGrid from './ContentCardGroupGrid';
+  import ContentCardGroupHeader from './ContentCardGroupHeader';
 
   export default {
     name: 'RecommendedSubpage',
@@ -35,8 +35,8 @@
       documentTitleForFeatured: 'Featured - { channelTitle }',
     },
     components: {
-      contentCardGroupGrid,
-      contentCardGroupHeader,
+      ContentCardGroupGrid,
+      ContentCardGroupHeader,
       KBreadcrumbs,
     },
     metaInfo() {

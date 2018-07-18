@@ -26,11 +26,11 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import submissionStatePage from '../SubmissionStatePage';
+  import SubmissionStatePage from '../SubmissionStatePage';
 
   export default {
     name: 'ErrorPage',
-    components: { submissionStatePage, KButton },
+    components: { SubmissionStatePage, KButton },
     $trs: {
       errorPageHeader: 'Something went wrong',
       errorPageSubheader: 'Please check your server connection and retry.',

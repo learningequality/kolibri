@@ -18,8 +18,8 @@
 
   import { mapState } from 'vuex';
   import { PageNames } from '../constants';
-  import pageHeader from './PageHeader';
-  import contentCardGroupGrid from './ContentCardGroupGrid';
+  import PageHeader from './PageHeader';
+  import ContentCardGroupGrid from './ContentCardGroupGrid';
 
   export default {
     name: 'ChannelsPage',
@@ -33,8 +33,8 @@
       };
     },
     components: {
-      pageHeader,
-      contentCardGroupGrid,
+      PageHeader,
+      ContentCardGroupGrid,
     },
     computed: {
       ...mapState({

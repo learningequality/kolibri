@@ -29,14 +29,14 @@
 
 <script>
 
-  import uiTextbox from 'keen-ui/src/UiTextbox';
+  import UiTextbox from 'keen-ui/src/UiTextbox';
 
   /**
    * Handles user input.
    */
   export default {
     name: 'KTextbox',
-    components: { uiTextbox },
+    components: { UiTextbox },
     props: {
       /**
        * v-model

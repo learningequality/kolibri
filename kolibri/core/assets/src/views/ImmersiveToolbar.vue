@@ -68,15 +68,15 @@
 
 <script>
 
-  import uiToolbar from 'keen-ui/src/UiToolbar';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiToolbar from 'keen-ui/src/UiToolbar';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import { validateLinkObject } from 'kolibri.utils.validators';
 
   export default {
     name: 'ImmersiveToolbar',
     components: {
-      uiToolbar,
-      uiIconButton,
+      UiToolbar,
+      UiIconButton,
     },
     props: {
       appBarTitle: {
@@ -125,7 +125,7 @@
 
   @import '~kolibri.styles.definitions';
 
-  // only used when using a link. Otherwise, uses uiToolbar's styles
+  // only used when using a link. Otherwise, uses UiToolbar's styles
   .icon {
     width: 3em;
     // copied from keen

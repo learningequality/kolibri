@@ -33,10 +33,10 @@
 
   import FullVue from 'vue/dist/vue.common';
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
-  import componentDocs from '../../shell/ComponentDocs';
-  import vueExample from '../../shell/VueExample';
-  import pageTemplate from '../../shell/PageTemplate';
-  import show from '../../shell/Show';
+  import ComponentDocs from '../../shell/ComponentDocs';
+  import VueExample from '../../shell/VueExample';
+  import PageTemplate from '../../shell/PageTemplate';
+  import Show from '../../shell/Show';
 
   import example from 'raw-loader!./example.html';
   import kBreadcrumbsApi from '!vue-doc!kolibri.coreVue.components.KBreadcrumbs';
@@ -46,11 +46,11 @@
   export default {
     name: 'Breadcrumbs',
     components: {
-      pageTemplate,
-      componentDocs,
-      vueExample,
+      PageTemplate,
+      ComponentDocs,
+      VueExample,
       KBreadcrumbs,
-      show,
+      Show,
     },
     data: () => ({
       kBreadcrumbsApi,

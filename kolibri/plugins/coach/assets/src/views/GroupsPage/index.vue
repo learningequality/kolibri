@@ -69,11 +69,11 @@
   import flatMap from 'lodash/flatMap';
   import KButton from 'kolibri.coreVue.components.KButton';
   import { GroupModals } from '../../constants';
-  import createGroupModal from './CreateGroupModal';
-  import groupSection from './GroupSection';
-  import renameGroupModal from './RenameGroupModal';
-  import deleteGroupModal from './DeleteGroupModal';
-  import moveLearnersModal from './MoveLearnersModal';
+  import CreateGroupModal from './CreateGroupModal';
+  import GroupSection from './GroupSection';
+  import RenameGroupModal from './RenameGroupModal';
+  import DeleteGroupModal from './DeleteGroupModal';
+  import MoveLearnersModal from './MoveLearnersModal';
 
   export default {
     name: 'GroupsPage',
@@ -91,11 +91,11 @@
     },
     components: {
       KButton,
-      createGroupModal,
-      groupSection,
-      renameGroupModal,
-      deleteGroupModal,
-      moveLearnersModal,
+      CreateGroupModal,
+      GroupSection,
+      RenameGroupModal,
+      DeleteGroupModal,
+      MoveLearnersModal,
     },
     data() {
       return {

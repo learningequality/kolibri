@@ -97,10 +97,10 @@
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import { ClassesPageNames } from '../../constants';
-  import answerHistory from './AnswerHistory';
+  import AnswerHistory from './AnswerHistory';
 
   export default {
     name: 'ExamPage',
@@ -126,9 +126,9 @@
       ImmersiveFullScreen,
       ContentRenderer,
       KButton,
-      answerHistory,
+      AnswerHistory,
       KModal,
-      uiAlert,
+      UiAlert,
       MultiPaneLayout,
     },
     data() {

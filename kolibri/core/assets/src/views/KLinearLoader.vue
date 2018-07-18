@@ -12,7 +12,7 @@
 
 <script>
 
-  import uiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
 
   /**
    * Used to show determinate or indeterminate loading
@@ -20,7 +20,7 @@
   export default {
     name: 'KLinearLoader',
     components: {
-      uiProgressLinear,
+      UiProgressLinear,
     },
     props: {
       /**

@@ -88,7 +88,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import UiAlert from 'kolibri.coreVue.components.UiAlert';
 
   export default {
     name: 'UserCreateModal',
@@ -120,7 +120,7 @@
       KRadioButton,
       KModal,
       KTextbox,
-      uiAlert,
+      UiAlert,
       KSelect,
     },
     data() {

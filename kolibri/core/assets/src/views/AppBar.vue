@@ -72,7 +72,7 @@
               category="action"
             />
           </core-menu-option>
-          <logout v-if="isUserLoggedIn" />
+          <LogoutSideNavEntry v-if="isUserLoggedIn" />
         </template>
 
       </core-menu>
@@ -92,27 +92,27 @@
 
   import { mapGetters, mapState, mapActions } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import uiToolbar from 'keen-ui/src/UiToolbar';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiToolbar from 'keen-ui/src/UiToolbar';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
-  import uiButton from 'keen-ui/src/UiButton';
+  import UiButton from 'keen-ui/src/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import navComponentsMixin from '../mixins/nav-components';
-  import languageSwitcherModal from './language-switcher/LanguageSwitcherModal';
-  import logout from './LogoutSideNavEntry';
+  import LanguageSwitcherModal from './language-switcher/LanguageSwitcherModal';
+  import LogoutSideNavEntry from './LogoutSideNavEntry';
 
   export default {
     name: 'AppBar',
     components: {
-      uiToolbar,
-      uiIconButton,
+      UiToolbar,
+      UiIconButton,
       CoreMenu,
-      uiButton,
-      languageSwitcherModal,
+      UiButton,
+      LanguageSwitcherModal,
       CoreMenuOption,
-      logout,
+      LogoutSideNavEntry,
     },
     mixins: [responsiveWindow, navComponentsMixin],
     $trs: {

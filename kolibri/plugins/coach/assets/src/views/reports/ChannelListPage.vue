@@ -2,7 +2,7 @@
 
   <div>
 
-    <breadcrumbs />
+    <Breadcrumbs />
     <template v-if="showRecentOnly">
       <h1>{{ $tr('recentTitle') }}</h1>
       <p v-if="standardDataTable.length">{{ $tr('showingRecent', { threshold }) }}</p>
@@ -63,11 +63,11 @@
   import { standardDataTable } from '../../state/getters/reports';
   import { PageNames } from '../../constants';
   import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
-  import headerCell from './table-cells/HeaderCell';
-  import nameCell from './table-cells/NameCell';
-  import activityCell from './table-cells/ActivityCell';
+  import HeaderCell from './table-cells/HeaderCell';
+  import NameCell from './table-cells/NameCell';
+  import ActivityCell from './table-cells/ActivityCell';
   import alignMixin from './align-mixin';
-  import breadcrumbs from './Breadcrumbs';
+  import Breadcrumbs from './Breadcrumbs';
 
   export default {
     name: 'ChannelListPage',
@@ -77,12 +77,12 @@
       };
     },
     components: {
-      breadcrumbs,
+      Breadcrumbs,
       ContentIcon,
       CoreTable,
-      headerCell,
-      nameCell,
-      activityCell,
+      HeaderCell,
+      NameCell,
+      ActivityCell,
     },
     mixins: [alignMixin],
     $trs: {

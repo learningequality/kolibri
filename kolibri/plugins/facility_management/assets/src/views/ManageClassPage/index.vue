@@ -87,8 +87,8 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { Modals, PageNames } from '../../constants';
-  import classCreateModal from './ClassCreateModal';
-  import classDeleteModal from './ClassDeleteModal';
+  import ClassCreateModal from './ClassCreateModal';
+  import ClassDeleteModal from './ClassDeleteModal';
 
   function classEditLink(classId) {
     return {
@@ -106,8 +106,8 @@
     },
     components: {
       CoreTable,
-      classCreateModal,
-      classDeleteModal,
+      ClassCreateModal,
+      ClassDeleteModal,
       KButton,
       KRouterLink,
       UiIcon,

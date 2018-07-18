@@ -125,13 +125,13 @@
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
-  import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
-  import uiAlert from 'keen-ui/src/UiAlert';
+  import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
+  import UiAlert from 'keen-ui/src/UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import urls from 'kolibri.urls';
   import { PageNames } from '../../constants';
-  import languageSwitcherFooter from '../LanguageSwitcherFooter';
-  import facilityModal from './FacilityModal';
+  import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
+  import FacilityModal from './FacilityModal';
 
   function hasMultipleFacilities(state) {
     return state.pageState.hasMultipleFacilities;
@@ -163,11 +163,11 @@
       KRouterLink,
       KExternalLink,
       KTextbox,
-      facilityModal,
+      FacilityModal,
       CoreLogo,
-      uiAutocompleteSuggestion,
-      uiAlert,
-      languageSwitcherFooter,
+      UiAutocompleteSuggestion,
+      UiAlert,
+      LanguageSwitcherFooter,
     },
     mixins: [responsiveWindow],
     data() {

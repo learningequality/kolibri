@@ -86,9 +86,9 @@
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
 
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
 
-  import pdfPage from './PdfPage';
+  import PdfPage from './PdfPage';
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
   // renderer's own webpack config
@@ -104,8 +104,8 @@
     components: {
       KButton,
       KLinearLoader,
-      uiIconButton,
-      pdfPage,
+      UiIconButton,
+      PdfPage,
       RecycleList,
       CoreFullscreen,
     },

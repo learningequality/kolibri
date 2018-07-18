@@ -17,12 +17,12 @@
 
   import { mapState, mapActions } from 'vuex';
   import { PageNames } from '../constants';
-  import classEnrollForm from './ClassEnrollForm';
+  import ClassEnrollForm from './ClassEnrollForm';
 
   export default {
     name: 'LearnerClassEnrollmentPage',
     components: {
-      classEnrollForm,
+      ClassEnrollForm,
     },
     metaInfo() {
       return {

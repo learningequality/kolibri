@@ -11,11 +11,11 @@
 
 <script>
 
-  import submissionStatePage from '../SubmissionStatePage';
+  import SubmissionStatePage from '../SubmissionStatePage';
 
   export default {
     name: 'LoadingPage',
-    components: { submissionStatePage },
+    components: { SubmissionStatePage },
     $trs: {
       loadingPageHeader: 'Setting up your facility...',
       loadingPageSubheader: 'Please be patient. Setup may take several minutes',

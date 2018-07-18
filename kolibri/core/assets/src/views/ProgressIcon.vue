@@ -25,8 +25,8 @@
 
 <script>
 
-  import uiIcon from 'keen-ui/src/UiIcon';
-  import uiTooltip from 'keen-ui/src/UiTooltip';
+  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiTooltip from 'keen-ui/src/UiTooltip';
 
   export default {
     name: 'ProgressIcon',
@@ -35,8 +35,8 @@
       completed: 'Completed',
     },
     components: {
-      uiIcon,
-      uiTooltip,
+      UiIcon,
+      UiTooltip,
     },
     props: {
       progress: {

@@ -25,12 +25,12 @@
 
   import { mapActions } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import onboardingForm from '../OnboardingForm';
+  import OnboardingForm from '../OnboardingForm';
 
   export default {
     name: 'FacilityNameForm',
     components: {
-      onboardingForm,
+      OnboardingForm,
       KTextbox,
     },
     $trs: {

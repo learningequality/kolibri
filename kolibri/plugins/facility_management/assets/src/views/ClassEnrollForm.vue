@@ -84,10 +84,10 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
-  import userTable from './UserTable';
+  import UserTable from './UserTable';
   import { Modals } from './../constants';
 
   export default {
@@ -95,11 +95,11 @@
     components: {
       KButton,
       KCheckbox,
-      uiIconButton,
+      UiIconButton,
       KFilterTextbox,
       KGrid,
       KGridItem,
-      userTable,
+      UserTable,
     },
     mixins: [responsiveWindow],
     $trs: {

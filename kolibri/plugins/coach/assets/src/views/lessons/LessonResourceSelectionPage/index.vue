@@ -62,13 +62,13 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import uiToolbar from 'keen-ui/src/UiToolbar';
+  import UiToolbar from 'keen-ui/src/UiToolbar';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { lessonSummaryLink, topicListingLink } from '../lessonsRouterUtils';
-  import searchTools from './SearchTools';
+  import SearchTools from './SearchTools';
   import LessonContentCard from './LessonContentCard';
 
   export default {
@@ -79,11 +79,11 @@
       };
     },
     components: {
-      uiToolbar,
+      UiToolbar,
       LessonContentCard,
       KButton,
       KCheckbox,
-      searchTools,
+      SearchTools,
     },
     computed: {
       ...mapState(['classId']),

@@ -24,14 +24,14 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import uiIcon from 'keen-ui/src/UiIcon';
+  import UiIcon from 'keen-ui/src/UiIcon';
 
   /**
    Links for use inside the KNavbar
    */
   export default {
     name: 'KNavbarLink',
-    components: { uiIcon },
+    components: { UiIcon },
     props: {
       /**
        * The type of tab. title, icon, or icon-and-title

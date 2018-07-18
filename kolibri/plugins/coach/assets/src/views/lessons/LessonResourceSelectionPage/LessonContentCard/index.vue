@@ -46,12 +46,12 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
-  import cardThumbnail from './CardThumbnail';
+  import CardThumbnail from './CardThumbnail';
 
   export default {
     name: 'LessonContentCard',
     components: {
-      cardThumbnail,
+      CardThumbnail,
       TextTruncator,
       CoachContentLabel,
       KButton,

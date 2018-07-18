@@ -35,7 +35,7 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
-  import topNav from './TopNav';
+  import TopNav from './TopNav';
   import classListPage from './ClassListPage';
   import examsPage from './exams/CoachExamsPage';
   import createExamPage from './exams/CreateExamPage';
@@ -47,7 +47,7 @@
   import channelListPage from './reports/ChannelListPage';
   import itemListPage from './reports/ItemListPage';
   import learnerListPage from './reports/LearnerListPage';
-  import navTitle from './NavTitle';
+  import NavTitle from './NavTitle';
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
   import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';
@@ -116,9 +116,9 @@
     },
     components: {
       AuthMessage,
-      topNav,
+      TopNav,
       CoreBase,
-      navTitle,
+      NavTitle,
     },
     computed: {
       ...mapGetters(['classCoaches', 'isAdmin', 'isCoach', 'isSuperuser']),

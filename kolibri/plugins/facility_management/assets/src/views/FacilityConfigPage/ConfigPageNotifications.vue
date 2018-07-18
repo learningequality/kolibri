@@ -31,12 +31,12 @@
 
 <script>
 
-  import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import { notificationTypes } from '../../constants';
 
   export default {
     name: 'ConfigPageNotifications',
-    components: { uiAlert },
+    components: { UiAlert },
     props: {
       notification: {
         type: String,

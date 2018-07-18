@@ -95,15 +95,15 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import userTable from '../UserTable';
+  import UserTable from '../UserTable';
   import { PageNames, Modals } from '../../constants';
-  import classRenameModal from './ClassRenameModal';
-  import userRemoveConfirmationModal from './UserRemoveConfirmationModal';
+  import ClassRenameModal from './ClassRenameModal';
+  import UserRemoveConfirmationModal from './UserRemoveConfirmationModal';
 
   export default {
     name: 'ClassEditPage',
@@ -126,10 +126,10 @@
       };
     },
     components: {
-      userTable,
-      classRenameModal,
-      userRemoveConfirmationModal,
-      uiIconButton,
+      UserTable,
+      ClassRenameModal,
+      UserRemoveConfirmationModal,
+      UiIconButton,
       KGrid,
       KGridItem,
       KRouterLink,

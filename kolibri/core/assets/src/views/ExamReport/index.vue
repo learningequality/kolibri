@@ -62,7 +62,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
-  import pageStatus from './PageStatus';
+  import PageStatus from './PageStatus';
 
   export default {
     name: 'ExamReport',
@@ -77,7 +77,7 @@
     components: {
       ImmersiveFullScreen,
       ContentRenderer,
-      pageStatus,
+      PageStatus,
       AttemptLogList,
       InteractionList,
       KButton,

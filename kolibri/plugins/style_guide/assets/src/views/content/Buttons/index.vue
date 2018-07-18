@@ -128,10 +128,10 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import componentDocs from '../../shell/ComponentDocs';
-  import vueExample from '../../shell/VueExample';
-  import pageTemplate from '../../shell/PageTemplate';
-  import show from '../../shell/Show';
+  import ComponentDocs from '../../shell/ComponentDocs';
+  import VueExample from '../../shell/VueExample';
+  import PageTemplate from '../../shell/PageTemplate';
+  import Show from '../../shell/Show';
 
   import example from 'raw-loader!./example.html';
   import kButtonApi from '!vue-doc!kolibri.coreVue.components.KButton';
@@ -145,10 +145,10 @@
   export default {
     name: 'Buttons',
     components: {
-      pageTemplate,
-      componentDocs,
-      vueExample,
-      show,
+      PageTemplate,
+      ComponentDocs,
+      VueExample,
+      Show,
       KButton,
       KRouterLink,
       KExternalLink,

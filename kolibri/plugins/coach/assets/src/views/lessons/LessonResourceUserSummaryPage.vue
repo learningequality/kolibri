@@ -202,7 +202,7 @@
 
   import { mapState } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import ProgressBar from 'kolibri.coreVue.components.ProgressBar';
@@ -228,7 +228,7 @@
       ProgressBar,
       KRouterLink,
       KButton,
-      uiIconButton,
+      UiIconButton,
       ElapsedTime,
     },
     data() {

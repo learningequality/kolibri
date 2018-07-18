@@ -68,7 +68,7 @@
   import { navigateToTopicUrl } from '../../routes/wizardTransitionRoutes';
   import { TransferTypes } from '../../constants';
   import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
-  import contentNodeRow from './ContentNodeRow';
+  import ContentNodeRow from './ContentNodeRow';
 
   // Removes annotations (except path) added to nodes in ContentTreeViewer before putting in store.
   function sanitizeNode(node) {
@@ -78,7 +78,7 @@
   export default {
     name: 'ContentTreeViewer',
     components: {
-      contentNodeRow,
+      ContentNodeRow,
       KBreadcrumbs,
       KCheckbox,
       CoreTable,

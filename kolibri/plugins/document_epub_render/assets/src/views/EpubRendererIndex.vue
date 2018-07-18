@@ -49,7 +49,7 @@
   import manager from 'epubjs/lib/managers/default';
   import iFrameView from 'epubjs/lib/managers/views/iframe';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
@@ -65,7 +65,7 @@
     name: 'EpubRendererIndex',
     components: {
       KButton,
-      uiIconButton,
+      UiIconButton,
       CoreFullscreen,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],

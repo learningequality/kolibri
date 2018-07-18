@@ -85,14 +85,14 @@
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import userTable from '../UserTable';
+  import UserTable from '../UserTable';
   import { Modals } from '../../constants';
-  import userRole from '../UserRole';
+  import UserRole from '../UserRole';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
-  import userCreateModal from './UserCreateModal';
-  import editUserModal from './EditUserModal';
-  import resetUserPasswordModal from './ResetUserPasswordModal';
-  import deleteUserModal from './DeleteUserModal';
+  import UserCreateModal from './UserCreateModal';
+  import EditUserModal from './EditUserModal';
+  import ResetUserPasswordModal from './ResetUserPasswordModal';
+  import DeleteUserModal from './DeleteUserModal';
 
   const ALL_FILTER = 'all';
 
@@ -104,16 +104,16 @@
       };
     },
     components: {
-      userCreateModal,
-      editUserModal,
-      resetUserPasswordModal,
-      deleteUserModal,
+      UserCreateModal,
+      EditUserModal,
+      ResetUserPasswordModal,
+      DeleteUserModal,
       KButton,
       KFilterTextbox,
       KDropdownMenu,
-      userRole,
+      UserRole,
       KSelect,
-      userTable,
+      UserTable,
       UiIcon,
     },
     data: () => ({

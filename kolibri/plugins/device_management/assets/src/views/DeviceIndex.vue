@@ -14,7 +14,7 @@
     </transition>
 
     <div>
-      <top-navigation v-if="canManageContent && !currentPageIsImmersive" />
+      <DeviceTopNav v-if="canManageContent && !currentPageIsImmersive" />
       <component :is="currentPage" />
     </div>
   </core-base>
@@ -28,12 +28,12 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ContentWizardPages, PageNames } from '../constants';
-  import topNavigation from './DeviceTopNav';
+  import DeviceTopNav from './DeviceTopNav';
   import manageContentPage from './ManageContentPage';
   import managePermissionsPage from './ManagePermissionsPage';
   import userPermissionsPage from './UserPermissionsPage';
   import deviceInfoPage from './DeviceInfoPage';
-  import welcomeModal from './WelcomeModal';
+  import WelcomeModal from './WelcomeModal';
   import availableChannelsPage from './AvailableChannelsPage';
   import selectContentPage from './SelectContentPage';
 
@@ -50,8 +50,8 @@
     name: 'DeviceIndex',
     components: {
       CoreBase,
-      welcomeModal,
-      topNavigation,
+      WelcomeModal,
+      DeviceTopNav,
     },
     computed: {
       ...mapGetters(['canManageContent']),

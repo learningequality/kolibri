@@ -15,7 +15,7 @@
 import vue from 'vue';
 import vuex from 'vuex';
 import seededshuffle from 'seededshuffle';
-import uiAlert from 'keen-ui/src/UiAlert';
+import UiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
 import logging from '../logging';
@@ -160,7 +160,7 @@ export default {
       MultiPaneLayout,
       CoreFullscreen,
       CoreLogo,
-      uiAlert,
+      UiAlert,
     },
     router,
     mixins: {

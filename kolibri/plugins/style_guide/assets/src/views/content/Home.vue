@@ -54,12 +54,12 @@
 
 <script>
 
-  import pageTemplate from '../shell/PageTemplate';
+  import PageTemplate from '../shell/PageTemplate';
 
   export default {
     name: 'Home',
     components: {
-      pageTemplate,
+      PageTemplate,
     },
   };
 

@@ -30,13 +30,13 @@
 <script>
 
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
 
   export default {
     name: 'Html5AppRendererIndex',
     components: {
-      uiIconButton,
+      UiIconButton,
       CoreFullscreen,
     },
     mixins: [contentRendererMixin],

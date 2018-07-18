@@ -21,23 +21,23 @@
   import { mapState } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
-  import signInPage from './SignInPage';
-  import signUpPage from './SignUpPage';
-  import profilePage from './ProfilePage';
+  import SignInPage from './SignInPage';
+  import SignUpPage from './SignUpPage';
+  import ProfilePage from './ProfilePage';
 
   const pageNameComponentMap = {
-    [PageNames.SIGN_IN]: signInPage,
-    [PageNames.SIGN_UP]: signUpPage,
-    [PageNames.PROFILE]: profilePage,
+    [PageNames.SIGN_IN]: SignInPage,
+    [PageNames.SIGN_UP]: SignUpPage,
+    [PageNames.PROFILE]: ProfilePage,
   };
 
   export default {
     name: 'UserIndex',
     components: {
       CoreBase,
-      signInPage,
-      signUpPage,
-      profilePage,
+      SignInPage,
+      SignUpPage,
+      ProfilePage,
     },
     computed: {
       ...mapState(['pageName']),

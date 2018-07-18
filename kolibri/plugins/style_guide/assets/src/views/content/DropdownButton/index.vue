@@ -29,10 +29,10 @@
 
 <script>
 
-  import componentDocs from '../../shell/ComponentDocs';
-  import vueExample from '../../shell/VueExample';
-  import pageTemplate from '../../shell/PageTemplate';
-  import show from '../../shell/Show';
+  import ComponentDocs from '../../shell/ComponentDocs';
+  import VueExample from '../../shell/VueExample';
+  import PageTemplate from '../../shell/PageTemplate';
+  import Show from '../../shell/Show';
 
   import example from 'raw-loader!./example.html';
 
@@ -40,10 +40,10 @@
 
   export default {
     components: {
-      pageTemplate,
-      componentDocs,
-      vueExample,
-      show,
+      PageTemplate,
+      ComponentDocs,
+      VueExample,
+      Show,
     },
     data: () => ({
       example,

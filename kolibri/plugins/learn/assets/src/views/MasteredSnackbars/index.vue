@@ -5,7 +5,7 @@
       name="slidein"
       mode="out-in"
     >
-      <snackbar
+      <Snackbar
         v-if="currentSnackbar === SNACKBARS.POINTS"
         :key="SNACKBARS.POINTS"
         @close="currentSnackbar = SNACKBARS.NEXT_RESOURCE"
@@ -32,9 +32,9 @@
         >
           {{ $tr('signIn') }}
         </ui-alert>
-      </snackbar>
+      </Snackbar>
 
-      <snackbar
+      <Snackbar
         v-else-if="currentSnackbar === SNACKBARS.NEXT_RESOURCE && nextContent"
         :key="SNACKBARS.NEXT_RESOURCE"
         @close="$emit('close')"
@@ -63,7 +63,7 @@
           </router-link>
 
         </template>
-      </snackbar>
+      </Snackbar>
     </transition>
 
   </div>
@@ -79,8 +79,8 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import uiAlert from 'keen-ui/src/UiAlert';
-  import snackbar from './Snackbar';
+  import UiAlert from 'keen-ui/src/UiAlert';
+  import Snackbar from './Snackbar';
 
   const SNACKBARS = { POINTS: 'POINTS', NEXT_RESOURCE: 'NEXT_RESOURCE' };
 
@@ -91,8 +91,8 @@
       ProgressIcon,
       ContentIcon,
       KRouterLink,
-      snackbar,
-      uiAlert,
+      Snackbar,
+      UiAlert,
     },
     props: {
       nextContent: {

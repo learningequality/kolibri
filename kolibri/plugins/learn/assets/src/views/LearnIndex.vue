@@ -45,7 +45,7 @@
     </div>
 
     <div>
-      <breadcrumbs />
+      <Breadcrumbs />
       <component :is="currentPage" />
     </div>
 
@@ -69,16 +69,16 @@
   import recommendedPage from './RecommendedPage';
   import recommendedSubpage from './RecommendedSubpage';
   import contentUnavailablePage from './ContentUnavailablePage';
-  import breadcrumbs from './Breadcrumbs';
+  import Breadcrumbs from './Breadcrumbs';
   import searchPage from './SearchPage';
   import examPage from './ExamPage';
   import examReportViewer from './LearnExamReportViewer';
-  import totalPoints from './TotalPoints';
+  import TotalPoints from './TotalPoints';
   import AllClassesPage from './classes/AllClassesPage';
   import ClassAssignmentsPage from './classes/ClassAssignmentsPage';
   import LessonPlaylistPage from './classes/LessonPlaylistPage';
   import LessonResourceViewer from './classes/LessonResourceViewer';
-  import actionBarSearchBox from './ActionBarSearchBox';
+  import ActionBarSearchBox from './ActionBarSearchBox';
 
   const BOTTOM_SPACED_RESERVED = 117;
 
@@ -114,12 +114,12 @@
       examReportTitle: '{examTitle} report',
     },
     components: {
-      actionBarSearchBox,
-      breadcrumbs,
+      ActionBarSearchBox,
+      Breadcrumbs,
       CoreBase,
       KNavbar,
       KNavbarLink,
-      totalPoints,
+      TotalPoints,
     },
     mixins: [responsiveWindow],
     computed: {

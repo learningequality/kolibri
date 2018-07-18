@@ -24,14 +24,14 @@
 
 <script>
 
-  import uiToolbar from 'keen-ui/src/UiToolbar';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
+  import UiToolbar from 'keen-ui/src/UiToolbar';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {
     name: 'ProgressToolbar',
     components: {
-      uiToolbar,
-      uiIconButton,
+      UiToolbar,
+      UiIconButton,
     },
     $trs: {
       progressIndicator: 'Step {currentStep, number} of {totalSteps, number}',

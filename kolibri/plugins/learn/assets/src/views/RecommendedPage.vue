@@ -72,9 +72,9 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
-  import contentCardGroupCarousel from './ContentCardGroupCarousel';
-  import contentCardGroupGrid from './ContentCardGroupGrid';
-  import contentCardGroupHeader from './ContentCardGroupHeader';
+  import ContentCardGroupCarousel from './ContentCardGroupCarousel';
+  import ContentCardGroupGrid from './ContentCardGroupGrid';
+  import ContentCardGroupHeader from './ContentCardGroupHeader';
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;
@@ -94,9 +94,9 @@
       };
     },
     components: {
-      contentCardGroupCarousel,
-      contentCardGroupGrid,
-      contentCardGroupHeader,
+      ContentCardGroupCarousel,
+      ContentCardGroupGrid,
+      ContentCardGroupHeader,
     },
     mixins: [responsiveWindow],
     computed: {
