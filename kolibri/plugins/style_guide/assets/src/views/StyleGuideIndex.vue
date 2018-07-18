@@ -2,7 +2,7 @@
 
   <div>
     <SideNav />
-    <RouterView class="content" />
+    <router-view class="content" />
   </div>
 
 </template>
