@@ -60,6 +60,14 @@
     }
   }
 
+  function parseArray(value) {
+    if (value === undefined || Array.isArray(value)) {
+      return value;
+    }
+    // assume it's a string based on input validation
+    return value.split(',').map(val => val.trim());
+  }
+
   /**
    * Grid layout items
    */
@@ -81,10 +89,10 @@
        * Represents either number of columns or a percentage.
        */
       sizes: {
-        type: Array,
+        type: [Array, String],
         required: false,
         validator(value) {
-          return checkArray(value, checkNumber);
+          return checkArray(parseArray(value), checkNumber);
         },
       },
       /**
@@ -108,29 +116,35 @@
        * large screens.
        */
       alignments: {
-        type: String,
+        type: [Array, String],
         required: false,
         validator(value) {
-          return checkArray(value, checkAlignment);
+          return checkArray(parseArray(value), checkAlignment);
         },
       },
     },
     inject: ['gridMetrics'], // provided by the parent grid component
     computed: {
+      parsedSizes() {
+        return parseArray(this.sizes);
+      },
+      parsedAlignments() {
+        return parseArray(this.alignments);
+      },
       currentSize() {
-        checkInputs(this.size, this.sizes, 'size');
-        if (this.size === undefined && this.sizes === undefined) {
+        checkInputs(this.size, this.parsedSizes, 'size');
+        if (this.size === undefined && this.parsedSizes === undefined) {
           logging.error(`Pass either a size or a sizes array`);
         }
-        if (this.sizes) {
-          return parseInt(this.getResponsiveValue(this.sizes));
+        if (this.parsedSizes) {
+          return parseInt(this.getResponsiveValue(parseArray(this.parsedSizes)));
         }
         return parseInt(this.size);
       },
       currentAlignment() {
-        checkInputs(this.alignment, this.alignments, 'alignment');
-        if (this.alignments) {
-          return this.getResponsiveValue(this.alignments);
+        checkInputs(this.alignment, this.parsedAlignments, 'alignment');
+        if (this.parsedAlignments) {
+          return this.getResponsiveValue(parseArray(this.parsedAlignments));
         }
         return this.alignment;
       },
