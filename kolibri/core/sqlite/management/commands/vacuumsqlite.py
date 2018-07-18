@@ -8,12 +8,12 @@ logging = logger.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Vacuum project sqlite database to optimize it and reduce wal file size'
+    help = "Vacuum Kolibri's SQLite database to optimize it and reduce the .wal file size"
 
     def add_arguments(self, parser):
         parser.add_argument(
             '--database', action='store', dest='database', default=DEFAULT_DB_ALIAS,
-            help='Nominates a database to vacuum. Defaults to the "default" database.',
+            help='Specifies the database to vacuum. Defaults to the "default" database.',
         )
 
     def handle(self, *args, **options):
@@ -26,11 +26,11 @@ class Command(BaseCommand):
                 connection.close()
             except Exception as e:
                 new_msg = (
-                    "Vacuum of database %s couldn't be executed. Possible reasons:\n"
+                    "Vacuum of database {db_name} couldn't be executed. Possible reasons:\n"
                     "  * There is an open transaction in the db.\n"
                     "  * There are one or more active SQL statements.\n"
                     "  * The SQL was invalid.\n"
-                    "The full error: %s") % (connection.settings_dict['NAME'], e)
+                    "The full error: {error_msg}").format(db_name=connection.settings_dict['NAME'], error_msg=e)
                 logging.error(new_msg)
             else:
                 logging.info("Sqlite database Vacuum finished.")
