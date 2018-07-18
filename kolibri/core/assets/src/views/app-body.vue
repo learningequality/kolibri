@@ -11,7 +11,11 @@
       :delay="false"
     />
 
-    <div v-else class="body-wrapper">
+    <div
+      v-else
+      :style="bodyPadding"
+      class="body-wrapper"
+    >
       <app-error v-if="error" />
 
       <slot v-else>
@@ -60,14 +64,15 @@
       isMobile() {
         return this.windowSize.breakpoint < 2;
       },
-      padding() {
-        return this.isMobile ? 16 : 32;
-      },
       contentStyle() {
         return {
           top: `${this.topGap}px`,
           bottom: `${this.bottomGap}px`,
-          padding: `${this.padding}px`,
+        };
+      },
+      bodyPadding() {
+        return {
+          padding: `${this.isMobile ? 16 : 32}px`,
         };
       },
     },
