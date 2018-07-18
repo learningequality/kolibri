@@ -33,6 +33,33 @@
     return true;
   }
 
+  function checkAlignment(value) {
+    if (!['right', 'center', 'left'].includes(value)) {
+      logging.error(`Alignment must be one of left, right, or center`);
+      return false;
+    }
+    return true;
+  }
+
+  function checkArray(value, validator) {
+    if (value.length !== 3) {
+      logging.error(`Array must have 3 values for small, medium, and large screens`);
+      return false;
+    }
+    for (let i = 0; i < 3; i++) {
+      if (!validator(value[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function checkInputs(singularValue, arrayValue, propName) {
+    if (singularValue !== undefined && arrayValue !== undefined) {
+      logging.error(`Pass either a single item or an array, but not both for '${propName}'`);
+    }
+  }
+
   /**
    * Grid layout items
    */
@@ -57,16 +84,7 @@
         type: Array,
         required: false,
         validator(value) {
-          if (value.length !== 3) {
-            logging.error(`Array must have 3 values for small, medium, and large screens`);
-            return false;
-          }
-          for (let i = 0; i < 3; i++) {
-            if (!checkNumber(value[i])) {
-              return false;
-            }
-          }
-          return true;
+          return checkArray(value, checkNumber);
         },
       },
       /**
@@ -80,41 +98,44 @@
       /**
        * Specifies text alignment of contents
        */
-      align: {
+      alignment: {
+        type: String,
+        required: false,
+        validator: checkAlignment,
+      },
+      /**
+       * Array of alignments for grid item, corresponding to small, medium
+       * large screens.
+       */
+      alignments: {
         type: String,
         required: false,
         validator(value) {
-          if (!['right', 'center', 'left'].includes(value)) {
-            logging.error(`Alignment must be one of left, right, or center`);
-            return false;
-          }
-          return true;
+          return checkArray(value, checkAlignment);
         },
       },
     },
     inject: ['gridMetrics'], // provided by the parent grid component
     computed: {
-      isResponsive() {
-        if (this.size !== undefined && this.sizes !== undefined) {
-          logging.error(`Pass either a single size or a sizes array, but not both`);
-        }
+      currentSize() {
+        checkInputs(this.size, this.sizes, 'size');
         if (this.size === undefined && this.sizes === undefined) {
           logging.error(`Pass either a size or a sizes array`);
         }
-        return this.sizes !== undefined;
+        if (this.sizes) {
+          return parseInt(this.getResponsiveValue(this.sizes));
+        }
+        return parseInt(this.size);
+      },
+      currentAlignment() {
+        checkInputs(this.alignment, this.alignments, 'alignment');
+        if (this.alignments) {
+          return this.getResponsiveValue(this.alignments);
+        }
+        return this.alignment;
       },
       sizeIn24ths() {
-        let size = undefined;
-        if (!this.isResponsive) {
-          size = parseInt(this.size);
-        } else if (this.windowIsSmall) {
-          size = parseInt(this.sizes[0]);
-        } else if (this.windowIsMedium) {
-          size = parseInt(this.sizes[1]);
-        } else {
-          size = parseInt(this.sizes[2]);
-        }
-
+        const size = this.currentSize;
         // handle percentage
         if (this.percentage) {
           if (![25, 50, 75, 100].includes(size)) {
@@ -122,7 +143,6 @@
           }
           return (24 * size) / 100;
         }
-
         // handle size in number of columns
         if (size > this.gridMetrics.numCols) {
           logging.error(`Size (${size}) is larger than grid (${this.gridMetrics.numCols})`);
@@ -138,8 +158,8 @@
           paddingLeft: padding,
           paddingRight: padding,
         };
-        if (this.align) {
-          style.textAlign = this.align;
+        if (this.currentAlignment) {
+          style.textAlign = this.currentAlignment;
         }
         return style;
       },
@@ -149,6 +169,16 @@
       if (!this.gridMetrics.numCols || !this.gridMetrics.gutterWidth) {
         logging.error('Grid metrics were not provided by parent');
       }
+    },
+    methods: {
+      getResponsiveValue(array) {
+        if (this.windowIsSmall) {
+          return array[0];
+        } else if (this.windowIsMedium) {
+          return array[1];
+        }
+        return array[2];
+      },
     },
   };
 

@@ -38,7 +38,7 @@
       <k-grid-item :sizes="[100, 50, 50]" percentage>
         <h2>{{ $tr('coachTableTitle') }}</h2>
       </k-grid-item>
-      <k-grid-item :sizes="[100, 50, 50]" class="right" percentage>
+      <k-grid-item :sizes="[100, 50, 50]" alignment="right" percentage>
         <k-router-link
           :text="$tr('assignCoachesButtonLabel')"
           :to="coachAssignmentLink"
@@ -65,7 +65,7 @@
       <k-grid-item :sizes="[100, 50, 50]" percentage>
         <h2>{{ $tr('learnerTableTitle') }}</h2>
       </k-grid-item>
-      <k-grid-item :sizes="[100, 50, 50]" class="right" percentage>
+      <k-grid-item :sizes="[100, 50, 50]" alignment="right" percentage>
         <k-router-link
           :text="$tr('enrollLearnerButtonLabel')"
           :to="learnerEnrollmentLink"
@@ -191,10 +191,6 @@
     left: 10px;
     display: inline-block;
     fill: $core-action-normal;
-  }
-
-  .right {
-    text-align: right;
   }
 
   .top-margin {
