@@ -1,12 +1,25 @@
 <template>
 
   <div class="error-box-wrapper" :class="{ hidden: isHidden }">
+
     <button class="close-button" @click="hideErrorbox" :aria-label="$tr('errorButtonLabel')">
       <mat-svg category="navigation" name="close" />
     </button>
-    <h1>{{ $tr('errorHeader') }}</h1>
-    <p>{{ $tr('explanation') }}</p>
-    <label for="error-box" aria-live="polite">{{ $tr('errorLabel') }}</label><br>
+
+    <h1>
+      {{ $tr('errorHeader') }}
+    </h1>
+    <p>
+      {{ $tr('explanation') }}
+    </p>
+
+    <!-- divs don't take labels?  -->
+    <label for="error-box" aria-live="polite">
+      {{ $tr('errorLabel') }}
+    </label>
+
+    <br>
+
     <div id="error-box" class="error-box">
       {{ error }}
     </div>
@@ -18,6 +31,7 @@
 <script>
 
   import { mapState } from 'vuex';
+  import { authMessage } from './auth-message';
 
   export default {
     name: 'error',
@@ -27,9 +41,14 @@
       explanation: `Sorry, something went wrong. Please try refreshing the page`,
       errorLabel: `Error details:`,
     },
-    data: () => ({
-      isHidden: false,
-    }),
+    components: {
+      authMessage,
+    },
+    data() {
+      return {
+        isHidden: false,
+      };
+    },
     computed: {
       ...mapState({
         error: state => state.core.error,
