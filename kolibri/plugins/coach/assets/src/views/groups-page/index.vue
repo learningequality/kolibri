@@ -2,11 +2,11 @@
 
   <div>
     <k-grid>
-      <k-grid-item :sizes="[100, 50, 50]" percentage>
+      <k-grid-item sizes="100, 50, 50" percentage>
         <h1>{{ $tr('classGroups') }}</h1>
         <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>
       </k-grid-item>
-      <k-grid-item :sizes="[100, 50, 50]" percentage alignment="right">
+      <k-grid-item sizes="100, 50, 50" percentage alignment="right">
         <k-button
           class="new-group-button"
           :text="$tr('newGroup')"

@@ -13,12 +13,12 @@
     </h1>
 
     <k-grid v-if="channelsAreAvailable" class="top-matter">
-      <k-grid-item :sizes="[4, 8, 4]">
+      <k-grid-item sizes="4, 8, 4">
         <p :class="{ 'text-offset': windowIsLarge }">
           {{ $tr('channelsAvailable', { channels: availableChannels.length }) }}
         </p>
       </k-grid-item>
-      <k-grid-item :sizes="[4, 3, 3]" :alignments="['left', 'left', 'right']">
+      <k-grid-item sizes="4, 3, 3" alignments="left, left, right">
         <k-select
           class="align-left"
           :options="languageFilterOptions"
@@ -27,7 +27,7 @@
           :inline="true"
         />
       </k-grid-item>
-      <k-grid-item :sizes="[4, 5, 5]">
+      <k-grid-item sizes="4, 5, 5">
         <k-filter-textbox
           :class="{ 'search-box-offset': !windowIsSmall }"
           :placeholder="$tr('titleFilterPlaceholder')"

@@ -3,14 +3,14 @@
   <div class="group-section">
 
     <k-grid>
-      <k-grid-item :sizes="[100, 100, 50]" percentage>
+      <k-grid-item sizes="100, 100, 50" percentage>
         <h2 class="group-name right-margin">{{ group.name }}</h2>
         <span class="small-text">
           {{ $tr('numLearners', {count: group.users.length }) }}
         </span>
       </k-grid-item>
       <k-grid-item
-        :sizes="[100, 100, 50]"
+        sizes="100, 100, 50"
         percentage
         align="right"
         :class="{ mobile : windowIsSmall || windowIsMedium }"

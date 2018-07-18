@@ -10,7 +10,7 @@
       <p>{{ $tr('pageSubHeading') }}</p>
     </k-grid-item>
 
-    <k-grid-item :sizes="[100, 50, 50]" percentage>
+    <k-grid-item sizes="100, 50, 50" percentage>
       <h2>{{ $tr('detailsHeading') }}</h2>
       <p>
         {{ $tr('detailsSubHeading') }}
@@ -24,7 +24,7 @@
       </p>
     </k-grid-item>
 
-    <k-grid-item :sizes="[100, 50, 50]" percentage>
+    <k-grid-item sizes="100, 50, 50" percentage>
       <h2>{{ $tr('summaryHeading') }}</h2>
       <p>
         {{ $tr('summarySubHeading') }}

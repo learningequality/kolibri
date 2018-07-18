@@ -35,10 +35,10 @@
     <!-- /Modals -->
 
     <k-grid>
-      <k-grid-item :sizes="[100, 50, 50]" percentage>
+      <k-grid-item sizes="100, 50, 50" percentage>
         <h2>{{ $tr('coachTableTitle') }}</h2>
       </k-grid-item>
-      <k-grid-item :sizes="[100, 50, 50]" alignment="right" percentage>
+      <k-grid-item sizes="100, 50, 50" alignment="right" percentage>
         <k-router-link
           :text="$tr('assignCoachesButtonLabel')"
           :to="coachAssignmentLink"
@@ -62,10 +62,10 @@
     </user-table>
 
     <k-grid class="top-margin">
-      <k-grid-item :sizes="[100, 50, 50]" percentage>
+      <k-grid-item sizes="100, 50, 50" percentage>
         <h2>{{ $tr('learnerTableTitle') }}</h2>
       </k-grid-item>
-      <k-grid-item :sizes="[100, 50, 50]" alignment="right" percentage>
+      <k-grid-item sizes="100, 50, 50" alignment="right" percentage>
         <k-router-link
           :text="$tr('enrollLearnerButtonLabel')"
           :to="learnerEnrollmentLink"
