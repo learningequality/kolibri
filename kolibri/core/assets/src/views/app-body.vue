@@ -11,7 +11,7 @@
       :delay="false"
     />
 
-    <div v-else class="wrapper">
+    <div v-else class="body-wrapper">
       <app-error v-if="error" />
 
       <slot v-else>
@@ -85,7 +85,7 @@
     overflow-x: hidden;
   }
 
-  .wrapper {
+  .body-wrapper {
     max-width: 1000px;
     margin: auto;
   }
