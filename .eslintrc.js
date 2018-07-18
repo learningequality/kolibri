@@ -42,7 +42,7 @@ module.exports = {
     'plugin:import/errors',
     'plugin:import/warnings',
   ],
-  plugins: ['import', 'vue'],
+  plugins: ['import', 'vue', 'kolibri'],
   settings: {
     'import/resolver': {
       [path.resolve(
@@ -105,7 +105,7 @@ module.exports = {
     'import/order': 1,
 
     // Custom vue rules
-    'vue-filename-and-component-name-match': 2,
-    'vue-component-registration-casing': 2,
+    'kolibri/vue-filename-and-component-name-match': 2,
+    'kolibri/vue-component-registration-casing': 2,
   },
 };

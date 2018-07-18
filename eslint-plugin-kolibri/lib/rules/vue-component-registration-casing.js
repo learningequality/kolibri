@@ -4,8 +4,8 @@
 
 'use strict';
 
-const utils = require('../../../node_modules/eslint-plugin-vue/lib/utils');
-const casing = require('../../../node_modules/eslint-plugin-vue/lib/utils/casing');
+const utils = require('eslint-plugin-vue/lib/utils');
+const casing = require('eslint-plugin-vue/lib/utils/casing');
 
 const allowedCaseOptions = ['PascalCase', 'camelCase', 'snake_case'];
 

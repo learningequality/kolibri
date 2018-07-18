@@ -5,7 +5,7 @@
 'use strict';
 
 const path = require('path');
-const utils = require('../../../node_modules/eslint-plugin-vue/lib/utils');
+const utils = require('eslint-plugin-vue/lib/utils');
 
 function create(context) {
   return utils.executeOnVue(context, obj => {
@@ -47,21 +47,12 @@ function create(context) {
     if (fileName === 'index') {
       if (componentName !== parentDirName) {
         context.report({
+          node: node.value,
           message:
             'Parent dir name "{{parentDirName}}" does not match component name "{{componentName}}".',
           data: {
             parentDirName,
             componentName,
-          },
-          loc: {
-            start: {
-              line: 1,
-              column: 1,
-            },
-            end: {
-              line: 1,
-              column: 1,
-            },
           },
         });
       }
@@ -72,20 +63,11 @@ function create(context) {
     // Assumes component name is already PascalCase since we use vue/name-property-casing
     if (componentName !== fileName) {
       context.report({
+        node: node.value,
         message: 'Filename "{{fileName}}" does not match component name {{componentName}}.',
         data: {
           fileName,
           componentName,
-        },
-        loc: {
-          start: {
-            line: 1,
-            column: 1,
-          },
-          end: {
-            line: 1,
-            column: 1,
-          },
         },
       });
     }

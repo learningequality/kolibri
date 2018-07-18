@@ -77,6 +77,7 @@
     "eslint-plugin-import": "^2.10.0",
     "eslint-plugin-jest": "^21.17.0",
     "eslint-plugin-vue": "4.2.0",
+    "eslint-plugin-kolibri": "file:./eslint-plugin-kolibri",
     "esprima": "^4.0.0",
     "exports-loader": "^0.6.3",
     "fg-loadcss": "^1.2.0",
