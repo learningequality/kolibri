@@ -283,10 +283,6 @@
     margin-top: 24px;
   }
 
-  .float {
-    float: right;
-  }
-
   .metadata {
     font-size: smaller;
   }
