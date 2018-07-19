@@ -1,8 +1,9 @@
 <template>
 
-  <channel-list-item-large
+  <component
     class="channel-list-item"
     :style="verticalPadding"
+    :is="componentTemplate"
   >
     <template slot="thumbnail">
       <img v-if="thumbnailImg" :src="thumbnailImg">
@@ -65,7 +66,7 @@
         @select="handleManageChannelAction($event.value)"
       />
     </template>
-  </channel-list-item-large>
+  </component>
 
 </template>
 
@@ -81,6 +82,7 @@
   import bytesForHumans from './bytesForHumans';
   import { selectContentPageLink } from './manageContentLinks';
   import channelListItemLarge from './channel-list-item-large';
+  import channelListItemSmall from './channel-list-item-small';
 
   const Modes = {
     IMPORT: 'IMPORT',
@@ -100,6 +102,7 @@
       kDropdownMenu,
       kRouterLink,
       channelListItemLarge,
+      channelListItemSmall,
       UiIcon,
     },
     mixins: [responsiveWindow],
@@ -170,9 +173,15 @@
       },
       verticalPadding() {
         return {
-          paddingBottom: `${this.windowGutter / 2}px`,
-          paddingTop: `${this.windowGutter / 2}px`,
+          paddingBottom: `${this.windowGutter}px`,
+          paddingTop: `${this.windowGutter}px`,
         };
+      },
+      componentTemplate() {
+        if (this.windowIsLarge) {
+          return channelListItemLarge;
+        }
+        return channelListItemSmall;
       },
     },
     methods: {
