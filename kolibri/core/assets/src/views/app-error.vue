@@ -1,28 +1,41 @@
 <template>
 
-  <div class="error-box-wrapper" :class="{ hidden: isHidden }">
+  <div class="app-error">
 
-    <button class="close-button" @click="hideErrorbox" :aria-label="$tr('errorButtonLabel')">
-      <mat-svg category="navigation" name="close" />
-    </button>
-
+    <!-- kolibri image? -->
+    <logo class="logo" />
+    <!-- Header message -->
     <h1>
-      {{ $tr('errorHeader') }}
+      {{ $tr('defaultErrorHeader') }}
     </h1>
+
     <p>
-      {{ $tr('explanation') }}
+      {{ $tr('defaultErrorMessage') }}
     </p>
 
-    <!-- divs don't take labels?  -->
-    <label for="error-box" aria-live="polite">
-      {{ $tr('errorLabel') }}
-    </label>
+    <p>
+      {{ $tr('defaultErrorResolution') }}
+    </p>
 
-    <br>
-
-    <div id="error-box" class="error-box">
-      {{ error }}
+    <div>
+      <!-- button link to go back to "home"? -->
+      <k-router-link
+        appearance="raised-button"
+        :to="{route: '/'}"
+        :primary="true"
+        :text="$tr('defaultErrorExitPrompt')"
+      />
     </div>
+
+    <div>
+      <!-- link button to open reporting modal -->
+      <k-button
+        appearance="basic-link"
+        :text="$tr('defaultErrorReportPrompt')"
+      />
+
+    </div>
+
   </div>
 
 </template>
@@ -31,18 +44,28 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { authMessage } from './auth-message';
+  import kButton from 'kolibri.coreVue.components.kButton';
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
+  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import authMessage from 'kolibri.coreVue.components.authMessage';
+  import logo from 'kolibri.coreVue.components.logo';
 
   export default {
-    name: 'error',
+    name: 'app-error',
     $trs: {
-      errorHeader: 'Error',
-      errorButtonLabel: 'Hide error',
-      explanation: `Sorry, something went wrong. Please try refreshing the page`,
-      errorLabel: `Error details:`,
+      defaultErrorHeader: 'Sorry! Something went wrong!',
+      defaultErrorExitPrompt: 'Back to home',
+      defaultErrorMessage:
+        'We care about your experience on Kolibri and are working hard to fix this issue.',
+      defaultErrorResolution: 'Try refreshing this page or going back to the home page.',
+      defaultErrorReportPrompt: 'Help us by reporting this error',
     },
     components: {
       authMessage,
+      kButton,
+      kExternalLink,
+      kRouterLink,
+      logo,
     },
     data() {
       return {
@@ -54,11 +77,7 @@
         error: state => state.core.error,
       }),
     },
-    methods: {
-      hideErrorbox() {
-        this.isHidden = true;
-      },
-    },
+    methods: {},
   };
 
 </script>
@@ -68,36 +87,19 @@
 
   @import '~kolibri.styles.definitions';
 
-  .error-box-wrapper {
-    position: relative;
-    padding: 10px;
-    margin-top: 50px;
-    color: $core-text-error;
-    background-color: $core-bg-error;
-    border: 1px solid $core-text-error;
+  .app-error {
+    margin-top: 64px;
+    text-align: center;
   }
 
-  .hidden {
-    display: none;
+  .logo {
+    width: 160px;
+    height: 160px;
   }
 
-  .close-button {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    border: 0;
-  }
-
-  .error-box {
-    max-height: 300px;
-    padding: 5px;
-    margin-top: 10px;
-    overflow: auto;
-    font-family: monospace;
-    font-size: 10px;
-    color: $core-text-default;
-    background-color: white;
-    border: 1px solid black;
+  .button {
+    margin-right: auto;
+    margin-left: auto;
   }
 
 </style>
