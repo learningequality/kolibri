@@ -9,7 +9,7 @@
         {{ $tr('noLessonsMessage') }}
       </p>
     </div>
-    <content-card
+    <ContentCard
       class="content-card"
       v-for="lesson in lessons"
       :key="lesson.id"
@@ -28,11 +28,11 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import ContentCard from '../content-card';
+  import ContentCard from '../ContentCard';
   import { lessonPlaylistLink } from './classPageLinks';
 
   export default {
-    name: 'assignedLessonsCards',
+    name: 'AssignedLessonsCards',
     components: {
       ContentCard,
     },

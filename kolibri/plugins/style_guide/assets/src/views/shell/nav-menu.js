@@ -1,21 +1,21 @@
 import sortBy from 'lodash/sortBy';
 import flatten from 'lodash/flatten';
 
-import home from '../content/_home';
+import home from '../content/Home';
 
-import inclusivePage from '../content/inclusive';
-import writingPage from '../content/writing';
+import inclusivePage from '../content/Inclusive';
+import writingPage from '../content/Writing';
 
-import buttonsPage from '../content/buttons';
-import breadcrumbsPage from '../content/breadcrumbs';
-import navbarPage from '../content/navbar';
-import checkboxesPage from '../content/checkboxes';
-import radioButtonsPage from '../content/radio-buttons';
-import textFieldsPage from '../content/text-fields';
-import filtersPage from '../content/filters';
-import dropdownMenusPage from '../content/dropdown-menus';
-import loadersPage from '../content/loaders';
-import modalsPage from '../content/modals';
+import buttonsPage from '../content/Buttons';
+import breadcrumbsPage from '../content/Breadcrumbs';
+import navbarPage from '../content/Navbar';
+import checkboxesPage from '../content/Checkboxes';
+import radioButtonsPage from '../content/RadioButtons';
+import textFieldsPage from '../content/TextFields';
+import filtersPage from '../content/Filters';
+import dropdownMenusPage from '../content/DropdownMenus';
+import loadersPage from '../content/Loaders';
+import modalsPage from '../content/Modals';
 
 function sortSectionItems(items) {
   return sortBy(items, [item => item.itemName]);

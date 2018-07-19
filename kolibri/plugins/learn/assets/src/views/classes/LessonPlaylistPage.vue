@@ -3,13 +3,13 @@
   <div>
     <section class="lesson-details">
       <div>
-        <content-icon
+        <ContentIcon
           kind="lesson"
           class="lesson-icon"
         />
         <h1 class="title">
           {{ currentLesson.title }}
-          <progress-icon v-if="lessonHasResources" :progress="lessonProgress" />
+          <ProgressIcon v-if="lessonHasResources" :progress="lessonProgress" />
         </h1>
       </div>
       <div v-if="currentLesson.description!==''">
@@ -19,7 +19,7 @@
     </section>
 
     <section class="content-cards">
-      <content-card
+      <ContentCard
         v-for="(c, idx) in contentNodes"
         :key="c.pk"
         class="content-card"
@@ -45,14 +45,14 @@
 
   import { mapState } from 'vuex';
   import sumBy from 'lodash/sumBy';
-  import ProgressIcon from 'kolibri.coreVue.components.progressIcon';
-  import ContentIcon from 'kolibri.coreVue.components.contentIcon';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-  import ContentCard from '../content-card';
+  import ContentCard from '../ContentCard';
   import { lessonResourceViewerLink } from './classPageLinks';
 
   export default {
-    name: 'lessonPlaylistPage',
+    name: 'LessonPlaylistPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

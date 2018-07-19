@@ -1,4 +1,4 @@
-import RootVue from './views';
+import RootVue from './views/UserIndex';
 import routes from './routes';
 import { setFacilitiesAndConfig } from './state/actions';
 import pluginModule from './state/pluginModule';

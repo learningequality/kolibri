@@ -1,5 +1,5 @@
 {
-  "tagname-lowercase": true,
+  "tagname-lowercase": false,
   "tag-pair": true,
   "spec-char-escape": true,
   "id-unique": true,

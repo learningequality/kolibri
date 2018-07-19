@@ -8,11 +8,11 @@
       {{ $tr('addResourcesHeader') }}
     </h1>
 
-    <search-tools />
+    <SearchTools />
 
     <div class="information">
       <p> {{ $tr('totalResourcesSelected', { total: workingResources.length }) }} </p>
-      <k-button
+      <KButton
         type="submit"
         :primary="true"
         :text="$tr('save')"
@@ -25,7 +25,7 @@
         :key="content.id"
         v-for="content in contentList"
       >
-        <k-checkbox
+        <KCheckbox
           class="content-checkbox"
           :label="content.title"
           v-if="!contentIsDirectoryKind(content)"
@@ -33,7 +33,7 @@
           :checked="isSelected(content.id)"
           @change="toggleSelected($event, content.id)"
         />
-        <content-card
+        <ContentCard
           class="content-card"
           :title="content.title"
           :thumbnail="content.thumbnail"
@@ -48,7 +48,7 @@
 
     <div class="information" v-if="contentList.length > 2">
       <p> {{ $tr('totalResourcesSelected', { total: workingResources.length }) }} </p>
-      <k-button
+      <KButton
         type="submit"
         :primary="true"
         :text="$tr('save')"
@@ -62,28 +62,28 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import uiToolbar from 'keen-ui/src/UiToolbar';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
+  import UiToolbar from 'keen-ui/src/UiToolbar';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { lessonSummaryLink, topicListingLink } from '../lessonsRouterUtils';
-  import searchTools from './searchTools';
-  import contentCard from './content-card';
+  import SearchTools from './SearchTools';
+  import LessonContentCard from './LessonContentCard';
 
   export default {
-    name: 'lessonResourceSelectionPage',
+    name: 'LessonResourceSelectionPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
       };
     },
     components: {
-      uiToolbar,
-      contentCard,
-      kButton,
-      kCheckbox,
-      searchTools,
+      UiToolbar,
+      LessonContentCard,
+      KButton,
+      KCheckbox,
+      SearchTools,
     },
     computed: {
       ...mapState(['classId']),

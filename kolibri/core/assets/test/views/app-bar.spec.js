@@ -1,16 +1,16 @@
 import { mount } from '@vue/test-utils';
 import navComponents from 'kolibri.utils.navComponents';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-import coreMenu from 'kolibri.coreVue.components.coreMenu';
-import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
-import appBar from '../../src/views/app-bar';
-import logoutSideNavEntry from '../../src/views/logout-side-nav-entry';
+import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
+import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
+import AppBar from '../../src/views/AppBar';
+import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
 
 jest.mock('kolibri.urls');
 
 function createWrapper({ navShown = true, height = 20, title = 'test' } = {}) {
-  return mount(appBar, {
+  return mount(AppBar, {
     propsData: {
       navShown,
       height,
@@ -53,20 +53,20 @@ describe('app bar component', () => {
       wrapper.setData({
         userMenuDropdownIsOpen: false,
       });
-      expect(wrapper.find(coreMenu).isVisible()).toBe(false);
+      expect(wrapper.find(CoreMenu).isVisible()).toBe(false);
     });
     it('should be shown if userMenuDropdownIsOpen is true', () => {
       const wrapper = createWrapper();
       wrapper.setData({
         userMenuDropdownIsOpen: true,
       });
-      expect(wrapper.contains(coreMenu)).toBe(true);
+      expect(wrapper.contains(CoreMenu)).toBe(true);
     });
     it('should show the language modal link if no components are added and user is not logged in', () => {
       expect(navComponents).toHaveLength(0);
       const wrapper = createWrapper();
       expect(wrapper.html()).toMatchSnapshot();
-      expect(wrapper.contains(coreMenuOption)).toBe(true);
+      expect(wrapper.contains(CoreMenuOption)).toBe(true);
     });
     it('should show logout if no components are added and user is logged in', () => {
       expect(navComponents).toHaveLength(0);

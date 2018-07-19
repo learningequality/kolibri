@@ -42,7 +42,7 @@ module.exports = {
     'plugin:import/errors',
     'plugin:import/warnings',
   ],
-  plugins: ['import', 'vue'],
+  plugins: ['import', 'vue', 'kolibri'],
   settings: {
     'import/resolver': {
       [path.resolve(
@@ -64,7 +64,7 @@ module.exports = {
       },
     ],
     'vue/attribute-hyphenation': [2, 'never'],
-    'vue/name-property-casing': [0],
+    'vue/name-property-casing': [2, 'PascalCase'],
     'vue/require-default-prop': 0,
     'vue/html-self-closing': [
       'error',
@@ -96,10 +96,16 @@ module.exports = {
       },
     ],
     'vue/html-closing-bracket-spacing': ['error'],
+    // Waiting on https://github.com/vuejs/eslint-plugin-vue/pull/397
+    // 'vue/component-name-in-template-casing': 3
 
     'import/first': 1,
     'import/no-duplicates': 1,
     'import/newline-after-import': 1,
     'import/order': 1,
+
+    // Custom vue rules
+    'kolibri/vue-filename-and-component-name-match': 2,
+    'kolibri/vue-component-registration-casing': 2,
   },
 };

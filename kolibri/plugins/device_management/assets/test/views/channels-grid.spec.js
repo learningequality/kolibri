@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import ChannelsGrid from '../../src/views/manage-content-page/channels-grid.vue';
+import ChannelsGrid from '../../src/views/ManageContentPage/ChannelsGrid';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 function makeWrapper(options) {
@@ -20,10 +20,10 @@ function makeWrapper(options) {
 
 function getElements(wrapper) {
   return {
-    channelListItems: () => wrapper.findAll({ name: 'channelListItem' }),
+    channelListItems: () => wrapper.findAll({ name: 'ChannelListItem' }),
     emptyState: () => wrapper.find('.no-channels'),
-    progressBar: () => wrapper.find({ name: 'ui-progress-linear' }),
-    deleteChannelModal: () => wrapper.find({ name: 'kModal' }),
+    ProgressBar: () => wrapper.find({ name: 'ui-progress-linear' }),
+    deleteChannelModal: () => wrapper.find({ name: 'KModal' }),
   };
 }
 
@@ -61,9 +61,9 @@ describe('channelsGrid component', () => {
 
   it('shows a progress bar if channels are loading', () => {
     const wrapper = makeWrapper({ store });
-    const { progressBar } = getElements(wrapper);
+    const { ProgressBar } = getElements(wrapper);
     store.commit('SET_CHANNEL_LIST_LOADING', true);
-    expect(progressBar().isVueInstance()).toEqual(true);
+    expect(ProgressBar().isVueInstance()).toEqual(true);
   });
 
   it('channels appear sorted by name', () => {
@@ -99,7 +99,7 @@ describe('channelsGrid component', () => {
       .mockImplementation(() => {});
     const { channelListItems, deleteChannelModal } = getElements(wrapper);
     const items = channelListItems();
-    const dropdownMenu = items.at(0).find({ name: 'kDropdownMenu' });
+    const dropdownMenu = items.at(0).find({ name: 'KDropdownMenu' });
     dropdownMenu.vm.$emit('select', { value: 'DELETE_CHANNEL' });
     deleteModal = deleteChannelModal();
     expect(deleteModal.isVueInstance()).toEqual(true);

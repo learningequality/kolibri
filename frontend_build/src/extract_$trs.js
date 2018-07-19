@@ -13,6 +13,10 @@ function isCamelCase(str) {
   return /^[a-z][a-zA-Z0-9]*$/.test(str);
 }
 
+function isPascalCase(str) {
+  return /^[A-Z][a-z]+(?:[A-Z][a-z]+)*$/.test(str);
+}
+
 function generateMessagesObject(messagesObject) {
   // define here and then let it be assigned during eval
   var messages;
@@ -49,10 +53,10 @@ extract$trs.prototype.apply = function(compiler) {
         if (nameSpaces.indexOf(messageNameSpace) !== -1) {
           logging.error('Duplicate namespace ' + messageNameSpace + ' found in ' + module.resource);
         } else if (Object.keys(messages).length) {
-          // Check that the namespace is camelCase.
-          if (!isCamelCase(messageNameSpace)) {
+          // Check that the namespace is PascalCase.
+          if (!isPascalCase(messageNameSpace)) {
             logging.error(
-              `Name id "${messageNameSpace}" should be in camelCase. Found in ${module.resource}`
+              `Name id "${messageNameSpace}" should be in PascalCase. Found in ${module.resource}`
             );
           }
           nameSpaces.push(messageNameSpace);
