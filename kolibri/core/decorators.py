@@ -1,10 +1,15 @@
 """
 Modified and extended from https://github.com/camsaul/django-rest-params/blob/master/django_rest_params/decorators.py
 """
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import sys
 
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
+from six import string_types
 
 TRUE_VALUES = ('1', 'true')
 FALSE_VALUES = ('0', 'false')
@@ -31,6 +36,7 @@ if (sys.version_info > (3, 0)):
     VALID_TYPES = int, float, str, bool
 else:
     VALID_TYPES = int, float, str, unicode, bool
+
 
 class ParamValidator(object):
     # name
@@ -74,8 +80,7 @@ class ParamValidator(object):
         elif self.param_type == float:
             param = float(param)
         elif self.param_type == str:
-            assert(isinstance(param, (str, unicode)))
-            param = unicode(param)
+            assert(isinstance(param, string_types))
         elif self.param_type == bool:
             param = str(param).lower()  # bool isn't case sensitive
             if param in TRUE_VALUES:
