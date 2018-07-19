@@ -1,5 +1,5 @@
 import pick from 'lodash/pick';
-import { annotateNode } from '../src/views/select-content-page/treeViewUtils';
+import { annotateNode } from '../src/views/SelectContentPage/treeViewUtils';
 import { makeNode } from './utils/data';
 
 function simplePath(ids) {

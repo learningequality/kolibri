@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import AssignmentDetailsModal from '../../src/views/assignments/AssignmentDetailsModal.vue';
+import AssignmentDetailsModal from '../../src/views/assignments/AssignmentDetailsModal';
 
 const defaultProps = {
   initialDescription: '',
@@ -16,8 +16,8 @@ const defaultProps = {
 function makeWrapper(options) {
   const wrapper = mount(AssignmentDetailsModal, options);
   const els = {
-    titleField: () => wrapper.findAll({ name: 'kTextbox' }).at(0),
-    descriptionField: () => wrapper.findAll({ name: 'kTextbox' }).at(1),
+    titleField: () => wrapper.findAll({ name: 'KTextbox' }).at(0),
+    descriptionField: () => wrapper.findAll({ name: 'KTextbox' }).at(1),
     form: () => wrapper.find('form'),
   };
   const actions = {

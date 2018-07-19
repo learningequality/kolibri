@@ -22,7 +22,7 @@
 <script>
 
   export default {
-    name: 'statusIcon',
+    name: 'StatusIcon',
     props: {
       active: {
         type: Boolean,

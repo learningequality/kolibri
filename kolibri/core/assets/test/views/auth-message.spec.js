@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import AuthMessage from '../../src/views/auth-message';
+import AuthMessage from '../../src/views/AuthMessage';
 
 function makeWrapper(options) {
   return shallowMount(AuthMessage, options);

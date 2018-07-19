@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import ExamReportPage from '../../src/views/exams/exam-report-page';
+import ExamReportPage from '../../src/views/exams/ExamReportPage';
 import makeStore from '../makeStore';
 
 function makeWrapper(options = {}) {
@@ -17,7 +17,7 @@ function makeWrapper(options = {}) {
   if (options.examTakers) {
     store.state.pageState.examTakers = options.examTakers;
   }
-  return mount(ExamReportPage, { ...options, store, stubs: ['kRouterLink', 'assignmentSummary'] });
+  return mount(ExamReportPage, { ...options, store, stubs: ['KRouterLink', 'AssignmentSummary'] });
 }
 
 function getElements(wrapper) {

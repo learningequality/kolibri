@@ -167,7 +167,7 @@ class Command(AsyncCommand):
 
             if number_of_skipped_files > 0:
                 logging.warning(
-                    "{} files are skipped, because they do not exist.".format(
+                    "{} files are skipped, because errors occured during the import.".format(
                         number_of_skipped_files))
 
             if self.is_cancelled():
@@ -184,6 +184,15 @@ class Command(AsyncCommand):
         """
         try:
             with filetransfer, self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
+                # If size of the source file is smaller than the the size
+                # indicated in the database, it's very likely that the source
+                # file is corrupted. Skip this file.
+                if filetransfer.total_size < f.file_size:
+                    e = "File {} is corrupted.".format(filetransfer.source)
+                    logging.error("An error occured during content import: {}".format(e))
+                    overall_progress_update(f.file_size)
+                    return True, 1
+
                 for chunk in filetransfer:
                     if self.is_cancelled():
                         filetransfer.cancel()

@@ -3,7 +3,7 @@
   <div>
     <div class="lesson-summary-header">
       <div class="lesson-summary-header-title-block">
-        <content-icon
+        <ContentIcon
           :kind="kind"
           class="title-lesson-icon"
         />
@@ -17,15 +17,15 @@
     <dl>
       <dt>
         {{ $tr('status') }}
-        <core-info-icon
+        <CoreInfoIcon
           :iconAriaLabel="$tr('statusDescription')"
           :tooltipText="$tr('statusTooltipText')"
           tooltipPosition="bottom left"
         />
       </dt>
       <dd>
-        <status-icon :active="active" />
-        <k-button
+        <StatusIcon :active="active" />
+        <KButton
           appearance="basic-link"
           class="change-status-button"
           :text="$tr('changeStatus')"
@@ -75,18 +75,18 @@
 <script>
 
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import StatusIcon from './StatusIcon';
 
   export default {
-    name: 'assignmentSummary',
+    name: 'AssignmentSummary',
     components: {
       CoreInfoIcon,
-      contentIcon,
+      ContentIcon,
       StatusIcon,
-      kButton,
+      KButton,
     },
     props: {
       kind: {

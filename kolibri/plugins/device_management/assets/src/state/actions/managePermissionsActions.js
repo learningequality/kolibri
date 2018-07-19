@@ -55,7 +55,7 @@ function fetchUserPermissions(userId) {
 }
 
 /**
- * Action to hydrate manage-permissions-page.
+ * Action to hydrate ManagePermissionsPage.
  *
  * @param {Store} store
  * @returns Promise<void>

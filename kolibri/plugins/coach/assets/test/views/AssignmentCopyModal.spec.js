@@ -41,7 +41,7 @@ describe('AssignmentCopyModal', () => {
       propsData: { ...defaultProps },
       store,
     });
-    const classroomRadios = els.selectClassroomForm().findAll({ name: 'kRadioButton' });
+    const classroomRadios = els.selectClassroomForm().findAll({ name: 'KRadioButton' });
     expect(classroomRadios.length).toEqual(2);
   });
 
@@ -52,7 +52,7 @@ describe('AssignmentCopyModal', () => {
     });
     const currentClassroomRadio = els
       .selectClassroomForm()
-      .findAll({ name: 'kRadioButton' })
+      .findAll({ name: 'KRadioButton' })
       .at(0);
     expect(currentClassroomRadio.props().label).toEqual('Class Two (current class)');
   });
@@ -71,8 +71,8 @@ describe('AssignmentCopyModal', () => {
       const explanation = wrapper.find('p').text();
       expect(explanation).toEqual(`Will be copied to 'Class Two'`);
       // Recipient selector gets all of the groups
-      const recipientSelector = els.selectLearnerGroupForm().find({ name: 'recipientSelector' });
-      expect(recipientSelector.props().groups).toEqual(groups);
+      const RecipientSelector = els.selectLearnerGroupForm().find({ name: 'RecipientSelector' });
+      expect(RecipientSelector.props().groups).toEqual(groups);
     });
   });
 

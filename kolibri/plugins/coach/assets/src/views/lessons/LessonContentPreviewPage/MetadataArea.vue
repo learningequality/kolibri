@@ -8,7 +8,7 @@
     <h1 class="header primary-data">
       {{ content.title }}
     </h1>
-    <coach-content-label
+    <CoachContentLabel
       :value="content.num_coach_contents"
       :isTopic="false"
     />
@@ -41,7 +41,7 @@
         <dt>{{ $tr('licenseDataHeader') }}</dt>
         <dd>
           '{{ license }}'
-          <info-icon
+          <InfoIcon
             v-if="licenseInfo"
             tooltipPosition="right middle"
             :tooltipText="licenseInfo"
@@ -64,7 +64,7 @@
 
 <script>
 
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import markdownIt from 'markdown-it';
 
@@ -72,7 +72,7 @@
   const completionDataRequired = ['m', 'n'];
 
   export default {
-    name: 'metadataArea',
+    name: 'MetadataArea',
     $trs: {
       completionModelDataHeader: 'Completion',
       completionRequirements: '{correct, number} out of {total, number} correct',
@@ -82,7 +82,7 @@
       copyrightHolderDataHeader: 'Copyright holder',
     },
     components: {
-      coachContentLabel,
+      CoachContentLabel,
       InfoIcon,
     },
     props: {

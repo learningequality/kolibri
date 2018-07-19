@@ -17,12 +17,12 @@ import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
 import { setClassState, handleCoachPageError } from './main';
 
-const translator = createTranslator('coachExamPageTitles', {
+const translator = createTranslator('CoachExamPageTitles', {
   allChannels: 'All channels',
   examReportTitle: '{examTitle} report',
 });
 
-const snackbarTranslator = createTranslator('examPageSnackbarTexts', {
+const snackbarTranslator = createTranslator('ExamPageSnackbarTexts', {
   changesToExamSaved: 'Changes to exam saved',
   copiedExamToClass: 'Copied exam to { className }',
   examDeleted: 'Exam deleted',

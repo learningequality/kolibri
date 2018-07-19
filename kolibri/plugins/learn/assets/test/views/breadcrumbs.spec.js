@@ -1,7 +1,7 @@
 import VueRouter from 'vue-router';
-import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
+import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
 import { mount } from '@vue/test-utils';
-import Breadcrumbs from '../../src/views/breadcrumbs';
+import Breadcrumbs from '../../src/views/Breadcrumbs';
 import makeStore from '../makeStore';
 import { PageNames } from '../../src/constants';
 
@@ -30,8 +30,8 @@ function makeWrapper(options = {}) {
 
 function getElements(wrapper) {
   return {
-    breadcrumbs: () => wrapper.find(kBreadcrumbs),
-    breadcrumbItems: () => wrapper.find(kBreadcrumbs).props().items,
+    breadcrumbs: () => wrapper.find(KBreadcrumbs),
+    breadcrumbItems: () => wrapper.find(KBreadcrumbs).props().items,
   };
 }
 

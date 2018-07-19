@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import assessmentWrapper from '../../src/views/assessment-wrapper';
+import assessmentWrapper from '../../src/views/AssessmentWrapper';
 
 const createComponent = (totalattempts, pastattempts, masteryModel) => {
   const propsData = {
