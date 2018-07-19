@@ -1,6 +1,5 @@
 <template>
 
-
   <k-grid class="page-status">
     <k-grid-item size="75" percentage>
       <div class="user-name-container">

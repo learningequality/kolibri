@@ -6,7 +6,7 @@
     :is="componentTemplate"
   >
     <template slot="thumbnail">
-      <img v-if="thumbnailImg" :src="thumbnailImg">
+      <img v-if="thumbnailImg" :src="thumbnailImg" class="thumbnail">
       <div v-else class="default-icon">
         <mat-svg category="navigation" name="apps" />
       </div>
@@ -221,6 +221,10 @@
   .version {
     font-size: 0.85em;
     color: $core-text-annotation;
+  }
+
+  .thumbnail {
+    width: 100%;
   }
 
   .default-icon {
