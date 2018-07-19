@@ -39,14 +39,23 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
         fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles', 'is_superuser')
 
+    def create(self, validated_data):
+        if FacilityUser.objects.filter(username__iexact=validated_data['username']).exists():
+            raise serializers.ValidationError(detail={'username': 'An account with that username already exists'}, code=error_constants.USERNAME_ALREADY_EXISTS)
+        return super(FacilityUserSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        if validated_data.get('username') and FacilityUser.objects.exclude(id__exact=instance.id).filter(username__iexact=validated_data['username']).exists():
+            raise serializers.ValidationError(detail={'username': 'An account with that username already exists'}, code=error_constants.USERNAME_ALREADY_EXISTS)
+        return super(FacilityUserSerializer, self).update(instance, validated_data)
+
+
+class FacilityUserSignupSerializer(FacilityUserSerializer):
+
     def validate_username(self, value):
         if FacilityUser.objects.filter(username__iexact=value).exists():
             raise serializers.ValidationError(detail=_('An account with that username already exists'), code=error_constants.USERNAME_ALREADY_EXISTS)
         return value
-
-
-class FacilityUserSignupSerializer(FacilityUserSerializer):
-    pass
 
 
 class FacilityUsernameSerializer(serializers.ModelSerializer):
@@ -69,7 +78,8 @@ class MembershipSerializer(serializers.ModelSerializer):
             # We are trying to create a membership for a user in a group, but they already belong to a group
             # in the same class as this group. We may want to allow this, but the frontend does not currently
             # support this. Error!
-            raise serializers.ValidationError('This user is already in a group in this class')
+            raise serializers.ValidationError(detail={'classroom': 'This user is already in a group in this class'},
+                                              code=error_constants.USER_ALREADY_IN_GROUP_IN_CLASS)
         return super(MembershipSerializer, self).create(validated_data)
 
 

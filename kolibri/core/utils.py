@@ -16,10 +16,16 @@ def custom_exception_handler(exc, context):
         # we are adding custom error constants so the frontend can immediately know the error
         # without doing introspection of different variables
         if response.status_code == status.HTTP_400_BAD_REQUEST:
-            for key, value in six.iteritems(response.data):
-                for detail in value:
-                    if detail.code in error_constants.ERROR_CONSTANTS:
-                        constants.append(detail.code)
+            if isinstance(response.data, dict):
+                for key, value in six.iteritems(response.data):
+                    # handle drf error responses
+                    if isinstance(value, list):
+                        for detail in value:
+                            if detail.code in error_constants.ERROR_CONSTANTS:
+                                constants.append(detail.code)
+                    # handle our validation error responses
+                    else:
+                        constants.append(value.code)
         response.data['KOLIBRI_CONSTANTS'] = constants
 
     return response
