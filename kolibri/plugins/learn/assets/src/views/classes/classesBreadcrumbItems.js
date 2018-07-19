@@ -3,7 +3,7 @@ import { mapState } from 'vuex';
 import { ClassesPageNames } from '../../constants';
 import { classAssignmentsLink, lessonPlaylistLink } from './classPageLinks';
 
-const translator = createTranslator('classesBreadcrumbItems', {
+const translator = createTranslator('ClassesBreadcrumbItems', {
   allClassesBreadcrumb: 'Classes',
 });
 

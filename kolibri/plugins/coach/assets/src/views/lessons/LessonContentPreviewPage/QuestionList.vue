@@ -13,7 +13,7 @@
         class="item"
         :key="index"
       >
-        <k-button
+        <KButton
           @click="$emit('select',index)"
           :class="{selected: index === selectedIndex}"
           class="button"
@@ -30,12 +30,12 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
-    name: 'questionList',
+    name: 'QuestionList',
     components: {
-      kButton,
+      KButton,
     },
     $trs: {
       questionListHeader: '{numOfQuestions, number} Questions',

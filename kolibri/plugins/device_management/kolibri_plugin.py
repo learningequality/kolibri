@@ -39,4 +39,4 @@ class DeviceFirstTimeRedirect(RoleBasedRedirectHook):
 
 class DeviceManagementNavItem(NavigationHook, WebpackBundleHook):
     unique_slug = "device_management_side_nav"
-    src_file = "assets/src/views/device-management-side-nav-entry.vue"
+    src_file = "assets/src/views/DeviceManagementSideNavEntry.vue"

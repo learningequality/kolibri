@@ -104,9 +104,7 @@ export function showLearn(store) {
 
       // Only load contentnodes progress if the user is logged in
       if (store.getters.isUserLoggedIn) {
-        const contentNodeIds = uniq([
-          ...nextSteps, ...popular, ...resume
-        ].map(({ id }) => id));
+        const contentNodeIds = uniq([...nextSteps, ...popular, ...resume].map(({ id }) => id));
 
         if (contentNodeIds.length > 0) {
           ContentNodeProgressResource.getCollection({ ids: contentNodeIds })

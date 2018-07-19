@@ -2,7 +2,7 @@
 
   <div>
     <!-- Classroom Selection Form -->
-    <k-modal
+    <KModal
       v-if="stage === Stages.SELECT_CLASSROOM"
       id="select-classroom"
       :title="modalTitle"
@@ -12,17 +12,17 @@
       @submit="goToAvailableGroups"
     >
       <p>{{ copyExplanation }}</p>
-      <k-radio-button
+      <KRadioButton
         v-for="classroom in availableClassrooms"
         :key="classroom.id"
         :label="classroomLabel(classroom)"
         :value="classroom.id"
         v-model="selectedClassroomId"
       />
-    </k-modal>
+    </KModal>
 
     <!-- Learner Group Selection Form -->
-    <k-modal
+    <KModal
       v-else
       id="select-learnergroup"
       :title="modalTitle"
@@ -33,12 +33,12 @@
     >
       <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>
       <p>{{ assignmentQuestion }}</p>
-      <recipient-selector
+      <RecipientSelector
         v-model="selectedCollectionIds"
         :groups="availableGroups"
         :classId="selectedClassroomId"
       />
-    </k-modal>
+    </KModal>
   </div>
 
 </template>
@@ -50,8 +50,8 @@
   import find from 'lodash/find';
   import { mapActions } from 'vuex';
   import { error as logError } from 'kolibri.lib.logging';
-  import kModal from 'kolibri.coreVue.components.kModal';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import KModal from 'kolibri.coreVue.components.KModal';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { LearnerGroupResource } from 'kolibri.resources';
   import RecipientSelector from './RecipientSelector';
 
@@ -61,10 +61,10 @@
   };
 
   export default {
-    name: 'assignmentCopyModal',
+    name: 'AssignmentCopyModal',
     components: {
-      kModal,
-      kRadioButton,
+      KModal,
+      KRadioButton,
       RecipientSelector,
     },
     props: {

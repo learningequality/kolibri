@@ -38,4 +38,4 @@ class FacilityRedirect(RoleBasedRedirectHook):
 
 class FacilityManagementNavItem(NavigationHook, WebpackBundleHook):
     unique_slug = "facility_management_side_nav"
-    src_file = "assets/src/views/facility-management-side-nav-entry.vue"
+    src_file = "assets/src/views/FacilityManagementSideNavEntry.vue"

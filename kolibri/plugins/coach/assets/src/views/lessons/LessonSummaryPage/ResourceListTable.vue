@@ -1,6 +1,6 @@
 <template>
 
-  <core-table>
+  <CoreTable>
     <thead slot="thead">
       <tr>
         <th class="core-table-icon-col">
@@ -37,7 +37,7 @@
         v-for="(resourceId, index) in workingResources"
       >
         <td class="core-table-icon-col">
-          <ui-icon-button
+          <UiIconButton
             type="flat"
             :ariaLabel="$tr('moveResourceUpButtonDescription')"
             :disabled="index === 0"
@@ -45,8 +45,8 @@
             class="position-adjustment-button"
           >
             <mat-svg name="keyboard_arrow_up" category="hardware" />
-          </ui-icon-button>
-          <ui-icon-button
+          </UiIconButton>
+          <UiIconButton
             type="flat"
             :ariaLabel="$tr('moveResourceDownButtonDescription')"
             :disabled="index === (workingResources.length - 1)"
@@ -54,14 +54,14 @@
             class="position-adjustment-button"
           >
             <mat-svg name="keyboard_arrow_down" category="hardware" />
-          </ui-icon-button>
+          </UiIconButton>
         </td>
         <td class="core-table-icon-col">
-          <content-icon :kind="resourceKind(resourceId)" />
+          <ContentIcon :kind="resourceKind(resourceId)" />
         </td>
         <td>
           <div class="resource-title">
-            <k-router-link
+            <KRouterLink
               :to="resourceUserSummaryLink(resourceId)"
               :text="resourceTitle(resourceId)"
             />
@@ -70,14 +70,14 @@
               {{ resourceChannelTitle(resourceId) }}
             </p>
           </div>
-          <coach-content-label
+          <CoachContentLabel
             class="coach-content-label"
             :value="getCachedResource(resourceId).num_coach_contents"
             :isTopic="false"
           />
         </td>
         <td>
-          <progress-bar
+          <ProgressBar
             v-if="resourceProgress(resourceId)!==null"
             class="resource-progress-bar"
             :progress="resourceProgress(resourceId)"
@@ -89,7 +89,7 @@
           </span>
         </td>
         <td>
-          <k-button
+          <KButton
             :text="$tr('resourceRemovalButtonLabel')"
             @click="removeResource(resourceId)"
             appearance="flat-button"
@@ -97,7 +97,7 @@
         </td>
       </tr>
     </transition-group>
-  </core-table>
+  </CoreTable>
 
 </template>
 
@@ -105,13 +105,13 @@
 <script>
 
   import { mapActions, mapState, mapMutations } from 'vuex';
-  import uiIconButton from 'keen-ui/src/UiIconButton';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import progressBar from 'kolibri.coreVue.components.progressBar';
-  import coreTable from 'kolibri.coreVue.components.coreTable';
-  import contentIcon from 'kolibri.coreVue.components.contentIcon';
-  import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import ProgressBar from 'kolibri.coreVue.components.ProgressBar';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { resourceUserSummaryLink } from '../lessonsRouterUtils';
 
   const removalSnackbarTime = 5000;
@@ -121,15 +121,15 @@
   }
 
   export default {
-    name: 'resourceListTable',
+    name: 'ResourceListTable',
     components: {
-      coachContentLabel,
-      uiIconButton,
-      kButton,
-      kRouterLink,
-      progressBar,
-      coreTable,
-      contentIcon,
+      CoachContentLabel,
+      UiIconButton,
+      KButton,
+      KRouterLink,
+      ProgressBar,
+      CoreTable,
+      ContentIcon,
     },
     data() {
       return {

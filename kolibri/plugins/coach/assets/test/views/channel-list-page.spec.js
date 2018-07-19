@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { now } from 'kolibri.utils.serverClock';
-import ChannelListPage from '../../src/views/reports/channel-list-page';
+import ChannelListPage from '../../src/views/reports/ChannelListPage';
 import { ViewBy } from '../../src/constants/reportConstants';
 import makeStore from '../makeStore';
 
@@ -9,7 +9,7 @@ jest.mock('kolibri.utils.serverClock');
 function makeWrapper(options = {}) {
   return mount(ChannelListPage, {
     ...options,
-    stubs: ['report-subheading', 'name-cell', 'breadcrumbs'],
+    stubs: ['report-subheading', 'NameCell', 'Breadcrumbs'],
     store: options.store || {},
   });
 }

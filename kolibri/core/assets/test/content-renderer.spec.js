@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import { mount } from '@vue/test-utils';
-import contentRenderer from '../src/views/content-renderer';
+import ContentRenderer from '../src/views/ContentRenderer';
 
 jest.mock('kolibri.lib.logging');
 
-describe('contentRenderer Component', () => {
+describe('ContentRenderer Component', () => {
   const defaultFiles = [
     {
       available: true,
@@ -23,7 +23,7 @@ describe('contentRenderer Component', () => {
   describe('computed property', () => {
     describe('availableFiles', () => {
       function testAvailableFiles(files, expected) {
-        const wrapper = mount(contentRenderer, {
+        const wrapper = mount(ContentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
         });
         expect(wrapper.vm.availableFiles.length).toEqual(expected);
@@ -62,7 +62,7 @@ describe('contentRenderer Component', () => {
 
     describe('defaultFile', () => {
       function testDefaultFile(files, expected) {
-        const wrapper = mount(contentRenderer, {
+        const wrapper = mount(ContentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
         });
         expect(wrapper.vm.defaultFile).toEqual(expected);
@@ -79,7 +79,7 @@ describe('contentRenderer Component', () => {
 
     describe('extension', () => {
       function testExtension(files, expected) {
-        const wrapper = mount(contentRenderer, {
+        const wrapper = mount(ContentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
         });
         expect(wrapper.vm.extension).toEqual(expected);
@@ -114,7 +114,7 @@ describe('contentRenderer Component', () => {
             const props = Object.assign(defaultPropsDataFromFiles(), {
               available: true,
             });
-            const wrapper = mount(contentRenderer, {
+            const wrapper = mount(ContentRenderer, {
               propsData: props,
             });
             return Vue.nextTick().then(() => {
@@ -127,7 +127,7 @@ describe('contentRenderer Component', () => {
               available: true,
               initSession: jest.fn().mockResolvedValue(),
             });
-            const wrapper = mount(contentRenderer, {
+            const wrapper = mount(ContentRenderer, {
               propsData: props,
             });
             return Vue.nextTick().then(() => {
@@ -151,7 +151,7 @@ describe('contentRenderer Component', () => {
             const props = Object.assign(defaultPropsDataFromFiles(), {
               available: true,
             });
-            const wrapper = mount(contentRenderer, {
+            const wrapper = mount(ContentRenderer, {
               propsData: props,
             });
             // 'created' hook runs it once. Running it here again for testing.
@@ -168,7 +168,7 @@ describe('contentRenderer Component', () => {
           const props = Object.assign(defaultPropsDataFromFiles(), {
             available: false,
           });
-          const wrapper = mount(contentRenderer, {
+          const wrapper = mount(ContentRenderer, {
             propsData: props,
           });
           // 'created' hook runs it once. Running it here again for testing.

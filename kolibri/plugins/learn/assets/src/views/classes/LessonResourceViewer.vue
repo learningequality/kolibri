@@ -1,11 +1,11 @@
 <template>
 
   <div>
-    <content-page>
+    <ContentPage>
       <div slot="below_content" class="below-content-area">
         <template v-if="nextLessonResource">
           <h1>{{ $tr('nextInLesson') }}</h1>
-          <content-card
+          <ContentCard
             :isMobile="true"
             :kind="nextLessonResource.kind"
             :link="nextResourceLink"
@@ -16,7 +16,7 @@
           />
         </template>
       </div>
-    </content-page>
+    </ContentPage>
   </div>
 
 </template>
@@ -26,12 +26,12 @@
 
   import { mapState } from 'vuex';
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-  import ContentCard from '../content-card';
-  import ContentPage from '../content-page';
+  import ContentCard from '../ContentCard';
+  import ContentPage from '../ContentPage';
   import { lessonResourceViewerLink } from './classPageLinks';
 
   export default {
-    name: 'lessonResourceViewer',
+    name: 'LessonResourceViewer',
     metaInfo() {
       return {
         title: this.currentLessonResource.title,

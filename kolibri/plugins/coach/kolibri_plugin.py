@@ -29,7 +29,7 @@ class CoachRedirect(RoleBasedRedirectHook):
 
 class CoachNavItem(NavigationHook, webpack_hooks.WebpackBundleHook):
     unique_slug = "coach_side_nav"
-    src_file = "assets/src/views/coach-side-nav-entry.vue"
+    src_file = "assets/src/views/CoachSideNavEntry.vue"
 
 
 class CoachAsset(webpack_hooks.WebpackBundleHook):

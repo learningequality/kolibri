@@ -1,20 +1,20 @@
 <template>
 
   <div class="info-icon-container">
-    <ui-icon
+    <UiIcon
       ref="info-icon"
       class="info-icon"
       :iconAriaLabel="iconAriaLabel"
     >
       <mat-svg name="info" category="action" />
-    </ui-icon>
-    <ui-tooltip
+    </UiIcon>
+    <UiTooltip
       trigger="info-icon"
       class="info-icon-tooltip"
       :position="tooltipPosition"
     >
       {{ tooltipText }}
-    </ui-tooltip>
+    </UiTooltip>
   </div>
 
 </template>
@@ -22,14 +22,14 @@
 
 <script>
 
-  import uiIcon from 'keen-ui/src/UiIcon';
-  import uiTooltip from 'keen-ui/src/UiTooltip';
+  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiTooltip from 'keen-ui/src/UiTooltip';
 
   export default {
-    name: 'coreInfoIcon',
+    name: 'CoreInfoIcon',
     components: {
-      uiIcon,
-      uiTooltip,
+      UiIcon,
+      UiTooltip,
     },
     props: {
       iconAriaLabel: {

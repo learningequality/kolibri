@@ -2,7 +2,7 @@
 
   <div class="lesson-summary">
 
-    <assignment-summary
+    <AssignmentSummary
       :kind="lessonKind"
       :title="lessonTitle"
       :active="lessonActive"
@@ -11,13 +11,13 @@
       :groups="learnerGroups"
       @changeStatus="setLessonsModal(AssignmentActions.CHANGE_STATUS)"
     >
-      <k-dropdown-menu
+      <KDropdownMenu
         slot="optionsDropdown"
         :text="$tr('options')"
         :options="lessonOptions"
         @select="handleSelectOption"
       />
-    </assignment-summary>
+    </AssignmentSummary>
 
     <div>
       <div class="resource-list">
@@ -26,7 +26,7 @@
             <h2 class="resource-list-header-title">{{ $tr('resources') }}</h2>
           </div>
           <div class="resource-list-header-add-resource-button">
-            <k-router-link
+            <KRouterLink
               :to="lessonSelectionRootPage"
               :text="$tr('addResourcesButtonPrompt')"
               :primary="true"
@@ -36,13 +36,13 @@
         </div>
       </div>
 
-      <resource-list-table v-if="lessonResources.length" />
+      <ResourceListTable v-if="lessonResources.length" />
 
       <p v-else class="no-resources-message">
         {{ $tr('noResourcesInLesson') }}
       </p>
 
-      <manage-lesson-modals />
+      <ManageLessonModals />
     </div>
 
   </div>
@@ -53,8 +53,8 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
-  import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
+  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import map from 'lodash/map';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
@@ -64,17 +64,17 @@
   import ResourceListTable from './ResourceListTable';
 
   export default {
-    name: 'lessonSummaryPage',
+    name: 'LessonSummaryPage',
     metaInfo() {
       return {
         title: this.lessonTitle,
       };
     },
     components: {
-      kDropdownMenu,
+      KDropdownMenu,
       ResourceListTable,
       ManageLessonModals,
-      kRouterLink,
+      KRouterLink,
       AssignmentSummary,
     },
     computed: {

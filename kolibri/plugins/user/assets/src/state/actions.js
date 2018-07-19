@@ -4,7 +4,7 @@ import { createTranslator } from 'kolibri.utils.i18n';
 import Lockr from 'lockr';
 import { PageNames } from '../constants';
 
-const snackbarTranslator = createTranslator('userPageSnackbars', {
+const snackbarTranslator = createTranslator('UserPageSnackbars', {
   passwordChangeSuccessMessage: 'Password changed',
   signedOut: 'You were automatically signed out due to inactivity',
   dismiss: 'Dismiss',
