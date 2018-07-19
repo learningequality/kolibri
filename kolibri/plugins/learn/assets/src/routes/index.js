@@ -9,7 +9,7 @@ import {
   showTopicsContent,
 } from '../state/actions/main';
 import {
-  showLearn,
+  showRecommended,
   showPopularPage,
   showNextStepsPage,
   showResumePage,
@@ -37,7 +37,7 @@ export default [
     name: PageNames.RECOMMENDED,
     path: '/recommended',
     handler: () => {
-      showLearn(store);
+      showRecommended(store);
     },
   },
   {

@@ -67,7 +67,7 @@ function _showRecSubpage(store, getContentPromise, pageName, channelId = null) {
   );
 }
 
-export function showLearn(store) {
+export function showRecommended(store) {
   store.commit('SET_EMPTY_LOGGING_STATE');
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
