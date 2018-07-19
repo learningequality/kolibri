@@ -36,7 +36,7 @@
     props: {
       /**
        * Set a fixed number of columns, bypassing default responsive behavior.
-       * Must be a factor of 12. This can be useful for nesting grids.
+       * This can be useful for nesting grids.
        */
       cols: {
         type: [Number, String],
@@ -44,10 +44,6 @@
         validator(value) {
           if (value < 2 || value > 12) {
             logging.error(`Number of columns (${value}) is not between 2 and 12`);
-            return false;
-          }
-          if (12 % value) {
-            logging.error(`Number of columns (${value}) is not factor of 12`);
             return false;
           }
           return true;
@@ -62,7 +58,7 @@
       actualNumCols() {
         // if cols is set as a prop, use that
         if (this.cols !== undefined) {
-          return this.cols;
+          return parseInt(this.cols);
         }
         // otherwise, use responsive behaviors
         return this.windowGridColumns;
@@ -95,5 +91,13 @@
 
 </script>
 
+
+<style lang="scss">
+
+  @import '~purecss/build/grids-core.css';
+  @import '~purecss/build/grids-units.css';
+  @import './extra-units.css';
+
+</style>
 
 <style lang="scss" scoped></style>

@@ -1,19 +1,33 @@
 <template>
 
-  <div class="channel-list-item">
-
-    <div>
+  <k-grid
+    class="channel-list-item"
+    :style="verticalPadding"
+    cols="12"
+  >
+    <k-grid-item size="2">
       <img v-if="thumbnailImg" :src="thumbnailImg">
       <div v-else class="default-icon">
         <mat-svg category="navigation" name="apps" />
       </div>
-    </div>
+    </k-grid-item>
 
-    <div>
+    <k-grid-item size="8">
+      <k-grid cols="8">
 
-      <div>
+        <k-grid-item size="5">
+          <div>
+            <h2 class="title" dir="auto">{{ channel.name }}</h2>
+            <ui-icon class="icon" v-if="!channel.public">
+              <mat-svg name="lock_open" category="action" />
+            </ui-icon>
+          </div>
+          <div class="version">
+            {{ $tr('version', { version: versionNumber }) }}
+          </div>
+        </k-grid-item>
 
-        <div>
+        <k-grid-item size="3" alignment="right">
           <div v-if="inImportMode && onDevice">
             <ui-icon class="icon">
               <mat-svg
@@ -27,20 +41,9 @@
           <div v-if="inExportMode || inManageMode" dir="auto">
             {{ resourcesSizeText }}
           </div>
-        </div>
+        </k-grid-item>
 
-        <div>
-          <h2 class="title" dir="auto">{{ channel.name }}</h2>
-          <ui-icon class="icon" v-if="!channel.public">
-            <mat-svg name="lock_open" category="action" />
-          </ui-icon>
-        </div>
-
-        <div class="version">
-          {{ $tr('version', { version: versionNumber }) }}
-        </div>
-
-      </div>
+      </k-grid>
 
       <div>
         <p dir="auto">
@@ -52,9 +55,9 @@
         />
       </div>
 
-    </div>
+    </k-grid-item>
 
-    <div>
+    <k-grid-item size="2" alignment="right" class="raise-button">
       <k-router-link
         v-if="inImportMode || inExportMode"
         :text="$tr('selectButton')"
@@ -69,8 +72,8 @@
         :options="manageChannelActions"
         @select="handleManageChannelAction($event.value)"
       />
-    </div>
-  </div>
+    </k-grid-item>
+  </k-grid>
 
 </template>
 
@@ -83,6 +86,7 @@
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from './bytesForHumans';
   import { selectContentPageLink } from './manageContentLinks';
@@ -108,6 +112,7 @@
       kGridItem,
       UiIcon,
     },
+    mixins: [responsiveWindow],
     props: {
       channel: {
         type: Object,
@@ -173,6 +178,12 @@
           forExport: this.$route.query.for_export,
         });
       },
+      verticalPadding() {
+        return {
+          paddingBottom: `${this.windowGutter / 2}px`,
+          paddingTop: `${this.windowGutter / 2}px`,
+        };
+      },
     },
     methods: {
       handleManageChannelAction(action) {
@@ -217,10 +228,14 @@
     text-align: center;
     background-color: $core-grey;
     svg {
-      width: 50%;
-      height: 50%;
+      width: 30%;
+      height: 30%;
       margin: 20px;
     }
+  }
+
+  .raise-button {
+    margin-top: -8px;
   }
 
   .on-device-icon {

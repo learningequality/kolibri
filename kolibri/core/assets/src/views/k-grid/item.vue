@@ -148,7 +148,7 @@
         }
         return this.alignment;
       },
-      sizeIn24ths() {
+      unitClass() {
         const size = this.currentSize;
         const numCols = this.gridMetrics.numCols;
         // handle percentage
@@ -159,19 +159,19 @@
           if (numCols % 4) {
             logging.error(`Number of columns (${numCols}) is not a multiple of 4`);
           }
-          return (24 * size) / 100;
+          return `pure-u-${(24 * size) / 100}-24`;
         }
+
         // handle size in number of columns
         if (size > numCols) {
           logging.error(`Size (${size}) is larger than grid (${numCols})`);
         }
-        if (24 % numCols) {
-          logging.error(`Number of columns (${numCols}) is not factor of 24`);
+        if (24 % numCols === 0) {
+          // handled by Pure's built-in 24-column units
+          return `pure-u-${(24 * size) / numCols}-24`;
         }
-        return (24 * size) / numCols;
-      },
-      unitClass() {
-        return `pure-u-${this.sizeIn24ths}-24`;
+        // handled by our custom extra units
+        return `pure-u-${size}-${numCols}`;
       },
       computedStyle() {
         const padding = `${this.gridMetrics.gutterWidth / 2}px`;
