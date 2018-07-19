@@ -87,7 +87,6 @@
     [PageNames.TOPICS_CHANNEL]: topicsPage,
     [PageNames.TOPICS_TOPIC]: topicsPage,
     [PageNames.TOPICS_CONTENT]: contentPage,
-    [PageNames.RECOMMENDED_CONTENT]: contentPage,
     [PageNames.RECOMMENDED]: recommendedPage,
     [PageNames.CONTENT_UNAVAILABLE]: contentUnavailablePage,
     [PageNames.SEARCH]: searchPage,
@@ -224,8 +223,7 @@
       bottomSpaceReserved() {
         const isContentPage =
           this.pageName === PageNames.TOPICS_CONTENT ||
-          this.pageName === PageNames.RECOMMENDED_CONTENT ||
-          ClassesPageNames.LESSON_PLAYLIST;
+          this.pageName === ClassesPageNames.LESSON_PLAYLIST;
         const isAssessment = isContentPage && this.content && this.content.assessment;
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? BOTTOM_SPACED_RESERVED : 0;

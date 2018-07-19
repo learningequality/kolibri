@@ -36,30 +36,6 @@ function getElements(wrapper) {
 }
 
 describe('learn page breadcrumbs', () => {
-  describe('when in Learn Page mode', () => {
-    it('shows no breadcrumbs on Recommended page', () => {
-      const store = makeStore({ pageName: PageNames.RECOMMENDED });
-      const wrapper = makeWrapper({ store });
-      const { breadcrumbs } = getElements(wrapper);
-      expect(breadcrumbs().exists()).toEqual(false);
-    });
-
-    it('shows correct breadcrumbs when on a Recommended Content Item', () => {
-      const store = makeStore({ pageName: PageNames.RECOMMENDED_CONTENT });
-      store.state.pageState.content = {
-        title: 'Recommended Content Item',
-      };
-      const wrapper = makeWrapper({ store });
-      const { breadcrumbItems } = getElements(wrapper);
-      const bcs = breadcrumbItems();
-      expect(bcs.length).toEqual(2);
-      expect(bcs[0].link.name).toEqual(PageNames.RECOMMENDED);
-      // Content Item has no link, just text
-      expect(bcs[1].link).toEqual(undefined);
-      expect(bcs[1].text).toEqual('Recommended Content Item');
-    });
-  });
-
   describe('when in Topic Browsing mode', () => {
     it('shows no breadcrumbs on topics root (i.e. Channels)', () => {
       const store = makeStore({ pageName: PageNames.TOPICS_ROOT });
