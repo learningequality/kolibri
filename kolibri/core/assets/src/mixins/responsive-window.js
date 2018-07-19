@@ -20,6 +20,8 @@
     this.windowIsSmall      // boolean for small range (level < 2)
     this.windowIsMedium     // boolean for medium range (level = 2)
     this.windowIsLarge      // boolean for large range (level > 2)
+    this.windowGridColumns  // number of grid columns for the current level
+    this.windowGutter       // gutter width for the current window size
 
   The breakpoint levels are numbers following Material guidelinse:
     https://material.io/guidelines/layout/responsive-ui.html#responsive-ui-breakpoints
@@ -111,8 +113,8 @@ windowResizeHandler(); // call it once initially
 export default {
   data() {
     return {
-      windowWidth: 0,
-      windowHeight: 0,
+      windowWidth: undefined,
+      windowHeight: undefined,
     };
   },
   computed: {
@@ -149,6 +151,26 @@ export default {
     },
     windowIsSmall() {
       return this.windowBreakpoint < 2;
+    },
+    windowGridColumns() {
+      if (this.windowIsSmall) {
+        return 4;
+      }
+      if (this.windowIsMedium) {
+        return 8;
+      }
+      // windowIsLarge
+      return 12;
+    },
+    windowGutter() {
+      if (this.windowIsSmall) {
+        return 16;
+      }
+      // 16px when the smallest width of the device is < 600
+      if (this.windowBreakpoint < 4 && Math.min(this.windowWidth, this.windowHeight) < 600) {
+        return 16;
+      }
+      return 24;
     },
   },
   methods: {

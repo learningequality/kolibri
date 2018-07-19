@@ -150,18 +150,25 @@
       },
       sizeIn24ths() {
         const size = this.currentSize;
+        const numCols = this.gridMetrics.numCols;
         // handle percentage
         if (this.percentage) {
           if (![25, 50, 75, 100].includes(size)) {
             logging.error(`Size (${size}) is not a valid percentage`);
           }
+          if (numCols % 4) {
+            logging.error(`Number of columns (${numCols}) is not a multiple of 4`);
+          }
           return (24 * size) / 100;
         }
         // handle size in number of columns
-        if (size > this.gridMetrics.numCols) {
-          logging.error(`Size (${size}) is larger than grid (${this.gridMetrics.numCols})`);
+        if (size > numCols) {
+          logging.error(`Size (${size}) is larger than grid (${numCols})`);
         }
-        return (24 * size) / this.gridMetrics.numCols;
+        if (24 % numCols) {
+          logging.error(`Number of columns (${numCols}) is not factor of 24`);
+        }
+        return (24 * size) / numCols;
       },
       unitClass() {
         return `pure-u-${this.sizeIn24ths}-24`;
