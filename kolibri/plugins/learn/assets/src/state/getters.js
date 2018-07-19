@@ -7,12 +7,11 @@ export function pageMode(state) {
     PageNames.TOPICS_TOPIC,
     PageNames.TOPICS_CONTENT,
   ];
-  const learnPages = [PageNames.RECOMMENDED, PageNames.RECOMMENDED_CONTENT];
   const examPages = [PageNames.EXAM_LIST, PageNames.EXAM];
   const pageNameMatches = page => page === state.pageName;
   if (topicsPages.some(pageNameMatches)) {
     return PageModes.TOPICS;
-  } else if (learnPages.some(pageNameMatches)) {
+  } else if (PageNames.RECOMMENDED === state.pageName) {
     return PageModes.RECOMMENDED;
   } else if (PageNames.SEARCH === state.pageName) {
     return PageModes.SEARCH;
