@@ -4,7 +4,7 @@
     <template v-if="canManageContent">
       <select-transfer-source-modal v-if="wizardPageName!==''" />
 
-      <subpage-container>
+      <div>
         <task-progress
           v-if="firstTask"
           v-bind="firstTask"
@@ -37,7 +37,7 @@
 
         <channels-grid />
 
-      </subpage-container>
+      </div>
     </template>
 
     <auth-message
@@ -57,7 +57,6 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kGrid from 'kolibri.coreVue.components.kGrid';
   import kGridItem from 'kolibri.coreVue.components.kGridItem';
-  import subpageContainer from '../containers/subpage-container';
   import channelsGrid from './channels-grid';
   import taskProgress from './task-progress';
   import selectTransferSourceModal from './select-transfer-source-modal';
@@ -84,7 +83,6 @@
       kGrid,
       kGridItem,
       selectTransferSourceModal,
-      subpageContainer,
       taskProgress,
     },
     computed: {

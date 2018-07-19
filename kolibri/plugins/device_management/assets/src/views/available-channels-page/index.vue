@@ -98,7 +98,6 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uniqBy from 'lodash/uniqBy';
   import channelTokenModal from '../available-channels-page/channel-token-modal';
-  import subpageContainer from '../containers/subpage-container';
   import channelListItem from '../manage-content-page/channel-list-item';
   import contentWizardUiAlert from '../select-content-page/content-wizard-ui-alert';
   import { wizardState } from '../../state/getters';
@@ -123,7 +122,6 @@
       kFilterTextbox,
       kGrid,
       kGridItem,
-      subpageContainer,
       kLinearLoader,
       kSelect,
     },

@@ -104,7 +104,6 @@
   import { TaskResource } from 'kolibri.resources';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
-  import subpageContainer from '../containers/subpage-container';
   import { wizardState } from '../../state/getters';
   import taskProgress from '../manage-content-page/task-progress';
   import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
@@ -128,7 +127,6 @@
       immersiveFullScreen,
       kButton,
       selectedResourcesSize,
-      subpageContainer,
       taskProgress,
       uiAlert,
     },
