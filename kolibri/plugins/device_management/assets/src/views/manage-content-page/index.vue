@@ -12,13 +12,13 @@
         />
 
         <k-grid>
-          <k-grid-item size="50" percentage>
+          <k-grid-item sizes="100, 50, 50" percentage>
             <h1>{{ $tr('title') }}</h1>
           </k-grid-item>
           <k-grid-item
-            size="50"
+            sizes="100, 50, 50"
+            alignments="left, right, right"
             percentage
-            align="right"
             v-if="!tasksInQueue"
           >
             <k-button
