@@ -183,6 +183,7 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
 
     (kolibri)$ npm rebuild node-sass
 
+    
 
 Production
 ~~~~~~~~~~
@@ -195,6 +196,93 @@ In production, content is served through CherryPy. Static assets must be pre-bui
   kolibri start
 
 Now you should be able to access the server at ``http://127.0.0.1:8080/``.
+
+
+
+
+Running Kolibri inside docker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Users who are familiar with Docker can spin up a Kolibri instance quickly without setting up
+the full JavaScript and Python development environments. We provide docker images that contain
+all the necessary prerequisites for running Kolibri.
+
+The ``docker/`` directory contains the docker files and startup scripts needed for various tasks.
+ * ``docker/buildkite.dockerfile``: used as part of the automated build process for every commit and pull request.
+ * ``docker/build.dockerfile``: build .whl and .pex files and put in ``/docker/mnt/``
+ * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies (image tag ``leaningequality:kolibirbase``).
+ * ``docker/dev.dockerfile``: container with full development setup, running devserver.
+ * ``docker/demoserver.dockerfile``: runs the pex from ``KOLIBRI_PEX_URL`` with production setup.
+ * ``docker/entrypoint.py``: startup script that configures Kolibri based on ENV variables: 
+ 
+    * Set ``KOLIBRI_PEX_URL`` to string ``default`` to run latest pex from Kolibri download page
+    * Set ``KOLIBRI_PEX_URL`` to something like ``http://host.org/nameof.pex``
+    * Set ``DOCKERMNT_PEX_PATH`` to something like ``/docker/mnt/nameof.pex``
+    * ``KOLIBRI_RUN_MODE``: set in Dockerfile
+    * ``KOLIBRI_PROVISIONDEVICE_FACILITY``: if this environment variable is set
+      the entrypoint script will run the provision device an setup a facility
+      with this name. The ``KOLIBRI_LANG`` environment variable and the following
+      other environment variables will be used in the process:
+        
+        * ``KOLIBRI_PROVISIONDEVICE_PRESET``: defaults to ``formal``, with the other options being ``nonformal`` and ``informal``
+        * ``KOLIBRI_PROVISIONDEVICE_SUPERUSERNAME``: default ``devowner``
+        * ``KOLIBRI_PROVISIONDEVICE_SUPERUSERPASSWORD``: default ``admin123``
+
+    * ``KOLIBRI_HOME``: default ``/kolibrihome``
+    * ``KOLIBRI_HTTP_PORT``: default ``8080``
+    * ``KOLIBRI_LANG``: default ``en``
+    * ``CHANNELS_TO_IMPORT``: comma-separated list of channel IDs (not set by default)
+
+
+Building a pex file
+^^^^^^^^^^^^^^^^^^^
+When simply testing things out or reviewing a pull request, the easiest way to
+obtain a pex file is to get the link from the buildkite assets link that is present
+for every git branch and every pull request. This is the approach we recommend in
+combination with the ``demoserver`` approach for running described in the next section. 
+
+However, if you want to build and run a pex from the Kolibri code in your current
+local source files without relying on the github and the buildkite integration,
+you can run the following commands to build a pex file in ``docker/mnt/``:
+
+.. code-block:: bash
+
+  make dockerbuildbase      # only needed first time
+  make dockerbuild
+
+Run the the resulting pex using the ``demoserver`` approach described below.
+
+
+Starting a demoserver
+^^^^^^^^^^^^^^^^^^^^^
+You can start a Kolibri instance running any pex file by setting the appropriate
+environment variables in your local copy of `env.list` then running the commands:
+
+.. code-block:: bash
+
+  make dockerbuildbase      # only needed first time
+  make dockerdemoserver
+
+The choice of pex file can be controlled by setting environment variables in the
+file ``env.list``:
+
+ * Set ``KOLIBRI_PEX_URL`` to string ``default`` to run the latest pex from Kolibri download page
+ * Set ``KOLIBRI_PEX_URL`` to something like ``http://host.org/nameof.pex``
+ * Set ``DOCKERMNT_PEX_PATH`` to something like ``/docker/mnt/nameof.pex``
+
+
+ 
+ Starting a devserver
+ ^^^^^^^^^^^^^^^^^^^^
+ Use these commands to start the Kolibri devserver running inside a container:
+
+ .. code-block:: bash
+
+   make dockerbuildbase      # takes a long time (go get a coffee)
+   make dockerdevserver      # takes a few mins to run pip install -e + webpcak build
+
+
+
 
 
 Additional Recommended Setup
@@ -235,6 +323,8 @@ We use `pre-commit <http://pre-commit.com/>`_ to help ensure consistent, clean c
 .. code-block:: bash
 
   pre-commit install
+
+
 
 
 .. _workflow_intro:
