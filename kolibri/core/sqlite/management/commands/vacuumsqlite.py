@@ -36,7 +36,7 @@ class Command(BaseCommand):
     def perform_vacuum(self, connection):
         try:
             cursor = connection.cursor()
-            cursor.execute('VACUUM;')
+            cursor.execute('vacuum;')
             connection.close()
         except Exception as e:
             new_msg = (
