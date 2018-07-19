@@ -1,63 +1,55 @@
 <template>
 
-  <k-grid
+  <channel-list-item-large
     class="channel-list-item"
     :style="verticalPadding"
-    cols="12"
   >
-    <k-grid-item size="2">
+    <template slot="thumbnail">
       <img v-if="thumbnailImg" :src="thumbnailImg">
       <div v-else class="default-icon">
         <mat-svg category="navigation" name="apps" />
       </div>
-    </k-grid-item>
+    </template>
 
-    <k-grid-item size="8">
-      <k-grid cols="8">
-
-        <k-grid-item size="5">
-          <div>
-            <h2 class="title" dir="auto">{{ channel.name }}</h2>
-            <ui-icon class="icon" v-if="!channel.public">
-              <mat-svg name="lock_open" category="action" />
-            </ui-icon>
-          </div>
-          <div class="version">
-            {{ $tr('version', { version: versionNumber }) }}
-          </div>
-        </k-grid-item>
-
-        <k-grid-item size="3" alignment="right">
-          <div v-if="inImportMode && onDevice">
-            <ui-icon class="icon">
-              <mat-svg
-                category="action"
-                name="check_circle"
-                class="on-device-icon"
-              />
-            </ui-icon>
-            <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
-          </div>
-          <div v-if="inExportMode || inManageMode" dir="auto">
-            {{ resourcesSizeText }}
-          </div>
-        </k-grid-item>
-
-      </k-grid>
-
+    <template slot="header">
       <div>
-        <p dir="auto">
-          {{ channel.description || $tr('defaultDescription') }}
-        </p>
-        <coach-content-label
-          :value="channel.num_coach_contents"
-          :isTopic="true"
-        />
+        <h2 class="title" dir="auto">{{ channel.name }}</h2>
+        <ui-icon class="icon" v-if="!channel.public">
+          <mat-svg name="lock_open" category="action" />
+        </ui-icon>
       </div>
+      <div class="version">
+        {{ $tr('version', { version: versionNumber }) }}
+      </div>
+    </template>
 
-    </k-grid-item>
+    <template slot="meta">
+      <div v-if="inImportMode && onDevice">
+        <ui-icon class="icon">
+          <mat-svg
+            category="action"
+            name="check_circle"
+            class="on-device-icon"
+          />
+        </ui-icon>
+        <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
+      </div>
+      <div v-if="inExportMode || inManageMode" dir="auto">
+        {{ resourcesSizeText }}
+      </div>
+    </template>
 
-    <k-grid-item size="2" alignment="right" class="raise-button">
+    <template slot="description">
+      <p dir="auto">
+        {{ channel.description || $tr('defaultDescription') }}
+      </p>
+      <coach-content-label
+        :value="channel.num_coach_contents"
+        :isTopic="true"
+      />
+    </template>
+
+    <template slot="buttons">
       <k-router-link
         v-if="inImportMode || inExportMode"
         :text="$tr('selectButton')"
@@ -72,8 +64,8 @@
         :options="manageChannelActions"
         @select="handleManageChannelAction($event.value)"
       />
-    </k-grid-item>
-  </k-grid>
+    </template>
+  </channel-list-item-large>
 
 </template>
 
@@ -84,12 +76,11 @@
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
-  import kGrid from 'kolibri.coreVue.components.kGrid';
-  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from './bytesForHumans';
   import { selectContentPageLink } from './manageContentLinks';
+  import channelListItemLarge from './channel-list-item-large';
 
   const Modes = {
     IMPORT: 'IMPORT',
@@ -108,8 +99,7 @@
       coachContentLabel,
       kDropdownMenu,
       kRouterLink,
-      kGrid,
-      kGridItem,
+      channelListItemLarge,
       UiIcon,
     },
     mixins: [responsiveWindow],
@@ -232,10 +222,6 @@
       height: 30%;
       margin: 20px;
     }
-  }
-
-  .raise-button {
-    margin-top: -8px;
   }
 
   .on-device-icon {
