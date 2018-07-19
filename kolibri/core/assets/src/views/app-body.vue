@@ -6,7 +6,7 @@
     <k-linear-loader
       v-if="loading"
       class="toolbar-loader"
-      :style="{ top: isMobile ? '56px' : '64px' }"
+      :style="loaderPositionStyles"
       type="indeterminate"
       :delay="false"
     />
@@ -68,6 +68,11 @@
         return {
           top: `${this.topGap}px`,
           bottom: `${this.bottomGap}px`,
+        };
+      },
+      loaderPositionStyles() {
+        return {
+          top: `${this.topGap}px`,
         };
       },
       bodyPadding() {
