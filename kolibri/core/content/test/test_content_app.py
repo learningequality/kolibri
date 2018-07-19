@@ -155,29 +155,25 @@ class ContentNodeAPITestCase(APITestCase):
         self.admin.save()
         self.facility.add_admin(self.admin)
 
-    def _reverse_channel_url(self, pattern_name, kwargs={}):
-        """Helper method to reverse a URL using the current channel ID"""
-        return reverse(pattern_name, kwargs=kwargs)
-
     def test_prerequisite_for_filter(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"prerequisite_for": c1_id})
+        response = self.client.get(reverse("contentnode-list"), data={"prerequisite_for": c1_id})
         self.assertEqual(response.data[0]['title'], 'root')
 
     def test_has_prerequisite_filter(self):
         root_id = content.ContentNode.objects.get(title="root").id
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"has_prerequisite": root_id})
+        response = self.client.get(reverse("contentnode-list"), data={"has_prerequisite": root_id})
         self.assertEqual(response.data[0]['title'], 'c1')
 
     def test_related_filter(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"related": c1_id})
+        response = self.client.get(reverse("contentnode-list"), data={"related": c1_id})
         self.assertEqual(response.data[0]['title'], 'c2')
 
     def test_contentnode_list(self):
         root = content.ContentNode.objects.get(title="root")
         expected_output = root.get_descendants(include_self=True).filter(available=True).count()
-        response = self.client.get(self._reverse_channel_url("contentnode-list"))
+        response = self.client.get(reverse("contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
 
     def test_contentnode_granular_network_import(self):
@@ -331,50 +327,50 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': c1_id}))
+        response = self.client.get(reverse("contentnode-detail", kwargs={'pk': c1_id}))
         self.assertEqual(response.data['id'], c1_id.__str__())
 
     def test_contentnode_field_filtering(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': c1_id}), data={"fields": "title,description"})
+        response = self.client.get(reverse("contentnode-detail", kwargs={'pk': c1_id}), data={"fields": "title,description"})
         self.assertEqual(response.data['title'], "c1")
         self.assertEqual(response.data['description'], "balbla2")
         self.assertTrue("id" not in response.data)
 
-    def test_contentnode_recommendations(self):
-        id = content.ContentNode.objects.get(title="c2c2").id
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": id})
+    def test_contentnode_slim_recommendations(self):
+        node_id = content.ContentNode.objects.get(title="c2c2").id
+        response = self.client.get(reverse("contentnode_slim-recommendations-for", kwargs={'pk': node_id}))
         self.assertEqual(len(response.data), 2)
 
-    def test_contentnode_recommendations_does_not_error_for_unavailable_node(self):
+    def test_contentnode_slim_recommendations_does_error_for_unavailable_node(self):
         node = content.ContentNode.objects.get(title="c2c2")
         node.available = False
         node.save()
-        id = node.id
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": id})
-        self.assertEqual(len(response.data), 2)
+        node_id = node.id
+        response = self.client.get(reverse("contentnode_slim-recommendations-for", kwargs={'pk': node_id}))
+        self.assertEqual(response.status_code, 404)
 
-    def test_contentnodeslim_ids(self):
+    def test_contentnode_slim_ids(self):
         titles = ["c2c2", "c2c3"]
         nodes = [content.ContentNode.objects.get(title=title) for title in titles]
-        response = self.client.get(self._reverse_channel_url("contentnode_slim-list"), data={"ids": ','.join([n.id for n in nodes])})
+        response = self.client.get(reverse("contentnode_slim-list"), data={"ids": ','.join([n.id for n in nodes])})
         self.assertEqual(len(response.data), 2)
         for i in range(len(titles)):
             self.assertEqual(response.data[i]["title"], titles[i])
 
-    def test_contentnodeslim_parent(self):
+    def test_contentnode_slim_parent(self):
         parent = content.ContentNode.objects.get(title="c2")
         children = parent.get_children()
-        response = self.client.get(self._reverse_channel_url("contentnode_slim-list"), data={"parent": parent.id, "by_role": True})
+        response = self.client.get(reverse("contentnode_slim-list"), data={"parent": parent.id, "by_role": True})
         self.assertEqual(len(response.data), children.count())
         for i in range(len(children)):
             self.assertEqual(response.data[i]['title'], children[i].title)
 
-    def test_contentnodeslim_ancestors(self):
+    def test_contentnode_slim_ancestors(self):
         node = content.ContentNode.objects.get(title="c2c2")
         ancestors = node.get_ancestors()
         ancestors_titles = {n.title for n in ancestors}
-        response = self.client.get(self._reverse_channel_url("contentnode_slim-ancestors", kwargs={"pk": node.id}))
+        response = self.client.get(reverse("contentnode_slim-ancestors", kwargs={"pk": node.id}))
         response_titles = {n['title'] for n in response.data}
         self.assertEqual(len(response.data), ancestors.count())
         self.assertEqual(ancestors_titles, response_titles)
@@ -405,14 +401,14 @@ class ContentNodeAPITestCase(APITestCase):
         data.root.lang = root_lang
         data.root.save()
 
-        response = self.client.get(self._reverse_channel_url("channel-detail", {'pk': data.id}))
+        response = self.client.get(reverse("channel-detail", kwargs={'pk': data.id}))
         self.assertEqual(response.data['lang_code'], root_lang.lang_code)
         self.assertEqual(response.data['lang_name'], root_lang.lang_name)
 
     def test_channelmetadata_langfield_none(self):
         data = content.ChannelMetadata.objects.first()
 
-        response = self.client.get(self._reverse_channel_url("channel-detail", {'pk': data.id}))
+        response = self.client.get(reverse("channel-detail", kwargs={'pk': data.id}))
         self.assertEqual(response.data['lang_code'], None)
         self.assertEqual(response.data['lang_name'], None)
 
@@ -488,11 +484,11 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(with_filter_response.data[0]["name"], "testing")
 
     def test_file_list(self):
-        response = self.client.get(self._reverse_channel_url("file-list"))
+        response = self.client.get(reverse("file-list"))
         self.assertEqual(len(response.data), 5)
 
     def test_file_retrieve(self):
-        response = self.client.get(self._reverse_channel_url("file-detail", {'pk': "6bdfea4a01830fdd4a585181c0b8068c"}))
+        response = self.client.get(reverse("file-detail", kwargs={'pk': "6bdfea4a01830fdd4a585181c0b8068c"}))
         self.assertEqual(response.data['preset'], 'High Resolution')
 
     def _setup_contentnode_progress(self):
@@ -522,7 +518,7 @@ class ContentNodeAPITestCase(APITestCase):
         facility, root, c1, c2, c2c1, c2c3 = self._setup_contentnode_progress()
 
         def assert_progress(node, progress):
-            response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': node.id}))
+            response = self.client.get(reverse("contentnode-detail", kwargs={'pk': node.id}))
             self.assertEqual(response.data["progress_fraction"], progress)
 
         # check that there is no progress when not logged in
@@ -545,7 +541,7 @@ class ContentNodeAPITestCase(APITestCase):
         facility, root, c1, c2, c2c1, c2c3 = self._setup_contentnode_progress()
 
         def assert_progress(node, progress):
-            response = self.client.get(self._reverse_channel_url("contentnodeprogress-detail", {'pk': node.id}))
+            response = self.client.get(reverse("contentnodeprogress-detail", kwargs={'pk': node.id}))
             self.assertEqual(response.data["progress_fraction"], progress)
 
         # check that there is no progress when not logged in
@@ -567,7 +563,7 @@ class ContentNodeAPITestCase(APITestCase):
 
         facility, root, c1, c2, c2c1, c2c3 = self._setup_contentnode_progress()
 
-        response = self.client.get(self._reverse_channel_url("contentnodeprogress-list"))
+        response = self.client.get(reverse("contentnodeprogress-list"))
 
         def get_progress_fraction(node):
             return list(filter(lambda x: x['id'] == node.id, response.data))[0]['progress_fraction']
@@ -581,7 +577,7 @@ class ContentNodeAPITestCase(APITestCase):
         # check that progress is calculated appropriately when user is logged in
         self.client.login(username="learner", password="pass", facility=facility)
 
-        response = self.client.get(self._reverse_channel_url("contentnodeprogress-list"))
+        response = self.client.get(reverse("contentnodeprogress-list"))
 
         # The progress endpoint is used, so should report progress for topics
         self.assertEqual(get_progress_fraction(root), 0.24)
@@ -592,30 +588,30 @@ class ContentNodeAPITestCase(APITestCase):
     @mock.patch.object(cache, 'set')
     def test_parent_query_cache_is_set(self, mock_cache_set):
         id = content.ContentNode.objects.get(title="c3").id
-        self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
+        self.client.get(reverse("contentnode-list"), data={"parent": id})
         self.assertTrue(mock_cache_set.called)
 
     @mock.patch.object(cache, 'set')
     def test_parent_query_cache_not_set(self, mock_cache_set):
         id = content.ContentNode.objects.get(title="c2c3").id
-        self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id, 'kind': content_kinds.EXERCISE})
+        self.client.get(reverse("contentnode-list"), data={"parent": id, 'kind': content_kinds.EXERCISE})
         self.assertFalse(mock_cache_set.called)
 
     def test_parent_query_cache_hit(self):
         id = content.ContentNode.objects.get(title="c2c3").id
-        self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
+        self.client.get(reverse("contentnode-list"), data={"parent": id})
         with mock.patch.object(cache, 'set') as mock_cache_set:
-            self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
+            self.client.get(reverse("contentnode-list"), data={"parent": id})
             self.assertFalse(mock_cache_set.called)
 
     def test_filtering_coach_content_anon(self):
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"by_role": True})
+        response = self.client.get(reverse("contentnode-list"), data={"by_role": True})
         # TODO make content_test.json fixture more organized. Here just, hardcoding the correct count
         self.assertEqual(len(response.data), 7)
 
     def test_filtering_coach_content_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"by_role": True})
+        response = self.client.get(reverse("contentnode-list"), data={"by_role": True})
         expected_output = content.ContentNode.objects.exclude(available=False).count()  # coach_content node should be returned
         self.assertEqual(len(response.data), expected_output)
 
@@ -640,7 +636,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_in_lesson_filter(self):
         lesson, nodes = self._setup_lesson()
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": lesson.id})
+        response = self.client.get(reverse("contentnode-list"), data={"in_lesson": lesson.id})
         self.assertEqual(len(response.data), len(lesson.resources))
         for counter, node in enumerate(nodes):
             self.assertEqual(response.data[counter]['id'], node.id)
@@ -649,11 +645,11 @@ class ContentNodeAPITestCase(APITestCase):
         self._setup_lesson()
 
         # request with invalid uuid
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": '123'})
+        response = self.client.get(reverse("contentnode-list"), data={"in_lesson": '123'})
         self.assertEqual(len(response.data), 0)
 
         # request with valid uuid
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_lesson": '47385a6d4df3426db38ad0d20e113dce'})
+        response = self.client.get(reverse("contentnode-list"), data={"in_lesson": '47385a6d4df3426db38ad0d20e113dce'})
         self.assertEqual(len(response.data), 0)
 
     def _setup_exam(self):
@@ -678,7 +674,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_in_exam_filter(self):
         exam, node = self._setup_exam()
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": exam.id})
+        response = self.client.get(reverse("contentnode-list"), data={"in_exam": exam.id})
         self.assertEqual(len(response.data), len(exam.question_sources))
         self.assertEqual(response.data[0]['id'], node.id)
 
@@ -686,11 +682,11 @@ class ContentNodeAPITestCase(APITestCase):
         self._setup_exam()
 
         # request with invalid uuid
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": '123'})
+        response = self.client.get(reverse("contentnode-list"), data={"in_exam": '123'})
         self.assertEqual(len(response.data), 0)
 
         # request with valid uuid
-        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"in_exam": '47385a6d4df3426db38ad0d20e113dce'})
+        response = self.client.get(reverse("contentnode-list"), data={"in_exam": '47385a6d4df3426db38ad0d20e113dce'})
         self.assertEqual(len(response.data), 0)
 
     def test_copies(self):
@@ -754,7 +750,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_popular(self):
         expected_content_ids = self._create_session_logs()
-        response = self.client.get(reverse('contentnode-list'), data={'popular': uuid.uuid4().hex})
+        response = self.client.get(reverse('contentnode_slim-popular'))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -784,11 +780,102 @@ class ContentNodeAPITestCase(APITestCase):
                                          user_id=user.id,
                                          start_timestamp=timezone.now(),
                                          kind='content')
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
         return user, content_ids
 
     def test_resume(self):
         user, expected_content_ids = self._create_summary_logs()
-        response = self.client.get(reverse('contentnode-list'), data={'resume': user.id})
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('contentnode_slim-resume'))
+        response_content_ids = set(node['content_id'] for node in response.json())
+        self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
+    def test_next_steps_prereq(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        root = content.ContentNode.objects.get(title='root')
+        ContentSummaryLog.objects.create(channel_id=root.channel_id,
+                                         content_id=root.content_id,
+                                         user_id=user.id,
+                                         progress=1,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        post_req = root.prerequisite_for.first()
+        expected_content_ids = (post_req.content_id,)
+        response = self.client.get(reverse('contentnode_slim-next-steps'))
+        response_content_ids = set(node['content_id'] for node in response.json())
+        self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
+    def test_next_steps_prereq_in_progress(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        root = content.ContentNode.objects.get(title='root')
+        ContentSummaryLog.objects.create(channel_id=root.channel_id,
+                                         content_id=root.content_id,
+                                         user_id=user.id,
+                                         progress=1,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        post_req = root.prerequisite_for.first()
+        ContentSummaryLog.objects.create(channel_id=post_req.channel_id,
+                                         content_id=post_req.content_id,
+                                         user_id=user.id,
+                                         progress=0.5,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        expected_content_ids = []
+        response = self.client.get(reverse('contentnode_slim-next-steps'))
+        response_content_ids = set(node['content_id'] for node in response.json())
+        self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
+    def test_next_steps_sibling(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        node = content.ContentNode.objects.get(content_id='ce603df7c46b424b934348995e1b05fb')
+        ContentSummaryLog.objects.create(channel_id=node.channel_id,
+                                         content_id=node.content_id,
+                                         user_id=user.id,
+                                         progress=1,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        sibling = node.get_next_sibling()
+        expected_content_ids = (sibling.content_id,)
+        response = self.client.get(reverse('contentnode_slim-next-steps'))
+        response_content_ids = set(node['content_id'] for node in response.json())
+        self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
+    def test_next_steps_sibling_in_progress(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        node = content.ContentNode.objects.get(content_id='ce603df7c46b424b934348995e1b05fb')
+        ContentSummaryLog.objects.create(channel_id=node.channel_id,
+                                         content_id=node.content_id,
+                                         user_id=user.id,
+                                         progress=1,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        sibling = node.get_next_sibling()
+        ContentSummaryLog.objects.create(channel_id=sibling.channel_id,
+                                         content_id=sibling.content_id,
+                                         user_id=user.id,
+                                         progress=0.5,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        expected_content_ids = []
+        response = self.client.get(reverse('contentnode_slim-next-steps'))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 

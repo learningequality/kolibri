@@ -32,18 +32,18 @@
         @select="navigateToQuestionAttempt"
       />
       <ContentRenderer
-      :id="exercise.id"
-      :itemId="itemId"
-      :allowHints="false"
-      :kind="exercise.kind"
-      :files="exercise.files"
-      :contentId="exercise.content_id"
-      :available="exercise.available"
-      :extraFields="exercise.extra_fields"
-      :interactive="false"
-      :assessment="true"
-      :answerState="answerState"
-      :showCorrectAnswer="showCorrectAnswer"
+        :id="exercise.id"
+        :itemId="itemId"
+        :allowHints="false"
+        :kind="exercise.kind"
+        :files="exercise.files"
+        :contentId="exercise.content_id"
+        :available="exercise.available"
+        :extraFields="exercise.extra_fields"
+        :interactive="false"
+        :assessment="true"
+        :answerState="answerState"
+        :showCorrectAnswer="showCorrectAnswer"
       />
     </contentrenderer></div>
   </MultiPaneLayout>

@@ -8,26 +8,24 @@ import { contentState, setAndCheckChannels } from './main';
 
 // User-agnostic recommendations
 function _getPopular() {
-  return ContentNodeSlimResource.getCollection({ popular: 'true', by_role: true }).fetch();
+  return ContentNodeSlimResource.fetchPopular({ by_role: true });
 }
 
 // User-specific recommendations
 function _getNextSteps(store) {
   if (store.getters.isUserLoggedIn) {
-    return ContentNodeSlimResource.getCollection({
-      next_steps: store.getters.currentUserId,
+    return ContentNodeSlimResource.fetchNextSteps({
       by_role: true,
-    }).fetch();
+    });
   }
   return Promise.resolve([]);
 }
 
 function _getResume(store) {
   if (store.getters.isUserLoggedIn) {
-    return ContentNodeSlimResource.getCollection({
-      resume: store.getters.currentUserId,
+    return ContentNodeSlimResource.fetchResume({
       by_role: true,
-    }).fetch();
+    });
   }
   return Promise.resolve([]);
 }
