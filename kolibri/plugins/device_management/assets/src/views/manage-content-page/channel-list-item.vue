@@ -2,64 +2,50 @@
 
   <div class="channel-list-item">
 
-    <div class="thumbnail dtc">
-      <img
-        v-if="thumbnailImg"
-        :src="thumbnailImg"
-      >
-      <div
-        v-else
-        class="default-icon"
-      >
-        <mat-svg
-          category="navigation"
-          name="apps"
-        />
+    <div>
+      <img v-if="thumbnailImg" :src="thumbnailImg">
+      <div v-else class="default-icon">
+        <mat-svg category="navigation" name="apps" />
       </div>
     </div>
 
-    <div class="details dtc">
+    <div>
 
-      <div class="details-top">
-        <div class="other-details">
-          <div
-            v-if="inImportMode && onDevice"
-            class="on-device"
-          >
-            <mat-svg
-              category="action"
-              name="check_circle"
-            />
-            <span>{{ $tr('onYourDevice') }}</span>
+      <div>
+
+        <div>
+          <div v-if="inImportMode && onDevice">
+            <ui-icon class="icon">
+              <mat-svg
+                category="action"
+                name="check_circle"
+                class="on-device-icon"
+              />
+            </ui-icon>
+            <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
           </div>
-          <div
-            v-if="inExportMode || inManageMode"
-            class="resources-size"
-          >
-            <span dir="auto">{{ resourcesSizeText }}</span>
+          <div v-if="inExportMode || inManageMode" dir="auto">
+            {{ resourcesSizeText }}
           </div>
         </div>
-        <div class="channel-title">
-          <div class="title" dir="auto">
-            {{ channel.name }}
-          </div>
-          <ui-icon
-            class="lock-icon"
-            v-if="channel.public === false"
-          >
+
+        <div>
+          <h2 class="title" dir="auto">{{ channel.name }}</h2>
+          <ui-icon class="icon" v-if="!channel.public">
             <mat-svg name="lock_open" category="action" />
           </ui-icon>
         </div>
+
         <div class="version">
           {{ $tr('version', { version: versionNumber }) }}
         </div>
+
       </div>
 
-      <div class="details-bottom">
-        <div class="description" dir="auto">
+      <div>
+        <p dir="auto">
           {{ channel.description || $tr('defaultDescription') }}
-        </div>
-
+        </p>
         <coach-content-label
           :value="channel.num_coach_contents"
           :isTopic="true"
@@ -68,7 +54,7 @@
 
     </div>
 
-    <div class="buttons dtc">
+    <div>
       <k-router-link
         v-if="inImportMode || inExportMode"
         :text="$tr('selectButton')"
@@ -95,6 +81,8 @@
   import coachContentLabel from 'kolibri.coreVue.components.coachContentLabel';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kDropdownMenu from 'kolibri.coreVue.components.kDropdownMenu';
+  import kGrid from 'kolibri.coreVue.components.kGrid';
+  import kGridItem from 'kolibri.coreVue.components.kGridItem';
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from './bytesForHumans';
   import { selectContentPageLink } from './manageContentLinks';
@@ -116,6 +104,8 @@
       coachContentLabel,
       kDropdownMenu,
       kRouterLink,
+      kGrid,
+      kGridItem,
       UiIcon,
     },
     props: {
@@ -210,40 +200,17 @@
 
   @import '~kolibri.styles.definitions';
 
-  .dtc {
-    display: table-cell;
-    vertical-align: top;
-  }
-
   .channel-list-item {
-    display: table;
-    padding: 2em 0;
-    vertical-align: middle;
-    border-bottom: 1px solid $core-grey;
+    border-top: 1px solid $core-grey;
   }
 
   .title {
     display: inline;
-    font-size: 1.2em;
-    font-weight: bold;
-    line-height: 1.5em;
   }
 
   .version {
     font-size: 0.85em;
     color: $core-text-annotation;
-  }
-
-  .description {
-    padding: 1em 0;
-  }
-
-  .thumbnail {
-    width: 10%;
-    text-align: left;
-    img {
-      width: 100%;
-    }
   }
 
   .default-icon {
@@ -256,42 +223,16 @@
     }
   }
 
-  .details {
-    position: relative;
-    width: 100%;
-    padding: 0 2em;
+  .on-device-icon {
+    fill: $core-status-correct;
   }
 
-  .other-details {
-    position: relative;
-    top: 16px;
-    float: right;
-    line-height: 1.7em;
+  .on-device-text {
+    margin-left: 8px;
   }
 
-  .on-device {
-    line-height: 1.7em;
-    svg {
-      fill: $core-status-correct;
-    }
-    span {
-      margin-left: 10px;
-      vertical-align: 16px;
-    }
-  }
-
-  .buttons {
-    width: 10%;
-    text-align: right;
-    vertical-align: baseline;
-  }
-
-  .lock-icon {
-    vertical-align: sub;
-  }
-
-  .channel-title {
-    margin-bottom: 8px;
+  .icon {
+    vertical-align: text-bottom;
   }
 
 </style>

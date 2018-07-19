@@ -76,7 +76,6 @@
           :key="channel.id"
           :onDevice="channelIsOnDevice(channel)"
           @clickselect="goToSelectContentPageForChannel(channel)"
-          class="channel-list-item"
           :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
         />
       </div>
@@ -277,10 +276,6 @@
     padding: 16px 0;
     font-size: 14px;
     color: $core-text-annotation;
-  }
-
-  .channel-list-item:first-of-type {
-    border-top: 1px solid $core-grey;
   }
 
   .top-matter {
