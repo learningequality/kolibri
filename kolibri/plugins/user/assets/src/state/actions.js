@@ -1,8 +1,10 @@
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri.coreVue.vuex.constants';
 import { SignUpResource, FacilityUserResource, FacilityResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
+import ParseErrors from 'kolibri.utils.ParseErrors';
+
 import Lockr from 'lockr';
-import { PageNames } from '../constants';
+import { PageNames, ProfilePageErrors } from '../constants';
 
 const snackbarTranslator = createTranslator('userPageSnackbars', {
   passwordChangeSuccessMessage: 'Password changed',
@@ -48,20 +50,13 @@ export function updateUserProfile(store, { edits, session }) {
       store.commit('SET_PROFILE_ERROR', { isError: false });
     },
     error => {
-      const { status, entity } = error;
-      let errorMessage = '';
-      if (status.code === 400) {
-        errorMessage = Object.values(entity)[0][0];
-      } else if (status.code === 403) {
-        errorMessage = entity[0];
+      const parsedErrors = ParseErrors(store, error, ProfilePageErrors);
+      // would return ['USERNAME_ALREADY_EXISTS'];
+      if (parsedErrors) {
+        store.commit('SET_PROFILE_ERRORS', parsedErrors);
+        store.commit('SET_PROFILE_SUCCESS', false);
+        store.commit('SET_PROFILE_BUSY', false);
       }
-      store.commit('SET_PROFILE_SUCCESS', false);
-      store.commit('SET_PROFILE_BUSY', false);
-      store.commit('SET_PROFILE_ERROR', {
-        isError: true,
-        errorMessage,
-        errorCode: status.code,
-      });
     }
   );
 }

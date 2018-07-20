@@ -91,6 +91,7 @@ import kCircularLoader from '../views/k-circular-loader';
 
 import multiPaneLayout from '../views/multi-pane-layout';
 import navComponents from '../utils/navComponents';
+import ParseErrors from '../utils/ParseErrors';
 import * as client from './client';
 import urls from './urls';
 
@@ -186,5 +187,6 @@ export default {
     i18n,
     navComponents,
     samePageCheckGenerator,
+    ParseErrors,
   },
 };
