@@ -36,6 +36,7 @@ mkdir -p installer
 buildkite-agent artifact download 'dist/*.pex' dist/
 buildkite-agent artifact download 'dist/*.whl' dist/
 buildkite-agent artifact download 'dist/*.tar.gz' dist/
+buildkite-agent artifact download 'dist/*.deb' dist/
 buildkite-agent artifact download 'installer/*.exe' installer/
 # buildkite-agent artifact download 'installer/*.apk' installer/
 
