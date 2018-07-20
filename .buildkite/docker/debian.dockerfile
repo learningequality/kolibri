@@ -25,7 +25,7 @@ RUN adduser --system --shell /bin/bash --home "/kolibribuild" kolibribuild && \
 VOLUME /kolibridist/
 
 CMD cd /kolibribuild && \
-    DEB_VERSION=`echo -n "$KOLIBRI_VERSION" | sed -s 's/\([abc]\|.dev\)/\~\0/g'` && \
+    DEB_VERSION=`echo -n "$KOLIBRI_VERSION" | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'` && \
     cd kolibri-source* && \
     uupdate --no-symlink -v "$DEB_VERSION" /kolibridist/kolibri-$KOLIBRI_VERSION.tar.gz && \
     cd "../kolibri-source-$DEB_VERSION" && \
