@@ -125,7 +125,7 @@ The ``ContentRendererModule`` class has one required property ``getRendererCompo
 
 .. code-block:: javascript
 
-  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
+  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
 
   {
     mixins: [contentRendererMixin],
@@ -145,7 +145,7 @@ The answer renderer should also define a ``checkAnswer`` method in its component
 
 .. code-block:: javascript
 
-  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRenderer';
+  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
 
   {
     mixins: [contentRendererMixin],

@@ -1,8 +1,4 @@
-import {
-  ContentNodeResource,
-  ContentNodeSlimResource,
-  ContentNodeProgressResource,
-} from 'kolibri.resources';
+import { ContentNodeSlimResource, ContentNodeProgressResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniq from 'lodash/uniq';
@@ -71,7 +67,7 @@ function _showRecSubpage(store, getContentPromise, pageName, channelId = null) {
   );
 }
 
-export function showLearn(store) {
+export function showRecommended(store) {
   store.commit('SET_EMPTY_LOGGING_STATE');
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
@@ -104,9 +100,7 @@ export function showLearn(store) {
 
       // Only load contentnodes progress if the user is logged in
       if (store.getters.isUserLoggedIn) {
-        const contentNodeIds = uniq([
-          ...nextSteps, ...popular, ...resume
-        ].map(({ id }) => id));
+        const contentNodeIds = uniq([...nextSteps, ...popular, ...resume].map(({ id }) => id));
 
         if (contentNodeIds.length > 0) {
           ContentNodeProgressResource.getCollection({ ids: contentNodeIds })
@@ -137,30 +131,4 @@ export function showResumePage(store) {
 
 export function showNextStepsPage(store) {
   _showRecSubpage(store, _getNextSteps, PageNames.RECOMMENDED_NEXT_STEPS);
-}
-
-export function showLearnContent(store, id) {
-  store.commit('CORE_SET_PAGE_LOADING', true);
-  store.commit('SET_PAGE_NAME', PageNames.RECOMMENDED_CONTENT);
-  const promises = [
-    ContentNodeResource.getModel(id).fetch(),
-    ContentNodeResource.fetchNextContent(id),
-    ContentNodeResource.getCollection({ recommendations_for: id, by_role: true }).fetch(),
-    store.dispatch('setChannelInfo'),
-  ];
-  return ConditionalPromise.all(promises).only(
-    samePageCheckGenerator(store),
-    ([content, nextContent, recommended]) => {
-      store.commit('SET_PAGE_STATE', {
-        content: contentState(content, nextContent),
-        channel: store.getters.getChannelObject(content.channel_id),
-        recommended: recommended.map(contentState),
-      });
-      store.commit('CORE_SET_PAGE_LOADING', false);
-      store.commit('CORE_SET_ERROR', null);
-    },
-    error => {
-      store.dispatch('handleApiError', error);
-    }
-  );
 }

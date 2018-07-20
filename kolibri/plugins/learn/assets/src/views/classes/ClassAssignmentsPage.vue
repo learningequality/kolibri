@@ -5,11 +5,11 @@
       {{ classroomName }}
     </h1>
 
-    <assigned-exams-cards
+    <AssignedExamsCards
       :exams="exams"
       :isMobile="windowIsSmall"
     />
-    <assigned-lessons-cards
+    <AssignedLessonsCards
       :lessons="lessons"
       :isMobile="windowIsSmall"
     />

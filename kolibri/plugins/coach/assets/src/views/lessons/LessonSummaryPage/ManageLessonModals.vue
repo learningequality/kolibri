@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <assignment-change-status-modal
+    <AssignmentChangeStatusModal
       v-if="lessonsModalSet === AssignmentActions.CHANGE_STATUS"
       :modalTitle="$tr('changeLessonStatusTitle')"
       :modalDescription="$tr('changeLessonStatusDescription')"
@@ -10,7 +10,7 @@
       @cancel="setLessonsModal(null)"
     />
 
-    <assignment-details-modal
+    <AssignmentDetailsModal
       v-else-if="lessonsModalSet === AssignmentActions.EDIT_DETAILS"
       :modalTitle="$tr('editLessonDetails')"
       :submitErrorMessage="$tr('saveLessonError')"
@@ -26,7 +26,7 @@
       ref="detailsModal"
     />
 
-    <assignment-copy-modal
+    <AssignmentCopyModal
       v-else-if="lessonsModalSet === AssignmentActions.COPY"
       :modalTitle="$tr('copyLessonTitle')"
       :copyExplanation="$tr('copyExplanation')"
@@ -37,7 +37,7 @@
       @cancel="setLessonsModal(null)"
     />
 
-    <assignment-delete-modal
+    <AssignmentDeleteModal
       v-else-if="lessonsModalSet === AssignmentActions.DELETE"
       :modalTitle="$tr('deleteLessonTitle')"
       :modalDescription="$tr('deleteLessonDescription', { title: currentLesson.title })"
@@ -59,7 +59,7 @@
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
 
   export default {
-    name: 'manageLessonModals',
+    name: 'ManageLessonModals',
     components: {
       AssignmentChangeStatusModal,
       AssignmentDetailsModal,

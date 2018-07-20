@@ -1,14 +1,14 @@
 <template>
 
   <div>
-    <k-radio-button
+    <KRadioButton
       :value="true"
       :label="$tr('entireClass')"
       :currentValue="entireClassIsSelected"
       @change="selectEntireClass()"
       :disabled="disabled"
     />
-    <k-checkbox
+    <KCheckbox
       v-for="group in groups"
       :key="group.id"
       :label="group.name"
@@ -24,16 +24,16 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import kButton from 'kolibri.coreVue.components.kButton';
-  import kCheckbox from 'kolibri.coreVue.components.kCheckbox';
-  import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
   export default {
-    name: 'recipientSelector',
+    name: 'RecipientSelector',
     components: {
-      kButton,
-      kCheckbox,
-      kRadioButton,
+      KButton,
+      KCheckbox,
+      KRadioButton,
     },
     props: {
       // Needs to equal [classId] if entire class is selected

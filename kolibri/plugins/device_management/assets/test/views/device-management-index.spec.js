@@ -1,7 +1,7 @@
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import urls from 'kolibri.urls';
-import Index from '../../src/views/index.vue';
+import Index from '../../src/views/DeviceIndex';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 urls.freespace = () => '';
@@ -28,7 +28,7 @@ function makeWrapper(store) {
     router,
   });
   const els = {
-    coreBase: () => wrapper.find({ name: 'coreBase' }),
+    CoreBase: () => wrapper.find({ name: 'CoreBase' }),
   };
   return { wrapper, els };
 }
@@ -43,12 +43,12 @@ describe('device management index page', () => {
   it('core-base is immersive when at the SELECT_CONTENT page', () => {
     store.commit('SET_PAGE_NAME', 'SELECT_CONTENT');
     const { els } = makeWrapper(store);
-    expect(els.coreBase().props().immersivePage).toEqual(true);
+    expect(els.CoreBase().props().immersivePage).toEqual(true);
   });
 
   it('core-base is immersive when at the AVAILABLE_CHANNELS page', () => {
     store.commit('SET_PAGE_NAME', 'AVAILABLE_CHANNELS');
     const { els } = makeWrapper(store);
-    expect(els.coreBase().props().immersivePage).toEqual(true);
+    expect(els.CoreBase().props().immersivePage).toEqual(true);
   });
 });

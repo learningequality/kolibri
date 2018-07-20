@@ -9,11 +9,10 @@ import {
   showTopicsContent,
 } from '../state/actions/main';
 import {
-  showLearn,
+  showRecommended,
   showPopularPage,
   showNextStepsPage,
   showResumePage,
-  showLearnContent,
 } from '../state/actions/recommended';
 import { PageNames } from '../constants';
 import classesRoutes from './classesRoutes';
@@ -38,7 +37,7 @@ export default [
     name: PageNames.RECOMMENDED,
     path: '/recommended',
     handler: () => {
-      showLearn(store);
+      showRecommended(store);
     },
   },
   {
@@ -95,13 +94,6 @@ export default [
     path: '/recommended/nextsteps',
     handler: () => {
       showNextStepsPage(store);
-    },
-  },
-  {
-    name: PageNames.RECOMMENDED_CONTENT,
-    path: '/recommended/:id',
-    handler: toRoute => {
-      showLearnContent(store, toRoute.params.id);
     },
   },
   {

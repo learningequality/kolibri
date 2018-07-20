@@ -1,17 +1,17 @@
 import { shallowMount } from '@vue/test-utils';
-import SelectTransferSourceModal from '../../src/views/manage-content-page/select-transfer-source-modal';
+import SelectTransferSourceModal from '../../src/views/ManageContentPage/SelectTransferSourceModal';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 function makeWrapper(options) {
   const wrapper = shallowMount(SelectTransferSourceModal, {
     ...options,
     stubs: {
-      selectImportSourceModal: '<div data-test="select-import-source"></div>',
-      selectDriveModal: '<div data-test="select-drive"></div>',
+      SelectImportSourceModal: '<div data-test="select-import-source"></div>',
+      SelectDriveModal: '<div data-test="select-drive"></div>',
     },
   });
   const els = {
-    titleText: () => wrapper.find({ name: 'kModal' }).props().title,
+    titleText: () => wrapper.find({ name: 'KModal' }).props().title,
     selectImportSource: () => wrapper.find('[data-test="select-import-source"]'),
     selectDrive: () => wrapper.find('[data-test="select-drive"]'),
   };

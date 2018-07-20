@@ -1,10 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
-import elapsedTime from '../../src/views/elapsed-time';
+import ElapsedTime from '../../src/views/ElapsedTime';
 
 const DUMMY_CURRENT_DATE = new Date(2017, 0, 1, 1, 1, 1);
 
 function makeWrapper(options) {
-  return shallowMount(elapsedTime, options);
+  return shallowMount(ElapsedTime, options);
 }
 
 // prettier-ignore

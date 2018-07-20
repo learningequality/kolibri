@@ -182,7 +182,60 @@ dockerenvclean:
 	docker image prune -f
 
 dockerenvbuild: writeversion
-	docker image build -t "learningequality/kolibri:$$(cat kolibri/VERSION | sed 's/+/_/g')" -t learningequality/kolibri:latest .
+	docker image build -t "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')" -t learningequality/kolibri:latest -f docker/buildkite.dockerfile .
 
 dockerenvdist: writeversion
-	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri:$$(cat kolibri/VERSION | sed 's/+/_/g')"
+	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')"
+
+dockerbuildbase: writeversion
+	docker image build . \
+		-f docker/base.dockerfile \
+		-t "learningequality/kolibribase" \
+		-t "learningequality/kolibribase:latest"
+
+dockerbuild: writeversion
+	docker image build \
+			-f docker/build.dockerfile \
+			-t "learningequality/kolibribuild" .
+	# Run the container to produce the pex et al in /docker/mnt/
+	docker run --init \
+			-v $$PWD/docker/mnt:/docker/mnt \
+			"learningequality/kolibribuild"
+
+dockerdemoserver: writeversion
+	# Build the demoserver image
+	docker image build \
+			-f docker/demoserver.dockerfile \
+			-t "learningequality/demoserver" .
+	# Run the container using one of the following options:
+	#  --env KOLIBRI_PEX_URL set to URL for a pex file from release or pull request
+	#  --env KOLIBRI_PEX_URL="default" will run leq.org/r/kolibri-pex-latest
+	#  --env DOCKERMNT_PEX_PATH (e.g. /docker/mnt/kolibri-vX.Y.Z.pex)
+	docker run --init \
+			-v $$PWD/docker/mnt:/docker/mnt \
+			-p 8080:8080 \
+			--env-file ./env.list \
+			--env KOLIBRI_PEX_URL="default" \
+			--env KOLIBRI_CHANNELS_TO_IMPORT="7765d6aeabc35de790f8bc4532aeb529" \
+			"learningequality/demoserver"
+	echo "Check http://localhost:8080 you should have a demoserver running there."
+
+
+dockerdevserver: writeversion
+	# Build the kolibridev image: contains source code + pip install -e of kolibri
+	docker image build \
+			-f docker/dev.dockerfile \
+			-t "learningequality/kolibridev" .
+	docker run --init \
+			-v $$PWD/docker/mnt:/docker/mnt \
+			-p 8000:8000 \
+			-p 3000:3000 \
+			--env-file ./env.list \
+			"learningequality/kolibridev" \
+			yarn run devserver
+	echo "Check http://localhost:8000  you should have devserver running there."
+
+# Optionally add --env KOLIBRI_PROVISIONDEVICE_FACILITY="Dev Server" to skip setup wizard
+
+# TODO: figure out how to add source code as "volume" so can live-edit,
+# 		  e.g. -v $$PWD/kolibri:/kolibri/kolibri ??

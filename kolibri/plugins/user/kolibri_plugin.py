@@ -38,9 +38,9 @@ class LogInRedirect(RoleBasedRedirectHook):
 
 class LogInNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):
     unique_slug = "user_module_login_nav_side_nav"
-    src_file = "assets/src/views/login-side-nav-entry.vue"
+    src_file = "assets/src/views/LoginSideNavEntry.vue"
 
 
 class ProfileNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):
     unique_slug = "user_module_user_profile_nav_side_nav"
-    src_file = "assets/src/views/user-profile-side-nav-entry.vue"
+    src_file = "assets/src/views/UserProfileSideNavEntry.vue"

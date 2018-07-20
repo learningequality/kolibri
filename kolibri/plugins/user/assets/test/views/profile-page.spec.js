@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import ProfilePage from '../../src/views/profile-page';
+import ProfilePage from '../../src/views/ProfilePage';
 import makeStore from '../makeStore';
 
 ProfilePage.methods.fetchPoints = () => {};
