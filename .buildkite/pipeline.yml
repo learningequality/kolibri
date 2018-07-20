@@ -1,18 +1,28 @@
 steps:
-  - label: Build the docker environment
+  - label: Build Docker environment
     command: make dockerenvbuild
 
   - wait
 
-  - label: Build the python packages
+  - label: Build Python packages
     command: mkdir -p dist && .buildkite/build_whl.sh && docker container prune -f
 
   - wait
 
-  - label: Build kolibri windows installer
+  - label: Build Windows installer
     command: .buildkite/build_windows_installer.sh
 
   - wait
+
+  - label: Build Debian Packages
+    command: .buildkite/build_debian_pkgs.sh
+
+  - wait
+
+  # - label: Build the Android APK file
+  #   command: mkdir -p dist && .buildkite/build_apk.sh
+
+  # - wait
 
   - label: Upload artifacts
     command: .buildkite/setup_and_upload_artifact.sh && docker image prune -f -a
