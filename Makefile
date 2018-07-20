@@ -197,6 +197,12 @@ dockerenvbuild: writeversion
 dockerenvdist: writeversion
 	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')"
 
+dockerenv-deb: writeversion
+	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
+	docker image build --no-cache -t "learningequality/kolibri-deb:$$(cat kolibri/VERSION | sed 's/+/_/g')" -f .buildkite/docker/debian.dockerfile .
+	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
+	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb:$$(cat kolibri/VERSION | sed 's/+/_/g')"
+
 dockerbuildbase: writeversion
 	docker image build . \
 		-f docker/base.dockerfile \
