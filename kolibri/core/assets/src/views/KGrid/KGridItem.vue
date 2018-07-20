@@ -11,6 +11,7 @@
 
 <script>
 
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import logger from 'kolibri.lib.logging';
 
   const logging = logger.getLogger(__filename);
@@ -72,6 +73,7 @@
    */
   export default {
     name: 'KGridItem',
+    mixins: [responsiveWindow],
     props: {
       /**
        * Integer size of the grid item.
