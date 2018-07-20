@@ -6,6 +6,7 @@ from django.core.management.base import CommandError
 from ...utils import channel_import
 from ...utils import paths
 from ...utils import transfer
+from ...utils.import_export_content import retry_import
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
@@ -94,14 +95,17 @@ class Command(AsyncCommand):
 
         logging.debug("Destination: {}".format(dest))
 
+        finished = False
+        while not finished:
+            finished = self._start_file_transfer(filetransfer, channel_id, dest)
+
+    def _start_file_transfer(self, filetransfer, channel_id, dest):
         progress_extra_data = {
             "channel_id": channel_id,
         }
 
-        with filetransfer:
-
-            with self.start_progress(total=filetransfer.total_size) as progress_update:
-
+        try:
+            with filetransfer, self.start_progress(total=filetransfer.total_size) as progress_update:
                 for chunk in filetransfer:
 
                     if self.is_cancelled():
@@ -119,6 +123,13 @@ class Command(AsyncCommand):
                     except IOError:
                         pass
                     self.cancel()
+                return True
+
+        except Exception as e:
+            # The return value of retry_import is
+            # * True, 0 - the transfer is cancelled.
+            # * False, 0 - the transfer fails and needs to retry.
+            return retry_import(self, e, 'channel')[0]
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':

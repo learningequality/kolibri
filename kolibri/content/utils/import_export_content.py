@@ -1,9 +1,25 @@
+from time import sleep
+
 from django.db.models import Sum
 from le_utils.constants import content_kinds
+from requests.exceptions import ConnectionError
+from requests.exceptions import HTTPError
+from requests.exceptions import Timeout
 
 from kolibri.content.models import ContentNode
 from kolibri.content.models import LocalFile
 from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
+try:
+    import OpenSSL
+    SSLERROR = OpenSSL.SSL.Error
+except ImportError:
+    import requests
+    SSLERROR = requests.exceptions.SSLError
+
+import logging as logger
+logging = logger.getLogger(__name__)
+
+RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
 
 
 def get_files_to_transfer(channel_id, node_ids, exclude_node_ids, available, renderable_only=True):
@@ -61,3 +77,40 @@ def get_num_coach_contents(contentnode, filter_available=True):
             .count()
     else:
         return 1 if contentnode.coach_content else 0
+
+
+def retry_import(command, e, name, f=None, overall_progress_update=None):
+    logging.error("An error occured during channel import: {}".format(e))
+
+    # When there is an Internet connection error or timeout error,
+    # or HTTPError where the error code is one of the RETRY_STATUS_CODE,
+    # return False, 0 to retry the file transfer, or return True, 0 to
+    # indicate the cancellation
+    if (
+            isinstance(e, ConnectionError) or
+            isinstance(e, Timeout) or
+            (isinstance(e, HTTPError) and e.response.status_code in RETRY_STATUS_CODE) or
+            (isinstance(e, SSLERROR) and 'decryption failed or bad record mac' in str(e))):
+        return sleep_before_retry(command), 0
+
+    # Skip the file if it does not exist on the server or disk.
+    # This only applies to content import not channel import.
+    elif (
+            name == 'content' and
+            (
+                (isinstance(e, HTTPError) and e.response.status_code == 404) or
+                (isinstance(e, OSError) and e.errno == 2))):
+        overall_progress_update(f.file_size)
+        return True, 1
+
+    else:
+        raise e
+
+def sleep_before_retry(command):
+    logging.info('Waiting for 30 seconds before retrying...')
+    for i in range(30):
+        if command.is_cancelled():
+            command.cancel()
+            return True
+        sleep(1)
+    return False
