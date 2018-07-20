@@ -5,7 +5,7 @@ import sys
 
 def get_cext_path(dist_path):
     """
-    Get the directory of dist/cext.
+    Calculate the directory of C extensions and add it to sys.path if exists.
     """
     python_version = 'cp' + str(sys.version_info.major) + str(sys.version_info.minor)
     system_name = platform.system()
@@ -22,8 +22,13 @@ def get_cext_path(dist_path):
             dirname = os.path.join(dirname, python_version+'mu')
 
     dirname = os.path.join(dirname, machine_name)
-    sys.path = [os.path.realpath(str(dirname))] + sys.path
-
+    openssl_parent_dir = os.path.join(dist_path, 'cext')
+    if os.path.exists(dirname):
+        # If the directory of cryptography exists, add it and the OpenSSL module's
+        # parent directory to sys.path
+        sys.path = [str(dirname), str(openssl_parent_dir)] + sys.path
+    else:
+        logging.warning('No C Extensions available for this platform.\n')
 
 def set_env():
     """
@@ -39,12 +44,6 @@ def set_env():
 
     # Add path for c extensions to sys.path
     get_cext_path(os.path.realpath(os.path.dirname(kolibri_dist.__file__)))
-    try:
-        import cryptography  # noqa
-    except ImportError:
-        # Fallback
-        logging.warning('No C Extensions available for this platform.\n')
-        sys.path = sys.path[1:]
 
     # This was added in
     # https://github.com/learningequality/kolibri/pull/580
