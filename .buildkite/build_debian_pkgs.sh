@@ -13,12 +13,7 @@ cd "$PARENT_PATH"
 
 mkdir -p dist
 
-if `which buildkite-agent`
-then
-	buildkite-agent artifact download 'dist/*.tar.gz' dist/
-else
-	make dist
-fi
+buildkite-agent artifact download 'dist/*.tar.gz' dist/
 
 make dockerenv-deb
 
