@@ -48,21 +48,21 @@ Confused? Here's a table:
 |              | 1)                  |                     |                           | 1.2.3a1,                            |
 |              |                     |                     |                           | 4 changes                           |
 |              |                     |                     |                           | since tag:                          |
-|              |                     |                     |                           | 1.2.3a1.dev+git.4.f1234567          |
+|              |                     |                     |                           | 1.2.3a1.dev0+git.4.f1234567         |
 +--------------+---------------------+---------------------+---------------------------+-------------------------------------+
 | beta1+       | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                         |
 |              | 1)                  |                     |                           | 1.2.3b1,                            |
 |              |                     |                     |                           | 5 changes                           |
 |              |                     |                     |                           | since tag:                          |
-|              |                     |                     |                           | 1.2.3b1.dev+git.5.f1234567          |
+|              |                     |                     |                           | 1.2.3b1.dev0+git.5.f1234567         |
 +--------------+---------------------+---------------------+---------------------------+-------------------------------------+
 | rc1+         | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                         |
 | (release     | 1)                  |                     |                           | 1.2.3rc1,                           |
 | candidate)   |                     |                     |                           | Changes                             |
 |              |                     |                     |                           | since tag:                          |
-|              |                     |                     |                           | 1.2.3rc1.dev123-f1234567            |
+|              |                     |                     |                           | 1.2.3rc1.dev0+git.f1234567          |
 +--------------+---------------------+---------------------+---------------------------+-------------------------------------+
-| beta0, rc0,  | DO NOT USE          | Fallback            | timestamp of latest       | 1.2.3b0.dev+git.123.f1234567        |
+| beta0, rc0,  | DO NOT USE          | Fallback            | timestamp of latest       | 1.2.3b0.dev0+git.123.f1234567       |
 | post0, x.y.0 |                     |                     | commit + hash             |                                     |
 |              |                     |                     |                           |                                     |
 +--------------+---------------------+---------------------+---------------------------+-------------------------------------+
@@ -77,21 +77,24 @@ environment).
 Release order example 1.2.3 release:
 
  * ``VERSION = (1, 2, 3, 'alpha', 0)`` throughout the development phase, this
-   results in a lot of ``1.2.3.dev0YYYYMMDDHHMMSS-1234abcd`` with no need for
+   results in a lot of ``1.2.3.dev0+git1234abcd`` with no need for
    git tags.
- * ``VERSION = (1, 2, 3, 'alpha', 1)`` for the first alpha release. When it's
-   tagged and released,
+ * ``VERSION = (1, 2, 3, 'alpha', 1)`` for the first alpha release.
 
 .. warning::
     Do not import anything from the rest of Kolibri in this module, it's
     crucial that it can be loaded without the settings/configuration/django
     stack.
 
-Do not import this file in other package's __init__, because installation with
-setup.py should not depend on other packages. In case you were to have a
-package foo that depended on kolibri, and kolibri is installed as a dependency
-while foo is installing, then foo won't be able to access kolibri before after
-setuptools has completed installation of everything.
+If you wish to user ``version.py`` in another project, raw-copy the contents
+of this file.
+
+Do not import this module in other distributed package's ``__init__``, because
+installation with setup.py should not depend on other packages. In case you
+were to have a package ``foo`` that depended on kolibri, and kolibri is
+installed as a dependency while ``foo`` is installing, then ``foo`` won't be
+able to access kolibri before after setuptools has completed installation of
+everything. (This paragraph is written because such has happened).
 """
 from __future__ import absolute_import
 from __future__ import division
@@ -237,7 +240,7 @@ def get_version_from_git(get_git_describe_string):
     # the naming of source dist .whl and .tar.gz files produced by setup.py.
     # See: https://www.python.org/dev/peps/pep-0440/#local-version-identifiers
     suffix = m.group('suffix').replace("-", ".")
-    suffix = ".dev+git" + suffix if suffix else ""
+    suffix = ".dev0+git" + suffix if suffix else ""
 
     return get_complete_version((
         int(major),
@@ -285,7 +288,7 @@ def get_prerelease_version(version):
                 # Throw away the description from git
                 suffix = get_git_changeset()
                 # Replace 'alpha' with .dev
-                return major + ".dev" + suffix
+                return major + ".dev0" + suffix
 
             # If the tag was not of a final version, we will fail.
             elif not git_version[4] == 'final' and git_version[:3] > version[:3]:
