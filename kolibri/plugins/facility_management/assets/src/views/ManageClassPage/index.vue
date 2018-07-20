@@ -2,20 +2,20 @@
 
   <div>
 
-    <div class="header">
-      <section>
+    <KGrid>
+      <KGridItem sizes="100, 75, 75" percentage>
         <h1>{{ $tr('adminClassPageHeader') }}</h1>
         <p>{{ $tr('adminClassPageSubheader') }}</p>
-      </section>
+      </KGridItem>
+      <KGridItem sizes="100, 25, 25" percentage alignment="right">
+        <KButton
+          @click="displayModal(Modals.CREATE_CLASS)"
+          :text="$tr('addNew')"
+          :primary="true"
+        />
+      </KGridItem>
+    </KGrid>
 
-      <KButton
-        class="create-btn"
-        :class="{ 'create-btn-mobile': windowIsSmall }"
-        @click="displayModal(Modals.CREATE_CLASS)"
-        :text="$tr('addNew')"
-        :primary="true"
-      />
-    </div>
     <CoreTable>
       <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
       <thead slot="thead">
@@ -85,7 +85,8 @@
   import orderBy from 'lodash/orderBy';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import { Modals, PageNames } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
@@ -110,9 +111,10 @@
       ClassDeleteModal,
       KButton,
       KRouterLink,
+      KGrid,
+      KGridItem,
       UiIcon,
     },
-    mixins: [responsiveWindow],
     data: () => ({ currentClassDelete: null }),
     computed: {
       ...mapState({
@@ -184,28 +186,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
-
-  .header {
-    position: relative;
-    padding-right: 150px;
-    margin-bottom: 16px;
-  }
-
-  .create-btn {
-    position: absolute;
-    top: 0;
-    right: 0;
-    display: block;
-  }
-
-  .create-btn-mobile {
-    position: relative;
-    right: 10px;
-    display: inline-block;
-    min-width: 150px;
-  }
-
-</style>
+<style lang="scss" scoped></style>
