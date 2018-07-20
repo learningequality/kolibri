@@ -81,7 +81,6 @@
 <script>
 
   import escodegen from 'escodegen';
-  import CamelCase from 'lodash/camelCase';
   import logger from 'kolibri.lib.logging';
 
   const logging = logger.getLogger(__filename);
@@ -107,9 +106,7 @@
     },
     computed: {
       importString() {
-        return `import ${CamelCase(this.api.name)} from 'kolibri.coreVue.components.${CamelCase(
-          this.api.name
-        )}';`;
+        return `import ${this.api.name} from 'kolibri.coreVue.components.${this.api.name}';`;
       },
     },
     methods: {
