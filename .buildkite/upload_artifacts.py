@@ -52,6 +52,12 @@ PYTHON_PKG_CAT = 'Python packages'
 
 # Manifest of files, keyed by extension
 file_manifest = {
+    'deb': {
+        'extension': 'deb',
+        'description': 'Debian Package',
+        'category': INSTALLER_CAT,
+        'content_type': 'application/vnd.debian.binary-package',
+    },
     'exe': {
         'extension': 'exe',
         'description': 'Windows Installer',
@@ -85,6 +91,7 @@ file_manifest = {
 }
 
 file_order = [
+    'deb',
     'exe',
     # 'apk',
     'pex',
@@ -112,6 +119,7 @@ def create_status_report_html(artifacts):
         )
     html += "</body>\n</html>"
     return html
+
 
 def create_github_status(report_url):
     """
