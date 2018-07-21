@@ -27,7 +27,7 @@
 
 
   /**
-   * Grid layouts
+   * Grid layouts. By default have responsive number of columns and gutter sizes.
    */
   export default {
     name: 'KGrid',
@@ -49,6 +49,29 @@
           return true;
         },
       },
+      /**
+       * Size of gutter in pixels, bypassing default responsive behavior.
+       */
+      gutter: {
+        type: [Number, String],
+        required: false,
+        validator(value) {
+          if (isNaN(value)) {
+            logging.error(`Gutter (${value}) is not a number`);
+            return false;
+          }
+          const size = parseInt(value);
+          if (size !== Number(value)) {
+            logging.error(`Gutter (${value}) is not an integer`);
+            return false;
+          }
+          if (size % 2) {
+            logging.error(`Gutter (${value}) must be divisible by 2`);
+            return false;
+          }
+          return true;
+        },
+      },
       debug: {
         type: Boolean,
         default: false,
@@ -63,10 +86,16 @@
         // otherwise, use responsive behaviors
         return this.windowGridColumns;
       },
+      actualGutterSize() {
+        if (this.gutter !== undefined) {
+          return this.gutter;
+        }
+        return this.windowGutter;
+      },
       marginOffset() {
         // Inner grid items use padding to define gutters, but then we need
         // to bring them back flush with the outer edges.
-        return `${ -1 * this.windowGutter / 2 }px`;
+        return `${ -1 * this.actualGutterSize / 2 }px`;
       },
     },
     provide() {
@@ -79,7 +108,7 @@
       });
       Object.defineProperty(gridMetrics, 'gutterWidth', {
         iteratable: true,
-        get: () => this.windowGutter,
+        get: () => this.actualGutterSize,
       });
       Object.defineProperty(gridMetrics, 'debug', {
         iteratable: true,
