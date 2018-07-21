@@ -6,9 +6,11 @@
     :is="componentTemplate"
   >
     <template slot="thumbnail">
-      <img v-if="thumbnailImg" :src="thumbnailImg" class="thumbnail">
-      <div v-else class="default-icon">
-        <mat-svg category="navigation" name="apps" />
+      <div class="spec-ref-thumbnail">
+        <img v-if="thumbnailImg" :src="thumbnailImg" class="thumbnail">
+        <div v-else class="default-icon">
+          <mat-svg category="navigation" name="apps" />
+        </div>
       </div>
     </template>
 
@@ -25,7 +27,7 @@
     </template>
 
     <template slot="meta">
-      <div v-if="inImportMode && onDevice">
+      <div v-if="inImportMode && onDevice" class="spec-ref-on-device">
         <UiIcon class="icon">
           <mat-svg
             category="action"
@@ -35,13 +37,13 @@
         </UiIcon>
         <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
       </div>
-      <div v-if="inExportMode || inManageMode" dir="auto">
+      <div v-if="inExportMode || inManageMode" dir="auto" class="spec-ref-resources-size">
         {{ resourcesSizeText }}
       </div>
     </template>
 
     <template slot="description">
-      <p dir="auto">
+      <p dir="auto" class="spec-ref-description">
         {{ channel.description || $tr('defaultDescription') }}
       </p>
       <CoachContentLabel

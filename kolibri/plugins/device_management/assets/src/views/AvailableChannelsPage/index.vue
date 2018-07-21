@@ -6,7 +6,7 @@
       :errorType="wizardStatus"
     />
 
-    <h1>
+    <h1 class="spec-ref-title">
       <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
       <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
       <span v-else>{{ $tr('channels') }}</span>
@@ -14,7 +14,7 @@
 
     <KGrid v-if="channelsAreAvailable" class="top-matter">
       <KGridItem sizes="4, 8, 4">
-        <p :class="{ 'text-offset': windowIsLarge }">
+        <p :class="{ 'text-offset': windowIsLarge }" class="spec-ref-available">
           {{ $tr('channelsAvailable', { channels: availableChannels.length }) }}
         </p>
       </KGridItem>

@@ -22,12 +22,12 @@ function getElements(wrapper) {
   return {
     noChannels: () => wrapper.find('.no-channels'),
     channelsList: () => wrapper.find('.channels-list'),
-    channelsAvailableText: () => wrapper.find('.channels p').text().trim(),
+    channelsAvailableText: () => wrapper.find('.spec-ref-available').text().trim(),
     channelListItems: () => wrapper.findAll({ name: 'ChannelListItem' }),
     ChannelTokenModal: () => wrapper.find({ name: 'ChannelTokenModal' }),
     filters: () => wrapper.find('.filters'),
     languageFilter: () => wrapper.find({ name: 'KSelect' }),
-    titleText: () => wrapper.find('.channels h1').text().trim(),
+    titleText: () => wrapper.find('.spec-ref-title').text().trim(),
     titleFilter: () => wrapper.find({ name: 'KFilterTextbox' }),
     unlistedChannelsSection: () => wrapper.findAll('section.unlisted-channels'),
   }
