@@ -28,6 +28,9 @@ describe('KGrid component', () => {
     expect(getGrid(wrapper).element.style['margin-left']).toEqual('-8px');
     expect(getGrid(wrapper).element.style['margin-right']).toEqual('-8px');
   });
+  /*
+  Removing this test until functionality is re-enabled in responsive-window
+
   it('grid should have a -8px offset on wide, short screens', () => {
     const wrapper = makeWrapper({ propsData: {} });
     wrapper.vm._updateWindow({ width: 900, height: 500 });
@@ -35,6 +38,7 @@ describe('KGrid component', () => {
     expect(getGrid(wrapper).element.style['margin-left']).toEqual('-8px');
     expect(getGrid(wrapper).element.style['margin-right']).toEqual('-8px');
   });
+  */
   it('grid should have a -5px offset when 10px gutters are specified', () => {
     const wrapper = makeWrapper({ propsData: { gutter: 10 } });
     expect(wrapper.vm.actualGutterSize).toEqual(10);
