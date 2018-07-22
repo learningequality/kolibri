@@ -7,8 +7,8 @@
     size="large"
     @submit="close"
     @cancel="close"
-    :width="`${windowSize.width - 16}px`"
-    :height="`${windowSize.height - 16}px`"
+    :width="`${windowWidth - 16}px`"
+    :height="`${windowHeight - 16}px`"
   >
     <transition mode="out-in">
       <KCircularLoader
@@ -24,7 +24,7 @@
           class="exam-preview-container"
           :style="{ maxHeight: `${maxHeight}px` }"
         >
-          <KGridItem size="1" cols="3" class="question-selector">
+          <KGridItem sizes="1, 3, 4">
             <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
               <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
@@ -51,7 +51,7 @@
               </ol>
             </div>
           </KGridItem>
-          <KGridItem size="2" cols="3" class="exercise-container">
+          <KGridItem sizes="3, 5, 8">
             <ContentRenderer
               v-if="content && itemId"
               ref="contentRenderer"
@@ -184,7 +184,7 @@
           const closeBtnHeight = 44;
           const margins = 16 * 6;
           this.maxHeight =
-            this.windowSize.height - titleHeight - headerHeight - closeBtnHeight - margins;
+            this.windowHeight - titleHeight - headerHeight - closeBtnHeight - margins;
         }
       },
       numCoachContents(exercise) {
@@ -263,11 +263,6 @@
   /deep/ .modal {
     max-width: unset;
     max-height: unset;
-  }
-
-  .question-selector,
-  .exercise-container {
-    overflow-y: auto;
   }
 
   ol {

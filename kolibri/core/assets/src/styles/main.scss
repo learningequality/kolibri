@@ -82,17 +82,6 @@ svg:not(:root) {
   border: 0;
 }
 
-/*
-  helper classes to add padding to grid elements
-  (set globally in core-base.vue)
-*/
-.gutter-16 [class*='pure-u'] {
-  padding: 8px;
-}
-.gutter-24 [class*='pure-u'] {
-  padding: 12px;
-}
-
 /* Button reset for consistency. */
 button {
   display: inline-block;

@@ -174,8 +174,8 @@
     computed: {
       modalMaxSize() {
         return {
-          'max-width': `${this.windowSize.width - 32}px`,
-          'max-height': `${this.windowSize.height - 32}px`,
+          'max-width': `${this.windowWidth - 32}px`,
+          'max-height': `${this.windowHeight - 32}px`,
         };
       },
       contentSectionMaxHeight() {
@@ -213,7 +213,7 @@
       updateContentSectionStyle: debounce(function() {
         if (this.$refs.title && this.$refs.actions) {
           this.maxContentHeight =
-            this.windowSize.height -
+            this.windowHeight -
             this.$refs.title.clientHeight -
             this.$refs.actions.clientHeight -
             32;

@@ -49,7 +49,7 @@
     },
     computed: {
       searchBoxIsDropdown() {
-        return this.windowSize.breakpoint <= 0;
+        return this.windowIsSmall;
       },
       searchBoxIsVisible() {
         if (this.searchBoxIsDropdown) {

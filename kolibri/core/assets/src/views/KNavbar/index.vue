@@ -54,16 +54,16 @@
     }),
     computed: {
       maxWidth() {
-        return this.enoughSpace ? this.elSize.width : this.elSize.width - 38 * 2;
+        return this.enoughSpace ? this.elementWidth : this.elementWidth - 38 * 2;
       },
     },
     mounted() {
       this.checkSpace();
-      this.$watch('elSize.width', this.throttleCheckSpace);
+      this.$watch('elementWidth', this.throttleCheckSpace);
     },
     methods: {
       checkSpace() {
-        const availableWidth = this.elSize.width;
+        const availableWidth = this.elementWidth;
         const items = this.$children;
         let widthOfItems = 0;
         items.forEach(item => {

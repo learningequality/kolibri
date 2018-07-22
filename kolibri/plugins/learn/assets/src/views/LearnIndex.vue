@@ -199,11 +199,7 @@
         );
       },
       pointsAreVisible() {
-        return (
-          this.windowSize.breakpoint > 0 &&
-          this.pageName !== PageNames.SEARCH &&
-          !this.isImmersivePage
-        );
+        return !this.windowIsSmall && this.pageName !== PageNames.SEARCH && !this.isImmersivePage;
       },
       recommendedLink() {
         return {

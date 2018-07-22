@@ -31,14 +31,14 @@ function makeWrapper(options = {}) {
 // prettier-ignore
 function getElements(wrapper) {
   return {
-    resourcesSizeText: () => wrapper.find('.resources-size').text().trim(),
-    resourcesSize: () => wrapper.find('.resources-size'),
-    onDevice: () => wrapper.find('.on-device'),
+    resourcesSizeText: () => wrapper.find('.spec-ref-resources-size').text().trim(),
+    resourcesSize: () => wrapper.find('.spec-ref-resources-size'),
+    onDevice: () => wrapper.find('.spec-ref-on-device'),
     selectButton: () => wrapper.find({ name: 'KRouterLink' }),
     title: () => wrapper.find('.title').text().trim(),
     version: () => wrapper.find('.version').text().trim(),
-    description: () => wrapper.find('.description').text().trim(),
-    thumbnail: () => wrapper.find('.thumbnail'),
+    description: () => wrapper.find('.spec-ref-description').text().trim(),
+    thumbnail: () => wrapper.find('.spec-ref-thumbnail'),
     addTaskMutation: (task) => wrapper.vm.$store.commit('SET_CONTENT_PAGE_TASKS', [task]),
     dropdownMenu: () => wrapper.find({ name: 'KDropdownMenu' }),
   };
@@ -92,8 +92,10 @@ describe('channelListItem', () => {
         const thumb = thumbnail();
         // We are not using the mat-svg webpack loader, so just check for the
         // mat-svg tag here untransformed.
-        expect(thumb.contains('mat-svg')).toEqual(true);
-        expect(thumb.contains('img')).toEqual(false);
+        return wrapper.vm.$nextTick().then(() => {
+          expect(thumb.contains('mat-svg')).toEqual(true);
+          expect(thumb.contains('img')).toEqual(false);
+        });
       }
       testAll(test);
     });
@@ -124,7 +126,9 @@ describe('channelListItem', () => {
     });
     importWrapper.vm.$forceUpdate();
     const { version } = getElements(importWrapper);
-    expect(version()).toEqual('Version 20');
+    return importWrapper.vm.$nextTick().then(() => {
+      expect(version()).toEqual('Version 20');
+    });
   });
 
   it('in MANAGE/EXPORT shows the on-device file sizes of Resources', () => {
@@ -176,8 +180,10 @@ describe('channelListItem', () => {
     function posTest(wrapper) {
       wrapper.setProps({ onDevice: true });
       const { onDevice, resourcesSize } = getElements(wrapper);
-      expect(onDevice().exists()).toEqual(true);
-      expect(resourcesSize().exists()).toEqual(false);
+      return wrapper.vm.$nextTick().then(() => {
+        expect(onDevice().exists()).toEqual(true);
+        expect(resourcesSize().exists()).toEqual(false);
+      });
     }
     function negTest(wrapper) {
       wrapper.setProps({ onDevice: true });

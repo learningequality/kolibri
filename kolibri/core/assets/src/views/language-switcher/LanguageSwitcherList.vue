@@ -70,10 +70,10 @@
         return availableLanguages[currentLanguage].lang_name;
       },
       numVisibleLanguages() {
-        if (this.windowSize.breakpoint <= 2) {
+        if (this.windowBreakpoint <= 2) {
           return 2;
         }
-        return this.windowSize.breakpoint;
+        return this.windowBreakpoint;
       },
       buttonLanguages() {
         const prioritized_languages = ['en', 'ar', 'es-es', 'hi-in', 'fr-fr', 'sw-tz'];

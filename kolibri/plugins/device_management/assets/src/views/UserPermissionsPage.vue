@@ -3,11 +3,9 @@
   <ImmersiveFullScreen v-bind="{ backPageLink, backPageText }">
     <AuthMessage v-if="!isSuperuser" authorizedRole="superuser" />
 
-    <SubpageContainer v-else-if="user===null" withSideMargin>
-      <h1>{{ $tr('userDoesNotExist') }}</h1>
-    </SubpageContainer>
+    <h1 v-else-if="user === null">{{ $tr('userDoesNotExist') }}</h1>
 
-    <SubpageContainer v-else withSideMargin>
+    <template v-else>
       <div class="section">
         <h1>
           {{ user.full_name }}
@@ -66,7 +64,7 @@
       <div v-show="saveProgress==='FAILURE'">
         {{ $tr('saveFailureNotification') }}
       </div>
-    </SubpageContainer>
+    </template>
 
   </ImmersiveFullScreen>
 
@@ -82,7 +80,6 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import { PageNames } from '../constants';
-  import SubpageContainer from './containers/SubpageContainer';
 
   const SUCCESS = 'SUCCESS';
   const IN_PROGRESS = 'IN_PROGRESS';
@@ -100,7 +97,6 @@
       ImmersiveFullScreen,
       KButton,
       KCheckbox,
-      SubpageContainer,
       PermissionsIcon,
     },
     data() {

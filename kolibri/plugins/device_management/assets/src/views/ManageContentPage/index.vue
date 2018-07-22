@@ -4,39 +4,40 @@
     <template v-if="canManageContent">
       <SelectTransferSourceModal v-if="wizardPageName!==''" />
 
-      <SubpageContainer>
+      <div>
         <TaskProgress
           v-if="firstTask"
           v-bind="firstTask"
           @cleartask="clearFirstTask"
         />
 
-        <div class="table-title">
-          <h1 class="page-title">
-            {{ $tr('title') }}
-          </h1>
-          <div
-            class="buttons"
+        <KGrid>
+          <KGridItem sizes="100, 50, 50" percentage>
+            <h1>{{ $tr('title') }}</h1>
+          </KGridItem>
+          <KGridItem
+            sizes="100, 50, 50"
+            alignments="left, right, right"
+            percentage
             v-if="!tasksInQueue"
           >
             <KButton
               :text="$tr('import')"
-              class="button"
               @click="startImportWorkflow()"
               :primary="true"
             />
             <KButton
               v-if="deviceHasChannels"
               :text="$tr('export')"
-              class="button"
               @click="startExportWorkflow()"
+              class="flush-right"
             />
-          </div>
-        </div>
+          </KGridItem>
+        </KGrid>
 
         <ChannelsGrid />
 
-      </SubpageContainer>
+      </div>
     </template>
 
     <AuthMessage
@@ -54,7 +55,8 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import SubpageContainer from '../containers/SubpageContainer';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ChannelsGrid from './ChannelsGrid';
   import TaskProgress from './TaskProgress';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
@@ -78,8 +80,9 @@
       AuthMessage,
       ChannelsGrid,
       KButton,
+      KGrid,
+      KGridItem,
       SelectTransferSourceModal,
-      SubpageContainer,
       TaskProgress,
     },
     computed: {
@@ -124,29 +127,8 @@
 
 <style lang="scss" scoped>
 
-  .table-title {
-    margin-top: 16px;
-    &::after {
-      display: table;
-      clear: both;
-      content: '';
-    }
-  }
-
-  .page-title {
-    float: left;
-  }
-
-  .buttons {
-    float: right;
-  }
-
-  .main {
-    width: 100%;
-    padding: 16px 32px;
-    padding-bottom: 48px;
-    margin-top: 32px;
-    border-radius: 4px;
+  .flush-right {
+    margin-right: 0;
   }
 
 </style>

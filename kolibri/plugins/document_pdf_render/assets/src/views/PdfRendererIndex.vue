@@ -19,7 +19,7 @@
         :items="pdfPages"
         :itemHeight="itemHeight"
         :emitUpdate="true"
-        :style="{ height: `${elSize.height}px` }"
+        :style="{ height: `${elementHeight}px` }"
         class="pdf-container"
         keyField="index"
         @update="handleUpdate"
@@ -135,9 +135,6 @@
       pdfPositionKey() {
         return `pdfPosition-${this.files[0].id}`;
       },
-      height() {
-        return this.elSize.height;
-      },
       itemHeight() {
         return this.firstPageHeight * this.scale + MARGIN;
       },
@@ -153,7 +150,7 @@
           });
         }
       },
-      height() {
+      elementHeight() {
         if (this.recycleListIsMounted) {
           this.debounceForceUpdateRecycleList();
         }
@@ -185,7 +182,7 @@
         return this.getPage(firstPageToRender + 1).then(firstPage => {
           this.firstPageHeight = firstPage.view[3];
           this.firstPageWidth = firstPage.view[2];
-          this.scale = this.elSize.width / (this.firstPageWidth + MARGIN);
+          this.scale = this.elementWidth / (this.firstPageWidth + MARGIN);
           // Set the firstPageToRender into the pdfPages object so that we do not refetch the page
           // from PDFJS when we do our initial render
           // splice so changes are detected

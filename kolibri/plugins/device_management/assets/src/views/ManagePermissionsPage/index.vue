@@ -1,6 +1,6 @@
 <template>
 
-  <SubpageContainer :withSideMargin="false">
+  <div>
 
     <AuthMessage v-if="!isSuperuser" authorizedRole="superuser" />
 
@@ -20,7 +20,7 @@
       <UserGrid :searchFilter="searchFilterText" />
     </div>
 
-  </SubpageContainer>
+  </div>
 
 </template>
 
@@ -30,7 +30,6 @@
   import { mapState, mapGetters } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
-  import SubpageContainer from '../containers/SubpageContainer';
   import UserGrid from './UserGrid';
 
   export default {
@@ -43,7 +42,6 @@
     components: {
       AuthMessage,
       KFilterTextbox,
-      SubpageContainer,
       UserGrid,
     },
     data() {

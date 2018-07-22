@@ -22,7 +22,6 @@
 
         <div class="channel-list">
           <ChannelListItem
-            class="channel-list-item"
             v-for="channel in sortedChannels"
             :key="channel.id"
             :channel="channel"
@@ -110,10 +109,6 @@
     padding: 16px 0;
     font-size: 12px;
     color: $core-text-annotation;
-  }
-
-  .channel-list-item:first-of-type {
-    border-top: 1px solid $core-grey;
   }
 
   .no-channels {

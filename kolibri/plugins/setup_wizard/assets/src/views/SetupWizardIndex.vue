@@ -4,12 +4,14 @@
 
     <ErrorPage
       v-if="error"
-      :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
+      class="body"
+      :class="!windowIsLarge ? 'mobile' : ''"
     />
 
     <LoadingPage
       v-else-if="loading"
-      :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
+      class="body"
+      :class="!windowIsLarge ? 'mobile' : ''"
     />
 
     <template v-else>
@@ -22,9 +24,9 @@
       <component
         :is="currentOnboardingForm"
         :submitText="submitText"
-        :isMobile="isMobile"
         @submit="continueOnboarding"
-        :class="['onboarding-body', (isMobile ? 'mobile' : '')]"
+        class="body"
+        :class="!windowIsLarge ? 'mobile' : ''"
       />
     </template>
 
@@ -88,9 +90,6 @@
           ? this.$tr('onboardingFinishButton')
           : this.$tr('onboardingNextStepButton');
       },
-      isMobile() {
-        return this.windowSize.breakpoint < 4;
-      },
     },
     methods: {
       ...mapActions(['goToNextStep', 'goToPreviousStep', 'provisionDevice']),
@@ -115,16 +114,18 @@
     @include clearfix(); // child margin leaks up into otherwise empty parent
 
     width: 100%;
-    &-body {
-      width: 90%;
-      max-width: 550px;
-      margin-top: 64px;
-      margin-right: auto;
-      margin-left: auto;
-      &.mobile {
-        margin: 40px auto;
-      }
-    }
+  }
+
+  .body {
+    width: 90%;
+    max-width: 550px;
+    margin-top: 64px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .mobile {
+    margin-top: 40px;
   }
 
 </style>

@@ -35,4 +35,5 @@ module.exports = {
     '!**/node_modules/**',
     'kolibri/**/**/assets/src/**/*.{js,vue}',
   ],
+  verbose: false,
 };

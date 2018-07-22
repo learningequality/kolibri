@@ -39,7 +39,6 @@
     <AppBody
       :topGap="headerHeight"
       :bottomGap="bottomMargin"
-      :class="`gutter-${windowSize.gutterWidth}`"
     >
       <slot></slot>
     </AppBody>
@@ -134,11 +133,8 @@
         toolbarTitle: state => state.pageState.toolbarTitle,
         error: state => state.error,
       }),
-      mobile() {
-        return this.windowSize.breakpoint < 2;
-      },
       headerHeight() {
-        return this.mobile ? 56 : 64;
+        return this.windowIsSmall ? 56 : 64;
       },
       navWidth() {
         return this.headerHeight * 4;

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <SubpageContainer v-if="canManageContent">
+    <template v-if="canManageContent">
       <h1>{{ $tr('header') }}</h1>
       <table>
         <tr>
@@ -50,7 +50,7 @@
         </tr>
 
       </table>
-    </SubpageContainer>
+    </template>
 
     <!-- TODO: Update to: Anyone who can manage content -->
     <AuthMessage v-else authorizedRole="admin" />
@@ -63,7 +63,6 @@
 
   import { mapState, mapGetters } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import SubpageContainer from './containers/SubpageContainer';
 
   export default {
     name: 'DeviceInfoPage',
@@ -74,7 +73,6 @@
     },
     components: {
       AuthMessage,
-      SubpageContainer,
     },
     computed: {
       ...mapGetters(['canManageContent']),
@@ -102,7 +100,6 @@
 <style lang="scss" scoped>
 
   table {
-    width: 100%;
     margin-top: 16px;
   }
 

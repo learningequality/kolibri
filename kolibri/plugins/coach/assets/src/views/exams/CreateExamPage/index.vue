@@ -3,7 +3,7 @@
   <div>
     <h1>{{ $tr('createNewExam') }}</h1>
     <KGrid>
-      <KGridItem size="1" :cols="numCols">
+      <KGridItem size="4">
         <KTextbox
           ref="title"
           :label="$tr('title')"
@@ -15,7 +15,7 @@
           v-model.trim="inputTitle"
         />
       </KGridItem>
-      <KGridItem size="1" :cols="numCols">
+      <KGridItem size="3">
         <KTextbox
           ref="numQuest"
           type="number"
@@ -223,9 +223,6 @@
         selectedExercises: state => state.pageState.selectedExercises,
         examsModalSet: state => state.pageState.examsModalSet,
       }),
-      numCols() {
-        return this.windowSize.breakpoint > 3 ? 2 : 1;
-      },
       titleIsInvalidText() {
         if (this.titleBlurred || this.previewOrSubmissionAttempt) {
           if (this.inputTitle === '') {

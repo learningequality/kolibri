@@ -6,34 +6,36 @@
       :errorType="wizardStatus"
     />
 
-    <section
-      v-if="channelsAreAvailable"
-      class="top-matter"
-    >
-      <div class="channels">
-        <h1 class="channels-header">
-          <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
-          <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
-          <span v-else>{{ $tr('channels') }}</span>
-        </h1>
+    <h1 class="spec-ref-title">
+      <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
+      <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
+      <span v-else>{{ $tr('channels') }}</span>
+    </h1>
 
-        <p>{{ $tr('channelsAvailable', { channels: availableChannels.length }) }}</p>
-      </div>
-
-      <div class="filters">
+    <KGrid v-if="channelsAreAvailable" class="top-matter">
+      <KGridItem sizes="4, 8, 4">
+        <p :class="{ 'text-offset': windowIsLarge }" class="spec-ref-available">
+          {{ $tr('channelsAvailable', { channels: availableChannels.length }) }}
+        </p>
+      </KGridItem>
+      <KGridItem sizes="4, 3, 3" alignments="left, left, right">
         <KSelect
+          class="align-left"
           :options="languageFilterOptions"
           v-model="languageFilter"
           :label="$tr('languageFilterLabel')"
           :inline="true"
         />
+      </KGridItem>
+      <KGridItem sizes="4, 5, 5">
         <KFilterTextbox
+          :class="{ 'search-box-offset': !windowIsSmall }"
           :placeholder="$tr('titleFilterPlaceholder')"
+          class="seach-box"
           v-model="titleFilter"
-          class="title-filter"
         />
-      </div>
-    </section>
+      </KGridItem>
+    </KGrid>
 
     <section
       v-if="showUnlistedChannels"
@@ -74,7 +76,6 @@
           :key="channel.id"
           :onDevice="channelIsOnDevice(channel)"
           @clickselect="goToSelectContentPageForChannel(channel)"
-          class="channel-list-item"
           :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
         />
       </div>
@@ -92,8 +93,10 @@
   import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import uniqBy from 'lodash/uniqBy';
-  import SubpageContainer from '../containers/SubpageContainer';
   import ChannelListItem from '../ManageContentPage/ChannelListItem';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { wizardState } from '../../state/getters';
@@ -117,10 +120,12 @@
       ImmersiveFullScreen,
       KButton,
       KFilterTextbox,
-      SubpageContainer,
+      KGrid,
+      KGridItem,
       KLinearLoader,
       KSelect,
     },
+    mixins: [responsiveWindow],
     data() {
       return {
         languageFilter: {},
@@ -271,34 +276,28 @@
     color: $core-text-annotation;
   }
 
-  .channel-list-item:first-of-type {
-    border-top: 1px solid $core-grey;
-  }
-
   .top-matter {
-    margin-bottom: 32px;
-  }
-
-  .channels {
-    display: inline-block;
-    width: 30%;
-  }
-
-  .filters {
-    display: inline-block;
-    width: 70%;
-    margin: 16px 0;
-    vertical-align: top;
-  }
-
-  .title-filter {
-    float: right;
-    width: 50%;
-    margin-top: 10px;
+    margin-bottom: 24px;
   }
 
   .unlisted-channels {
     padding: 16px 0;
+  }
+
+  .text-offset {
+    margin-top: 24px;
+  }
+
+  .align-left {
+    text-align: left;
+  }
+
+  .seach-box {
+    width: 100%;
+  }
+
+  .search-box-offset {
+    margin-top: 12px;
   }
 
 </style>

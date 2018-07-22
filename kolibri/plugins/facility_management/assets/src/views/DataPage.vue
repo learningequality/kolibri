@@ -2,14 +2,15 @@
 
   <KGrid>
 
-    <KGridItem size="1" cols="1">
+    <KGridItem size="100" percentage>
       <h1>{{ $tr('pageHeading') }}</h1>
     </KGridItem>
-    <KGridItem size="1" cols="1">
+
+    <KGridItem size="100" percentage>
       <p>{{ $tr('pageSubHeading') }}</p>
     </KGridItem>
 
-    <KGridItem size="1" :cols="numCols">
+    <KGridItem sizes="100, 50, 50" percentage>
       <h2>{{ $tr('detailsHeading') }}</h2>
       <p>
         {{ $tr('detailsSubHeading') }}
@@ -23,7 +24,7 @@
       </p>
     </KGridItem>
 
-    <KGridItem size="1" :cols="numCols">
+    <KGridItem sizes="100, 50, 50" percentage>
       <h2>{{ $tr('summaryHeading') }}</h2>
       <p>
         {{ $tr('summarySubHeading') }}
@@ -46,7 +47,6 @@
 
   import urls from 'kolibri.urls';
   import { isAndroidWebView } from 'kolibri.utils.browser';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -63,7 +63,6 @@
       KGrid,
       KGridItem,
     },
-    mixins: [responsiveWindow],
     $trs: {
       pageHeading: 'Export usage data',
       pageSubHeading:
@@ -84,9 +83,6 @@
     computed: {
       cannotDownload() {
         return isAndroidWebView();
-      },
-      numCols() {
-        return this.windowSize.breakpoint > 2 ? 2 : 1;
       },
     },
     methods: {

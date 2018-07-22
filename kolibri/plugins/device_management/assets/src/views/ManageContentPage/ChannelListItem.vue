@@ -1,74 +1,58 @@
 <template>
 
-  <div class="channel-list-item">
-
-    <div class="thumbnail dtc">
-      <img
-        v-if="thumbnailImg"
-        :src="thumbnailImg"
-      >
-      <div
-        v-else
-        class="default-icon"
-      >
-        <mat-svg
-          category="navigation"
-          name="apps"
-        />
-      </div>
-    </div>
-
-    <div class="details dtc">
-
-      <div class="details-top">
-        <div class="other-details">
-          <div
-            v-if="inImportMode && onDevice"
-            class="on-device"
-          >
-            <mat-svg
-              category="action"
-              name="check_circle"
-            />
-            <span>{{ $tr('onYourDevice') }}</span>
-          </div>
-          <div
-            v-if="inExportMode || inManageMode"
-            class="resources-size"
-          >
-            <span dir="auto">{{ resourcesSizeText }}</span>
-          </div>
-        </div>
-        <div class="channel-title">
-          <div class="title" dir="auto">
-            {{ channel.name }}
-          </div>
-          <UiIcon
-            class="lock-icon"
-            v-if="channel.public === false"
-          >
-            <mat-svg name="lock_open" category="action" />
-          </UiIcon>
-        </div>
-        <div class="version">
-          {{ $tr('version', { version: versionNumber }) }}
+  <component
+    class="channel-list-item"
+    :style="verticalPadding"
+    :is="componentTemplate"
+  >
+    <template slot="thumbnail">
+      <div class="spec-ref-thumbnail">
+        <img v-if="thumbnailImg" :src="thumbnailImg" class="thumbnail">
+        <div v-else class="default-icon">
+          <mat-svg category="navigation" name="apps" />
         </div>
       </div>
+    </template>
 
-      <div class="details-bottom">
-        <div class="description" dir="auto">
-          {{ channel.description || $tr('defaultDescription') }}
-        </div>
-
-        <CoachContentLabel
-          :value="channel.num_coach_contents"
-          :isTopic="true"
-        />
+    <template slot="header">
+      <div>
+        <h2 class="title" dir="auto">{{ channel.name }}</h2>
+        <UiIcon class="icon" v-if="!channel.public">
+          <mat-svg name="lock_open" category="action" />
+        </UiIcon>
       </div>
+      <div class="version">
+        {{ $tr('version', { version: versionNumber }) }}
+      </div>
+    </template>
 
-    </div>
+    <template slot="meta">
+      <div v-if="inImportMode && onDevice" class="spec-ref-on-device">
+        <UiIcon class="icon">
+          <mat-svg
+            category="action"
+            name="check_circle"
+            class="on-device-icon"
+          />
+        </UiIcon>
+        <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
+      </div>
+      <div v-if="inExportMode || inManageMode" dir="auto" class="spec-ref-resources-size">
+        {{ resourcesSizeText }}
+      </div>
+    </template>
 
-    <div class="buttons dtc">
+    <template slot="description">
+      <p dir="auto" class="spec-ref-description">
+        {{ channel.description || $tr('defaultDescription') }}
+      </p>
+      <CoachContentLabel
+        :value="channel.num_coach_contents"
+        :isTopic="true"
+      />
+    </template>
+
+    <template slot="buttons">
       <KRouterLink
         v-if="inImportMode || inExportMode"
         :text="$tr('selectButton')"
@@ -83,8 +67,8 @@
         :options="manageChannelActions"
         @select="handleManageChannelAction($event.value)"
       />
-    </div>
-  </div>
+    </template>
+  </component>
 
 </template>
 
@@ -95,9 +79,12 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from './bytesForHumans';
   import { selectContentPageLink } from './manageContentLinks';
+  import ChannelListItemLarge from './ChannelListItemLarge';
+  import ChannelListItemSmall from './ChannelListItemSmall';
 
   const Modes = {
     IMPORT: 'IMPORT',
@@ -116,8 +103,11 @@
       CoachContentLabel,
       KDropdownMenu,
       KRouterLink,
+      ChannelListItemLarge,
+      ChannelListItemSmall,
       UiIcon,
     },
+    mixins: [responsiveWindow],
     props: {
       channel: {
         type: Object,
@@ -183,6 +173,18 @@
           forExport: this.$route.query.for_export,
         });
       },
+      verticalPadding() {
+        return {
+          paddingBottom: `${this.windowGutter}px`,
+          paddingTop: `${this.windowGutter}px`,
+        };
+      },
+      componentTemplate() {
+        if (this.windowIsLarge) {
+          return ChannelListItemLarge;
+        }
+        return ChannelListItemSmall;
+      },
     },
     methods: {
       handleManageChannelAction(action) {
@@ -210,23 +212,12 @@
 
   @import '~kolibri.styles.definitions';
 
-  .dtc {
-    display: table-cell;
-    vertical-align: top;
-  }
-
   .channel-list-item {
-    display: table;
-    padding: 2em 0;
-    vertical-align: middle;
-    border-bottom: 1px solid $core-grey;
+    border-top: 1px solid $core-grey;
   }
 
   .title {
     display: inline;
-    font-size: 1.2em;
-    font-weight: bold;
-    line-height: 1.5em;
   }
 
   .version {
@@ -234,64 +225,30 @@
     color: $core-text-annotation;
   }
 
-  .description {
-    padding: 1em 0;
-  }
-
   .thumbnail {
-    width: 10%;
-    text-align: left;
-    img {
-      width: 100%;
-    }
+    width: 100%;
   }
 
   .default-icon {
     text-align: center;
     background-color: $core-grey;
     svg {
-      width: 50%;
-      height: 50%;
+      width: 30%;
+      height: 30%;
       margin: 20px;
     }
   }
 
-  .details {
-    position: relative;
-    width: 100%;
-    padding: 0 2em;
+  .on-device-icon {
+    fill: $core-status-correct;
   }
 
-  .other-details {
-    position: relative;
-    top: 16px;
-    float: right;
-    line-height: 1.7em;
+  .on-device-text {
+    margin-left: 8px;
   }
 
-  .on-device {
-    line-height: 1.7em;
-    svg {
-      fill: $core-status-correct;
-    }
-    span {
-      margin-left: 10px;
-      vertical-align: 16px;
-    }
-  }
-
-  .buttons {
-    width: 10%;
-    text-align: right;
-    vertical-align: baseline;
-  }
-
-  .lock-icon {
-    vertical-align: sub;
-  }
-
-  .channel-title {
-    margin-bottom: 8px;
+  .icon {
+    vertical-align: text-bottom;
   }
 
 </style>

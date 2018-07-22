@@ -11,7 +11,7 @@
         :showViewMore="popular.length > trimmedPopular.length"
       />
       <ContentCardGroupGrid
-        v-if="isMobile"
+        v-if="windowIsSmall"
         :genContentLink="genContentLink"
         :contents="trimmedPopular"
         :showContentKindFilter="false"
@@ -30,7 +30,7 @@
         :showViewMore="nextSteps.length > trimmedNextSteps.length"
       />
       <ContentCardGroupGrid
-        v-if="isMobile"
+        v-if="windowIsSmall"
         :genContentLink="genContentLink"
         :contents="trimmedNextSteps"
         :showContentKindFilter="false"
@@ -49,7 +49,7 @@
         :showViewMore="resume.length > trimmedResume.length"
       />
       <ContentCardGroupGrid
-        v-if="isMobile"
+        v-if="windowIsSmall"
         :genContentLink="genContentLink"
         :contents="trimmedResume"
         :showContentKindFilter="false"
@@ -108,11 +108,8 @@
         popular: state => state.pageState.popular,
         resume: state => state.pageState.resume,
       }),
-      isMobile() {
-        return this.windowSize.breakpoint <= 1;
-      },
       carouselLimit() {
-        return this.isMobile ? mobileCarouselLimit : desktopCarouselLimit;
+        return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
       },
       popularPageLink() {
         return {

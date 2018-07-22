@@ -35,10 +35,10 @@
     <!-- /Modals -->
 
     <KGrid>
-      <KGridItem size="3" cols="4">
+      <KGridItem sizes="100, 50, 50" percentage>
         <h2>{{ $tr('coachTableTitle') }}</h2>
       </KGridItem>
-      <KGridItem size="1" cols="4" class="right">
+      <KGridItem sizes="100, 50, 50" alignment="right" percentage>
         <KRouterLink
           :text="$tr('assignCoachesButtonLabel')"
           :to="coachAssignmentLink"
@@ -62,10 +62,10 @@
     </UserTable>
 
     <KGrid class="top-margin">
-      <KGridItem size="3" cols="4">
+      <KGridItem sizes="100, 50, 50" percentage>
         <h2>{{ $tr('learnerTableTitle') }}</h2>
       </KGridItem>
-      <KGridItem size="1" cols="4" class="right">
+      <KGridItem sizes="100, 50, 50" alignment="right" percentage>
         <KRouterLink
           :text="$tr('enrollLearnerButtonLabel')"
           :to="learnerEnrollmentLink"
@@ -192,19 +192,8 @@
     fill: $core-action-normal;
   }
 
-  .right {
-    text-align: right;
-  }
-
   .top-margin {
     margin-top: 24px;
-  }
-
-  // overwrite global styling
-  // TODO - find a better way of doing this
-  .gutter-24 [class*='pure-u'],
-  .gutter-16 [class*='pure-u'] {
-    padding: 0;
   }
 
 </style>

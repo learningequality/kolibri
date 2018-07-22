@@ -1,37 +1,38 @@
 <template>
 
-  <div class="user-roster">
+  <div>
 
-    <div class="header">
-      <h1>{{ $tr('allUsers') }}</h1>
-      <span> ( {{ $formatNumber(visibleUsers.length) }} ) </span>
-    </div>
-
-    <div class="toolbar">
-      <div class="create">
+    <KGrid>
+      <KGridItem sizes="100, 50, 50" percentage>
+        <h1>{{ $tr('users') }}</h1>
+      </KGridItem>
+      <KGridItem sizes="100, 50, 50" percentage align="right">
         <KButton
           @click="displayModal(Modals.CREATE_USER)"
           :text="$tr('addNew')"
           :primary="true"
         />
-      </div>
-
-      <KSelect
-        class="kind-select"
-        :label="$tr('filterUserType')"
-        :options="userKinds"
-        :inline="true"
-        v-model="roleFilter"
-      />
-
-      <KFilterTextbox
-        :placeholder="$tr('searchText')"
-        v-model="searchFilter"
-        class="user-filter"
-      />
-    </div>
+      </KGridItem>
+      <KGridItem sizes="3, 3, 3">
+        <KSelect
+          :label="$tr('filterUserType')"
+          :options="userKinds"
+          :inline="true"
+          v-model="roleFilter"
+          class="type-filter"
+        />
+      </KGridItem>
+      <KGridItem sizes="4, 5, 5">
+        <KFilterTextbox
+          :placeholder="$tr('searchText')"
+          v-model="searchFilter"
+          class="user-filter"
+        />
+      </KGridItem>
+    </KGrid>
 
     <UserTable
+      class="user-roster"
       :users="visibleUsers"
       :emptyMessage="emptyMessage"
     >
@@ -85,6 +86,8 @@
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KSelect from 'kolibri.coreVue.components.KSelect';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import UserRole from '../UserRole';
@@ -113,6 +116,8 @@
       KDropdownMenu,
       UserRole,
       KSelect,
+      KGrid,
+      KGridItem,
       UserTable,
       UiIcon,
     },
@@ -216,36 +221,17 @@
 
 <style lang="scss" scoped>
 
-  .toolbar {
-    margin-bottom: 32px;
-  }
-
-  .toolbar::after {
-    display: table;
-    clear: both;
-    content: '';
-  }
-
-  // Toolbar Styling
-  .create {
-    float: right;
-  }
-
-  .header h1 {
-    display: inline-block;
-  }
-
-  .user-roster {
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .kind-select {
+  .type-filter {
     margin-bottom: 0;
   }
 
   .user-filter {
-    width: 300px;
+    width: 100%;
+    margin-top: 14px;
+  }
+
+  .user-roster {
+    overflow-x: auto;
   }
 
 </style>

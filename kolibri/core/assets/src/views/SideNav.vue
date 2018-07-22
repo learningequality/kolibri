@@ -11,7 +11,7 @@
           class="side-nav-header"
           :style="{
             height: headerHeight + 'px',
-            width: `${width}px`, paddingTop: mobile ? '4px' : '8px'
+            width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px'
           }"
         >
           <UiIconButton
@@ -145,9 +145,6 @@
       ...mapState({
         session: state => state.core.session,
       }),
-      mobile() {
-        return this.windowSize.breakpoint < 2;
-      },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
       },

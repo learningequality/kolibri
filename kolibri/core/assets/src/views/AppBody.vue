@@ -6,7 +6,7 @@
     <KLinearLoader
       v-if="loading"
       class="toolbar-loader"
-      :style="{ top: isMobile ? '56px' : '64px' }"
+      :style="{ top: windowIsSmall ? '56px' : '64px' }"
       type="indeterminate"
       :delay="false"
     />
@@ -53,11 +53,8 @@
         blockDoubleClicks: state => state.core.blockDoubleClicks,
         error: state => state.core.error,
       }),
-      isMobile() {
-        return this.windowSize.breakpoint < 2;
-      },
       padding() {
-        return this.isMobile ? 16 : 32;
+        return this.windowIsSmall ? 16 : 32;
       },
       contentStyle() {
         return {
