@@ -1,7 +1,7 @@
 <template>
 
   <div :class="unitClass" :style="computedStyle">
-    <div :class="{ debug: gridMetrics.debug }">
+    <div :class="{ debug: gridMetrics.debug, error: !validInputs }">
       <slot></slot>
     </div>
   </div>
@@ -52,12 +52,6 @@
       }
     }
     return true;
-  }
-
-  function checkInputs(singularValue, arrayValue, propName) {
-    if (singularValue !== undefined && arrayValue !== undefined) {
-      logging.error(`Pass either a single item or an array, but not both for '${propName}'`);
-    }
   }
 
   function parseArray(value) {
@@ -131,20 +125,26 @@
       parsedAlignments() {
         return parseArray(this.alignments);
       },
+      responsiveIndex() {
+        if (this.windowIsSmall) {
+          return 0;
+        } else if (this.windowIsMedium) {
+          return 1;
+        }
+        return 2;
+      },
       currentSize() {
-        checkInputs(this.size, this.parsedSizes, 'size');
         if (this.size === undefined && this.parsedSizes === undefined) {
           logging.error(`Pass either a size or a sizes array`);
         }
         if (this.parsedSizes) {
-          return parseInt(this.getResponsiveValue(parseArray(this.parsedSizes)));
+          return parseInt(this.parsedSizes[this.responsiveIndex]);
         }
         return parseInt(this.size);
       },
       currentAlignment() {
-        checkInputs(this.alignment, this.parsedAlignments, 'alignment');
         if (this.parsedAlignments) {
-          return this.getResponsiveValue(parseArray(this.parsedAlignments));
+          return this.parsedAlignments[this.responsiveIndex];
         }
         return this.alignment;
       },
@@ -153,19 +153,9 @@
         const numCols = this.gridMetrics.numCols;
         // handle percentage
         if (this.percentage) {
-          if (![25, 50, 75, 100].includes(size)) {
-            logging.error(`Size (${size}) is not a valid percentage`);
-          }
-          if (numCols % 4) {
-            logging.error(`Number of columns (${numCols}) is not a multiple of 4`);
-          }
           return `pure-u-${(24 * size) / 100}-24`;
         }
-
         // handle size in number of columns
-        if (size > numCols) {
-          logging.error(`Size (${size}) is larger than grid (${numCols})`);
-        }
         if (24 % numCols === 0) {
           // handled by Pure's built-in 24-column units
           return `pure-u-${(24 * size) / numCols}-24`;
@@ -184,21 +174,37 @@
         }
         return style;
       },
-    },
-    mounted() {
-      // Intentionally depends on parent component to mimic css grid API
-      if (!this.gridMetrics.numCols || !this.gridMetrics.gutterWidth) {
-        logging.error('Grid metrics were not provided by parent');
-      }
-    },
-    methods: {
-      getResponsiveValue(array) {
-        if (this.windowIsSmall) {
-          return array[0];
-        } else if (this.windowIsMedium) {
-          return array[1];
+      validInputs() {
+        if (!this.gridMetrics || !this.gridMetrics.numCols || !this.gridMetrics.gutterWidth) {
+          logging.error('Grid metrics were not provided by parent');
+          return false;
         }
-        return array[2];
+        if (this.size !== undefined && this.parsedSizes !== undefined) {
+          logging.error("Pass either a single item or an array, but not both for 'size'");
+          return false;
+        }
+        if (this.alignment !== undefined && this.parsedAlignments !== undefined) {
+          logging.error("Pass either a single item or an array, but not both for 'alignment'");
+          return false;
+        }
+        const size = this.currentSize;
+        const numCols = this.gridMetrics.numCols;
+        if (this.percentage) {
+          if (![25, 50, 75, 100].includes(size)) {
+            logging.error(`Size (${size}) is not a valid percentage`);
+            return false;
+          }
+          if (numCols % 4) {
+            logging.error(`Number of columns (${numCols}) is not a multiple of 4`);
+            return false;
+          }
+        } else {
+          if (size > numCols) {
+            logging.error(`Size (${size}) is larger than grid (${numCols})`);
+            return false;
+          }
+        }
+        return true;
       },
     },
   };
@@ -210,6 +216,10 @@
 
   .debug {
     border: 1px solid #e6c003;
+  }
+
+  .error {
+    border: 2px solid red !important;
   }
 
 </style>
