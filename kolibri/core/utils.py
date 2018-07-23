@@ -39,12 +39,12 @@ def _handle_400_format(response):
 
 
 def _handle_403_format(response, context):
-    errors = {'id': response.data['detail'].code.upper(),
-              'metadata': {'view': context['view'].get_view_name()}}
+    errors = [{'id': response.data['detail'].code.upper(),
+              'metadata': {'view': context['view'].get_view_name()}}]
     return errors
 
 
 def _handle_404_format(response, context):
-    errors = {'id': error_constants.NOT_FOUND,
-              'metadata': {'view': context['view'].get_view_name()}}
+    errors = [{'id': error_constants.NOT_FOUND,
+              'metadata': {'view': context['view'].get_view_name()}}]
     return errors
