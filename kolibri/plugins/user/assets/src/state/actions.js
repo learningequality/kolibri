@@ -1,7 +1,7 @@
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri.coreVue.vuex.constants';
 import { SignUpResource, FacilityUserResource, FacilityResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
-import ParseErrors from 'kolibri.utils.ParseErrors';
+import CatchErrors from 'kolibri.utils.CatchErrors';
 
 import Lockr from 'lockr';
 import { PageNames, ProfilePageErrors } from '../constants';
@@ -50,10 +50,9 @@ export function updateUserProfile(store, { edits, session }) {
       store.commit('SET_PROFILE_ERROR', { isError: false });
     },
     error => {
-      const parsedErrors = ParseErrors(store, error, ProfilePageErrors);
-      // would return ['USERNAME_ALREADY_EXISTS'];
-      if (parsedErrors) {
-        store.commit('SET_PROFILE_ERRORS', parsedErrors);
+      const errorsCaught = CatchErrors(store, error, ProfilePageErrors);
+      if (errorsCaught) {
+        store.commit('SET_PROFILE_ERRORS', errorsCaught);
         store.commit('SET_PROFILE_SUCCESS', false);
         store.commit('SET_PROFILE_BUSY', false);
       }
