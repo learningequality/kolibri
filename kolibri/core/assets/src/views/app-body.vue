@@ -18,8 +18,7 @@
     >
       <app-error v-if="error" />
 
-      <slot v-else>
-      </slot>
+      <slot v-else></slot>
 
     </div>
   </div>
