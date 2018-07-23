@@ -1,11 +1,11 @@
-import logging as logger
+import logging
 import time
 
 from django.core.management.base import BaseCommand
 from django.db import connections
 from django.db import DEFAULT_DB_ALIAS
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -30,7 +30,7 @@ class Command(BaseCommand):
                 self.perform_vacuum(connection)
                 if not interval:
                     break
-                logging.info("Next Vacuum in {interval} minutes.".format(interval=interval))
+                logger.info("Next Vacuum in {interval} minutes.".format(interval=interval))
                 time.sleep(interval * 60)
 
     def perform_vacuum(self, connection):
@@ -44,6 +44,6 @@ class Command(BaseCommand):
                 "  * There is an open transaction in the db.\n"
                 "  * There are one or more active SQL statements.\n"
                 "The full error: {error_msg}").format(db_name=connection.settings_dict['NAME'], error_msg=e)
-            logging.error(new_msg)
+            logger.error(new_msg)
         else:
-            logging.info("Sqlite database Vacuum finished.")
+            logger.info("Sqlite database Vacuum finished.")
