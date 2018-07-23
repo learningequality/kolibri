@@ -2,12 +2,13 @@ from django.utils import six
 from rest_framework import status
 from rest_framework.views import exception_handler
 
+from kolibri.core import error_constants
+
 
 def custom_exception_handler(exc, context):
     # Call REST framework's default exception handler first,
     # to get the standard error response.
     response = exception_handler(exc, context)
-
     # customize the error response
     if response is not None:
         # we are adding custom error ids so the frontend can immediately know the error
@@ -38,12 +39,12 @@ def _handle_400_format(response):
 
 
 def _handle_403_format(response, context):
-    errors = [{'id': response.data['detail'].code.upper(),
-               'metadata': {'view': context['view'].basename}}]
+    errors = {'id': response.data['detail'].code.upper(),
+              'metadata': {'view': context['view'].get_view_name()}}
     return errors
 
 
 def _handle_404_format(response, context):
-    errors = [{'id': response.data['detail'].code.upper(),
-               'metadata': {'view': context['view'].basename}}]
+    errors = {'id': error_constants.NOT_FOUND,
+              'metadata': {'view': context['view'].get_view_name()}}
     return errors
