@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -41,12 +40,14 @@ class FacilityUserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         if FacilityUser.objects.filter(username__iexact=validated_data['username']).exists():
-            raise serializers.ValidationError(detail={'username': 'An account with that username already exists'}, code=error_constants.USERNAME_ALREADY_EXISTS)
+            raise serializers.ValidationError(detail={'username': ['An account with that username already exists.']},
+                                              code=error_constants.USERNAME_ALREADY_EXISTS)
         return super(FacilityUserSerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
         if validated_data.get('username') and FacilityUser.objects.exclude(id__exact=instance.id).filter(username__iexact=validated_data['username']).exists():
-            raise serializers.ValidationError(detail={'username': 'An account with that username already exists'}, code=error_constants.USERNAME_ALREADY_EXISTS)
+            raise serializers.ValidationError(detail={'username': ['An account with that username already exists.']},
+                                              code=error_constants.USERNAME_ALREADY_EXISTS)
         return super(FacilityUserSerializer, self).update(instance, validated_data)
 
 
@@ -54,7 +55,8 @@ class FacilityUserSignupSerializer(FacilityUserSerializer):
 
     def validate_username(self, value):
         if FacilityUser.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError(detail=_('An account with that username already exists'), code=error_constants.USERNAME_ALREADY_EXISTS)
+            raise serializers.ValidationError(detail={'username': ['An account with that username already exists.']},
+                                              code=error_constants.USERNAME_ALREADY_EXISTS)
         return value
 
 
