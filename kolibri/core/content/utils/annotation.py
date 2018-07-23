@@ -1,5 +1,5 @@
 import datetime
-import logging as logger
+import logging
 import os
 
 from le_utils.constants import content_kinds
@@ -20,7 +20,7 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_database_dir_path
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 CONTENT_APP_NAME = KolibriContentConfig.label
 
@@ -43,7 +43,7 @@ def update_channel_metadata():
                 import_channel_from_local_db(channel_id)
                 set_availability(channel_id)
             except (InvalidSchemaVersionError, FutureSchemaError):
-                logging.warning("Tried to import channel {channel_id}, but database file was incompatible".format(channel_id=channel_id))
+                logger.warning("Tried to import channel {channel_id}, but database file was incompatible".format(channel_id=channel_id))
     fix_multiple_trees_with_id_one()
 
 
@@ -53,7 +53,7 @@ def fix_multiple_trees_with_id_one():
     # with tree_ids set to 1. Just check the root nodes to reduce the query size.
     tree_id_one_channel_ids = ContentNode.objects.filter(parent=None, tree_id=1).values_list('channel_id', flat=True)
     if len(tree_id_one_channel_ids) > 1:
-        logging.warning("Improperly imported channels discovered")
+        logger.warning("Improperly imported channels discovered")
         # There is more than one channel with a tree_id of 1
         # Find which channel has the most content nodes, and then delete and reimport the rest.
         channel_sizes = {}
@@ -67,18 +67,18 @@ def fix_multiple_trees_with_id_one():
         for channel_id in sorted_channel_ids[:-1]:
             # Double check that we have a content db to import from before deleting any metadata
             if os.path.exists(get_content_database_file_path(channel_id)):
-                logging.warning("Deleting and reimporting channel metadata for {channel_id}".format(channel_id=channel_id))
+                logger.warning("Deleting and reimporting channel metadata for {channel_id}".format(channel_id=channel_id))
                 ChannelMetadata.objects.get(id=channel_id).delete_content_tree_and_files()
                 import_channel_from_local_db(channel_id)
-                logging.info("Successfully reimported channel metadata for {channel_id}".format(channel_id=channel_id))
+                logger.info("Successfully reimported channel metadata for {channel_id}".format(channel_id=channel_id))
                 count += 1
             else:
-                logging.warning("Attempted to reimport channel metadata for channel {channel_id} but no content database found".format(channel_id=channel_id))
+                logger.warning("Attempted to reimport channel metadata for channel {channel_id} but no content database found".format(channel_id=channel_id))
         if count:
-            logging.info("Successfully reimported channel metadata for {count} channels".format(count=count))
+            logger.info("Successfully reimported channel metadata for {count} channels".format(count=count))
         failed_count = len(sorted_channel_ids) - 1 - count
         if failed_count:
-            logging.warning("Failed to reimport channel metadata for {count} channels".format(count=failed_count))
+            logger.warning("Failed to reimport channel metadata for {count} channels".format(count=failed_count))
 
 
 def set_leaf_node_availability_from_local_file_availability(channel_id):
@@ -94,7 +94,7 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
         FileTable.c.local_file_id == LocalFileTable.c.id,
     ).limit(1)
 
-    logging.info('Setting availability of File objects based on LocalFile availability')
+    logger.info('Setting availability of File objects based on LocalFile availability')
 
     connection.execute(FileTable.update().values(available=file_statement).execution_options(autocommit=True))
 
@@ -108,7 +108,7 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
         ContentNodeTable.c.id == FileTable.c.contentnode_id,
     )
 
-    logging.info('Setting availability of non-topic ContentNode objects based on File availability')
+    logger.info('Setting availability of non-topic ContentNode objects based on File availability')
 
     connection.execute(ContentNodeTable.update().where(
         and_(
@@ -129,7 +129,7 @@ def mark_local_files_as_available(checksums):
 
     LocalFileClass = bridge.get_class(LocalFile)
 
-    logging.info('Setting availability of {number} LocalFile objects based on passed in checksums'.format(number=len(checksums)))
+    logger.info('Setting availability of {number} LocalFile objects based on passed in checksums'.format(number=len(checksums)))
 
     for i in range(0, len(checksums), CHUNKSIZE):
         bridge.session.bulk_update_mappings(LocalFileClass, ({
@@ -149,13 +149,13 @@ def set_local_file_availability_from_disk(checksums=None):
     LocalFileClass = bridge.get_class(LocalFile)
 
     if checksums is None:
-        logging.info('Setting availability of LocalFile objects based on disk availability')
+        logger.info('Setting availability of LocalFile objects based on disk availability')
         files = bridge.session.query(LocalFileClass.id, LocalFileClass.available, LocalFileClass.extension).all()
     elif type(checksums) == list:
-        logging.info('Setting availability of {number} LocalFile objects based on disk availability'.format(number=len(checksums)))
+        logger.info('Setting availability of {number} LocalFile objects based on disk availability'.format(number=len(checksums)))
         files = bridge.session.query(LocalFileClass.id, LocalFileClass.available, LocalFileClass.extension).filter(LocalFileClass.id.in_(checksums)).all()
     else:
-        logging.info('Setting availability of LocalFile object with checksum {checksum} based on disk availability'.format(checksum=checksums))
+        logger.info('Setting availability of LocalFile object with checksum {checksum} based on disk availability'.format(checksum=checksums))
         files = [bridge.session.query(LocalFileClass).get(checksums)]
 
     checksums_to_update = [
@@ -179,7 +179,7 @@ def recurse_availability_up_tree(channel_id):
 
     node_depth = bridge.session.query(func.max(ContentNodeClass.level)).scalar()
 
-    logging.info('Setting availability of ContentNode objects with children for {levels} levels'.format(levels=node_depth))
+    logger.info('Setting availability of ContentNode objects with children for {levels} levels'.format(levels=node_depth))
 
     child = ContentNodeTable.alias()
 
@@ -219,7 +219,7 @@ def recurse_availability_up_tree(channel_id):
                 )
             ).where(ContentNodeTable.c.id == child.c.parent_id)
 
-        logging.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
+        logger.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
         # Only modify topic availability here
         connection.execute(ContentNodeTable.update().where(
             and_(
@@ -241,7 +241,7 @@ def recurse_availability_up_tree(channel_id):
     trans.commit()
 
     elapsed = (datetime.datetime.now() - start)
-    logging.debug("Availability annotation took {} seconds".format(elapsed.seconds))
+    logger.debug("Availability annotation took {} seconds".format(elapsed.seconds))
 
     bridge.end()
 

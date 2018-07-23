@@ -1,11 +1,11 @@
-import logging as logger
+import logging
 import os
 import shutil
 
 import requests
 from requests.exceptions import ConnectionError
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ExistingTransferInProgress(Exception):
@@ -162,7 +162,7 @@ class FileDownload(Transfer):
         try:
             return super(FileDownload, self).next()
         except ConnectionError as e:
-            logging.error("Error reading download stream: {}".format(e))
+            logger.error("Error reading download stream: {}".format(e))
             raise
 
     def close(self):
