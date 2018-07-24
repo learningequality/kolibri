@@ -1,14 +1,15 @@
-FROM ubuntu:xenial
+FROM ubuntu:bionic
 
 # Fetch some additional build requirements
 RUN DEBIAN_FRONTEND=noninteractive \
     apt-get -y update && \
-    apt-get install -y --no-install-recommends \
-      software-properties-common \
-      devscripts \
+    apt-get install -y \
       adduser \
       build-essential \
-      fakeroot 
+      devscripts \
+      dirmngr \
+      fakeroot \
+      software-properties-common
 
 # Use the published kolibri-proposed PPA
 RUN DEBIAN_FRONTEND=noninteractive \
