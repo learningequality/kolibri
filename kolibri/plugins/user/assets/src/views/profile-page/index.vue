@@ -115,7 +115,7 @@
   import permissionsIcon from 'kolibri.coreVue.components.permissionsIcon';
   import uiAlert from 'keen-ui/src/UiAlert';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import { ProfilePageErrors } from '../../constants';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import changeUserPasswordModal from './change-user-password-modal';
 
   export default {
@@ -254,7 +254,7 @@
       },
       usernameAlreadyExists() {
         if (this.profileErrors) {
-          return this.profileErrors.includes(ProfilePageErrors.USERNAME_ALREADY_EXISTS);
+          return this.profileErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
         }
         return false;
       },

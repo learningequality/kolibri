@@ -8,14 +8,6 @@
     @submit="submitForm"
     @cancel="displayModal(false)"
   >
-    <ui-alert
-      v-if="error"
-      type="error"
-      :dismissible="false"
-    >
-      {{ error }}
-    </ui-alert>
-
     <k-textbox
       ref="name"
       type="text"
@@ -36,6 +28,7 @@
       :invalid="usernameIsInvalid"
       :invalidText="usernameIsInvalidText"
       @blur="usernameBlurred = true"
+      @input="setError(null)"
       v-model="newUsername"
     />
 
@@ -72,8 +65,8 @@
   import kModal from 'kolibri.coreVue.components.kModal';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kSelect from 'kolibri.coreVue.components.kSelect';
-  import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import kRadioButton from 'kolibri.coreVue.components.kRadioButton';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'editUserModal',
@@ -99,7 +92,6 @@
       kModal,
       kTextbox,
       kSelect,
-      uiAlert,
       kRadioButton,
     },
     props: {
@@ -176,6 +168,12 @@
           return false;
         }
 
+        if (this.error) {
+          if (this.error.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
+            return true;
+          }
+        }
+
         return this.facilityUsers.find(
           ({ username }) => username.toLowerCase() === this.newUsername.toLowerCase()
         );
@@ -214,7 +212,7 @@
       }
     },
     methods: {
-      ...mapActions(['updateUser', 'displayModal']),
+      ...mapActions(['updateUser', 'displayModal', 'setError']),
       submitForm() {
         const roleUpdate = {
           collection: this.currentFacilityId,
@@ -237,8 +235,6 @@
               full_name: this.newName,
               role: roleUpdate,
             },
-          }).then(() => {
-            this.displayModal(false);
           });
           if (
             this.currentUserId === this.id &&

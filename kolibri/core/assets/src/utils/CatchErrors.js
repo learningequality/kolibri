@@ -1,28 +1,26 @@
 /**
  * Checks if the error contains error constants that can be handled
  * If it does, it returns the array of recognized error constants.
- * If it does not, it defaults to the error page and returns null
+ * If it does not, it returns false
  * @export
- * @param {store} store State
  * @param {object} errorObj Request error
  * @param {Object} errorConstants Error constants to search for
  * @returns {(Array|null)} An array of error constants or null.
  */
-export default function CatchErrors(store, errorObj, errorConstants) {
-  const error = errorObj.entity;
-  if (error) {
-    if (error.KOLIBRI_CONSTANTS.length) {
-      const recognizedErrors = [];
-      error.KOLIBRI_CONSTANTS.forEach(constant => {
-        if (errorConstants[constant]) {
-          recognizedErrors.push(constant);
+export default function CatchErrors(errorObj, errorConstants) {
+  const errors = errorObj.entity;
+  if (errors) {
+    const recognizedErrors = [];
+    errors.forEach(error => {
+      if (error.id) {
+        if (errorConstants.includes(error.id)) {
+          recognizedErrors.push(error.id);
         }
-      });
-      if (recognizedErrors.length) {
-        return recognizedErrors;
       }
+    });
+    if (recognizedErrors.length > 0) {
+      return recognizedErrors;
     }
   }
-  store.dispatch('handleApiError', errorObj);
-  return null;
+  return false;
 }

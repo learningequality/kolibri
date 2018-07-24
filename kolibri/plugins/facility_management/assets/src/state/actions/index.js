@@ -11,7 +11,7 @@ export {
   showClassEditPage,
 } from './class';
 
-export { createUser, updateUser, deleteUser, showUserPage } from './user';
+export { createUser, updateUser, deleteUser, showUserPage, setError } from './user';
 
 export { showDataPage } from './data';
 

@@ -100,6 +100,7 @@ const NavComponentSections = {
 
 const ERROR_CONSTANTS = {
   USERNAME_ALREADY_EXISTS: 'USERNAME_ALREADY_EXISTS',
+  NOT_FOUND: 'NOT_FOUND',
 };
 
 export {

@@ -8,9 +8,6 @@
     @submit="createNewUser"
     @cancel="close"
   >
-    <ui-alert type="error" v-if="errorMessage" @dismiss="errorMessage = ''">
-      {{ errorMessage }}
-    </ui-alert>
 
     <section>
       <k-textbox
@@ -89,6 +86,8 @@
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'userCreateModal',
@@ -134,7 +133,7 @@
           value: UserKinds.LEARNER,
         },
         classCoach: true,
-        errorMessage: '',
+        usernameAlreadyExistsOnServer: false,
         submitting: false,
         nameBlurred: false,
         usernameBlurred: false,
@@ -185,7 +184,7 @@
           if (!validateUsername(this.username)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
           }
-          if (this.usernameAlreadyExists) {
+          if (this.usernameAlreadyExists || this.usernameAlreadyExistsError) {
             return this.$tr('usernameAlreadyExists');
           }
         }
@@ -245,9 +244,9 @@
       },
     },
     methods: {
-      ...mapActions(['createUser', 'displayModal']),
+      ...mapActions(['createUser', 'displayModal', 'handleApiError']),
       createNewUser() {
-        this.errorMessage = '';
+        this.usernameAlreadyExistsOnServer = false;
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
@@ -264,13 +263,14 @@
               this.close();
             },
             error => {
-              this.submitting = false;
-              if (error.status.code === 400) {
-                this.errorMessage = Object.values(error.entity)[0][0];
-              } else if (error.status.code === 403) {
-                this.errorMessage = error.entity;
+              const usernameAlreadyExistsError = CatchErrors(error, [
+                ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS,
+              ]);
+              if (usernameAlreadyExistsError) {
+                this.submitting = false;
+                this.usernameAlreadyExistsOnServer = true;
               } else {
-                this.errorMessage = this.$tr('unknownError');
+                this.handleApiError(error);
               }
             }
           );
