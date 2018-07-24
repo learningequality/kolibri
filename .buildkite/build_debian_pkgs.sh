@@ -15,7 +15,7 @@ mkdir -p dist
 
 buildkite-agent artifact download 'dist/*.tar.gz' dist/
 
-make dockerenv-deb
+make docker-deb
 
 # Upload built kolibri windows installer at buildkite artifact.
 buildkite-agent artifact upload './dist/*.deb'
