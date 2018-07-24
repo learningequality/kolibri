@@ -192,7 +192,7 @@ dockerenvclean:
 	docker image prune -f
 
 dockerenv-whl: writeversion
-    docker image build -t "learningequality/kolibri-builder" -t learningequality/kolibri:latest -f docker/buildkite.dockerfile .
+	docker image build -t "learningequality/kolibri-whl" -f docker/buildkite.dockerfile .
 	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-builder"
 
 dockerenv-deb: writeversion
