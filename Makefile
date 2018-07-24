@@ -193,7 +193,7 @@ dockerenv-clean:
 
 dockerenv-whl: writeversion
 	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
-	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-builder"
+	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-whl"
 
 dockerenv-deb: writeversion
 	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
@@ -210,8 +210,7 @@ dockerenv-windows: writeversion
 dockerbuildbase: writeversion
 	docker image build . \
 		-f docker/base.dockerfile \
-		-t "learningequality/kolibribase" \
-		-t "learningequality/kolibribase:latest"
+		-t "learningequality/kolibribase"
 
 dockerbuild: writeversion
 	docker image build \
