@@ -12,8 +12,8 @@
         v-if="loading"
         :delay="false"
       />
-      <div v-else-if="exerciseContentNodes.length === 0">
-        {{ $tr('previewNotAvailableForExam') }}
+      <div class="no-exercise-x" v-else-if="exerciseContentNodes.length === 0">
+        <mat-svg category="navigation" name="close" />
       </div>
       <div v-else>
         <div ref="header">
@@ -110,7 +110,6 @@
       question: 'Question { num }',
       numQuestions: '{num} {num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
-      previewNotAvailableForExam: 'Preview is not available for this exam',
     },
     components: {
       coachContentLabel,
@@ -292,5 +291,11 @@
   h3
     margin-top: 1em
     margin-bottom: 0.25em
+
+  .no-exercise-x
+    text-align: center
+    svg
+      height: 200px
+      width: 200px
 
 </style>

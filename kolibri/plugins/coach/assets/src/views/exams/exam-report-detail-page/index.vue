@@ -17,8 +17,8 @@
       :navigateToQuestion="navigateToQuestion"
       :navigateToQuestionAttempt="navigateToQuestionAttempt"
     />
-    <div v-else>
-      {{ $tr('reportsNotAvailableForExam') }}
+    <div v-else class="no-exercise-x">
+      <mat-svg category="navigation" name="close" />
     </div>
   </div>
 
@@ -84,12 +84,17 @@
         closed: state => state.pageState.examLog.closed,
       },
     },
-    $trs: {
-      reportsNotAvailableForExam: 'Reports are not available for this exam',
-    },
   };
 
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .no-exercise-x
+    text-align: center
+    svg
+      height: 200px
+      width: 200px
+
+</style>
