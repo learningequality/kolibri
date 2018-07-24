@@ -15,10 +15,8 @@ export default {
   SET_PROFILE_SUCCESS(state, isSuccessful) {
     state.pageState.success = isSuccessful;
   },
-  SET_PROFILE_ERROR(state, { isError, errorMessage = '', errorCode = null }) {
-    state.pageState.error = isError;
-    state.pageState.errorMessage = errorMessage;
-    state.pageState.errorCode = errorCode;
+  SET_PROFILE_ERRORS(state, errors) {
+    state.pageState.errors = errors;
   },
   SET_PROFILE_PASSWORD_MODAL(state, isVisible) {
     state.pageState.passwordState.modal = isVisible;
@@ -47,6 +45,7 @@ export default {
         success: false,
         error: false,
       },
+      errors: null,
     };
   },
   RESET_SIGN_UP_STATE(state) {
