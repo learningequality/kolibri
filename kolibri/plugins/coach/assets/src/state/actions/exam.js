@@ -1,3 +1,4 @@
+import differenceBy from 'lodash/differenceBy';
 import {
   ChannelResource,
   LearnerGroupResource,
@@ -16,12 +17,12 @@ import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../../constants';
 import { setClassState, handleCoachPageError } from './main';
 
-const translator = createTranslator('coachExamPageTitles', {
+const translator = createTranslator('CoachExamPageTitles', {
   allChannels: 'All channels',
   examReportTitle: '{examTitle} report',
 });
 
-const snackbarTranslator = createTranslator('examPageSnackbarTexts', {
+const snackbarTranslator = createTranslator('ExamPageSnackbarTexts', {
   changesToExamSaved: 'Changes to exam saved',
   copiedExamToClass: 'Copied exam to { className }',
   examDeleted: 'Exam deleted',
@@ -371,6 +372,19 @@ export function addExercise(store, exercise) {
   if (!selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)) {
     setSelectedExercises(store, selectedExercises.concat(exercise));
   }
+}
+
+export function addExercisesToExam(store, exercises) {
+  const { selectedExercises } = store.state.pageState;
+  // filter for exercises that are not yet selected
+  const newExercises = differenceBy(exercises, selectedExercises, 'id');
+  return setSelectedExercises(store, selectedExercises.concat(newExercises));
+}
+
+export function removeExercisesFromExam(store, exercises) {
+  const { selectedExercises } = store.state.pageState;
+  const newExercises = differenceBy(selectedExercises, exercises, 'id');
+  return setSelectedExercises(store, newExercises);
 }
 
 export function removeExercise(store, exercise) {

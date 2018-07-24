@@ -9,7 +9,7 @@ class PrettierFrontendPlugin {
     this.prettierOptions = prettierOptions;
     this.startTime = Date.now();
     // Keep track of the previous timestamps of files, to only lint modified files.
-    this.prevTimestamps = {};
+    this.prevTimestamps = new Map();
     // Keep track of the files that have just been changed by this plugin to prevent
     // a repeating loop.
     this.rewrittenFiles = [];
@@ -17,16 +17,21 @@ class PrettierFrontendPlugin {
 
   apply(compiler) {
     compiler.plugin('emit', (compilation, callback) => {
-      const changedFiles = Object.keys(compilation.fileTimestamps)
-        .filter(
-          watchfile =>
-            (this.prevTimestamps[watchfile] || this.startTime) <
-            (compilation.fileTimestamps[watchfile] || Infinity)
-        )
-        .filter(file => this.rewrittenFiles.indexOf(file) === -1);
+      // fileTimestamps is a map of ['filename', timestamp]
+      const fileTimestamps = compilation.fileTimestamps;
+      let changedFiles = [];
+      fileTimestamps.forEach((timestamp, filename) => {
+        if (
+          (this.prevTimestamps.get(filename) || this.startTime) <
+          (fileTimestamps.get(filename) || Infinity)
+        ) {
+          changedFiles.push(filename);
+        }
+      });
+      changedFiles = changedFiles.filter(file => this.rewrittenFiles.indexOf(file) === -1);
 
       // Update our timestamps to latest
-      this.prevTimestamps = compilation.fileTimestamps;
+      this.prevTimestamps = fileTimestamps;
       // Clear the currently rewritten files
       this.rewrittenFiles = [];
       Promise.all(

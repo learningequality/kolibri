@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import ChannelTokenModal from '../../src/views/available-channels-page/channel-token-modal';
+import ChannelTokenModal from '../../src/views/AvailableChannelsPage/ChannelTokenModal';
 
 function makeWrapper() {
   return mount(ChannelTokenModal);
@@ -8,7 +8,7 @@ function makeWrapper() {
 function getElements(wrapper) {
   return {
     cancelButton: () => wrapper.find('button[name="cancel"]'),
-    tokenTextbox: () => wrapper.find({ name: 'kTextbox' }),
+    tokenTextbox: () => wrapper.find({ name: 'KTextbox' }),
     networkErrorAlert: () => wrapper.find({ name: 'ui-alert' }),
     lookupTokenStub: () => {
       wrapper.vm.lookupToken = jest.fn();

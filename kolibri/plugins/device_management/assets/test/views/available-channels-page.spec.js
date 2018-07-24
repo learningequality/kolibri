@@ -1,6 +1,6 @@
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
-import AvailableChannelsPage from '../../src/views/available-channels-page';
+import AvailableChannelsPage from '../../src/views/AvailableChannelsPage';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 const router = new VueRouter({
@@ -22,13 +22,13 @@ function getElements(wrapper) {
   return {
     noChannels: () => wrapper.find('.no-channels'),
     channelsList: () => wrapper.find('.channels-list'),
-    channelsAvailableText: () => wrapper.find('.channels p').text().trim(),
-    channelListItems: () => wrapper.findAll({ name: 'channelListItem' }),
-    channelTokenModal: () => wrapper.find({ name: 'channelTokenModal' }),
+    channelsAvailableText: () => wrapper.find('.spec-ref-available').text().trim(),
+    channelListItems: () => wrapper.findAll({ name: 'ChannelListItem' }),
+    ChannelTokenModal: () => wrapper.find({ name: 'ChannelTokenModal' }),
     filters: () => wrapper.find('.filters'),
-    languageFilter: () => wrapper.find({ name: 'kSelect' }),
-    titleText: () => wrapper.find('.channels h1').text().trim(),
-    titleFilter: () => wrapper.find({ name: 'kFilterTextbox' }),
+    languageFilter: () => wrapper.find({ name: 'KSelect' }),
+    titleText: () => wrapper.find('.spec-ref-title').text().trim(),
+    titleFilter: () => wrapper.find({ name: 'KFilterTextbox' }),
     unlistedChannelsSection: () => wrapper.findAll('section.unlisted-channels'),
   }
 }
@@ -55,11 +55,11 @@ describe('availableChannelsPage', () => {
     // ...and clicking it opens the channel token modal
     setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
-    const { unlistedChannelsSection, channelTokenModal } = getElements(wrapper);
+    const { unlistedChannelsSection, ChannelTokenModal } = getElements(wrapper);
     // prettier-ignore
     const button = unlistedChannelsSection().at(0).find('button');
     button.trigger('click');
-    expect(channelTokenModal().isVueInstance()).toEqual(true);
+    expect(ChannelTokenModal().isVueInstance()).toEqual(true);
   });
 
   it('in LOCALIMPORT and LOCALEXPORT mode, the unlisted channel button is not available', () => {
@@ -198,7 +198,7 @@ describe('availableChannelsPage', () => {
     const { channelListItems } = getElements(wrapper);
     const channels = channelListItems();
     // prettier-ignore
-    const link = channels.at(0).find({ name: 'kRouterLink' });
+    const link = channels.at(0).find({ name: 'KRouterLink' });
     expect(link.props().to).toMatchObject({
       name: 'SELECT_CONTENT',
       params: {
