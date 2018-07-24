@@ -3,16 +3,16 @@ FROM ubuntu:bionic
 # Install wine and related packages
 RUN dpkg --add-architecture i386
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-    ca-certificates \
-    git \
-    sudo \
-    software-properties-common
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      ca-certificates \
+      git \
+      sudo \
+      software-properties-common
 
 RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections
-RUN apt-get install -y \
-    ttf-mscorefonts-installer \
-    wine-stable
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+      ttf-mscorefonts-installer \
+      wine-stable
 
 VOLUME /kolibridist/
 

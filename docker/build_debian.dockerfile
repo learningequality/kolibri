@@ -1,9 +1,8 @@
 FROM ubuntu:bionic
 
 # Fetch some additional build requirements
-RUN DEBIAN_FRONTEND=noninteractive \
-    apt-get -y update && \
-    apt-get install -y \
+RUN apt-get -y update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
       adduser \
       build-essential \
       devscripts \
@@ -12,10 +11,9 @@ RUN DEBIAN_FRONTEND=noninteractive \
       software-properties-common
 
 # Use the published kolibri-proposed PPA
-RUN DEBIAN_FRONTEND=noninteractive \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AD405B4A && \
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AD405B4A && \
     add-apt-repository -y -u -s ppa:learningequality/kolibri-proposed && \
-    apt-get -y build-dep kolibri
+    DEBIAN_FRONTEND=noninteractive apt-get -y build-dep kolibri
 
 RUN adduser --system --shell /bin/bash --home "/kolibribuild" kolibribuild && \
     cd /kolibribuild && \
