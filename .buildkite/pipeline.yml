@@ -1,9 +1,4 @@
 steps:
-  - label: Build Docker environment
-    command: make dockerenvbuild
-
-  - wait
-
   - label: Build Python packages
     command: mkdir -p dist && .buildkite/build_whl.sh && docker container prune -f
 
