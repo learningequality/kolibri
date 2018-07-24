@@ -4,7 +4,6 @@ from django.utils.deprecation import MiddlewareMixin
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import KolibriAnonymousUser
-from kolibri.core.device.utils import device_provisioned
 
 
 SESSION_URL = reverse('session-list')
@@ -18,7 +17,8 @@ class RedirectToSignInPageIfNoGuestAccessAndNoActiveSession(MiddlewareMixin):
     """
 
     def process_request(self, request):
-        if isinstance(request.user, KolibriAnonymousUser) and device_provisioned():
-            if not Facility.get_default_facility().dataset.allow_guest_access:
+        if isinstance(request.user, KolibriAnonymousUser):
+            dataset = getattr(Facility.get_default_facility(), 'dataset', None)
+            if dataset and not dataset.allow_guest_access:
                 if not request.path.startswith(USER_SIGNIN_URL) and not request.path.startswith(SESSION_URL):
                     return redirect(USER_SIGNIN_URL)
