@@ -36,48 +36,10 @@
 
     </p>
 
-    <k-modal
-      :title="$tr('errorDetailsHeader')"
-      :cancelText="$tr('closeErrorModalButtomPrompt')"
+    <error-details-modal
       v-if="showDetailsModal"
-      class="error-detail-modal"
-    >
-      <code>
-        {{ error || "Error Placeholder" }}
-      </code>
-
-      <div class="error-copying-options">
-        <p>
-          <k-button
-            :primary="false"
-            :text="$tr('copyToClipboardButtonPrompt')"
-          />
-        </p>
-        <p>
-          <k-button
-            appearance="basic-link"
-            :text="$tr('downloadAsTextPrompt')"
-          />
-        </p>
-      </div>
-
-
-      <!-- break out into a new div?  -->
-      <h2> {{ $tr('errorReportingDirectionsHeader') }} </h2>
-
-      <h3> {{ $tr('forumPrompt') }} </h3>
-      <p> {{ $tr('forumDescription') }} </p>
-      <k-external-link
-        :text="forumLink"
-        :href="forumLink"
-      />
-
-      <h3> {{ $tr('emailPrompt') }} </h3>
-      <p> {{ $tr('emailDescription') }} </p>
-      <!-- email link goes here. Probably not an href? -->
-
-
-    </k-modal>
+      @cancel="hideDetailsModal"
+    />
 
   </div>
 
@@ -90,12 +52,12 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import kModal from 'kolibri.coreVue.components.kModal';
   import authMessage from 'kolibri.coreVue.components.authMessage';
   import logo from 'kolibri.coreVue.components.logo';
+  import errorDetailsModal from './error-details-modal';
 
   export default {
-    name: 'app-error',
+    name: 'appError',
     $trs: {
       defaultErrorHeader: 'Sorry! Something went wrong!',
       defaultErrorExitPrompt: 'Back to home',
@@ -103,25 +65,14 @@
         'We care about your experience on Kolibri and are working hard to fix this issue.',
       defaultErrorResolution: 'Try refreshing this page or going back to the home page.',
       defaultErrorReportPrompt: 'Help us by reporting this error',
-      errorDetailsHeader: 'Error details',
-      copyToClipboardButtonPrompt: 'Copy to clipboard',
-      downloadAsTextPrompt: 'Or download as .text file',
-      errorReportingDirectionsHeader: 'How to report your error',
-      forumPrompt: 'Visit our community forums',
-      // reall long
-      forumDescription: '',
-      emailPrompt: 'Email us',
-      emailDescription:
-        "Contact our support team with your error details and we'll do our best to help.",
-      closeErrorModalButtomPrompt: 'Close',
     },
     components: {
       authMessage,
       kButton,
       kExternalLink,
       kRouterLink,
-      kModal,
       logo,
+      errorDetailsModal,
     },
     data() {
       return {
@@ -153,14 +104,6 @@
   .app-error {
     margin-top: 64px;
     text-align: center;
-  }
-
-  .error-detail-modal {
-    text-align: left;
-  }
-
-  .error-copying-options {
-    text-align: right;
   }
 
   .logo {
