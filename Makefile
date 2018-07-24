@@ -181,17 +181,21 @@ dockerenvclean:
 	docker container prune -f
 	docker image prune -f
 
-dockerenvbuild: writeversion
-	docker image build -t "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')" -t learningequality/kolibri:latest -f docker/buildkite.dockerfile .
-
-dockerenvdist: writeversion
-	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')"
+dockerenv-whl: writeversion
+    docker image build -t "learningequality/kolibri-builder" -t learningequality/kolibri:latest -f docker/buildkite.dockerfile .
+	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-builder"
 
 dockerenv-deb: writeversion
 	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
-	docker image build --no-cache -t "learningequality/kolibri-deb:$$(cat kolibri/VERSION | sed 's/+/_/g')" -f docker/debian.dockerfile .
+	docker image build -t "learningequality/kolibri-deb" -f docker/build_debian.dockerfile .
 	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
-	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb:$$(cat kolibri/VERSION | sed 's/+/_/g')"
+	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb"
+
+dockerenv-windows: writeversion
+	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
+	docker image build -t "learningequality/kolibri-windows" -f docker/build_windows.dockerfile .
+	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
+	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-windows"
 
 dockerbuildbase: writeversion
 	docker image build . \
