@@ -177,7 +177,7 @@ translation-crowdin-upload:
 translation-crowdin-download:
 	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${branch}
 
-dockerenvclean:
+dockerenv-clean:
 	docker container prune -f
 	docker image prune -f
 
