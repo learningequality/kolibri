@@ -15,12 +15,14 @@ import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { redirectBrowser } from 'kolibri.utils.browser';
+import CatchErrors from 'kolibri.utils.CatchErrors';
 import intervalTimer from '../../../timer';
 import {
   MasteryLoggingMap,
   AttemptLoggingMap,
   InteractionTypes,
   LoginErrors,
+  ERROR_CONSTANTS,
 } from '../../../constants';
 import samePageCheckGenerator from '../../../utils/samePageCheckGenerator';
 
@@ -190,10 +192,16 @@ export function kolibriLogin(store, sessionPayload) {
     })
     .catch(error => {
       store.commit('CORE_SET_SIGN_IN_BUSY', false);
-      if (error.status.code === 401) {
-        store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
-      } else if (error.status.code === 400 && error.entity.missing_field === 'password') {
-        store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_MISSING);
+      const errorsCaught = CatchErrors(error, [
+        ERROR_CONSTANTS.INVALID_CREDENTIALS,
+        ERROR_CONSTANTS.MISSING_PASSWORD,
+      ]);
+      if (errorsCaught) {
+        if (errorsCaught.includes(ERROR_CONSTANTS.INVALID_CREDENTIALS)) {
+          store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
+        } else if (errorsCaught.includes(ERROR_CONSTANTS.MISSING_PASSWORD)) {
+          store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_MISSING);
+        }
       } else {
         store.dispatch('handleApiError', error);
       }
