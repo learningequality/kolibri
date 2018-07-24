@@ -7,6 +7,8 @@
       :immersivePageIcon="immersivePageIcon"
       :immersivePageRoute="toolbarRoute"
       :immersivePagePrimary="immersivePagePrimary"
+      :authorized="userCanAccessPage"
+      authorizedRole="adminOrCoach"
     >
 
       <template v-if="showCoachNav">
@@ -18,8 +20,7 @@
         />
       </template>
 
-      <!-- TODO need a better solution for passing in authMessage -->
-      <component authorizedRole="adminOrCoach" :is="currentPage" />
+      <component :is="currentPage" />
 
     </core-base>
   </div>
@@ -31,7 +32,6 @@
 
   import { mapState, mapGetters } from 'vuex';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
-  import authMessage from 'kolibri.coreVue.components.authMessage';
   import coreBase from 'kolibri.coreVue.components.coreBase';
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
@@ -115,7 +115,6 @@
         'To start coaching a class, please consult your Kolibri administrator',
     },
     components: {
-      authMessage,
       topNav,
       coreBase,
       navTitle,
@@ -128,10 +127,6 @@
       }),
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
-        if (!this.userCanAccessPage) {
-          // TODO better solution
-          return 'authMessage';
-        }
         return pageNameToComponentMap[this.pageName] || null;
       },
       showCoachNav() {
