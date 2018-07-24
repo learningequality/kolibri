@@ -192,8 +192,7 @@ export function showAvailableChannelsPage(store, params) {
     selectedDrivePromise = Promise.resolve({});
     availableChannelsPromise = new Promise((resolve, reject) => {
       getInstalledChannelsPromise(store).then(() => {
-        return RemoteChannelResource.getCollection()
-          .fetch()
+        return RemoteChannelResource.fetchCollection()
           .then(channels => {
             return getAllRemoteChannels(store, channels).then(allChannels => resolve(allChannels));
           })
@@ -243,18 +242,18 @@ export function showSelectContentPage(store, params) {
   // We only get the one channel, since GETing /api/channel with file sizes is slow.
   // We let it fail silently, since it is only used to show "on device" files/resources.
   // eslint-disable-next-line
-  const installedChannelPromise = ChannelResource.getModel(params.channel_id)
-    .fetch(
-      {
-        include_fields: [
-          'total_resources',
-          'total_file_size',
-          'on_device_resources',
-          'on_device_file_size',
-        ],
-      },
-      true
-    )
+  const installedChannelPromise = ChannelResource.fetchModel({
+    id: params.channel_id,
+    getParams: {
+      include_fields: [
+        'total_resources',
+        'total_file_size',
+        'on_device_resources',
+        'on_device_file_size',
+      ],
+    },
+    force: true,
+  })
     .then(channel => {
       if (store.state.pageState.channelList.length === 0) {
         store.commit('SET_CHANNEL_LIST', [channel]);
@@ -295,10 +294,9 @@ export function showSelectContentPage(store, params) {
   if (transferType === TransferTypes.REMOTEIMPORT) {
     availableSpacePromise = getAvailableSpaceOnDrive();
     transferredChannelPromise = new Promise((resolve, reject) => {
-      RemoteChannelResource.getModel(channel_id)
+      RemoteChannelResource.fetchModel({ id: channel_id, force: true })
         // Force fetching because using cached version switches
         // between returning an array and returning an object
-        .fetch(true)
         .then(
           channels => {
             resolve({ ...channels[0] });

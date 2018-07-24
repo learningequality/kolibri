@@ -351,13 +351,16 @@ export class Collection {
    * @returns {Promise} - Promise is resolved with list of collection attributes when the XHR
    * successfully returns, otherwise reject is called with the response object.
    */
-  save() {
+  save(data = []) {
     const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           if (!this.isNew) {
             // Collection is not new so constituent models must be synced, so already saved.
             reject('Cannot update collections, only create them');
+          }
+          if (data.length) {
+            this.set(data);
           }
           this.synced = false;
           const url = this.resource.collectionUrl();
@@ -485,7 +488,7 @@ export class Collection {
     modelsToSet.forEach(model => {
       // Note: this method ensures instantiation deduplication of models within the collection
       //  and across collections.
-      const setModel = this.resource.addModel(model);
+      const setModel = this.resource.addModel(model, this.getParams);
       let cacheKey;
       if (setModel.id) {
         cacheKey = setModel.id;
@@ -707,6 +710,39 @@ export class Resource {
     // invalidate collection cache because this new model may be included in a collection
     this.collections = {};
     return model;
+  }
+
+  fetchModel({ id, getParams = {}, force = false } = {}) {
+    if (!id) {
+      throw TypeError('An id must be specified');
+    }
+    return this.getModel(id, getParams).fetch(force);
+  }
+
+  saveModel({ id, getParams = {}, data = {} } = {}) {
+    if (!id) {
+      return this.createModel(data, getParams).save();
+    }
+    return this.getModel(id, getParams).save(data);
+  }
+
+  deleteModel({ id, getParams = {} } = {}) {
+    if (!id) {
+      throw TypeError('An id must be specified');
+    }
+    return this.getModel(id, getParams).delete();
+  }
+
+  fetchCollection({ getParams = {}, force = false } = {}) {
+    return this.getCollection(getParams).fetch(force);
+  }
+
+  saveCollection({ data = [], getParams = {} } = {}) {
+    return this.getCollection(getParams).save(data);
+  }
+
+  deleteCollection(getParams = {}) {
+    return this.getCollection(getParams).delete();
   }
 
   fetchDetailModel(detailName, id, getParams = {}) {

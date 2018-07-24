@@ -101,11 +101,11 @@ export function showRecommended(store) {
         const contentNodeIds = uniq([...nextSteps, ...popular, ...resume].map(({ id }) => id));
 
         if (contentNodeIds.length > 0) {
-          ContentNodeProgressResource.getCollection({ ids: contentNodeIds })
-            .fetch()
-            .then(progresses => {
+          ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
+            progresses => {
               store.commit('SET_RECOMMENDED_NODES_PROGRESS', progresses);
-            });
+            }
+          );
         }
       }
 

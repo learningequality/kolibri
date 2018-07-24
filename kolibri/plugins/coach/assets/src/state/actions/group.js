@@ -37,8 +37,14 @@ export function showGroupsPage(store, classId) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', PageNames.GROUPS);
   const promises = [
-    FacilityUserResource.getCollection({ member_of: classId }).fetch(true),
-    LearnerGroupResource.getCollection({ parent: classId }).fetch(true),
+    FacilityUserResource.fetchCollection({
+      getParams: { member_of: classId },
+      force: true,
+    }),
+    LearnerGroupResource.fetchCollection({
+      getParams: { parent: classId },
+      force: true,
+    }),
     setClassState(store, classId),
   ];
   return ConditionalPromise.all(promises).only(
@@ -46,7 +52,10 @@ export function showGroupsPage(store, classId) {
     ([classUsers, groupsCollection]) => {
       const groups = _groupsState(groupsCollection);
       const groupUsersPromises = groups.map(group =>
-        FacilityUserResource.getCollection({ member_of: group.id }).fetch(true)
+        FacilityUserResource.fetchCollection({
+          getParams: { member_of: group.id },
+          force: true,
+        })
       );
 
       ConditionalPromise.all(groupUsersPromises).only(
@@ -74,59 +83,58 @@ export function showGroupsPage(store, classId) {
 
 export function createGroup(store, groupName) {
   store.commit('CORE_SET_PAGE_LOADING', true);
-  return LearnerGroupResource.createModel({
-    parent: store.state.classId,
-    name: groupName,
-  })
-    .save()
-    .then(
-      group => {
-        const groups = store.state.pageState.groups;
-        groups.push(_groupState(group));
+  return LearnerGroupResource.saveModel({
+    data: {
+      parent: store.state.classId,
+      name: groupName,
+    },
+  }).then(
+    group => {
+      const groups = store.state.pageState.groups;
+      groups.push(_groupState(group));
 
-        // Clear cache for future fetches
-        LearnerGroupResource.clearCache();
+      // Clear cache for future fetches
+      LearnerGroupResource.clearCache();
 
-        store.commit('SET_GROUPS', groups);
-        store.commit('CORE_SET_PAGE_LOADING', false);
-        displayModal(store, false);
-      },
-      error => store.dispatch('handleError', error)
-    );
+      store.commit('SET_GROUPS', groups);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      displayModal(store, false);
+    },
+    error => store.dispatch('handleError', error)
+  );
 }
 
 export function renameGroup(store, { groupId, newGroupName }) {
   store.commit('CORE_SET_PAGE_LOADING', true);
-  return LearnerGroupResource.getModel(groupId)
-    .save({ name: newGroupName })
-    .then(
-      () => {
-        const groups = store.state.pageState.groups;
-        const groupIndex = groups.findIndex(group => group.id === groupId);
-        groups[groupIndex].name = newGroupName;
-        store.commit('SET_GROUPS', groups);
-        store.commit('CORE_SET_PAGE_LOADING', false);
-        displayModal(store, false);
-      },
-      error => store.dispatch('handleError', error)
-    );
+  return LearnerGroupResource.saveModel({
+    id: groupId,
+    data: { name: newGroupName },
+  }).then(
+    () => {
+      const groups = store.state.pageState.groups;
+      const groupIndex = groups.findIndex(group => group.id === groupId);
+      groups[groupIndex].name = newGroupName;
+      store.commit('SET_GROUPS', groups);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      displayModal(store, false);
+    },
+    error => store.dispatch('handleError', error)
+  );
 }
 
 export function deleteGroup(store, groupId) {
   store.commit('CORE_SET_PAGE_LOADING', true);
-  return LearnerGroupResource.getModel(groupId)
-    .delete()
-    .then(
-      () => {
-        const groups = store.state.pageState.groups;
-        const updatedGroups = groups.filter(group => group.id !== groupId);
+  return LearnerGroupResource.deleteModel({ id: groupId }).then(
+    () => {
+      const groups = store.state.pageState.groups;
+      const updatedGroups = groups.filter(group => group.id !== groupId);
 
-        store.commit('SET_GROUPS', updatedGroups);
-        store.commit('CORE_SET_PAGE_LOADING', false);
-        displayModal(store, false);
-      },
-      error => store.dispatch('handleError', error)
-    );
+      store.commit('SET_GROUPS', updatedGroups);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      displayModal(store, false);
+    },
+    error => store.dispatch('handleError', error)
+  );
 }
 
 function _addMultipleUsersToGroup(store, groupId, userIds) {
@@ -136,57 +144,53 @@ function _addMultipleUsersToGroup(store, groupId, userIds) {
   }));
 
   return new Promise((resolve, reject) => {
-    MembershipResource.createCollection(
-      {
+    MembershipResource.saveCollection({
+      getParams: {
         collection: groupId,
       },
-      memberships
-    )
-      .save()
-      .then(
-        () => {
-          const groups = Array(...store.state.pageState.groups);
-          const groupIndex = groups.findIndex(group => group.id === groupId);
+      data: memberships,
+    }).then(
+      () => {
+        const groups = Array(...store.state.pageState.groups);
+        const groupIndex = groups.findIndex(group => group.id === groupId);
 
-          userIds.forEach(userId => {
-            const userObject = store.state.pageState.classUsers.find(user => user.id === userId);
-            groups[groupIndex].users.push(userObject);
-          });
+        userIds.forEach(userId => {
+          const userObject = store.state.pageState.classUsers.find(user => user.id === userId);
+          groups[groupIndex].users.push(userObject);
+        });
 
-          // Clear cache for future fetches
-          LearnerGroupResource.clearCache();
+        // Clear cache for future fetches
+        LearnerGroupResource.clearCache();
 
-          store.commit('SET_GROUPS', groups);
-          resolve();
-        },
-        error => reject(error)
-      );
+        store.commit('SET_GROUPS', groups);
+        resolve();
+      },
+      error => reject(error)
+    );
   });
 }
 
 function _removeMultipleUsersFromGroup(store, groupId, userIds) {
   return new Promise((resolve, reject) => {
-    MembershipResource.getCollection({
+    MembershipResource.deleteCollection({
       user_ids: userIds,
       collection: groupId,
-    })
-      .delete()
-      .then(
-        () => {
-          const groups = Array(...store.state.pageState.groups);
-          const groupIndex = groups.findIndex(group => group.id === groupId);
-          groups[groupIndex].users = groups[groupIndex].users.filter(
-            user => !userIds.includes(user.id)
-          );
+    }).then(
+      () => {
+        const groups = Array(...store.state.pageState.groups);
+        const groupIndex = groups.findIndex(group => group.id === groupId);
+        groups[groupIndex].users = groups[groupIndex].users.filter(
+          user => !userIds.includes(user.id)
+        );
 
-          // Clear cache for future fetches
-          LearnerGroupResource.clearCache();
+        // Clear cache for future fetches
+        LearnerGroupResource.clearCache();
 
-          store.commit('SET_GROUPS', groups);
-          resolve();
-        },
-        error => reject(error)
-      );
+        store.commit('SET_GROUPS', groups);
+        resolve();
+      },
+      error => reject(error)
+    );
   });
 }
 

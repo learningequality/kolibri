@@ -24,7 +24,7 @@ export function SET_CURRENT_AND_NEXT_LESSON_RESOURCES(state, resources) {
     id: firstResource.id,
     ...assessmentMetaDataState(firstResource),
   };
-  // Needed for the content renderer to work
+  // Needed for the lesson resource viewer to work
   if (resources[1]) {
     state.pageState.content.next_content = { ...resources[1] };
   } else {

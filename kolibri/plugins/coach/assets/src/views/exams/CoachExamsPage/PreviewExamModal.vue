@@ -192,16 +192,16 @@
       },
       setExercises() {
         this.loading = true;
-        ContentNodeResource.getCollection({
-          ids: this.examQuestionSources.map(item => item.exercise_id),
-        })
-          .fetch()
-          .then(contentNodes => {
-            contentNodes.forEach(node => {
-              this.$set(this.exercises, node.id, node);
-            });
-            this.loading = false;
+        ContentNodeResource.fetchCollection({
+          getParams: {
+            ids: this.examQuestionSources.map(item => item.exercise_id),
+          },
+        }).then(contentNodes => {
+          contentNodes.forEach(node => {
+            this.$set(this.exercises, node.id, node);
           });
+          this.loading = false;
+        });
       },
       isSelected(questionItemId, exerciseId) {
         return (

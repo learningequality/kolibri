@@ -31,16 +31,20 @@ function selectQuestionFromExercise(index, seed, contentNode) {
 // idk the best place to place this function
 function getExamReport(store, examId, userId, questionNumber = 0, interactionIndex = 0) {
   return new Promise((resolve, reject) => {
-    const examPromise = ExamResource.getModel(examId).fetch();
-    const examLogPromise = ExamLogResource.getCollection({
-      exam: examId,
-      user: userId,
-    }).fetch();
-    const attemptLogPromise = ExamAttemptLogResource.getCollection({
-      exam: examId,
-      user: userId,
-    }).fetch();
-    const userPromise = FacilityUserResource.getModel(userId).fetch();
+    const examPromise = ExamResource.fetchModel({ id: examId });
+    const examLogPromise = ExamLogResource.fetchCollection({
+      getParams: {
+        exam: examId,
+        user: userId,
+      },
+    });
+    const attemptLogPromise = ExamAttemptLogResource.fetchCollection({
+      getParams: {
+        exam: examId,
+        user: userId,
+      },
+    });
+    const userPromise = FacilityUserResource.fetchModel({ id: userId });
 
     ConditionalPromise.all([examPromise, examLogPromise, attemptLogPromise, userPromise]).only(
       samePageCheckGenerator(store),
@@ -51,9 +55,11 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
 
         const questionList = createQuestionList(questionSources);
 
-        const contentPromise = ContentNodeResource.getCollection({
-          in_exam: exam.id,
-        }).fetch();
+        const contentPromise = ContentNodeResource.fetchCollection({
+          getParams: {
+            in_exam: exam.id,
+          },
+        });
 
         contentPromise.only(
           samePageCheckGenerator(store),

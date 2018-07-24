@@ -7,16 +7,16 @@ import head from 'lodash/head';
 
 function fetchFacilityUsers(store) {
   const facilityId = store.getters.currentFacilityId;
-  return FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
+  return FacilityUserResource.fetchCollection({ getParams: { member_of: facilityId } });
 }
 
 function fetchDevicePermissions() {
-  return DevicePermissionsResource.getCollection()
-    .fetch(true)
-    .then(function transform(permissions) {
-      // returns object, where userid is the key
-      return mapValues(groupBy(permissions, 'user'), head);
-    });
+  return DevicePermissionsResource.fetchCollection({ force: true }).then(function transform(
+    permissions
+  ) {
+    // returns object, where userid is the key
+    return mapValues(groupBy(permissions, 'user'), head);
+  });
 }
 
 /**
@@ -27,8 +27,8 @@ function fetchDevicePermissions() {
  * @returns Promise<{ permissions, user }, FacilityUserError>
  */
 function fetchUserPermissions(userId) {
-  const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch(true);
-  const userPromise = FacilityUserResource.getModel(userId).fetch();
+  const permissionsPromise = DevicePermissionsResource.fetchModel({ id: userId, force: true });
+  const userPromise = FacilityUserResource.fetchModel({ id: userId });
   return permissionsPromise
     .then(function onPermissionsSuccess(permissions) {
       return userPromise.then(function onUserSuccess(user) {
@@ -114,5 +114,5 @@ export function addOrUpdateUserPermissions(store, payload) {
     can_manage_content: payload.can_manage_content,
   };
 
-  return DevicePermissionsResource.getModel(userId).save(permissions);
+  return DevicePermissionsResource.saveModel({ id: userId, data: permissions });
 }

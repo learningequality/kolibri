@@ -79,9 +79,7 @@ function _examsState(exams) {
 
 export function _createExam(store, exam) {
   return new Promise((resolve, reject) => {
-    ExamResource.createModel(exam)
-      .save()
-      .then(exam => resolve(exam), error => reject(error));
+    ExamResource.saveModel({ data: exam }).then(exam => resolve(exam), error => reject(error));
   });
 }
 
@@ -94,7 +92,10 @@ export function showExamsPage(store, classId) {
   store.commit('SET_PAGE_NAME', PageNames.EXAMS);
 
   const promises = [
-    ExamResource.getCollection({ collection: classId }).fetch(true),
+    ExamResource.fetchCollection({
+      getParams: { collection: classId },
+      force: true,
+    }),
     setClassState(store, classId),
   ];
 
@@ -118,19 +119,20 @@ export function setExamsModal(store, modalName) {
 }
 
 function updateExamStatus(store, { examId, isActive }) {
-  return ExamResource.getModel(examId)
-    .save({ active: isActive })
-    .then(
-      () => {
-        store.commit('SET_EXAM_STATUS', { examId, isActive });
-        setExamsModal(store, false);
-        store.dispatch('createSnackbar', {
-          text: snackbarTranslator.$tr(isActive ? 'examIsNowActive' : 'examIsNowInactive'),
-          autoDismiss: true,
-        });
-      },
-      error => store.dispatch('handleError', error)
-    );
+  return ExamResource.saveModel({
+    id: examId,
+    data: { active: isActive },
+  }).then(
+    () => {
+      store.commit('SET_EXAM_STATUS', { examId, isActive });
+      setExamsModal(store, false);
+      store.dispatch('createSnackbar', {
+        text: snackbarTranslator.$tr(isActive ? 'examIsNowActive' : 'examIsNowInactive'),
+        autoDismiss: true,
+      });
+    },
+    error => store.dispatch('handleError', error)
+  );
 }
 
 export function activateExam(store, examId) {
@@ -159,49 +161,48 @@ export function copyExam(store, { exam, className }) {
 export function updateExamDetails(store, { examId, payload }) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   return new Promise((resolve, reject) => {
-    ExamResource.getModel(examId)
-      .save(payload)
-      .then(
-        exam => {
-          const exams = store.state.pageState.exams;
-          const examIndex = exams.findIndex(exam => exam.id === examId);
-          exams[examIndex] = _examState(exam);
+    ExamResource.saveModel({
+      id: examId,
+      data: payload,
+    }).then(
+      exam => {
+        const exams = store.state.pageState.exams;
+        const examIndex = exams.findIndex(exam => exam.id === examId);
+        exams[examIndex] = _examState(exam);
 
-          store.commit('SET_EXAMS', exams);
-          setExamsModal(store, false);
-          store.dispatch('createSnackbar', {
-            text: snackbarTranslator.$tr('changesToExamSaved'),
-            autoDismiss: true,
-          });
-          store.commit('CORE_SET_PAGE_LOADING', false);
-          resolve();
-        },
-        error => {
-          store.commit('CORE_SET_PAGE_LOADING', false);
-          reject(error);
-        }
-      );
+        store.commit('SET_EXAMS', exams);
+        setExamsModal(store, false);
+        store.dispatch('createSnackbar', {
+          text: snackbarTranslator.$tr('changesToExamSaved'),
+          autoDismiss: true,
+        });
+        store.commit('CORE_SET_PAGE_LOADING', false);
+        resolve();
+      },
+      error => {
+        store.commit('CORE_SET_PAGE_LOADING', false);
+        reject(error);
+      }
+    );
   });
 }
 
 export function deleteExam(store, examId) {
-  return ExamResource.getModel(examId)
-    .delete()
-    .then(
-      () => {
-        const exams = store.state.pageState.exams;
-        const updatedExams = exams.filter(exam => exam.id !== examId);
-        store.commit('SET_EXAMS', updatedExams);
+  return ExamResource.deleteModel({ id: examId }).then(
+    () => {
+      const exams = store.state.pageState.exams;
+      const updatedExams = exams.filter(exam => exam.id !== examId);
+      store.commit('SET_EXAMS', updatedExams);
 
-        router.replace({ name: PageNames.EXAMS });
-        store.dispatch('createSnackbar', {
-          text: snackbarTranslator.$tr('examDeleted'),
-          autoDismiss: true,
-        });
-        setExamsModal(store, false);
-      },
-      error => store.dispatch('handleError', error)
-    );
+      router.replace({ name: PageNames.EXAMS });
+      store.dispatch('createSnackbar', {
+        text: snackbarTranslator.$tr('examDeleted'),
+        autoDismiss: true,
+      });
+      setExamsModal(store, false);
+    },
+    error => store.dispatch('handleError', error)
+  );
 }
 
 /**
@@ -220,9 +221,12 @@ export function showCreateExamPage(store, classId) {
     examsModalSet: false,
   });
 
-  const examsPromise = ExamResource.getCollection({
-    collection: classId,
-  }).fetch(true);
+  const examsPromise = ExamResource.fetchCollection({
+    getParams: {
+      collection: classId,
+    },
+    force: true,
+  });
   const goToTopLevelPromise = goToTopLevel(store);
 
   ConditionalPromise.all([examsPromise, setClassState(store, classId), goToTopLevelPromise]).only(
@@ -239,10 +243,12 @@ export function showCreateExamPage(store, classId) {
 // TODO: Optimize
 export function goToTopLevel(store) {
   return new Promise((resolve, reject) => {
-    const channelPromise = ChannelResource.getCollection({
-      available: true,
-      has_exercise: true,
-    }).fetch();
+    const channelPromise = ChannelResource.fetchCollection({
+      getParams: {
+        available: true,
+        has_exercise: true,
+      },
+    });
 
     ConditionalPromise.all([channelPromise]).only(
       samePageCheckGenerator(store),
@@ -305,18 +311,22 @@ export function getAllExercisesWithinTopic(store, topicId) {
 // TODO: Optimize
 function fetchTopic(store, topicId) {
   return new Promise((resolve, reject) => {
-    const topicPromise = ContentNodeResource.getModel(topicId).fetch();
+    const topicPromise = ContentNodeResource.fetchModel({ id: topicId });
     const ancestorsPromise = ContentNodeSlimResource.fetchAncestors(topicId);
-    const subtopicsPromise = ContentNodeSlimResource.getCollection({
-      parent: topicId,
-      kind: ContentNodeKinds.TOPIC,
-      fields: ['id', 'title', 'num_coach_contents'],
-    }).fetch();
-    const exercisesPromise = ContentNodeResource.getCollection({
-      parent: topicId,
-      kind: ContentNodeKinds.EXERCISE,
-      fields: ['id', 'title', 'assessmentmetadata', 'num_coach_contents'],
-    }).fetch();
+    const subtopicsPromise = ContentNodeSlimResource.fetchCollection({
+      getParams: {
+        parent: topicId,
+        kind: ContentNodeKinds.TOPIC,
+        fields: ['id', 'title', 'num_coach_contents'],
+      },
+    });
+    const exercisesPromise = ContentNodeResource.fetchCollection({
+      getParams: {
+        parent: topicId,
+        kind: ContentNodeKinds.EXERCISE,
+        fields: ['id', 'title', 'assessmentmetadata', 'num_coach_contents'],
+      },
+    });
 
     ConditionalPromise.all([
       topicPromise,
@@ -423,18 +433,20 @@ export function showExamReportPage(store, params) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', PageNames.EXAM_REPORT);
 
-  ConditionalPromise.all([ExamResource.getModel(examId).fetch()]).only(
+  ExamResource.fetchModel({ id: examId }).only(
     samePageCheckGenerator(store),
-    ([exam]) => {
+    exam => {
       const promises = [
-        ExamLogResource.getCollection({ exam: examId, collection: classId }).fetch(),
-        FacilityUserResource.getCollection({ member_of: classId }).fetch(),
-        LearnerGroupResource.getCollection({ parent: classId }).fetch(),
-        ExamResource.getCollection({ collection: classId }).fetch(true),
-        ContentNodeResource.getCollection({
-          in_exam: exam.id,
-          fields: ['id', 'num_coach_contents'],
-        }).fetch(),
+        ExamLogResource.fetchCollection({ getParams: { exam: examId, collection: classId } }),
+        FacilityUserResource.fetchCollection({ getParams: { member_of: classId } }),
+        LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
+        ExamResource.fetchCollection({ getParams: { collection: classId }, force: true }),
+        ContentNodeSlimResource.fetchCollection({
+          getParams: {
+            in_exam: exam.id,
+            fields: ['id', 'num_coach_contents'],
+          },
+        }),
         setClassState(store, classId),
       ];
       ConditionalPromise.all(promises).only(

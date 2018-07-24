@@ -19,7 +19,7 @@ import { updateFacilityLevelRoles } from './rolesActions';
 function setUserRole(user, role) {
   return updateFacilityLevelRoles(user, role.kind).then(() => {
     // Force refresh the User to get updated roles
-    return FacilityUserResource.getModel(user.id).fetch(true);
+    return FacilityUserResource.fetchModel({ id: user.id, force: true });
   });
 }
 
@@ -30,13 +30,14 @@ function setUserRole(user, role) {
  */
 export function createUser(store, stateUserData) {
   // resolves with user object
-  return FacilityUserResource.createModel({
-    facility: store.state.core.session.facility_id,
-    username: stateUserData.username,
-    full_name: stateUserData.full_name,
-    password: stateUserData.password,
+  return FacilityUserResource.saveModel({
+    data: {
+      facility: store.state.core.session.facility_id,
+      username: stateUserData.username,
+      full_name: stateUserData.full_name,
+      password: stateUserData.password,
+    },
   })
-    .save()
     .then(userModel => {
       function dispatchUser(newUser) {
         const userState = _userState(newUser);
@@ -106,7 +107,7 @@ export function updateFacilityUser(store, { userId, updates }) {
   const facilityUserHasChanged = Object.keys(changedValues).length > 0;
 
   if (facilityUserHasChanged) {
-    return FacilityUserResource.getModel(userId).save(changedValues);
+    return FacilityUserResource.saveModel({ id: userId, data: changedValues });
   }
   return Promise.resolve({
     ...origUserState,
@@ -123,20 +124,18 @@ export function deleteUser(store, id) {
     // if no id passed, abort the function
     return;
   }
-  FacilityUserResource.getModel(id)
-    .delete()
-    .then(
-      () => {
-        store.commit('DELETE_USER', id);
-        displayModal(store, false);
-        if (store.state.core.session.user_id === id) {
-          store.dispatch('kolibriLogout');
-        }
-      },
-      error => {
-        store.dispatch('handleApiError', error);
+  FacilityUserResource.deleteModel({ id }).then(
+    () => {
+      store.commit('DELETE_USER', id);
+      displayModal(store, false);
+      if (store.state.core.session.user_id === id) {
+        store.dispatch('kolibriLogout');
       }
-    );
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+    }
+  );
 }
 
 // An action for setting up the initial state of the app by fetching data from the server
@@ -147,21 +146,22 @@ export function showUserPage(store) {
 
   const facilityId = store.getters.currentFacilityId;
 
-  FacilityUserResource.getCollection({ member_of: facilityId })
-    .fetch(true)
-    .only(
-      samePageCheckGenerator(store),
-      users => {
-        store.commit('SET_PAGE_STATE', {
-          facilityUsers: users.map(_userState),
-          modalShown: false,
-          error: '',
-          isBusy: false,
-        });
-        store.commit('CORE_SET_PAGE_LOADING', false);
-      },
-      error => {
-        store.dispatch('handleApiError', error);
-      }
-    );
+  FacilityUserResource.fetchCollection({
+    getParams: { member_of: facilityId },
+    force: true,
+  }).only(
+    samePageCheckGenerator(store),
+    users => {
+      store.commit('SET_PAGE_STATE', {
+        facilityUsers: users.map(_userState),
+        modalShown: false,
+        error: '',
+        isBusy: false,
+      });
+      store.commit('CORE_SET_PAGE_LOADING', false);
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+    }
+  );
 }

@@ -18,6 +18,10 @@ export function getChannelObject(state) {
   };
 }
 
+export function totalProgress(state) {
+  return state.totalProgress;
+}
+
 export function totalPoints(state) {
   return state.totalProgress * MaxPointsPerContent;
 }

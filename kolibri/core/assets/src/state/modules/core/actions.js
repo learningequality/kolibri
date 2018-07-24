@@ -181,9 +181,7 @@ export function blockDoubleClicks(store) {
  */
 export function kolibriLogin(store, sessionPayload) {
   store.commit('CORE_SET_SIGN_IN_BUSY', true);
-  const sessionModel = SessionResource.createModel(sessionPayload);
-  const sessionPromise = sessionModel.save(sessionPayload);
-  return sessionPromise
+  return SessionResource.saveModel({ data: sessionPayload })
     .then(session => {
       store.commit('CORE_SET_SESSION', _sessionState(session));
       redirectBrowser();
@@ -206,13 +204,10 @@ export function kolibriLogout() {
 }
 
 export function getCurrentSession(store, force = false) {
-  let sessionPromise;
-  if (force) {
-    sessionPromise = SessionResource.getModel('current').fetch(true);
-  } else {
-    sessionPromise = SessionResource.getModel('current').fetch();
-  }
-  return sessionPromise
+  return SessionResource.fetchModel({
+    id: 'current',
+    force,
+  })
     .then(session => {
       logging.info('Session set.');
       store.commit('CORE_SET_SESSION', _sessionState(session));
@@ -224,11 +219,9 @@ export function getCurrentSession(store, force = false) {
 }
 
 export function getFacilities(store) {
-  return FacilityResource.getCollection()
-    .fetch()
-    .then(facilities => {
-      store.commit('CORE_SET_FACILITIES', facilities);
-    });
+  return FacilityResource.fetchCollection().then(facilities => {
+    store.commit('CORE_SET_FACILITIES', facilities);
+  });
 }
 
 export function getFacilityConfig(store, facilityId) {
@@ -239,10 +232,12 @@ export function getFacilityConfig(store, facilityId) {
   if (currentFacility && typeof currentFacility.dataset === 'object') {
     datasetPromise = Promise.resolve([currentFacility.dataset]);
   } else {
-    datasetPromise = FacilityDatasetResource.getCollection({
-      // getCollection for currentSession's facilityId if none was passed
-      facility_id: facId,
-    }).fetch();
+    datasetPromise = FacilityDatasetResource.fetchCollection({
+      getParams: {
+        // getCollection for currentSession's facilityId if none was passed
+        facility_id: facId,
+      },
+    });
   }
 
   return datasetPromise.then(facilityConfig => {
@@ -269,11 +264,13 @@ export function initContentSession(store, { channelId, contentId, contentKind })
   /* Create summary log iff user exists */
   if (store.getters.session.user_id) {
     /* Fetch collection matching content and user */
-    const summaryCollection = ContentSummaryLogResource.getCollection({
-      content_id: contentId,
-      user_id: store.getters.session.user_id,
+    const summaryCollectionPromise = ContentSummaryLogResource.getCollection({
+      getParams: {
+        content_id: contentId,
+        user_id: store.getters.session.user_id,
+      },
+      force: true,
     });
-    const summaryCollectionPromise = summaryCollection.fetch(true);
 
     // ensure the store has finished update for summaryLog.
     const summaryPromise = new Promise(resolve => {
@@ -317,9 +314,7 @@ export function initContentSession(store, { channelId, contentId, contentKind })
           );
 
           /* Save a new summary model and set id on state */
-          const summaryModel = ContentSummaryLogResource.createModel(summaryData);
-          const summaryModelPromise = summaryModel.save();
-          summaryModelPromise.then(newSummary => {
+          ContentSummaryLogResource.saveModel({ data: summaryData }).then(newSummary => {
             store.commit('SET_LOGGING_SUMMARY_ID', newSummary.id);
             resolve();
           });
@@ -352,8 +347,7 @@ export function initContentSession(store, { channelId, contentId, contentKind })
   );
 
   /* Save a new session model and set id on state */
-  const sessionModel = ContentSessionLogResource.createModel(sessionData);
-  const sessionModelPromise = sessionModel.save();
+  const sessionModelPromise = ContentSessionLogResource.saveModel({ data: sessionData });
 
   // ensure the store has finished update for sessionLog.
   const sessionPromise = new Promise(resolve => {
@@ -368,18 +362,16 @@ export function initContentSession(store, { channelId, contentId, contentKind })
 }
 
 export function setChannelInfo(store) {
-  return ChannelResource.getCollection({ available: true })
-    .fetch()
-    .then(
-      channelsData => {
-        store.commit('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
-        return channelsData;
-      },
-      error => {
-        store.dispatch('handleApiError', error);
-        return error;
-      }
-    );
+  return ChannelResource.fetchCollection({ getParams: { available: true } }).then(
+    channelsData => {
+      store.commit('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
+      return channelsData;
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+      return error;
+    }
+  );
 }
 
 /**
@@ -399,26 +391,29 @@ export function saveLogs(store) {
 
   /* If a session model exists, save it with updated values */
   if (sessionLog.id) {
-    const sessionModel = ContentSessionLogResource.getModel(sessionLog.id);
-    sessionModel.save(_contentSessionModel(store)).catch(error => {
+    ContentSessionLogResource.saveModel({
+      id: sessionLog.id,
+      data: _contentSessionModel(store),
+    }).catch(error => {
       store.dispatch('handleApiError', error);
     });
   }
 
   /* If a summary model exists, save it with updated values */
   if (summaryLog.id) {
-    const summaryModel = ContentSummaryLogResource.getModel(summaryLog.id);
-    summaryModel.save(_contentSummaryModel(store)).catch(error => {
+    ContentSummaryLogResource.saveModel({
+      id: summaryLog.id,
+      data: _contentSummaryModel(store),
+    }).catch(error => {
       store.dispatch('handleApiError', error);
     });
   }
 }
 
 export function fetchPoints(store) {
-  const { isUserLoggedIn, currentUserId } = store.getters;
-  if (isUserLoggedIn) {
-    const userProgressModel = UserProgressResource.getModel(currentUserId);
-    userProgressModel.fetch().then(progress => {
+  const { isUserLoggedIn, currentUserId, totalProgress } = store.getters;
+  if (isUserLoggedIn && totalProgress === null) {
+    UserProgressResource.fetchModel({ id: currentUserId }).then(progress => {
       store.commit('SET_TOTAL_PROGRESS', progress.progress);
     });
   }
@@ -446,18 +441,11 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
    * Also, increase totalProgress model to avoid a refetch from server
    */
   const completedContent = originalProgress < 1 && summaryProgress === 1;
-  const { isUserLoggedIn, currentUserId } = store.getters;
+  const { isUserLoggedIn } = store.getters;
   if (completedContent) {
     store.commit('SET_LOGGING_COMPLETION_TIME', now());
     if (isUserLoggedIn) {
-      const userProgressModel = UserProgressResource.getModel(currentUserId);
-      // Fetch first to ensure we never accidentally have an undefined progress
-      userProgressModel.fetch().then(progress => {
-        userProgressModel.set({
-          progress: progress.progress + 1,
-        });
-      });
-      fetchPoints(store);
+      store.commit('INCREMENT_TOTAL_PROGRESS', 1);
     }
   }
   /* Determine if progress threshold has been met */
@@ -553,8 +541,10 @@ export function stopTrackingProgress(store) {
 }
 
 export function saveMasteryLog(store) {
-  const masteryLogModel = MasteryLogResource.getModel(store.getters.logging.mastery.id);
-  return masteryLogModel.save(_masteryLogModel(store));
+  return MasteryLogResource.saveModel({
+    id: store.getters.logging.mastery.id,
+    data: _masteryLogModel(store),
+  });
 }
 
 export function saveAndStoreMasteryLog(store) {
@@ -568,7 +558,7 @@ export function setMasteryLogComplete(store, completetime) {
 }
 
 function createMasteryLog(store, { masteryLevel, masteryCriterion }) {
-  const masteryLogModel = MasteryLogResource.createModel({
+  const data = {
     id: null,
     user: store.getters.session.user_id,
     summarylog: store.getters.logging.summary.id,
@@ -581,16 +571,16 @@ function createMasteryLog(store, { masteryLevel, masteryCriterion }) {
     pastattempts: [],
     totalattempts: 0,
     mastery_criterion: masteryCriterion,
-  });
+  };
   // Preemptively set attributes
-  store.commit('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
+  store.commit('SET_LOGGING_MASTERY_STATE', data);
   // Save to the server
-  return masteryLogModel
-    .save(masteryLogModel.attributes)
-    .only(samePageCheckGenerator(store), newMasteryLog => {
-      // Update store in case an id has been set.
-      store.commit('SET_LOGGING_MASTERY_STATE', newMasteryLog);
-    });
+  return MasteryLogResource.saveModel({
+    data,
+  }).only(samePageCheckGenerator(store), newMasteryLog => {
+    // Update store in case an id has been set.
+    store.commit('SET_LOGGING_MASTERY_STATE', newMasteryLog);
+  });
 }
 
 export function createDummyMasteryLog(store) {
@@ -598,7 +588,7 @@ export function createDummyMasteryLog(store) {
   Create a client side masterylog for anonymous user for tracking attempt-progress.
   This masterylog will never be saved in the database.
   */
-  const masteryLogModel = MasteryLogResource.createModel({
+  const data = {
     id: null,
     summarylog: null,
     start_timestamp: null,
@@ -610,8 +600,8 @@ export function createDummyMasteryLog(store) {
     pastattempts: [],
     mastery_criterion: null,
     totalattempts: 0,
-  });
-  store.commit('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
+  };
+  store.commit('SET_LOGGING_MASTERY_STATE', data);
 }
 
 export function saveAttemptLog(store) {

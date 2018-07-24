@@ -62,22 +62,20 @@ export function updateTreeViewTopic(store, topic) {
     fetchArgs.for_export = 'true';
   }
   store.commit('CORE_SET_PAGE_LOADING', true);
-  return (
-    ContentNodeGranularResource.getModel(topic.id)
-      // Need to force fetch, since cached values are used even with different
-      // query params
-      .fetch(fetchArgs, true)
-      .then(contents => {
-        store.commit('SET_CURRENT_TOPIC_NODE', contents);
-        store.commit('UPDATE_PATH_BREADCRUMBS', topic);
-      })
-      .catch(() => {
-        store.commit('SET_WIZARD_STATUS', 'TREEVIEW_LOADING_ERROR');
-      })
-      .then(() => {
-        store.commit('CORE_SET_PAGE_LOADING', false);
-      })
-  );
+  return ContentNodeGranularResource.fetchModel({
+    id: topic.id,
+    getParams: fetchArgs,
+  })
+    .then(contents => {
+      store.commit('SET_CURRENT_TOPIC_NODE', contents);
+      store.commit('UPDATE_PATH_BREADCRUMBS', topic);
+    })
+    .catch(() => {
+      store.commit('SET_WIZARD_STATUS', 'TREEVIEW_LOADING_ERROR');
+    })
+    .then(() => {
+      store.commit('CORE_SET_PAGE_LOADING', false);
+    });
 }
 
 /**

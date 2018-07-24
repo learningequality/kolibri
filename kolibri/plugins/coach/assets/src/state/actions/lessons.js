@@ -24,7 +24,7 @@ export function showLessonsRootPage(store, classId) {
   });
   const loadRequirements = [
     // Fetch learner groups for the New Lesson Modal
-    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
+    LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
     refreshClassLessons(store, classId),
     setClassState(store, classId),
   ];
@@ -42,8 +42,10 @@ export function showLessonsRootPage(store, classId) {
 }
 
 export function refreshClassLessons(store, classId) {
-  return LessonResource.getCollection({ collection: classId })
-    .fetch(true)
+  return LessonResource.fetchCollection({
+    getParams: { collection: classId },
+    force: true,
+  })
     .then(lessons => {
       store.commit('SET_CLASS_LESSONS', lessons);
       // resolve lessons in case it's needed
@@ -58,8 +60,9 @@ export function updateCurrentLesson(store, lessonId) {
   const currentLessonId = lessonId || store.state.pageState.lessonId;
 
   return (
-    LessonResource.getModel(currentLessonId)
-      .fetch()
+    LessonResource.fetchModel({
+      id: currentLessonId,
+    })
       // is lesson set appropriately here?
       .then(
         lesson => {
@@ -87,8 +90,8 @@ export function showLessonSummaryPage(store, params) {
 
   const loadRequirements = [
     updateCurrentLesson(store, lessonId),
-    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
-    LessonReportResource.getModel(lessonId).fetch(true),
+    LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
+    LessonReportResource.fetchModel({ id: lessonId, force: true }),
     setClassState(store, classId),
   ];
 
@@ -212,8 +215,8 @@ export function showLessonResourceSelectionTopicPage(store, params) {
   // IDEA should probably have both selection pages set loading themselves
   store.commit('CORE_SET_PAGE_LOADING', true);
   const loadRequirements = [
-    ContentNodeResource.getModel(topicId).fetch(),
-    ContentNodeResource.getCollection({ parent: topicId }).fetch(),
+    ContentNodeResource.fetchModel({ id: topicId }),
+    ContentNodeResource.fetchCollection({ getParams: { parent: topicId } }),
     ContentNodeSlimResource.fetchAncestors(topicId),
   ];
 
@@ -264,14 +267,14 @@ function getResourceCache(store, resourceIds) {
   }
 
   if (nonCachedResourceIds.length) {
-    return ContentNodeResource.getCollection({
-      ids: nonCachedResourceIds,
-    })
-      .fetch()
-      .then(contentNodes => {
-        contentNodes.forEach(contentNode => store.commit('ADD_TO_RESOURCE_CACHE', contentNode));
-        return resourceCache;
-      });
+    return ContentNodeResource.fetchCollection({
+      getParams: {
+        ids: nonCachedResourceIds,
+      },
+    }).then(contentNodes => {
+      contentNodes.forEach(contentNode => store.commit('ADD_TO_RESOURCE_CACHE', contentNode));
+      return resourceCache;
+    });
   } else {
     return Promise.resolve(resourceCache);
   }
@@ -288,7 +291,10 @@ export function saveLessonResources(store, { lessonId, resourceIds }) {
       };
     });
 
-    return LessonResource.getModel(lessonId).save({ resources });
+    return LessonResource.saveModel({
+      id: lessonId,
+      data: { resources },
+    });
   });
 }
 
@@ -343,23 +349,21 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
     questions: null,
     completionData: null,
   };
-  return ContentNodeResource.getModel(contentId)
-    .fetch()
-    .then(
-      contentNode => {
-        // set up intial pageState
-        const contentMetadata = assessmentMetaDataState(contentNode);
-        pageState.currentContentNode = contentNode;
-        pageState.questions = contentMetadata.assessmentIds;
-        pageState.completionData = contentMetadata.masteryModel;
-        store.commit('SET_PAGE_STATE', pageState);
-        store.commit('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
-        return contentNode;
-      },
-      error => {
-        return store.dispatch('handleApiError', error);
-      }
-    );
+  return ContentNodeResource.fetchModel({ id: contentId }).then(
+    contentNode => {
+      // set up intial pageState
+      const contentMetadata = assessmentMetaDataState(contentNode);
+      pageState.currentContentNode = contentNode;
+      pageState.questions = contentMetadata.assessmentIds;
+      pageState.completionData = contentMetadata.masteryModel;
+      store.commit('SET_PAGE_STATE', pageState);
+      store.commit('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
+      return contentNode;
+    },
+    error => {
+      return store.dispatch('handleApiError', error);
+    }
+  );
 }
 
 export function setLessonsModal(store, modalName) {
@@ -367,10 +371,12 @@ export function setLessonsModal(store, modalName) {
 }
 
 export function updateLessonStatus(store, { lessonId, isActive }) {
-  LessonResource.getModel(lessonId)
-    .save({
+  LessonResource.saveModel({
+    id: lessonId,
+    data: {
       is_active: isActive,
-    })
+    },
+  })
     .then(lesson => {
       store.commit('SET_CURRENT_LESSON', lesson);
       setLessonsModal(store, null);
@@ -393,8 +399,7 @@ export function updateLessonStatus(store, { lessonId, isActive }) {
 }
 
 export function deleteLesson(store, { lessonId, classId }) {
-  LessonResource.getModel(lessonId)
-    .delete()
+  LessonResource.deleteModel({ id: lessonId })
     .then(() => refreshClassLessons(store, classId))
     .then(() => {
       router.replace({
@@ -419,8 +424,7 @@ export function deleteLesson(store, { lessonId, classId }) {
 }
 
 export function copyLesson(store, { payload, classroomName }) {
-  LessonResource.createModel(payload)
-    .save()
+  LessonResource.saveModel({ data: payload })
     .then(() => {
       setLessonsModal(store, null);
       store.dispatch('createSnackbar', {
@@ -438,8 +442,10 @@ export function copyLesson(store, { payload, classroomName }) {
 
 export function updateLesson(store, { lessonId, payload }) {
   return new Promise((resolve, reject) => {
-    LessonResource.getModel(lessonId)
-      .save(payload)
+    LessonResource.saveModel({
+      id: lessonId,
+      data: payload,
+    })
       .then(updatedLesson => {
         setLessonsModal(store, null);
         store.dispatch('createSnackbar', {
@@ -459,12 +465,13 @@ export function updateLesson(store, { lessonId, payload }) {
 
 export function createLesson(store, { classId, payload }) {
   return new Promise((resolve, reject) => {
-    return LessonResource.createModel({
-      ...payload,
-      lesson_resources: [],
-      collection: classId,
+    return LessonResource.saveModel({
+      data: {
+        ...payload,
+        lesson_resources: [],
+        collection: classId,
+      },
     })
-      .save()
       .then(newLesson => {
         setLessonsModal(store, null);
         router.push(lessonSummaryLink({ classId: classId, lessonId: newLesson.id }));

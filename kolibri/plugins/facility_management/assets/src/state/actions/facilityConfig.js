@@ -23,8 +23,8 @@ export function showFacilityConfigPage(store) {
     name: PageNames.FACILITY_CONFIG_PAGE,
   });
   const resourceRequests = [
-    FacilityResource.getModel(FACILITY_ID).fetch(),
-    FacilityDatasetResource.getCollection({ facility_id: FACILITY_ID }).fetch(),
+    FacilityResource.fetchModel({ id: FACILITY_ID }),
+    FacilityDatasetResource.fetchCollection({ getParams: { facility_id: FACILITY_ID } }),
   ];
 
   return resolveOnlyIfOnSamePage(resourceRequests, store)
@@ -55,7 +55,10 @@ export function saveFacilityConfig(store) {
   showNotification(store, null);
   const { facilityDatasetId, settings } = store.state.pageState;
   const resourceRequests = [
-    FacilityDatasetResource.getModel(facilityDatasetId).save(convertKeysToSnakeCase(settings)),
+    FacilityDatasetResource.saveModel({
+      id: facilityDatasetId,
+      data: convertKeysToSnakeCase(settings),
+    }),
   ];
   return resolveOnlyIfOnSamePage(resourceRequests, store)
     .then(function onSuccess() {
