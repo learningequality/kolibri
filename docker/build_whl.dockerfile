@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM ubuntu:bionic
 
 # install latest python and nodejs
 RUN apt-get update && apt-get install -y \
