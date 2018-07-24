@@ -16,10 +16,7 @@
       :style="bodyPadding"
       class="body-wrapper"
     >
-      <app-error v-if="error" />
-
-      <slot v-else></slot>
-
+      <slot></slot>
     </div>
   </div>
 
@@ -31,12 +28,10 @@
   import { mapState } from 'vuex';
   import kLinearLoader from 'kolibri.coreVue.components.kLinearLoader';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import appError from './app-error';
 
   export default {
     name: 'appBody',
     components: {
-      appError,
       kLinearLoader,
     },
     mixins: [responsiveWindow],
@@ -58,7 +53,6 @@
       ...mapState({
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
-        error: state => state.core.error,
       }),
       isMobile() {
         return this.windowSize.breakpoint < 2;

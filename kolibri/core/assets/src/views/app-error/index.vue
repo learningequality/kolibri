@@ -48,11 +48,9 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import authMessage from 'kolibri.coreVue.components.authMessage';
   import logo from 'kolibri.coreVue.components.logo';
   import errorDetailsModal from './error-details-modal';
 
@@ -67,7 +65,6 @@
       defaultErrorReportPrompt: 'Help us by reporting this error',
     },
     components: {
-      authMessage,
       kButton,
       kExternalLink,
       kRouterLink,
@@ -78,11 +75,6 @@
       return {
         showDetailsModal: false,
       };
-    },
-    computed: {
-      ...mapState({
-        error: state => state.core.error,
-      }),
     },
     methods: {
       revealDetailsModal() {

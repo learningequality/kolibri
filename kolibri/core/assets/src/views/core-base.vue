@@ -41,7 +41,14 @@
       :bottomGap="bottomMargin"
       :class="`gutter-${windowSize.gutterWidth}`"
     >
-      <slot></slot>
+      <auth-message
+        v-if="!authorized"
+        :authorizedRole="authorizedRole"
+        :header="authorizationErrorHeader"
+        :details="authorizationErrorDetails"
+      />
+      <app-error v-else-if="error" />
+      <slot v-else></slot>
     </app-body>
 
     <global-snackbar />
@@ -57,6 +64,8 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import appBar from 'kolibri.coreVue.components.appBar';
   import sideNav from 'kolibri.coreVue.components.sideNav';
+  import authMessage from 'kolibri.coreVue.components.authMessage';
+  import appError from './app-error';
   import appBody from './app-body';
   import globalSnackbar from './global-snackbar';
   import immersiveToolbar from './immersive-toolbar';
@@ -70,8 +79,10 @@
     },
     components: {
       appBar,
+      appError,
       immersiveToolbar,
       sideNav,
+      authMessage,
       appBody,
       globalSnackbar,
     },
@@ -90,6 +101,24 @@
       bottomMargin: {
         type: Number,
         default: 0,
+      },
+      // AUTHORIZATION SPECIFIC
+      authorized: {
+        type: Boolean,
+        required: false,
+        default: true,
+      },
+      authorizedRole: {
+        type: String,
+        required: false,
+      },
+      authorizationErrorHeader: {
+        type: String,
+        required: false,
+      },
+      authorizationErrorDetails: {
+        type: String,
+        required: false,
       },
       // IMMERSIVE-SPECIFIC
       immersivePage: {
