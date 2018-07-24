@@ -44,6 +44,7 @@ from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
+from kolibri.core import error_constants
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
@@ -331,13 +332,15 @@ class SessionViewSet(viewsets.ViewSet):
             return Response(self.get_session(request))
         elif not password and FacilityUser.objects.filter(username__iexact=username, facility=facility_id).exists():
             # Password was missing, but username is valid, prompt to give password
-            return Response({
-                "message": "Please provide password for user",
-                "missing_field": "password"
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response([{'id': error_constants.MISSING_PASSWORD,
+                              'metadata': {'field': 'password',
+                                           'message': 'Username is valid, but password is missing.'}}],
+                            status=status.HTTP_400_BAD_REQUEST)
         else:
             # Respond with error
-            return Response("User credentials invalid!", status=status.HTTP_401_UNAUTHORIZED)
+            return Response([{'id': error_constants.INVALID_CREDENTIALS,
+                              'metadata': {}}],
+                            status=status.HTTP_401_UNAUTHORIZED)
 
     def destroy(self, request, pk=None):
         logout(request)
