@@ -6,17 +6,15 @@
     immersivePageIcon="arrow_back"
     :immersivePageRoute="appBarBackLink"
     :immersivePagePrimary="true"
+    :authorized="isAdmin || isSuperuser"
+    :authorizationErrorDetails="$tr('adminOrSuperuser')"
   >
 
-    <div v-if="isAdmin || isSuperuser">
-      <div class="facility-management">
-        <!-- QUESTION should we explicitly define this in every page? -->
-        <top-nav v-if="!isEnrollmentPage" />
-        <component :is="currentPage" />
-      </div>
+    <div class="facility-management">
+      <!-- QUESTION should we explicitly define this in every page? -->
+      <top-nav v-if="!isEnrollmentPage" />
+      <component :is="currentPage" />
     </div>
-
-    <auth-message v-else :details="$tr('adminOrSuperuser')" />
 
   </core-base>
 
