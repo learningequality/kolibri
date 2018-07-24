@@ -177,49 +177,36 @@ translation-crowdin-upload:
 translation-crowdin-download:
 	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${branch}
 
-dockerenv-clean:
+docker-clean:
 	docker container prune -f
 	docker image prune -f
 
-dockerenv-whl: writeversion
+docker-whl: writeversion
 	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
 	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-whl"
 
-dockerenv-deb: writeversion
+docker-deb: writeversion
 	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
 	docker image build -t "learningequality/kolibri-deb" -f docker/build_debian.dockerfile .
 	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
 	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb"
 
-dockerenv-windows: writeversion
+docker-windows: writeversion
 	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
 	docker image build -t "learningequality/kolibri-windows" -f docker/build_windows.dockerfile .
 	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
 	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-windows"
 
-dockerbuildbase: writeversion
+docker-build-base: writeversion
 	docker image build . \
 		-f docker/base.dockerfile \
 		-t "learningequality/kolibribase"
 
-dockerbuild: writeversion
-	docker image build \
-			-f docker/build.dockerfile \
-			-t "learningequality/kolibribuild" .
-	# Run the container to produce the pex et al in /docker/mnt/
-	docker run --init \
-			-v $$PWD/docker/mnt:/docker/mnt \
-			"learningequality/kolibribuild"
-
-dockerdemoserver: writeversion
+docker-server-demo: writeversion
 	# Build the demoserver image
 	docker image build \
 			-f docker/demoserver.dockerfile \
 			-t "learningequality/demoserver" .
-	# Run the container using one of the following options:
-	#  --env KOLIBRI_PEX_URL set to URL for a pex file from release or pull request
-	#  --env KOLIBRI_PEX_URL="default" will run leq.org/r/kolibri-pex-latest
-	#  --env DOCKERMNT_PEX_PATH (e.g. /docker/mnt/kolibri-vX.Y.Z.pex)
 	docker run --init \
 			-v $$PWD/docker/mnt:/docker/mnt \
 			-p 8080:8080 \
@@ -230,7 +217,7 @@ dockerdemoserver: writeversion
 	echo "Check http://localhost:8080 you should have a demoserver running there."
 
 
-dockerdevserver: writeversion
+docker-server-dev: writeversion
 	# Build the kolibridev image: contains source code + pip install -e of kolibri
 	docker image build \
 			-f docker/dev.dockerfile \

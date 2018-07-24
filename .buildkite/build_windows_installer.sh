@@ -14,6 +14,6 @@ cd "$PARENT_PATH"
 mkdir -p dist
 buildkite-agent artifact download 'dist/*.whl' dist/
 
-make dockerenv-windows
+make docker-windows
 
 buildkite-agent artifact upload './dist/*.exe'

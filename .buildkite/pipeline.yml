@@ -1,6 +1,9 @@
 steps:
   - label: Build Python packages
-    command: mkdir -p dist && .buildkite/build_whl.sh
+    command:
+     - make docker-clean
+     - mkdir -p dist
+     - .buildkite/build_whl.sh
 
   - wait
 
@@ -25,9 +28,4 @@ steps:
   - wait
 
   - label: Cleaning up
-    command: make dockerenv-clean
-
-  - block: "Create release artifacts?"
-
-  - label: Build the Android APK file
-    command: mkdir -p dist && .buildkite/build_apk.sh
+    command: make docker-clean
