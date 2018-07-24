@@ -17,6 +17,9 @@ function assessmentMetaDataState(data) {
     masteryModel: null,
     randomize: false,
   };
+  if (typeof data.assessmentmetadata === 'undefined') {
+    return blankState;
+  }
   // Data is from a serializer for a one to many key, so it will return a array of length 0 or 1
   const assessmentMetaData = data.assessmentmetadata[0];
   if (!assessmentMetaData) {
