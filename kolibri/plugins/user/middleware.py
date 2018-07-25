@@ -10,7 +10,7 @@ ALLOWED_PATH_LIST = [
     'deviceprovision',
     'kolibri:setupwizardplugin:setupwizard',
     'kolibri:set_language',
-    'session-list'
+    'session-list',
     'admin:index',
 ]
 
