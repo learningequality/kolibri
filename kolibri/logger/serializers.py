@@ -1,9 +1,16 @@
 from django.db.models import Sum
 from django.utils.timezone import now
+from rest_framework import serializers
+
 from kolibri.auth.models import FacilityUser
 from kolibri.core.serializers import KolibriModelSerializer
-from kolibri.logger.models import AttemptLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
-from rest_framework import serializers
+from kolibri.logger.models import AttemptLog
+from kolibri.logger.models import ContentSessionLog
+from kolibri.logger.models import ContentSummaryLog
+from kolibri.logger.models import ExamAttemptLog
+from kolibri.logger.models import ExamLog
+from kolibri.logger.models import MasteryLog
+from kolibri.logger.models import UserSessionLog
 
 
 class ContentSessionLogSerializer(KolibriModelSerializer):
@@ -14,6 +21,7 @@ class ContentSessionLogSerializer(KolibriModelSerializer):
         model = ContentSessionLog
         fields = ('pk', 'user', 'content_id', 'channel_id', 'start_timestamp',
                   'end_timestamp', 'time_spent', 'kind', 'extra_fields', 'progress')
+
 
 class ExamLogSerializer(KolibriModelSerializer):
     progress = serializers.SerializerMethodField()
@@ -36,11 +44,13 @@ class ExamLogSerializer(KolibriModelSerializer):
             instance.completion_timestamp = now()
         return super(ExamLogSerializer, self).update(instance, validated_data)
 
+
 class MasteryLogSerializer(KolibriModelSerializer):
 
     pastattempts = serializers.SerializerMethodField()
     totalattempts = serializers.SerializerMethodField()
     mastery_criterion = serializers.JSONField(default='{}')
+    update_fields = ('pastattempts', )
 
     class Meta:
         model = MasteryLog
@@ -54,6 +64,7 @@ class MasteryLogSerializer(KolibriModelSerializer):
     def get_totalattempts(self, obj):
         return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).count()
 
+
 class AttemptLogSerializer(KolibriModelSerializer):
     answer = serializers.JSONField(default='{}')
     interaction_history = serializers.JSONField(default='[]')
@@ -63,6 +74,7 @@ class AttemptLogSerializer(KolibriModelSerializer):
         fields = ('id', 'masterylog', 'start_timestamp', 'sessionlog',
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent', 'user',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
+
 
 class ExamAttemptLogSerializer(KolibriModelSerializer):
     answer = serializers.JSONField(default='{}', allow_null=True)
@@ -85,10 +97,12 @@ class ExamAttemptLogSerializer(KolibriModelSerializer):
                 raise serializers.ValidationError('Invalid exam log')
         return data
 
+
 class ContentSummaryLogSerializer(KolibriModelSerializer):
 
     currentmasterylog = serializers.SerializerMethodField()
     extra_fields = serializers.JSONField(default='{}')
+    update_fields = ()
 
     class Meta:
         model = ContentSummaryLog
@@ -102,11 +116,15 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
         except MasteryLog.DoesNotExist:
             return None
 
+
 class UserSessionLogSerializer(KolibriModelSerializer):
+
+    update_fields = ()
 
     class Meta:
         model = UserSessionLog
         fields = ('pk', 'user', 'channels', 'start_timestamp', 'last_interaction_timestamp', 'pages')
+
 
 class TotalContentProgressSerializer(serializers.ModelSerializer):
 
