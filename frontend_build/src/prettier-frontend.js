@@ -60,25 +60,22 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
           for (let i = 0; i < vueComponent.styles.length; i++) {
             // Reparse to get updated line numbers
             const styleBlock = compiler.parseComponent(formatted).styles[i];
-            // Skip if not scss
-            if (styleBlock.lang !== 'scss') {
-              return;
+
+            // Is a scss style block
+            if (styleBlock.lang === 'scss') {
+              vueComponentOptions.parser = 'scss';
+
+              const start = styleBlock.start;
+              const end = styleBlock.end;
+
+              // Is not an empty single line style block
+              if (start !== end || styleBlock.content.trim().length > 0) {
+                const scss = formatted.slice(start, end);
+                let formattedScss = prettier.format(scss, vueComponentOptions);
+                formattedScss = indentAndAddNewLines(formattedScss);
+                formatted = formatted.replace(formatted.slice(start, end), formattedScss);
+              }
             }
-
-            vueComponentOptions.parser = 'scss';
-
-            const start = styleBlock.start;
-            const end = styleBlock.end;
-
-            // Skip if empty style block
-            if (start === end && !styleBlock.content.trim()) {
-              return;
-            }
-
-            const scss = formatted.slice(start, end);
-            let formattedScss = prettier.format(scss, vueComponentOptions);
-            formattedScss = indentAndAddNewLines(formattedScss);
-            formatted = formatted.replace(formatted.slice(start, end), formattedScss);
           }
         }
       } catch (e) {
