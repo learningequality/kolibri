@@ -81,6 +81,7 @@
 <script>
 
   import escodegen from 'escodegen';
+  import PascalCase from 'pascal-case';
   import logger from 'kolibri.lib.logging';
 
   const logging = logger.getLogger(__filename);
@@ -106,7 +107,12 @@
     },
     computed: {
       importString() {
-        return `import ${this.api.name} from 'kolibri.coreVue.components.${this.api.name}';`;
+        return `import ${this.componentNamePascalCased} from 'kolibri.coreVue.components.${
+          this.componentNamePascalCased
+        }';`;
+      },
+      componentNamePascalCased() {
+        return PascalCase(this.api.name);
       },
     },
     methods: {
