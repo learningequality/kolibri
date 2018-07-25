@@ -7,8 +7,22 @@
     @cancel="$emit('cancel')"
   >
     <code>
-      {{ error }}
+      {{ error || 'THIS IS AN ERROR' }}
     </code>
+
+    <!-- break out into a new div?  -->
+    <h2> {{ $tr('errorReportingDirectionsHeader') }} </h2>
+
+    <h3> {{ $tr('forumPrompt') }} </h3>
+    <p> {{ $tr('forumDescription') }} </p>
+    <k-external-link
+      :text="forumLink"
+      :href="forumLink"
+    />
+
+    <h3> {{ $tr('emailPrompt') }} </h3>
+    <p> {{ $tr('emailDescription') }} </p>
+    <!-- email link goes here. Probably not an href? -->
 
     <div class="error-copying-options">
       <p>
@@ -26,21 +40,6 @@
     </div>
 
 
-    <!-- break out into a new div?  -->
-    <h2> {{ $tr('errorReportingDirectionsHeader') }} </h2>
-
-    <h3> {{ $tr('forumPrompt') }} </h3>
-    <p> {{ $tr('forumDescription') }} </p>
-    <k-external-link
-      :text="forumLink"
-      :href="forumLink"
-    />
-
-    <h3> {{ $tr('emailPrompt') }} </h3>
-    <p> {{ $tr('emailDescription') }} </p>
-    <!-- email link goes here. Probably not an href? -->
-
-
   </k-modal>
 
 </template>
@@ -54,7 +53,7 @@
   import kModal from 'kolibri.coreVue.components.kModal';
 
   export default {
-    name: 'errorDetailsModal',
+    name: 'reportErrorModal',
     $trs: {
       errorDetailsHeader: 'Error details',
       copyToClipboardButtonPrompt: 'Copy to clipboard',
@@ -92,10 +91,6 @@
 
   .error-detail-modal {
     text-align: left;
-  }
-
-  .error-copying-options {
-    text-align: right;
   }
 
 </style>

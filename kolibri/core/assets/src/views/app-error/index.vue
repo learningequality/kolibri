@@ -36,7 +36,7 @@
 
     </p>
 
-    <error-details-modal
+    <report-error-modal
       v-if="showDetailsModal"
       @cancel="hideDetailsModal"
     />
@@ -52,7 +52,7 @@
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import logo from 'kolibri.coreVue.components.logo';
-  import errorDetailsModal from './error-details-modal';
+  import reportErrorModal from './report-error-modal';
 
   export default {
     name: 'appError',
@@ -69,7 +69,7 @@
       kExternalLink,
       kRouterLink,
       logo,
-      errorDetailsModal,
+      reportErrorModal,
     },
     data() {
       return {
