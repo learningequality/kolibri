@@ -4,21 +4,21 @@ Feature: Learner sign-in
     If the learner account is registered correctly, they should arrive at the Learn > Classes page upon sign-in
 
   Background:
-    Given that you are on the Kolibri sign-in page
+    Given that I am on the Kolibri sign-in page
 
   Scenario: Normal sign-in
-    When you fill out your username <username>
-    When you fill out your password <password>
-    When you click the *Sign in* button 
+    When I fill out my username <username>
+    And I fill out my password <password>
+    And I click the *Sign in* button 
     Given that there is there is registered learner <username> with password <password>
-    Then You should be signed in and see the *Learn > Classes* page
+    Then I am signed in and I can see the *Learn > Classes* page
 
   Scenario: Simplified sign-in
     Given that simplified sign-in facility setting is on
-    When you fill out your username <username>
-    When you click the *Sign in* button 
-    Given that there is there is registered learner <username>
-    Then You should be signed in and see the *Learn > Classes* page
+    When I fill out my username <username>
+    And I click the *Sign in* button 
+    Given that there is registered learner <username>
+    Then I am signed in and I can see the *Learn > Classes* page
 
   Examples:
   | username | password |
