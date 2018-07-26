@@ -3,9 +3,15 @@
 Release process
 ===============
 
-These instructions follow the hypothetical release of Kolibri version 0.3.0.
+These instructions follow the hypothetical release of Kolibri version '0.3.0'.
 
-In this case, the repo would currently have a ``develop`` branch and a number of pre-existing release branches, the most recent being ``release-v0.2.x`` with potententially multiple tags for patch releases, e.g. ``v0.2.0`` and ``v0.2.1``.
+In this case, the repo would currently have a ``develop`` branch and a number of pre-existing release branches, the most recent being ``release-v0.2.x`` with potentially multiple tags for patch releases, e.g. ``v0.2.0`` and ``v0.2.1``.
+
+Patch releases (e.g. '0.3.1') follow the same process outlined below, except that development occurs exclusively on an existing release branch (e.g. ``release-v0.2.x``). Additionally, note that:
+
+ * Patch releases only have betas, not alphas
+ * Patch releases generally do not have new user-facing strings, so translation-related steps can be skipped
+
 
 Create alpha releases
 ---------------------
@@ -246,12 +252,4 @@ Wrap-up
 * Publish relevant updates to the `Toolkit <https://learningequality.org/r/toolkit>`_ and `User documentation <https://kolibri.readthedocs.io/en/latest/>`_
 * `Close the milestone <https://github.com/learningequality/kolibri/milestones>`_ on Github
 * For issues on this milestone that have been reported by the community, try to report in appropriate forum threads that the new release addresses the issues
-
-
-Patch releases
---------------
-
-A patch release follows the same process outlined above, except that development occurs exclusively on an existing release branch.
-
-This means that patch releases only have betas, not alphas.
 
