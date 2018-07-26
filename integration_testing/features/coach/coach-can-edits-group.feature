@@ -1,14 +1,15 @@
 Feature: Edit a group’s name
-    Coach should be able to sign in to access Kolibri Coach tab
-    Coach can edit a group's name
+    In order to see the edit group is functioning
+    Coach can rename the group's
 
   Background:
-    Given you are in coach groups page
+    Given That I am signed in to kolibri as coach user
     Given that there are groups created
+    Given I am in the *Coach > Groups* page
 
-  Scenario: Edit a group name
-    When I click on OPTIONS for a group
-    Then Rename Group and Delete Group modal appears
+  Scenario: Edit the created group name
+    When I click on *Options*
+    Then *Rename group* and *Delete group* options appear
     When I click on Rename group
     Then Rename group modal appears
     When I change group name

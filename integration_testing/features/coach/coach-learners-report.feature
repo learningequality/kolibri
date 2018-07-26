@@ -1,29 +1,31 @@
 Feature: Coach learners report
-    Coach should be able to access Kolibri Coach tab
     facility admin should be assign classes to coach facility to access the coach tab
     Coach can look at each of the report types for the progress you have just logged
 
   Background:
-    Given there is a learner account with name "Hansen" in class "Buffoons"
-    And there is a channel with name "Pratham Books' StoryWeaver" with topic "Night Trouble" that  contains exercises
-    And learner account named "Hansen" has completed all the exercises under topic "Night Trouble" containing topic "Pratham Books' StoryWeaver"
-    Given I am logged in as a coach for the facility
+    Given I am signed in to kolibri as a coach facility
+    Given there is a learner account with name <username> in class <class>
+    And there is a channel with name <channel> with topic <topic> that  contains exercises
+    And learner account named <username> has completed all the exercises under topic <topic> containing topic channel <channel>
 
-  Scenario: Reviewing exercise completion of a particular student in a class for a topic
+
+  Scenario: Reviewing exercise completion of a particular student in a group class for a topic
     When I click on the Coach tab in the sidebar
-    Then I see a list of classes (as well as an "All Learners" link)
-    When I click on the "Buffoons" class link
-    When I click on the "Learners" sub-tab
-    When I click on "Hansen"
-    When I click on "Pratham Books' StoryWeaver" channel
-    Then I see a row called "Night Trouble" with a progress bar showing 100% under the "Avg. exercise progress" column
+    Then I see a list of classes
+    When I click on the class <class>
+    Then I see the *Coach > Learners* page
+    When I click on username <username>
+    When I click on channel <channel>
+    Then I see a row called <topic> with a progress bar showing <exercise_average> column
 
-  Scenario: Reviewing exercise completion of a particular unenrolled student for a topic
+  Scenario: Reviewing exercise completion of a particular ungroup student for a topic
     When I click on the Coach tab in the sidebar
-    Then I see a list of classes (as well as an "All Learners" link)
-    When I click on the "All Learners" link
-    When I click on the "Learners" sub-tab
-    When I click on "Hansen"
-    When I click on "Pratham Books' StoryWeaver" channel
-    Then I see a row called "Night Trouble" with a progress bar showing 100% under the "Avg. exercise progress" column
+    Then I see a list of classes
+    Then I see the *Coach > Learners* page
+    When I click on username <username>
+    When I click on channel <channel>
+    Then I see a row called <topic> with a progress bar showing <exercise_average> column
 
+Examples:
+| username | class     | channel                     | topic          | exercise_average  |
+| Hansen   | Buffoons  | Pratham Books' StoryWeaver  | Night Trouble  | 100%              |
