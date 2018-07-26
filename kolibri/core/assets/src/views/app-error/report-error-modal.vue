@@ -1,43 +1,58 @@
 <template>
 
   <k-modal
-    :title="$tr('errorDetailsHeader')"
+    :title="$tr('reportErrorHeader')"
     :cancelText="$tr('closeErrorModalButtomPrompt')"
     class="error-detail-modal"
     @cancel="$emit('cancel')"
   >
-    <code>
-      {{ error || 'THIS IS AN ERROR' }}
-    </code>
 
-    <!-- break out into a new div?  -->
-    <h2> {{ $tr('errorReportingDirectionsHeader') }} </h2>
+    <section>
+      <h3> {{ $tr('forumPrompt') }} </h3>
+      <p> {{ $tr('forumDescription') }} </p>
+      <k-external-link
+        :text="forumLink"
+        :href="forumLink"
+      />
+    </section>
 
-    <h3> {{ $tr('forumPrompt') }} </h3>
-    <p> {{ $tr('forumDescription') }} </p>
-    <k-external-link
-      :text="forumLink"
-      :href="forumLink"
-    />
+    <!-- only when offline -->
+    <section>
+      <h3> {{ $tr('emailPrompt') }} </h3>
+      <p> {{ $tr('emailDescription') }} </p>
+      <!-- email link goes here. TODO Probably not an href? -->
+      <k-external-link
+        :text="emailAddress"
+        :href="emailAddress"
+      />
+    </section>
 
-    <h3> {{ $tr('emailPrompt') }} </h3>
-    <p> {{ $tr('emailDescription') }} </p>
-    <!-- email link goes here. Probably not an href? -->
+    <section>
+      <h3>
+        {{ $tr('errorDetailsHeader') }}
+      </h3>
+      <code class="error-log">
+        {{ error }}
+      </code>
+    </section>
 
-    <div class="error-copying-options">
+
+    <section class="error-copying-options">
       <p>
         <k-button
+          class="copy-to-clipboard-button"
           :primary="false"
           :text="$tr('copyToClipboardButtonPrompt')"
         />
       </p>
       <p>
-        <k-button
-          appearance="basic-link"
+        <!-- TODO change target, set download -->
+        <k-external-link
           :text="$tr('downloadAsTextPrompt')"
+          :href="errorTextFileLink"
         />
       </p>
-    </div>
+    </section>
 
 
   </k-modal>
@@ -55,16 +70,18 @@
   export default {
     name: 'reportErrorModal',
     $trs: {
+      reportErrorHeader: 'Report Error',
+      forumPrompt: 'Visit the community forums',
+      // reall long
+      forumDescription:
+        'Search the community forum to see if others encountered similar issues. If unable to find anything, paste the error details below into a new forum post so we can rectify the error in a future version of Kolibri.',
+      forumPostingSuggestions:
+        'Include a description of what you were trying to do and what you clicked on when the error appeared.',
+      emailPrompt: 'Send an email to the developers',
+      emailDescription: 'Contact the support team with your error details and we’ll do our best to help.',
       errorDetailsHeader: 'Error details',
       copyToClipboardButtonPrompt: 'Copy to clipboard',
       downloadAsTextPrompt: 'Or download as .text file',
-      errorReportingDirectionsHeader: 'How to report your error',
-      forumPrompt: 'Visit our community forums',
-      // reall long
-      forumDescription: 'filler',
-      emailPrompt: 'Email us',
-      emailDescription:
-        "Contact our support team with your error details and we'll do our best to help.",
       closeErrorModalButtomPrompt: 'Close',
     },
     components: {
@@ -74,11 +91,21 @@
     },
     computed: {
       ...mapState({
-        error: state => state.core.error,
+        error: state => state.core.error || 'PRETEND THIS IS AN ERROR',
       }),
       forumLink() {
         return 'https://community.learningequality.org/c/support/kolibri';
       },
+      emailAddress() {
+        return 'info@learningequality.org';
+      },
+      errorTextFileLink() {
+        if (navigator.msSaveBlob) {
+          return navigator.msSaveBlob(new Blob([this.error], { type: 'text/plain' }));
+        }
+        const errorBlob = new Blob([this.error], {type: 'text/plain'});
+        return URL.createObjectURL(errorBlob);
+      }
     },
   };
 
@@ -91,6 +118,17 @@
 
   .error-detail-modal {
     text-align: left;
+  }
+
+  .error-log {
+    padding: 8px;
+    background-color: $core-bg-error;
+    border: $core-grey-300;
+    display: block;
+  }
+
+  .copy-to-clipboard-button {
+    margin-left: 0;
   }
 
 </style>
