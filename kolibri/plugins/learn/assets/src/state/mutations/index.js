@@ -1,3 +1,4 @@
+import Vue from 'kolibri.lib.vue';
 import * as classesMutations from './classesMutations';
 
 export default {
@@ -39,7 +40,7 @@ export default {
     progressArray.forEach(progress => {
       const contentNode = state.pageState.contents.find(node => node.id === progress.id);
       if (contentNode) {
-        contentNode.progress = progress.progress_fraction;
+        Vue.set(contentNode, 'progress', progress.progress_fraction);
       }
     });
   },
@@ -48,7 +49,7 @@ export default {
       progressArray.forEach(progress => {
         const contentNode = state.pageState[key].find(node => node.id === progress.id);
         if (contentNode) {
-          contentNode.progress = progress.progress_fraction;
+          Vue.set(contentNode, 'progress', progress.progress_fraction);
         }
       });
     });

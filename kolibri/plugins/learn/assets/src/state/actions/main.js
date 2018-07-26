@@ -23,6 +23,7 @@ import seededShuffle from 'kolibri.lib.seededshuffle';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import tail from 'lodash/tail';
 import { PageNames, ClassesPageNames } from '../../constants';
+import { LearnerClassroomResource } from '../../apiResources';
 
 // adds progress, thumbnail, and breadcrumbs. normalizes kind
 function normalizeContentNode(node, ancestors = []) {
@@ -392,6 +393,8 @@ export function showExam(store, params) {
 
         if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
           store.commit('SET_EXAM_LOG', examLogs.find(log => !log.closed));
+        } else if (examLogs.length > 0 && examLogs.some(log => log.closed)) {
+          return router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         } else {
           ExamLogResource.createModel({ ...examParams, closed: false })
             .save()
@@ -601,7 +604,10 @@ export function closeExam(store) {
       closed: true,
     },
   })
-    .then(UserExamResource.clearCache())
+    .then(() => {
+      UserExamResource.clearCache();
+      LearnerClassroomResource.clearCache();
+    })
     .catch(error => {
       store.dispatch('handleApiError', error);
     });

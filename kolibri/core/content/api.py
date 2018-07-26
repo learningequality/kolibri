@@ -447,36 +447,36 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         """
         queryset = self.get_queryset(prefetch=True)
 
-        if ContentSessionLog.objects.count() < 50:
-            # return 25 random content nodes if not enough session logs
-            pks = queryset.values_list('pk', flat=True).exclude(kind=content_kinds.TOPIC)
-            # .count scales with table size, so can get slow on larger channels
-            count_cache_key = 'content_count_for_popular'
-            count = cache.get(count_cache_key) or min(pks.count(), 25)
-            return queryset.filter(pk__in=sample(list(pks), count))
-
         cache_key = 'popular_content'
+
         if not cache.get(cache_key):
+            if ContentSessionLog.objects.count() < 50:
+                # return 25 random content nodes if not enough session logs
+                pks = queryset.values_list('pk', flat=True).exclude(kind=content_kinds.TOPIC)
+                # .count scales with table size, so can get slow on larger channels
+                count_cache_key = 'content_count_for_popular'
+                count = cache.get(count_cache_key) or min(pks.count(), 25)
+                queryset = queryset.filter(pk__in=sample(list(pks), count))
+            else:
+                # get the most accessed content nodes
+                # search for content nodes that currently exist in the database
+                content_counts_sorted = ContentSessionLog.objects \
+                    .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
+                    .values_list('content_id', flat=True) \
+                    .annotate(Count('content_id')) \
+                    .order_by('-content_id__count')
 
-            # get the most accessed content nodes
-            # search for content nodes that currently exist in the database
-            content_counts_sorted = ContentSessionLog.objects \
-                .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
-                .values_list('content_id', flat=True) \
-                .annotate(Count('content_id')) \
-                .order_by('-content_id__count')
+                most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:20]))
 
-            most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:20]))
+                # remove duplicate content items
+                deduped_list = []
+                content_ids = set()
+                for node in most_popular:
+                    if node.content_id not in content_ids:
+                        deduped_list.append(node)
+                        content_ids.add(node.content_id)
 
-            # remove duplicate content items
-            deduped_list = []
-            content_ids = set()
-            for node in most_popular:
-                if node.content_id not in content_ids:
-                    deduped_list.append(node)
-                    content_ids.add(node.content_id)
-
-            queryset = most_popular.filter(id__in=[node.id for node in deduped_list])
+                queryset = most_popular.filter(id__in=[node.id for node in deduped_list])
 
             serializer = self.get_serializer(queryset, many=True)
 

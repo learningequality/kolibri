@@ -26,7 +26,7 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 
 
-collection_kind_choices = tuple(choice[0] for choice in collection_kinds.choices)
+collection_kind_choices = tuple([choice[0] for choice in collection_kinds.choices] + ['user'])
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):

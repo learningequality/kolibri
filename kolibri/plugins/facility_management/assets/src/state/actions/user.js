@@ -105,7 +105,6 @@ export function updateFacilityUser(store, { userId, updates }) {
     (value, key) => updates[key] && updates[key] !== origUserState[key]
   );
   const facilityUserHasChanged = Object.keys(changedValues).length > 0;
-
   if (facilityUserHasChanged) {
     return FacilityUserResource.saveModel({ id: userId, data: changedValues });
   }

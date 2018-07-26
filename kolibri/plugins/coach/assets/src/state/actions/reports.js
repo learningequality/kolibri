@@ -228,7 +228,7 @@ function _setContentReport(store, reportPayload) {
 function _setLearnerReport(store, reportPayload, classId) {
   const promises = [
     UserReportResource.fetchCollection({ getParams: reportPayload }),
-    LearnerGroupResource.getCollection({ getParams: { parent: classId } }),
+    LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
   ];
   return Promise.all(promises).then(([usersReport, learnerGroups]) => {
     store.commit('SET_REPORT_TABLE_DATA', _learnerReportState(usersReport, learnerGroups));
@@ -469,7 +469,7 @@ export function showLearnerList(store, classId) {
   preparePageNameAndTitle(store, PageNames.LEARNER_LIST);
   const promises = [
     FacilityUserResource.fetchCollection({ getParams: { member_of: classId }, force: true }),
-    LearnerGroupResource.getCollection({ getParams: { parent: classId } }),
+    LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
     setClassState(store, classId),
   ];
 

@@ -1,4 +1,9 @@
-import { ContentNodeResource, ContentNodeSlimResource } from 'kolibri.resources';
+import {
+  ClassroomResource,
+  ContentNodeProgressResource,
+  ContentNodeResource,
+  ContentNodeSlimResource,
+} from 'kolibri.resources';
 import { LearnerClassroomResource, LearnerLessonResource } from '../../apiResources';
 import { ClassesPageNames } from '../../constants';
 
@@ -14,7 +19,7 @@ function preparePage(store, params) {
 export function showAllClassesPage(store) {
   store.commit('CORE_SET_PAGE_LOADING', true);
 
-  return LearnerClassroomResource.fetchCollection({ getParams: { no_assignments: true } })
+  return ClassroomResource.fetchCollection()
     .then(classrooms => {
       // set pageState _after_ to allow the previous page (often `content-page`)
       // to finish destruction with the expected state in place
@@ -74,6 +79,18 @@ export function showLessonPlaylist(store, { lessonId }) {
     })
     .then(contentNodes => {
       store.commit('SET_LESSON_CONTENTNODES', contentNodes);
+      // Only load contentnode progress if the user is logged in
+      if (store.getters.isUserLoggedIn) {
+        const contentNodeIds = contentNodes.map(({ id }) => id);
+
+        if (contentNodeIds.length > 0) {
+          ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
+            progresses => {
+              store.commit('SET_LESSON_CONTENTNODES_PROGRESS', progresses);
+            }
+          );
+        }
+      }
       store.commit('CORE_SET_PAGE_LOADING', false);
     })
     .catch(error => {
@@ -111,9 +128,9 @@ export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
       }
       const nextResource = lesson.resources[index + 1];
       return Promise.all([
-        ContentNodeResource.fetchModel({ id: currentResource }),
+        ContentNodeResource.fetchModel({ id: currentResource.contentnode_id }),
         ContentNodeSlimResource.fetchModel({
-          id: nextResource,
+          id: nextResource.contentnode_id,
           getParams: { in_lesson: lesson.id },
         }),
       ]);

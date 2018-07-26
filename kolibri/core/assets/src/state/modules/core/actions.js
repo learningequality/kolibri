@@ -234,7 +234,7 @@ export function getFacilityConfig(store, facilityId) {
   } else {
     datasetPromise = FacilityDatasetResource.fetchCollection({
       getParams: {
-        // getCollection for currentSession's facilityId if none was passed
+        // fetchCollection for currentSession's facilityId if none was passed
         facility_id: facId,
       },
     });
@@ -264,7 +264,7 @@ export function initContentSession(store, { channelId, contentId, contentKind })
   /* Create summary log iff user exists */
   if (store.getters.session.user_id) {
     /* Fetch collection matching content and user */
-    const summaryCollectionPromise = ContentSummaryLogResource.getCollection({
+    const summaryCollectionPromise = ContentSummaryLogResource.fetchCollection({
       getParams: {
         content_id: contentId,
         user_id: store.getters.session.user_id,

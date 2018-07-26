@@ -39,7 +39,11 @@ export function updateUserProfile(store, { edits, session }) {
 
   store.commit('SET_PROFILE_BUSY', true);
 
-  return FacilityUserResource.saveModel({ id: session.user_id, data: changedValues }).then(
+  return FacilityUserResource.saveModel({
+    id: session.user_id,
+    data: changedValues,
+    exists: true,
+  }).then(
     () => {
       store.dispatch('getCurrentSession', true);
       store.commit('SET_PROFILE_SUCCESS', true);
