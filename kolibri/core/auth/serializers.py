@@ -92,11 +92,15 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
 
 class FacilitySerializer(serializers.ModelSerializer):
     dataset = FacilityDatasetSerializer(read_only=True)
+    default = serializers.SerializerMethodField()
 
     class Meta:
         model = Facility
         extra_kwargs = {'id': {'read_only': True}, 'dataset': {'read_only': True}}
-        fields = ('id', 'name', 'dataset')
+        fields = ('id', 'name', 'dataset', 'default')
+
+    def get_default(self, instance):
+        return instance == Facility.get_default_facility()
 
 
 class PublicFacilitySerializer(serializers.ModelSerializer):
