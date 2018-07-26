@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    <Vuep :template="code" />
+    <Vuep
+      :template="code"
+      :options="{ theme: 'mdn-like' }"
+    />
   </div>
 
 </template>
@@ -22,4 +25,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '~codemirror/theme/mdn-like.css';
+
+</style>
