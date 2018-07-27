@@ -133,8 +133,8 @@ describe('facility config page actions', () => {
       const saveStub = DatasetStub.__getModelSaveReturns('ok');
 
       return saveFacilityConfig(store).then(() => {
-        expect(DatasetStub.getModel).toHaveBeenCalledWith(1000);
-        expect(saveStub).toHaveBeenCalledWith(expect.objectContaining(expectedRequest));
+        expect(DatasetStub.getModel).toHaveBeenCalledWith(1000, {});
+        expect(saveStub).toHaveBeenCalledWith(expect.objectContaining(expectedRequest), false);
         expect(commitStub).toHaveBeenCalledWith('CONFIG_PAGE_NOTIFY', 'SAVE_SUCCESS');
       });
     });

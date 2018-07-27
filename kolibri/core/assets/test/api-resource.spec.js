@@ -1,8 +1,5 @@
 import * as Resources from '../src/api-resource';
-
-if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
-  global.Intl = require('intl');
-}
+jest.mock('kolibri.urls');
 
 describe('Resource', function() {
   let resource, modelData;
@@ -151,30 +148,16 @@ describe('Resource', function() {
 });
 
 describe('Collection', function() {
-  let addModelStub, resource, params, data, collection, response;
+  let resource, params, data, collection, response;
   beforeEach(function() {
-    addModelStub = jest.fn().mockImplementation(model => ({
-      id: model.id,
-      attributes: model,
-    }));
-    resource = {
-      addModel: addModelStub,
-      collectionUrl: () => '',
-      client: () => Promise.resolve({ entity: [] }),
-      cacheKey: (...params) => {
-        const allParams = Object.assign({}, ...params);
-        // Sort keys in order, then assign those keys to an empty object in that order.
-        // Then stringify to create a cache key.
-        return JSON.stringify(
-          Object.assign(
-            {},
-            ...Object.keys(allParams)
-              .sort()
-              .map(paramKey => ({ [paramKey]: allParams[paramKey] }))
-          )
-        );
+    resource = new Resources.Resource({ name: 'test' });
+    resource._client = jest.fn();
+    Object.defineProperty(resource, 'client', {
+      get: () => resource._client,
+      set: fn => {
+        resource._client = fn;
       },
-    };
+    });
     params = {};
     data = [{ test: 'test', id: 'testing' }];
     collection = new Resources.Collection(params, data, resource);
@@ -216,7 +199,11 @@ describe('Collection', function() {
     });
     describe('addModel method', function() {
       it('should be called once', function() {
-        expect(addModelStub).toHaveBeenCalledTimes(1);
+        const addModelFn = resource.addModel;
+        const addModelStub = jest.fn().mockImplementation(addModelFn);
+        resource.addModel = addModelStub;
+        collection = new Resources.Collection(params, data, resource);
+        expect(addModelStub).toHaveBeenCalledTimes(2);
       });
     });
   });
@@ -278,7 +265,7 @@ describe('Collection', function() {
     describe('if called when Collection.synced = true and force is false', function() {
       it('should return current data immediately', function(done) {
         collection.synced = true;
-        collection.models[0].data = data[0];
+        collection.models[0].attributes = data[0];
         const promise = collection.fetch();
         promise.then(result => {
           expect(result).toEqual(data);
@@ -530,7 +517,7 @@ describe('Collection', function() {
     let setSpy, client, logstub;
     describe('if called when Collection.new = false', function() {
       it('should reject the promise', function(done) {
-        collection.synced = true;
+        collection.new = false;
         const promise = collection.save();
         promise.catch(error => {
           expect(error).toEqual('Cannot update collections, only create them');
@@ -556,42 +543,36 @@ describe('Collection', function() {
             resource.client = client;
           });
           it('should call the client once', function(done) {
-            collection.synced = false;
             collection.save().then(() => {
               expect(client).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call set once', function(done) {
-            collection.synced = false;
             collection.save().then(() => {
               expect(setSpy).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call set with the response entity', function(done) {
-            collection.synced = false;
             collection.save().then(() => {
               expect(setSpy).toHaveBeenCalledWith(response.entity);
               done();
             });
           });
           it('should set synced to true', function(done) {
-            collection.synced = false;
             collection.save().then(() => {
               expect(collection.synced).toEqual(true);
               done();
             });
           });
           it('should leave no promises in promises property', function(done) {
-            collection.synced = false;
             collection.save().then(() => {
               expect(collection.promises).toEqual([]);
               done();
             });
           });
           it('should set every model synced to true', function(done) {
-            collection.synced = false;
             collection.save().then(() => {
               collection.models.forEach(model => {
                 expect(model.synced).toEqual(true);
@@ -809,7 +790,7 @@ describe('Collection', function() {
     let model, setModel;
     beforeEach(function() {
       model = { id: 'test' };
-      setModel = { id: model.id, attributes: model };
+      setModel = new Resources.Model(model, {}, resource);
     });
     describe('for a single model', function() {
       it('should add an entry to the models property', function() {

@@ -3,6 +3,8 @@ import { mount } from '@vue/test-utils';
 import LearnIndex from '../../src/views/LearnIndex';
 import makeStore from '../makeStore';
 
+jest.mock('kolibri.urls');
+
 const router = new VueRouter({
   routes: [
     { path: '/recommended', name: 'RECOMMENDED' },
@@ -40,6 +42,7 @@ describe('learn plugin index page', () => {
 
   const setSessionUserKind = kind => {
     store.state.core.session.kind = [kind];
+    store.state.core.session.user_id = 'test';
   };
   const setMemberships = memberships => {
     store.state.learnAppState.memberships = memberships;

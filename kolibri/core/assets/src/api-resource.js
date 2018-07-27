@@ -366,6 +366,8 @@ export class Collection {
           if (!data.length && !this.new) {
             // Collection is not new so constituent models must be synced, so already saved.
             reject('Cannot update collections, only create them');
+            // Clean up the reference to this promise
+            this.promises.splice(this.promises.indexOf(promise), 1);
             return;
           }
           this.synced = false;
@@ -540,7 +542,7 @@ export class Collection {
   get new() {
     // We only say the Collection is new if it, itself, is not new, and all its
     // constituent models are also not new.
-    return this.models.reduce((isNew, model) => isNew && !model.new, !this._new);
+    return this.models.reduce((isNew, model) => isNew && model.new, this._new);
   }
 
   /**
