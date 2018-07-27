@@ -24,7 +24,7 @@
       <!-- email link goes here. TODO Probably not an href? -->
       <k-external-link
         :text="emailAddress"
-        :href="emailAddress"
+        :href="emailAddressLink"
       />
     </section>
 
@@ -99,6 +99,9 @@
       },
       emailAddress() {
         return 'info@learningequality.org';
+      },
+      emailAddressLink() {
+        return `mailto:${this.emailAddress}`;
       },
       errorTextFileLink() {
         if (navigator.msSaveBlob) {

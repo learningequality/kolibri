@@ -18,7 +18,6 @@
     </p>
 
     <p>
-      <!-- button link to go back to "home"? -->
       <k-router-link
         appearance="raised-button"
         :to="{route: '/'}"
