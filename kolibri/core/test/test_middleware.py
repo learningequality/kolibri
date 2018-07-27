@@ -26,7 +26,7 @@ class UserRedirectMiddlewareTest(APITestCase):
     def test_no_redirect_to_signin_page(self):
         self.dataset.allow_guest_access = True
         self.dataset.save()
-        response = self.client.get(reverse('kolibri:learnplugin:learn'))
+        response = self.client.get(reverse('facilityuser-list'))
         self.assertEqual(response.status_code, 200)
         self.assertNotEqual(response.get('location'), '/')
 
