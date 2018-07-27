@@ -1,23 +1,26 @@
 <template>
 
-  <exam-report
-    :examAttempts="examAttempts"
-    :exam="exam"
-    :userName="userName"
-    :userId="userId"
-    :currentAttempt="currentAttempt"
-    :currentInteractionHistory="currentInteractionHistory"
-    :currentInteraction="currentInteraction"
-    :selectedInteractionIndex="selectedInteractionIndex"
-    :questionNumber="questionNumber"
-    :exercise="exercise"
-    :itemId="itemId"
-    :completionTimestamp="completionTimestamp"
-    :closed="closed"
-    :backPageLink="backPageLink"
-    :navigateToQuestion="navigateToQuestion"
-    :navigateToQuestionAttempt="navigateToQuestionAttempt"
-  />
+  <div>
+    <exam-report
+      v-if="examAttempts"
+      :examAttempts="examAttempts"
+      :exam="exam"
+      :userName="userName"
+      :currentInteractionHistory="currentInteractionHistory"
+      :currentInteraction="currentInteraction"
+      :selectedInteractionIndex="selectedInteractionIndex"
+      :questionNumber="questionNumber"
+      :exercise="exercise"
+      :itemId="itemId"
+      :completionTimestamp="completionTimestamp"
+      :closed="closed"
+      :navigateToQuestion="navigateToQuestion"
+      :navigateToQuestionAttempt="navigateToQuestionAttempt"
+    />
+    <div class="no-exercise-x" v-else>
+      <mat-svg category="navigation" name="close" />
+    </div>
+  </div>
 
 </template>
 
@@ -84,4 +87,12 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .no-exercise-x
+    text-align: center
+    svg
+      height: 200px
+      width: 200px
+
+</style>
