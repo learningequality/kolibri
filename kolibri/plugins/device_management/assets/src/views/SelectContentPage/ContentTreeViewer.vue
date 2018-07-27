@@ -64,7 +64,6 @@
   import last from 'lodash/last';
   import every from 'lodash/every';
   import omit from 'lodash/omit';
-  import { wizardState } from '../../state/getters';
   import { navigateToTopicUrl } from '../../routes/wizardTransitionRoutes';
   import { TransferTypes } from '../../constants';
   import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
@@ -89,15 +88,19 @@
       };
     },
     computed: {
-      ...mapGetters(['inExportMode']),
-      ...mapState({
-        breadcrumbs: state => wizardState(state).path.map(transformBreadrumb),
-        childNodes: state => wizardState(state).currentTopicNode.children,
-        path: state => wizardState(state).path,
-        nodesForTransfer: state => wizardState(state).nodesForTransfer,
-        topicNode: state => wizardState(state).currentTopicNode,
-        transferType: state => wizardState(state).transferType,
-      }),
+      ...mapGetters('manageContent/wizard', ['inExportMode']),
+      ...mapState('manageContent/wizard', [
+        'currentTopicNode',
+        'nodesForTransfer',
+        'path',
+        'transferType',
+      ]),
+      breadcrumbs() {
+        return this.path.map(transformBreadrumb);
+      },
+      childNodes() {
+        return this.currentTopicNode.children;
+      },
       childNodesWithPath() {
         return this.childNodes.map(node => ({
           ...node,
@@ -127,7 +130,7 @@
           omitted: [...this.nodesForTransfer.omitted],
         };
         return annotateNode(
-          { ...this.topicNode, path: [...this.path] },
+          { ...this.currentTopicNode, path: [...this.path] },
           selections,
           !this.inExportMode
         );
@@ -139,7 +142,7 @@
       },
     },
     methods: {
-      ...mapActions(['addNodeForTransfer', 'removeNodeForTransfer']),
+      ...mapActions('manageContent/wizard', ['addNodeForTransfer', 'removeNodeForTransfer']),
       nodeIsChecked(node) {
         return node.checkboxType === CheckboxTypes.CHECKED;
       },

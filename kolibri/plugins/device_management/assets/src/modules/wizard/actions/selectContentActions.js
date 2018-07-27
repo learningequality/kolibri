@@ -1,8 +1,6 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
-import { ContentNodeGranularResource } from 'kolibri.resources';
-import { downloadChannelMetadata } from './contentTransferActions';
-import { setTransferredChannel } from './contentWizardActions';
+import { downloadChannelMetadata } from '../utils';
 
 /**
  * Transitions the import/export wizard to the 'load-channel-metadata' interstitial state
@@ -10,8 +8,8 @@ import { setTransferredChannel } from './contentWizardActions';
  */
 export function loadChannelMetaData(store) {
   let dbPromise;
-  const { transferredChannel } = store.getters.wizardState;
-  const channelOnDevice = store.getters.channelIsInstalled(transferredChannel.id);
+  const { transferredChannel } = store.state.manageContent.wizard;
+  const channelOnDevice = store.getters['manageContent/channelIsInstalled'](transferredChannel.id);
 
   // Downloading the Content Metadata DB
   if (!channelOnDevice) {
@@ -32,7 +30,7 @@ export function loadChannelMetaData(store) {
     .then(channel => {
       // The channel objects are not consistent if they come from different workflows.
       // Replacing them here with canonical type from ChannelResource.
-      setTransferredChannel(store, {
+      store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', {
         ...channel,
         version: transferredChannel.version,
         public: transferredChannel.public,
@@ -41,40 +39,8 @@ export function loadChannelMetaData(store) {
     .catch(({ errorType }) => {
       // ignore cancellations
       if (errorType !== 'CHANNEL_TASK_ERROR') {
-        store.commit('SET_WIZARD_STATUS', errorType);
+        store.commit('manageContent/wizard/SET_WIZARD_STATUS', errorType);
       }
-    });
-}
-
-/**
- * Updates wizardState.treeView when a new topic is clicked.
- *
- * @param {Object} topic - { id, title, path }
- *
- */
-export function updateTreeViewTopic(store, topic) {
-  const { selectedDrive } = store.getters.wizardState;
-  const fetchArgs = {};
-  if (store.getters.inLocalImportMode) {
-    fetchArgs.importing_from_drive_id = selectedDrive.id;
-  }
-  if (store.getters.inExportMode) {
-    fetchArgs.for_export = 'true';
-  }
-  store.commit('CORE_SET_PAGE_LOADING', true);
-  return ContentNodeGranularResource.fetchModel({
-    id: topic.id,
-    getParams: fetchArgs,
-  })
-    .then(contents => {
-      store.commit('SET_CURRENT_TOPIC_NODE', contents);
-      store.commit('UPDATE_PATH_BREADCRUMBS', topic);
-    })
-    .catch(() => {
-      store.commit('SET_WIZARD_STATUS', 'TREEVIEW_LOADING_ERROR');
-    })
-    .then(() => {
-      store.commit('CORE_SET_PAGE_LOADING', false);
     });
 }
 

@@ -27,7 +27,7 @@ export function showDeviceInfoPage(store) {
     const promises = ConditionalPromise.all([getDeviceInfo()]).only(samePageCheckGenerator(store));
     return promises
       .then(function onSuccess([deviceInfo]) {
-        store.commit('SET_DEVICE_INFO_PAGE_STATE', {
+        store.commit('deviceInfo/SET_STATE', {
           deviceInfo,
         });
       })

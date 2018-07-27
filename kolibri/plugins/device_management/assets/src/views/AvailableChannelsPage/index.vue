@@ -2,8 +2,8 @@
 
   <div>
     <ContentWizardUiAlert
-      v-if="wizardStatus"
-      :errorType="wizardStatus"
+      v-if="status"
+      :errorType="status"
     />
 
     <h1 class="spec-ref-title">
@@ -87,7 +87,7 @@
 
 <script>
 
-  import { mapState, mapActions, mapGetters } from 'vuex';
+  import { mapState, mapMutations, mapGetters } from 'vuex';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
@@ -99,7 +99,6 @@
   import uniqBy from 'lodash/uniqBy';
   import ChannelListItem from '../ManageContentPage/ChannelListItem';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
-  import { wizardState } from '../../state/getters';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
   import { TransferTypes } from '../../constants';
   import ChannelTokenModal from './ChannelTokenModal';
@@ -134,18 +133,18 @@
       };
     },
     computed: {
-      ...mapGetters([
+      ...mapGetters('manageContent', ['installedChannelsWithResources']),
+      ...mapGetters('manageContent/wizard', [
         'inLocalImportMode',
         'inRemoteImportMode',
         'inExportMode',
-        'installedChannelsWithResources',
       ]),
-      ...mapState({
-        availableChannels: state => wizardState(state).availableChannels,
-        selectedDrive: state => wizardState(state).selectedDrive,
-        transferType: state => wizardState(state).transferType,
-        wizardStatus: state => wizardState(state).status,
-      }),
+      ...mapState('manageContent/wizard', [
+        'availableChannels',
+        'selectedDrive',
+        'status',
+        'transferType',
+      ]),
       documentTitle() {
         switch (this.transferType) {
           case TransferTypes.LOCALEXPORT:
@@ -161,7 +160,7 @@
         }
       },
       channelsAreLoading() {
-        return this.wizardStatus === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
+        return this.status === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
       },
       languageFilterOptions() {
         const codes = uniqBy(this.availableChannels, 'lang_code')
@@ -193,14 +192,16 @@
     },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
-      if (this.wizardStatus) {
+      if (this.status) {
         this.setToolbarTitle(this.$tr('pageLoadError'));
       } else {
         this.setToolbarTitle(this.toolbarTitle(this.transferType));
       }
     },
     methods: {
-      ...mapActions(['setToolbarTitle']),
+      ...mapMutations('manageContent', {
+        setToolbarTitle: 'SET_TOOLBAR_TITLE',
+      }),
       toolbarTitle(transferType) {
         switch (transferType) {
           case TransferTypes.LOCALEXPORT:

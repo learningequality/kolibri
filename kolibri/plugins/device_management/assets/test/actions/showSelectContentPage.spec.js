@@ -1,6 +1,6 @@
+//
 import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
-import { loadChannelMetaData } from '../../src/state/actions/selectContentActions';
-import { wizardState } from '../../src/state/getters';
+import { loadChannelMetaData } from '../../src/modules/wizard/actions/selectContentActions';
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import { defaultChannel } from '../utils/data';
 import { makeSelectContentPageStore } from '../utils/makeStore';
@@ -13,7 +13,7 @@ jestMockResource(TaskResource);
 // resolves successfully
 function hackStoreWatcher(store) {
   setTimeout(() => {
-    store.commit('SET_CONTENT_PAGE_TASKS', [{ id: 'task_1', status: 'COMPLETED' }]);
+    store.commit('manageContent/SET_TASK_LIST', [{ id: 'task_1', status: 'COMPLETED' }]);
   }, 1);
 }
 
@@ -28,8 +28,8 @@ describe('loadChannelMetaData action', () => {
 
   beforeEach(() => {
     store = makeSelectContentPageStore();
-    store.commit('SET_TRANSFERRED_CHANNEL', defaultChannel);
-    store.commit('SET_CHANNEL_LIST', [
+    store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', defaultChannel);
+    store.commit('manageContent/SET_CHANNEL_LIST', [
       { id: 'channel_1', name: 'Installed Channel', root: 'channel_1_root', available: true },
     ]);
     hackStoreWatcher(store);
@@ -57,21 +57,20 @@ describe('loadChannelMetaData action', () => {
   });
 
   function setUpStateForTransferType(transferType) {
-    store.commit('SET_TRANSFER_TYPE', transferType);
-    store.commit('SET_DRIVE_LIST', [
-      {
-        id: `${transferType}_specs_drive`,
-        name: 'test drive',
-      },
-    ]);
-    store.commit('SET_SELECTED_DRIVE', `${transferType}_specs_drive`);
-    store.commit('SET_TRANSFERRED_CHANNEL', {
+    const drive = {
+      id: `${transferType}_specs_drive`,
+      name: 'test drive',
+    };
+    store.commit('manageContent/wizard/SET_TRANSFER_TYPE', transferType);
+    store.commit('manageContent/wizard/SET_DRIVE_LIST', [drive]);
+    store.state.manageContent.wizard.selectedDrive = drive;
+    store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', {
       id: `${transferType}_brand_new_channel`,
     });
   }
 
   function useInstalledChannel() {
-    store.commit('SET_TRANSFERRED_CHANNEL', { id: 'channel_1' });
+    store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', { id: 'channel_1' });
   }
 
   // Tests for common behavior
@@ -105,7 +104,7 @@ describe('loadChannelMetaData action', () => {
     it('errors from startDiskChannelImport are handled', () => {
       TaskResource.startDiskChannelImport.mockRejectedValue();
       return loadChannelMetaData(store).then(() => {
-        expect(wizardState(store.state).status).toEqual('CONTENT_DB_LOADING_ERROR');
+        expect(store.state.manageContent.wizard.status).toEqual('CONTENT_DB_LOADING_ERROR');
       });
     });
   });
@@ -132,7 +131,7 @@ describe('loadChannelMetaData action', () => {
     it('errors from startRemoteChannelImport are handled', () => {
       TaskResource.startRemoteChannelImport.mockRejectedValue();
       return loadChannelMetaData(store).then(() => {
-        expect(wizardState(store.state).status).toEqual('CONTENT_DB_LOADING_ERROR');
+        expect(store.state.manageContent.wizard.status).toEqual('CONTENT_DB_LOADING_ERROR');
       });
     });
   });

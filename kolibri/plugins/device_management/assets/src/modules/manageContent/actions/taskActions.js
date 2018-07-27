@@ -1,4 +1,3 @@
-/* eslint-env node */
 import logger from 'kolibri.lib.logging';
 import { TaskResource } from 'kolibri.resources';
 import isEqual from 'lodash/isEqual';
@@ -13,7 +12,7 @@ export function cancelTask(store, taskId) {
 }
 
 function updateTasks(store, tasks) {
-  store.commit('SET_CONTENT_PAGE_TASKS', tasks);
+  store.commit('SET_TASK_LIST', tasks);
 }
 
 function triggerTask(store, taskPromise) {
@@ -28,7 +27,7 @@ function triggerTask(store, taskPromise) {
       } else {
         errorText = error.status.text;
       }
-      store.commit('SET_CONTENT_PAGE_WIZARD_ERROR', errorText);
+      store.commit('wizard/SET_CONTENT_PAGE_WIZARD_ERROR', errorText);
     });
 }
 
@@ -39,13 +38,10 @@ export function triggerChannelDeleteTask(store, channelId) {
 const simplifyTask = pick(['id', 'status', 'percentage']);
 
 function _taskListShouldUpdate(state, newTasks) {
-  const oldTasks = state.pageState.taskList;
+  const oldTasks = state.taskList;
   return oldTasks && !isEqual(oldTasks.map(simplifyTask), newTasks.map(simplifyTask));
 }
 
-/**
- * Updates pageState.taskList, but only if there is a change.
- */
 export function refreshTaskList(store) {
   return TaskResource.fetchCollection({ force: true })
     .then(newTasks => {
@@ -58,13 +54,9 @@ export function refreshTaskList(store) {
     });
 }
 
-/**
- * Updates pageState.wizardState.driveList
- *
- */
 export function refreshDriveList(store) {
   return TaskResource.localDrives().then(({ entity }) => {
-    store.commit('SET_DRIVE_LIST', entity);
+    store.commit('wizard/SET_DRIVE_LIST', entity);
     return entity;
   });
 }

@@ -3,8 +3,8 @@ import store from 'kolibri.coreVue.vuex.store';
 import {
   showAvailableChannelsPage,
   showSelectContentPage,
-} from '../state/actions/contentWizardActions';
-import { updateTreeViewTopic } from '../state/actions/selectContentActions';
+  updateTreeViewTopic,
+} from '../modules/wizard/handlers';
 import { ContentWizardPages } from '../constants';
 import { selectContentTopicLink } from '../views/ManageContentPage/manageContentLinks';
 
@@ -29,7 +29,7 @@ export default [
     path: '/content/channels/:channel_id',
     handler: ({ query, params }) => {
       // HACK don't refresh state when going from SELECT_CONTENT_TOPIC back to here
-      const cachedChannelPath = store.state.pageState.wizardState.pathCache[params.channel_id];
+      const cachedChannelPath = store.state.manageContent.wizard.pathCache[params.channel_id];
       if (cachedChannelPath) {
         return updateTreeViewTopic(store, cachedChannelPath[0]);
       }
@@ -46,7 +46,7 @@ export default [
     path: '/content/channels/:channel_id/node/:node_id',
     handler: toRoute => {
       // If wizardState is not fully-hydrated, redirect to top-level channel page
-      if (!store.state.pageState.wizardState.transferType) {
+      if (!store.state.manageContent.wizard.transferType) {
         router.replace({ ...toRoute, name: ContentWizardPages.SELECT_CONTENT });
       } else {
         const { params } = toRoute;
@@ -54,7 +54,7 @@ export default [
         if (!params.node) {
           nextNode = {
             // Works fine without title at the moment.
-            path: store.state.pageState.wizardState.pathCache[params.node_id],
+            path: store.state.manageContent.wizard.pathCache[params.node_id],
             id: params.node_id,
           };
         } else {

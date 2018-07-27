@@ -1,112 +1,29 @@
 import find from 'lodash/find';
-import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { RemoteChannelResource, ChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { createTranslator } from 'kolibri.utils.i18n';
+import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import {
-  ContentSources,
-  ContentWizardPages,
-  ContentWizardErrors,
-  TransferTypes,
-} from '../../constants';
-import {
-  availableChannelsPageLink,
-  selectContentPageLink,
-  manageContentPageLink,
-} from '../../views/ManageContentPage/manageContentLinks';
-import {
-  getAvailableSpaceOnDrive,
-  loadChannelMetaData,
-  updateTreeViewTopic,
-} from './selectContentActions';
-import { refreshDriveList } from './taskActions';
-import { refreshChannelList, setToolbarTitle } from './manageContentActions';
-import { getAllRemoteChannels } from './availableChannelsActions';
+  ContentNodeGranularResource,
+  RemoteChannelResource,
+  ChannelResource,
+} from 'kolibri.resources';
+import { ContentWizardPages, ContentWizardErrors, TransferTypes } from '../../constants';
+import { manageContentPageLink } from '../../views/ManageContentPage/manageContentLinks';
+import { getAvailableSpaceOnDrive, loadChannelMetaData } from './actions/selectContentActions';
 
-const translator = createTranslator('ContentWizardTexts', {
-  loadingChannelsToolbar: 'Loading channels…',
+const translator = createTranslator('WizardHandlerTexts', {
   loadingChannelToolbar: 'Loading channel…',
 });
 
-const { LOCAL_DRIVE, KOLIBRI_STUDIO } = ContentSources;
-
-// TODO move wizardState.pageName out of Vuex into local state
-export function setWizardPageName(store, pageName) {
-  store.commit('SET_WIZARD_PAGENAME', pageName);
-}
-
-export function setTransferType(store, transferType) {
-  store.commit('SET_TRANSFER_TYPE', transferType);
-}
-
-export function setTransferredChannel(store, channel) {
-  store.commit('SET_TRANSFERRED_CHANNEL', { ...channel });
-}
-
-export function startImportWorkflow(store, channel) {
-  channel && setTransferredChannel(store, channel);
-  setWizardPageName(store, ContentWizardPages.SELECT_IMPORT_SOURCE);
-}
-
-export function startExportWorkflow(store) {
-  setTransferType(store, TransferTypes.LOCALEXPORT);
-  setWizardPageName(store, ContentWizardPages.SELECT_DRIVE);
-}
-
-// Cancels wizard and resets wizardState
-export function resetContentWizardState(store) {
-  store.commit('RESET_CONTENT_WIZARD_STATE');
-}
-
-// Provide a intermediate state before Available Channels is fully-loaded
-function prepareForAvailableChannelsPage(store) {
-  setToolbarTitle(store, translator.$tr('loadingChannelsToolbar'));
-  store.commit('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
-}
-
-// Forward from SELECT_IMPORT -> SELECT_DRIVE or AVAILABLE_CHANNELS
-export function goForwardFromSelectImportSourceModal(store, source) {
-  const { transferredChannel } = store.state.pageState.wizardState;
-
-  if (source === LOCAL_DRIVE) {
-    setTransferType(store, TransferTypes.LOCALIMPORT);
-    setWizardPageName(store, ContentWizardPages.SELECT_DRIVE);
-  }
-
-  if (source === KOLIBRI_STUDIO) {
-    setTransferType(store, TransferTypes.REMOTEIMPORT);
-    if (store.getters.isImportingMore) {
-      // From import-more-from-channel workflow
-      return router.push(selectContentPageLink({ channelId: transferredChannel.id }));
-    }
-    // From top-level import workflow
-    prepareForAvailableChannelsPage(store);
-    return router.push(availableChannelsPageLink());
-  }
-}
-
-// Forward from SELECT_DRIVE -> AVAILABLE_CHANNELS or SELECT_CONTENT
-export function goForwardFromSelectDriveModal(store, { driveId, forExport }) {
-  const { transferredChannel } = store.state.pageState.wizardState;
-  // From import-more-from-channel workflow
-  if (store.getters.isImportingMore) {
-    setWizardPageName(store, ContentWizardPages.SELECT_CONTENT);
-    return router.push(
-      selectContentPageLink({ channelId: transferredChannel.id, driveId, forExport })
-    );
-  }
-  // From top-level import/export workflow
-  prepareForAvailableChannelsPage(store);
-  return router.push(availableChannelsPageLink({ driveId, forExport }));
-}
-
 // Utilities for the show*Page actions
 function getSelectedDrive(store, driveId) {
-  const { transferType } = store.state.pageState.wizardState;
+  const { transferType } = store.state;
   return new Promise((resolve, reject) => {
-    refreshDriveList(store)
+    store
+      .dispatch('manageContent/refreshDriveList', null, { root: true })
       .then(driveList => {
+        store.commit('manageContent/wizard/SET_DRIVE_LIST', driveList);
         const drive = find(driveList, { id: driveId });
         if (drive) {
           if (transferType === TransferTypes.LOCALEXPORT && !drive.writable) {
@@ -126,10 +43,10 @@ function getSelectedDrive(store, driveId) {
 }
 
 function getInstalledChannelsPromise(store) {
-  const { channelList } = store.state.pageState;
+  const { channelList } = store.state.manageContent;
   // Only refresh channel list if it hasn't been fetched yet (i.e. user went straight to URL)
   if (channelList.length === 0) {
-    return refreshChannelList(store);
+    return store.dispatch('manageContent/refreshChannelList', null, { root: true });
   } else {
     return Promise.resolve([...channelList]);
   }
@@ -152,11 +69,11 @@ function handleError(store, error) {
   const { error: errorType } = error;
   // special errors that are handled gracefully by UI
   if (errorType) {
-    return store.commit('SET_WIZARD_STATUS', errorType);
+    return store.commit('manageContent/wizard/SET_WIZARD_STATUS', errorType);
   }
   // handle other errors generically
   store.dispatch('handleApiError', error);
-  return resetContentWizardState(store);
+  store.commit('manageContent/wizard/RESET_STATE');
 }
 
 // Handler for when user goes directly to the Available Channels URL.
@@ -168,7 +85,7 @@ export function showAvailableChannelsPage(store, params) {
 
   store.commit('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
   store.commit('CORE_SET_PAGE_LOADING', true);
-  resetContentWizardState(store);
+  store.commit('manageContent/wizard/RESET_STATE');
 
   if (transferType === null) {
     return router.replace(manageContentPageLink());
@@ -193,8 +110,10 @@ export function showAvailableChannelsPage(store, params) {
     availableChannelsPromise = new Promise((resolve, reject) => {
       getInstalledChannelsPromise(store).then(() => {
         return RemoteChannelResource.fetchCollection()
-          .then(channels => {
-            return getAllRemoteChannels(store, channels).then(allChannels => resolve(allChannels));
+          .then(publicChannels => {
+            return store
+              .dispatch('manageContent/wizard/getAllRemoteChannels', publicChannels)
+              .then(allChannels => resolve(allChannels));
           })
           .catch(() => reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE }));
       });
@@ -204,7 +123,7 @@ export function showAvailableChannelsPage(store, params) {
   return ConditionalPromise.all([availableChannelsPromise, selectedDrivePromise]).only(
     samePageCheckGenerator(store),
     function onSuccess([availableChannels, selectedDrive]) {
-      store.commit('HYDRATE_SHOW_AVAILABLE_CHANNELS_PAGE', {
+      store.commit('manageContent/wizard/HYDRATE_SHOW_AVAILABLE_CHANNELS_PAGE', {
         availableChannels,
         selectedDrive,
         transferType,
@@ -229,10 +148,10 @@ export function showSelectContentPage(store, params) {
   const { drive_id, channel_id } = params;
   const transferType = getTransferType(params);
 
-  store.commit('RESET_CONTENT_WIZARD_STATE');
+  store.commit('manageContent/wizard/RESET_STATE');
   store.commit('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
   store.commit('CORE_SET_PAGE_LOADING', true);
-  setToolbarTitle(store, translator.$tr('loadingChannelToolbar'));
+  store.commit('manageContent/SET_TOOLBAR_TITLE', translator.$tr('loadingChannelToolbar'));
 
   if (transferType === null) {
     return router.replace(manageContentPageLink());
@@ -255,8 +174,8 @@ export function showSelectContentPage(store, params) {
     force: true,
   })
     .then(channel => {
-      if (store.state.pageState.channelList.length === 0) {
-        store.commit('SET_CHANNEL_LIST', [channel]);
+      if (store.state.manageContent.channelList.length === 0) {
+        store.commit('manageContent/SET_CHANNEL_LIST', [channel]);
       }
     })
     .catch(() => {});
@@ -314,7 +233,7 @@ export function showSelectContentPage(store, params) {
   ]).only(
     samePageCheckGenerator(store),
     function onSuccess([selectedDrive, transferredChannel, availableSpace]) {
-      store.commit('HYDRATE_SELECT_CONTENT_PAGE', {
+      store.commit('manageContent/wizard/HYDRATE_SELECT_CONTENT_PAGE', {
         availableSpace,
         selectedDrive,
         transferType,
@@ -326,7 +245,7 @@ export function showSelectContentPage(store, params) {
       return loadChannelMetaData(store).then(() => {
         if (isSamePage()) {
           return updateTreeViewTopic(store, {
-            id: store.state.pageState.wizardState.transferredChannel.root,
+            id: store.state.manageContent.wizard.transferredChannel.id,
             title: transferredChannel.name,
           }).then(() => {});
         }
@@ -337,4 +256,36 @@ export function showSelectContentPage(store, params) {
       return handleError(store, error);
     }
   );
+}
+
+/**
+ * Updates wizardState.treeView when a new topic is clicked.
+ *
+ * @param {Object} topic - { id, title, path }
+ *
+ */
+export function updateTreeViewTopic(store, topic) {
+  const fetchArgs = {};
+  if (store.getters['manageContent/wizard/inLocalImportMode']) {
+    const { selectedDrive } = store.state.manageContent.wizard;
+    fetchArgs.importing_from_drive_id = selectedDrive.id;
+  }
+  if (store.getters['manageContent/wizard/inExportMode']) {
+    fetchArgs.for_export = 'true';
+  }
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  return ContentNodeGranularResource.fetchModel({
+    id: topic.id,
+    getParams: fetchArgs,
+  })
+    .then(contents => {
+      store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', contents);
+      store.dispatch('manageContent/wizard/updatePathBreadcrumbs', topic);
+    })
+    .catch(() => {
+      store.commit('manageContent/wizard/SET_WIZARD_STATUS', 'TREEVIEW_LOADING_ERROR');
+    })
+    .then(() => {
+      store.commit('CORE_SET_PAGE_LOADING', false);
+    });
 }

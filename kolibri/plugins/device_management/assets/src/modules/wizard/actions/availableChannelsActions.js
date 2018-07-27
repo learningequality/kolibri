@@ -1,16 +1,5 @@
-import { RemoteChannelResource } from 'kolibri.resources';
 import differenceBy from 'lodash/differenceBy';
-
-/**
- * Makes request to RemoteChannel API with a token. Does not actually interact
- * with Vuex store.
- *
- * @param {string} token -
- * @returns Promise
- */
-export function getRemoteChannelByToken(token) {
-  return RemoteChannelResource.fetchModel({ id: token, force: true });
-}
+import { getRemoteChannelByToken } from '../utils';
 
 /**
  * HACK: Makes a request to Kolibri Studio to get info on unlisted channels, then appends
@@ -22,8 +11,8 @@ export function getRemoteChannelByToken(token) {
  * @returns {Promise<Array<Channel>>}
  */
 export function getAllRemoteChannels(store, publicChannels) {
-  const installedChannels = store.getters.installedChannelList;
-  const privateChannels = differenceBy(installedChannels, publicChannels, 'id').filter(
+  const { channelList } = store.rootState.manageContent;
+  const privateChannels = differenceBy(channelList, publicChannels, 'id').filter(
     channel => channel.available
   );
   const promises = privateChannels.map(privateChannel =>

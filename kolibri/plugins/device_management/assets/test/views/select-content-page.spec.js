@@ -1,7 +1,6 @@
 import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import SelectContentPage from '../../src/views/SelectContentPage';
-import { wizardState } from '../../src/state/getters';
 import SelectedResourcesSize from '../../src/views/SelectContentPage/SelectedResourcesSize';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
@@ -43,8 +42,8 @@ function getElements(wrapper) {
 }
 
 function updateMetaChannel(store, updates) {
-  const { transferredChannel } = store.state.pageState.wizardState;
-  store.commit('SET_TRANSFERRED_CHANNEL', {
+  const { transferredChannel } = store.state.manageContent.wizard;
+  store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', {
     ...transferredChannel,
     ...updates,
   });
@@ -106,8 +105,8 @@ describe('selectContentPage', () => {
 
   it('in LOCALIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
     updateMetaChannel(store, { version: 1000 });
-    store.state.pageState.wizardState.transferType = 'localimport';
-    store.state.pageState.wizardState.selectedDrive = {
+    store.state.manageContent.wizard.transferType = 'localimport';
+    store.state.manageContent.wizard.selectedDrive = {
       driveId: 'drive_1',
     };
     const wrapper = makeWrapper({ store });
@@ -119,7 +118,7 @@ describe('selectContentPage', () => {
 
   it('in REMOTEIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
     updateMetaChannel(store, { version: 1000 });
-    wizardState(store.state).transferType = 'remoteimport';
+    store.state.manageContent.wizard.transferType = 'remoteimport';
     const wrapper = makeWrapper({ store });
     const { updateButton } = getElements(wrapper);
     const stub = jest.spyOn(wrapper.vm, 'downloadChannelMetadata').mockResolvedValue();

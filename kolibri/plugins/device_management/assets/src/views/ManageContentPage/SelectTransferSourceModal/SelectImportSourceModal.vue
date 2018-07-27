@@ -31,7 +31,7 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
+  import { mapActions, mapMutations } from 'vuex';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { RemoteChannelResource } from 'kolibri.resources';
   import KModal from 'kolibri.coreVue.components.KModal';
@@ -69,7 +69,10 @@
       selectLocalRemoteSourceTitle: 'Import from',
     },
     methods: {
-      ...mapActions(['goForwardFromSelectImportSourceModal', 'resetContentWizardState']),
+      ...mapActions('manageContent/wizard', ['goForwardFromSelectImportSourceModal']),
+      ...mapMutations('manageContent/wizard', {
+        resetContentWizardState: 'RESET_STATE',
+      }),
       goForward() {
         if (!this.formIsDisabled) {
           this.goForwardFromSelectImportSourceModal(this.source);

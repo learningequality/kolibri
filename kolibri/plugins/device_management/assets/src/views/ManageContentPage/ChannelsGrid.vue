@@ -10,7 +10,7 @@
       </p>
 
       <KLinearLoader
-        v-else-if="installedChannelListLoading"
+        v-else-if="channelListLoading"
         type="indeterminate"
         :delay="false"
       />
@@ -46,7 +46,7 @@
 
 <script>
 
-  import { mapState, mapActions, mapGetters } from 'vuex';
+  import { mapActions, mapGetters, mapState } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -64,8 +64,8 @@
       selectedChannelId: null,
     }),
     computed: {
-      ...mapGetters(['installedChannelsWithResources', 'installedChannelListLoading']),
-      ...mapState(['pageState']),
+      ...mapState('manageContent', ['channelListLoading']),
+      ...mapGetters('manageContent', ['installedChannelsWithResources']),
       channelIsSelected() {
         return this.selectedChannelId !== null;
       },
@@ -76,14 +76,18 @@
         return '';
       },
       noChannelsToShow() {
-        return this.sortedChannels.length === 0 && !this.installedChannelListLoading;
+        return this.sortedChannels.length === 0 && !this.channelListLoading;
       },
       sortedChannels() {
         return this.installedChannelsWithResources.slice().sort((c1, c2) => c1.name > c2.name);
       },
     },
     methods: {
-      ...mapActions(['startImportWorkflow', 'triggerChannelDeleteTask', 'refreshChannelList']),
+      ...mapActions('manageContent', [
+        'startImportWorkflow',
+        'triggerChannelDeleteTask',
+        'refreshChannelList',
+      ]),
       handleDeleteChannel() {
         if (this.channelIsSelected) {
           const channelId = this.selectedChannelId;

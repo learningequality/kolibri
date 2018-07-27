@@ -1,11 +1,8 @@
 import store from 'kolibri.coreVue.vuex.store';
-import { showDeviceInfoPage } from '../state/actions/deviceInfoActions';
-import { showManageContentPage } from '../state/actions/manageContentActions';
-import {
-  showManagePermissionsPage,
-  showUserPermissionsPage,
-} from '../state/actions/managePermissionsActions';
-import preparePage from '../state/preparePage';
+import { showDeviceInfoPage } from '../modules/deviceInfo/handlers';
+import { showManagePermissionsPage } from '../modules/managePermissions/handlers';
+import { showManageContentPage } from '../modules/manageContent/handlers';
+import { showUserPermissionsPage } from '../modules/userPermissions/handlers';
 import { PageNames } from '../constants';
 import wizardTransitionRoutes from './wizardTransitionRoutes';
 
@@ -29,9 +26,7 @@ const routes = [
     name: PageNames.MANAGE_CONTENT_PAGE,
     path: '/content',
     handler: ({ name }) => {
-      preparePage(store.commit, {
-        name,
-      });
+      store.dispatch('preparePage', { name });
       showManageContentPage(store).then(hideLoadingScreen);
     },
   },
@@ -39,9 +34,7 @@ const routes = [
     name: PageNames.MANAGE_PERMISSIONS_PAGE,
     path: '/permissions',
     handler: ({ name }) => {
-      preparePage(store.commit, {
-        name,
-      });
+      store.dispatch('preparePage', { name });
       showManagePermissionsPage(store).then(hideLoadingScreen);
     },
   },
@@ -49,9 +42,7 @@ const routes = [
     name: PageNames.USER_PERMISSIONS_PAGE,
     path: '/permissions/:userid',
     handler: ({ params, name }) => {
-      preparePage(store.commit, {
-        name,
-      });
+      store.dispatch('preparePage', { name });
       showUserPermissionsPage(store, params.userid).then(hideLoadingScreen);
     },
   },
@@ -59,9 +50,7 @@ const routes = [
     name: PageNames.DEVICE_INFO_PAGE,
     path: '/info',
     handler: ({ name }) => {
-      preparePage(store.commit, {
-        name,
-      });
+      store.dispatch('preparePage', { name });
       showDeviceInfoPage(store).then(hideLoadingScreen);
     },
   },

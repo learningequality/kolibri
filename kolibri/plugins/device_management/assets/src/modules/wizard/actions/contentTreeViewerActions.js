@@ -29,7 +29,7 @@ export function getContentNodeFileSize(node) {
  *
  */
 export function addNodeForTransfer(store, node) {
-  const { included, omitted } = store.getters.selectedNodes;
+  const { included, omitted } = store.state.nodesForTransfer;
   // remove nodes in "omit" that are either descendants of new node or the node itself
   const [notToOmit, toOmit] = partition(omitted, omitNode => isDescendantOrSelf(omitNode, node));
   if (notToOmit.length > 0) {
@@ -59,7 +59,7 @@ export function addNodeForTransfer(store, node) {
 export function removeNodeForTransfer(store, node) {
   let promise = Promise.resolve();
   const forImport = !store.getters.inExportMode;
-  const { included, omitted } = store.getters.selectedNodes;
+  const { included, omitted } = store.state.nodesForTransfer;
   // remove nodes in "include" that are either descendants of the removed node or the node itself
   const [notToInclude, toInclude] = partition(included, includeNode =>
     isDescendantOrSelf(includeNode, node)

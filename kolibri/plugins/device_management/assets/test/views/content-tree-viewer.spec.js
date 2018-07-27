@@ -45,15 +45,15 @@ describe('contentTreeViewer component', () => {
   let store;
 
   function setChildren(children) {
-    store.state.pageState.wizardState.currentTopicNode.children = children;
+    store.state.manageContent.wizard.currentTopicNode.children = children;
   }
 
   function setIncludedNodes(nodes) {
-    store.commit('REPLACE_INCLUDE_LIST', nodes);
+    store.commit('manageContent/wizard/REPLACE_INCLUDE_LIST', nodes);
   }
 
   function setOmittedNodes(nodes) {
-    store.commit('REPLACE_OMIT_LIST', nodes);
+    store.commit('manageContent/wizard/REPLACE_OMIT_LIST', nodes);
   }
 
   beforeEach(() => {
@@ -62,8 +62,8 @@ describe('contentTreeViewer component', () => {
 
   it('in REMOTEIMPORT, all nodes are shown', () => {
     // API does annotate them as being importable, though...
-    store.commit('SET_TRANSFER_TYPE', 'remoteimport');
-    store.commit('SET_CURRENT_TOPIC_NODE', {
+    store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
+    store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', {
       id: 'topic',
       children: [
         {
@@ -84,8 +84,8 @@ describe('contentTreeViewer component', () => {
   });
 
   it('if in LOCALIMPORT, then non-importable nodes are filtered from the list', () => {
-    store.commit('SET_TRANSFER_TYPE', 'localimport');
-    store.commit('SET_CURRENT_TOPIC_NODE', {
+    store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'localimport');
+    store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', {
       id: 'topic',
       children: [
         {
@@ -104,8 +104,8 @@ describe('contentTreeViewer component', () => {
   });
 
   it('in LOCALEXPORT, if a node has available: false, then it is not shown', () => {
-    store.commit('SET_TRANSFER_TYPE', 'localexport');
-    store.commit('SET_CURRENT_TOPIC_NODE', {
+    store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'localexport');
+    store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', {
       id: 'topic',
       children: [
         {
@@ -143,7 +143,7 @@ describe('contentTreeViewer component', () => {
   });
 
   it('child nodes are annotated with their full path', () => {
-    store.state.pageState.wizardState.path = [
+    store.state.manageContent.wizard.path = [
       { id: 'channel_1', title: 'Channel 1' },
       { id: 'topic_1', title: 'Topic 1' },
     ];
@@ -170,7 +170,7 @@ describe('contentTreeViewer component', () => {
       expect(checkboxIsChecked(wrapper)).toEqual(false);
     });
     it('if any ancestor of the topic is selected, then "Select All" is checked', () => {
-      store.state.pageState.wizardState.path = [{ id: 'channel_1' }];
+      store.state.manageContent.wizard.path = [{ id: 'channel_1' }];
       setIncludedNodes([makeNode('channel_1')]);
       const wrapper = makeWrapper({ store });
       expect(checkboxIsChecked(wrapper)).toEqual(true);
@@ -277,7 +277,7 @@ describe('contentTreeViewer component', () => {
         total_resources: 1,
       });
 
-      store.state.pageState.wizardState.path = simplePath(['channel_1']);
+      store.state.manageContent.wizard.path = simplePath(['channel_1']);
       setChildren([subTopic, subTopic2]);
       setIncludedNodes([subSubTopic]);
       const wrapper = makeWrapper({ store });
