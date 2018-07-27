@@ -29,6 +29,7 @@ export const defaultFacilityConfig = {
   learnerCanDeleteAccount: true,
   learnerCanLoginWithNoPassword: false,
   showDownloadButtonInLearn: false,
+  allowGuestAccess: true,
 };
 
 export const notificationTypes = {

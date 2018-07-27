@@ -94,6 +94,7 @@
             />
             <div>
               <KExternalLink
+                v-if="allowGuestAccess"
                 class="guest-button"
                 :text="$tr('accessAsGuest')"
                 :href="guestURL"
@@ -252,6 +253,9 @@
       },
       needPasswordField() {
         return !this.simpleSignIn || this.hasServerError;
+      },
+      allowGuestAccess() {
+        return this.facilityConfig.allowGuestAccess;
       },
       logoHeight() {
         const CRITICAL_ACTIONS_HEIGHT = 350; // title + form + action buttons
