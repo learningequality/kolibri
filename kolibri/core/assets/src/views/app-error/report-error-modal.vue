@@ -52,6 +52,7 @@
         <!-- TODO change target, set download -->
         <k-external-link
           :text="$tr('downloadAsTextPrompt')"
+          :download="errorTextFileName"
           :href="errorTextFileLink"
         />
       </div>
@@ -86,8 +87,9 @@
         'Contact the support team with your error details and we’ll do our best to help.',
       errorDetailsHeader: 'Error details',
       copyToClipboardButtonPrompt: 'Copy to clipboard',
-      downloadAsTextPrompt: 'Or download as .text file',
+      downloadAsTextPrompt: 'Or download as .txt file',
       closeErrorModalButtomPrompt: 'Close',
+      errorFileDenotation: 'error',
     },
     components: {
       kButton,
@@ -113,11 +115,15 @@
         return `mailto:${this.emailAddress}`;
       },
       errorTextFileLink() {
-        if (navigator.msSaveBlob) {
-          return navigator.msSaveBlob(new Blob([this.error], { type: 'text/plain' }));
-        }
         const errorBlob = new Blob([this.error], { type: 'text/plain' });
+        if (navigator.msSaveBlob) {
+          return navigator.msSaveBlob(errorBlob, this.errorTextFileName);
+        }
         return URL.createObjectURL(errorBlob);
+      },
+      errorTextFileName() {
+        const downloadTime = new Date();
+        return `kolibri-${this.$tr('errorFileDenotation')}-${downloadTime.toISOString()}.txt`;
       },
     },
     mounted() {
