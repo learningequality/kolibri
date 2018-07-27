@@ -11,6 +11,7 @@
       <h3> {{ $tr('forumPrompt') }} </h3>
       <p> {{ $tr('forumDescription') }} </p>
       <k-external-link
+        class="download-as-text-link"
         :text="forumLink"
         :href="forumLink"
       />
@@ -121,10 +122,10 @@
   }
 
   .error-log {
+    display: block;
     padding: 8px;
     background-color: $core-bg-error;
     border: $core-grey-300;
-    display: block;
   }
 
   .copy-to-clipboard-button {
