@@ -427,16 +427,16 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
 
             # If no logs, don't bother doing the other queries
             if not completed_content_ids:
-                return queryset.none()
+                queryset = queryset.none()
+            else:
+                completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
 
-            completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
-
-            # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
-            queryset = queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(
-                user=user).values_list('content_id', flat=True)).filter(
-                Q(has_prerequisite__in=completed_content_nodes) |
-                Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
-            ).order_by()
+                # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
+                queryset = queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(
+                    user=user).values_list('content_id', flat=True)).filter(
+                    Q(has_prerequisite__in=completed_content_nodes) |
+                    Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
+                ).order_by()
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
@@ -500,7 +500,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         user = request.user
         queryset = self.get_queryset(prefetch=True)
         # if user is anonymous, return no nodes
-        if not user:
+        if not user.is_facility_user:
             queryset = queryset.none()
         else:
             # get the most recently viewed, but not finished, content nodes
@@ -515,19 +515,19 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
 
             # If no logs, don't bother doing the other queries
             if not content_ids:
-                return queryset.none()
+                queryset = queryset.none()
+            else:
+                resume = queryset.filter(content_id__in=list(content_ids[:10]))
 
-            resume = queryset.filter(content_id__in=list(content_ids[:10]))
+                # remove duplicate content items
+                deduped_list = []
+                content_ids = set()
+                for node in resume:
+                    if node.content_id not in content_ids:
+                        deduped_list.append(node)
+                        content_ids.add(node.content_id)
 
-            # remove duplicate content items
-            deduped_list = []
-            content_ids = set()
-            for node in resume:
-                if node.content_id not in content_ids:
-                    deduped_list.append(node)
-                    content_ids.add(node.content_id)
-
-            queryset = resume.filter(id__in=[node.id for node in deduped_list])
+                queryset = resume.filter(id__in=[node.id for node in deduped_list])
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

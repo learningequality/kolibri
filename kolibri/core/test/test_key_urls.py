@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.core.urlresolvers import reverse
 from django.urls.exceptions import NoReverseMatch
+from mock import patch
 from rest_framework.test import APITestCase
 
 from kolibri.core.auth.constants import role_kinds
@@ -46,7 +47,9 @@ class KolibriTagNavigationTestCase(APITestCase):
 
 class AllUrlsTest(APITestCase):
 
-    allowed_http_codes = [200, 302, 400, 401, 403, 404, 405]
+    # Allow codes that may indicate a poorly formed response
+    # 412 is returned from endpoints that have required GET params when these are not supplied
+    allowed_http_codes = [200, 302, 400, 401, 403, 404, 405, 412]
 
     def setUp(self):
         provision_device()
@@ -61,7 +64,7 @@ class AllUrlsTest(APITestCase):
         Do GET requests only.
         A pattern is skipped if any of the conditions applies:
             - pattern has no name in urlconf
-            - pattern expects any positinal parameters
+            - pattern expects any positional parameters
             - pattern expects keyword parameters that are not specified in @default_kwargs
         If response code is not in @allowed_http_codes, fail the test.
         if @credentials dict is specified (e.g. username and password),
@@ -79,6 +82,7 @@ class AllUrlsTest(APITestCase):
             credentials = {}
 
         def check_urls(urlpatterns, prefix=''):
+            failures = []
             if credentials:
                 self.client.login(**credentials)
             for pattern in urlpatterns:
@@ -102,20 +106,20 @@ class AllUrlsTest(APITestCase):
                 if not skip:
                     try:
                         url = reverse(fullname)
-                        print("testing url: {0}".format(url))
                         response = self.client.get(url)
-                        self.assertIn(response.status_code, self.allowed_http_codes,
-                                      "{url} gave status code {status_code}".format(url=url, status_code=response.status_code))
-                        # print status code if it is not 200
-                        status = "" if response.status_code == 200 else str(response.status_code) + " "
-                        print(status + url)
+                        if response.status_code not in self.allowed_http_codes:
+                            failures.append("{url} gave status code {status_code}".format(url=url, status_code=response.status_code))
                         if url == reverse('kolibri:logout'):
                             self.client.login(**credentials)
                     except NoReverseMatch:
                         pass
-                else:
-                    print("SKIP " + regex.pattern + " " + fullname)
-        check_urls(urlpatterns)
+            self.assertFalse(failures, '\n'.join(failures))
+
+        # Some API endpoints start iceqube tasks which can cause the task runner to hang
+        # Patch this so that no tasks get started.
+        with patch('kolibri.core.webpack.hooks.WebpackBundleHook.bundle', return_value=[]),\
+                patch('kolibri.core.tasks.api.get_client'):
+            check_urls(urlpatterns)
 
     def test_anonymous_responses(self):
         self.check_responses()
