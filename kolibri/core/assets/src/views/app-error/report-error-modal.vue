@@ -96,15 +96,13 @@
       kExternalLink,
       kModal,
     },
-    data() {
-      return {
-        clipboardCapable: ClipboardJS.isSupported(),
-      };
-    },
     computed: {
       ...mapState({
         error: state => state.core.error,
       }),
+      clipboardCapable() {
+        return ClipboardJS.isSupported();
+      },
       forumLink() {
         return 'https://community.learningequality.org/c/support/kolibri';
       },
