@@ -41,9 +41,6 @@ PROJECT_PATH = os.path.join(os.getcwd())
 # Python packages artifact location
 DIST_DIR = os.path.join(PROJECT_PATH, "dist")
 
-# Installer artifact location
-INSTALLER_DIR = os.path.join(PROJECT_PATH, "installer")
-
 headers = {'Authorization': 'token %s' % ACCESS_TOKEN}
 
 INSTALLER_CAT = 'Installers'
@@ -159,7 +156,6 @@ def collect_local_artifacts():
                 logging.info("Collect file data: (%s)" % data)
                 artifacts_dict[file_extension] = data
     create_artifact_data(DIST_DIR)
-    create_artifact_data(INSTALLER_DIR)
     return artifacts_dict
 
 
