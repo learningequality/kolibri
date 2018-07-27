@@ -103,7 +103,7 @@
     },
     computed: {
       ...mapState({
-        error: state => state.core.error || 'PRETEND THIS IS AN ERROR',
+        error: state => state.core.error,
       }),
       forumLink() {
         return 'https://community.learningequality.org/c/support/kolibri';
