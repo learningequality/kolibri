@@ -45,7 +45,7 @@
         :answerState="answerState"
         :showCorrectAnswer="showCorrectAnswer"
       />
-    </contentrenderer></div>
+    </div>
   </MultiPaneLayout>
 
 </template>
