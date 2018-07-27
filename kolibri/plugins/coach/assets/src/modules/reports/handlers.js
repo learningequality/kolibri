@@ -1,13 +1,10 @@
-import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { now } from 'kolibri.utils.serverClock';
 import {
-  AttemptLogResource,
   ChannelResource,
   ContentNodeResource,
   ContentNodeSlimResource,
   FacilityUserResource,
-  ContentSummaryLogResource,
   LearnerGroupResource,
 } from 'kolibri.resources';
 import { PageNames } from '../../constants';
@@ -23,7 +20,6 @@ import RecentReportResource from '../../apiResources/recentReport';
 import UserReportResource from '../../apiResources/userReport';
 import ContentSummaryResource from '../../apiResources/contentSummary';
 import ContentReportResource from '../../apiResources/contentReport';
-import { setClassState, handleCoachPageError } from './main';
 
 function preparePageNameAndTitle(store, pageName) {
   store.commit('SET_PAGE_NAME', pageName);
@@ -94,7 +90,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
     ContentNodeResource.fetchCollection({
       getParams: { ids: channels.map(({ root_id }) => root_id) },
     }),
-    setClassState(store, classId),
+    store.dispatch('setClassState', classId),
   ];
 
   if (userId) {
@@ -105,21 +101,20 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
     ([allChannelLastActive, , , user]) => {
       const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
       setReportSorting(store, { sortColumn: defaultSortCol, sortOrder: SortOrders.DESCENDING });
-      // HACK: need to append this to make pageState more consistent between pages
-      store.commit('SET_REPORT_CONTENT_SUMMARY', {});
-      store.commit('SET_REPORT_PROPERTIES', {
+      store.commit('reports/SET_REPORT_CONTENT_SUMMARY', {});
+      store.commit('reports/SET_REPORT_PROPERTIES', {
         showRecentOnly,
         userScope,
         userScopeId,
         userScopeName: userId ? user.full_name : store.state.className,
         viewBy: ViewBy.CHANNEL,
       });
-      store.commit('SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
+      store.commit('reports/SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
     },
     error => {
-      handleCoachPageError(store, error);
+      store.dispatch('handleCoachPageError', error);
     }
   );
 }
@@ -221,7 +216,7 @@ function _contentSummaryState(data) {
 
 function _setContentReport(store, reportPayload) {
   return ContentReportResource.fetchCollection({ getParams: reportPayload }).then(report => {
-    store.commit('SET_REPORT_TABLE_DATA', _contentReportState(report));
+    store.commit('reports/SET_REPORT_TABLE_DATA', _contentReportState(report));
   });
 }
 
@@ -231,7 +226,7 @@ function _setLearnerReport(store, reportPayload, classId) {
     LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
   ];
   return Promise.all(promises).then(([usersReport, learnerGroups]) => {
-    store.commit('SET_REPORT_TABLE_DATA', _learnerReportState(usersReport, learnerGroups));
+    store.commit('reports/SET_REPORT_TABLE_DATA', _learnerReportState(usersReport, learnerGroups));
   });
 }
 
@@ -240,7 +235,7 @@ function _setContentSummary(store, contentScopeId, reportPayload) {
     id: contentScopeId,
     getParams: reportPayload,
   }).then(contentSummary => {
-    store.commit('SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
+    store.commit('reports/SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
   });
 }
 
@@ -254,7 +249,7 @@ function _showContentList(store, options) {
   const promises = [
     _setContentSummary(store, options.contentScopeId, reportPayload),
     _setContentReport(store, reportPayload),
-    setClassState(store, options.classId),
+    store.dispatch('setClassState', options.classId),
   ];
   const isUser = options.userScope === UserScopes.USER;
   if (isUser) {
@@ -263,7 +258,7 @@ function _showContentList(store, options) {
   Promise.all(promises).then(
     ([, , , user]) => {
       setReportSorting(store, { sortColumn: TableColumns.NAME, sortOrder: SortOrders.DESCENDING });
-      store.commit('SET_REPORT_PROPERTIES', {
+      store.commit('reports/SET_REPORT_PROPERTIES', {
         channelId: options.channelId,
         contentScope: options.contentScope,
         contentScopeId: options.contentScopeId,
@@ -275,7 +270,7 @@ function _showContentList(store, options) {
       store.commit('CORE_SET_PAGE_LOADING', false);
     },
     error => {
-      handleCoachPageError(store, error);
+      store.dispatch('handleCoachPageError', error);
     }
   );
 }
@@ -293,12 +288,12 @@ function _showClassLearnerList(store, options) {
   const promises = [
     _setContentSummary(store, options.contentScopeId, reportPayload),
     _setLearnerReport(store, reportPayload, options.classId),
-    setClassState(store, options.classId),
+    store.dispatch('setClassState', options.classId),
   ];
   Promise.all(promises).then(
     () => {
       setReportSorting(store, { sortColumn: TableColumns.NAME, sortOrder: SortOrders.DESCENDING });
-      store.commit('SET_REPORT_PROPERTIES', {
+      store.commit('reports/SET_REPORT_PROPERTIES', {
         channelId: options.channelId,
         contentScope: contentScope,
         contentScopeId: options.contentScopeId,
@@ -314,87 +309,12 @@ function _showClassLearnerList(store, options) {
   );
 }
 
-// needs exercise, attemptlog. Pass answerstate into contentrender to display answer
-export function showExerciseDetailView(
-  store,
-  classId,
-  userId,
-  channelId,
-  contentId,
-  attemptLogIndex,
-  interactionIndex
-) {
-  return ContentNodeResource.fetchModel({ id: contentId }).then(
-    exercise => {
-      return Promise.all([
-        AttemptLogResource.fetchCollection({
-          getParams: {
-            user: userId,
-            content: exercise.content_id,
-          },
-        }),
-        ContentSummaryLogResource.fetchCollection({
-          getParams: {
-            user_id: userId,
-            content_id: exercise.content_id,
-          },
-        }),
-        FacilityUserResource.fetchModel({ id: userId }),
-        ContentNodeSlimResource.fetchAncestors(contentId),
-        setClassState(store, classId),
-      ]).then(([attemptLogs, summaryLog, user, ancestors]) => {
-        attemptLogs.sort(
-          (attemptLog1, attemptLog2) =>
-            new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
-        );
-        const exerciseQuestions = assessmentMetaDataState(exercise).assessmentIds;
-        // SECOND LOOP: Add their question number
-        if (exerciseQuestions && exerciseQuestions.length) {
-          attemptLogs.forEach(attemptLog => {
-            attemptLog.questionNumber = exerciseQuestions.indexOf(attemptLog.item) + 1;
-          });
-        }
-
-        const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
-        let currentInteractionHistory = currentAttemptLog.interaction_history || [];
-        // filter out interactions without answers but keep hints and errors
-        currentInteractionHistory = currentInteractionHistory.filter(interaction =>
-          Boolean(interaction.answer || interaction.type === 'hint' || interaction.type === 'error')
-        );
-        Object.assign(exercise, { ancestors });
-        const pageState = {
-          // hack, allows caryover of custom state
-          ...store.state.pageState,
-          // because this is info returned from a collection
-          user,
-          exercise,
-          attemptLogs,
-          currentAttemptLog,
-          interactionIndex,
-          currentInteractionHistory,
-          currentInteraction: currentInteractionHistory[interactionIndex],
-          summaryLog: summaryLog[0],
-          channelId, // not really needed
-          attemptLogIndex,
-        };
-
-        store.commit('SET_PAGE_STATE', pageState);
-        store.commit('CORE_SET_PAGE_LOADING', false);
-        return pageState;
-      });
-    },
-    error => {
-      handleCoachPageError(store, error);
-    }
-  );
-}
-
 function clearReportSorting(store) {
-  store.commit('CLEAR_REPORT_SORTING');
+  store.commit('reports/CLEAR_REPORT_SORTING');
 }
 
 export function setReportSorting(store, { sortColumn, sortOrder }) {
-  store.commit('SET_REPORT_SORTING', { sortColumn, sortOrder });
+  store.commit('reports/SET_REPORT_SORTING', { sortColumn, sortOrder });
 }
 
 export function showRecentItemsForChannel(store, params) {
@@ -402,7 +322,7 @@ export function showRecentItemsForChannel(store, params) {
   preparePageNameAndTitle(store, PageNames.RECENT_ITEMS_FOR_CHANNEL);
   const channelPromise = ChannelResource.fetchModel({ id: channelId });
 
-  Promise.all([channelPromise, setClassState(store, classId)]).then(
+  Promise.all([channelPromise, store.dispatch('setClassState', classId)]).then(
     ([channelData]) => {
       const threshold = now();
       threshold.setDate(threshold.getDate() - RECENCY_THRESHOLD_IN_DAYS);
@@ -418,8 +338,8 @@ export function showRecentItemsForChannel(store, params) {
 
       recentReportsPromise.then(
         reports => {
-          store.commit('SET_REPORT_TABLE_DATA', _recentReportState(reports));
-          store.commit('SET_REPORT_PROPERTIES', {
+          store.commit('reports/SET_REPORT_TABLE_DATA', _recentReportState(reports));
+          store.commit('reports/SET_REPORT_PROPERTIES', {
             channelId,
             showRecentOnly: true,
             userScope: UserScopes.CLASSROOM,
@@ -434,10 +354,10 @@ export function showRecentItemsForChannel(store, params) {
           store.commit('CORE_SET_PAGE_LOADING', false);
           store.commit('CORE_SET_ERROR', null);
         },
-        error => handleCoachPageError(store, error)
+        error => store.dispatch('handleCoachPageError', error)
       );
     },
-    error => handleCoachPageError(store, error)
+    error => store.dispatch('handleCoachPageError', error)
   );
 }
 
@@ -470,16 +390,15 @@ export function showLearnerList(store, classId) {
   const promises = [
     FacilityUserResource.fetchCollection({ getParams: { member_of: classId }, force: true }),
     LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
-    setClassState(store, classId),
+    store.dispatch('setClassState', classId),
   ];
 
   Promise.all(promises).then(
     ([userData, groupData]) => {
-      store.commit('SET_REPORT_TABLE_DATA', _rootLearnerReportState(userData, groupData));
+      store.commit('reports/SET_REPORT_TABLE_DATA', _rootLearnerReportState(userData, groupData));
       setReportSorting(store, { sortColumn: TableColumns.NAME, sortOrder: SortOrders.DESCENDING });
-      store.commit('SET_REPORT_CONTENT_SUMMARY', {});
-      store.commit('SET_REPORT_PROPERTIES', {
-        contentScope: ContentScopes.ALL,
+      store.commit('reports/SET_REPORT_CONTENT_SUMMARY', {});
+      store.commit('reports/SET_REPORT_PROPERTIES', {
         showRecentOnly: false,
         userScope: UserScopes.CLASSROOM,
         userScopeId: classId,
@@ -531,7 +450,7 @@ export function showChannelRootReport(store, params) {
         ...scopeOptions,
       });
     },
-    error => handleCoachPageError(store, error)
+    error => store.dispatch('handleCoachPageError', error)
   );
 }
 
@@ -564,25 +483,4 @@ export function showItemListReports(store, params) {
     showRecentOnly: false,
     ...scopeOptions,
   });
-}
-
-// Consolidates the duplicated logic for the item detail pages
-function _showItemDetailPage(pageName, ...args) {
-  const store = args[0];
-  if (store.state.pageName !== pageName) {
-    preparePageNameAndTitle(store, pageName);
-  }
-  showExerciseDetailView(...args);
-}
-
-export function showLearnerItemDetails(...args) {
-  _showItemDetailPage(PageNames.LEARNER_ITEM_DETAILS, ...args);
-}
-
-export function showRecentLearnerItemDetails(...args) {
-  _showItemDetailPage(PageNames.RECENT_LEARNER_ITEM_DETAILS, ...args);
-}
-
-export function showTopicLearnerItemDetails(...args) {
-  _showItemDetailPage(PageNames.TOPIC_LEARNER_ITEM_DETAILS, ...args);
 }

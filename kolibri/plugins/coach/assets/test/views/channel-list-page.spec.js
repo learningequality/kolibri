@@ -31,7 +31,7 @@ describe('channel list page component', () => {
       { id: 'not_recent_channel', title: 'Not Recent Channel' },
       { id: 'null_channel', title: 'Null Channel' },
     ];
-    store.state.pageState = {
+    store.commit('reports/SET_STATE', {
       showRecentOnly: false,
       tableData: [
         {
@@ -53,7 +53,7 @@ describe('channel list page component', () => {
       viewBy: ViewBy.CHANNEL,
       sortColumn: '',
       sortOrder: '',
-    };
+    });
     // sets clock to 4/19/2017
     now.mockReturnValue(new Date(2017, 3, 19));
   });
@@ -75,7 +75,7 @@ describe('channel list page component', () => {
 
   describe('in "show recent only" mode', () => {
     beforeEach(() => {
-      store.state.pageState.showRecentOnly = true;
+      store.state.reports.showRecentOnly = true;
     });
 
     it('shows the "recent activity" header', () => {

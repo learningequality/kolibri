@@ -136,9 +136,7 @@
       maxHeight: null,
     }),
     computed: {
-      ...mapState({
-        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
-      }),
+      ...mapState('examReport', ['exerciseContentNodes']),
       debouncedSetMaxHeight() {
         return debounce(this.setMaxHeight, 250);
       },
@@ -174,7 +172,7 @@
       this.setExercises();
     },
     methods: {
-      ...mapActions(['setExamsModal']),
+      ...mapActions('examReport', ['setExamsModal']),
       setMaxHeight() {
         const title = this.$refs.modal.$el.querySelector('#modal-title');
         const header = this.$refs.header;

@@ -78,11 +78,7 @@
     },
     computed: {
       ...mapState(['classId', 'className', 'classList']),
-      ...mapState({
-        exam: state => state.pageState.exam,
-        examsModalSet: state => state.pageState.examsModalSet,
-        learnerGroups: state => state.pageState.learnerGroups,
-      }),
+      ...mapState('examReport', ['exam', 'examsModalSet', 'learnerGroups']),
       AssignmentActions() {
         return AssignmentActions;
       },
@@ -94,12 +90,12 @@
       },
     },
     methods: {
-      ...mapActions([
-        'setExamsModal',
+      ...mapActions('examReport', [
         'activateExam',
+        'copyExam',
         'deactivateExam',
         'deleteExam',
-        'copyExam',
+        'setExamsModal',
         'updateExamDetails',
       ]),
       handleChangeStatus(isActive) {

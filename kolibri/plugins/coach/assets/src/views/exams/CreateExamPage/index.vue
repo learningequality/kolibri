@@ -216,13 +216,16 @@
     },
     computed: {
       ...mapState(['classId']),
-      ...mapState({
-        topic: state => state.pageState.topic,
-        subtopics: state => state.pageState.subtopics,
-        exercises: state => state.pageState.exercises,
-        selectedExercises: state => state.pageState.selectedExercises,
-        examsModalSet: state => state.pageState.examsModalSet,
-      }),
+      ...mapState('examCreate', [
+        'examsModalSet',
+        'exercises',
+        'selectedExercises',
+        'subtopics',
+        'topic',
+      ]),
+      numCols() {
+        return this.windowSize.breakpoint > 3 ? 2 : 1;
+      },
       titleIsInvalidText() {
         if (this.titleBlurred || this.previewOrSubmissionAttempt) {
           if (this.inputTitle === '') {
@@ -344,15 +347,15 @@
       },
     },
     methods: {
-      ...mapActions([
-        'createSnackbar',
-        'goToTopic',
-        'goToTopLevel',
-        'createExamAndRoute',
+      ...mapActions(['createSnackbar']),
+      ...mapActions('examCreate', [
         'addExercise',
         'addExercisesToExam',
-        'removeExercisesFromExam',
+        'createExamAndRoute',
+        'goToTopLevel',
+        'goToTopic',
         'removeExercise',
+        'removeExercisesFromExam',
         'setExamsModal',
         'setSelectedExercises',
       ]),

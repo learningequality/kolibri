@@ -54,10 +54,7 @@
       },
     },
     computed: {
-      ...mapState({
-        sortColumn: state => state.pageState.sortColumn,
-        sortOrder: state => state.pageState.sortOrder,
-      }),
+      ...mapState('reports', ['sortColumn', 'sortOrder']),
       sorted() {
         return (
           this.column === this.sortColumn && (this.sortOrder && this.sortOrder !== SortOrders.NONE)
@@ -71,7 +68,7 @@
       },
     },
     methods: {
-      ...mapMutations({
+      ...mapMutations('reports', {
         setReportSorting: 'SET_REPORT_SORTING',
       }),
       setSortOrder() {

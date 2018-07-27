@@ -33,11 +33,7 @@
     },
     computed: {
       ...mapState(['classId', 'pageName']),
-      ...mapState({
-        channelId: state => state.pageState.channelId,
-        exercise: state => state.pageState.exercise,
-        user: state => state.pageState.user,
-      }),
+      ...mapState('exerciseDetail', ['channelId', 'exercise', 'user']),
       documentTitle() {
         switch (this.pageName) {
           case PageNames.LEARNER_ITEM_DETAILS:

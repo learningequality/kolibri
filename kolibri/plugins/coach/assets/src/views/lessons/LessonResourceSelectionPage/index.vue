@@ -33,7 +33,7 @@
           :checked="isSelected(content.id)"
           @change="toggleSelected($event, content.id)"
         />
-        <ContentCard
+        <LessonContentCard
           class="content-card"
           :title="content.title"
           :thumbnail="content.thumbnail"
@@ -61,7 +61,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState, mapActions, mapMutations } from 'vuex';
   import UiToolbar from 'keen-ui/src/UiToolbar';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -87,14 +87,11 @@
     },
     computed: {
       ...mapState(['classId']),
-      ...mapState({
-        currentLesson: state => state.pageState.currentLesson,
-        lessonId: state => state.pageState.currentLesson.id,
-        workingResources: state => state.pageState.workingResources,
-        contentList: state => state.pageState.contentList,
-        resourceCache: state => state.pageState.resourceCache,
-        ancestorCounts: state => state.pageState.ancestorCounts,
-      }),
+      ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
+      ...mapState('lessonSummary/resources', ['ancestorCounts', 'contentList']),
+      lessonId() {
+        return this.currentLesson.id;
+      },
       lessonPage() {
         return lessonSummaryLink(this.routerParams);
       },
@@ -103,13 +100,17 @@
       },
     },
     methods: {
-      ...mapActions(['createSnackbar', 'saveLessonResources']),
+      ...mapActions(['createSnackbar']),
+      ...mapActions('lessonSummary', ['saveLessonResources', 'addToResourceCache']),
+      ...mapMutations('lessonSummary', {
+        addToWorkingResources: 'ADD_TO_WORKING_RESOURCES',
+        removeFromSelectedResources: 'REMOVE_FROM_WORKING_RESOURCES',
+      }),
       addToSelectedResources(contentId) {
-        this.$store.commit('ADD_TO_RESOURCE_CACHE', this.contentList.find(n => n.id === contentId));
-        this.$store.commit('ADD_TO_WORKING_RESOURCES', contentId);
-      },
-      removeFromSelectedResources(contentId) {
-        this.$store.commit('REMOVE_FROM_WORKING_RESOURCES', contentId);
+        this.addToResourceCache({
+          node: this.contentList.find(n => n.id === contentId),
+        });
+        this.addToWorkingResources(contentId);
       },
       // IDEA refactor router logic into actions
       contentIsDirectoryKind({ kind }) {
