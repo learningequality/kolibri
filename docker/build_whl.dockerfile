@@ -22,8 +22,15 @@ RUN apt-get update && \
       python-pip \
       python-sphinx \
       yarn
+
 COPY . /kolibri
 
 VOLUME /kolibridist/  # for mounting the whl files into other docker containers
-# add buildkite pipeline specific installation here:
-CMD cd /kolibri && pip install -r requirements/dev.txt && pip install -r requirements/build.txt && yarn install && make dist pex && cp /kolibri/dist/* /kolibridist/
+
+CMD cd /kolibri && \
+    pip install -r requirements/dev.txt && \
+    pip install -r requirements/build.txt && \
+    yarn install && \
+    make dist && \
+    make pex && \
+    cp /kolibri/dist/* /kolibridist/
