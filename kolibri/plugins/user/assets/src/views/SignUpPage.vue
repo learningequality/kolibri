@@ -174,11 +174,7 @@
     }),
     computed: {
       ...mapGetters(['facilities', 'session']),
-      ...mapState({
-        errorCode: state => state.pageState.errorCode,
-        busy: state => state.pageState.busy,
-        backendErrorMessage: state => state.pageState.errorMessage,
-      }),
+      ...mapState('signUp', ['errorCode', 'busy']),
       signInPage() {
         return { name: PageNames.SIGN_IN };
       },
@@ -277,7 +273,7 @@
         return false;
       },
       errorMessage() {
-        return this.backendErrorMessage || this.$tr('genericError');
+        return this.$tr('genericError');
       },
     },
     beforeMount() {
