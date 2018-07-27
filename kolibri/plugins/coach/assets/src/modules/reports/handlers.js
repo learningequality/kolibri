@@ -3,7 +3,6 @@ import { now } from 'kolibri.utils.serverClock';
 import {
   ChannelResource,
   ContentNodeResource,
-  ContentNodeSlimResource,
   FacilityUserResource,
   LearnerGroupResource,
 } from 'kolibri.resources';

@@ -1,8 +1,8 @@
 import { Resource } from '../api-resource';
 
 /**
- * @example <caption>Get Datasets for a given Facility</caption>
- * FacilityDatasetResource.getCollection({ facility_id: 1 })
+ * @example Get Datasets for a given Facility
+ * FacilityDatasetResource.fetchCollection({ getParams: { facility_id: 1 } })
  */
 export default new Resource({
   name: 'facilitydataset',

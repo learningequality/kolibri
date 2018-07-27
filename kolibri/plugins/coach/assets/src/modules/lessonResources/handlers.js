@@ -58,10 +58,10 @@ function showResourceSelectionPage(
         resourceAncestors => {
           resourceAncestors.forEach(ancestorArray =>
             ancestorArray.forEach(ancestor => {
-              if (ancestorCounts[ancestor.pk]) {
-                ancestorCounts[ancestor.pk]++;
+              if (ancestorCounts[ancestor.id]) {
+                ancestorCounts[ancestor.id]++;
               } else {
-                ancestorCounts[ancestor.pk] = 1;
+                ancestorCounts[ancestor.id] = 1;
               }
             })
           );

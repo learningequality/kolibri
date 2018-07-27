@@ -6,18 +6,14 @@ import tail from 'lodash/tail';
 
 // adds progress, thumbnail, and breadcrumbs. normalizes pk/id and kind
 export function normalizeContentNode(node, ancestors = []) {
-  const normalized = {
+  return {
     ...node,
-    // TODO change serializer to use ID
-    id: node.pk,
     kind: node.parent ? node.kind : ContentNodeKinds.CHANNEL,
     thumbnail: getContentNodeThumbnail(node) || undefined,
-    breadcrumbs: tail(ancestors).map(bc => ({ id: bc.pk, ...bc })),
+    breadcrumbs: tail(ancestors),
     progress: Math.min(node.progress_fraction || 0, 1.0),
     copies_count: node.copies_count,
   };
-  delete normalized.pk;
-  return normalized;
 }
 
 export function contentState(data, next_content = [], ancestors = []) {

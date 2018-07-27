@@ -129,7 +129,7 @@ describe('facility config page actions', () => {
 
       return store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
         expect(DatasetStub.getModel).toHaveBeenCalledWith(1000, {});
-        expect(saveStub).toHaveBeenCalledWith(expect.objectContaining(expectedRequest, false));
+        expect(saveStub).toHaveBeenCalledWith(expect.objectContaining(expectedRequest), false);
         expect(store.state.facilityConfig.notification).toEqual('SAVE_SUCCESS');
       });
     });
