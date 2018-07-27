@@ -70,9 +70,7 @@
       };
     },
     computed: {
-      ...mapState({
-        isBusy: state => state.pageState.isBusy,
-      }),
+      ...mapState('userManagement', ['isBusy']),
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.submittedForm) {
           if (this.password === '') {
@@ -103,7 +101,8 @@
       },
     },
     methods: {
-      ...mapActions(['updateFacilityUser', 'displayModal', 'handleApiError']),
+      ...mapActions(['handleApiError']),
+      ...mapActions('userManagement', ['updateFacilityUser', 'displayModal']),
       submitForm() {
         this.submittedForm = true;
         if (this.formIsValid) {

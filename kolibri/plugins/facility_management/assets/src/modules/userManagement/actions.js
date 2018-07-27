@@ -1,12 +1,8 @@
+import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import pickBy from 'lodash/pickBy';
 import { FacilityUserResource } from 'kolibri.resources';
-import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import { PageNames } from '../../constants';
-import { _userState } from './helpers/mappers';
-import preparePage from './helpers/preparePage';
-import displayModal from './helpers/displayModal';
-import { updateFacilityLevelRoles } from './rolesActions';
+import { _userState } from '../mappers';
+import { updateFacilityLevelRoles } from './utils';
 
 /**
  * Does a POST request to assign a user role (only used in this file)
@@ -32,7 +28,7 @@ export function createUser(store, stateUserData) {
   // resolves with user object
   return FacilityUserResource.saveModel({
     data: {
-      facility: store.state.core.session.facility_id,
+      facility: store.rootState.core.session.facility_id,
       username: stateUserData.username,
       full_name: stateUserData.full_name,
       password: stateUserData.password,
@@ -42,9 +38,7 @@ export function createUser(store, stateUserData) {
       function dispatchUser(newUser) {
         const userState = _userState(newUser);
         store.commit('ADD_USER', userState);
-        // TODO to be removed
-        store.commit('SET_USER_JUST_CREATED', userState);
-        displayModal(store, false);
+        store.dispatch('displayModal', false);
         return userState;
       }
       // only runs if there's a role to be assigned
@@ -55,7 +49,7 @@ export function createUser(store, stateUserData) {
         return dispatchUser(userModel);
       }
     })
-    .catch(error => store.dispatch('handleApiError', error));
+    .catch(error => store.dispatch('handleApiError', error, { root: true }));
 }
 
 /**
@@ -67,16 +61,18 @@ export function createUser(store, stateUserData) {
 export function updateUser(store, { userId, updates }) {
   store.commit('SET_ERROR', '');
   store.commit('SET_BUSY', true);
-  const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);
+  const origUserState = store.state.facilityUsers.find(user => user.id === userId);
   const facilityRoleHasChanged = origUserState.kind !== updates.role.kind;
 
   return updateFacilityUser(store, { userId, updates }).then(
     updatedUser => {
       const update = userData => store.commit('UPDATE_USER', _userState(userData));
       if (facilityRoleHasChanged) {
-        if (store.getters.currentUserId === userId && store.getters.isSuperuser) {
+        if (store.rootGetters.currentUserId === userId && store.rootGetters.isSuperuser) {
           // maintain superuser if updating self.
-          store.commit('UPDATE_CURRENT_USER_KIND', [UserKinds.SUPERUSER, updates.role.kind]);
+          store.commit('UPDATE_CURRENT_USER_KIND', [UserKinds.SUPERUSER, updates.role.kind], {
+            root: true,
+          });
         }
         return setUserRole(updatedUser, updates.role).then(userWithRole => {
           update(userWithRole);
@@ -99,7 +95,7 @@ export function updateUser(store, { userId, updates }) {
 // Update fields on the FacilityUser model
 // updates :: { full_name, username, password }
 export function updateFacilityUser(store, { userId, updates }) {
-  const origUserState = store.state.pageState.facilityUsers.find(user => user.id === userId);
+  const origUserState = store.state.facilityUsers.find(user => user.id === userId);
   const changedValues = pickBy(
     updates,
     (value, key) => updates[key] && updates[key] !== origUserState[key]
@@ -126,41 +122,13 @@ export function deleteUser(store, id) {
   FacilityUserResource.deleteModel({ id }).then(
     () => {
       store.commit('DELETE_USER', id);
-      displayModal(store, false);
+      store.dispatch('displayModal', false, { root: true });
       if (store.state.core.session.user_id === id) {
-        store.dispatch('kolibriLogout');
+        store.dispatch('kolibriLogout', { root: true });
       }
     },
     error => {
-      store.dispatch('handleApiError', error);
-    }
-  );
-}
-
-// An action for setting up the initial state of the app by fetching data from the server
-export function showUserPage(store) {
-  preparePage(store.commit, {
-    name: PageNames.USER_MGMT_PAGE,
-  });
-
-  const facilityId = store.getters.currentFacilityId;
-
-  FacilityUserResource.fetchCollection({
-    getParams: { member_of: facilityId },
-    force: true,
-  }).only(
-    samePageCheckGenerator(store),
-    users => {
-      store.commit('SET_PAGE_STATE', {
-        facilityUsers: users.map(_userState),
-        modalShown: false,
-        error: '',
-        isBusy: false,
-      });
-      store.commit('CORE_SET_PAGE_LOADING', false);
-    },
-    error => {
-      store.dispatch('handleApiError', error);
+      store.dispatch('handleApiError', error, { root: true });
     }
   );
 }
