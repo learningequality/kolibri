@@ -32,7 +32,7 @@
       <h3>
         {{ $tr('errorDetailsHeader') }}
       </h3>
-      <code class="error-log">
+      <code ref="errorLog" class="error-log">
         {{ error }}
       </code>
     </section>
@@ -41,9 +41,11 @@
     <section class="error-copying-options">
       <p>
         <k-button
+          v-if="clipboardCapable"
           class="copy-to-clipboard-button"
           :primary="false"
           :text="$tr('copyToClipboardButtonPrompt')"
+          ref="errorCopyButton"
         />
       </p>
       <p>
@@ -67,6 +69,7 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import kModal from 'kolibri.coreVue.components.kModal';
+  import ClipboardJS from 'clipboard';
 
   export default {
     name: 'reportErrorModal',
@@ -90,6 +93,11 @@
       kExternalLink,
       kModal,
     },
+    data() {
+      return {
+        clipboardCapable: ClipboardJS.isSupported(),
+      };
+    },
     computed: {
       ...mapState({
         error: state => state.core.error || 'PRETEND THIS IS AN ERROR',
@@ -109,6 +117,20 @@
         }
         const errorBlob = new Blob([this.error], {type: 'text/plain'});
         return URL.createObjectURL(errorBlob);
+      },
+    },
+    mounted() {
+      if (this.clipboardCapable) {
+        this.clipboard = new ClipboardJS(this.$refs.errorCopyButton.$el, {
+          text: () => this.error,
+          // needed because modal changes browser focus
+          container: this.$refs.errorLog,
+        });
+      }
+    },
+    destroyed() {
+      if (this.clipboard) {
+        this.clipboard.destroy();
       }
     },
   };
