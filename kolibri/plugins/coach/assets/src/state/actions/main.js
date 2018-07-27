@@ -8,19 +8,16 @@ import { PageNames } from '../../constants';
  *
  */
 export function shouldRedirectToClassRootPage() {
-  return ClassroomResource.getCollection({ role: 'coach' })
-    .fetch()
-    ._promise.then(classrooms => {
-      if (classrooms.length === 1) {
-        return classrooms[0].id;
-      }
-      return false;
-    });
+  return ClassroomResource.fetchCollection({ getParams: { role: 'coach' } }).then(classrooms => {
+    if (classrooms.length === 1) {
+      return classrooms[0].id;
+    }
+    return false;
+  });
 }
 
 export function setClassState(store, classId = null) {
-  return ClassroomResource.getCollection({ role: 'coach' })
-    .fetch()
+  return ClassroomResource.fetchCollection({ getParams: { role: 'coach' } })
     .then(classrooms => {
       store.commit('SET_CLASS_INFO', {
         classId,

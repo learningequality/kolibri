@@ -70,6 +70,8 @@ const client = options => {
   ) {
     if (!options.params) {
       options.params = {};
+    } else {
+      options.params = Object.assign({}, options.params);
     }
     const cacheBust = new Date().getTime();
     options.params[cacheBust] = cacheBust;

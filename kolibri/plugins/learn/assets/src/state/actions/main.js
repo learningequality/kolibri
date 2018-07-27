@@ -23,20 +23,18 @@ import seededShuffle from 'kolibri.lib.seededshuffle';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import tail from 'lodash/tail';
 import { PageNames, ClassesPageNames } from '../../constants';
+import { LearnerClassroomResource } from '../../apiResources';
 
-// adds progress, thumbnail, and breadcrumbs. normalizes pk/id and kind
+// adds progress, thumbnail, and breadcrumbs. normalizes kind
 function normalizeContentNode(node, ancestors = []) {
   const normalized = {
     ...node,
-    // TODO change serializer to use ID
-    id: node.pk,
     kind: node.parent ? node.kind : ContentNodeKinds.CHANNEL,
     thumbnail: getContentNodeThumbnail(node) || undefined,
-    breadcrumbs: tail(ancestors).map(bc => ({ id: bc.pk, ...bc })),
+    breadcrumbs: tail(ancestors).map(bc => ({ id: bc.id, ...bc })),
     progress: Math.min(node.progress_fraction || 0, 1.0),
     copies_count: node.copies_count,
   };
-  delete normalized.pk;
   return normalized;
 }
 
@@ -108,25 +106,23 @@ export function showChannels(store) {
         return;
       }
       const channelRootIds = channels.map(channel => channel.root);
-      ContentNodeSlimResource.getCollection({ ids: channelRootIds, by_role: true })
-        .fetch()
-        .then(channelCollection => {
-          // we want them to be in the same order as the channels list
-          const rootNodes = channels
-            .map(channel => {
-              const node = _collectionState(channelCollection).find(
-                n => n.channel_id === channel.id
-              );
-              if (node) {
-                node.thumbnail = channel.thumbnail;
-                return node;
-              }
-            })
-            .filter(Boolean);
-          store.commit('SET_PAGE_STATE', { rootNodes });
-          store.commit('CORE_SET_PAGE_LOADING', false);
-          store.commit('CORE_SET_ERROR', null);
-        });
+      ContentNodeSlimResource.fetchCollection({
+        getParams: { ids: channelRootIds, by_role: true },
+      }).then(channelCollection => {
+        // we want them to be in the same order as the channels list
+        const rootNodes = channels
+          .map(channel => {
+            const node = _collectionState(channelCollection).find(n => n.channel_id === channel.id);
+            if (node) {
+              node.thumbnail = channel.thumbnail;
+              return node;
+            }
+          })
+          .filter(Boolean);
+        store.commit('SET_PAGE_STATE', { rootNodes });
+        store.commit('CORE_SET_PAGE_LOADING', false);
+        store.commit('CORE_SET_ERROR', null);
+      });
     },
     error => {
       store.dispatch('handleApiError', error);
@@ -137,7 +133,7 @@ export function showChannels(store) {
 
 export function getCopies(store, contentId) {
   return new Promise((resolve, reject) => {
-    ContentNodeResource.getCopies(contentId)
+    ContentNodeResource.fetchCopies(contentId)
       .then(copies => resolve(copies))
       .catch(error => reject(error));
   });
@@ -147,11 +143,13 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
   const promises = [
-    ContentNodeSlimResource.getModel(id).fetch(), // the topic
-    ContentNodeSlimResource.getCollection({
-      parent: id,
-      by_role: true,
-    }).fetch(), // the topic's children
+    ContentNodeSlimResource.fetchModel({ id }), // the topic
+    ContentNodeSlimResource.fetchCollection({
+      getParams: {
+        parent: id,
+        by_role: true,
+      },
+    }), // the topic's children
     ContentNodeSlimResource.fetchAncestors(id), // the topic's ancestors
     store.dispatch('setChannelInfo'),
   ];
@@ -183,11 +181,11 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
         const contentNodeIds = children.map(({ id }) => id);
 
         if (contentNodeIds.length > 0) {
-          ContentNodeProgressResource.getCollection({ ids: contentNodeIds })
-            .fetch()
-            .then(progresses => {
+          ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
+            progresses => {
               store.commit('SET_NODE_PROGRESS', progresses);
-            });
+            }
+          );
         }
       }
 
@@ -212,9 +210,9 @@ export function showTopicsContent(store, id) {
   store.commit('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
 
   const promises = [
-    ContentNodeResource.getModel(id).fetch(),
+    ContentNodeResource.fetchModel({ id }),
     ContentNodeResource.fetchNextContent(id),
-    ContentNodeResource.fetchAncestors(id),
+    ContentNodeSlimResource.fetchAncestors(id),
     store.dispatch('setChannelInfo'),
   ];
   ConditionalPromise.all(promises).only(
@@ -260,10 +258,9 @@ export function triggerSearch(store, searchTerm) {
         )
         .map(content => content.content_id);
       if (contentIds.length) {
-        ContentNodeResource.getCopiesCount({
+        ContentNodeResource.fetchCopiesCount({
           content_ids: contentIds,
         })
-          .fetch()
           .then(copiesCount => {
             const updatedContents = contents.map(content => {
               const updatedContent = content;
@@ -378,9 +375,9 @@ export function showExam(store, params) {
     questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
 
     const promises = [
-      UserExamResource.getModel(examId).fetch(),
-      ExamLogResource.getCollection(examParams).fetch(),
-      ExamAttemptLogResource.getCollection(examParams).fetch(),
+      UserExamResource.fetchModel({ id: examId }),
+      ExamLogResource.fetchCollection({ getParams: examParams }),
+      ExamAttemptLogResource.fetchCollection({ getParams: examParams }),
       setAndCheckChannels(store),
     ];
     ConditionalPromise.all(promises).only(
@@ -396,6 +393,8 @@ export function showExam(store, params) {
 
         if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
           store.commit('SET_EXAM_LOG', examLogs.find(log => !log.closed));
+        } else if (examLogs.length > 0 && examLogs.some(log => log.closed)) {
+          return router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         } else {
           ExamLogResource.createModel({ ...examParams, closed: false })
             .save()
@@ -451,16 +450,18 @@ export function showExam(store, params) {
             `Question number ${questionNumber} is not valid for this exam`
           );
         } else {
-          const contentPromise = ContentNodeResource.getCollection({
-            in_exam: exam.id,
-          }).fetch();
+          const contentPromise = ContentNodeResource.fetchCollection({
+            getParams: {
+              in_exam: exam.id,
+            },
+          });
           contentPromise.only(
             samePageCheckGenerator(store),
             contentNodes => {
               const contentNodeMap = {};
 
               contentNodes.forEach(node => {
-                contentNodeMap[node.pk] = node;
+                contentNodeMap[node.id] = node;
               });
 
               const questions = shuffledQuestions.map(question => ({
@@ -577,9 +578,11 @@ export function setAndSaveCurrentExamAttemptLog(
         });
         const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
         store.commit('SET_QUESTIONS_ANSWERED', questionsAnswered);
-        const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
-          user: store.getters.currentUserId,
-          exam: examId,
+        const examAttemptLogCollection = ExamAttemptLogResource.fetchCollection({
+          getParams: {
+            user: store.getters.currentUserId,
+            exam: examId,
+          },
         });
         // Add this attempt log to the Collection for future caching.
         examAttemptLogCollection.set(examAttemptLogModel);
@@ -593,13 +596,18 @@ export function setAndSaveCurrentExamAttemptLog(
 
 export function closeExam(store) {
   const { examLog } = store.state;
-  return ExamLogResource.getModel(examLog.id)
-    .save({
+  return ExamLogResource.saveModel({
+    id: examLog.id,
+    data: {
       ...examLog,
       completion_timestamp: now(),
       closed: true,
+    },
+  })
+    .then(() => {
+      UserExamResource.clearCache();
+      LearnerClassroomResource.clearCache();
     })
-    .then(UserExamResource.clearCache())
     .catch(error => {
       store.dispatch('handleApiError', error);
     });

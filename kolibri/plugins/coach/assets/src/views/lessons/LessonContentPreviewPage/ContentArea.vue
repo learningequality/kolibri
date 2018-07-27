@@ -7,7 +7,7 @@
     <ContentRenderer
       :class="{ hof: isPerseusExercise}"
       :showCorrectAnswer="true"
-      :id="content.pk"
+      :id="content.id"
       :itemId="selectedQuestion"
       :allowHints="false"
       :kind="content.kind"

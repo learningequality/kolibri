@@ -228,15 +228,6 @@ class FacilityViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class CurrentFacilityViewSet(viewsets.ViewSet):
-    def list(self, request):
-        logged_in_user = get_user(request)
-        if type(logged_in_user) is AnonymousUser:
-            return Response(Facility.objects.all().values_list('id', flat=True))
-        else:
-            return Response([logged_in_user.facility_id])
-
-
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)

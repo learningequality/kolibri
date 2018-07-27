@@ -33,6 +33,21 @@ def _total_file_size(files_or_nodes):
     return localfiles.distinct().aggregate(Sum('file_size'))['file_size__sum'] or 0
 
 
+class DynamicFieldsModelSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        # Instantiate the superclass normally
+        super(DynamicFieldsModelSerializer, self).__init__(*args, **kwargs)
+
+        # enable dynamic fields specification!
+        if 'request' in self.context and self.context['request'].GET.get('fields', None):
+            fields = self.context['request'].GET['fields'].split(',')
+            # Drop any fields that are not specified in the `fields` argument.
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
+
+
 class ChannelMetadataSerializer(serializers.ModelSerializer):
     root = serializers.PrimaryKeyRelatedField(read_only=True)
     lang_code = serializers.SerializerMethodField()
@@ -318,7 +333,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         return result
 
 
-class ContentNodeSerializer(serializers.ModelSerializer):
+class ContentNodeSerializer(DynamicFieldsModelSerializer):
     num_coach_contents = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
@@ -344,7 +359,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             'license_owner',
             'num_coach_contents',
             'parent',
-            'pk',  # TODO remove after UI standardizes on 'id'
             'sort_order',
             'title',
         )
@@ -356,19 +370,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         new = super(ContentNodeSerializer, cls).__new__(cls, *args, **kwargs)
         new.limit = limit
         return new
-
-    def __init__(self, *args, **kwargs):
-        # Instantiate the superclass normally
-        super(ContentNodeSerializer, self).__init__(*args, **kwargs)
-
-        # enable dynamic fields specification!
-        if 'request' in self.context and self.context['request'].GET.get('fields', None):
-            fields = self.context['request'].GET['fields'].split(',')
-            # Drop any fields that are not specified in the `fields` argument.
-            allowed = set(fields)
-            existing = set(self.fields.keys())
-            for field_name in existing - allowed:
-                self.fields.pop(field_name)
 
     def to_representation(self, instance, progress_fraction=None, annotate_progress_fraction=True):
         if progress_fraction is None and annotate_progress_fraction:
@@ -395,7 +396,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         return 0
 
 
-class ContentNodeSlimSerializer(serializers.ModelSerializer):
+class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
     """
     Lighter version of the ContentNodeSerializer whose purpose is to provide a minimum
     subset of ContentNode fields necessary for functional content browsing
@@ -415,7 +416,6 @@ class ContentNodeSlimSerializer(serializers.ModelSerializer):
             'num_coach_contents',
             'kind',
             'files',
-            'pk',  # TODO remove after UI standardizes on 'id'
             'title',
         )
 
@@ -447,7 +447,6 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             'kind',
             'num_coach_contents',
             'on_device_resources',
-            'pk',  # TODO remove once UI uses 'id' exclusively
             'title',
             'total_resources',
         )
@@ -544,7 +543,7 @@ class ContentNodeProgressSerializer(serializers.Serializer):
                 user = self.context["request"].user
                 progress_fraction = get_topic_and_content_progress_fraction(instance, user) or 0.0
         return {
-            'pk': instance.pk,
+            'id': instance.id,
             'progress_fraction': progress_fraction,
         }
 

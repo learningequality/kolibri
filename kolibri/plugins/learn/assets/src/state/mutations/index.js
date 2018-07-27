@@ -1,3 +1,4 @@
+import Vue from 'kolibri.lib.vue';
 import * as classesMutations from './classesMutations';
 
 export default {
@@ -37,18 +38,18 @@ export default {
   },
   SET_NODE_PROGRESS(state, progressArray) {
     progressArray.forEach(progress => {
-      const contentNode = state.pageState.contents.find(node => node.id === progress.pk);
+      const contentNode = state.pageState.contents.find(node => node.id === progress.id);
       if (contentNode) {
-        contentNode.progress = progress.progress_fraction;
+        Vue.set(contentNode, 'progress', progress.progress_fraction);
       }
     });
   },
   SET_RECOMMENDED_NODES_PROGRESS(state, progressArray) {
     ['nextSteps', 'popular', 'resume'].forEach(function(key) {
       progressArray.forEach(progress => {
-        const contentNode = state.pageState[key].find(node => node.id === progress.pk);
+        const contentNode = state.pageState[key].find(node => node.id === progress.id);
         if (contentNode) {
-          contentNode.progress = progress.progress_fraction;
+          Vue.set(contentNode, 'progress', progress.progress_fraction);
         }
       });
     });

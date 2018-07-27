@@ -6,20 +6,13 @@ import { Resource } from 'kolibri.lib.apiResource';
  * To get Classrooms without assignments and progress:
  * LearnerClassroomResource.getCollection({ no_assignments: true }).fetch()
  */
-class LearnerClassroom extends Resource {
-  static resourceName() {
-    return 'kolibri:learnplugin:learnerclassroom';
-  }
-}
+export const LearnerClassroomResource = new Resource({
+  name: 'kolibri:learnplugin:learnerclassroom',
+});
 
 /**
  * Gets Lesson(s) that are assigned to the Learner
  */
-class LearnerLesson extends Resource {
-  static resourceName() {
-    return 'kolibri:learnplugin:learnerlesson';
-  }
-}
-
-export const LearnerClassroomResource = new LearnerClassroom();
-export const LearnerLessonResource = new LearnerLesson();
+export const LearnerLessonResource = new Resource({
+  name: 'kolibri:learnplugin:learnerlesson',
+});

@@ -49,13 +49,13 @@ export function SET_LESSON_REPORT(state, report) {
 }
 
 export function ADD_TO_RESOURCE_CACHE(state, node) {
-  if (node && node.pk) {
+  if (node && node.id) {
     // TODO remove dependency on channel title
     const channelObject = state.core.channels.list.find(({ id }) => id === node.channel_id);
-    state.pageState.resourceCache[node.pk] = {
+    state.pageState.resourceCache[node.id] = {
       ...node,
       channelTitle: channelObject.title,
-      id: node.pk,
+      id: node.id,
     };
   }
 }

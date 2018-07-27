@@ -86,26 +86,25 @@ def kolibri_set_server_time():
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
-    response, kwargs, url_params = _kolibri_bootstrap_helper(context, base_name, api_resource, 'detail', **kwargs)
+    response, kwargs = _kolibri_bootstrap_helper(context, base_name, api_resource, 'detail', **kwargs)
     html = ("<script type='text/javascript'>"
-            "var model = {0}.resources.{1}.createModel(JSON.parse({2}), {3});"
+            "var model = {0}.resources.{1}.createModel(JSON.parse({2}));"
             "model.synced = true;"
-            "</script>".format(conf.KOLIBRI_CORE_JS_NAME,
-                               api_resource,
-                               json.dumps(JSONRenderer().render(response.data).decode('utf-8')),
-                               json.dumps(url_params)))
+            "</script>".format(
+                conf.KOLIBRI_CORE_JS_NAME,
+                api_resource,
+                json.dumps(JSONRenderer().render(response.data).decode('utf-8'))))
     return mark_safe(html)
 
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
-    response, kwargs, url_params = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
+    response, kwargs = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
     html = ("<script type='text/javascript'>"
-            "var collection = {0}.resources.{1}.createCollection({2}, {3}, JSON.parse({4}));"
+            "var collection = {0}.resources.{1}.createCollection({2}, JSON.parse({3}));"
             "collection.synced = true;"
             "</script>".format(conf.KOLIBRI_CORE_JS_NAME,
                                api_resource,
-                               json.dumps(url_params),
                                json.dumps(kwargs),
                                json.dumps(JSONRenderer().render(response.data).decode('utf-8')),
                                ))
@@ -136,4 +135,4 @@ def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs)
         request.GET[key] = kwargs[key]
     response = view(request, **view_kwargs)
     _replace_dict_values(str(''), None, kwargs)
-    return response, kwargs, reversal
+    return response, kwargs

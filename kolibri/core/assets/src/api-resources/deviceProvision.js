@@ -1,10 +1,9 @@
+import urls from 'kolibri.urls';
 import { Resource } from '../api-resource';
 
-export default class DeviceProvisionResource extends Resource {
-  static resourceName() {
-    return 'deviceprovision';
-  }
+export default new Resource({
+  name: 'deviceprovision',
   get collectionUrl() {
-    return this.urls[this.name];
-  }
-}
+    return urls[this.name];
+  },
+});
