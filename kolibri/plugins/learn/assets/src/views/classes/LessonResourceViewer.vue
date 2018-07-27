@@ -30,6 +30,28 @@
   import ContentPage from '../ContentPage';
   import { lessonResourceViewerLink } from './classPageLinks';
 
+  // HACK replace computed properties since they use different module in Lessons
+  const LessonContentPage = {
+    extends: ContentPage,
+    computed: {
+      content() {
+        return this.$store.state.lessonPlaylist.resource.content;
+      },
+      contentId() {
+        return this.content.content_id;
+      },
+      contentNodeId() {
+        return this.content.id;
+      },
+      channelId() {
+        return this.content.channel_id;
+      },
+      // Not used in this context
+      recommended: () => [],
+      channel: () => ({}),
+    },
+  };
+
   export default {
     name: 'LessonResourceViewer',
     metaInfo() {
@@ -39,13 +61,13 @@
     },
     components: {
       ContentCard,
-      ContentPage,
+      ContentPage: LessonContentPage,
     },
     computed: {
-      ...mapState({
-        currentLesson: state => state.pageState.currentLesson,
-        currentLessonResource: state => state.pageState.content,
-        nextLessonResource: state => state.pageState.content.next_content,
+      ...mapState('lessonPlaylist/resource', {
+        currentLesson: state => state.currentLesson,
+        currentLessonResource: state => state.content,
+        nextLessonResource: state => state.content.next_content,
       }),
       nextResourceLink() {
         return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);

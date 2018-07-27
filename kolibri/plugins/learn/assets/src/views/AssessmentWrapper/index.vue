@@ -114,7 +114,8 @@ oriented data synchronization.
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import { updateContentNodeProgress } from '../../state/actions/main';
+  import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
+  import { ClassesPageNames } from '../../constants';
   import ExerciseAttempts from './ExerciseAttempts';
 
   export default {
@@ -176,6 +177,17 @@ oriented data synchronization.
       },
     },
     data() {
+      let masteryModel;
+      let assessmentIds;
+      // HACK handle if called in context of lesson
+      const { state } = this.$store;
+      if (state.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+        masteryModel = state.lessonPlaylist.resource.content.masteryModel;
+        assessmentIds = state.lessonPlaylist.resource.content.assessmentIds;
+      } else {
+        masteryModel = state.topicsTree.content.masteryModel;
+        assessmentIds = state.topicsTree.content.assessmentIds;
+      }
       return {
         ready: false,
         itemId: '',
@@ -189,22 +201,37 @@ oriented data synchronization.
         checkingAnswer: false,
         checkWasAttempted: false,
         // Placing these here so they are available at beforeDestroy
-        masteryModel: this.$store.state.pageState.content.masteryModel,
-        assessmentIds: this.$store.state.pageState.content.assessmentIds,
+        masteryModel,
+        assessmentIds,
       };
     },
     computed: {
       ...mapGetters(['isUserLoggedIn']),
+      ...mapState('topicsTree', {
+        topicsTreeContent: 'content',
+      }),
       ...mapState({
+        pageName: state => state.pageName,
         mastered: state => state.core.logging.mastery.complete,
         currentInteractions: state => state.core.logging.attempt.interaction_history.length,
         totalattempts: state => state.core.logging.mastery.totalattempts,
         pastattempts: state =>
           (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
         userid: state => state.core.session.user_id,
-        content: state => state.pageState.content,
-        randomize: state => state.pageState.content.randomize,
       }),
+      viewingInLesson() {
+        return this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
+      },
+      // HACK handle when in viewing in Lesson or not
+      content() {
+        if (this.viewingInLesson) {
+          return this.$store.state.lessonPlaylist.resource.content;
+        }
+        return this.topicsTreeContent;
+      },
+      randomize() {
+        return this.content.randomize;
+      },
       recentAttempts() {
         if (!this.pastattempts) {
           return [];

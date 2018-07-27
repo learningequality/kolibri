@@ -21,7 +21,7 @@ function makeWrapper(options) {
       contentUnavailablePage: true,
       CoreBase: '<div><slot></slot></div>',
       topicsPage: true,
-      totalPoints: true,
+      TotalPoints: true,
     },
     router,
   });
@@ -45,7 +45,7 @@ describe('learn plugin index page', () => {
     store.state.core.session.user_id = 'test';
   };
   const setMemberships = memberships => {
-    store.state.learnAppState.memberships = memberships;
+    store.state.memberships = memberships;
   };
   const setPageName = pageName => {
     store.state.pageName = pageName;
@@ -53,7 +53,6 @@ describe('learn plugin index page', () => {
 
   beforeEach(() => {
     store = makeStore();
-    store.state.pageState.topic = {};
   });
 
   it('there are no tabs if showing content unavailable page', () => {

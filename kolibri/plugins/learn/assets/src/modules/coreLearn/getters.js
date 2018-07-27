@@ -1,4 +1,4 @@
-import { PageNames, PageModes } from '../constants';
+import { PageNames, PageModes } from '../../constants';
 
 export function pageMode(state) {
   const topicsPages = [

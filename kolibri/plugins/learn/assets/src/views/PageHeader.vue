@@ -22,7 +22,7 @@
     computed: {
       ...mapState({
         progress: state => {
-          if (state.pageState.content) {
+          if (state.topicsTree.content) {
             if (
               state.core.logging.mastery.totalattempts > 0 &&
               state.core.logging.summary.progress === 0

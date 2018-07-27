@@ -52,16 +52,16 @@ export default {
       currentClassroom(state) {
         switch (state.pageName) {
           case ClassesPageNames.CLASS_ASSIGNMENTS:
-            return state.pageState.currentClassroom;
+            return state.classAssignments.currentClassroom;
           case ClassesPageNames.LESSON_PLAYLIST:
-            return state.pageState.currentLesson.classroom;
+            return state.lessonPlaylist.currentLesson.classroom;
           default:
             return {};
         }
       },
       currentLesson(state) {
         if (state.pageName === ClassesPageNames.LESSON_PLAYLIST) {
-          return state.pageState.currentLesson;
+          return state.lessonPlaylist.currentLesson;
         } else {
           return {};
         }

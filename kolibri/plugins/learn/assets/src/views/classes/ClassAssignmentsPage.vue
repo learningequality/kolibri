@@ -38,10 +38,10 @@
     },
     mixins: [responsiveWindow],
     computed: {
-      ...mapState({
-        classroomName: state => state.pageState.currentClassroom.name,
-        exams: state => state.pageState.currentClassroom.assignments.exams,
-        lessons: state => state.pageState.currentClassroom.assignments.lessons,
+      ...mapState('classAssignments', {
+        classroomName: state => state.currentClassroom.name,
+        exams: state => state.currentClassroom.assignments.exams,
+        lessons: state => state.currentClassroom.assignments.lessons,
       }),
     },
     $trs: {

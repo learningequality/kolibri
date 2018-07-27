@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Vuex from 'vuex';
+import makeStore from '../makeStore';
 import assessmentWrapper from '../../src/views/AssessmentWrapper';
 
 const createComponent = (totalattempts, pastattempts, masteryModel) => {
@@ -7,26 +7,23 @@ const createComponent = (totalattempts, pastattempts, masteryModel) => {
     id: 'test',
     kind: 'test',
   };
-  const store = new Vuex.Store({
-    state: {
-      core: {
-        logging: {
-          mastery: {
-            totalattempts,
-            pastattempts,
-          },
-        },
-        session: {
-          user_id: 'test',
-        },
+  const store = makeStore();
+  store.state.core = {
+    logging: {
+      mastery: {
+        totalattempts,
+        pastattempts,
       },
-      pageState: {
-        content: {
-          assessmentIds: [],
-          masteryModel: masteryModel || {},
-          randomize: false,
-        },
-      },
+    },
+    session: {
+      user_id: 'test',
+    },
+  };
+  store.commit('topicsTree/SET_STATE', {
+    content: {
+      assessmentIds: [],
+      masteryModel: masteryModel || {},
+      randomize: false,
     },
   });
   const Component = Vue.extend(assessmentWrapper);

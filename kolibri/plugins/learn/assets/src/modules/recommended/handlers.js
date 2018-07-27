@@ -4,7 +4,7 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 import { PageNames } from '../../constants';
-import { contentState, setAndCheckChannels } from './main';
+import { contentState } from '../coreLearn/utils';
 
 // User-agnostic recommendations
 function _getPopular() {
@@ -39,7 +39,7 @@ function _showRecSubpage(store, getContentPromise, pageName, channelId = null) {
   // promise that resolves with content array, already mapped to state
   const pagePrep = Promise.all([
     getContentPromise(store, channelId),
-    setAndCheckChannels(store),
+    store.dispatch('setAndCheckChannels'),
     // resolves to mapped content set because then resolves to its function's return value
   ]).then(([content, channels]) => [_mapContentSet(content), channels]);
 
@@ -48,15 +48,15 @@ function _showRecSubpage(store, getContentPromise, pageName, channelId = null) {
       if (!channels.length) {
         return;
       }
-      const recPageState = {
+      const recommendedState = {
         recommendations,
       };
       if (channelId) {
         const currentChannel = store.getters.getChannelObject(channelId);
         const channelTitle = currentChannel.title;
-        recPageState.channelTitle = channelTitle;
+        recommendedState.channelTitle = channelTitle;
       }
-      store.commit('SET_PAGE_STATE', recPageState);
+      store.commit('recommended/subpage/SET_STATE', recommendedState);
       store.commit('SET_PAGE_NAME', pageName);
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
@@ -69,8 +69,7 @@ export function showRecommended(store) {
   store.commit('SET_EMPTY_LOGGING_STATE');
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
-  const state = store.state;
-  if (state.pageName !== PageNames.RECOMMENDED) {
+  if (store.state.pageName !== PageNames.RECOMMENDED) {
     store.commit('CORE_SET_PAGE_LOADING', true);
   }
 
@@ -78,23 +77,21 @@ export function showRecommended(store) {
     _getNextSteps(store),
     _getPopular(),
     _getResume(store),
-    setAndCheckChannels(store),
+    store.dispatch('setAndCheckChannels'),
   ]).only(
     samePageCheckGenerator(store),
     ([nextSteps, popular, resume, channels]) => {
       if (!channels.length) {
         return;
       }
-      const pageState = {
+      store.commit('recommended/SET_STATE', {
         // Hard to guarantee this uniqueness on the database side, so
         // do a uniqBy content_id here, to prevent confusing repeated
         // content items.
         nextSteps: _mapContentSet(nextSteps),
         popular: _mapContentSet(popular),
         resume: _mapContentSet(resume),
-      };
-
-      store.commit('SET_PAGE_STATE', pageState);
+      });
 
       // Only load contentnodes progress if the user is logged in
       if (store.getters.isUserLoggedIn) {
@@ -103,7 +100,7 @@ export function showRecommended(store) {
         if (contentNodeIds.length > 0) {
           ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
             progresses => {
-              store.commit('SET_RECOMMENDED_NODES_PROGRESS', progresses);
+              store.commit('recommended/SET_RECOMMENDED_NODES_PROGRESS', progresses);
             }
           );
         }

@@ -45,11 +45,8 @@
       };
     },
     computed: {
-      ...mapState({
-        pageName: state => state.pageName,
-        recommendations: state => state.pageState.recommendations,
-        channelTitle: state => state.pageState.channelTitle,
-      }),
+      ...mapState(['pageName']),
+      ...mapState('recommended/subpage', ['channelTitle', 'recommendations']),
       documentTitle() {
         switch (this.pageName) {
           case PageNames.RECOMMENDED_POPULAR:
