@@ -19,7 +19,7 @@ class ContentSessionLogSerializer(KolibriModelSerializer):
 
     class Meta:
         model = ContentSessionLog
-        fields = ('pk', 'user', 'content_id', 'channel_id', 'start_timestamp',
+        fields = ('id', 'user', 'content_id', 'channel_id', 'start_timestamp',
                   'end_timestamp', 'time_spent', 'kind', 'extra_fields', 'progress')
 
 
@@ -106,7 +106,7 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
 
     class Meta:
         model = ContentSummaryLog
-        fields = ('pk', 'user', 'content_id', 'channel_id', 'start_timestamp', 'currentmasterylog',
+        fields = ('id', 'user', 'content_id', 'channel_id', 'start_timestamp', 'currentmasterylog',
                   'end_timestamp', 'completion_timestamp', 'time_spent', 'progress', 'kind', 'extra_fields')
 
     def get_currentmasterylog(self, obj):
@@ -123,7 +123,7 @@ class UserSessionLogSerializer(KolibriModelSerializer):
 
     class Meta:
         model = UserSessionLog
-        fields = ('pk', 'user', 'channels', 'start_timestamp', 'last_interaction_timestamp', 'pages')
+        fields = ('id', 'user', 'channels', 'start_timestamp', 'last_interaction_timestamp', 'pages')
 
 
 class TotalContentProgressSerializer(serializers.ModelSerializer):

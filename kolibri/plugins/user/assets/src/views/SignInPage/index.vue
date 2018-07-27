@@ -320,11 +320,12 @@
         }
       },
       setSuggestions() {
-        FacilityUsernameResource.getCollection({
-          facility: this.facility,
-          search: this.suggestionTerm,
+        FacilityUsernameResource.fetchCollection({
+          getParams: {
+            facility: this.facility,
+            search: this.suggestionTerm,
+          },
         })
-          .fetch()
           .then(users => {
             this.usernameSuggestions = users.map(user => user.username);
             this.showDropdown = true;

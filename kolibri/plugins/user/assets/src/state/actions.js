@@ -19,7 +19,6 @@ function resetAndSetPageName(store, { pageName }) {
 export function updateUserProfile(store, { edits, session }) {
   // payload needs username, fullname, and facility
   // used to save changes to API
-  const savedUserModel = FacilityUserResource.getModel(session.user_id);
   const changedValues = {};
 
   // explicit checks for the only values that can be changed
@@ -40,7 +39,11 @@ export function updateUserProfile(store, { edits, session }) {
 
   store.commit('SET_PROFILE_BUSY', true);
 
-  return savedUserModel.save(changedValues).then(
+  return FacilityUserResource.saveModel({
+    id: session.user_id,
+    data: changedValues,
+    exists: true,
+  }).then(
     () => {
       store.dispatch('getCurrentSession', true);
       store.commit('SET_PROFILE_SUCCESS', true);
@@ -68,11 +71,10 @@ export function updateUserProfile(store, { edits, session }) {
 
 export function updateUserProfilePassword(store, password) {
   const session = store.state.core.session;
-  const savedUserModel = FacilityUserResource.getModel(session.user_id);
 
   store.commit('SET_PROFILE_BUSY', true);
 
-  return savedUserModel.save({ password }).then(
+  return FacilityUserResource.saveModel({ id: session.user_id, data: { password } }).then(
     () => {
       store.commit('SET_PROFILE_BUSY', false);
       store.commit('SET_PROFILE_PASSWORD_MODAL', false);
@@ -123,8 +125,7 @@ export function showSignInPage(store) {
 }
 
 export function showSignUpPage(store) {
-  return FacilityResource.getCollection()
-    .fetch()
+  return FacilityResource.fetchCollection()
     .then(facilities => {
       store.commit('CORE_SET_FACILITIES', facilities);
       resetAndSetPageName(store, {
@@ -138,8 +139,7 @@ export function showSignUpPage(store) {
 export function signUpNewUser(store, signUpCreds) {
   store.commit('SET_SIGN_UP_BUSY', true);
   store.commit('RESET_SIGN_UP_STATE');
-  return SignUpResource.createModel(signUpCreds)
-    .save(signUpCreds)
+  return SignUpResource.saveModel({ data: signUpCreds })
     .then(() => {
       store.commit('SET_SIGN_UP_ERROR', { errorCode: null });
       window.location = '/';

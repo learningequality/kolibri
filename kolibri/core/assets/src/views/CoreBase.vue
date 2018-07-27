@@ -79,6 +79,7 @@
       appBarTitle: {
         type: String,
         required: false,
+        default: '',
       },
       // Prop that determines whether to show nav components
       navBarNeeded: {

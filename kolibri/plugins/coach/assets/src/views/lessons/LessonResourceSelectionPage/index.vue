@@ -150,7 +150,7 @@
         return '';
       },
       isSelected(contentId) {
-        // resource id is a content pk, but the pk === id in vuex
+        // resource id is a content id,
         return this.workingResources.includes(contentId);
       },
       toggleSelected(checked, contentId) {

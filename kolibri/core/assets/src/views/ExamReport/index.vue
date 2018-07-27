@@ -32,7 +32,7 @@
         @select="navigateToQuestionAttempt"
       />
       <ContentRenderer
-        :id="exercise.pk"
+        :id="exercise.id"
         :itemId="itemId"
         :allowHints="false"
         :kind="exercise.kind"

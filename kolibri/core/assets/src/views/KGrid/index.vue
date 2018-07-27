@@ -23,8 +23,7 @@
   import logger from 'kolibri.lib.logging';
   import Overlay from './Overlay';
 
-  const logging = logger.getLogger(__filename)
-
+  const logging = logger.getLogger(__filename);
 
   /**
    * Grid layouts. By default have responsive number of columns and gutter sizes.
@@ -95,7 +94,7 @@
       marginOffset() {
         // Inner grid items use padding to define gutters, but then we need
         // to bring them back flush with the outer edges.
-        return `${ -1 * this.actualGutterSize / 2 }px`;
+        return `${(-1 * this.actualGutterSize) / 2}px`;
       },
     },
     provide() {

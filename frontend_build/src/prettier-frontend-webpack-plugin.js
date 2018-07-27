@@ -28,7 +28,14 @@ class PrettierFrontendPlugin {
           changedFiles.push(filename);
         }
       });
-      changedFiles = changedFiles.filter(file => this.rewrittenFiles.indexOf(file) === -1);
+
+      changedFiles = changedFiles.filter(
+        file =>
+          this.rewrittenFiles.indexOf(file) === -1 &&
+          // match extensions and exclude node modules
+          this.extensions.indexOf(path.extname(file)) !== -1 &&
+          file.indexOf('node_modules') === -1
+      );
 
       // Update our timestamps to latest
       this.prevTimestamps = fileTimestamps;
@@ -36,31 +43,23 @@ class PrettierFrontendPlugin {
       this.rewrittenFiles = [];
       Promise.all(
         changedFiles.map(file => {
-          // match extensions and exclude node modules
-          if (
-            this.extensions.indexOf(path.extname(file)) !== -1 &&
-            file.indexOf('node_modules') === -1
-          ) {
-            return prettierFrontend({
-              file,
-              encoding: this.encoding,
-              write: true,
-              prettierOptions: this.prettierOptions,
+          return prettierFrontend({
+            file,
+            encoding: this.encoding,
+            write: true,
+            prettierOptions: this.prettierOptions,
+          })
+            .then(result => {
+              if (result.code === 1) {
+                // Not an error and file has changed
+                this.rewrittenFiles.push(file);
+              }
+              return result;
             })
-              .then(result => {
-                if (result.code === 1) {
-                  // Not an error and file has changed
-                  this.rewrittenFiles.push(file);
-                }
-                return result;
-              })
-              .catch(err => {
-                console.error(err.message);
-                return err;
-              });
-          } else {
-            return Promise.resolve();
-          }
+            .catch(err => {
+              console.error(err.message);
+              return err;
+            });
         })
       ).then(() => {
         callback();

@@ -9,7 +9,7 @@ import differenceBy from 'lodash/differenceBy';
  * @returns Promise
  */
 export function getRemoteChannelByToken(token) {
-  return RemoteChannelResource.getModel(token).fetch({}, true)._promise;
+  return RemoteChannelResource.fetchModel({ id: token, force: true });
 }
 
 /**

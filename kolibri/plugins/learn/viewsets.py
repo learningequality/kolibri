@@ -6,7 +6,6 @@ from .serializers import LearnerClassroomSerializer
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Classroom
-from kolibri.core.auth.serializers import ClassroomSerializer
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.lessons.serializers import LessonSerializer
@@ -14,13 +13,12 @@ from kolibri.core.lessons.serializers import LessonSerializer
 
 class LearnerClassroomViewset(ReadOnlyModelViewSet):
     """
-    Returns all Classrooms for which the requesting User is a member.
-
-    Use the ?no_assignments flag to just get the name and ID of the Classroom
-    (e.g. when listing classes in which User is enrolled)
+    Returns all Classrooms for which the requesting User is a member,
+    along with all associated assignments.
     """
     filter_backends = (KolibriAuthPermissionsFilter,)
     permission_classes = (IsAuthenticated,)
+    serializer_class = LearnerClassroomSerializer
 
     def get_queryset(self):
         current_user = self.request.user
@@ -28,12 +26,6 @@ class LearnerClassroomViewset(ReadOnlyModelViewSet):
             collection__kind='classroom',
         ).values('collection_id')
         return Classroom.objects.filter(id__in=memberships)
-
-    def get_serializer_class(self):
-        if ('no_assignments' in self.request.query_params):
-            return ClassroomSerializer
-        else:
-            return LearnerClassroomSerializer
 
 
 class LearnerLessonViewset(ReadOnlyModelViewSet):

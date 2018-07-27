@@ -53,7 +53,7 @@
           // NOTE: The current topic is injected into `ancestors` in the showPage action
           ...this.ancestors.map(a => ({
             text: a.title,
-            link: topicListingLink({ ...this.routerParams, topicId: a.pk }),
+            link: topicListingLink({ ...this.routerParams, topicId: a.id }),
           })),
         ];
       },
