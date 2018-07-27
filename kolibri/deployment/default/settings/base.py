@@ -92,7 +92,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'kolibri.plugins.setup_wizard.middleware.SetupWizardMiddleware',
     'kolibri.core.auth.middleware.CustomAuthenticationMiddleware',
-    'kolibri.plugins.user.middleware.RedirectToSignInPageIfNoGuestAccessAndNoActiveSession',
+    'kolibri.core.middleware.signin_page.RedirectToSignInPageIfNoGuestAccessAndNoActiveSession',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',

@@ -13,10 +13,12 @@ from django.views.i18n import LANGUAGE_QUERY_PARAMETER
 
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Role
+from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.core.hooks import RoleBasedRedirectHook
 
 
 # Modified from django.views.i18n
+@signin_redirect_exempt
 def set_language(request):
     """
     Redirect to a given url while setting the chosen language in the
