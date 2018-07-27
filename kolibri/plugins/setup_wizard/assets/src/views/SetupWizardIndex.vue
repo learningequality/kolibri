@@ -37,15 +37,15 @@
 
 <script>
 
-  import { mapActions, mapState } from 'vuex';
+  import { mapActions, mapState, mapMutations } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
   import ProgressToolbar from './ProgressToolbar';
-  import defaultLanguageForm from './onboarding-forms/DefaultLanguageForm';
-  import facilityNameForm from './onboarding-forms/FacilityNameForm';
-  import superuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm';
-  import facilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
+  import DefaultLanguageForm from './onboarding-forms/DefaultLanguageForm';
+  import FacilityNameForm from './onboarding-forms/FacilityNameForm';
+  import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm';
+  import FacilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
 
   export default {
     name: 'SetupWizardIndex',
@@ -71,13 +71,13 @@
       currentOnboardingForm() {
         switch (this.onboardingStep) {
           case 1:
-            return defaultLanguageForm;
+            return DefaultLanguageForm;
           case 2:
-            return facilityNameForm;
+            return FacilityNameForm;
           case 3:
-            return facilityPermissionsForm;
+            return FacilityPermissionsForm;
           case 4:
-            return superuserCredentialsForm;
+            return SuperuserCredentialsForm;
           default:
             return null;
         }
@@ -92,7 +92,11 @@
       },
     },
     methods: {
-      ...mapActions(['goToNextStep', 'goToPreviousStep', 'provisionDevice']),
+      ...mapActions(['provisionDevice']),
+      ...mapMutations({
+        goToNextStep: 'INCREMENT_ONBOARDING_STEP',
+        goToPreviousStep: 'DECREMENT_ONBOARDING_STEP',
+      }),
       continueOnboarding() {
         if (this.isLastStep) {
           this.provisionDevice(this.onboardingData);

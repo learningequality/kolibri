@@ -57,10 +57,10 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
+  import { mapMutations } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
-  import OnboardingForm from '../OnboardingForm';
+  import OnboardingForm from './OnboardingForm';
 
   export default {
     name: 'SuperuserCredentialsForm',
@@ -158,7 +158,9 @@
       },
     },
     methods: {
-      ...mapActions(['submitSuperuserCredentials']),
+      ...mapMutations({
+        submitSuperuserCredentials: 'SET_SU',
+      }),
       setSuperuserCredentials() {
         for (const field in this.visitedFields) {
           this.visitedFields[field] = true;

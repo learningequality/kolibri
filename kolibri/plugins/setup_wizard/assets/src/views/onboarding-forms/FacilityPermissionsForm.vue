@@ -101,11 +101,11 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
+  import { mapMutations } from 'vuex';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import OnboardingForm from '../OnboardingForm';
+  import OnboardingForm from './OnboardingForm';
 
   export default {
     name: 'FacilityPermissionsForm',
@@ -155,7 +155,9 @@
       this.$refs['first-button'].focus();
     },
     methods: {
-      ...mapActions(['submitFacilityPermissions']),
+      ...mapMutations({
+        submitFacilityPermissions: 'SET_FACILITY_PRESET',
+      }),
       setPermissions() {
         this.submitFacilityPermissions(this.selectedPreset);
         this.$emit('submit');

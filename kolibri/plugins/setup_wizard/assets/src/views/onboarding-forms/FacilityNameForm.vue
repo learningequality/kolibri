@@ -23,9 +23,9 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
+  import { mapMutations } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import OnboardingForm from '../OnboardingForm';
+  import OnboardingForm from './OnboardingForm';
 
   export default {
     name: 'FacilityNameForm',
@@ -68,7 +68,9 @@
       },
     },
     methods: {
-      ...mapActions(['submitFacilityName']),
+      ...mapMutations({
+        submitFacilityName: 'SET_FACILITY_NAME',
+      }),
       validateFacilityName() {
         this.fieldVisited = true;
       },
