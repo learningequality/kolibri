@@ -39,7 +39,7 @@
 
 
     <section class="error-copying-options">
-      <p>
+      <div>
         <k-button
           v-if="clipboardCapable"
           class="copy-to-clipboard-button"
@@ -47,14 +47,14 @@
           :text="$tr('copyToClipboardButtonPrompt')"
           ref="errorCopyButton"
         />
-      </p>
-      <p>
+      </div>
+      <div>
         <!-- TODO change target, set download -->
         <k-external-link
           :text="$tr('downloadAsTextPrompt')"
           :href="errorTextFileLink"
         />
-      </p>
+      </div>
     </section>
 
 
@@ -82,7 +82,8 @@
       forumPostingSuggestions:
         'Include a description of what you were trying to do and what you clicked on when the error appeared.',
       emailPrompt: 'Send an email to the developers',
-      emailDescription: 'Contact the support team with your error details and we’ll do our best to help.',
+      emailDescription:
+        'Contact the support team with your error details and we’ll do our best to help.',
       errorDetailsHeader: 'Error details',
       copyToClipboardButtonPrompt: 'Copy to clipboard',
       downloadAsTextPrompt: 'Or download as .text file',
@@ -115,7 +116,7 @@
         if (navigator.msSaveBlob) {
           return navigator.msSaveBlob(new Blob([this.error], { type: 'text/plain' }));
         }
-        const errorBlob = new Blob([this.error], {type: 'text/plain'});
+        const errorBlob = new Blob([this.error], { type: 'text/plain' });
         return URL.createObjectURL(errorBlob);
       },
     },
@@ -155,6 +156,10 @@
 
   .copy-to-clipboard-button {
     margin-left: 0;
+  }
+
+  .download-as-text-link {
+    word-wrap: break-word;
   }
 
 </style>
