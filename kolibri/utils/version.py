@@ -163,7 +163,7 @@ def get_git_changeset():
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     try:
         git_log = subprocess.Popen(
-            'git log --pretty=format:%ct --quiet -1 HEAD',
+            'git log --pretty=format:%ct --quiet --abbrev=8 -1 HEAD',
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             shell=True,
@@ -193,7 +193,7 @@ def get_git_describe(version):
             # commit for this minor version should be in accordance to the current version.
             # This prevents cascade merges from patch releases in earlier versions necessitating
             # a new tag in the higher minor version branch.
-            "git describe --tags --match 'v{0}.{1}*'".format(*version),
+            "git describe --tags --abbrev=8 --match 'v{0}.{1}*'".format(*version),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             shell=True,
