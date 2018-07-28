@@ -66,7 +66,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
   import kButton from 'kolibri.coreVue.components.kButton';
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import kModal from 'kolibri.coreVue.components.kModal';
@@ -87,6 +87,7 @@
         'Contact the support team with your error details and we’ll do our best to help.',
       errorDetailsHeader: 'Error details',
       copyToClipboardButtonPrompt: 'Copy to clipboard',
+      copiedToClipboardConfirmation: 'Copied to clipboard',
       downloadAsTextPrompt: 'Or download as .txt file',
       closeErrorModalButtomPrompt: 'Close',
       errorFileDenotation: 'error',
@@ -131,12 +132,22 @@
           // needed because modal changes browser focus
           container: this.$refs.errorLog,
         });
+
+        this.clipboard.on('success', () => {
+          this.createSnackbar({
+            text: this.$tr('copiedToClipboardConfirmation'),
+            autoDismiss: true,
+          });
+        });
       }
     },
     destroyed() {
       if (this.clipboard) {
         this.clipboard.destroy();
       }
+    },
+    methods: {
+      ...mapActions(['createSnackbar']),
     },
   };
 
