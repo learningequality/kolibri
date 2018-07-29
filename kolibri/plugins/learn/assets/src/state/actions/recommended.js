@@ -1,4 +1,8 @@
-import { ContentNodeResource } from 'kolibri.resources';
+import {
+  ContentNodeResource,
+  ContentNodeSlimResource,
+  ContentNodeProgressResource,
+} from 'kolibri.resources';
 import { currentUserId, getChannelObject, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 import {
   samePageCheckGenerator,
@@ -8,6 +12,7 @@ import {
 import { PageNames } from '../../constants';
 import { contentState, setAndCheckChannels } from './main';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 import { createTranslator } from 'kolibri.utils.i18n';
 
@@ -21,20 +26,20 @@ const translator = createTranslator('learnerRecommendationPageTitles', {
 
 // User-agnostic recommendations
 function _getPopular() {
-  return ContentNodeResource.getCollection({ popular: 'true' }).fetch();
+  return ContentNodeSlimResource.getCollection({ popular: 'true' }).fetch();
 }
 
 // User-specific recommendations
 function _getNextSteps(state) {
   if (isUserLoggedIn(state)) {
-    return ContentNodeResource.getCollection({ next_steps: currentUserId(state) }).fetch();
+    return ContentNodeSlimResource.getCollection({ next_steps: currentUserId(state) }).fetch();
   }
   return Promise.resolve([]);
 }
 
 function _getResume(state) {
   if (isUserLoggedIn(state)) {
-    return ContentNodeResource.getCollection({ resume: currentUserId(state) }).fetch();
+    return ContentNodeSlimResource.getCollection({ resume: currentUserId(state) }).fetch();
   }
   return Promise.resolve([]);
 }
@@ -108,6 +113,20 @@ export function showLearn(store) {
       };
 
       store.dispatch('SET_PAGE_STATE', pageState);
+
+      // Only load contentnodes progress if the user is logged in
+      if (isUserLoggedIn(store.state)) {
+        const contentNodeIds = uniq([...nextSteps, ...popular, ...resume].map(({ id }) => id));
+
+        if (contentNodeIds.length > 0) {
+          ContentNodeProgressResource.getCollection({ ids: contentNodeIds })
+            .fetch()
+            .then(progresses => {
+              store.dispatch('SET_RECOMMENDED_NODES_PROGRESS', progresses);
+            });
+        }
+      }
+
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('SET_PAGE_NAME', PageNames.RECOMMENDED);
