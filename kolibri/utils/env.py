@@ -3,7 +3,7 @@ import os
 import platform
 import sys
 
-def get_cext_path(dist_path):
+def prepend_cext_path(dist_path):
     """
     Calculate the directory of C extensions and add it to sys.path if exists.
     """
@@ -22,11 +22,11 @@ def get_cext_path(dist_path):
             dirname = os.path.join(dirname, python_version+'mu')
 
     dirname = os.path.join(dirname, machine_name)
-    openssl_parent_dir = os.path.join(dist_path, 'cext')
+    noarch_dir = os.path.join(dist_path, 'cext')
     if os.path.exists(dirname):
-        # If the directory of cryptography exists, add it and the OpenSSL module's
-        # parent directory to sys.path
-        sys.path = [str(dirname), str(openssl_parent_dir)] + sys.path
+        # If the directory of platform-specific cextensions (cryptography) exists,
+        # add it + the matching noarch (OpenSSL) modules to sys.path
+        sys.path = [str(dirname), str(noarch_dir)] + sys.path
     else:
         logging.warning('No C Extensions available for this platform.\n')
 
@@ -43,7 +43,7 @@ def set_env():
     sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 
     # Add path for c extensions to sys.path
-    get_cext_path(os.path.realpath(os.path.dirname(kolibri_dist.__file__)))
+    prepend_cext_path(os.path.realpath(os.path.dirname(kolibri_dist.__file__)))
 
     # This was added in
     # https://github.com/learningequality/kolibri/pull/580
