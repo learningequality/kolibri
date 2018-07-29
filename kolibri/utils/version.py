@@ -86,15 +86,10 @@ Release order example 1.2.3 release:
     crucial that it can be loaded without the settings/configuration/django
     stack.
 
-If you wish to user ``version.py`` in another project, raw-copy the contents
-of this file.
-
-Do not import this module in other distributed package's ``__init__``, because
-installation with setup.py should not depend on other packages. In case you
-were to have a package ``foo`` that depended on kolibri, and kolibri is
-installed as a dependency while ``foo`` is installing, then ``foo`` won't be
-able to access kolibri before after setuptools has completed installation of
-everything. (This paragraph is written because such has happened).
+If you wish to use ``version.py`` in another project, raw-copy the contents
+of this file. You cannot import this module in other distributed package's
+``__init__``, because ``setup.py`` cannot depend on the import of other
+packages at install-time (which is when the version is generated and stored).
 """
 from __future__ import absolute_import
 from __future__ import division
