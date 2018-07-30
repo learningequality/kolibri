@@ -79,6 +79,7 @@
     'learnerCanSignUp',
     'learnerCanLoginWithNoPassword',
     'showDownloadButtonInLearn',
+    'allowGuestAccess',
   ];
 
   export default {
@@ -144,6 +145,7 @@
       learnerCanSignUp: 'Allow learners to sign-up on this device',
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
       showDownloadButtonInLearn: "Show 'download' button with content",
+      allowGuestAccess: 'Allow users to access content without signing in',
       pageDescription: 'Configure and change different facility settings here.',
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to default settings',

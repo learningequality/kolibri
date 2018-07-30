@@ -55,7 +55,7 @@
             params: {
               classId: this.classId,
               channelId: this.channelId,
-              contentId: this.exercise.pk,
+              contentId: this.exercise.id,
             },
           };
         }
@@ -65,7 +65,7 @@
             params: {
               classId: this.classId,
               channelId: this.channelId,
-              contentId: this.exercise.pk,
+              contentId: this.exercise.id,
             },
           };
         }
@@ -76,7 +76,7 @@
               classId: this.classId,
               channelId: this.channelId,
               userId: this.user.id,
-              topicId: this.parentTopic.pk,
+              topicId: this.parentTopic.id,
             },
           };
         }

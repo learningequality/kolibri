@@ -1,7 +1,5 @@
 import { Resource } from '../api-resource';
 
-export default class FacilityResource extends Resource {
-  static resourceName() {
-    return 'facility';
-  }
-}
+export default new Resource({
+  name: 'facility',
+});

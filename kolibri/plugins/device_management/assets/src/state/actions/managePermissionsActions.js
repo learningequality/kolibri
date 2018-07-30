@@ -1,8 +1,4 @@
-import {
-  DevicePermissionsResource,
-  NewDevicePermissionsResource,
-  FacilityUserResource,
-} from 'kolibri.resources';
+import { DevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import groupBy from 'lodash/groupBy';
@@ -11,16 +7,16 @@ import head from 'lodash/head';
 
 function fetchFacilityUsers(store) {
   const facilityId = store.getters.currentFacilityId;
-  return FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
+  return FacilityUserResource.fetchCollection({ getParams: { member_of: facilityId } });
 }
 
 function fetchDevicePermissions() {
-  return DevicePermissionsResource.getCollection()
-    .fetch({}, true)
-    ._promise.then(function transform(permissions) {
-      // returns object, where userid is the key
-      return mapValues(groupBy(permissions, 'user'), head);
-    });
+  return DevicePermissionsResource.fetchCollection({ force: true }).then(function transform(
+    permissions
+  ) {
+    // returns object, where userid is the key
+    return mapValues(groupBy(permissions, 'user'), head);
+  });
 }
 
 /**
@@ -31,8 +27,8 @@ function fetchDevicePermissions() {
  * @returns Promise<{ permissions, user }, FacilityUserError>
  */
 function fetchUserPermissions(userId) {
-  const permissionsPromise = DevicePermissionsResource.getModel(userId).fetch({}.true)._promise;
-  const userPromise = FacilityUserResource.getModel(userId).fetch()._promise;
+  const permissionsPromise = DevicePermissionsResource.fetchModel({ id: userId, force: true });
+  const userPromise = FacilityUserResource.fetchModel({ id: userId });
   return permissionsPromise
     .then(function onPermissionsSuccess(permissions) {
       return userPromise.then(function onUserSuccess(user) {
@@ -64,7 +60,7 @@ export function showManagePermissionsPage(store) {
   const promises = ConditionalPromise.all([
     fetchFacilityUsers(store),
     fetchDevicePermissions(),
-  ]).only(samePageCheckGenerator(store))._promise;
+  ]).only(samePageCheckGenerator(store));
   return promises
     .then(function onSuccess([users, permissions]) {
       store.commit('SET_PERMISSIONS_PAGE_STATE', {
@@ -87,7 +83,7 @@ export function showManagePermissionsPage(store) {
 export function showUserPermissionsPage(store, userId) {
   const promise = ConditionalPromise.all([fetchUserPermissions(userId)]).only(
     samePageCheckGenerator(store)
-  )._promise;
+  );
   return promise
     .then(function onUserSuccess([data]) {
       return store.commit('SET_USER_PERMISSIONS_PAGE_STATE', data);
@@ -118,12 +114,5 @@ export function addOrUpdateUserPermissions(store, payload) {
     can_manage_content: payload.can_manage_content,
   };
 
-  const savePromise = DevicePermissionsResource.getModel(userId).save(permissions)._promise;
-  return savePromise.catch(function onFailure(error) {
-    // Save attempt with DevicePermissionsResource will fail if model does not exist.
-    // Fallback is to use NewDevicePermissionResource.createModel to create it.
-    if (error.status && error.status.code === 404) {
-      return NewDevicePermissionsResource.createModel(permissions).save()._promise;
-    }
-  });
+  return DevicePermissionsResource.saveModel({ id: userId, data: permissions });
 }

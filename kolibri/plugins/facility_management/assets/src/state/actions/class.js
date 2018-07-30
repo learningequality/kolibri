@@ -18,20 +18,20 @@ import preparePage from './helpers/preparePage';
  * @param {string} name
  */
 export function createClass(store, name) {
-  ClassroomResource.createModel({
-    name,
-    parent: store.state.core.session.facility_id,
-  })
-    .save()
-    .then(
-      classroom => {
-        store.commit('ADD_CLASS', classroom);
-        displayModal(store, false);
-      },
-      error => {
-        store.dispatch('handleApiError', error);
-      }
-    );
+  ClassroomResource.saveModel({
+    data: {
+      name,
+      parent: store.state.core.session.facility_id,
+    },
+  }).then(
+    classroom => {
+      store.commit('ADD_CLASS', classroom);
+      displayModal(store, false);
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+    }
+  );
 }
 
 /**
@@ -44,17 +44,18 @@ export function updateClass(store, { id, updateData }) {
     // if no id or empty updateData passed, abort the function
     return;
   }
-  ClassroomResource.getModel(id)
-    .save(updateData)
-    .then(
-      updatedClass => {
-        store.commit('UPDATE_CLASS', { id, updatedClass });
-        displayModal(store, false);
-      },
-      error => {
-        store.dispatch('handleApiError', error);
-      }
-    );
+  ClassroomResource.saveModel({
+    id,
+    data: updateData,
+  }).then(
+    updatedClass => {
+      store.commit('UPDATE_CLASS', { id, updatedClass });
+      displayModal(store, false);
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+    }
+  );
 }
 
 /**
@@ -66,46 +67,44 @@ export function deleteClass(store, id) {
     // if no id passed, abort the function
     return;
   }
-  return ClassroomResource.getModel(id)
-    .delete()
-    .then(
-      () => {
-        store.commit('DELETE_CLASS', id);
-        displayModal(store, false);
-      },
-      error => {
-        store.dispatch('handleApiError', error);
-      }
-    );
+  return ClassroomResource.deleteModel({ id }).then(
+    () => {
+      store.commit('DELETE_CLASS', id);
+      displayModal(store, false);
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+    }
+  );
 }
 
 export function enrollLearnersInClass(store, users) {
   const classId = store.state.pageState.class.id;
   // TODO no error handling
-  return MembershipResource.createCollection(
-    {
+  return MembershipResource.saveCollection({
+    getParams: {
       collection: classId,
     },
-    users.map(userId => ({
+    data: users.map(userId => ({
       collection: classId,
       user: userId,
-    }))
-  ).save();
+    })),
+  });
 }
 
 export function assignCoachesToClass(store, coaches) {
   const classId = store.state.pageState.class.id;
   // TODO no error handling
-  return RoleResource.createCollection(
-    {
+  return RoleResource.saveCollection({
+    getParams: {
       collection: classId,
     },
-    coaches.map(userId => ({
+    data: coaches.map(userId => ({
       collection: classId,
       user: userId,
       kind: UserKinds.COACH,
-    }))
-  ).save();
+    })),
+  });
 }
 
 export function removeClassLearner(store, { classId, userId }) {
@@ -114,20 +113,18 @@ export function removeClassLearner(store, { classId, userId }) {
     return;
   }
   // fetch the membership model with this classId and userId.
-  return MembershipResource.getCollection({
+  return MembershipResource.deleteCollection({
     user: userId,
     collection: classId,
-  })
-    .delete()
-    .then(
-      () => {
-        store.commit('DELETE_CLASS_LEARNER', userId);
-        displayModal(store, false);
-      },
-      error => {
-        store.dispatch('handleApiError', error);
-      }
-    );
+  }).then(
+    () => {
+      store.commit('DELETE_CLASS_LEARNER', userId);
+      displayModal(store, false);
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+    }
+  );
 }
 
 export function removeClassCoach(store, { classId, userId }) {
@@ -138,20 +135,18 @@ export function removeClassCoach(store, { classId, userId }) {
   }
   // TODO use a getModel with role id? should be available. Might have to undo mappers
   // fetch the membership model with this classId and userId.
-  return RoleResource.getCollection({
+  return RoleResource.deleteCollection({
     user: userId,
     collection: classId,
-  })
-    .delete()
-    .then(
-      () => {
-        store.commit('DELETE_CLASS_COACH', userId);
-        displayModal(store, false);
-      },
-      error => {
-        store.dispatch('handleApiError', error);
-      }
-    );
+  }).then(
+    () => {
+      store.commit('DELETE_CLASS_COACH', userId);
+      displayModal(store, false);
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+    }
+  );
 }
 
 export function showClassesPage(store) {
@@ -159,21 +154,22 @@ export function showClassesPage(store) {
     name: PageNames.CLASS_MGMT_PAGE,
   });
   const facilityId = store.getters.currentFacilityId;
-  return ClassroomResource.getCollection({ parent: facilityId })
-    .fetch({}, true)
-    .only(
-      samePageCheckGenerator(store),
-      classrooms => {
-        store.commit('SET_PAGE_STATE', {
-          modalShown: false,
-          classes: [...classrooms],
-        });
-        store.commit('CORE_SET_PAGE_LOADING', false);
-      },
-      error => {
-        store.dispatch('handleApiError', error);
-      }
-    );
+  return ClassroomResource.fetchCollection({
+    getParams: { parent: facilityId },
+    force: true,
+  }).only(
+    samePageCheckGenerator(store),
+    classrooms => {
+      store.commit('SET_PAGE_STATE', {
+        modalShown: false,
+        classes: [...classrooms],
+      });
+      store.commit('CORE_SET_PAGE_LOADING', false);
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+    }
+  );
 }
 
 export function showClassEditPage(store, classId) {
@@ -182,9 +178,9 @@ export function showClassEditPage(store, classId) {
   });
   const facilityId = store.getters.currentFacilityId;
   const promises = [
-    FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
-    ClassroomResource.getModel(classId).fetch(),
-    ClassroomResource.getCollection({ parent: facilityId }).fetch({}, true),
+    FacilityUserResource.fetchCollection({ getParams: { member_of: classId }, force: true }),
+    ClassroomResource.fetchModel({ id: classId }),
+    ClassroomResource.fetchCollection({ getParams: { parent: facilityId }, force: true }),
   ];
 
   const transformResults = ([facilityUsers, classroom, classrooms]) => ({
@@ -211,13 +207,18 @@ export function showLearnerClassEnrollmentPage(store, classId) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   const facilityId = store.getters.currentFacilityId;
   // all users in facility
-  const userPromise = FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
+  const userPromise = FacilityUserResource.fetchCollection({
+    getParams: { member_of: facilityId },
+  });
   // current class
-  const classPromise = ClassroomResource.getModel(classId).fetch();
+  const classPromise = ClassroomResource.fetchModel({ id: classId });
   // users in current class
-  const classUsersPromise = FacilityUserResource.getCollection({
-    member_of: classId,
-  }).fetch({}, true);
+  const classUsersPromise = FacilityUserResource.fetchCollection({
+    getParams: {
+      member_of: classId,
+    },
+    force: true,
+  });
 
   return ConditionalPromise.all([userPromise, classPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
@@ -240,9 +241,11 @@ export function showCoachClassAssignmentPage(store, classId) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   const facilityId = store.getters.currentFacilityId;
   // all users in facility
-  const userPromise = FacilityUserResource.getCollection({ member_of: facilityId }).fetch();
+  const userPromise = FacilityUserResource.fetchCollection({
+    getParams: { member_of: facilityId },
+  });
   // current class
-  const classPromise = ClassroomResource.getModel(classId).fetch({}, true);
+  const classPromise = ClassroomResource.fetchModel({ id: classId, force: true });
 
   return ConditionalPromise.all([userPromise, classPromise]).only(
     samePageCheckGenerator(store),

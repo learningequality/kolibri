@@ -94,6 +94,7 @@
             />
             <div>
               <KExternalLink
+                v-if="allowGuestAccess"
                 class="guest-button"
                 :text="$tr('accessAsGuest')"
                 :href="guestURL"
@@ -253,6 +254,9 @@
       needPasswordField() {
         return !this.simpleSignIn || this.hasServerError;
       },
+      allowGuestAccess() {
+        return this.facilityConfig.allowGuestAccess;
+      },
       logoHeight() {
         const CRITICAL_ACTIONS_HEIGHT = 350; // title + form + action buttons
         let height = this.windowHeight - CRITICAL_ACTIONS_HEIGHT - 32;
@@ -316,11 +320,12 @@
         }
       },
       setSuggestions() {
-        FacilityUsernameResource.getCollection({
-          facility: this.facility,
-          search: this.suggestionTerm,
+        FacilityUsernameResource.fetchCollection({
+          getParams: {
+            facility: this.facility,
+            search: this.suggestionTerm,
+          },
         })
-          .fetch()
           .then(users => {
             this.usernameSuggestions = users.map(user => user.username);
             this.showDropdown = true;

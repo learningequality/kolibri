@@ -5,18 +5,16 @@ export function provisionDevice(store, onboardingData) {
 
   store.commit('SET_LOADING', true);
 
-  return DeviceProvisionResource.createModel(onboardingData)
-    .save()
-    .then(
-      response => {
-        superuser.facility = response.facility.id;
-        store.dispatch('kolibriLogin', superuser);
-      },
-      error => {
-        store.commit('SET_ERROR', true);
-        store.dispatch('handleApiError', error);
-      }
-    );
+  return DeviceProvisionResource.saveModel({ data: onboardingData }).then(
+    response => {
+      superuser.facility = response.facility.id;
+      store.dispatch('kolibriLogin', superuser);
+    },
+    error => {
+      store.commit('SET_ERROR', true);
+      store.dispatch('handleApiError', error);
+    }
+  );
 }
 
 export function goToNextStep(store) {

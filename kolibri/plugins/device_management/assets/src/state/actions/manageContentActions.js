@@ -6,13 +6,14 @@ import { ChannelResource } from 'kolibri.resources';
  */
 export function refreshChannelList(store) {
   store.commit('SET_CHANNEL_LIST_LOADING', true);
-  return ChannelResource.getCollection()
-    .fetch({ include_fields: 'on_device_file_size' }, true)
-    .then(channels => {
-      store.commit('SET_CHANNEL_LIST', [...channels]);
-      store.commit('SET_CHANNEL_LIST_LOADING', false);
-      return [...channels];
-    });
+  return ChannelResource.fetchCollection({
+    getParams: { include_fields: 'on_device_file_size' },
+    force: true,
+  }).then(channels => {
+    store.commit('SET_CHANNEL_LIST', [...channels]);
+    store.commit('SET_CHANNEL_LIST_LOADING', false);
+    return [...channels];
+  });
 }
 
 export function showManageContentPage(store) {

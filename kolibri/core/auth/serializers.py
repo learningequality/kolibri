@@ -87,16 +87,20 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
         model = FacilityDataset
         fields = ('id', 'learner_can_edit_username', 'learner_can_edit_name', 'learner_can_edit_password',
                   'learner_can_sign_up', 'learner_can_delete_account', 'learner_can_login_with_no_password',
-                  'show_download_button_in_learn', 'description', 'location')
+                  'show_download_button_in_learn', 'description', 'location', 'allow_guest_access')
 
 
 class FacilitySerializer(serializers.ModelSerializer):
     dataset = FacilityDatasetSerializer(read_only=True)
+    default = serializers.SerializerMethodField()
 
     class Meta:
         model = Facility
         extra_kwargs = {'id': {'read_only': True}, 'dataset': {'read_only': True}}
-        fields = ('id', 'name', 'dataset')
+        fields = ('id', 'name', 'dataset', 'default')
+
+    def get_default(self, instance):
+        return instance == Facility.get_default_facility()
 
 
 class PublicFacilitySerializer(serializers.ModelSerializer):

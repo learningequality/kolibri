@@ -13,6 +13,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.db import transaction
 from django.db.models import Q
 from django.db.models.query import F
+from django.utils.decorators import method_decorator
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
@@ -44,6 +45,7 @@ from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
+from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
@@ -228,15 +230,6 @@ class FacilityViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class CurrentFacilityViewSet(viewsets.ViewSet):
-    def list(self, request):
-        logged_in_user = get_user(request)
-        if type(logged_in_user) is AnonymousUser:
-            return Response(Facility.objects.all().values_list('id', flat=True))
-        else:
-            return Response([logged_in_user.facility_id])
-
-
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
@@ -318,6 +311,7 @@ class SignUpViewSet(viewsets.ViewSet):
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
+@method_decorator(signin_redirect_exempt, name='dispatch')
 class SessionViewSet(viewsets.ViewSet):
 
     def create(self, request):

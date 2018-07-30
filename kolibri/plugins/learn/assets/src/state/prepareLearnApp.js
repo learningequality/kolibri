@@ -7,9 +7,11 @@ export default function prepareLearnApp(store) {
 
   if (userId === null) return Promise.resolve();
 
-  const membershipPromise = MembershipResource.getCollection({
-    user: userId,
-  }).fetch();
+  const membershipPromise = MembershipResource.fetchCollection({
+    getParams: {
+      user: userId,
+    },
+  });
 
   return membershipPromise
     .then(memberships => {

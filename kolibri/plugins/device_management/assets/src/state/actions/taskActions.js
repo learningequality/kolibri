@@ -47,10 +47,8 @@ function _taskListShouldUpdate(state, newTasks) {
  * Updates pageState.taskList, but only if there is a change.
  */
 export function refreshTaskList(store) {
-  // This uses TaskResource.getTasks instead of .getCollection because
-  // .getCollection mutates values in store.state such that _taskListShouldUpdate doesn't work
-  return TaskResource.getTasks()
-    .then(({ entity: newTasks }) => {
+  return TaskResource.fetchCollection({ force: true })
+    .then(newTasks => {
       if (_taskListShouldUpdate(store.state, newTasks)) {
         updateTasks(store, newTasks);
       }

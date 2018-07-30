@@ -19,11 +19,13 @@ export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
   // Currently, we assume only ONE Facility-Level Role per user
   const currentFacilityRole = find(roles, { collection: facility });
   const createFacilityRole = () =>
-    RoleResource.createModel({
-      user: id,
-      collection: facility,
-      kind: newRoleKind,
-    }).save();
+    RoleResource.saveModel({
+      data: {
+        user: id,
+        collection: facility,
+        kind: newRoleKind,
+      },
+    });
 
   // When FacilityUser is only a Learner or New User (i.e. no current Role)
   if (!currentFacilityRole) {
@@ -41,10 +43,10 @@ export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
   // Downgrading Role to LEARNER
   if (newRoleKind === UserKinds.LEARNER) {
     const roleDeletionPromises = [
-      RoleResource.getModel(currentFacilityRole.id).delete(),
+      RoleResource.deleteModel({ id: currentFacilityRole.id }),
       // Manually have to delete all Roles downstream in Classrooms
       map(filter(roles, { collection_parent: facility, kind: UserKinds.COACH }), role =>
-        RoleResource.getModel(role.id).delete()
+        RoleResource.deleteModel({ id: role.id })
       ),
     ];
     return Promise.all(roleDeletionPromises);
@@ -53,8 +55,6 @@ export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
   // Changing from one Facility-Level Role to another. Any Classroom-Level Roles
   // are left untouched
   if (FACILITY_ROLES.includes(newRoleKind)) {
-    return RoleResource.getModel(currentFacilityRole.id)
-      .delete()
-      ._promise.then(createFacilityRole);
+    return RoleResource.deleteModel({ id: currentFacilityRole.id }).then(createFacilityRole);
   }
 }

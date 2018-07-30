@@ -29,7 +29,7 @@
       />
       <ContentRenderer
         v-if="currentInteraction"
-        :id="exercise.pk"
+        :id="exercise.id"
         :itemId="currentAttemptLog.item"
         :assessment="true"
         :allowHints="false"
@@ -123,7 +123,7 @@
           params: {
             channelId: this.channelId,
             userId: this.user.id,
-            contentId: this.exercise.pk,
+            contentId: this.exercise.id,
             interactionIndex: 0,
             attemptLogIndex,
           },
@@ -136,7 +136,7 @@
           params: {
             channelId: this.channelId,
             userId: this.user.id,
-            contentId: this.exercise.pk,
+            contentId: this.exercise.id,
             attemptLogIndex: this.attemptLogIndex,
             interactionIndex,
           },

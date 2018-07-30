@@ -1,8 +1,12 @@
+import json
+
 from django.db.models import Sum
 from django.utils.timezone import now
+from le_utils.constants import exercises
 from rest_framework import serializers
 
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.logger.constants.exercise_attempts import MAPPING
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
@@ -19,7 +23,7 @@ class ContentSessionLogSerializer(KolibriModelSerializer):
 
     class Meta:
         model = ContentSessionLog
-        fields = ('pk', 'user', 'content_id', 'channel_id', 'start_timestamp',
+        fields = ('id', 'user', 'content_id', 'channel_id', 'start_timestamp',
                   'end_timestamp', 'time_spent', 'kind', 'extra_fields', 'progress')
 
 
@@ -58,8 +62,19 @@ class MasteryLogSerializer(KolibriModelSerializer):
                   'end_timestamp', 'completion_timestamp', 'mastery_criterion', 'mastery_level', 'complete')
 
     def get_pastattempts(self, obj):
-        # will return a list of the latest 10 correct and hint_taken fields for each attempt.
-        return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).values('correct', 'hinted', 'error').order_by('-start_timestamp')[:10]
+        mastery_criterion = json.loads(obj.mastery_criterion)
+        exercise_type = mastery_criterion.get('type')
+        attemptlogs = AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog) \
+                                        .values('correct', 'hinted', 'error') \
+                                        .order_by('-start_timestamp')
+
+        # get the first x logs depending on the exercise type
+        if exercise_type == exercises.M_OF_N:
+            return attemptlogs[:mastery_criterion['n']]
+        elif MAPPING.get(exercise_type):
+            return attemptlogs[:MAPPING.get(exercise_type)]
+        else:
+            return attemptlogs[:10]
 
     def get_totalattempts(self, obj):
         return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).count()
@@ -106,7 +121,7 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
 
     class Meta:
         model = ContentSummaryLog
-        fields = ('pk', 'user', 'content_id', 'channel_id', 'start_timestamp', 'currentmasterylog',
+        fields = ('id', 'user', 'content_id', 'channel_id', 'start_timestamp', 'currentmasterylog',
                   'end_timestamp', 'completion_timestamp', 'time_spent', 'progress', 'kind', 'extra_fields')
 
     def get_currentmasterylog(self, obj):
@@ -123,7 +138,7 @@ class UserSessionLogSerializer(KolibriModelSerializer):
 
     class Meta:
         model = UserSessionLog
-        fields = ('pk', 'user', 'channels', 'start_timestamp', 'last_interaction_timestamp', 'pages')
+        fields = ('id', 'user', 'channels', 'start_timestamp', 'last_interaction_timestamp', 'pages')
 
 
 class TotalContentProgressSerializer(serializers.ModelSerializer):

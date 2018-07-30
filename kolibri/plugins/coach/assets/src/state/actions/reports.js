@@ -5,6 +5,7 @@ import {
   AttemptLogResource,
   ChannelResource,
   ContentNodeResource,
+  ContentNodeSlimResource,
   FacilityUserResource,
   ContentSummaryLogResource,
   LearnerGroupResource,
@@ -18,15 +19,11 @@ import {
   UserScopes,
   ViewBy,
 } from '../../constants/reportConstants';
-import RecentReportResourceConstructor from '../../apiResources/recentReport';
+import RecentReportResource from '../../apiResources/recentReport';
 import UserReportResource from '../../apiResources/userReport';
-import ContentSummaryResourceConstructor from '../../apiResources/contentSummary';
-import ContentReportResourceConstructor from '../../apiResources/contentReport';
+import ContentSummaryResource from '../../apiResources/contentSummary';
+import ContentReportResource from '../../apiResources/contentReport';
 import { setClassState, handleCoachPageError } from './main';
-
-const RecentReportResource = new RecentReportResourceConstructor();
-const ContentSummaryResource = new ContentSummaryResourceConstructor();
-const ContentReportResource = new ContentReportResourceConstructor();
 
 function preparePageNameAndTitle(store, pageName) {
   store.commit('SET_PAGE_NAME', pageName);
@@ -43,21 +40,22 @@ function preparePageNameAndTitle(store, pageName) {
 function channelLastActivePromise(channel, userScope, userScopeId) {
   // workaround for conditionalPromise.then() misbehaving
   return new Promise((resolve, reject) => {
-    ContentSummaryResource.getModel(channel.root_id, {
-      channel_id: channel.id,
-      collection_kind: userScope,
-      collection_id: userScopeId,
-    })
-      .fetch()
-      .then(
-        channelSummary => {
-          const obj = Object.assign({}, channelSummary, {
-            channelId: channel.id,
-          });
-          resolve(obj);
-        },
-        error => reject(error)
-      );
+    ContentSummaryResource.fetchModel({
+      id: channel.root_id,
+      getParams: {
+        channel_id: channel.id,
+        collection_kind: userScope,
+        collection_id: userScopeId,
+      },
+    }).then(
+      channelSummary => {
+        const obj = Object.assign({}, channelSummary, {
+          channelId: channel.id,
+        });
+        resolve(obj);
+      },
+      error => reject(error)
+    );
   });
 }
 
@@ -93,12 +91,14 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
   const promises = [
     getAllChannelsLastActivePromise(channels, userScope, userScopeId),
     // Get the ContentNode for the ChannelRoot for getting num_coach_contents
-    ContentNodeResource.getCollection({ ids: channels.map(({ root_id }) => root_id) }).fetch(),
+    ContentNodeResource.fetchCollection({
+      getParams: { ids: channels.map(({ root_id }) => root_id) },
+    }),
     setClassState(store, classId),
   ];
 
   if (userId) {
-    promises.push(FacilityUserResource.getModel(userId).fetch());
+    promises.push(FacilityUserResource.fetchModel({ id: userId }));
   }
 
   return Promise.all(promises).then(
@@ -132,7 +132,7 @@ function _contentReportState(data) {
     contentId: row.content_id,
     kind: row.kind,
     lastActive: row.last_active,
-    id: row.pk,
+    id: row.id,
     num_coach_contents: row.num_coach_contents,
     progress: row.progress.map(progressData => ({
       kind: progressData.kind,
@@ -152,7 +152,7 @@ function _recentReportState(data) {
     contentId: row.content_id,
     kind: row.kind,
     lastActive: row.last_active,
-    id: row.pk,
+    id: row.id,
     progress: row.progress.map(progressData => ({
       logCountComplete: progressData.log_count_complete,
       logCountTotal: progressData.log_count_total,
@@ -181,11 +181,11 @@ function _learnerReportState(userReportData, groupData) {
     return [];
   }
   return userReportData.map(row => ({
-    id: row.pk,
+    id: row.id,
     fullName: row.full_name,
     username: row.username,
     lastActive: row.last_active,
-    groupName: _getGroupName(row.pk, groupData),
+    groupName: _getGroupName(row.id, groupData),
     progress: row.progress.map(progressData => ({
       kind: progressData.kind,
       timeSpent: progressData.time_spent,
@@ -202,14 +202,14 @@ function _contentSummaryState(data) {
   return {
     num_coach_contents: data.num_coach_contents,
     ancestors: data.ancestors.map(item => ({
-      id: item.pk,
+      id: item.id,
       title: item.title,
     })),
     contentId: data.content_id,
     kind,
     lastActive: data.last_active,
     numUsers: data.num_users,
-    id: data.pk,
+    id: data.id,
     progress: data.progress.map(progressData => ({
       kind: progressData.kind,
       nodeCount: progressData.node_count,
@@ -220,17 +220,15 @@ function _contentSummaryState(data) {
 }
 
 function _setContentReport(store, reportPayload) {
-  return ContentReportResource.getCollection(reportPayload)
-    .fetch()
-    .then(report => {
-      store.commit('SET_REPORT_TABLE_DATA', _contentReportState(report));
-    });
+  return ContentReportResource.fetchCollection({ getParams: reportPayload }).then(report => {
+    store.commit('SET_REPORT_TABLE_DATA', _contentReportState(report));
+  });
 }
 
 function _setLearnerReport(store, reportPayload, classId) {
   const promises = [
-    UserReportResource.getCollection(reportPayload).fetch(),
-    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
+    UserReportResource.fetchCollection({ getParams: reportPayload }),
+    LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
   ];
   return Promise.all(promises).then(([usersReport, learnerGroups]) => {
     store.commit('SET_REPORT_TABLE_DATA', _learnerReportState(usersReport, learnerGroups));
@@ -238,11 +236,12 @@ function _setLearnerReport(store, reportPayload, classId) {
 }
 
 function _setContentSummary(store, contentScopeId, reportPayload) {
-  return ContentSummaryResource.getModel(contentScopeId, reportPayload)
-    .fetch()
-    .then(contentSummary => {
-      store.commit('SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
-    });
+  return ContentSummaryResource.fetchModel({
+    id: contentScopeId,
+    getParams: reportPayload,
+  }).then(contentSummary => {
+    store.commit('SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
+  });
 }
 
 function _showContentList(store, options) {
@@ -259,7 +258,7 @@ function _showContentList(store, options) {
   ];
   const isUser = options.userScope === UserScopes.USER;
   if (isUser) {
-    promises.push(FacilityUserResource.getModel(options.userScopeId).fetch());
+    promises.push(FacilityUserResource.fetchModel({ id: options.userScopeId }));
   }
   Promise.all(promises).then(
     ([, , , user]) => {
@@ -325,69 +324,69 @@ export function showExerciseDetailView(
   attemptLogIndex,
   interactionIndex
 ) {
-  return ContentNodeResource.getModel(contentId)
-    .fetch()
-    ._promise.then(
-      exercise => {
-        return Promise.all([
-          AttemptLogResource.getCollection({
+  return ContentNodeResource.fetchModel({ id: contentId }).then(
+    exercise => {
+      return Promise.all([
+        AttemptLogResource.fetchCollection({
+          getParams: {
             user: userId,
             content: exercise.content_id,
-          }).fetch(),
-          ContentSummaryLogResource.getCollection({
+          },
+        }),
+        ContentSummaryLogResource.fetchCollection({
+          getParams: {
             user_id: userId,
             content_id: exercise.content_id,
-          }).fetch(),
-          FacilityUserResource.getModel(userId).fetch(),
-          ContentNodeResource.fetchAncestors(contentId),
-          setClassState(store, classId),
-        ]).then(([attemptLogs, summaryLog, user, ancestors]) => {
-          attemptLogs.sort(
-            (attemptLog1, attemptLog2) =>
-              new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
-          );
-          const exerciseQuestions = assessmentMetaDataState(exercise).assessmentIds;
-          // SECOND LOOP: Add their question number
-          if (exerciseQuestions && exerciseQuestions.length) {
-            attemptLogs.forEach(attemptLog => {
-              attemptLog.questionNumber = exerciseQuestions.indexOf(attemptLog.item) + 1;
-            });
-          }
+          },
+        }),
+        FacilityUserResource.fetchModel({ id: userId }),
+        ContentNodeSlimResource.fetchAncestors(contentId),
+        setClassState(store, classId),
+      ]).then(([attemptLogs, summaryLog, user, ancestors]) => {
+        attemptLogs.sort(
+          (attemptLog1, attemptLog2) =>
+            new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
+        );
+        const exerciseQuestions = assessmentMetaDataState(exercise).assessmentIds;
+        // SECOND LOOP: Add their question number
+        if (exerciseQuestions && exerciseQuestions.length) {
+          attemptLogs.forEach(attemptLog => {
+            attemptLog.questionNumber = exerciseQuestions.indexOf(attemptLog.item) + 1;
+          });
+        }
 
-          const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
-          let currentInteractionHistory = currentAttemptLog.interaction_history || [];
-          // filter out interactions without answers but keep hints and errors
-          currentInteractionHistory = currentInteractionHistory.filter(interaction =>
-            Boolean(
-              interaction.answer || interaction.type === 'hint' || interaction.type === 'error'
-            )
-          );
-          Object.assign(exercise, { ancestors });
-          const pageState = {
-            // hack, allows caryover of custom state
-            ...store.state.pageState,
-            // because this is info returned from a collection
-            user,
-            exercise,
-            attemptLogs,
-            currentAttemptLog,
-            interactionIndex,
-            currentInteractionHistory,
-            currentInteraction: currentInteractionHistory[interactionIndex],
-            summaryLog: summaryLog[0],
-            channelId, // not really needed
-            attemptLogIndex,
-          };
+        const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
+        let currentInteractionHistory = currentAttemptLog.interaction_history || [];
+        // filter out interactions without answers but keep hints and errors
+        currentInteractionHistory = currentInteractionHistory.filter(interaction =>
+          Boolean(interaction.answer || interaction.type === 'hint' || interaction.type === 'error')
+        );
+        Object.assign(exercise, { ancestors });
+        const pageState = {
+          // hack, allows caryover of custom state
+          ...store.state.pageState,
+          // because this is info returned from a collection
+          user,
+          exercise,
+          attemptLogs,
+          currentAttemptLog,
+          interactionIndex,
+          currentInteractionHistory,
+          currentInteraction: currentInteractionHistory[interactionIndex],
+          summaryLog: summaryLog[0],
+          channelId, // not really needed
+          attemptLogIndex,
+        };
 
-          store.commit('SET_PAGE_STATE', pageState);
-          store.commit('CORE_SET_PAGE_LOADING', false);
-          return pageState;
-        });
-      },
-      error => {
-        handleCoachPageError(store, error);
-      }
-    );
+        store.commit('SET_PAGE_STATE', pageState);
+        store.commit('CORE_SET_PAGE_LOADING', false);
+        return pageState;
+      });
+    },
+    error => {
+      handleCoachPageError(store, error);
+    }
+  );
 }
 
 function clearReportSorting(store) {
@@ -401,19 +400,21 @@ export function setReportSorting(store, { sortColumn, sortOrder }) {
 export function showRecentItemsForChannel(store, params) {
   const { classId, channelId } = params;
   preparePageNameAndTitle(store, PageNames.RECENT_ITEMS_FOR_CHANNEL);
-  const channelPromise = ChannelResource.getModel(channelId).fetch();
+  const channelPromise = ChannelResource.fetchModel({ id: channelId });
 
   Promise.all([channelPromise, setClassState(store, classId)]).then(
     ([channelData]) => {
       const threshold = now();
       threshold.setDate(threshold.getDate() - RECENCY_THRESHOLD_IN_DAYS);
-      const recentReportsPromise = RecentReportResource.getCollection({
-        channel_id: channelId,
-        content_node_id: channelData.root,
-        collection_kind: UserScopes.CLASSROOM,
-        collection_id: classId,
-        last_active_time: threshold,
-      }).fetch();
+      const recentReportsPromise = RecentReportResource.fetchCollection({
+        getParams: {
+          channel_id: channelId,
+          content_node_id: channelData.root,
+          collection_kind: UserScopes.CLASSROOM,
+          collection_id: classId,
+          last_active_time: threshold,
+        },
+      });
 
       recentReportsPromise.then(
         reports => {
@@ -467,8 +468,8 @@ export function showLearnerReportsForItem(store, params) {
 export function showLearnerList(store, classId) {
   preparePageNameAndTitle(store, PageNames.LEARNER_LIST);
   const promises = [
-    FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
-    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
+    FacilityUserResource.fetchCollection({ getParams: { member_of: classId }, force: true }),
+    LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
     setClassState(store, classId),
   ];
 
@@ -519,21 +520,19 @@ export function showChannelRootReport(store, params) {
   }
   preparePageNameAndTitle(store, pageName);
   // NOTE: Almost exactly the same as showItemListReports, except for this API call
-  return ChannelResource.getModel(channelId)
-    .fetch()
-    .then(
-      channel => {
-        _showContentList(store, {
-          classId,
-          channelId,
-          contentScope: ContentScopes.ROOT,
-          contentScopeId: channel.root,
-          showRecentOnly: false,
-          ...scopeOptions,
-        });
-      },
-      error => handleCoachPageError(store, error)
-    );
+  return ChannelResource.fetchModel({ id: channelId }).then(
+    channel => {
+      _showContentList(store, {
+        classId,
+        channelId,
+        contentScope: ContentScopes.ROOT,
+        contentScopeId: channel.root,
+        showRecentOnly: false,
+        ...scopeOptions,
+      });
+    },
+    error => handleCoachPageError(store, error)
+  );
 }
 
 export function showItemListReports(store, params) {

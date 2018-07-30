@@ -117,7 +117,7 @@
     methods: {
       ...mapActions(['handleApiError']),
       getLearnerGroupsForClassroom(classroomId) {
-        return LearnerGroupResource.getCollection({ parent: classroomId }).fetch();
+        return LearnerGroupResource.fetchCollection({ getParams: { parent: classroomId } });
       },
       goToAvailableGroups() {
         // Do nothing if user presses Continue more than once
