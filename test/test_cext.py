@@ -1,3 +1,4 @@
+import os
 
 
 def test_cryptography_path():
@@ -10,4 +11,7 @@ def test_cryptography_path():
         import cryptography
         assert "dist/cext" in cryptography.__file__
     except ImportError:
-        pass
+        # This variable is defined in .travis.yml and the intention is to fail
+        # loudly when were unsuccessful when importing cryptography
+        if os.environ.get('RUN_WITH_CEXT') == 'y':
+            raise AssertionError("Expected c extesions")
