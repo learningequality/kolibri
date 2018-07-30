@@ -45,10 +45,10 @@ function _currentTopicState(topic, ancestors = []) {
 
 export function getAllExercisesWithinTopic(store, topicId) {
   return new Promise((resolve, reject) => {
-    const exercisesPromise = ContentNodeResource.getDescendantsCollection(topicId, {
+    const exercisesPromise = ContentNodeResource.fetchDescendantsCollection(topicId, {
       descendant_kind: ContentNodeKinds.EXERCISE,
       fields: ['id', 'title', 'assessmentmetadata', 'num_coach_contents'],
-    }).fetch();
+    });
 
     ConditionalPromise.all([exercisesPromise]).only(
       samePageCheckGenerator(store),

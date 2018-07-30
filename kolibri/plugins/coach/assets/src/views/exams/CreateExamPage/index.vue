@@ -136,7 +136,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState, mapActions, mapMutations } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -356,9 +356,11 @@
         'goToTopic',
         'removeExercise',
         'removeExercisesFromExam',
-        'setExamsModal',
         'setSelectedExercises',
       ]),
+      ...mapMutations({
+        setExamsModal: 'SET_EXAMS_MODAL',
+      }),
       setDummyChannelId(id) {
         if (!this.dummyChannelId) {
           this.dummyChannelId = id;

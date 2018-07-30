@@ -34,6 +34,9 @@ export default {
       state.selectedExercises = selectedExercises;
       state.exerciseContentNodes = state.exerciseContentNodes.concat(selectedExercises);
     },
+    SET_EXAMS_MODAL(state, modalName) {
+      state.examsModalSet = modalName;
+    },
   },
   actions,
 };

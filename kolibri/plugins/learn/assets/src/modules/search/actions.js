@@ -29,10 +29,9 @@ export function triggerSearch(store, searchTerm) {
         )
         .map(content => content.content_id);
       if (contentIds.length) {
-        ContentNodeResource.getCopiesCount({
+        ContentNodeResource.fetchCopiesCount({
           content_ids: contentIds,
         })
-          .fetch()
           .then(copiesCount => {
             const updatedContents = contents.map(content => {
               const updatedContent = content;
