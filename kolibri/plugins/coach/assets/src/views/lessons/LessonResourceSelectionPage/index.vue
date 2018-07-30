@@ -33,7 +33,7 @@
           :checked="isSelected(content.id)"
           @change="toggleSelected($event, content.id)"
         />
-        <ContentCard
+        <LessonContentCard
           class="content-card"
           :title="content.title"
           :thumbnail="content.thumbnail"
