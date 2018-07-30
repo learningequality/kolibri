@@ -2,8 +2,7 @@
 
   <div class="app-error">
 
-    <!-- kolibri image? -->
-    <logo class="logo" />
+    <img src="./app-error-bird.png">
     <!-- Header message -->
     <h1>
       {{ $tr('defaultErrorHeader') }}
@@ -50,7 +49,6 @@
   import kButton from 'kolibri.coreVue.components.kButton';
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
-  import logo from 'kolibri.coreVue.components.logo';
   import reportErrorModal from './report-error-modal';
 
   export default {
@@ -67,7 +65,6 @@
       kButton,
       kExternalLink,
       kRouterLink,
-      logo,
       reportErrorModal,
     },
     data() {
