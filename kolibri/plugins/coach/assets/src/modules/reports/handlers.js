@@ -331,7 +331,7 @@ export function showRecentItemsForChannel(store, params) {
           content_node_id: channelData.root,
           collection_kind: UserScopes.CLASSROOM,
           collection_id: classId,
-          last_active_time: threshold,
+          last_active_time: threshold.toISOString(),
         },
       });
 
