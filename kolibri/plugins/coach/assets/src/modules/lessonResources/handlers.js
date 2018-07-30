@@ -50,7 +50,7 @@ function showResourceSelectionPage(
         const ancestorCounts = {};
 
         const getResourceAncestors = store.state.lessonSummary.workingResources.map(resourceId =>
-          ContentNodeResource.fetchAncestors(resourceId)
+          ContentNodeSlimResource.fetchAncestors(resourceId)
         );
 
         return Promise.all(getResourceAncestors).then(

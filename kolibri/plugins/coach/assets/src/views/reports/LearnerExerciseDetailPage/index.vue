@@ -85,7 +85,12 @@
         return this.$tr('backPrompt', { backTitle: this.exercise.title });
       },
       parentTopic() {
-        return this.exercise.ancestors[this.exercise.ancestors.length - 1];
+        // Have to guard against exercise being {}. In showExerciseDetailView,
+        // exercise is being wiped out for some reason.
+        if (this.exercise.ancestors) {
+          return this.exercise.ancestors[this.exercise.ancestors.length - 1];
+        }
+        return { title: '' };
       },
     },
   };
