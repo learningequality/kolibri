@@ -132,27 +132,18 @@
         required: true,
       },
     },
-    data: () => ({
-      currentQuestionIndex: 0,
-      exercises: {},
-      loading: true,
-      maxHeight: null,
-    }),
+    data() {
+      return {
+        currentQuestionIndex: 0,
+        exercises: {},
+        loading: true,
+        maxHeight: null,
+        questions: [],
+      };
+    },
     computed: {
       debouncedSetMaxHeight() {
         return debounce(this.setMaxHeight, 250);
-      },
-      questions() {
-        return Object.keys(this.exercises).length
-          ? createQuestionList(this.examQuestionSources).map(question => ({
-              itemId: selectQuestionFromExercise(
-                question.assessmentItemIndex,
-                this.examSeed,
-                this.exercises[question.contentId]
-              ),
-              contentId: question.contentId,
-            }))
-          : [];
       },
       currentQuestion() {
         return this.questions[this.currentQuestionIndex] || {};
@@ -165,13 +156,13 @@
       },
     },
     watch: {
-      examQuestionSources: 'setExercises',
+      examQuestionSources: {
+        handler: 'resetPreview',
+        immediate: true,
+      },
     },
     updated() {
       this.debouncedSetMaxHeight();
-    },
-    created() {
-      this.setExercises();
     },
     methods: {
       setMaxHeight() {
@@ -189,9 +180,29 @@
       numCoachContents(exercise) {
         return find(this.exerciseContentNodes, { id: exercise.exercise_id }).num_coach_contents;
       },
+      resetPreview() {
+        // Serially update data.exercises, then data.questions
+        return this.setExercises().then(() => {
+          this.setQuestions();
+        });
+      },
+      setQuestions() {
+        if (Object.keys(this.exercises).length === 0) {
+          this.questions = [];
+        } else {
+          this.questions = createQuestionList(this.examQuestionSources).map(question => ({
+            itemId: selectQuestionFromExercise(
+              question.assessmentItemIndex,
+              this.examSeed,
+              this.exercises[question.contentId]
+            ),
+            contentId: question.contentId,
+          }));
+        }
+      },
       setExercises() {
         this.loading = true;
-        ContentNodeResource.fetchCollection({
+        return ContentNodeResource.fetchCollection({
           getParams: {
             ids: this.examQuestionSources.map(item => item.exercise_id),
           },
