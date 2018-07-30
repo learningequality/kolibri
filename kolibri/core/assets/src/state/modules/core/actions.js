@@ -15,6 +15,7 @@ import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { redirectBrowser } from 'kolibri.utils.browser';
+import Vue from 'kolibri.lib.vue';
 import intervalTimer from '../../../timer';
 import {
   MasteryLoggingMap,
@@ -723,4 +724,22 @@ export function createSnackbar(store, snackbarOptions) {
 
 export function clearSnackbar(store) {
   store.commit('CORE_CLEAR_SNACKBAR');
+}
+
+export function loading(store) {
+  return new Promise(resolve => {
+    store.commit('CORE_SET_PAGE_LOADING', true);
+    Vue.nextTick(() => {
+      resolve();
+    });
+  });
+}
+
+export function notLoading(store) {
+  return new Promise(resolve => {
+    store.commit('CORE_SET_PAGE_LOADING', false);
+    Vue.nextTick(() => {
+      resolve();
+    });
+  });
 }

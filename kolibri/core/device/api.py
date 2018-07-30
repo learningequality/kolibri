@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils.decorators import method_decorator
 from morango.models import InstanceIDModel
 from rest_framework import mixins
 from rest_framework import status
@@ -15,6 +16,7 @@ from .serializers import DeviceProvisionSerializer
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.utils.server import get_urls
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time import local_now
@@ -27,6 +29,7 @@ class DevicePermissionsViewSet(viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter,)
 
 
+@method_decorator(signin_redirect_exempt, name='dispatch')
 class DeviceProvisionView(viewsets.GenericViewSet):
     permission_classes = (NotProvisionedCanPost,)
     serializer_class = DeviceProvisionSerializer
