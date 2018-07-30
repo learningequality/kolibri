@@ -690,10 +690,12 @@ export class Resource {
   /**
    * Find a model by its attributes - will return first model found that matches
    * @param  {Object} attrs Hash of attributes to search by
+   * @param  {string} endpointName name of endpoint to search model cache
    * @return {Model}       First matching Model
    */
-  findModel(attrs) {
-    return find(this.models, model => matches(attrs)(model.attributes));
+  findModel(attrs, endpointName) {
+    const cache = this.__modelCache(endpointName);
+    return find(cache, model => matches(attrs)(model.attributes));
   }
 
   /**
