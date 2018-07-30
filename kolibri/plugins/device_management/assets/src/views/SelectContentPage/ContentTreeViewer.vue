@@ -99,7 +99,8 @@
         return this.path.map(transformBreadrumb);
       },
       childNodes() {
-        return this.currentTopicNode.children;
+        // Guard against when state is reset going back to manage content page
+        return this.currentTopicNode.children || [];
       },
       childNodesWithPath() {
         return this.childNodes.map(node => ({
