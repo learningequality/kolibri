@@ -3,7 +3,7 @@ import { assignCoachesToClass, enrollLearnersInClass } from './actions';
 
 function defaultState() {
   return {
-    class: null,
+    class: {},
     classUsers: [],
     facilityUsers: [],
     modalShown: false,

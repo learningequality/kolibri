@@ -10,9 +10,10 @@ import { PageNames } from '../../constants';
 import { _collectionState, normalizeContentNode, contentState } from '../coreLearn/utils';
 
 export function showTopicsChannel(store, id) {
-  store.commit('CORE_SET_PAGE_LOADING', true);
-  store.commit('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
-  showTopicsTopic(store, { id, isRoot: true });
+  return store.dispatch('loading').then(() => {
+    store.commit('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
+    return showTopicsTopic(store, { id, isRoot: true });
+  });
 }
 
 export function showTopicsContent(store, id) {
@@ -48,56 +49,57 @@ export function showTopicsContent(store, id) {
 }
 
 export function showTopicsTopic(store, { id, isRoot = false }) {
-  store.commit('CORE_SET_PAGE_LOADING', true);
-  store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
-  const promises = [
-    ContentNodeSlimResource.fetchModel({ id }), // the topic
-    ContentNodeSlimResource.fetchCollection({
-      getParams: {
-        parent: id,
-        by_role: true,
-      },
-    }), // the topic's children
-    ContentNodeSlimResource.fetchAncestors(id), // the topic's ancestors
-    store.dispatch('setChannelInfo'),
-  ];
+  return store.dispatch('loading').then(() => {
+    store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
+    const promises = [
+      ContentNodeResource.fetchModel({ id }), // the topic
+      ContentNodeSlimResource.fetchCollection({
+        getParams: {
+          parent: id,
+          by_role: true,
+        },
+      }), // the topic's children
+      ContentNodeSlimResource.fetchAncestors(id), // the topic's ancestors
+      store.dispatch('setChannelInfo'),
+    ];
 
-  return ConditionalPromise.all(promises).only(
-    samePageCheckGenerator(store),
-    ([topic, children, ancestors]) => {
-      const currentChannel = store.getters.getChannelObject(topic.channel_id);
-      if (!currentChannel) {
-        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-        return;
-      }
-      if (isRoot) {
-        topic.description = currentChannel.description;
-      }
-      store.commit('topicsTree/SET_STATE', {
-        isRoot,
-        channel: currentChannel,
-        topic: normalizeContentNode(topic, ancestors),
-        contents: _collectionState(children),
-      });
-
-      // Only load contentnode progress if the user is logged in
-      if (store.getters.isUserLoggedIn) {
-        const contentNodeIds = children.map(({ id }) => id);
-
-        if (contentNodeIds.length > 0) {
-          ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
-            progresses => {
-              store.commit('topicsTree/SET_NODE_PROGRESS', progresses);
-            }
-          );
+    return ConditionalPromise.all(promises).only(
+      samePageCheckGenerator(store),
+      ([topic, children, ancestors]) => {
+        const currentChannel = store.getters.getChannelObject(topic.channel_id);
+        if (!currentChannel) {
+          router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+          return;
         }
-      }
+        if (isRoot) {
+          topic.description = currentChannel.description;
+        }
+        store.commit('topicsTree/SET_STATE', {
+          isRoot,
+          channel: currentChannel,
+          topic: normalizeContentNode(topic, ancestors),
+          contents: _collectionState(children),
+        });
 
-      store.commit('CORE_SET_PAGE_LOADING', false);
-      store.commit('CORE_SET_ERROR', null);
-    },
-    error => {
-      store.dispatch('handleApiError', error);
-    }
-  );
+        // Only load contentnode progress if the user is logged in
+        if (store.getters.isUserLoggedIn) {
+          const contentNodeIds = children.map(({ id }) => id);
+
+          if (contentNodeIds.length > 0) {
+            ContentNodeProgressResource.fetchCollection({
+              getParams: { ids: contentNodeIds },
+            }).then(progresses => {
+              store.commit('topicsTree/SET_NODE_PROGRESS', progresses);
+            });
+          }
+        }
+
+        store.dispatch('notLoading');
+        store.commit('CORE_SET_ERROR', null);
+      },
+      error => {
+        store.dispatch('handleApiError', error);
+      }
+    );
+  });
 }
