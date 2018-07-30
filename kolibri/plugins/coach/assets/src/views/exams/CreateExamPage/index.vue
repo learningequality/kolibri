@@ -126,7 +126,9 @@
       :examQuestionSources="questionSources"
       :examSeed="seed"
       :examNumQuestions="inputNumQuestions"
+      :exerciseContentNodes="exerciseContentNodes"
       @randomize="randomize"
+      @close="setExamsModal(null)"
     />
 
   </div>
@@ -218,6 +220,7 @@
       ...mapState(['classId']),
       ...mapState('examCreate', [
         'examsModalSet',
+        'exerciseContentNodes',
         'exercises',
         'selectedExercises',
         'subtopics',
@@ -358,7 +361,7 @@
         'removeExercisesFromExam',
         'setSelectedExercises',
       ]),
-      ...mapMutations({
+      ...mapMutations('examCreate', {
         setExamsModal: 'SET_EXAMS_MODAL',
       }),
       setDummyChannelId(id) {

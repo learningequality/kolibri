@@ -6,6 +6,8 @@
       :examQuestionSources="exam.question_sources"
       :examSeed="exam.seed"
       :examNumQuestions="exam.question_count"
+      :exerciseContentNodes="exerciseContentNodes"
+      @close="setExamsModal(null)"
     />
 
     <AssignmentChangeStatusModal
@@ -78,7 +80,7 @@
     },
     computed: {
       ...mapState(['classId', 'className', 'classList']),
-      ...mapState('examReport', ['exam', 'examsModalSet', 'learnerGroups']),
+      ...mapState('examReport', ['exam', 'examsModalSet', 'learnerGroups', 'exerciseContentNodes']),
       AssignmentActions() {
         return AssignmentActions;
       },

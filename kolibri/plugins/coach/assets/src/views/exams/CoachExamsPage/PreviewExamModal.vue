@@ -78,7 +78,6 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
   import find from 'lodash/find';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
@@ -128,6 +127,10 @@
         type: Boolean,
         default: false,
       },
+      exerciseContentNodes: {
+        type: Array,
+        required: true,
+      },
     },
     data: () => ({
       currentQuestionIndex: 0,
@@ -136,7 +139,6 @@
       maxHeight: null,
     }),
     computed: {
-      ...mapState('examReport', ['exerciseContentNodes']),
       debouncedSetMaxHeight() {
         return debounce(this.setMaxHeight, 250);
       },
@@ -172,7 +174,6 @@
       this.setExercises();
     },
     methods: {
-      ...mapActions('examReport', ['setExamsModal']),
       setMaxHeight() {
         const title = this.$refs.modal.$el.querySelector('#modal-title');
         const header = this.$refs.header;
@@ -222,7 +223,7 @@
         return '';
       },
       close() {
-        this.setExamsModal(false);
+        this.$emit('close');
       },
       getExerciseQuestions(exerciseId) {
         return this.questions.filter(q => q.contentId === exerciseId);
