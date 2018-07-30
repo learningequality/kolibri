@@ -42,7 +42,7 @@
       :class="`gutter-${windowSize.gutterWidth}`"
     >
       <auth-message
-        v-if="unauthorized"
+        v-if="notAuthorized"
         :authorizedRole="authorizedRole"
         :header="authorizationErrorHeader"
         :details="authorizationErrorDetails"
@@ -172,10 +172,9 @@
       navWidth() {
         return this.headerHeight * 4;
       },
-      unauthorized() {
-        // catch backend errors, display the same error
-        // TODO use constants + test
-        if (this.error && this.error.code == 500) {
+      notAuthorized() {
+        // catch "not authorized" error, display authMessage
+        if (this.error && this.error.code == 403) {
           return true;
         }
         return !this.authorized;
