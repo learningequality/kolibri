@@ -1,4 +1,4 @@
-import logging as logger
+import logging
 import os
 
 from django.core.management.base import CommandError
@@ -8,7 +8,7 @@ from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Command(AsyncCommand):
@@ -24,7 +24,7 @@ class Command(AsyncCommand):
         except ChannelMetadata.DoesNotExist:
             raise CommandError("Channel matching id {id} does not exist".format(id=channel_id))
 
-        logging.info("Deleting all channel metadata")
+        logger.info("Deleting all channel metadata")
         channel.delete_content_tree_and_files()
 
         # Get orphan files that are being deleted
@@ -38,7 +38,7 @@ class Command(AsyncCommand):
         }
 
         with self.start_progress(total=total_file_deletion_operations + total_local_files_to_delete + 1) as progress_update:
-            logging.info("Deleting all channel metadata")
+            logger.info("Deleting all channel metadata")
 
             for file in LocalFile.objects.delete_orphan_files():
                 if file.available:

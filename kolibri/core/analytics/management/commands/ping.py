@@ -1,5 +1,5 @@
 import json
-import logging as logger
+import logging
 import os
 import time
 from datetime import datetime
@@ -14,7 +14,7 @@ from requests.exceptions import Timeout
 import kolibri
 from kolibri.core.device.models import DeviceSettings
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 DEFAULT_PING_INTERVAL = 24 * 60
 DEFAULT_PING_CHECKRATE = 15
@@ -42,17 +42,17 @@ class Command(BaseCommand):
 
         while True:
             try:
-                logging.info("Attempting a ping.")
+                logger.info("Attempting a ping.")
                 data = self.perform_ping(server)
-                logging.info("Ping succeeded! (response: {}) Sleeping for {} minutes.".format(data, interval))
+                logger.info("Ping succeeded! (response: {}) Sleeping for {} minutes.".format(data, interval))
                 time.sleep(interval * 60)
                 continue
             except ConnectionError:
-                logging.warn("Ping failed (could not connect). Trying again in {} minutes.".format(checkrate))
+                logger.warn("Ping failed (could not connect). Trying again in {} minutes.".format(checkrate))
             except Timeout:
-                logging.warn("Ping failed (connection timed out). Trying again in {} minutes.".format(checkrate))
+                logger.warn("Ping failed (connection timed out). Trying again in {} minutes.".format(checkrate))
             except RequestException as e:
-                logging.warn("Ping failed ({})! Trying again in {} minutes.".format(e, checkrate))
+                logger.warn("Ping failed ({})! Trying again in {} minutes.".format(e, checkrate))
             time.sleep(checkrate * 60)
 
     def perform_ping(self, server):
@@ -78,7 +78,7 @@ class Command(BaseCommand):
 
         jsondata = json.dumps(data)
 
-        logging.info("data: {}".format(jsondata))
+        logger.info("data: {}".format(jsondata))
 
         response = requests.post(server, data=jsondata, timeout=60)
 

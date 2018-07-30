@@ -1,4 +1,4 @@
-import logging as logger
+import logging
 import os
 from time import sleep
 
@@ -19,7 +19,7 @@ DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
 RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Command(AsyncCommand):
@@ -166,7 +166,7 @@ class Command(AsyncCommand):
             annotation.set_availability(channel_id, file_checksums_to_annotate)
 
             if number_of_skipped_files > 0:
-                logging.warning(
+                logger.warning(
                     "{} files are skipped, because errors occured during the import.".format(
                         number_of_skipped_files))
 
@@ -189,7 +189,7 @@ class Command(AsyncCommand):
                 # file is corrupted. Skip this file.
                 if filetransfer.total_size < f.file_size:
                     e = "File {} is corrupted.".format(filetransfer.source)
-                    logging.error("An error occured during content import: {}".format(e))
+                    logger.error("An error occured during content import: {}".format(e))
                     overall_progress_update(f.file_size)
                     return True, 1
 
@@ -203,7 +203,7 @@ class Command(AsyncCommand):
             return True, 2
 
         except Exception as e:
-            logging.error("An error occured during content import: {}".format(e))
+            logger.error("An error occured during content import: {}".format(e))
 
             # When there is an Internet connection error or timeout error,
             # or HTTPError where the error code is one of the RETRY_STATUS_CODE,

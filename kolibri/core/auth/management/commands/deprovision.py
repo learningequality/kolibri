@@ -1,4 +1,4 @@
-import logging as logger
+import logging
 import sys
 
 from django.db.models.signals import post_delete
@@ -19,7 +19,7 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils.cli import server
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 MODELS_TO_DELETE = [
     AttemptLog, ContentSessionLog, ContentSummaryLog, FacilityUser, FacilityDataset, Certificate,
@@ -63,7 +63,7 @@ class Command(AsyncCommand):
         # safest not to run this command while the server is running
         status_code, _ = server.get_urls()
         if status_code == server.STATUS_RUNNING:
-            logging.error("The Kolibri server is currently running. Please stop it and then re-run this command.")
+            logger.error("The Kolibri server is currently running. Please stop it and then re-run this command.")
             sys.exit(1)
 
         # ensure the user REALLY wants to do this!

@@ -1,4 +1,4 @@
-import logging as logger
+import logging
 import os
 
 from ...utils import import_export_content
@@ -6,7 +6,7 @@ from ...utils import paths
 from ...utils import transfer
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Command(AsyncCommand):
@@ -55,7 +55,7 @@ class Command(AsyncCommand):
         data_dir = os.path.realpath(options["destination"])
         node_ids = options["node_ids"]
         exclude_node_ids = options["exclude_node_ids"]
-        logging.info("Exporting content for channel id {} to {}".format(channel_id, data_dir))
+        logger.info("Exporting content for channel id {} to {}".format(channel_id, data_dir))
 
         files, total_bytes_to_transfer = import_export_content.get_files_to_transfer(
             channel_id, node_ids, exclude_node_ids, True)
