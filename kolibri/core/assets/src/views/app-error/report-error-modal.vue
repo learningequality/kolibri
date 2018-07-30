@@ -8,7 +8,9 @@
   >
 
     <section>
-      <h3> {{ $tr('forumPrompt') }} </h3>
+      <h3 v-if="offline">
+        {{ $tr('forumPrompt') }}
+      </h3>
       <p> {{ $tr('forumUseTips') }} </p>
       <p> {{ $tr('forumPostingTips') }} </p>
       <k-external-link
@@ -19,7 +21,7 @@
     </section>
 
     <!-- only when offline -->
-    <section>
+    <section v-if="offline">
       <h3> {{ $tr('emailPrompt') }} </h3>
       <p> {{ $tr('emailDescription') }} </p>
       <!-- email link goes here. TODO Probably not an href? -->
@@ -50,7 +52,6 @@
         />
       </div>
       <div>
-        <!-- TODO change target, set download -->
         <k-external-link
           :text="$tr('downloadAsTextPrompt')"
           :download="errorTextFileName"
@@ -97,6 +98,13 @@
       kButton,
       kExternalLink,
       kModal,
+    },
+    data() {
+      return {
+        // TODO Set offline variable via ping in mounted()?
+        // Or via computed prop
+        offline: false,
+      };
     },
     computed: {
       ...mapState({
