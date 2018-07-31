@@ -62,13 +62,15 @@ matrix:
     - python: "2.7"
       env:
         - TOX_ENV=npmbuild
-    - python: "3.4"
+    - python: "2.7"
       env:
-        - TOX_ENV=py3.4
-        - RUN_WITH_CEXT="y"
+        - TOX_ENV=nocext
       script:
-       - pip install -r requirements/build.txt
-       - make staticdeps-cext
+       - tox -e $TOX_ENV
+    - python: "2.7"
+      env:
+        - TOX_ENV=cext
+      script:
        - tox -e $TOX_ENV
 
 
