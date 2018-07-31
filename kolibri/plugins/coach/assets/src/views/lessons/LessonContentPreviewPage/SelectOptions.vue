@@ -8,14 +8,14 @@
         name="check_circle"
       />
       {{ $tr('addedToLessonIndicator') }}
-      <k-button
+      <KButton
         @click="removeFromWorkingResources"
         :text="$tr('undoButtonLabel')"
         appearance="basic-link"
       />
       <!-- TODO include undo button here -->
     </template>
-    <k-button
+    <KButton
       v-else
       @click="addToWorkingResources"
       :text="$tr('addToLessonButtonLabel')"
@@ -27,12 +27,12 @@
 
 <script>
 
-  import kButton from 'kolibri.coreVue.components.kButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
-    name: 'selectOptions',
+    name: 'SelectOptions',
     components: {
-      kButton,
+      KButton,
     },
     $trs: {
       undoButtonLabel: 'Undo',

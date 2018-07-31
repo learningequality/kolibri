@@ -6,7 +6,7 @@ import {
 } from '../state/actions/contentWizardActions';
 import { updateTreeViewTopic } from '../state/actions/selectContentActions';
 import { ContentWizardPages } from '../constants';
-import { selectContentTopicLink } from '../views/manage-content-page/manageContentLinks';
+import { selectContentTopicLink } from '../views/ManageContentPage/manageContentLinks';
 
 // To update the treeview topic programatically
 export function navigateToTopicUrl(node) {

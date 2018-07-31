@@ -34,4 +34,4 @@ var server = new WebpackDevServer(compiler, {
 });
 server.use('/__open-in-editor', openInEditor());
 
-server.listen(devServerConfig.port, devServerConfig.address, function() {});
+server.listen(devServerConfig.port, devServerConfig.host, function() {});

@@ -65,6 +65,9 @@ def start(port=8080):
     # start the pingback thread
     PingbackThread.start_command()
 
+    # Do a db vacuum periodically
+    VacuumThread.start_command()
+
     # Write the new PID
     with open(PID_FILE, 'w') as f:
         f.write("%d\n%d" % (os.getpid(), port))
@@ -98,6 +101,19 @@ class PingbackThread(threading.Thread):
 
     def run(self):
         call_command("ping")
+
+
+class VacuumThread(threading.Thread):
+
+    @classmethod
+    def start_command(cls):
+        thread = cls()
+        thread.daemon = True
+        thread.start()
+
+    def run(self):
+        # Try to do the vacuum every 3 hours
+        call_command("vacuumsqlite", interval=10)
 
 
 def stop(pid=None, force=False):

@@ -9,7 +9,7 @@
         {{ $tr('noExamsMessage') }}
       </p>
     </div>
-    <content-card
+    <ContentCard
       class="content-card"
       v-for="exam in exams"
       :key="exam.id"
@@ -30,11 +30,11 @@
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { canViewExam } from 'kolibri.utils.exams';
-  import ContentCard from '../content-card';
+  import ContentCard from '../ContentCard';
   import { examViewerLink, examReportViewerLink } from './classPageLinks';
 
   export default {
-    name: 'assignedExamsCards',
+    name: 'AssignedExamsCards',
     components: {
       ContentCard,
     },

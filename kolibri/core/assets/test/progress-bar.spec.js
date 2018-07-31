@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import ProgressBar from '../src/views/progress-bar';
+import ProgressBar from '../src/views/ProgressBar';
 
 function testProgressBar(wrapper, expected) {
   const { text, width } = expected;

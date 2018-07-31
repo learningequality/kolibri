@@ -5,7 +5,7 @@
       <h2>{{ $tr('allClassesHeader') }}</h2>
 
       <div class="classrooms">
-        <content-card
+        <ContentCard
           class="content-card"
           v-for="c in classrooms"
           :key="c.id"
@@ -13,11 +13,11 @@
           :showContentIcon="false"
           :title="c.name"
           :kind="CLASSROOM"
-          :isMobile="isMobile"
+          :isMobile="windowIsSmall"
         />
       </div>
     </div>
-    <auth-message authorizedRole="learner" v-else />
+    <AuthMessage authorizedRole="learner" v-else />
   </div>
 
 </template>
@@ -26,14 +26,14 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import AuthMessage from 'kolibri.coreVue.components.authMessage';
+  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import ContentCard from '../content-card';
+  import ContentCard from '../ContentCard';
   import { classAssignmentsLink } from './classPageLinks';
 
   export default {
-    name: 'allClassesPage',
+    name: 'AllClassesPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -49,9 +49,6 @@
       ...mapState({
         classrooms: state => state.pageState.classrooms,
       }),
-      isMobile() {
-        return this.windowSize.breakpoint <= 1;
-      },
       CLASSROOM() {
         return ContentNodeKinds.CLASSROOM;
       },

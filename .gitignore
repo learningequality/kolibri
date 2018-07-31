@@ -1,5 +1,10 @@
 *.py[cod]
 
+# Host directory where `make dockerbuild` outputs .pex and .whl files
+# same directory is mounted under /docker/mnt inside containers and
+# can be used to pass in a pre-build pex file or fixtures for tests
+docker/mnt/
+
 # C extensions
 *.so
 
@@ -87,6 +92,8 @@ kolibri/content/content_db/*.sqlite3
 venv/
 .python-version
 .envrc
+.env
+Pipfile
 
 # leftover from hack day - want to ensure people don't check these in
 kolibri/plugins/learn/assets/src/demo/
@@ -106,3 +113,6 @@ build_tools/crowdin-cli.jar
 
 # Ignore pytest cache directory
 .pytest_cache/
+
+# Do not ignore this lib dir
+!eslint-plugin-kolibri/**/lib/

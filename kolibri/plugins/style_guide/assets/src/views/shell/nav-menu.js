@@ -1,21 +1,22 @@
 import sortBy from 'lodash/sortBy';
 import flatten from 'lodash/flatten';
 
-import home from '../content/_home';
+import Home from '../content/Home';
 
-import inclusivePage from '../content/inclusive';
-import writingPage from '../content/writing';
+import InclusivePage from '../content/Inclusive';
+import WritingPage from '../content/Writing';
 
-import buttonsPage from '../content/buttons';
-import breadcrumbsPage from '../content/breadcrumbs';
-import navbarPage from '../content/navbar';
-import checkboxesPage from '../content/checkboxes';
-import radioButtonsPage from '../content/radio-buttons';
-import textFieldsPage from '../content/text-fields';
-import filtersPage from '../content/filters';
-import dropdownMenusPage from '../content/dropdown-menus';
-import loadersPage from '../content/loaders';
-import modalsPage from '../content/modals';
+import ButtonsPage from '../content/Buttons';
+import BreadcrumbsPage from '../content/Breadcrumbs';
+import NavbarPage from '../content/Navbar';
+import CheckboxesPage from '../content/Checkboxes';
+import RadioButtonsPage from '../content/RadioButtons';
+import TextFieldsPage from '../content/TextFields';
+import FiltersPage from '../content/Filters';
+import DropdownMenusPage from '../content/DropdownMenus';
+import LoadersPage from '../content/Loaders';
+import ModalsPage from '../content/Modals';
+import GridsPage from '../content/Grids';
 
 function sortSectionItems(items) {
   return sortBy(items, [item => item.itemName]);
@@ -24,7 +25,7 @@ function sortSectionItems(items) {
 const homeRoute = [
   {
     path: `/`,
-    component: home,
+    component: Home,
   },
 ];
 
@@ -40,14 +41,14 @@ const navMenu = [
         itemName: 'Inclusive design',
         itemRoute: {
           path: `/patterns/inclusive`,
-          component: inclusivePage,
+          component: InclusivePage,
         },
       },
       {
         itemName: 'Writing style',
         itemRoute: {
           path: `/patterns/writing`,
-          component: writingPage,
+          component: WritingPage,
         },
       },
     ],
@@ -59,70 +60,77 @@ const navMenu = [
         itemName: 'Buttons and links',
         itemRoute: {
           path: `/components/buttons`,
-          component: buttonsPage,
+          component: ButtonsPage,
         },
       },
       {
         itemName: 'Topic tree breadcrumbs',
         itemRoute: {
           path: `/components/breadcrumbs`,
-          component: breadcrumbsPage,
+          component: BreadcrumbsPage,
         },
       },
       {
         itemName: 'Horizontal navbar',
         itemRoute: {
           path: `/components/navbar`,
-          component: navbarPage,
+          component: NavbarPage,
         },
       },
       {
         itemName: 'Checkboxes',
         itemRoute: {
           path: `/components/checkboxes`,
-          component: checkboxesPage,
+          component: CheckboxesPage,
         },
       },
       {
         itemName: 'Radio Buttons',
         itemRoute: {
           path: `/components/radio-buttons`,
-          component: radioButtonsPage,
+          component: RadioButtonsPage,
         },
       },
       {
         itemName: 'Text Fields',
         itemRoute: {
           path: `/components/text-fields`,
-          component: textFieldsPage,
+          component: TextFieldsPage,
         },
       },
       {
         itemName: 'Filters',
         itemRoute: {
           path: `/components/filters`,
-          component: filtersPage,
+          component: FiltersPage,
         },
       },
       {
         itemName: 'Dropdown menus',
         itemRoute: {
           path: `/components/dropdown-menus`,
-          component: dropdownMenusPage,
+          component: DropdownMenusPage,
         },
       },
       {
         itemName: 'Loaders',
         itemRoute: {
           path: `/components/loaders`,
-          component: loadersPage,
+          component: LoadersPage,
         },
       },
       {
         itemName: 'Modals',
         itemRoute: {
           path: `/components/modals`,
-          component: modalsPage,
+          component: ModalsPage,
+        },
+      },
+      {
+        itemName: 'Grids',
+        itemRoute: {
+          path: `/components/grids`,
+          component: GridsPage,
         },
       },
     ]),

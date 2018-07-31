@@ -1,7 +1,7 @@
 import VueRouter from 'vue-router';
-import kBreadcrumbs from 'kolibri.coreVue.components.kBreadcrumbs';
+import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
 import { mount } from '@vue/test-utils';
-import Breadcrumbs from '../../src/views/breadcrumbs';
+import Breadcrumbs from '../../src/views/Breadcrumbs';
 import makeStore from '../makeStore';
 import { PageNames } from '../../src/constants';
 
@@ -30,36 +30,12 @@ function makeWrapper(options = {}) {
 
 function getElements(wrapper) {
   return {
-    breadcrumbs: () => wrapper.find(kBreadcrumbs),
-    breadcrumbItems: () => wrapper.find(kBreadcrumbs).props().items,
+    breadcrumbs: () => wrapper.find(KBreadcrumbs),
+    breadcrumbItems: () => wrapper.find(KBreadcrumbs).props().items,
   };
 }
 
 describe('learn page breadcrumbs', () => {
-  describe('when in Learn Page mode', () => {
-    it('shows no breadcrumbs on Recommended page', () => {
-      const store = makeStore({ pageName: PageNames.RECOMMENDED });
-      const wrapper = makeWrapper({ store });
-      const { breadcrumbs } = getElements(wrapper);
-      expect(breadcrumbs().exists()).toEqual(false);
-    });
-
-    it('shows correct breadcrumbs when on a Recommended Content Item', () => {
-      const store = makeStore({ pageName: PageNames.RECOMMENDED_CONTENT });
-      store.state.pageState.content = {
-        title: 'Recommended Content Item',
-      };
-      const wrapper = makeWrapper({ store });
-      const { breadcrumbItems } = getElements(wrapper);
-      const bcs = breadcrumbItems();
-      expect(bcs.length).toEqual(2);
-      expect(bcs[0].link.name).toEqual(PageNames.RECOMMENDED);
-      // Content Item has no link, just text
-      expect(bcs[1].link).toEqual(undefined);
-      expect(bcs[1].text).toEqual('Recommended Content Item');
-    });
-  });
-
   describe('when in Topic Browsing mode', () => {
     it('shows no breadcrumbs on topics root (i.e. Channels)', () => {
       const store = makeStore({ pageName: PageNames.TOPICS_ROOT });

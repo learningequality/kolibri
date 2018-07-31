@@ -370,7 +370,7 @@ export function updateLessonStatus(store, { lessonId, isActive }) {
       store.commit('SET_CURRENT_LESSON', lesson);
       setLessonsModal(store, null);
 
-      const trs = createTranslator('updateLessonStatus', {
+      const trs = createTranslator('UpdateLessonStatus', {
         lessonIsNowActive: 'Lesson is now active',
         lessonIsNowInactive: 'Lesson is now inactive',
       });
@@ -400,7 +400,7 @@ export function deleteLesson(store, { lessonId, classId }) {
         },
       });
       store.dispatch('createSnackbar', {
-        text: createTranslator('lessonDeletedSnackbar', {
+        text: createTranslator('LessonDeletedSnackbar', {
           lessonDeleted: 'Lesson deleted',
         }).$tr('lessonDeleted'),
         autoDismiss: true,
@@ -419,7 +419,7 @@ export function copyLesson(store, { payload, classroomName }) {
     ._promise.then(() => {
       setLessonsModal(store, null);
       store.dispatch('createSnackbar', {
-        text: createTranslator('lessonCopiedSnackbar', {
+        text: createTranslator('LessonCopiedSnackbar', {
           copiedLessonTo: `Copied lesson to '{classroomName}'`,
         }).$tr('copiedLessonTo', { classroomName }),
         autoDismiss: true,
@@ -438,7 +438,7 @@ export function updateLesson(store, { lessonId, payload }) {
       .then(updatedLesson => {
         setLessonsModal(store, null);
         store.dispatch('createSnackbar', {
-          text: createTranslator('lessonUpdatedSnackbar', {
+          text: createTranslator('LessonUpdatedSnackbar', {
             changesToLessonSaved: 'Changes to lesson saved',
           }).$tr('changesToLessonSaved'),
           autoDismiss: true,
@@ -464,7 +464,7 @@ export function createLesson(store, { classId, payload }) {
         setLessonsModal(store, null);
         router.push(lessonSummaryLink({ classId: classId, lessonId: newLesson.id }));
         store.dispatch('createSnackbar', {
-          text: createTranslator('lessonCreatedSnackbar', {
+          text: createTranslator('LessonCreatedSnackbar', {
             newLessonCreated: 'New lesson created',
           }).$tr('newLessonCreated'),
           autoDismiss: true,

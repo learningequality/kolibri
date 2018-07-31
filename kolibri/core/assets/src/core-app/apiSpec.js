@@ -15,7 +15,7 @@
 import vue from 'vue';
 import vuex from 'vuex';
 import seededshuffle from 'seededshuffle';
-import uiAlert from 'keen-ui/src/UiAlert';
+import UiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
 import logging from '../logging';
@@ -26,39 +26,39 @@ import * as getters from '../state/modules/core/getters';
 import * as actions from '../state/modules/core/actions';
 import store from '../state/store';
 import * as mappers from '../state/mappers';
-import contentRenderer from '../views/content-renderer';
-import downloadButton from '../views/content-renderer/download-button';
-import progressBar from '../views/progress-bar';
-import contentIcon from '../views/content-icon';
-import progressIcon from '../views/progress-icon';
-import permissionsIcon from '../views/permissions-icon';
-import coreBase from '../views/core-base';
-import kModal from '../views/k-modal';
-import sideNav from '../views/side-nav';
-import kButton from '../views/buttons-and-links/k-button';
-import kExternalLink from '../views/buttons-and-links/k-external-link';
-import kRouterLink from '../views/buttons-and-links/k-router-link';
-import kTextbox from '../views/k-textbox';
-import kNavbar from '../views/k-navbar';
-import kNavbarLink from '../views/k-navbar/link';
-import logo from '../views/logo';
-import languageSwitcherList from '../views/language-switcher/list.vue';
-import immersiveFullScreen from '../views/immersive-full-screen';
-import elapsedTime from '../views/elapsed-time';
-import pointsIcon from '../views/points-icon';
-import authMessage from '../views/auth-message';
-import kBreadcrumbs from '../views/k-breadcrumbs';
-import kCheckbox from '../views/k-checkbox';
-import kRadioButton from '../views/k-radio-button';
-import kFilterTextbox from '../views/k-filter-textbox';
-import kGrid from '../views/k-grid';
-import kGridItem from '../views/k-grid/item.vue';
-import kSelect from '../views/k-select';
+import ContentRenderer from '../views/ContentRenderer';
+import DownloadButton from '../views/ContentRenderer/DownloadButton';
+import ProgressBar from '../views/ProgressBar';
+import ContentIcon from '../views/ContentIcon';
+import ProgressIcon from '../views/ProgressIcon';
+import PermissionsIcon from '../views/PermissionsIcon';
+import CoreBase from '../views/CoreBase';
+import KModal from '../views/KModal';
+import SideNav from '../views/SideNav';
+import KButton from '../views/buttons-and-links/KButton';
+import KExternalLink from '../views/buttons-and-links/KExternalLink';
+import KRouterLink from '../views/buttons-and-links/KRouterLink';
+import KTextbox from '../views/KTextbox';
+import KNavbar from '../views/KNavbar';
+import KNavbarLink from '../views/KNavbar/KNavbarLink';
+import CoreLogo from '../views/CoreLogo';
+import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
+import ImmersiveFullScreen from '../views/ImmersiveFullScreen';
+import ElapsedTime from '../views/ElapsedTime';
+import PointsIcon from '../views/PointsIcon';
+import AuthMessage from '../views/AuthMessage';
+import KBreadcrumbs from '../views/KBreadcrumbs';
+import KCheckbox from '../views/KCheckbox';
+import KRadioButton from '../views/KRadioButton';
+import KFilterTextbox from '../views/KFilterTextbox';
+import KGrid from '../views/KGrid';
+import KGridItem from '../views/KGrid/KGridItem';
+import KSelect from '../views/KSelect';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
 import contentRendererMixin from '../mixins/contentRenderer';
-import fullscreen from '../views/fullscreen';
+import CoreFullscreen from '../views/CoreFullscreen';
 import theme from '../styles/core-theme.scss';
 import definitions from '../styles/definitions.scss';
 import keenVars from '../keen-config/variables.scss';
@@ -69,27 +69,27 @@ import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
-import appBar from '../views/app-bar';
-import coreSnackbar from '../views/core-snackbar';
-import coreMenu from '../views/core-menu';
-import coreMenuOption from '../views/core-menu/option';
+import AppBar from '../views/AppBar';
+import CoreSnackbar from '../views/CoreSnackbar';
+import CoreMenu from '../views/CoreMenu';
+import CoreMenuOption from '../views/CoreMenu/CoreMenuOption';
 import heartbeat from '../heartbeat';
-import coreTable from '../views/core-table';
-import kDropdownMenu from '../views/k-dropdown-menu';
-import coachContentLabel from '../views/coach-content-label';
+import CoreTable from '../views/CoreTable';
+import KDropdownMenu from '../views/KDropdownMenu';
+import CoachContentLabel from '../views/CoachContentLabel';
 
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
 import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
-import attemptLogList from '../views/attempt-log-list';
-import interactionList from '../views/interaction-list';
-import examReport from '../views/exam-report';
-import textTruncator from '../views/text-truncator';
-import kLinearLoader from '../views/k-linear-loader';
-import kCircularLoader from '../views/k-circular-loader';
+import AttemptLogList from '../views/AttemptLogList';
+import InteractionList from '../views/InteractionList';
+import ExamReport from '../views/ExamReport';
+import TextTruncator from '../views/TextTruncator';
+import KLinearLoader from '../views/KLinearLoader';
+import KCircularLoader from '../views/KCircularLoader';
 
-import multiPaneLayout from '../views/multi-pane-layout';
+import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
 import * as client from './client';
@@ -117,57 +117,57 @@ export default {
       mappers,
     },
     components: {
-      coachContentLabel,
-      contentRenderer,
-      downloadButton,
-      progressBar,
-      contentIcon,
-      progressIcon,
-      permissionsIcon,
-      coreBase,
-      kModal,
-      sideNav,
-      kButton,
-      kExternalLink,
-      kRouterLink,
-      kTextbox,
-      kNavbar,
-      kNavbarLink,
-      languageSwitcherList,
-      logo,
-      immersiveFullScreen,
-      elapsedTime,
-      pointsIcon,
-      authMessage,
-      kBreadcrumbs,
-      kCheckbox,
-      kRadioButton,
-      kFilterTextbox,
-      kGrid,
-      kGridItem,
-      kSelect,
-      uiAlert,
-      appBar,
-      coreSnackbar,
-      coreMenu,
-      coreMenuOption,
-      coreTable,
-      kDropdownMenu,
+      CoachContentLabel,
+      ContentRenderer,
+      DownloadButton,
+      ProgressBar,
+      ContentIcon,
+      ProgressIcon,
+      PermissionsIcon,
+      CoreBase,
+      KModal,
+      SideNav,
+      KButton,
+      KExternalLink,
+      KRouterLink,
+      KTextbox,
+      KNavbar,
+      KNavbarLink,
+      LanguageSwitcherList,
+      ImmersiveFullScreen,
+      ElapsedTime,
+      PointsIcon,
+      AuthMessage,
+      KBreadcrumbs,
+      KCheckbox,
+      KRadioButton,
+      KFilterTextbox,
+      KGrid,
+      KGridItem,
+      KSelect,
+      AppBar,
+      CoreSnackbar,
+      CoreMenu,
+      CoreMenuOption,
+      CoreTable,
+      KDropdownMenu,
       CoreInfoIcon,
-      attemptLogList,
-      interactionList,
-      examReport,
-      textTruncator,
-      kLinearLoader,
-      kCircularLoader,
-      multiPaneLayout,
-      fullscreen,
+      AttemptLogList,
+      InteractionList,
+      ExamReport,
+      TextTruncator,
+      KLinearLoader,
+      KCircularLoader,
+      MultiPaneLayout,
+      CoreFullscreen,
+      CoreLogo,
+      UiAlert,
     },
     router,
     mixins: {
       responsiveWindow,
       responsiveElement,
-      contentRenderer: contentRendererMixin,
+      contentRendererMixin,
     },
   },
   resources,
