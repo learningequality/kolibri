@@ -1,5 +1,6 @@
 import logging as logger
 import os
+from time import sleep
 
 from django.core.management.base import CommandError
 
@@ -98,6 +99,9 @@ class Command(AsyncCommand):
         finished = False
         while not finished:
             finished = self._start_file_transfer(filetransfer, channel_id, dest)
+            if self.is_cancelled():
+                self.cancel()
+                break
 
     def _start_file_transfer(self, filetransfer, channel_id, dest):
         progress_extra_data = {
@@ -120,16 +124,22 @@ class Command(AsyncCommand):
                 if self.is_cancelled():
                     try:
                         os.remove(dest)
-                    except IOError:
+                    except IOError as e:
+                        logging.error("Tried to remove {}, but exception {} occured.".format(
+                            dest, e))
                         pass
                     self.cancel()
                 return True
 
         except Exception as e:
-            # The return value of retry_import is
-            # * True, 0 - the transfer is cancelled.
-            # * False, 0 - the transfer fails and needs to retry.
-            return retry_import(self, e, 'channel')[0]
+            logging.error("An error occured during channel import: {}".format(e))
+            retry_import(e, skip_404=False)
+
+            logging.info('Waiting for 30 seconds before retrying import: {}\n'.format(
+                filetransfer.source))
+            sleep(30)
+
+            return False
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':

@@ -1,5 +1,6 @@
 import logging as logger
 import os
+from time import sleep
 
 import requests
 from django.core.management.base import CommandError
@@ -154,6 +155,9 @@ class Command(AsyncCommand):
                 while not finished:
                     finished, increment = self._start_file_transfer(
                         f, filetransfer, overall_progress_update)
+                    if self.is_cancelled():
+                        self.cancel()
+                        break
                     if increment == 2:
                         file_checksums_to_annotate.append(f.id)
                     else:
@@ -199,8 +203,17 @@ class Command(AsyncCommand):
             return True, 2
 
         except Exception as e:
-            return import_export_content.retry_import(
-                self, e, 'content', f, overall_progress_update)
+            logging.error("An error occured during content import: {}".format(e))
+            retry = import_export_content.retry_import(e, skip_404=True)
+
+            if retry:
+                logging.info('Waiting for 30 seconds before retrying import: {}\n'.format(
+                    filetransfer.source))
+                sleep(30)
+                return False, 0
+            else:
+                overall_progress_update(f.file_size)
+                return True, 1
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
