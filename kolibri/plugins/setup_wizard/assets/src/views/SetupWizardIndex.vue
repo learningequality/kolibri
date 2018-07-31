@@ -44,7 +44,8 @@
   import ProgressToolbar from './ProgressToolbar';
   import DefaultLanguageForm from './onboarding-forms/DefaultLanguageForm';
   import FacilityNameForm from './onboarding-forms/FacilityNameForm';
-  import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm';
+  // Use the full path until we can figure out why module resolution isn't working on Travis
+  import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm.vue';
   import FacilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
 
   export default {

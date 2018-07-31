@@ -1,5 +1,3 @@
-import json
-
 from django.db.models import Sum
 from django.utils.timezone import now
 from le_utils.constants import exercises
