@@ -282,8 +282,8 @@
       }
     },
     methods: {
-      ...mapActions(['signUpNewUser']),
-      ...mapMutations({
+      ...mapActions('signUp', ['signUpNewUser']),
+      ...mapMutations('signUp', {
         resetSignUpState: 'RESET_SIGN_UP_STATE',
       }),
       signUp() {
