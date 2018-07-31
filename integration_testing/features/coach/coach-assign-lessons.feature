@@ -1,4 +1,4 @@
-Feature: Coach ssign lessons
+Feature: Coach assign lessons
     Coach need to be able to assign lessons to entire class or various groups
 
   Background:

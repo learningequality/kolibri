@@ -28,15 +28,3 @@ Examples:
 | exam_title                       | number_of_question | exercises_questions |
 | First Quarter, Math examination  | 50                 | Mathématiques       |
 
-
-
-
-
-
-
-
-
-Examples:
-| class     | group     | channel      | topic        | exercise        |
-| Buffoons  | Group A   | Test channel | Test topic   | Test exercise   |
-| Buffoons  | Group B   | Test channel | Test topic 2 | Test exercise 2 |
