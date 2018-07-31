@@ -1,11 +1,13 @@
 import logging as logger
 import os
+from time import sleep
 
 from django.core.management.base import CommandError
 
 from ...utils import channel_import
 from ...utils import paths
 from ...utils import transfer
+from ...utils.import_export_content import retry_import
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
@@ -94,14 +96,20 @@ class Command(AsyncCommand):
 
         logging.debug("Destination: {}".format(dest))
 
+        finished = False
+        while not finished:
+            finished = self._start_file_transfer(filetransfer, channel_id, dest)
+            if self.is_cancelled():
+                self.cancel()
+                break
+
+    def _start_file_transfer(self, filetransfer, channel_id, dest):
         progress_extra_data = {
             "channel_id": channel_id,
         }
 
-        with filetransfer:
-
-            with self.start_progress(total=filetransfer.total_size) as progress_update:
-
+        try:
+            with filetransfer, self.start_progress(total=filetransfer.total_size) as progress_update:
                 for chunk in filetransfer:
 
                     if self.is_cancelled():
@@ -116,9 +124,22 @@ class Command(AsyncCommand):
                 if self.is_cancelled():
                     try:
                         os.remove(dest)
-                    except IOError:
+                    except IOError as e:
+                        logging.error("Tried to remove {}, but exception {} occured.".format(
+                            dest, e))
                         pass
                     self.cancel()
+                return True
+
+        except Exception as e:
+            logging.error("An error occured during channel import: {}".format(e))
+            retry_import(e, skip_404=False)
+
+            logging.info('Waiting for 30 seconds before retrying import: {}\n'.format(
+                filetransfer.source))
+            sleep(30)
+
+            return False
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
