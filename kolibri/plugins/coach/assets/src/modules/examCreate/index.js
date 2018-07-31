@@ -1,3 +1,4 @@
+import unionBy from 'lodash/unionBy';
 import * as actions from './actions';
 
 function defaultState() {
@@ -32,7 +33,7 @@ export default {
     },
     SET_SELECTED_EXERCISES(state, selectedExercises) {
       state.selectedExercises = selectedExercises;
-      state.exerciseContentNodes = state.exerciseContentNodes.concat(selectedExercises);
+      state.exerciseContentNodes = unionBy(state.exerciseContentNodes, selectedExercises, 'id');
     },
     SET_EXAMS_MODAL(state, modalName) {
       state.examsModalSet = modalName;

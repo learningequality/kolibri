@@ -17,17 +17,11 @@ const snackbarTranslator = createTranslator('ExamCreateSnackbarTexts', {
   newExamCreated: 'New exam created',
 });
 
-function _exerciseState(exercise) {
-  return {
-    id: exercise.id,
-    title: exercise.title,
-    numAssessments: assessmentMetaDataState(exercise).assessmentIds.length,
-    num_coach_contents: exercise.num_coach_contents,
-  };
-}
-
 function _exercisesState(exercises) {
-  return exercises.map(exercise => _exerciseState(exercise));
+  return exercises.map(exercise => ({
+    ...exercise,
+    numAssessments: assessmentMetaDataState(exercise).assessmentIds.length,
+  }));
 }
 
 function _currentTopicState(topic, ancestors = []) {
@@ -47,7 +41,7 @@ export function getAllExercisesWithinTopic(store, topicId) {
   return new Promise((resolve, reject) => {
     const exercisesPromise = ContentNodeResource.fetchDescendantsCollection(topicId, {
       descendant_kind: ContentNodeKinds.EXERCISE,
-      fields: ['id', 'title', 'assessmentmetadata', 'num_coach_contents'],
+      fields: ['id', 'title', 'content_id', 'assessmentmetadata', 'num_coach_contents'],
     });
 
     ConditionalPromise.all([exercisesPromise]).only(
@@ -128,7 +122,7 @@ function fetchTopic(store, topicId) {
       getParams: {
         parent: topicId,
         kind: ContentNodeKinds.EXERCISE,
-        fields: ['id', 'title', 'assessmentmetadata', 'num_coach_contents'],
+        fields: ['id', 'title', 'content_id', 'assessmentmetadata', 'num_coach_contents'],
       },
     });
     ConditionalPromise.all([
