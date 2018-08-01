@@ -1,17 +1,17 @@
 Feature: Coach delete group
-
-  Coach can delete the group if not nedded anymore
+  Coach needs to delete a group if not needed anymore
 
   Background:
-  Given I signed in to kolibri as coach user
-  Given I am on *Coach > Group* page
-  And I see the group have a list of learners
+    Given there are learners in the selected class
+      And there are groups created
+    Given I am signed in to Kolibri as a coach user
+      And I am on the *Coach > Groups* page
 
-  Scenario: Coach delete the group
-  When I click the *Option* button
-  When I select *Delete group*
-  Then the *delete group* modal appears
-  When I click the *Delete group* buttom
-  Then the modal disappears
-  Then the group was deleted
-  Then the learners back to ungroup
+  Scenario: Coach deletes the group
+    When I click the *Option* button
+      And I select *Delete group*
+    Then the *Delete group* modal appears
+    When I click the *Delete group* button
+    Then the modal closes
+      And I don't see the deleted group
+      And I see the learners are moved to *Ungrouped*

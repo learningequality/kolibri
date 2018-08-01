@@ -5,19 +5,18 @@ Feature: Learner sign-in
 
   Background:
     Given that I am on the Kolibri sign-in page
+      And that there is a registered learner <username> with password <password>
 
   Scenario: Normal sign-in
     When I fill out my username <username>
-    And I fill out my password <password>
-    And I click the *Sign in* button 
-    Given that there is there is registered learner <username> with password <password>
+      And I fill out my password <password>
+      And I click the *Sign in* button 
     Then I am signed in and I can see the *Learn > Classes* page
 
   Scenario: Simplified sign-in
     Given that simplified sign-in facility setting is on
     When I fill out my username <username>
-    And I click the *Sign in* button 
-    Given that there is registered learner <username>
+      And I click the *Sign in* button 
     Then I am signed in and I can see the *Learn > Classes* page
 
   Examples:
