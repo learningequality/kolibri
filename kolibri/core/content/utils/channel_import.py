@@ -1,4 +1,4 @@
-import logging as logger
+import logging
 
 from django.apps import apps
 from django.db.models.fields.related import ForeignKey
@@ -28,7 +28,7 @@ from kolibri.core.content.models import VERSION_1
 from kolibri.core.content.models import VERSION_2
 from kolibri.utils.time import local_now
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 CONTENT_APP_NAME = KolibriContentConfig.label
 
@@ -382,14 +382,14 @@ class ChannelImport(object):
 
             if existing_channel.version < self.channel_version:
                 # We have an older version of this channel, so let's clean out the old stuff first
-                logging.info(('Older version {channel_version} of channel {channel_id} already exists in database; removing old entries ' +
-                              'so we can upgrade to version {new_channel_version}').format(
+                logger.info(('Older version {channel_version} of channel {channel_id} already exists in database; removing old entries ' +
+                             'so we can upgrade to version {new_channel_version}').format(
                     channel_version=existing_channel.version, channel_id=self.channel_id, new_channel_version=self.channel_version))
                 self.delete_old_channel_data(existing_channel.root.tree_id)
             else:
                 # We have previously loaded this channel, with the same or newer version, so our work here is done
-                logging.warn(('Version {channel_version} of channel {channel_id} already exists in database; cancelling import of ' +
-                              'version {new_channel_version}').format(
+                logger.warn(('Version {channel_version} of channel {channel_id} already exists in database; cancelling import of ' +
+                             'version {new_channel_version}').format(
                     channel_version=existing_channel.version, channel_id=self.channel_id, new_channel_version=self.channel_version))
                 return False
 
@@ -489,7 +489,7 @@ class ChannelImport(object):
                     mapping = self.schema_mapping.get(model, {})
                     row_mapper = self.generate_row_mapper(mapping.get('per_row'))
                     table_mapper = self.generate_table_mapper(mapping.get('per_table'))
-                    logging.info('Importing {model} data'.format(model=model.__name__))
+                    logger.info('Importing {model} data'.format(model=model.__name__))
                     unflushed_rows = self.table_import(model, row_mapper, table_mapper, unflushed_rows)
             self.destination.session.commit()
             self.try_detaching_sqlite_database()

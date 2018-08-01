@@ -1,4 +1,4 @@
-import logging as logger
+import logging
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -12,7 +12,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DeviceSettings
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_user_response(prompt, valid_answers=None):
@@ -35,10 +35,10 @@ def create_facility(facility_name=None, preset=None, interactive=False):
         facility, created = Facility.objects.get_or_create(name=facility_name)
 
         if not created:
-            logging.warn("Facility with name {name} already exists, not modifying preset.".format(name=facility_name))
+            logger.warn("Facility with name {name} already exists, not modifying preset.".format(name=facility_name))
             return facility
 
-        logging.info("Facility with name {name} created.".format(name=facility_name))
+        logger.info("Facility with name {name} created.".format(name=facility_name))
 
         if preset is None and interactive:
             preset = get_user_response(
@@ -51,7 +51,7 @@ def create_facility(facility_name=None, preset=None, interactive=False):
             for key, value in dataset_data.items():
                 setattr(facility.dataset, key, value)
             facility.dataset.save()
-            logging.info("Facility preset changed to {preset}.".format(preset=preset))
+            logger.info("Facility preset changed to {preset}.".format(preset=preset))
     else:
         facility = Facility.get_default_facility() or Facility.objects.first()
         if not facility:
@@ -71,7 +71,7 @@ def create_superuser(username=None, password=None, interactive=False):
 
     if username and password:
         FacilityUser.objects.create_superuser(username, password)
-        logging.info("Superuser created with username {username}.".format(username=username))
+        logger.info("Superuser created with username {username}.".format(username=username))
 
 
 def create_device_settings(language_id=None, facility=None, interactive=False):

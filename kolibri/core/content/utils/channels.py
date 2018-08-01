@@ -1,5 +1,5 @@
 import fnmatch
-import logging as logger
+import logging
 import os
 
 from .paths import get_content_database_dir_path
@@ -7,7 +7,7 @@ from .sqlalchemybridge import Bridge
 from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
 from kolibri.utils.uuids import is_valid_uuid
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_channel_ids_for_content_database_dir(content_database_dir):
@@ -27,8 +27,8 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
     valid_db_names = [name for name in db_names if is_valid_uuid(name)]
     invalid_db_names = set(db_names) - set(valid_db_names)
     if invalid_db_names:
-        logging.warning("Ignoring databases in content database directory '{directory}' with invalid names: {names}"
-                        .format(directory=content_database_dir, names=invalid_db_names))
+        logger.warning("Ignoring databases in content database directory '{directory}' with invalid names: {names}"
+                       .format(directory=content_database_dir, names=invalid_db_names))
 
     # empty database files are created if we delete a database file while the server is running and connected to it;
     # here, we delete and exclude such databases to avoid errors when we try to connect to them
@@ -39,8 +39,8 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
             empty_db_files.add(db_name)
             os.remove(filename)
     if empty_db_files:
-        logging.warning("Removing empty databases in content database directory '{directory}' with IDs: {names}"
-                        .format(directory=content_database_dir, names=empty_db_files))
+        logger.warning("Removing empty databases in content database directory '{directory}' with IDs: {names}"
+                       .format(directory=content_database_dir, names=empty_db_files))
     valid_dbs = list(set(valid_db_names) - set(empty_db_files))
 
     return valid_dbs
