@@ -160,7 +160,7 @@
     computed: {
       ...mapState({
         toolbarTitle: state => state.pageState.toolbarTitle,
-        error: state => state.error,
+        error: state => state.core.error,
       }),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
