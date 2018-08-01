@@ -36,9 +36,7 @@
       <h3>
         {{ $tr('errorDetailsHeader') }}
       </h3>
-      <code ref="errorLog" class="error-log">
-        {{ error }}
-      </code>
+      <pre ref="errorLog" class="error-log">{{ error }}</pre>
     </section>
 
 
@@ -174,6 +172,8 @@
 
   .error-log {
     display: block;
+    max-width: 100%;
+    max-height: 240px;
     padding: 8px;
     background-color: $core-bg-error;
     border: $core-grey-300;
