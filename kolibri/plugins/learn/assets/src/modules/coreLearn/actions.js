@@ -26,7 +26,7 @@ export function setAndCheckChannels(store) {
 
 export function getCopies(store, contentId) {
   return new Promise((resolve, reject) => {
-    ContentNodeResource.getCopies(contentId)
+    ContentNodeResource.fetchCopies(contentId)
       .then(copies => resolve(copies))
       .catch(error => reject(error));
   });
