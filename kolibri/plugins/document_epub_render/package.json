@@ -3,7 +3,6 @@
   "description": "Document/EPUB Render Plugin for Kolibri",
   "private": true,
   "dependencies": {
-    "epubjs": "^0.3.57",
-    "screenfull": "^3.3.2"
+    "epubjs": "^0.3.65"
   }
 }

@@ -7,7 +7,8 @@
     :disabled="disabled"
     @click="handleClick"
   >
-    {{ text }}
+    <slot v-if="$slots.default"></slot>
+    <template v-else>{{ text }}</template>
     <mat-svg
       v-if="hasDropdown"
       category="navigation"
@@ -36,7 +37,7 @@
        */
       text: {
         type: String,
-        required: true,
+        required: false,
       },
       /**
        * Button appearance: 'raised-button', 'flat-button', or 'basic-link'

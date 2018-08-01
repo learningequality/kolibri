@@ -16,14 +16,14 @@ d@1:
   dependencies:
     es5-ext "^0.10.9"
 
-epubjs@^0.3.57:
-  version "0.3.58"
-  resolved "https://registry.yarnpkg.com/epubjs/-/epubjs-0.3.58.tgz#55488eec893b0578f314d2e6d6a3bff4fdd6a642"
+epubjs@^0.3.65:
+  version "0.3.65"
+  resolved "https://registry.yarnpkg.com/epubjs/-/epubjs-0.3.65.tgz#0ccdca39e92193b9349ae8d84fd72cbb1d4b816c"
   dependencies:
     event-emitter "^0.3.5"
-    jszip "^3.1.4"
-    lodash "^4.17.4"
-    marks-pane "^1.0.5"
+    jszip "^3.1.5"
+    lodash "^4.17.10"
+    marks-pane "^1.0.9"
     path-webpack "0.0.3"
     stream-browserify "^2.0.1"
     xmldom "^0.1.27"
@@ -73,7 +73,7 @@ isarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
 
-jszip@^3.1.4:
+jszip@^3.1.5:
   version "3.1.5"
   resolved "https://registry.yarnpkg.com/jszip/-/jszip-3.1.5.tgz#e3c2a6c6d706ac6e603314036d43cd40beefdf37"
   dependencies:
@@ -89,13 +89,13 @@ lie@~3.1.0:
   dependencies:
     immediate "~3.0.5"
 
-lodash@^4.17.4:
-  version "4.17.5"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.5.tgz#99a92d65c0272debe8c96b6057bc8fbfa3bed511"
+lodash@^4.17.10:
+  version "4.17.10"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
 
-marks-pane@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/marks-pane/-/marks-pane-1.0.5.tgz#152e083dbf226a66cecea4545af095b804f4ae7c"
+marks-pane@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/marks-pane/-/marks-pane-1.0.9.tgz#c0b5ab813384d8cd81faaeb3bbf3397dc809c1b3"
 
 pako@~1.0.2:
   version "1.0.6"
@@ -139,10 +139,6 @@ readable-stream@~2.0.6:
 safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.1.tgz#893312af69b2123def71f57889001671eeb2c853"
-
-screenfull@^3.3.2:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/screenfull/-/screenfull-3.3.2.tgz#a6adf3b3f5556da812725385880600f5b39fbf25"
 
 stream-browserify@^2.0.1:
   version "2.0.1"
