@@ -3,7 +3,10 @@ import { pageNameToModuleMap } from '../../constants';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
 export function setClassState(store, classId = null) {
-  return ClassroomResource.fetchCollection({ getParams: { role: 'coach' } })
+  // HACK add this extra pageId parameter to fool cache
+  return ClassroomResource.fetchCollection({
+    getParams: { role: 'coach', pageId: store.rootState.core.pageSessionId },
+  })
     .then(classrooms => {
       store.commit('SET_CLASS_INFO', {
         classId,
