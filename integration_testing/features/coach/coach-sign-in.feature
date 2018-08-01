@@ -4,12 +4,12 @@ Feature: Coach sign-in
 
   Background:
     Given that I am on the Kolibri sign-in page
+        And there is registered coach <username> with password <password>
 
   Scenario: Sign in as coach user
     When I fill out my username <username>
-    When I fill out my password <password>
-    When I click the *Sign in* button
-    Given that there is registered Coach <username> with password <password>
+      And I fill out my password <password>
+      And I click the *Sign in* button
     Then I am signed in and I can see the *Coach* page
 
 Examples:

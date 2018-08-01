@@ -1,41 +1,25 @@
 Feature: Coach assign exams
-    Coach need to be able to assign exams to entire class or various groups
+    Coach needs to be able to assign exams to one or more groups, as the exam by default is assigned to the entire class
 
   Background:
-    Given I am signed in to Kolibri as a coach user
-    Given I am on the *Coach > Exams* page
-    And have a list of exams title <exam_title>
-    Given one or more then groups was made
+    Given there are 2 or more learner groups
+      And I am signed in to Kolibri as a coach user
+      And I am on the *Coach > Exams* page
+      And I see the exam <exam_title>
+    
 
-    Scenario: coach can assign the examination to entire class
-    When I click the exam title <exam_title>
-    Then I am on *Exam title* page <exam_title>
-    And I see all learners that enrolled on my class <class>
-    When I click *Option* button
-    When I select *Edit details*
-    Then the *Edit exam details* modal was appears
-    And I see the title and recipients selections
-    When I select entire class
-    When I click *Save* button
-    Then the modal disappears
-    And recipients status was change to entire class
-
-    Scenario: coach can assign the examination to various groups
-    When I click the exam title <exam_title>
-    Then I am on *Exam title* page <exam_title>
-    And I see all learners that enrolled on my class <class>
-    When I click *Option* button
-    When I select *Edit details*
-    Then the *Edit exam details* modal was appears
-    And I see the title and recipients selections
-    When I select a group that I want from recipients <recipients>
-     When I click *Save* button
-    Then the modal disappears
-    And recipients status was change to group <recipients>
-
+    Scenario: Coach assigns exam to group(s)
+      When I click the exam <exam_title>
+      Then I see the <exam_title> exam page
+        And I see the full list of learners enrolled in the class
+      When I click *Options* button
+        And I select *Edit details*
+      Then I see the *Edit exam details* modal
+      When I select one or more groups
+        And I click *Save* button
+      Then the modal closes
+        And I see the chosen group(s) under *Recipients*
 
 Examples:
-| exam_title                          | class     | recipients     |
-| first quarter, english examination  | st. Anne  | Group A        |
-
-
+| exam_title     |
+| First quarter  |

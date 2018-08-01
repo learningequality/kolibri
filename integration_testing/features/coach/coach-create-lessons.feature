@@ -3,32 +3,35 @@ Feature: Coach create lessons
 
   Background:
     Given I am signed in to Kolibri as a coach user
-    Given I am on the *Coach > Lessons* page
-    Given there is a channel <channel> and topic <topic> that contains exercises
+      And I am on the *Coach > Lessons* page
+      And there is a channel <channel> and topic <topic> on the device
 
-  Scenario: Coach create a new lesson to the class
+  Scenario: Coach creates a new lesson for entire class
     When I click *New lesson* button
-    Then the *New lesson* modal was appears
+    Then I see the *New lesson* modal
     When I fill in the title <title>
-    When I fill in the description <description>
-    When I click *Continue* button
-    Then I am on the *Lesson* page that I created
+     And I fill in the description <description>
+      And I click *Continue* button
+    Then the modal closes
+      And I am on the <title> lesson page
     When I click *Add resources* button
     Then I am on the *Select resources* page
-    And I see the existing content channel <channel>
+      And I see the content channel <channel>
     When I select channel <channel>
-    Then I see lots' of topic
+    Then I see its topics
     When I click the topic <topic>
-    Then I am on *Preview resources* page
-    And I see all questionnaire
-    When I click *Back arrow symbol* button
-    Then I am back to *Select resources* page with path location that I opened
-    When I check one topic <topic>
+    Then I see the list of resources in that topic
+    When I click on a single resource
+    Then I see the *Preview resource* page
+    When I click on *back arrow* button
+    Then I see the *Select resources* page again
+    When I check the resource(s) checkbox
+    Then I see the *Total resources selected* count changed 
     When I click *Save* button
-    Then I see changes to lesson saved
-    And the topic was added to resources
+    Then *Select resources* page closes
+      And I see the added resources on the <title> lesson page
 
 
 Examples:
-| title           | description                 | channel                | topic                |
-| Examples title  | Example description         | Khan academy (English) | Recognize fractions  |
+| title         | description  | channel                | topic                |
+| First lesson  | Fractions 1  | Khan Academy (English) | Recognize fractions  |
