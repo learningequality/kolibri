@@ -225,7 +225,7 @@
           this.pageName === PageNames.RECOMMENDED_CONTENT
         ) {
           content = this.topicsTreeContent;
-        } else if (this.pageName === ClassesPageNames.LESSON_PLAYLIST) {
+        } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
           content = this.lessonContent;
         }
         const isAssessment = content && content.assessment;
