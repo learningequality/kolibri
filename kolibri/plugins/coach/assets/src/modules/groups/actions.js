@@ -40,6 +40,7 @@ export function renameGroup(store, { groupId, newGroupName }) {
   return LearnerGroupResource.saveModel({
     id: groupId,
     data: { name: newGroupName },
+    exists: true,
   }).then(
     () => {
       const groups = store.state.groups;
