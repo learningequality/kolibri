@@ -19,7 +19,7 @@
     <p>
       <KRouterLink
         appearance="raised-button"
-        :to="{route: '/'}"
+        :to="{path: '/'}"
         :primary="true"
         :text="$tr('defaultErrorExitPrompt')"
       />
