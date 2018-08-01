@@ -1,15 +1,15 @@
-Feature: Learner take the exam
-  learner to be able to take the exam
+Feature: Learner take exam
+  Learner can access the exam that has been assigneed by coach
 
   Background:
     Given I am signed in to Kolibri as a Learner user
-      And I have active and not started exam
+      And I am on *learn > classes* page
+      And I see an exam not started
       And I am on the *learn > classes > exam* page
 
-  Scenario: Learner take the exam
+  Scenario: Learner take an exam after it has been assigned
     When I fill out all questions with answers
-    Then That my answers are valid
     When I click *Submit exam* button
-    Then The submit modal show up
+    Then The submit exam modal show up
     When I click *Submit exam* button
     Then I see exam completed
