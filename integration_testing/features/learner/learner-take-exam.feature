@@ -1,5 +1,5 @@
 Feature: Learner take exam
-  Learner can access the exam that has been assigneed by coach
+  Learner can access the exam that has been assigned by coach
 
   Background:
     Given I am signed in to Kolibri as a Learner user
