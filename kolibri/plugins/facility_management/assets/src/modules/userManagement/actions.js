@@ -122,8 +122,8 @@ export function deleteUser(store, id) {
   FacilityUserResource.deleteModel({ id }).then(
     () => {
       store.commit('DELETE_USER', id);
-      store.dispatch('displayModal', false, { root: true });
-      if (store.state.core.session.user_id === id) {
+      store.dispatch('displayModal', false);
+      if (store.rootState.core.session.user_id === id) {
         store.dispatch('kolibriLogout', { root: true });
       }
     },
