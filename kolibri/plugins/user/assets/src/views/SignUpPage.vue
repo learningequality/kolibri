@@ -284,7 +284,7 @@
     methods: {
       ...mapActions('signUp', ['signUpNewUser']),
       ...mapMutations('signUp', {
-        resetSignUpState: 'RESET_SIGN_UP_STATE',
+        resetSignUpState: 'RESET_STATE',
       }),
       signUp() {
         this.formSubmitted = true;

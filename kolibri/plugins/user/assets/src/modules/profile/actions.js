@@ -63,7 +63,11 @@ export function updateUserProfilePassword(store, password) {
 
   store.commit('SET_PROFILE_BUSY', true);
 
-  return FacilityUserResource.saveModel({ id: session.user_id, data: { password } }).then(
+  return FacilityUserResource.saveModel({
+    id: session.user_id,
+    data: { password },
+    exists: true,
+  }).then(
     () => {
       store.commit('SET_PROFILE_BUSY', false);
       store.commit('SET_PROFILE_PASSWORD_MODAL', false);
