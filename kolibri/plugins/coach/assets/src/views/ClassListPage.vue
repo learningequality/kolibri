@@ -170,7 +170,7 @@
       noAssignedClassesHeader: "You aren't assigned to any classes",
       noAssignedClassesDetails:
         'Please consult your Kolibri administrator to be assigned to a class',
-      noClassesDetailsForAdmin: 'Create classes and enroll students in Facility',
+      noClassesDetailsForAdmin: 'Create a class and enroll learners',
       noClassesDetailsForFacilityCoach: 'Please consult your Kolibri administrator',
       coachesColumnHeader: 'Coaches',
       noClassesInFacility: 'There are no classes yet',

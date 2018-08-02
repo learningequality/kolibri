@@ -38,7 +38,7 @@ describe('ClassListPage', () => {
       store.state.core.session.kind = ['admin'];
       testAuthMessage(els, {
         headerText: 'There are no classes yet',
-        bodyText: 'Create classes and enroll students in Facility',
+        bodyText: 'Create a class and enroll learners',
       });
       // prettier-ignore
       expect(els.AuthMessage().find('a').attributes().href).toEqual('/facility');
