@@ -2,6 +2,8 @@ kolibri-source (0.10.1~b1-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
   * Adding a test that KOLIBRI_USER is set in init script
+  * Do not set KOLIBRI_HTTP_PORT (or deprecated KOLIBRI_LISTEN_PORT), use just 8080 default
+  * Export all known env variables in case they are user defined in /etc/kolibri
 
  -- Benjamin Bach <benjamin@learningequality.org>  Thu, 02 Aug 2018 19:10:56 +0200
 
