@@ -7,3 +7,16 @@ Feature: Coach deactivate exams
       And I see the exam <exam_title>
 
   Scenario: Coach changes the exam status to *Inactive*
+    When I click the exam <exam_title>
+    Then I see the <exam_title> exam page
+      And I see the exam *Status* is *Active*
+    When I click *Change*
+    Then I see the *Change exam status* modal
+    When I select *Inactive*
+      And I click *Save* button
+    Then the modal closes
+      And I see the exam *Status* is *Inactive*
+
+Examples:
+| exam_title     |
+| First quarter  |
