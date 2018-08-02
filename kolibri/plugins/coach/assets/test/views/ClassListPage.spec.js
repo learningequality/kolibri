@@ -13,6 +13,7 @@ function makeWrapper() {
   };
   return { wrapper, els, store };
 }
+
 describe('ClassListPage', () => {
   describe('it shows correct empty message', () => {
     // prettier-ignore
@@ -39,6 +40,7 @@ describe('ClassListPage', () => {
         headerText: 'There are no classes yet',
         bodyText: 'Create classes and enroll students in Facility',
       });
+      expect(els.AuthMessage().find('a').attributes().href).toEqual('/facility');
     });
 
     it('when a facility coach and no classes in facility', () => {

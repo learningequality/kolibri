@@ -6,7 +6,14 @@
       v-if="noClassesExist"
       :header="authMessageHeader"
       :details="authMessageDetails"
-    />
+    >
+      <KExternalLink
+        slot="details"
+        v-if="isAdmin"
+        :text="$tr('noClassesDetailsForAdmin')"
+        href="/facility"
+      />
+    </AuthMessage>
 
     <template v-else>
       <section>
@@ -62,6 +69,7 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import orderBy from 'lodash/orderBy';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import { PageNames } from '../constants';
   import { filterAndSortUsers } from '../../../../facility_management/assets/src/userSearchUtils';
 
@@ -84,6 +92,7 @@
       CoreTable,
       ContentIcon,
       KRouterLink,
+      KExternalLink,
     },
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
