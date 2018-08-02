@@ -1,4 +1,15 @@
-# 1. Set the default values
+########################################################
+# Sets the environment for the Kolibri system service
+# Do not change this script!
+#
+# To configure the system service, please either
+
+# 1) Edit /etc/kolibri/daemon.conf
+# 2) Add your own scripts to /etc/kolibri/conf.d/*.conf
+#    .conf scripts are loaded in alphanumeric order
+########################################################
+
+# Set the default values
 
 if [ -f /etc/kolibri/username ]
 then
@@ -16,7 +27,7 @@ KOLIBRI_LISTEN_PORT="8080"
 KOLIBRI_COMMAND="kolibri"
 DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
 
-# 2. Load conf.d directory
+# Load conf.d directory
 
 if [ -d /etc/kolibri/conf.d ]
 then
@@ -30,7 +41,7 @@ then
   done
 fi
 
-# 3. Load user configuration
+# Load user configuration
 
 if [ -e /etc/kolibri/daemon.conf ]
 then
