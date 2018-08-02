@@ -83,7 +83,7 @@
       },
     },
     methods: {
-      ...mapActions([
+      ...mapActions('groups', [
         'addUsersToGroup',
         'displayModal',
         'moveUsersBetweenGroups',

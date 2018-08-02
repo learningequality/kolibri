@@ -5,6 +5,8 @@
     :examSeed="examSeed"
     :examNumQuestions="examNumQuestions"
     :examCreation="true"
+    :exerciseContentNodes="exerciseContentNodes"
+    @close="$emit('close')"
   >
     <KButton
       slot="randomize-button"
@@ -41,6 +43,10 @@
       },
       examNumQuestions: {
         type: Number,
+        required: true,
+      },
+      exerciseContentNodes: {
+        type: Array,
         required: true,
       },
     },

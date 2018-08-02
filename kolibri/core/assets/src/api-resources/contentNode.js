@@ -9,7 +9,7 @@ export default new Resource({
     return this.fetchDetailCollection('copies', content_id);
   },
   fetchCopiesCount(getParams = {}) {
-    return this.fetchListCollection('copies-count', getParams);
+    return this.fetchListCollection('copies_count', getParams);
   },
   fetchNextContent(id) {
     return this.fetchDetailModel('next_content', id);

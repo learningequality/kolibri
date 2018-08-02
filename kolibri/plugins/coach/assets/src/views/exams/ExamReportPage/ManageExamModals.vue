@@ -6,6 +6,8 @@
       :examQuestionSources="exam.question_sources"
       :examSeed="exam.seed"
       :examNumQuestions="exam.question_count"
+      :exerciseContentNodes="exerciseContentNodes"
+      @close="setExamsModal(null)"
     />
 
     <AssignmentChangeStatusModal
@@ -78,11 +80,7 @@
     },
     computed: {
       ...mapState(['classId', 'className', 'classList']),
-      ...mapState({
-        exam: state => state.pageState.exam,
-        examsModalSet: state => state.pageState.examsModalSet,
-        learnerGroups: state => state.pageState.learnerGroups,
-      }),
+      ...mapState('examReport', ['exam', 'examsModalSet', 'learnerGroups', 'exerciseContentNodes']),
       AssignmentActions() {
         return AssignmentActions;
       },
@@ -94,12 +92,12 @@
       },
     },
     methods: {
-      ...mapActions([
-        'setExamsModal',
+      ...mapActions('examReport', [
         'activateExam',
+        'copyExam',
         'deactivateExam',
         'deleteExam',
-        'copyExam',
+        'setExamsModal',
         'updateExamDetails',
       ]),
       handleChangeStatus(isActive) {

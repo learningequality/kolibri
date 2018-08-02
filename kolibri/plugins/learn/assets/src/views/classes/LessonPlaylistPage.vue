@@ -64,10 +64,7 @@
       ProgressIcon,
     },
     computed: {
-      ...mapState({
-        contentNodes: state => state.pageState.contentNodes,
-        currentLesson: state => state.pageState.currentLesson,
-      }),
+      ...mapState('lessonPlaylist', ['contentNodes', 'currentLesson']),
       lessonHasResources() {
         return this.contentNodes.length > 0;
       },

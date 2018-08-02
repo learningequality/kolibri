@@ -65,13 +65,13 @@
       return { title };
     },
     computed: {
-      ...mapState({
-        topic: state => state.pageState.topic,
-        contents: state => state.pageState.contents,
-        isRoot: state => state.pageState.isRoot,
-        channelId: state => state.pageState.channel.id,
-        channelTitle: state => state.pageState.channel.title,
-      }),
+      ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
+      channelId() {
+        return this.channel.id;
+      },
+      channelTitle() {
+        return this.channel.title;
+      },
     },
     methods: {
       genContentLink(id, kind) {

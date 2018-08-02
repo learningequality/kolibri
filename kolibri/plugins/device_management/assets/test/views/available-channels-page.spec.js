@@ -48,7 +48,7 @@ describe('availableChannelsPage', () => {
   });
 
   function setTransferType(transferType) {
-    store.commit('SET_TRANSFER_TYPE', transferType);
+    store.commit('manageContent/wizard/SET_TRANSFER_TYPE', transferType);
   }
 
   it('in REMOTEIMPORT mode, the unlisted channel button is available', () => {
@@ -71,7 +71,10 @@ describe('availableChannelsPage', () => {
 
   it('in LOCALEXPORT mode, the back link text and title are correct', () => {
     setTransferType('localexport');
-    store.commit('SET_SELECTED_DRIVE', 'f9e29616935fbff37913ed46bf20e2c1');
+    const selectedDrive = store.state.manageContent.wizard.driveList.find(
+      ({ id }) => id === 'f9e29616935fbff37913ed46bf20e2c1'
+    );
+    store.state.manageContent.wizard.selectedDrive = selectedDrive;
     const wrapper = makeWrapper({ store });
     const { titleText } = getElements(wrapper);
     expect(titleText()).toEqual('Your channels');
@@ -79,7 +82,10 @@ describe('availableChannelsPage', () => {
 
   it('in LOCALIMPORT mode, the back link text and title are correct', () => {
     setTransferType('localimport');
-    store.commit('SET_SELECTED_DRIVE', 'f9e29616935fbff37913ed46bf20e2c0');
+    const selectedDrive = store.state.manageContent.wizard.driveList.find(
+      ({ id }) => id === 'f9e29616935fbff37913ed46bf20e2c0'
+    );
+    store.state.manageContent.wizard.selectedDrive = selectedDrive;
     const wrapper = makeWrapper({ store });
     const { titleText } = getElements(wrapper);
     expect(titleText()).toEqual('SANDISK (G:)');
@@ -109,7 +115,7 @@ describe('availableChannelsPage', () => {
   });
 
   it('if there are no channels, then filters do not appear', () => {
-    store.commit('SET_AVAILABLE_CHANNELS', []);
+    store.commit('manageContent/wizard/SET_AVAILABLE_CHANNELS', []);
     const wrapper = makeWrapper({ store });
     const { filters } = getElements(wrapper);
     expect(filters().exists()).toEqual(false);

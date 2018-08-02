@@ -38,3 +38,21 @@ export const ClassesPageNames = {
   EXAM_REPORT_VIEWER: 'EXAM_REPORT_VIEWER',
   LESSON_RESOURCE_VIEWER: 'LESSON_RESOURCE_VIEWER',
 };
+
+export const pageNameToModuleMap = {
+  [ClassesPageNames.ALL_CLASSES]: 'classes',
+  [ClassesPageNames.CLASS_ASSIGNMENTS]: 'classAssignments',
+  [ClassesPageNames.EXAM_VIEWER]: 'examViewer',
+  [ClassesPageNames.EXAM_REPORT_VIEWER]: 'examReportViewer',
+  [ClassesPageNames.LESSON_PLAYLIST]: 'lessonPlaylist',
+  [ClassesPageNames.LESSON_RESOURCE_VIEWER]: 'lessonPlaylist/resource',
+  [PageNames.TOPICS_ROOT]: 'topicsRoot',
+  [PageNames.RECOMMENDED]: 'recommended',
+  [PageNames.RECOMMENDED_POPULAR]: 'recommended/subpage',
+  [PageNames.RECOMMENDED_RESUME]: 'recommended/subpage',
+  [PageNames.RECOMMENDED_NEXT_STEPS]: 'recommended/subpage',
+  [PageNames.TOPICS_CHANNEL]: 'topicsTree',
+  [PageNames.TOPICS_CONTENT]: 'topicsTree',
+  [PageNames.TOPICS_TOPIC]: 'topicsTree',
+  [PageNames.RECOMMENDED_CONTENT]: 'topicsTree',
+};

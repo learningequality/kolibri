@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep';
 import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
-import pluginModule from '../../src/state/pluginModule';
+import pluginModule from '../../src/modules/pluginModule';
 import { contentNodeGranularPayload } from './data';
 
 const allChannels = [
@@ -67,8 +67,8 @@ const channelsOnDevice = [
 // channel-list-item
 export function makeAvailableChannelsPageStore() {
   const store = coreStoreFactory(cloneDeep(pluginModule));
-  store.state.pageState.channelList = [...channelsOnDevice];
-  Object.assign(store.state.pageState.wizardState, {
+  store.state.manageContent.channelList = [...channelsOnDevice];
+  Object.assign(store.state.manageContent.wizard, {
     driveList: [
       {
         id: 'f9e29616935fbff37913ed46bf20e2c1',
@@ -89,11 +89,11 @@ export function makeAvailableChannelsPageStore() {
 // contentTreeViewer
 export function makeSelectContentPageStore() {
   const store = coreStoreFactory(cloneDeep(pluginModule));
-  Object.assign(store.state.pageState, {
+  Object.assign(store.state.manageContent, {
     channelList: channelsOnDevice,
     taskList: [],
   });
-  Object.assign(store.state.pageState.wizardState, {
+  Object.assign(store.state.manageContent.wizard, {
     availableChannels: [...allChannels],
     transferType: 'localimport',
     transferredChannel: { ...allChannels[0] },

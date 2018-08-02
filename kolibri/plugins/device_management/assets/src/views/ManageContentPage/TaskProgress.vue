@@ -154,7 +154,7 @@
       },
     },
     methods: {
-      ...mapActions(['cancelTask', 'refreshChannelList']),
+      ...mapActions('manageContent', ['cancelTask', 'refreshChannelList']),
       endTask() {
         this.uiBlocked = true;
         this.$emit('cleartask', () => {

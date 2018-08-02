@@ -59,10 +59,10 @@
       // Used by select page, summary page, and here
       addToWorkingResources() {
         this.$emit('addresource');
-        this.$store.commit('ADD_TO_WORKING_RESOURCES', this.contentId);
+        this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', this.contentId);
       },
       removeFromWorkingResources() {
-        this.$store.commit('REMOVE_FROM_WORKING_RESOURCES', this.contentId);
+        this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', this.contentId);
       },
     },
   };

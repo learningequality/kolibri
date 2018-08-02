@@ -145,9 +145,7 @@
     },
     computed: {
       ...mapGetters(['currentFacilityId']),
-      ...mapState({
-        facilityUsers: state => state.pageState.facilityUsers,
-      }),
+      ...mapState('userManagement', ['facilityUsers']),
       newUserRole() {
         if (this.coachIsSelected) {
           if (this.classCoach) {
@@ -245,7 +243,7 @@
       },
     },
     methods: {
-      ...mapActions(['createUser', 'displayModal']),
+      ...mapActions('userManagement', ['createUser', 'displayModal']),
       createNewUser() {
         this.errorMessage = '';
         this.formSubmitted = true;

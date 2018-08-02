@@ -127,11 +127,8 @@
       };
     },
     computed: {
-      ...mapState({
-        lessons: state => state.pageState.lessons,
-        classId: state => state.classId,
-        learnerGroups: state => state.pageState.learnerGroups,
-      }),
+      ...mapState(['classId']),
+      ...mapState('lessonsRoot', ['lessons', 'learnerGroups']),
       filterOptions() {
         const filters = ['allLessons', 'activeLessons', 'inactiveLessons'];
         return filters.map(filter => ({
@@ -147,7 +144,7 @@
       this.filterSelection = this.filterOptions[0];
     },
     methods: {
-      ...mapActions(['createLesson']),
+      ...mapActions('lessonsRoot', ['createLesson']),
       showLesson(lesson) {
         switch (this.filterSelection.value) {
           case 'activeLessons':

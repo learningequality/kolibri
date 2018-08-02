@@ -36,17 +36,17 @@
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
   import TopNav from './TopNav';
-  import classListPage from './ClassListPage';
-  import examsPage from './exams/CoachExamsPage';
-  import createExamPage from './exams/CreateExamPage';
-  import examReportPage from './exams/ExamReportPage';
-  import examReportDetailPage from './exams/CoachExamReport';
-  import groupsPage from './GroupsPage';
-  import learnerExerciseDetailPage from './reports/LearnerExerciseDetailPage';
-  import recentItemsPage from './reports/RecentItemsPage';
-  import channelListPage from './reports/ChannelListPage';
-  import itemListPage from './reports/ItemListPage';
-  import learnerListPage from './reports/LearnerListPage';
+  import ClassListPage from './ClassListPage';
+  import ExamsPage from './exams/CoachExamsPage';
+  import CreateExamPage from './exams/CreateExamPage';
+  import ExamReportPage from './exams/ExamReportPage';
+  import ExamReportDetailPage from './exams/CoachExamReport';
+  import GroupsPage from './GroupsPage';
+  import LearnerExerciseDetailPage from './reports/LearnerExerciseDetailPage';
+  import RecentItemsPage from './reports/RecentItemsPage';
+  import ChannelListPage from './reports/ChannelListPage';
+  import ItemListPage from './reports/ItemListPage';
+  import LearnerListPage from './reports/LearnerListPage';
   import NavTitle from './NavTitle';
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
@@ -72,27 +72,27 @@
   ];
 
   const pageNameToComponentMap = {
-    [PageNames.CLASS_LIST]: classListPage,
-    [PageNames.EXAMS]: examsPage,
-    [PageNames.GROUPS]: groupsPage,
-    [PageNames.CREATE_EXAM]: createExamPage,
+    [PageNames.CLASS_LIST]: ClassListPage,
+    [PageNames.EXAMS]: ExamsPage,
+    [PageNames.GROUPS]: GroupsPage,
+    [PageNames.CREATE_EXAM]: CreateExamPage,
     // reports
-    [PageNames.RECENT_CHANNELS]: channelListPage,
-    [PageNames.RECENT_ITEMS_FOR_CHANNEL]: recentItemsPage,
-    [PageNames.RECENT_LEARNERS_FOR_ITEM]: learnerListPage,
-    [PageNames.RECENT_LEARNER_ITEM_DETAILS]: learnerExerciseDetailPage,
-    [PageNames.TOPIC_CHANNELS]: channelListPage,
-    [PageNames.TOPIC_CHANNEL_ROOT]: itemListPage,
-    [PageNames.TOPIC_ITEM_LIST]: itemListPage,
-    [PageNames.TOPIC_LEARNERS_FOR_ITEM]: learnerListPage,
-    [PageNames.TOPIC_LEARNER_ITEM_DETAILS]: learnerExerciseDetailPage,
-    [PageNames.LEARNER_LIST]: learnerListPage,
-    [PageNames.LEARNER_CHANNELS]: channelListPage,
-    [PageNames.LEARNER_CHANNEL_ROOT]: itemListPage,
-    [PageNames.LEARNER_ITEM_LIST]: itemListPage,
-    [PageNames.LEARNER_ITEM_DETAILS]: learnerExerciseDetailPage,
-    [PageNames.EXAM_REPORT]: examReportPage,
-    [PageNames.EXAM_REPORT_DETAIL]: examReportDetailPage,
+    [PageNames.RECENT_CHANNELS]: ChannelListPage,
+    [PageNames.RECENT_ITEMS_FOR_CHANNEL]: RecentItemsPage,
+    [PageNames.RECENT_LEARNERS_FOR_ITEM]: LearnerListPage,
+    [PageNames.RECENT_LEARNER_ITEM_DETAILS]: LearnerExerciseDetailPage,
+    [PageNames.TOPIC_CHANNELS]: ChannelListPage,
+    [PageNames.TOPIC_CHANNEL_ROOT]: ItemListPage,
+    [PageNames.TOPIC_ITEM_LIST]: ItemListPage,
+    [PageNames.TOPIC_LEARNERS_FOR_ITEM]: LearnerListPage,
+    [PageNames.TOPIC_LEARNER_ITEM_DETAILS]: LearnerExerciseDetailPage,
+    [PageNames.LEARNER_LIST]: LearnerListPage,
+    [PageNames.LEARNER_CHANNELS]: ChannelListPage,
+    [PageNames.LEARNER_CHANNEL_ROOT]: ItemListPage,
+    [PageNames.LEARNER_ITEM_LIST]: ItemListPage,
+    [PageNames.LEARNER_ITEM_DETAILS]: LearnerExerciseDetailPage,
+    [PageNames.EXAM_REPORT]: ExamReportPage,
+    [PageNames.EXAM_REPORT_DETAIL]: ExamReportDetailPage,
     // lessons
     [LessonsPageNames.ROOT]: LessonsRootPage,
     [LessonsPageNames.SUMMARY]: LessonSummaryPage,
@@ -122,10 +122,7 @@
     },
     computed: {
       ...mapGetters(['classCoaches', 'isAdmin', 'isCoach', 'isSuperuser']),
-      ...mapState(['pageName', 'classList', 'className', 'classId']),
-      ...mapState({
-        toolbarRoute: state => state.pageState.toolbarRoute,
-      }),
+      ...mapState(['pageName', 'classList', 'className', 'classId', 'toolbarRoute']),
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
         if (!this.userCanAccessPage) {

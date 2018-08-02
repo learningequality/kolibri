@@ -1,3 +1,4 @@
+//
 import omit from 'lodash/fp/omit';
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import {
@@ -6,12 +7,8 @@ import {
   ContentNodeGranularResource,
   TaskResource,
 } from 'kolibri.resources';
-import {
-  addNodeForTransfer,
-  removeNodeForTransfer,
-} from '../../src/state/actions/contentTreeViewerActions';
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
-import { updateTreeViewTopic } from '../../src/state/actions/selectContentActions';
+import { updateTreeViewTopic } from '../../src/modules/wizard/handlers';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
 const simplePath = (...ids) => ids.map(id => ({ id, title: `node_${id}` }));
@@ -21,16 +18,23 @@ jestMockResource(ContentNodeFileSizeResource);
 jestMockResource(ContentNodeGranularResource);
 jestMockResource(TaskResource);
 
+const ADD_NODE_ACTION = 'manageContent/wizard/addNodeForTransfer';
+const REMOVE_NODE_ACTION = 'manageContent/wizard/removeNodeForTransfer';
+
 describe('contentTreeViewer actions', () => {
   let store;
 
   function assertIncludeEquals(expected) {
     // HACK add the hard-coded file sizes to the expected array
-    expect(store.getters.nodesForTransfer.included).toEqual(expected.map(addFileSizes));
+    expect(store.state.manageContent.wizard.nodesForTransfer.included).toEqual(
+      expected.map(addFileSizes)
+    );
   }
 
   function assertOmitEquals(expected) {
-    expect(store.getters.nodesForTransfer.omitted).toEqual(expected.map(addFileSizes));
+    expect(store.state.manageContent.wizard.nodesForTransfer.omitted).toEqual(
+      expected.map(addFileSizes)
+    );
   }
 
   function assertFilesResourcesEqual(
@@ -38,17 +42,19 @@ describe('contentTreeViewer actions', () => {
     expectedResources,
     transferType = 'remoteimport'
   ) {
-    const { fileSize, resources } = store.getters.nodeTransferCounts(transferType);
+    const { fileSize, resources } = store.getters['manageContent/wizard/nodeTransferCounts'](
+      transferType
+    );
     expect(fileSize).toEqual(expectedFiles);
     expect(resources).toEqual(expectedResources);
   }
 
   function setIncludedNodes(nodes) {
-    store.getters.nodesForTransfer.included = nodes.map(addFileSizes);
+    store.state.manageContent.wizard.nodesForTransfer.included = nodes.map(addFileSizes);
   }
 
   function setOmittedNodes(nodes) {
-    store.getters.nodesForTransfer.omitted = nodes.map(addFileSizes);
+    store.state.manageContent.wizard.nodesForTransfer.omitted = nodes.map(addFileSizes);
   }
 
   beforeEach(() => {
@@ -87,7 +93,7 @@ describe('contentTreeViewer actions', () => {
         total_resources: 200,
         on_device_resources: 50,
       });
-      return addNodeForTransfer(store, node_1).then(() => {
+      return store.dispatch(ADD_NODE_ACTION, node_1).then(() => {
         assertIncludeEquals([node_1]);
         assertOmitEquals([]);
         assertFilesResourcesEqual(1, 150, 'remoteimport');
@@ -108,9 +114,10 @@ describe('contentTreeViewer actions', () => {
         total_resources: 200,
         on_device_resources: 25,
       });
-      return addNodeForTransfer(store, node_1)
+      return store
+        .dispatch(ADD_NODE_ACTION, node_1)
         .then(() => {
-          return addNodeForTransfer(store, node_2);
+          return store.dispatch(ADD_NODE_ACTION, node_2);
         })
         .then(() => {
           assertIncludeEquals([node_1, node_2]);
@@ -130,9 +137,10 @@ describe('contentTreeViewer actions', () => {
       });
       const descendantNode_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
       const descendantNode_2 = makeNode('1_1_1_1', { path: simplePath('1', '1_1', '1_1_1') });
-      return addNodeForTransfer(store, descendantNode_1)
-        .then(() => addNodeForTransfer(store, descendantNode_2))
-        .then(() => addNodeForTransfer(store, ancestorNode))
+      return store
+        .dispatch(ADD_NODE_ACTION, descendantNode_1)
+        .then(() => store.dispatch(ADD_NODE_ACTION, descendantNode_2))
+        .then(() => store.dispatch(ADD_NODE_ACTION, ancestorNode))
         .then(() => {
           assertIncludeEquals([ancestorNode]);
           assertOmitEquals([]);
@@ -154,7 +162,7 @@ describe('contentTreeViewer actions', () => {
       const siblingNode = makeNode('1_2', { path: simplePath('1') });
       setIncludedNodes([]);
       setOmittedNodes([node, childNode, siblingNode]);
-      return addNodeForTransfer(store, node).then(() => {
+      return store.dispatch(ADD_NODE_ACTION, node).then(() => {
         assertIncludeEquals([node]);
         assertOmitEquals([]);
         assertFilesResourcesEqual(1, 235, 'remoteimport');
@@ -172,11 +180,12 @@ describe('contentTreeViewer actions', () => {
     it('removing a single Node that was originally in `include`', () => {
       // ...straightforwardly removes it from `include`
       const node_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
-      return addNodeForTransfer(store, node_1)
+      return store
+        .dispatch(ADD_NODE_ACTION, node_1)
         .then(() => {
           assertIncludeEquals([node_1]);
           assertOmitEquals([]);
-          return removeNodeForTransfer(store, node_1);
+          return store.dispatch(REMOVE_NODE_ACTION, node_1);
         })
         .then(() => {
           assertIncludeEquals([]);
@@ -199,9 +208,10 @@ describe('contentTreeViewer actions', () => {
         total_resources: 20,
         on_device_resources: 10,
       });
-      return addNodeForTransfer(store, parentNode)
+      return store
+        .dispatch(ADD_NODE_ACTION, parentNode)
         .then(() => {
-          return removeNodeForTransfer(store, childNode);
+          return store.dispatch(REMOVE_NODE_ACTION, childNode);
         })
         .then(() => {
           assertIncludeEquals([parentNode]);
@@ -219,12 +229,13 @@ describe('contentTreeViewer actions', () => {
         total_resources: 1222,
       });
       const node_2 = makeNode('1_2', { path: simplePath('1') });
-      return addNodeForTransfer(store, node_1)
+      return store
+        .dispatch(ADD_NODE_ACTION, node_1)
         .then(() => {
-          return addNodeForTransfer(store, node_2);
+          return store.dispatch(ADD_NODE_ACTION, node_2);
         })
         .then(() => {
-          removeNodeForTransfer(store, node_2);
+          store.dispatch(REMOVE_NODE_ACTION, node_2);
         })
         .then(() => {
           assertIncludeEquals([node_1]);
@@ -255,7 +266,7 @@ describe('contentTreeViewer actions', () => {
       // May need to remove or rewrite this test.
       setIncludedNodes([node, childNode, grandchildNode]);
       setOmittedNodes([]);
-      return removeNodeForTransfer(store, node).then(() => {
+      return store.dispatch(REMOVE_NODE_ACTION, node).then(() => {
         assertIncludeEquals([]);
         assertOmitEquals([]);
         assertFilesResourcesEqual(0, 0, 'remoteimport');
@@ -286,7 +297,7 @@ describe('contentTreeViewer actions', () => {
       // Not sure this is possible in practice. On UI, childNode will
       // be indeterminate, so user will need to click it once, making it selected
       // which will then remove grandchildNode. After then, they can de-select it.
-      return removeNodeForTransfer(store, childNode).then(() => {
+      return store.dispatch(REMOVE_NODE_ACTION, childNode).then(() => {
         assertIncludeEquals([topNode]);
         assertOmitEquals([childNode]);
         assertFilesResourcesEqual(0, 5, 'remoteimport');
@@ -317,7 +328,7 @@ describe('contentTreeViewer actions', () => {
       });
       setIncludedNodes([topNode]);
       setOmittedNodes([childNode]);
-      return removeNodeForTransfer(store, siblingNode).then(() => {
+      return store.dispatch(REMOVE_NODE_ACTION, siblingNode).then(() => {
         assertIncludeEquals([]);
         assertOmitEquals([]);
         assertFilesResourcesEqual(0, 0, 'remoteimport');
@@ -327,7 +338,7 @@ describe('contentTreeViewer actions', () => {
     });
 
     it('(EXPORT) when removing a Node leads to an included parent Node being un-selected', () => {
-      store.state.pageState.wizardState.transferType = 'localexport';
+      store.state.manageContent.wizard.transferType = 'localexport';
       const topNode = makeNode('1', {
         path: simplePath(),
         // Make it so that not all resources are installed
@@ -346,7 +357,7 @@ describe('contentTreeViewer actions', () => {
       });
       setIncludedNodes([topNode]);
       setOmittedNodes([childNode]);
-      return removeNodeForTransfer(store, siblingNode).then(() => {
+      return store.dispatch(REMOVE_NODE_ACTION, siblingNode).then(() => {
         assertIncludeEquals([]);
         assertOmitEquals([]);
         assertFilesResourcesEqual(0, 0, 'remoteimport');
@@ -378,7 +389,7 @@ describe('updateTreeViewTopic action', () => {
   });
 
   function assertPathEquals(expected) {
-    expect(store.getters.wizardState.path).toEqual(expected.map(omit('path')));
+    expect(store.state.manageContent.wizard.path).toEqual(expected.map(omit('path')));
   }
 
   it('moving forward by one topic', () => {

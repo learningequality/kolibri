@@ -44,7 +44,7 @@
       },
     },
     methods: {
-      ...mapActions(['deleteClass', 'displayModal']),
+      ...mapActions('classManagement', ['deleteClass', 'displayModal']),
       classDelete() {
         this.deleteClass(this.classid);
       },

@@ -17,6 +17,8 @@
     :backPageLink="backPageLink"
     :navigateToQuestion="navigateToQuestion"
     :navigateToQuestionAttempt="navigateToQuestionAttempt"
+    :questions="questions"
+    :exerciseContentNodes="exerciseContentNodes"
   />
 
 </template>
@@ -39,21 +41,25 @@
       ExamReport,
     },
     computed: {
-      ...mapState({
-        classId: state => state.pageState.exam.collection,
-        examAttempts: state => state.pageState.examAttempts,
-        exam: state => state.pageState.exam,
-        userName: state => state.pageState.user.full_name,
-        userId: state => state.pageState.user.id,
-        currentAttempt: state => state.pageState.currentAttempt,
-        currentInteractionHistory: state => state.pageState.currentInteractionHistory,
-        currentInteraction: state => state.pageState.currentInteraction,
-        selectedInteractionIndex: state => state.pageState.interactionIndex,
-        questionNumber: state => state.pageState.questionNumber,
-        exercise: state => state.pageState.exercise,
-        itemId: state => state.pageState.itemId,
-        completionTimestamp: state => state.pageState.examLog.completion_timestamp,
-        closed: state => state.pageState.examLog.closed,
+      ...mapState('examReportViewer', [
+        'currentAttempt',
+        'currentInteraction',
+        'currentInteractionHistory',
+        'exam',
+        'examAttempts',
+        'exercise',
+        'exerciseContentNodes',
+        'itemId',
+        'questionNumber',
+        'questions',
+      ]),
+      ...mapState('examReportViewer', {
+        classId: state => state.exam.collection,
+        userName: state => state.user.full_name,
+        userId: state => state.user.id,
+        selectedInteractionIndex: state => state.interactionIndex,
+        completionTimestamp: state => state.examLog.completion_timestamp,
+        closed: state => state.examLog.closed,
       }),
       backPageLink() {
         return {

@@ -5,6 +5,7 @@ import Breadcrumbs from '../../src/views/Breadcrumbs';
 import makeStore from '../makeStore';
 import { PageNames } from '../../src/constants';
 
+//
 const router = new VueRouter({
   routes: [
     { path: '/recommended', name: PageNames.RECOMMENDED },
@@ -46,7 +47,7 @@ describe('learn page breadcrumbs', () => {
 
     it('shows correct breadcrumbs at a Channel', () => {
       const store = makeStore({ pageName: PageNames.TOPICS_CHANNEL });
-      store.state.pageState.channel = {
+      store.state.topicsTree.channel = {
         title: 'Recommended Channel',
       };
       const wrapper = makeWrapper({ store });
@@ -60,11 +61,11 @@ describe('learn page breadcrumbs', () => {
 
     it('shows correct breadcrumbs at a non-Channel Topic', () => {
       const store = makeStore({ pageName: PageNames.TOPICS_TOPIC });
-      store.state.pageState.channel = {
+      store.state.topicsTree.channel = {
         title: 'Another Recommended Channel',
         root_id: 'another_channel',
       };
-      store.state.pageState.topic = {
+      store.state.topicsTree.topic = {
         title: 'Recommended Topic',
         breadcrumbs: [{ id: 'previous_topic', title: 'Previous Topic' }],
       };
@@ -90,11 +91,11 @@ describe('learn page breadcrumbs', () => {
 
     it('shows correct breadcrumbs at a Content Item', () => {
       const store = makeStore({ pageName: PageNames.TOPICS_CONTENT });
-      store.state.pageState.channel = {
+      store.state.topicsTree.channel = {
         title: 'Another Recommended Channel',
         root_id: 'another_channel',
       };
-      store.state.pageState.content = {
+      store.state.topicsTree.content = {
         title: 'Recommended Item',
         breadcrumbs: [{ id: 'previous_topic', title: 'Previous Topic' }],
       };

@@ -77,11 +77,10 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import { standardDataTable, exerciseCount, contentCount } from '../../state/getters/reports';
   import { TopicReports, LearnerReports, PageNames } from '../../constants';
   import { TableColumns } from '../../constants/reportConstants';
   import Breadcrumbs from './Breadcrumbs';
@@ -125,14 +124,9 @@
       documentTitleForLearnerItems: 'Learners - Items',
     },
     computed: {
-      ...mapState(['classId', 'pageName', 'pageState']),
-      ...mapState({
-        contentScopeSummary: state => state.pageState.contentScopeSummary,
-        channelId: state => state.pageState.channelId,
-        standardDataTable,
-        exerciseCount,
-        contentCount,
-      }),
+      ...mapGetters('reports', ['standardDataTable', 'contentCount', 'exerciseCount']),
+      ...mapState(['classId', 'pageName']),
+      ...mapState('reports', ['contentScopeSummary', 'channelId']),
       documentTitle() {
         switch (this.pageName) {
           case PageNames.LEARNER_CHANNEL_ROOT:

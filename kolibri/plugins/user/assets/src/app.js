@@ -1,12 +1,11 @@
 import RootVue from './views/UserIndex';
 import routes from './routes';
-import { setFacilitiesAndConfig } from './state/actions';
-import pluginModule from './state/pluginModule';
+import pluginModule from './modules/pluginModule';
 import KolibriApp from 'kolibri_app';
 
 class UserModule extends KolibriApp {
   get stateSetters() {
-    return [setFacilitiesAndConfig];
+    return [() => this.store.dispatch('setFacilitiesAndConfig')];
   }
   get routes() {
     return routes;
@@ -16,6 +15,13 @@ class UserModule extends KolibriApp {
   }
   get pluginModule() {
     return pluginModule;
+  }
+  ready() {
+    return super.ready().then(() => {
+      this.routerInstance.afterEach((toRoute, fromRoute) => {
+        this.store.dispatch('resetModuleState', { toRoute, fromRoute });
+      });
+    });
   }
 }
 

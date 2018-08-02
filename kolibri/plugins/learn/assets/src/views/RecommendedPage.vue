@@ -103,11 +103,7 @@
       ...mapGetters({
         channels: 'getChannels',
       }),
-      ...mapState({
-        nextSteps: state => state.pageState.nextSteps,
-        popular: state => state.pageState.popular,
-        resume: state => state.pageState.resume,
-      }),
+      ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       carouselLimit() {
         return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
       },

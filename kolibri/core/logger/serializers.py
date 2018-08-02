@@ -1,5 +1,3 @@
-import json
-
 from django.db.models import Sum
 from django.utils.timezone import now
 from le_utils.constants import exercises
@@ -62,7 +60,7 @@ class MasteryLogSerializer(KolibriModelSerializer):
                   'end_timestamp', 'completion_timestamp', 'mastery_criterion', 'mastery_level', 'complete')
 
     def get_pastattempts(self, obj):
-        mastery_criterion = json.loads(obj.mastery_criterion)
+        mastery_criterion = obj.mastery_criterion
         exercise_type = mastery_criterion.get('type')
         attemptlogs = AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog) \
                                         .values('correct', 'hinted', 'error') \

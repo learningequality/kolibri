@@ -128,10 +128,7 @@
     }),
     computed: {
       ...mapGetters(['currentUserId', 'isSuperuser']),
-      ...mapState({
-        facilityUsers: state => state.pageState.facilityUsers,
-        modalShown: state => state.pageState.modalShown,
-      }),
+      ...mapState('userManagement', ['facilityUsers', 'modalShown']),
       Modals: () => Modals,
       userKinds() {
         return [
@@ -160,7 +157,7 @@
       this.roleFilter = this.userKinds[0];
     },
     methods: {
-      ...mapActions(['displayModal']),
+      ...mapActions('userManagement', ['displayModal']),
       userMatchesRole(user) {
         const { value: filterKind } = this.roleFilter;
         if (filterKind === ALL_FILTER) {

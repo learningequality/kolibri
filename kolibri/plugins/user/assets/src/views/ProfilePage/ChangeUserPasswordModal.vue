@@ -55,9 +55,7 @@
       };
     },
     computed: {
-      ...mapState({
-        isBusy: state => state.pageState.busy,
-      }),
+      ...mapState('profile', ['isBusy']),
       newPasswordInvalidErrorText() {
         if (this.newPasswordBlurred || this.submittedForm) {
           if (this.newPassword === '') {
@@ -88,7 +86,7 @@
       },
     },
     methods: {
-      ...mapActions(['updateUserProfilePassword']),
+      ...mapActions('profile', ['updateUserProfilePassword']),
       closeModal() {
         this.$emit('cancel');
       },

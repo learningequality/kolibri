@@ -30,25 +30,25 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
-  import classEditPage from './ClassEditPage';
-  import coachClassAssignmentPage from './CoachClassAssignmentPage';
-  import learnerClassEnrollmentPage from './LearnerClassEnrollmentPage';
-  import dataPage from './DataPage';
-  import facilitiesConfigPage from './FacilityConfigPage';
-  import manageClassPage from './ManageClassPage';
+  import ClassEditPage from './ClassEditPage';
+  import CoachClassAssignmentPage from './CoachClassAssignmentPage';
+  import LearnerClassEnrollmentPage from './LearnerClassEnrollmentPage';
+  import DataPage from './DataPage';
+  import FacilitiesConfigPage from './FacilityConfigPage';
+  import ManageClassPage from './ManageClassPage';
   import TopNav from './TopNav';
-  import userPage from './UserPage';
+  import UserPage from './UserPage';
 
   const classEnrollmentPages = [PageNames.CLASS_ENROLL_LEARNER, PageNames.CLASS_ASSIGN_COACH];
 
   const pageNameComponentMap = {
-    [PageNames.CLASS_EDIT_MGMT_PAGE]: classEditPage,
-    [PageNames.CLASS_MGMT_PAGE]: manageClassPage,
-    [PageNames.CLASS_ENROLL_LEARNER]: learnerClassEnrollmentPage,
-    [PageNames.CLASS_ASSIGN_COACH]: coachClassAssignmentPage,
-    [PageNames.DATA_EXPORT_PAGE]: dataPage,
-    [PageNames.FACILITY_CONFIG_PAGE]: facilitiesConfigPage,
-    [PageNames.USER_MGMT_PAGE]: userPage,
+    [PageNames.CLASS_EDIT_MGMT_PAGE]: ClassEditPage,
+    [PageNames.CLASS_MGMT_PAGE]: ManageClassPage,
+    [PageNames.CLASS_ENROLL_LEARNER]: LearnerClassEnrollmentPage,
+    [PageNames.CLASS_ASSIGN_COACH]: CoachClassAssignmentPage,
+    [PageNames.DATA_EXPORT_PAGE]: DataPage,
+    [PageNames.FACILITY_CONFIG_PAGE]: FacilitiesConfigPage,
+    [PageNames.USER_MGMT_PAGE]: UserPage,
   };
 
   export default {
@@ -60,16 +60,16 @@
     },
     name: 'FacilityIndex',
     components: {
-      AuthMessage,
       CoreBase,
+      AuthMessage,
       TopNav,
     },
     computed: {
       ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState(['pageName']),
-      ...mapState({
-        isEnrollmentPage: state => classEnrollmentPages.includes(state.pageName),
-      }),
+      isEnrollmentPage() {
+        return classEnrollmentPages.includes(this.pageName);
+      },
       topLevelPageName: () => TopLevelPageNames.MANAGE,
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;

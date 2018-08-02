@@ -58,10 +58,7 @@
       SearchBox,
     },
     computed: {
-      ...mapState({
-        contents: state => state.pageState.contents,
-        searchTerm: state => state.pageState.searchTerm,
-      }),
+      ...mapState('search', ['contents', 'searchTerm']),
       searchContents() {
         return sortBy(this.contents, content => content.channel_id !== content.content_id);
       },

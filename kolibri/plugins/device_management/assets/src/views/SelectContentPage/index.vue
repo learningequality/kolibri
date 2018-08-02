@@ -63,7 +63,7 @@
         />
 
         <UiAlert
-          v-if="wizardStatus!==''"
+          v-if="status!==''"
           type="error"
           :dismissible="false"
         >
@@ -97,17 +97,17 @@
 
 <script>
 
-  import { mapState, mapActions, mapGetters } from 'vuex';
+  import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { TaskResource } from 'kolibri.resources';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
-  import { wizardState } from '../../state/getters';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
+  import { downloadChannelMetadata } from '../../modules/wizard/utils';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import SelectedResourcesSize from './SelectedResourcesSize';
@@ -137,20 +137,22 @@
       };
     },
     computed: {
-      ...mapGetters(['channelIsInstalled', 'nodeTransferCounts']),
-      ...mapState({
-        availableSpace: state => wizardState(state).availableSpace,
-        transferredChannel: state => wizardState(state).transferredChannel || {},
-        databaseIsLoading: ({ pageState }) => pageState.databaseIsLoading,
-        firstTask: ({ pageState }) => pageState.taskList[0],
-        taskList: ({ pageState }) => pageState.taskList,
-        mode: state => (wizardState(state).transferType === 'localexport' ? 'export' : 'import'),
-        onDeviceInfoIsReady: state => !isEmpty(wizardState(state).currentTopicNode),
-        selectedItems: state => wizardState(state).nodesForTransfer || {},
-        transferType: state => wizardState(state).transferType,
-        wizardStatus: state => wizardState(state).status,
-        topicNode: state => wizardState(state).currentTopicNode,
-      }),
+      ...mapGetters('manageContent', ['channelIsInstalled']),
+      ...mapGetters('manageContent/wizard', ['nodeTransferCounts']),
+      ...mapState('manageContent', ['taskList']),
+      ...mapState('manageContent/wizard', [
+        'availableSpace',
+        'currentTopicNode',
+        'status',
+        'transferType',
+        'transferredChannel',
+      ]),
+      mode() {
+        return this.transferType === 'localexport' ? 'export' : 'import';
+      },
+      onDeviceInfoIsReady() {
+        return !isEmpty(this.currentTopicNode);
+      },
       metadataDownloadTask() {
         return find(this.taskList, { type: TaskTypes.REMOTECHANNELIMPORT });
       },
@@ -164,8 +166,8 @@
           return ContentWizardErrors.TRANSFER_IN_PROGRESS;
         }
         // Show errors thrown during data fetching
-        if (Object.values(ContentWizardErrors).includes(this.wizardStatus)) {
-          return this.wizardStatus;
+        if (Object.values(ContentWizardErrors).includes(this.status)) {
+          return this.status;
         }
       },
       channelOnDevice() {
@@ -175,7 +177,7 @@
         return this.transferredChannel.version > this.channelOnDevice.version;
       },
       taskInProgress() {
-        return this.firstTask && this.firstTask.status !== TaskStatuses.COMPLETED;
+        return this.taskList[0] && this.taskList[0].status !== TaskStatuses.COMPLETED;
       },
       nodeCounts() {
         return this.nodeTransferCounts(this.transferType);
@@ -208,10 +210,13 @@
       this.cancelMetadataDownloadTask();
     },
     methods: {
-      ...mapActions(['setToolbarTitle', 'downloadChannelMetadata', 'transferChannelContent']),
+      ...mapMutations('manageContent', {
+        setToolbarTitle: 'SET_TOOLBAR_TITLE',
+      }),
+      ...mapActions('manageContent/wizard', ['transferChannelContent']),
+      downloadChannelMetadata,
       cancelMetadataDownloadTask() {
-        const { taskList } = this.$store.state.pageState;
-        const task = find(taskList, { type: TaskTypes.REMOTECHANNELIMPORT });
+        const task = find(this.taskList, { type: TaskTypes.REMOTECHANNELIMPORT });
         // TODO can remove this guard once cancelTask resolves even if Task is not there
         if (task) {
           return TaskResource.cancelTask(task.id);
@@ -222,7 +227,7 @@
         // NOTE: This only updates the metadata, not the underlying content.
         // This could produced unexpected behavior for users.
         this.showUpdateProgressBar = true;
-        return this.downloadChannelMetadata()
+        return this.downloadChannelMetadata(this.$store)
           .then(() => this.refreshPage())
           .catch(error => {
             if (error.errorType !== 'CHANNEL_TASK_ERROR') {

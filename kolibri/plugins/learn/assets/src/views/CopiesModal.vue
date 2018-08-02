@@ -44,6 +44,7 @@
 
 <script>
 
+  import toArray from 'lodash/toArray';
   import { mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -78,7 +79,11 @@
     },
     created() {
       this.getCopies(this.sharedContentId).then(copies => {
-        this.copies = sortBy(copies, copy => copy[copy.length - 1].id !== this.uniqueId);
+        // transform the copies objects from Array<Object> to Array<Array>
+        const arrayedCopies = copies.map(copy => {
+          return toArray(copy);
+        });
+        this.copies = sortBy(arrayedCopies, copy => copy[copy.length - 1].id !== this.uniqueId);
         this.loading = false;
       });
     },

@@ -116,10 +116,6 @@
 
   const removalSnackbarTime = 5000;
 
-  function workingResources(state) {
-    return state.pageState.workingResources;
-  }
-
   export default {
     name: 'ResourceListTable',
     components: {
@@ -133,27 +129,26 @@
     },
     data() {
       return {
-        workingResourcesBackup: Array.from(workingResources(this.$store.state)),
+        workingResourcesBackup: this.$store.state.lessonSummary.workingResources,
         firstRemovalTitle: '',
       };
     },
     computed: {
-      ...mapState({
-        lessonId: state => state.pageState.currentLesson.id,
-        workingResources,
+      ...mapState('lessonSummary', {
+        lessonId: state => state.currentLesson.id,
+        workingResources: state => state.workingResources,
         // consider loading this async?
-        resourceContentNodes: state => state.pageState.resourceCache,
-        totalLearners: state => state.pageState.lessonReport.total_learners,
+        resourceContentNodes: state => state.resourceCache,
+        totalLearners: state => state.lessonReport.total_learners,
         getCachedResource(state) {
           return function getter(resourceId) {
-            return state.pageState.resourceCache[resourceId] || {};
+            return state.resourceCache[resourceId] || {};
           };
         },
         numLearnersCompleted(state) {
           return function counter(contentNodeId) {
             const report =
-              state.pageState.lessonReport.progress.find(p => p.contentnode_id === contentNodeId) ||
-              {};
+              state.lessonReport.progress.find(p => p.contentnode_id === contentNodeId) || {};
             // If progress couldn't be found, assume 0 learners completed
             return report.num_learners_completed || 0;
           };
@@ -176,13 +171,9 @@
       },
     },
     methods: {
-      ...mapActions([
-        'createSnackbar',
-        'clearSnackbar',
-        'saveLessonResources',
-        'updateCurrentLesson',
-      ]),
-      ...mapMutations({
+      ...mapActions(['createSnackbar', 'clearSnackbar']),
+      ...mapActions('lessonSummary', ['saveLessonResources', 'updateCurrentLesson']),
+      ...mapMutations('lessonSummary', {
         removeFromWorkingResources: 'REMOVE_FROM_WORKING_RESOURCES',
         setWorkingResources: 'SET_WORKING_RESOURCES',
       }),

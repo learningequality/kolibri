@@ -117,18 +117,17 @@
     },
     data: () => ({ currentClassDelete: null }),
     computed: {
-      ...mapState({
-        modalShown: state => state.pageState.modalShown,
-        classes: state => state.pageState.classes,
-        noClassesExist: state => state.pageState.classes.length === 0,
-      }),
+      ...mapState('classManagement', ['modalShown', 'classes']),
+      noClassesExist() {
+        return this.classes.length === 0;
+      },
       Modals: () => Modals,
       sortedClassrooms() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
     },
     methods: {
-      ...mapActions(['displayModal']),
+      ...mapActions('classManagement', ['displayModal']),
       // Duplicated in class-list-page
       coachNames(classroom) {
         const { coaches } = classroom;
