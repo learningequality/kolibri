@@ -40,6 +40,7 @@ describe('ClassListPage', () => {
         headerText: 'There are no classes yet',
         bodyText: 'Create classes and enroll students in Facility',
       });
+      // prettier-ignore
       expect(els.AuthMessage().find('a').attributes().href).toEqual('/facility');
     });
 
