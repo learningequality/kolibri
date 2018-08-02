@@ -75,22 +75,22 @@ class ImportChannelTestCase(TestCase):
         # Test that import channel cleans up database file if cancelled
         self.assertFalse(os.path.exists(local_dest_path))
 
-    @patch('kolibri.content.management.commands.importchannel.AsyncCommand.cancel')
-    @patch('kolibri.content.management.commands.importchannel.AsyncCommand.is_cancelled', return_value=True)
+    @patch('kolibri.core.content.management.commands.importchannel.AsyncCommand.cancel')
+    @patch('kolibri.core.content.management.commands.importchannel.AsyncCommand.is_cancelled', return_value=True)
     def test_remote_import_sslerror(self, is_cancelled_mock, cancel_mock, start_progress_mock, import_channel_mock):
         SSLERROR = SSLError(['SSL routines', 'ssl3_get_record', 'decryption failed or bad record mac'])
 
         if 'OpenSSL' in sys.modules:
             from OpenSSL.SSL import Error
             SSLERROR = Error(['SSL routines', 'ssl3_get_record', 'decryption failed or bad record mac'])
-        with patch('kolibri.content.utils.transfer.Transfer.next', side_effect=SSLERROR):
+        with patch('kolibri.core.content.utils.transfer.Transfer.next', side_effect=SSLERROR):
             call_command('importchannel', 'network', '197934f144305350b5820c7c4dd8e194')
             cancel_mock.assert_called_with()
             import_channel_mock.assert_not_called()
 
-    @patch('kolibri.content.utils.transfer.Transfer.next', side_effect=ReadTimeout('Read timed out.'))
-    @patch('kolibri.content.management.commands.importchannel.AsyncCommand.cancel')
-    @patch('kolibri.content.management.commands.importchannel.AsyncCommand.is_cancelled', return_value=True)
+    @patch('kolibri.core.content.utils.transfer.Transfer.next', side_effect=ReadTimeout('Read timed out.'))
+    @patch('kolibri.core.content.management.commands.importchannel.AsyncCommand.cancel')
+    @patch('kolibri.core.content.management.commands.importchannel.AsyncCommand.is_cancelled', return_value=True)
     def test_remote_import_readtimeout(self, is_cancelled_mock, cancel_mock, sslerror_mock, start_progress_mock, import_channel_mock):
         call_command('importchannel', 'network', '197934f144305350b5820c7c4dd8e194')
         cancel_mock.assert_called_with()
@@ -236,11 +236,11 @@ class ImportContentTestCase(TestCase):
         self.assertTrue(logger_mock.call_count == 3)
         self.assertTrue('404' in logger_mock.call_args_list[0][0][0])
 
-    @patch('kolibri.content.management.commands.importcontent.sleep')
-    @patch('kolibri.content.management.commands.importcontent.logger.error')
-    @patch('kolibri.content.management.commands.importcontent.paths.get_content_storage_remote_url')
-    @patch('kolibri.content.management.commands.importcontent.AsyncCommand.cancel')
-    @patch('kolibri.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, True, True, True])
+    @patch('kolibri.core.content.management.commands.importcontent.sleep')
+    @patch('kolibri.core.content.management.commands.importcontent.logger.error')
+    @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url')
+    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel')
+    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, True, True, True])
     def test_remote_import_httperror_502(self, is_cancelled_mock, cancel_mock, url_mock, logger_mock, sleep_mock, annotation_mock):
         url_mock.return_value = 'http://httpbin.org/status/502'
         call_command('importcontent', 'network', self.the_channel_id)
