@@ -1,6 +1,6 @@
 <template>
 
-  <div class="app-error">
+  <div role="alert" class="app-error">
 
     <img src="./app-error-bird.png">
     <!-- Header message -->
