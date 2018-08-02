@@ -17,10 +17,14 @@
     </p>
 
     <p>
+      <KButton
+        :text="$tr('pageReloadPrompt')"
+        :primary="true"
+        @click="reloadPage"
+      />
       <KRouterLink
         appearance="raised-button"
         :to="{path: '/'}"
-        :primary="true"
         :text="$tr('defaultErrorExitPrompt')"
       />
     </p>
@@ -47,7 +51,6 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import ReportErrorModal from './ReportErrorModal';
 
@@ -56,6 +59,7 @@
     $trs: {
       defaultErrorHeader: 'Sorry! Something went wrong!',
       defaultErrorExitPrompt: 'Back to home',
+      pageReloadPrompt: 'Refresh',
       defaultErrorMessage:
         'We care about your experience on Kolibri and are working hard to fix this issue.',
       defaultErrorResolution: 'Try refreshing this page or going back to the home page.',
@@ -63,7 +67,6 @@
     },
     components: {
       KButton,
-      KExternalLink,
       KRouterLink,
       ReportErrorModal,
     },
@@ -78,6 +81,10 @@
       },
       hideDetailsModal() {
         this.showDetailsModal = false;
+      },
+      reloadPage() {
+        // reloads without cache
+        global.location.reload();
       },
     },
   };
@@ -97,11 +104,6 @@
   .logo {
     width: 160px;
     height: 160px;
-  }
-
-  .button {
-    margin-right: auto;
-    margin-left: auto;
   }
 
 </style>
