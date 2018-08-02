@@ -5,7 +5,9 @@
       {{ header }}
     </h1>
     <p>
-      {{ details || defaultDetails }}
+      <slot name="details">
+        {{ details || defaultDetails }}
+      </slot>
     </p>
   </div>
 
