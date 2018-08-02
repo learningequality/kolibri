@@ -274,13 +274,13 @@ class ImportContentTestCase(TestCase):
     @patch('kolibri.core.content.utils.transfer.os.path.getsize')
     @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path')
     def test_local_import_oserror_permission_denied(self, path_mock, getsize_mock, logger_mock, annotation_mock):
-            dest_path = tempfile.mkstemp()[1]
-            path_mock.side_effect = [dest_path, '/test/dne']
-            getsize_mock.side_effect = ['1', OSError('Permission denied')]
-            with self.assertRaises(OSError):
-                call_command('importcontent', 'disk', self.the_channel_id, 'destination')
-                self.assertTrue('Permission denied' in logger_mock.call_args_list[0][0][0])
-                annotation_mock.assert_not_called()
+        dest_path = tempfile.mkstemp()[1]
+        path_mock.side_effect = [dest_path, '/test/dne']
+        getsize_mock.side_effect = ['1', OSError('Permission denied')]
+        with self.assertRaises(OSError):
+            call_command('importcontent', 'disk', self.the_channel_id, 'destination')
+            self.assertTrue('Permission denied' in logger_mock.call_args_list[0][0][0])
+            annotation_mock.assert_not_called()
 
     @patch('kolibri.core.content.utils.transfer.os.path.getsize', return_value=0)
     @patch('kolibri.core.content.management.commands.importcontent.os.path.isfile', return_value=False)
