@@ -13,7 +13,7 @@ def check_debian_user():
 
     with open("/etc/kolibri/username", "r") as f:
         kolibri_user = f.read().rstrip()
-    current_user = os.environ["USER"]
+    current_user = os.environ.get("USER")
     if not kolibri_user or kolibri_user == current_user:
         return
 

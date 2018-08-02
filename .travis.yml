@@ -23,59 +23,56 @@ matrix:
     - python: "2.7"
       env:
         - TOX_ENV=pythonbuild2.7
-        - TRAVIS_NODE_VERSION="6"
     - python: "3.4"
       env:
         - TOX_ENV=pythonbuild3.4
-        - TRAVIS_NODE_VERSION="6"
     - python: "3.5"
       env:
         - TOX_ENV=pythonbuild3.5
-        - TRAVIS_NODE_VERSION="6"
     - python: "3.6"
       env:
         - TOX_ENV=pythonbuild3.6
-        - TRAVIS_NODE_VERSION="6"
     - python: "2.7"
       env:
         - TOX_ENV=pythonlint
-        - TRAVIS_NODE_VERSION="6"
     - python: "2.7"
       env:
         - TOX_ENV=licenses
-        - TRAVIS_NODE_VERSION="6"
     - python: "2.7"
       env:
         - TOX_ENV=py2.7
-        - TRAVIS_NODE_VERSION="6"
     - python: "3.5"
       env:
         - TOX_ENV=docs
-        - TRAVIS_NODE_VERSION="6"
     - python: "3.4"
       env:
         - TOX_ENV=py3.4
-        - TRAVIS_NODE_VERSION="6"
     - python: "3.5"
       env:
         - TOX_ENV=py3.5
-        - TRAVIS_NODE_VERSION="6"
     - python: "3.6"
       env:
         - TOX_ENV=py3.6
-        - TRAVIS_NODE_VERSION="6"
     - python: "2.7"
       env:
         - TOX_ENV=node6.x
-        - TRAVIS_NODE_VERSION="6"
     - python: "3.5"
       env:
         - TOX_ENV=postgres
-        - TRAVIS_NODE_VERSION="6"
     - python: "2.7"
       env:
         - TOX_ENV=npmbuild
-        - TRAVIS_NODE_VERSION="6"
+    - python: "2.7"
+      env:
+        - TOX_ENV=nocext
+      script:
+       - tox -e $TOX_ENV
+    - python: "2.7"
+      env:
+        - TOX_ENV=cext
+      script:
+       - tox -e $TOX_ENV
+
 
 before_install:
   - git fetch
@@ -84,8 +81,8 @@ before_install:
   - sudo apt-get update --option Acquire::Retries=100 --option Acquire::http::Timeout="60"
   - pip install -U pip codecov tox
   - . $HOME/.nvm/nvm.sh
-  - nvm install $TRAVIS_NODE_VERSION
-  - nvm use $TRAVIS_NODE_VERSION
+  - nvm install 6
+  - nvm use 6
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
 

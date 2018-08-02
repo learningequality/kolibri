@@ -134,7 +134,7 @@ staticdeps:
 staticdeps-cext:
 	rm -rf kolibri/dist/cext || true # remove everything
 	python build_tools/install_cexts.py --file "requirements/cext.txt" # pip install c extensions
-	pip install -t kolibri/dist -r "requirements/cext_noarch.txt" --no-deps
+	pip install -t kolibri/dist/cext -r "requirements/cext_noarch.txt" --no-deps
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	rm -rf kolibri/dist/cext/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	make test-namespaced-packages
@@ -175,6 +175,7 @@ translation-crowdin-upload:
 	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml upload sources -b ${branch}
 
 translation-crowdin-download:
+	@echo "\nWhen doing new releases: Remember to build the project on CrowdIn\n\n"
 	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${branch}
 
 dockerenvclean:

@@ -16,8 +16,13 @@
         :delay="false"
       />
       <div v-else @keyup.enter.stop>
+        <div class="no-exercise-x" v-else-if="exerciseContentNodes.length === 0">
+          <mat-svg category="navigation" name="close" />
+        </div>
+      </div>
+      <div v-else>
         <div ref="header">
-          <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
+          <strong>{{ $tr('numQuestions', { num: availableExamQuestionSources.length }) }}</strong>
           <slot name="randomize-button"></slot>
         </div>
         <KGrid
@@ -26,6 +31,11 @@
         >
           <KGridItem sizes="1, 3, 4">
             <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
+          <k-grid-item size="1" cols="3" class="question-selector">
+            <div
+              v-for="(exercise, exerciseIndex) in availableExamQuestionSources"
+              :key="exerciseIndex"
+            >
               <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
                 <li
@@ -142,9 +152,14 @@
       debouncedSetMaxHeight() {
         return debounce(this.setMaxHeight, 250);
       },
+      availableExamQuestionSources() {
+        return this.examQuestionSources.filter(questionSource => {
+          return this.exercises[questionSource.exercise_id];
+        });
+      },
       questions() {
         return Object.keys(this.exercises).length
-          ? createQuestionList(this.examQuestionSources).map(question => ({
+          ? createQuestionList(this.availableExamQuestionSources).map(question => ({
               itemId: selectQuestionFromExercise(
                 question.assessmentItemIndex,
                 this.examSeed,
@@ -277,6 +292,14 @@
   h3 {
     margin-top: 1em;
     margin-bottom: 0.25em;
+  }
+
+  .no-exercise-x {
+    text-align: center;
+    svg {
+      width: 200px;
+      height: 200px;
+    }
   }
 
 </style>

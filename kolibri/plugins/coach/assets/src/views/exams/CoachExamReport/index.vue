@@ -1,10 +1,10 @@
 <template>
 
   <ExamReport
+    v-if="examAttempts"
     :examAttempts="examAttempts"
     :exam="exam"
     :userName="userName"
-    :userId="userId"
     :currentAttempt="currentAttempt"
     :currentInteractionHistory="currentInteractionHistory"
     :currentInteraction="currentInteraction"
@@ -14,10 +14,12 @@
     :itemId="itemId"
     :completionTimestamp="completionTimestamp"
     :closed="closed"
-    :backPageLink="backPageLink"
     :navigateToQuestion="navigateToQuestion"
     :navigateToQuestionAttempt="navigateToQuestionAttempt"
   />
+  <div v-else class="no-exercise-x">
+    <mat-svg category="navigation" name="close" />
+  </div>
 
 </template>
 
@@ -93,4 +95,15 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .no-exercise-x {
+    text-align: center;
+    svg {
+      width: 200px;
+      height: 200px;
+    }
+  }
+
+</style>
+

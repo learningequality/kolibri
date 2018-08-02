@@ -151,6 +151,17 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import flatMap from 'lodash/flatMap';
   import { Modals as ExamModals } from '../../../constants/examConstants';
+  import {
+    goToTopic,
+    goToTopLevel,
+    createExamAndRoute,
+    addExercise,
+    addExercisesToExam,
+    removeExercisesFromExam,
+    removeExercise,
+    setExamsModal,
+    setSelectedExercises,
+  } from '../../../state/actions/exam';
   import PreviewNewExamModal from './PreviewNewExamModal';
   import ExerciseRow from './ExerciseRow';
   import TopicRow from './TopicRow';
@@ -461,6 +472,28 @@
       randomize() {
         this.seed = this.generateRandomSeed();
         this.setSelectedExercises(shuffle(this.selectedExercises));
+      },
+    },
+    vuex: {
+      getters: {
+        classId: state => state.classId,
+        topic: state => state.pageState.topic,
+        subtopics: state => state.pageState.subtopics,
+        exercises: state => state.pageState.exercises,
+        selectedExercises: state => state.pageState.selectedExercises,
+        examsModalSet: state => state.pageState.examsModalSet,
+      },
+      actions: {
+        goToTopic,
+        goToTopLevel,
+        createExamAndRoute,
+        addExercise,
+        addExercisesToExam,
+        removeExercisesFromExam,
+        removeExercise,
+        setExamsModal,
+        createSnackbar,
+        setSelectedExercises,
       },
     },
   };
