@@ -19,7 +19,7 @@
         {{ $tr('status') }}
         <CoreInfoIcon
           :iconAriaLabel="$tr('statusDescription')"
-          :tooltipText="$tr('statusTooltipText')"
+          :tooltipText="tooltipText"
           tooltipPosition="bottom left"
         />
       </dt>
@@ -77,7 +77,7 @@
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
+  import { CollectionKinds, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import StatusIcon from './StatusIcon';
 
   export default {
@@ -118,7 +118,8 @@
     $trs: {
       status: 'Status',
       statusDescription: 'Status description',
-      statusTooltipText: 'Active: visible to learners. Inactive: hidden from learners.',
+      statusTooltipTextExams: 'Learners can only see active exams',
+      statusTooltipTextLessons: 'Learners can only see active lessons',
       changeStatus: 'Change',
       description: 'Description',
       noDescription: 'No description',
@@ -154,6 +155,14 @@
             ).name;
             return recipientGroup;
           });
+      },
+      tooltipText() {
+        if (this.kind === ContentNodeKinds.EXAM) {
+          return this.$tr('statusTooltipTextExams');
+        }
+        if (this.kind === ContentNodeKinds.LESSON) {
+          return this.$tr('statusTooltipTextLessons');
+        }
       },
     },
   };
