@@ -22,6 +22,12 @@ export default {
         state.kind.includes(UserKinds.COACH) || state.kind.includes(UserKinds.ASSIGNABLE_COACH)
       );
     },
+    isClassCoach(state) {
+      return state.kind.includes(UserKinds.ASSIGNABLE_COACH);
+    },
+    isFacilityCoach(state) {
+      return state.kind.includes(UserKinds.COACH);
+    },
     isLearner(state) {
       return state.kind.includes(UserKinds.LEARNER);
     },
