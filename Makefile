@@ -178,6 +178,7 @@ translation-crowdin-upload:
 	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml upload sources -b ${branch}
 
 translation-crowdin-download:
+	@echo "\nWhen doing new releases: Remember to build the project on CrowdIn\n\n"
 	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${branch}
 
 dockerenvclean:
