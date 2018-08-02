@@ -23,7 +23,6 @@ else
 fi
 
 KOLIBRI_HOME="~/.kolibri"
-KOLIBRI_LISTEN_PORT="8080"
 KOLIBRI_COMMAND="kolibri"
 DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
 
@@ -53,7 +52,24 @@ fi
 # Will be investigated in 0.8.x when setting a path relative to "~" is
 # supported.
 export KOLIBRI_USER
-export KOLIBRI_LISTEN_PORT
 export KOLIBRI_COMMAND
 export DJANGO_SETTINGS_MODULE
 export KOLIBRI_HOME
+
+# Other env vars that we don't define by default, but because of issues
+# propagating environment in Ubuntu 14.04, we are exporting them for now
+export KOLIBRI_LISTEN_PORT # This is deprecated
+export KOLIBRI_HTTP_PORT # Use this
+export KOLIBRI_DATABASE_ENGINE
+export KOLIBRI_DATABASE_NAME
+export KOLIBRI_DATABASE_PASSWORD
+export KOLIBRI_DATABASE_USER
+export KOLIBRI_DATABASE_HOST
+export KOLIBRI_DATABASE_PORT
+export KOLIBRI_CHERRYPY_THREAD_POOL
+export KOLIBRI_CHERRYPY_SOCKET_TIMEOUT
+export KOLIBRI_CHERRYPY_QUEUE_SIZE
+export KOLIBRI_CHERRYPY_QUEUE_TIMEOUT
+export KOLIBRI_CONTENT_DIR
+export KOLIBRI_CENTRAL_CONTENT_BASE_URL
+export KOLIBRI_RUN_MODE
