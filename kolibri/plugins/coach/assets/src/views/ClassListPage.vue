@@ -46,7 +46,7 @@
                 :to="learnerPageLink(classroom.id)"
               />
             </td>
-            <td :title="formattedCoachNamesTooltip(classroom)">
+            <td data-test="coach-names" :title="formattedCoachNamesTooltip(classroom)">
               {{ formattedCoachNames(classroom) }}
             </td>
             <td>{{ classroom.learner_count }}</td>

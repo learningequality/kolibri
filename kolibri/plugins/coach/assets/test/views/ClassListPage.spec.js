@@ -10,11 +10,23 @@ function makeWrapper() {
   });
   const els = {
     AuthMessage: () => wrapper.find({ name: 'AuthMessage' }),
+    coachNames: () => wrapper.find('td[data-test="coach-names"]').text(),
+    coachNamesTooltip: () => wrapper.find('td[data-test="coach-names"]').attributes().title,
+    classRows: () => wrapper.findAll('tbody tr'),
   };
   return { wrapper, els, store };
 }
 
 describe('ClassListPage', () => {
+  it('shows one row for each class', () => {
+    const { els, store } = makeWrapper();
+    store.commit('SET_CLASS_INFO', {
+      classList: [{ coaches: [], name: 'Class 1' }, { coaches: [], name: 'Class 2' }],
+    });
+    expect(els.classRows()).toHaveLength(2);
+    // Not tested: data inside rows
+  });
+
   describe('it shows correct empty message', () => {
     // prettier-ignore
     function testAuthMessage(els, expectedText) {
@@ -60,5 +72,53 @@ describe('ClassListPage', () => {
       });
       expect(els.AuthMessage().exists()).toEqual(false);
     });
+  });
+
+  describe('shows the correct coach names message', () => {
+    it('when there are no coaches', () => {
+      const { els, store } = makeWrapper();
+      store.commit('SET_CLASS_INFO', {
+        classList: [{ coaches: [], name: 'Class 1' }],
+      });
+      expect(els.coachNames()).toEqual('–');
+    });
+
+    it('when there is one coach', () => {
+      const { els, store } = makeWrapper();
+      const coaches = [{ full_name: 'Mike Ditka' }];
+      store.commit('SET_CLASS_INFO', {
+        classList: [{ coaches, name: 'Class 1' }],
+      });
+      expect(els.coachNames()).toEqual('Mike Ditka');
+    });
+  });
+
+  it('when there are two coaches', () => {
+    const { els, store } = makeWrapper();
+    const coaches = [{ full_name: 'Phil Jackson' }, { full_name: 'Steve Kerr' }];
+    store.commit('SET_CLASS_INFO', {
+      classList: [{ coaches, name: 'Class 1' }],
+    });
+    expect(els.coachNames()).toEqual('Phil Jackson, Steve Kerr');
+  });
+
+  it('when there are more than two coaches', () => {
+    const { els, store } = makeWrapper();
+    const coaches = [
+      { full_name: 'Coach Carter' },
+      { full_name: 'Coach K' },
+      { full_name: 'Coach L' },
+      { full_name: "Patches O'Houlihan" },
+    ];
+    store.commit('SET_CLASS_INFO', {
+      classList: [{ coaches, name: 'Class 1' }],
+    });
+    expect(els.coachNames()).toEqual('Coach Carter, Coach K… (+2)');
+    expect(els.coachNamesTooltip().split('\n')).toEqual([
+      'Coach Carter',
+      'Coach K',
+      'Coach L',
+      "Patches O'Houlihan",
+    ]);
   });
 });
