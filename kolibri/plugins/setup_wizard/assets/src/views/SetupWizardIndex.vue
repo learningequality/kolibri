@@ -46,6 +46,7 @@
   // Use the full path until we can figure out why module resolution isn't working on Travis
   import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm.vue';
   import FacilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
+  import GuestAccessForm from './onboarding-forms/GuestAccessForm';
 
   export default {
     name: 'SetupWizardIndex',
@@ -63,7 +64,7 @@
     },
     data() {
       return {
-        totalOnboardingSteps: 3,
+        totalOnboardingSteps: 4,
       };
     },
     computed: {
@@ -75,6 +76,8 @@
           case 2:
             return FacilityPermissionsForm;
           case 3:
+            return GuestAccessForm;
+          case 4:
             return SuperuserCredentialsForm;
           default:
             return null;
