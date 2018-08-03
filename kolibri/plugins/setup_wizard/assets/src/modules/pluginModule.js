@@ -6,16 +6,27 @@ import { permissionPresets } from '../constants';
 export default {
   state: {
     onboardingData: {
+      // Set in DefaultLanguageForm
       language_id: currentLanguage,
+      // Set in FacilityPermissionsForm
       facility: {
         name: '',
       },
+      preset: findKey(permissionPresets, preset => preset.default) || '',
+      settings: {
+        // Set in GuessAccessForm
+        allow_guest_access: null,
+        // Set in CreateLearnerAccountForm
+        learner_can_sign_up: null,
+        // Set in RequirePasswordForLearnersForm
+        learner_can_login_with_no_password: null,
+      },
+      // Set in SuperuserCredentialsForm
       superuser: {
         full_name: '',
         username: '',
         password: '',
       },
-      preset: findKey(permissionPresets, preset => preset.default) || '',
     },
     loading: false,
     error: false,
@@ -52,6 +63,15 @@ export default {
     },
     SET_FACILITY_PRESET(state, preset) {
       state.onboardingData.preset = preset;
+    },
+    SET_ALLOW_GUEST_ACCESS(state, setting) {
+      state.setting.allow_guest_access = setting;
+    },
+    SET_LEARNER_CAN_SIGN_UP(state, setting) {
+      state.setting.learner_can_sign_up = setting;
+    },
+    SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD(state, setting) {
+      state.setting.learner_can_login_with_no_password = setting;
     },
     SET_LOADING(state, loadingFlag) {
       state.loading = loadingFlag;
