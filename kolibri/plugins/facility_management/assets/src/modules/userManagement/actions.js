@@ -1,4 +1,4 @@
-import { UserKinds, ERROR_CONSTANT } from 'kolibri.coreVue.vuex.constants';
+import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
 import pickBy from 'lodash/pickBy';
 import { FacilityUserResource } from 'kolibri.resources';
 import CatchErrors from 'kolibri.utils.CatchErrors';
@@ -81,7 +81,7 @@ export function updateUser(store, { userId, updates }) {
       } else {
         update(updatedUser);
       }
-      store.dispatch('displayModal',false);
+      store.dispatch('displayModal', false);
     },
     error => {
       store.commit('SET_BUSY', false);
