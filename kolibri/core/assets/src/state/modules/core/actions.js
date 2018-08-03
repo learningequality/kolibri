@@ -156,7 +156,7 @@ export function handleError(store, errorString) {
 }
 
 export function handleApiError(store, errorObject) {
-  handleError(store, JSON.stringify(errorObject, null, '\t'));
+  handleError(store, JSON.stringify(errorObject, null, 2));
 }
 
 /**

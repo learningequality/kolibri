@@ -62,7 +62,14 @@ describe('Vuex store/actions for core module', () => {
     it('failed login (401)', async () => {
       Object.assign(SessionResource, {
         createModel: () => ({
-          save: () => Promise.reject({ status: { code: 401 } }),
+          save: () => Promise.reject({
+            entity: [
+              {
+                id: constants.LoginErrors.INVALID_CREDENTIALS,
+              }
+            ],
+            status: { code: 401 }
+          }),
         }),
       });
 

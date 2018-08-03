@@ -9,7 +9,7 @@
  */
 export default function CatchErrors(errorObj, errorConstants) {
   const errors = errorObj.entity;
-  if (errors) {
+  if (errors && Array.isArray(errors)) {
     const recognizedErrors = [];
     errors.forEach(error => {
       if (error.id) {
