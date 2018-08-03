@@ -43,7 +43,6 @@
   import ErrorPage from './submission-states/ErrorPage';
   import ProgressToolbar from './ProgressToolbar';
   import DefaultLanguageForm from './onboarding-forms/DefaultLanguageForm';
-  import FacilityNameForm from './onboarding-forms/FacilityNameForm';
   // Use the full path until we can figure out why module resolution isn't working on Travis
   import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm.vue';
   import FacilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
@@ -64,7 +63,7 @@
     },
     data() {
       return {
-        totalOnboardingSteps: 4,
+        totalOnboardingSteps: 3,
       };
     },
     computed: {
@@ -74,10 +73,8 @@
           case 1:
             return DefaultLanguageForm;
           case 2:
-            return FacilityNameForm;
-          case 3:
             return FacilityPermissionsForm;
-          case 4:
+          case 3:
             return SuperuserCredentialsForm;
           default:
             return null;

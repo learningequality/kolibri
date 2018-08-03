@@ -31,12 +31,7 @@ describe('SetupWizardIndex', () => {
     els.DefaultLanguageForm().vm.$emit('submit');
     expect(els.DefaultLanguageForm().exists()).toBe(false);
 
-    // Step 2: Facility Name Form
-    expect(els.FacilityNameForm().isVueComponent).toBe(true);
-    els.FacilityNameForm().vm.$emit('submit');
-    expect(els.FacilityNameForm().exists()).toBe(false);
-
-    // Step 3: Facility Permissions Form
+    // Step 2: Facility Permissions Form
     expect(els.FacilityPermissionsForm().isVueComponent).toBe(true);
     els.FacilityPermissionsForm().vm.$emit('submit');
     expect(els.FacilityPermissionsForm().exists()).toBe(false);
