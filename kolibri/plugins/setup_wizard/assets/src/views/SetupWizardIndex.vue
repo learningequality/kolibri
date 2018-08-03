@@ -47,6 +47,8 @@
   import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm.vue';
   import FacilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
   import GuestAccessForm from './onboarding-forms/GuestAccessForm';
+  import CreateLearnerAccountForm from './onboarding-forms/CreateLearnerAccountForm';
+  import RequirePasswordForLearnersForm from './onboarding-forms/RequirePasswordForLearnersForm';
 
   export default {
     name: 'SetupWizardIndex',
@@ -64,7 +66,7 @@
     },
     data() {
       return {
-        totalOnboardingSteps: 4,
+        totalOnboardingSteps: 6,
       };
     },
     computed: {
@@ -78,6 +80,10 @@
           case 3:
             return GuestAccessForm;
           case 4:
+            return CreateLearnerAccountForm;
+          case 5:
+            return RequirePasswordForLearnersForm;
+          case 6:
             return SuperuserCredentialsForm;
           default:
             return null;

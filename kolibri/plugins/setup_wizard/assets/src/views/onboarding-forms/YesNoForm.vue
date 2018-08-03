@@ -82,4 +82,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .details {
+    margin-top: 16px;
+  }
+
+</style>
