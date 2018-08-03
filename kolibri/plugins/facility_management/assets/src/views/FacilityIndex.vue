@@ -58,7 +58,6 @@
     name: 'FacilityIndex',
     components: {
       CoreBase,
-      AuthMessage,
       TopNav,
     },
     computed: {
