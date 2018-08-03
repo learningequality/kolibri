@@ -121,14 +121,14 @@
         'How will you be using Kolibri? (You can customize these settings later)',
       facilityPermissionsPresetDetailsLink: 'More information about these settings',
       facilityPermissionsPresetDetailsHeader: 'Facility setup details',
-      adminManagedSetupTitle: 'Admin-managed',
-      adminManagedSetupDescription: 'For schools and other formal learning contexts',
-      selfManagedSetupTitle: 'Self-managed',
+      adminManagedSetupTitle: 'Formal',
+      adminManagedSetupDescription: 'Schools and other formal learning contexts',
+      selfManagedSetupTitle: 'Non-formal',
       selfManagedSetupDescription:
-        'For libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
-      informalSetupTitle: 'Informal and personal use',
+        'Libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
+      informalSetupTitle: 'Personal',
       informalSetupDescription:
-        'For parent-child learning, homeschooling, or supplementary individual learning',
+        'Homeschooling, supplementary individual learning, and other informal use',
       // IDEA This should be a dynamically generated component, based on mappings
       permissionsModalDismissText: 'Close',
       enabledUserAccountDeletionPermissionDetail: 'Guests can create their own accounts',
