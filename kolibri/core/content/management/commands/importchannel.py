@@ -1,4 +1,4 @@
-import logging as logger
+import logging
 import os
 
 from django.core.management.base import CommandError
@@ -10,7 +10,7 @@ from kolibri.core.errors import KolibriUpgradeError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
@@ -72,11 +72,11 @@ class Command(AsyncCommand):
         )
 
     def download_channel(self, channel_id, baseurl):
-        logging.info("Downloading data for channel id {}".format(channel_id))
+        logger.info("Downloading data for channel id {}".format(channel_id))
         self._transfer(DOWNLOAD_METHOD, channel_id, baseurl)
 
     def copy_channel(self, channel_id, path):
-        logging.info("Copying in data for channel id {}".format(channel_id))
+        logger.info("Copying in data for channel id {}".format(channel_id))
         self._transfer(COPY_METHOD, channel_id, path=path)
 
     def _transfer(self, method, channel_id, baseurl=None, path=None):
@@ -86,13 +86,13 @@ class Command(AsyncCommand):
         # determine where we're downloading/copying from, and create appropriate transfer object
         if method == DOWNLOAD_METHOD:
             url = paths.get_content_database_file_url(channel_id, baseurl=baseurl)
-            logging.debug("URL to fetch: {}".format(url))
+            logger.debug("URL to fetch: {}".format(url))
             filetransfer = transfer.FileDownload(url, dest)
         elif method == COPY_METHOD:
             srcpath = paths.get_content_database_file_path(channel_id, datafolder=path)
             filetransfer = transfer.FileCopy(srcpath, dest)
 
-        logging.debug("Destination: {}".format(dest))
+        logger.debug("Destination: {}".format(dest))
 
         progress_extra_data = {
             "channel_id": channel_id,

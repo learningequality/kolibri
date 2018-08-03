@@ -38,7 +38,7 @@
   import UiAlert from 'keen-ui/src/UiAlert';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import { getRemoteChannelByToken } from '../../state/actions/availableChannelsActions';
+  import { getRemoteChannelByToken } from '../../modules/wizard/utils';
 
   export default {
     name: 'ChannelTokenModal',

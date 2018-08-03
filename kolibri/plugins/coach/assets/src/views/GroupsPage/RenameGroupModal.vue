@@ -100,7 +100,7 @@
       },
     },
     methods: {
-      ...mapActions(['renameGroup', 'displayModal']),
+      ...mapActions('groups', ['renameGroup', 'displayModal']),
       callRenameGroup() {
         this.formSubmitted = true;
         if (this.formIsValid) {

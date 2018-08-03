@@ -103,11 +103,7 @@
       ...mapGetters({
         channels: 'getChannels',
       }),
-      ...mapState({
-        nextSteps: state => state.pageState.nextSteps,
-        popular: state => state.pageState.popular,
-        resume: state => state.pageState.resume,
-      }),
+      ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       carouselLimit() {
         return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
       },
@@ -139,10 +135,7 @@
     methods: {
       genContentLink(id, kind) {
         return {
-          name:
-            kind === ContentNodeKinds.TOPIC
-              ? PageNames.TOPICS_TOPIC
-              : PageNames.TOPICS_CONTENT,
+          name: kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT,
           params: { id },
         };
       },

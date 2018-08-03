@@ -139,12 +139,8 @@
       };
     },
     computed: {
-      ...mapState({
-        examTakers: state => state.pageState.examTakers,
-        classId: state => state.classId,
-        exam: state => state.pageState.exam,
-        learnerGroups: state => state.pageState.learnerGroups,
-      }),
+      ...mapState(['classId']),
+      ...mapState('examReport', ['examTakers', 'exam', 'learnerGroups']),
       viewByGroupsIsDisabled() {
         return !this.learnerGroups.length || this.examTakers.every(learner => !learner.group.id);
       },
@@ -184,7 +180,7 @@
       },
     },
     methods: {
-      ...mapActions(['setExamsModal']),
+      ...mapActions('examReport', ['setExamsModal']),
       handleSelection(optionSelected) {
         const action = optionSelected.label;
         if (action === this.$tr('previewExam')) {

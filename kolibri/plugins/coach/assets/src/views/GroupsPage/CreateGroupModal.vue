@@ -27,7 +27,7 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
+  import { mapActions, mapState } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
 
@@ -60,6 +60,7 @@
       };
     },
     computed: {
+      ...mapState(['classId']),
       duplicateName() {
         const index = this.groups.findIndex(
           group => group.name.toUpperCase() === this.name.toUpperCase()
@@ -88,12 +89,12 @@
       },
     },
     methods: {
-      ...mapActions(['displayModal', 'createGroup']),
+      ...mapActions('groups', ['displayModal', 'createGroup']),
       callCreateGroup() {
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
-          this.createGroup(this.name);
+          this.createGroup({ groupName: this.name, classId: this.classId });
         } else {
           this.$refs.name.focus();
         }

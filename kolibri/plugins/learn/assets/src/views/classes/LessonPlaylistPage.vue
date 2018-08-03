@@ -21,7 +21,7 @@
     <section class="content-cards">
       <ContentCard
         v-for="(c, idx) in contentNodes"
-        :key="c.pk"
+        :key="c.id"
         class="content-card"
         :isMobile="true"
         :kind="c.kind"
@@ -64,10 +64,7 @@
       ProgressIcon,
     },
     computed: {
-      ...mapState({
-        contentNodes: state => state.pageState.contentNodes,
-        currentLesson: state => state.pageState.currentLesson,
-      }),
+      ...mapState('lessonPlaylist', ['contentNodes', 'currentLesson']),
       lessonHasResources() {
         return this.contentNodes.length > 0;
       },

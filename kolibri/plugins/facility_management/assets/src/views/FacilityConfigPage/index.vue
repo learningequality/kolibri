@@ -66,7 +66,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState, mapActions, mapMutations } from 'vuex';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import isEqual from 'lodash/isEqual';
@@ -79,6 +79,7 @@
     'learnerCanSignUp',
     'learnerCanLoginWithNoPassword',
     'showDownloadButtonInLearn',
+    'allowGuestAccess',
   ];
 
   export default {
@@ -99,11 +100,7 @@
       settingsCopy: {},
     }),
     computed: {
-      ...mapState({
-        currentFacilityName: state => state.pageState.facilityName,
-        settings: state => state.pageState.settings,
-        notification: state => state.pageState.notification,
-      }),
+      ...mapState('facilityConfig', ['currentFacilityName', 'settings', 'notification']),
       settingsList: () => settingsList,
       settingsHaveChanged() {
         return !isEqual(this.settings, this.settingsCopy);
@@ -113,19 +110,25 @@
       this.copySettings();
     },
     methods: {
-      ...mapActions(['saveFacilityConfig', 'resetFacilityConfig']),
+      ...mapActions('facilityConfig', ['saveFacilityConfig', 'resetFacilityConfig']),
+      ...mapMutations('facilityConfig', {
+        configPageModifySetting: 'CONFIG_PAGE_MODIFY_SETTING',
+        configPageNotify: 'CONFIG_PAGE_NOTIFY',
+      }),
       toggleSetting(settingName) {
-        this.$store.commit('CONFIG_PAGE_MODIFY_SETTING', {
+        this.configPageModifySetting({
           name: settingName,
           value: !this.settings[settingName],
         });
       },
       dismissNotification() {
-        this.$store.commit('CONFIG_PAGE_NOTIFY', null);
+        this.configPageNotify(null);
       },
       resetToDefaultSettings() {
         this.showModal = false;
-        this.resetFacilityConfig();
+        this.resetFacilityConfig().then(() => {
+          this.copySettings();
+        });
       },
       saveConfig() {
         this.saveFacilityConfig().then(() => {
@@ -144,6 +147,7 @@
       learnerCanSignUp: 'Allow learners to sign-up on this device',
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
       showDownloadButtonInLearn: "Show 'download' button with content",
+      allowGuestAccess: 'Allow users to access content without signing in',
       pageDescription: 'Configure and change different facility settings here.',
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to default settings',

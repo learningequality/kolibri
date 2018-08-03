@@ -1,29 +1,15 @@
 import store from 'kolibri.coreVue.vuex.store';
-import router from 'kolibri.coreVue.router';
 import {
   showLessonResourceContentPreview,
   showLessonResourceSelectionRootPage,
   showLessonResourceSelectionTopicPage,
   showLessonSelectionContentPreview,
-  showLessonSummaryPage,
-  showLessonsRootPage,
-} from '../state/actions/lessons';
-import {
-  showLessonResourceUserReportPage,
-  showLessonResourceUserSummaryPage,
-} from '../state/actions/lessonReportsActions';
+} from '../modules/lessonResources/handlers';
+import { showLessonsRootPage } from '../modules/lessonsRoot/handlers';
+import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
+import { showLessonResourceUserReportPage } from '../modules/exerciseDetail/handlers';
+import { showLessonResourceUserSummaryPage } from '../modules/lessonResourceUserSummary/handlers';
 import { LessonsPageNames } from '../constants/lessonsConstants';
-
-// Redirect to the Lessons List of a different classroom if
-// classroom switcher is used in e.g. a Lesson Summary page
-function redirectToLessonsList(classId) {
-  router.push({
-    name: LessonsPageNames.ROOT,
-    params: {
-      classId,
-    },
-  });
-}
 
 export default [
   {
@@ -36,14 +22,8 @@ export default [
   {
     name: LessonsPageNames.SUMMARY,
     path: '/:classId/lessons/:lessonId',
-    handler: (toRoute, fromRoute) => {
-      // If switching classes while viewing a Lesson summary, redirect to the lessons list
-      // TODO add this check to all lessonId-based URLs
-      if (fromRoute.name !== null && toRoute.params.classId !== fromRoute.params.classId) {
-        return redirectToLessonsList(toRoute.params.classId);
-      } else {
-        return showLessonSummaryPage(store, toRoute.params);
-      }
+    handler: toRoute => {
+      return showLessonSummaryPage(store, toRoute.params);
     },
   },
   {

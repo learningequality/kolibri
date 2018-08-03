@@ -90,6 +90,7 @@
       appBarTitle: {
         type: String,
         required: false,
+        default: '',
       },
       // Prop that determines whether to show nav components
       navBarNeeded: {
@@ -139,6 +140,11 @@
         type: Boolean,
         required: false,
       },
+      toolbarTitle: {
+        type: String,
+        required: false,
+        default: '',
+      },
     },
     metaInfo() {
       return {
@@ -159,7 +165,6 @@
     data: () => ({ navShown: false }),
     computed: {
       ...mapState({
-        toolbarTitle: state => state.pageState.toolbarTitle,
         error: state => state.core.error,
       }),
       headerHeight() {

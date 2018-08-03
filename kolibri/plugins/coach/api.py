@@ -5,6 +5,7 @@ from django.db import connection
 from django.db.models import Min
 from django.db.models import Q
 from django.utils import timezone
+from rest_framework import mixins
 from rest_framework import pagination
 from rest_framework import permissions
 from rest_framework import viewsets
@@ -14,13 +15,18 @@ from .serializers import ContentSummarySerializer
 from .serializers import LessonReportSerializer
 from .serializers import UserReportSerializer
 from .utils.return_users import get_members_or_user
+from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
+from kolibri.core.decorators import query_params_required
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+
+
+collection_kind_choices = tuple([choice[0] for choice in collection_kinds.choices] + ['user'])
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
@@ -62,9 +68,14 @@ class KolibriReportPermissions(permissions.BasePermission):
             return False
 
 
-class UserReportViewSet(viewsets.ReadOnlyModelViewSet):
+@query_params_required(channel_id=str, content_node_id=str, collection_kind=collection_kind_choices, collection_id=str)
+class ReportBaseViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     permission_classes = (KolibriReportPermissions,)
+
+
+class UserReportViewSet(ReportBaseViewSet):
+
     pagination_class = OptionalPageNumberPagination
     serializer_class = UserReportSerializer
 
@@ -73,9 +84,8 @@ class UserReportViewSet(viewsets.ReadOnlyModelViewSet):
         return get_members_or_user(self.kwargs['collection_kind'], self.kwargs['collection_id'])
 
 
-class ContentReportViewSet(viewsets.ReadOnlyModelViewSet):
+class ContentReportViewSet(ReportBaseViewSet):
 
-    permission_classes = (KolibriReportPermissions,)
     pagination_class = OptionalPageNumberPagination
     serializer_class = ContentReportSerializer
 
@@ -84,7 +94,8 @@ class ContentReportViewSet(viewsets.ReadOnlyModelViewSet):
         return ContentNode.objects.filter(Q(parent=content_node_id) & Q(available=True)).order_by('lft')
 
 
-class ContentSummaryViewSet(viewsets.ModelViewSet):
+@query_params_required(channel_id=str, collection_kind=collection_kind_choices, collection_id=str)
+class ContentSummaryViewSet(viewsets.ReadOnlyModelViewSet):
 
     permission_classes = (KolibriReportPermissions,)
     serializer_class = ContentSummarySerializer
@@ -94,9 +105,8 @@ class ContentSummaryViewSet(viewsets.ModelViewSet):
         return ContentNode.objects.filter(Q(channel_id=channel_id) & Q(available=True)).order_by('lft')
 
 
-class RecentReportViewSet(viewsets.ModelViewSet):
+class RecentReportViewSet(ReportBaseViewSet):
 
-    permission_classes = (KolibriReportPermissions,)
     pagination_class = OptionalPageNumberPagination
     serializer_class = ContentReportSerializer
 

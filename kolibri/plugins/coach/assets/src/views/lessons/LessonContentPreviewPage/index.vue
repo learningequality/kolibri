@@ -8,14 +8,14 @@
       <MetadataArea
         class="ib"
         :class="{left: workingResources}"
-        :content="content"
+        :content="currentContentNode"
         :completionData="completionData"
       />
       <SelectOptions
         v-if="workingResources"
         class="select-options ib"
         :workingResources="workingResources"
-        :contentId="content.pk"
+        :contentId="currentContentNode.id"
         @addresource="addToCache"
       />
     </div>
@@ -33,7 +33,7 @@
       slot="main"
       :header="questionLabel(selectedQuestionIndex)"
       :selectedQuestion="selectedQuestion"
-      :content="content"
+      :content="currentContentNode"
       :isPerseusExercise="isPerseusExercise"
     />
   </MultiPaneLayout>
@@ -43,7 +43,7 @@
 
 <script>
 
-  import { mapState, mapMutations } from 'vuex';
+  import { mapState, mapGetters, mapActions } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import QuestionList from './QuestionList';
@@ -55,7 +55,7 @@
     name: 'LessonContentPreviewPage',
     metaInfo() {
       return {
-        title: this.content.title,
+        title: this.currentContentNode.title,
       };
     },
     components: {
@@ -75,14 +75,14 @@
       };
     },
     computed: {
-      ...mapState({
-        content: state => state.pageState.currentContentNode,
-        questions: state => state.pageState.questions,
-        completionData: state => state.pageState.completionData,
-        workingResources: state => state.pageState.workingResources,
+      ...mapGetters(['getChannelForNode']),
+      ...mapState('lessonSummary', ['workingResources', 'currentContentNode']),
+      ...mapState('lessonSummary/resources', {
+        questions: state => state.preview.questions,
+        completionData: state => state.preview.completionData,
       }),
       isPerseusExercise() {
-        return this.content.kind === 'exercise';
+        return this.currentContentNode.kind === 'exercise';
       },
       selectedQuestion() {
         if (this.isPerseusExercise) {
@@ -92,11 +92,9 @@
       },
     },
     methods: {
-      ...mapMutations({
-        addToResourceCache: 'ADD_TO_RESOURCE_CACHE',
-      }),
+      ...mapActions('lessonSummary', ['addToResourceCache']),
       addToCache() {
-        this.addToResourceCache(this.content);
+        this.addToResourceCache({ node: this.currentContentNode });
       },
       questionLabel(questionIndex) {
         if (!this.isPerseusExercise) {

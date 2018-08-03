@@ -5,6 +5,7 @@
     :immersivePage="currentPageIsImmersive"
     :immersivePagePrimary="true"
     :immersivePageRoute="exitWizardLink"
+    :toolbarTitle="toolbarTitle"
   >
     <transition name="delay-entry">
       <WelcomeModal
@@ -29,21 +30,21 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ContentWizardPages, PageNames } from '../constants';
   import DeviceTopNav from './DeviceTopNav';
-  import manageContentPage from './ManageContentPage';
-  import managePermissionsPage from './ManagePermissionsPage';
-  import userPermissionsPage from './UserPermissionsPage';
-  import deviceInfoPage from './DeviceInfoPage';
+  import ManageContentPage from './ManageContentPage';
+  import ManagePermissionsPage from './ManagePermissionsPage';
+  import UserPermissionsPage from './UserPermissionsPage';
+  import DeviceInfoPage from './DeviceInfoPage';
   import WelcomeModal from './WelcomeModal';
-  import availableChannelsPage from './AvailableChannelsPage';
-  import selectContentPage from './SelectContentPage';
+  import AvailableChannelsPage from './AvailableChannelsPage';
+  import SelectContentPage from './SelectContentPage';
 
   const pageNameComponentMap = {
-    [PageNames.MANAGE_CONTENT_PAGE]: manageContentPage,
-    [PageNames.MANAGE_PERMISSIONS_PAGE]: managePermissionsPage,
-    [PageNames.USER_PERMISSIONS_PAGE]: userPermissionsPage,
-    [PageNames.DEVICE_INFO_PAGE]: deviceInfoPage,
-    [ContentWizardPages.AVAILABLE_CHANNELS]: availableChannelsPage,
-    [ContentWizardPages.SELECT_CONTENT]: selectContentPage,
+    [PageNames.MANAGE_CONTENT_PAGE]: ManageContentPage,
+    [PageNames.MANAGE_PERMISSIONS_PAGE]: ManagePermissionsPage,
+    [PageNames.USER_PERMISSIONS_PAGE]: UserPermissionsPage,
+    [PageNames.DEVICE_INFO_PAGE]: DeviceInfoPage,
+    [ContentWizardPages.AVAILABLE_CHANNELS]: AvailableChannelsPage,
+    [ContentWizardPages.SELECT_CONTENT]: SelectContentPage,
   };
 
   export default {
@@ -56,16 +57,14 @@
     computed: {
       ...mapGetters(['canManageContent']),
       ...mapState(['pageName', 'welcomeModalVisible']),
-      ...mapState({
-        toolbarTitle: ({ pageState }) => pageState.toolbarTitle,
-        inContentManagementPage: ({ pageName }) => {
-          return [
-            ContentWizardPages.AVAILABLE_CHANNELS,
-            ContentWizardPages.SELECT_CONTENT,
-            PageNames.MANAGE_CONTENT_PAGE,
-          ].includes(pageName);
-        },
-      }),
+      ...mapState('manageContent', ['toolbarTitle']),
+      inContentManagementPage() {
+        return [
+          ContentWizardPages.AVAILABLE_CHANNELS,
+          ContentWizardPages.SELECT_CONTENT,
+          PageNames.MANAGE_CONTENT_PAGE,
+        ].includes(this.pageName);
+      },
       DEVICE: () => TopLevelPageNames.DEVICE,
       currentPage() {
         return pageNameComponentMap[this.pageName];
@@ -98,10 +97,10 @@
       this.stopTaskPolling();
     },
     methods: {
+      ...mapActions('manageContent', ['refreshTaskList']),
       hideWelcomeModal() {
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
       },
-      ...mapActions(['refreshTaskList']),
       startTaskPolling() {
         if (!this.intervalId && this.canManageContent) {
           this.intervalId = setInterval(this.refreshTaskList, 1000);

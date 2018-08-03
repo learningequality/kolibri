@@ -130,10 +130,8 @@
       ...mapState({
         currentUserId: state => state.core.session.user_id,
         currentUserKind: state => state.core.session.kind[0],
-        facilityUsers: state => state.pageState.facilityUsers,
-        error: state => state.pageState.error,
-        isBusy: state => state.pageState.isBusy,
       }),
+      ...mapState('userManagement', ['facilityUsers', 'error', 'isBusy']),
       coachIsSelected() {
         return this.newKind.value === UserKinds.COACH;
       },
@@ -214,7 +212,7 @@
       }
     },
     methods: {
-      ...mapActions(['updateUser', 'displayModal', 'setError']),
+      ...mapActions('userManagement', ['updateUser', 'displayModal', 'setError']),
       submitForm() {
         const roleUpdate = {
           collection: this.currentFacilityId,

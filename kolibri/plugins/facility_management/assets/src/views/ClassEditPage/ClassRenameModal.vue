@@ -100,7 +100,7 @@
       },
     },
     methods: {
-      ...mapActions(['updateClass', 'displayModal']),
+      ...mapActions('classEditManagement', ['updateClass', 'displayModal']),
       updateName() {
         this.formSubmitted = true;
         if (this.formIsValid) {

@@ -46,9 +46,7 @@
     mixins: [responsiveWindow],
     computed: {
       ...mapGetters(['isUserLoggedIn']),
-      ...mapState({
-        classrooms: state => state.pageState.classrooms,
-      }),
+      ...mapState('classes', ['classrooms']),
       CLASSROOM() {
         return ContentNodeKinds.CLASSROOM;
       },

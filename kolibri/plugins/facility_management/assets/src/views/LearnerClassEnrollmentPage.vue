@@ -30,17 +30,16 @@
       };
     },
     computed: {
-      ...mapState({
-        className: state => state.pageState.class.name,
-        facilityUsers: state => state.pageState.facilityUsers,
-        classUsers: state => state.pageState.classUsers,
-      }),
+      ...mapState('classAssignMembers', ['class', 'facilityUsers', 'classUsers']),
+      className() {
+        return this.class.name;
+      },
     },
     methods: {
-      ...mapActions(['enrollLearnersInClass']),
+      ...mapActions('classAssignMembers', ['enrollLearnersInClass']),
       enrollLearners(selectedUsers) {
         // do this in action?
-        this.enrollLearnersInClass(selectedUsers).then(() => {
+        this.enrollLearnersInClass({ classId: this.class.id, users: selectedUsers }).then(() => {
           this.$router.push({ name: PageNames.CLASS_EDIT_MGMT_PAGE });
         });
       },

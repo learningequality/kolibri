@@ -83,7 +83,7 @@
                 :numCoachContents="exercise.num_coach_contents"
                 :exerciseNumAssessments="exercise.numAssessments"
                 :selectedExercises="selectedExercises"
-                @addExercise="handleAddExercise"
+                @addExercise="handleAddExercise(exercise)"
                 @removeExercise="handleRemoveExercise"
               />
               <TopicRow
@@ -126,7 +126,9 @@
       :examQuestionSources="questionSources"
       :examSeed="seed"
       :examNumQuestions="inputNumQuestions"
+      :exerciseContentNodes="exerciseContentNodes"
       @randomize="randomize"
+      @close="setExamsModal(null)"
     />
 
   </div>
@@ -136,7 +138,8 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import uniqBy from 'lodash/uniqBy';
+  import { mapState, mapActions, mapMutations } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -216,13 +219,17 @@
     },
     computed: {
       ...mapState(['classId']),
-      ...mapState({
-        topic: state => state.pageState.topic,
-        subtopics: state => state.pageState.subtopics,
-        exercises: state => state.pageState.exercises,
-        selectedExercises: state => state.pageState.selectedExercises,
-        examsModalSet: state => state.pageState.examsModalSet,
-      }),
+      ...mapState('examCreate', [
+        'examsModalSet',
+        'exerciseContentNodes',
+        'exercises',
+        'selectedExercises',
+        'subtopics',
+        'topic',
+      ]),
+      numCols() {
+        return this.windowSize.breakpoint > 3 ? 2 : 1;
+      },
       titleIsInvalidText() {
         if (this.titleBlurred || this.previewOrSubmissionAttempt) {
           if (this.inputTitle === '') {
@@ -317,6 +324,9 @@
             !this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
         );
       },
+      uniqueSelectedExercises() {
+        return uniqBy(this.selectedExercises, 'content_id');
+      },
       someExercisesWithinCurrentTopicSelected() {
         return (
           !this.allExercisesWithinCurrentTopicSelected &&
@@ -329,14 +339,14 @@
       questionSources() {
         const questionSources = [];
         for (let i = 0; i < this.inputNumQuestions; i++) {
-          const questionSourcesIndex = i % this.selectedExercises.length;
+          const questionSourcesIndex = i % this.uniqueSelectedExercises.length;
           if (questionSources[questionSourcesIndex]) {
             questionSources[questionSourcesIndex].number_of_questions += 1;
           } else {
             questionSources.push({
-              exercise_id: this.selectedExercises[i].id,
+              exercise_id: this.uniqueSelectedExercises[i].id,
               number_of_questions: 1,
-              title: this.selectedExercises[i].title,
+              title: this.uniqueSelectedExercises[i].title,
             });
           }
         }
@@ -344,18 +354,20 @@
       },
     },
     methods: {
-      ...mapActions([
-        'createSnackbar',
-        'goToTopic',
-        'goToTopLevel',
-        'createExamAndRoute',
+      ...mapActions(['createSnackbar']),
+      ...mapActions('examCreate', [
         'addExercise',
         'addExercisesToExam',
-        'removeExercisesFromExam',
+        'createExamAndRoute',
+        'goToTopLevel',
+        'goToTopic',
         'removeExercise',
-        'setExamsModal',
+        'removeExercisesFromExam',
         'setSelectedExercises',
       ]),
+      ...mapMutations('examCreate', {
+        setExamsModal: 'SET_EXAMS_MODAL',
+      }),
       setDummyChannelId(id) {
         if (!this.dummyChannelId) {
           this.dummyChannelId = id;

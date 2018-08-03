@@ -29,10 +29,20 @@ export const defaultFacilityConfig = {
   learnerCanDeleteAccount: true,
   learnerCanLoginWithNoPassword: false,
   showDownloadButtonInLearn: false,
+  allowGuestAccess: true,
 };
 
 export const notificationTypes = {
   PAGELOAD_FAILURE: 'PAGELOAD_FAILURE',
   SAVE_FAILURE: 'SAVE_FAILURE',
   SAVE_SUCCESS: 'SAVE_SUCCESS',
+};
+
+export const pageNameToModuleMap = {
+  [PageNames.CLASS_MGMT_PAGE]: 'classManagement',
+  [PageNames.CLASS_EDIT_MGMT_PAGE]: 'classEditManagement',
+  [PageNames.CLASS_ASSIGN_COACH]: 'classAssignMembers',
+  [PageNames.CLASS_ENROLL_LEARNER]: 'classAssignMembers',
+  [PageNames.USER_MGMT_PAGE]: 'userManagement',
+  [PageNames.FACILITY_CONFIG_PAGE]: 'facilityConfig',
 };

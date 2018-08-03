@@ -1,10 +1,8 @@
 import pickBy from 'lodash/pickBy';
 import { Resource } from '../api-resource';
 
-export default class TaskResource extends Resource {
-  static resourceName() {
-    return 'task';
-  }
+export default new Resource({
+  name: 'task',
 
   /**
    * Initiates a Task that imports a Channel Metadata DB from a remote source
@@ -13,14 +11,10 @@ export default class TaskResource extends Resource {
    *
    */
   startRemoteChannelImport({ channel_id }) {
-    return this.client({
-      path: this.urls[`${this.name}_startremotechannelimport`](),
-      method: 'POST',
-      entity: {
-        channel_id,
-      },
+    return this.postListEndpoint('startremotechannelimport', {
+      channel_id,
     });
-  }
+  },
 
   /**
    * Initiates a Task that imports a Channel Metadata DB from a local drive
@@ -30,15 +24,11 @@ export default class TaskResource extends Resource {
    *
    */
   startDiskChannelImport({ channel_id, drive_id }) {
-    return this.client({
-      path: this.urls[`${this.name}_startdiskchannelimport`](),
-      method: 'POST',
-      entity: {
-        channel_id,
-        drive_id,
-      },
+    return this.postListEndpoint('startdiskchannelimport', {
+      channel_id,
+      drive_id,
     });
-  }
+  },
 
   /**
    * Initiates a Task that imports Channel Content from a remote source
@@ -51,12 +41,8 @@ export default class TaskResource extends Resource {
    *
    */
   startRemoteContentImport(params) {
-    return this.client({
-      path: this.urls[`${this.name}_startremotecontentimport`](),
-      method: 'POST',
-      entity: pickBy(params),
-    });
-  }
+    return this.postListEndpoint('startremotecontentimport', pickBy(params));
+  },
 
   /**
    * Initiates a Task that imports Channel Content from a local drive
@@ -69,12 +55,8 @@ export default class TaskResource extends Resource {
    *
    */
   startDiskContentImport(params) {
-    return this.client({
-      path: this.urls[`${this.name}_startdiskcontentimport`](),
-      method: 'POST',
-      entity: pickBy(params),
-    });
-  }
+    return this.postListEndpoint('startdiskcontentimport', pickBy(params));
+  },
 
   /**
    * Initiates a Task that exports Channel Content to a local drive
@@ -88,63 +70,27 @@ export default class TaskResource extends Resource {
    */
   startDiskContentExport(params) {
     // Not naming it after URL to keep internal consistency
-    return this.client({
-      path: this.urls[`${this.name}_startdiskexport`](),
-      method: 'POST',
-      entity: pickBy(params),
-    });
-  }
-
-  /**
-   * Gets all the Tasks outside of the Resource Layer mechanism
-   *
-   */
-  getTasks() {
-    return this.client({
-      path: this.urls[`${this.name}_list`](),
-      method: 'GET',
-    });
-  }
+    return this.postListEndpoint('startdiskexport', pickBy(params));
+  },
 
   deleteChannel(channelId) {
-    const clientObj = {
-      path: this.deleteChannelUrl(),
-      entity: { channel_id: channelId },
-    };
-    return this.client(clientObj);
-  }
+    return this.postListEndpoint('startdeletechannel', {
+      channel_id: channelId,
+    });
+  },
 
   localDrives() {
-    const clientObj = { path: this.localDrivesUrl() };
-    return this.client(clientObj);
-  }
+    return this.getListEndpoint('localdrive');
+  },
 
   // TODO: switch to Model.delete()
   cancelTask(taskId) {
-    const clientObj = {
-      path: this.cancelTaskUrl(),
-      entity: { task_id: taskId },
-    };
-    return this.client(clientObj);
-  }
+    return this.postListEndpoint('canceltask', {
+      task_id: taskId,
+    });
+  },
 
   clearTasks() {
-    const clientObj = {
-      path: this.clearTasksUrl(),
-      entity: {},
-    };
-    return this.client(clientObj);
-  }
-  get deleteChannelUrl() {
-    return this.urls[`${this.name}_startdeletechannel`];
-  }
-  get localDrivesUrl() {
-    return this.urls[`${this.name}_localdrive`];
-  }
-  get cancelTaskUrl() {
-    return this.urls[`${this.name}_canceltask`];
-  }
-  get clearTasksUrl() {
-    return this.urls[`${this.name}_cleartasks`];
-  }
-}
+    return this.postListEndpoint('cleartasks');
+  },
+});

@@ -10,7 +10,7 @@
     />
     <AttemptLogList
       slot="aside"
-      :attemptLogs="attemptLogs"
+      :attemptLogs="attemptLogsWithCoachContents"
       :selectedQuestionNumber="attemptLogIndex"
       @select="navigateToNewAttempt($event)"
     />
@@ -29,7 +29,7 @@
       />
       <ContentRenderer
         v-if="currentInteraction"
-        :id="exercise.pk"
+        :id="exercise.id"
         :itemId="currentAttemptLog.item"
         :assessment="true"
         :allowHints="false"
@@ -86,22 +86,24 @@
     },
     computed: {
       ...mapState(['pageName', 'classId']),
-      ...mapState({
-        channelId: state => state.pageState.channelId,
-        interactionIndex: state => state.pageState.interactionIndex,
-        currentAttemptLog: state => state.pageState.currentAttemptLog,
-        attemptLogs: state =>
-          state.pageState.attemptLogs.map(attempt => ({
-            ...attempt,
-            num_coach_contents: state.pageState.exercise.num_coach_contents,
-          })),
-        currentInteraction: state => state.pageState.currentInteraction,
-        currentInteractionHistory: state => state.pageState.currentInteractionHistory,
-        user: state => state.pageState.user,
-        exercise: state => state.pageState.exercise,
-        summaryLog: state => state.pageState.summaryLog,
-        attemptLogIndex: state => state.pageState.attemptLogIndex,
-      }),
+      ...mapState('exerciseDetail', [
+        'attemptLogs',
+        'attemptLogIndex',
+        'channelId',
+        'currentAttemptLog',
+        'currentInteraction',
+        'currentInteractionHistory',
+        'exercise',
+        'interactionIndex',
+        'summaryLog',
+        'user',
+      ]),
+      attemptLogsWithCoachContents() {
+        return this.attemptLogs.map(attempt => ({
+          ...attempt,
+          num_coach_contents: this.exercise.num_coach_contents,
+        }));
+      },
       // Do not pass in answerState if showCorrectAnswer is set to true
       // answerState has a precedence over showCorrectAnswer
       answerState() {
@@ -123,7 +125,7 @@
           params: {
             channelId: this.channelId,
             userId: this.user.id,
-            contentId: this.exercise.pk,
+            contentId: this.exercise.id,
             interactionIndex: 0,
             attemptLogIndex,
           },
@@ -136,7 +138,7 @@
           params: {
             channelId: this.channelId,
             userId: this.user.id,
-            contentId: this.exercise.pk,
+            contentId: this.exercise.id,
             attemptLogIndex: this.attemptLogIndex,
             interactionIndex,
           },

@@ -27,7 +27,7 @@ class UserReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = FacilityUser
         fields = (
-            'pk', 'username', 'full_name', 'progress', 'last_active',
+            'id', 'username', 'full_name', 'progress', 'last_active',
         )
 
     def get_progress(self, target_user):
@@ -210,7 +210,7 @@ class ContentReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentNode
         fields = (
-            'pk', 'content_id', 'title', 'kind',
+            'id', 'content_id', 'title', 'kind',
         )
         list_serializer_class = ContentReportListSerializer
 
@@ -237,7 +237,7 @@ class ContentSummarySerializer(ContentReportSerializer):
     class Meta:
         model = ContentNode
         fields = (
-            'pk', 'content_id', 'title', 'kind', 'ancestors', 'num_users',
+            'id', 'content_id', 'title', 'kind', 'ancestors', 'num_users',
         )
         list_serializer_class = ContentReportListSerializer
 
@@ -245,7 +245,7 @@ class ContentSummarySerializer(ContentReportSerializer):
         """
         in descending order (root ancestor first, immediate parent last)
         """
-        return target_node.get_ancestors().values('pk', 'title')
+        return target_node.get_ancestors().values('id', 'title')
 
     def get_num_users(self, target_node):
         kwargs = self.context['view'].kwargs

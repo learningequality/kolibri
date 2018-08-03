@@ -26,24 +26,13 @@ describe('selectImportSourceModal component', () => {
   });
 
   it('when at select source stage, shows correct modal', () => {
-    store.commit('SET_WIZARD_PAGENAME', 'SELECT_IMPORT_SOURCE');
-    const { els } = makeWrapper({ store });
+    const { els } = makeWrapper({ store, propsData: { pageName: 'SELECT_IMPORT_SOURCE' } });
     expect(els.selectImportSource().exists()).toEqual(true);
     expect(els.selectDrive().exists()).toEqual(false);
   });
 
-  it('when importing, shows the correct modal', () => {
-    store.commit('SET_WIZARD_PAGENAME', 'SELECT_DRIVE');
-    store.commit('SET_TRANSFER_TYPE', 'localimport');
-    const { els } = makeWrapper({ store });
-    expect(els.selectDrive().exists()).toEqual(true);
-    expect(els.selectImportSource().exists()).toEqual(false);
-  });
-
-  it('when exporting, shows the correct modal', () => {
-    store.commit('SET_WIZARD_PAGENAME', 'SELECT_DRIVE');
-    store.commit('SET_TRANSFER_TYPE', 'localexport');
-    const { els } = makeWrapper({ store });
+  it('when exporting or local importing, shows the correct modal', () => {
+    const { els } = makeWrapper({ store, propsData: { pageName: 'SELECT_DRIVE' } });
     expect(els.selectDrive().exists()).toEqual(true);
     expect(els.selectImportSource().exists()).toEqual(false);
   });

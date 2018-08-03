@@ -32,7 +32,7 @@
         @select="navigateToQuestionAttempt"
       />
       <ContentRenderer
-        :id="exercise.pk"
+        :id="exercise.id"
         :itemId="itemId"
         :allowHints="false"
         :kind="exercise.kind"
@@ -53,7 +53,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
@@ -151,6 +150,14 @@
         type: Function,
         required: true,
       },
+      questions: {
+        type: Array,
+        required: true,
+      },
+      exerciseContentNodes: {
+        type: Array,
+        required: true,
+      },
     },
     data() {
       return {
@@ -158,10 +165,6 @@
       };
     },
     computed: {
-      ...mapState({
-        questions: state => state.pageState.questions,
-        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
-      }),
       attemptLogs() {
         return this.examAttempts.map(attempt => {
           const questionId = this.questions[attempt.questionNumber - 1].contentId;

@@ -1,13 +1,11 @@
 import * as Resources from '../src/api-resource';
-
-if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
-  global.Intl = require('intl');
-}
+jest.mock('kolibri.urls');
 
 describe('Resource', function() {
   let resource, modelData;
+  const testName = 'test';
   beforeEach(function() {
-    resource = new Resources.Resource();
+    resource = new Resources.Resource({ name: testName });
     modelData = { id: 'test' };
   });
   afterEach(function() {
@@ -23,27 +21,13 @@ describe('Resource', function() {
       expect(resource.models).toEqual({});
     });
   });
-  describe('resourceName method', function() {
-    it('should throw a ReferenceError', function() {
-      expect(Resources.Resource.resourceName).toThrow(ReferenceError);
-    });
-  });
-  describe('static idKey method', function() {
-    it('should be "id" by default', function() {
-      expect(Resources.Resource.idKey()).toEqual('id');
-    });
-  });
   describe('idKey property', function() {
     it('should be "id" by default', function() {
       expect(resource.idKey).toEqual('id');
     });
   });
   describe('name property', function() {
-    it('should return the resourceName static method of the Resource class', function() {
-      const testName = 'test';
-      Resources.Resource.resourceName = function() {
-        return testName;
-      };
+    it('should return the passed in name property of the Resource', function() {
       expect(resource.name).toEqual(testName);
     });
   });
@@ -97,7 +81,7 @@ describe('Resource', function() {
     });
     it('should add a model to the cache if it has an id', function() {
       const model = resource.addModel(new Resources.Model({ id: 'test' }, {}, resource));
-      expect(resource.models[Object.keys(resource.models)[0]]).toEqual(model);
+      expect(resource.models['default'][Object.keys(resource.models['default'])[0]]).toEqual(model);
     });
     it('should update the model in the cache if a model with matching id is found', function() {
       const model = new Resources.Model({ id: 'test' }, {}, resource);
@@ -112,7 +96,7 @@ describe('Resource', function() {
       const model = new Resources.Model({ id: 'test' }, {}, resource);
       resource.addModel(model);
       resource.removeModel(model);
-      expect(resource.models).toEqual({});
+      expect(resource.models['default']).toEqual({});
     });
   });
   describe('unCacheModel method', function() {
@@ -142,7 +126,7 @@ describe('Resource', function() {
       expect(resource.getCollection({})).toBeInstanceOf(Resources.Collection);
     });
     it('should return an existing collection from the cache', function() {
-      const testCollection = new Resources.Collection({}, {}, [], resource);
+      const testCollection = new Resources.Collection({}, [], resource);
       resource.collections['{}'] = testCollection;
       expect(resource.getCollection({})).toEqual(testCollection);
     });
@@ -161,66 +145,22 @@ describe('Resource', function() {
       expect(Object.keys(resource.collections)).toHaveLength(1);
     });
   });
-  describe('filterAndCheckResourceIds method', function() {
-    it('should return an empty object when there are no resourceIds', function() {
-      expect(resource.filterAndCheckResourceIds({ test: 'test' })).toEqual({});
-    });
-    it('should throw a TypeError when resourceIds are missing', function() {
-      const stub = jest
-        .spyOn(Resources.Resource, 'resourceIdentifiers')
-        .mockReturnValue(['thisisatest']);
-      function testCall() {
-        resource.filterAndCheckResourceIds({ test: 'test' });
-      }
-      expect(testCall).toThrow(TypeError);
-      stub.mockRestore();
-    });
-    it('should return an object with only resourceIds', function() {
-      const stub = jest
-        .spyOn(Resources.Resource, 'resourceIdentifiers')
-        .mockReturnValue(['thisisatest']);
-      const filtered = resource.filterAndCheckResourceIds({
-        test: 'test',
-        thisisatest: 'testtest',
-      });
-      expect(Object.keys(filtered)).toHaveLength(1);
-      expect(filtered.thisisatest).toEqual('testtest');
-      stub.mockRestore();
-    });
-  });
 });
 
 describe('Collection', function() {
-  let addModelStub, resource, params, data, collection, response, resourceIds;
+  let resource, params, data, collection, response;
   beforeEach(function() {
-    addModelStub = jest.fn().mockImplementation(model => ({
-      id: model.id,
-      attributes: model,
-    }));
-    resource = {
-      addModel: addModelStub,
-      collectionUrl: () => '',
-      client: () => Promise.resolve({ entity: [] }),
-      filterAndCheckResourceIds: params => params,
-      resourceIds: [],
-      cacheKey: (...params) => {
-        const allParams = Object.assign({}, ...params);
-        // Sort keys in order, then assign those keys to an empty object in that order.
-        // Then stringify to create a cache key.
-        return JSON.stringify(
-          Object.assign(
-            {},
-            ...Object.keys(allParams)
-              .sort()
-              .map(paramKey => ({ [paramKey]: allParams[paramKey] }))
-          )
-        );
+    resource = new Resources.Resource({ name: 'test' });
+    resource._client = jest.fn();
+    Object.defineProperty(resource, 'client', {
+      get: () => resource._client,
+      set: fn => {
+        resource._client = fn;
       },
-    };
-    resourceIds = {};
+    });
     params = {};
     data = [{ test: 'test', id: 'testing' }];
-    collection = new Resources.Collection(resourceIds, params, data, resource);
+    collection = new Resources.Collection(params, data, resource);
   });
   afterEach(function() {
     resource = undefined;
@@ -259,7 +199,11 @@ describe('Collection', function() {
     });
     describe('addModel method', function() {
       it('should be called once', function() {
-        expect(addModelStub).toHaveBeenCalledTimes(1);
+        const addModelFn = resource.addModel;
+        const addModelStub = jest.fn().mockImplementation(addModelFn);
+        resource.addModel = addModelStub;
+        collection = new Resources.Collection(params, data, resource);
+        expect(addModelStub).toHaveBeenCalledTimes(2);
       });
     });
   });
@@ -267,7 +211,7 @@ describe('Collection', function() {
     describe('if resource is undefined', function() {
       it('should throw a TypeError', function() {
         function testCall() {
-          new Resources.Collection(resourceIds, params, data);
+          new Resources.Collection(params, data);
         }
         expect(testCall).toThrow(TypeError);
       });
@@ -275,14 +219,14 @@ describe('Collection', function() {
     describe('if data is passed in', function() {
       it('should call the set method once', function() {
         const spy = jest.spyOn(Resources.Collection.prototype, 'set');
-        const testCollection = new Resources.Collection(resourceIds, params, data, resource);
+        const testCollection = new Resources.Collection(params, data, resource);
         expect(testCollection).toBeTruthy();
         expect(spy).toHaveBeenCalledTimes(1);
         Resources.Collection.prototype.set.mockRestore();
       });
       it('should call the set method with the data', function() {
         const spy = jest.spyOn(Resources.Collection.prototype, 'set');
-        const testCollection = new Resources.Collection(resourceIds, params, data, resource);
+        const testCollection = new Resources.Collection(params, data, resource);
         expect(testCollection).toBeTruthy();
         expect(spy).toHaveBeenCalledWith(data);
         Resources.Collection.prototype.set.mockRestore();
@@ -291,14 +235,14 @@ describe('Collection', function() {
     describe('if no data is passed in', function() {
       it('should call the set method once', function() {
         const spy = jest.spyOn(Resources.Collection.prototype, 'set');
-        const testCollection = new Resources.Collection(resourceIds, params, undefined, resource);
+        const testCollection = new Resources.Collection(params, undefined, resource);
         expect(testCollection).toBeTruthy();
         expect(spy).toHaveBeenCalledTimes(1);
         Resources.Collection.prototype.set.mockRestore();
       });
       it('should call the set method with an empty array', function() {
         const spy = jest.spyOn(Resources.Collection.prototype, 'set');
-        const testCollection = new Resources.Collection(resourceIds, params, undefined, resource);
+        const testCollection = new Resources.Collection(params, undefined, resource);
         expect(testCollection).toBeTruthy();
         expect(spy).toHaveBeenCalledWith([]);
         Resources.Collection.prototype.set.mockRestore();
@@ -321,6 +265,7 @@ describe('Collection', function() {
     describe('if called when Collection.synced = true and force is false', function() {
       it('should return current data immediately', function(done) {
         collection.synced = true;
+        collection.models[0].attributes = data[0];
         const promise = collection.fetch();
         promise.then(result => {
           expect(result).toEqual(data);
@@ -568,11 +513,11 @@ describe('Collection', function() {
       });
     });
   });
-  describe('ave method', function() {
+  describe('save method', function() {
     let setSpy, client, logstub;
     describe('if called when Collection.new = false', function() {
       it('should reject the promise', function(done) {
-        collection.synced = true;
+        collection.new = false;
         const promise = collection.save();
         promise.catch(error => {
           expect(error).toEqual('Cannot update collections, only create them');
@@ -598,42 +543,36 @@ describe('Collection', function() {
             resource.client = client;
           });
           it('should call the client once', function(done) {
-            collection.synced = false;
             collection.save().then(() => {
               expect(client).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call set once', function(done) {
-            collection.synced = false;
             collection.save().then(() => {
               expect(setSpy).toHaveBeenCalledTimes(1);
               done();
             });
           });
           it('should call set with the response entity', function(done) {
-            collection.synced = false;
             collection.save().then(() => {
               expect(setSpy).toHaveBeenCalledWith(response.entity);
               done();
             });
           });
           it('should set synced to true', function(done) {
-            collection.synced = false;
             collection.save().then(() => {
               expect(collection.synced).toEqual(true);
               done();
             });
           });
           it('should leave no promises in promises property', function(done) {
-            collection.synced = false;
             collection.save().then(() => {
               expect(collection.promises).toEqual([]);
               done();
             });
           });
           it('should set every model synced to true', function(done) {
-            collection.synced = false;
             collection.save().then(() => {
               collection.models.forEach(model => {
                 expect(model.synced).toEqual(true);
@@ -851,7 +790,7 @@ describe('Collection', function() {
     let model, setModel;
     beforeEach(function() {
       model = { id: 'test' };
-      setModel = { id: model.id, attributes: model };
+      setModel = new Resources.Model(model, {}, resource);
     });
     describe('for a single model', function() {
       it('should add an entry to the models property', function() {
@@ -907,19 +846,17 @@ describe('Collection', function() {
 });
 
 describe('Model', function() {
-  let resource, model, resourceIds, data, payload, client, logstub, setSpy;
+  let resource, model, data, payload, client, logstub, setSpy;
   beforeEach(function() {
     resource = {
-      modelUrl: () => '',
+      modelUrl: () => 'modelUrl',
+      collectionUrl: () => 'collectionUrl',
       idKey: 'id',
       client: () => Promise.resolve({ entity: {} }),
       removeModel: () => {},
-      filterAndCheckResourceIds: params => params,
-      resourceIds: [],
     };
-    resourceIds = {};
     data = { test: 'test', id: 'testing' };
-    model = new Resources.Model(data, resourceIds, resource);
+    model = new Resources.Model(data, {}, resource);
   });
   afterEach(function() {
     resource = undefined;
@@ -946,12 +883,17 @@ describe('Model', function() {
         expect(model.promises).toEqual([]);
       });
     });
+    describe('getParams property', function() {
+      it('should be an empty array', function() {
+        expect(model.getParams).toEqual({});
+      });
+    });
   });
   describe('constructor method', function() {
     describe('if resource is undefined', function() {
       it('should throw a TypeError', function() {
         function testCall() {
-          new Resources.Model(data, {});
+          new Resources.Model(data);
         }
         expect(testCall).toThrow(TypeError);
       });
@@ -1045,6 +987,13 @@ describe('Model', function() {
           model.synced = false;
           model.fetch().then(() => {
             expect(model.synced).toEqual(true);
+            done();
+          });
+        });
+        it('should set new to false', function(done) {
+          model.new = true;
+          model.fetch().then(() => {
+            expect(model.new).toEqual(false);
             done();
           });
         });
@@ -1218,6 +1167,40 @@ describe('Model', function() {
           });
         });
       });
+      describe('and the model has new set to true', function() {
+        beforeEach(function() {
+          setSpy = jest.spyOn(model, 'set');
+          payload = { somethingNew: 'new' };
+          response = { entity: payload };
+          client = jest.fn();
+          client.mockResolvedValue(response);
+          resource.client = client;
+        });
+        afterEach(function() {
+          model.set.mockRestore();
+        });
+        it('should call the client once', function(done) {
+          model.synced = false;
+          model.save(payload).then(() => {
+            expect(client).toHaveBeenCalledTimes(1);
+            done();
+          });
+        });
+        it('should call the client with no explicit method', function(done) {
+          model.synced = false;
+          model.save(payload).then(() => {
+            expect(client.mock.calls[0]['method']).toBeUndefined();
+            done();
+          });
+        });
+        it('should call the client with the collection url', function(done) {
+          model.synced = false;
+          model.save(payload).then(() => {
+            expect(client.mock.calls[0][0]['path']).toEqual(resource.collectionUrl());
+            done();
+          });
+        });
+      });
       describe('and the save is not successful', function() {
         beforeEach(function() {
           response = 'Error';
@@ -1278,13 +1261,13 @@ describe('Model', function() {
             model.synced = false;
             resource.addModel = jest.fn();
             model.save(payload).then(() => {
-              expect(resource.addModel).toHaveBeenCalledWith(model);
+              expect(resource.addModel).toHaveBeenCalledWith(model, {});
               done();
             });
           });
         });
       });
-      describe('and model has an id', function() {
+      describe('and model is not new', function() {
         it('should call the client with a PATCH method', function(done) {
           payload = { somethingNew: 'new' };
           response = { entity: payload };
@@ -1292,6 +1275,7 @@ describe('Model', function() {
           client.mockResolvedValue(response);
           resource.client = client;
           model.synced = false;
+          model.new = false;
           model.save(payload).then(() => {
             expect(client.mock.calls[0][0].method).toEqual('PATCH');
             done();

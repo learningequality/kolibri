@@ -26,14 +26,14 @@
     mixins: [classesBreadcrumbItems],
     computed: {
       ...mapGetters(['pageMode']),
-      ...mapState({
-        pageName: state => state.pageName,
-        channelRootId: state => (state.pageState.channel || {}).root_id,
-        channelTitle: state => (state.pageState.channel || {}).title,
-        topicTitle: state => (state.pageState.topic || {}).title,
-        topicCrumbs: state => (state.pageState.topic || {}).breadcrumbs || [],
-        contentTitle: state => (state.pageState.content || {}).title,
-        contentCrumbs: state => (state.pageState.content || {}).breadcrumbs || [],
+      ...mapState(['pageName']),
+      ...mapState('topicsTree', {
+        channelRootId: state => (state.channel || {}).root_id,
+        channelTitle: state => (state.channel || {}).title,
+        topicTitle: state => (state.topic || {}).title,
+        topicCrumbs: state => (state.topic || {}).breadcrumbs || [],
+        contentTitle: state => (state.content || {}).title,
+        contentCrumbs: state => (state.content || {}).breadcrumbs || [],
       }),
       inLearn() {
         return this.pageMode === PageModes.RECOMMENDED && this.pageName !== PageNames.RECOMMENDED;

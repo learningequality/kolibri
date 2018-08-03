@@ -238,13 +238,13 @@
       };
     },
     computed: {
-      ...mapState({
-        resourceTitle: state => state.pageState.resourceTitle,
-        resourceKind: state => state.pageState.resourceKind,
-        channelTitle: state => state.pageState.channelTitle,
-        userData: state => state.pageState.userData,
-        contentNode: state => state.pageState.contentNode,
-      }),
+      ...mapState('lessonResourceUserSummary', [
+        'channelTitle',
+        'contentNode',
+        'resourceKind',
+        'resourceTitle',
+        'userData',
+      ]),
       isExercise() {
         return this.resourceKind === ContentNodeKinds.EXERCISE;
       },

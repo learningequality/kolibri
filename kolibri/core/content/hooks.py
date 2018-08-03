@@ -88,6 +88,9 @@ class ContentRendererHook(WebpackBundleHook):
 
         :returns: HTML of a script tag to insert into a page.
         """
+        # Note, while most plugins use sorted chunks to filter by text direction
+        # content renderers do not, as they may need to have styling for a different
+        # text direction than the interface due to the text direction of content
         urls = [chunk['url'] for chunk in self.bundle]
         tags = self.frontend_message_tag() +\
             ['<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {content_types});</script>'.format(

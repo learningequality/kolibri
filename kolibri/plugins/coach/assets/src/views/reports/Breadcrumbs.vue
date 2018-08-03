@@ -23,14 +23,14 @@
       ...mapGetters({
         channels: 'getChannels',
       }),
-      ...mapState({
-        userScope: state => state.pageState.userScope,
-        userScopeId: state => state.pageState.userScopeId,
-        userScopeName: state => state.pageState.userScopeName,
-        contentScope: state => state.pageState.contentScope,
-        contentScopeSummary: state => state.pageState.contentScopeSummary,
-        channelId: state => state.pageState.channelId,
-      }),
+      ...mapState('reports', [
+        'channelId',
+        'contentScope',
+        'contentScopeSummary',
+        'userScope',
+        'userScopeId',
+        'userScopeName',
+      ]),
       ...mapGetters([
         'getChannelObject',
         'isTopicPage',
@@ -38,7 +38,7 @@
         'isRecentPage',
         'numberOfAssignedClassrooms',
       ]),
-      ...mapState(['classId', 'pageName', 'pageState', 'currentClassroom']),
+      ...mapState(['classId', 'pageName', 'currentClassroom']),
       currentLearnerForReport() {
         if (this.userScope === 'user') {
           return {

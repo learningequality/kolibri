@@ -3,6 +3,8 @@ import { mount } from '@vue/test-utils';
 import LearnIndex from '../../src/views/LearnIndex';
 import makeStore from '../makeStore';
 
+jest.mock('kolibri.urls');
+
 const router = new VueRouter({
   routes: [
     { path: '/recommended', name: 'RECOMMENDED' },
@@ -19,7 +21,7 @@ function makeWrapper(options) {
       contentUnavailablePage: true,
       CoreBase: '<div><slot></slot></div>',
       topicsPage: true,
-      totalPoints: true,
+      TotalPoints: true,
     },
     router,
   });
@@ -40,9 +42,10 @@ describe('learn plugin index page', () => {
 
   const setSessionUserKind = kind => {
     store.state.core.session.kind = [kind];
+    store.state.core.session.user_id = 'test';
   };
   const setMemberships = memberships => {
-    store.state.learnAppState.memberships = memberships;
+    store.state.memberships = memberships;
   };
   const setPageName = pageName => {
     store.state.pageName = pageName;
@@ -50,7 +53,6 @@ describe('learn plugin index page', () => {
 
   beforeEach(() => {
     store = makeStore();
-    store.state.pageState.topic = {};
   });
 
   it('there are no tabs if showing content unavailable page', () => {

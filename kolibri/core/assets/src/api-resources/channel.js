@@ -1,14 +1,12 @@
 import { Resource } from '../api-resource';
 
 /**
- * @example <caption>Delete a channel</caption>
- * ChannelResource.getModel(channel_id).delete()
+ * @example Delete a channel
+ * ChannelResource.deletModel({ id: channel_id })
  *
  * @example Only get the channels that are "available" (i.e. with resources on device)
- * ChannelResource.getCollection().fetch({ available: true })
+ * ChannelResource.fetchCollection({ getParams: { available: true } })
  */
-export default class ChannelResource extends Resource {
-  static resourceName() {
-    return 'channel';
-  }
-}
+export default new Resource({
+  name: 'channel',
+});

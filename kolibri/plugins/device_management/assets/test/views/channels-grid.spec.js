@@ -32,7 +32,7 @@ describe('channelsGrid component', () => {
 
   beforeEach(() => {
     store = makeAvailableChannelsPageStore();
-    store.commit('SET_CHANNEL_LIST', [
+    store.commit('manageContent/SET_CHANNEL_LIST', [
       {
         name: 'visible channel',
         id: 'visible_channel',
@@ -45,7 +45,7 @@ describe('channelsGrid component', () => {
 
   it('shows an empty state if there are no visible channels', () => {
     // "visible" meaning it has on-device resources
-    store.commit('SET_CHANNEL_LIST', [
+    store.commit('manageContent/SET_CHANNEL_LIST', [
       {
         name: 'hidden channel',
         id: 'hidden_channel',
@@ -62,12 +62,12 @@ describe('channelsGrid component', () => {
   it('shows a progress bar if channels are loading', () => {
     const wrapper = makeWrapper({ store });
     const { ProgressBar } = getElements(wrapper);
-    store.commit('SET_CHANNEL_LIST_LOADING', true);
+    store.commit('manageContent/SET_CHANNEL_LIST_LOADING', true);
     expect(ProgressBar().isVueInstance()).toEqual(true);
   });
 
   it('channels appear sorted by name', () => {
-    store.commit('SET_CHANNEL_LIST', [
+    store.commit('manageContent/SET_CHANNEL_LIST', [
       {
         name: 'beautiful channel',
         id: 'beautiful_channel',

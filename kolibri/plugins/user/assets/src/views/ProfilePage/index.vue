@@ -177,12 +177,12 @@
         'userHasPermissions',
       ]),
       ...mapState({
-        busy: state => state.pageState.busy,
-        passwordModalVisible: state => state.pageState.passwordState.modal,
         session: state => state.core.session,
-        success: state => state.pageState.success,
-        profileErrors: state => state.pageState.errors,
       }),
+      ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success', 'profileErrors']),
+      passwordModalVisible() {
+        return this.passwordState.modal;
+      },
       role() {
         if (this.getUserKind === UserKinds.ADMIN) {
           return this.$tr('isAdmin');
@@ -266,9 +266,10 @@
       this.fetchPoints();
     },
     methods: {
-      ...mapActions(['fetchPoints', 'updateUserProfile']),
-      ...mapMutations({
-        resetProfileState: 'RESET_PROFILE_STATE',
+      ...mapActions(['fetchPoints']),
+      ...mapActions('profile', ['updateUserProfile']),
+      ...mapMutations('profile', {
+        resetProfileState: 'RESET_STATE',
         setPasswordModalVisible: 'SET_PROFILE_PASSWORD_MODAL',
       }),
       submitEdits() {

@@ -18,6 +18,11 @@ export default class KolibriApp extends KolibriModule {
   get routes() {
     return [];
   }
+
+  get routerInstance() {
+    return router.getInstance();
+  }
+
   /*
    * @return {Object} A component definition for the root component of this single page app.
    */

@@ -19,7 +19,7 @@
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
-      :contentId="content.content_id"
+      :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields"
@@ -36,7 +36,7 @@
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
-      :contentId="content.content_id"
+      :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
       :extraFields="content.extra_fields"
@@ -124,7 +124,7 @@
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
-  import { updateContentNodeProgress } from '../state/actions/main';
+  import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import PageHeader from './PageHeader';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
   import AssessmentWrapper from './AssessmentWrapper';
@@ -164,20 +164,22 @@
         }),
       };
     },
-    data: () => ({
-      wasIncomplete: false,
-      licenceDescriptionIsVisible: false,
-    }),
+    data() {
+      return {
+        wasIncomplete: false,
+        licenceDescriptionIsVisible: false,
+      };
+    },
     computed: {
       ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'contentPoints', 'pageMode']),
       ...mapState(['pageName']),
+      ...mapState('topicsTree', ['content', 'channel', 'recommended']),
+      ...mapState('topicsTree', {
+        contentId: state => state.content.content_id,
+        contentNodeId: state => state.content.id,
+        channelId: state => state.content.channel_id,
+      }),
       ...mapState({
-        content: state => state.pageState.content,
-        channel: state => state.pageState.channel,
-        contentId: state => state.pageState.content.content_id,
-        contentNodeId: state => state.pageState.content.id,
-        channelId: state => state.pageState.content.channel_id,
-        recommended: state => state.pageState.recommended,
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,
       }),
@@ -195,10 +197,11 @@
         return false;
       },
       description() {
-        if (this.content) {
+        if (this.content && this.content.description) {
           const md = new markdownIt('zero', { breaks: true });
           return md.render(this.content.description);
         }
+        return '';
       },
       recommendedText() {
         return this.$tr('recommended');

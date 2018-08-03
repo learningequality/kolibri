@@ -41,10 +41,9 @@
 
 <script>
 
-  import { mapActions, mapState, mapGetters } from 'vuex';
+  import { mapActions, mapState, mapGetters, mapMutations } from 'vuex';
   import UiAlert from 'keen-ui/src/UiAlert';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import { wizardState } from '../../../state/getters';
   import { TransferTypes } from '../../../constants';
   import DriveList from './DriveList';
 
@@ -63,12 +62,8 @@
       };
     },
     computed: {
-      ...mapGetters(['driveCanBeUsedForTransfer', 'isImportingMore']),
-      ...mapState({
-        driveList: state => wizardState(state).driveList,
-        transferType: state => wizardState(state).transferType,
-        transferredChannel: state => wizardState(state).transferredChannel,
-      }),
+      ...mapGetters('manageContent/wizard', ['driveCanBeUsedForTransfer', 'isImportingMore']),
+      ...mapState('manageContent/wizard', ['driveList', 'transferType', 'transferredChannel']),
       inImportMode() {
         return this.transferType === TransferTypes.LOCALIMPORT;
       },
@@ -102,11 +97,11 @@
         });
     },
     methods: {
-      ...mapActions([
-        'goForwardFromSelectDriveModal',
-        'refreshDriveList',
-        'resetContentWizardState',
-      ]),
+      ...mapActions('manageContent', ['refreshDriveList']),
+      ...mapActions('manageContent/wizard', ['goForwardFromSelectDriveModal']),
+      ...mapMutations('manageContent/wizard', {
+        resetContentWizardState: 'RESET_STATE',
+      }),
       goForward() {
         this.goForwardFromSelectDriveModal({
           driveId: this.selectedDriveId,

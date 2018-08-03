@@ -1,20 +1,19 @@
 import store from 'kolibri.coreVue.vuex.store';
+import router from 'kolibri.coreVue.router';
+import { showSearch } from '../modules/search/handlers';
 import {
-  showRoot,
-  showChannels,
-  showSearch,
-  showContentUnavailable,
   showTopicsTopic,
   showTopicsChannel,
   showTopicsContent,
-} from '../state/actions/main';
+} from '../modules/topicsTree/handlers';
 import {
   showRecommended,
   showPopularPage,
   showNextStepsPage,
   showResumePage,
-} from '../state/actions/recommended';
-import { PageNames } from '../constants';
+} from '../modules/recommended/handlers';
+import { showChannels } from '../modules/topicsRoot/handlers';
+import { PageNames, ClassesPageNames } from '../constants';
 import classesRoutes from './classesRoutes';
 
 export default [
@@ -23,7 +22,11 @@ export default [
     name: PageNames.ROOT,
     path: '/',
     handler: () => {
-      showRoot(store);
+      const { memberships } = store.state;
+      // If a registered user, go to Classes Page, else go to Content
+      return router.replace({
+        name: memberships.length > 0 ? ClassesPageNames.ALL_CLASSES : PageNames.TOPICS_ROOT,
+      });
     },
   },
   {
@@ -51,7 +54,9 @@ export default [
     name: PageNames.CONTENT_UNAVAILABLE,
     path: '/content-unavailable',
     handler: () => {
-      showContentUnavailable(store);
+      store.commit('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_ERROR', null);
     },
   },
   {

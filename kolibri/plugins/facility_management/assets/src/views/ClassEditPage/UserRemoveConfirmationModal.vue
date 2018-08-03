@@ -43,7 +43,7 @@
       },
     },
     methods: {
-      ...mapActions(['displayModal']),
+      ...mapActions('classEditManagement', ['displayModal']),
       confirmRemoval() {
         this.$emit('confirm');
       },

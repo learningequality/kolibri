@@ -44,10 +44,8 @@
       },
     },
     computed: {
-      ...mapState({
-        questions: state => state.pageState.questions,
-        attemptLogs: state => state.examAttemptLogs,
-      }),
+      ...mapState('examViewer', ['questions']),
+      ...mapState({ attemptLogs: 'examAttemptLogs' }),
     },
     methods: {
       daysElapsedText(daysElapsed) {

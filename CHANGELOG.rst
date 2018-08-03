@@ -3,6 +3,11 @@ Release Notes
 
 Changes are ordered reverse-chronologically.
 
+0.11.0
+------
+
+- Setting for enabling/disabling guest access has been added
+
 
 0.10.0
 ------

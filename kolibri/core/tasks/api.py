@@ -1,4 +1,3 @@
-import logging as logger
 import os
 
 from django.apps.registry import AppRegistryNotReady
@@ -28,8 +27,6 @@ except AppRegistryNotReady:
     import django
 
     django.setup()
-
-logging = logger.getLogger(__name__)
 
 
 NETWORK_ERROR_STRING = _("There was a network error.")

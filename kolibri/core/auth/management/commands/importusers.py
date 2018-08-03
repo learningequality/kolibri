@@ -1,5 +1,5 @@
 import csv
-import logging as logger
+import logging
 from functools import partial
 from itertools import starmap
 
@@ -12,7 +12,8 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
 
 DEFAULT_PASSWORD = "kolibri"
 
@@ -64,7 +65,7 @@ def create_user(i, user, default_facility=None):
     username = user['username']
     try:
         user_obj = FacilityUser.objects.get(username=username, facility=facility)
-        logging.warn('Tried to create a user with the username {username} in facility {facility}, but one already exists'.format(
+        logger.warn('Tried to create a user with the username {username} in facility {facility}, but one already exists'.format(
             username=username,
             facility=facility
         ))
@@ -82,20 +83,20 @@ def create_user(i, user, default_facility=None):
             )
             if classroom:
                 classroom.add_member(new_user)
-            logging.info('User created with username {username} in facility {facility} with password {password}'.format(
+            logger.info('User created with username {username} in facility {facility} with password {password}'.format(
                 username=username,
                 facility=facility,
                 password=password,
             ))
             return True
         except ValidationError as e:
-            logging.error('User not created with username {username} in facility {facility} with password {password}'.format(
+            logger.error('User not created with username {username} in facility {facility} with password {password}'.format(
                 username=username,
                 facility=facility,
                 password=password,
             ))
             for key, error in e.message_dict.items():
-                logging.error('{key}: {error}'.format(key=key, error=error[0]))
+                logger.error('{key}: {error}'.format(key=key, error=error[0]))
             return False
 
 
@@ -155,4 +156,4 @@ class Command(BaseCommand):
             with transaction.atomic():
                 create_func = partial(create_user, default_facility=default_facility)
                 total = sum(starmap(create_func, enumerate(reader)))
-                logging.info('{total} users created'.format(total=total))
+                logger.info('{total} users created'.format(total=total))

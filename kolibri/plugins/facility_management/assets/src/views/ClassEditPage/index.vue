@@ -142,13 +142,13 @@
       };
     },
     computed: {
-      ...mapState({
-        classLearners: state => state.pageState.classLearners,
-        classCoaches: state => state.pageState.classCoaches,
-        classes: state => state.pageState.classes,
-        currentClass: state => state.pageState.currentClass,
-        modalShown: state => state.pageState.modalShown,
-      }),
+      ...mapState('classEditManagement', [
+        'classCoaches',
+        'classLearners',
+        'classes',
+        'currentClass',
+        'modalShown',
+      ]),
       Modals() {
         return Modals;
       },
@@ -164,7 +164,11 @@
       },
     },
     methods: {
-      ...mapActions(['displayModal', 'removeClassLearner', 'removeClassCoach']),
+      ...mapActions('classEditManagement', [
+        'displayModal',
+        'removeClassLearner',
+        'removeClassCoach',
+      ]),
       confirmRemoval(user, removalAction) {
         this.userToBeRemoved = user;
         this.removalAction = removalAction;

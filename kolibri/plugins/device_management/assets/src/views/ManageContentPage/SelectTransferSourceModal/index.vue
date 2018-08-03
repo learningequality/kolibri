@@ -16,7 +16,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import { ContentWizardPages } from '../../../constants';
   import SelectImportSourceModal from './SelectImportSourceModal';
   import SelectDriveModal from './SelectDriveModal';
@@ -27,15 +26,17 @@
       SelectImportSourceModal,
       SelectDriveModal,
     },
+    props: {
+      pageName: {
+        type: String,
+      },
+    },
     computed: {
-      ...mapState({
-        wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
-      }),
       atSelectImportSource() {
-        return this.wizardPageName === ContentWizardPages.SELECT_IMPORT_SOURCE;
+        return this.pageName === ContentWizardPages.SELECT_IMPORT_SOURCE;
       },
       atSelectDrive() {
-        return this.wizardPageName === ContentWizardPages.SELECT_DRIVE;
+        return this.pageName === ContentWizardPages.SELECT_DRIVE;
       },
     },
   };

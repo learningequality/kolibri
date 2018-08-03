@@ -94,6 +94,7 @@
             />
             <div>
               <KExternalLink
+                v-if="allowGuestAccess"
                 class="guest-button"
                 :text="$tr('accessAsGuest')"
                 :href="guestURL"
@@ -133,10 +134,6 @@
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
   import FacilityModal from './FacilityModal';
 
-  function hasMultipleFacilities(state) {
-    return state.pageState.hasMultipleFacilities;
-  }
-
   export default {
     name: 'SignInPage',
     $trs: {
@@ -175,7 +172,7 @@
         username: '',
         password: '',
         usernameSuggestions: [],
-        facilityModalVisible: hasMultipleFacilities(this.$store.state),
+        facilityModalVisible: this.$store.state.signIn.hasMultipleFacilities,
         suggestionTerm: '',
         showDropdown: true,
         highlightedIndex: -1,
@@ -189,8 +186,8 @@
       ...mapGetters(['facilityConfig']),
       // backend's default facility on load
       ...mapState(['facilityId']),
+      ...mapState('signIn', ['hasMultipleFacilities']),
       ...mapState({
-        hasMultipleFacilities,
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,
@@ -252,6 +249,9 @@
       },
       needPasswordField() {
         return !this.simpleSignIn || this.hasServerError;
+      },
+      allowGuestAccess() {
+        return this.facilityConfig.allowGuestAccess;
       },
       logoHeight() {
         const CRITICAL_ACTIONS_HEIGHT = 350; // title + form + action buttons
@@ -316,11 +316,12 @@
         }
       },
       setSuggestions() {
-        FacilityUsernameResource.getCollection({
-          facility: this.facility,
-          search: this.suggestionTerm,
+        FacilityUsernameResource.fetchCollection({
+          getParams: {
+            facility: this.facility,
+            search: this.suggestionTerm,
+          },
         })
-          .fetch()
           .then(users => {
             this.usernameSuggestions = users.map(user => user.username);
             this.showDropdown = true;

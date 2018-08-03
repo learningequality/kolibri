@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 import KModal from 'kolibri.coreVue.components.KModal';
 import UiAlert from 'keen-ui/src/UiAlert';
 import SelectDriveModal from '../../src/views/ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
-import { wizardState } from '../../src/state/getters';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 SelectDriveModal.methods.refreshDriveList = () => Promise.resolve();
@@ -20,7 +19,7 @@ function makeWrapper(options = {}) {
 
 function makeStore() {
   const store = makeAvailableChannelsPageStore();
-  store.commit('SET_DRIVE_LIST', [
+  store.commit('manageContent/wizard/SET_DRIVE_LIST', [
     {
       id: 'unwritable_drive',
       metadata: { channels: [{ id: 'installed_channel' }] },
@@ -76,7 +75,7 @@ describe('selectDriveModal component', () => {
   });
 
   function setTransferType(transferType) {
-    store.state.pageState.wizardState.transferType = transferType;
+    store.commit('manageContent/wizard/SET_TRANSFER_TYPE', transferType);
   }
 
   it('when drive list is loading, show a message', async () => {
@@ -109,8 +108,8 @@ describe('selectDriveModal component', () => {
       id: 'channel_1',
       version: 1,
     };
-    store.commit('SET_TRANSFERRED_CHANNEL', channel);
-    store.state.pageState.channelList = [{ ...channel }];
+    store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', channel);
+    store.state.manageContent.channelList = [{ ...channel }];
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio } = getElements(wrapper);
     expect(writableImportableRadio().is('input')).toEqual(true);
@@ -122,8 +121,8 @@ describe('selectDriveModal component', () => {
       id: 'channel_2',
       version: 6,
     };
-    store.commit('SET_TRANSFERRED_CHANNEL', channel);
-    store.state.pageState.channelList = [{ ...channel }];
+    store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', channel);
+    store.state.manageContent.channelList = [{ ...channel }];
     const wrapper = makeWrapper({ store });
     const { incompatibleRadio } = getElements(wrapper);
     expect(incompatibleRadio().exists()).toEqual(false);
@@ -140,7 +139,7 @@ describe('selectDriveModal component', () => {
 
   it('in import mode, if there are no drives with content, there is an empty state', () => {
     setTransferType('localimport');
-    wizardState(store.state).driveList.forEach(d => {
+    store.state.manageContent.wizard.driveList.forEach(d => {
       d.metadata.channels = [];
     });
     const wrapper = makeWrapper({ store });
@@ -151,7 +150,7 @@ describe('selectDriveModal component', () => {
 
   it('in export mode, if there are no writable drives, there is an empty state', () => {
     setTransferType('localexport');
-    wizardState(store.state).driveList.forEach(d => {
+    store.state.manageContent.wizard.driveList.forEach(d => {
       d.writable = false;
     });
     const wrapper = makeWrapper({ store });
@@ -188,13 +187,12 @@ describe('selectDriveModal component', () => {
     });
   });
 
-  it('clicking "Cancel" triggers a "cancel" event', () => {
+  it('clicking "Cancel" triggers a "cancel" event', async () => {
     const wrapper = makeWrapper({ store });
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
-    wrapper.vm.$nextTick().then(() => {
-      expect(wrapper.emitted().cancel).toHaveLength(1);
-    });
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find({ name: 'KModal' }).emitted().cancel).toHaveLength(1);
   });
 
   // not tested

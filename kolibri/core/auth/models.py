@@ -22,7 +22,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import logging as logger
+import logging
 
 import six
 from django.contrib.auth.models import AbstractBaseUser
@@ -71,7 +71,7 @@ from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
 
-logging = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def _has_permissions_class(obj):
@@ -116,6 +116,7 @@ class FacilityDataset(FacilityDataSyncableModel):
     learner_can_delete_account = models.BooleanField(default=True)
     learner_can_login_with_no_password = models.BooleanField(default=False)
     show_download_button_in_learn = models.BooleanField(default=True)
+    allow_guest_access = models.BooleanField(default=True)
 
     def __str__(self):
         facilities = self.collection_set.filter(kind=collection_kinds.FACILITY)
@@ -331,10 +332,10 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
             instance.clean_fields(exclude=getattr(Model, "FIELDS_TO_EXCLUDE_FROM_VALIDATION", None))
             instance.clean()
         except TypeError as e:
-            logging.error("TypeError while validating model before checking permissions: {}".format(e.args))
+            logger.error("TypeError while validating model before checking permissions: {}".format(e.args))
             return False  # if the data provided does not fit the Model, don't continue checking
         except ValidationError as e:
-            logging.error(e)
+            logger.error(e)
             return False  # if the data does not validate, don't continue checking
         # now that we have an instance, defer to the permission-checking method that works with instances
         return self.can_create_instance(instance)

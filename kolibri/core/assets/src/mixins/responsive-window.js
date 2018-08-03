@@ -115,38 +115,29 @@ export default {
     return {
       windowWidth: undefined,
       windowHeight: undefined,
-      windowBreakpoint: undefined,
     };
   },
-  // Implementing this as a watcher to work around
-  // optimization issue: https://github.com/vuejs/vue/issues/8540
-  watch: {
-    windowWidth() {
-      let newBreakpoint = undefined;
+  computed: {
+    windowBreakpoint() {
       const SCROLL_BAR = 16;
       if (this.windowWidth < 480) {
-        newBreakpoint = 0;
+        return 0;
       } else if (this.windowWidth < 600) {
-        newBreakpoint = 1;
+        return 1;
       } else if (this.windowWidth < 840) {
-        newBreakpoint = 2;
+        return 2;
       } else if (this.windowWidth < 960 - SCROLL_BAR) {
-        newBreakpoint = 3;
+        return 3;
       } else if (this.windowWidth < 1280 - SCROLL_BAR) {
-        newBreakpoint = 4;
+        return 4;
       } else if (this.windowWidth < 1440 - SCROLL_BAR) {
-        newBreakpoint = 5;
+        return 5;
       } else if (this.windowWidth < 1600 - SCROLL_BAR) {
-        newBreakpoint = 6;
+        return 6;
       } else {
-        newBreakpoint = 7;
-      }
-      if (this.windowBreakpoint !== newBreakpoint) {
-        this.windowBreakpoint = newBreakpoint;
+        return 7;
       }
     },
-  },
-  computed: {
     windowIsLarge() {
       return this.windowBreakpoint > 2;
     },
@@ -170,14 +161,10 @@ export default {
       if (this.windowIsSmall) {
         return 16;
       }
-      /*
-      commenting this logic out for now due to https://github.com/vuejs/vue/issues/8540
-
       // 16px when the smallest width of the device is < 600
       if (this.windowBreakpoint < 4 && Math.min(this.windowWidth, this.windowHeight) < 600) {
         return 16;
       }
-      */
       return 24;
     },
   },

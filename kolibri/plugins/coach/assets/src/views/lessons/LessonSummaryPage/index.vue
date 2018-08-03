@@ -78,16 +78,16 @@
       AssignmentSummary,
     },
     computed: {
-      ...mapState({
+      ...mapState(['classId']),
+      ...mapState('lessonSummary', {
         // IDEA refactor, make actions get all this information themselves.
-        classId: state => state.classId,
-        lessonId: state => state.pageState.currentLesson.id,
-        lessonTitle: state => state.pageState.currentLesson.title,
-        lessonActive: state => state.pageState.currentLesson.is_active,
-        lessonDescription: state => state.pageState.currentLesson.description,
-        lessonAssignments: state => state.pageState.currentLesson.lesson_assignments,
-        lessonResources: state => state.pageState.currentLesson.resources,
-        learnerGroups: state => state.pageState.learnerGroups,
+        lessonId: state => state.currentLesson.id,
+        lessonTitle: state => state.currentLesson.title,
+        lessonActive: state => state.currentLesson.is_active,
+        lessonDescription: state => state.currentLesson.description,
+        lessonAssignments: state => state.currentLesson.lesson_assignments,
+        lessonResources: state => state.currentLesson.resources,
+        learnerGroups: state => state.learnerGroups,
       }),
       lessonOptions() {
         return map(this.actionsToLabelMap, (label, action) => ({
@@ -113,7 +113,7 @@
       },
     },
     methods: {
-      ...mapActions(['setLessonsModal']),
+      ...mapActions('lessonSummary', ['setLessonsModal']),
       handleSelectOption({ action }) {
         this.setLessonsModal(action);
       },

@@ -162,126 +162,6 @@ class ContentNodeFilter(IdFilter):
         # we've tried all the queries and still have fewer than MAX_RESULTS results
         return results
 
-    def filter_recommendations_for(self, queryset, name, value):
-        """
-        Recommend items that are similar to this piece of content.
-        """
-        recommendations = models.ContentNode.objects.get(pk=value).get_siblings(
-            include_self=False).exclude(kind=content_kinds.TOPIC)
-        return queryset & recommendations
-
-    def filter_next_steps(self, queryset, name, value):
-        """
-        Recommend content that has user completed content as a prerequisite, or leftward sibling.
-
-        :param queryset: all content nodes for this channel
-        :param value: id of currently logged in user, or none if user is anonymous
-        :return: uncompleted content nodes, or empty queryset if user is anonymous
-        """
-
-        # if user is anonymous, don't return any nodes
-        if not value:
-            return queryset.none()
-
-        completed_content_ids = ContentSummaryLog.objects.filter(
-            user=value, progress=1).values_list('content_id', flat=True)
-
-        # If no logs, don't bother doing the other queries
-        if not completed_content_ids:
-            return queryset.none()
-
-        completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
-
-        # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
-        return queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(
-            user=value).values_list('content_id', flat=True)).filter(
-            Q(has_prerequisite__in=completed_content_nodes) |
-            Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
-        ).order_by()
-
-    def filter_popular(self, queryset, name, value):
-        """
-        Recommend content that is popular with all users.
-
-        :param queryset: all content nodes across all channels
-        :param value: id of currently logged in user, or none if user is anonymous
-        :return: 10 most popular content nodes
-        """
-        if ContentSessionLog.objects.count() < 50:
-            # return 25 random content nodes if not enough session logs
-            pks = queryset.values_list('pk', flat=True).exclude(kind=content_kinds.TOPIC)
-            # .count scales with table size, so can get slow on larger channels
-            count_cache_key = 'content_count_for_popular'
-            count = cache.get(count_cache_key) or min(pks.count(), 25)
-            return queryset.filter(pk__in=sample(list(pks), count))
-
-        cache_key = 'popular_content'
-        if cache.get(cache_key):
-            return cache.get(cache_key)
-
-        # get the most accessed content nodes
-        # search for content nodes that currently exist in the database
-        content_counts_sorted = ContentSessionLog.objects \
-            .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
-            .values_list('content_id', flat=True) \
-            .annotate(Count('content_id')) \
-            .order_by('-content_id__count')
-
-        most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:20]))
-
-        # remove duplicate content items
-        deduped_list = []
-        content_ids = set()
-        for node in most_popular:
-            if node.content_id not in content_ids:
-                deduped_list.append(node)
-                content_ids.add(node.content_id)
-
-        queryset = most_popular.filter(id__in=[node.id for node in deduped_list])
-
-        # cache the popular results queryset for 10 minutes, for efficiency
-        cache.set(cache_key, queryset, 60 * 10)
-        return queryset
-
-    def filter_resume(self, queryset, name, value):
-        """
-        Recommend content that the user has recently engaged with, but not finished.
-
-        :param queryset: all content nodes across all channels
-        :param value: id of currently logged in user, or none if user is anonymous
-        :return: 10 most recently viewed content nodes
-        """
-
-        # if user is anonymous, return no nodes
-        if not value:
-            return queryset.none()
-
-        # get the most recently viewed, but not finished, content nodes
-        # search for content nodes that currently exist in the database
-        content_ids = ContentSummaryLog.objects \
-            .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
-            .filter(user=value) \
-            .exclude(progress=1) \
-            .order_by('end_timestamp') \
-            .values_list('content_id', flat=True) \
-            .distinct()
-
-        # If no logs, don't bother doing the other queries
-        if not content_ids:
-            return queryset.none()
-
-        resume = queryset.filter(content_id__in=list(content_ids[:10]))
-
-        # remove duplicate content items
-        deduped_list = []
-        content_ids = set()
-        for node in resume:
-            if node.content_id not in content_ids:
-                deduped_list.append(node)
-                content_ids.add(node.content_id)
-
-        return resume.filter(id__in=[node.id for node in deduped_list])
-
     def filter_kind(self, queryset, name, value):
         """
         Show only content of a given kind.
@@ -411,20 +291,6 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
     @detail_route(methods=['get'])
-    def ancestors(self, request, **kwargs):
-        cache_key = 'contentnode_ancestors_{pk}'.format(pk=kwargs.get('pk'))
-
-        if cache.get(cache_key) is not None:
-            return Response(cache.get(cache_key))
-
-        # TODO remove 'pk' once UI standardizes to 'id'
-        ancestors = list(self.get_object(prefetch=False).get_ancestors().values('pk', 'id', 'title'))
-
-        cache.set(cache_key, ancestors, 60 * 10)
-
-        return Response(ancestors)
-
-    @detail_route(methods=['get'])
     def copies(self, request, pk=None):
         """
         Returns each nodes that has this content id, along with their ancestors.
@@ -448,11 +314,15 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         """
         Returns the number of node copies for each content id.
         """
-        content_ids = self.request.query_params.get('content_ids', []).split(',')
-        counts = models.ContentNode.objects.filter(content_id__in=content_ids, available=True) \
-                                           .values('content_id') \
-                                           .order_by() \
-                                           .annotate(count=Count('content_id'))
+        content_id_string = self.request.query_params.get('content_ids')
+        if content_id_string:
+            content_ids = content_id_string.split(',')
+            counts = models.ContentNode.objects.filter(content_id__in=content_ids, available=True) \
+                                               .values('content_id') \
+                                               .order_by() \
+                                               .annotate(count=Count('content_id'))
+        else:
+            counts = 0
         return Response(counts)
 
     @detail_route(methods=['get'])
@@ -467,13 +337,6 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         if thumbnails:
             return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title, 'thumbnail': thumbnails[0]['storage_url']})
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
-
-    @list_route(methods=['get'])
-    def all_content(self, request, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset(prefetch=False)).exclude(kind=content_kinds.TOPIC)
-
-        serializer = self.get_serializer(queryset, many=True, limit=24)
-        return Response(serializer.data)
 
 
 class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
@@ -525,11 +388,149 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
 
-        ancestors = list(self.get_object(prefetch=False).get_ancestors().values('pk', 'title'))
+        ancestors = list(self.get_object(prefetch=False).get_ancestors().values('id', 'title'))
 
         cache.set(cache_key, ancestors, 60 * 10)
 
         return Response(ancestors)
+
+    @detail_route(methods=['get'])
+    def recommendations_for(self, request, **kwargs):
+        """
+        Recommend items that are similar to this piece of content.
+        """
+        # Only using this to get a node reference, not being returned, so don't prefetch.
+        queryset = self.filter_queryset(self.get_queryset(prefetch=False))
+        pk = kwargs.get('pk', None)
+        node = get_object_or_404(queryset, pk=pk)
+        queryset = self.filter_queryset(self.get_queryset(prefetch=False))
+        queryset = self.prefetch_related(queryset & node.get_siblings(include_self=False).exclude(kind=content_kinds.TOPIC))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @list_route(methods=['get'])
+    def next_steps(self, request, **kwargs):
+        """
+        Recommend content that has user completed content as a prerequisite, or leftward sibling.
+
+        :param request: request object
+        :return: uncompleted content nodes, or empty queryset if user is anonymous
+        """
+        user = request.user
+        queryset = self.get_queryset(prefetch=True)
+        # if user is anonymous, don't return any nodes
+        if not user.is_facility_user:
+            queryset = queryset.none()
+        else:
+            completed_content_ids = ContentSummaryLog.objects.filter(
+                user=user, progress=1).values_list('content_id', flat=True)
+
+            # If no logs, don't bother doing the other queries
+            if not completed_content_ids:
+                queryset = queryset.none()
+            else:
+                completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
+
+                # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
+                queryset = queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(
+                    user=user).values_list('content_id', flat=True)).filter(
+                    Q(has_prerequisite__in=completed_content_nodes) |
+                    Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
+                ).order_by()
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @list_route(methods=['get'])
+    def popular(self, request, **kwargs):
+        """
+        Recommend content that is popular with all users.
+
+        :param request: request object
+        :return: 10 most popular content nodes
+        """
+        queryset = self.get_queryset(prefetch=True)
+
+        cache_key = 'popular_content'
+
+        if not cache.get(cache_key):
+            if ContentSessionLog.objects.count() < 50:
+                # return 25 random content nodes if not enough session logs
+                pks = queryset.values_list('pk', flat=True).exclude(kind=content_kinds.TOPIC)
+                # .count scales with table size, so can get slow on larger channels
+                count_cache_key = 'content_count_for_popular'
+                count = cache.get(count_cache_key) or min(pks.count(), 25)
+                queryset = queryset.filter(pk__in=sample(list(pks), count))
+            else:
+                # get the most accessed content nodes
+                # search for content nodes that currently exist in the database
+                content_counts_sorted = ContentSessionLog.objects \
+                    .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
+                    .values_list('content_id', flat=True) \
+                    .annotate(Count('content_id')) \
+                    .order_by('-content_id__count')
+
+                most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:20]))
+
+                # remove duplicate content items
+                deduped_list = []
+                content_ids = set()
+                for node in most_popular:
+                    if node.content_id not in content_ids:
+                        deduped_list.append(node)
+                        content_ids.add(node.content_id)
+
+                queryset = most_popular.filter(id__in=[node.id for node in deduped_list])
+
+            serializer = self.get_serializer(queryset, many=True)
+
+            # cache the popular results queryset for 10 minutes, for efficiency
+            cache.set(cache_key, serializer.data, 60 * 10)
+
+        return Response(cache.get(cache_key))
+
+    @list_route(methods=['get'])
+    def resume(self, request, **kwargs):
+        """
+        Recommend content that the user has recently engaged with, but not finished.
+
+        :param request: request object
+        :return: 10 most recently viewed content nodes
+        """
+        user = request.user
+        queryset = self.get_queryset(prefetch=True)
+        # if user is anonymous, return no nodes
+        if not user.is_facility_user:
+            queryset = queryset.none()
+        else:
+            # get the most recently viewed, but not finished, content nodes
+            # search for content nodes that currently exist in the database
+            content_ids = ContentSummaryLog.objects \
+                .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
+                .filter(user=user) \
+                .exclude(progress=1) \
+                .order_by('end_timestamp') \
+                .values_list('content_id', flat=True) \
+                .distinct()
+
+            # If no logs, don't bother doing the other queries
+            if not content_ids:
+                queryset = queryset.none()
+            else:
+                resume = queryset.filter(content_id__in=list(content_ids[:10]))
+
+                # remove duplicate content items
+                deduped_list = []
+                content_ids = set()
+                for node in resume:
+                    if node.content_id not in content_ids:
+                        deduped_list.append(node)
+                        content_ids.add(node.content_id)
+
+                queryset = resume.filter(id__in=[node.id for node in deduped_list])
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):

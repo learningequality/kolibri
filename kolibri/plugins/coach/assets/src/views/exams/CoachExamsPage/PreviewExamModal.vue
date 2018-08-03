@@ -55,7 +55,7 @@
             <ContentRenderer
               v-if="content && itemId"
               ref="contentRenderer"
-              :id="content.pk"
+              :id="content.id"
               :kind="content.kind"
               :files="content.files"
               :contentId="content.content_id"
@@ -78,7 +78,6 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
   import find from 'lodash/find';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
@@ -128,31 +127,23 @@
         type: Boolean,
         default: false,
       },
+      exerciseContentNodes: {
+        type: Array,
+        required: true,
+      },
     },
-    data: () => ({
-      currentQuestionIndex: 0,
-      exercises: {},
-      loading: true,
-      maxHeight: null,
-    }),
+    data() {
+      return {
+        currentQuestionIndex: 0,
+        exercises: {},
+        loading: true,
+        maxHeight: null,
+        questions: [],
+      };
+    },
     computed: {
-      ...mapState({
-        exerciseContentNodes: state => state.pageState.exerciseContentNodes,
-      }),
       debouncedSetMaxHeight() {
         return debounce(this.setMaxHeight, 250);
-      },
-      questions() {
-        return Object.keys(this.exercises).length
-          ? createQuestionList(this.examQuestionSources).map(question => ({
-              itemId: selectQuestionFromExercise(
-                question.assessmentItemIndex,
-                this.examSeed,
-                this.exercises[question.contentId]
-              ),
-              contentId: question.contentId,
-            }))
-          : [];
       },
       currentQuestion() {
         return this.questions[this.currentQuestionIndex] || {};
@@ -165,16 +156,15 @@
       },
     },
     watch: {
-      examQuestionSources: 'setExercises',
+      examQuestionSources: {
+        handler: 'resetPreview',
+        immediate: true,
+      },
     },
     updated() {
       this.debouncedSetMaxHeight();
     },
-    created() {
-      this.setExercises();
-    },
     methods: {
-      ...mapActions(['setExamsModal']),
       setMaxHeight() {
         const title = this.$refs.modal.$el.querySelector('#modal-title');
         const header = this.$refs.header;
@@ -190,18 +180,38 @@
       numCoachContents(exercise) {
         return find(this.exerciseContentNodes, { id: exercise.exercise_id }).num_coach_contents;
       },
+      resetPreview() {
+        // Serially update data.exercises, then data.questions
+        return this.setExercises().then(() => {
+          this.setQuestions();
+        });
+      },
+      setQuestions() {
+        if (Object.keys(this.exercises).length === 0) {
+          this.questions = [];
+        } else {
+          this.questions = createQuestionList(this.examQuestionSources).map(question => ({
+            itemId: selectQuestionFromExercise(
+              question.assessmentItemIndex,
+              this.examSeed,
+              this.exercises[question.contentId]
+            ),
+            contentId: question.contentId,
+          }));
+        }
+      },
       setExercises() {
         this.loading = true;
-        ContentNodeResource.getCollection({
-          ids: this.examQuestionSources.map(item => item.exercise_id),
-        })
-          .fetch()
-          .then(contentNodes => {
-            contentNodes.forEach(node => {
-              this.$set(this.exercises, node.pk, node);
-            });
-            this.loading = false;
+        return ContentNodeResource.fetchCollection({
+          getParams: {
+            ids: this.examQuestionSources.map(item => item.exercise_id),
+          },
+        }).then(contentNodes => {
+          contentNodes.forEach(node => {
+            this.$set(this.exercises, node.id, node);
           });
+          this.loading = false;
+        });
       },
       isSelected(questionItemId, exerciseId) {
         return (
@@ -224,7 +234,7 @@
         return '';
       },
       close() {
-        this.setExamsModal(false);
+        this.$emit('close');
       },
       getExerciseQuestions(exerciseId) {
         return this.questions.filter(q => q.contentId === exerciseId);

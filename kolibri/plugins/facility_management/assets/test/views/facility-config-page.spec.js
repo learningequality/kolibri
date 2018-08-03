@@ -1,24 +1,12 @@
-import Vuex from 'vuex';
 import { mount } from '@vue/test-utils';
 import ConfigPage from '../../src/views/FacilityConfigPage';
-import confirmResetModal from '../../src/views/FacilityConfigPage/ConfirmResetModal';
+import makeStore from '../makeStore';
 
 function makeWrapper(propsData = {}) {
-  const store = new Vuex.Store({
-    state: {
-      pageState: {
-        settings: {
-          learner_can_edit_username: false,
-        },
-      },
-      // A fake part of the state to confirm efficacy of mutation
-      TEST_DROPBOX: null,
-    },
-    // TODO bring in real mutations instead of faking them
-    mutations: {
-      CONFIG_PAGE_MODIFY_SETTING(state, payload) {
-        state.TEST_DROPBOX = payload;
-      },
+  const store = makeStore();
+  store.commit('facilityConfig/SET_STATE', {
+    settings: {
+      learnerCanEditUsername: false,
     },
   });
   return mount(ConfigPage, { propsData, store });
@@ -51,13 +39,10 @@ describe('facility config page view', () => {
     const wrapper = makeWrapper();
     const { checkbox } = getElements(wrapper);
     checkbox().trigger('click');
-    expect(wrapper.vm.$store.state.TEST_DROPBOX).toEqual({
-      name: 'learnerCanEditUsername',
-      value: true,
-    });
+    expect(wrapper.vm.$store.state.facilityConfig.settings.learnerCanEditUsername).toEqual(true);
   });
 
-  it('clicking save button dispatches a save action', () => {
+  it('clicking save button dispatches a save action', async () => {
     const wrapper = makeWrapper();
     const { mock } = (wrapper.vm.saveFacilityConfig = jest.fn().mockResolvedValue());
     const { saveButton } = getElements(wrapper);
@@ -86,7 +71,7 @@ describe('facility config page view', () => {
   it('confirming reset calls the reset action and closes modal', () => {
     const wrapper = makeWrapper();
     const { resetButton, confirmResetModal } = getElements(wrapper);
-    const { mock } = (wrapper.vm.resetFacilityConfig = jest.fn());
+    const { mock } = (wrapper.vm.resetFacilityConfig = jest.fn().mockResolvedValue());
     resetButton().trigger('click');
     assertModalIsUp(wrapper);
     confirmResetModal().vm.$emit('submit');

@@ -43,14 +43,6 @@ class LearnerClassroomTestCase(APITestCase):
         self.assertEqual(len(get_response.data), 1)
         self.assertEqual(get_response.data[0]['id'], self.own_classroom.id)
 
-    def test_no_assignments_param(self):
-        self.client.login(username='learner', password='password')
-        get_response = self.client.get(
-            reverse(self.basename + '-detail', kwargs={'pk': self.own_classroom.id}),
-            {'no_assignments': True}
-        )
-        self.assertNotIn('assignments', get_response.data)
-
     def test_correct_number_of_exams(self):
         # One active and inactive exam
         exam_1 = Exam.objects.create(

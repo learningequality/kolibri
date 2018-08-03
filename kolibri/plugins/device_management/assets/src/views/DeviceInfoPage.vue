@@ -6,15 +6,15 @@
       <table>
         <tr>
           <th>{{ $tr('kolibriVersion') }}</th>
-          <td>{{ info.version }}</td>
+          <td>{{ deviceInfo.version }}</td>
         </tr>
         <tr>
           <th>
-            {{ $tr('url', { count: info.urls.length }) }}
+            {{ $tr('url', { count: deviceInfo.urls.length }) }}
           </th>
           <td>
             <a
-              v-for="(url, index) in info.urls"
+              v-for="(url, index) in deviceInfo.urls"
               :key="index"
               :href="url"
               target="_blank"
@@ -26,27 +26,27 @@
         </tr>
         <tr>
           <th>{{ $tr('database') }}</th>
-          <td>{{ info.database_path }}</td>
+          <td>{{ deviceInfo.database_path }}</td>
         </tr>
         <tr>
           <th>{{ $tr('deviceName') }}</th>
-          <td>{{ info.device_name }}</td>
+          <td>{{ deviceInfo.device_name }}</td>
         </tr>
         <tr>
           <th>{{ $tr('os') }}</th>
-          <td>{{ info.os }}</td>
+          <td>{{ deviceInfo.os }}</td>
         </tr>
         <tr>
           <th>{{ $tr('freeDisk') }}</th>
-          <td>{{ info.content_storage_free_space }}</td>
+          <td>{{ deviceInfo.content_storage_free_space }}</td>
         </tr>
         <tr>
           <th>{{ $tr('serverTime') }}</th>
-          <td>{{ $tr('formattedTime', { datetime: info.server_time }) }}</td>
+          <td>{{ $tr('formattedTime', { datetime: deviceInfo.server_time }) }}</td>
         </tr>
         <tr>
           <th>{{ $tr('serverTimezone') }}</th>
-          <td>{{ info.server_timezone }}</td>
+          <td>{{ deviceInfo.server_timezone }}</td>
         </tr>
 
       </table>
@@ -76,9 +76,7 @@
     },
     computed: {
       ...mapGetters(['canManageContent']),
-      ...mapState({
-        info: state => state.pageState.deviceInfo,
-      }),
+      ...mapState('deviceInfo', ['deviceInfo']),
     },
     $trs: {
       header: 'Device info',

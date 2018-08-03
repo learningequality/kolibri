@@ -1,9 +1,5 @@
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
-import {
-  showFacilityConfigPage,
-  saveFacilityConfig,
-  resetFacilityConfig,
-} from '../../src/state/actions/facilityConfig';
+import { showFacilityConfigPage } from '../../src/modules/facilityConfig/handlers';
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import makeStore from '../makeStore';
 
@@ -42,14 +38,13 @@ describe('facility config page actions', () => {
     });
     FacilityResource.__resetMocks();
     FacilityDatasetResource.__resetMocks();
-    store.state.pageState = {};
   });
 
   describe('showFacilityConfigPage action', () => {
     it('when resources load successfully', () => {
       FacilityStub.__getModelFetchReturns(fakeFacility);
       DatasetStub.__getCollectionFetchReturns(fakeDatasets);
-      const expectedPageState = {
+      const expectedState = {
         facilityDatasetId: 'dataset_2',
         facilityName: 'Nalanda Maths',
         settings: expect.objectContaining({
@@ -71,14 +66,14 @@ describe('facility config page actions', () => {
       return showFacilityConfigPage(store).then(() => {
         expect(DatasetStub.getCollection).toHaveBeenCalledWith({ facility_id: 1 });
         expect(commitStub).toHaveBeenCalledWith(
-          'SET_PAGE_STATE',
-          expect.objectContaining(expectedPageState)
+          'facilityConfig/SET_STATE',
+          expect.objectContaining(expectedState)
         );
       });
     });
 
     describe('error handling', () => {
-      const expectedPageState = {
+      const expectedState = {
         facilityName: '',
         settings: null,
         notification: 'PAGELOAD_FAILURE',
@@ -88,8 +83,8 @@ describe('facility config page actions', () => {
         DatasetStub.__getCollectionFetchReturns(fakeDatasets);
         return showFacilityConfigPage(store).then(() => {
           expect(commitStub).toHaveBeenCalledWith(
-            'SET_PAGE_STATE',
-            expect.objectContaining(expectedPageState)
+            'facilityConfig/SET_STATE',
+            expect.objectContaining(expectedState)
           );
         });
       });
@@ -99,8 +94,8 @@ describe('facility config page actions', () => {
         DatasetStub.__getCollectionFetchReturns('incomprehensible error', true);
         return showFacilityConfigPage(store).then(() => {
           expect(commitStub).toHaveBeenCalledWith(
-            'SET_PAGE_STATE',
-            expect.objectContaining(expectedPageState)
+            'facilityConfig/SET_STATE',
+            expect.objectContaining(expectedState)
           );
         });
       });
@@ -109,7 +104,7 @@ describe('facility config page actions', () => {
 
   describe('saveFacilityConfig action', () => {
     beforeEach(() => {
-      store.state.pageState = {
+      store.commit('facilityConfig/SET_STATE', {
         facilityDatasetId: 1000,
         settings: {
           learnerCanEditName: true,
@@ -118,7 +113,7 @@ describe('facility config page actions', () => {
           learnerCanDeleteAccount: true,
           learnerCanSignUp: false,
         },
-      };
+      });
     });
 
     it('when save is successful', () => {
@@ -132,30 +127,42 @@ describe('facility config page actions', () => {
       // IRL returns the updated Model
       const saveStub = DatasetStub.__getModelSaveReturns('ok');
 
-      return saveFacilityConfig(store).then(() => {
-        expect(DatasetStub.getModel).toHaveBeenCalledWith(1000);
-        expect(saveStub).toHaveBeenCalledWith(expect.objectContaining(expectedRequest));
-        expect(commitStub).toHaveBeenCalledWith('CONFIG_PAGE_NOTIFY', 'SAVE_SUCCESS');
+      return store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
+        expect(DatasetStub.getModel).toHaveBeenCalledWith(1000, {});
+        expect(saveStub).toHaveBeenCalledWith(expect.objectContaining(expectedRequest), false);
+        expect(store.state.facilityConfig.notification).toEqual('SAVE_SUCCESS');
       });
     });
 
     it('when save fails', () => {
       const saveStub = DatasetStub.__getModelSaveReturns('heck no', true);
-      return saveFacilityConfig(store).then(() => {
+      return store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
         expect(saveStub).toHaveBeenCalled();
-        expect(commitStub).toHaveBeenCalledWith('CONFIG_PAGE_NOTIFY', 'SAVE_FAILURE');
-        expect(commitStub).toHaveBeenCalledWith('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
+        expect(store.state.facilityConfig.notification).toEqual('SAVE_FAILURE');
+        expect(store.state.facilityConfig.settings).toEqual({
+          learnerCanEditName: true,
+          learnerCanEditUsername: false,
+          learnerCanEditPassword: true,
+          learnerCanDeleteAccount: true,
+          learnerCanSignUp: false,
+        });
       });
     });
 
-    it('resetFacilityConfig action dispatches a modify all settings action before saving', () => {
+    it('resetFacilityConfig action dispatches resets settings and makes a save request', () => {
       const saveStub = DatasetStub.__getModelSaveReturns('ok default');
-      return resetFacilityConfig(store).then(() => {
-        expect(commitStub).toHaveBeenCalledWith(
-          'CONFIG_PAGE_MODIFY_ALL_SETTINGS',
-          expect.any(Object)
-        );
+      return store.dispatch('facilityConfig/resetFacilityConfig').then(() => {
         expect(saveStub).toHaveBeenCalled();
+        expect(store.state.facilityConfig.settings).toEqual({
+          allowGuestAccess: true,
+          learnerCanEditUsername: true,
+          learnerCanEditName: true,
+          learnerCanEditPassword: true,
+          learnerCanSignUp: true,
+          learnerCanDeleteAccount: true,
+          learnerCanLoginWithNoPassword: false,
+          showDownloadButtonInLearn: false,
+        });
       });
     });
   });

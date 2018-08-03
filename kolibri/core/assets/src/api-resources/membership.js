@@ -1,11 +1,9 @@
 import { Resource } from '../api-resource';
 
 /**
- * @example <caption>Get all memberships for a given user</caption>
- * MembershipResource.getCollection({ user_id: userId })
+ * @example Get all memberships for a given user
+ * MembershipResource.fetchCollection({ getParams: { user_id: userId } })
  */
-export default class MembershipResource extends Resource {
-  static resourceName() {
-    return 'membership';
-  }
-}
+export default new Resource({
+  name: 'membership',
+});
