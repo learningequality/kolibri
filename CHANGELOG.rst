@@ -4,6 +4,17 @@ Release Notes
 Changes are ordered reverse-chronologically.
 
 
+0.10.1
+------
+
+ - Bug fix release
+ - Several smaller UI fixes
+ - Fixes for SSL issues on low-spec devices / unstable connectivity
+ - Compatibility fixes for older system libraries
+
+See a `more detailed list <https://github.com/learningequality/kolibri/pulls?q=is%3Apr+milestone%3A0.10.1+label%3Achangelog+is%3Aclosed>`_ of changes on Github
+
+
 0.10.0
 ------
 
