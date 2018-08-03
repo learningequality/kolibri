@@ -15,6 +15,11 @@
         :label="$tr('selfManagedSetupTitle')"
         :description="$tr('selfManagedSetupDescription')"
       />
+      <FacilityNameForm
+        ref="facility-name-nonformal"
+        class="facility-name-form"
+        v-show="selectedPreset=='nonformal'"
+      />
 
       <KRadioButton
         class="permission-preset-radio-button"
@@ -23,6 +28,11 @@
         :label="$tr('adminManagedSetupTitle')"
         :description="$tr('adminManagedSetupDescription')"
       />
+      <FacilityNameForm
+        ref="facility-name-formal"
+        class="facility-name-form"
+        v-show="selectedPreset=='formal'"
+      />
 
       <KRadioButton
         class="permission-preset-radio-button"
@@ -30,13 +40,6 @@
         value="informal"
         :label="$tr('informalSetupTitle')"
         :description="$tr('informalSetupDescription')"
-      />
-
-      <KButton
-        slot="footer"
-        appearance="basic-link"
-        :text="$tr('facilityPermissionsPresetDetailsLink')"
-        @click="showFacilityPermissionsDetails"
       />
     </OnboardingForm>
   </div>
@@ -49,21 +52,24 @@
   import { mapMutations } from 'vuex';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import OnboardingForm from './OnboardingForm';
+  import FacilityNameForm from './FacilityNameForm';
 
   export default {
     name: 'FacilityPermissionsForm',
     components: {
+      FacilityNameForm,
       OnboardingForm,
       KRadioButton,
       KButton,
+      KTextbox,
     },
     $trs: {
       facilityPermissionsSetupFormHeader: 'Choose a Facility setup',
       facilityPermissionsSetupFormDescription:
         'How will you be using Kolibri? (You can customize these settings later)',
       facilityPermissionsPresetDetailsLink: 'More information about these settings',
-      facilityPermissionsPresetDetailsHeader: 'Facility setup details',
       adminManagedSetupTitle: 'Formal',
       adminManagedSetupDescription: 'Schools and other formal learning contexts',
       selfManagedSetupTitle: 'Non-formal',
@@ -83,24 +89,48 @@
       return {
         selectedPreset: this.$store.state.onboardingData.preset,
         permissionPresetDetailsModalShown: false,
+        facilityNameText: '',
       };
     },
+    computed: {
+      submittedFacilityName() {
+        if (this.selectedPreset === 'nonformal') {
+          return this.submitFacilityName(this.$refs['facility-name-nonformal'].facilityName);
+        } else if (this.selectedPreset === 'formal') {
+          return this.submitFacilityName(this.$refs['facility-name-formal'].facilityName);
+        } else {
+          // Will be turned into a default "Home Facility {{ full name }}" after it is provided
+          // in SuperuserCredentialsForm
+          return '';
+        }
+      },
+    },
+    watch: {
+      selectedPreset() {
+        return this.$nextTick().then(() => {
+          this.focusOnTextbox();
+        });
+      },
+    },
     mounted() {
-      this.$refs['first-button'].focus();
+      this.focusOnTextbox();
     },
     methods: {
       ...mapMutations({
         submitFacilityPermissions: 'SET_FACILITY_PRESET',
+        submitFacilityName: 'SET_FACILITY_NAME',
       }),
+      focusOnTextbox() {
+        if (this.selectedPreset === 'nonformal') {
+          return this.$refs['facility-name-nonformal'].$refs['facilityName'].focus();
+        } else if (this.selectedPreset === 'formal') {
+          return this.$refs['facility-name-formal'].$refs['facilityName'].focus();
+        }
+      },
       setPermissions() {
         this.submitFacilityPermissions(this.selectedPreset);
+        this.submitFacilityName(this.submittedFacilityName);
         this.$emit('submit');
-      },
-      showFacilityPermissionsDetails() {
-        this.permissionPresetDetailsModalShown = true;
-      },
-      hideFacilityPermissionsDetails() {
-        this.permissionPresetDetailsModalShown = false;
       },
     },
   };
@@ -113,6 +143,10 @@
   @import '~kolibri.styles.definitions';
 
   $margin-of-radio-button-text: 32px;
+
+  .facility-name-form {
+    margin-left: 32px;
+  }
 
   .permission-preset {
     cursor: pointer;
