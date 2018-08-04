@@ -12,6 +12,8 @@ function makeWrapper() {
     DefaultLanguageForm: () => wrapper.find({ name: 'DefaultLanguageForm' }),
     FacilityPermissionsForm: () => wrapper.find({ name: 'FacilityPermissionsForm' }),
     GuestAccessForm: () => wrapper.find({ name: 'GuestAccessForm' }),
+    CreateLearnerAccountForm: () => wrapper.find({ name: 'CreateLearnerAccountForm' }),
+    RequirePasswordForLearnersForm: () => wrapper.find({ name: 'RequirePasswordForLearnersForm' }),
     SuperuserCredentialsForm: () => wrapper.find({ name: 'SuperuserCredentialsForm' }),
   };
   return { wrapper, store, els };
@@ -36,6 +38,16 @@ describe('SetupWizardIndex', () => {
     expect(els.GuestAccessForm().isVueComponent).toBe(true);
     els.GuestAccessForm().vm.$emit('submit');
     expect(els.GuestAccessForm().exists()).toBe(false);
+
+    // Step 4: Learners can create own account form
+    expect(els.CreateLearnerAccountForm().isVueComponent).toBe(true);
+    els.CreateLearnerAccountForm().vm.$emit('submit');
+    expect(els.CreateLearnerAccountForm().exists()).toBe(false);
+
+    // Step 5: Require password for learners form
+    expect(els.RequirePasswordForLearnersForm().isVueComponent).toBe(true);
+    els.RequirePasswordForLearnersForm().vm.$emit('submit');
+    expect(els.RequirePasswordForLearnersForm().exists()).toBe(false);
 
     // Step 4: Superuser Credentials Form
     expect(els.SuperuserCredentialsForm().isVueComponent).toBe(true);

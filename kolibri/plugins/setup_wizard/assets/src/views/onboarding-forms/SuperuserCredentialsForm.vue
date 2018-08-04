@@ -49,7 +49,14 @@
       :invalidText="passwordConfirmErrorMessage"
       ref="passwordConfirm"
     />
-
+    <div class="reminder">
+      <div class="icon">
+        <mat-svg category="alert" name="warning" />
+      </div>
+      <p class="text">
+        {{ $tr('rememberThisAccountInformation') }}
+      </p>
+    </div>
   </OnboardingForm>
 
 </template>
@@ -69,13 +76,15 @@
       KTextbox,
     },
     $trs: {
-      adminAccountCreationHeader: 'Create your Admin account',
+      adminAccountCreationHeader: 'Create superuser account',
       adminAccountCreationDescription:
-        'This account allows you to manage your Facility and content on this device.',
+        'This account allows you to manage the facility, content, and user accounts on this device',
       adminNameFieldLabel: 'Full name',
       adminUsernameFieldLabel: 'Username',
       adminPasswordFieldLabel: 'Password',
       adminPasswordConfirmationFieldLabel: 'Enter password again',
+      rememberThisAccountInformation:
+        'Important: please remember this account information. Write it down if needed',
       // error messages
       nameFieldEmptyErrorMessage: 'Full name cannot be empty',
       usernameFieldEmptyErrorMessage: 'Username cannot be empty',
@@ -189,4 +198,22 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .reminder {
+    display: table;
+
+    .icon {
+      display: table-cell;
+      width: 5%;
+      min-width: 32px;
+    }
+
+    .text {
+      display: table-cell;
+      width: 90%;
+      vertical-align: top;
+    }
+  }
+
+</style>
