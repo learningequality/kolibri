@@ -3,7 +3,7 @@ Feature: Coach lesson report
 
   Background:
     Given I am signed in to Kolibri as coach user
-      And I am on the *Coach > lessons* page
+      And I am on the *Coach > Lessons* page
       And I see the lesson <lesson_title>
 
   Scenario: Coach can view the lesson report details
@@ -11,7 +11,7 @@ Feature: Coach lesson report
     Then I am on the <lesson_title> page
       And below I see all the topic <topic>
     When I click <topic>
-    Then I am on the *lesson report details* page
+    Then I am on the *Lesson report details* page
       And I see all the report of learners progress
 
 Examples:
