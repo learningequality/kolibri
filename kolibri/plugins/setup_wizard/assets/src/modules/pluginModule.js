@@ -19,6 +19,8 @@ export default {
         allow_guest_access: null,
         // Set in CreateLearnerAccountForm
         learner_can_sign_up: null,
+        learner_can_edit_name: null,
+        learner_can_edit_username: null,
         // Set in RequirePasswordForLearnersForm
         learner_can_login_with_no_password: null,
       },
@@ -70,7 +72,10 @@ export default {
       state.onboardingData.settings.allow_guest_access = setting;
     },
     SET_LEARNER_CAN_SIGN_UP(state, setting) {
+      // These three options are set together
       state.onboardingData.settings.learner_can_sign_up = setting;
+      state.onboardingData.settings.learner_can_edit_name = setting;
+      state.onboardingData.settings.learner_can_edit_username = setting;
     },
     SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD(state, setting) {
       state.onboardingData.settings.learner_can_login_with_no_password = setting;

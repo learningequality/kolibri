@@ -43,6 +43,8 @@ describe('CreateLearnerAccountForm', () => {
     const { wrapper, store } = makeWrapper({ preset: 'formal' });
     wrapper.find({ name: 'YesNoForm' }).vm.emitSetting();
     expect(store.state.onboardingData.settings.learner_can_sign_up).toEqual(false);
+    expect(store.state.onboardingData.settings.learner_can_edit_name).toEqual(false);
+    expect(store.state.onboardingData.settings.learner_can_edit_username).toEqual(false);
     expect(wrapper.vm.$emit).toHaveBeenCalledTimes(1);
   });
 });

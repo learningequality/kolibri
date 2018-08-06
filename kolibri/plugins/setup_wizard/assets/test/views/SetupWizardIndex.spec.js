@@ -97,6 +97,8 @@ describe('SetupWizardIndex', () => {
       settings: {
         allow_guest_access: true,
         learner_can_sign_up: false,
+        learner_can_edit_name: false,
+        learner_can_edit_username: false,
         learner_can_login_with_no_password: true,
       },
     });
