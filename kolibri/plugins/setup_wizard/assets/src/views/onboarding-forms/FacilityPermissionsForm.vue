@@ -88,21 +88,31 @@
     data() {
       return {
         selectedPreset: this.$store.state.onboardingData.preset,
-        permissionPresetDetailsModalShown: false,
-        facilityNameText: '',
       };
     },
     computed: {
+      formalIsSelected() {
+        return this.selectedPreset === 'formal';
+      },
+      nonformalIsSelected() {
+        return this.selectedPreset === 'nonformal';
+      },
       submittedFacilityName() {
-        if (this.selectedPreset === 'nonformal') {
+        if (this.nonformalIsSelected) {
           return this.$refs['facility-name-nonformal'].facilityName;
-        } else if (this.selectedPreset === 'formal') {
+        } else if (this.formalIsSelected) {
           return this.$refs['facility-name-formal'].facilityName;
         } else {
           // Will be turned into a default "Home Facility {{ full name }}" after it is provided
           // in SuperuserCredentialsForm
           return '';
         }
+      },
+      formIsValid() {
+        if (this.nonformalIsSelected || this.formalIsSelected) {
+          return this.submittedFacilityName !== '';
+        }
+        return true;
       },
     },
     watch: {
@@ -117,20 +127,22 @@
     },
     methods: {
       ...mapMutations({
-        submitFacilityPermissions: 'SET_FACILITY_PRESET',
-        submitFacilityName: 'SET_FACILITY_NAME',
+        setFacilityPreset: 'SET_FACILITY_PRESET',
+        setFacilityName: 'SET_FACILITY_NAME',
       }),
       focusOnTextbox() {
-        if (this.selectedPreset === 'nonformal') {
+        if (this.nonformalIsSelected) {
           return this.$refs['facility-name-nonformal'].focus();
-        } else if (this.selectedPreset === 'formal') {
+        } else if (this.formalIsSelected) {
           return this.$refs['facility-name-formal'].focus();
         }
       },
       setPermissions() {
-        this.submitFacilityPermissions(this.selectedPreset);
-        this.submitFacilityName(this.submittedFacilityName);
-        this.$emit('submit');
+        if (this.formIsValid) {
+          this.setFacilityPreset(this.selectedPreset);
+          this.setFacilityName(this.submittedFacilityName);
+          this.$emit('submit');
+        }
       },
     },
   };
