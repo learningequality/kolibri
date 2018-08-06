@@ -13,6 +13,7 @@ export default {
         name: '',
       },
       preset: findKey(permissionPresets, preset => preset.default) || '',
+      // Keys match schema of FacilityDatasetModel
       settings: {
         // Set in GuessAccessForm
         allow_guest_access: null,
