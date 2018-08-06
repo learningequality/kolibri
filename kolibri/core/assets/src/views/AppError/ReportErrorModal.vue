@@ -89,7 +89,7 @@
       errorDetailsHeader: 'Error details',
       copyToClipboardButtonPrompt: 'Copy to clipboard',
       copiedToClipboardConfirmation: 'Copied to clipboard',
-      downloadAsTextPrompt: 'Or download as .txt file',
+      downloadAsTextPrompt: 'Or download as a .txt file',
       closeErrorModalButtomPrompt: 'Close',
       errorFileDenotation: 'error',
     },
