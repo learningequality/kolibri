@@ -235,7 +235,7 @@
         return Boolean(this.titleIsInvalidText);
       },
       maxQuestionsFromSelection() {
-        // in case numAssestments is null, return 0
+        // in case num_assestments is null, return 0
         return this.selectedExercises.reduce(
           (sum, exercise) => sum + (exercise.numAssessments || 0),
           0
