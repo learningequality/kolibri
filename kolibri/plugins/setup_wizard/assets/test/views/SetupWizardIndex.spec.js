@@ -54,4 +54,52 @@ describe('SetupWizardIndex', () => {
     els.SuperuserCredentialsForm().vm.$emit('submit');
     expect(wrapper.vm.provisionDevice).toHaveBeenCalledTimes(1);
   });
+
+  it('submits a default facility name if "personal" preset is used', () => {
+    const { els, wrapper, store } = makeWrapper();
+    // set superuser, since that's how name is derived
+    store.commit('SET_FACILITY_PRESET', 'personal');
+    store.commit('SET_SU', {
+      name: 'Fred Rogers',
+      username: 'mr_rogers',
+      password: 'password',
+    });
+    store.commit('SET_ONBOARDING_STEP', 6);
+    els.SuperuserCredentialsForm().vm.$emit('submit');
+    const matcher = expect.objectContaining({ facility: { name: 'Home Facility Fred Rogers' } });
+    expect(wrapper.vm.provisionDevice).toHaveBeenCalledWith(matcher);
+  });
+
+  it('submits correct data when provisioning', () => {
+    const { els, wrapper, store } = makeWrapper();
+    // set superuser, since that's how name is derived
+    store.commit('SET_FACILITY_PRESET', 'formal');
+    store.commit('SET_SU', {
+      name: 'Fred Rogers',
+      username: 'mr_rogers',
+      password: 'password',
+    });
+    store.commit('SET_FACILITY_NAME', "Mr. Roger's Neighborhood");
+    store.commit('SET_ALLOW_GUEST_ACCESS', true);
+    store.commit('SET_LEARNER_CAN_SIGN_UP', false);
+    store.commit('SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD', true);
+    store.commit('SET_ONBOARDING_STEP', 6);
+    els.SuperuserCredentialsForm().vm.$emit('submit');
+    const matcher = expect.objectContaining({
+      language_id: 'en',
+      facility: { name: "Mr. Roger's Neighborhood" },
+      preset: 'formal',
+      superuser: {
+        full_name: 'Fred Rogers',
+        username: 'mr_rogers',
+        password: 'password',
+      },
+      settings: {
+        allow_guest_access: true,
+        learner_can_sign_up: false,
+        learner_can_login_with_no_password: true,
+      },
+    });
+    expect(wrapper.vm.provisionDevice).toHaveBeenCalledWith(matcher);
+  });
 });

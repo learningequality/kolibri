@@ -58,6 +58,7 @@
       onboardingNextStepButton: 'Continue',
       onboardingFinishButton: 'Finish',
       documentTitle: 'Setup Wizard',
+      personalFacilityName: 'Home Facility {name}',
     },
     metaInfo() {
       return {
@@ -106,7 +107,18 @@
       }),
       continueOnboarding() {
         if (this.isLastStep) {
-          this.provisionDevice(this.onboardingData);
+          if (this.onboardingData.preset === 'personal') {
+            this.provisionDevice({
+              ...this.onboardingData,
+              facility: {
+                name: this.$tr('personalFacilityName', {
+                  name: this.onboardingData.superuser.full_name,
+                }),
+              },
+            });
+          } else {
+            this.provisionDevice(this.onboardingData);
+          }
         } else {
           this.goToNextStep();
         }
