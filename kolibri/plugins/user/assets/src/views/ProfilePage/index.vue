@@ -114,8 +114,7 @@
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import { PermissionTypes, UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 
   export default {

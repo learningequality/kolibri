@@ -78,10 +78,9 @@
 <script>
 
   import { mapActions, mapState, mapGetters } from 'vuex';
-  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';

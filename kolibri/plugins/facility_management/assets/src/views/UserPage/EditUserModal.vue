@@ -60,9 +60,8 @@
 <script>
 
   import { mapActions, mapState, mapGetters } from 'vuex';
-  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KSelect from 'kolibri.coreVue.components.KSelect';
