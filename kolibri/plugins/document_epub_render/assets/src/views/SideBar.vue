@@ -2,6 +2,7 @@
 
   <div>
     <div class="side-bar">
+
       <div class="side-bar-header">
         <slot name="sideBarHeader"></slot>
       </div>
@@ -47,7 +48,11 @@
     bottom: 0;
     left: 0;
     overflow-y: auto;
-    font-size: smaller;
+  }
+
+  button {
+    text-align: left;
+    white-space: normal;
   }
 
 </style>

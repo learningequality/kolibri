@@ -125,15 +125,6 @@
           category="navigation"
         />
       </UiIconButton>
-
-
-      <input
-        type="range"
-        min="0"
-        max="99"
-        v-model.lazy="range"
-        @
-      >
     </div>
 
     <SideBar
@@ -148,10 +139,21 @@
       </h2>
 
       <div slot="sideBarMain">
-        <TableOfContents
-          :toc="toc"
-          @tocNavigation="handleTocNavigation"
-        />
+        <nav>
+          <ul class="toc-list">
+            <li
+              v-for="(item, index) in toc"
+              :key="index"
+              class="toc-list-item"
+            >
+              <KButton
+                :text="item.label"
+                appearance="basic-link"
+                @click="handleTocNavigation(item)"
+              />
+            </li>
+          </ul>
+        </nav>
       </div>
     </SideBar>
 
@@ -161,13 +163,11 @@
     >
       <form
         slot="sideBarHeader"
-        class="search-header"
         @submit.prevent="handleSearchInput"
       >
         <input
           ref="searchInput"
           autofocus="true"
-          class="search-input"
           v-model.trim="searchQuery"
         >
         <UiIconButton
@@ -196,30 +196,24 @@
               name="search-results"
               mode="out-in"
             >
-              <p v-if="numberOfSearchResults === 0">{{ $tr('noSearchResults') }}</p>
-              <div v-else>
-                <p>{{ $tr('numberOfSearchResults', { count: numberOfSearchResults }) }}</p>
-                <p v-if="numberOfSearchResults > 1000"> {{ $tr('tooManyResults') }}</p>
-                <ol
-                  v-else
-                  class="search-results-list"
-                >
+              <p v-if="noSearchResults">{{ $tr('noSearchResults') }}</p>
+              <div v-else-if="searchResults.length > 0">
+                <p>{{ $tr('numberOfSearchResults', { count: searchResults.length}) }}</p>
+                <ol class="search-results-list">
                   <li
                     v-for="(item, index) in searchResultsToDisplay"
                     :key="index"
-                    class="search-results-item"
+                    class="toc-list-item"
                   >
                     <KButton
                       appearance="basic-link"
-                      class="search-results-list-item-button"
                       @click="handleSearchResultNavigation(item)"
                     >
-                      <span v-html="item.html"></span>
+                      <template v-html="item.html"></template>
                     </KButton>
                   </li>
                 </ol>
               </div>
-
             </transition>
           </div>
         </transition>
@@ -252,10 +246,8 @@
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-  import replace from 'lodash/replace';
   import SideBar from './SideBar';
   import CoreDropdownMenu from './CoreDropdownMenu';
-  import TableOfContents from './TableOfContents';
 
   const FONT_SIZE_INC = 2;
   const MIN_FONT_SIZE = 8;
@@ -280,7 +272,7 @@
       enterFullscreen: 'Enter fullscreen',
       tableOfContents: 'Table of contents',
       noSearchResults: 'No search results',
-      tooManyResults: 'Waaaayyyy to many results, chill out, try something more specific',
+      tryABetterSearch: 'Too ',
       numberOfSearchResults:
         '{count, number, integer} {count, plural, one {match} other {matches}}',
     },
@@ -292,7 +284,6 @@
       CoreMenuOption,
       CoreDropdownMenu,
       KCircularLoader,
-      TableOfContents,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
@@ -301,20 +292,18 @@
       toc: [],
       searchResults: [],
       searchQuery: '',
+      noSearchResults: false,
       searchIsLoading: false,
       sideBarOpen: null,
       theme: THEMES.LIGHT,
       fontSize: DEFAULT_FONT_SIZE,
       isInFullscreen: false,
       totalPages: null,
-      numberOfSearchResults: 0,
-      rangeLocations: [],
-      range: 0,
     }),
     computed: {
       ...mapGetters(['sessionTimeSpent']),
       epubURL() {
-        return 'http://localhost:8000/content/storage/epub5.epub';
+        return 'http://localhost:8000/content/storage/epub2.epub';
       },
       backgroundColor() {
         switch (this.theme) {
@@ -399,10 +388,6 @@
           });
         }
       },
-      range(index) {
-        console.log('change', this.rangeLocations[index]);
-        this.rendition.display(this.rangeLocations[index]);
-      },
     },
     beforeMount() {
       global.ePub = Epub;
@@ -418,19 +403,6 @@
         if (this.book.navigation) {
           this.toc = this.book.navigation.toc;
         }
-
-        // const currentLocation = this.rendition.currentLocation();
-        this.book.locations.generate().then(locations => {
-          const locationsLength = locations.length;
-          let final = [];
-          const RANGE = 100;
-          for (let i = 0; i < RANGE; i++) {
-            const percentage = i / RANGE;
-            const index = Math.trunc(percentage * locationsLength);
-            final.push(locations[index]);
-          }
-          this.rangeLocations = final;
-        });
         this.rendition.resize('700px', '700px');
         this.rendition.on('resized', (width, height) => {
           console.log('Resized to:', width, height);
@@ -483,49 +455,38 @@
         this.theme = THEMES.SEPIA;
       },
       handleSearchInput() {
-        const searchQuery = this.searchQuery.toLowerCase();
-        if (searchQuery.length > 0) {
-          this.searchIsLoading = true;
-          this.$nextTick().then(() => {
-            this.search(searchQuery).then(searchResults => {
-              const isSurroundedByWordBoundaries = new RegExp(`\\b${searchQuery}\\b`);
-              const matchesCaseInsensitive = new RegExp(searchQuery, 'i');
-              let searchResultsWithWholeWord = searchResults.filter(result =>
-                isSurroundedByWordBoundaries.test(result.excerpt.toLowerCase())
-              );
-              this.numberOfSearchResults = searchResultsWithWholeWord.length;
-              if (this.numberOfSearchResults > 1000) {
-                this.searchIsLoading = false;
-                return;
-              }
-              searchResultsWithWholeWord = searchResultsWithWholeWord.map(result => {
-                const html = replace(
-                  result.excerpt,
-                  matchesCaseInsensitive,
-                  `<strong class="highlight">${searchQuery}</strong>`
-                );
-                return {
-                  ...result,
-                  html,
-                };
-              });
-              this.searchResults = searchResultsWithWholeWord;
-              this.searchIsLoading = false;
-            });
-          });
-        } else {
-          this.$refs.searchInput.focus();
-        }
+        // ww
+        // const searchQuery = this.searchQuery.toLowerCase();
+        // if (searchQuery.length > 0) {
+        //   this.searchIsLoading = true;
+        //   this.search(searchQuery).then(searchResults => {
+        //     const isWholeWord = new RegExp(`\\b${searchQuery}\\b`);
+        //     const searchResultsWithWholeWord = searchResults.filter(result =>
+        //       isWholeWord.test(result.excerpt.toLowerCase())
+        //     );
+        //     // const searchResultsWithHtml = searchResultsWithWholeWord.map(result => {
+        //     //   const r = new RegExp(searchQuery);
+        //     //   const html = result.excerpt.replace(r, 'www $&www');
+        //     //   return {
+        //     //     ...result,
+        //     //     html
+        //     //   };
+
+        //     // });
+        //     this.noSearchResults = searchResultsWithWholeWord.length === 0;
+        //     this.searchResults = searchResultsWithWholeWord;
+        //     this.searchIsLoading = false;
+          //   });
+        // }
       },
       search(searchQuery) {
-        console.log(this.book.spine.spineItems);
         return Promise.all(
-          this.book.spine.spineItems.map(item => {
-            return item
+          this.book.spine.spineItems.map(item =>
+            item
               .load(this.book.load.bind(this.book))
               .then(item.find.bind(item, searchQuery))
-              .finally(item.unload.bind(item));
-          })
+              .finally(item.unload.bind(item))
+          )
         ).then(searchResults => Promise.resolve([].concat.apply([], searchResults)));
       },
       handleSearchResultNavigation(searchResult) {
@@ -543,7 +504,6 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import './toc';
 
   .epub-renderer {
     position: relative;
@@ -593,14 +553,15 @@
     text-align: center;
   }
 
-  .search-results-list {
-    @include toc-list;
+  .search-results-list,
+  .toc-list {
+    padding: 0 0 0 24px;
+    margin: 0;
+    font-size: smaller;
   }
 
-  .search-results-item {
-    /deep/ .highlight {
-      background-color: yellow;
-    }
+  .toc-list-item {
+    padding: 0 8px 8px 0;
   }
 
   .toc-header {
@@ -618,21 +579,6 @@
   .search-results-enter,
   .search-results-leave-to {
     opacity: 0;
-  }
-
-  .search-input {
-    width: 198px;
-    vertical-align: middle;
-  }
-
-  .search-header {
-    padding: 8px;
-  }
-
-  .search-results-list-item-button {
-    display: inherit;
-    text-align: left;
-    white-space: normal;
   }
 
 </style>
