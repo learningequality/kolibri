@@ -6,11 +6,13 @@
     @submit="emitSetting"
   >
     <KRadioButton
+      ref="yesRadio"
       :label="yesOptionLabel"
       v-model="setting"
       :value="true"
     />
     <KRadioButton
+      ref="noRadio"
       :label="noOptionLabel"
       v-model="setting"
       :value="false"
@@ -67,6 +69,13 @@
       return {
         setting: this.settingIsEnabled,
       };
+    },
+    mounted() {
+      if (this.setting) {
+        this.$refs['yesRadio'].focus();
+      } else {
+        this.$refs['noRadio'].focus();
+      }
     },
     methods: {
       emitSetting() {

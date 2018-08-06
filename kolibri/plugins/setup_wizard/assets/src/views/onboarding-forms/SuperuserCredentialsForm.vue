@@ -4,7 +4,7 @@
     :header="$tr('adminAccountCreationHeader')"
     :description="$tr('adminAccountCreationDescription')"
     :submitText="submitText"
-    @submit="setSuperuserCredentials"
+    @submit="submitSuperuserCredentials"
   >
 
     <KTextbox
@@ -166,21 +166,28 @@
         );
       },
     },
+    beforeDestroy() {
+      // saves data if going backwards in wizard
+      this.saveSuperuserCredentials(false);
+    },
     methods: {
       ...mapMutations({
-        submitSuperuserCredentials: 'SET_SU',
+        setSuperuser: 'SET_SU',
       }),
-      setSuperuserCredentials() {
+      saveSuperuserCredentials(final = true) {
+        this.setSuperuser({
+          name: this.name,
+          username: this.username,
+          // clear password if not finalizing wizard
+          password: final ? this.password : '',
+        });
+      },
+      submitSuperuserCredentials() {
         for (const field in this.visitedFields) {
           this.visitedFields[field] = true;
         }
-
         if (this.formIsValid) {
-          this.submitSuperuserCredentials({
-            name: this.name,
-            username: this.username,
-            password: this.password,
-          });
+          this.saveSuperuserCredentials();
           this.$emit('submit');
         } else if (this.nameIsInvalid) {
           this.$refs.name.focus();

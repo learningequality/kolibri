@@ -35,7 +35,8 @@ export default {
   },
   actions: {
     provisionDevice(store, onboardingData) {
-      const { superuser } = onboardingData;
+      // Make a copy so data is available when 'kolibriLogin' is called
+      const superuser = { ...onboardingData.superuser };
       store.commit('SET_LOADING', true);
 
       return DeviceProvisionResource.saveModel({ data: onboardingData }).then(
