@@ -27,17 +27,20 @@
       },
     },
     data() {
-      let settingIsEnabled = true;
-      if (this.$store.state.onboardingData.preset === 'formal') {
-        settingIsEnabled = false;
+      const { settings, preset } = this.$store.state.onboardingData;
+      if (settings.allow_guest_access !== null) {
+        return {
+          settingIsEnabled: settings.allow_guest_access,
+        };
       }
+      // Default is False only for "formal" preset
       return {
-        settingIsEnabled,
+        settingIsEnabled: preset !== 'formal',
       };
     },
     methods: {
-      setSetting() {
-        this.$store.commit('SET_ALLOW_GUEST_ACCESS', this.settingIsEnabled);
+      setSetting(setting) {
+        this.$store.commit('SET_ALLOW_GUEST_ACCESS', setting);
         this.$emit('submit');
       },
     },

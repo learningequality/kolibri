@@ -27,17 +27,20 @@
       },
     },
     data() {
-      let settingIsEnabled = true;
-      if (this.$store.state.onboardingData.preset === 'formal') {
-        settingIsEnabled = false;
+      const { settings, preset } = this.$store.state.onboardingData;
+      if (settings.learner_can_login_with_no_password !== null) {
+        return {
+          settingIsEnabled: settings.learner_can_login_with_no_password,
+        };
       }
+      // Default is False only for "formal" preset
       return {
-        settingIsEnabled,
+        settingIsEnabled: preset !== 'formal',
       };
     },
     methods: {
-      setSetting() {
-        this.$store.commit('SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD', this.settingIsEnabled);
+      setSetting(setting) {
+        this.$store.commit('SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD', setting);
         this.$emit('submit');
       },
     },

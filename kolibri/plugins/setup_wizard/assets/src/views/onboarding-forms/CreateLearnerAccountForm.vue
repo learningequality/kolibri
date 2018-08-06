@@ -27,17 +27,20 @@
       },
     },
     data() {
-      let settingIsEnabled = true;
-      if (this.$store.state.onboardingData.preset === 'formal') {
-        settingIsEnabled = false;
+      const { settings, preset } = this.$store.state.onboardingData;
+      if (settings.learner_can_sign_up !== null) {
+        return {
+          settingIsEnabled: settings.learner_can_sign_up,
+        };
       }
+      // Default is False only for "formal" preset
       return {
-        settingIsEnabled,
+        settingIsEnabled: preset !== 'formal',
       };
     },
     methods: {
-      setSetting() {
-        this.$store.commit('SET_LEARNER_CAN_SIGN_UP', this.settingIsEnabled);
+      setSetting(setting) {
+        this.$store.commit('SET_LEARNER_CAN_SIGN_UP', setting);
         this.$emit('submit');
       },
     },

@@ -7,6 +7,9 @@ function makeWrapper(options) {
   if (options.preset) {
     store.commit('SET_FACILITY_PRESET', options.preset);
   }
+  if (options.previousChoice !== undefined) {
+    store.commit('SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD', options.previousChoice);
+  }
   const wrapper = mount(RequirePasswordForLearnersForm, {
     store,
   });
@@ -31,9 +34,14 @@ describe('RequirePasswordForLearnersForm', () => {
     expect(wrapper.vm.settingIsEnabled).toEqual(true);
   });
 
+  it('if user has set it in a previous step, it is kept', () => {
+    const { wrapper } = makeWrapper({ preset: 'nonformal', previousChoice: false });
+    expect(wrapper.vm.settingIsEnabled).toEqual(false);
+  });
+
   it('after clicking submit, the setting in vuex is updated', () => {
     const { wrapper, store } = makeWrapper({ preset: 'formal' });
-    wrapper.find({ name: 'YesNoForm' }).vm.$emit('submit');
+    wrapper.find({ name: 'YesNoForm' }).vm.emitSetting();
     expect(store.state.onboardingData.settings.learner_can_login_with_no_password).toEqual(false);
     expect(wrapper.vm.$emit).toHaveBeenCalledTimes(1);
   });
