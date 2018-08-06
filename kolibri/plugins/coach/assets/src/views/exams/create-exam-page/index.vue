@@ -234,13 +234,6 @@
       titleIsInvalid() {
         return Boolean(this.titleIsInvalidText);
       },
-      maxQuestionsFromSelection() {
-        // in case numAssestments is null, return 0
-        return this.selectedExercises.reduce(
-          (sum, exercise) => sum + (exercise.numAssessments || 0),
-          0
-        );
-      },
       numQuestExceedsSelection() {
         return this.inputNumQuestions > this.maxQuestionsFromSelection;
       },
@@ -458,6 +451,7 @@
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,
         selectedExercises: state => state.pageState.selectedExercises,
+        maxQuestionsFromSelection: state => state.pageState.availableQuestions,
         examsModalSet: state => state.pageState.examsModalSet,
       },
       actions: {

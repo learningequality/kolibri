@@ -14,17 +14,55 @@ export default class ContentNodeResource extends Resource {
     if (!id) {
       throw TypeError('An id must be specified');
     }
+    this.descendantsCache = this.descendantsCache || {};
     // Add the id to the getParams for cache identification
     getParams.modelId = id;
     let collection;
     const key = this.cacheKey(getParams);
-    if (!this.collections[key]) {
+    if (!this.descendantsCache[key]) {
       collection = this.createCollection({}, getParams, []);
       collection.url = (...args) => this.urls[`${this.name}-descendants`](...args, id);
+      this.descendantsCache[key] = collection;
     } else {
-      collection = this.collections[key];
+      collection = this.descendantsCache[key];
     }
     return collection;
+  }
+  fetchDescendantsAssessments(id) {
+    if (!id) {
+      throw TypeError('An id must be specified');
+    }
+    let promise;
+    this.descendantsAssessments = this.descendantsAssessments || {};
+    const key = this.cacheKey({ id });
+    if (!this.descendantsAssessments[key]) {
+      const url = this.urls[`${this.name}-descendants-assessments`](id);
+      promise = this.client({ path: url }).then(response => {
+        this.descendantsAssessments[key] = response.entity;
+        return Promise.resolve(response.entity);
+      });
+    } else {
+      promise = Promise.resolve(this.descendantsAssessments[key]);
+    }
+    return promise;
+  }
+  fetchNodeAssessments(ids) {
+    if (!Array.isArray(ids)) {
+      throw TypeError('Ids must be an Array');
+    }
+    let promise;
+    this.nodeAssessments = this.nodeAssessments || {};
+    const key = this.cacheKey({ ids });
+    if (!this.nodeAssessments[key]) {
+      const url = this.urls[`${this.name}-node-assessments`]();
+      promise = this.client({ path: url, params: { ids } }).then(response => {
+        this.nodeAssessments[key] = response.entity;
+        return Promise.resolve(response.entity);
+      });
+    } else {
+      promise = Promise.resolve(this.nodeAssessments[key]);
+    }
+    return promise;
   }
   fetchAncestors(id) {
     if (!id) {

@@ -296,14 +296,14 @@ export function getAllExercisesWithinTopic(store, topicId) {
   return new Promise((resolve, reject) => {
     const exercisesPromise = ContentNodeResource.getDescendantsCollection(topicId, {
       descendant_kind: ContentNodeKinds.EXERCISE,
-      fields: ['id', 'title', 'assessmentmetadata', 'num_coach_contents'],
+      fields: ['id', 'title'],
     }).fetch();
+    const assessmentNumbersPromise = ContentNodeResource.fetchDescendantsAssessments(topicId);
 
-    ConditionalPromise.all([exercisesPromise]).only(
+    ConditionalPromise.all([exercisesPromise, assessmentNumbersPromise]).only(
       samePageCheckGenerator(store),
-      ([exercisesCollection]) => {
-        const exercises = _exercisesState(exercisesCollection);
-        resolve(exercises);
+      ([exercisesCollection, assessmentNumbers]) => {
+        resolve([exercisesCollection, assessmentNumbers]);
       },
       error => reject(error)
     );
@@ -347,7 +347,8 @@ function fetchTopic(store, topicId) {
           samePageCheckGenerator(store),
           subtopicsExercises => {
             subtopics = subtopics.map((subtopic, index) => {
-              subtopic.allExercisesWithinTopic = subtopicsExercises[index];
+              subtopic.allExercisesWithinTopic = subtopicsExercises[index][0];
+              subtopics.numAssessments = subtopicsExercises[index][1];
               return subtopic;
             });
 
@@ -405,6 +406,11 @@ export function removeExercise(store, exercise) {
 
 export function setSelectedExercises(store, selectedExercises) {
   store.dispatch('SET_SELECTED_EXERCISES', selectedExercises);
+  return ContentNodeResource.fetchNodeAssessments(selectedExercises.map(ex => ex.id)).then(
+    number => {
+      store.dispatch('SET_AVAILABLE_QUESTIONS', number);
+    }
+  );
 }
 
 export function createExamAndRoute(store, exam) {

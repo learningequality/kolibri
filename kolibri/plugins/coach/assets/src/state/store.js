@@ -79,6 +79,9 @@ export const mutations = {
       selectedExercises
     );
   },
+  SET_AVAILABLE_QUESTIONS(state, availableQuestions) {
+    Vue.set(state.pageState, 'availableQuestions', availableQuestions);
+  },
   SET_EXAMS(state, exams) {
     state.pageState.exams = exams;
   },
