@@ -40,10 +40,10 @@
 .pure-u-11-11 {
   display: inline-block;
   *display: inline;
-  zoom: 1;
   letter-spacing: normal;
-  word-spacing: normal;
   vertical-align: top;
+  zoom: 1;
+  word-spacing: normal;
   text-rendering: auto;
 }
 

@@ -77,7 +77,7 @@
     display: initial;
     height: initial;
     // TODO: vuep pullutes the font-family
-    font-family: NotoSans;
+    font-family: 'Noto Sans';
 
     .vuep-preview,
     .vuep-editor {
