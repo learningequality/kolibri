@@ -23,6 +23,7 @@
         @click="reloadPage"
       />
       <KRouterLink
+        @click.native="clearErrorState"
         appearance="raised-button"
         :to="{path: '/'}"
         :text="$tr('defaultErrorExitPrompt')"
@@ -50,6 +51,7 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import ReportErrorModal from './ReportErrorModal';
@@ -76,6 +78,7 @@
       };
     },
     methods: {
+      ...mapActions(['handleError']),
       revealDetailsModal() {
         this.showDetailsModal = true;
       },
@@ -85,6 +88,9 @@
       reloadPage() {
         // reloads without cache
         global.location.reload();
+      },
+      clearErrorState() {
+        this.handleError('');
       },
     },
   };
