@@ -310,7 +310,7 @@ kolibri_debconf_set_defaults()
     # the old convention:
     db_fget kolibri/pre-010-upgrade-system-user seen
     UPGRADE_010_SEEN="$RET"
-    if [ "$UPGRADE_010_SEEN" == "false" ] && cat /etc/default/kolibri | grep -q '^KOLIBRI_USER="kolibri"'
+    if [ "$UPGRADE_010_SEEN" == "false" ] && [ -e /etc/default/kolibri ] && cat /etc/default/kolibri | grep -q '^KOLIBRI_USER="kolibri"'
     then
         USER_SEEN="true"
         db_fset kolibri/pre-010-upgrade-system-user seen false

@@ -30,7 +30,7 @@ PPA_NAME = 'kolibri-proposed'
 PACKAGE_WHITELIST = ['kolibri-source']
 
 SOURCE_SERIES = 'trusty'
-TARGET_SERIESES = ['trusty', 'xenial', 'artful', 'bionic', 'cosmic']
+TARGET_SERIESES = ['trusty', 'xenial', 'bionic', 'cosmic']
 POCKET = 'Release'
 
 APP_NAME = 'ppa-kolibri-copy-packages'

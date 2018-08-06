@@ -34,6 +34,14 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin
 # by default on both 14.04 and 16.04:
 #   su kolibri -c "COMMAND"
 
+# Safeguard $KOLIBRI_USER, because if it is somehow unset, we will
+# be running kolibri as root user.
+if test "$KOLIBRI_USER" = ""
+then
+  echo "KOLIBRI_USER not defined"
+  exit 1
+fi
+
 case "$1" in
   start)
     # run ka-lite as another user, the one who generated this file
