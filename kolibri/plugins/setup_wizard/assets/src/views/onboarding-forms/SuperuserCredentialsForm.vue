@@ -49,7 +49,7 @@
       :invalidText="passwordConfirmErrorMessage"
       ref="passwordConfirm"
     />
-    <div class="reminder">
+    <div slot="footer" class="reminder">
       <div class="icon">
         <mat-svg category="alert" name="warning" />
       </div>

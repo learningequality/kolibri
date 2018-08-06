@@ -2,6 +2,7 @@
 
   <YesNoForm
     :noOptionLabel="$tr('noOptionLabel')"
+    :noOptionTooltip="$tr('noOptionTooltip')"
     :settingIsEnabled="settingIsEnabled"
     :submitText="submitText"
     :headerText="$tr('header')"
@@ -47,6 +48,8 @@
     $trs: {
       header: 'Require passwords for learners to sign in',
       noOptionLabel: 'No. Learners can sign in with just their username',
+      noOptionTooltip:
+        'Helpful for younger learners or when you are not concerned about account security',
     },
   };
 

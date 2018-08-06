@@ -16,9 +16,17 @@
       :label="noOptionLabel"
       v-model="setting"
       :value="false"
-    />
+    >
+      <CoreInfoIcon
+        v-if="noOptionTooltip"
+        class="info-icon"
+        :iconAriaLabel="noOptionLabel"
+        :tooltipText="noOptionTooltip"
+        tooltipPosition="bottom right"
+      />
+    </KRadioButton>
 
-    <p class="details">
+    <p slot="footer">
       {{ $tr('details') }}
     </p>
   </OnboardingForm>
@@ -29,11 +37,13 @@
 <script>
 
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import OnboardingForm from './OnboardingForm';
 
   export default {
     name: 'YesNoForm',
     components: {
+      CoreInfoIcon,
       KRadioButton,
       OnboardingForm,
     },
@@ -47,6 +57,9 @@
       noOptionLabel: {
         type: String,
         required: true,
+      },
+      noOptionTooltip: {
+        type: String,
       },
       headerText: {
         type: String,
@@ -93,8 +106,8 @@
 
 <style lang="scss" scoped>
 
-  .details {
-    margin-top: 16px;
+  .info-icon {
+    vertical-align: middle;
   }
 
 </style>
