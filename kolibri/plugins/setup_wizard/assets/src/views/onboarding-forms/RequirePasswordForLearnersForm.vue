@@ -27,13 +27,17 @@
       },
     },
     data() {
+      let settingIsEnabled = true;
+      if (this.$store.state.onboardingData.preset === 'formal') {
+        settingIsEnabled = false;
+      }
       return {
-        settingIsEnabled: true,
+        settingIsEnabled,
       };
     },
     methods: {
-      setSetting(setting) {
-        console.log(setting);
+      setSetting() {
+        this.$store.commit('SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD', this.settingIsEnabled);
         this.$emit('submit');
       },
     },
