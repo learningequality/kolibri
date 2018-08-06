@@ -46,6 +46,24 @@ export default class ContentNodeResource extends Resource {
     }
     return promise;
   }
+  fetchNodeAssessments(ids) {
+    if (!Array.isArray(ids)) {
+      throw TypeError('Ids must be an Array');
+    }
+    let promise;
+    this.nodeAssessments = this.nodeAssessments || {};
+    const key = this.cacheKey({ ids });
+    if (!this.nodeAssessments[key]) {
+      const url = this.urls[`${this.name}-node-assessments`]();
+      promise = this.client({ path: url, params: { ids } }).then(response => {
+        this.nodeAssessments[key] = response.entity;
+        return Promise.resolve(response.entity);
+      });
+    } else {
+      promise = Promise.resolve(this.nodeAssessments[key]);
+    }
+    return promise;
+  }
   fetchAncestors(id) {
     if (!id) {
       throw TypeError('An id must be specified');

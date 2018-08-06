@@ -406,6 +406,11 @@ export function removeExercise(store, exercise) {
 
 export function setSelectedExercises(store, selectedExercises) {
   store.dispatch('SET_SELECTED_EXERCISES', selectedExercises);
+  return ContentNodeResource.fetchNodeAssessments(selectedExercises.map(ex => ex.id)).then(
+    number => {
+      store.dispatch('SET_AVAILABLE_QUESTIONS', number);
+    }
+  );
 }
 
 export function createExamAndRoute(store, exam) {

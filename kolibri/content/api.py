@@ -419,6 +419,15 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         data = descendants.aggregate(Sum('assessmentmetadata__number_of_assessments'))['assessmentmetadata__number_of_assessments__sum'] or 0
         return Response(data)
 
+    @list_route(methods=['get'])
+    def node_assessments(self, request):
+        ids = self.request.query_params.get('ids', '').split(',')
+        data = 0
+        if ids and ids[0]:
+            nodes = models.ContentNode.objects.filter(id__in=ids).prefetch_related('assessmentmetadata')
+            data = nodes.aggregate(Sum('assessmentmetadata__number_of_assessments'))['assessmentmetadata__number_of_assessments__sum'] or 0
+        return Response(data)
+
     @detail_route(methods=['get'])
     def ancestors(self, request, **kwargs):
         cache_key = 'contentnode_ancestors_{pk}'.format(pk=kwargs.get('pk'))
