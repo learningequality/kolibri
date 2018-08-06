@@ -95,9 +95,9 @@
     computed: {
       submittedFacilityName() {
         if (this.selectedPreset === 'nonformal') {
-          return this.submitFacilityName(this.$refs['facility-name-nonformal'].facilityName);
+          return this.$refs['facility-name-nonformal'].facilityName;
         } else if (this.selectedPreset === 'formal') {
-          return this.submitFacilityName(this.$refs['facility-name-formal'].facilityName);
+          return this.$refs['facility-name-formal'].facilityName;
         } else {
           // Will be turned into a default "Home Facility {{ full name }}" after it is provided
           // in SuperuserCredentialsForm
@@ -122,9 +122,9 @@
       }),
       focusOnTextbox() {
         if (this.selectedPreset === 'nonformal') {
-          return this.$refs['facility-name-nonformal'].$refs['facilityName'].focus();
+          return this.$refs['facility-name-nonformal'].focus();
         } else if (this.selectedPreset === 'formal') {
-          return this.$refs['facility-name-formal'].$refs['facilityName'].focus();
+          return this.$refs['facility-name-formal'].focus();
         }
       },
       setPermissions() {

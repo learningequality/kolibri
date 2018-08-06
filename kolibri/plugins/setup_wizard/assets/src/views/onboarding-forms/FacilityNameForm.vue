@@ -54,6 +54,11 @@
       validateFacilityName() {
         this.fieldVisited = true;
       },
+      focus() {
+        if (this.$refs['facilityName']) {
+          this.$refs['facilityName'].focus();
+        }
+      },
     },
   };
 
