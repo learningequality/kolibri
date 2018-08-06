@@ -34,7 +34,7 @@ For example:
           core-modal.vue        # example of another shared component
           core-global.scss      # globally defined styles, indluded in head
           core-theme.scss       # style variable values
-          font-NotoSans.css     # embedded font
+          font-noto-sans.css     # embedded font
         test/
           ...                   # tests for core assets
     plugins/
