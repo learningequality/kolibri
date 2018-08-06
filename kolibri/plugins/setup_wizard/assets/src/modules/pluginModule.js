@@ -65,13 +65,13 @@ export default {
       state.onboardingData.preset = preset;
     },
     SET_ALLOW_GUEST_ACCESS(state, setting) {
-      state.setting.allow_guest_access = setting;
+      state.onboardingData.settings.allow_guest_access = setting;
     },
     SET_LEARNER_CAN_SIGN_UP(state, setting) {
-      state.setting.learner_can_sign_up = setting;
+      state.onboardingData.settings.learner_can_sign_up = setting;
     },
     SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD(state, setting) {
-      state.setting.learner_can_login_with_no_password = setting;
+      state.onboardingData.settings.learner_can_login_with_no_password = setting;
     },
     SET_LOADING(state, loadingFlag) {
       state.loading = loadingFlag;

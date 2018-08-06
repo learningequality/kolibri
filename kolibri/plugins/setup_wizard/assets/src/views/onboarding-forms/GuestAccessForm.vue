@@ -27,13 +27,17 @@
       },
     },
     data() {
+      let settingIsEnabled = true;
+      if (this.$store.state.onboardingData.preset === 'formal') {
+        settingIsEnabled = false;
+      }
       return {
-        settingIsEnabled: true,
+        settingIsEnabled,
       };
     },
     methods: {
-      setSetting(setting) {
-        console.log(setting);
+      setSetting() {
+        this.$store.commit('SET_ALLOW_GUEST_ACCESS', this.settingIsEnabled);
         this.$emit('submit');
       },
     },
@@ -46,10 +50,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .details {
-    margin-top: 16px;
-  }
-
-</style>
+<style lang="scss" scoped></style>
