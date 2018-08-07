@@ -213,31 +213,6 @@ function _contentSummaryState(data) {
   };
 }
 
-function _setContentReport(store, reportPayload) {
-  return ContentReportResource.fetchCollection({ getParams: reportPayload }).then(report => {
-    store.commit('reports/SET_REPORT_TABLE_DATA', _contentReportState(report));
-  });
-}
-
-function _setLearnerReport(store, reportPayload, classId) {
-  const promises = [
-    UserReportResource.fetchCollection({ getParams: reportPayload }),
-    LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
-  ];
-  return Promise.all(promises).then(([usersReport, learnerGroups]) => {
-    store.commit('reports/SET_REPORT_TABLE_DATA', _learnerReportState(usersReport, learnerGroups));
-  });
-}
-
-function _setContentSummary(store, contentScopeId, reportPayload) {
-  return ContentSummaryResource.fetchModel({
-    id: contentScopeId,
-    getParams: reportPayload,
-  }).then(contentSummary => {
-    store.commit('reports/SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
-  });
-}
-
 function _showContentList(store, options) {
   const reportPayload = {
     channel_id: options.channelId,
@@ -246,8 +221,8 @@ function _showContentList(store, options) {
     collection_id: options.userScopeId,
   };
   const promises = [
-    _setContentSummary(store, options.contentScopeId, reportPayload),
-    _setContentReport(store, reportPayload),
+    ContentSummaryResource.fetchModel({ id: options.contentScopeId, getParams: reportPayload }),
+    ContentReportResource.fetchCollection({ getParams: reportPayload }),
     store.dispatch('setClassState', options.classId),
   ];
   const isUser = options.userScope === UserScopes.USER;
@@ -255,8 +230,10 @@ function _showContentList(store, options) {
     promises.push(FacilityUserResource.fetchModel({ id: options.userScopeId }));
   }
   Promise.all(promises).then(
-    ([, , , user]) => {
+    ([contentSummary, contentReport, , user]) => {
       setReportSorting(store, { sortColumn: TableColumns.NAME, sortOrder: SortOrders.DESCENDING });
+      store.commit('reports/SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
+      store.commit('reports/SET_REPORT_TABLE_DATA', _contentReportState(contentReport));
       store.commit('reports/SET_REPORT_PROPERTIES', {
         channelId: options.channelId,
         contentScope: options.contentScope,
@@ -285,13 +262,19 @@ function _showClassLearnerList(store, options) {
     collection_id: options.classId,
   };
   const promises = [
-    _setContentSummary(store, options.contentScopeId, reportPayload),
-    _setLearnerReport(store, reportPayload, options.classId),
+    ContentSummaryResource.fetchModel({ id: options.contentScopeId, getParams: reportPayload }),
+    UserReportResource.fetchCollection({ getParams: reportPayload }),
+    LearnerGroupResource.fetchCollection({ getParams: { parent: options.classId } }),
     store.dispatch('setClassState', options.classId),
   ];
   Promise.all(promises).then(
-    () => {
+    ([contentSummary, userReports, learnerGroups]) => {
       setReportSorting(store, { sortColumn: TableColumns.NAME, sortOrder: SortOrders.DESCENDING });
+      store.commit(
+        'reports/SET_REPORT_TABLE_DATA',
+        _learnerReportState(userReports, learnerGroups)
+      );
+      store.commit('reports/SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
       store.commit('reports/SET_REPORT_PROPERTIES', {
         channelId: options.channelId,
         contentScope: contentScope,
