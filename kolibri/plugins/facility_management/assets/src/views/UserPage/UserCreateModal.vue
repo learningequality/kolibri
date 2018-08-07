@@ -240,7 +240,8 @@
       },
     },
     methods: {
-      ...mapActions('userManagement', ['createUser', 'displayModal', 'handleApiError']),
+      ...mapActions('userManagement', ['createUser', 'displayModal']),
+      ...mapActions(['handleApiError']),
       createNewUser() {
         this.usernameAlreadyExistsOnServer = false;
         this.formSubmitted = true;
