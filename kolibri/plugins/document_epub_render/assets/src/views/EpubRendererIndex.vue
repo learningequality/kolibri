@@ -6,156 +6,67 @@
     @changeFullscreen="isInFullscreen = $event"
   >
 
-    <div class="top-bar">
-      <UiIconButton
-        type="secondary"
-        @click="handleTocToggle"
-      >
-        <mat-svg
-          name="menu"
-          category="navigation"
-        />
-      </UiIconButton>
-      <UiIconButton
-        type="secondary"
-        @click="handleSearchToggle"
-      >
-        <mat-svg
-          name="search"
-          category="action"
-        />
-      </UiIconButton>
+    <TopBar
+      class="top-bar"
+      :title="'Chapter Name'"
+      :isInFullscreen="isInFullscreen"
+      @tableOfContentsClicked="handleTocToggle"
+      @settingsClicked="handleSettingToggle"
+      @searchClicked="handleSearchToggle"
+      @fullscreenClicked="$refs.epubRenderer.toggleFullscreen()"
+    />
 
-      <CoreDropdownMenu>
-        <UiIconButton
-          slot="button"
-          type="secondary"
-        >
-          <mat-svg
-            name="format_size"
-            category="editor"
-          />
-        </UiIconButton>
 
-        <template slot="menuOptions">
-          <CoreMenuOption
-            label="Increase font size"
-            @select="increaseFontSize"
-          />
-          <CoreMenuOption
-            label="Reset font size"
-            @select="resetFontSize"
-          />
-          <CoreMenuOption
-            label="Decrease font size"
-            @select="decreaseFontSize"
-          />
-        </template>
-      </CoreDropdownMenu>
-
-      <CoreDropdownMenu>
-        <UiIconButton
-          slot="button"
-          type="secondary"
-        >
-          <mat-svg
-            name="format_color_fill"
-            category="editor"
-          />
-        </UiIconButton>
-
-        <template slot="menuOptions">
-          <CoreMenuOption
-            label="Light"
-            @select="setLightTheme"
-          />
-          <CoreMenuOption
-            label="Dark"
-            @select="setDarkTheme"
-          />
-          <CoreMenuOption
-            label="Sepia"
-            @select="setSepiaTheme"
-          />
-        </template>
-      </CoreDropdownMenu>
-      <UiIconButton
-        type="secondary"
-        @click="$refs.epubRenderer.toggleFullscreen()"
-      >
-        <mat-svg
-          v-if="isInFullscreen"
-          name="fullscreen_exit"
-          category="navigation"
-        />
-        <mat-svg
-          v-else
-          name="fullscreen"
-          category="navigation"
-        />
-      </UiIconButton>
-
-      <UiIconButton
-        type="secondary"
-        @click="goToPreviousPage"
-      >
-        <mat-svg
-          v-if="isRtl"
-          name="chevron_right"
-          category="navigation"
-        />
-        <mat-svg
-          v-else
-          name="chevron_left"
-          category="navigation"
-        />
-      </UiIconButton>
-      <UiIconButton
-        type="secondary"
-        @click="goToNextPage"
-      >
-        <mat-svg
-          v-if="isRtl"
-          name="chevron_left"
-          category="navigation"
-        />
-        <mat-svg
-          v-else
-          name="chevron_right"
-          category="navigation"
-        />
-      </UiIconButton>
-    </div>
-
-    <SideBar
-      v-if="tocSideBarIsOpen"
-      class="side-bar"
+    <!-- <UiIconButton
+      type="secondary"
+      @click="goToPreviousPage"
+      class="previous-button"
     >
-      <h2
-        slot="sideBarHeader"
-        class="toc-header"
-      >
-        {{ $tr('tableOfContents') }}
-      </h2>
+      <mat-svg
+        v-if="isRtl"
+        name="chevron_right"
+        category="navigation"
+      />
+      <mat-svg
+        v-else
+        name="chevron_left"
+        category="navigation"
+      />
+    </UiIconButton>
+    <UiIconButton
+      type="secondary"
+      class="next-button"
+      @click="goToNextPage"
+    >
+      <mat-svg
+        v-if="isRtl"
+        name="chevron_left"
+        category="navigation"
+      />
+      <mat-svg
+        v-else
+        name="chevron_right"
+        category="navigation"
+      />
+    </UiIconButton> -->
 
-      <div slot="sideBarMain">
-        <nav>
-          <ul class="toc-list">
-            <li
-              v-for="(item, index) in toc"
-              :key="index"
-              class="toc-list-item"
-            >
-              <KButton
-                :text="item.label"
-                appearance="basic-link"
-                @click="handleTocNavigation(item)"
-              />
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </SideBar>
+
+    <TableOfContentsSideBar
+      v-if="tocSideBarIsOpen"
+      :toc="toc"
+      class="side-bar side-bar-left"
+      @tocNavigation="handleTocNavigation"
+    />
+
+    <SettingsSideBar
+      v-else-if="settingsSideBarIsOpen"
+      class="side-bar side-bar-right"
+      :theme="theme"
+      :textAlignment="textAlignment"
+      @setFontSize="setFontSize"
+      @setTheme="setTheme"
+      @setTextAlignment="setTextAlignment"
+    />
 
     <SideBar
       v-else-if="searchSideBarIsOpen"
@@ -224,7 +135,7 @@
     <div
       ref="epubjsContainer"
       class="epubjs-container"
-      :class="{ 'epubjs-container-push-right': sideBarOpen }"
+      :class="epubjsContainerClass"
     >
     </div>
   </core-fullscreen>
@@ -246,23 +157,24 @@
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import SideBar from './SideBar';
   import CoreDropdownMenu from './CoreDropdownMenu';
+  import TopBar from './TopBar';
+  import TableOfContentsSideBar from './TableOfContentsSideBar';
+  import { TEXT_ALIGNMENTS, THEMES } from './EPUB_RENDERER_CONSTANTS';
+  import SettingsSideBar from './SettingsSideBar';
 
   const FONT_SIZE_INC = 2;
   const MIN_FONT_SIZE = 8;
   const DEFAULT_FONT_SIZE = 16;
   const MAX_FONT_SIZE = 24;
 
-  const THEMES = {
-    LIGHT: 'LIGHT',
-    DARK: 'DARK',
-    SEPIA: 'SEPIA',
-  };
-
   const SIDE_BARS = {
     TOC: 'TOC',
     SEARCH: 'SEARCH',
+    SETTINGS: 'SETTINGS',
   };
 
   export default {
@@ -284,9 +196,15 @@
       CoreMenuOption,
       CoreDropdownMenu,
       KCircularLoader,
+      KGrid,
+      KGridItem,
+      TopBar,
+      TableOfContentsSideBar,
+      SettingsSideBar,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
+      epubURL: 'http://localhost:8000/content/storage/epub4.epub',
       book: null,
       rendition: null,
       toc: [],
@@ -295,35 +213,20 @@
       noSearchResults: false,
       searchIsLoading: false,
       sideBarOpen: null,
-      theme: THEMES.LIGHT,
+      theme: THEMES.WHITE,
+      textAlignment: TEXT_ALIGNMENTS.LEFT,
       fontSize: DEFAULT_FONT_SIZE,
       isInFullscreen: false,
       totalPages: null,
+      loaded: false,
     }),
     computed: {
       ...mapGetters(['sessionTimeSpent']),
-      epubURL() {
-        return 'http://localhost:8000/content/storage/epub2.epub';
-      },
       backgroundColor() {
-        switch (this.theme) {
-          case THEMES.DARK:
-            return 'black';
-          case THEMES.SEPIA:
-            return '#f1e7d0';
-          default:
-            return 'white';
-        }
+        return this.theme.backgroundColor;
       },
       color() {
-        switch (this.theme) {
-          case THEMES.DARK:
-            return 'white';
-          case THEMES.SEPIA:
-            return 'black';
-          default:
-            return 'black';
-        }
+        return this.theme.textColor;
       },
       themeStyle() {
         return {
@@ -336,6 +239,7 @@
             'background-color': this.backgroundColor,
             color: this.color,
             'font-size': '1em',
+            'text-align': this.textAlignment,
           },
           h1: {
             'font-size': '2.441em',
@@ -360,6 +264,9 @@
       tocSideBarIsOpen() {
         return this.sideBarOpen === SIDE_BARS.TOC;
       },
+      settingsSideBarIsOpen() {
+        return this.sideBarOpen === SIDE_BARS.SETTINGS;
+      },
       searchSideBarIsOpen() {
         return this.sideBarOpen === SIDE_BARS.SEARCH;
       },
@@ -368,6 +275,20 @@
       },
       targetTime() {
         return this.totalPages * 30;
+      },
+      epubjsContainerClass() {
+        const pushRightClass = 'epubjs-container-push-right';
+        const pushLeftClass = 'epubjs-container-push-left';
+        switch (this.sideBarOpen) {
+          case SIDE_BARS.TOC:
+            return pushRightClass;
+          case SIDE_BARS.SETTINGS:
+            return pushLeftClass;
+          case SIDE_BARS.SEARCH:
+            return pushLeftClass;
+          default:
+            return null;
+        }
       },
     },
     watch: {
@@ -407,6 +328,7 @@
         this.rendition.on('resized', (width, height) => {
           console.log('Resized to:', width, height);
         });
+        this.loaded = true;
       });
     },
     beforeDestroy() {
@@ -426,6 +348,11 @@
         this.sideBarOpen === SIDE_BARS.SEARCH
           ? (this.sideBarOpen = null)
           : (this.sideBarOpen = SIDE_BARS.SEARCH);
+      },
+      handleSettingToggle() {
+        this.sideBarOpen === SIDE_BARS.SETTINGS
+          ? (this.sideBarOpen = null)
+          : (this.sideBarOpen = SIDE_BARS.SETTINGS);
       },
       handleTocNavigation(item) {
         this.rendition.display(item.href);
@@ -455,29 +382,27 @@
         this.theme = THEMES.SEPIA;
       },
       handleSearchInput() {
-        // ww
-        // const searchQuery = this.searchQuery.toLowerCase();
-        // if (searchQuery.length > 0) {
-        //   this.searchIsLoading = true;
-        //   this.search(searchQuery).then(searchResults => {
-        //     const isWholeWord = new RegExp(`\\b${searchQuery}\\b`);
-        //     const searchResultsWithWholeWord = searchResults.filter(result =>
-        //       isWholeWord.test(result.excerpt.toLowerCase())
-        //     );
-        //     // const searchResultsWithHtml = searchResultsWithWholeWord.map(result => {
-        //     //   const r = new RegExp(searchQuery);
-        //     //   const html = result.excerpt.replace(r, 'www $&www');
-        //     //   return {
-        //     //     ...result,
-        //     //     html
-        //     //   };
-
-        //     // });
-        //     this.noSearchResults = searchResultsWithWholeWord.length === 0;
-        //     this.searchResults = searchResultsWithWholeWord;
-        //     this.searchIsLoading = false;
-          //   });
-        // }
+        const searchQuery = this.searchQuery.toLowerCase();
+        if (searchQuery.length > 0) {
+          this.searchIsLoading = true;
+          this.search(searchQuery).then(searchResults => {
+            const isWholeWord = new RegExp(`\\b${searchQuery}\\b`);
+            const searchResultsWithWholeWord = searchResults.filter(result =>
+              isWholeWord.test(result.excerpt.toLowerCase())
+            );
+            const searchResultsWithHtml = searchResultsWithWholeWord.map(result => {
+              const r = new RegExp(searchQuery);
+              const html = result.excerpt.replace(r, match => `ww${match}ww`);
+              return {
+                ...result,
+                html,
+              };
+            });
+            this.noSearchResults = searchResultsWithWholeWord.length === 0;
+            this.searchResults = searchResultsWithWholeWord;
+            this.searchIsLoading = false;
+          });
+        }
       },
       search(searchQuery) {
         return Promise.all(
@@ -494,6 +419,14 @@
       },
       updateProgress() {
         this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);
+      },
+      setFontSize() {},
+      setTheme(theme) {
+        this.theme = theme;
+      },
+      setTextAlignment(textAlignment) {
+        console.log(textAlignment);
+        this.textAlignment = textAlignment;
       },
     },
   };
@@ -525,28 +458,29 @@
     left: 250px;
   }
 
+  .epubjs-container-push-left {
+    right: 250px;
+  }
+
   .top-bar {
     position: absolute;
     top: 0;
     right: 0;
     left: 0;
-    z-index: 4;
-    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-      0 1px 5px 0 rgba(0, 0, 0, 0.12);
   }
 
   .side-bar {
     position: absolute;
     top: 49px;
     bottom: 0;
+  }
+
+  .side-bar-left {
     left: 0;
-    z-index: 4;
-    width: 250px;
-    height: calc(100% - 49px);
-    word-wrap: break-word;
-    background-color: $core-bg-canvas;
-    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-      0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  }
+
+  .side-bar-right {
+    right: 0;
   }
 
   .search-submit-button {
@@ -579,6 +513,20 @@
   .search-results-enter,
   .search-results-leave-to {
     opacity: 0;
+  }
+
+  .chapter-name {
+    margin: 0;
+    overflow: hidden;
+    line-height: 36px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .next-button {
+  }
+
+  .previous-button {
   }
 
 </style>
