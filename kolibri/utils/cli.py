@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+rom __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
@@ -146,6 +146,9 @@ def initialize(debug=False):
         version = version.strip() if version else ""
         change_version = kolibri.__version__ != version
         if change_version:
+            # dbbackup will load settings.INSTALLED_APPS.
+            # we need to ensure plugins are correct in conf.config before
+            enable_default_plugins()
             # Version changed, make a backup no matter what.
             from kolibri.core.deviceadmin.utils import dbbackup
             try:
@@ -156,7 +159,6 @@ def initialize(debug=False):
                 logger.warning(
                     "Skipped automatic database backup, not compatible with "
                     "this DB engine.")
-            enable_default_plugins()
 
         django.setup()
 
