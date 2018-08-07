@@ -1,4 +1,3 @@
-import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { now } from 'kolibri.utils.serverClock';
 import {
   ChannelResource,
@@ -25,16 +24,8 @@ function preparePageNameAndTitle(store, pageName) {
   store.commit('CORE_SET_PAGE_LOADING', true);
 }
 
-/**
- * Helper function for _showChannelList
- * @param {object} channel - to get recentActivity for
- * @param {string} classId -
- * @returns {Promise} that resolves channel with lastActive value in object:
- *   { 'channelId': dateOfLastActivity }
- */
-function channelLastActivePromise(channel, userScope, userScopeId) {
-  // workaround for conditionalPromise.then() misbehaving
-  return new Promise((resolve, reject) => {
+function getAllChannelsLastActivePromise(channels, userScope, userScopeId) {
+  const promises = channels.map(channel =>
     ContentSummaryResource.fetchModel({
       id: channel.root_id,
       getParams: {
@@ -42,40 +33,9 @@ function channelLastActivePromise(channel, userScope, userScopeId) {
         collection_kind: userScope,
         collection_id: userScopeId,
       },
-    }).then(
-      channelSummary => {
-        const obj = Object.assign({}, channelSummary, {
-          channelId: channel.id,
-        });
-        resolve(obj);
-      },
-      error => reject(error)
-    );
-  });
-}
-
-function getAllChannelsLastActivePromise(channels, userScope, userScopeId) {
-  const promises = channels.map(channel =>
-    channelLastActivePromise(channel, userScope, userScopeId)
+    })
   );
   return Promise.all(promises);
-}
-
-function _channelReportState(data) {
-  if (!data) {
-    return [];
-  }
-  return data.map(row => ({
-    lastActive: row.last_active,
-    id: row.channelId,
-    num_coach_contents: row.num_coach_contents,
-    progress: row.progress.map(progressData => ({
-      kind: progressData.kind,
-      nodeCount: progressData.node_count,
-      totalProgress: progressData.total_progress,
-    })),
-    title: row.title,
-  }));
 }
 
 function _showChannelList(store, classId, userId = null, showRecentOnly = false) {
@@ -100,7 +60,6 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
     ([allChannelLastActive, , , user]) => {
       const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
       setReportSorting(store, { sortColumn: defaultSortCol, sortOrder: SortOrders.DESCENDING });
-      store.commit('reports/SET_REPORT_CONTENT_SUMMARY', {});
       store.commit('reports/SET_REPORT_PROPERTIES', {
         showRecentOnly,
         userScope,
@@ -108,7 +67,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
         userScopeName: userId ? user.full_name : store.state.className,
         viewBy: ViewBy.CHANNEL,
       });
-      store.commit('reports/SET_REPORT_TABLE_DATA', _channelReportState(allChannelLastActive));
+      store.commit('reports/SET_REPORT_TABLE_DATA', [...allChannelLastActive]);
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
     },
@@ -118,99 +77,14 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
   );
 }
 
-function _contentReportState(data) {
-  if (!data) {
-    return [];
-  }
-  return data.map(row => ({
-    contentId: row.content_id,
-    kind: row.kind,
-    lastActive: row.last_active,
-    id: row.id,
-    num_coach_contents: row.num_coach_contents,
-    progress: row.progress.map(progressData => ({
-      kind: progressData.kind,
-      nodeCount: progressData.node_count,
-      totalProgress: progressData.total_progress,
-    })),
-    title: row.title,
-  }));
-}
-
-function _recentReportState(data) {
-  if (!data) {
-    return [];
-  }
-  return data.map(row => ({
-    num_coach_contents: row.num_coach_contents,
-    contentId: row.content_id,
-    kind: row.kind,
-    lastActive: row.last_active,
-    id: row.id,
-    progress: row.progress.map(progressData => ({
-      logCountComplete: progressData.log_count_complete,
-      logCountTotal: progressData.log_count_total,
-      totalProgress: progressData.total_progress,
-    })),
-    title: row.title,
-  }));
-}
-
-function _getGroupName(userId, groupData) {
-  const group = groupData.find(g => g.user_ids.includes(userId));
-  return group ? group.name : undefined;
-}
-
-function _rootLearnerReportState(userData, groupData) {
-  return userData.map(row => ({
-    id: row.id,
-    fullName: row.full_name,
-    username: row.username,
-    groupName: _getGroupName(row.id, groupData),
-  }));
-}
-
-function _learnerReportState(userReportData, groupData) {
-  if (!userReportData) {
-    return [];
-  }
-  return userReportData.map(row => ({
-    id: row.id,
-    fullName: row.full_name,
-    username: row.username,
-    lastActive: row.last_active,
-    groupName: _getGroupName(row.id, groupData),
-    progress: row.progress.map(progressData => ({
-      kind: progressData.kind,
-      timeSpent: progressData.time_spent,
-      totalProgress: progressData.total_progress,
-    })),
-  }));
-}
-
-function _contentSummaryState(data) {
-  if (!data) {
-    return {};
-  }
-  const kind = !data.ancestors.length ? ContentNodeKinds.CHANNEL : data.kind;
-  return {
-    num_coach_contents: data.num_coach_contents,
-    ancestors: data.ancestors.map(item => ({
-      id: item.id,
-      title: item.title,
-    })),
-    contentId: data.content_id,
-    kind,
-    lastActive: data.last_active,
-    numUsers: data.num_users,
-    id: data.id,
-    progress: data.progress.map(progressData => ({
-      kind: progressData.kind,
-      nodeCount: progressData.node_count,
-      totalProgress: progressData.total_progress,
-    })),
-    title: data.title,
-  };
+function _appendGroupNameToReports(reports, groupData) {
+  return reports.map(report => {
+    const group = groupData.find(g => g.user_ids.includes(report.id));
+    return {
+      ...report,
+      groupName: group ? group.name : undefined,
+    };
+  });
 }
 
 function _showContentList(store, options) {
@@ -230,10 +104,10 @@ function _showContentList(store, options) {
     promises.push(FacilityUserResource.fetchModel({ id: options.userScopeId }));
   }
   Promise.all(promises).then(
-    ([contentSummary, contentReport, , user]) => {
+    ([contentSummary, contentReports, , user]) => {
       setReportSorting(store, { sortColumn: TableColumns.NAME, sortOrder: SortOrders.DESCENDING });
-      store.commit('reports/SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
-      store.commit('reports/SET_REPORT_TABLE_DATA', _contentReportState(contentReport));
+      store.commit('reports/SET_REPORT_CONTENT_SUMMARY', contentSummary);
+      store.commit('reports/SET_REPORT_TABLE_DATA', [...contentReports]);
       store.commit('reports/SET_REPORT_PROPERTIES', {
         channelId: options.channelId,
         contentScope: options.contentScope,
@@ -272,9 +146,9 @@ function _showClassLearnerList(store, options) {
       setReportSorting(store, { sortColumn: TableColumns.NAME, sortOrder: SortOrders.DESCENDING });
       store.commit(
         'reports/SET_REPORT_TABLE_DATA',
-        _learnerReportState(userReports, learnerGroups)
+        _appendGroupNameToReports(userReports, learnerGroups)
       );
-      store.commit('reports/SET_REPORT_CONTENT_SUMMARY', _contentSummaryState(contentSummary));
+      store.commit('reports/SET_REPORT_CONTENT_SUMMARY', contentSummary);
       store.commit('reports/SET_REPORT_PROPERTIES', {
         channelId: options.channelId,
         contentScope: contentScope,
@@ -295,7 +169,7 @@ function clearReportSorting(store) {
   store.commit('reports/CLEAR_REPORT_SORTING');
 }
 
-export function setReportSorting(store, { sortColumn, sortOrder }) {
+function setReportSorting(store, { sortColumn, sortOrder }) {
   store.commit('reports/SET_REPORT_SORTING', { sortColumn, sortOrder });
 }
 
@@ -319,8 +193,8 @@ export function showRecentItemsForChannel(store, params) {
       });
 
       recentReportsPromise.then(
-        reports => {
-          store.commit('reports/SET_REPORT_TABLE_DATA', _recentReportState(reports));
+        recentReports => {
+          store.commit('reports/SET_REPORT_TABLE_DATA', [...recentReports]);
           store.commit('reports/SET_REPORT_PROPERTIES', {
             channelId,
             showRecentOnly: true,
@@ -377,9 +251,8 @@ export function showLearnerList(store, classId) {
 
   Promise.all(promises).then(
     ([userData, groupData]) => {
-      store.commit('reports/SET_REPORT_TABLE_DATA', _rootLearnerReportState(userData, groupData));
+      store.commit('reports/SET_REPORT_TABLE_DATA', _appendGroupNameToReports(userData, groupData));
       setReportSorting(store, { sortColumn: TableColumns.NAME, sortOrder: SortOrders.DESCENDING });
-      store.commit('reports/SET_REPORT_CONTENT_SUMMARY', {});
       store.commit('reports/SET_REPORT_PROPERTIES', {
         showRecentOnly: false,
         userScope: UserScopes.CLASSROOM,

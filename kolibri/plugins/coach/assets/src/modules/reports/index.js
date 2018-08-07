@@ -1,4 +1,5 @@
 import Vue from 'kolibri.lib.vue';
+import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import * as getters from './getters';
 
 function defaultState() {
@@ -60,7 +61,11 @@ export default {
       Vue.set(state, 'tableData', tableData);
     },
     SET_REPORT_CONTENT_SUMMARY(state, summary) {
-      Vue.set(state, 'contentScopeSummary', summary);
+      const kind = summary.ancestors.length === 0 ? ContentNodeKinds.CHANNEL : summary.kind;
+      Vue.set(state, 'contentScopeSummary', {
+        ...summary,
+        kind,
+      });
     },
     SET_REPORT_USER_SUMMARY(state, summary) {
       Vue.set(state, 'userScopeSummary', summary);
