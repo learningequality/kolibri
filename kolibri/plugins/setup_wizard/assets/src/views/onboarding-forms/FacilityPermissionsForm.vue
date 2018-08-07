@@ -18,7 +18,7 @@
       <FacilityNameForm
         ref="facility-name-nonformal"
         class="facility-name-form"
-        v-show="selectedPreset=='nonformal'"
+        v-show="nonformalIsSelected"
       />
 
       <KRadioButton
@@ -31,7 +31,7 @@
       <FacilityNameForm
         ref="facility-name-formal"
         class="facility-name-form"
-        v-show="selectedPreset=='formal'"
+        v-show="formalIsSelected"
       />
 
       <KRadioButton
@@ -66,9 +66,9 @@
       KTextbox,
     },
     $trs: {
-      facilityPermissionsSetupFormHeader: 'Choose a Facility setup',
+      facilityPermissionsSetupFormHeader: 'What kind of facility are you installing Kolibri in?',
       facilityPermissionsSetupFormDescription:
-        'How will you be using Kolibri? (You can customize these settings later)',
+        'A facility is the location where you are installing Kolibri, such as a school, training center, or a home.',
       facilityPermissionsPresetDetailsLink: 'More information about these settings',
       adminManagedSetupTitle: 'Formal',
       adminManagedSetupDescription: 'Schools and other formal learning contexts',

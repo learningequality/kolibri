@@ -49,7 +49,7 @@ describe('SetupWizardIndex', () => {
     els.RequirePasswordForLearnersForm().vm.$emit('submit');
     expect(els.RequirePasswordForLearnersForm().exists()).toBe(false);
 
-    // Step 4: Superuser Credentials Form
+    // Step 6: Superuser Credentials Form
     expect(els.SuperuserCredentialsForm().isVueComponent).toBe(true);
     els.SuperuserCredentialsForm().vm.$emit('submit');
     expect(wrapper.vm.provisionDevice).toHaveBeenCalledTimes(1);
