@@ -158,12 +158,7 @@
         return this.visitedFields.passwordConfirm && Boolean(this.passwordConfirmErrorMessage);
       },
       formIsValid() {
-        return (
-          !this.usernameIsInvalid &&
-          !this.passwordIsInvalid &&
-          !this.passwordConfirmIsInvalid &&
-          !this.facilityIsInvalid
-        );
+        return !this.usernameIsInvalid && !this.passwordIsInvalid && !this.passwordConfirmIsInvalid;
       },
     },
     beforeDestroy() {
