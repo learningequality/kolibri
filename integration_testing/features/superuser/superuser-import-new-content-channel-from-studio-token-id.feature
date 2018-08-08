@@ -1,14 +1,18 @@
 Feature: Superuser import content
-    Admin needs to be able to import content channels on the device
+    Admin needs to be able to import private/unlisted content channels on the device using the channel token or ID
 
   Background:
     Given there is no content from <channel> channel on the device
+      And I have the <token> token or the <id> ID for the <channel> channel
       And I am signed in to Kolibri as superuser, or a user with device permissions to import content
       And I am on the *Kolibri Studio* page with the list of available content *Channels*
 
-  Scenario: Import new content channel from Kolibri Studio
-    When I click *Select* button for the <channel> channel
-    Then I see the *Select content from '<channel>'* page
+  Scenario: Import new content channel from Kolibri Studio using the token
+    When I click on *Try adding a token* link
+    Then I see the *Enter channel token* modal
+    When I enter the channel <token> token or the <id> ID
+      And I click *Confirm*
+    Then the modal closes
       And I see the list of topics for the <channel> channel
       And I see the total number and size of <channel> channel resources
       And I see 0 resources from <channel> channel are listed as *On your device*
@@ -54,5 +58,5 @@ Feature: Superuser import content
       And I see the size of the <resource> resource I imported
 
 Examples:
-| channel      | topic   | subtopic          | resource                   |
-| MIT Blossoms | Physics | Forces and Angles | English: Forces and Angles |
+| channel      | token       | id                               | topic   | subtopic          | resource                   |
+| MIT Blossoms | nakav-mafak | 95a52b386f2c485cb97dd60901674a98 | Physics | Forces and Angles | English: Forces and Angles |

@@ -1,4 +1,4 @@
-Feature: Superuser create classes
+Feature: Superuser delete classes
     Superuser needs to be able to delete classes from the facility
 
   Background:
