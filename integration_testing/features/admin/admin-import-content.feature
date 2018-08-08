@@ -4,8 +4,6 @@ Feature: Admin import content
   Background:
     Given I am signed in to Kolibri as admin user
       And I have been granted the device permissions to import content
-      And I am on *Facility > Settings* page
-      And there are learner and coach user accounts created in the facility 
 
   Scenario: Admin imports content channels
     When I open the sidebar
