@@ -1,8 +1,8 @@
-Feature: Admin export usage data
-    Admin needs to be able to export session and summary logs for the facility
+Feature: Superuser export usage data
+    Superuser needs to be able to export session and summary logs for the facility
 
   Background:
-    Given I am signed in to Kolibri as an admin user
+    Given I am signed in to Kolibri as superuser
       And I am on *Facility > Data* page
       And the learners have had interactions with the content on the device
 
