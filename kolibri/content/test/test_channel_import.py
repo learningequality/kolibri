@@ -27,6 +27,8 @@ from kolibri.content.models import NO_VERSION
 from kolibri.content.models import V020BETA1
 from kolibri.content.models import V040BETA3
 from kolibri.content.models import VERSION_1
+from kolibri.content.utils.annotation import recurse_availability_up_tree
+from kolibri.content.utils.annotation import set_leaf_node_availability_from_local_file_availability
 from kolibri.content.utils.channel_import import ChannelImport
 from kolibri.content.utils.channel_import import import_channel_from_local_db
 from kolibri.content.utils.channels import read_channel_metadata_from_db_file
@@ -478,6 +480,43 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
         self.set_content_fixture()
         with self.assertRaises(ContentNode.DoesNotExist):
             assert ContentNode.objects.get(pk=obj_id)
+
+    def test_existing_localfiles_are_not_overwritten(self):
+
+        with patch('kolibri.content.utils.sqlalchemybridge.get_engine', new=self.get_engine):
+
+            channel_id = '6199dde695db4ee4ab392222d5af1e5c'
+
+            channel = ChannelMetadata.objects.get(id=channel_id)
+
+            # mark LocalFile objects as available
+            for f in channel.root.children.first().files.all():
+                f.local_file.available = True
+                f.local_file.save()
+
+            # channel's not yet available, as we haven't done the annotation
+            assert not channel.root.available
+
+            # propagate availability up the tree
+            set_leaf_node_availability_from_local_file_availability(channel_id)
+            recurse_availability_up_tree(channel_id=channel_id)
+
+            # after reloading, channel should now be available
+            channel.root.refresh_from_db()
+            assert channel.root.available
+
+            # set the channel version to a low number to ensure we trigger a re-import of metadata
+            ChannelMetadata.objects.filter(id=channel_id).update(version=-1)
+
+            # reimport the metadata
+            self.set_content_fixture()
+
+            # after reloading, the files and their ancestor ContentNodes should all still be available
+            channel.root.refresh_from_db()
+            assert channel.root.available
+            assert channel.root.children.first().available
+            assert channel.root.children.first().files.all()[0].available
+            assert channel.root.children.first().files.all()[0].local_file.available
 
 
 class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase):
