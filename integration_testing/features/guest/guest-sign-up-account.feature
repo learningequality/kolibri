@@ -3,7 +3,7 @@ Feature: Guest sign up account
     Guest can select facility
 
   Background:
-    Given I am on *user > create account* page
+    Given I am on *User > Create account* page
 
   Scenario: Guest should be able to sign up an account
     When I fill out my full name <full_name>

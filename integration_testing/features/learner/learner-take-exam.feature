@@ -4,7 +4,7 @@ Feature: Learner take exam
   Background:
     Given I am signed in to Kolibri as a Learner user
       And The facility coach create and activate an exam for our class
-      And I am on *learn > classes* page
+      And I am on *Learn > classes* page
 
   Scenario: Learner take an exam after it has been assigned
     When I select a not started exam

@@ -4,7 +4,7 @@ Feature: Learner engage completed exam
   Background:
     Given I am signed in to Kolibri as a Learner user
       And I have an completed exam
-      And I am on *learn > classes* page
+      And I am on *Learn > Classes* page
 
   Scenario: Learner can access completed exam
     When I select on one completed exam

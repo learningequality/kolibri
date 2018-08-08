@@ -5,7 +5,7 @@ Feature: Learner change profile information
     Given I am signed in to Kolibri as a Learner user
       And I have permission to edit my full name
       And I have permission to edit my username
-      And I am on the *user > profile* page
+      And I am on the *User > Profile* page
 
   Scenario: Learner change profile information
   	 When I change the full name <full_name>
