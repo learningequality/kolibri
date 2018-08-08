@@ -55,11 +55,9 @@ export function setAndSaveCurrentExamAttemptLog(
           calcQuestionsAnswered(store.rootState.examAttemptLogs)
         );
         // Add this attempt log to the Collection for future caching.
-        const examAttemptLogCollection = ExamAttemptLogResource.fetchCollection({
-          getParams: {
-            user: store.getters.currentUserId,
-            exam: examId,
-          },
+        const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
+          user: store.getters.currentUserId,
+          exam: examId,
         });
         examAttemptLogCollection.set(examAttemptLogModel);
         resolve();
