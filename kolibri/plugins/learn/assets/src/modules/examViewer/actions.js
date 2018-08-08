@@ -28,7 +28,6 @@ export function setAndSaveCurrentExamAttemptLog(
   ExamAttemptLogResource.clearCache();
 
   setExamAttemptLog(store, { contentId, itemId, attemptLog: currentAttemptLog });
-  store.commit('SET_CURRENT_ATTEMPT', currentAttemptLog);
 
   // If a save has already been fired for this particular attempt log,
   // it may not have an id yet, so we can look for it by its uniquely
