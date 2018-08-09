@@ -4,7 +4,7 @@ function defaultState() {
   return {
     busy: false,
     success: false,
-    error: false,
+    errors: false,
     errorCode: null,
     errorMessage: '',
     passwordState: {
@@ -32,10 +32,8 @@ export default {
     SET_PROFILE_SUCCESS(state, isSuccessful) {
       state.success = isSuccessful;
     },
-    SET_PROFILE_ERROR(state, { isError, errorMessage = '', errorCode = null }) {
-      state.error = isError;
-      state.errorMessage = errorMessage;
-      state.errorCode = errorCode;
+    SET_PROFILE_ERRORS(state, errors) {
+      state.errors = errors;
     },
     SET_PROFILE_PASSWORD_MODAL(state, isVisible) {
       state.passwordState.modal = isVisible;

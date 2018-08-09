@@ -45,6 +45,7 @@ from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
+from kolibri.core import error_constants
 from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
@@ -298,17 +299,13 @@ class SignUpViewSet(viewsets.ViewSet):
 
         # we validate the user's input, and if valid, login as user
         serialized_user = self.serializer_class(data=data)
-        if serialized_user.is_valid():
+        if serialized_user.is_valid(raise_exception=True):
             serialized_user.save()
             serialized_user.instance.set_password(data['password'])
             serialized_user.instance.save()
             authenticated_user = authenticate(username=data['username'], password=data['password'], facility=data['facility'])
             login(request, authenticated_user)
             return Response(serialized_user.data, status=status.HTTP_201_CREATED)
-        else:
-            # grab error if related to username
-            error = serialized_user.errors.get('username', None)
-            return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
 @method_decorator(signin_redirect_exempt, name='dispatch')
@@ -329,13 +326,15 @@ class SessionViewSet(viewsets.ViewSet):
             return Response(self.get_session(request))
         elif not password and FacilityUser.objects.filter(username__iexact=username, facility=facility_id).exists():
             # Password was missing, but username is valid, prompt to give password
-            return Response({
-                "message": "Please provide password for user",
-                "missing_field": "password"
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response([{'id': error_constants.MISSING_PASSWORD,
+                              'metadata': {'field': 'password',
+                                           'message': 'Username is valid, but password is missing.'}}],
+                            status=status.HTTP_400_BAD_REQUEST)
         else:
             # Respond with error
-            return Response("User credentials invalid!", status=status.HTTP_401_UNAUTHORIZED)
+            return Response([{'id': error_constants.INVALID_CREDENTIALS,
+                              'metadata': {}}],
+                            status=status.HTTP_401_UNAUTHORIZED)
 
     def destroy(self, request, pk=None):
         logout(request)

@@ -8,10 +8,6 @@
     @submit="createNewUser"
     @cancel="close"
   >
-    <UiAlert type="error" v-if="errorMessage" @dismiss="errorMessage = ''">
-      {{ errorMessage }}
-    </UiAlert>
-
     <section>
       <KTextbox
         ref="name"
@@ -82,8 +78,9 @@
 <script>
 
   import { mapActions, mapState, mapGetters } from 'vuex';
-  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
@@ -134,7 +131,7 @@
           value: UserKinds.LEARNER,
         },
         classCoach: true,
-        errorMessage: '',
+        usernameAlreadyExistsOnServer: false,
         submitting: false,
         nameBlurred: false,
         usernameBlurred: false,
@@ -183,7 +180,7 @@
           if (!validateUsername(this.username)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
           }
-          if (this.usernameAlreadyExists) {
+          if (this.usernameAlreadyExists || this.usernameAlreadyExistsError) {
             return this.$tr('usernameAlreadyExists');
           }
         }
@@ -244,8 +241,9 @@
     },
     methods: {
       ...mapActions('userManagement', ['createUser', 'displayModal']),
+      ...mapActions(['handleApiError']),
       createNewUser() {
-        this.errorMessage = '';
+        this.usernameAlreadyExistsOnServer = false;
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
@@ -262,13 +260,14 @@
               this.close();
             },
             error => {
-              this.submitting = false;
-              if (error.status.code === 400) {
-                this.errorMessage = Object.values(error.entity)[0][0];
-              } else if (error.status.code === 403) {
-                this.errorMessage = error.entity;
+              const usernameAlreadyExistsError = CatchErrors(error, [
+                ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS,
+              ]);
+              if (usernameAlreadyExistsError) {
+                this.submitting = false;
+                this.usernameAlreadyExistsOnServer = true;
               } else {
-                this.errorMessage = this.$tr('unknownError');
+                this.handleApiError(error);
               }
             }
           );

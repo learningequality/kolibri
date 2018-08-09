@@ -1,5 +1,7 @@
 import { FacilityUserResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
+import CatchErrors from 'kolibri.utils.CatchErrors';
+import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
 
 const snackbarTranslator = createTranslator('UserProfilePageSnackbars', {
   passwordChangeSuccessMessage: 'Password changed',
@@ -37,23 +39,17 @@ export function updateUserProfile(store, { edits, session }) {
       store.dispatch('getCurrentSession', true, { root: true });
       store.commit('SET_PROFILE_SUCCESS', true);
       store.commit('SET_PROFILE_BUSY', false);
-      store.commit('SET_PROFILE_ERROR', { isError: false });
+      store.commit('SET_PROFILE_ERRORS', { isError: false });
     },
     error => {
-      const { status, entity } = error;
-      let errorMessage = '';
-      if (status.code === 400) {
-        errorMessage = Object.values(entity)[0][0];
-      } else if (status.code === 403) {
-        errorMessage = entity[0];
+      const errorsCaught = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
+      if (errorsCaught) {
+        store.commit('SET_PROFILE_ERRORS', errorsCaught);
+        store.commit('SET_PROFILE_SUCCESS', false);
+        store.commit('SET_PROFILE_BUSY', false);
+      } else {
+        store.dispatch('handleApiError', error);
       }
-      store.commit('SET_PROFILE_SUCCESS', false);
-      store.commit('SET_PROFILE_BUSY', false);
-      store.commit('SET_PROFILE_ERROR', {
-        isError: true,
-        errorMessage,
-        errorCode: status.code,
-      });
     }
   );
 }

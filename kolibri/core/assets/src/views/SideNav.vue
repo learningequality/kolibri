@@ -74,11 +74,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import {
-    TopLevelPageNames,
-    UserKinds,
-    NavComponentSections,
-  } from 'kolibri.coreVue.vuex.constants';
+  import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
@@ -138,9 +134,6 @@
       };
     },
     computed: {
-      TopLevelPageNames() {
-        return TopLevelPageNames;
-      },
       ...mapGetters(['isUserLoggedIn', 'isSuperuser', 'isAdmin', 'isCoach', 'canManageContent']),
       ...mapState({
         session: state => state.core.session,
