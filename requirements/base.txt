@@ -1,5 +1,5 @@
 django-filter==1.1.0
-django-js-reverse==0.8.1
+django-js-reverse==0.8.2
 djangorestframework==3.8.2
 django==1.11.14  # pyup: >=1.11,<2
 six==1.11.0
