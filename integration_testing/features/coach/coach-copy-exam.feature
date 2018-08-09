@@ -6,7 +6,7 @@ Feature: Coach copy exam
       And I am on *Coach > Exams* page
       And I see the exam <exam_title>
 
- Scenario: Coach copy lesson
+ Scenario: Coach copy exams
     When I click the exam title <exam_title>
     Then I see the <exam_title> page
     When I click *Options* button
