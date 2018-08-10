@@ -2,9 +2,7 @@ import Vue from 'vue';
 import { mount } from '@vue/test-utils';
 import EpubRendererIndex from '../src/views/EpubRendererIndex';
 
-
 describe('EPUB renderer', () => {
-
   describe('computed property', () => {
     const wrapper = mount(EpubRendererIndex);
 

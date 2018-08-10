@@ -3,13 +3,20 @@
   <SideBar>
     <nav>
       <ul class="toc-list">
-        <TableOfContentsSection
+        <template
           v-for="(section, index) in toc"
-          :key="index"
-          :section="section"
-          :depth="0"
-          @tocNavigation="emitTocNavigation"
-        />
+        >
+          <TableOfContentsSection
+            :key="`toc-section-${index}`"
+            :section="section"
+            :depth="0"
+            @tocNavigation="emitTocNavigation"
+          />
+          <hr
+            v-if="index < toc.length - 1"
+            :key="`hr-${index}`"
+          >
+        </template>
       </ul>
     </nav>
   </SideBar>
@@ -50,6 +57,8 @@
 
   .toc-list {
     @include toc-list;
+
+    font-size: smaller;
   }
 
 </style>

@@ -10,7 +10,7 @@
           size="50"
           :percentage="true"
         >
-          <button>
+          <button @click="$emit('')">
             <mat-svg
               v-if="sizeAdjustment === $tr('decrease')"
               name="remove"
@@ -58,6 +58,7 @@
           :percentage="true"
         >
           <button
+            class="alignment-button"
             :class="{'alignment-button-selected': alignment === textAlignment}"
             @click="$emit('setTextAlignment', alignment)"
           >
@@ -114,7 +115,7 @@
         type: Object,
         required: true,
         validator(val) {
-          return Object.keys(THEMES).some(obj => isEqual(obj, val));
+          return Object.values(THEMES).some(obj => isEqual(obj, val));
         },
       },
       textAlignment: {
@@ -168,20 +169,24 @@
   }
 
   .theme-button {
-    height: 40.5px;
+    height: 36.5px;
     border-style: solid;
-    border-width: 1px;
+    border-width: 2px;
   }
 
   .theme-button-selected {
-    border-color: $core-action-normal;
-    border-width: 2px;
+    border-bottom-color: #ff00b7;
+    border-bottom-width: 3px;
   }
 
-  .alignment-button-selected {
-    border-color: $core-action-normal;
+  .alignment-button {
     border-style: solid;
     border-width: 2px;
+  }
+  .alignment-button-selected {
+    border-color: #ff00b7;
+    border-style: solid;
+    border-bottom-width: 2px;
   }
 
 </style>

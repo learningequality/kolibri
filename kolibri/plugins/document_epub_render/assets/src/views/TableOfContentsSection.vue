@@ -7,7 +7,6 @@
       appearance="basic-link"
       @click="$emit('tocNavigation', section)"
     />
-
     <ul
       v-if="section.subitems && section.subitems.length > 0"
       class="toc-list"

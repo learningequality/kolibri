@@ -16,9 +16,9 @@ d@1:
   dependencies:
     es5-ext "^0.10.9"
 
-epubjs@^0.3.65:
-  version "0.3.65"
-  resolved "https://registry.yarnpkg.com/epubjs/-/epubjs-0.3.65.tgz#0ccdca39e92193b9349ae8d84fd72cbb1d4b816c"
+epubjs@^0.3.66:
+  version "0.3.66"
+  resolved "https://registry.yarnpkg.com/epubjs/-/epubjs-0.3.66.tgz#e49875547a5716c8a933b86131df647633c5e0fc"
   dependencies:
     event-emitter "^0.3.5"
     jszip "^3.1.5"
@@ -92,6 +92,10 @@ lie@~3.1.0:
 lodash@^4.17.10:
   version "4.17.10"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
+
+mark.js@^8.11.1:
+  version "8.11.1"
+  resolved "https://registry.yarnpkg.com/mark.js/-/mark.js-8.11.1.tgz#180f1f9ebef8b0e638e4166ad52db879beb2ffc5"
 
 marks-pane@^1.0.9:
   version "1.0.9"

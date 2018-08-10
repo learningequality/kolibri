@@ -17,7 +17,7 @@
     />
 
 
-    <!-- <UiIconButton
+    <UiIconButton
       type="secondary"
       @click="goToPreviousPage"
       class="previous-button"
@@ -48,18 +48,18 @@
         name="chevron_right"
         category="navigation"
       />
-    </UiIconButton> -->
+    </UiIconButton>
 
 
     <TableOfContentsSideBar
-      v-if="tocSideBarIsOpen"
+      v-show="tocSideBarIsOpen"
       :toc="toc"
       class="side-bar side-bar-left"
       @tocNavigation="handleTocNavigation"
     />
 
     <SettingsSideBar
-      v-else-if="settingsSideBarIsOpen"
+      v-show="settingsSideBarIsOpen"
       class="side-bar side-bar-right"
       :theme="theme"
       :textAlignment="textAlignment"
@@ -68,68 +68,15 @@
       @setTextAlignment="setTextAlignment"
     />
 
-    <SideBar
-      v-else-if="searchSideBarIsOpen"
-      class="side-bar"
-    >
-      <form
-        slot="sideBarHeader"
-        @submit.prevent="handleSearchInput"
-      >
-        <input
-          ref="searchInput"
-          autofocus="true"
-          v-model.trim="searchQuery"
-        >
-        <UiIconButton
-          type="secondary"
-          buttonType="submit"
-          class="search-submit-button"
-        >
-          <mat-svg
-            name="search"
-            category="action"
-          />
-        </UiIconButton>
-      </form>
 
-      <div slot="sideBarMain">
-        <transition
-          name="search-results"
-          mode="out-in"
-        >
-          <KCircularLoader
-            v-if="searchIsLoading"
-            :delay="false"
-          />
-          <div v-else>
-            <transition
-              name="search-results"
-              mode="out-in"
-            >
-              <p v-if="noSearchResults">{{ $tr('noSearchResults') }}</p>
-              <div v-else-if="searchResults.length > 0">
-                <p>{{ $tr('numberOfSearchResults', { count: searchResults.length}) }}</p>
-                <ol class="search-results-list">
-                  <li
-                    v-for="(item, index) in searchResultsToDisplay"
-                    :key="index"
-                    class="toc-list-item"
-                  >
-                    <KButton
-                      appearance="basic-link"
-                      @click="handleSearchResultNavigation(item)"
-                    >
-                      <template v-html="item.html"></template>
-                    </KButton>
-                  </li>
-                </ol>
-              </div>
-            </transition>
-          </div>
-        </transition>
-      </div>
-    </SideBar>
+    <SearchSideBar
+      v-show="searchSideBarIsOpen"
+      ref="searchSideBar"
+      class="side-bar side-bar-right"
+      :book="book"
+      @newSearchQuery="handleNewSearchQuery"
+      @navigateToSearchResult="handleNavigateToSearchResult"
+    />
 
 
     <div
@@ -146,25 +93,26 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import Epub from 'epubjs/lib/epub';
-  import manager from 'epubjs/lib/managers/default';
-  import iFrameView from 'epubjs/lib/managers/views/iframe';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
+
+  import Epub from 'epubjs/src/epub';
+  import manager from 'epubjs/src/managers/default';
+  import iFrameView from 'epubjs/src/managers/views/iframe';
+
+  import Mark from 'mark.js';
+
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
+
   import UiIconButton from 'keen-ui/src/UiIconButton';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import SideBar from './SideBar';
-  import CoreDropdownMenu from './CoreDropdownMenu';
+
   import TopBar from './TopBar';
   import TableOfContentsSideBar from './TableOfContentsSideBar';
-  import { TEXT_ALIGNMENTS, THEMES } from './EPUB_RENDERER_CONSTANTS';
   import SettingsSideBar from './SettingsSideBar';
+  import SearchSideBar from './SearchSideBar';
+
+  import { TEXT_ALIGNMENTS, THEMES } from './EPUB_RENDERER_CONSTANTS';
 
   const FONT_SIZE_INC = 2;
   const MIN_FONT_SIZE = 8;
@@ -182,36 +130,21 @@
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
-      tableOfContents: 'Table of contents',
-      noSearchResults: 'No search results',
-      tryABetterSearch: 'Too ',
-      numberOfSearchResults:
-        '{count, number, integer} {count, plural, one {match} other {matches}}',
     },
     components: {
-      KButton,
       UiIconButton,
       CoreFullscreen,
-      SideBar,
-      CoreMenuOption,
-      CoreDropdownMenu,
-      KCircularLoader,
-      KGrid,
-      KGridItem,
       TopBar,
       TableOfContentsSideBar,
       SettingsSideBar,
+      SearchSideBar,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
-      epubURL: 'http://localhost:8000/content/storage/epub4.epub',
+      epubURL: 'http://localhost:8000/content/storage/epub2.epub',
       book: null,
       rendition: null,
       toc: [],
-      searchResults: [],
-      searchQuery: '',
-      noSearchResults: false,
-      searchIsLoading: false,
       sideBarOpen: null,
       theme: THEMES.WHITE,
       textAlignment: TEXT_ALIGNMENTS.LEFT,
@@ -219,6 +152,8 @@
       isInFullscreen: false,
       totalPages: null,
       loaded: false,
+      markInstance: null,
+      searchQuery: null,
     }),
     computed: {
       ...mapGetters(['sessionTimeSpent']),
@@ -259,6 +194,10 @@
           h6: {
             'font-size': '0.64em',
           },
+          // mark: {
+          //   'background-color': '#e2d1e0',
+          //   'font-weight': 'bold',
+          // },
         };
       },
       tocSideBarIsOpen() {
@@ -270,9 +209,7 @@
       searchSideBarIsOpen() {
         return this.sideBarOpen === SIDE_BARS.SEARCH;
       },
-      searchResultsToDisplay() {
-        return this.searchResults.slice(0, 100);
-      },
+
       targetTime() {
         return this.totalPages * 30;
       },
@@ -301,12 +238,18 @@
       },
       sideBarOpen(sidebar) {
         if (sidebar === SIDE_BARS.SEARCH) {
-          this.$nextTick().then(() => {
-            const searchInput = this.$refs.searchInput;
-            if (searchInput) {
-              searchInput.focus();
-            }
-          });
+          this.$nextTick().then(() => this.$refs.searchSideBar.focusOnInput());
+          // this.highlightSearchQueryInEpub();
+        }
+      },
+      elementHeight(newHeight) {
+        if (this.loaded) {
+          this.rendition.resize(300, newHeight);
+        }
+      },
+      elementWidth(newWidth) {
+        if (this.loaded) {
+          this.rendition.resize(newWidth, 900);
         }
       },
     },
@@ -315,20 +258,27 @@
       this.book = new Epub(this.epubURL);
     },
     mounted() {
-      this.rendition = this.book.renderTo(this.$refs.epubjsContainer, {
-        manager,
-        view: iFrameView,
-      });
-      this.rendition.display().then(() => {
-        // Loaded
-        if (this.book.navigation) {
-          this.toc = this.book.navigation.toc;
-        }
-        this.rendition.resize('700px', '700px');
-        this.rendition.on('resized', (width, height) => {
-          console.log('Resized to:', width, height);
+      this.book.ready.then(() => {
+        this.rendition = this.book.renderTo(this.$refs.epubjsContainer, {
+          manager,
+          view: iFrameView,
+          width: '100%',
+          height: '100%',
         });
-        this.loaded = true;
+        // width\ height
+        this.rendition.display().then(() => {
+          // Loaded
+          if (this.book.navigation) {
+            this.toc = this.book.navigation.toc;
+          }
+          // this.rendition.on('relocated', location => {
+          //   console.log('relocated:', location);
+          // });
+          this.rendition.on('resized', size => {
+            // console.log('resized', size);
+          });
+          this.loaded = true;
+        });
       });
     },
     beforeDestroy() {
@@ -372,50 +322,38 @@
       resetFontSize() {
         this.fontSize = DEFAULT_FONT_SIZE;
       },
-      setLightTheme() {
-        this.theme = THEMES.LIGHT;
+      handleNewSearchQuery(searchQuery) {
+        this.searchQuery = searchQuery;
+        this.clearMarks().then(this.createMarks(searchQuery));
       },
-      setDarkTheme() {
-        this.theme = THEMES.DARK;
+      handleNavigateToSearchResult(searchResult) {
+        this.clearMarks()
+          .then(() => this.rendition.display(searchResult.cfi))
+          .then(() => this.createMarks(this.searchQuery));
       },
-      setSepiaTheme() {
-        this.theme = THEMES.SEPIA;
-      },
-      handleSearchInput() {
-        const searchQuery = this.searchQuery.toLowerCase();
-        if (searchQuery.length > 0) {
-          this.searchIsLoading = true;
-          this.search(searchQuery).then(searchResults => {
-            const isWholeWord = new RegExp(`\\b${searchQuery}\\b`);
-            const searchResultsWithWholeWord = searchResults.filter(result =>
-              isWholeWord.test(result.excerpt.toLowerCase())
-            );
-            const searchResultsWithHtml = searchResultsWithWholeWord.map(result => {
-              const r = new RegExp(searchQuery);
-              const html = result.excerpt.replace(r, match => `ww${match}ww`);
-              return {
-                ...result,
-                html,
-              };
+      clearMarks() {
+        return new Promise(resolve => {
+          if (this.markInstance) {
+            this.markInstance.unmark({
+              done: () => {
+                this.markInstance = null;
+                resolve();
+              },
             });
-            this.noSearchResults = searchResultsWithWholeWord.length === 0;
-            this.searchResults = searchResultsWithWholeWord;
-            this.searchIsLoading = false;
+          } else {
+            resolve();
+          }
+        });
+      },
+      createMarks(searchQuery) {
+        return new Promise(resolve => {
+          this.markInstance = new Mark(
+            this.$refs.epubjsContainer.querySelector('iframe').contentDocument.querySelector('body')
+          );
+          this.markInstance.mark(searchQuery, {
+            done: () => resolve(),
           });
-        }
-      },
-      search(searchQuery) {
-        return Promise.all(
-          this.book.spine.spineItems.map(item =>
-            item
-              .load(this.book.load.bind(this.book))
-              .then(item.find.bind(item, searchQuery))
-              .finally(item.unload.bind(item))
-          )
-        ).then(searchResults => Promise.resolve([].concat.apply([], searchResults)));
-      },
-      handleSearchResultNavigation(searchResult) {
-        this.rendition.display(searchResult.cfi);
+        });
       },
       updateProgress() {
         this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);
@@ -425,7 +363,6 @@
         this.theme = theme;
       },
       setTextAlignment(textAlignment) {
-        console.log(textAlignment);
         this.textAlignment = textAlignment;
       },
     },
@@ -440,16 +377,19 @@
 
   .epub-renderer {
     position: relative;
-    min-height: 400px;
+    // min-height: 400px;
+    height: 500px;
   }
 
   .epubjs-container {
     position: absolute;
-    top: 48px;
+    top: 36px;
     right: 0;
     bottom: 0;
     left: 0;
-    overflow: hidden;
+    max-width: 1000px;
+    height: 464px;
+    margin: auto;
     background-color: #ffffff;
     transition: left 0.2s ease;
   }
@@ -471,7 +411,7 @@
 
   .side-bar {
     position: absolute;
-    top: 49px;
+    top: 36px;
     bottom: 0;
   }
 
@@ -506,15 +446,6 @@
     white-space: nowrap;
   }
 
-  .search-results-enter-active,
-  .search-results-leave-active {
-    transition: opacity 0.05s;
-  }
-  .search-results-enter,
-  .search-results-leave-to {
-    opacity: 0;
-  }
-
   .chapter-name {
     margin: 0;
     overflow: hidden;
@@ -523,10 +454,23 @@
     white-space: nowrap;
   }
 
+  .previous-button,
   .next-button {
+    position: absolute;
+    top: 50%;
+    z-index: 4;
+    transform: translateY(-50%);
+    left: 0;
+    height: 400px;
+    border-radius: unset;
   }
 
   .previous-button {
+    left: 0;
+  }
+
+  .next-button {
+    right: 0;
   }
 
 </style>

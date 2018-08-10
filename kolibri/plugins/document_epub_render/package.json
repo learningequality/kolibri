@@ -3,6 +3,7 @@
   "description": "Document/EPUB Render Plugin for Kolibri",
   "private": true,
   "dependencies": {
-    "epubjs": "^0.3.65"
+    "epubjs": "^0.3.66",
+    "mark.js": "^8.11.1"
   }
 }
