@@ -3,7 +3,8 @@ from collections import namedtuple
 
 from django.core.management.base import BaseCommand
 from iceqube.exceptions import UserCancelledError
-from tqdm import tqdm
+
+from kolibri.core.tqdm_shim import tqdm
 
 Progress = namedtuple(
     'Progress',
