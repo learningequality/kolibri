@@ -1,19 +1,27 @@
-Feature: Guest engage content recommended
-  Guest engage with content on recommended page
+Feature: Guest engage recommended content
+  Guest needs to engage with content on Recommended tab
 
   Background:
-    Given I am on *User > Sign in* page
+    Given I am on Kolibri sign in page
       And I click *Continue as guest* button
-      And There is a channel <channel> that contains videos and exercises
-      And I am on *Learn > Topic* page
+      And there is one or more channels imported on the device
+      And I am on *Learn > Recommended* page
 
-  Scenario: Guest engage with content on recommended page
-  	When I click *Recommended* button
-  	Then I see video and exercises contents
-  	When I select one video content
-  	 And I am on *Learn > Recommended* page
-  	Then I see the video content automatically playing
+  Scenario: Engage with content on Recommended tab
+  	When I see two or more content items under the *Most popular* heading
+  	Then I can use the right arrow button to see more
+      And after that I can use the left arrow button to browse back
+  	When I click the <content_item> content item
+  	Then I see the *Recommended > '<content_item>'* breadcrumb
+      And I see the video start playing automatically
+      And below the player I see other *Recommended* items
+    When video finishes
+    Then I see the *Next resource* heading and content item under the player
+      And I see the *500 points* snackbar alert, suggesting I sign up in order to accumulate points
+      And I see the *Next* snackbar alert with the title of the next recommended content item
+    When I click on *Recommended* in the breadcrumb above the player
+    Then I see the *Learn > Recommended* page
 
 Examples:
-  | channel      |
-  | Khan Academy |
+  | channel      | content_item                     |
+  | Khan Academy | Intro to springs and Hooke's law |

@@ -3,10 +3,10 @@ Feature: Coach review of class report per channel
 
   Background:
     Given I am signed in to Kolibri as a facility coach
-    Given there is a class <class>
-    And there is a channel <channel>
+      And there is a class <class>
+      And there is a channel <channel>
 
-  Scenario: Coach can review the whole performances of class in the kolibri channel
+  Scenario: Review the progress of the whole class for a channel
     When I click the *Channels* tab
     Then I am on *Coach > Channel* page
       And I see all the channels <channel>

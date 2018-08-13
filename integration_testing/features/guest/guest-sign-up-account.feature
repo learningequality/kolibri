@@ -1,17 +1,19 @@
-Feature: Guest sign up account
-    Guest should be able to sign up an account
-    Guest can select facility
+Feature: Guest sign up for account
+    Guest should be able to sign up for an account, if permitted by respective facility setting
 
   Background:
-    Given I am on *User > Create account* page
+    Given that *Allow learners to sign-up on this device* setting is activated on *Facility > Settings*
+      And that I am on the Kolibri sign-in page
 
-  Scenario: Guest should be able to sign up an account
+  Scenario: Sign up for an account
+    When I click *Create an account* button
+    Then I am on *Create an account* page
     When I fill out my full name <full_name>
      And I fill out my username <username>
      And I fill out my password <password>
      And I select my facility <facility>
-     And I click the *Sign up* button 
-    Then I am signed in and I can see the *Learn > Topics* page
+     And I click the *Finish* button 
+    Then I am signed in and I can see the *Learn > Channels* page
 
   Examples:
   | full_name | password | username | password | facility |
