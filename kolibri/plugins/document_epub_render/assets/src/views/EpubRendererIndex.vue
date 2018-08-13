@@ -5,85 +5,105 @@
     class="epub-renderer"
     @changeFullscreen="isInFullscreen = $event"
   >
-
-    <TopBar
-      class="top-bar"
-      :title="'Chapter Name'"
-      :isInFullscreen="isInFullscreen"
-      @tableOfContentsClicked="handleTocToggle"
-      @settingsClicked="handleSettingToggle"
-      @searchClicked="handleSearchToggle"
-      @fullscreenClicked="$refs.epubRenderer.toggleFullscreen()"
+    <KLinearLoader
+      v-show="!loaded"
+      type="indeterminate"
+      :delay="false"
     />
-
-
-    <UiIconButton
-      type="secondary"
-      @click="goToPreviousPage"
-      class="previous-button"
-    >
-      <mat-svg
-        v-if="isRtl"
-        name="chevron_right"
-        category="navigation"
+    <div v-show="loaded">
+      <TopBar
+        class="top-bar"
+        :title="'Chapter Name'"
+        :isInFullscreen="isInFullscreen"
+        @tableOfContentsClicked="handleTocToggle"
+        @settingsClicked="handleSettingToggle"
+        @searchClicked="handleSearchToggle"
+        @fullscreenClicked="$refs.epubRenderer.toggleFullscreen()"
       />
-      <mat-svg
-        v-else
-        name="chevron_left"
-        category="navigation"
+
+
+      <UiIconButton
+        class="previous-button"
+        type="secondary"
+        :disableRipple="true"
+        @click="goToPreviousPage"
+      >
+        <mat-svg
+          v-if="isRtl"
+          name="chevron_right"
+          category="navigation"
+        />
+        <mat-svg
+          v-else
+          name="chevron_left"
+          category="navigation"
+        />
+      </UiIconButton>
+      <UiIconButton
+        class="next-button"
+        type="secondary"
+        :disableRipple="true"
+        @click="goToNextPage"
+      >
+        <mat-svg
+          v-if="isRtl"
+          name="chevron_left"
+          category="navigation"
+        />
+        <mat-svg
+          v-else
+          name="chevron_right"
+          category="navigation"
+        />
+      </UiIconButton>
+
+
+      <TableOfContentsSideBar
+        v-show="tocSideBarIsOpen"
+        :toc="toc"
+        class="side-bar side-bar-left"
+        @tocNavigation="handleTocNavigation"
       />
-    </UiIconButton>
-    <UiIconButton
-      type="secondary"
-      class="next-button"
-      @click="goToNextPage"
-    >
-      <mat-svg
-        v-if="isRtl"
-        name="chevron_left"
-        category="navigation"
+
+      <SettingsSideBar
+        v-show="settingsSideBarIsOpen"
+        class="side-bar side-bar-right"
+        :theme="theme"
+        :textAlignment="textAlignment"
+        @setFontSize="setFontSize"
+        @setTheme="setTheme"
+        @setTextAlignment="setTextAlignment"
       />
-      <mat-svg
-        v-else
-        name="chevron_right"
-        category="navigation"
+
+
+      <SearchSideBar
+        v-show="searchSideBarIsOpen"
+        ref="searchSideBar"
+        class="side-bar side-bar-right"
+        :book="book"
+        @newSearchQuery="handleNewSearchQuery"
+        @navigateToSearchResult="handleNavigateToSearchResult"
       />
-    </UiIconButton>
 
 
-    <TableOfContentsSideBar
-      v-show="tocSideBarIsOpen"
-      :toc="toc"
-      class="side-bar side-bar-left"
-      @tocNavigation="handleTocNavigation"
-    />
+      <div
+        ref="epubjsContainer"
+        class="epubjs-container"
+        :class="epubjsContainerClass"
+      >
+      </div>
 
-    <SettingsSideBar
-      v-show="settingsSideBarIsOpen"
-      class="side-bar side-bar-right"
-      :theme="theme"
-      :textAlignment="textAlignment"
-      @setFontSize="setFontSize"
-      @setTheme="setTheme"
-      @setTextAlignment="setTextAlignment"
-    />
-
-
-    <SearchSideBar
-      v-show="searchSideBarIsOpen"
-      ref="searchSideBar"
-      class="side-bar side-bar-right"
-      :book="book"
-      @newSearchQuery="handleNewSearchQuery"
-      @navigateToSearchResult="handleNavigateToSearchResult"
-    />
-
-
-    <div
-      ref="epubjsContainer"
-      class="epubjs-container"
-      :class="epubjsContainerClass"
-    >
+      <div class="slider-container">
+        {{ $tr('progress', { progress: progress / 100 }) }}
+        <input
+          class="slider"
+          type="range"
+          :min="sliderMin"
+          :max="sliderMax"
+          :step="sliderStep"
+          v-model.lazy="progress"
+        >
+      </div>
     </div>
   </core-fullscreen>
 
@@ -104,6 +124,7 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
+  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
 
   import UiIconButton from 'keen-ui/src/UiIconButton';
 
@@ -130,6 +151,7 @@
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
+      progress: `{progress, number, percent}`,
     },
     components: {
       UiIconButton,
@@ -138,10 +160,11 @@
       TableOfContentsSideBar,
       SettingsSideBar,
       SearchSideBar,
+      KLinearLoader,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
-      epubURL: 'http://localhost:8000/content/storage/epub2.epub',
+      epubURL: 'http://localhost:8000/content/storage/epub3.epub',
       book: null,
       rendition: null,
       toc: [],
@@ -154,6 +177,8 @@
       loaded: false,
       markInstance: null,
       searchQuery: null,
+      progress: 0,
+      locations: [],
     }),
     computed: {
       ...mapGetters(['sessionTimeSpent']),
@@ -227,6 +252,15 @@
             return null;
         }
       },
+      sliderMin() {
+        return 0;
+      },
+      sliderMax() {
+        return 100;
+      },
+      sliderStep() {
+        return 100 / this.locations.length;
+      },
     },
     watch: {
       themeStyle(newTheme) {
@@ -252,34 +286,48 @@
           this.rendition.resize(newWidth, 900);
         }
       },
+      progress(newProgress) {
+        const indexToJumpTo = Math.floor((this.locations.length - 1) * (newProgress / 100));
+        const locationToJumpTo = this.locations[indexToJumpTo];
+        this.rendition.display(locationToJumpTo);
+      },
     },
     beforeMount() {
       global.ePub = Epub;
       this.book = new Epub(this.epubURL);
     },
     mounted() {
-      this.book.ready.then(() => {
-        this.rendition = this.book.renderTo(this.$refs.epubjsContainer, {
-          manager,
-          view: iFrameView,
-          width: '100%',
-          height: '100%',
-        });
-        // width\ height
-        this.rendition.display().then(() => {
-          // Loaded
-          if (this.book.navigation) {
-            this.toc = this.book.navigation.toc;
-          }
-          // this.rendition.on('relocated', location => {
-          //   console.log('relocated:', location);
-          // });
-          this.rendition.on('resized', size => {
-            // console.log('resized', size);
+      this.book.ready
+        .then(() => {
+          this.rendition = this.book.renderTo(this.$refs.epubjsContainer, {
+            manager,
+            view: iFrameView,
+            width: 500,
+            height: 400,
           });
-          this.loaded = true;
+          // width\ height
+          this.rendition.display().then(() => {
+            // Loaded
+            if (this.book.navigation) {
+              this.toc = this.book.navigation.toc;
+            }
+
+            this.book.locations.generate().then(locations => {
+              this.locations = locations;
+              this.loaded = true;
+            });
+
+            // this.rendition.on('relocated', location => {
+            //   console.log('relocated:', location);
+            // });
+            this.rendition.on('resized', size => {
+              // console.log('resized', size);
+            });
+          });
+        })
+        .catch(error => {
+          console.log('error', error);
         });
-      });
     },
     beforeDestroy() {
       this.updateProgress();
@@ -457,20 +505,39 @@
   .previous-button,
   .next-button {
     position: absolute;
-    top: 50%;
+    top: 36px;
     z-index: 4;
-    transform: translateY(-50%);
-    left: 0;
-    height: 400px;
+    width: 64px;
+    height: 464px;
+    padding: 8px;
     border-radius: unset;
+    &.ui-icon-button {
+      &:hover {
+        background-color: unset;
+      }
+    }
   }
 
   .previous-button {
     left: 0;
+    text-align: left;
   }
 
   .next-button {
     right: 0;
+    text-align: right;
+  }
+
+  .slider-container {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 8px;
+  }
+
+  .slider {
+    width: 100%;
   }
 
 </style>
