@@ -93,16 +93,24 @@
       >
       </div>
 
-      <div class="slider-container">
-        {{ $tr('progress', { progress: progress / 100 }) }}
-        <input
-          class="slider"
-          type="range"
-          :min="sliderMin"
-          :max="sliderMax"
-          :step="sliderStep"
-          v-model.lazy="progress"
-        >
+      <div class="slider-container d-t">
+        <div class="d-t-r">
+
+          <p class="d-t-c">
+            {{ $tr('progress', { progress: progress / 100 }) }}
+          </p>
+          <div class="d-t-c max-width">
+            <input
+              class="slider"
+              type="range"
+              :min="sliderMin"
+              :max="sliderMax"
+              :step="sliderStep"
+              v-model.lazy="progress"
+            >
+          </div>
+        </div>
+
       </div>
     </div>
   </core-fullscreen>
@@ -356,6 +364,7 @@
         this.rendition.display(item.href);
       },
       goToNextPage() {
+        console.log(this.getNavItemByHref());
         this.rendition.next();
       },
       goToPreviousPage() {
@@ -413,6 +422,17 @@
       setTextAlignment(textAlignment) {
         this.textAlignment = textAlignment;
       },
+      getNavItemByHref() {
+        return (
+          (function flatten(arr) {
+            return [].concat(...arr.map(v => [v, ...flatten(v.subitems)]));
+          })(this.toc).filter(
+            item =>
+              this.book.canonical(item.href) ==
+              this.book.canonical(this.rendition.currentLocation().start.href)
+          )[0] || null
+        );
+      },
     },
   };
 
@@ -433,7 +453,7 @@
     position: absolute;
     top: 36px;
     right: 0;
-    bottom: 0;
+    bottom: 36px;
     left: 0;
     max-width: 1000px;
     height: 464px;
@@ -460,7 +480,7 @@
   .side-bar {
     position: absolute;
     top: 36px;
-    bottom: 0;
+    bottom: 36px;
   }
 
   .side-bar-left {
@@ -508,7 +528,7 @@
     top: 36px;
     z-index: 4;
     width: 64px;
-    height: 464px;
+    height: 424px;
     padding: 8px;
     border-radius: unset;
     &.ui-icon-button {
@@ -533,10 +553,27 @@
     right: 0;
     bottom: 0;
     left: 0;
+    height: 36px;
     padding: 8px;
   }
 
   .slider {
+    width: 100%;
+  }
+
+  .d-t {
+    display: table;
+  }
+
+  .d-t-r {
+    display: table-row;
+  }
+
+  .d-t-c {
+    display: table-cell;
+  }
+
+  .max-width {
     width: 100%;
   }
 
