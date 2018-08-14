@@ -1,7 +1,5 @@
 import { DeviceProvisionResource } from 'kolibri.resources';
 import { currentLanguage } from 'kolibri.utils.i18n';
-import findKey from 'lodash/findKey';
-import { permissionPresets } from '../constants';
 
 export default {
   state: {
@@ -12,7 +10,7 @@ export default {
       facility: {
         name: '',
       },
-      preset: findKey(permissionPresets, preset => preset.default) || '',
+      preset: 'nonformal',
       // Keys match schema of FacilityDatasetModel
       settings: {
         // Set in GuessAccessForm
