@@ -51,7 +51,8 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
+  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
@@ -85,14 +86,16 @@
       };
     },
     computed: {
-      ...mapState(['pageName', 'classId']),
+      ...mapState(['pageName', 'classId', 'reportRefreshInterval']),
+      ...mapGetters('exerciseDetail', [
+        'currentAttemptLog',
+        'currentInteraction',
+        'currentInteractionHistory',
+      ]),
       ...mapState('exerciseDetail', [
         'attemptLogs',
         'attemptLogIndex',
         'channelId',
-        'currentAttemptLog',
-        'currentInteraction',
-        'currentInteractionHistory',
         'exercise',
         'interactionIndex',
         'summaryLog',
@@ -117,7 +120,22 @@
         return null;
       },
     },
+    mounted() {
+      this.intervalId = setInterval(this.refreshReportData, this.reportRefreshInterval);
+    },
+    beforeDestroy() {
+      this.intervalId = clearInterval(this.intervalId);
+    },
     methods: {
+      // Data to do a proper refresh. See showExerciseDetailView for details.
+      refreshReportData() {
+        return this.$store.dispatch('exerciseDetail/setAttemptLogs', {
+          userId: this.user.id,
+          exercise: this.exercise,
+          shouldSetAttemptLogs: true,
+          isSamePage: samePageCheckGenerator(this.$store),
+        });
+      },
       navigateToNewAttempt(attemptLogIndex) {
         this.showCorrectAnswer = false;
         this.$router.push({
