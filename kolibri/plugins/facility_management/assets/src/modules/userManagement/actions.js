@@ -1,6 +1,7 @@
-import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
 import pickBy from 'lodash/pickBy';
 import { FacilityUserResource } from 'kolibri.resources';
+import CatchErrors from 'kolibri.utils.CatchErrors';
 import { _userState } from '../mappers';
 import { updateFacilityLevelRoles } from './utils';
 
@@ -59,7 +60,7 @@ export function createUser(store, stateUserData) {
  * @param {object} updates Optional Changes: full_name, username, password, and kind(role)
  */
 export function updateUser(store, { userId, updates }) {
-  store.commit('SET_ERROR', '');
+  setError(store, null);
   store.commit('SET_BUSY', true);
   const origUserState = store.state.facilityUsers.find(user => user.id === userId);
   const facilityRoleHasChanged = origUserState.kind !== updates.role.kind;
@@ -80,16 +81,22 @@ export function updateUser(store, { userId, updates }) {
       } else {
         update(updatedUser);
       }
+      store.dispatch('displayModal', false);
     },
     error => {
-      if (error.status.code === 400) {
-        store.commit('SET_ERROR', Object.values(error.entity)[0][0]);
-      } else if (error.status.code === 403) {
-        store.commit('SET_ERROR', error.entity);
-      }
       store.commit('SET_BUSY', false);
+      const errorsCaught = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
+      if (errorsCaught) {
+        setError(store, errorsCaught);
+      } else {
+        store.dispatch('handleApiError', error);
+      }
     }
   );
+}
+
+export function setError(store, error) {
+  store.commit('SET_ERROR', error);
 }
 
 // Update fields on the FacilityUser model

@@ -326,6 +326,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework_csv.renderers.CSVRenderer',
     ),
+    'EXCEPTION_HANDLER': 'kolibri.core.utils.custom_exception_handler',
 }
 
 # System warnings to disable
@@ -357,6 +358,3 @@ SESSION_COOKIE_NAME = "kolibri"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SESSION_COOKIE_AGE = 600
-
-# morango specific settings
-MORANGO_JSON_SERIALIZER_CLASS = "kolibri.core.auth.encoders"

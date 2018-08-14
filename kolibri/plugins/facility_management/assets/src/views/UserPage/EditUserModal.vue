@@ -8,14 +8,6 @@
     @submit="submitForm"
     @cancel="displayModal(false)"
   >
-    <UiAlert
-      v-if="error"
-      type="error"
-      :dismissible="false"
-    >
-      {{ error }}
-    </UiAlert>
-
     <KTextbox
       ref="name"
       type="text"
@@ -36,6 +28,7 @@
       :invalid="usernameIsInvalid"
       :invalidText="usernameIsInvalidText"
       @blur="usernameBlurred = true"
+      @input="setError(null)"
       v-model="newUsername"
     />
 
@@ -67,12 +60,11 @@
 <script>
 
   import { mapActions, mapState, mapGetters } from 'vuex';
-  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
   export default {
@@ -99,7 +91,6 @@
       KModal,
       KTextbox,
       KSelect,
-      UiAlert,
       KRadioButton,
     },
     props: {
@@ -174,6 +165,12 @@
           return false;
         }
 
+        if (this.error) {
+          if (this.error.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
+            return true;
+          }
+        }
+
         return this.facilityUsers.find(
           ({ username }) => username.toLowerCase() === this.newUsername.toLowerCase()
         );
@@ -212,7 +209,7 @@
       }
     },
     methods: {
-      ...mapActions('userManagement', ['updateUser', 'displayModal']),
+      ...mapActions('userManagement', ['updateUser', 'displayModal', 'setError']),
       submitForm() {
         const roleUpdate = {
           collection: this.currentFacilityId,
@@ -235,8 +232,6 @@
               full_name: this.newName,
               role: roleUpdate,
             },
-          }).then(() => {
-            this.displayModal(false);
           });
           if (
             this.currentUserId === this.id &&

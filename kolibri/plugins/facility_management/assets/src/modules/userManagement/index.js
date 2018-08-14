@@ -1,6 +1,6 @@
 import Vue from 'kolibri.lib.vue';
 import { displayModal, SET_ERROR, SET_MODAL, SET_BUSY } from '../shared';
-import { createUser, deleteUser, updateUser, updateFacilityUser } from './actions';
+import * as userManagementActions from './actions';
 
 function defaultState() {
   return {
@@ -40,11 +40,10 @@ export default {
       }
     },
   },
-  actions: {
-    displayModal,
-    createUser,
-    deleteUser,
-    updateUser,
-    updateFacilityUser,
-  },
+  actions: Object.assign(
+    {
+      displayModal,
+    },
+    userManagementActions
+  ),
 };

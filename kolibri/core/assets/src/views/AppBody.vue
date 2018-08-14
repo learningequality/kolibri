@@ -6,12 +6,16 @@
     <KLinearLoader
       v-if="loading"
       class="toolbar-loader"
-      :style="{ top: windowIsSmall ? '56px' : '64px' }"
+      :style="loaderPositionStyles"
       type="indeterminate"
       :delay="false"
     />
-    <div v-else class="wrapper">
-      <ErrorBox v-if="error" />
+
+    <div
+      v-else
+      :style="bodyPadding"
+      class="body-wrapper"
+    >
       <slot></slot>
     </div>
   </div>
@@ -24,12 +28,10 @@
   import { mapState } from 'vuex';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import ErrorBox from './ErrorBox';
 
   export default {
     name: 'AppBody',
     components: {
-      ErrorBox,
       KLinearLoader,
     },
     mixins: [responsiveWindow],
@@ -51,16 +53,24 @@
       ...mapState({
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
-        error: state => state.core.error,
       }),
-      padding() {
-        return this.windowIsSmall ? 16 : 32;
+      isMobile() {
+        return this.windowIsSmall;
       },
       contentStyle() {
         return {
           top: `${this.topGap}px`,
           bottom: `${this.bottomGap}px`,
-          padding: `${this.padding}px`,
+        };
+      },
+      loaderPositionStyles() {
+        return {
+          top: `${this.topGap}px`,
+        };
+      },
+      bodyPadding() {
+        return {
+          padding: `${this.isMobile ? 16 : 32}px`,
         };
       },
     },
@@ -78,7 +88,7 @@
     overflow-x: hidden;
   }
 
-  .wrapper {
+  .body-wrapper {
     max-width: 1000px;
     margin: auto;
   }

@@ -6,17 +6,15 @@
     immersivePageIcon="arrow_back"
     :immersivePageRoute="appBarBackLink"
     :immersivePagePrimary="true"
+    :authorized="isAdmin || isSuperuser"
+    :authorizationErrorDetails="$tr('adminOrSuperuser')"
   >
 
-    <div v-if="isAdmin || isSuperuser">
-      <div class="facility-management">
-        <!-- QUESTION should we explicitly define this in every page? -->
-        <TopNav v-if="!isEnrollmentPage" />
-        <component :is="currentPage" />
-      </div>
+    <div class="facility-management">
+      <!-- QUESTION should we explicitly define this in every page? -->
+      <TopNav v-if="!isEnrollmentPage" />
+      <component :is="currentPage" />
     </div>
-
-    <AuthMessage v-else :details="$tr('adminOrSuperuser')" />
 
   </CoreBase>
 
@@ -27,7 +25,6 @@
 
   import { mapState, mapGetters } from 'vuex';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
-  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
   import ClassEditPage from './ClassEditPage';
@@ -61,7 +58,6 @@
     name: 'FacilityIndex',
     components: {
       CoreBase,
-      AuthMessage,
       TopNav,
     },
     computed: {
