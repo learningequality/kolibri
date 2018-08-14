@@ -1,12 +1,14 @@
 import Vue from 'kolibri.lib.vue';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import * as getters from './getters';
+import * as actions from './actions';
 
 function defaultState() {
   return {
     attemptLogIndex: 0,
     attemptLogs: [],
     channelId: '',
+    channelRootId: '',
     contentScope: '',
     contentScopeId: '',
     contentScopeSummary: {},
@@ -15,6 +17,7 @@ function defaultState() {
     currentInteractionHistory: [],
     exercise: {},
     interactionIndex: 0,
+    lastActiveTime: null,
     showRecentOnly: undefined,
     sortColumn: '',
     sortOrder: '',
@@ -31,6 +34,7 @@ function defaultState() {
 export default {
   namespaced: true,
   state: defaultState(),
+  actions,
   getters,
   mutations: {
     SET_STATE(state, payload) {
@@ -49,8 +53,10 @@ export default {
     },
     SET_REPORT_PROPERTIES(state, payload) {
       Vue.set(state, 'channelId', payload.channelId);
+      Vue.set(state, 'channelRootId', payload.channelRootId);
       Vue.set(state, 'contentScope', payload.contentScope);
       Vue.set(state, 'contentScopeId', payload.contentScopeId);
+      Vue.set(state, 'lastActiveTime', payload.lastActiveTime);
       Vue.set(state, 'userScope', payload.userScope);
       Vue.set(state, 'userScopeId', payload.userScopeId);
       Vue.set(state, 'userScopeName', payload.userScopeName);

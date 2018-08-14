@@ -22,6 +22,7 @@ export default {
     pageName: '',
     toolbarRoute: {},
     toolbarTitle: '',
+    reportRefreshInterval: 30000,
   },
   mutations: {
     SET_PAGE_NAME(state, pageName) {

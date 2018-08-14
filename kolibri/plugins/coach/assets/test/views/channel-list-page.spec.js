@@ -36,17 +36,17 @@ describe('channel list page component', () => {
       tableData: [
         {
           title: 'recent_channel',
-          lastActive: new Date('2017-04-20T21:17:58.810Z'),
+          last_active: new Date('2017-04-20T21:17:58.810Z'),
           id: 'test1',
         },
         {
           title: 'not_recent_channel',
-          lastActive: new Date('2017-03-20T21:17:58.810Z'),
+          last_active: new Date('2017-03-20T21:17:58.810Z'),
           id: 'test2',
         },
         {
           title: 'null_channel',
-          lastActive: null,
+          last_active: null,
           id: 'test3',
         },
       ],
@@ -84,7 +84,7 @@ describe('channel list page component', () => {
       expect(headerText().text()).toEqual('Recent activity');
     });
 
-    it('hides channels that have null or not-recent activity', () => {
+    it('hides channels that have null or not-recent activity', async () => {
       const wrapper = makeWrapper({ store });
       const { channelRows } = getElements(wrapper);
       expect(channelRows().length).toEqual(1);

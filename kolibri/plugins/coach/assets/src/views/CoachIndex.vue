@@ -43,7 +43,7 @@
   import ExamReportDetailPage from './exams/CoachExamReport';
   import GroupsPage from './GroupsPage';
   import LearnerExerciseDetailPage from './reports/LearnerExerciseDetailPage';
-  import RecentItemsPage from './reports/RecentItemsPage';
+  import RecentItemsForChannelPage from './reports/RecentItemsForChannelPage';
   import ChannelListPage from './reports/ChannelListPage';
   import ItemListPage from './reports/ItemListPage';
   import LearnerListPage from './reports/LearnerListPage';
@@ -78,7 +78,7 @@
     [PageNames.CREATE_EXAM]: CreateExamPage,
     // reports
     [PageNames.RECENT_CHANNELS]: ChannelListPage,
-    [PageNames.RECENT_ITEMS_FOR_CHANNEL]: RecentItemsPage,
+    [PageNames.RECENT_ITEMS_FOR_CHANNEL]: RecentItemsForChannelPage,
     [PageNames.RECENT_LEARNERS_FOR_ITEM]: LearnerListPage,
     [PageNames.RECENT_LEARNER_ITEM_DETAILS]: LearnerExerciseDetailPage,
     [PageNames.TOPIC_CHANNELS]: ChannelListPage,
