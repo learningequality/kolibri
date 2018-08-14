@@ -103,6 +103,7 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import sumBy from 'lodash/sumBy';
@@ -139,7 +140,7 @@
       };
     },
     computed: {
-      ...mapState(['classId']),
+      ...mapState(['classId', 'reportRefreshInterval']),
       ...mapState('examReport', ['examTakers', 'exam', 'learnerGroups']),
       viewByGroupsIsDisabled() {
         return !this.learnerGroups.length || this.examTakers.every(learner => !learner.group.id);
@@ -179,8 +180,22 @@
         ];
       },
     },
+    mounted() {
+      this.intervalId = setInterval(this.refreshReportData, this.reportRefreshInterval);
+    },
+    beforeDestroy() {
+      this.intervalId = clearInterval(this.intervalId);
+    },
     methods: {
       ...mapActions('examReport', ['setExamsModal']),
+      // The data needed to do a proper refresh. See showExamReportPage for details
+      refreshReportData() {
+        return this.$store.dispatch('examReport/setTableData', {
+          examId: this.exam.id,
+          classId: this.classId,
+          isSamePage: samePageCheckGenerator(this.$store),
+        });
+      },
       handleSelection(optionSelected) {
         const action = optionSelected.label;
         if (action === this.$tr('previewExam')) {
