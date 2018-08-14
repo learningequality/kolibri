@@ -1,15 +1,16 @@
-Feature: Coach review of learner reports
-    Coach needs to be able to review progress reports for learners
+Feature: Class coach view
+    Class coaches need to be able to review the progress in class(es) they are assigned to, but not other classes in the facility.
 
   Background:
-    Given I am signed in to Kolibri as a facility coach
-      And there is a learner user <full_name> enrolled in class <class>
+    Given I am signed in to Kolibri as a class coach
+      And there is a learner user <full_name> enrolled in class <class> I am assigned to
       And there is a channel <channel> with topic <topic> that learner <full_name> has interacted with
 
   Scenario: Review progress of a particular student in a class
     When I open the sidebar
       And click on *Coach*
-    Then I see a list of all classes in the facility
+    Then I see a list of classes I am assigned to as a *Coach*
+      But I cannot see any other class in the facility
     When I click on the class <class>
     Then I see the *Learner reports* for class <class> on *Coach > Learners* page
       And I see the *Classes > '<class>' > Learners* breadcrumb

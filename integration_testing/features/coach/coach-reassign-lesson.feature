@@ -5,11 +5,11 @@ Feature: Coach reassign lessons
     Given there are 2 or more learner groups
       And I am signed in to Kolibri as a coach user
       And I am on the *Coach > Lessons* page
-      And I see the lesson <lesson_title>
+      And I see the lesson <lesson>
 
-  Scenario: Coach reassigns lesson
-    When I click the lesson title <lesson_title>
-    Then I see the <lesson_title> page
+  Scenario: Reassign lesson
+    When I click the lesson title <lesson>
+    Then I see the <lesson> page
     When I click *Options* button
       And I select *Edit details*
     Then I see the *Edit lesson details* modal
@@ -19,5 +19,5 @@ Feature: Coach reassign lessons
       And I see the change under *Recipients*
 
 Examples:
-| lesson_title |
+| lesson       |
 | Mathematics  |

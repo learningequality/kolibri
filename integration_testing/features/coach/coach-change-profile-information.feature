@@ -3,7 +3,7 @@ Feature: Coach change profile information
 
   Background:
     Given I am signed in to Kolibri as a coach user
-      And I am on the *User > Profile* page
+      And I am on my user *Profile* page
       And I have permission to edit my full name and username
 
   Scenario: Coach changes username and full name
