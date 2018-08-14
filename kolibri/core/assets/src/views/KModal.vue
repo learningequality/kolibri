@@ -16,7 +16,7 @@
         role="dialog"
         aria-labelledby="modal-title"
         :class="size"
-        :style="modalMaxSize"
+        :style="modalSizeStyles"
       >
 
         <!-- Modal Title -->
@@ -172,11 +172,17 @@
       };
     },
     computed: {
-      modalMaxSize() {
+      modalSizeStyles() {
         return {
-          'max-width': `${this.windowWidth - 32}px`,
+          'max-width': `${this.maxModalWidth - 32}px`,
           'max-height': `${this.windowHeight - 32}px`,
         };
+      },
+      maxModalWidth() {
+        if (this.windowWidth < 1000) {
+          return this.windowWidth;
+        }
+        return 1000;
       },
       contentSectionMaxHeight() {
         return { 'max-height': `${this.maxContentHeight}px` };

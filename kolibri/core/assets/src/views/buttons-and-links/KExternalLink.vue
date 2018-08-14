@@ -1,7 +1,13 @@
 <template>
 
   <!-- no extra whitespace inside link -->
-  <a :class="buttonClasses" :href="href">{{ text }}</a>
+  <a
+    :class="buttonClasses"
+    :href="href"
+    :download="download"
+  >
+    {{ text }}
+  </a>
 
 </template>
 
@@ -26,6 +32,13 @@
         required: true,
       },
       /**
+       * URL string
+       */
+      href: {
+        type: String,
+        required: true,
+      },
+      /**
        * Link appearance: 'raised-button', 'flat-button', or 'basic-link'
        */
       appearance: {
@@ -41,11 +54,11 @@
         default: false,
       },
       /**
-       * URL string
+       * Specifies that the file is meant to be downloaded, not displayed in a separate tab.
        */
-      href: {
+      download: {
         type: String,
-        required: true,
+        required: false,
       },
     },
   };

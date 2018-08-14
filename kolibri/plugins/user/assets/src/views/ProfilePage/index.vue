@@ -37,13 +37,6 @@
       >
         {{ $tr('success') }}
       </UiAlert>
-      <UiAlert
-        v-if="unknownError"
-        type="error"
-        :dismissible="false"
-      >
-        {{ errorMessage }}
-      </UiAlert>
 
       <KTextbox
         ref="name"
@@ -121,13 +114,12 @@
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { PermissionTypes, UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 
   export default {
     name: 'ProfilePage',
     $trs: {
-      genericError: 'Something went wrong',
       success: 'Profile details updated',
       username: 'Username',
       name: 'Full name',
@@ -186,7 +178,7 @@
       ...mapState({
         session: state => state.core.session,
       }),
-      ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success']),
+      ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success', 'profileErrors']),
       passwordModalVisible() {
         return this.passwordState.modal;
       },
@@ -260,16 +252,10 @@
         return Boolean(this.usernameIsInvalidText);
       },
       usernameAlreadyExists() {
-        return this.errorCode === 400;
-      },
-      unknownError() {
-        if (this.errorCode) {
-          return this.errorCode !== 400;
+        if (this.profileErrors) {
+          return this.profileErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
         }
         return false;
-      },
-      errorMessage() {
-        return this.$tr('genericError');
       },
       formIsValid() {
         return !this.usernameIsInvalid;

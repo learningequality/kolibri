@@ -40,7 +40,14 @@
       :topGap="headerHeight"
       :bottomGap="bottomMargin"
     >
-      <slot></slot>
+      <AuthMessage
+        v-if="notAuthorized"
+        :authorizedRole="authorizedRole"
+        :header="authorizationErrorHeader"
+        :details="authorizationErrorDetails"
+      />
+      <AppError v-else-if="error" />
+      <slot v-else></slot>
     </AppBody>
 
     <GlobalSnackbar />
@@ -56,6 +63,8 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import SideNav from 'kolibri.coreVue.components.SideNav';
+  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import AppError from './AppError';
   import AppBody from './AppBody';
   import GlobalSnackbar from './GlobalSnackbar';
   import ImmersiveToolbar from './ImmersiveToolbar';
@@ -69,8 +78,10 @@
     },
     components: {
       AppBar,
+      AppError,
       ImmersiveToolbar,
       SideNav,
+      AuthMessage,
       AppBody,
       GlobalSnackbar,
     },
@@ -90,6 +101,24 @@
       bottomMargin: {
         type: Number,
         default: 0,
+      },
+      // AUTHORIZATION SPECIFIC
+      authorized: {
+        type: Boolean,
+        required: false,
+        default: true,
+      },
+      authorizedRole: {
+        type: String,
+        required: false,
+      },
+      authorizationErrorHeader: {
+        type: String,
+        required: false,
+      },
+      authorizationErrorDetails: {
+        type: String,
+        required: false,
       },
       // IMMERSIVE-SPECIFIC
       immersivePage: {
@@ -122,7 +151,7 @@
         // Use arrow function to bind $tr to this component
         titleTemplate: title => {
           if (this.error) {
-            return this.$tr('errorPageTitle');
+            return this.$tr('kolibriTitleMessage', { title: this.$tr('errorPageTitle') });
           }
           if (!title) {
             // If no child component sets title, it reads 'Kolibri'
@@ -143,6 +172,13 @@
       },
       navWidth() {
         return this.headerHeight * 4;
+      },
+      notAuthorized() {
+        // catch "not authorized" error, display AuthMessage
+        if (this.error && this.error.code == 403) {
+          return true;
+        }
+        return !this.authorized;
       },
     },
   };
@@ -167,14 +203,6 @@
 
   .app-bar-actions {
     display: inline-block;
-  }
-
-  .content-container {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    padding-bottom: 40px;
-    overflow-x: hidden;
   }
 
 </style>

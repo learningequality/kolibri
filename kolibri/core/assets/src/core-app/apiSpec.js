@@ -91,6 +91,7 @@ import KCircularLoader from '../views/KCircularLoader';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
+import CatchErrors from '../utils/CatchErrors';
 import * as client from './client';
 import urls from './urls';
 
@@ -186,5 +187,6 @@ export default {
     i18n,
     navComponents,
     samePageCheckGenerator,
+    CatchErrors,
   },
 };
