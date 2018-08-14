@@ -53,6 +53,7 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import map from 'lodash/map';
@@ -78,7 +79,7 @@
       AssignmentSummary,
     },
     computed: {
-      ...mapState(['classId']),
+      ...mapState(['classId', 'reportRefreshInterval']),
       ...mapState('lessonSummary', {
         // IDEA refactor, make actions get all this information themselves.
         lessonId: state => state.currentLesson.id,
@@ -112,8 +113,21 @@
         return ContentNodeKinds.LESSON;
       },
     },
+    mounted() {
+      this.intervalId = setInterval(this.refreshReportData, this.reportRefreshInterval);
+    },
+    beforeDestroy() {
+      this.intervalId = clearInterval(this.intervalId);
+    },
     methods: {
-      ...mapActions('lessonSummary', ['setLessonsModal']),
+      ...mapActions('lessonSummary', ['setLessonsModal', 'setLessonReportTableData']),
+      // Data to do a proper refresh. See showLessonSummaryPage for details.
+      refreshReportData() {
+        return this.setLessonReportTableData({
+          lessonId: this.lessonId,
+          isSamePage: samePageCheckGenerator(this.$store),
+        });
+      },
       handleSelectOption({ action }) {
         this.setLessonsModal(action);
       },
