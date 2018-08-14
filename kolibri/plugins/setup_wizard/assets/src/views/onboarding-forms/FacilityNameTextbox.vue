@@ -21,7 +21,7 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
 
   export default {
-    name: 'FacilityNameForm',
+    name: 'FacilityNameTextbox',
     components: {
       KTextbox,
     },

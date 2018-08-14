@@ -12,8 +12,8 @@ function makeWrapper() {
     nonFormalRadioButton: () => wrapper.findAll({ name: 'KRadioButton' }).at(0),
     formalRadioButton: () => wrapper.findAll({ name: 'KRadioButton' }).at(1),
     personalRadioButton: () => wrapper.findAll({ name: 'KRadioButton' }).at(2),
-    nonFormalTextbox: () => wrapper.findAll({ name: 'FacilityNameForm' }).at(0),
-    formalTextbox: () => wrapper.findAll({ name: 'FacilityNameForm' }).at(1),
+    nonFormalTextbox: () => wrapper.findAll({ name: 'FacilityNameTextbox' }).at(0),
+    formalTextbox: () => wrapper.findAll({ name: 'FacilityNameTextbox' }).at(1),
   }
   const actions = {
     simulateSubmit: () => wrapper.find({ name: 'OnboardingForm' }).vm.$emit('submit'),

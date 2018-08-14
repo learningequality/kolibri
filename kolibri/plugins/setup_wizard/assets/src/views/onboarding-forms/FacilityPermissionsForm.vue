@@ -15,7 +15,7 @@
         :label="$tr('selfManagedSetupTitle')"
         :description="$tr('selfManagedSetupDescription')"
       />
-      <FacilityNameForm
+      <FacilityNameTextbox
         ref="facility-name-nonformal"
         class="facility-name-form"
         v-show="nonformalIsSelected"
@@ -28,7 +28,7 @@
         :label="$tr('adminManagedSetupTitle')"
         :description="$tr('adminManagedSetupDescription')"
       />
-      <FacilityNameForm
+      <FacilityNameTextbox
         ref="facility-name-formal"
         class="facility-name-form"
         v-show="formalIsSelected"
@@ -54,12 +54,12 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import OnboardingForm from './OnboardingForm';
-  import FacilityNameForm from './FacilityNameForm';
+  import FacilityNameTextbox from './FacilityNameTextbox';
 
   export default {
     name: 'FacilityPermissionsForm',
     components: {
-      FacilityNameForm,
+      FacilityNameTextbox,
       OnboardingForm,
       KRadioButton,
       KButton,
