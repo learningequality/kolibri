@@ -1,27 +1,26 @@
-Feature: Learner-change-language
-  Learner change language on login page
-  Learner change language after login from the user drop down menu
+Feature: Learner change language
+  Learner needs to be able to change language after login from the user menu and the sidebar
 
   Background:
-    Given I am on the *User > Sign in* page
+    Given that I am signed in to Kolibri as a learner user
 
-  Scenario: Learner change language on login page
-    When I click *More languages* button
-    Then I see list of languages
+  Scenario: Change language from the sidebar
+    When I open the sidebar from the top left icon
+      And I click *Change language* 
+    Then I see the *Change language* modal
     When I select <language>
      And I click *Confirm* button
-    Then I see Kolibri language changed
+    Then the modal closes
+      And I see Kolibri UI in <language> language
 
-  Scenario: Learner change language after login from the user drop down menu
-    When I sign in as Kolibri learner user
-     And I am on the *Learn > Classes* page
-     And I open the sidebar from the top left icon
-    Then I see change language button
-    When I click *Change language* button
-    Then I see list of languages
+  Scenario: Change language from the user menu
+    When I open the user menu
+      And I click *Change language*
+    Then I see the *Change language* modal
     When I select <language>
      And I click *Confirm* button
-    Then I see Kolibri language changed
+    Then the modal closes
+      And I see Kolibri UI in <language> language
 
 Examples:
   | language  |

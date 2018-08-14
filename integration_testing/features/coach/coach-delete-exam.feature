@@ -3,7 +3,7 @@ Feature: Coach delete exam
 
   Background:
   	Given I am signed in to Kolibri as coach user
-  		And  I am on *Coach > Exams* page
+  		And I am on *Coach > Exams* page
 
 	Scenario: Coach deletes the exam
 		When I click the exam <exam_name>

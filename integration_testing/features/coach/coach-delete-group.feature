@@ -1,10 +1,10 @@
 Feature: Coach delete group
-  Coach needs to delete a group if not needed anymore
+  Coach needs to delete a group that is not needed anymore
 
   Background:
     Given there are learners in the selected class
-      And there are groups created
-    Given I am signed in to Kolibri as a coach user
+      And there is at least one groups created and learners assigned to it
+      And I am signed in to Kolibri as a coach user
       And I am on the *Coach > Groups* page
 
   Scenario: Coach deletes the group

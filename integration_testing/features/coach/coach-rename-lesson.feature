@@ -10,13 +10,13 @@ Feature: Coach rename lesson
    When I click the lesson <lesson_title>
     Then I am on the <lesson_title> page
     When I click the *Options* button
-    When I select *Edit detials*
-    Then I see the *Edit detials* modal
+    When I select *Edit details*
+    Then I see the *Edit details* modal
     When I rename the *Title*
     When I click *Save* button
     Then the modal closes
 			And the snackbar notification appears
-			And I see the <lesson_title> was changed
+			And I see the <lesson_title> is changed
 
 Examples:
 | lesson_title          |
