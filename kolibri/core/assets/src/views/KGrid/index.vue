@@ -16,6 +16,7 @@
 
 </template>
 
+
 <script>
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
