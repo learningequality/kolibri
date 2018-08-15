@@ -8,42 +8,44 @@
       :kind="exercise.kind"
       :summaryLog="summaryLog"
     />
-    <AttemptLogList
-      slot="aside"
-      :attemptLogs="attemptLogsWithCoachContents"
-      :selectedQuestionNumber="attemptLogIndex"
-      @select="navigateToNewAttempt($event)"
-    />
-    <div slot="main" class="exercise-section">
-      <h3>{{ $tr('question', {questionNumber: currentAttemptLog.questionNumber}) }}</h3>
-      <KCheckbox
-        :label="$tr('showCorrectAnswerLabel')"
-        :checked="showCorrectAnswer"
-        @change="toggleShowCorrectAnswer"
+    <template v-if="attemptLogs.length > 0">
+      <AttemptLogList
+        slot="aside"
+        :attemptLogs="attemptLogsWithCoachContents"
+        :selectedQuestionNumber="attemptLogIndex"
+        @select="navigateToNewAttempt($event)"
       />
-      <InteractionList
-        v-if="!showCorrectAnswer"
-        :interactions="currentInteractionHistory"
-        :selectedInteractionIndex="interactionIndex"
-        @select="navigateToNewInteraction($event)"
-      />
-      <ContentRenderer
-        v-if="currentInteraction"
-        :id="exercise.id"
-        :itemId="currentAttemptLog.item"
-        :assessment="true"
-        :allowHints="false"
-        :kind="exercise.kind"
-        :files="exercise.files"
-        :contentId="exercise.content_id"
-        :channelId="channelId"
-        :available="exercise.available"
-        :answerState="answerState"
-        :showCorrectAnswer="showCorrectAnswer"
-        :interactive="false"
-        :extraFields="exercise.extra_fields"
-      />
-    </div>
+      <div slot="main" class="exercise-section">
+        <h3>{{ $tr('question', {questionNumber: currentAttemptLog.questionNumber}) }}</h3>
+        <KCheckbox
+          :label="$tr('showCorrectAnswerLabel')"
+          :checked="showCorrectAnswer"
+          @change="toggleShowCorrectAnswer"
+        />
+        <InteractionList
+          v-if="!showCorrectAnswer"
+          :interactions="currentInteractionHistory"
+          :selectedInteractionIndex="interactionIndex"
+          @select="navigateToNewInteraction($event)"
+        />
+        <ContentRenderer
+          v-if="currentInteraction"
+          :id="exercise.id"
+          :itemId="currentAttemptLog.item"
+          :assessment="true"
+          :allowHints="false"
+          :kind="exercise.kind"
+          :files="exercise.files"
+          :contentId="exercise.content_id"
+          :channelId="channelId"
+          :available="exercise.available"
+          :answerState="answerState"
+          :showCorrectAnswer="showCorrectAnswer"
+          :interactive="false"
+          :extraFields="exercise.extra_fields"
+        />
+      </div>
+    </template>
   </MultiPaneLayout>
 
 </template>
