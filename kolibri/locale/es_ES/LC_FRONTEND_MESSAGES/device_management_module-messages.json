@@ -92,7 +92,7 @@
     "channelTokenModal.networkErrorMessage": "No se ha podido conectar con el token",
     "channelTokenModal.tokenExplanation": "Tokens desbloquean acceso a los canales privados en Kolibri Studio",
     "welcomeModal.welcomeModalHeader": "¡Te damos la bienvenida a Kolibri!",
-    "welcomeModal.welcomeModalContentDescription": "La primera cosa que debes hacer es importar contenido desde esa pestaña.",
+    "welcomeModal.welcomeModalContentDescription": "La primera cosa que debes hacer es importar contenido desde esta misma pestaña.",
     "welcomeModal.welcomeModalPermissionsDescription": "La cuenta de administrador que creaste durante la instalación tiene permisos especiales para hacer esto. Para más detalles consultar la pestaña Permisos.",
     "welcomeModal.welcomeButtonDismissText": "Aceptar",
     "deviceInfoPage.header": "Información del dispositivo",

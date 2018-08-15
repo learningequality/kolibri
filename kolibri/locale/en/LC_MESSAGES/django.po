@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 17:34-0800\n"
+"POT-Creation-Date: 2018-08-14 15:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,49 +30,43 @@ msgstr ""
 msgid "Learner group"
 msgstr ""
 
-#: kolibri/auth/constants/role_kinds.py:12
-msgid "Admin"
-msgstr ""
-
-#: kolibri/auth/constants/role_kinds.py:13
-msgid "Coach"
-msgstr ""
-
-#: kolibri/auth/models.py:210
+#: kolibri/auth/models.py:227
 msgid "username"
 msgstr ""
 
-#: kolibri/auth/models.py:212
+#: kolibri/auth/models.py:229
 msgid "Required. 30 characters or fewer. Letters and digits only"
 msgstr ""
 
-#: kolibri/auth/models.py:216
+#: kolibri/auth/models.py:233
 msgid ""
 "Enter a valid username. This value can contain only letters, numbers, and "
 "underscores."
 msgstr ""
 
-#: kolibri/auth/models.py:220
+#: kolibri/auth/models.py:237
 msgid "full name"
 msgstr ""
 
-#: kolibri/auth/models.py:221
+#: kolibri/auth/models.py:238
 msgid "date joined"
 msgstr ""
 
-#: kolibri/auth/serializers.py:28 kolibri/auth/serializers.py:36
+#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
+#: kolibri/auth/serializers.py:43 kolibri/auth/serializers.py:48
+#: kolibri/auth/serializers.py:56
 msgid "An account with that username already exists"
 msgstr ""
 
-#: kolibri/content/api.py:74
+#: kolibri/content/api.py:93
 msgid "Content"
 msgstr ""
 
-#: kolibri/content/api.py:363
+#: kolibri/content/api.py:536
 msgid "The requested channel does not exist on the content server"
 msgstr ""
 
-#: kolibri/content/models.py:187
+#: kolibri/content/models.py:242
 msgid "Unknown format"
 msgstr ""
 
@@ -104,14 +98,14 @@ msgstr ""
 msgid "Device"
 msgstr ""
 
-#: kolibri/tasks/api.py:31
+#: kolibri/tasks/api.py:35
 msgid "There was a network error."
 msgstr ""
 
-#: kolibri/tasks/api.py:33
+#: kolibri/tasks/api.py:37
 msgid "There was a disk access error."
 msgstr ""
 
-#: kolibri/tasks/api.py:35
+#: kolibri/tasks/api.py:39
 msgid "There was an unknown error."
 msgstr ""
