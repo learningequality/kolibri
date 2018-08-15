@@ -37,9 +37,10 @@ class DeviceProvisionSerializer(serializers.Serializer):
     preset = serializers.ChoiceField(choices=choices)
     superuser = NoFacilityFacilityUserSerializer()
     language_id = serializers.CharField(max_length=15)
+    settings = serializers.JSONField()
 
     class Meta:
-        fields = ('facility', 'dataset', 'superuser', 'language_id')
+        fields = ('facility', 'dataset', 'superuser', 'language_id', 'settings',)
 
     def validate_language_id(self, language_id):
         """
@@ -64,6 +65,10 @@ class DeviceProvisionSerializer(serializers.Serializer):
             dataset_data = mappings[preset]
             for key, value in dataset_data.items():
                 setattr(facility.dataset, key, value)
+            # overwrite the settings in dataset_data with validated_data.settings
+            custom_settings = validated_data.pop('settings')
+            for key, value in custom_settings.items():
+                setattr(facility.dataset, key, value)
             facility.dataset.save()
             superuser_data = validated_data.pop('superuser')
             superuser_data['facility'] = facility
@@ -82,5 +87,6 @@ class DeviceProvisionSerializer(serializers.Serializer):
                 "facility": facility,
                 "preset": preset,
                 "superuser": superuser,
-                "language_id": language_id
+                "language_id": language_id,
+                "settings": custom_settings,
             }

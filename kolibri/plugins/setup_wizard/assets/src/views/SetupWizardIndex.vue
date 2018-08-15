@@ -43,10 +43,12 @@
   import ErrorPage from './submission-states/ErrorPage';
   import ProgressToolbar from './ProgressToolbar';
   import DefaultLanguageForm from './onboarding-forms/DefaultLanguageForm';
-  import FacilityNameForm from './onboarding-forms/FacilityNameForm';
   // Use the full path until we can figure out why module resolution isn't working on Travis
   import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm.vue';
   import FacilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
+  import GuestAccessForm from './onboarding-forms/GuestAccessForm';
+  import CreateLearnerAccountForm from './onboarding-forms/CreateLearnerAccountForm';
+  import RequirePasswordForLearnersForm from './onboarding-forms/RequirePasswordForLearnersForm';
 
   export default {
     name: 'SetupWizardIndex',
@@ -56,6 +58,7 @@
       onboardingNextStepButton: 'Continue',
       onboardingFinishButton: 'Finish',
       documentTitle: 'Setup Wizard',
+      personalFacilityName: 'Home Facility {name}',
     },
     metaInfo() {
       return {
@@ -64,7 +67,7 @@
     },
     data() {
       return {
-        totalOnboardingSteps: 4,
+        totalOnboardingSteps: 6,
       };
     },
     computed: {
@@ -74,10 +77,14 @@
           case 1:
             return DefaultLanguageForm;
           case 2:
-            return FacilityNameForm;
-          case 3:
             return FacilityPermissionsForm;
+          case 3:
+            return GuestAccessForm;
           case 4:
+            return CreateLearnerAccountForm;
+          case 5:
+            return RequirePasswordForLearnersForm;
+          case 6:
             return SuperuserCredentialsForm;
           default:
             return null;
@@ -100,7 +107,18 @@
       }),
       continueOnboarding() {
         if (this.isLastStep) {
-          this.provisionDevice(this.onboardingData);
+          if (this.onboardingData.preset === 'personal') {
+            this.provisionDevice({
+              ...this.onboardingData,
+              facility: {
+                name: this.$tr('personalFacilityName', {
+                  name: this.onboardingData.superuser.full_name,
+                }),
+              },
+            });
+          } else {
+            this.provisionDevice(this.onboardingData);
+          }
         } else {
           this.goToNextStep();
         }

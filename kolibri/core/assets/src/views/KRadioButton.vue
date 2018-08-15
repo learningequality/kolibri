@@ -40,6 +40,7 @@
       >
         {{ description }}
       </span>
+      <slot></slot>
     </span>
 
   </label>

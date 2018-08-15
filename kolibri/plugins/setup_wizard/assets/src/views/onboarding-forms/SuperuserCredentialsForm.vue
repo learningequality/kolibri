@@ -4,7 +4,7 @@
     :header="$tr('adminAccountCreationHeader')"
     :description="$tr('adminAccountCreationDescription')"
     :submitText="submitText"
-    @submit="setSuperuserCredentials"
+    @submit="submitSuperuserCredentials"
   >
 
     <KTextbox
@@ -49,7 +49,14 @@
       :invalidText="passwordConfirmErrorMessage"
       ref="passwordConfirm"
     />
-
+    <div slot="footer" class="reminder">
+      <div class="icon">
+        <mat-svg category="alert" name="warning" />
+      </div>
+      <p class="text">
+        {{ $tr('rememberThisAccountInformation') }}
+      </p>
+    </div>
   </OnboardingForm>
 
 </template>
@@ -69,13 +76,15 @@
       KTextbox,
     },
     $trs: {
-      adminAccountCreationHeader: 'Create your Admin account',
+      adminAccountCreationHeader: 'Create superuser account',
       adminAccountCreationDescription:
-        'This account allows you to manage your Facility and content on this device.',
+        'This account allows you to manage the facility, content, and user accounts on this device',
       adminNameFieldLabel: 'Full name',
       adminUsernameFieldLabel: 'Username',
       adminPasswordFieldLabel: 'Password',
       adminPasswordConfirmationFieldLabel: 'Enter password again',
+      rememberThisAccountInformation:
+        'Important: please remember this account information. Write it down if needed',
       // error messages
       nameFieldEmptyErrorMessage: 'Full name cannot be empty',
       usernameFieldEmptyErrorMessage: 'Username cannot be empty',
@@ -149,29 +158,31 @@
         return this.visitedFields.passwordConfirm && Boolean(this.passwordConfirmErrorMessage);
       },
       formIsValid() {
-        return (
-          !this.usernameIsInvalid &&
-          !this.passwordIsInvalid &&
-          !this.passwordConfirmIsInvalid &&
-          !this.facilityIsInvalid
-        );
+        return !this.usernameIsInvalid && !this.passwordIsInvalid && !this.passwordConfirmIsInvalid;
       },
+    },
+    beforeDestroy() {
+      // saves data if going backwards in wizard
+      this.saveSuperuserCredentials(false);
     },
     methods: {
       ...mapMutations({
-        submitSuperuserCredentials: 'SET_SU',
+        setSuperuser: 'SET_SU',
       }),
-      setSuperuserCredentials() {
+      saveSuperuserCredentials(final = true) {
+        this.setSuperuser({
+          name: this.name,
+          username: this.username,
+          // clear password if not finalizing wizard
+          password: final ? this.password : '',
+        });
+      },
+      submitSuperuserCredentials() {
         for (const field in this.visitedFields) {
           this.visitedFields[field] = true;
         }
-
         if (this.formIsValid) {
-          this.submitSuperuserCredentials({
-            name: this.name,
-            username: this.username,
-            password: this.password,
-          });
+          this.saveSuperuserCredentials();
           this.$emit('submit');
         } else if (this.nameIsInvalid) {
           this.$refs.name.focus();
@@ -189,4 +200,22 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .reminder {
+    display: table;
+
+    .icon {
+      display: table-cell;
+      width: 5%;
+      min-width: 32px;
+    }
+
+    .text {
+      display: table-cell;
+      width: 90%;
+      vertical-align: top;
+    }
+  }
+
+</style>

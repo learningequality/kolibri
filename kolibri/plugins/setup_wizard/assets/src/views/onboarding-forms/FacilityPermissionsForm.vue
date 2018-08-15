@@ -1,64 +1,12 @@
 <template>
 
   <div>
-
-    <!-- Cannot match spec with current core modal -->
-    <!-- Should be its own component -->
-    <KModal
-      v-if="permissionPresetDetailsModalShown"
-      :title=" $tr('facilityPermissionsPresetDetailsHeader')"
-      :submitText="$tr('permissionsModalDismissText')"
-      @cancel="hideFacilityPermissionsDetails"
-      @submit="hideFacilityPermissionsDetails"
-    >
-
-      <dl class="permission-preset-human">
-        <dt class="permission-preset-human-title">
-          {{ $tr('selfManagedSetupTitle') }}
-        </dt>
-        <dd class="permission-preset-human-detail">
-          {{ $tr('enabledUserSelfSignupPermissionDetail') }}
-        </dd>
-        <dd class="permission-preset-human-detail">
-          {{ $tr('enabledAccountEditPermissionDetail') }}
-        </dd>
-      </dl>
-
-      <dl class="permission-preset-human">
-        <dt class="permission-preset-human-title">
-          {{ $tr('adminManagedSetupTitle') }}
-        </dt>
-        <dd class="permission-preset-human-detail">
-          {{ $tr('disabledUserSelfSignupPermissionDetail') }}
-        </dd>
-        <dd class="permission-preset-human-detail">
-          {{ $tr('enabledUserPasswordlessLoginPermissionDetail') }}
-        </dd>
-        <dd class="permission-preset-human-detail">
-          {{ $tr('disabledAccountEditPermissionDetail') }}
-        </dd>
-      </dl>
-
-      <dl class="permission-preset-human">
-        <dt class="permission-preset-human-title">
-          {{ $tr('informalSetupTitle') }}
-        </dt>
-        <dd class="permission-preset-human-detail">
-          {{ $tr('disabledUserSelfSignupPermissionDetail') }}
-        </dd>
-        <dd class="permission-preset-human-detail">
-          {{ $tr('enabledAccountEditPermissionDetail') }}
-        </dd>
-      </dl>
-    </KModal>
-
     <OnboardingForm
       :header="$tr('facilityPermissionsSetupFormHeader')"
       :description="$tr('facilityPermissionsSetupFormDescription')"
       :submitText="submitText"
       @submit="setPermissions"
     >
-
       <KRadioButton
         ref="first-button"
         class="permission-preset-radio-button"
@@ -66,6 +14,11 @@
         value="nonformal"
         :label="$tr('selfManagedSetupTitle')"
         :description="$tr('selfManagedSetupDescription')"
+      />
+      <FacilityNameTextbox
+        ref="facility-name-nonformal"
+        class="facility-name-form"
+        v-show="nonformalIsSelected"
       />
 
       <KRadioButton
@@ -75,6 +28,11 @@
         :label="$tr('adminManagedSetupTitle')"
         :description="$tr('adminManagedSetupDescription')"
       />
+      <FacilityNameTextbox
+        ref="facility-name-formal"
+        class="facility-name-form"
+        v-show="formalIsSelected"
+      />
 
       <KRadioButton
         class="permission-preset-radio-button"
@@ -83,17 +41,7 @@
         :label="$tr('informalSetupTitle')"
         :description="$tr('informalSetupDescription')"
       />
-
-      <KButton
-        slot="footer"
-        appearance="basic-link"
-        :text="$tr('facilityPermissionsPresetDetailsLink')"
-        @click="showFacilityPermissionsDetails"
-      />
-
-
     </OnboardingForm>
-
   </div>
 
 </template>
@@ -104,40 +52,32 @@
   import { mapMutations } from 'vuex';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KModal from 'kolibri.coreVue.components.KModal';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import OnboardingForm from './OnboardingForm';
+  import FacilityNameTextbox from './FacilityNameTextbox';
 
   export default {
     name: 'FacilityPermissionsForm',
     components: {
+      FacilityNameTextbox,
       OnboardingForm,
       KRadioButton,
       KButton,
-      KModal,
+      KTextbox,
     },
     $trs: {
-      facilityPermissionsSetupFormHeader: 'Choose a Facility setup',
+      facilityPermissionsSetupFormHeader: 'What kind of facility are you installing Kolibri in?',
       facilityPermissionsSetupFormDescription:
-        'How will you be using Kolibri? (You can customize these settings later)',
+        'A facility is the location where you are installing Kolibri, such as a school, training center, or a home.',
       facilityPermissionsPresetDetailsLink: 'More information about these settings',
-      facilityPermissionsPresetDetailsHeader: 'Facility setup details',
-      adminManagedSetupTitle: 'Admin-managed',
-      adminManagedSetupDescription: 'For schools and other formal learning contexts',
-      selfManagedSetupTitle: 'Self-managed',
+      adminManagedSetupTitle: 'Formal',
+      adminManagedSetupDescription: 'Schools and other formal learning contexts',
+      selfManagedSetupTitle: 'Non-formal',
       selfManagedSetupDescription:
-        'For libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
-      informalSetupTitle: 'Informal and personal use',
+        'Libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
+      informalSetupTitle: 'Personal',
       informalSetupDescription:
-        'For parent-child learning, homeschooling, or supplementary individual learning',
-      // IDEA This should be a dynamically generated component, based on mappings
-      permissionsModalDismissText: 'Close',
-      enabledUserAccountDeletionPermissionDetail: 'Guests can create their own accounts',
-      disabledUserAccountDeletionPermissionDetail: 'Admins must create all user accounts',
-      enabledAccountEditPermissionDetail: 'Users can edit their account information', //  QUESTION might be worth using select?
-      disabledAccountEditPermissionDetail: 'Users cannot edit their account information',
-      enabledUserPasswordlessLoginPermissionDetail: 'Users can sign in without their passwords',
-      enabledUserSelfSignupPermissionDetail: 'Guests can create their own accounts',
-      disabledUserSelfSignupPermissionDetail: 'Admins must create all user accounts',
+        'Homeschooling, supplementary individual learning, and other informal use',
     },
     props: {
       submitText: {
@@ -148,25 +88,61 @@
     data() {
       return {
         selectedPreset: this.$store.state.onboardingData.preset,
-        permissionPresetDetailsModalShown: false,
       };
     },
+    computed: {
+      formalIsSelected() {
+        return this.selectedPreset === 'formal';
+      },
+      nonformalIsSelected() {
+        return this.selectedPreset === 'nonformal';
+      },
+      submittedFacilityName() {
+        if (this.nonformalIsSelected) {
+          return this.$refs['facility-name-nonformal'].facilityName;
+        } else if (this.formalIsSelected) {
+          return this.$refs['facility-name-formal'].facilityName;
+        } else {
+          // Will be turned into a default "Home Facility {{ full name }}" after it is provided
+          // in SuperuserCredentialsForm
+          return '';
+        }
+      },
+      formIsValid() {
+        if (this.nonformalIsSelected || this.formalIsSelected) {
+          return this.submittedFacilityName !== '';
+        }
+        return true;
+      },
+    },
+    watch: {
+      selectedPreset() {
+        return this.$nextTick().then(() => {
+          this.focusOnTextbox();
+        });
+      },
+    },
     mounted() {
-      this.$refs['first-button'].focus();
+      this.focusOnTextbox();
     },
     methods: {
       ...mapMutations({
-        submitFacilityPermissions: 'SET_FACILITY_PRESET',
+        setFacilityPreset: 'SET_FACILITY_PRESET',
+        setFacilityName: 'SET_FACILITY_NAME',
       }),
+      focusOnTextbox() {
+        if (this.nonformalIsSelected) {
+          return this.$refs['facility-name-nonformal'].focus();
+        } else if (this.formalIsSelected) {
+          return this.$refs['facility-name-formal'].focus();
+        }
+      },
       setPermissions() {
-        this.submitFacilityPermissions(this.selectedPreset);
-        this.$emit('submit');
-      },
-      showFacilityPermissionsDetails() {
-        this.permissionPresetDetailsModalShown = true;
-      },
-      hideFacilityPermissionsDetails() {
-        this.permissionPresetDetailsModalShown = false;
+        if (this.formIsValid) {
+          this.setFacilityPreset(this.selectedPreset);
+          this.setFacilityName(this.submittedFacilityName);
+          this.$emit('submit');
+        }
       },
     },
   };
@@ -179,6 +155,10 @@
   @import '~kolibri.styles.definitions';
 
   $margin-of-radio-button-text: 32px;
+
+  .facility-name-form {
+    margin-left: 32px;
+  }
 
   .permission-preset {
     cursor: pointer;
