@@ -48,7 +48,10 @@
           <th>{{ $tr('serverTimezone') }}</th>
           <td>{{ deviceInfo.server_timezone }}</td>
         </tr>
-
+        <tr>
+          <th>{{ $tr('serverType') }}</th>
+          <td>{{ deviceInfo.server_type }}</td>
+        </tr>
       </table>
     </template>
 
@@ -89,6 +92,7 @@
       serverTime: 'Server time',
       formattedTime: '{datetime, time, long} on {datetime, date, long}',
       serverTimezone: 'Server timezone',
+      serverType: 'Server type',
     },
   };
 
