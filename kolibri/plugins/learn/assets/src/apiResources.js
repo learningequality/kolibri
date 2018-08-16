@@ -3,8 +3,10 @@ import { Resource } from 'kolibri.lib.apiResource';
 /**
  * Gets all of the Classrooms in which a Learner is enrolled
  *
- * To get Classrooms without assignments and progress:
- * LearnerClassroomResource.getCollection({ no_assignments: true }).fetch()
+ * @example To get Classrooms without assignments and progress:
+ * LearnerClassroomResource.fetchCollection({
+ *   getParams: { no_assignments: true },
+ * })
  */
 export const LearnerClassroomResource = new Resource({
   name: 'kolibri:learnplugin:learnerclassroom',

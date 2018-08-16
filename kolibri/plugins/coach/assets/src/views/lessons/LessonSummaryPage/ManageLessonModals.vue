@@ -68,11 +68,7 @@
     },
     computed: {
       ...mapState(['classId', 'classList', 'className']),
-      ...mapState({
-        currentLesson: state => state.pageState.currentLesson,
-        lessonsModalSet: state => state.pageState.lessonsModalSet,
-        learnerGroups: state => state.pageState.learnerGroups,
-      }),
+      ...mapState('lessonSummary', ['currentLesson', 'lessonsModalSet', 'learnerGroups']),
       AssignmentActions() {
         return AssignmentActions;
       },
@@ -81,7 +77,7 @@
       },
     },
     methods: {
-      ...mapActions([
+      ...mapActions('lessonSummary', [
         'setLessonsModal',
         'updateLessonStatus',
         'deleteLesson',

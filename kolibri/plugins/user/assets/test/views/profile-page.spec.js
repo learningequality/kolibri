@@ -7,8 +7,11 @@ ProfilePage.mixins = [];
 
 function makeWrapper() {
   const store = makeStore();
-  store.state.pageState.passwordState = {};
-  store.commit('SET_PROFILE_PASSWORD_MODAL', false);
+  store.commit('profile/SET_STATE', {
+    passwordState: {
+      modal: false,
+    },
+  });
   return mount(ProfilePage, {
     store,
   });

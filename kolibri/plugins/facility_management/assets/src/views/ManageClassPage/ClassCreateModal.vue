@@ -88,7 +88,7 @@
       },
     },
     methods: {
-      ...mapActions(['createClass', 'displayModal']),
+      ...mapActions('classManagement', ['createClass', 'displayModal']),
       createNewClass() {
         this.formSubmitted = true;
         if (this.formIsValid) {

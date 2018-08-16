@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    <PageHeader :title="$tr('channels')" class="visuallyhidden" />
+    <PageHeader
+      :title="$tr('channels')"
+      class="visuallyhidden"
+    />
     <ContentCardGroupGrid
       class="grid"
       :contents="channels"
@@ -37,9 +40,7 @@
       ContentCardGroupGrid,
     },
     computed: {
-      ...mapState({
-        channels: state => state.pageState.rootNodes,
-      }),
+      ...mapState('topicsRoot', { channels: 'rootNodes' }),
     },
     methods: {
       genChannelLink(channel_id) {

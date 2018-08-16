@@ -60,7 +60,6 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { standardDataTable } from '../../state/getters/reports';
   import { PageNames } from '../../constants';
   import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
   import HeaderCell from './table-cells/HeaderCell';
@@ -99,11 +98,9 @@
       documentTitleForLearnerChannels: 'Learners - All channels',
     },
     computed: {
+      ...mapGetters('reports', ['standardDataTable']),
+      ...mapState('reports', ['showRecentOnly']),
       ...mapState(['classId', 'pageName']),
-      ...mapState({
-        standardDataTable,
-        showRecentOnly: state => state.pageState.showRecentOnly,
-      }),
       ...mapGetters({
         channels: 'getChannels',
       }),

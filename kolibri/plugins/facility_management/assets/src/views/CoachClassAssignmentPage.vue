@@ -30,16 +30,15 @@
       ClassEnrollForm,
     },
     computed: {
-      ...mapState({
-        className: state => state.pageState.class.name,
-        facilityUsers: state => state.pageState.facilityUsers,
-        classUsers: state => state.pageState.classUsers,
-      }),
+      ...mapState('classAssignMembers', ['class', 'classUsers', 'facilityUsers']),
+      className() {
+        return this.class.name;
+      },
     },
     methods: {
-      ...mapActions(['assignCoachesToClass']),
+      ...mapActions('classAssignMembers', ['assignCoachesToClass']),
       assignCoaches(coaches) {
-        this.assignCoachesToClass(coaches).then(() => {
+        this.assignCoachesToClass({ classId: this.class.id, coaches }).then(() => {
           // do this in action?
           this.$router.push({ name: PageNames.CLASS_EDIT_MGMT_PAGE });
         });

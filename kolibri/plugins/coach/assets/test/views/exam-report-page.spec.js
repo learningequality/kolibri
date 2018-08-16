@@ -5,18 +5,16 @@ import makeStore from '../makeStore';
 function makeWrapper(options = {}) {
   const store = makeStore();
   store.state.classId = 'class_1';
-  store.state.pageState = {
+  store.commit('examReport/SET_STATE', {
     channelId: 'channel_1',
-    examTakers: [],
+    examTakers: options.examTakers || [],
     exam: {
       title: 'exam',
       question_count: 6,
     },
     learnerGroups: [],
-  };
-  if (options.examTakers) {
-    store.state.pageState.examTakers = options.examTakers;
-  }
+  });
+
   return mount(ExamReportPage, { ...options, store, stubs: ['KRouterLink', 'AssignmentSummary'] });
 }
 

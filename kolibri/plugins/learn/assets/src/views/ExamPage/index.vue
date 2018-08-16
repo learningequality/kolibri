@@ -138,15 +138,15 @@
     },
     computed: {
       ...mapState(['examAttemptLogs']),
-      ...mapState({
-        channelId: state => state.pageState.channelId,
-        exam: state => state.pageState.exam,
-        content: state => state.pageState.content,
-        itemId: state => state.pageState.itemId,
-        questionNumber: state => state.pageState.questionNumber,
-        currentAttempt: state => state.pageState.currentAttempt,
-        questionsAnswered: state => state.pageState.questionsAnswered,
-      }),
+      ...mapState('examViewer', [
+        'channelId',
+        'exam',
+        'content',
+        'itemId',
+        'questionNumber',
+        'currentAttempt',
+        'questionsAnswered',
+      ]),
       backPageLink() {
         return {
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
@@ -164,7 +164,7 @@
       },
     },
     methods: {
-      ...mapActions(['setAndSaveCurrentExamAttemptLog', 'closeExam']),
+      ...mapActions('examViewer', ['setAndSaveCurrentExamAttemptLog', 'closeExam']),
       checkAnswer() {
         if (this.$refs.contentRenderer) {
           return this.$refs.contentRenderer.checkAnswer();
@@ -191,23 +191,19 @@
             correct: answer.correct,
             timestamp: now(),
           });
+          const saveData = {
+            contentId: this.content.id,
+            itemId: this.itemId,
+            currentAttemptLog: attempt,
+            examId: this.exam.id,
+          };
           if (force) {
             // Cancel any pending debounce
             this.debouncedSetAndSaveCurrentExamAttemptLog.cancel();
             // Force the save now instead
-            return this.setAndSaveCurrentExamAttemptLog({
-              contentId: this.content.id,
-              itemId: this.itemId,
-              currentAttemptLog: attempt,
-              examId: this.exam.id,
-            });
+            return this.setAndSaveCurrentExamAttemptLog(saveData);
           } else {
-            return this.debouncedSetAndSaveCurrentExamAttemptLog({
-              contentId: this.content.id,
-              itemId: this.itemId,
-              currentAttemptLog: attempt,
-              examId: this.exam.id,
-            });
+            return this.debouncedSetAndSaveCurrentExamAttemptLog(saveData);
           }
         }
         return Promise.resolve();

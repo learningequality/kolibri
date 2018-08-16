@@ -33,11 +33,7 @@
     },
     computed: {
       ...mapState(['classId', 'pageName']),
-      ...mapState({
-        channelId: state => state.pageState.channelId,
-        exercise: state => state.pageState.exercise,
-        user: state => state.pageState.user,
-      }),
+      ...mapState('exerciseDetail', ['channelId', 'exercise', 'user']),
       documentTitle() {
         switch (this.pageName) {
           case PageNames.LEARNER_ITEM_DETAILS:
@@ -89,7 +85,12 @@
         return this.$tr('backPrompt', { backTitle: this.exercise.title });
       },
       parentTopic() {
-        return this.exercise.ancestors[this.exercise.ancestors.length - 1];
+        // Have to guard against exercise being {}. In showExerciseDetailView,
+        // exercise is being wiped out for some reason.
+        if (this.exercise.ancestors) {
+          return this.exercise.ancestors[this.exercise.ancestors.length - 1];
+        }
+        return { title: '' };
       },
     },
   };

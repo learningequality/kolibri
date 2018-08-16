@@ -1,6 +1,6 @@
 // include global styles
 require('purecss/build/base-min.css');
-require('../styles/font-NotoSans.scss');
+require('../styles/font-noto-sans.scss');
 require('../styles/main.scss');
 
 // Required to setup Keen UI, should be imported only once in your project

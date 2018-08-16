@@ -37,13 +37,6 @@
       >
         {{ $tr('success') }}
       </UiAlert>
-      <UiAlert
-        v-if="unknownError"
-        type="error"
-        :dismissible="false"
-      >
-        {{ errorMessage }}
-      </UiAlert>
 
       <KTextbox
         ref="name"
@@ -121,13 +114,12 @@
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { PermissionTypes, UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 
   export default {
     name: 'ProfilePage',
     $trs: {
-      genericError: 'Something went wrong',
       success: 'Profile details updated',
       username: 'Username',
       name: 'Full name',
@@ -184,13 +176,12 @@
         'userHasPermissions',
       ]),
       ...mapState({
-        backendErrorMessage: state => state.pageState.errorMessage,
-        busy: state => state.pageState.busy,
-        errorCode: state => state.pageState.errorCode,
-        passwordModalVisible: state => state.pageState.passwordState.modal,
         session: state => state.core.session,
-        success: state => state.pageState.success,
       }),
+      ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success', 'profileErrors']),
+      passwordModalVisible() {
+        return this.passwordState.modal;
+      },
       role() {
         if (this.getUserKind === UserKinds.ADMIN) {
           return this.$tr('isAdmin');
@@ -261,16 +252,10 @@
         return Boolean(this.usernameIsInvalidText);
       },
       usernameAlreadyExists() {
-        return this.errorCode === 400;
-      },
-      unknownError() {
-        if (this.errorCode) {
-          return this.errorCode !== 400;
+        if (this.profileErrors) {
+          return this.profileErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
         }
         return false;
-      },
-      errorMessage() {
-        return this.backendErrorMessage || this.$tr('genericError');
       },
       formIsValid() {
         return !this.usernameIsInvalid;
@@ -280,9 +265,10 @@
       this.fetchPoints();
     },
     methods: {
-      ...mapActions(['fetchPoints', 'updateUserProfile']),
-      ...mapMutations({
-        resetProfileState: 'RESET_PROFILE_STATE',
+      ...mapActions(['fetchPoints']),
+      ...mapActions('profile', ['updateUserProfile']),
+      ...mapMutations('profile', {
+        resetProfileState: 'RESET_STATE',
         setPasswordModalVisible: 'SET_PROFILE_PASSWORD_MODAL',
       }),
       submitEdits() {

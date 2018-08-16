@@ -124,9 +124,7 @@
       };
     },
     computed: {
-      ...mapState({
-        exams: state => state.pageState.exams,
-      }),
+      ...mapState('examsRoot', ['exams']),
       examIcon() {
         return ContentNodeKinds.EXAM;
       },

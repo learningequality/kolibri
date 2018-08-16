@@ -1,6 +1,6 @@
 import { jestMockResource } from 'testUtils'; // eslint-disable-line import/no-unresolved
 import { MembershipResource } from 'kolibri.resources';
-import prepareLearnApp from '../../src/state/prepareLearnApp';
+import { prepareLearnApp } from '../../src/modules/coreLearn/actions';
 import makeStore from '../makeStore';
 
 jestMockResource(MembershipResource);
@@ -8,7 +8,7 @@ jestMockResource(MembershipResource);
 describe('prepareLearnApp action', () => {
   let store;
 
-  const getMemberships = ({ state }) => state.learnAppState.memberships;
+  const getMemberships = ({ state }) => state.memberships;
   const setSessionUserId = userId => {
     store.state.core.session.user_id = userId;
   };

@@ -33,7 +33,7 @@
     <LanguageSwitcherModal
       v-if="showLanguageModal"
       @close="showLanguageModal = false"
-      class="modal"
+      class="ta-l"
     />
   </div>
 
@@ -47,7 +47,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import languageSwitcherMixin from './mixin';
-  import LanguageSwitcherModal from './LanguageSwitcherList';
+  import LanguageSwitcherModal from './LanguageSwitcherModal';
 
   export default {
     name: 'LanguageSwitcherList',
@@ -115,7 +115,7 @@
     margin-bottom: 8px;
   }
 
-  .modal {
+  .ta-l {
     text-align: left;
   }
 

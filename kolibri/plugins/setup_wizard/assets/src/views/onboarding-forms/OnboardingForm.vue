@@ -17,6 +17,10 @@
         <slot></slot>
       </fieldset>
 
+      <div class="form-footer">
+        <slot name="footer"></slot>
+      </div>
+
       <KButton
         class="onboarding-form-submit"
         :primary="true"
@@ -24,9 +28,6 @@
         :text="submitText"
       />
     </form>
-    <div class="form-footer">
-      <slot name="footer"></slot>
-    </div>
   </div>
 
 </template>
@@ -100,6 +101,7 @@
 
   .form-footer {
     margin-top: 24px;
+    margin: 24px 0;
   }
 
 </style>

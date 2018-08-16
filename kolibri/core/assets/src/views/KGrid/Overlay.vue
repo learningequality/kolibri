@@ -100,7 +100,7 @@
     top: 0;
     height: 100%;
     pointer-events: none;
-    background-color: #0064ff24;
+    background-color: rgba(0, 100, 255, 0.14);
   }
 
 </style>

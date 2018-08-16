@@ -6,15 +6,13 @@
       <h1 class="title-header">
         {{ currentClass.name }}
       </h1>
-      <UiIconButton
-        type="secondary"
-        color="primary"
-        class="edit-button"
+      <KButton
+        :text="$tr('renameButtonLabel')"
+        appearance="basic-link"
+        :primary="true"
         :ariaLabel="$tr('edit')"
         @click="displayModal(Modals.EDIT_CLASS_NAME)"
-      >
-        <mat-svg name="edit" category="image" />
-      </UiIconButton>
+      />
     </div>
 
     <p>{{ $tr('coachEnrollmentPageTitle') }}</p>
@@ -95,7 +93,6 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
@@ -119,6 +116,7 @@
       noUsersExist: 'No users in this class',
       edit: 'Edit class name',
       documentTitle: 'Edit Class',
+      renameButtonLabel: 'Edit',
     },
     metaInfo() {
       return {
@@ -129,7 +127,6 @@
       UserTable,
       ClassRenameModal,
       UserRemoveConfirmationModal,
-      UiIconButton,
       KGrid,
       KGridItem,
       KRouterLink,
@@ -142,13 +139,13 @@
       };
     },
     computed: {
-      ...mapState({
-        classLearners: state => state.pageState.classLearners,
-        classCoaches: state => state.pageState.classCoaches,
-        classes: state => state.pageState.classes,
-        currentClass: state => state.pageState.currentClass,
-        modalShown: state => state.pageState.modalShown,
-      }),
+      ...mapState('classEditManagement', [
+        'classCoaches',
+        'classLearners',
+        'classes',
+        'currentClass',
+        'modalShown',
+      ]),
       Modals() {
         return Modals;
       },
@@ -164,7 +161,11 @@
       },
     },
     methods: {
-      ...mapActions(['displayModal', 'removeClassLearner', 'removeClassCoach']),
+      ...mapActions('classEditManagement', [
+        'displayModal',
+        'removeClassLearner',
+        'removeClassCoach',
+      ]),
       confirmRemoval(user, removalAction) {
         this.userToBeRemoved = user;
         this.removalAction = removalAction;
@@ -182,6 +183,7 @@
 
   .title-header {
     display: inline-block;
+    margin-right: 8px;
   }
 
   .edit-button {

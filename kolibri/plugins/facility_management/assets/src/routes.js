@@ -1,14 +1,13 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from './constants';
 import {
-  showClassesPage,
-  showClassEditPage,
   showLearnerClassEnrollmentPage,
   showCoachClassAssignmentPage,
-} from './state/actions/class';
-import { showUserPage } from './state/actions/user';
-import { showDataPage } from './state/actions/data';
-import { showFacilityConfigPage } from './state/actions/facilityConfig';
+} from './modules/classAssignMembers/handlers';
+import { showFacilityConfigPage } from './modules/facilityConfig/handlers';
+import { showUserPage } from './modules/userManagement/handlers';
+import { showClassEditPage } from './modules/classEditManagement/handlers';
+import { showClassesPage } from './modules/classManagement/handlers';
 
 export default [
   {
@@ -50,7 +49,10 @@ export default [
     name: PageNames.DATA_EXPORT_PAGE,
     path: '/data',
     handler: () => {
-      showDataPage(store);
+      store.dispatch('preparePage', {
+        name: PageNames.DATA_EXPORT_PAGE,
+        isAsync: false,
+      });
     },
   },
   {

@@ -2,7 +2,7 @@
 
   <div>
     <template v-if="canManageContent">
-      <SelectTransferSourceModal v-if="wizardPageName!==''" />
+      <SelectTransferSourceModal :pageName="pageName" />
 
       <div>
         <TaskProgress
@@ -87,12 +87,11 @@
     },
     computed: {
       ...mapGetters(['canManageContent']),
-      ...mapState({
-        pageState: ({ pageState }) => pageState,
-        firstTask: ({ pageState }) => pageState.taskList[0],
-        tasksInQueue: ({ pageState }) => pageState.taskList.length > 0,
-        deviceHasChannels: ({ pageState }) => pageState.channelList.length > 0,
-        wizardPageName: ({ pageState }) => pageState.wizardState.pageName,
+      ...mapState('manageContent/wizard', ['pageName']),
+      ...mapState('manageContent', {
+        firstTask: state => state.taskList[0],
+        tasksInQueue: state => state.taskList.length > 0,
+        deviceHasChannels: state => state.channelList.length > 0,
       }),
     },
     watch: {
@@ -105,7 +104,7 @@
       },
     },
     methods: {
-      ...mapActions([
+      ...mapActions('manageContent', [
         'cancelTask',
         'refreshChannelList',
         'startImportWorkflow',

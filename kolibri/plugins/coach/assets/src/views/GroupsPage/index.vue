@@ -114,11 +114,7 @@
       };
     },
     computed: {
-      ...mapState({
-        classUsers: state => state.pageState.classUsers,
-        groupModalShown: state => state.pageState.groupModalShown,
-        groups: state => state.pageState.groups,
-      }),
+      ...mapState('groups', ['classUsers', 'groupModalShown', 'groups']),
       showCreateGroupModal() {
         return this.groupModalShown === GroupModals.CREATE_GROUP;
       },
@@ -148,7 +144,7 @@
       },
     },
     methods: {
-      ...mapActions(['displayModal']),
+      ...mapActions('groups', ['displayModal']),
       openCreateGroupModal() {
         this.displayModal(GroupModals.CREATE_GROUP);
       },

@@ -98,6 +98,13 @@ const NavComponentSections = {
   ACCOUNT: 'account',
 };
 
+const ERROR_CONSTANTS = {
+  USERNAME_ALREADY_EXISTS: 'USERNAME_ALREADY_EXISTS',
+  NOT_FOUND: 'NOT_FOUND',
+  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+  MISSING_PASSWORD: 'MISSING_PASSWORD',
+};
+
 export {
   UserKinds,
   ContentNodeKinds,
@@ -112,4 +119,5 @@ export {
   PermissionTypes,
   SIGNED_OUT_DUE_TO_INACTIVITY,
   NavComponentSections,
+  ERROR_CONSTANTS,
 };

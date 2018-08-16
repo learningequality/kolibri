@@ -1,11 +1,9 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants';
-import {
-  showCreateExamPage,
-  showExamReportDetailPage,
-  showExamReportPage,
-  showExamsPage,
-} from '../state/actions/exam';
+import { showCreateExamPage } from '../modules/examCreate/handlers';
+import { showExamReportDetailPage } from '../modules/examReportDetail/handlers';
+import { showExamReportPage } from '../modules/examReport/handlers';
+import { showExamsPage } from '../modules/examsRoot/handlers';
 
 export default [
   {

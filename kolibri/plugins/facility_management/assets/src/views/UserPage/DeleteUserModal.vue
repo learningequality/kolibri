@@ -52,7 +52,7 @@
       };
     },
     methods: {
-      ...mapActions(['deleteUser', 'displayModal']),
+      ...mapActions('userManagement', ['deleteUser', 'displayModal']),
       handleDeleteUser() {
         this.submitting = true;
         this.deleteUser(this.id);

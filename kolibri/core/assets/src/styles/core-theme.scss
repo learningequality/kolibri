@@ -2,7 +2,7 @@
   Define the (preferably limited) subset of values that can be overridden.
 */
 
-$core-font: 'NotoSans' 'sans-serif';
+$core-font: 'Noto Sans', sans-serif;
 
 $core-action-normal: #996189;
 $core-action-light: #e2d1e0;
@@ -20,7 +20,7 @@ $core-text-disabled: #dfdfdf;
 $core-bg-warning: #fff3e1;
 
 $core-text-error: #b93329;
-$core-bg-error: #fee9e7;
+$core-bg-error: #eeeeee;
 
 /* Status colors */
 $core-status-progress: #2196f3;

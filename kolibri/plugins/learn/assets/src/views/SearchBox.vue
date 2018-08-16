@@ -85,13 +85,11 @@
     },
     data() {
       return {
-        searchQuery: this.$store.state.pageState.searchTerm,
+        searchQuery: this.$store.state.search.searchTerm,
       };
     },
     computed: {
-      ...mapState({
-        searchTerm: state => state.pageState.searchTerm,
-      }),
+      ...mapState('search', ['searchTerm']),
     },
     watch: {
       searchTerm(val) {

@@ -59,6 +59,13 @@ def logout_view(request):
 def get_url_by_role(role, first_login):
     obj = next((hook for hook in RoleBasedRedirectHook().registered_hooks
                 if hook.role == role and hook.first_login == first_login), None)
+
+    if obj is None and first_login:
+        # If it is the first_login, do a fallback to find the non-first login behaviour when it is
+        # not available
+        obj = next((hook for hook in RoleBasedRedirectHook().registered_hooks
+                    if hook.role == role and hook.first_login is False), None)
+
     if obj:
         return obj.url
 

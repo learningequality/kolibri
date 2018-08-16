@@ -1,6 +1,6 @@
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import { ClassroomResource, ContentNodeResource, ExamResource } from 'kolibri.resources';
-import { showExamsPage } from '../src/state/actions/exam';
+import { showExamsPage } from '../src/modules/examsRoot/handlers';
 import makeStore from './makeStore';
 
 jestMockResource(ClassroomResource);
@@ -156,7 +156,7 @@ describe('showPage actions for coach exams section', () => {
       await showExamsPage(store, classId)._promise;
       expect(ClassroomResource.getCollection).toHaveBeenCalled();
       expect(ExamResource.getCollection).toHaveBeenCalledWith({ collection: classId });
-      expect(store.state.pageState).toMatchObject({
+      expect(store.state.examsRoot).toMatchObject({
         exams: fakeExamState,
         examsModalSet: false,
         busy: false,

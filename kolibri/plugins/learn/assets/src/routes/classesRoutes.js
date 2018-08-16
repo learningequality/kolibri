@@ -1,12 +1,10 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { ClassesPageNames } from '../constants';
-import {
-  showAllClassesPage,
-  showClassAssignmentsPage,
-  showLessonPlaylist,
-  showLessonResourceViewer,
-} from '../state/actions/classesActions';
-import { showExam, showExamReport } from '../state/actions/main';
+import { showLessonPlaylist, showLessonResourceViewer } from '../modules/lessonPlaylist/handlers';
+import { showClassAssignmentsPage } from '../modules/classAssignments/handlers';
+import { showAllClassesPage } from '../modules/classes/handlers';
+import { showExam } from '../modules/examViewer/handlers';
+import { showExamReport } from '../modules/examReportViewer/handlers';
 
 export default [
   {

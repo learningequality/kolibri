@@ -37,15 +37,18 @@
 
 <script>
 
-  import { mapActions, mapState } from 'vuex';
+  import { mapActions, mapState, mapMutations } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
   import ProgressToolbar from './ProgressToolbar';
-  import defaultLanguageForm from './onboarding-forms/DefaultLanguageForm';
-  import facilityNameForm from './onboarding-forms/FacilityNameForm';
-  import superuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm';
-  import facilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
+  import DefaultLanguageForm from './onboarding-forms/DefaultLanguageForm';
+  // Use the full path until we can figure out why module resolution isn't working on Travis
+  import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm.vue';
+  import FacilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
+  import GuestAccessForm from './onboarding-forms/GuestAccessForm';
+  import CreateLearnerAccountForm from './onboarding-forms/CreateLearnerAccountForm';
+  import RequirePasswordForLearnersForm from './onboarding-forms/RequirePasswordForLearnersForm';
 
   export default {
     name: 'SetupWizardIndex',
@@ -55,6 +58,7 @@
       onboardingNextStepButton: 'Continue',
       onboardingFinishButton: 'Finish',
       documentTitle: 'Setup Wizard',
+      personalFacilityName: 'Home Facility {name}',
     },
     metaInfo() {
       return {
@@ -63,7 +67,7 @@
     },
     data() {
       return {
-        totalOnboardingSteps: 4,
+        totalOnboardingSteps: 6,
       };
     },
     computed: {
@@ -71,13 +75,17 @@
       currentOnboardingForm() {
         switch (this.onboardingStep) {
           case 1:
-            return defaultLanguageForm;
+            return DefaultLanguageForm;
           case 2:
-            return facilityNameForm;
+            return FacilityPermissionsForm;
           case 3:
-            return facilityPermissionsForm;
+            return GuestAccessForm;
           case 4:
-            return superuserCredentialsForm;
+            return CreateLearnerAccountForm;
+          case 5:
+            return RequirePasswordForLearnersForm;
+          case 6:
+            return SuperuserCredentialsForm;
           default:
             return null;
         }
@@ -92,10 +100,25 @@
       },
     },
     methods: {
-      ...mapActions(['goToNextStep', 'goToPreviousStep', 'provisionDevice']),
+      ...mapActions(['provisionDevice']),
+      ...mapMutations({
+        goToNextStep: 'INCREMENT_ONBOARDING_STEP',
+        goToPreviousStep: 'DECREMENT_ONBOARDING_STEP',
+      }),
       continueOnboarding() {
         if (this.isLastStep) {
-          this.provisionDevice(this.onboardingData);
+          if (this.onboardingData.preset === 'personal') {
+            this.provisionDevice({
+              ...this.onboardingData,
+              facility: {
+                name: this.$tr('personalFacilityName', {
+                  name: this.onboardingData.superuser.full_name,
+                }),
+              },
+            });
+          } else {
+            this.provisionDevice(this.onboardingData);
+          }
         } else {
           this.goToNextStep();
         }

@@ -40,6 +40,7 @@ class DeviceProvisionTestCase(APITestCase):
         "learner_can_delete_account": True,
         "learner_can_login_with_no_password": False,
     }
+    settings = {}
 
     language_id = "en"
 
@@ -49,6 +50,7 @@ class DeviceProvisionTestCase(APITestCase):
             "superuser": self.superuser_data,
             "facility": self.facility_data,
             "preset": self.preset_data,
+            "settings": self.settings,
             "language_id": self.language_id,
         }
         response = self.client.post(reverse('deviceprovision'), data, format="json")
@@ -59,6 +61,7 @@ class DeviceProvisionTestCase(APITestCase):
             "superuser": self.superuser_data,
             "facility": self.facility_data,
             "preset": self.preset_data,
+            "settings": self.settings,
             "language_id": self.language_id,
         }
         self.client.post(reverse('deviceprovision'), data, format="json")
@@ -68,6 +71,7 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
+            "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
@@ -78,6 +82,7 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
+            "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
@@ -88,6 +93,7 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
+            "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
@@ -98,6 +104,7 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
+            "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
@@ -108,6 +115,7 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
+            "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
@@ -118,6 +126,7 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
+            "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
@@ -133,6 +142,7 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
+            "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
@@ -144,6 +154,7 @@ class DeviceProvisionTestCase(APITestCase):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
+            "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
         }

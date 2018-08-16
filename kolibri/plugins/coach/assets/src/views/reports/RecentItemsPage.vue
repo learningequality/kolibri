@@ -64,7 +64,6 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import ProgressBar from 'kolibri.coreVue.components.ProgressBar';
-  import { standardDataTable } from '../../state/getters/reports';
   import { PageNames } from '../../constants';
   import { TableColumns, RECENCY_THRESHOLD_IN_DAYS } from '../../constants/reportConstants';
   import Breadcrumbs from './Breadcrumbs';
@@ -104,12 +103,10 @@
       documentTitle: 'Recent',
     },
     computed: {
-      ...mapState(['classId', 'pageState']),
+      ...mapGetters('reports', ['standardDataTable']),
       ...mapGetters(['classMemberCount']),
-      ...mapState({
-        channelId: state => state.pageState.channelId,
-        standardDataTable,
-      }),
+      ...mapState('reports', ['channelId']),
+      ...mapState(['classId']),
       tableColumns() {
         return TableColumns;
       },

@@ -1,6 +1,8 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
-import { showSignInPage, showSignUpPage, showProfilePage } from './state/actions';
+import { showSignInPage } from './modules/signIn/handlers';
+import { showSignUpPage } from './modules/signUp/handlers';
+import { showProfilePage } from './modules/profile/handlers';
 import { PageNames } from './constants';
 
 export default [

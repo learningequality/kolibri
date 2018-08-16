@@ -62,3 +62,10 @@ export const ContentSources = {
   LOCAL_DRIVE: 'local',
   KOLIBRI_STUDIO: 'network',
 };
+
+export const pageNameToModuleMap = {
+  [PageNames.MANAGE_CONTENT_PAGE]: 'manageContent',
+  [PageNames.MANAGE_PERMISSIONS_PAGE]: 'managePermissions',
+  [PageNames.USER_PERMISSIONS_PAGE]: 'userPermissions',
+  [PageNames.DEVICE_INFO_PAGE]: 'deviceInfo',
+};

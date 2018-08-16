@@ -120,13 +120,16 @@
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scoped>
 
   @import '~purecss/build/grids-core.css';
   @import '~purecss/build/grids-units.css';
   @import './extra-units.css';
+  @import '~kolibri.styles.definitions';
+
+  /deep/ .pure-g,
+  /deep/ .pure-g [class*='pure-u'] {
+    font-family: $core-font;
+  }
 
 </style>
-
-
-<style lang="scss" scoped></style>

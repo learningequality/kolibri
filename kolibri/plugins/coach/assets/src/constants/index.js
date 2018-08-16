@@ -1,3 +1,5 @@
+import { LessonsPageNames } from './lessonsConstants';
+
 export const PageNames = {
   CLASS_LIST: 'CLASS_LIST',
   CLASS_ROOT: 'CLASS_ROOT',
@@ -62,4 +64,31 @@ export const GroupModals = {
   RENAME_GROUP: 'RENAME_GROUP',
   DELETE_GROUP: 'DELETE_GROUP',
   MOVE_LEARNERS: 'MOVE_LEARNERS',
+};
+
+export const pageNameToModuleMap = {
+  [PageNames.RECENT_CHANNELS]: 'reports',
+  [PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'reports',
+  [PageNames.RECENT_LEARNERS_FOR_ITEM]: 'reports',
+  [PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'exerciseDetail',
+  [PageNames.TOPIC_CHANNELS]: 'reports',
+  [PageNames.TOPIC_CHANNEL_ROOT]: 'reports',
+  [PageNames.TOPIC_ITEM_LIST]: 'reports',
+  [PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'reports',
+  [PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'exerciseDetail',
+  [PageNames.LEARNER_LIST]: 'reports',
+  [PageNames.LEARNER_CHANNELS]: 'reports',
+  [PageNames.LEARNER_CHANNEL_ROOT]: 'reports',
+  [PageNames.LEARNER_ITEM_LIST]: 'reports',
+  [PageNames.LEARNER_ITEM_DETAILS]: 'exerciseDetail',
+  [PageNames.EXAMS]: 'examsRoot',
+  [PageNames.CREATE_EXAM]: 'examCreate',
+  [PageNames.EXAM_REPORT]: 'examReport',
+  [PageNames.EXAM_REPORT_DETAIL]: 'examReportDetail',
+  [PageNames.GROUPS]: 'groups',
+  [LessonsPageNames.ROOT]: 'lessonsRoot',
+  [LessonsPageNames.RESOURCE_USER_SUMMARY]: 'lessonResourceUserSummary',
+  [LessonsPageNames.RESOURCE_USER_REPORT]: 'exerciseDetail',
+  // Omitting modules for resource selection and preview to prevent
+  // default module state resetting behavior.
 };

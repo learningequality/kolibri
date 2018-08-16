@@ -34,15 +34,12 @@
       };
     },
     computed: {
-      ...mapState({
-        ancestors: state => state.pageState.ancestors,
-        lessonId: state => state.pageState.currentLesson.id,
-        classId: state => state.classId,
-        contentList: state => state.pageState.contentList,
-      }),
+      ...mapState(['classId']),
+      ...mapState('lessonSummary', ['currentLesson']),
+      ...mapState('lessonSummary/resources', ['ancestors', 'contentList']),
       // TODO cleanup, classId and lessonId are included in these routes all of these routes
       routerParams() {
-        return { classId: this.classId, lessonId: this.lessonId };
+        return { classId: this.classId, lessonId: this.currentLesson.id };
       },
       selectionCrumbs() {
         // IDEA refactor router logic into actions

@@ -1,19 +1,21 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
-import { showClassListPage, shouldRedirectToClassRootPage } from '../state/actions/main';
-import { showGroupsPage } from '../state/actions/group';
+import { showClassListPage, shouldRedirectToClassRootPage } from '../modules/coreCoach/handlers';
+import { showGroupsPage } from '../modules/groups/handlers';
 import {
   showChannelListForReports,
-  showLearnerReportsForItem,
   showChannelRootReport,
   showItemListReports,
   showLearnerChannels,
-  showLearnerItemDetails,
   showLearnerList,
+  showLearnerReportsForItem,
   showRecentItemsForChannel,
+} from '../modules/reports/handlers';
+import {
   showRecentLearnerItemDetails,
   showTopicLearnerItemDetails,
-} from '../state/actions/reports';
+  showLearnerItemDetails,
+} from '../modules/exerciseDetail/handlers';
 import { PageNames } from '../constants';
 import examRoutes from './examRoutes';
 import lessonsRoutes from './lessonsRoutes';

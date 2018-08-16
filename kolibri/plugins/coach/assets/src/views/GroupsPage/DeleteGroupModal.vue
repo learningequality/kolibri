@@ -44,7 +44,7 @@
       },
     },
     methods: {
-      ...mapActions(['displayModal', 'deleteGroup']),
+      ...mapActions('groups', ['displayModal', 'deleteGroup']),
       close() {
         this.displayModal(false);
       },

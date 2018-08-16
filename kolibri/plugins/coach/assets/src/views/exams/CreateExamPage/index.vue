@@ -83,7 +83,7 @@
                 :numCoachContents="exercise.num_coach_contents"
                 :exerciseNumAssessments="exercise.numAssessments"
                 :selectedExercises="selectedExercises"
-                @addExercise="handleAddExercise"
+                @addExercise="handleAddExercise(exercise)"
                 @removeExercise="handleRemoveExercise"
               />
               <TopicRow
@@ -126,7 +126,9 @@
       :examQuestionSources="questionSources"
       :examSeed="seed"
       :examNumQuestions="inputNumQuestions"
+      :exerciseContentNodes="exerciseContentNodes"
       @randomize="randomize"
+      @close="setExamsModal(null)"
     />
 
   </div>
@@ -136,7 +138,8 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import uniqBy from 'lodash/uniqBy';
+  import { mapState, mapActions, mapMutations } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -151,17 +154,6 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import flatMap from 'lodash/flatMap';
   import { Modals as ExamModals } from '../../../constants/examConstants';
-  import {
-    goToTopic,
-    goToTopLevel,
-    createExamAndRoute,
-    addExercise,
-    addExercisesToExam,
-    removeExercisesFromExam,
-    removeExercise,
-    setExamsModal,
-    setSelectedExercises,
-  } from '../../../state/actions/exam';
   import PreviewNewExamModal from './PreviewNewExamModal';
   import ExerciseRow from './ExerciseRow';
   import TopicRow from './TopicRow';
@@ -227,13 +219,18 @@
     },
     computed: {
       ...mapState(['classId']),
-      ...mapState({
-        topic: state => state.pageState.topic,
-        subtopics: state => state.pageState.subtopics,
-        exercises: state => state.pageState.exercises,
-        selectedExercises: state => state.pageState.selectedExercises,
-        examsModalSet: state => state.pageState.examsModalSet,
-      }),
+      ...mapState('examCreate', [
+        'examsModalSet',
+        'exerciseContentNodes',
+        'exercises',
+        'selectedExercises',
+        'subtopics',
+        'topic',
+        'availableQuestions',
+      ]),
+      numCols() {
+        return this.windowSize.breakpoint > 3 ? 2 : 1;
+      },
       titleIsInvalidText() {
         if (this.titleBlurred || this.previewOrSubmissionAttempt) {
           if (this.inputTitle === '') {
@@ -245,15 +242,8 @@
       titleIsInvalid() {
         return Boolean(this.titleIsInvalidText);
       },
-      maxQuestionsFromSelection() {
-        // in case numAssestments is null, return 0
-        return this.selectedExercises.reduce(
-          (sum, exercise) => sum + (exercise.numAssessments || 0),
-          0
-        );
-      },
       numQuestExceedsSelection() {
-        return this.inputNumQuestions > this.maxQuestionsFromSelection;
+        return this.inputNumQuestions > this.availableQuestions;
       },
       exercisesAreSelected() {
         return this.selectedExercises.length > 0;
@@ -272,7 +262,7 @@
           if (this.exercisesAreSelected && this.numQuestExceedsSelection) {
             return this.$tr('numQuestionsExceed', {
               inputNumQuestions: this.inputNumQuestions,
-              maxQuestionsFromSelection: this.maxQuestionsFromSelection,
+              maxQuestionsFromSelection: this.availableQuestions,
             });
           }
         }
@@ -328,6 +318,9 @@
             !this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
         );
       },
+      uniqueSelectedExercises() {
+        return uniqBy(this.selectedExercises, 'content_id');
+      },
       someExercisesWithinCurrentTopicSelected() {
         return (
           !this.allExercisesWithinCurrentTopicSelected &&
@@ -340,14 +333,14 @@
       questionSources() {
         const questionSources = [];
         for (let i = 0; i < this.inputNumQuestions; i++) {
-          const questionSourcesIndex = i % this.selectedExercises.length;
+          const questionSourcesIndex = i % this.uniqueSelectedExercises.length;
           if (questionSources[questionSourcesIndex]) {
             questionSources[questionSourcesIndex].number_of_questions += 1;
           } else {
             questionSources.push({
-              exercise_id: this.selectedExercises[i].id,
+              exercise_id: this.uniqueSelectedExercises[i].id,
               number_of_questions: 1,
-              title: this.selectedExercises[i].title,
+              title: this.uniqueSelectedExercises[i].title,
             });
           }
         }
@@ -355,18 +348,20 @@
       },
     },
     methods: {
-      ...mapActions([
-        'createSnackbar',
-        'goToTopic',
-        'goToTopLevel',
-        'createExamAndRoute',
+      ...mapActions(['createSnackbar']),
+      ...mapActions('examCreate', [
         'addExercise',
         'addExercisesToExam',
-        'removeExercisesFromExam',
+        'createExamAndRoute',
+        'goToTopLevel',
+        'goToTopic',
         'removeExercise',
-        'setExamsModal',
+        'removeExercisesFromExam',
         'setSelectedExercises',
       ]),
+      ...mapMutations('examCreate', {
+        setExamsModal: 'SET_EXAMS_MODAL',
+      }),
       setDummyChannelId(id) {
         if (!this.dummyChannelId) {
           this.dummyChannelId = id;
@@ -472,28 +467,6 @@
       randomize() {
         this.seed = this.generateRandomSeed();
         this.setSelectedExercises(shuffle(this.selectedExercises));
-      },
-    },
-    vuex: {
-      getters: {
-        classId: state => state.classId,
-        topic: state => state.pageState.topic,
-        subtopics: state => state.pageState.subtopics,
-        exercises: state => state.pageState.exercises,
-        selectedExercises: state => state.pageState.selectedExercises,
-        examsModalSet: state => state.pageState.examsModalSet,
-      },
-      actions: {
-        goToTopic,
-        goToTopLevel,
-        createExamAndRoute,
-        addExercise,
-        addExercisesToExam,
-        removeExercisesFromExam,
-        removeExercise,
-        setExamsModal,
-        createSnackbar,
-        setSelectedExercises,
       },
     },
   };

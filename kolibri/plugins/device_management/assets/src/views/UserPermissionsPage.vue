@@ -89,7 +89,7 @@
     name: 'UserPermissionsPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle', { name: this.userFullName }),
+        title: this.$tr('documentTitle', { name: this.user.full_name }),
       };
     },
     components: {
@@ -109,12 +109,13 @@
     },
     computed: {
       ...mapGetters(['isSuperuser']),
+      ...mapState('userPermissions', ['user', 'permissions']),
       ...mapState({
-        user: ({ pageState }) => pageState.user,
-        userFullName: state => state.pageState.user.full_name,
-        permissions: ({ pageState }) => pageState.permissions,
-        isCurrentUser: ({ core, pageState }) => core.session.username === pageState.user.username,
+        currentUsername: state => state.core.session.username,
       }),
+      isCurrentUser() {
+        return this.currentUsername === this.user.username;
+      },
       superuserDisabled() {
         return this.uiBlocked || this.isCurrentUser;
       },
@@ -168,11 +169,12 @@
         this.permissions.can_manage_content || this.permissions.is_superuser;
     },
     methods: {
-      ...mapActions(['addOrUpdateUserPermissions']),
+      ...mapActions('userPermissions', ['addOrUpdateUserPermissions']),
       save() {
         this.uiBlocked = true;
         this.saveProgress = IN_PROGRESS;
         this.addOrUpdateUserPermissions({
+          userId: this.user.id,
           is_superuser: this.superuserChecked,
           can_manage_content: this.devicePermissionsChecked,
         })

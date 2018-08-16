@@ -63,16 +63,16 @@
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
-  import channelsPage from './ChannelsPage';
-  import topicsPage from './TopicsPage';
-  import contentPage from './ContentPage';
-  import recommendedPage from './RecommendedPage';
-  import recommendedSubpage from './RecommendedSubpage';
-  import contentUnavailablePage from './ContentUnavailablePage';
+  import ChannelsPage from './ChannelsPage';
+  import TopicsPage from './TopicsPage';
+  import ContentPage from './ContentPage';
+  import RecommendedPage from './RecommendedPage';
+  import RecommendedSubpage from './RecommendedSubpage';
+  import ContentUnavailablePage from './ContentUnavailablePage';
   import Breadcrumbs from './Breadcrumbs';
-  import searchPage from './SearchPage';
-  import examPage from './ExamPage';
-  import examReportViewer from './LearnExamReportViewer';
+  import SearchPage from './SearchPage';
+  import ExamPage from './ExamPage';
+  import ExamReportViewer from './LearnExamReportViewer';
   import TotalPoints from './TotalPoints';
   import AllClassesPage from './classes/AllClassesPage';
   import ClassAssignmentsPage from './classes/ClassAssignmentsPage';
@@ -83,15 +83,15 @@
   const BOTTOM_SPACED_RESERVED = 117;
 
   const pageNameToComponentMap = {
-    [PageNames.TOPICS_ROOT]: channelsPage,
-    [PageNames.TOPICS_CHANNEL]: topicsPage,
-    [PageNames.TOPICS_TOPIC]: topicsPage,
-    [PageNames.TOPICS_CONTENT]: contentPage,
-    [PageNames.RECOMMENDED]: recommendedPage,
-    [PageNames.CONTENT_UNAVAILABLE]: contentUnavailablePage,
-    [PageNames.SEARCH]: searchPage,
-    [ClassesPageNames.EXAM_VIEWER]: examPage,
-    [ClassesPageNames.EXAM_REPORT_VIEWER]: examReportViewer,
+    [PageNames.TOPICS_ROOT]: ChannelsPage,
+    [PageNames.TOPICS_CHANNEL]: TopicsPage,
+    [PageNames.TOPICS_TOPIC]: TopicsPage,
+    [PageNames.TOPICS_CONTENT]: ContentPage,
+    [PageNames.RECOMMENDED]: RecommendedPage,
+    [PageNames.CONTENT_UNAVAILABLE]: ContentUnavailablePage,
+    [PageNames.SEARCH]: SearchPage,
+    [ClassesPageNames.EXAM_VIEWER]: ExamPage,
+    [ClassesPageNames.EXAM_REPORT_VIEWER]: ExamReportViewer,
     [ClassesPageNames.ALL_CLASSES]: AllClassesPage,
     [ClassesPageNames.CLASS_ASSIGNMENTS]: ClassAssignmentsPage,
     [ClassesPageNames.LESSON_PLAYLIST]: LessonPlaylistPage,
@@ -123,12 +123,16 @@
     mixins: [responsiveWindow],
     computed: {
       ...mapGetters(['isUserLoggedIn']),
+      ...mapState('lessonPlaylist/resource', {
+        lessonContent: 'content',
+      }),
+      ...mapState('topicsTree', {
+        topicsTreeContent: 'content',
+      }),
+      ...mapState('examReportViewer', ['exam']),
       ...mapState({
-        memberships: state => state.learnAppState.memberships,
+        memberships: state => state.memberships,
         pageName: state => state.pageName,
-        searchTerm: state => state.pageState.searchTerm,
-        content: state => state.pageState.content,
-        exam: state => state.pageState.exam,
       }),
       topLevelPageName() {
         return TopLevelPageNames.LEARN;
@@ -138,15 +142,13 @@
       },
       currentPage() {
         if (RecommendedPages.includes(this.pageName)) {
-          return recommendedSubpage;
+          return RecommendedSubpage;
         }
         return pageNameToComponentMap[this.pageName] || null;
       },
       appBarTitle() {
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-          if (this.content) {
-            return this.content.title;
-          }
+          return this.lessonContent.title || '';
         } else if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
           if (this.exam) {
             return this.$tr('examReportTitle', {
@@ -217,10 +219,16 @@
         };
       },
       bottomSpaceReserved() {
-        const isContentPage =
+        let content;
+        if (
           this.pageName === PageNames.TOPICS_CONTENT ||
-          this.pageName === ClassesPageNames.LESSON_PLAYLIST;
-        const isAssessment = isContentPage && this.content && this.content.assessment;
+          this.pageName === PageNames.RECOMMENDED_CONTENT
+        ) {
+          content = this.topicsTreeContent;
+        } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          content = this.lessonContent;
+        }
+        const isAssessment = content && content.assessment;
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
       },

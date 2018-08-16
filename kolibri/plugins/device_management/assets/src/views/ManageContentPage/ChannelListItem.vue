@@ -17,7 +17,7 @@
     <template slot="header">
       <div>
         <h2 class="title" dir="auto">{{ channel.name }}</h2>
-        <UiIcon class="icon" v-if="!channel.public">
+        <UiIcon class="icon" v-if="isPrivateChannel">
           <mat-svg name="lock_open" category="action" />
         </UiIcon>
       </div>
@@ -126,8 +126,8 @@
       },
     },
     computed: {
-      ...mapGetters(['channelIsInstalled']),
-      ...mapState(['pageState']),
+      ...mapGetters('manageContent', ['channelIsInstalled']),
+      ...mapState('manageContent', ['taskList']),
       manageChannelActions() {
         return [
           {
@@ -149,6 +149,11 @@
       inManageMode() {
         return this.mode === Modes.MANAGE;
       },
+      isPrivateChannel() {
+        // This is only defined when entering a remote import workflow,
+        // so false !== undefined.
+        return this.channel.public === false;
+      },
       resourcesSizeText() {
         return bytesForHumans(this.channel.on_device_file_size);
       },
@@ -156,8 +161,7 @@
         return this.channel.thumbnail;
       },
       tasksInQueue() {
-        const { taskList = [] } = this.pageState;
-        return taskList.length > 0;
+        return this.taskList.length > 0;
       },
       versionNumber() {
         const installed = this.channelIsInstalled(this.channel.id);

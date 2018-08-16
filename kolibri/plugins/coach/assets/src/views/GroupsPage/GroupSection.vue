@@ -139,9 +139,7 @@
       return { selectedUsers: [] };
     },
     computed: {
-      ...mapState({
-        groupModalShown: state => state.pageState.groupModalShown,
-      }),
+      ...mapState('groups', ['groupModalShown']),
       sortedGroupUsers() {
         return sortBy(this.group.users, user => user.full_name.toLowerCase());
       },

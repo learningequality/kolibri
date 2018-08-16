@@ -4,9 +4,16 @@
 
     <AuthMessage
       v-if="noClassesExist"
-      :header="$tr('noAssignedClassesHeader')"
-      :details="$tr('noAssignedClassesDetails')"
-    />
+      :header="authMessageHeader"
+      :details="authMessageDetails"
+    >
+      <KExternalLink
+        slot="details"
+        v-if="isAdmin"
+        :text="$tr('noClassesDetailsForAdmin')"
+        href="/facility"
+      />
+    </AuthMessage>
 
     <template v-else>
       <section>
@@ -39,7 +46,7 @@
                 :to="learnerPageLink(classroom.id)"
               />
             </td>
-            <td :title="formattedCoachNamesTooltip(classroom)">
+            <td data-test="coach-names" :title="formattedCoachNamesTooltip(classroom)">
               {{ formattedCoachNames(classroom) }}
             </td>
             <td>{{ classroom.learner_count }}</td>
@@ -55,13 +62,14 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import orderBy from 'lodash/orderBy';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import { PageNames } from '../constants';
   import { filterAndSortUsers } from '../../../../facility_management/assets/src/userSearchUtils';
 
@@ -84,8 +92,10 @@
       CoreTable,
       ContentIcon,
       KRouterLink,
+      KExternalLink,
     },
     computed: {
+      ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
       ...mapState(['classList']),
       noClassesExist() {
         return this.classList.length === 0;
@@ -93,6 +103,26 @@
       CLASSROOM: () => ContentNodeKinds.CLASSROOM,
       sortedClasses() {
         return orderBy(this.classList, [classroom => classroom.name.toUpperCase()], ['asc']);
+      },
+      authMessageHeader() {
+        if (this.isClassCoach) {
+          return this.$tr('noAssignedClassesHeader');
+        }
+        if (this.isAdmin || this.isFacilityCoach) {
+          return this.$tr('noClassesInFacility');
+        }
+        return '';
+      },
+      authMessageDetails() {
+        if (this.isClassCoach) {
+          return this.$tr('noAssignedClassesDetails');
+        }
+        if (this.isAdmin) {
+          return this.$tr('noClassesDetailsForAdmin');
+        }
+        if (this.isFacilityCoach) {
+          return this.$tr('noClassesDetailsForFacilityCoach');
+        }
       },
     },
     methods: {
@@ -139,8 +169,11 @@
       tableCaption: 'List of classes',
       noAssignedClassesHeader: "You aren't assigned to any classes",
       noAssignedClassesDetails:
-        'To start coaching a class, please consult your Kolibri administrator',
+        'Please consult your Kolibri administrator to be assigned to a class',
+      noClassesDetailsForAdmin: 'Create a class and enroll learners',
+      noClassesDetailsForFacilityCoach: 'Please consult your Kolibri administrator',
       coachesColumnHeader: 'Coaches',
+      noClassesInFacility: 'There are no classes yet',
       learnerColumnHeader: 'Learners',
       classIconTableDescription: 'Class icon',
       twoCoachNames: '{name1}, {name2}',

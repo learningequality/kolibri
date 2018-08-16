@@ -70,9 +70,11 @@
     },
     computed: {
       ...mapState({
-        isCurrentUser: ({ core }) => username => core.session.username === username,
-        facilityUsers: ({ pageState }) => pageState.facilityUsers,
-        userPermissions: state => userid => state.pageState.permissions[userid],
+        isCurrentUser: state => username => state.core.session.username === username,
+      }),
+      ...mapState('managePermissions', {
+        facilityUsers: state => state.facilityUsers,
+        userPermissions: state => userid => state.permissions[userid],
       }),
       visibleUsers() {
         return filterAndSortUsers(this.facilityUsers, user =>

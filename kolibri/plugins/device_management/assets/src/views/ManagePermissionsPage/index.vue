@@ -51,9 +51,7 @@
     },
     computed: {
       ...mapGetters(['isSuperuser']),
-      ...mapState({
-        facilityUsers: state => state.pageState.facilityUsers,
-      }),
+      ...mapState('managePermissions', ['facilityUsers']),
     },
     $trs: {
       devicePermissionsHeader: 'Device permissions',
