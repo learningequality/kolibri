@@ -1,9 +1,15 @@
 <template>
 
-  <li class="toc-list-item">
+  <li
+    class="toc-list-item"
+    :class="{ 'toc-list-item-top-level': depth === 0 }"
+  >
+
     <KButton
       class="toc-list-item-button"
-      :text="section.label"
+      :class="{ 'toc-list-item-button-current': isCurrentSection }"
+      :text="section.label.trim()"
+      :id="sectionId"
       appearance="basic-link"
       @click="$emit('tocNavigation', section)"
     />
@@ -15,6 +21,7 @@
         v-for="(subsection, index) in section.subitems"
         :key="index"
         :section="subsection"
+        :currentSection="currentSection"
         :depth="depth + 1"
         @tocNavigation="emitTocNavigation"
       />
@@ -42,6 +49,22 @@
         type: Number,
         required: true,
       },
+      currentSection: {
+        type: Object,
+        required: false,
+      },
+    },
+    computed: {
+      isCurrentSection() {
+        if (this.currentSection) {
+          return this.currentSection.href === this.section.href;
+        }
+        return false;
+      },
+      sectionId() {
+        const sanitizedHref = this.section.href.replace(/\W/g, '_');
+        return `section_${sanitizedHref}`;
+      },
     },
     methods: {
       emitTocNavigation(section) {
@@ -55,7 +78,8 @@
 
 <style lang="scss" scoped>
 
-  @import './toc';
+  @import '~kolibri.styles.definitions';
+  @import './epub';
 
   .toc-list {
     @include toc-list;
@@ -63,12 +87,28 @@
 
   .toc-list-item {
     @include toc-list-item;
+
+    padding-left: 8px;
+    margin-bottom: 8px;
+  }
+
+  .toc-list-item-top-level {
+    padding-left: 0;
+  }
+
+  .toc-list-item-top-level:not(:last-child) {
+    padding-left: 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid $core-grey;
   }
 
   .toc-list-item-button {
-    display: inherit;
-    text-align: left;
-    white-space: normal;
+    @include epub-basic-link;
+  }
+
+  .toc-list-item-button-current {
+    font-weight: bold;
+    color: $core-action-normal;
   }
 
 </style>

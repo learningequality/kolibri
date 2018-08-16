@@ -5,11 +5,15 @@
     class="epub-renderer"
     @changeFullscreen="isInFullscreen = $event"
   >
-    <KLinearLoader
-      v-show="!loaded"
-      type="indeterminate"
-      :delay="false"
-    />
+    <div class="loading-screen">
+      <KCircularLoader
+        v-show="!loaded"
+        type="indeterminate"
+        :delay="false"
+      />
+      <p>{{ $tr('loadingBook') }}</p>
+    </div>
+
     <div v-show="loaded">
       <TopBar
         class="top-bar"
@@ -60,7 +64,9 @@
 
       <TableOfContentsSideBar
         v-show="tocSideBarIsOpen"
+        ref="tocSideBar"
         :toc="toc"
+        :currentSection="currentSection"
         class="side-bar side-bar-left"
         @tocNavigation="handleTocNavigation"
       />
@@ -90,28 +96,18 @@
         ref="epubjsContainer"
         class="epubjs-container"
         :class="epubjsContainerClass"
+        :style="{ 'backgroundColor': backgroundColor }"
       >
       </div>
 
-      <div class="slider-container d-t">
-        <div class="d-t-r">
+      <BottomBar
+        class="bottom-bar"
+        :heading="bottomBarHeading"
+        :sliderValue="sliderValue"
+        :sliderStep="sliderStep"
+        @sliderChanged="handleSliderChanged"
+      />
 
-          <p class="d-t-c">
-            {{ $tr('progress', { progress: progress / 100 }) }}
-          </p>
-          <div class="d-t-c max-width">
-            <input
-              class="slider"
-              type="range"
-              :min="sliderMin"
-              :max="sliderMax"
-              :step="sliderStep"
-              v-model.lazy="progress"
-            >
-          </div>
-        </div>
-
-      </div>
     </div>
   </core-fullscreen>
 
@@ -132,7 +128,7 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
-  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
 
   import UiIconButton from 'keen-ui/src/UiIconButton';
 
@@ -140,6 +136,7 @@
   import TableOfContentsSideBar from './TableOfContentsSideBar';
   import SettingsSideBar from './SettingsSideBar';
   import SearchSideBar from './SearchSideBar';
+  import BottomBar from './BottomBar';
 
   import { TEXT_ALIGNMENTS, THEMES } from './EPUB_RENDERER_CONSTANTS';
 
@@ -159,7 +156,7 @@
     $trs: {
       exitFullscreen: 'Exit fullscreen',
       enterFullscreen: 'Enter fullscreen',
-      progress: `{progress, number, percent}`,
+      loadingBook: 'Loading book',
     },
     components: {
       UiIconButton,
@@ -168,25 +165,33 @@
       TableOfContentsSideBar,
       SettingsSideBar,
       SearchSideBar,
-      KLinearLoader,
+      KCircularLoader,
+      BottomBar,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
-      epubURL: 'http://localhost:8000/content/storage/epub3.epub',
+      epubURL: 'http://localhost:8000/content/storage/epub12.epub',
+
       book: null,
       rendition: null,
       toc: [],
+      locations: [],
+      loaded: false,
+
       sideBarOpen: null,
       theme: THEMES.WHITE,
       textAlignment: TEXT_ALIGNMENTS.LEFT,
       fontSize: DEFAULT_FONT_SIZE,
+
       isInFullscreen: false,
-      totalPages: null,
-      loaded: false,
+
       markInstance: null,
+      currentSection: null,
       searchQuery: null,
+      sliderValue: 0,
+
       progress: 0,
-      locations: [],
+      totalPages: null,
     }),
     computed: {
       ...mapGetters(['sessionTimeSpent']),
@@ -227,10 +232,6 @@
           h6: {
             'font-size': '0.64em',
           },
-          // mark: {
-          //   'background-color': '#e2d1e0',
-          //   'font-weight': 'bold',
-          // },
         };
       },
       tocSideBarIsOpen() {
@@ -260,14 +261,18 @@
             return null;
         }
       },
-      sliderMin() {
-        return 0;
-      },
-      sliderMax() {
-        return 100;
+
+      bottomBarHeading() {
+        if (this.currentSection) {
+          return this.currentSection.label.trim();
+        }
+        return '';
       },
       sliderStep() {
-        return 100 / this.locations.length;
+        if (this.locations.length > 0) {
+          return Math.min(Math.max(100 / this.locations.length, 0.1), 100);
+        }
+        return 1;
       },
     },
     watch: {
@@ -278,10 +283,18 @@
           this.rendition.themes.select(themeName);
         }
       },
-      sideBarOpen(sidebar) {
-        if (sidebar === SIDE_BARS.SEARCH) {
+      sideBarOpen(newSideBar, oldSideBar) {
+        if (oldSideBar === SIDE_BARS.SEARCH) {
+          this.clearMarks();
+        }
+
+        if (newSideBar === SIDE_BARS.SEARCH) {
           this.$nextTick().then(() => this.$refs.searchSideBar.focusOnInput());
-          // this.highlightSearchQueryInEpub();
+          if (this.searchQuery) {
+            this.clearMarks().then(this.createMarks(this.searchQuery));
+          }
+        } else if (newSideBar === SIDE_BARS.TOC) {
+          this.$nextTick().then(() => this.$refs.tocSideBar.focusOnCurrentSection());
         }
       },
       elementHeight(newHeight) {
@@ -305,6 +318,7 @@
       this.book = new Epub(this.epubURL);
     },
     mounted() {
+      console.log('mounted');
       this.book.ready
         .then(() => {
           this.rendition = this.book.renderTo(this.$refs.epubjsContainer, {
@@ -314,23 +328,26 @@
             height: 400,
           });
           // width\ height
+          console.log('book is ready');
           this.rendition.display().then(() => {
+            console.log('book is displayed');
             // Loaded
             if (this.book.navigation) {
+              console.log(this.book.manifest, this.book.metadata);
               this.toc = this.book.navigation.toc;
             }
-
-            this.book.locations.generate().then(locations => {
+            console.log('gernating location');
+            this.book.locations.generate(1000).then(locations => {
+              console.log('locations');
               this.locations = locations;
               this.loaded = true;
             });
 
-            // this.rendition.on('relocated', location => {
-            //   console.log('relocated:', location);
-            // });
             this.rendition.on('resized', size => {
               // console.log('resized', size);
             });
+
+            this.rendition.on('relocated', location => this.relocatedHandler(location));
           });
         })
         .catch(error => {
@@ -345,6 +362,19 @@
       delete global.ePub;
     },
     methods: {
+      handleSliderChanged(newSliderValue) {
+        console.log(this.locations[this.locations.length - 1]);
+        const indexOfLocationToJumpTo = Math.floor(
+          (this.locations.length - 1) * (newSliderValue / 100)
+        );
+        const locationToJumpTo = this.locations[indexOfLocationToJumpTo];
+        this.rendition.display(locationToJumpTo);
+      },
+      relocatedHandler(location) {
+        this.sliderValue = location.start.percentage * 100;
+        this.updateCurrentSection(location.start);
+        console.log(location);
+      },
       handleTocToggle() {
         this.sideBarOpen === SIDE_BARS.TOC
           ? (this.sideBarOpen = null)
@@ -362,9 +392,9 @@
       },
       handleTocNavigation(item) {
         this.rendition.display(item.href);
+        this.sideBarOpen = null;
       },
       goToNextPage() {
-        console.log(this.getNavItemByHref());
         this.rendition.next();
       },
       goToPreviousPage() {
@@ -408,6 +438,7 @@
             this.$refs.epubjsContainer.querySelector('iframe').contentDocument.querySelector('body')
           );
           this.markInstance.mark(searchQuery, {
+            separateWordSearch: false,
             done: () => resolve(),
           });
         });
@@ -422,16 +453,33 @@
       setTextAlignment(textAlignment) {
         this.textAlignment = textAlignment;
       },
-      getNavItemByHref() {
-        return (
-          (function flatten(arr) {
-            return [].concat(...arr.map(v => [v, ...flatten(v.subitems)]));
-          })(this.toc).filter(
-            item =>
-              this.book.canonical(item.href) ==
-              this.book.canonical(this.rendition.currentLocation().start.href)
-          )[0] || null
-        );
+      flattenToc(toc) {
+        return [].concat(...toc.map(section => [section, ...this.flattenToc(section.subitems)]));
+      },
+
+      updateCurrentSection(currentLocationStart) {
+        this.currentSection = this.getCurrentSection(currentLocationStart);
+      },
+      getCurrentSection(currentLocationStart) {
+        const flatToc = this.flattenToc(this.toc);
+        let currentSection;
+        // console.log({ currentLocationStart });
+        if (currentLocationStart) {
+          const currentLocationHref = this.book.canonical(currentLocationStart.href);
+          // Exact match
+          currentSection = flatToc.filter(
+            item => this.book.canonical(item.href) === currentLocationHref
+          )[0];
+          // If no exact match try to find best match
+          if (!currentSection) {
+            console.log('guessing', currentLocationHref);
+            currentSection = flatToc.filter(item => {
+              console.log(this.book.canonical(item.href));
+              return this.book.canonical(item.href).split('#')[0] === currentLocationHref;
+            })[0];
+          }
+        }
+        return currentSection;
       },
     },
   };
@@ -444,9 +492,16 @@
   @import '~kolibri.styles.definitions';
 
   .epub-renderer {
-    position: relative;
-    // min-height: 400px;
-    height: 500px;
+    // position: relative;
+    // // min-height: 400px;
+    // height: 500px;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    background-color: $core-bg-light;
   }
 
   .epubjs-container {
@@ -463,11 +518,11 @@
   }
 
   .epubjs-container-push-right {
-    left: 250px;
+    // left: 250px;
   }
 
   .epubjs-container-push-left {
-    right: 250px;
+    // right: 250px;
   }
 
   .top-bar {
@@ -479,8 +534,8 @@
 
   .side-bar {
     position: absolute;
-    top: 36px;
-    bottom: 36px;
+    top: 38px;
+    bottom: 54px;
   }
 
   .side-bar-left {
@@ -548,33 +603,18 @@
     text-align: right;
   }
 
-  .slider-container {
+  .bottom-bar {
     position: absolute;
     right: 0;
     bottom: 0;
     left: 0;
-    height: 36px;
-    padding: 8px;
   }
 
-  .slider {
-    width: 100%;
-  }
-
-  .d-t {
-    display: table;
-  }
-
-  .d-t-r {
-    display: table-row;
-  }
-
-  .d-t-c {
-    display: table-cell;
-  }
-
-  .max-width {
-    width: 100%;
+  .loading-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
 </style>

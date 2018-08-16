@@ -151,7 +151,7 @@
 
   @import '~kolibri.styles.definitions';
 
-  @import './toc';
+  @import './epub';
 
   .toc-list {
     @include toc-list;

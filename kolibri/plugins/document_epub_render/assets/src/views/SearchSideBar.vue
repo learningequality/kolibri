@@ -66,13 +66,13 @@
         :key="index"
         class="search-results-list-item"
       >
-        <button
+        <KButton
           appearance="basic-link"
           class="search-results-list-item-button"
           @click="$emit('navigateToSearchResult', item)"
         >
           {{ item.excerpt }}
-        </button>
+        </KButton>
       </li>
     </ol>
   </SideBar>
@@ -192,6 +192,7 @@
       createMarks(searchQuery) {
         this.markInstance = new Mark(this.$refs.searchResultsList);
         this.markInstance.mark(searchQuery, {
+          separateWordSearch: false,
           done: () => {
             this.$emit('newSearchQuery', searchQuery);
             this.searchIsLoading = false;
@@ -215,6 +216,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+  @import './epub';
 
   .d-t {
     display: table;
@@ -242,22 +244,15 @@
   .search-results-list-item {
     padding-top: 8px;
     padding-bottom: 8px;
-  }
-
-  .search-results-list-item:not(:last-child) {
-    border-bottom: solid 1px $core-grey;
+    border-top: solid 1px $core-grey;
   }
 
   .search-results-list-item-button {
-    display: inherit;
-    padding: 0;
-    text-align: left;
-    word-break: break-word;
-    white-space: normal;
+    @include epub-basic-link;
   }
 
-  // /deep/ mark {
-  //   background-color: $core-action-light;
-  // }
+  p {
+    color: $core-text-annotation;
+  }
 
 </style>

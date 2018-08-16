@@ -2,7 +2,10 @@
 
   <SideBar>
     <nav>
-      <ul class="toc-list">
+      <ul
+        class="toc-list"
+        ref="tocList"
+      >
         <template
           v-for="(section, index) in toc"
         >
@@ -10,12 +13,9 @@
             :key="`toc-section-${index}`"
             :section="section"
             :depth="0"
+            :currentSection="currentSection"
             @tocNavigation="emitTocNavigation"
           />
-          <hr
-            v-if="index < toc.length - 1"
-            :key="`hr-${index}`"
-          >
         </template>
       </ul>
     </nav>
@@ -40,10 +40,24 @@
         type: Array,
         required: true,
       },
+      currentSection: {
+        type: Object,
+        required: false,
+      },
     },
     methods: {
       emitTocNavigation(section) {
         this.$emit('tocNavigation', section);
+      },
+      focusOnCurrentSection() {
+        if (this.currentSection && this.currentSection.href) {
+          const sanitizedHref = this.currentSection.href.replace(/\W/g, '_');
+          const sectionId = `#section_${sanitizedHref}`;
+          const currentSectionElement = this.$refs.tocList.querySelector(sectionId);
+          if (currentSectionElement) {
+            currentSectionElement.focus();
+          }
+        }
       },
     },
   };
@@ -53,7 +67,7 @@
 
 <style lang="scss" scoped>
 
-  @import './toc';
+  @import './epub';
 
   .toc-list {
     @include toc-list;
