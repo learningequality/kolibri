@@ -48,16 +48,22 @@ module.exports = function(locale) {
           resolve(() => require('intl/locale-data/jsonp/hi-IN.js'));
         });
       });
-    case 'ka':
+    case 'kn':
       return new Promise(function(resolve) {
-        require.ensure(['intl/locale-data/jsonp/ka.js'], function(require) {
-          resolve(() => require('intl/locale-data/jsonp/ka.js'));
+        require.ensure(['intl/locale-data/jsonp/kn.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/kn.js'));
         });
       });
     case 'mr':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/mr.js'], function(require) {
           resolve(() => require('intl/locale-data/jsonp/mr.js'));
+        });
+      });
+    case 'my':
+      return new Promise(function(resolve) {
+        require.ensure(['intl/locale-data/jsonp/my.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/my.js'));
         });
       });
     case 'nyn':
