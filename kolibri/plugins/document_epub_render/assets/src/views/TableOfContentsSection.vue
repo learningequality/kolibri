@@ -79,7 +79,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import './epub';
+  @import './EpubStyles';
 
   .toc-list {
     @include toc-list;

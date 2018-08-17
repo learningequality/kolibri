@@ -4,8 +4,8 @@
     <h3 class="bottom-bar-heading">{{ heading }}</h3>
     <div class="d-t">
       <div class="d-t-r">
-        <div class="d-t-c progress-container">
-          <div class="progress">
+        <div class="d-t-c bottom-bar-progress-container">
+          <div class="bottom-bar-progress">
             {{ $tr('progress', { progress: sliderValue / 100 }) }}
           </div>
         </div>
@@ -13,8 +13,8 @@
           <input
             class="full-width"
             type="range"
-            :min="sliderMin"
-            :max="sliderMax"
+            :min="0"
+            :max="100"
             :step="sliderStep"
             :value="sliderValue"
             @change="handleChange($event.target.value)"
@@ -49,23 +49,8 @@
         required: true,
       },
     },
-
-    computed: {
-      sliderMin() {
-        return 0;
-      },
-      sliderMax() {
-        return 100;
-      },
-    },
-    watch: {
-      sliderValue(newValue) {
-        console.log('sliderValue changed from parent to ', newValue);
-      },
-    },
     methods: {
       handleChange(newValue) {
-        console.log('user changed slider to', newValue);
         this.$emit('sliderChanged', Number(newValue));
       },
     },
@@ -77,7 +62,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import './epub';
+  @import './EpubStyles';
 
   .bottom-bar {
     height: 54px;
@@ -85,10 +70,6 @@
     font-size: smaller;
     background-color: $core-grey-200;
     box-shadow: $epub-box-shadow;
-  }
-
-  .slider {
-    width: 100%;
   }
 
   .bottom-bar-heading {
@@ -100,30 +81,30 @@
     white-space: nowrap;
   }
 
-  .d-t {
-    display: table;
-  }
-
-  .d-t-r {
-    display: table-row;
-  }
-
-  .d-t-c {
-    display: table-cell;
-  }
-
   .full-width {
     width: 100%;
   }
 
-  .progress-container {
+  .bottom-bar-progress-container {
     padding-right: 8px;
     margin: 0;
     vertical-align: middle;
   }
 
-  .progress {
+  .bottom-bar-progress {
     width: 35px;
+  }
+
+  .d-t {
+    @include d-t;
+  }
+
+  .d-t-r {
+    @include d-t-r;
+  }
+
+  .d-t-c {
+    @include d-t-c;
   }
 
 </style>

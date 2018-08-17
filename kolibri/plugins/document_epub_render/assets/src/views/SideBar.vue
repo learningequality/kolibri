@@ -19,7 +19,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import './epub';
+  @import './EpubStyles';
 
   .side-bar {
     z-index: 4;

@@ -15,6 +15,7 @@
         <UiIconButton
           type="secondary"
           buttonType="submit"
+          :disableRipple="true"
           class="d-tc"
         >
           <mat-svg
@@ -216,7 +217,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import './epub';
+  @import './EpubStyles';
 
   .d-t {
     display: table;

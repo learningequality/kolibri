@@ -5,14 +5,8 @@
     class="epub-renderer"
     @changeFullscreen="isInFullscreen = $event"
   >
-    <div class="loading-screen">
-      <KCircularLoader
-        v-show="!loaded"
-        type="indeterminate"
-        :delay="false"
-      />
-      <p>{{ $tr('loadingBook') }}</p>
-    </div>
+
+    <LoadingScreen v-show="!loaded" />
 
     <div v-show="loaded">
       <TopBar
@@ -24,43 +18,6 @@
         @searchClicked="handleSearchToggle"
         @fullscreenClicked="$refs.epubRenderer.toggleFullscreen()"
       />
-
-
-      <UiIconButton
-        class="previous-button"
-        type="secondary"
-        :disableRipple="true"
-        @click="goToPreviousPage"
-      >
-        <mat-svg
-          v-if="isRtl"
-          name="chevron_right"
-          category="navigation"
-        />
-        <mat-svg
-          v-else
-          name="chevron_left"
-          category="navigation"
-        />
-      </UiIconButton>
-      <UiIconButton
-        class="next-button"
-        type="secondary"
-        :disableRipple="true"
-        @click="goToNextPage"
-      >
-        <mat-svg
-          v-if="isRtl"
-          name="chevron_left"
-          category="navigation"
-        />
-        <mat-svg
-          v-else
-          name="chevron_right"
-          category="navigation"
-        />
-      </UiIconButton>
-
 
       <TableOfContentsSideBar
         v-show="tocSideBarIsOpen"
@@ -81,7 +38,6 @@
         @setTextAlignment="setTextAlignment"
       />
 
-
       <SearchSideBar
         v-show="searchSideBarIsOpen"
         ref="searchSideBar"
@@ -91,13 +47,32 @@
         @navigateToSearchResult="handleNavigateToSearchResult"
       />
 
-
-      <div
-        ref="epubjsContainer"
-        class="epubjs-container"
-        :class="epubjsContainerClass"
-        :style="{ 'backgroundColor': backgroundColor }"
-      >
+      <div class="navigation-and-epubjs">
+        <div class="navigation-button-container d-ib">
+          <PreviousButton
+            :style="navigationButtonsStyle"
+            @goToPreviousPage="goToPreviousPage"
+          />
+        </div>
+        <div
+          class="d-ib"
+          :style="{ width: `${elementWidth - 64 - 64}px`}"
+        >middle</div>
+        <div
+          v-show="4 === 0"
+          ref="epubjsContainer"
+          class="epubjs-container d-ib"
+          :class="epubjsContainerClass"
+          :style="{ 'backgroundColor': backgroundColor }"
+        >
+        </div>
+        <div class="navigation-button-container d-ib">
+          <NextButton
+            v-show="4 === 0"
+            :style="navigationButtonsStyle"
+            @goToNextPage="goToNextPage"
+          />
+        </div>
       </div>
 
       <BottomBar
@@ -107,7 +82,6 @@
         :sliderStep="sliderStep"
         @sliderChanged="handleSliderChanged"
       />
-
     </div>
   </core-fullscreen>
 
@@ -128,17 +102,17 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
 
-  import UiIconButton from 'keen-ui/src/UiIconButton';
-
+  import LoadingScreen from './LoadingScreen';
   import TopBar from './TopBar';
   import TableOfContentsSideBar from './TableOfContentsSideBar';
   import SettingsSideBar from './SettingsSideBar';
   import SearchSideBar from './SearchSideBar';
   import BottomBar from './BottomBar';
+  import PreviousButton from './PreviousButton';
+  import NextButton from './NextButton';
 
-  import { TEXT_ALIGNMENTS, THEMES } from './EPUB_RENDERER_CONSTANTS';
+  import { TEXT_ALIGNMENTS, THEMES } from './EpubConstants';
 
   const FONT_SIZE_INC = 2;
   const MIN_FONT_SIZE = 8;
@@ -159,18 +133,19 @@
       loadingBook: 'Loading book',
     },
     components: {
-      UiIconButton,
       CoreFullscreen,
       TopBar,
       TableOfContentsSideBar,
       SettingsSideBar,
       SearchSideBar,
-      KCircularLoader,
+      LoadingScreen,
       BottomBar,
+      PreviousButton,
+      NextButton,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
-      epubURL: 'http://localhost:8000/content/storage/epub12.epub',
+      epubURL: 'http://localhost:8000/content/storage/epub3.epub',
 
       book: null,
       rendition: null,
@@ -200,6 +175,11 @@
       },
       color() {
         return this.theme.textColor;
+      },
+      navigationButtonsStyle() {
+        return {
+          fill: [THEMES.BLACK, THEMES.GREY].includes(this.theme) ? 'white' : 'black',
+        };
       },
       themeStyle() {
         return {
@@ -274,6 +254,11 @@
         }
         return 1;
       },
+      navigationAndEpubjs() {
+        return {
+          height: `${this.elementHeight - 36 - 54}px`,
+        };
+      },
     },
     watch: {
       themeStyle(newTheme) {
@@ -299,18 +284,20 @@
       },
       elementHeight(newHeight) {
         if (this.loaded) {
-          this.rendition.resize(300, newHeight);
+          this.resizeRendition(this.elementWidth, newHeight);
+          // resize not working
         }
       },
       elementWidth(newWidth) {
         if (this.loaded) {
-          this.rendition.resize(newWidth, 900);
+          // resize not working
+          this.resizeRendition(newWidth, this.elementHeight);
         }
       },
       progress(newProgress) {
         const indexToJumpTo = Math.floor((this.locations.length - 1) * (newProgress / 100));
         const locationToJumpTo = this.locations[indexToJumpTo];
-        this.rendition.display(locationToJumpTo);
+        this.jumpToLocation(locationToJumpTo);
       },
     },
     beforeMount() {
@@ -324,8 +311,8 @@
           this.rendition = this.book.renderTo(this.$refs.epubjsContainer, {
             manager,
             view: iFrameView,
-            width: 500,
-            height: 400,
+            width: this.elementWidth - 64 - 64,
+            height: this.elementHeight - 36 - 54,
           });
           // width\ height
           console.log('book is ready');
@@ -362,13 +349,21 @@
       delete global.ePub;
     },
     methods: {
+      resizeRendition(width, height) {
+        if (width > 0 && height > 0) {
+          this.rendition.resize(width, height);
+        }
+      },
       handleSliderChanged(newSliderValue) {
         console.log(this.locations[this.locations.length - 1]);
         const indexOfLocationToJumpTo = Math.floor(
           (this.locations.length - 1) * (newSliderValue / 100)
         );
         const locationToJumpTo = this.locations[indexOfLocationToJumpTo];
-        this.rendition.display(locationToJumpTo);
+        this.jumpToLocation(locationToJumpTo);
+      },
+      jumpToLocation(locationToJumpTo) {
+        return this.rendition.display(locationToJumpTo);
       },
       relocatedHandler(location) {
         this.sliderValue = location.start.percentage * 100;
@@ -391,7 +386,7 @@
           : (this.sideBarOpen = SIDE_BARS.SETTINGS);
       },
       handleTocNavigation(item) {
-        this.rendition.display(item.href);
+        this.jumpToLocation(item.href);
         this.sideBarOpen = null;
       },
       goToNextPage() {
@@ -415,7 +410,7 @@
       },
       handleNavigateToSearchResult(searchResult) {
         this.clearMarks()
-          .then(() => this.rendition.display(searchResult.cfi))
+          .then(() => this.jumpToLocation(searchResult.cfi))
           .then(() => this.createMarks(this.searchQuery));
       },
       clearMarks() {
@@ -461,23 +456,13 @@
         this.currentSection = this.getCurrentSection(currentLocationStart);
       },
       getCurrentSection(currentLocationStart) {
-        const flatToc = this.flattenToc(this.toc);
         let currentSection;
-        // console.log({ currentLocationStart });
         if (currentLocationStart) {
+          const flatToc = this.flattenToc(this.toc);
           const currentLocationHref = this.book.canonical(currentLocationStart.href);
-          // Exact match
-          currentSection = flatToc.filter(
+          currentSection = flatToc.find(
             item => this.book.canonical(item.href) === currentLocationHref
-          )[0];
-          // If no exact match try to find best match
-          if (!currentSection) {
-            console.log('guessing', currentLocationHref);
-            currentSection = flatToc.filter(item => {
-              console.log(this.book.canonical(item.href));
-              return this.book.canonical(item.href).split('#')[0] === currentLocationHref;
-            })[0];
-          }
+          );
         }
         return currentSection;
       },
@@ -490,6 +475,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+  @import './EpubStyles';
 
   .epub-renderer {
     // position: relative;
@@ -505,16 +491,8 @@
   }
 
   .epubjs-container {
-    position: absolute;
-    top: 36px;
-    right: 0;
-    bottom: 36px;
-    left: 0;
     max-width: 1000px;
-    height: 464px;
-    margin: auto;
     background-color: #ffffff;
-    transition: left 0.2s ease;
   }
 
   .epubjs-container-push-right {
@@ -534,7 +512,7 @@
 
   .side-bar {
     position: absolute;
-    top: 38px;
+    top: 36px;
     bottom: 54px;
   }
 
@@ -577,32 +555,6 @@
     white-space: nowrap;
   }
 
-  .previous-button,
-  .next-button {
-    position: absolute;
-    top: 36px;
-    z-index: 4;
-    width: 64px;
-    height: 424px;
-    padding: 8px;
-    border-radius: unset;
-    &.ui-icon-button {
-      &:hover {
-        background-color: unset;
-      }
-    }
-  }
-
-  .previous-button {
-    left: 0;
-    text-align: left;
-  }
-
-  .next-button {
-    right: 0;
-    text-align: right;
-  }
-
   .bottom-bar {
     position: absolute;
     right: 0;
@@ -610,11 +562,38 @@
     left: 0;
   }
 
-  .loading-screen {
+  .d-t {
+    @include d-t;
+  }
+
+  .d-t-r {
+    @include d-t-r;
+  }
+
+  .d-t-c {
+    @include d-t-c;
+  }
+
+  .navigation-button-container {
+    width: 64px;
+  }
+
+  .navigation-and-epubjs {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 36px;
+    right: 0;
+    bottom: 54px;
+    left: 0;
+  }
+
+  .d-ib {
+    display: inline-block;
+    text-align: center;
+  }
+
+  .p-rel {
+    position: relative;
+    height: 100%;
   }
 
 </style>

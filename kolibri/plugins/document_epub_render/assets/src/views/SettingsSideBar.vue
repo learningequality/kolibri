@@ -91,7 +91,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import isEqual from 'lodash/isEqual';
-  import { TEXT_ALIGNMENTS, THEMES } from './EPUB_RENDERER_CONSTANTS';
+  import { TEXT_ALIGNMENTS, THEMES } from './EpubConstants';
   import SideBar from './SideBar';
 
   export default {
@@ -151,7 +151,7 @@
 
   @import '~kolibri.styles.definitions';
 
-  @import './epub';
+  @import './EpubStyles';
 
   .toc-list {
     @include toc-list;

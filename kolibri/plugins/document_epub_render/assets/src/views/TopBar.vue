@@ -9,6 +9,7 @@
       >
         <UiIconButton
           type="secondary"
+          :disableRipple="true"
           @click="$emit('tableOfContentsClicked')"
         >
           <mat-svg
@@ -31,6 +32,7 @@
       >
         <UiIconButton
           type="secondary"
+          :disableRipple="true"
           @click="$emit('settingsClicked')"
         >
           <mat-svg
@@ -40,6 +42,7 @@
         </UiIconButton>
         <UiIconButton
           type="secondary"
+          :disableRipple="true"
           @click="$emit('searchClicked')"
         >
           <mat-svg
@@ -50,6 +53,7 @@
 
         <UiIconButton
           type="secondary"
+          :disableRipple="true"
           @click="$emit('fullscreenClicked')"
         >
           <mat-svg
@@ -102,7 +106,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import './epub';
+  @import './EpubStyles';
 
   .top-bar {
     z-index: 4;

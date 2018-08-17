@@ -67,7 +67,7 @@
 
 <style lang="scss" scoped>
 
-  @import './epub';
+  @import './EpubStyles';
 
   .toc-list {
     @include toc-list;
