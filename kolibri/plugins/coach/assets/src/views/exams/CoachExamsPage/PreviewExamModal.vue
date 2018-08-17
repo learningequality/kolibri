@@ -23,44 +23,47 @@
           <strong>{{ $tr('numQuestions', { num: availableExamQuestionSources.length }) }}</strong>
           <slot name="randomize-button"></slot>
         </div>
-        <KGrid
-          class="exam-preview-container"
-          :style="{ maxHeight: `${maxHeight}px` }"
-        >
-          <KGridItem sizes="1, 3, 4">
-            <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
-              <k-grid-item size="1" cols="3" class="question-selector">
-                <div
-                  v-for="(exercise, exerciseIndex) in availableExamQuestionSources"
-                  :key="exerciseIndex"
+        <KGrid class="exam-preview-container">
+          <KGridItem
+            sizes="1, 3, 4"
+            :style="{ maxHeight: `${maxHeight}px` }"
+            class="o-y-auto"
+          >
+            <div
+              v-for="(exercise, exerciseIndex) in availableExamQuestionSources"
+              :key="exerciseIndex"
+            >
+              <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
+              <ol class="question-list">
+                <li
+                  class="question-list-item"
+                  v-for="(question, questionIndex) in
+                  getExerciseQuestions(exercise.exercise_id)"
+                  :key="questionIndex"
                 >
-                  <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
-                  <ol class="question-list">
-                    <li
-                      class="question-list-item"
-                      v-for="(question, questionIndex) in
-                      getExerciseQuestions(exercise.exercise_id)"
-                      :key="questionIndex"
-                    >
-                      <KButton
-                        @click="goToQuestion(question.itemId, exercise.exercise_id)"
-                        :primary="isSelected(question.itemId, exercise.exercise_id)"
-                        appearance="flat-button"
-                        :text="$tr(
-                          'question',
-                          { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
-                        )"
-                      />
-                      <CoachContentLabel
-                        class="coach-content-label"
-                        :value="numCoachContents(exercise)"
-                        :isTopic="false"
-                      />
-                    </li>
-                  </ol>
-                </div>
-          </k-grid-item></div></KGridItem>
-          <KGridItem sizes="3, 5, 8">
+                  <KButton
+                    @click="goToQuestion(question.itemId, exercise.exercise_id)"
+                    :primary="isSelected(question.itemId, exercise.exercise_id)"
+                    appearance="flat-button"
+                    :text="$tr(
+                      'question',
+                      { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
+                    )"
+                  />
+                  <CoachContentLabel
+                    class="coach-content-label"
+                    :value="numCoachContents(exercise)"
+                    :isTopic="false"
+                  />
+                </li>
+              </ol>
+            </div>
+          </KGridItem>
+          <KGridItem
+            sizes="3, 5, 8"
+            :style="{ maxHeight: `${maxHeight}px` }"
+            class="o-y-auto"
+          >
             <ContentRenderer
               v-if="content && itemId"
               ref="contentRenderer"
@@ -309,6 +312,10 @@
       width: 200px;
       height: 200px;
     }
+  }
+
+  .o-y-auto {
+    overflow-y: auto;
   }
 
 </style>
