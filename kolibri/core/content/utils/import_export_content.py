@@ -1,9 +1,21 @@
 from django.db.models import Sum
 from le_utils.constants import content_kinds
+from requests.exceptions import ConnectionError
+from requests.exceptions import HTTPError
+from requests.exceptions import Timeout
 
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.content_types_tools import renderable_contentnodes_q_filter
+
+try:
+    import OpenSSL
+    SSLERROR = OpenSSL.SSL.Error
+except ImportError:
+    import requests
+    SSLERROR = requests.exceptions.SSLError
+
+RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
 
 
 def get_files_to_transfer(channel_id, node_ids, exclude_node_ids, available, renderable_only=True):
@@ -65,6 +77,38 @@ def get_num_coach_contents(contentnode, filter_available=True):
             # coach content count has to be 1 since this is the last node in the tree
             return 1
     else:
-        # if this node is not marked as coach content, then all its descendants cannot be marked
-        # as coach content as well, which is made sure by content annotation at import time
-        return 0
+        return 1 if contentnode.coach_content else 0
+
+
+def retry_import(e, **kwargs):
+    """
+    When an exception occurs during channel/content import, if
+        * there is an Internet connection error or timeout error,
+          or HTTPError where the error code is one of the RETRY_STATUS_CODE,
+          return return True to retry the file transfer
+        * the file does not exist on the server or disk, skip the file and return False.
+          This only applies to content import not channel import.
+        * otherwise, raise the  exception.
+    return value:
+        * True - needs retry.
+        * False - file is skipped. Does not need retry.
+    """
+
+    skip_404 = kwargs.pop('skip_404')
+
+    if (
+            isinstance(e, ConnectionError) or
+            isinstance(e, Timeout) or
+            (isinstance(e, HTTPError) and e.response.status_code in RETRY_STATUS_CODE) or
+            (isinstance(e, SSLERROR) and 'decryption failed or bad record mac' in str(e))):
+        return True
+
+    elif (
+            skip_404 and
+            (
+                (isinstance(e, HTTPError) and e.response.status_code == 404) or
+                (isinstance(e, OSError) and e.errno == 2))):
+        return False
+
+    else:
+        raise e

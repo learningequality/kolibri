@@ -291,6 +291,26 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
     @detail_route(methods=['get'])
+    def descendants_assessments(self, request, **kwargs):
+        node = self.get_object(prefetch=False)
+        kind = self.request.query_params.get('descendant_kind', None)
+        descendants = node.get_descendants().filter(available=True).prefetch_related('assessmentmetadata')
+        if kind:
+            descendants = descendants.filter(kind=kind)
+
+        data = descendants.aggregate(Sum('assessmentmetadata__number_of_assessments'))['assessmentmetadata__number_of_assessments__sum'] or 0
+        return Response(data)
+
+    @list_route(methods=['get'])
+    def node_assessments(self, request):
+        ids = self.request.query_params.get('ids', '').split(',')
+        data = 0
+        if ids and ids[0]:
+            nodes = models.ContentNode.objects.filter(id__in=ids).prefetch_related('assessmentmetadata')
+            data = nodes.aggregate(Sum('assessmentmetadata__number_of_assessments'))['assessmentmetadata__number_of_assessments__sum'] or 0
+        return Response(data)
+
+    @detail_route(methods=['get'])
     def copies(self, request, pk=None):
         """
         Returns each nodes that has this content id, along with their ancestors.

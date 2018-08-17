@@ -226,6 +226,7 @@
         'selectedExercises',
         'subtopics',
         'topic',
+        'availableQuestions',
       ]),
       numCols() {
         return this.windowSize.breakpoint > 3 ? 2 : 1;
@@ -241,15 +242,8 @@
       titleIsInvalid() {
         return Boolean(this.titleIsInvalidText);
       },
-      maxQuestionsFromSelection() {
-        // in case numAssestments is null, return 0
-        return this.selectedExercises.reduce(
-          (sum, exercise) => sum + (exercise.numAssessments || 0),
-          0
-        );
-      },
       numQuestExceedsSelection() {
-        return this.inputNumQuestions > this.maxQuestionsFromSelection;
+        return this.inputNumQuestions > this.availableQuestions;
       },
       exercisesAreSelected() {
         return this.selectedExercises.length > 0;
@@ -268,7 +262,7 @@
           if (this.exercisesAreSelected && this.numQuestExceedsSelection) {
             return this.$tr('numQuestionsExceed', {
               inputNumQuestions: this.inputNumQuestions,
-              maxQuestionsFromSelection: this.maxQuestionsFromSelection,
+              maxQuestionsFromSelection: this.availableQuestions,
             });
           }
         }

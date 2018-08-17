@@ -4,8 +4,6 @@ from time import sleep
 
 import requests
 from django.core.management.base import CommandError
-from requests.exceptions import ConnectionError
-from requests.exceptions import HTTPError
 
 from ...utils import annotation
 from ...utils import import_export_content
@@ -17,7 +15,6 @@ from kolibri.utils import conf
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
-RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
 
 logger = logging.getLogger(__name__)
 
@@ -158,6 +155,9 @@ class Command(AsyncCommand):
                 while not finished:
                     finished, increment = self._start_file_transfer(
                         f, filetransfer, overall_progress_update)
+                    if self.is_cancelled():
+                        self.cancel()
+                        break
                     if increment == 2:
                         file_checksums_to_annotate.append(f.id)
                     else:
@@ -180,7 +180,7 @@ class Command(AsyncCommand):
             * True, 2 - successfully transfer the file.
             * True, 1 - the file does not exist so it is skipped.
             * True, 0 - the transfer is cancelled.
-            * Fail, 0 - the transfer fails and needs to retry.
+            * False, 0 - the transfer fails and needs to retry.
         """
         try:
             with filetransfer, self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
@@ -204,31 +204,16 @@ class Command(AsyncCommand):
 
         except Exception as e:
             logger.error("An error occured during content import: {}".format(e))
+            retry = import_export_content.retry_import(e, skip_404=True)
 
-            # When there is an Internet connection error or timeout error,
-            # or HTTPError where the error code is one of the RETRY_STATUS_CODE,
-            # return False, 0 to retry the file transfer, or return True, 0 to
-            # indicate the cancellation
-            if (isinstance(e, ConnectionError) or
-                    (isinstance(e, HTTPError) and e.response.status_code in RETRY_STATUS_CODE)):
-                return self._sleep_before_retry(), 0
-
-            # Skip the file if it does not exist on the server or disk
-            elif ((isinstance(e, HTTPError) and e.response.status_code == 404) or
-                    (isinstance(e, OSError) and e.errno == 2)):
+            if retry:
+                logging.info('Waiting for 30 seconds before retrying import: {}\n'.format(
+                    filetransfer.source))
+                sleep(30)
+                return False, 0
+            else:
                 overall_progress_update(f.file_size)
                 return True, 1
-
-            else:
-                raise e
-
-    def _sleep_before_retry(self):
-        for i in range(30):
-            if self.is_cancelled():
-                self.cancel()
-                return True
-            sleep(1)
-        return False
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':

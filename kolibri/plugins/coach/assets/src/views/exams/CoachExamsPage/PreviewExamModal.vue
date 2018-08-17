@@ -15,22 +15,30 @@
         v-if="loading"
         :delay="false"
       />
+      <div class="no-exercise-x" v-else-if="exerciseContentNodes.length === 0">
+        <mat-svg category="navigation" name="close" />
+      </div>
       <div v-else @keyup.enter.stop>
         <div ref="header">
-          <strong>{{ $tr('numQuestions', { num: examNumQuestions }) }}</strong>
+          <strong>{{ $tr('numQuestions', { num: availableExamQuestionSources.length }) }}</strong>
           <slot name="randomize-button"></slot>
         </div>
-        <KGrid
-          class="exam-preview-container"
-          :style="{ maxHeight: `${maxHeight}px` }"
-        >
-          <KGridItem sizes="1, 3, 4">
-            <div v-for="(exercise, exerciseIndex) in examQuestionSources" :key="exerciseIndex">
+        <KGrid class="exam-preview-container">
+          <KGridItem
+            sizes="1, 3, 4"
+            :style="{ maxHeight: `${maxHeight}px` }"
+            class="o-y-auto"
+          >
+            <div
+              v-for="(exercise, exerciseIndex) in availableExamQuestionSources"
+              :key="exerciseIndex"
+            >
               <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
                 <li
                   class="question-list-item"
-                  v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
+                  v-for="(question, questionIndex) in
+                  getExerciseQuestions(exercise.exercise_id)"
                   :key="questionIndex"
                 >
                   <KButton
@@ -51,7 +59,11 @@
               </ol>
             </div>
           </KGridItem>
-          <KGridItem sizes="3, 5, 8">
+          <KGridItem
+            sizes="3, 5, 8"
+            :style="{ maxHeight: `${maxHeight}px` }"
+            class="o-y-auto"
+          >
             <ContentRenderer
               v-if="content && itemId"
               ref="contentRenderer"
@@ -145,6 +157,11 @@
       debouncedSetMaxHeight() {
         return debounce(this.setMaxHeight, 250);
       },
+      availableExamQuestionSources() {
+        return this.examQuestionSources.filter(questionSource => {
+          return this.exercises[questionSource.exercise_id];
+        });
+      },
       currentQuestion() {
         return this.questions[this.currentQuestionIndex] || {};
       },
@@ -190,7 +207,7 @@
         if (Object.keys(this.exercises).length === 0) {
           this.questions = [];
         } else {
-          this.questions = createQuestionList(this.examQuestionSources).map(question => ({
+          this.questions = createQuestionList(this.availableExamQuestionSources).map(question => ({
             itemId: selectQuestionFromExercise(
               question.assessmentItemIndex,
               this.examSeed,
@@ -287,6 +304,18 @@
   h3 {
     margin-top: 1em;
     margin-bottom: 0.25em;
+  }
+
+  .no-exercise-x {
+    text-align: center;
+    svg {
+      width: 200px;
+      height: 200px;
+    }
+  }
+
+  .o-y-auto {
+    overflow-y: auto;
   }
 
 </style>

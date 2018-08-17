@@ -41,14 +41,15 @@ export function getAllExercisesWithinTopic(store, topicId) {
   return new Promise((resolve, reject) => {
     const exercisesPromise = ContentNodeResource.fetchDescendantsCollection(topicId, {
       descendant_kind: ContentNodeKinds.EXERCISE,
-      fields: ['id', 'title', 'content_id', 'assessmentmetadata', 'num_coach_contents'],
+      fields: ['id', 'title', 'content_id'],
     });
 
-    ConditionalPromise.all([exercisesPromise]).only(
+    const assessmentNumbersPromise = ContentNodeResource.fetchDescendantsAssessments(topicId);
+
+    ConditionalPromise.all([exercisesPromise, assessmentNumbersPromise]).only(
       samePageCheckGenerator(store),
-      ([exercisesCollection]) => {
-        const exercises = _exercisesState(exercisesCollection);
-        resolve(exercises);
+      ([exercisesCollection, assessmentNumbers]) => {
+        resolve([exercisesCollection, assessmentNumbers]);
       },
       error => reject(error)
     );
@@ -85,6 +86,11 @@ export function removeExercise(store, exercise) {
 
 export function setSelectedExercises(store, selectedExercises) {
   store.commit('SET_SELECTED_EXERCISES', selectedExercises);
+  return ContentNodeResource.fetchNodeAssessments(selectedExercises.map(ex => ex.id)).then(
+    number => {
+      store.commit('SET_AVAILABLE_QUESTIONS', number);
+    }
+  );
 }
 
 export function createExamAndRoute(store, exam) {
@@ -146,7 +152,8 @@ function fetchTopic(store, topicId) {
           subtopicsExercises => {
             subtopics = subtopics
               .map((subtopic, index) => {
-                subtopic.allExercisesWithinTopic = subtopicsExercises[index];
+                subtopic.allExercisesWithinTopic = subtopicsExercises[index][0];
+                subtopics.numAssessments = subtopicsExercises[index][1];
                 return subtopic;
               })
               .filter(subtopic => subtopic.allExercisesWithinTopic.length > 0);
