@@ -33,7 +33,10 @@
     },
     computed: {
       ...mapState(['classId', 'pageName']),
-      ...mapState('exerciseDetail', ['channelId', 'exercise', 'user']),
+      ...mapState('exerciseDetail', ['exercise', 'user']),
+      channelId() {
+        return this.$route.params.channelId;
+      },
       documentTitle() {
         switch (this.pageName) {
           case PageNames.LEARNER_ITEM_DETAILS:

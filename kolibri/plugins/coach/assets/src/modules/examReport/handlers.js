@@ -1,10 +1,4 @@
-import {
-  LearnerGroupResource,
-  ContentNodeSlimResource,
-  ExamResource,
-  ExamLogResource,
-  FacilityUserResource,
-} from 'kolibri.resources';
+import { LearnerGroupResource, ContentNodeSlimResource, ExamResource } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
@@ -19,8 +13,6 @@ export function showExamReportPage(store, params) {
     samePageCheckGenerator(store),
     exam => {
       const promises = [
-        ExamLogResource.fetchCollection({ getParams: { exam: examId, collection: classId } }),
-        FacilityUserResource.fetchCollection({ getParams: { member_of: classId } }),
         LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
         ExamResource.fetchCollection({ getParams: { collection: classId }, force: true }),
         ContentNodeSlimResource.fetchCollection({
@@ -33,31 +25,20 @@ export function showExamReportPage(store, params) {
       ];
       ConditionalPromise.all(promises).only(
         samePageCheckGenerator(store),
-        ([examLogs, facilityUsers, learnerGroups, exams, contentNodes]) => {
-          const examTakers = facilityUsers.map(user => {
-            const examTakenByUser =
-              examLogs.find(examLog => String(examLog.user) === user.id) || {};
-            const learnerGroup =
-              learnerGroups.find(group => group.user_ids.indexOf(user.id) > -1) || {};
-            return {
-              id: user.id,
-              name: user.full_name,
-              group: learnerGroup,
-              score: examTakenByUser.score,
-              progress: examTakenByUser.progress,
-              closed: examTakenByUser.closed,
-            };
-          });
+        ([learnerGroups, exams, contentNodes]) => {
           store.commit('examReport/SET_STATE', {
             exam,
-            examTakers,
+            examTakers: [],
             exams,
             examsModalSet: null,
             exerciseContentNodes: [...contentNodes],
             learnerGroups,
           });
-          store.commit('CORE_SET_ERROR', null);
-          store.commit('CORE_SET_PAGE_LOADING', false);
+          // Needs to be called after SET_STATE, since it relies on state.learnerGroups
+          return store.dispatch('examReport/setTableData', { classId, examId }).then(() => {
+            store.commit('CORE_SET_ERROR', null);
+            store.commit('CORE_SET_PAGE_LOADING', false);
+          });
         },
         error => {
           store.dispatch('handleApiError', error);

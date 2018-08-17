@@ -201,6 +201,7 @@
 <script>
 
   import { mapState } from 'vuex';
+  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
@@ -238,6 +239,7 @@
       };
     },
     computed: {
+      ...mapState(['reportRefreshInterval']),
       ...mapState('lessonResourceUserSummary', [
         'channelTitle',
         'contentNode',
@@ -245,6 +247,9 @@
         'resourceTitle',
         'userData',
       ]),
+      classId() {
+        return this.$route.params.classId;
+      },
       isExercise() {
         return this.resourceKind === ContentNodeKinds.EXERCISE;
       },
@@ -267,7 +272,22 @@
         return this.invert ? Array.from(this.sortedUsers).reverse() : this.sortedUsers;
       },
     },
+    mounted() {
+      this.intervalId = setInterval(this.refreshReportData, this.reportRefreshInterval);
+    },
+    beforeDestroy() {
+      this.intervalId = clearInterval(this.intervalId);
+    },
     methods: {
+      // Data to do a proper refresh. See showLessonResourceUserSummaryPage for details.
+      refreshReportData() {
+        this.$store.dispatch('lessonResourceUserSummary/setUserData', {
+          channelId: this.contentNode.channel_id,
+          contentNodeId: this.contentNode.id,
+          classId: this.classId,
+          isSamePage: samePageCheckGenerator(this.$store),
+        });
+      },
       userReportRoute(userId) {
         return {
           name: LessonsPageNames.RESOURCE_USER_REPORT_ROOT,

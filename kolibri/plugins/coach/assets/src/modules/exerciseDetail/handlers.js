@@ -1,11 +1,9 @@
 import {
-  AttemptLogResource,
   ContentNodeResource,
   ContentNodeSlimResource,
   ContentSummaryLogResource,
   FacilityUserResource,
 } from 'kolibri.resources';
-import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import LessonReportResource from '../../apiResources/lessonReport';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 import { PageNames } from '../../constants';
@@ -51,12 +49,10 @@ export function showExerciseDetailView(
 ) {
   return ContentNodeResource.fetchModel({ id: contentId }).then(
     exercise => {
-      return Promise.all([
-        AttemptLogResource.fetchCollection({
-          getParams: {
-            user: userId,
-            content: exercise.content_id,
-          },
+      const promises = [
+        store.dispatch('exerciseDetail/setAttemptLogs', {
+          userId,
+          exercise,
         }),
         ContentSummaryLogResource.fetchCollection({
           getParams: {
@@ -67,38 +63,16 @@ export function showExerciseDetailView(
         FacilityUserResource.fetchModel({ id: userId }),
         ContentNodeSlimResource.fetchAncestors(contentId),
         store.dispatch('setClassState', classId),
-      ]).then(([attemptLogs, summaryLog, user, ancestors]) => {
-        attemptLogs.sort(
-          (attemptLog1, attemptLog2) =>
-            new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
-        );
-        const exerciseQuestions = assessmentMetaDataState(exercise).assessmentIds;
-        // SECOND LOOP: Add their question number
-        if (exerciseQuestions && exerciseQuestions.length) {
-          attemptLogs.forEach(attemptLog => {
-            attemptLog.questionNumber = exerciseQuestions.indexOf(attemptLog.item) + 1;
-          });
-        }
-
-        const currentAttemptLog = attemptLogs[attemptLogIndex] || {};
-        let currentInteractionHistory = currentAttemptLog.interaction_history || [];
-        // filter out interactions without answers but keep hints and errors
-        currentInteractionHistory = currentInteractionHistory.filter(interaction =>
-          Boolean(interaction.answer || interaction.type === 'hint' || interaction.type === 'error')
-        );
+      ];
+      return Promise.all(promises).then(([attemptLogs, summaryLog, user, ancestors]) => {
         Object.assign(exercise, { ancestors });
         return {
-          // because this is info returned from a collection
-          user,
-          exercise,
-          attemptLogs,
-          currentAttemptLog,
-          interactionIndex,
-          currentInteractionHistory,
-          currentInteraction: currentInteractionHistory[interactionIndex],
-          summaryLog: summaryLog[0],
-          channelId, // not really needed
           attemptLogIndex,
+          attemptLogs,
+          exercise,
+          interactionIndex,
+          summaryLog: summaryLog[0],
+          user,
         };
       });
     },

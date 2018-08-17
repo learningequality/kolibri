@@ -9,7 +9,7 @@ import * as ReportUtils from './utils';
 const logging = logger.getLogger(__filename);
 
 export function userCount(state) {
-  return state.contentScopeSummary.numUsers;
+  return state.contentScopeSummary.num_users;
 }
 
 export function exerciseCount(state) {
@@ -35,7 +35,7 @@ function _genRow(state, item, getters, rootState, rootGetters) {
     // LEARNERS
     row.kind = USER;
     row.id = item.id;
-    row.title = item.fullName;
+    row.title = item.full_name;
     row.groupName = item.groupName;
     row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
 
@@ -64,7 +64,7 @@ function _genRow(state, item, getters, rootState, rootGetters) {
     row.num_coach_contents = item.num_coach_contents;
     row.kind = item.kind;
     row.id = item.id;
-    row.contentId = item.contentId;
+    row.contentId = item.content_id;
     row.title = item.title;
 
     if (state.viewBy === ViewBy.CONTENT) {
@@ -86,24 +86,24 @@ function _genRow(state, item, getters, rootState, rootGetters) {
         );
       } else if (ReportUtils.onlyExercises(item)) {
         row.exerciseCount = 1;
-        row.exerciseProgress = item.progress[0].totalProgress / getters.userCount;
+        row.exerciseProgress = item.progress[0].total_progress / getters.userCount;
         row.contentCount = 0;
         row.contentProgress = undefined;
       } else if (ReportUtils.onlyContent(item)) {
         row.exerciseCount = 0;
         row.exerciseProgress = undefined;
         row.contentCount = 1;
-        row.contentProgress = item.progress[0].totalProgress / getters.userCount;
+        row.contentProgress = item.progress[0].total_progress / getters.userCount;
       } else {
         logging.error(`Unhandled item kind: ${item.kind}`);
       }
     } else {
       row.contentCount = 1;
-      row.contentProgress = item.progress[0].totalProgress / rootGetters.classMemberCount;
-      row.logCountComplete = item.progress[0].logCountComplete;
+      row.contentProgress = item.progress[0].total_progress / rootGetters.classMemberCount;
+      row.logCountComplete = item.progress[0].log_count_complete;
     }
   }
-  row.lastActive = item.lastActive ? new Date(item.lastActive) : null;
+  row.lastActive = item.last_active ? new Date(item.last_active) : null;
   return row;
 }
 

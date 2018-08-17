@@ -80,6 +80,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
@@ -130,9 +131,9 @@
       documentTitleForLearners: 'Learners',
     },
     computed: {
-      ...mapState(['classId', 'pageName']),
+      ...mapState(['classId', 'pageName', 'reportRefreshInterval']),
       ...mapGetters('reports', ['standardDataTable', 'exerciseCount', 'contentCount']),
-      ...mapState('reports', ['channelId', 'contentScopeSummary']),
+      ...mapState('reports', ['channelId', 'contentScopeSummary', 'contentScopeId', 'userScope']),
       documentTitle() {
         switch (this.pageName) {
           case PageNames.LEARNER_LIST:
@@ -153,7 +154,32 @@
         return TableColumns;
       },
     },
+    mounted() {
+      // This is assuming that it is impossible to go from LEARNER_LIST (not refreshed) to
+      // RECENT/TOPIC_LEARNERS_FOR_ITEM (refreshed) directly.
+      if (
+        this.pageName === PageNames.RECENT_LEARNERS_FOR_ITEM ||
+        this.pageName === PageNames.TOPIC_LEARNERS_FOR_ITEM
+      ) {
+        this.intervalId = setInterval(this.refreshReportData, this.reportRefreshInterval);
+      }
+    },
+    beforeDestroy() {
+      this.setInterval = clearInterval(this.intervalId);
+    },
     methods: {
+      refreshReportData() {
+        // The data needed to do a proper refresh. See _showClassLearnerList for details
+        return this.$store.dispatch('reports/setLearnersForItemTableData', {
+          reportPayload: {
+            channel_id: this.channelId,
+            content_node_id: this.contentScopeId,
+            collection_kind: this.userScope,
+            collection_id: this.classId,
+          },
+          isSamePage: samePageCheckGenerator(this.$store),
+        });
+      },
       isTopic(row) {
         return row.kind === ContentNodeKinds.TOPIC;
       },

@@ -60,6 +60,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -73,7 +74,7 @@
   import alignMixin from './align-mixin';
 
   export default {
-    name: 'RecentItemsPage',
+    name: 'RecentItemsForChannelPage',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -105,16 +106,37 @@
     computed: {
       ...mapGetters('reports', ['standardDataTable']),
       ...mapGetters(['classMemberCount']),
-      ...mapState('reports', ['channelId']),
-      ...mapState(['classId']),
+      ...mapState('reports', ['channelId', 'channelRootId', 'lastActiveTime']),
+      ...mapState(['classId', 'reportRefreshInterval']),
       tableColumns() {
         return TableColumns;
       },
       noProgressText() {
         return this.$tr('noRecentProgress', { threshold: RECENCY_THRESHOLD_IN_DAYS });
       },
+      reportParams() {
+        return {
+          channelId: this.channelId,
+        };
+      },
+    },
+    mounted() {
+      this.intervalId = setInterval(this.refreshReportData, this.reportRefreshInterval);
+    },
+    beforeDestroy() {
+      this.intervalId = clearInterval(this.intervalId);
     },
     methods: {
+      refreshReportData() {
+        // The data needed to do a proper refresh. See showRecentItemsForChannel for details
+        return this.$store.dispatch('reports/setRecentItemsForChannelTableData', {
+          channelId: this.channelId,
+          channelRootId: this.channelRootId,
+          classId: this.classId,
+          lastActiveTime: this.lastActiveTime,
+          isSamePage: samePageCheckGenerator(this.$store),
+        });
+      },
       progressString(row) {
         // string representation of a fraction, can't use completedProgress
         const proportionCompleted = `${row.logCountComplete}` + `/${this.classMemberCount}`;

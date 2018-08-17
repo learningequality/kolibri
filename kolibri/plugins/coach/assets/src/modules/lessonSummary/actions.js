@@ -1,8 +1,10 @@
+import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { LessonResource, ContentNodeResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { error as logError } from 'kolibri.lib.logging';
 import router from 'kolibri.coreVue.router';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
+import LessonReportResource from '../../apiResources/lessonReport';
 
 const translator = createTranslator('LessonSummaryActionsTexts', {
   lessonIsNowActive: 'Lesson is now active',
@@ -187,5 +189,15 @@ export function updateLesson(store, { lessonId, payload }) {
       .catch(error => {
         reject(error);
       });
+  });
+}
+
+export function setLessonReportTableData(store, params) {
+  const { lessonId } = params;
+  const isSamePage = params.isSamePage || samePageCheckGenerator(store);
+  return LessonReportResource.fetchModel({ id: lessonId, force: true }).then(lessonReport => {
+    if (isSamePage()) {
+      store.commit('SET_LESSON_REPORT', lessonReport);
+    }
   });
 }
