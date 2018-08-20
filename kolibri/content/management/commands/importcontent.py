@@ -183,6 +183,10 @@ class Command(AsyncCommand):
             * False, 0 - the transfer fails and needs to retry.
         """
         try:
+            # Save the current progress value
+            original_value = self.progresstrackers[0].progress
+            original_progress = self.progresstrackers[0].get_progress()
+
             with filetransfer, self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
                 # If size of the source file is smaller than the the size
                 # indicated in the database, it's very likely that the source
@@ -207,6 +211,12 @@ class Command(AsyncCommand):
             retry = import_export_content.retry_import(e, skip_404=True)
 
             if retry:
+                # Restore the previous progress so that the progress bar will
+                # not reach over 100% later
+                self.progresstrackers[0].progressbar.n = original_value
+                self.progresstrackers[0].progress = original_value
+                self.progresstrackers[0].update_callback(original_progress.progress_fraction, original_progress)
+
                 logging.info('Waiting for 30 seconds before retrying import: {}\n'.format(
                     filetransfer.source))
                 sleep(30)
