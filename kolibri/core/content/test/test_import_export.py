@@ -280,7 +280,7 @@ class ImportContentTestCase(TestCase):
         with self.assertRaises(OSError):
             call_command('importcontent', 'disk', self.the_channel_id, 'destination')
             self.assertTrue('Permission denied' in logger_mock.call_args_list[0][0][0])
-            annotation_mock.assert_not_called()
+        annotation_mock.set_availability.assert_not_called()
 
     @patch('kolibri.core.content.utils.transfer.os.path.getsize', return_value=0)
     @patch('kolibri.core.content.management.commands.importcontent.os.path.isfile', return_value=False)
