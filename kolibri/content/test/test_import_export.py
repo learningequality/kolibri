@@ -254,7 +254,7 @@ class ImportContentTestCase(TestCase):
         with self.assertRaises(HTTPError):
             call_command('importcontent', 'network', self.the_channel_id)
             self.assertTrue('500' in logging_mock.call_args_list[0][0][0])
-        annotation_mock.set_availability.assert_not_called()
+        annotation_mock.set_availability.assert_called()
 
     @patch('kolibri.content.management.commands.importcontent.logging.error')
     @patch('kolibri.content.management.commands.importcontent.AsyncCommand.start_progress')
@@ -278,7 +278,7 @@ class ImportContentTestCase(TestCase):
             with self.assertRaises(OSError):
                 call_command('importcontent', 'disk', self.the_channel_id, 'destination')
                 self.assertTrue('Permission denied' in logging_mock.call_args_list[0][0][0])
-                annotation_mock.assert_not_called()
+            annotation_mock.set_availability.assert_called()
 
     @patch('kolibri.content.utils.transfer.os.path.getsize', return_value=0)
     @patch('kolibri.content.management.commands.importcontent.os.path.isfile', return_value=False)

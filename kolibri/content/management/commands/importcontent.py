@@ -125,6 +125,7 @@ class Command(AsyncCommand):
         file_checksums_to_annotate = []
 
         with self.start_progress(total=total_bytes_to_transfer) as overall_progress_update:
+            exception = None  # Exception that is not caught by the retry logic
 
             if method == DOWNLOAD_METHOD:
                 session = requests.Session()
@@ -152,16 +153,21 @@ class Command(AsyncCommand):
                     filetransfer = transfer.FileCopy(srcpath, dest)
 
                 finished = False
-                while not finished:
-                    finished, increment = self._start_file_transfer(
-                        f, filetransfer, overall_progress_update)
-                    if self.is_cancelled():
-                        self.cancel()
-                        break
-                    if increment == 2:
-                        file_checksums_to_annotate.append(f.id)
-                    else:
-                        number_of_skipped_files += increment
+                try:
+                    while not finished:
+                        finished, increment = self._start_file_transfer(
+                            f, filetransfer, overall_progress_update)
+
+                        if self.is_cancelled():
+                            break
+
+                        if increment == 2:
+                            file_checksums_to_annotate.append(f.id)
+                        else:
+                            number_of_skipped_files += increment
+                except Exception as e:
+                    exception = e
+                    break
 
             annotation.set_availability(channel_id, file_checksums_to_annotate)
 
@@ -169,6 +175,9 @@ class Command(AsyncCommand):
                 logging.warning(
                     "{} files are skipped, because errors occured during the import.".format(
                         number_of_skipped_files))
+
+            if exception:
+                raise exception
 
             if self.is_cancelled():
                 self.cancel()
