@@ -89,6 +89,7 @@
               <topic-row
                 v-for="topic in subtopics"
                 :key="topic.id"
+                :channel="topic.channel"
                 :topicId="topic.id"
                 :topicTitle="topic.title"
                 :numCoachContents="topic.num_coach_contents"
