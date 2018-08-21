@@ -54,6 +54,7 @@ class ChannelMetadataFilter(FilterSet):
 
         for channel in queryset:
             channel_has_exercise = channel.root.get_descendants() \
+                .filter(available=True) \
                 .filter(kind=content_kinds.EXERCISE) \
                 .exists()
             if channel_has_exercise:
