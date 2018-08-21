@@ -2,7 +2,6 @@
 Tests that ensure the correct items are returned from api calls.
 Also tests whether the users with permissions can create logs.
 """
-
 import csv
 import datetime
 import uuid
@@ -12,20 +11,26 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from kolibri.content.models import ChannelMetadata, ContentNode
+from ..models import ContentSessionLog
+from ..models import ContentSummaryLog
+from ..models import UserSessionLog
+from ..serializers import ContentSessionLogSerializer
+from ..serializers import ContentSummaryLogSerializer
+from .factory_logger import ContentSessionLogFactory
+from .factory_logger import ContentSummaryLogFactory
+from .factory_logger import FacilityUserFactory
+from .factory_logger import UserSessionLogFactory
+from kolibri.auth.test.helpers import create_superuser
+from kolibri.auth.test.helpers import provision_device
+from kolibri.auth.test.test_api import ClassroomFactory
+from kolibri.auth.test.test_api import DUMMY_PASSWORD
+from kolibri.auth.test.test_api import FacilityFactory
+from kolibri.auth.test.test_api import LearnerGroupFactory
+from kolibri.content.models import ChannelMetadata
+from kolibri.content.models import ContentNode
 from kolibri.core.exams.models import Exam
+from kolibri.logger.models import ExamAttemptLog
 from kolibri.logger.models import ExamLog
-
-from .factory_logger import (
-    FacilityUserFactory, ContentSessionLogFactory,
-    ContentSummaryLogFactory,
-    UserSessionLogFactory
-)
-
-from ..models import ContentSessionLog, ContentSummaryLog, UserSessionLog
-from ..serializers import ContentSessionLogSerializer, ContentSummaryLogSerializer
-from kolibri.auth.test.test_api import FacilityFactory, ClassroomFactory, LearnerGroupFactory, DUMMY_PASSWORD
-from kolibri.auth.test.helpers import create_superuser, provision_device
 
 class ContentSessionLogAPITestCase(APITestCase):
 
@@ -411,6 +416,44 @@ class ExamAttemptLogAPITestCase(APITestCase):
         self.examlog.closed = True
         self.examlog.save()
         response = self.client.post(reverse('examattemptlog-list'), data=self.examattemptdata)
+        self.assertEqual(response.status_code, 403)
+
+    def test_exam_not_active_patch_permissions(self):
+        # Regression test for #4162
+        examattemptdata = {
+            "item": "test",
+            "start_timestamp": timezone.now(),
+            "end_timestamp": timezone.now(),
+            "correct": 0,
+            "user": self.user1,
+            "examlog": self.examlog,
+            "content_id": "77b57a14a1f0466bb27ea7de8ff468be",
+            "channel_id": "77b57a14a1f0466bb27ea7de8ff468be",
+        }
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+        examattemptlog = ExamAttemptLog.objects.create(**examattemptdata)
+        self.exam.active = False
+        self.exam.save()
+        response = self.client.patch(reverse('examattemptlog-detail', kwargs={'pk': examattemptlog.id}), {"start_timestamp": timezone.now()}, format="json")
+        self.assertEqual(response.status_code, 403)
+
+    def test_examlog_closed_patch_permissions(self):
+        # Regression test for #4162
+        examattemptdata = {
+            "item": "test",
+            "start_timestamp": timezone.now(),
+            "end_timestamp": timezone.now(),
+            "correct": 0,
+            "user": self.user1,
+            "examlog": self.examlog,
+            "content_id": "77b57a14a1f0466bb27ea7de8ff468be",
+            "channel_id": "77b57a14a1f0466bb27ea7de8ff468be",
+        }
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+        examattemptlog = ExamAttemptLog.objects.create(**examattemptdata)
+        self.examlog.closed = True
+        self.examlog.save()
+        response = self.client.patch(reverse('examattemptlog-detail', kwargs={'pk': examattemptlog.id}), {"start_timestamp": timezone.now()}, format="json")
         self.assertEqual(response.status_code, 403)
 
     def tearDown(self):
