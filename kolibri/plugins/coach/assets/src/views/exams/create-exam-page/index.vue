@@ -88,6 +88,7 @@
               />
               <topic-row
                 v-for="topic in subtopics"
+                v-if="topic.allExercisesWithinTopic.length"
                 :key="topic.id"
                 :channel="topic.channel"
                 :topicId="topic.id"
