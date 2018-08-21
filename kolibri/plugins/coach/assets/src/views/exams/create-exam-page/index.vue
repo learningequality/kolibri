@@ -62,6 +62,7 @@
               <tr>
                 <th class="core-table-checkbox-col">
                   <k-checkbox
+                    v-if="exercises.length || !subtopics.every(subtopic => subtopic.channel)"
                     :label="$tr('selectAll')"
                     :showLabel="false"
                     :checked="allExercisesWithinCurrentTopicSelected"
