@@ -3,21 +3,20 @@
   <tr>
     <th class="core-table-checkbox-col">
       <k-checkbox
+        v-if="!channel"
         :label="$tr('selectTopic')"
         :showLabel="false"
         :checked="allExercisesWithinTopicSelected"
         :indeterminate="someExercisesWithinTopicSelected"
-        :disabled="!topicHasExercises"
         @change="changeSelection"
       />
     </th>
     <td class="core-table-main-col">
       <div class="topic-title">
         <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }" />
-        <button v-if="topicHasExercises" class="title" @click="$emit('goToTopic', topicId)">
+        <button class="title" @click="$emit('goToTopic', topicId)">
           {{ topicTitle }}
         </button>
-        <span v-else class="disabled">{{ topicTitle }}</span>
       </div>
       <coach-content-label
         class="coach-content-label"
@@ -62,6 +61,10 @@
       kCheckbox,
     },
     props: {
+      channel: {
+        type: Boolean,
+        default: false,
+      },
       topicId: {
         type: String,
         requires: true,
@@ -151,6 +154,8 @@
     padding: 0
     border: none
     font-size: 1em
+    color: $core-action-normal
+    text-decoration: underline
 
   .disabled
     color: $core-text-disabled
