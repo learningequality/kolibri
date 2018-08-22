@@ -70,6 +70,7 @@ urlpatterns += static(paths.get_content_url("/"), document_root=paths.get_conten
 urlpatterns += [
     url(r'^i18n/setlang/$', set_language, name='set_language'),
     url(r'^$', RootURLRedirectView.as_view()),
-    url(r'^guestaccess/', GuestRedirectView.as_view(), name="guest"),
+    url(r'^redirectuser/$', RootURLRedirectView.as_view(), name="redirect_user"),
+    url(r'^guestaccess/$', GuestRedirectView.as_view(), name="guest"),
     url(r'^logout/$', logout_view, name='logout'),
 ]

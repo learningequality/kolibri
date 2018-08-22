@@ -42,7 +42,7 @@ export default {
 
       return client({ path: urls['kolibri:deviceprovision'](), entity: onboardingData }).then(
         response => {
-          superuser.facility = response.facility.id;
+          superuser.facility = response.entity.facility.id;
           store.dispatch('kolibriLogin', superuser);
         },
         error => {

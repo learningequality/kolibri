@@ -1,6 +1,7 @@
 from django import http
 from django.conf import settings
 from django.contrib.auth import logout
+from django.core.urlresolvers import reverse
 from django.core.urlresolvers import translate_url
 from django.http import Http404
 from django.http import HttpResponseRedirect
@@ -33,7 +34,7 @@ def set_language(request):
     if not is_safe_url(url=next, host=request.get_host()):
         next = request.META.get('HTTP_REFERER')
         if not is_safe_url(url=next, host=request.get_host()):
-            next = '/'
+            next = reverse('kolibri:redirect_user')
     response = http.HttpResponseRedirect(next)
     if request.method == 'POST':
         lang_code = request.POST.get(LANGUAGE_QUERY_PARAMETER)
@@ -53,7 +54,13 @@ def set_language(request):
 
 def logout_view(request):
     logout(request)
-    return http.HttpResponseRedirect('/')
+    return http.HttpResponseRedirect(reverse('kolibri:redirect_user'))
+
+
+def get_urls_by_role(role):
+    for hook in RoleBasedRedirectHook().registered_hooks:
+        if hook.role == role:
+            yield hook.url
 
 
 def get_url_by_role(role, first_login):

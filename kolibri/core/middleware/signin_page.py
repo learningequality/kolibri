@@ -4,8 +4,10 @@ from django.shortcuts import redirect
 from django.utils.deprecation import MiddlewareMixin
 from rest_framework.views import APIView
 
+from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import KolibriAnonymousUser
+from kolibri.core.views import get_urls_by_role
 
 
 class RedirectToSignInPageIfNoGuestAccessAndNoActiveSession(MiddlewareMixin):
@@ -26,6 +28,7 @@ class RedirectToSignInPageIfNoGuestAccessAndNoActiveSession(MiddlewareMixin):
         if isinstance(request.user, KolibriAnonymousUser):
             dataset = getattr(Facility.get_default_facility(), 'dataset', None)
             if dataset and not dataset.allow_guest_access:
-                if not request.path.startswith(reverse("kolibri:user:user")) and request.path != '/'\
-                        and not request.path.startswith(reverse('kolibri:admin:index')):
-                    return redirect('/')
+                anon_urls = get_urls_by_role(user_kinds.ANONYMOUS)
+                allowable_urls = list(anon_urls) + [reverse('kolibri:admin:index'), reverse('kolibri:redirect_user')]
+                if not any(map(lambda x: request.path.startswith(x), allowable_urls)):
+                    return redirect(reverse('kolibri:redirect_user'))

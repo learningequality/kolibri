@@ -36,7 +36,7 @@ class SetupWizardMiddleware(MiddlewareMixin):
         self.device_provisioned = self.device_provisioned or device_provisioned()
         if self.device_provisioned:
             if request.path.startswith(SETUP_WIZARD_URL):
-                return redirect(reverse("kolibri:learnplugin:learn"))
+                return redirect(reverse("kolibri:redirect_user"))
             return
 
         # Don't redirect for URLs that are required for the setup wizard
