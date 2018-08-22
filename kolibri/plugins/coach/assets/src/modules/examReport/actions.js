@@ -99,7 +99,7 @@ export function updateExamDetails(store, { examId, payload }) {
 }
 
 export function deleteExam(store, examId) {
-  return ExamResource.deletModel({ id: examId }).then(
+  return ExamResource.deleteModel({ id: examId }).then(
     () => {
       const exams = store.state.exams;
       const updatedExams = exams.filter(exam => exam.id !== examId);
