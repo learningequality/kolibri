@@ -24,22 +24,9 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.conf.urls import include
 from django.conf.urls import url
-from django.contrib import admin
-from morango import urls as morango_urls
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
     url(r'', include('kolibri.core.urls')),
-    url(r'', include('kolibri.core.content.urls')),
-    url(r'^api/', include('kolibri.core.auth.api_urls')),
-    url(r'^api/', include('kolibri.core.content.api_urls')),
-    url(r'^api/', include('kolibri.core.logger.api_urls')),
-    url(r'^api/', include('kolibri.core.tasks.api_urls')),
-    url(r'^api/', include('kolibri.core.exams.api_urls')),
-    url(r'^api/', include('kolibri.core.device.api_urls')),
-    url(r'^api/', include('kolibri.core.lessons.api_urls')),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'', include(morango_urls)),
 ]
 
 if getattr(settings, 'DEBUG_PANEL_ACTIVE', False):

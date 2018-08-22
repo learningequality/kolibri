@@ -34,8 +34,11 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.conf.urls import include
 from django.conf.urls import url
 from django.conf.urls.static import static
+from django.contrib import admin
+from morango import urls as morango_urls
 
 from .views import GuestRedirectView
 from .views import logout_view
@@ -46,8 +49,21 @@ from kolibri.plugins.registry import get_urls as plugin_urls
 
 app_name = 'kolibri'
 
+urlpatterns = [
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^content/', include('kolibri.core.content.urls')),
+    url(r'^api/auth/', include('kolibri.core.auth.api_urls')),
+    url(r'^api/content/', include('kolibri.core.content.api_urls')),
+    url(r'^api/logger/', include('kolibri.core.logger.api_urls')),
+    url(r'^api/tasks/', include('kolibri.core.tasks.api_urls')),
+    url(r'^api/exams/', include('kolibri.core.exams.api_urls')),
+    url(r'^api/device/', include('kolibri.core.device.api_urls')),
+    url(r'^api/lessons/', include('kolibri.core.lessons.api_urls')),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'', include(morango_urls)),
+]
 
-urlpatterns = plugin_urls()
+urlpatterns += plugin_urls()
 
 urlpatterns += static(paths.get_content_url("/"), document_root=paths.get_content_dir_path())
 

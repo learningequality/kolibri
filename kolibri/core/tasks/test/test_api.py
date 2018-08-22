@@ -24,19 +24,19 @@ class TaskAPITestCase(APITestCase):
         self.client.login(username=superuser.username, password=DUMMY_PASSWORD)
 
     def test_task_cancel(self, get_client_mock):
-        response = self.client.post(reverse('task-canceltask'), {'task_id': '1'}, format='json')
+        response = self.client.post(reverse('kolibri:task-canceltask'), {'task_id': '1'}, format='json')
         self.assertEqual(response.data, {})
 
     def test_task_cancel_no_task(self, get_client_mock):
         get_client_return_mock = MagicMock()
         get_client_return_mock.cancel.side_effect = NoResultFound()
         get_client_mock.return_value = get_client_return_mock
-        response = self.client.post(reverse('task-canceltask'), {'task_id': '1'}, format='json')
+        response = self.client.post(reverse('kolibri:task-canceltask'), {'task_id': '1'}, format='json')
         self.assertEqual(response.status_code, 200)
 
     def test_task_get_no_task(self, get_client_mock):
         get_client_return_mock = MagicMock()
         get_client_return_mock.status.side_effect = NoResultFound()
         get_client_mock.return_value = get_client_return_mock
-        response = self.client.get(reverse('task-detail', kwargs={'pk': '1'}), {'task_id': '1'}, format='json')
+        response = self.client.get(reverse('kolibri:task-detail', kwargs={'pk': '1'}), {'task_id': '1'}, format='json')
         self.assertEqual(response.status_code, 404)

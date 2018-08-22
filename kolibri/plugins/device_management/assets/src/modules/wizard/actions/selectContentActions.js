@@ -58,7 +58,7 @@ export function getAvailableSpaceOnDrive(selectedDrive) {
     return Promise.resolve(selectedDrive.freespace);
   }
   return client({
-    path: `${urls['freespace']()}`,
+    path: `${urls['kolibri:freespace']()}`,
     params: {},
   })
     .then(({ entity }) => entity.freespace)

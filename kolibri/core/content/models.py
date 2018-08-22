@@ -256,7 +256,7 @@ class File(models.Model):
         Return the download url.
         """
         new_filename = self.get_download_filename()
-        return reverse('downloadcontent', kwargs={'filename': self.local_file.get_filename(), 'new_filename': new_filename})
+        return reverse('kolibri:downloadcontent', kwargs={'filename': self.local_file.get_filename(), 'new_filename': new_filename})
 
 
 class LocalFileManager(models.Manager):

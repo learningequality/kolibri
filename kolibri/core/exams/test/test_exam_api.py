@@ -42,7 +42,7 @@ class UserExamAPITestCase(APITestCase):
 
         self.client.login(username=user.username, password="pass")
 
-        response = self.client.get(reverse("userexam-list"))
+        response = self.client.get(reverse("kolibri:userexam-list"))
         self.assertEqual(len(response.data), 1)
 
     def test_logged_in_user_userexam_no_delete(self):
@@ -53,11 +53,11 @@ class UserExamAPITestCase(APITestCase):
 
         self.client.login(username=user.username, password="pass")
 
-        response = self.client.delete(reverse("userexam-detail", kwargs={'pk': self.assignment.id}))
+        response = self.client.delete(reverse("kolibri:userexam-detail", kwargs={'pk': self.assignment.id}))
         self.assertEqual(response.status_code, 403)
 
     def test_anonymous_userexam_list(self):
-        response = self.client.get(reverse("userexam-list"))
+        response = self.client.get(reverse("kolibri:userexam-list"))
         self.assertEqual(len(response.data), 0)
 
 
@@ -87,21 +87,21 @@ class ExamAPITestCase(APITestCase):
 
         self.client.login(username=user.username, password="pass")
 
-        response = self.client.delete(reverse("exam-detail", kwargs={'pk': self.exam.id}))
+        response = self.client.delete(reverse("kolibri:exam-detail", kwargs={'pk': self.exam.id}))
         self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_exam_delete(self):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.delete(reverse("exam-detail", kwargs={'pk': self.exam.id}))
+        response = self.client.delete(reverse("kolibri:exam-detail", kwargs={'pk': self.exam.id}))
         self.assertEqual(response.status_code, 204)
 
     def test_logged_in_admin_exam_create(self):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(reverse("exam-list"), {
+        response = self.client.post(reverse("kolibri:exam-list"), {
             "title": "title next",
             "channel_id": "test",
             "question_count": 1,
@@ -115,7 +115,7 @@ class ExamAPITestCase(APITestCase):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(reverse("exam-list"), {
+        response = self.client.post(reverse("kolibri:exam-list"), {
             "title": "title next",
             "channel_id": "test",
             "question_count": 1,
@@ -132,7 +132,7 @@ class ExamAPITestCase(APITestCase):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(reverse("exam-list"), {
+        response = self.client.post(reverse("kolibri:exam-list"), {
             "title": "title next",
             "channel_id": "test",
             "question_count": 1,
@@ -143,7 +143,7 @@ class ExamAPITestCase(APITestCase):
             }],
         }, format="json")
         exam_id = models.Exam.objects.get(title="title next").id
-        response = self.client.put(reverse("exam-detail", kwargs={'pk': exam_id}), {
+        response = self.client.put(reverse("kolibri:exam-detail", kwargs={'pk': exam_id}), {
             "title": "title next",
             "channel_id": "test",
             "question_count": 1,
@@ -159,7 +159,7 @@ class ExamAPITestCase(APITestCase):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(reverse("exam-list"), {
+        response = self.client.post(reverse("kolibri:exam-list"), {
             "title": "title next",
             "channel_id": "test",
             "question_count": 1,
@@ -171,7 +171,7 @@ class ExamAPITestCase(APITestCase):
         }, format="json")
         exam_id = models.Exam.objects.get(title="title next").id
         group = LearnerGroup.objects.create(name="test", parent=self.facility)
-        response = self.client.put(reverse("exam-detail", kwargs={'pk': exam_id}), {
+        response = self.client.put(reverse("kolibri:exam-detail", kwargs={'pk': exam_id}), {
             "title": "title next",
             "channel_id": "test",
             "question_count": 1,
@@ -190,7 +190,7 @@ class ExamAPITestCase(APITestCase):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(reverse("exam-list"), {
+        response = self.client.post(reverse("kolibri:exam-list"), {
             "title": "title next",
             "channel_id": "test",
             "question_count": 1,
@@ -202,7 +202,7 @@ class ExamAPITestCase(APITestCase):
         }, format="json")
         exam_id = models.Exam.objects.get(title="title next").id
         group = LearnerGroup.objects.create(name="test", parent=self.facility)
-        response = self.client.put(reverse("exam-detail", kwargs={'pk': exam_id}), {
+        response = self.client.put(reverse("kolibri:exam-detail", kwargs={'pk': exam_id}), {
             "title": "title next",
             "channel_id": "test",
             "question_count": 1,
@@ -231,7 +231,7 @@ class ExamAPITestCase(APITestCase):
 
         self.client.login(username=user.username, password="pass")
 
-        response = self.client.post(reverse("exam-list"), {
+        response = self.client.post(reverse("kolibri:exam-list"), {
             "title": "title next",
             "channel_id": "test",
             "question_count": 1,
@@ -245,7 +245,7 @@ class ExamAPITestCase(APITestCase):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.put(reverse("exam-detail", kwargs={'pk': self.exam.id}), {
+        response = self.client.put(reverse("kolibri:exam-detail", kwargs={'pk': self.exam.id}), {
             "title": "title",
             "channel_id": "test",
             "question_count": 2,
@@ -262,7 +262,7 @@ class ExamAPITestCase(APITestCase):
 
         self.client.login(username=user.username, password="pass")
 
-        response = self.client.put(reverse("exam-detail", kwargs={'pk': self.exam.id}), {
+        response = self.client.put(reverse("kolibri:exam-detail", kwargs={'pk': self.exam.id}), {
             "title": "title",
             "channel_id": "test",
             "question_count": 2,
@@ -301,7 +301,7 @@ class ExamAssignmentAPITestCase(APITestCase):
 
         self.client.login(username=user.username, password="pass")
 
-        response = self.client.delete(reverse("examassignment-detail", kwargs={'pk': self.assignment.id}))
+        response = self.client.delete(reverse("kolibri:examassignment-detail", kwargs={'pk': self.assignment.id}))
         self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_examassignment_can_delete(self):
@@ -310,7 +310,7 @@ class ExamAssignmentAPITestCase(APITestCase):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.delete(reverse("examassignment-detail", kwargs={'pk': self.assignment.id}))
+        response = self.client.delete(reverse("kolibri:examassignment-detail", kwargs={'pk': self.assignment.id}))
         self.assertEqual(response.status_code, 204)
 
     def test_logged_in_admin_examassignment_can_create(self):
@@ -321,7 +321,7 @@ class ExamAssignmentAPITestCase(APITestCase):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(reverse("examassignment-list"), {
+        response = self.client.post(reverse("kolibri:examassignment-list"), {
             "exam": self.exam.id,
             "collection": self.facility.id,
         })

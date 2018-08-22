@@ -26,5 +26,6 @@ class RedirectToSignInPageIfNoGuestAccessAndNoActiveSession(MiddlewareMixin):
         if isinstance(request.user, KolibriAnonymousUser):
             dataset = getattr(Facility.get_default_facility(), 'dataset', None)
             if dataset and not dataset.allow_guest_access:
-                if not request.path.startswith(reverse("kolibri:user:user")) and request.path != '/' and not request.path.startswith(reverse('admin:index')):
+                if not request.path.startswith(reverse("kolibri:user:user")) and request.path != '/'\
+                        and not request.path.startswith(reverse('kolibri:admin:index')):
                     return redirect('/')

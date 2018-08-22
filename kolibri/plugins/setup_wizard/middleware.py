@@ -6,10 +6,10 @@ from django.utils.deprecation import MiddlewareMixin
 from kolibri.core.device.utils import device_provisioned
 
 ALLOWED_PATH_LIST = [
-    "deviceprovision",
+    "kolibri:deviceprovision",
     "kolibri:setupwizardplugin:setupwizard",
     "kolibri:set_language",
-    "session-list"
+    "kolibri:session-list"
 ]
 
 SETUP_WIZARD_URL = reverse("kolibri:setupwizardplugin:setupwizard")

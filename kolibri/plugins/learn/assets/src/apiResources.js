@@ -9,12 +9,12 @@ import { Resource } from 'kolibri.lib.apiResource';
  * })
  */
 export const LearnerClassroomResource = new Resource({
-  name: 'kolibri:learnplugin:learnerclassroom',
+  name: 'learnplugin:learnerclassroom',
 });
 
 /**
  * Gets Lesson(s) that are assigned to the Learner
  */
 export const LearnerLessonResource = new Resource({
-  name: 'kolibri:learnplugin:learnerlesson',
+  name: 'learnplugin:learnerlesson',
 });
