@@ -1,3 +1,4 @@
+from django.core.exceptions import MiddlewareNotUsed
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.middleware.locale import LocaleMiddleware
@@ -55,6 +56,13 @@ class SetupMiddleware(MiddlewareMixin):
     display the setup wizard if device is not provisioned
     """
     device_provisioned = False
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.device_provisioned = self.device_provisioned or device_provisioned()
+        if self.device_provisioned:
+            # Device is already provisioned
+            raise MiddlewareNotUsed('Device has already been provisioned, no setup redirect used')
 
     def process_request(self, request):
         # If a DevicePermissions with is_superuser has already been created, no need to do anything here
