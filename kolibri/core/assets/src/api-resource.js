@@ -123,9 +123,6 @@ export class Model {
             resolve(this.attributes);
           } else {
             this.synced = false;
-            // Partial updates are currently broken, so just use dirty checking
-            // to prevent unneccessary saves for now.
-            payload = this.attributes;
             let url;
             let clientObj;
             if (this.id) {

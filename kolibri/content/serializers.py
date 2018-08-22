@@ -152,6 +152,25 @@ class FileSerializer(serializers.ModelSerializer):
                   'supplementary', 'thumbnail', 'download_url')
 
 
+class FileThumbnailSerializer(serializers.ModelSerializer):
+    """
+    Serializer used only in ContentNodeSlimSerializer (at the moment) to return minimum data
+    for frontend to be able to render thumbnails for content browsing
+    """
+    storage_url = serializers.SerializerMethodField()
+
+    def get_storage_url(self, target_node):
+        # Avoid doing an extra db query if the file is not even a thumbnail
+        if not target_node.thumbnail:
+            return None
+
+        return target_node.get_storage_url()
+
+    class Meta:
+        model = File
+        fields = ('storage_url', 'available', 'thumbnail',)
+
+
 class AssessmentMetaDataSerializer(serializers.ModelSerializer):
 
     assessment_item_ids = serializers.JSONField(default='[]')
@@ -371,6 +390,29 @@ class ContentNodeSerializer(serializers.ModelSerializer):
                 return get_num_coach_contents(instance)
         # all other conditions return 0
         return 0
+
+
+class ContentNodeSlimSerializer(serializers.ModelSerializer):
+    """
+    Lighter version of the ContentNodeSerializer whose purpose is to provide a minimum
+    subset of ContentNode fields necessary for functional content browsing
+    """
+    parent = serializers.PrimaryKeyRelatedField(read_only=True)
+    files = FileThumbnailSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ContentNode
+        fields = (
+            'id',
+            'parent',
+            'description',
+            'channel_id',
+            'content_id',
+            'kind',
+            'files',
+            'pk',  # TODO remove after UI standardizes on 'id'
+            'title',
+        )
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
