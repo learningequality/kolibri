@@ -1,5 +1,8 @@
-from kolibri.auth.permissions.base import BasePermissions, lookup_field_with_fks
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import permissions
+
+from kolibri.auth.permissions.base import BasePermissions
+from kolibri.auth.permissions.base import lookup_field_with_fks
 
 
 class AnyoneCanWriteAnonymousLogs(BasePermissions):
@@ -42,10 +45,22 @@ class ExamActivePermissions(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
+        from kolibri.logger.models import ExamAttemptLog
         # as `has_object_permission` isn't called for POST/create, we need to check here
-        if (request.method == "POST" or request.method == "PATCH") and request.data:
-            validated_data = view.serializer_class().to_internal_value(_ensure_raw_dict(request.data))
+        examlog = None
+        if request.data:
+            if request.method == "POST":
+                validated_data = view.serializer_class().to_internal_value(_ensure_raw_dict(request.data))
+                examlog = validated_data['examlog']
+            elif request.method == "PATCH":
+                try:
+                    lookup_url_kwarg = view.lookup_url_kwarg or view.lookup_field
+                    examattemptlog = ExamAttemptLog.objects.get(id=view.kwargs[lookup_url_kwarg])
+                    examlog = examattemptlog.examlog
+                except (ValueError, ObjectDoesNotExist):
+                    pass
+        if examlog:
             # Make sure the examlog is not closed and the exam is active
-            return not validated_data['examlog'].closed and validated_data['examlog'].exam.active
+            return not examlog.closed and examlog.exam.active
 
         return True
