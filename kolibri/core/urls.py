@@ -51,7 +51,7 @@ app_name = 'kolibri'
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^content/', include('kolibri.core.content.urls')),
+    url(r'', include('kolibri.core.content.urls')),
     url(r'^api/auth/', include('kolibri.core.auth.api_urls')),
     url(r'^api/content/', include('kolibri.core.content.api_urls')),
     url(r'^api/logger/', include('kolibri.core.logger.api_urls')),
