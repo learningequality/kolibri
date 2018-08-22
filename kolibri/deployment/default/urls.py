@@ -25,8 +25,10 @@ from django.conf import settings
 from django.conf.urls import include
 from django.conf.urls import url
 
+from kolibri.utils.conf import OPTIONS
+
 urlpatterns = [
-    url(r'', include('kolibri.core.urls')),
+    url(OPTIONS['Urls']['SUBPATH_MOUNT_URL'] + '/' if OPTIONS['Urls']['SUBPATH_MOUNT_URL'] else '', include('kolibri.core.urls')),
 ]
 
 if getattr(settings, 'DEBUG_PANEL_ACTIVE', False):

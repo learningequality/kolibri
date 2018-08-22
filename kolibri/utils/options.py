@@ -71,6 +71,11 @@ option_spec = {
             "default": "https://studio.learningequality.org",
             "envvars": ("KOLIBRI_CENTRAL_CONTENT_BASE_URL", "CENTRAL_CONTENT_DOWNLOAD_BASE_URL",),
         },
+        "SUBPATH_MOUNT_URL": {
+            "type": "string",
+            "default": "",
+            "envvars": ("KOLIBRI_SUBPATH_MOUNT_URL", ),
+        },
     },
     "Deployment": {
         "HTTP_PORT": {
