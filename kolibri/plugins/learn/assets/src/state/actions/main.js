@@ -89,7 +89,7 @@ export function updateContentNodeProgress(channelId, contentId, progressFraction
    * to cache bust the model (and hence the entire collection), because some progress was
    * made on this ContentNode.
    */
-  ContentNodeSlimResource.getModel(contentId).set({ progress_fraction: progressFraction });
+  ContentNodeProgressResource.getModel(contentId).set({ progress_fraction: progressFraction });
 }
 
 export function setAndCheckChannels(store) {
