@@ -485,7 +485,7 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
 
     def test_existing_localfiles_are_not_overwritten(self):
 
-        with patch('kolibri.content.utils.sqlalchemybridge.get_engine', new=self.get_engine):
+        with patch('kolibri.core.content.utils.sqlalchemybridge.get_engine', new=self.get_engine):
 
             channel_id = '6199dde695db4ee4ab392222d5af1e5c'
 

@@ -45,7 +45,7 @@ class ExamActivePermissions(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        from kolibri.logger.models import ExamAttemptLog
+        from kolibri.core.logger.models import ExamAttemptLog
         # as `has_object_permission` isn't called for POST/create, we need to check here
         examlog = None
         if request.data:
