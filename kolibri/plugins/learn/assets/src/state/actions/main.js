@@ -1,5 +1,6 @@
 import {
   ContentNodeResource,
+  ContentNodeSlimResource,
   ContentNodeProgressResource,
   UserExamResource,
   ExamLogResource,
@@ -88,7 +89,7 @@ export function updateContentNodeProgress(channelId, contentId, progressFraction
    * to cache bust the model (and hence the entire collection), because some progress was
    * made on this ContentNode.
    */
-  ContentNodeResource.getModel(contentId).set({ progress_fraction: progressFraction });
+  ContentNodeProgressResource.getModel(contentId).set({ progress_fraction: progressFraction });
 }
 
 export function setAndCheckChannels(store) {
@@ -130,7 +131,7 @@ export function showChannels(store) {
         return;
       }
       const channelRootIds = channels.map(channel => channel.root);
-      ContentNodeResource.getCollection({ ids: channelRootIds, by_role: true })
+      ContentNodeSlimResource.getCollection({ ids: channelRootIds, by_role: true })
         .fetch()
         .then(channelCollection => {
           // we want them to be in the same order as the channels list
@@ -169,12 +170,12 @@ export function showTopicsTopic(store, id, isRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
   const promises = [
-    ContentNodeResource.getModel(id).fetch(), // the topic
-    ContentNodeResource.getCollection({
+    ContentNodeSlimResource.getModel(id).fetch(), // the topic
+    ContentNodeSlimResource.getCollection({
       parent: id,
       by_role: true,
     }).fetch(), // the topic's children
-    ContentNodeResource.fetchAncestors(id), // the topic's ancestors
+    ContentNodeSlimResource.fetchAncestors(id), // the topic's ancestors
     setChannelInfo(store),
   ];
 
@@ -197,17 +198,15 @@ export function showTopicsTopic(store, id, isRoot = false) {
       };
       store.dispatch('SET_PAGE_STATE', pageState);
 
-      // Only load subtopic progress if the user is logged in
+      // Only load contentnode progress if the user is logged in
       if (isUserLoggedIn(store.state)) {
-        const subtopicIds = children
-          .filter(({ kind }) => kind === ContentNodeKinds.TOPIC)
-          .map(({ id }) => id);
+        const contentNodeIds = children.map(({ id }) => id);
 
-        if (subtopicIds.length > 0) {
-          ContentNodeProgressResource.getCollection({ ids: subtopicIds })
+        if (contentNodeIds.length > 0) {
+          ContentNodeProgressResource.getCollection({ ids: contentNodeIds })
             .fetch()
             .then(progresses => {
-              store.dispatch('SET_TOPIC_PROGRESS', progresses);
+              store.dispatch('SET_NODE_PROGRESS', progresses);
             });
         }
       }

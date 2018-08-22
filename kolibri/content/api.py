@@ -72,7 +72,9 @@ class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
-        return models.ChannelMetadata.objects.all().order_by('-last_updated')
+        return models.ChannelMetadata.objects.all() \
+            .order_by('-last_updated') \
+            .select_related('root__lang')
 
 
 class IdFilter(FilterSet):
@@ -493,6 +495,62 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True, limit=24)
         return Response(serializer.data)
+
+
+class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.ContentNodeSlimSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = ContentNodeFilter
+    pagination_class = OptionalPageNumberPagination
+
+    def prefetch_related(self, queryset):
+        return queryset.prefetch_related('files__local_file')
+
+    def get_queryset(self, prefetch=True):
+        queryset = models.ContentNode.objects.filter(available=True)
+        if prefetch:
+            return self.prefetch_related(queryset)
+        return queryset
+
+    def get_object(self, prefetch=True):
+        """
+        Returns the object the view is displaying.
+        You may want to override this if you need to provide non-standard
+        queryset lookups. Eg if objects are referenced using multiple
+        keyword arguments in the url conf.
+        """
+        queryset = self.filter_queryset(self.get_queryset(prefetch=prefetch))
+
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        assert lookup_url_kwarg in self.kwargs, (
+            'Expected view %s to be called with a URL keyword argument '
+            'named "%s". Fix your URL conf, or set the `.lookup_field` '
+            'attribute on the view correctly.' %
+            (self.__class__.__name__, lookup_url_kwarg)
+        )
+
+        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
+        obj = get_object_or_404(queryset, **filter_kwargs)
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+    @detail_route(methods=['get'])
+    def ancestors(self, request, **kwargs):
+        cache_key = 'contentnode_slim_ancestors_{pk}'.format(pk=kwargs.get('pk'))
+
+        if cache.get(cache_key) is not None:
+            return Response(cache.get(cache_key))
+
+        ancestors = list(self.get_object(prefetch=False).get_ancestors().values('pk', 'title'))
+
+        cache.set(cache_key, ancestors, 60 * 10)
+
+        return Response(ancestors)
 
 
 class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):

@@ -4,9 +4,10 @@ from __future__ import unicode_literals
 
 import collections
 import sys
+from importlib import import_module
 
 import factory
-from django.contrib.sessions.models import Session
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase as BaseTestCase
@@ -302,25 +303,26 @@ class LoginLogoutTestCase(APITestCase):
         self.facility.add_admin(self.admin)
         self.cr = ClassroomFactory.create(parent=self.facility)
         self.cr.add_coach(self.admin)
+        self.session_store = import_module(settings.SESSION_ENGINE).SessionStore()
 
     def test_login_and_logout_superuser(self):
         self.client.post(reverse('session-list'), data={"username": self.superuser.username, "password": DUMMY_PASSWORD})
-        sessions = Session.objects.all()
-        self.assertEqual(len(sessions), 1)
+        session_key = self.client.session.session_key
+        self.assertTrue(self.session_store.exists(session_key))
         self.client.delete(reverse('session-detail', kwargs={'pk': 'current'}))
-        self.assertEqual(len(Session.objects.all()), 0)
+        self.assertFalse(self.session_store.exists(session_key))
 
     def test_login_and_logout_facility_user(self):
         self.client.post(reverse('session-list'), data={"username": self.user.username, "password": DUMMY_PASSWORD, "facility": self.facility.id})
-        sessions = Session.objects.all()
-        self.assertEqual(len(sessions), 1)
+        session_key = self.client.session.session_key
+        self.assertTrue(self.session_store.exists(session_key))
         self.client.delete(reverse('session-detail', kwargs={'pk': 'current'}))
-        self.assertEqual(len(Session.objects.all()), 0)
+        self.assertFalse(self.session_store.exists(session_key))
 
     def test_incorrect_credentials_does_not_log_in_user(self):
+        session_key = self.client.session.session_key
         self.client.post(reverse('session-list'), data={"username": self.user.username, "password": "foo", "facility": self.facility.id})
-        sessions = Session.objects.all()
-        self.assertEqual(len(sessions), 0)
+        self.assertEqual(session_key, self.client.session.session_key)
 
     def test_session_return_admin_and_coach_kind(self):
         self.client.post(reverse('session-list'), data={"username": self.admin.username, "password": "bar", "facility": self.facility.id})
@@ -334,9 +336,9 @@ class LoginLogoutTestCase(APITestCase):
 
     def test_session_update_last_active(self):
         self.client.post(reverse('session-list'), data={"username": self.user.username, "password": DUMMY_PASSWORD, "facility": self.facility.id})
-        expire_date = Session.objects.get().expire_date
+        expire_date = self.client.session.get_expiry_date()
         self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))
-        new_expire_date = Session.objects.get().expire_date
+        new_expire_date = self.client.session.get_expiry_date()
         self.assertTrue(expire_date < new_expire_date)
 
 
@@ -369,9 +371,9 @@ class AnonSignUpTestCase(APITestCase):
         self.assertFalse(models.FacilityUser.objects.all())
 
     def test_sign_up_also_logs_in_user(self):
-        self.assertFalse(Session.objects.all())
+        session_key = self.client.session.session_key
         self.client.post(reverse('signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
-        self.assertTrue(Session.objects.all())
+        self.assertNotEqual(session_key, self.client.session.session_key)
 
 
 class FacilityDatasetAPITestCase(APITestCase):

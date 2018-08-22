@@ -32,12 +32,22 @@ export default {
   LEARN_SET_MEMBERSHIPS(state, memberships) {
     state.learnAppState.memberships = memberships;
   },
-  SET_TOPIC_PROGRESS(state, progressArray) {
+  SET_NODE_PROGRESS(state, progressArray) {
     progressArray.forEach(progress => {
-      const topic = state.pageState.contents.find(subtopic => subtopic.id === progress.pk);
-      if (topic) {
-        topic.progress = progress.progress_fraction;
+      const contentNode = state.pageState.contents.find(node => node.id === progress.pk);
+      if (contentNode) {
+        contentNode.progress = progress.progress_fraction;
       }
+    });
+  },
+  SET_RECOMMENDED_NODES_PROGRESS(state, progressArray) {
+    ['nextSteps', 'popular', 'resume'].forEach(function(key) {
+      progressArray.forEach(progress => {
+        const contentNode = state.pageState[key].find(node => node.id === progress.pk);
+        if (contentNode) {
+          contentNode.progress = progress.progress_fraction;
+        }
+      });
     });
   },
 };
