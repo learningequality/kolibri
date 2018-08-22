@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.exceptions import MiddlewareNotUsed
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -45,8 +46,13 @@ ALLOWED_PATH_LIST = [
     "kolibri:deviceprovision",
     "kolibri:setupwizardplugin:setupwizard",
     "kolibri:set_language",
-    "kolibri:session-list"
+    "kolibri:session-list",
 ]
+
+if getattr(settings, 'DEBUG', False):
+    # Fix #4170
+    # Allow schema-js data to be accessed in setup wizard
+    ALLOWED_PATH_LIST += ["kolibri:api-docs:schema-js"]
 
 SETUP_WIZARD_URLS = [hook.url for hook in SetupHook().registered_hooks]
 
