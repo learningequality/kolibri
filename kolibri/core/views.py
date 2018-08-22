@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.core.urlresolvers import translate_url
 from django.http import Http404
 from django.http import HttpResponseRedirect
+from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.utils.translation import check_for_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
@@ -85,6 +86,7 @@ class GuestRedirectView(View):
         return HttpResponseRedirect(get_url_by_role(user_kinds.LEARNER, False))
 
 
+@method_decorator(signin_redirect_exempt, name='dispatch')
 class RootURLRedirectView(View):
 
     def get(self, request):
