@@ -1,4 +1,4 @@
-import { ContentNodeSlimResource } from 'kolibri.resources';
+import { ContentNodeProgressResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
@@ -43,5 +43,5 @@ export function updateContentNodeProgress(channelId, contentId, progressFraction
    * to cache bust the model (and hence the entire collection), because some progress was
    * made on this ContentNode.
    */
-  ContentNodeSlimResource.getModel(contentId).set({ progress_fraction: progressFraction });
+  ContentNodeProgressResource.getModel(contentId).set({ progress_fraction: progressFraction });
 }

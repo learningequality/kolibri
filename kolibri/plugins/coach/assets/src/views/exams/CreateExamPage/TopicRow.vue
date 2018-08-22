@@ -3,6 +3,7 @@
   <tr>
     <th class="core-table-checkbox-col">
       <KCheckbox
+        v-if="!channel"
         :label="$tr('selectTopic')"
         :showLabel="false"
         :checked="allExercisesWithinTopicSelected"
@@ -60,6 +61,10 @@
       KCheckbox,
     },
     props: {
+      channel: {
+        type: Boolean,
+        default: false,
+      },
       topicId: {
         type: String,
         requires: true,
@@ -140,6 +145,8 @@
   .title {
     padding: 0;
     font-size: 1em;
+    color: $core-action-normal;
+    text-decoration: underline;
     border: 0;
   }
 

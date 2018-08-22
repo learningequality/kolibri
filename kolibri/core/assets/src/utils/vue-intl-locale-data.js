@@ -48,16 +48,22 @@ module.exports = function(locale) {
           resolve(require('vue-intl/locale-data/hi.js'));
         });
       });
-    case 'ka':
+    case 'kn':
       return new Promise(function(resolve) {
-        require.ensure(['vue-intl/locale-data/ka.js'], function(require) {
-          resolve(require('vue-intl/locale-data/ka.js'));
+        require.ensure(['vue-intl/locale-data/kn.js'], function(require) {
+          resolve(require('vue-intl/locale-data/kn.js'));
         });
       });
     case 'mr':
       return new Promise(function(resolve) {
         require.ensure(['vue-intl/locale-data/mr.js'], function(require) {
           resolve(require('vue-intl/locale-data/mr.js'));
+        });
+      });
+    case 'my':
+      return new Promise(function(resolve) {
+        require.ensure(['vue-intl/locale-data/my.js'], function(require) {
+          resolve(require('vue-intl/locale-data/my.js'));
         });
       });
     case 'nyn':

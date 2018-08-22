@@ -9,6 +9,17 @@ Changes are ordered reverse-chronologically.
 - Setting for enabling/disabling guest access has been added
 
 
+0.10.1
+------
+
+ - Bug fix release
+ - Several smaller UI fixes
+ - Fixes for SSL issues on low-spec devices / unstable connectivity
+ - Compatibility fixes for older system libraries
+
+See a `more detailed list <https://github.com/learningequality/kolibri/pulls?q=is%3Apr+milestone%3A0.10.1+label%3Achangelog+is%3Aclosed>`_ of changes on Github
+
+
 0.10.0
 ------
 

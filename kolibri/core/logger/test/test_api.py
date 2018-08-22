@@ -434,5 +434,43 @@ class ExamAttemptLogAPITestCase(APITestCase):
         exam_attempt_log_data = ExamLogSerializer(self.examlog).data
         self.assertEqual(exam_attempt_log_data['progress'], 1)
 
+    def test_exam_not_active_patch_permissions(self):
+        # Regression test for #4162
+        examattemptdata = {
+            "item": "test",
+            "start_timestamp": timezone.now(),
+            "end_timestamp": timezone.now(),
+            "correct": 0,
+            "user": self.user1,
+            "examlog": self.examlog,
+            "content_id": "77b57a14a1f0466bb27ea7de8ff468be",
+            "channel_id": "77b57a14a1f0466bb27ea7de8ff468be",
+        }
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+        examattemptlog = ExamAttemptLog.objects.create(**examattemptdata)
+        self.exam.active = False
+        self.exam.save()
+        response = self.client.patch(reverse('examattemptlog-detail', kwargs={'pk': examattemptlog.id}), {"start_timestamp": timezone.now()}, format="json")
+        self.assertEqual(response.status_code, 403)
+
+    def test_examlog_closed_patch_permissions(self):
+        # Regression test for #4162
+        examattemptdata = {
+            "item": "test",
+            "start_timestamp": timezone.now(),
+            "end_timestamp": timezone.now(),
+            "correct": 0,
+            "user": self.user1,
+            "examlog": self.examlog,
+            "content_id": "77b57a14a1f0466bb27ea7de8ff468be",
+            "channel_id": "77b57a14a1f0466bb27ea7de8ff468be",
+        }
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+        examattemptlog = ExamAttemptLog.objects.create(**examattemptdata)
+        self.examlog.closed = True
+        self.examlog.save()
+        response = self.client.patch(reverse('examattemptlog-detail', kwargs={'pk': examattemptlog.id}), {"start_timestamp": timezone.now()}, format="json")
+        self.assertEqual(response.status_code, 403)
+
     def tearDown(self):
         self.client.logout()
