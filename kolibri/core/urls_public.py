@@ -17,10 +17,12 @@ from __future__ import unicode_literals
 
 from rest_framework import routers
 
+from .api import InfoViewSet
 from .auth.api import PublicFacilityViewSet
 
 router = routers.SimpleRouter()
 
 router.register(r'v1/facility', PublicFacilityViewSet, base_name='publicfacility')
+router.register(r'info', InfoViewSet, base_name='info')
 
 urlpatterns = router.urls
