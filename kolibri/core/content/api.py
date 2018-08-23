@@ -573,14 +573,17 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
             if len(results) >= MAX_RESULTS:
                 break
 
-        total_results = len(set(queryset.filter(union(all_queries)).values_list('content_id', flat=True)))
+        # If no queries, just use an empty Q.
+        all_queries_filter = union(all_queries) or Q()
+
+        total_results = len(set(queryset.filter(all_queries_filter).values_list('content_id', flat=True)))
 
         # Use unfiltered queryset to collect channel_ids and kinds metadata.
         unfiltered_queryset = self.get_queryset()
 
-        channel_ids = set(unfiltered_queryset.filter(union(all_queries)).values_list('channel_id', flat=True))
+        channel_ids = set(unfiltered_queryset.filter(all_queries_filter).values_list('channel_id', flat=True))
 
-        content_kinds = set(unfiltered_queryset.filter(union(all_queries)).values_list('kind', flat=True))
+        content_kinds = set(unfiltered_queryset.filter(all_queries_filter).values_list('kind', flat=True))
 
         serializer = self.get_serializer(results, many=True)
         return Response({

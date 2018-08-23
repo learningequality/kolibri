@@ -741,14 +741,14 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_search(self):
         # ensure search works when there are no words not defined
-        response = self.client.get(reverse('kolibri:core:contentnode-list'), data={'search': '!?,'})
-        self.assertEqual(len(response.data), 0)
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': '!?,'})
+        self.assertEqual(len(response.data['results']), 0)
         # ensure search words when there is only stopwords
-        response = self.client.get(reverse('kolibri:core:contentnode-list'), data={'search': 'or'})
-        self.assertEqual(len(response.data), 0)
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'or'})
+        self.assertEqual(len(response.data['results']), 0)
         # regular search
-        response = self.client.get(reverse('kolibri:core:contentnode-list'), data={'search': 'root'})
-        self.assertEqual(len(response.data), 1)
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'root'})
+        self.assertEqual(len(response.data['results']), 1)
 
     def _create_session_logs(self):
         content_ids = ('f2332710c2fd483386cdeb5ecbdda81f', 'ce603df7c46b424b934348995e1b05fb', '481e1bda1faa445d801ceb2afbd2f42f')
