@@ -35,6 +35,7 @@
             type="secondary"
             color="white"
             class="search-submit-button"
+            :disabled="!searchUpdate"
             :class="{ 'rtl-icon': icon === 'arrow_forward' && isRtl }"
             :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"
@@ -89,6 +90,12 @@
           v-model="channelFilterSelection"
         />
       </div>
+      <KButton
+        appearance="basic-link"
+        :disabled="!searchUpdate"
+        :text="$tr('updateSearch')"
+        @click="search"
+      />
     </div>
   </form>
 
@@ -100,6 +107,7 @@
   import { mapGetters, mapState } from 'vuex';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import { PageNames } from '../constants';
 
@@ -120,6 +128,7 @@
       searchBoxLabel: 'Search',
       clearButtonLabel: 'Clear',
       startSearchButtonLabel: 'Start search',
+      updateSearch: 'Update search',
       resourceType: 'Type',
       all: 'All',
       topics: 'Topics',
@@ -132,6 +141,7 @@
     },
     components: {
       UiIconButton,
+      KButton,
       KSelect,
     },
     props: {
@@ -185,6 +195,13 @@
             value: channel.id,
           }));
         return [this.allFilter, ...options];
+      },
+      searchUpdate() {
+        return (
+          this.searchQuery !== this.searchTerm ||
+          this.contentKindFilterSelection.value !== this.kindFilter ||
+          this.channelFilterSelection.value !== this.channelFilter
+        );
       },
     },
     watch: {
