@@ -152,4 +152,8 @@ a.button {
   &:hover:focus {
     outline: $core-outline;
   }
+  &:disabled {
+    color: $primary-flat-disabled-color;
+    cursor: default;
+  }
 }
