@@ -152,12 +152,19 @@ function _channelListState(data) {
  */
 
 export function handleError(store, errorString) {
+  logging.debug(errorString);
   store.commit('CORE_SET_ERROR', errorString);
   store.commit('CORE_SET_PAGE_LOADING', false);
 }
 
 export function handleApiError(store, errorObject) {
-  handleError(store, JSON.stringify(errorObject, null, 2));
+  let error = errorObject;
+  if (typeof errorObject === 'object' && !(errorObject instanceof Error)) {
+    error = JSON.stringify(errorObject, null, 2);
+  } else if (errorObject instanceof Error) {
+    error = errorObject.toString();
+  }
+  handleError(store, error);
 }
 
 /**
