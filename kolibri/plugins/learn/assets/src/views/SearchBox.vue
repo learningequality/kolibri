@@ -53,6 +53,43 @@
         </div>
       </div>
     </div>
+    <div
+      v-if="filters"
+      class="filters"
+    >
+      <div
+        class="ib"
+      >
+        <mat-svg
+          category="content"
+          name="filter_list"
+          class="filter-icon"
+        />
+        <KSelect
+          :label="$tr('resourceType')"
+          :options="contentKindFilterOptions"
+          :inline="true"
+          class="filter"
+          v-model="contentKindFilterSelection"
+        />
+      </div>
+      <div
+        class="ib"
+      >
+        <mat-svg
+          category="navigation"
+          name="apps"
+          class="filter-icon"
+        />
+        <KSelect
+          :label="$tr('channels')"
+          :options="channelFilterOptions"
+          :inline="true"
+          class="filter"
+          v-model="channelFilterSelection"
+        />
+      </div>
+    </div>
   </form>
 
 </template>
@@ -60,9 +97,22 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import UiIconButton from 'keen-ui/src/UiIconButton';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import KSelect from 'kolibri.coreVue.components.KSelect';
   import { PageNames } from '../constants';
+
+  const ALL_FILTER = null;
+
+  const kindFilterToLabelMap = {
+    [ContentNodeKinds.TOPIC]: 'topics',
+    [ContentNodeKinds.EXERCISE]: 'exercises',
+    [ContentNodeKinds.VIDEO]: 'videos',
+    [ContentNodeKinds.AUDIO]: 'audio',
+    [ContentNodeKinds.DOCUMENT]: 'documents',
+    [ContentNodeKinds.HTML5]: 'html5',
+  };
 
   export default {
     name: 'SearchBox',
@@ -70,9 +120,19 @@
       searchBoxLabel: 'Search',
       clearButtonLabel: 'Clear',
       startSearchButtonLabel: 'Start search',
+      resourceType: 'Type',
+      all: 'All',
+      topics: 'Topics',
+      exercises: 'Exercises',
+      videos: 'Videos',
+      audio: 'Audio',
+      documents: 'Documents',
+      html5: 'Apps',
+      channels: 'Channels',
     },
     components: {
       UiIconButton,
+      KSelect,
     },
     props: {
       icon: {
@@ -82,19 +142,63 @@
           return ['search', 'arrow_forward'].includes(val);
         },
       },
+      filters: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
         searchQuery: this.$store.state.search.searchTerm,
+        contentKindFilterSelection: {},
+        channelFilterSelection: {},
       };
     },
     computed: {
-      ...mapState('search', ['searchTerm']),
+      ...mapGetters({
+        channels: 'getChannels',
+      }),
+      ...mapState('search', [
+        'searchTerm',
+        'channel_ids',
+        'content_kinds',
+        'kindFilter',
+        'channelFilter',
+      ]),
+      allFilter() {
+        return { label: this.$tr('all'), value: ALL_FILTER };
+      },
+      contentKindFilterOptions() {
+        const options = Object.keys(kindFilterToLabelMap)
+          .filter(kind => !this.content_kinds.length || this.content_kinds.includes(kind))
+          .map(kind => ({
+            label: this.$tr(kindFilterToLabelMap[kind]),
+            value: kind,
+          }));
+        return [this.allFilter, ...options];
+      },
+      channelFilterOptions() {
+        const options = this.channels
+          .filter(channel => this.channel_ids.includes(channel.id))
+          .map(channel => ({
+            label: channel.title,
+            value: channel.id,
+          }));
+        return [this.allFilter, ...options];
+      },
     },
     watch: {
       searchTerm(val) {
         this.searchQuery = val || '';
       },
+    },
+    beforeMount() {
+      this.contentKindFilterSelection = this.contentKindFilterOptions.find(
+        option => option.value === this.$store.state.search.kindFilter
+      );
+      this.channelFilterSelection = this.channelFilterOptions.find(
+        option => option.value === this.$store.state.search.channelFilter
+      );
     },
     methods: {
       handleEscKey() {
@@ -106,9 +210,18 @@
       },
       search() {
         if (this.searchQuery !== '') {
+          const query = {
+            searchTerm: this.searchQuery,
+          };
+          if (this.contentKindFilterSelection.value) {
+            query.kind = this.contentKindFilterSelection.value;
+          }
+          if (this.channelFilterSelection.value) {
+            query.channel_id = this.channelFilterSelection.value;
+          }
           this.$router.push({
             name: PageNames.SEARCH,
-            query: { query: this.searchQuery },
+            query,
           });
         }
       },
@@ -123,11 +236,7 @@
   @import '~kolibri.styles.definitions';
 
   .search-box {
-    display: table;
-    width: 100%;
-    max-width: 450px;
     margin-right: 8px;
-    background-color: white;
   }
 
   .search-box-within-action-bar {
@@ -135,7 +244,10 @@
   }
 
   .search-box-row {
-    display: table-row;
+    display: table;
+    width: 100%;
+    max-width: 450px;
+    background-color: white;
   }
 
   .search-input {
@@ -192,6 +304,27 @@
     display: inline-block;
     vertical-align: middle;
     background-color: $core-action-dark;
+  }
+
+  .filter-icon {
+    margin-right: 12px;
+    vertical-align: middle;
+  }
+
+  .filter:nth-of-type(1) {
+    margin-right: 32px;
+  }
+
+  .filter {
+    margin-bottom: 0;
+  }
+
+  .filters {
+    margin-top: 24px;
+  }
+
+  .ib {
+    display: inline-block;
   }
 
 </style>

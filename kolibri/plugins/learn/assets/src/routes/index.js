@@ -47,7 +47,7 @@ export default [
     name: PageNames.SEARCH,
     path: '/search',
     handler: toRoute => {
-      showSearch(store, toRoute.query.query);
+      showSearch(store, { ...toRoute.query });
     },
   },
   {

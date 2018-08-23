@@ -3,6 +3,7 @@ export { default as ContentNodeFileSizeResource } from './contentNodeFileSize';
 export { default as ContentNodeResource } from './contentNode';
 export { default as ContentNodeGranularResource } from './contentNodeGranular';
 export { default as ContentNodeSlimResource } from './contentNodeSlim';
+export { default as ContentNodeSearchResource } from './contentNodeSearch';
 export { default as FacilityUserResource } from './facilityUser';
 export { default as FacilityUsernameResource } from './facilityUsername';
 export { default as LearnerGroupResource } from './learnerGroup';

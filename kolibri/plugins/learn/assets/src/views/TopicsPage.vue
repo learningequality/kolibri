@@ -18,7 +18,6 @@
       v-if="contents.length"
       :contents="contents"
       :genContentLink="genContentLink"
-      :showContentKindFilter="false"
     />
 
   </div>
