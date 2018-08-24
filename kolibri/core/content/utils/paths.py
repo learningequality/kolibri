@@ -85,10 +85,7 @@ def get_content_storage_file_path(filename, datafolder=None):
 # URL PATHS
 
 def get_content_url(baseurl=None):
-    return urljoin(
-        baseurl or conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'],
-        "content/",
-    )
+    return get_content_server_url("content/", baseurl=baseurl)
 
 
 def get_content_database_url(baseurl=None):
@@ -113,17 +110,20 @@ def get_content_storage_url(baseurl=None):
 
 
 def get_content_storage_remote_url(filename, baseurl=None):
-    return "{}{}/{}/{}".format(get_content_storage_url(baseurl), filename[0], filename[1], filename)
+    return urljoin(get_content_storage_url(baseurl), filename[0], filename[1], filename)
+
+
+def get_content_server_url(path, baseurl=None):
+    if not baseurl:
+        baseurl = conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL']
+    return urljoin(baseurl, path)
 
 
 def get_channel_lookup_url(identifier=None, baseurl=None):
-    studio_url = "/api/public/v1/channels"
+    content_server_path = "/api/public/v1/channels"
     if identifier:
-        studio_url += "/lookup/{}".format(identifier)
-    return urljoin(
-        baseurl or conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'],
-        studio_url
-    )
+        content_server_path += "/lookup/{}".format(identifier)
+    return get_content_server_url(content_server_path, baseurl=baseurl)
 
 
 def get_content_storage_file_url(filename, baseurl=None):
