@@ -2,25 +2,11 @@ import re
 
 from six.moves.urllib.parse import urlparse
 
+from . import errors
+
 
 HTTP_PORTS = (8080, 80, 8008)
 HTTPS_PORTS = (443,)
-
-
-class URLParseError(Exception):
-    pass
-
-
-class InvalidScheme(URLParseError):
-    pass
-
-
-class InvalidHostname(URLParseError):
-    pass
-
-
-class InvalidPort(URLParseError):
-    pass
 
 
 # from https://stackoverflow.com/a/33214423
@@ -138,17 +124,17 @@ def parse_address_into_components(address):
             split_by_colon = parsed.netloc.split("]")[-1].rsplit(":")
             if len(split_by_colon) > 1:
                 extracted_port = split_by_colon[-1]
-                raise InvalidPort(extracted_port)
+                raise errors.InvalidPort(extracted_port)
     except ValueError:
-        raise InvalidPort(parsed.netloc.rsplit(":")[-1])
+        raise errors.InvalidPort(parsed.netloc.rsplit(":")[-1])
 
     # perform basic validation on the URL components
     if p_scheme not in ("http", "https"):
-        raise InvalidScheme(p_scheme)
+        raise errors.InvalidScheme(p_scheme)
     if is_valid_ipv6_address(p_hostname):
         p_hostname = "[{}]".format(p_hostname)
     elif not (is_valid_hostname(p_hostname) or is_valid_ipv4_address(p_hostname)):
-        raise InvalidHostname(p_hostname)
+        raise errors.InvalidHostname(p_hostname)
 
     return p_scheme, p_hostname, p_port, p_path
 
