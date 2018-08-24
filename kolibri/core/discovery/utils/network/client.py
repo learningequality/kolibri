@@ -3,8 +3,8 @@ import logging
 import requests
 from six.moves.urllib.parse import urljoin
 
+from . import errors
 from .urls import get_normalized_url_variations
-
 
 logger = logging.getLogger(__name__)
 
@@ -28,15 +28,16 @@ class NetworkClient(object):
         for url in urls:
             try:
                 logger.info("Attempting connection to: {}".format(url))
-                response = self.head("/", base_url=url, timeout=2)
-                if 200 <= response.status_code < 400:
-                    logger.info("Success! We connected to: {}".format(url))
-                    return url
+                response = self.head("/api/public/info/", base_url=url, timeout=3, allow_redirects=True)
+                # check that we successfully connected, and if we were redirected that it's still the right endpoint
+                if response.status_code == 200 and response.url.endswith("/api/public/info/"):
+                    logger.info("Success! We connected to: {}".format(response.url))
+                    return response.url
             except (requests.ConnectionError, requests.HTTPError) as e:
                 logger.info("Unable to connect: {}".format(e))
-                pass
+
         # we weren't able to connect to any of the URL variations, so all we can do is throw
-        raise requests.ConnectionError("Unable to connect to any variations of the URL")
+        raise errors.NetworkLocationNotFound()
 
     def get(self, path, **kwargs):
         return self.request("get", path, **kwargs)
