@@ -90,7 +90,6 @@ MIDDLEWARE = [
     'kolibri.core.device.middleware.KolibriLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'kolibri.core.device.middleware.SetupMiddleware',
     'kolibri.core.auth.middleware.CustomAuthenticationMiddleware',
     'kolibri.core.middleware.signin_page.RedirectToSignInPageIfNoGuestAccessAndNoActiveSession',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
