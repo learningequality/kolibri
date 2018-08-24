@@ -32,6 +32,7 @@ from kolibri.core.content import serializers
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.content_types_tools import renderable_contentnodes_q_filter
 from kolibri.core.content.utils.paths import get_channel_lookup_url
+from kolibri.core.content.utils.paths import get_content_server_url
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -600,28 +601,21 @@ class RemoteChannelViewSet(viewsets.ViewSet):
 
     http_method_names = ['get']
 
-    def _cache_kolibri_studio_channel_request(self, identifier=None):
-        cache_key = get_channel_lookup_url(identifier=identifier)
+    def _make_channel_endpoint_request(self, identifier=None, baseurl=None):
 
-        # cache channel lookup values
-        if cache.get(cache_key):
-            return Response(cache.get(cache_key))
+        url = get_channel_lookup_url(identifier=identifier, baseurl=baseurl)
 
-        resp = requests.get(cache_key)
+        resp = requests.get(url)
 
-        # always check response code of request and set cache
         if resp.status_code == 404:
             raise Http404(
                 _("The requested channel does not exist on the content server")
             )
 
-        kolibri_mapped_response = []
-        for channel in resp.json():
-            kolibri_mapped_response.append(self._studio_response_to_kolibri_response(channel))
+        # map the channel list into the format the Kolibri client-side expects
+        channels = map(self._studio_response_to_kolibri_response, resp.json())
 
-        cache.set(cache_key, kolibri_mapped_response, 5)
-
-        return Response(kolibri_mapped_response)
+        return Response(channels)
 
     @staticmethod
     def _get_lang_native_name(code):
@@ -673,20 +667,23 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         """
         Gets metadata about all public channels on kolibri studio.
         """
-        return self._cache_kolibri_studio_channel_request()
+        baseurl = request.GET.get("baseurl", None)
+        return self._make_channel_endpoint_request(baseurl=baseurl)
 
     def retrieve(self, request, pk=None):
         """
         Gets metadata about a channel through a token or channel id.
         """
-        return self._cache_kolibri_studio_channel_request(identifier=pk)
+        baseurl = request.GET.get("baseurl", None)
+        return self._make_channel_endpoint_request(identifier=pk, baseurl=baseurl)
 
     @list_route(methods=['get'])
     def kolibri_studio_status(self, request, **kwargs):
         try:
-            resp = requests.get(get_channel_lookup_url())
+            # TODO: switch to /api/public/info/ endpoint once that's live on Studio
+            resp = requests.get(get_content_server_url("/"))
             if resp.status_code == 404:
-                raise requests.ConnectionError("Kolibri studio URL is incorrect!")
+                raise requests.ConnectionError("Kolibri Studio URL is incorrect!")
             else:
                 return Response({"status": "online"})
         except requests.ConnectionError:
