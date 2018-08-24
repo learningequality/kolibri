@@ -4,6 +4,15 @@ Release Notes
 Changes are ordered reverse-chronologically.
 
 
+0.10.2
+------
+
+ - Performance improvements and bug fixes for content import
+ - Exam creation optimizations
+
+See a `more detailed list <https://github.com/learningequality/kolibri/pulls?q=is%3Apr+milestone%3A0.10.2+label%3Achangelog+is%3Aclosed>`_ of changes on Github
+
+
 0.10.1
 ------
 
