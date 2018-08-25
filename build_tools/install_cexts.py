@@ -42,7 +42,7 @@ def download_package(path, platform, version, implementation, abi, name, pk_vers
     Download the package according to platform, python version, implementation and abi.
     """
     return_code = subprocess.call([
-        'python', 'kolibripip.pex', 'download', '-q', '-d', path, '--platform', platform,
+        'python', 'kolibripip.pex', 'download', '-d', path, '--platform', platform,
         '--python-version', version, '--implementation', implementation,
         '--abi', abi, '-i', index_url, '{}=={}'.format(name, pk_version)
     ])
@@ -53,7 +53,7 @@ def download_package(path, platform, version, implementation, abi, name, pk_vers
     for file in files:
         if file.endswith('tar.gz'):
             subprocess.call([
-                'python', 'kolibripip.pex', 'wheel', '-q', '-w',
+                'python', 'kolibripip.pex', 'wheel', '-w',
                 path, os.path.join(path, file), '--no-deps'])
             os.remove(os.path.join(path, file))
 
@@ -67,7 +67,7 @@ def install_package_by_wheel(path):
     files = os.listdir(path)
     for file in files:
         return_code = subprocess.call([
-            'python', 'kolibripip.pex', 'install', '-q', '-t',
+            'python', 'kolibripip.pex', 'install', '-t',
             path, os.path.join(path, file), '--no-deps'
         ])
         if return_code == 1:
