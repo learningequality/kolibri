@@ -156,7 +156,7 @@ def run_server(port):
     })
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
-    serve_static_dir(paths.get_content_dir_path(), paths.get_content_url("/"))
+    serve_static_dir(paths.get_content_dir_path(), paths.get_content_url(conf.OPTIONS['Deployment']['PATH_PREFIX']))
 
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()

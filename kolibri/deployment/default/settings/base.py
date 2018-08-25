@@ -19,6 +19,10 @@ import os
 import pytz
 from django.conf import locale
 from tzlocal import get_localzone
+try:
+    from urlparse import urljoin
+except ImportError:
+    from urllib.parse import urljoin
 
 import kolibri
 from kolibri.utils import conf
@@ -213,7 +217,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/static/'
+path_prefix = conf.OPTIONS['Deployment']['PATH_PREFIX']
+
+if path_prefix != '/':
+    path_prefix = '/' + path_prefix
+
+STATIC_URL = urljoin(path_prefix, 'static/')
 STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING

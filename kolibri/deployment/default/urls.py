@@ -26,6 +26,11 @@ from django.conf.urls import url
 
 from kolibri.utils.conf import OPTIONS
 
+path_prefix = OPTIONS['Deployment']['PATH_PREFIX']
+
+if path_prefix == '/':
+    path_prefix = ''
+
 urlpatterns = [
-    url(OPTIONS['Urls']['SUBPATH_MOUNT_URL'] + '/' if OPTIONS['Urls']['SUBPATH_MOUNT_URL'] else '', include('kolibri.core.urls')),
+    url(path_prefix, include('kolibri.core.urls')),
 ]

@@ -11,6 +11,7 @@ from django.views.generic.base import View
 from le_utils.constants import exercises
 
 from .utils.paths import get_content_storage_file_path
+from kolibri.utils.conf import OPTIONS
 
 # Do this to prevent import of broken Windows filetype registry that makes guesstype not work.
 # https://www.thecodingforums.com/threads/mimetypes-guess_type-broken-in-windows-on-py2-7-and-python-3-x.952693/
@@ -99,7 +100,7 @@ class ZipContentView(View):
 
         # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
         # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
-        host = request.build_absolute_uri('/').strip("/")
+        host = request.build_absolute_uri(OPTIONS['Deployment']['PATH_PREFIX']).strip("/")
         response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: " + host
 
         return response

@@ -71,11 +71,6 @@ option_spec = {
             "default": "https://studio.learningequality.org",
             "envvars": ("KOLIBRI_CENTRAL_CONTENT_BASE_URL", "CENTRAL_CONTENT_DOWNLOAD_BASE_URL",),
         },
-        "SUBPATH_MOUNT_URL": {
-            "type": "string",
-            "default": "",
-            "envvars": ("KOLIBRI_SUBPATH_MOUNT_URL", ),
-        },
     },
     "Deployment": {
         "HTTP_PORT": {
@@ -86,7 +81,13 @@ option_spec = {
         "RUN_MODE": {
             "type": "string",
             "envvars": ("KOLIBRI_RUN_MODE",),
-        }
+        },
+        "PATH_PREFIX": {
+            "type": "string",
+            "default": "/",
+            "envvars": ("KOLIBRI_PATH_PREFIX", ),
+            "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
+        },
     },
 }
 
@@ -152,6 +153,16 @@ def get_configspec():
     return ConfigObj(lines, _inspec=True)
 
 
+def clean_conf(conf):
+    # override any values from their environment variables (if set)
+    for section, opts in option_spec.items():
+        for optname, attrs in opts.items():
+            # if any options have clean functions defined, then apply them now
+            if "clean" in attrs:
+                conf[section][optname] = attrs["clean"](conf[section][optname])
+    return conf
+
+
 def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
 
     logger = get_logger(KOLIBRI_HOME)
@@ -176,6 +187,8 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
                     conf[section][optname] = os.environ[envvar]
                     using_env_vars[optname] = envvar
                     break
+
+    conf = clean_conf(conf)
 
     validation = conf.validate(Validator(), preserve_errors=True)
 
