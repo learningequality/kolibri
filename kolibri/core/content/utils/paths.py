@@ -110,7 +110,7 @@ def get_content_storage_url(baseurl=None):
 
 
 def get_content_storage_remote_url(filename, baseurl=None):
-    return urljoin(get_content_storage_url(baseurl), filename[0], filename[1], filename)
+    return "{}{}/{}/{}".format(get_content_storage_url(baseurl), filename[0], filename[1], filename)
 
 
 def get_content_server_url(path, baseurl=None):
