@@ -9,10 +9,12 @@ from ..models import LearnerGroup
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 
+DUMMY_PASSWORD = "password"
+
 
 def create_superuser(facility, username="superuser"):
     superuser = FacilityUser.objects.create(username=username, facility=facility)
-    superuser.set_password("password")
+    superuser.set_password(DUMMY_PASSWORD)
     superuser.save()
     DevicePermissions.objects.create(user=superuser, is_superuser=True)
     return superuser

@@ -32,8 +32,8 @@ class NetworkClient(object):
                 # check that we successfully connected, and if we were redirected that it's still the right endpoint
                 if response.status_code == 200 and response.url.endswith("/api/public/info/"):
                     logger.info("Success! We connected to: {}".format(response.url))
-                    return response.url
-            except (requests.ConnectionError, requests.HTTPError) as e:
+                    return url
+            except (requests.RequestException) as e:
                 logger.info("Unable to connect: {}".format(e))
 
         # we weren't able to connect to any of the URL variations, so all we can do is throw

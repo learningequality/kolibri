@@ -24,7 +24,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
         return client.base_url
 
     def validate(self, data):
-        if not data["nickname"]:
+        if not data.get("nickname"):
             client = NetworkClient(base_url=data["base_url"])
             data["nickname"] = client.get("/api/public/info/").json()["device_name"]
         return data
