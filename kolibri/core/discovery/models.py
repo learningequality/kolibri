@@ -11,15 +11,26 @@ class NetworkLocation(models.Model):
     """
 
     base_url = models.CharField(max_length=100)
-    nickname = models.CharField(max_length=100, blank=True)
+
+    application = models.CharField(max_length=32, blank=True)
+    kolibri_version = models.CharField(max_length=100, blank=True)
     instance_id = models.CharField(max_length=32, blank=True)
+    device_name = models.CharField(max_length=100, blank=True)
+    operating_system = models.CharField(max_length=32, blank=True)
+
     added = models.DateTimeField(auto_now_add=True)
     last_accessed = models.DateTimeField(auto_now=True)
 
     @property
     def available(self):
         try:
-            NetworkClient(base_url=self.base_url)
+            info = NetworkClient(base_url=self.base_url).info
+            self.application = info.get("application", self.application)
+            self.kolibri_version = info.get("kolibri_version", self.kolibri_version)
+            self.device_name = info.get("device_name", self.device_name)
+            self.instance_id = info.get("instance_id", self.instance_id)
+            self.operating_system = info.get("operating_system", self.operating_system)
+            self.save()
             return True
         except NetworkClientError:
             return False

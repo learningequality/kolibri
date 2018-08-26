@@ -28,10 +28,11 @@ class NetworkClient(object):
         for url in urls:
             try:
                 logger.info("Attempting connection to: {}".format(url))
-                response = self.head("/api/public/info/", base_url=url, timeout=3, allow_redirects=True)
+                response = self.get("/api/public/info/", base_url=url, timeout=5, allow_redirects=True)
                 # check that we successfully connected, and if we were redirected that it's still the right endpoint
                 if response.status_code == 200 and response.url.endswith("/api/public/info/"):
                     logger.info("Success! We connected to: {}".format(response.url))
+                    self.info = response.json()
                     return url
             except (requests.RequestException) as e:
                 logger.info("Unable to connect: {}".format(e))

@@ -104,7 +104,6 @@ class TestURLParsing(TestCase):
             get_normalized_url_variations("www.nomansland.com:1231d")
 
 
-@mock.patch.object(requests.Session, 'head', mock_request)
 @mock.patch.object(requests.Session, 'get', mock_request)
 class TestNetworkClientConnections(TestCase):
 

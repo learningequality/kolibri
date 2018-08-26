@@ -17,7 +17,6 @@ from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 
 
-@mock.patch.object(requests.Session, 'head', mock_request)
 @mock.patch.object(requests.Session, 'get', mock_request)
 class NetworkLocationAPITestCase(APITestCase):
 
@@ -37,7 +36,11 @@ class NetworkLocationAPITestCase(APITestCase):
         self.login(self.superuser)
         response = self.client.post(reverse("networklocation-list"), data={"base_url": "kolibrihappyurl.qqq"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["nickname"], "skynet")
+        self.assertEqual(response.data["application"], "kolibri")
+        self.assertEqual(response.data["device_name"], "skynet")
+        self.assertEqual(response.data["instance_id"], "a" * 32)
+        self.assertEqual(response.data["operating_system"], "windows")
+        self.assertEqual(response.data["kolibri_version"], "0.11.0")
         self.assertEqual(response.data["available"], True)
         self.assertEqual(response.data["base_url"], "https://kolibrihappyurl.qqq/")
 
@@ -45,7 +48,11 @@ class NetworkLocationAPITestCase(APITestCase):
         self.login(self.superuser)
         response = self.client.post(reverse("networklocation-list"), data={"base_url": "timeoutonport80url.qqq"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["nickname"], "skynet")
+        self.assertEqual(response.data["application"], "kolibri")
+        self.assertEqual(response.data["device_name"], "skynet")
+        self.assertEqual(response.data["instance_id"], "a" * 32)
+        self.assertEqual(response.data["operating_system"], "windows")
+        self.assertEqual(response.data["kolibri_version"], "0.11.0")
         self.assertEqual(response.data["available"], True)
         self.assertEqual(response.data["base_url"], "http://timeoutonport80url.qqq:8080/")
 

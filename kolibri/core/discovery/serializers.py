@@ -14,7 +14,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = NetworkLocation
-        fields = ('id', 'available', 'base_url', 'nickname',)
+        fields = ('id', 'available', 'base_url', 'device_name', 'instance_id', 'added', 'last_accessed', 'operating_system', 'application', 'kolibri_version')
 
     def validate_base_url(self, value):
         try:
@@ -22,9 +22,3 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
         except errors.NetworkError as e:
             raise ValidationError("Error with address {} ({})".format(value, e.__class__.__name__), code=e.code)
         return client.base_url
-
-    def validate(self, data):
-        if not data.get("nickname"):
-            client = NetworkClient(base_url=data["base_url"])
-            data["nickname"] = client.get("/api/public/info/").json()["device_name"]
-        return data
