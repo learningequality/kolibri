@@ -613,7 +613,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             )
 
         # map the channel list into the format the Kolibri client-side expects
-        channels = map(self._studio_response_to_kolibri_response, resp.json())
+        channels = list(map(self._studio_response_to_kolibri_response, resp.json()))
 
         return Response(channels)
 
