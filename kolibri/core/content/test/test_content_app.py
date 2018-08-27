@@ -157,23 +157,23 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_prerequisite_for_filter(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(reverse("kolibri:contentnode-list"), data={"prerequisite_for": c1_id})
+        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"prerequisite_for": c1_id})
         self.assertEqual(response.data[0]['title'], 'root')
 
     def test_has_prerequisite_filter(self):
         root_id = content.ContentNode.objects.get(title="root").id
-        response = self.client.get(reverse("kolibri:contentnode-list"), data={"has_prerequisite": root_id})
+        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"has_prerequisite": root_id})
         self.assertEqual(response.data[0]['title'], 'c1')
 
     def test_related_filter(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(reverse("kolibri:contentnode-list"), data={"related": c1_id})
+        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"related": c1_id})
         self.assertEqual(response.data[0]['title'], 'c2')
 
     def test_contentnode_list(self):
         root = content.ContentNode.objects.get(title="root")
         expected_output = root.get_descendants(include_self=True).filter(available=True).count()
-        response = self.client.get(reverse("kolibri:contentnode-list"))
+        response = self.client.get(reverse("kolibri:core:contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
 
     def test_contentnode_granular_network_import(self):
@@ -181,7 +181,7 @@ class ContentNodeAPITestCase(APITestCase):
         c2_id = content.ContentNode.objects.get(title="c1").id
         c3_id = content.ContentNode.objects.get(title="c2").id
         content.ContentNode.objects.all().update(available=False)
-        response = self.client.get(reverse("kolibri:contentnode_granular-detail", kwargs={"pk": c1_id}))
+        response = self.client.get(reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
             response.data,
             {
@@ -234,7 +234,7 @@ class ContentNodeAPITestCase(APITestCase):
         c3_id = content.ContentNode.objects.get(title="c2").id
 
         response = self.client.get(
-            reverse("kolibri:contentnode_granular-detail", kwargs={"pk": c1_id}), {"importing_from_drive_id": "123"})
+            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}), {"importing_from_drive_id": "123"})
         self.assertEqual(
             response.data, {
                 "id": c1_id,
@@ -275,7 +275,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_contentnode_granular_export_available(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(reverse("kolibri:contentnode_granular-detail", kwargs={"pk": c1_id}))
+        response = self.client.get(reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
             response.data, {
                 "id": c1_id,
@@ -294,7 +294,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_contentnode_granular_export_unavailable(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         content.ContentNode.objects.filter(title="c1").update(available=False)
-        response = self.client.get(reverse("kolibri:contentnode_granular-detail", kwargs={"pk": c1_id}))
+        response = self.client.get(reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}))
         self.assertEqual(
             response.data, {
                 "id": c1_id,
@@ -314,7 +314,7 @@ class ContentNodeAPITestCase(APITestCase):
         c1_id = content.ContentNode.objects.get(title="c1").id
         content.LocalFile.objects.filter(pk="6bdfea4a01830fdd4a585181c0b8068c").update(file_size=2)
         content.LocalFile.objects.filter(pk="211523265f53825b82f70ba19218a02e").update(file_size=1, available=False)
-        response = self.client.get(reverse("kolibri:contentnodefilesize-detail", kwargs={"pk": c1_id}))
+        response = self.client.get(reverse("kolibri:core:contentnodefilesize-detail", kwargs={"pk": c1_id}))
         self.assertEqual(response.data, {"total_file_size": 3, "on_device_file_size": 2})
 
     def test_contentnodefilesize_topicnode(self):
@@ -322,24 +322,24 @@ class ContentNodeAPITestCase(APITestCase):
         content.LocalFile.objects.filter(pk="6bdfea4a01830fdd4a585181c0b8068c").update(file_size=2)
         content.LocalFile.objects.filter(pk="211523265f53825b82f70ba19218a02e").update(file_size=1, available=False)
         content.LocalFile.objects.filter(pk="e00699f859624e0f875ac6fe1e13d648").update(file_size=3)
-        response = self.client.get(reverse("kolibri:contentnodefilesize-detail", kwargs={"pk": root_id}))
+        response = self.client.get(reverse("kolibri:core:contentnodefilesize-detail", kwargs={"pk": root_id}))
         self.assertEqual(response.data, {"total_file_size": 6, "on_device_file_size": 2})
 
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(reverse("kolibri:contentnode-detail", kwargs={'pk': c1_id}))
+        response = self.client.get(reverse("kolibri:core:contentnode-detail", kwargs={'pk': c1_id}))
         self.assertEqual(response.data['id'], c1_id.__str__())
 
     def test_contentnode_field_filtering(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(reverse("kolibri:contentnode-detail", kwargs={'pk': c1_id}), data={"fields": "title,description"})
+        response = self.client.get(reverse("kolibri:core:contentnode-detail", kwargs={'pk': c1_id}), data={"fields": "title,description"})
         self.assertEqual(response.data['title'], "c1")
         self.assertEqual(response.data['description'], "balbla2")
         self.assertTrue("id" not in response.data)
 
     def test_contentnode_slim_recommendations(self):
         node_id = content.ContentNode.objects.get(title="c2c2").id
-        response = self.client.get(reverse("kolibri:contentnode_slim-recommendations-for", kwargs={'pk': node_id}))
+        response = self.client.get(reverse("kolibri:core:contentnode_slim-recommendations-for", kwargs={'pk': node_id}))
         self.assertEqual(len(response.data), 2)
 
     def test_contentnode_slim_recommendations_does_error_for_unavailable_node(self):
@@ -347,13 +347,13 @@ class ContentNodeAPITestCase(APITestCase):
         node.available = False
         node.save()
         node_id = node.id
-        response = self.client.get(reverse("kolibri:contentnode_slim-recommendations-for", kwargs={'pk': node_id}))
+        response = self.client.get(reverse("kolibri:core:contentnode_slim-recommendations-for", kwargs={'pk': node_id}))
         self.assertEqual(response.status_code, 404)
 
     def test_contentnode_slim_ids(self):
         titles = ["c2c2", "c2c3"]
         nodes = [content.ContentNode.objects.get(title=title) for title in titles]
-        response = self.client.get(reverse("kolibri:contentnode_slim-list"), data={"ids": ','.join([n.id for n in nodes])})
+        response = self.client.get(reverse("kolibri:core:contentnode_slim-list"), data={"ids": ','.join([n.id for n in nodes])})
         self.assertEqual(len(response.data), 2)
         for i in range(len(titles)):
             self.assertEqual(response.data[i]["title"], titles[i])
@@ -361,7 +361,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_contentnode_slim_parent(self):
         parent = content.ContentNode.objects.get(title="c2")
         children = parent.get_children()
-        response = self.client.get(reverse("kolibri:contentnode_slim-list"), data={"parent": parent.id, "by_role": True})
+        response = self.client.get(reverse("kolibri:core:contentnode_slim-list"), data={"parent": parent.id, "by_role": True})
         self.assertEqual(len(response.data), children.count())
         for i in range(len(children)):
             self.assertEqual(response.data[i]['title'], children[i].title)
@@ -395,18 +395,18 @@ class ContentNodeAPITestCase(APITestCase):
         node = content.ContentNode.objects.get(title="c2c2")
         ancestors = node.get_ancestors()
         ancestors_titles = {n.title for n in ancestors}
-        response = self.client.get(reverse("kolibri:contentnode_slim-ancestors", kwargs={"pk": node.id}))
+        response = self.client.get(reverse("kolibri:core:contentnode_slim-ancestors", kwargs={"pk": node.id}))
         response_titles = {n['title'] for n in response.data}
         self.assertEqual(len(response.data), ancestors.count())
         self.assertEqual(ancestors_titles, response_titles)
 
     def test_channelmetadata_list(self):
-        response = self.client.get(reverse("kolibri:channel-list", kwargs={}))
+        response = self.client.get(reverse("kolibri:core:channel-list", kwargs={}))
         self.assertEqual(response.data[0]['name'], 'testing')
 
     def test_channelmetadata_retrieve(self):
         data = content.ChannelMetadata.objects.values()[0]
-        response = self.client.get(reverse("kolibri:channel-detail", kwargs={'pk': data["id"]}))
+        response = self.client.get(reverse("kolibri:core:channel-detail", kwargs={'pk': data["id"]}))
         self.assertEqual(response.data['name'], 'testing')
 
     def test_channelmetadata_resource_info(self):
@@ -414,7 +414,7 @@ class ContentNodeAPITestCase(APITestCase):
         c1_id = content.ContentNode.objects.get(title="c1").id
         content.ContentNode.objects.filter(pk=c1_id).update(available=False)
         get_params = {'include_fields': 'total_resources,total_file_size,on_device_resources,on_device_file_size'}
-        response = self.client.get(reverse("kolibri:channel-detail", kwargs={'pk': data["id"]}), get_params)
+        response = self.client.get(reverse("kolibri:core:channel-detail", kwargs={'pk': data["id"]}), get_params)
         self.assertEqual(response.data['total_resources'], 1)
         self.assertEqual(response.data['total_file_size'], 0)
         self.assertEqual(response.data['on_device_resources'], 4)
@@ -426,67 +426,67 @@ class ContentNodeAPITestCase(APITestCase):
         data.root.lang = root_lang
         data.root.save()
 
-        response = self.client.get(reverse("kolibri:channel-detail", kwargs={'pk': data.id}))
+        response = self.client.get(reverse("kolibri:core:channel-detail", kwargs={'pk': data.id}))
         self.assertEqual(response.data['lang_code'], root_lang.lang_code)
         self.assertEqual(response.data['lang_name'], root_lang.lang_name)
 
     def test_channelmetadata_langfield_none(self):
         data = content.ChannelMetadata.objects.first()
 
-        response = self.client.get(reverse("kolibri:channel-detail", kwargs={'pk': data.id}))
+        response = self.client.get(reverse("kolibri:core:channel-detail", kwargs={'pk': data.id}))
         self.assertEqual(response.data['lang_code'], None)
         self.assertEqual(response.data['lang_name'], None)
 
     def test_channelmetadata_content_available_param_filter_lowercase_true(self):
-        response = self.client.get(reverse("kolibri:channel-list"), {"available": "true"})
+        response = self.client.get(reverse("kolibri:core:channel-list"), {"available": "true"})
         self.assertEqual(response.data[0]["id"], "6199dde695db4ee4ab392222d5af1e5c")
 
     def test_channelmetadata_content_available_param_filter_uppercase_true(self):
-        response = self.client.get(reverse("kolibri:channel-list"), {"available": True})
+        response = self.client.get(reverse("kolibri:core:channel-list"), {"available": True})
         self.assertEqual(response.data[0]["id"], "6199dde695db4ee4ab392222d5af1e5c")
 
     def test_channelmetadata_content_unavailable_param_filter_false(self):
         content.ContentNode.objects.filter(title="root").update(available=False)
-        response = self.client.get(reverse("kolibri:channel-list"), {"available": False})
+        response = self.client.get(reverse("kolibri:core:channel-list"), {"available": False})
         self.assertEqual(response.data[0]["id"], "6199dde695db4ee4ab392222d5af1e5c")
 
     def test_channelmetadata_content_available_field_true(self):
-        response = self.client.get(reverse("kolibri:channel-list"))
+        response = self.client.get(reverse("kolibri:core:channel-list"))
         self.assertEqual(response.data[0]["available"], True)
 
     def test_channelmetadata_content_available_field_false(self):
         content.ContentNode.objects.filter(title="root").update(available=False)
-        response = self.client.get(reverse("kolibri:channel-list"))
+        response = self.client.get(reverse("kolibri:core:channel-list"))
         self.assertEqual(response.data[0]["available"], False)
 
     def test_channelmetadata_include_fields_filter_has_total_resources(self):
-        response = self.client.get(reverse("kolibri:channel-list"), {'include_fields': 'total_resources'})
+        response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'total_resources'})
         self.assertEqual(response.data[0]["total_resources"], 1)
 
     def test_channelmetadata_include_fields_filter_has_total_file_size(self):
         content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
-        response = self.client.get(reverse("kolibri:channel-list"), {'include_fields': 'total_file_size'})
+        response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'total_file_size'})
         self.assertEqual(response.data[0]["total_file_size"], 2)
 
     def test_channelmetadata_include_fields_filter_has_on_device_resources(self):
-        response = self.client.get(reverse("kolibri:channel-list"), {'include_fields': 'on_device_resources'})
+        response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'on_device_resources'})
         self.assertEqual(response.data[0]["on_device_resources"], 5)
 
     def test_channelmetadata_include_fields_filter_has_on_device_file_size(self):
         content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
-        response = self.client.get(reverse("kolibri:channel-list"), {'include_fields': 'on_device_file_size'})
+        response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'on_device_file_size'})
         self.assertEqual(response.data[0]["on_device_file_size"], 4)
 
     def test_channelmetadata_include_fields_filter_has_no_on_device_file_size(self):
         content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(available=True)
-        response = self.client.get(reverse("kolibri:channel-list"),
+        response = self.client.get(reverse("kolibri:core:channel-list"),
                                    {'include_fields': 'total_resources,total_file_size,on_device_resources,on_device_file_size'})
         self.assertEqual(response.data[0]["on_device_file_size"], 0)
 
     @mock.patch.object(kolibri.core.content.serializers, 'renderable_contentnodes_without_topics_q_filter', Q(kind="dummy"))
     def test_channelmetadata_include_fields_filter_has_no_renderable_on_device_file_size(self):
         content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
-        response = self.client.get(reverse("kolibri:channel-list"), {'include_fields': 'on_device_file_size'})
+        response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'on_device_file_size'})
         self.assertEqual(response.data[0]["on_device_file_size"], 4)
 
     def test_channelmetadata_has_exercises_filter(self):
@@ -503,18 +503,18 @@ class ContentNodeAPITestCase(APITestCase):
             name="no exercise channel metadata",
             root=no_exercise_channel,
         )
-        no_filter_response = self.client.get(reverse("kolibri:channel-list"))
+        no_filter_response = self.client.get(reverse("kolibri:core:channel-list"))
         self.assertEqual(len(no_filter_response.data), 2)
-        with_filter_response = self.client.get(reverse("kolibri:channel-list"), {"has_exercise": True})
+        with_filter_response = self.client.get(reverse("kolibri:core:channel-list"), {"has_exercise": True})
         self.assertEqual(len(with_filter_response.data), 1)
         self.assertEqual(with_filter_response.data[0]["name"], "testing")
 
     def test_file_list(self):
-        response = self.client.get(reverse("kolibri:file-list"))
+        response = self.client.get(reverse("kolibri:core:file-list"))
         self.assertEqual(len(response.data), 5)
 
     def test_file_retrieve(self):
-        response = self.client.get(reverse("kolibri:file-detail", kwargs={'pk': "6bdfea4a01830fdd4a585181c0b8068c"}))
+        response = self.client.get(reverse("kolibri:core:file-detail", kwargs={'pk': "6bdfea4a01830fdd4a585181c0b8068c"}))
         self.assertEqual(response.data['preset'], 'High Resolution')
 
     def _setup_contentnode_progress(self):
@@ -544,7 +544,7 @@ class ContentNodeAPITestCase(APITestCase):
         facility, root, c1, c2, c2c1, c2c3 = self._setup_contentnode_progress()
 
         def assert_progress(node, progress):
-            response = self.client.get(reverse("kolibri:contentnode-detail", kwargs={'pk': node.id}))
+            response = self.client.get(reverse("kolibri:core:contentnode-detail", kwargs={'pk': node.id}))
             self.assertEqual(response.data["progress_fraction"], progress)
 
         # check that there is no progress when not logged in
@@ -567,7 +567,7 @@ class ContentNodeAPITestCase(APITestCase):
         facility, root, c1, c2, c2c1, c2c3 = self._setup_contentnode_progress()
 
         def assert_progress(node, progress):
-            response = self.client.get(reverse("kolibri:contentnodeprogress-detail", kwargs={'pk': node.id}))
+            response = self.client.get(reverse("kolibri:core:contentnodeprogress-detail", kwargs={'pk': node.id}))
             self.assertEqual(response.data["progress_fraction"], progress)
 
         # check that there is no progress when not logged in
@@ -589,7 +589,7 @@ class ContentNodeAPITestCase(APITestCase):
 
         facility, root, c1, c2, c2c1, c2c3 = self._setup_contentnode_progress()
 
-        response = self.client.get(reverse("kolibri:contentnodeprogress-list"))
+        response = self.client.get(reverse("kolibri:core:contentnodeprogress-list"))
 
         def get_progress_fraction(node):
             return list(filter(lambda x: x['id'] == node.id, response.data))[0]['progress_fraction']
@@ -603,7 +603,7 @@ class ContentNodeAPITestCase(APITestCase):
         # check that progress is calculated appropriately when user is logged in
         self.client.login(username="learner", password="pass", facility=facility)
 
-        response = self.client.get(reverse("kolibri:contentnodeprogress-list"))
+        response = self.client.get(reverse("kolibri:core:contentnodeprogress-list"))
 
         # The progress endpoint is used, so should report progress for topics
         self.assertEqual(get_progress_fraction(root), 0.24)
@@ -614,30 +614,30 @@ class ContentNodeAPITestCase(APITestCase):
     @mock.patch.object(cache, 'set')
     def test_parent_query_cache_is_set(self, mock_cache_set):
         id = content.ContentNode.objects.get(title="c3").id
-        self.client.get(reverse("kolibri:contentnode-list"), data={"parent": id})
+        self.client.get(reverse("kolibri:core:contentnode-list"), data={"parent": id})
         self.assertTrue(mock_cache_set.called)
 
     @mock.patch.object(cache, 'set')
     def test_parent_query_cache_not_set(self, mock_cache_set):
         id = content.ContentNode.objects.get(title="c2c3").id
-        self.client.get(reverse("kolibri:contentnode-list"), data={"parent": id, 'kind': content_kinds.EXERCISE})
+        self.client.get(reverse("kolibri:core:contentnode-list"), data={"parent": id, 'kind': content_kinds.EXERCISE})
         self.assertFalse(mock_cache_set.called)
 
     def test_parent_query_cache_hit(self):
         id = content.ContentNode.objects.get(title="c2c3").id
-        self.client.get(reverse("kolibri:contentnode-list"), data={"parent": id})
+        self.client.get(reverse("kolibri:core:contentnode-list"), data={"parent": id})
         with mock.patch.object(cache, 'set') as mock_cache_set:
-            self.client.get(reverse("kolibri:contentnode-list"), data={"parent": id})
+            self.client.get(reverse("kolibri:core:contentnode-list"), data={"parent": id})
             self.assertFalse(mock_cache_set.called)
 
     def test_filtering_coach_content_anon(self):
-        response = self.client.get(reverse("kolibri:contentnode-list"), data={"by_role": True})
+        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"by_role": True})
         # TODO make content_test.json fixture more organized. Here just, hardcoding the correct count
         self.assertEqual(len(response.data), 7)
 
     def test_filtering_coach_content_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-        response = self.client.get(reverse("kolibri:contentnode-list"), data={"by_role": True})
+        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"by_role": True})
         expected_output = content.ContentNode.objects.exclude(available=False).count()  # coach_content node should be returned
         self.assertEqual(len(response.data), expected_output)
 
@@ -662,7 +662,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_in_lesson_filter(self):
         lesson, nodes = self._setup_lesson()
-        response = self.client.get(reverse("kolibri:contentnode-list"), data={"in_lesson": lesson.id})
+        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"in_lesson": lesson.id})
         self.assertEqual(len(response.data), len(lesson.resources))
         for counter, node in enumerate(nodes):
             self.assertEqual(response.data[counter]['id'], node.id)
@@ -671,11 +671,11 @@ class ContentNodeAPITestCase(APITestCase):
         self._setup_lesson()
 
         # request with invalid uuid
-        response = self.client.get(reverse("kolibri:contentnode-list"), data={"in_lesson": '123'})
+        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"in_lesson": '123'})
         self.assertEqual(len(response.data), 0)
 
         # request with valid uuid
-        response = self.client.get(reverse("kolibri:contentnode-list"), data={"in_lesson": '47385a6d4df3426db38ad0d20e113dce'})
+        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"in_lesson": '47385a6d4df3426db38ad0d20e113dce'})
         self.assertEqual(len(response.data), 0)
 
     def _setup_exam(self):
@@ -700,7 +700,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_in_exam_filter(self):
         exam, node = self._setup_exam()
-        response = self.client.get(reverse("kolibri:contentnode-list"), data={"in_exam": exam.id})
+        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"in_exam": exam.id})
         self.assertEqual(len(response.data), len(exam.question_sources))
         self.assertEqual(response.data[0]['id'], node.id)
 
@@ -708,16 +708,16 @@ class ContentNodeAPITestCase(APITestCase):
         self._setup_exam()
 
         # request with invalid uuid
-        response = self.client.get(reverse("kolibri:contentnode-list"), data={"in_exam": '123'})
+        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"in_exam": '123'})
         self.assertEqual(len(response.data), 0)
 
         # request with valid uuid
-        response = self.client.get(reverse("kolibri:contentnode-list"), data={"in_exam": '47385a6d4df3426db38ad0d20e113dce'})
+        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"in_exam": '47385a6d4df3426db38ad0d20e113dce'})
         self.assertEqual(len(response.data), 0)
 
     def test_copies(self):
         # the pk is actually a content id
-        response = self.client.get(reverse('kolibri:contentnode-copies', kwargs={'pk': 'c6f49ea527824f398f4d5d26faf19396'}))
+        response = self.client.get(reverse('kolibri:core:contentnode-copies', kwargs={'pk': 'c6f49ea527824f398f4d5d26faf19396'}))
         expected_titles = set(['root', 'c1', 'copy'])
         response_titles = set()
         for node in response.data[0]:
@@ -726,12 +726,12 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_available_copies(self):
         # the pk is actually a content id
-        response = self.client.get(reverse('kolibri:contentnode-copies', kwargs={'pk': 'f2332710c2fd483386cdeb5dcbdda81a'}))
+        response = self.client.get(reverse('kolibri:core:contentnode-copies', kwargs={'pk': 'f2332710c2fd483386cdeb5dcbdda81a'}))
         # no results should be returned for unavailable content node
         self.assertEqual(len(response.data), 0)
 
     def test_copies_count(self):
-        response = self.client.get(reverse('kolibri:contentnode-copies-count'),
+        response = self.client.get(reverse('kolibri:core:contentnode-copies-count'),
                                    data={'content_ids': 'f2332710c2fd483386cdeb5dcbdda81f,c6f49ea527824f398f4d5d26faf15555,f2332710c2fd483386cdeb5dcbdda81a'})
         # assert non existent content id does not show up in results
         # no results should be returned for unavailable content node
@@ -741,13 +741,13 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_search(self):
         # ensure search works when there are no words not defined
-        response = self.client.get(reverse('kolibri:contentnode-list'), data={'search': '!?,'})
+        response = self.client.get(reverse('kolibri:core:contentnode-list'), data={'search': '!?,'})
         self.assertEqual(len(response.data), 0)
         # ensure search words when there is only stopwords
-        response = self.client.get(reverse('kolibri:contentnode-list'), data={'search': 'or'})
+        response = self.client.get(reverse('kolibri:core:contentnode-list'), data={'search': 'or'})
         self.assertEqual(len(response.data), 0)
         # regular search
-        response = self.client.get(reverse('kolibri:contentnode-list'), data={'search': 'root'})
+        response = self.client.get(reverse('kolibri:core:contentnode-list'), data={'search': 'root'})
         self.assertEqual(len(response.data), 1)
 
     def _create_session_logs(self):
@@ -776,7 +776,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_popular(self):
         expected_content_ids = self._create_session_logs()
-        response = self.client.get(reverse('kolibri:contentnode_slim-popular'))
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-popular'))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -813,7 +813,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_resume(self):
         user, expected_content_ids = self._create_summary_logs()
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
-        response = self.client.get(reverse('kolibri:contentnode_slim-resume'))
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-resume'))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -832,7 +832,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
         post_req = root.prerequisite_for.first()
         expected_content_ids = (post_req.content_id,)
-        response = self.client.get(reverse('kolibri:contentnode_slim-next-steps'))
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps'))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -857,7 +857,7 @@ class ContentNodeAPITestCase(APITestCase):
                                          start_timestamp=timezone.now(),
                                          kind='audio')
         expected_content_ids = []
-        response = self.client.get(reverse('kolibri:contentnode_slim-next-steps'))
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps'))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -876,7 +876,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
         sibling = node.get_next_sibling()
         expected_content_ids = (sibling.content_id,)
-        response = self.client.get(reverse('kolibri:contentnode_slim-next-steps'))
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps'))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -901,7 +901,7 @@ class ContentNodeAPITestCase(APITestCase):
                                          start_timestamp=timezone.now(),
                                          kind='audio')
         expected_content_ids = []
-        response = self.client.get(reverse('kolibri:contentnode_slim-next-steps'))
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps'))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -937,7 +937,7 @@ class KolibriStudioAPITestCase(APITestCase):
 
     @mock_patch_decorator
     def test_channel_list(self):
-        response = self.client.get(reverse('kolibri:remotechannel-list'), format='json')
+        response = self.client.get(reverse('kolibri:core:remotechannel-list'), format='json')
         self.assertEqual(response.data[0]['id'], 1)
 
     @mock_patch_decorator
@@ -947,19 +947,19 @@ class KolibriStudioAPITestCase(APITestCase):
         user.save()
         self.client.logout()
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
-        response = self.client.get(reverse('kolibri:remotechannel-list'), format='json')
+        response = self.client.get(reverse('kolibri:core:remotechannel-list'), format='json')
         self.assertEqual(response.status_code, 403)
 
     @mock_patch_decorator
     def test_channel_retrieve(self):
-        response = self.client.get(reverse('kolibri:remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
+        response = self.client.get(reverse('kolibri:core:remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
         self.assertEqual(response.data[0]['name'], 'studio')
 
     @mock_patch_decorator
     def test_channel_info_cache(self):
-        self.client.get(reverse('kolibri:remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
+        self.client.get(reverse('kolibri:core:remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
         with mock.patch.object(cache, 'set') as mock_cache_set:
-            self.client.get(reverse('kolibri:remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
+            self.client.get(reverse('kolibri:core:remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
             self.assertFalse(mock_cache_set.called)
 
     @mock_patch_decorator
@@ -967,7 +967,7 @@ class KolibriStudioAPITestCase(APITestCase):
         mock_object = mock.Mock()
         mock_object.status_code = 404
         requests.get.return_value = mock_object
-        response = self.client.get(reverse('kolibri:remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
+        response = self.client.get(reverse('kolibri:core:remotechannel-detail', kwargs={'pk': 'abc'}), format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def tearDown(self):

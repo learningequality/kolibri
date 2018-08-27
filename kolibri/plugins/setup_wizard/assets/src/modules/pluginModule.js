@@ -40,7 +40,7 @@ export default {
       const superuser = { ...onboardingData.superuser };
       store.commit('SET_LOADING', true);
 
-      return client({ path: urls['kolibri:deviceprovision'](), entity: onboardingData }).then(
+      return client({ path: urls['kolibri:core:deviceprovision'](), entity: onboardingData }).then(
         response => {
           superuser.facility = response.entity.facility.id;
           store.dispatch('kolibriLogin', superuser);

@@ -2,7 +2,7 @@ import ScreenFull from 'screenfull';
 import urls from 'kolibri.urls';
 
 export function redirectBrowser(url) {
-  window.location.href = url || urls['kolibri:redirect_user']();
+  window.location.href = url || urls['kolibri:core:redirect_user']();
 }
 
 /**

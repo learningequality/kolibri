@@ -8,7 +8,7 @@ import bytesForHumans from '../../views/ManageContentPage/bytesForHumans';
  * and resolve validated data
  */
 export function getDeviceInfo() {
-  return client({ path: urls['kolibri:deviceinfo']() }).then(response => {
+  return client({ path: urls['kolibri:core:deviceinfo']() }).then(response => {
     const data = response.entity;
     data.server_time = new Date(data.server_time);
     data.content_storage_free_space = bytesForHumans(data.content_storage_free_space);

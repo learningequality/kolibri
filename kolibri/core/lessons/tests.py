@@ -71,12 +71,12 @@ class LessonCreationTestCase(APITestCase):
             'collection': self.classroom.id,
             'resources': []
         }
-        post_response = self.client.post(reverse('kolibri:lesson-list'), new_lesson, format='json')
+        post_response = self.client.post(reverse('kolibri:core:lesson-list'), new_lesson, format='json')
         self.assertEqual(post_response.status_code, 201)
 
         lesson_id = post_response.data['id']
 
-        get_response = self.client.get(reverse('kolibri:lesson-detail', kwargs={'pk': lesson_id}))
+        get_response = self.client.get(reverse('kolibri:core:lesson-detail', kwargs={'pk': lesson_id}))
         self.assertEqual(get_response.status_code, 200)
         self.assertEqual(get_response.data['title'], 'New Lesson')
 
@@ -94,11 +94,11 @@ class LessonCreationTestCase(APITestCase):
             'collection': self.classroom.id,
             'resources': []
         }
-        post_response = self.client.post(reverse('kolibri:lesson-list'), new_lesson, format='json')
+        post_response = self.client.post(reverse('kolibri:core:lesson-list'), new_lesson, format='json')
         lesson_id = post_response.data['id']
 
         # Reassign Lesson to lgroup3 only
-        patch_response = self.client.patch(reverse('kolibri:lesson-detail', kwargs={'pk': lesson_id}), {
+        patch_response = self.client.patch(reverse('kolibri:core:lesson-detail', kwargs={'pk': lesson_id}), {
             'title': 'Assigned to lgroup3',
             'lesson_assignments': [{'collection': lgroup3.id}]
         }, format='json')
@@ -122,7 +122,7 @@ class LessonCreationTestCase(APITestCase):
                 }
             ]
         }
-        post_response = self.client.post(reverse('kolibri:lesson-list'), new_lesson, format='json')
+        post_response = self.client.post(reverse('kolibri:core:lesson-list'), new_lesson, format='json')
         self.assertEqual(post_response.status_code, 201)
 
     def test_validate_unavailable_resources(self):
@@ -140,5 +140,5 @@ class LessonCreationTestCase(APITestCase):
                 }
             ]
         }
-        post_response = self.client.post(reverse('kolibri:lesson-list'), new_lesson, format='json')
+        post_response = self.client.post(reverse('kolibri:core:lesson-list'), new_lesson, format='json')
         self.assertEqual(post_response.status_code, 400)

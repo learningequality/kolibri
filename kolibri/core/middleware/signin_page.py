@@ -31,4 +31,4 @@ class RedirectToSignInPageIfNoGuestAccessAndNoActiveSession(MiddlewareMixin):
                 anon_urls = get_urls_by_role(user_kinds.ANONYMOUS)
                 allowable_urls = list(anon_urls) + [reverse('kolibri:admin:index')]
                 if not any(map(lambda x: request.path.startswith(x), allowable_urls)):
-                    return redirect(reverse('kolibri:redirect_user'))
+                    return redirect(reverse('kolibri:core:redirect_user'))

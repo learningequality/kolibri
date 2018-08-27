@@ -31,7 +31,7 @@
     },
     computed: {
       url() {
-        return urls['kolibri:logout']();
+        return urls['kolibri:core:logout']();
       },
     },
     role: UserKinds.LEARNER,

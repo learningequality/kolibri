@@ -43,10 +43,10 @@ class IgnoreGUIMiddleware(object):
 
 
 ALLOWED_PATH_LIST = [
-    "kolibri:deviceprovision",
-    "kolibri:setupwizardplugin:setupwizard",
-    "kolibri:set_language",
-    "kolibri:session-list",
+    "kolibri:core:deviceprovision",
+    "kolibri:core:setupwizardplugin:setupwizard",
+    "kolibri:core:set_language",
+    "kolibri:core:session-list",
 ]
 
 if getattr(settings, 'DEBUG', False):
@@ -75,7 +75,7 @@ class SetupMiddleware(MiddlewareMixin):
         self.device_provisioned = self.device_provisioned or device_provisioned()
         if self.device_provisioned:
             if any(map(lambda x: request.path.startswith(x), SETUP_WIZARD_URLS)):
-                return redirect(reverse("kolibri:redirect_user"))
+                return redirect(reverse("kolibri:core:redirect_user"))
             return
 
         # Don't redirect for URLs that are required for the setup wizard

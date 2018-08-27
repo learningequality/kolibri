@@ -264,7 +264,7 @@
         return Math.floor(this.logoHeight * 0.3);
       },
       guestURL() {
-        return urls['kolibri:guest']();
+        return urls['kolibri:core:guest']();
       },
     },
     watch: {

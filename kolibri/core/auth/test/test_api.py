@@ -77,7 +77,7 @@ class LearnerGroupAPITestCase(APITestCase):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_learnergroup_list(self):
-        response = self.client.get(reverse('kolibri:learnergroup-list'), format='json')
+        response = self.client.get(reverse('kolibri:core:learnergroup-list'), format='json')
         expected = [collections.OrderedDict((
             ('id', group.id),
             ('name', group.name),
@@ -91,7 +91,7 @@ class LearnerGroupAPITestCase(APITestCase):
         self.assertItemsEqual(response.data, expected)
 
     def test_learnergroup_detail(self):
-        response = self.client.get(reverse('kolibri:learnergroup-detail', kwargs={'pk': self.learner_groups[0].id}), format='json')
+        response = self.client.get(reverse('kolibri:core:learnergroup-detail', kwargs={'pk': self.learner_groups[0].id}), format='json')
         expected = {
             'id': self.learner_groups[0].id,
             'name': self.learner_groups[0].name,
@@ -102,7 +102,7 @@ class LearnerGroupAPITestCase(APITestCase):
 
     def test_parent_in_queryparam_with_one_id(self):
         classroom_id = self.classrooms[0].id
-        response = self.client.get(reverse('kolibri:learnergroup-list'), {'parent': classroom_id},
+        response = self.client.get(reverse('kolibri:core:learnergroup-list'), {'parent': classroom_id},
                                    format='json')
         expected = [collections.OrderedDict((
             ('id', group.id),
@@ -128,7 +128,7 @@ class ClassroomAPITestCase(APITestCase):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_classroom_list(self):
-        response = self.client.get(reverse('kolibri:classroom-list'), format='json')
+        response = self.client.get(reverse('kolibri:core:classroom-list'), format='json')
         expected = [collections.OrderedDict((
             ('id', classroom.id),
             ('name', classroom.name),
@@ -139,7 +139,7 @@ class ClassroomAPITestCase(APITestCase):
         self.assertItemsEqual(response.data, expected)
 
     def test_classroom_detail(self):
-        response = self.client.get(reverse('kolibri:classroom-detail', kwargs={'pk': self.classrooms[0].id}), format='json')
+        response = self.client.get(reverse('kolibri:core:classroom-detail', kwargs={'pk': self.classrooms[0].id}), format='json')
         expected = {
             'id': self.classrooms[0].id,
             'name': self.classrooms[0].name,
@@ -165,7 +165,7 @@ class FacilityAPITestCase(APITestCase):
 
     def test_facility_user_can_get_detail(self):
         self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility1)
-        response = self.client.get(reverse('kolibri:facility-detail', kwargs={'pk': self.facility1.pk}),
+        response = self.client.get(reverse('kolibri:core:facility-detail', kwargs={'pk': self.facility1.pk}),
                                    format='json')
         # .assertDictContainsSubset checks that the first argument is a subset of the second argument
         self.assertDictContainsSubset({
@@ -176,7 +176,7 @@ class FacilityAPITestCase(APITestCase):
         new_facility_name = "New Facility"
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility1)
         self.assertEqual(models.Facility.objects.filter(name=new_facility_name).count(), 0)
-        response = self.client.post(reverse('kolibri:facility-list'), {"name": new_facility_name}, format="json")
+        response = self.client.post(reverse('kolibri:core:facility-list'), {"name": new_facility_name}, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(models.Facility.objects.filter(name=new_facility_name).count(), 1)
 
@@ -184,14 +184,14 @@ class FacilityAPITestCase(APITestCase):
         new_facility_name = "New Facility"
         self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility1)
         self.assertEqual(models.Facility.objects.filter(name=new_facility_name).count(), 0)
-        response = self.client.post(reverse('kolibri:facility-list'), {"name": new_facility_name}, format="json")
+        response = self.client.post(reverse('kolibri:core:facility-list'), {"name": new_facility_name}, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(models.Facility.objects.filter(name=new_facility_name).count(), 0)
 
     def test_anonymous_user_cannot_create_facility(self):
         new_facility_name = "New Facility"
         self.assertEqual(models.Facility.objects.filter(name=new_facility_name).count(), 0)
-        response = self.client.post(reverse('kolibri:facility-list'), {"name": new_facility_name}, format="json")
+        response = self.client.post(reverse('kolibri:core:facility-list'), {"name": new_facility_name}, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(models.Facility.objects.filter(name=new_facility_name).count(), 0)
 
@@ -200,19 +200,19 @@ class FacilityAPITestCase(APITestCase):
         new_facility_name = "Renamed Facility"
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility1)
         self.assertEqual(models.Facility.objects.get(id=self.facility1.id).name, old_facility_name)
-        response = self.client.put(reverse('kolibri:facility-detail', kwargs={"pk": self.facility1.id}), {"name": new_facility_name}, format="json")
+        response = self.client.put(reverse('kolibri:core:facility-detail', kwargs={"pk": self.facility1.id}), {"name": new_facility_name}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(models.Facility.objects.get(id=self.facility1.id).name, new_facility_name)
 
     def test_device_admin_can_delete_facility(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility1)
         self.assertEqual(models.Facility.objects.filter(id=self.facility1.id).count(), 1)
-        response = self.client.delete(reverse('kolibri:facility-detail', kwargs={"pk": self.facility1.id}))
+        response = self.client.delete(reverse('kolibri:core:facility-detail', kwargs={"pk": self.facility1.id}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(models.Facility.objects.filter(id=self.facility1.id).count(), 0)
 
     def test_public_facility_endpoint(self):
-        response = self.client.get(reverse('kolibri:publicfacility-list'))
+        response = self.client.get(reverse('kolibri:core:publicfacility-list'))
         self.assertEqual(models.Facility.objects.all().count(), len(response.data))
 
 
@@ -229,7 +229,7 @@ class UserCreationTestCase(APITestCase):
         new_password = "davidsucks"
         bad_password = "ilovedavid"
         data = {"username": new_username, "password": new_password, "facility": self.facility.id}
-        response = self.client.post(reverse('kolibri:facilityuser-list'), data)
+        response = self.client.post(reverse('kolibri:core:facilityuser-list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(models.FacilityUser.objects.get(username=new_username).check_password(new_password))
         self.assertFalse(models.FacilityUser.objects.get(username=new_username).check_password(bad_password))
@@ -238,9 +238,9 @@ class UserCreationTestCase(APITestCase):
         new_username = "goliath"
         new_password = "davidsucks"
         data = {"username": new_username, "password": new_password, "facility": self.facility.id}
-        response = self.client.post(reverse('kolibri:facilityuser-list'), data, format="json")
+        response = self.client.post(reverse('kolibri:core:facilityuser-list'), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response = self.client.post(reverse('kolibri:facilityuser-list'), data, format="json")
+        response = self.client.post(reverse('kolibri:core:facilityuser-list'), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
@@ -254,20 +254,20 @@ class UserUpdateTestCase(APITestCase):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_user_update_info(self):
-        self.client.patch(reverse('kolibri:facilityuser-detail', kwargs={'pk': self.user.pk}), {'username': 'foo'}, format="json")
+        self.client.patch(reverse('kolibri:core:facilityuser-detail', kwargs={'pk': self.user.pk}), {'username': 'foo'}, format="json")
         self.user.refresh_from_db()
         self.assertEqual(self.user.username, "foo")
 
     def test_user_update_password(self):
         new_password = 'baz'
-        self.client.patch(reverse('kolibri:facilityuser-detail', kwargs={'pk': self.user.pk}), {'password': new_password}, format="json")
+        self.client.patch(reverse('kolibri:core:facilityuser-detail', kwargs={'pk': self.user.pk}), {'password': new_password}, format="json")
         self.client.logout()
         response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
         self.assertTrue(response)
 
     def test_user_update_password_non_partial_with_username(self):
         new_password = 'baz'
-        self.client.patch(reverse('kolibri:facilityuser-detail', kwargs={'pk': self.user.pk}),
+        self.client.patch(reverse('kolibri:core:facilityuser-detail', kwargs={'pk': self.user.pk}),
                           {'password': new_password, 'username': self.user.username}, format="json")
         self.client.logout()
         response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
@@ -284,11 +284,11 @@ class UserDeleteTestCase(APITestCase):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_user_delete(self):
-        response = self.client.delete(reverse('kolibri:facilityuser-detail', kwargs={'pk': self.user.pk}), format="json")
+        response = self.client.delete(reverse('kolibri:core:facilityuser-detail', kwargs={'pk': self.user.pk}), format="json")
         self.assertEqual(response.status_code, 204)
 
     def test_superuser_delete_self(self):
-        response = self.client.delete(reverse('kolibri:facilityuser-detail', kwargs={'pk': self.superuser.pk}), format="json")
+        response = self.client.delete(reverse('kolibri:core:facilityuser-detail', kwargs={'pk': self.superuser.pk}), format="json")
         self.assertEqual(response.status_code, 403)
 
 
@@ -306,38 +306,38 @@ class LoginLogoutTestCase(APITestCase):
         self.session_store = import_module(settings.SESSION_ENGINE).SessionStore()
 
     def test_login_and_logout_superuser(self):
-        self.client.post(reverse('kolibri:session-list'), data={"username": self.superuser.username, "password": DUMMY_PASSWORD})
+        self.client.post(reverse('kolibri:core:session-list'), data={"username": self.superuser.username, "password": DUMMY_PASSWORD})
         session_key = self.client.session.session_key
         self.assertTrue(self.session_store.exists(session_key))
-        self.client.delete(reverse('kolibri:session-detail', kwargs={'pk': 'current'}))
+        self.client.delete(reverse('kolibri:core:session-detail', kwargs={'pk': 'current'}))
         self.assertFalse(self.session_store.exists(session_key))
 
     def test_login_and_logout_facility_user(self):
-        self.client.post(reverse('kolibri:session-list'), data={"username": self.user.username, "password": DUMMY_PASSWORD, "facility": self.facility.id})
+        self.client.post(reverse('kolibri:core:session-list'), data={"username": self.user.username, "password": DUMMY_PASSWORD, "facility": self.facility.id})
         session_key = self.client.session.session_key
         self.assertTrue(self.session_store.exists(session_key))
-        self.client.delete(reverse('kolibri:session-detail', kwargs={'pk': 'current'}))
+        self.client.delete(reverse('kolibri:core:session-detail', kwargs={'pk': 'current'}))
         self.assertFalse(self.session_store.exists(session_key))
 
     def test_incorrect_credentials_does_not_log_in_user(self):
         session_key = self.client.session.session_key
-        self.client.post(reverse('kolibri:session-list'), data={"username": self.user.username, "password": "foo", "facility": self.facility.id})
+        self.client.post(reverse('kolibri:core:session-list'), data={"username": self.user.username, "password": "foo", "facility": self.facility.id})
         self.assertEqual(session_key, self.client.session.session_key)
 
     def test_session_return_admin_and_coach_kind(self):
-        self.client.post(reverse('kolibri:session-list'), data={"username": self.admin.username, "password": "bar", "facility": self.facility.id})
-        response = self.client.get(reverse('kolibri:session-detail', kwargs={'pk': 'current'}))
+        self.client.post(reverse('kolibri:core:session-list'), data={"username": self.admin.username, "password": "bar", "facility": self.facility.id})
+        response = self.client.get(reverse('kolibri:core:session-detail', kwargs={'pk': 'current'}))
         self.assertIn(role_kinds.ADMIN, response.data['kind'])
         self.assertIn(role_kinds.COACH, response.data['kind'])
 
     def test_session_return_anon_kind(self):
-        response = self.client.get(reverse('kolibri:session-detail', kwargs={'pk': 'current'}))
+        response = self.client.get(reverse('kolibri:core:session-detail', kwargs={'pk': 'current'}))
         self.assertTrue(response.data['kind'][0], 'anonymous')
 
     def test_session_update_last_active(self):
-        self.client.post(reverse('kolibri:session-list'), data={"username": self.user.username, "password": DUMMY_PASSWORD, "facility": self.facility.id})
+        self.client.post(reverse('kolibri:core:session-list'), data={"username": self.user.username, "password": DUMMY_PASSWORD, "facility": self.facility.id})
         expire_date = self.client.session.get_expiry_date()
-        self.client.get(reverse('kolibri:session-detail', kwargs={'pk': 'current'}))
+        self.client.get(reverse('kolibri:core:session-detail', kwargs={'pk': 'current'}))
         new_expire_date = self.client.session.get_expiry_date()
         self.assertTrue(expire_date < new_expire_date)
 
@@ -349,30 +349,30 @@ class AnonSignUpTestCase(APITestCase):
         provision_device()
 
     def test_anon_sign_up_creates_user(self):
-        response = self.client.post(reverse('kolibri:signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
+        response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(models.FacilityUser.objects.all())
 
     def test_anon_sign_up_returns_user(self):
         full_name = "Bob Lee"
-        response = self.client.post(reverse('kolibri:signup-list'), data={"full_name": full_name, "username": "user", "password": DUMMY_PASSWORD})
+        response = self.client.post(reverse('kolibri:core:signup-list'), data={"full_name": full_name, "username": "user", "password": DUMMY_PASSWORD})
         self.assertEqual(response.data['username'], 'user')
         self.assertEqual(response.data['full_name'], full_name)
 
     def test_create_user_with_same_username_fails(self):
         FacilityUserFactory.create(username='bob')
-        response = self.client.post(reverse('kolibri:signup-list'), data={"username": "bob", "password": DUMMY_PASSWORD})
+        response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "bob", "password": DUMMY_PASSWORD})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(len(models.FacilityUser.objects.all()), 1)
 
     def test_create_bad_username_fails(self):
-        response = self.client.post(reverse('kolibri:signup-list'), data={"username": "(***)", "password": DUMMY_PASSWORD})
+        response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "(***)", "password": DUMMY_PASSWORD})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(models.FacilityUser.objects.all())
 
     def test_sign_up_also_logs_in_user(self):
         session_key = self.client.session.session_key
-        self.client.post(reverse('kolibri:signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
+        self.client.post(reverse('kolibri:core:signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
         self.assertNotEqual(session_key, self.client.session.session_key)
 
 
@@ -389,34 +389,34 @@ class FacilityDatasetAPITestCase(APITestCase):
 
     def test_return_all_datasets_for_an_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-        response = self.client.get(reverse('kolibri:facilitydataset-list'))
+        response = self.client.get(reverse('kolibri:core:facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
 
     def test_admin_can_edit_dataset_for_which_they_are_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-        response = self.client.patch(reverse('kolibri:facilitydataset-detail', kwargs={'pk': self.facility.dataset_id}),
+        response = self.client.patch(reverse('kolibri:core:facilitydataset-detail', kwargs={'pk': self.facility.dataset_id}),
                                      {'description': 'This is not a drill'}, format="json")
         self.assertEqual(response.status_code, 200)
 
     def test_admin_cant_edit_dataset_for_which_they_are_not_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-        response = self.client.delete(reverse('kolibri:facilitydataset-detail', kwargs={'pk': self.facility2.dataset_id}),
+        response = self.client.delete(reverse('kolibri:core:facilitydataset-detail', kwargs={'pk': self.facility2.dataset_id}),
                                       {'description': 'This is not a drill'}, format="json")
         self.assertEqual(response.status_code, 403)
 
     def test_return_all_datasets_for_superuser(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.get(reverse('kolibri:facilitydataset-list'))
+        response = self.client.get(reverse('kolibri:core:facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
 
     def test_return_all_datasets_for_facility_user(self):
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD)
-        response = self.client.get(reverse('kolibri:facilitydataset-list'))
+        response = self.client.get(reverse('kolibri:core:facilitydataset-list'))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
 
     def test_facility_user_cannot_delete_dataset(self):
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD)
-        response = self.client.delete(reverse('kolibri:facilitydataset-detail', kwargs={'pk': self.facility.dataset_id}), format="json")
+        response = self.client.delete(reverse('kolibri:core:facilitydataset-detail', kwargs={'pk': self.facility.dataset_id}), format="json")
         self.assertEqual(response.status_code, 403)
 
 
@@ -433,14 +433,14 @@ class MembershipCascadeDeletion(APITestCase):
         models.Membership.objects.create(collection=self.lg, user=self.user)
 
     def test_delete_classroom_membership(self):
-        url = reverse('kolibri:membership-list') + "?user={}&collection={}".format(self.user.id, self.classroom.id)
+        url = reverse('kolibri:core:membership-list') + "?user={}&collection={}".format(self.user.id, self.classroom.id)
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
         self.assertFalse(models.Membership.objects.all().exists())
 
     def test_delete_detail(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.delete(reverse('kolibri:membership-detail', kwargs={'pk': self.classroom_membership.id}))
+        response = self.client.delete(reverse('kolibri:core:membership-detail', kwargs={'pk': self.classroom_membership.id}))
         self.assertEqual(response.status_code, 204)
         self.assertFalse(models.Membership.objects.all().exists())
 
@@ -462,24 +462,24 @@ class GroupMembership(APITestCase):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_create_group_membership_no_group_membership(self):
-        url = reverse('kolibri:membership-list')
+        url = reverse('kolibri:core:membership-list')
         response = self.client.post(url, {'user': self.user.id, 'collection': self.lg11.id})
         self.assertEqual(response.status_code, 201)
 
     def test_create_group_membership_group_membership_other_class(self):
         models.Membership.objects.create(user=self.user, collection=self.lg21)
-        url = reverse('kolibri:membership-list')
+        url = reverse('kolibri:core:membership-list')
         response = self.client.post(url, {'user': self.user.id, 'collection': self.lg11.id})
         self.assertEqual(response.status_code, 201)
 
     def test_create_group_membership_group_membership_same_class(self):
         models.Membership.objects.create(user=self.user, collection=self.lg12)
-        url = reverse('kolibri:membership-list')
+        url = reverse('kolibri:core:membership-list')
         response = self.client.post(url, {'user': self.user.id, 'collection': self.lg11.id})
         self.assertEqual(response.status_code, 400)
 
     def test_create_class_membership_group_membership_different_class(self):
         self.classroom2_membership.delete()
-        url = reverse('kolibri:membership-list')
+        url = reverse('kolibri:core:membership-list')
         response = self.client.post(url, {'user': self.user.id, 'collection': self.classroom2.id})
         self.assertEqual(response.status_code, 201)

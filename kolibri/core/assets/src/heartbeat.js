@@ -178,7 +178,7 @@ export class HeartBeat {
     window.location = window.origin;
   }
   sessionUrl(id) {
-    return urls['kolibri:session-detail'](id);
+    return urls['kolibri:core:session-detail'](id);
   }
   beat() {
     if (this.active) {

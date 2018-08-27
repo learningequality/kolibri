@@ -38,21 +38,21 @@ class LessonAPITestCase(APITestCase):
 
         self.client.login(username=user.username, password="pass")
 
-        response = self.client.delete(reverse("kolibri:lesson-detail", kwargs={'pk': self.lesson.id}))
+        response = self.client.delete(reverse("kolibri:core:lesson-detail", kwargs={'pk': self.lesson.id}))
         self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_lesson_delete(self):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.delete(reverse("kolibri:lesson-detail", kwargs={'pk': self.lesson.id}))
+        response = self.client.delete(reverse("kolibri:core:lesson-detail", kwargs={'pk': self.lesson.id}))
         self.assertEqual(response.status_code, 204)
 
     def test_logged_in_admin_lesson_create(self):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(reverse("kolibri:lesson-list"), {
+        response = self.client.post(reverse("kolibri:core:lesson-list"), {
             "title": "title next",
             "is_active": True,
             "collection": self.facility.id,
@@ -64,7 +64,7 @@ class LessonAPITestCase(APITestCase):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(reverse("kolibri:lesson-list"), {
+        response = self.client.post(reverse("kolibri:core:lesson-list"), {
             "title": "title next",
             "is_active": True,
             "collection": self.facility.id,
@@ -79,7 +79,7 @@ class LessonAPITestCase(APITestCase):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(reverse("kolibri:lesson-list"), {
+        response = self.client.post(reverse("kolibri:core:lesson-list"), {
             "title": "title next",
             "is_active": True,
             "collection": self.facility.id,
@@ -88,7 +88,7 @@ class LessonAPITestCase(APITestCase):
             }],
         }, format="json")
         lesson_id = models.Lesson.objects.get(title="title next").id
-        response = self.client.put(reverse("kolibri:lesson-detail", kwargs={'pk': lesson_id}), {
+        response = self.client.put(reverse("kolibri:core:lesson-detail", kwargs={'pk': lesson_id}), {
             "title": "title next",
             "is_active": True,
             "collection": self.facility.id,
@@ -102,7 +102,7 @@ class LessonAPITestCase(APITestCase):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(reverse("kolibri:lesson-list"), {
+        response = self.client.post(reverse("kolibri:core:lesson-list"), {
             "title": "title next",
             "is_active": True,
             "collection": self.facility.id,
@@ -112,7 +112,7 @@ class LessonAPITestCase(APITestCase):
         }, format="json")
         lesson_id = models.Lesson.objects.get(title="title next").id
         group = LearnerGroup.objects.create(name="test", parent=self.facility)
-        response = self.client.put(reverse("kolibri:lesson-detail", kwargs={'pk': lesson_id}), {
+        response = self.client.put(reverse("kolibri:core:lesson-detail", kwargs={'pk': lesson_id}), {
             "title": "title next",
             "is_active": True,
             "collection": self.facility.id,
@@ -129,7 +129,7 @@ class LessonAPITestCase(APITestCase):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(reverse("kolibri:lesson-list"), {
+        response = self.client.post(reverse("kolibri:core:lesson-list"), {
             "title": "title next",
             "is_active": True,
             "collection": self.facility.id,
@@ -139,7 +139,7 @@ class LessonAPITestCase(APITestCase):
         }, format="json")
         lesson_id = models.Lesson.objects.get(title="title next").id
         group = LearnerGroup.objects.create(name="test", parent=self.facility)
-        response = self.client.put(reverse("kolibri:lesson-detail", kwargs={'pk': lesson_id}), {
+        response = self.client.put(reverse("kolibri:core:lesson-detail", kwargs={'pk': lesson_id}), {
             "title": "title next",
             "is_active": True,
             "collection": self.facility.id,
@@ -166,7 +166,7 @@ class LessonAPITestCase(APITestCase):
 
         self.client.login(username=user.username, password="pass")
 
-        response = self.client.post(reverse("kolibri:lesson-list"), {
+        response = self.client.post(reverse("kolibri:core:lesson-list"), {
             "title": "title next",
             "is_active": True,
             "collection": self.facility.id,
@@ -178,7 +178,7 @@ class LessonAPITestCase(APITestCase):
 
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.put(reverse("kolibri:lesson-detail", kwargs={'pk': self.lesson.id}), {
+        response = self.client.put(reverse("kolibri:core:lesson-detail", kwargs={'pk': self.lesson.id}), {
             "title": "title",
             "is_active": True,
             "collection": self.facility.id,
@@ -194,7 +194,7 @@ class LessonAPITestCase(APITestCase):
 
         self.client.login(username=user.username, password="pass")
 
-        response = self.client.put(reverse("kolibri:lesson-detail", kwargs={'pk': self.lesson.id}), {
+        response = self.client.put(reverse("kolibri:core:lesson-detail", kwargs={'pk': self.lesson.id}), {
             "title": "title",
             "is_active": True,
             "collection": self.facility.id,

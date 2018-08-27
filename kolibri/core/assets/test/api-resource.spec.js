@@ -27,8 +27,8 @@ describe('Resource', function() {
     });
   });
   describe('name property', function() {
-    it('should return the kolibri: plus the passed in name property of the Resource', function() {
-      expect(resource.name).toEqual(`kolibri:${testName}`);
+    it('should return the kolibri: plus the namespace, plus the passed in name property of the Resource', function() {
+      expect(resource.name).toEqual(`kolibri:core:${testName}`);
     });
   });
   describe('getModel method', function() {

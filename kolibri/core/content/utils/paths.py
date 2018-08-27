@@ -134,6 +134,6 @@ def get_content_storage_file_url(filename, baseurl=None):
     """
     ext = os.path.splitext(filename)[1]
     if ext in POSSIBLE_ZIPPED_FILE_EXTENSIONS:
-        return reverse("kolibri:zipcontent", kwargs={"zipped_filename": filename, "embedded_filepath": ""})
+        return reverse("kolibri:core:zipcontent", kwargs={"zipped_filename": filename, "embedded_filepath": ""})
     else:
         return "{}{}/{}/{}".format(get_content_storage_url(baseurl), filename[0], filename[1], filename)

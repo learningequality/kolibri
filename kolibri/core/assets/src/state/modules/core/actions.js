@@ -209,7 +209,7 @@ export function kolibriLogin(store, sessionPayload) {
 
 export function kolibriLogout() {
   // Use the logout backend URL to initiate logout
-  redirectBrowser(urls['kolibri:logout']());
+  redirectBrowser(urls['kolibri:core:logout']());
 }
 
 export function getCurrentSession(store, force = false) {

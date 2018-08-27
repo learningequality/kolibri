@@ -126,7 +126,7 @@ def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs)
             item = kwargs.pop(key)
             key = re.sub(kwargs_check, '', key)
             reversal[key] = item
-    view, view_args, view_kwargs = resolve(reverse('kolibri:{0}-{1}'.format(base_name, route), kwargs=reversal))
+    view, view_args, view_kwargs = resolve(reverse('kolibri:core:{0}-{1}'.format(base_name, route), kwargs=reversal))
     # switch out None temporarily because invalid filtering and caching can occur
     _replace_dict_values(None, str(''), kwargs)
     request = copy.copy(context['request'])
