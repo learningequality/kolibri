@@ -19,9 +19,10 @@ from kolibri.deployment.default.urls import urlpatterns
 class KolibriTagNavigationTestCase(APITestCase):
 
     def test_redirect_to_setup_wizard(self):
-        response = self.client.get("/")
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.get("location"), reverse('kolibri:setupwizardplugin:setupwizard'))
+        with patch('kolibri.core.views.is_provisioned', return_value=False):
+            response = self.client.get("/")
+            self.assertEqual(response.status_code, 302)
+            self.assertEqual(response.get("location"), reverse('kolibri:setupwizardplugin:setupwizard'))
 
     def test_redirect_root_to_user_if_not_logged_in(self):
         provision_device()

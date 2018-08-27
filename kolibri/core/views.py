@@ -92,6 +92,13 @@ class GuestRedirectView(View):
 device_is_provisioned = False
 
 
+def is_provisioned():
+    # First check if the device has been provisioned
+    global device_is_provisioned
+    device_is_provisioned = device_is_provisioned or device_provisioned()
+    return device_is_provisioned
+
+
 @method_decorator(signin_redirect_exempt, name='dispatch')
 class RootURLRedirectView(View):
 
@@ -99,12 +106,8 @@ class RootURLRedirectView(View):
         """
         Redirects user based on the highest role they have for which a redirect is defined.
         """
-        # First check if the device has been provisioned
-        global device_is_provisioned
-        device_is_provisioned = device_is_provisioned or device_provisioned()
-
         # If it has not been provisioned and we have something that can handle setup, redirect there.
-        if not device_is_provisioned:
+        if not is_provisioned():
             SETUP_WIZARD_URLS = [hook.url for hook in SetupHook().registered_hooks]
             if SETUP_WIZARD_URLS:
                 return redirect(SETUP_WIZARD_URLS[0])
