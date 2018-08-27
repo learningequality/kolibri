@@ -9,13 +9,17 @@
     <p v-if="!searchTerm">{{ $tr('noSearch') }}</p>
 
     <template v-else>
-      <h1 class="search-results">{{ $tr('showingResultsFor', {
-        searchTerm,
-          results: contents.length,
-        totalResults: total_results
-      }) }}</h1>
+      <h1 v-if="contents.length === 0" class="search-results">
+        {{ $tr('noResultsMsg', { searchTerm }) }}
+      </h1>
+      <h1 v-else class="search-results">
+        {{ $tr('showingResultsFor', {
+          searchTerm,
+            results: contents.length,
+          totalResults: total_results
+        }) }}
+      </h1>
 
-      <p v-if="contents.length === 0">{{ $tr('noResultsMsg', { searchTerm }) }}</p>
 
       <ContentCardGroupGrid
         :genContentLink="genContentLink"
