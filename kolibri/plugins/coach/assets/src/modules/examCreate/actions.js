@@ -207,6 +207,7 @@ export function goToTopLevel(store) {
                 (acc, subtopic) => acc.concat(subtopic.allExercisesWithinTopic),
                 channel.exercises
               );
+              subtopic.channel = true;
               return subtopic;
             });
 
