@@ -370,7 +370,7 @@ class ContentNodeAPITestCase(APITestCase):
         node = content.ContentNode.objects.get(title="c2c2")
         ancestors = node.get_ancestors()
         ancestors_titles = {n.title for n in ancestors}
-        response = self.client.get(reverse("contentnode_slim-ancestors", kwargs={"pk": node.id}))
+        response = self.client.get(reverse("kolibri:core:contentnode_slim-ancestors", kwargs={"pk": node.id}))
         response_titles = {n['title'] for n in response.data}
         self.assertEqual(len(response.data), ancestors.count())
         self.assertEqual(ancestors_titles, response_titles)
@@ -378,7 +378,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_contentnodeslim_ids(self):
         titles = ["c2c2", "c2c3"]
         nodes = [content.ContentNode.objects.get(title=title) for title in titles]
-        response = self.client.get(reverse("contentnode_slim-list"), data={"ids": ','.join([n.id for n in nodes])})
+        response = self.client.get(reverse("kolibri:core:contentnode_slim-list"), data={"ids": ','.join([n.id for n in nodes])})
         self.assertEqual(len(response.data), 2)
         for i in range(len(titles)):
             self.assertEqual(response.data[i]["title"], titles[i])
@@ -386,7 +386,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_contentnodeslim_parent(self):
         parent = content.ContentNode.objects.get(title="c2")
         children = parent.get_children()
-        response = self.client.get(reverse("contentnode_slim-list"), data={"parent": parent.id, "by_role": True})
+        response = self.client.get(reverse("kolibri:core:contentnode_slim-list"), data={"parent": parent.id, "by_role": True})
         self.assertEqual(len(response.data), children.count())
         for i in range(len(children)):
             self.assertEqual(response.data[i]['title'], children[i].title)

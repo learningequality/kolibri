@@ -450,7 +450,9 @@ class ExamAttemptLogAPITestCase(APITestCase):
         examattemptlog = ExamAttemptLog.objects.create(**examattemptdata)
         self.exam.active = False
         self.exam.save()
-        response = self.client.patch(reverse('examattemptlog-detail', kwargs={'pk': examattemptlog.id}), {"start_timestamp": timezone.now()}, format="json")
+        response = self.client.patch(reverse('kolibri:core:examattemptlog-detail', kwargs={
+                'pk': examattemptlog.id
+            }), {"start_timestamp": timezone.now()}, format="json")
         self.assertEqual(response.status_code, 403)
 
     def test_examlog_closed_patch_permissions(self):
@@ -469,7 +471,9 @@ class ExamAttemptLogAPITestCase(APITestCase):
         examattemptlog = ExamAttemptLog.objects.create(**examattemptdata)
         self.examlog.closed = True
         self.examlog.save()
-        response = self.client.patch(reverse('examattemptlog-detail', kwargs={'pk': examattemptlog.id}), {"start_timestamp": timezone.now()}, format="json")
+        response = self.client.patch(reverse('kolibri:core:examattemptlog-detail', kwargs={
+                'pk': examattemptlog.id
+            }), {"start_timestamp": timezone.now()}, format="json")
         self.assertEqual(response.status_code, 403)
 
     def tearDown(self):
