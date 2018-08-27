@@ -8,7 +8,7 @@
     <div class="search-box-row">
       <label class="visuallyhidden" for="searchfield">{{ $tr('searchBoxLabel') }}</label>
       <input
-        v-model="searchQuery"
+        v-model.trim="searchQuery"
         id="searchfield"
         type="search"
         class="search-input"
@@ -324,16 +324,20 @@
   }
 
   .filter-icon {
-    margin-right: 12px;
-    vertical-align: middle;
+    position: absolute;
+    top: 50%;
+    bottom: 50%;
+    margin-left: 12px;
+    transform: translate(-50%, -50%);
   }
 
   .filter:nth-of-type(1) {
-    margin-right: 32px;
+    margin-right: 16px;
   }
 
   .filter {
-    margin-bottom: 0;
+    margin-bottom: 16px;
+    margin-left: 28px;
   }
 
   .filters {
@@ -341,6 +345,7 @@
   }
 
   .ib {
+    position: relative;
     display: inline-block;
   }
 
