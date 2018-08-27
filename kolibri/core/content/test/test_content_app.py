@@ -739,6 +739,18 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data[0]['count'],
                          content.ContentNode.objects.filter(content_id='f2332710c2fd483386cdeb5dcbdda81f').count())
 
+    def test_search_total_results(self):
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'root'})
+        self.assertEqual(response.data['total_results'], 1)
+
+    def test_search_kinds(self):
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'root'})
+        self.assertEqual(list(response.data['content_kinds']), [content_kinds.TOPIC])
+
+    def test_search_channels(self):
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'root'})
+        self.assertEqual(list(response.data['channel_ids']), [self.the_channel_id])
+
     def test_search(self):
         # ensure search works when there are no words not defined
         response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': '!?,'})
