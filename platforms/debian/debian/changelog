@@ -1,3 +1,9 @@
+kolibri-source (0.10.1-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 05 Aug 2018 22:34:45 +0200
+
 kolibri-source (0.10.1~b1-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
