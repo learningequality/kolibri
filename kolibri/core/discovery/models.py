@@ -25,11 +25,11 @@ class NetworkLocation(models.Model):
     def available(self):
         try:
             info = NetworkClient(base_url=self.base_url).info
-            self.application = info.get("application", self.application)
-            self.kolibri_version = info.get("kolibri_version", self.kolibri_version)
-            self.device_name = info.get("device_name", self.device_name)
-            self.instance_id = info.get("instance_id", self.instance_id)
-            self.operating_system = info.get("operating_system", self.operating_system)
+            self.application = info.get("application", self.application) or ""
+            self.kolibri_version = info.get("kolibri_version", self.kolibri_version) or ""
+            self.device_name = info.get("device_name", self.device_name) or ""
+            self.instance_id = info.get("instance_id", self.instance_id) or ""
+            self.operating_system = info.get("operating_system", self.operating_system) or ""
             self.save()
             return True
         except NetworkClientError:
