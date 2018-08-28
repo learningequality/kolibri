@@ -57,7 +57,8 @@
     $trs: {
       searchPageHeader: 'Search',
       noSearch: 'Search by typing in the box above',
-      showingResultsFor: "{totalResults} results for '{searchTerm}'",
+      showingResultsFor:
+        "{totalResults, plural, one {{totalResults} result} other {{totalResults} results}} for '{searchTerm}'",
       noResultsMsg: "No results for '{searchTerm}'",
       documentTitle: 'Search',
       viewMore: 'View more',
