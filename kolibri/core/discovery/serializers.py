@@ -15,6 +15,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = NetworkLocation
         fields = ('id', 'available', 'base_url', 'device_name', 'instance_id', 'added', 'last_accessed', 'operating_system', 'application', 'kolibri_version')
+        read_only_fields = ('available', 'instance_id', 'added', 'last_accessed', 'operating_system', 'application', 'kolibri_version')
 
     def validate_base_url(self, value):
         try:
