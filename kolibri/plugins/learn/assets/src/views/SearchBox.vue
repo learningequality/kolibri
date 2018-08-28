@@ -70,6 +70,7 @@
           :label="$tr('resourceType')"
           :options="contentKindFilterOptions"
           :inline="true"
+          :disabled="!contentKindFilterOptions.length"
           class="filter"
           v-model="contentKindFilterSelection"
         />
@@ -86,6 +87,7 @@
           :label="$tr('channels')"
           :options="channelFilterOptions"
           :inline="true"
+          :disabled="!channelFilterOptions.length"
           class="filter"
           v-model="channelFilterSelection"
         />
@@ -172,22 +174,28 @@
         return { label: this.$tr('all'), value: ALL_FILTER };
       },
       contentKindFilterOptions() {
-        const options = Object.keys(kindFilterToLabelMap)
-          .filter(kind => !this.content_kinds.length || this.content_kinds.includes(kind))
-          .map(kind => ({
-            label: this.$tr(kindFilterToLabelMap[kind]),
-            value: kind,
-          }));
-        return [this.allFilter, ...options];
+        if (this.content_kinds.length) {
+          const options = Object.keys(kindFilterToLabelMap)
+            .filter(kind => this.content_kinds.includes(kind))
+            .map(kind => ({
+              label: this.$tr(kindFilterToLabelMap[kind]),
+              value: kind,
+            }));
+          return [this.allFilter, ...options];
+        }
+        return [];
       },
       channelFilterOptions() {
-        const options = this.channels
-          .filter(channel => this.channel_ids.includes(channel.id))
-          .map(channel => ({
-            label: channel.title,
-            value: channel.id,
-          }));
-        return [this.allFilter, ...options];
+        if (this.channel_ids.length) {
+          const options = this.channels
+            .filter(channel => this.channel_ids.includes(channel.id))
+            .map(channel => ({
+              label: channel.title,
+              value: channel.id,
+            }));
+          return [this.allFilter, ...options];
+        }
+        return [];
       },
       filterUpdate() {
         return (
@@ -204,7 +212,7 @@
         this.searchQuery = val || '';
       },
       filterUpdate() {
-        this.search();
+        this.search(true);
       },
     },
     beforeMount() {
@@ -225,16 +233,18 @@
           this.searchQuery = '';
         }
       },
-      search() {
+      search(filterUpdate = false) {
         if (this.searchQuery !== '') {
           const query = {
             searchTerm: this.searchQuery,
           };
-          if (this.contentKindFilterSelection.value) {
-            query.kind = this.contentKindFilterSelection.value;
-          }
-          if (this.channelFilterSelection.value) {
-            query.channel_id = this.channelFilterSelection.value;
+          if (filterUpdate === true) {
+            if (this.contentKindFilterSelection.value) {
+              query.kind = this.contentKindFilterSelection.value;
+            }
+            if (this.channelFilterSelection.value) {
+              query.channel_id = this.channelFilterSelection.value;
+            }
           }
           this.$router.push({
             name: PageNames.SEARCH,
