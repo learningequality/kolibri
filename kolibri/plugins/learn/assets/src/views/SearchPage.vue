@@ -15,8 +15,7 @@
       <h1 v-else class="search-results">
         {{ $tr('showingResultsFor', {
           searchTerm,
-            results: contents.length,
-          totalResults: total_results
+            totalResults: total_results
         }) }}
       </h1>
 
@@ -28,7 +27,6 @@
 
       <KButton
         v-if="contents.length < total_results && !loading"
-        appearance="basic-link"
         :text="$tr('viewMore')"
         @click="loadMore"
       />
@@ -59,7 +57,7 @@
     $trs: {
       searchPageHeader: 'Search',
       noSearch: 'Search by typing in the box above',
-      showingResultsFor: "Results for '{searchTerm}' ({results} of {totalResults})",
+      showingResultsFor: "{totalResults} results for '{searchTerm}'",
       noResultsMsg: "No results for '{searchTerm}'",
       documentTitle: 'Search',
       viewMore: 'View more',

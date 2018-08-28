@@ -90,12 +90,6 @@
           v-model="channelFilterSelection"
         />
       </div>
-      <KButton
-        appearance="basic-link"
-        :disabled="!searchUpdate"
-        :text="$tr('updateSearch')"
-        @click="search"
-      />
     </div>
   </form>
 
@@ -128,7 +122,6 @@
       searchBoxLabel: 'Search',
       clearButtonLabel: 'Clear',
       startSearchButtonLabel: 'Start search',
-      updateSearch: 'Update search',
       resourceType: 'Type',
       all: 'All',
       topics: 'Topics',
@@ -196,26 +189,33 @@
           }));
         return [this.allFilter, ...options];
       },
-      searchUpdate() {
+      filterUpdate() {
         return (
-          this.searchQuery !== this.searchTerm ||
           this.contentKindFilterSelection.value !== this.kindFilter ||
           this.channelFilterSelection.value !== this.channelFilter
         );
+      },
+      searchUpdate() {
+        return this.searchQuery !== this.searchTerm || this.filterUpdate;
       },
     },
     watch: {
       searchTerm(val) {
         this.searchQuery = val || '';
       },
+      filterUpdate() {
+        this.search();
+      },
     },
     beforeMount() {
-      this.contentKindFilterSelection = this.contentKindFilterOptions.find(
-        option => option.value === this.$store.state.search.kindFilter
-      );
-      this.channelFilterSelection = this.channelFilterOptions.find(
-        option => option.value === this.$store.state.search.channelFilter
-      );
+      this.contentKindFilterSelection =
+        this.contentKindFilterOptions.find(
+          option => option.value === this.$store.state.search.kindFilter
+        ) || {};
+      this.channelFilterSelection =
+        this.channelFilterOptions.find(
+          option => option.value === this.$store.state.search.channelFilter
+        ) || {};
     },
     methods: {
       handleEscKey() {
