@@ -581,9 +581,9 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
         # Use unfiltered queryset to collect channel_ids and kinds metadata.
         unfiltered_queryset = self.get_queryset()
 
-        channel_ids = unfiltered_queryset.filter(all_queries_filter).values_list('channel_id', flat=True).distinct()
+        channel_ids = unfiltered_queryset.filter(all_queries_filter).values_list('channel_id', flat=True).order_by('channel_id').distinct()
 
-        content_kinds = unfiltered_queryset.filter(all_queries_filter).values_list('kind', flat=True).distinct()
+        content_kinds = unfiltered_queryset.filter(all_queries_filter).values_list('kind', flat=True).order_by('kind').distinct()
 
         serializer = self.get_serializer(results, many=True)
         return Response({
