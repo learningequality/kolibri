@@ -17,6 +17,8 @@ from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_
 from kolibri.core.content.utils.content_types_tools import renderable_contentnodes_without_topics_q_filter
 from kolibri.core.content.utils.import_export_content import get_num_coach_contents
 from kolibri.core.content.utils.paths import get_content_storage_file_path
+from kolibri.core.fields import create_timezonestamp
+from kolibri.core.serializers import KolibriModelSerializer
 
 
 def _files_for_nodes(nodes):
@@ -120,6 +122,52 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             'version',
             'available',
         )
+
+
+class PublicChannelSerializer(KolibriModelSerializer):
+    matching_tokens = serializers.SerializerMethodField('match_tokens')
+    language = serializers.SerializerMethodField()
+    included_languages = serializers.SerializerMethodField()
+    total_resource_count = serializers.SerializerMethodField()
+    icon_encoding = serializers.SerializerMethodField()
+    published_size = serializers.SerializerMethodField()
+    last_published = serializers.SerializerMethodField()
+    public = serializers.SerializerMethodField()
+
+    def get_public(self, instance):
+        return True
+
+    def get_language(self, instance):
+        if instance.root.lang is None:
+            return None
+
+        return instance.root.lang.lang_code
+
+    def get_included_languages(self, instance):
+        channel_nodes = ContentNode.objects.filter(channel_id=instance.id)
+        return list(channel_nodes.order_by('lang').values_list('lang', flat=True).distinct())
+
+    def get_total_resource_count(self, instance):
+        channel_nodes = ContentNode.objects.filter(channel_id=instance.id)
+        return channel_nodes.filter(available=True).exclude(kind=content_kinds.TOPIC).count()
+
+    def get_icon_encoding(self, instance):
+        return instance.thumbnail
+
+    def get_published_size(self, instance):
+        channel_nodes = ContentNode.objects.filter(channel_id=instance.id)
+        return _total_file_size(_files_for_nodes(channel_nodes).filter(available=True))
+
+    def get_last_published(self, instance):
+        return instance.last_updated if not instance.last_updated else create_timezonestamp(instance.last_updated)
+
+    def match_tokens(self, channel):
+        return []
+
+    class Meta:
+        model = ChannelMetadata
+        fields = ('id', 'name', 'language', 'included_languages', 'description', 'total_resource_count', 'version',
+                  'published_size', 'last_published', 'icon_encoding', 'matching_tokens', 'public')
 
 
 class LowerCaseField(serializers.CharField):
