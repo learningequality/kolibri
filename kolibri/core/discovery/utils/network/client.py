@@ -30,10 +30,12 @@ class NetworkClient(object):
                 logger.info("Attempting connection to: {}".format(url))
                 response = self.get("/api/public/info/", base_url=url, timeout=5, allow_redirects=True)
                 # check that we successfully connected, and if we were redirected that it's still the right endpoint
-                if response.status_code == 200 and response.url.endswith("/api/public/info/"):
-                    logger.info("Success! We connected to: {}".format(response.url))
+                if response.status_code == 200 and response.url.rstrip("/").endswith("/api/public/info"):
                     self.info = response.json()
-                    return url
+                    if self.info["application"] not in ["studio", "kolibri"]:
+                        raise requests.RequestException("Server is not running Kolibri or Studio")
+                    logger.info("Success! We connected to: {}".format(response.url))
+                    return response.url.rstrip("/").replace("api/public/info", "")
             except (requests.RequestException) as e:
                 logger.info("Unable to connect: {}".format(e))
 
