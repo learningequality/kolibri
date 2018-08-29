@@ -123,15 +123,15 @@ def get_info_url(baseurl=None):
     return get_content_server_url('/api/public/info', baseurl=baseurl)
 
 
-def get_channel_lookup_url(version='1', identifier=None, baseurl=None, keyword=None, language_id=None):
+def get_channel_lookup_url(version='1', identifier=None, baseurl=None, keyword=None, language=None):
     content_server_path = '/api/public/v{}/channels'.format(version)
     if identifier:
         content_server_path += '/lookup/{}'.format(identifier)
     content_server_path += '?'
     if keyword:
         content_server_path += 'keyword={}&'.format(keyword)
-    if language_id:
-        content_server_path += 'language={}'.format(language_id)
+    if language:
+        content_server_path += 'language={}'.format(language)
 
     return get_content_server_url(content_server_path, baseurl=baseurl)
 

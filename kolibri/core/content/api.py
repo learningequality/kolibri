@@ -601,9 +601,9 @@ class RemoteChannelViewSet(viewsets.ViewSet):
 
     http_method_names = ['get']
 
-    def _make_channel_endpoint_request(self, identifier=None, baseurl=None):
+    def _make_channel_endpoint_request(self, identifier=None, baseurl=None, keyword=None, language=None):
 
-        url = get_channel_lookup_url(identifier=identifier, baseurl=baseurl)
+        url = get_channel_lookup_url(identifier=identifier, baseurl=baseurl, keyword=keyword, language=language)
 
         resp = requests.get(url)
 
@@ -668,14 +668,18 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         Gets metadata about all public channels on kolibri studio.
         """
         baseurl = request.GET.get("baseurl", None)
-        return self._make_channel_endpoint_request(baseurl=baseurl)
+        keyword = request.GET.get("keyword", None)
+        language = request.GET.get("language", None)
+        return self._make_channel_endpoint_request(baseurl=baseurl, keyword=keyword, language=language)
 
     def retrieve(self, request, pk=None):
         """
         Gets metadata about a channel through a token or channel id.
         """
         baseurl = request.GET.get("baseurl", None)
-        return self._make_channel_endpoint_request(identifier=pk, baseurl=baseurl)
+        keyword = request.GET.get("keyword", None)
+        language = request.GET.get("language", None)
+        return self._make_channel_endpoint_request(identifier=pk, baseurl=baseurl, keyword=keyword, language=language)
 
     @list_route(methods=['get'])
     def kolibri_studio_status(self, request, **kwargs):
