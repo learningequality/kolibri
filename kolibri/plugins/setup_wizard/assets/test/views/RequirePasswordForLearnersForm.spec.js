@@ -29,8 +29,8 @@ describe('RequirePasswordForLearnersForm', () => {
     expect(wrapper.vm.settingIsEnabled).toEqual(false);
   });
 
-  it('has the correct default with "personal" preset', () => {
-    const { wrapper } = makeWrapper({ preset: 'personal' });
+  it('has the correct default with "informal" preset', () => {
+    const { wrapper } = makeWrapper({ preset: 'informal' });
     expect(wrapper.vm.settingIsEnabled).toEqual(true);
   });
 
