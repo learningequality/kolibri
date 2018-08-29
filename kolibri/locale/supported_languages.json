@@ -5,6 +5,12 @@
     "english_name": "Arabic"
   },
   {
+    "language_code": "bg",
+    "territory_code": "bg",
+    "language_name": "Български",
+    "english_name": "Bulgarian"
+  },
+  {
     "language_code": "bn",
     "territory_code": "bd",
     "language_name": "বাংলা",
