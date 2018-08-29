@@ -16,18 +16,10 @@ from __future__ import unicode_literals
 
 import logging
 
-from django.core.urlresolvers import reverse
-
 from kolibri.plugins.hooks import KolibriHook
+from kolibri.plugins.utils import plugin_url
 
 logger = logging.getLogger(__name__)
-
-
-def plugin_url(plugin_class, url_name):
-    return reverse('kolibri:{namespace}:{url_name}'.format(
-        namespace=plugin_class().url_namespace(),
-        url_name=url_name,
-    ))
 
 
 class NavigationHook(KolibriHook):

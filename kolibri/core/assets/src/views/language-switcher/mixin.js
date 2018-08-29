@@ -4,7 +4,7 @@ import { httpClient } from 'kolibri.client';
 export default {
   methods: {
     switchLanguage(code) {
-      const path = this.Kolibri.urls['kolibri:set_language']();
+      const path = this.Kolibri.urls['kolibri:core:set_language']();
       const entity = { language: code };
       httpClient({
         path,

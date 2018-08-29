@@ -568,20 +568,20 @@ export class Resource {
   /**
    * Create a resource with a Django REST API name corresponding to the name parameter.
    */
-  constructor({ name, idKey = 'id', ...options } = {}) {
+  constructor({ name, idKey = 'id', namespace = 'core', ...options } = {}) {
     if (!name) {
       throw ReferenceError('Resource must be instantiated with a name property');
     }
+    this.name = `kolibri:${namespace}:${name}`;
     if (process.env.NODE_ENV !== 'production') {
       if (window.schema && window.schema.content) {
-        if (!window.schema.content[name]) {
+        if (!window.schema.content[this.name]) {
           logging.error(`${name} is not a recognized basename of an API endpoint on the server`);
         } else {
-          this.__schema = window.schema.content[name];
+          this.__schema = window.schema.content[this.name];
         }
       }
     }
-    this.name = name;
     this.idKey = idKey;
     const optionsDefinitions = Object.getOwnPropertyDescriptors(options);
     Object.keys(optionsDefinitions).forEach(key => {

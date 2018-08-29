@@ -209,7 +209,7 @@ export function kolibriLogin(store, sessionPayload) {
 
 export function kolibriLogout() {
   // Use the logout backend URL to initiate logout
-  redirectBrowser(urls['kolibri:logout']());
+  redirectBrowser(urls['kolibri:core:logout']());
 }
 
 export function getCurrentSession(store, force = false) {
@@ -236,6 +236,11 @@ export function getFacilities(store) {
 export function getFacilityConfig(store, facilityId) {
   const { facilities, currentFacilityId } = store.getters;
   let facId = facilityId || currentFacilityId;
+  if (!facId) {
+    // No facility Id, so nothing good is going to happen here.
+    // Redirect and let Kolibri sort it out.
+    return Promise.resolve(redirectBrowser());
+  }
   const currentFacility = facilities.find(facility => facility.id === facId);
   let datasetPromise;
   if (currentFacility && typeof currentFacility.dataset === 'object') {
