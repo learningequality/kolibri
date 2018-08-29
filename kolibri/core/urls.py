@@ -37,8 +37,6 @@ from __future__ import unicode_literals
 from django.conf.urls import include
 from django.conf.urls import url
 from django.conf.urls.static import static
-from django.contrib import admin
-from morango import urls as morango_urls
 
 from .views import GuestRedirectView
 from .views import logout_view
@@ -61,10 +59,7 @@ core_urlpatterns = [
 
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
     url(r'', include(core_urlpatterns, namespace='core')),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'', include(morango_urls)),
 ]
 
 urlpatterns += plugin_urls()

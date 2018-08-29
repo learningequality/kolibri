@@ -23,6 +23,8 @@ from __future__ import unicode_literals
 
 from django.conf.urls import include
 from django.conf.urls import url
+from django.contrib import admin
+from morango import urls as morango_urls
 
 from kolibri.utils.conf import OPTIONS
 
@@ -31,6 +33,11 @@ path_prefix = OPTIONS['Deployment']['PATH_PREFIX']
 if path_prefix == '/':
     path_prefix = ''
 
-urlpatterns = [
-    url(path_prefix, include('kolibri.core.urls')),
+url_patterns_prefixed = [
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'', include(morango_urls)),
+    url(r'', include('kolibri.core.urls')),
 ]
+
+urlpatterns = [url(path_prefix, include(url_patterns_prefixed))]

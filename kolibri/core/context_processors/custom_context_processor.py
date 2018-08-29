@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from user_agents import parse
 
 from kolibri.core.auth.api import SessionViewSet
@@ -51,3 +52,7 @@ def supported_browser(request):
         request.session['supported_browser'] = all(
             pass_browser_entry(user_agent, entry) for entry in browser_requirements)
     return {'supported_browser': request.session['supported_browser']}
+
+
+def developer_mode(request):
+    return {'developer_mode': getattr(settings, 'DEVELOPER_MODE', False)}

@@ -2,13 +2,9 @@ import os
 import re
 
 from django.core.urlresolvers import reverse
+from six.moves.urllib.parse import urljoin
 
 from kolibri.utils import conf
-
-try:
-    from urlparse import urljoin
-except ImportError:
-    from urllib.parse import urljoin
 
 
 # valid storage filenames consist of 32-char hex plus a file extension

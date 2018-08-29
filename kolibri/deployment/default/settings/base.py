@@ -18,11 +18,8 @@ import os
 
 import pytz
 from django.conf import locale
+from six.moves.urllib.parse import urljoin
 from tzlocal import get_localzone
-try:
-    from urlparse import urljoin
-except ImportError:
-    from urllib.parse import urljoin
 
 import kolibri
 from kolibri.utils import conf
@@ -119,6 +116,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'kolibri.core.context_processors.custom_context_processor.return_session',
                 'kolibri.core.context_processors.custom_context_processor.supported_browser',
+                'kolibri.core.context_processors.custom_context_processor.developer_mode',
             ],
         },
     },
