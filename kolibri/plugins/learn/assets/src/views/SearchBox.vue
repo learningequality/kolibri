@@ -71,8 +71,10 @@
           :options="contentKindFilterOptions"
           :inline="true"
           :disabled="!contentKindFilterOptions.length"
+          :value="contentKindFilterSelection"
+          @change="updateFilter"
+          ref="contentKindFilter"
           class="filter"
-          v-model="contentKindFilterSelection"
         />
       </div>
       <div
@@ -88,8 +90,10 @@
           :options="channelFilterOptions"
           :inline="true"
           :disabled="!channelFilterOptions.length"
+          :value="channelFilterSelection"
+          @change="updateFilter"
+          ref="channelFilter"
           class="filter"
-          v-model="channelFilterSelection"
         />
       </div>
     </div>
@@ -155,6 +159,8 @@
     data() {
       return {
         searchQuery: this.$store.state.search.searchTerm,
+        contentKindFilterSelection: {},
+        channelFilterSelection: {},
       };
     },
     computed: {
@@ -195,38 +201,30 @@
         }
         return [];
       },
-      searchUpdate() {
+      filterUpdate() {
         return (
-          this.searchQuery !== this.searchTerm ||
           this.contentKindFilterSelection.value !== this.kindFilter ||
           this.channelFilterSelection.value !== this.channelFilter
         );
+      },
+      searchUpdate() {
+        return this.searchQuery !== this.searchTerm || this.filterUpdate;
       },
     },
     watch: {
       searchTerm(val) {
         this.searchQuery = val || '';
       },
-      contentKindFilterSelection() {
-        this.search(true);
-      },
-      channelFilterSelection() {
-        this.search(true);
-      },
     },
     beforeMount() {
-      this.contentKindFilterSelection = Object.assign(
-        {},
+      this.contentKindFilterSelection =
         this.contentKindFilterOptions.find(
           option => option.value === this.$store.state.search.kindFilter
-        ) || this.allFilter
-      );
-      this.channelFilterSelection = Object.assign(
-        {},
+        ) || this.allFilter;
+      this.channelFilterSelection =
         this.channelFilterOptions.find(
           option => option.value === this.$store.state.search.channelFilter
-        ) || this.allFilter
-      );
+        ) || this.allFilter;
     },
     methods: {
       handleEscKey() {
@@ -236,17 +234,20 @@
           this.searchQuery = '';
         }
       },
+      updateFilter() {
+        this.search(true);
+      },
       search(filterUpdate = false) {
         if (this.searchQuery !== '') {
           const query = {
             searchTerm: this.searchQuery,
           };
           if (filterUpdate === true) {
-            if (this.contentKindFilterSelection.value) {
-              query.kind = this.contentKindFilterSelection.value;
+            if (this.$refs.contentKindFilter.selection.value) {
+              query.kind = this.$refs.contentKindFilter.selection.value;
             }
-            if (this.channelFilterSelection.value) {
-              query.channel_id = this.channelFilterSelection.value;
+            if (this.$refs.channelFilter.selection.value) {
+              query.channel_id = this.$refs.channelFilter.selection.value;
             }
           }
           this.$router.push({
