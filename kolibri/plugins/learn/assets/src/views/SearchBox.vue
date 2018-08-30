@@ -155,8 +155,6 @@
     data() {
       return {
         searchQuery: this.$store.state.search.searchTerm,
-        contentKindFilterSelection: {},
-        channelFilterSelection: {},
       };
     },
     computed: {
@@ -197,33 +195,38 @@
         }
         return [];
       },
-      filterUpdate() {
+      searchUpdate() {
         return (
+          this.searchQuery !== this.searchTerm ||
           this.contentKindFilterSelection.value !== this.kindFilter ||
           this.channelFilterSelection.value !== this.channelFilter
         );
-      },
-      searchUpdate() {
-        return this.searchQuery !== this.searchTerm || this.filterUpdate;
       },
     },
     watch: {
       searchTerm(val) {
         this.searchQuery = val || '';
       },
-      filterUpdate() {
+      contentKindFilterSelection() {
+        this.search(true);
+      },
+      channelFilterSelection() {
         this.search(true);
       },
     },
     beforeMount() {
-      this.contentKindFilterSelection =
+      this.contentKindFilterSelection = Object.assign(
+        {},
         this.contentKindFilterOptions.find(
           option => option.value === this.$store.state.search.kindFilter
-        ) || {};
-      this.channelFilterSelection =
+        ) || this.allFilter
+      );
+      this.channelFilterSelection = Object.assign(
+        {},
         this.channelFilterOptions.find(
           option => option.value === this.$store.state.search.channelFilter
-        ) || {};
+        ) || this.allFilter
+      );
     },
     methods: {
       handleEscKey() {

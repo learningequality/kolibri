@@ -747,10 +747,6 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'root'})
         self.assertEqual(list(response.data['content_kinds']), [content_kinds.TOPIC])
 
-    def test_search_channels(self):
-        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'root'})
-        self.assertEqual(response.data['content_kinds'][:], [content_kinds.TOPIC])
-
     def test_search_repeated_kinds(self):
         # Ensure that each kind is only returned once.
         response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'c'})
