@@ -55,10 +55,10 @@ describe('SetupWizardIndex', () => {
     expect(wrapper.vm.provisionDevice).toHaveBeenCalledTimes(1);
   });
 
-  it('submits a default facility name if "personal" preset is used', () => {
+  it('submits a default facility name if "informal" preset is used', () => {
     const { els, wrapper, store } = makeWrapper();
     // set superuser, since that's how name is derived
-    store.commit('SET_FACILITY_PRESET', 'personal');
+    store.commit('SET_FACILITY_PRESET', 'informal');
     store.commit('SET_SU', {
       name: 'Fred Rogers',
       username: 'mr_rogers',
