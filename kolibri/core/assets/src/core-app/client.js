@@ -55,7 +55,7 @@ const serverDisconnectDetection = interceptor({
     // disconnection status codes.
     if (response.status && errorCodes.includes(response.status.code)) {
       // If so, set our heartbeat module to start monitoring the disconnection state
-      heartbeat.monitorDisconnect();
+      heartbeat.monitorDisconnect(response.status.code);
       // Return an error
       return Promise.reject(response);
     }

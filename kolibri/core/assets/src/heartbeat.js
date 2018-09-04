@@ -20,10 +20,12 @@ const reconnectMultiplier = 2;
 
 const maxReconnectTime = 600;
 
+const timeoutReconnectTime = 30;
+
 const minReconnectTime = 5;
 
 export class HeartBeat {
-  constructor(delay = 150000) {
+  constructor(delay = 240000) {
     if (typeof delay !== 'number') {
       throw new ReferenceError('The delay must be a number in milliseconds');
     }
@@ -113,7 +115,9 @@ export class HeartBeat {
     }
     return client({
       params: {
-        active: this.active,
+        // Only send active when both connected and activity has been registered.
+        // Do this to prevent a user logging activity cascade on the server side.
+        active: connected(store.state) && this.active,
       },
       path: this.sessionUrl('current'),
     })
@@ -128,9 +132,9 @@ export class HeartBeat {
         // An error occurred.
         logging.error('Session polling failed, with error: ', error);
         if (errorCodes.includes(error.status.code)) {
-          // We had an error that indicates that we are disconnected, so start to monitoring
+          // We had an error that indicates that we are disconnected, so start to monitor
           // the disconnection.
-          this.monitorDisconnect();
+          this.monitorDisconnect(error.status.code);
         }
       });
   }
@@ -139,11 +143,18 @@ export class HeartBeat {
    * This method can be called repeatedly as it will only initiate anything
    * if the vuex state does not already indicate disconnection.
    */
-  monitorDisconnect() {
+  monitorDisconnect(code = 0) {
     if (connected(store.state)) {
       // We have not already registered that we have been disconnected
       store.dispatch('CORE_SET_CONNECTED', false);
-      store.dispatch('CORE_SET_RECONNECT_TIME', minReconnectTime);
+      let reconnectionTime;
+      if (code === 502) {
+        // Do special behaviour in the case that this is a network timeout.
+        reconnectionTime = timeoutReconnectTime;
+      } else {
+        reconnectionTime = minReconnectTime;
+      }
+      store.dispatch('CORE_SET_RECONNECT_TIME', reconnectionTime);
       createDisconnectedSnackbar(store, this.beat);
       this.wait();
     }
