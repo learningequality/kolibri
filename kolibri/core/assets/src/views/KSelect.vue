@@ -133,7 +133,6 @@
     methods: {
       handleChange(newSelection) {
         this.selection = newSelection;
-        this.$emit('change', newSelection);
       },
     },
   };
