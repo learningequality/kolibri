@@ -212,7 +212,7 @@ docker-build-base: writeversion
 		-f docker/base.dockerfile \
 		-t "learningequality/kolibribase"
 
-docker-server-demo: writeversion
+docker-demoserver: docker-build-base
 	# Build the demoserver image
 	docker image build \
 			-f docker/demoserver.dockerfile \
@@ -220,14 +220,14 @@ docker-server-demo: writeversion
 	docker run --init \
 			-v $$PWD/docker/mnt:/docker/mnt \
 			-p 8080:8080 \
-			--env-file ./env.list \
+			--env-file ./docker/env.list \
 			--env KOLIBRI_PEX_URL="default" \
 			--env KOLIBRI_CHANNELS_TO_IMPORT="7765d6aeabc35de790f8bc4532aeb529" \
 			"learningequality/demoserver"
 	echo "Check http://localhost:8080 you should have a demoserver running there."
 
 
-docker-server-dev: writeversion
+docker-devserver: docker-build-base
 	# Build the kolibridev image: contains source code + pip install -e of kolibri
 	docker image build \
 			-f docker/dev.dockerfile \
@@ -236,7 +236,7 @@ docker-server-dev: writeversion
 			-v $$PWD/docker/mnt:/docker/mnt \
 			-p 8000:8000 \
 			-p 3000:3000 \
-			--env-file ./env.list \
+			--env-file ./docker/env.list \
 			"learningequality/kolibridev" \
 			yarn run devserver
 	echo "Check http://localhost:8000  you should have devserver running there."
