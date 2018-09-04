@@ -2,8 +2,10 @@
 
   <UiIconButton
     class="next-button"
+    :class="{'next-button-white': color === 'white'}"
     type="secondary"
     :disableRipple="true"
+    :ariaLabel="$tr('goToNextPage')"
     @click="$emit('goToNextPage')"
   >
     <mat-svg
@@ -27,8 +29,20 @@
 
   export default {
     name: 'NextButton',
+    $trs: {
+      goToNextPage: 'Go to next page',
+    },
     components: {
       UiIconButton,
+    },
+    props: {
+      color: {
+        type: String,
+        required: true,
+        validator(val) {
+          return ['black', 'white'].includes(val);
+        },
+      },
     },
   };
 
@@ -41,8 +55,13 @@
 
   .next-button {
     @include navigation-button;
+  }
 
-    text-align: right;
+  .next-button-white {
+    svg {
+      border-color: white;
+      fill: white;
+    }
   }
 
 </style>

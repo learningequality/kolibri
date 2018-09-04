@@ -3,6 +3,7 @@
   <core-fullscreen
     ref="epubRenderer"
     class="epub-renderer"
+    :style="epubRendererStyle"
     @changeFullscreen="isInFullscreen = $event"
   >
 
@@ -30,10 +31,12 @@
 
       <SettingsSideBar
         v-show="settingsSideBarIsOpen"
+        ref="settingsSideBar"
         class="side-bar side-bar-right"
         :theme="theme"
         :textAlignment="textAlignment"
-        @setFontSize="setFontSize"
+        @decreaseFontSize="decreaseFontSize"
+        @increaseFontSize="increaseFontSize"
         @setTheme="setTheme"
         @setTextAlignment="setTextAlignment"
       />
@@ -48,27 +51,28 @@
       />
 
       <div class="navigation-and-epubjs">
-        <div class="navigation-button-container d-ib">
+        <div
+          class="column"
+          :style="navigationButtonContainerStyle"
+        >
           <PreviousButton
-            :style="navigationButtonsStyle"
             @goToPreviousPage="goToPreviousPage"
+            :color="navigationButtonColor"
+            :style="navigationButtonsStyle"
           />
         </div>
         <div
-          class="d-ib"
-          :style="{ width: `${elementWidth - 64 - 64}px`}"
-        >middle</div>
-        <div
-          v-show="4 === 0"
           ref="epubjsContainer"
-          class="epubjs-container d-ib"
-          :class="epubjsContainerClass"
-          :style="{ 'backgroundColor': backgroundColor }"
+          class="column"
+          :style="epubjsContainerStyle"
         >
         </div>
-        <div class="navigation-button-container d-ib">
+        <div
+          class="column"
+          :style="navigationButtonContainerStyle"
+        >
           <NextButton
-            v-show="4 === 0"
+            :color="navigationButtonColor"
             :style="navigationButtonsStyle"
             @goToNextPage="goToNextPage"
           />
@@ -90,14 +94,16 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
-
   import Epub from 'epubjs/src/epub';
-  import manager from 'epubjs/src/managers/default';
+  import defaultManager from 'epubjs/src/managers/default';
   import iFrameView from 'epubjs/src/managers/views/iframe';
 
   import Mark from 'mark.js';
+  import debounce from 'lodash/debounce';
 
+  import FocusLock from 'vue-focus-lock';
+
+  import { mapGetters } from 'vuex';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -105,7 +111,7 @@
 
   import LoadingScreen from './LoadingScreen';
   import TopBar from './TopBar';
-  import TableOfContentsSideBar from './TableOfContentsSideBar';
+  import TableOfContentsSideBar from './TableOfContentsSideBar.vue';
   import SettingsSideBar from './SettingsSideBar';
   import SearchSideBar from './SearchSideBar';
   import BottomBar from './BottomBar';
@@ -118,6 +124,9 @@
   const MIN_FONT_SIZE = 8;
   const DEFAULT_FONT_SIZE = 16;
   const MAX_FONT_SIZE = 24;
+
+  const TOP_BAR_HEIGHT = 36;
+  const BOTTOM_BAR_HEIGHT = 54;
 
   const SIDE_BARS = {
     TOC: 'TOC',
@@ -142,55 +151,50 @@
       BottomBar,
       PreviousButton,
       NextButton,
+      FocusLock,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
-      epubURL: 'http://localhost:8000/content/storage/epub3.epub',
-
+      epubURL: 'http://localhost:8000/content/storage/epub11.epub',
       book: null,
       rendition: null,
       toc: [],
       locations: [],
       loaded: false,
-
       sideBarOpen: null,
       theme: THEMES.WHITE,
       textAlignment: TEXT_ALIGNMENTS.LEFT,
       fontSize: DEFAULT_FONT_SIZE,
-
       isInFullscreen: false,
-
       markInstance: null,
       currentSection: null,
       searchQuery: null,
       sliderValue: 0,
 
+      currentLocationCfi: null,
+      disabled: true,
+
+      // TODO
       progress: 0,
       totalPages: null,
     }),
     computed: {
-      ...mapGetters(['sessionTimeSpent']),
       backgroundColor() {
         return this.theme.backgroundColor;
       },
-      color() {
+      textColor() {
         return this.theme.textColor;
-      },
-      navigationButtonsStyle() {
-        return {
-          fill: [THEMES.BLACK, THEMES.GREY].includes(this.theme) ? 'white' : 'black',
-        };
       },
       themeStyle() {
         return {
           body: {
             'background-color': this.backgroundColor,
-            color: this.color,
+            color: this.textColor,
             'font-size': `${this.fontSize}px`,
           },
           p: {
             'background-color': this.backgroundColor,
-            color: this.color,
+            color: this.textColor,
             'font-size': '1em',
             'text-align': this.textAlignment,
           },
@@ -223,25 +227,32 @@
       searchSideBarIsOpen() {
         return this.sideBarOpen === SIDE_BARS.SEARCH;
       },
-
-      targetTime() {
-        return this.totalPages * 30;
+      epubRendererStyle() {
+        const ratio = this.windowIsSmall ? 11 / 8.5 : 8.5 / 11;
+        return { height: `${this.elementWidth * ratio}px` };
       },
-      epubjsContainerClass() {
-        const pushRightClass = 'epubjs-container-push-right';
-        const pushLeftClass = 'epubjs-container-push-left';
-        switch (this.sideBarOpen) {
-          case SIDE_BARS.TOC:
-            return pushRightClass;
-          case SIDE_BARS.SETTINGS:
-            return pushLeftClass;
-          case SIDE_BARS.SEARCH:
-            return pushLeftClass;
-          default:
-            return null;
-        }
+      navigationButtonColor() {
+        return [THEMES.BLACK, THEMES.GREY].includes(this.theme) ? 'white' : 'black';
       },
-
+      navigationButtonsStyle() {
+        return {
+          backgroundColor: this.backgroundColor,
+        };
+      },
+      navigationButtonWidth() {
+        return this.windowIsSmall ? 36 : 52;
+      },
+      navigationButtonContainerStyle() {
+        return {
+          width: `${this.navigationButtonWidth}px`,
+        };
+      },
+      epubjsContainerStyle() {
+        return {
+          backgroundColor: this.backgroundColor,
+          width: `${this.elementWidth - this.navigationButtonWidth * 2}px`,
+        };
+      },
       bottomBarHeading() {
         if (this.currentSection) {
           return this.currentSection.label.trim();
@@ -254,21 +265,16 @@
         }
         return 1;
       },
-      navigationAndEpubjs() {
-        return {
-          height: `${this.elementHeight - 36 - 54}px`,
-        };
+
+      // TODO
+      ...mapGetters(['sessionTimeSpent']),
+      targetTime() {
+        return this.totalPages * 30;
       },
     },
     watch: {
-      themeStyle(newTheme) {
-        if (this.rendition) {
-          const themeName = JSON.stringify(newTheme);
-          this.rendition.themes.register(themeName, newTheme);
-          this.rendition.themes.select(themeName);
-        }
-      },
       sideBarOpen(newSideBar, oldSideBar) {
+        this.disabled = true;
         if (oldSideBar === SIDE_BARS.SEARCH) {
           this.clearMarks();
         }
@@ -279,25 +285,32 @@
             this.clearMarks().then(this.createMarks(this.searchQuery));
           }
         } else if (newSideBar === SIDE_BARS.TOC) {
-          this.$nextTick().then(() => this.$refs.tocSideBar.focusOnCurrentSection());
+          this.disabled = false;
+          // this.$nextTick().then(() => this.$refs.tocSideBar.redirectFocus());
+        } else if (newSideBar === SIDE_BARS.SETTINGS) {
+          this.$nextTick().then(() => this.$refs.settingsSideBar.redirectFocus());
+        }
+      },
+      themeStyle(newTheme) {
+        if (this.rendition) {
+          const themeName = JSON.stringify(newTheme);
+          this.rendition.themes.register(themeName, newTheme);
+          this.rendition.themes.select(themeName);
         }
       },
       elementHeight(newHeight) {
         if (this.loaded) {
-          this.resizeRendition(this.elementWidth, newHeight);
-          // resize not working
+          const width = this.calculateRenditionWidth(this.elementWidth);
+          const height = this.calculateRenditionHeight(newHeight);
+          this.debounceResizeRendition(width, height);
         }
       },
       elementWidth(newWidth) {
         if (this.loaded) {
-          // resize not working
-          this.resizeRendition(newWidth, this.elementHeight);
+          const width = this.calculateRenditionWidth(newWidth);
+          const height = this.calculateRenditionHeight(this.elementHeight);
+          this.debounceResizeRendition(width, height);
         }
-      },
-      progress(newProgress) {
-        const indexToJumpTo = Math.floor((this.locations.length - 1) * (newProgress / 100));
-        const locationToJumpTo = this.locations[indexToJumpTo];
-        this.jumpToLocation(locationToJumpTo);
       },
     },
     beforeMount() {
@@ -305,43 +318,40 @@
       this.book = new Epub(this.epubURL);
     },
     mounted() {
-      console.log('mounted');
-      this.book.ready
-        .then(() => {
-          this.rendition = this.book.renderTo(this.$refs.epubjsContainer, {
-            manager,
-            view: iFrameView,
-            width: this.elementWidth - 64 - 64,
-            height: this.elementHeight - 36 - 54,
-          });
-          // width\ height
-          console.log('book is ready');
-          this.rendition.display().then(() => {
-            console.log('book is displayed');
-            // Loaded
-            if (this.book.navigation) {
-              console.log(this.book.manifest, this.book.metadata);
-              this.toc = this.book.navigation.toc;
-            }
-            console.log('gernating location');
-            this.book.locations.generate(1000).then(locations => {
-              console.log('locations');
-              this.locations = locations;
-              this.loaded = true;
-            });
-
-            this.rendition.on('resized', size => {
-              // console.log('resized', size);
-            });
-
-            this.rendition.on('relocated', location => this.relocatedHandler(location));
-          });
-        })
-        .catch(error => {
-          console.log('error', error);
+      this.book.ready.then(() => {
+        const width = this.calculateRenditionWidth(this.elementWidth);
+        const height = this.calculateRenditionHeight(this.elementHeight);
+        this.rendition = this.book.renderTo(this.$refs.epubjsContainer, {
+          defaultManager,
+          view: iFrameView,
+          width,
+          height,
+          spread: 'auto',
+          minSpreadWidth: 600,
         });
+        this.rendition.display().then(() => {
+          if (this.book.navigation) {
+            this.toc = this.book.navigation.toc;
+          }
+
+          this.book.locations.generate(1000).then(locations => {
+            this.locations = locations;
+            // force resize on load
+            // why do I need to wait for next tick?
+            // I added this because I needed some delay
+            // not sure why if display should be
+            this.$nextTick().then(() => {
+              this.resizeRendition(width, height);
+            });
+            this.loaded = true;
+            this.rendition.on('relocated', location => this.relocatedHandler(location));
+            // this.rendition.on('resized', newSize => );
+          });
+        });
+      });
     },
     beforeDestroy() {
+      // TODO
       this.updateProgress();
       this.$emit('stopTracking');
     },
@@ -349,26 +359,20 @@
       delete global.ePub;
     },
     methods: {
-      resizeRendition(width, height) {
-        if (width > 0 && height > 0) {
-          this.rendition.resize(width, height);
-        }
+      calculateRenditionWidth(availableWidth) {
+        return availableWidth - this.navigationButtonWidth * 2;
       },
-      handleSliderChanged(newSliderValue) {
-        console.log(this.locations[this.locations.length - 1]);
-        const indexOfLocationToJumpTo = Math.floor(
-          (this.locations.length - 1) * (newSliderValue / 100)
-        );
-        const locationToJumpTo = this.locations[indexOfLocationToJumpTo];
-        this.jumpToLocation(locationToJumpTo);
+      calculateRenditionHeight(availableHeight) {
+        return availableHeight - TOP_BAR_HEIGHT - BOTTOM_BAR_HEIGHT;
+      },
+      goToNextPage() {
+        this.rendition.next();
+      },
+      goToPreviousPage() {
+        this.rendition.prev();
       },
       jumpToLocation(locationToJumpTo) {
         return this.rendition.display(locationToJumpTo);
-      },
-      relocatedHandler(location) {
-        this.sliderValue = location.start.percentage * 100;
-        this.updateCurrentSection(location.start);
-        console.log(location);
       },
       handleTocToggle() {
         this.sideBarOpen === SIDE_BARS.TOC
@@ -389,20 +393,17 @@
         this.jumpToLocation(item.href);
         this.sideBarOpen = null;
       },
-      goToNextPage() {
-        this.rendition.next();
-      },
-      goToPreviousPage() {
-        this.rendition.prev();
-      },
       increaseFontSize() {
         this.fontSize = Math.min(this.fontSize + FONT_SIZE_INC, MAX_FONT_SIZE);
       },
       decreaseFontSize() {
         this.fontSize = Math.max(this.fontSize - FONT_SIZE_INC, MIN_FONT_SIZE);
       },
-      resetFontSize() {
-        this.fontSize = DEFAULT_FONT_SIZE;
+      setTheme(theme) {
+        this.theme = theme;
+      },
+      setTextAlignment(textAlignment) {
+        this.textAlignment = textAlignment;
       },
       handleNewSearchQuery(searchQuery) {
         this.searchQuery = searchQuery;
@@ -438,22 +439,8 @@
           });
         });
       },
-      updateProgress() {
-        this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);
-      },
-      setFontSize() {},
-      setTheme(theme) {
-        this.theme = theme;
-      },
-      setTextAlignment(textAlignment) {
-        this.textAlignment = textAlignment;
-      },
       flattenToc(toc) {
         return [].concat(...toc.map(section => [section, ...this.flattenToc(section.subitems)]));
-      },
-
-      updateCurrentSection(currentLocationStart) {
-        this.currentSection = this.getCurrentSection(currentLocationStart);
       },
       getCurrentSection(currentLocationStart) {
         let currentSection;
@@ -465,6 +452,48 @@
           );
         }
         return currentSection;
+      },
+      updateCurrentSection(currentLocationStart) {
+        this.currentSection = this.getCurrentSection(currentLocationStart);
+      },
+      relocatedHandler(location) {
+        this.sliderValue = location.start.percentage * 100;
+        this.updateCurrentSection(location.start);
+      },
+
+      handleSliderChanged(newSliderValue) {
+        const indexOfLocationToJumpTo = Math.floor(
+          (this.locations.length - 1) * (newSliderValue / 100)
+        );
+        const locationToJumpTo = this.locations[indexOfLocationToJumpTo];
+        this.jumpToLocation(locationToJumpTo);
+      },
+      debounceResizeRendition: debounce(function(width, height) {
+        this.resizeRendition(width, height);
+      }, 250),
+      resizeRendition(width, height) {
+        if (width > 0 && height > 0) {
+          let cfiToJumpTo;
+          const currentLocation = this.rendition.currentLocation();
+          if (currentLocation.start && currentLocation.start.cfi) {
+            cfiToJumpTo = currentLocation.start.cfi;
+          } else if (this.currentLocationCfi) {
+            cfiToJumpTo = this.currentLocationCfi;
+          } else {
+            cfiToJumpTo = this.locations[0];
+          }
+          this.currentLocationCfi = cfiToJumpTo;
+          this.rendition.resize(width, height);
+
+          if (!this.$refs.epubjsContainer.querySelector('iframe')) {
+            // Re-render since resize currently breaks
+            this.jumpToLocation(this.currentLocationCfi);
+          }
+        }
+      },
+      // TODO
+      updateProgress() {
+        this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);
       },
     },
   };
@@ -478,29 +507,16 @@
   @import './EpubStyles';
 
   .epub-renderer {
-    // position: relative;
-    // // min-height: 400px;
-    // height: 500px;
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 1000;
+    position: relative;
+    height: 500px;
+    // position: fixed;
+    // top: 0;
+    // right: 0;
+    // bottom: 0;
+    // left: 0;
+    // z-index: 1000;
+    font-size: smaller;
     background-color: $core-bg-light;
-  }
-
-  .epubjs-container {
-    max-width: 1000px;
-    background-color: #ffffff;
-  }
-
-  .epubjs-container-push-right {
-    // left: 250px;
-  }
-
-  .epubjs-container-push-left {
-    // right: 250px;
   }
 
   .top-bar {
@@ -524,37 +540,6 @@
     right: 0;
   }
 
-  .search-submit-button {
-    text-align: center;
-  }
-
-  .search-results-list,
-  .toc-list {
-    padding: 0 0 0 24px;
-    margin: 0;
-    font-size: smaller;
-  }
-
-  .toc-list-item {
-    padding: 0 8px 8px 0;
-  }
-
-  .toc-header {
-    padding: 8px;
-    margin: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .chapter-name {
-    margin: 0;
-    overflow: hidden;
-    line-height: 36px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
   .bottom-bar {
     position: absolute;
     right: 0;
@@ -574,10 +559,6 @@
     @include d-t-c;
   }
 
-  .navigation-button-container {
-    width: 64px;
-  }
-
   .navigation-and-epubjs {
     position: absolute;
     top: 36px;
@@ -586,14 +567,12 @@
     left: 0;
   }
 
-  .d-ib {
+  .column {
     display: inline-block;
-    text-align: center;
-  }
-
-  .p-rel {
-    position: relative;
     height: 100%;
+    overflow: hidden;
+    text-align: center;
+    vertical-align: top;
   }
 
 </style>

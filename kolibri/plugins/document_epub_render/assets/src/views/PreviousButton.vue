@@ -2,8 +2,10 @@
 
   <UiIconButton
     class="previous-button"
+    :class="{'previous-button-white': color === 'white'}"
     type="secondary"
     :disableRipple="true"
+    :ariaLabel="$tr('goToPreviousPage')"
     @click="$emit('goToPreviousPage')"
   >
     <mat-svg
@@ -27,8 +29,20 @@
 
   export default {
     name: 'PreviousButton',
+    $trs: {
+      goToPreviousPage: 'Go to previous page',
+    },
     components: {
       UiIconButton,
+    },
+    props: {
+      color: {
+        type: String,
+        required: true,
+        validator(val) {
+          return ['black', 'white'].includes(val);
+        },
+      },
     },
   };
 
@@ -41,8 +55,13 @@
 
   .previous-button {
     @include navigation-button;
+  }
 
-    text-align: left;
+  .previous-button-white {
+    svg {
+      border-color: white;
+      fill: white;
+    }
   }
 
 </style>

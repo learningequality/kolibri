@@ -1,7 +1,9 @@
 <template>
 
   <div class="bottom-bar">
-    <h3 class="bottom-bar-heading">{{ heading }}</h3>
+    <div class="bottom-bar-heading">
+      <h3 v-if="heading">{{ heading }}</h3>
+    </div>
     <div class="d-t">
       <div class="d-t-r">
         <div class="d-t-c bottom-bar-progress-container">
@@ -17,6 +19,7 @@
             :max="100"
             :step="sliderStep"
             :value="sliderValue"
+            :aria-label="$tr('jumpToPositionInBook')"
             @change="handleChange($event.target.value)"
           >
         </div>
@@ -34,6 +37,7 @@
     name: 'BottomBar',
     $trs: {
       progress: `{progress, number, percent}`,
+      jumpToPositionInBook: 'Jump to position in book',
     },
     props: {
       heading: {
@@ -67,18 +71,18 @@
   .bottom-bar {
     height: 54px;
     padding: 8px 8px 0;
-    font-size: smaller;
     background-color: $core-grey-200;
     box-shadow: $epub-box-shadow;
   }
 
   .bottom-bar-heading {
     height: 17px;
-    margin: 0 0 4px;
-    overflow: hidden;
-    text-align: center;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    h3 {
+      @include truncate-text;
+
+      margin: 0 0 4px;
+      text-align: center;
+    }
   }
 
   .full-width {

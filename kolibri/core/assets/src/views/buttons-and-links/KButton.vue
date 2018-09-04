@@ -8,7 +8,9 @@
     @click="handleClick"
   >
     <slot v-if="$slots.default"></slot>
-    <template v-else>{{ text }}</template>
+    <template v-else>
+      {{ text }}
+    </template>
     <mat-svg
       v-if="hasDropdown"
       category="navigation"

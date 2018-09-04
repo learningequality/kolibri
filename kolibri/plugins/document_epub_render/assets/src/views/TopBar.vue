@@ -10,6 +10,7 @@
         <UiIconButton
           type="secondary"
           :disableRipple="true"
+          :ariaLabel="$tr('toggleTocSideBar')"
           @click="$emit('tableOfContentsClicked')"
         >
           <mat-svg
@@ -23,7 +24,7 @@
         :percentage="true"
         alignment="center"
       >
-        <h2 class="title">{{ title }}</h2>
+        <h2 class="top-bar-title">{{ title }}</h2>
       </KGridItem>
       <KGridItem
         sizes="50, 25, 25"
@@ -33,6 +34,7 @@
         <UiIconButton
           type="secondary"
           :disableRipple="true"
+          :ariaLabel="$tr('toggleSettingsBar')"
           @click="$emit('settingsClicked')"
         >
           <mat-svg
@@ -43,6 +45,7 @@
         <UiIconButton
           type="secondary"
           :disableRipple="true"
+          :ariaLabel="$tr('toggleSearchSideBar')"
           @click="$emit('searchClicked')"
         >
           <mat-svg
@@ -54,6 +57,7 @@
         <UiIconButton
           type="secondary"
           :disableRipple="true"
+          :ariaLabel="$tr('toggleFullscreen')"
           @click="$emit('fullscreenClicked')"
         >
           <mat-svg
@@ -83,6 +87,12 @@
 
   export default {
     name: 'TopBar',
+    $trs: {
+      toggleTocSideBar: 'Toggle table of contents side bar',
+      toggleSettingsBar: 'Toggle settings side bar',
+      toggleSearchSideBar: 'Toggle search side bar',
+      toggleFullscreen: 'Toggle fullscreen',
+    },
     components: {
       KGrid,
       KGridItem,
@@ -114,12 +124,11 @@
     box-shadow: $epub-box-shadow;
   }
 
-  .title {
+  .top-bar-title {
+    @include truncate-text;
+
     margin: 0;
-    overflow: hidden;
     line-height: 36px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
 </style>

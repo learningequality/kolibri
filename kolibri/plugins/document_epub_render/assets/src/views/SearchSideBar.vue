@@ -9,6 +9,7 @@
         <input
           class="d-tc search-input"
           ref="searchInput"
+          :aria-label="$tr('enterSearchQuery')"
           v-model.trim="searchQuery"
         >
 
@@ -16,6 +17,7 @@
           type="secondary"
           buttonType="submit"
           :disableRipple="true"
+          :ariaLabel="$tr('submitSearchQuery')"
           class="d-tc"
         >
           <mat-svg
@@ -68,12 +70,11 @@
         class="search-results-list-item"
       >
         <KButton
+          :text="item.excerpt"
           appearance="basic-link"
           class="search-results-list-item-button"
           @click="$emit('navigateToSearchResult', item)"
-        >
-          {{ item.excerpt }}
-        </KButton>
+        />
       </li>
     </ol>
   </SideBar>
@@ -208,6 +209,8 @@
       overCertainNumberOfSearchResults:
         'Over {num, number, integer} {num, plural, one {result} other {results}}',
       numberOfSearchResults: '{num, number, integer} {num, plural, one {result} other {results}}',
+      enterSearchQuery: 'Enter search query',
+      submitSearchQuery: 'Submit search query',
     },
   };
 

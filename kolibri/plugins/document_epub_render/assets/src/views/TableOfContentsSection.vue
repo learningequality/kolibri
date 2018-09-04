@@ -108,7 +108,6 @@
 
   .toc-list-item-button-current {
     font-weight: bold;
-    color: $core-action-normal;
   }
 
 </style>

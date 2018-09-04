@@ -49,16 +49,6 @@
       emitTocNavigation(section) {
         this.$emit('tocNavigation', section);
       },
-      focusOnCurrentSection() {
-        if (this.currentSection && this.currentSection.href) {
-          const sanitizedHref = this.currentSection.href.replace(/\W/g, '_');
-          const sectionId = `#section_${sanitizedHref}`;
-          const currentSectionElement = this.$refs.tocList.querySelector(sectionId);
-          if (currentSectionElement) {
-            currentSectionElement.focus();
-          }
-        }
-      },
     },
   };
 
@@ -71,8 +61,6 @@
 
   .toc-list {
     @include toc-list;
-
-    font-size: smaller;
   }
 
 </style>

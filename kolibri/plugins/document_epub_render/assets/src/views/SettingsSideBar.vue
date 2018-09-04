@@ -3,46 +3,57 @@
   <SideBar>
     <div class="o-f-h">
       <h3>{{ $tr('textSize') }}</h3>
-      <KGrid>
+      <KGrid :gutter="16">
         <KGridItem
-          v-for="(sizeAdjustment, index) in [$tr('decrease'), $tr('increase')]"
-          :key="index"
           size="50"
           :percentage="true"
         >
-          <button @click="$emit('')">
+          <KButton
+            ref="decreaseFontSizeButton"
+            class="settings-button"
+            @click="$emit('decreaseFontSize')"
+          >
             <mat-svg
-              v-if="sizeAdjustment === $tr('decrease')"
               name="remove"
               category="content"
             />
+            <div class="truncate">{{ $tr('decrease') }}</div>
+          </KButton>
+        </KGridItem>
+        <KGridItem
+          size="50"
+          :percentage="true"
+        >
+          <KButton
+            @click="$emit('increaseFontSize')"
+            class="settings-button"
+          >
             <mat-svg
-              v-else-if="sizeAdjustment === $tr('increase')"
               name="add"
               category="content"
             />
-            <div>{{ sizeAdjustment }}</div>
-          </button>
+            <div class="truncate">{{ $tr('increase') }}</div>
+          </KButton>
         </KGridItem>
       </KGrid>
     </div>
 
     <div class="o-f-h">
       <h3>{{ $tr('background') }}</h3>
-      <KGrid>
+      <KGrid :gutter="16">
         <KGridItem
           v-for="(value, key) in themes"
           :key="key"
           size="25"
           :percentage="true"
         >
-          <button
-            class="theme-button"
+          <KButton
+            class=" settings-button theme-button"
             :style="{ backgroundColor: value.backgroundColor }"
             :class="{ 'theme-button-selected': isCurrentlySelectedTheme(value) }"
+            :aria-label="$tr('setTheme', {themeName: key })"
             @click="$emit('setTheme', value)"
-          >
-          </button>
+          />
 
         </KGridItem>
       </KGrid>
@@ -50,15 +61,15 @@
 
     <div class="o-f-h">
       <h3>{{ $tr('layout') }}</h3>
-      <KGrid>
+      <KGrid :gutter="16">
         <KGridItem
           v-for="(alignment, index) in textAlignments"
           :key="index"
           size="50"
           :percentage="true"
         >
-          <button
-            class="alignment-button"
+          <KButton
+            class="settings-button alignment-button"
             :class="{'alignment-button-selected': alignment === textAlignment}"
             @click="$emit('setTextAlignment', alignment)"
           >
@@ -67,7 +78,7 @@
                 name="format_align_left"
                 category="editor"
               />
-              <div>{{ $tr('leftAligned') }}</div>
+              <div class="truncate">{{ $tr('leftAligned') }}</div>
             </template>
 
             <template v-else-if="alignment === textAlignments.JUSTIFY">
@@ -75,9 +86,9 @@
                 name="format_align_justify"
                 category="editor"
               />
-              <div>{{ $tr('justified') }}</div>
+              <div class="truncate">{{ $tr('justified') }}</div>
             </template>
-          </button>
+          </KButton>
         </KGridItem>
       </KGrid>
     </div>
@@ -91,6 +102,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import isEqual from 'lodash/isEqual';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import { TEXT_ALIGNMENTS, THEMES } from './EpubConstants';
   import SideBar from './SideBar';
 
@@ -104,11 +116,13 @@
       layout: 'Layout',
       leftAligned: 'Left aligned',
       justified: 'Justified',
+      setTheme: 'Set { themeName } theme',
     },
     components: {
       SideBar,
       KGrid,
       KGridItem,
+      KButton,
     },
     props: {
       theme: {
@@ -153,40 +167,42 @@
 
   @import './EpubStyles';
 
-  .toc-list {
-    @include toc-list;
+  .settings-button.button.secondary.raised {
+    width: calc(100% - 4px);
+    min-width: unset;
+    padding: 8px;
+    margin: 2px;
+    font-size: 12px;
+    line-height: unset;
+    box-shadow: none;
+    transition: none;
+    &:focus {
+      outline: $core-outline;
+    }
   }
 
-  button {
-    width: 100%;
-    padding: 8px;
-    background-color: $core-grey-200;
-    border-radius: $radius;
+  .theme-button {
+    height: 36.5px;
+  }
+
+  .theme-button,
+  .alignment-button {
+    border-style: solid;
+    border-width: 2px;
+  }
+
+  .theme-button-selected,
+  .alignment-button-selected {
+    border-bottom-color: $core-action-normal;
+    border-bottom-width: 3px;
   }
 
   .o-f-h {
     overflow-x: hidden;
   }
 
-  .theme-button {
-    height: 36.5px;
-    border-style: solid;
-    border-width: 2px;
-  }
-
-  .theme-button-selected {
-    border-bottom-color: #ff00b7;
-    border-bottom-width: 3px;
-  }
-
-  .alignment-button {
-    border-style: solid;
-    border-width: 2px;
-  }
-  .alignment-button-selected {
-    border-color: #ff00b7;
-    border-style: solid;
-    border-bottom-width: 2px;
+  .truncate {
+    @include truncate-text;
   }
 
 </style>
