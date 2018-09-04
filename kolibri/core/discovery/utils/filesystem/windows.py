@@ -69,7 +69,7 @@ def _wmic_output():
     )
 
     # pipe output from the WMIC command to the temp file
-    cmd = "wmic logicaldisk list full /format:csv > {}".format(OUTPUT_PATH)
+    cmd = "wmic logicaldisk list full /format:\"%WINDIR%\\System32\\wbem\\en-us\\csv\" > {}".format(OUTPUT_PATH)
     returnCode = os.system(cmd)
     if returnCode:
         raise Exception("Could not run command '{}'".format(cmd))
