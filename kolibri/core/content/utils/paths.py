@@ -2,13 +2,9 @@ import os
 import re
 
 from django.core.urlresolvers import reverse
+from six.moves.urllib.parse import urljoin
 
 from kolibri.utils import conf
-
-try:
-    from urlparse import urljoin
-except ImportError:
-    from urllib.parse import urljoin
 
 
 # valid storage filenames consist of 32-char hex plus a file extension
@@ -144,6 +140,6 @@ def get_content_storage_file_url(filename, baseurl=None):
     """
     ext = os.path.splitext(filename)[1]
     if ext in POSSIBLE_ZIPPED_FILE_EXTENSIONS:
-        return reverse("zipcontent", kwargs={"zipped_filename": filename, "embedded_filepath": ""})
+        return reverse("kolibri:core:zipcontent", kwargs={"zipped_filename": filename, "embedded_filepath": ""})
     else:
         return "{}{}/{}/{}".format(get_content_storage_url(baseurl), filename[0], filename[1], filename)

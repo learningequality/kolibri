@@ -27,8 +27,8 @@ describe('Resource', function() {
     });
   });
   describe('name property', function() {
-    it('should return the passed in name property of the Resource', function() {
-      expect(resource.name).toEqual(testName);
+    it('should return the kolibri: plus the namespace, plus the passed in name property of the Resource', function() {
+      expect(resource.name).toEqual(`kolibri:core:${testName}`);
     });
   });
   describe('getModel method', function() {
@@ -400,24 +400,24 @@ describe('Collection', function() {
               done();
             });
           });
-          it('should set the pageCount property to 1', function(done) {
+          it('should set the count property to 1', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              expect(collection.pageCount).toEqual(1);
+              expect(collection.data.count).toEqual(1);
               done();
             });
           });
-          it('should set the hasNext property to false', function(done) {
+          it('should set the next property to false', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              expect(collection.hasNext).toEqual(false);
+              expect(collection.data.next).toEqual(false);
               done();
             });
           });
-          it('should set the hasPrev property to false', function(done) {
+          it('should set the previous property to false', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              expect(collection.hasPrev).toEqual(false);
+              expect(collection.data.previous).toEqual(false);
               done();
             });
           });

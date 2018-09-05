@@ -1,5 +1,6 @@
 import { Resource } from 'kolibri.lib.apiResource';
 
 export default new Resource({
-  name: 'kolibri:coach:recentreport',
+  name: 'recentreport',
+  namespace: 'coach',
 });

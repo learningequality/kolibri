@@ -4,8 +4,6 @@ import makeStore from '../makeStore';
 
 jest.mock('kolibri.urls');
 
-jest.mock('kolibri.urls');
-
 function makeWrapper() {
   return mount(SignInPage, {
     store: makeStore(),

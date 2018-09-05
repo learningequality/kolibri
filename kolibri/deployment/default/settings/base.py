@@ -18,6 +18,7 @@ import os
 
 import pytz
 from django.conf import locale
+from six.moves.urllib.parse import urljoin
 from tzlocal import get_localzone
 
 import kolibri
@@ -90,7 +91,6 @@ MIDDLEWARE = [
     'kolibri.core.device.middleware.KolibriLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'kolibri.plugins.setup_wizard.middleware.SetupWizardMiddleware',
     'kolibri.core.auth.middleware.CustomAuthenticationMiddleware',
     'kolibri.core.middleware.signin_page.RedirectToSignInPageIfNoGuestAccessAndNoActiveSession',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
@@ -116,6 +116,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'kolibri.core.context_processors.custom_context_processor.return_session',
                 'kolibri.core.context_processors.custom_context_processor.supported_browser',
+                'kolibri.core.context_processors.custom_context_processor.developer_mode',
             ],
         },
     },
@@ -214,7 +215,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/static/'
+path_prefix = conf.OPTIONS['Deployment']['PATH_PREFIX']
+
+if path_prefix != '/':
+    path_prefix = '/' + path_prefix
+
+STATIC_URL = urljoin(path_prefix, 'static/')
 STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING

@@ -1,6 +1,6 @@
 import { PageNames } from '../../constants';
 
-export function showSearch(store, searchTerm) {
+export function showSearch(store, { searchTerm, kind, channel_id }) {
   store.commit('SET_PAGE_NAME', PageNames.SEARCH);
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('CORE_SET_ERROR', null);
@@ -10,7 +10,11 @@ export function showSearch(store, searchTerm) {
       return;
     }
     if (searchTerm) {
-      store.dispatch('search/triggerSearch', searchTerm);
+      store.dispatch('search/triggerSearch', {
+        searchTerm,
+        kindFilter: kind,
+        channelFilter: channel_id,
+      });
     } else {
       store.commit('CORE_SET_PAGE_LOADING', false);
     }

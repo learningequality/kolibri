@@ -311,16 +311,17 @@ export class Collection {
                   this.new = false;
                 } else if (typeof (response.entity || {}).results !== 'undefined') {
                   // If it's not, there are two possibilities - something is awry,
-                  // or we have received paginated data! Check to see if it is paginated.
+                  // or we have received data with additional metadata!
                   this.clearCache();
-                  // Paginated objects have 'results' as their results object so interpret this as
-                  // such.
+                  // Collections with additional metadata have 'results' as their results
+                  // object so interpret this as such.
                   this.set(response.entity.results);
-                  this.pageCount = Math.ceil(response.entity.count / this.pageSize);
-                  this.hasNext = Boolean(response.entity.next);
-                  this.hasPrev = Boolean(response.entity.previous);
-                  this.next = response.entity.next;
-                  this.previous = response.entity.previous;
+                  this.metadata = {};
+                  Object.keys(response.entity).forEach(key => {
+                    if (key !== 'results') {
+                      this.metadata[key] = response.entity[key];
+                    }
+                  });
                   // Mark that the fetch has completed.
                   this.synced = true;
                   // Flag that the collection exists on the server.
@@ -330,7 +331,6 @@ export class Collection {
                   logging.debug('Data appears to be malformed', response.entity);
                   reject(response);
                 }
-                // Return the data from the models, not the models themselves.
                 resolve(this.data);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
@@ -516,7 +516,17 @@ export class Collection {
   }
 
   get data() {
-    return this.models.filter(model => !model.deleted).map(model => model.data);
+    const data = this.models.filter(model => !model.deleted).map(model => model.data);
+    // Return the data from the models, not the models themselves.
+    if (!this.metadata) {
+      // If no additional metadata just return the results directly.
+      return data;
+    }
+    // Otherwise resolve the data in the form it was received originally
+    return {
+      results: data,
+      ...cloneDeep(this.metadata),
+    };
   }
 
   get synced() {
@@ -568,20 +578,20 @@ export class Resource {
   /**
    * Create a resource with a Django REST API name corresponding to the name parameter.
    */
-  constructor({ name, idKey = 'id', ...options } = {}) {
+  constructor({ name, idKey = 'id', namespace = 'core', ...options } = {}) {
     if (!name) {
       throw ReferenceError('Resource must be instantiated with a name property');
     }
+    this.name = `kolibri:${namespace}:${name}`;
     if (process.env.NODE_ENV !== 'production') {
       if (window.schema && window.schema.content) {
-        if (!window.schema.content[name]) {
+        if (!window.schema.content[this.name]) {
           logging.error(`${name} is not a recognized basename of an API endpoint on the server`);
         } else {
-          this.__schema = window.schema.content[name];
+          this.__schema = window.schema.content[this.name];
         }
       }
     }
-    this.name = name;
     this.idKey = idKey;
     const optionsDefinitions = Object.getOwnPropertyDescriptors(options);
     Object.keys(optionsDefinitions).forEach(key => {
@@ -654,22 +664,6 @@ export class Resource {
     const key = this.__cacheKey(getParams, { detailId });
     const collection = new Collection(getParams, data, this, url);
     cache[key] = collection;
-    return collection;
-  }
-
-  /**
-   * Get a Collection with pagination settings.
-   * @param {Object} [getParams={}] - default parameters to use for Collection fetching.
-   * @param {Number} [pageSize=20] - The number of items to return in a page.
-   * @param {Number} [page=1] - Which page to return.
-   * @returns {Collection} - Returns an instantiated Collection object.
-   */
-  getPagedCollection(getParams = {}, pageSize = 20, page = 1) {
-    const pagedParams = { page, page_size: pageSize };
-    Object.assign(pagedParams, getParams);
-    const collection = this.getCollection(pagedParams);
-    collection.page = page;
-    collection.pageSize = pageSize;
     return collection;
   }
 

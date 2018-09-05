@@ -2,7 +2,10 @@
 
   <UiSelect
     class="k-select"
-    :class="{'k-select-inline': inline}"
+    :class="{
+      'k-select-inline': inline,
+      'k-select-disabled': disabled,
+    }"
     :value="selection"
     :options="options"
     :label="label"
@@ -144,6 +147,10 @@
     width: 150px;
     margin-right: 16px;
     vertical-align: bottom;
+  }
+
+  .k-select-disabled /deep/ .ui-select__label-text.is-inline {
+    cursor: default;
   }
 
   /deep/ .ui-select__display-value {

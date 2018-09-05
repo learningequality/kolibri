@@ -1,4 +1,5 @@
 import { SignUpResource } from 'kolibri.resources';
+import { redirectBrowser } from 'kolibri.utils.browser';
 
 export function signUpNewUser(store, signUpCreds) {
   store.commit('SET_SIGN_UP_BUSY', true);
@@ -6,7 +7,7 @@ export function signUpNewUser(store, signUpCreds) {
   return SignUpResource.saveModel({ data: signUpCreds })
     .then(() => {
       store.commit('SET_SIGN_UP_ERROR', { errorCode: null });
-      window.location = '/';
+      redirectBrowser();
     })
     .catch(error => {
       const { status, entity } = error;

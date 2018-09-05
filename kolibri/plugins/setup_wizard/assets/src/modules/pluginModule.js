@@ -1,4 +1,5 @@
-import { DeviceProvisionResource } from 'kolibri.resources';
+import client from 'kolibri.client';
+import urls from 'kolibri.urls';
 import { currentLanguage } from 'kolibri.utils.i18n';
 
 export default {
@@ -39,9 +40,9 @@ export default {
       const superuser = { ...onboardingData.superuser };
       store.commit('SET_LOADING', true);
 
-      return DeviceProvisionResource.saveModel({ data: onboardingData }).then(
+      return client({ path: urls['kolibri:core:deviceprovision'](), entity: onboardingData }).then(
         response => {
-          superuser.facility = response.facility.id;
+          superuser.facility = response.entity.facility.id;
           store.dispatch('kolibriLogin', superuser);
         },
         error => {

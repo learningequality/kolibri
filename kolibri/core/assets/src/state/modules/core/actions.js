@@ -152,12 +152,19 @@ function _channelListState(data) {
  */
 
 export function handleError(store, errorString) {
+  logging.debug(errorString);
   store.commit('CORE_SET_ERROR', errorString);
   store.commit('CORE_SET_PAGE_LOADING', false);
 }
 
 export function handleApiError(store, errorObject) {
-  handleError(store, JSON.stringify(errorObject, null, 2));
+  let error = errorObject;
+  if (typeof errorObject === 'object' && !(errorObject instanceof Error)) {
+    error = JSON.stringify(errorObject, null, 2);
+  } else if (errorObject instanceof Error) {
+    error = errorObject.toString();
+  }
+  handleError(store, error);
 }
 
 /**
@@ -209,7 +216,7 @@ export function kolibriLogin(store, sessionPayload) {
 
 export function kolibriLogout() {
   // Use the logout backend URL to initiate logout
-  redirectBrowser(urls['kolibri:logout']());
+  redirectBrowser(urls['kolibri:core:logout']());
 }
 
 export function getCurrentSession(store, force = false) {
@@ -236,6 +243,11 @@ export function getFacilities(store) {
 export function getFacilityConfig(store, facilityId) {
   const { facilities, currentFacilityId } = store.getters;
   let facId = facilityId || currentFacilityId;
+  if (!facId) {
+    // No facility Id, so nothing good is going to happen here.
+    // Redirect and let Kolibri sort it out.
+    return Promise.resolve(redirectBrowser());
+  }
   const currentFacility = facilities.find(facility => facility.id === facId);
   let datasetPromise;
   if (currentFacility && typeof currentFacility.dataset === 'object') {

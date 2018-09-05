@@ -61,6 +61,7 @@ from mptt.models import TreeForeignKey
 
 from .utils import paths
 from kolibri.core.fields import DateTimeTzField
+from kolibri.utils.conf import OPTIONS
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
@@ -256,7 +257,7 @@ class File(models.Model):
         Return the download url.
         """
         new_filename = self.get_download_filename()
-        return reverse('downloadcontent', kwargs={'filename': self.local_file.get_filename(), 'new_filename': new_filename})
+        return reverse('kolibri:core:downloadcontent', kwargs={'filename': self.local_file.get_filename(), 'new_filename': new_filename})
 
 
 class LocalFileManager(models.Manager):
@@ -303,7 +304,7 @@ class LocalFile(models.Model):
         The same url will also be exposed by the file serializer.
         """
         if self.available:
-            return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl="/")
+            return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl=OPTIONS['Deployment']['PATH_PREFIX'])
         else:
             return None
 
