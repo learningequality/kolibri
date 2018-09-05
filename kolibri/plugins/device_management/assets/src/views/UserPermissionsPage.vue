@@ -14,29 +14,31 @@
             ({{ $tr('you') }})
           </span>
         </h1>
-        <dl>
-          <dt>
-            Username
-          </dt>
 
-          <dd>
-            {{ user.username }}
-          </dd>
+        <table>
+          <tr>
+            <th scope="row">
+              Username
+            </th>
+            <td> {{ user.username }} </td>
+          </tr>
 
-          <dt>
-            User type
-          </dt>
-          <dd>
-            {{ getUserKind }}
-          </dd>
+          <tr>
+            <th scope="row">
+              User type
+            </th>
+            <!-- TODO translate -->
+            <td> {{ getUserKind }}</td>
+          </tr>
 
-          <dt>
-            Facility
-          </dt>
-          <dd>
-            {{ facilityName }}
-          </dd>
-        </dl>
+          <tr>
+            <th scope="row">
+              Facility
+            </th>
+            <td>{{ facilityName }}</td>
+          </tr>
+        </table>
+
       </div>
 
       <div class="section superuser">
@@ -46,13 +48,19 @@
           :checked="superuserChecked"
           @change="superuserChecked=$event"
         />
-        <p>
-          <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
-          {{ $tr('makeSuperuserDetails') }}
-        </p>
-      </div>
+        <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
 
-      <hr>
+        <!-- TODO this is gonna have to move -->
+        <ul>
+          <!-- {{ $tr('makeSuperuserDetails') }} -->
+          <li>
+            Has all device permissions and can manage device permissions of other users
+          </li>
+          <li>
+            Has admin permissions for all facilities on this device
+          </li>
+        </ul>
+      </div>
 
       <div class="section">
         <h2>{{ $tr('devicePermissions') }}</h2>
@@ -248,12 +256,18 @@
     margin-left: 0;
   }
 
+  table {
+    // NOTE: values will overflow fine on smaller screens
+    width: 50%;
+    text-align: left;
+  }
+
   .section {
     padding: 1em;
   }
 
   .permissions-icon {
-    padding-right: 8px;
+    display: inline;
   }
 
 </style>
