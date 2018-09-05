@@ -5,6 +5,7 @@ from six.moves.urllib.parse import urljoin
 
 from . import errors
 from .urls import get_normalized_url_variations
+from kolibri.core.content.utils.paths import get_info_url
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ class NetworkClient(object):
         for url in urls:
             try:
                 logger.info("Attempting connection to: {}".format(url))
-                response = self.get("/api/public/info/", base_url=url, timeout=5, allow_redirects=True)
+                response = self.get(get_info_url(url), timeout=5, allow_redirects=True)
                 # check that we successfully connected, and if we were redirected that it's still the right endpoint
                 if response.status_code == 200 and response.url.rstrip("/").endswith("/api/public/info"):
                     self.info = response.json()

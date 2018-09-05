@@ -32,7 +32,7 @@ from kolibri.core.content import serializers
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.content_types_tools import renderable_contentnodes_q_filter
 from kolibri.core.content.utils.paths import get_channel_lookup_url
-from kolibri.core.content.utils.paths import get_content_server_url
+from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
@@ -725,8 +725,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
     @list_route(methods=['get'])
     def kolibri_studio_status(self, request, **kwargs):
         try:
-            # TODO: switch to /api/public/info/ endpoint once that's live on Studio
-            resp = requests.get(get_content_server_url("/"))
+            resp = requests.get(get_info_url())
             if resp.status_code == 404:
                 raise requests.ConnectionError("Kolibri Studio URL is incorrect!")
             else:
