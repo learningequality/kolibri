@@ -39,7 +39,7 @@ urlpatterns = [
     url(r'^api/', include('kolibri.core.device.api_urls')),
     url(r'^api/', include('kolibri.core.lessons.api_urls')),
     url(r'^api/', include('kolibri.core.discovery.api_urls')),
-    url(r'^api/public/', include('kolibri.core.urls_public')),
+    url(r'^api/public/', include('kolibri.core.public.api_urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'', include(morango_urls)),
 ]

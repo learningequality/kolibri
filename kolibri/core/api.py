@@ -1,11 +1,5 @@
-import platform
-
-from morango.models import InstanceIDModel
 from rest_framework import viewsets
-from rest_framework.response import Response
 from rest_framework_csv.renderers import CSVRenderer
-
-import kolibri
 
 
 class CSVModelViewSet(viewsets.ModelViewSet):
@@ -39,17 +33,3 @@ class CSVModelViewSet(viewsets.ModelViewSet):
         response = super(CSVModelViewSet, self).finalize_response(request, response, *args, **kwargs)
         response['content-disposition'] = 'attachment; filename=%s.csv' % self.csv_export_filename
         return response
-
-
-class InfoViewSet(viewsets.ViewSet):
-
-    def list(self, request):
-        instance_model = InstanceIDModel.get_or_create_current_instance()[0]
-
-        info = {'application': 'kolibri',
-                'kolibri_version': kolibri.__version__,
-                'instance_id': instance_model.id,
-                'device_name': instance_model.hostname,
-                'operating_system': platform.system()
-                }
-        return Response(info)

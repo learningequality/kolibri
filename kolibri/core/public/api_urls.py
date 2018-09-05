@@ -15,14 +15,23 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.conf.urls import include
+from django.conf.urls import url
 from rest_framework import routers
 
+from ..auth.api import PublicFacilityViewSet
+from .api import get_public_channel_list
+from .api import get_public_channel_lookup
 from .api import InfoViewSet
-from .auth.api import PublicFacilityViewSet
 
 router = routers.SimpleRouter()
 
 router.register(r'v1/facility', PublicFacilityViewSet, base_name='publicfacility')
 router.register(r'info', InfoViewSet, base_name='info')
 
-urlpatterns = router.urls
+# Add public api endpoints
+urlpatterns = [
+    url(r'^', include(router.urls)),
+    url(r'(?P<version>[^/]+)/channels/lookup/(?P<identifier>[^/]+)', get_public_channel_lookup, name='get_public_channel_lookup'),
+    url(r'(?P<version>[^/]+)/channels', get_public_channel_list, name='get_public_channel_list'),
+]
