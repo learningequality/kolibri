@@ -15,9 +15,8 @@ from rest_framework.test import APITestCase as BaseTestCase
 from .. import models
 from ..constants import role_kinds
 from .helpers import create_superuser
+from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
-
-DUMMY_PASSWORD = "password"
 
 
 # A weird hack because of http://bugs.python.org/issue17866

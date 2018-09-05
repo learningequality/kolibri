@@ -9,4 +9,6 @@ urlpatterns = [
     url(r'^exams/', include('kolibri.core.exams.api_urls')),
     url(r'^device/', include('kolibri.core.device.api_urls')),
     url(r'^lessons/', include('kolibri.core.lessons.api_urls')),
+    url(r'^discovery/', include('kolibri.core.discovery.api_urls')),
+    url(r'^public/', include('kolibri.core.public.api_urls')),
 ]
