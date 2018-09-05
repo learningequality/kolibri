@@ -153,7 +153,7 @@ def run_server(port):
     server.thread_pool = 10
     server.socket_timeout = 10
     server.accepted_queue_size = 30
-    server.accepted_queue_timeout = 0.1
+    server.accepted_queue_timeout = 20
 
     # Subscribe this server
     server.subscribe()
