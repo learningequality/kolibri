@@ -1,22 +1,45 @@
 <template>
 
   <ImmersiveFullScreen v-bind="{ backPageLink, backPageText }">
+    <!-- TODO should I try and use the baked in auth page? Does this have a URL-->
     <AuthMessage v-if="!isSuperuser" authorizedRole="superuser" />
 
     <h1 v-else-if="user === null">{{ $tr('userDoesNotExist') }}</h1>
 
     <template v-else>
-      <div class="section">
+      <div class="section user-info">
         <h1>
           {{ user.full_name }}
           <span v-if="isCurrentUser">
             ({{ $tr('you') }})
           </span>
         </h1>
-        <h3>{{ user.username }}</h3>
+        <dl>
+          <dt>
+            Username
+          </dt>
+
+          <dd>
+            {{ user.username }}
+          </dd>
+
+          <dt>
+            User type
+          </dt>
+          <dd>
+            {{ getUserKind }}
+          </dd>
+
+          <dt>
+            Facility
+          </dt>
+          <dd>
+            TODO current facility using getter
+          </dd>
+        </dl>
       </div>
 
-      <div class="section">
+      <div class="section superuser">
         <KCheckbox
           :disabled="superuserDisabled"
           :label="$tr('makeSuperuser')"
@@ -108,7 +131,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser']),
+      ...mapGetters(['isSuperuser', 'getUserKind']),
       ...mapState('userPermissions', ['user', 'permissions']),
       ...mapState({
         currentUsername: state => state.core.session.username,
