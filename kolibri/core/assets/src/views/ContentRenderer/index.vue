@@ -170,7 +170,7 @@
         if (this.available && this.kind && this.extension) {
           return Promise.all([
             this.initSession(),
-            this.Kolibri.retrieveContentRenderer('document', 'epub'),
+            this.Kolibri.retrieveContentRenderer(this.kind, this.extension),
           ])
             .then(([session, component]) => {
               this.$emit('sessionInitialized', session);

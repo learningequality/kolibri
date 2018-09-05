@@ -9,7 +9,12 @@
 
     <LoadingScreen v-show="!loaded" />
 
-    <div v-show="loaded">
+    <div
+      v-show="loaded"
+      @keyup.esc="closeSideBar"
+      @keyup.left="goToPreviousPage"
+      @keyup.right="goToNextPage"
+    >
 
       <TopBar
         ref="topBar"
@@ -195,7 +200,6 @@
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
-      epubURL: 'http://localhost:8000/content/storage/epub12.epub',
       book: null,
       rendition: null,
       toc: [],
@@ -218,6 +222,9 @@
       totalPages: null,
     }),
     computed: {
+      epubURL() {
+        return this.defaultFile.storage_url;
+      },
       backgroundColor() {
         return this.theme.backgroundColor;
       },
@@ -386,13 +393,11 @@
           this.book.locations.generate(1000).then(locations => {
             this.locations = locations;
             // force resize on load
-            // Not sure why I need to wait for next tick
             this.$nextTick().then(() => {
               this.resizeRendition(width, height);
             });
             this.loaded = true;
             this.rendition.on('relocated', location => this.relocatedHandler(location));
-            // this.rendition.on('resized', newSize => );
           });
         });
       });
@@ -406,6 +411,9 @@
       delete global.ePub;
     },
     methods: {
+      closeSideBar() {
+        this.sideBarOpen = null;
+      },
       calculateRenditionWidth(availableWidth) {
         return availableWidth - this.navigationButtonWidth * 2;
       },
@@ -556,12 +564,6 @@
   .epub-renderer {
     position: relative;
     height: 500px;
-    // position: fixed;
-    // top: 0;
-    // right: 0;
-    // bottom: 0;
-    // left: 0;
-    // z-index: 1000;
     font-size: smaller;
     background-color: $core-bg-light;
   }
