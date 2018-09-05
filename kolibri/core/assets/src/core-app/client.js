@@ -64,21 +64,6 @@ const serverDisconnectDetection = interceptor({
 });
 
 const client = options => {
-  if (
-    options &&
-    typeof options === 'object' &&
-    !Array.isArray(options) &&
-    (!options.method || options.method === 'GET')
-  ) {
-    if (!options.params) {
-      options.params = {};
-    }
-    // Cache bust by default, but allow it to be turned off
-    if (options.cacheBust || typeof options.cacheBust === 'undefined') {
-      const cacheBust = new Date().getTime();
-      options.params[cacheBust] = cacheBust;
-    }
-  }
   return baseClient
     .wrap(disconnectInterceptor)
     .wrap(mime, { mime: 'application/json' })
