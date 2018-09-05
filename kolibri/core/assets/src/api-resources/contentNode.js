@@ -10,6 +10,9 @@ export default class ContentNodeResource extends Resource {
   static idKey() {
     return 'pk';
   }
+  static usesContentCacheKey() {
+    return true;
+  }
   getDescendantsCollection(id, getParams = {}) {
     if (!id) {
       throw TypeError('An id must be specified');
@@ -35,7 +38,10 @@ export default class ContentNodeResource extends Resource {
     const key = this.cacheKey({ id });
     if (!this.ancestor_cache[key]) {
       const url = this.urls[`${this.name}-ancestors`](id);
-      promise = this.client({ path: url }).then(response => {
+      const params = {
+        contentCacheKey: this.contentCacheKey,
+      };
+      promise = this.client({ path: url, cacheBust: false, params }).then(response => {
         if (Array.isArray(response.entity)) {
           this.ancestor_cache[key] = response.entity;
           return Promise.resolve(response.entity);
@@ -57,7 +63,10 @@ export default class ContentNodeResource extends Resource {
     const key = this.cacheKey({ id });
     if (!this.next_cache[key]) {
       const url = this.urls[`${this.name}_next_content`](id);
-      promise = this.client({ path: url }).then(response => {
+      const params = {
+        contentCacheKey: this.contentCacheKey,
+      };
+      promise = this.client({ path: url, cacheBust: false, params }).then(response => {
         if (Object(response.entity) === response.entity) {
           this.next_cache[key] = response.entity;
           return Promise.resolve(response.entity);

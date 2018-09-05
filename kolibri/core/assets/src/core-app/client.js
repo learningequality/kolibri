@@ -73,8 +73,11 @@ const client = options => {
     if (!options.params) {
       options.params = {};
     }
-    const cacheBust = new Date().getTime();
-    options.params[cacheBust] = cacheBust;
+    // Cache bust by default, but allow it to be turned off
+    if (options.cacheBust || typeof options.cacheBust === 'undefined') {
+      const cacheBust = new Date().getTime();
+      options.params[cacheBust] = cacheBust;
+    }
   }
   return baseClient
     .wrap(disconnectInterceptor)
