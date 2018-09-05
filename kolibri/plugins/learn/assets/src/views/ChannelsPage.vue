@@ -10,7 +10,6 @@
       :contents="channels"
       :genContentLink="genChannelLink"
       v-if="channels.length"
-      :showContentKindFilter="false"
     />
   </div>
 

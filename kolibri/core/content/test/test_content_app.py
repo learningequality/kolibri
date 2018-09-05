@@ -739,16 +739,40 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data[0]['count'],
                          content.ContentNode.objects.filter(content_id='f2332710c2fd483386cdeb5dcbdda81f').count())
 
+    def test_search_total_results(self):
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'root'})
+        self.assertEqual(response.data['total_results'], 1)
+
+    def test_search_kinds(self):
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'root'})
+        self.assertEqual(list(response.data['content_kinds']), [content_kinds.TOPIC])
+
+    def test_search_repeated_kinds(self):
+        # Ensure that each kind is only returned once.
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'c'})
+        kinds = response.data['content_kinds'][:]
+        self.assertEqual(len(kinds), len(set(kinds)))
+
+    def test_search_channels(self):
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'root'})
+        self.assertEqual(response.data['channel_ids'][:], [self.the_channel_id])
+
+    def test_search_repeated_channels(self):
+        # Ensure that each channel_id is only returned once.
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'c'})
+        channel_ids = response.data['channel_ids'][:]
+        self.assertEqual(len(channel_ids), len(set(channel_ids)))
+
     def test_search(self):
         # ensure search works when there are no words not defined
-        response = self.client.get(reverse('kolibri:core:contentnode-list'), data={'search': '!?,'})
-        self.assertEqual(len(response.data), 0)
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': '!?,'})
+        self.assertEqual(len(response.data['results']), 0)
         # ensure search words when there is only stopwords
-        response = self.client.get(reverse('kolibri:core:contentnode-list'), data={'search': 'or'})
-        self.assertEqual(len(response.data), 0)
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'or'})
+        self.assertEqual(len(response.data['results']), 0)
         # regular search
-        response = self.client.get(reverse('kolibri:core:contentnode-list'), data={'search': 'root'})
-        self.assertEqual(len(response.data), 1)
+        response = self.client.get(reverse('kolibri:core:contentnode_search-list'), data={'search': 'root'})
+        self.assertEqual(len(response.data['results']), 1)
 
     def _create_session_logs(self):
         content_ids = ('f2332710c2fd483386cdeb5ecbdda81f', 'ce603df7c46b424b934348995e1b05fb', '481e1bda1faa445d801ceb2afbd2f42f')
