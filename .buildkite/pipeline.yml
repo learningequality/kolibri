@@ -29,3 +29,7 @@ steps:
 
   - label: Cleaning up
     command: make docker-clean
+
+  - block: "Create APK?"
+  - label: Build the Android APK file
+    command: mkdir -p dist && .buildkite/build_apk.sh
