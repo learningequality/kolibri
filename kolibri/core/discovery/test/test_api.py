@@ -34,7 +34,7 @@ class NetworkLocationAPITestCase(APITestCase):
 
     def test_creating_good_address(self):
         self.login(self.superuser)
-        response = self.client.post(reverse("networklocation-list"), data={"base_url": "kolibrihappyurl.qqq"})
+        response = self.client.post(reverse("kolibri:core:networklocation-list"), data={"base_url": "kolibrihappyurl.qqq"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["application"], "kolibri")
         self.assertEqual(response.data["device_name"], "skynet")
@@ -46,7 +46,7 @@ class NetworkLocationAPITestCase(APITestCase):
 
     def test_creating_good_address_with_one_url_timing_out(self):
         self.login(self.superuser)
-        response = self.client.post(reverse("networklocation-list"), data={"base_url": "timeoutonport80url.qqq"})
+        response = self.client.post(reverse("kolibri:core:networklocation-list"), data={"base_url": "timeoutonport80url.qqq"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["application"], "kolibri")
         self.assertEqual(response.data["device_name"], "skynet")
@@ -58,31 +58,31 @@ class NetworkLocationAPITestCase(APITestCase):
 
     def test_creating_bad_address(self):
         self.login(self.superuser)
-        response = self.client.post(reverse("networklocation-list"), data={"base_url": "nonkolibrihappyurl.qqq"})
+        response = self.client.post(reverse("kolibri:core:networklocation-list"), data={"base_url": "nonkolibrihappyurl.qqq"})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_reading_network_location_list(self):
         self.login(self.superuser)
-        response = self.client.get(reverse("networklocation-list"))
+        response = self.client.get(reverse("kolibri:core:networklocation-list"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for location in response.data:
             # only the happy location should be marked as available
             self.assertEqual(location["available"], location["id"] == self.existing_happy_netloc.id)
 
     def test_cannot_read_network_location_list_as_anon_user(self):
-        response = self.client.get(reverse("networklocation-list"))
+        response = self.client.get(reverse("kolibri:core:networklocation-list"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_read_network_location_list_as_learner(self):
         self.login(self.learner)
-        response = self.client.get(reverse("networklocation-list"))
+        response = self.client.get(reverse("kolibri:core:networklocation-list"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_create_location_as_anon_user(self):
-        response = self.client.post(reverse("networklocation-list"), data={"base_url": "kolibrihappyurl.qqq"})
+        response = self.client.post(reverse("kolibri:core:networklocation-list"), data={"base_url": "kolibrihappyurl.qqq"})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_create_location_as_learner(self):
         self.login(self.learner)
-        response = self.client.post(reverse("networklocation-list"), data={"base_url": "kolibrihappyurl.qqq"})
+        response = self.client.post(reverse("kolibri:core:networklocation-list"), data={"base_url": "kolibrihappyurl.qqq"})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

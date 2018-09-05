@@ -41,7 +41,6 @@ class LocalFileFactory(factory.DjangoModelFactory):
     class Meta:
         model = LocalFile
 
-    id = factory.LazyFunction(uuid.uuid4)
     available = True
     file_size = 10
 
@@ -50,8 +49,8 @@ def create_mini_channel(channel_name='channel', channel_id=uuid.uuid4(), root_la
     root = ContentNodeFactory.create(kind=content_kinds.TOPIC, channel_id=channel_id, lang_id=root_lang)
     child1 = ContentNodeFactory.create(parent=root, kind=content_kinds.VIDEO, channel_id=channel_id)
     child2 = ContentNodeFactory.create(parent=root, kind=content_kinds.VIDEO, channel_id=channel_id)
-    l1 = LocalFileFactory.create()
-    l2 = LocalFileFactory.create()
+    l1 = LocalFileFactory.create(id=uuid.uuid4().hex)
+    l2 = LocalFileFactory.create(id=uuid.uuid4().hex)
     FileFactory.create(contentnode=child1, local_file=l1)
     FileFactory.create(contentnode=child2, local_file=l2)
     ChannelMetadata.objects.create(id=channel_id, name=channel_name, min_schema_version=1, root=root)
@@ -74,7 +73,7 @@ class PublicAPITestCase(APITestCase):
         create_mini_channel(channel_name='science', channel_id=self.channel_id2, root_lang='es')
 
     def test_info_endpoint(self):
-        response = self.client.get(reverse('info-list'))
+        response = self.client.get(reverse('kolibri:core:info-list'))
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
         self.assertEqual(response.data['application'], 'kolibri')
         self.assertEqual(response.data['kolibri_version'], kolibri.__version__)
@@ -95,20 +94,20 @@ class PublicAPITestCase(APITestCase):
         self.assertEqual(response.json()[0]['id'], self.channel_id1)
 
     def test_public_channel_list_filter_language(self):
-        response = self.client.get(get_channel_lookup_url(baseurl='/', language_id='zu'))
+        response = self.client.get(get_channel_lookup_url(baseurl='/', language='zu'))
         self.assertEqual(len(response.json()), 0)
         # filter based on contentnode languages
-        response = self.client.get(get_channel_lookup_url(baseurl='/', language_id='en'))
+        response = self.client.get(get_channel_lookup_url(baseurl='/', language='en'))
         self.assertEqual(len(response.json()), 2)
         # filter based on root contentnode language
-        response = self.client.get(get_channel_lookup_url(baseurl='/', language_id='es'))
+        response = self.client.get(get_channel_lookup_url(baseurl='/', language='es'))
         self.assertEqual(len(response.json()), 1)
         self.assertEqual(response.json()[0]['id'], self.channel_id2)
 
     def test_public_channel_list_filter_keyword_language(self):
-        response = self.client.get(get_channel_lookup_url(baseurl='/', keyword='zzz', language_id='es'))
+        response = self.client.get(get_channel_lookup_url(baseurl='/', keyword='zzz', language='es'))
         self.assertEqual(len(response.json()), 0)
-        response = self.client.get(get_channel_lookup_url(baseurl='/', keyword='science', language_id='es'))
+        response = self.client.get(get_channel_lookup_url(baseurl='/', keyword='science', language='es'))
         self.assertEqual(len(response.json()), 1)
         self.assertEqual(response.json()[0]['id'], self.channel_id2)
 
