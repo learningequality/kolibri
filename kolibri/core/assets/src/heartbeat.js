@@ -20,7 +20,7 @@ const reconnectMultiplier = 2;
 
 const maxReconnectTime = 600;
 
-const timeoutReconnectTime = 30;
+const timeoutReconnectTime = 60;
 
 const minReconnectTime = 5;
 
