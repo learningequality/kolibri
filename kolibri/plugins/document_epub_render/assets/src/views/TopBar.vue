@@ -7,52 +7,37 @@
         :percentage="true"
         alignment="left"
       >
-        <UiIconButton
-          type="secondary"
-          :disableRipple="true"
-          :ariaLabel="$tr('toggleTocSideBar')"
+        <TocButton
+          ref="tocButton"
           @click="$emit('tableOfContentsClicked')"
-        >
-          <mat-svg
-            name="list"
-            category="action"
-          />
-        </UiIconButton>
+        />
       </KGridItem>
       <KGridItem
         sizes="25, 50, 50"
         :percentage="true"
         alignment="center"
       >
-        <h2 class="top-bar-title">{{ title }}</h2>
+        <h2
+          v-if="title"
+          class="top-bar-title"
+        >
+          {{ title }}
+        </h2>
       </KGridItem>
       <KGridItem
         sizes="50, 25, 25"
         :percentage="true"
         alignment="right"
       >
-        <UiIconButton
-          type="secondary"
-          :disableRipple="true"
-          :ariaLabel="$tr('toggleSettingsBar')"
+        <SettingsButton
+          ref="settingsButton"
           @click="$emit('settingsClicked')"
-        >
-          <mat-svg
-            name="settings"
-            category="action"
-          />
-        </UiIconButton>
-        <UiIconButton
-          type="secondary"
-          :disableRipple="true"
-          :ariaLabel="$tr('toggleSearchSideBar')"
+        />
+
+        <SearchButton
+          ref="searchButton"
           @click="$emit('searchClicked')"
-        >
-          <mat-svg
-            name="search"
-            category="action"
-          />
-        </UiIconButton>
+        />
 
         <UiIconButton
           type="secondary"
@@ -84,28 +69,42 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import UiIconButton from 'keen-ui/src/UiIconButton';
+  import TocButton from './TocButton';
+  import SettingsButton from './SettingsButton';
+  import SearchButton from './SearchButton';
 
   export default {
     name: 'TopBar',
     $trs: {
-      toggleTocSideBar: 'Toggle table of contents side bar',
-      toggleSettingsBar: 'Toggle settings side bar',
-      toggleSearchSideBar: 'Toggle search side bar',
       toggleFullscreen: 'Toggle fullscreen',
     },
     components: {
       KGrid,
       KGridItem,
       UiIconButton,
+      TocButton,
+      SettingsButton,
+      SearchButton,
     },
     props: {
       title: {
         type: String,
-        required: true,
+        required: false,
       },
       isInFullscreen: {
         type: Boolean,
         required: true,
+      },
+    },
+    methods: {
+      focusOnTocButton() {
+        this.$refs.tocButton.$el.focus();
+      },
+      focusOnSettingsButton() {
+        this.$refs.settingsButton.$el.focus();
+      },
+      focusOnSearchButton() {
+        this.$refs.searchButton.$el.focus();
       },
     },
   };

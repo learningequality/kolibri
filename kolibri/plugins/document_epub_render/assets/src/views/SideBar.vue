@@ -22,7 +22,7 @@
   @import './EpubStyles';
 
   .side-bar {
-    z-index: 4;
+    z-index: 6;
     width: 250px;
     padding: 16px;
     overflow-y: auto;

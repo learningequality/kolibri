@@ -1,0 +1,35 @@
+<template>
+
+  <UiIconButton
+    type="secondary"
+    :disableRipple="true"
+    :ariaLabel="$tr('toggleSettingsSideBar')"
+    @click="$emit('click')"
+  >
+    <mat-svg
+      name="settings"
+      category="action"
+    />
+  </UiIconButton>
+
+</template>
+
+
+<script>
+
+  import UiIconButton from 'keen-ui/src/UiIconButton';
+
+  export default {
+    name: 'SettingsButton',
+    $trs: {
+      toggleSettingsSideBar: 'Toggle settings side bar',
+    },
+    components: {
+      UiIconButton,
+    },
+  };
+
+</script>
+
+
+<style lang="scss" scoped></style>

@@ -98,7 +98,6 @@
 
   .toc-list-item-top-level:not(:last-child) {
     padding-left: 0;
-    margin-bottom: 8px;
     border-bottom: 1px solid $core-grey;
   }
 

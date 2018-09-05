@@ -10,9 +10,10 @@
     <LoadingScreen v-show="!loaded" />
 
     <div v-show="loaded">
+
       <TopBar
+        ref="topBar"
         class="top-bar"
-        :title="'Chapter Name'"
         :isInFullscreen="isInFullscreen"
         @tableOfContentsClicked="handleTocToggle"
         @settingsClicked="handleSettingToggle"
@@ -20,35 +21,68 @@
         @fullscreenClicked="$refs.epubRenderer.toggleFullscreen()"
       />
 
-      <TableOfContentsSideBar
-        v-show="tocSideBarIsOpen"
-        ref="tocSideBar"
-        :toc="toc"
-        :currentSection="currentSection"
-        class="side-bar side-bar-left"
-        @tocNavigation="handleTocNavigation"
-      />
+      <FocusLock
+        :disabled="!tocSideBarIsOpen"
+        :returnFocus="false"
+      >
+        <TocButton
+          v-if="tocSideBarIsOpen"
+          class="toc-button"
+          @click="handleTocToggle"
+        />
 
-      <SettingsSideBar
-        v-show="settingsSideBarIsOpen"
-        ref="settingsSideBar"
-        class="side-bar side-bar-right"
-        :theme="theme"
-        :textAlignment="textAlignment"
-        @decreaseFontSize="decreaseFontSize"
-        @increaseFontSize="increaseFontSize"
-        @setTheme="setTheme"
-        @setTextAlignment="setTextAlignment"
-      />
+        <TableOfContentsSideBar
+          v-show="tocSideBarIsOpen"
+          ref="tocSideBar"
+          :toc="toc"
+          :currentSection="currentSection"
+          class="side-bar side-bar-left"
+          @tocNavigation="handleTocNavigation"
+        />
+      </FocusLock>
 
-      <SearchSideBar
-        v-show="searchSideBarIsOpen"
-        ref="searchSideBar"
-        class="side-bar side-bar-right"
-        :book="book"
-        @newSearchQuery="handleNewSearchQuery"
-        @navigateToSearchResult="handleNavigateToSearchResult"
-      />
+      <FocusLock
+        :disabled="!settingsSideBarIsOpen"
+        :returnFocus="false"
+      >
+        <SettingsButton
+          v-if="settingsSideBarIsOpen"
+          class="settings-button"
+          @click="handleSettingToggle"
+        />
+
+        <SettingsSideBar
+          v-show="settingsSideBarIsOpen"
+          ref="settingsSideBar"
+          class="side-bar side-bar-right"
+          :theme="theme"
+          :textAlignment="textAlignment"
+          @decreaseFontSize="decreaseFontSize"
+          @increaseFontSize="increaseFontSize"
+          @setTheme="setTheme"
+          @setTextAlignment="setTextAlignment"
+        />
+      </FocusLock>
+
+      <FocusLock
+        :disabled="!searchSideBarIsOpen"
+        :returnFocus="false"
+      >
+        <SearchButton
+          v-if="searchSideBarIsOpen"
+          class="search-button"
+          @click="handleSearchToggle"
+        />
+
+        <SearchSideBar
+          v-show="searchSideBarIsOpen"
+          ref="searchSideBar"
+          class="side-bar side-bar-right"
+          :book="book"
+          @newSearchQuery="handleNewSearchQuery"
+          @navigateToSearchResult="handleNavigateToSearchResult"
+        />
+      </FocusLock>
 
       <div class="navigation-and-epubjs">
         <div
@@ -117,6 +151,9 @@
   import BottomBar from './BottomBar';
   import PreviousButton from './PreviousButton';
   import NextButton from './NextButton';
+  import TocButton from './TocButton';
+  import SettingsButton from './SettingsButton';
+  import SearchButton from './SearchButton';
 
   import { TEXT_ALIGNMENTS, THEMES } from './EpubConstants';
 
@@ -152,10 +189,13 @@
       PreviousButton,
       NextButton,
       FocusLock,
+      TocButton,
+      SettingsButton,
+      SearchButton,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
-      epubURL: 'http://localhost:8000/content/storage/epub11.epub',
+      epubURL: 'http://localhost:8000/content/storage/epub12.epub',
       book: null,
       rendition: null,
       toc: [],
@@ -172,7 +212,6 @@
       sliderValue: 0,
 
       currentLocationCfi: null,
-      disabled: true,
 
       // TODO
       progress: 0,
@@ -274,22 +313,32 @@
     },
     watch: {
       sideBarOpen(newSideBar, oldSideBar) {
-        this.disabled = true;
-        if (oldSideBar === SIDE_BARS.SEARCH) {
-          this.clearMarks();
-        }
-
-        if (newSideBar === SIDE_BARS.SEARCH) {
-          this.$nextTick().then(() => this.$refs.searchSideBar.focusOnInput());
-          if (this.searchQuery) {
-            this.clearMarks().then(this.createMarks(this.searchQuery));
+        this.$nextTick().then(() => {
+          if (oldSideBar === SIDE_BARS.SEARCH) {
+            this.clearMarks();
           }
-        } else if (newSideBar === SIDE_BARS.TOC) {
-          this.disabled = false;
-          // this.$nextTick().then(() => this.$refs.tocSideBar.redirectFocus());
-        } else if (newSideBar === SIDE_BARS.SETTINGS) {
-          this.$nextTick().then(() => this.$refs.settingsSideBar.redirectFocus());
-        }
+          if (!newSideBar) {
+            switch (oldSideBar) {
+              case SIDE_BARS.TOC:
+                this.$refs.topBar.focusOnTocButton();
+                break;
+              case SIDE_BARS.SETTINGS:
+                this.$refs.topBar.focusOnSettingsButton();
+                break;
+              case SIDE_BARS.SEARCH:
+                this.$refs.topBar.focusOnSearchButton();
+                break;
+              default:
+                break;
+            }
+          }
+          if (newSideBar === SIDE_BARS.SEARCH) {
+            this.$refs.searchSideBar.focusOnInput();
+            if (this.searchQuery) {
+              this.clearMarks().then(this.createMarks(this.searchQuery));
+            }
+          }
+        });
       },
       themeStyle(newTheme) {
         if (this.rendition) {
@@ -337,9 +386,7 @@
           this.book.locations.generate(1000).then(locations => {
             this.locations = locations;
             // force resize on load
-            // why do I need to wait for next tick?
-            // I added this because I needed some delay
-            // not sure why if display should be
+            // Not sure why I need to wait for next tick
             this.$nextTick().then(() => {
               this.resizeRendition(width, height);
             });
@@ -538,6 +585,21 @@
 
   .side-bar-right {
     right: 0;
+  }
+
+  .toc-button,
+  .settings-button,
+  .search-button {
+    position: absolute;
+    top: 0;
+    z-index: 6;
+  }
+  .settings-button {
+    right: 72px;
+  }
+
+  .search-button {
+    right: 36px;
   }
 
   .bottom-bar {

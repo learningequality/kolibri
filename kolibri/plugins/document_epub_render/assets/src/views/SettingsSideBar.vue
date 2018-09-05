@@ -172,7 +172,6 @@
     min-width: unset;
     padding: 8px;
     margin: 2px;
-    font-size: 12px;
     line-height: unset;
     box-shadow: none;
     transition: none;
