@@ -29,6 +29,6 @@ CMD cd /kolibribuild && \
     ls /kolibridist && \
     uupdate --no-symlink -v "$DEB_VERSION" /kolibridist/kolibri-$KOLIBRI_VERSION.tar.gz && \
     cd "../kolibri-source-$DEB_VERSION" && \
-    debuild --no-lintian -us -uc && \
+    debuild --no-lintian -us -uc -Zgzip -z3 && \
     cd .. && \
     cp *.deb /kolibridist/
