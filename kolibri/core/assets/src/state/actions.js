@@ -37,8 +37,8 @@ const translator = createTranslator(name, messages);
 
 const logging = logger.getLogger(__filename);
 const intervalTime = 5000; // Frequency at which time logging is updated
-const progressThreshold = 0.25; // Update logs if user has reached 25% more progress
-const timeThreshold = 60; // Update logs if 60 seconds have passed since last update
+const progressThreshold = 0.4; // Update logs if user has reached 40% more progress
+const timeThreshold = 120; // Update logs if 120 seconds have passed since last update
 
 /**
  * Vuex State Mappers
