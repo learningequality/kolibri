@@ -18,14 +18,14 @@
         <table>
           <tr>
             <th scope="row">
-              Username
+              {{ $tr('usernameLabel') }}
             </th>
             <td> {{ user.username }} </td>
           </tr>
 
           <tr>
             <th scope="row">
-              User type
+              {{ $tr('userTypeLabel') }}
             </th>
             <!-- TODO translate -->
             <td> {{ getUserKind }}</td>
@@ -33,7 +33,7 @@
 
           <tr>
             <th scope="row">
-              Facility
+              {{ $tr('facilityLabel') }}
             </th>
             <td>{{ facilityName }}</td>
           </tr>
@@ -52,12 +52,11 @@
 
         <!-- TODO this is gonna have to move -->
         <ul>
-          <!-- {{ $tr('makeSuperuserDetails') }} -->
           <li>
-            Has all device permissions and can manage device permissions of other users
+            {{ $tr('superuserExplanation1') }}
           </li>
           <li>
-            Has admin permissions for all facilities on this device
+            {{ $tr('superuserExplanation2') }}
           </li>
         </ul>
       </div>
@@ -230,18 +229,22 @@
       cancelButton: 'Cancel',
       devicePermissions: 'Device permissions',
       devicePermissionsDetails: 'Can import and export content channels',
+      documentTitle: "{ name }'s Device Permissions",
       goBack: 'Go Back',
       invalidUser: 'Invalid user ID',
       makeSuperuser: 'Make superuser',
-      makeSuperuserDetails:
-        'A superuser has all device permissions and is able to manage permissions of other users',
       saveButton: 'Save Changes',
       saveFailureNotification: 'There was a problem saving these changes.',
       saveInProgressNotification: 'Saving...',
       saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
+      usernameLabel: 'Username',
+      userTypeLabel: 'User type',
+      facilityLabel: 'Facility',
+      superuserExplanation1:
+        'Has all device permissions and can manage device permissions of other users',
+      superuserExplanation2: 'Has admin permissions for all facilities on this device',
       you: 'You',
-      documentTitle: "{ name }'s Device Permissions",
     },
   };
 
