@@ -6,7 +6,8 @@ import sinon from 'sinon';
 import omit from 'lodash/fp/omit';
 import { mockResource } from 'testUtils'; // eslint-disable-line
 import mutations from '../../src/state/mutations';
-import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
+import ChannelResource from '../../src/apiResources/deviceChannel';
+import { ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import {
   addNodeForTransfer,
   removeNodeForTransfer,
