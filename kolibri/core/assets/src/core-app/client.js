@@ -55,7 +55,7 @@ const serverDisconnectDetection = interceptor({
     // disconnection status codes.
     if (response.status && errorCodes.includes(response.status.code)) {
       // If so, set our heartbeat module to start monitoring the disconnection state
-      heartbeat.monitorDisconnect();
+      heartbeat.monitorDisconnect(response.status.code);
       // Return an error
       return Promise.reject(response);
     }
@@ -73,8 +73,11 @@ const client = options => {
     if (!options.params) {
       options.params = {};
     }
-    const cacheBust = new Date().getTime();
-    options.params[cacheBust] = cacheBust;
+    // Cache bust by default, but allow it to be turned off
+    if (options.cacheBust || typeof options.cacheBust === 'undefined') {
+      const cacheBust = new Date().getTime();
+      options.params[cacheBust] = cacheBust;
+    }
   }
   return baseClient
     .wrap(disconnectInterceptor)
