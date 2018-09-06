@@ -74,7 +74,10 @@
     },
     computed: {
       versionNumber() {
-        return this.channelOnDevice.version || this.channel.version;
+        if (this.channelOnDevice.version === undefined) {
+          return this.channel.version;
+        }
+        return this.channelOnDevice.version;
       },
     },
     methods: {
