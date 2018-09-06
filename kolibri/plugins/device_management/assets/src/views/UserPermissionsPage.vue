@@ -43,6 +43,7 @@
 
       <div class="section superuser">
         <KCheckbox
+          class="superuser-checkbox"
           :disabled="superuserDisabled"
           :label="$tr('makeSuperuser')"
           :checked="superuserChecked"
@@ -50,8 +51,7 @@
         />
         <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
 
-        <!-- TODO this is gonna have to move -->
-        <ul>
+        <ul :class="['checkbox-description', {disabled: superuserDisabled}]">
           <li>
             {{ $tr('superuserExplanation1') }}
           </li>
@@ -263,6 +263,21 @@
     // NOTE: values will overflow fine on smaller screens
     width: 50%;
     text-align: left;
+  }
+
+  .superuser-checkbox {
+    display: inline-table;
+  }
+
+  .checkbox-description {
+    // visual estimate, supposed to line up with checkbox label
+    margin: 0;
+    margin-left: 14px;
+    font-size: 12px;
+    color: $core-text-annotation;
+    &.disabled {
+      color: $core-text-disabled;
+    }
   }
 
   .section {
