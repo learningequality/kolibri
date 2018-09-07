@@ -1,42 +1,69 @@
+import logging as logger
 import threading
 import time
 
 from django.db import transaction
 
+logging = logger.getLogger(__name__)
+
+
 class AsyncLogQueue():
 
     def __init__(self):
 
+        # Value in seconds to determine the sleep time between log saving batches
         self.log_saving_interval = 5
 
-        self.active_queue = []
+        # Where new log saving functions are appended
+        self.queue = []
 
-        self.inactive_queue = []
+        # Where the to be executed log saving functions are stored
+        # once a batch save has been invoked
+        self.running = []
 
     def append(self, fn):
-        self.active_queue.append(fn)
+        """
+        Convenience method to append log saving function to the current queue
+        """
+        self.queue.append(fn)
 
-    def toggle_active_queue(self):
-        old_active_queue = self.active_queue
-        new_active_queue = self.inactive_queue
-        self.active_queue = new_active_queue
-        self.inactive_queue = old_active_queue
+    def toggle_queue(self):
+        """
+        Method to swap the queue and running, to allow new log saving functions
+        to be added to the queue while previously added functions are being executed
+        and cleared without fear of race conditions dropping saves.
+        """
+        old_queue = self.queue
+        new_queue = self.running
+        self.queue = new_queue
+        self.running = old_queue
 
-    def clear_queue(self):
-        self.inactive_queue = []
+    def clear_running(self):
+        """
+        Reset the running list to drop references to already executed log saving functions
+        """
+        self.running = []
 
-    def run_queue(self):
-        if self.inactive_queue:
+    def run(self):
+        """
+        Execute any log saving functions in the self.running list
+        """
+        if self.running:
             # Do this conditionally to avoid opening an unnecessary transaction
             with transaction.atomic():
-                for fn in self.inactive_queue:
-                    fn()
+                for fn in self.running:
+                    try:
+                        fn()
+                    except Exception as e:
+                        # Catch all exceptions and log, otherwise the background process will end
+                        # and no more logs will be saved!
+                        logging.debug("Exception raised during background log saving: ", e)
 
-    def start_queue(self):
+    def start(self):
         while True:
-            self.toggle_active_queue()
-            self.run_queue()
-            self.clear_queue()
+            self.toggle_queue()
+            self.run()
+            self.clear_running()
             time.sleep(self.log_saving_interval)
 
 
@@ -56,4 +83,5 @@ class AsyncLogSavingThread(threading.Thread):
         thread.start()
 
     def run(self):
-        log_queue.start_queue()
+        logging.info("Initializing background log saving process")
+        log_queue.start()

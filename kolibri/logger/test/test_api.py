@@ -95,10 +95,14 @@ class ContentSessionLogAPITestCase(APITestCase):
         payload = {
             "end_timestamp": str(now)
         }
-        with patch('kolibri.logger.tasks.add_to_save_queue') as queue_mock:
+        delayed_fn_calls = []
+
+        def side_effect(fn):
+            delayed_fn_calls.append(fn)
+        with patch('kolibri.logger.tasks.add_to_save_queue', side_effect=side_effect):
             response = self.client.patch(reverse('contentsessionlog-detail', kwargs={"pk": log.id}), data=payload, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            queue_mock.call_args[0][0]()
+            delayed_fn_calls[0]()
             log.refresh_from_db()
             self.assertEqual(log.end_timestamp, now)
 
@@ -203,10 +207,14 @@ class ContentSummaryLogAPITestCase(APITestCase):
         payload = {
             "end_timestamp": str(now)
         }
-        with patch('kolibri.logger.tasks.add_to_save_queue') as queue_mock:
+        delayed_fn_calls = []
+
+        def side_effect(fn):
+            delayed_fn_calls.append(fn)
+        with patch('kolibri.logger.tasks.add_to_save_queue', side_effect=side_effect):
             response = self.client.patch(reverse('contentsummarylog-detail', kwargs={"pk": log.id}), data=payload, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            queue_mock.call_args[0][0]()
+            delayed_fn_calls[0]()
             log.refresh_from_db()
             self.assertEqual(log.end_timestamp, now)
 
