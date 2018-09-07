@@ -4,6 +4,7 @@
     type="secondary"
     :disableRipple="true"
     :ariaLabel="$tr('toggleSettingsSideBar')"
+    data-test="settings button"
     @click="$emit('click')"
   >
     <mat-svg

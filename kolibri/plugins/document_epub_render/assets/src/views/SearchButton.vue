@@ -4,6 +4,7 @@
     type="secondary"
     :disableRipple="true"
     :ariaLabel="$tr('toggleSearchSideBar')"
+    data-test="search button"
     @click="$emit('click')"
   >
     <mat-svg

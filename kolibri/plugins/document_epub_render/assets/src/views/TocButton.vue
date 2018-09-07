@@ -4,6 +4,7 @@
     type="secondary"
     :disableRipple="true"
     :ariaLabel="$tr('toggleTocSideBar')"
+    data-test="toc button"
     @click="$emit('click')"
   >
     <mat-svg

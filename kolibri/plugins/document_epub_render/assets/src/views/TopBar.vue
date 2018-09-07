@@ -9,7 +9,7 @@
       >
         <TocButton
           ref="tocButton"
-          @click="$emit('tableOfContentsClicked')"
+          @click="$emit('tableOfContentsButtonClicked')"
         />
       </KGridItem>
       <KGridItem
@@ -31,19 +31,20 @@
       >
         <SettingsButton
           ref="settingsButton"
-          @click="$emit('settingsClicked')"
+          @click="$emit('settingsButtonClicked')"
         />
 
         <SearchButton
           ref="searchButton"
-          @click="$emit('searchClicked')"
+          @click="$emit('searchButtonClicked')"
         />
 
         <UiIconButton
+          ref="fullscreenButton"
           type="secondary"
           :disableRipple="true"
           :ariaLabel="$tr('toggleFullscreen')"
-          @click="$emit('fullscreenClicked')"
+          @click="$emit('fullscreenButtonClicked')"
         >
           <mat-svg
             v-if="isInFullscreen"

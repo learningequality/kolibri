@@ -20,10 +20,10 @@
         ref="topBar"
         class="top-bar"
         :isInFullscreen="isInFullscreen"
-        @tableOfContentsClicked="handleTocToggle"
-        @settingsClicked="handleSettingToggle"
-        @searchClicked="handleSearchToggle"
-        @fullscreenClicked="$refs.epubRenderer.toggleFullscreen()"
+        @tableOfContentsButtonClicked="handleTocToggle"
+        @settingsButtonClicked="handleSettingToggle"
+        @searchButtonClicked="handleSearchToggle"
+        @fullscreenButtonClicked="$refs.epubRenderer.toggleFullscreen()"
       />
 
       <FocusLock
