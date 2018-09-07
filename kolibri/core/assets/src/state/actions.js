@@ -1,3 +1,4 @@
+import debounce from 'lodash/debounce';
 import {
   isUserLoggedIn,
   currentUserId,
@@ -397,6 +398,22 @@ function setChannelInfo(store) {
     );
 }
 
+function saveContentSessionLog(store, sessionModel, contentSession) {
+  sessionModel.save(contentSession).catch(error => {
+    handleApiError(store, error);
+  });
+}
+
+const debouncedSaveContentSessionLog = debounce(saveContentSessionLog, 1000, { maxWait: 5000 });
+
+function saveContentSummaryLog(store, summaryModel, contentSummary) {
+  summaryModel.save(contentSummary).catch(error => {
+    handleApiError(store, error);
+  });
+}
+
+const debouncedSaveContentSummaryLog = debounce(saveContentSummaryLog, 1000, { maxWait: 5000 });
+
 /**
  * Do a PATCH to update existing logging models
  * Must be called after initContentSession
@@ -412,17 +429,19 @@ function saveLogs(store) {
   /* If a session model exists, save it with updated values */
   if (sessionLog.id) {
     const sessionModel = ContentSessionLogResource.getModel(sessionLog.id);
-    sessionModel.save(_contentSessionModel(store)).catch(error => {
-      handleApiError(store, error);
-    });
+    const contentSession = _contentSessionModel(store);
+    // Get all data from the vuex store synchronously, but then debounce the save to
+    // prevent repeated saves to the server.
+    debouncedSaveContentSessionLog(store, sessionModel, contentSession);
   }
 
   /* If a summary model exists, save it with updated values */
   if (summaryLog.id) {
     const summaryModel = ContentSummaryLogResource.getModel(summaryLog.id);
-    summaryModel.save(_contentSummaryModel(store)).catch(error => {
-      handleApiError(store, error);
-    });
+    const contentSummary = _contentSummaryModel(store);
+    // Get all data from the vuex store synchronously, but then debounce the save to
+    // prevent repeated saves to the server.
+    debouncedSaveContentSummaryLog(store, summaryModel, contentSummary);
   }
 }
 

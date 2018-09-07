@@ -73,6 +73,7 @@ class ChannelMetadataFilter(FilterSet):
         fields = ['available', 'has_exercise', ]
 
 
+@method_decorator(cache_forever, name='dispatch')
 class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ChannelMetadataSerializer
     filter_backends = (DjangoFilterBackend,)

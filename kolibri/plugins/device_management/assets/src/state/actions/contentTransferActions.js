@@ -1,5 +1,6 @@
 import { taskList, wizardState } from '../getters';
-import { ChannelResource, TaskResource } from 'kolibri.resources';
+import { TaskResource } from 'kolibri.resources';
+import ChannelResource from '../../apiResources/deviceChannel';
 import { TaskStatuses, TransferTypes } from '../../constants';
 
 export const ErrorTypes = {

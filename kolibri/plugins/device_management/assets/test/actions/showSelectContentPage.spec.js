@@ -7,7 +7,8 @@ import router from 'kolibri.coreVue.router';
 import { showSelectContentPage } from '../../src/state/actions/selectContentActions';
 import mutations from '../../src/state/mutations';
 import { wizardState } from '../../src/state/getters';
-import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
+import ChannelResource from '../../src/apiResources/deviceChannel';
+import { ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
 import { mockResource } from 'testUtils'; // eslint-disable-line
 import { importExportWizardState } from '../../src/state/wizardState';
 import { defaultChannel } from '../utils/data';

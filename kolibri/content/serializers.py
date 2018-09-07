@@ -25,6 +25,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
     available = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
+        # TODO: rtibbles - cleanup this for device specific serializer.
         value = super(ChannelMetadataSerializer, self).to_representation(instance)
 
         # if it has the file_size flag add extra file_size information
