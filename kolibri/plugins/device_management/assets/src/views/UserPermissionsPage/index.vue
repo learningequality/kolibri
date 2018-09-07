@@ -27,8 +27,9 @@
             <th scope="row">
               {{ $tr('userTypeLabel') }}
             </th>
-            <!-- TODO translate -->
-            <td> {{ userKind }} </td>
+            <td>
+              <UserTypeDisplay :user="user" />
+            </td>
           </tr>
 
           <tr>
@@ -110,6 +111,7 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import { PageNames } from '../../constants';
+  import UserTypeDisplay from './UserTypeDisplay';
 
   const SUCCESS = 'SUCCESS';
   const IN_PROGRESS = 'IN_PROGRESS';
@@ -128,6 +130,7 @@
       KButton,
       KCheckbox,
       PermissionsIcon,
+      UserTypeDisplay,
     },
     data() {
       return {
