@@ -47,6 +47,8 @@ from .serializers import RoleSerializer
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.logger.models import UserSessionLog
+from kolibri.logger.tasks import add_to_save_queue
+from kolibri.utils.time import local_now
 
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
@@ -388,6 +390,10 @@ class SessionViewSet(viewsets.ViewSet):
             session['kind'].insert(0, 'superuser')
 
         if active:
-            UserSessionLog.update_log(user)
+            now = local_now()
+
+            def fn():
+                UserSessionLog.update_log(user, now=now)
+            add_to_save_queue(fn)
 
         return session

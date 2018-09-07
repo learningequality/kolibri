@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 
 from django.apps import AppConfig
 
+from .tasks import AsyncLogSavingThread
+
 
 class KolibriLoggerConfig(AppConfig):
     name = 'kolibri.logger'
@@ -11,4 +13,4 @@ class KolibriLoggerConfig(AppConfig):
     verbose_name = 'Kolibri Logger'
 
     def ready(self):
-        pass
+        AsyncLogSavingThread.start_command()

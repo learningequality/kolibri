@@ -5,27 +5,28 @@ to store details of user interactions with content, a summary of those
 interactions, interactions with the software in general, as well as user
 feedback on the content and the software.
 """
-
 from __future__ import unicode_literals
 
 from datetime import timedelta
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils import timezone
 from jsonfield import JSONField
+from morango.query import SyncableModelQuerySet
+
+from .permissions import AnyoneCanWriteAnonymousLogs
 from kolibri.auth.constants import role_kinds
-from kolibri.auth.models import AbstractFacilityDataModel, Facility, FacilityUser
+from kolibri.auth.models import AbstractFacilityDataModel
+from kolibri.auth.models import Facility
+from kolibri.auth.models import FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
 from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.models import UUIDField
 from kolibri.core.exams.models import Exam
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
-from morango.query import SyncableModelQuerySet
-
-from .permissions import AnyoneCanWriteAnonymousLogs
 
 
 class BaseLogQuerySet(SyncableModelQuerySet):
@@ -139,19 +140,21 @@ class UserSessionLog(BaseLogModel):
     pages = models.TextField(blank=True)
 
     @classmethod
-    def update_log(cls, user):
+    def update_log(cls, user, now=None):
         """
         Update the current UserSessionLog for a particular user.
         """
+        if now is None:
+            now = local_now()
         if user and isinstance(user, FacilityUser):
             try:
                 user_session_log = cls.objects.filter(user=user).latest('last_interaction_timestamp')
             except ObjectDoesNotExist:
                 user_session_log = None
 
-            if not user_session_log or timezone.now() - user_session_log.last_interaction_timestamp > timedelta(minutes=5):
+            if not user_session_log or now - user_session_log.last_interaction_timestamp > timedelta(minutes=5):
                 user_session_log = cls(user=user)
-            user_session_log.last_interaction_timestamp = local_now()
+            user_session_log.last_interaction_timestamp = now
             user_session_log.save()
 
 
