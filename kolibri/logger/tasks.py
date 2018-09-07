@@ -3,35 +3,48 @@ import time
 
 from django.db import transaction
 
-LOG_SAVING_INTERVAL = 5
+class AsyncLogQueue():
 
-QUEUE_1 = []
+    def __init__(self):
 
-QUEUE_2 = []
+        self.log_saving_interval = 5
 
-ACTIVE_QUEUE = QUEUE_1
+        self.active_queue = []
+
+        self.inactive_queue = []
+
+    def append(self, fn):
+        self.active_queue.append(fn)
+
+    def toggle_active_queue(self):
+        old_active_queue = self.active_queue
+        new_active_queue = self.inactive_queue
+        self.active_queue = new_active_queue
+        self.inactive_queue = old_active_queue
+
+    def clear_queue(self):
+        self.inactive_queue = []
+
+    def run_queue(self):
+        if self.inactive_queue:
+            # Do this conditionally to avoid opening an unnecessary transaction
+            with transaction.atomic():
+                for fn in self.inactive_queue:
+                    fn()
+
+    def start_queue(self):
+        while True:
+            self.toggle_active_queue()
+            self.run_queue()
+            self.clear_queue()
+            time.sleep(self.log_saving_interval)
+
+
+log_queue = AsyncLogQueue()
 
 
 def add_to_save_queue(fn):
-    global ACTIVE_QUEUE
-    ACTIVE_QUEUE.append(fn)
-
-
-def toggle_active_queue():
-    global ACTIVE_QUEUE
-    if ACTIVE_QUEUE == QUEUE_1:
-        ACTIVE_QUEUE = QUEUE_2
-    else:
-        ACTIVE_QUEUE = QUEUE_1
-
-
-def clear_queue(queue):
-    global QUEUE_1
-    global QUEUE_2
-    if queue == QUEUE_1:
-        QUEUE_1 = []
-    else:
-        QUEUE_2 = []
+    log_queue.append(fn)
 
 
 class AsyncLogSavingThread(threading.Thread):
@@ -43,11 +56,4 @@ class AsyncLogSavingThread(threading.Thread):
         thread.start()
 
     def run(self):
-        while True:
-            queue = ACTIVE_QUEUE
-            toggle_active_queue()
-            with transaction.atomic():
-                for fn in queue:
-                    fn()
-            clear_queue(queue)
-            time.sleep(LOG_SAVING_INTERVAL)
+        log_queue.start_queue()

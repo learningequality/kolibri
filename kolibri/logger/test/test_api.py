@@ -8,6 +8,7 @@ import uuid
 
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+from mock import patch
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -31,6 +32,8 @@ from kolibri.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.logger.models import ExamAttemptLog
 from kolibri.logger.models import ExamLog
+from kolibri.utils.time import local_now
+
 
 class ContentSessionLogAPITestCase(APITestCase):
 
@@ -84,6 +87,20 @@ class ContentSessionLogAPITestCase(APITestCase):
         self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.post(reverse('contentsessionlog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_learner_can_update_contentsessionlog(self):
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+        log = ContentSessionLogFactory(user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex)
+        now = local_now()
+        payload = {
+            "end_timestamp": str(now)
+        }
+        with patch('kolibri.logger.tasks.add_to_save_queue') as queue_mock:
+            response = self.client.patch(reverse('contentsessionlog-detail', kwargs={"pk": log.id}), data=payload, format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            queue_mock.call_args[0][0]()
+            log.refresh_from_db()
+            self.assertEqual(log.end_timestamp, now)
 
     def test_anonymous_user_cannot_create_contentsessionlog_for_learner(self):
         response = self.client.post(reverse('contentsessionlog-list'), data=self.payload, format='json')
@@ -178,6 +195,20 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.post(reverse('contentsummarylog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_learner_can_update_contentsummarylog(self):
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+        log = ContentSummaryLogFactory(user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex)
+        now = local_now()
+        payload = {
+            "end_timestamp": str(now)
+        }
+        with patch('kolibri.logger.tasks.add_to_save_queue') as queue_mock:
+            response = self.client.patch(reverse('contentsummarylog-detail', kwargs={"pk": log.id}), data=payload, format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            queue_mock.call_args[0][0]()
+            log.refresh_from_db()
+            self.assertEqual(log.end_timestamp, now)
 
     def test_anonymous_user_cannot_create_summarylog_for_learner(self):
         response = self.client.post(reverse('contentsummarylog-list'), data=self.payload, format='json')
