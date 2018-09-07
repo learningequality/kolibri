@@ -28,7 +28,7 @@
               {{ $tr('userTypeLabel') }}
             </th>
             <!-- TODO translate -->
-            <td> {{ getUserKind }}</td>
+            <td> {{ userKind }} </td>
           </tr>
 
           <tr>
@@ -43,9 +43,9 @@
 
       <div class="section superuser">
         <KCheckbox
-          class="superuser-checkbox"
+          class="super-admin-checkbox"
           :disabled="superuserDisabled"
-          :label="$tr('makeSuperuser')"
+          :label="$tr('makeSuperAdmin')"
           :checked="superuserChecked"
           @change="superuserChecked=$event"
         />
@@ -53,10 +53,10 @@
 
         <ul :class="['checkbox-description', {disabled: superuserDisabled}]">
           <li>
-            {{ $tr('superuserExplanation1') }}
+            {{ $tr('superAdminExplanation1') }}
           </li>
           <li>
-            {{ $tr('superuserExplanation2') }}
+            {{ $tr('superAdminExplanation2') }}
           </li>
         </ul>
       </div>
@@ -138,7 +138,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser', 'getUserKind', 'currentFacilityId', 'facilities']),
+      ...mapGetters(['isSuperuser', 'currentFacilityId', 'facilities']),
       ...mapState('userPermissions', ['user', 'permissions']),
       ...mapState({
         currentUsername: state => state.core.session.username,
@@ -146,6 +146,17 @@
       // IDEA Make this a core getter? Need audit
       facilityName() {
         return this.facilities.find(facility => facility.id === this.currentFacilityId).name;
+      },
+      userKind() {
+        // TODO translate these
+        if (this.permissions.is_superuser) {
+          return 'Super admin';
+        }
+
+        if (!this.user.roles.length) {
+          return 'Learner';
+        }
+        return 'Some other thing';
       },
       isCurrentUser() {
         return this.currentUsername === this.user.username;
@@ -204,6 +215,7 @@
     },
     methods: {
       ...mapActions('userPermissions', ['addOrUpdateUserPermissions']),
+      ...mapActions(['getCurrentSession']),
       save() {
         this.uiBlocked = true;
         this.saveProgress = IN_PROGRESS;
@@ -214,7 +226,7 @@
         })
           .then(() => {
             this.saveProgress = SUCCESS;
-            this.goBack();
+            this.uiBlocked = false;
           })
           .catch(() => {
             this.uiBlocked = false;
@@ -232,7 +244,7 @@
       documentTitle: "{ name }'s Device Permissions",
       goBack: 'Go Back',
       invalidUser: 'Invalid user ID',
-      makeSuperuser: 'Make superuser',
+      makeSuperAdmin: 'Make super admin',
       saveButton: 'Save Changes',
       saveFailureNotification: 'There was a problem saving these changes.',
       saveInProgressNotification: 'Saving...',
@@ -241,9 +253,9 @@
       usernameLabel: 'Username',
       userTypeLabel: 'User type',
       facilityLabel: 'Facility',
-      superuserExplanation1:
+      superAdminExplanation1:
         'Has all device permissions and can manage device permissions of other users',
-      superuserExplanation2: 'Has admin permissions for all facilities on this device',
+      superAdminExplanation2: 'Has admin permissions for all facilities on this device',
       you: 'You',
     },
   };
@@ -260,12 +272,15 @@
   }
 
   table {
-    // NOTE: values will overflow fine on smaller screens
-    width: 50%;
+    width: 100%;
+    table-layout: fixed;
     text-align: left;
   }
+  th {
+    width: 112px;
+  }
 
-  .superuser-checkbox {
+  .super-admin-checkbox {
     display: inline-table;
   }
 

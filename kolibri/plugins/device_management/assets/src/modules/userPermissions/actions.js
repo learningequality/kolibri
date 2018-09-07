@@ -1,4 +1,4 @@
-import { DevicePermissionsResource } from 'kolibri.resources';
+import { DevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
 
 /**
  * Adds or modifies a DevicePermissions model.
@@ -14,5 +14,17 @@ export function addOrUpdateUserPermissions(store, payload) {
     can_manage_content: payload.can_manage_content,
   };
 
-  return DevicePermissionsResource.saveModel({ id: payload.userId, data: permissions });
+  return DevicePermissionsResource.saveModel({ id: payload.userId, data: permissions })
+    .then(permissionsModel => {
+      return FacilityUserResource.fetchModel({ id: payload.userId, force: true }).then(
+        userModel => {
+          store.commit('SET_STATE', {
+            user: userModel,
+            permissions: permissionsModel,
+          });
+          return userModel;
+        }
+      );
+    })
+    .catch(error => store.dispatch('handleApiError', error, { root: true }));
 }

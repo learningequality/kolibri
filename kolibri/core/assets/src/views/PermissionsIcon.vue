@@ -3,8 +3,8 @@
   <span class="icon" ref="icon">
     <UiIcon
       v-if="permissionType === PermissionTypes.SUPERUSER"
-      :ariaLabel="$tr('superuserTooltip')"
-      class="superuser"
+      :ariaLabel="$tr('superAdminTooltip')"
+      class="super-admin"
     >
       <mat-svg name="vpn_key" category="communication" />
     </UiIcon>
@@ -51,7 +51,7 @@
       tooltipText() {
         switch (this.permissionType) {
           case PermissionTypes.SUPERUSER:
-            return this.$tr('superuserTooltip');
+            return this.$tr('superAdminTooltip');
           case PermissionTypes.LIMITED_PERMISSIONS:
             return this.$tr('limitedPermissionsTooltip');
           default:
@@ -60,7 +60,7 @@
       },
     },
     $trs: {
-      superuserTooltip: 'Superuser',
+      superAdminTooltip: 'Super admin',
       limitedPermissionsTooltip: 'Limited permissions',
     },
   };
@@ -73,7 +73,7 @@
   @import '~kolibri.styles.definitions';
 
   .icon {
-    .superuser {
+    .super-admin {
       color: $core-status-mastered;
     }
     .some-permissions {
