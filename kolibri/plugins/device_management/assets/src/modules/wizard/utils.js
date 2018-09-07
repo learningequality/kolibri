@@ -20,7 +20,7 @@ export function getRemoteChannelByToken(token) {
  *
  */
 export function downloadChannelMetadata(store) {
-  const { transferredChannel, selectedDrive } = store.state.manageContent.wizard;
+  const { transferredChannel, selectedDrive, selectedPeer } = store.state.manageContent.wizard;
   let promise;
   if (store.getters['manageContent/wizard/inLocalImportMode']) {
     promise = TaskResource.startDiskChannelImport({
@@ -30,6 +30,11 @@ export function downloadChannelMetadata(store) {
   } else if (store.getters['manageContent/wizard/inRemoteImportMode']) {
     promise = TaskResource.startRemoteChannelImport({
       channel_id: transferredChannel.id,
+    });
+  } else if (store.getters['manageContent/wizard/inPeerImportMode']) {
+    promise = TaskResource.startRemoteChannelImport({
+      channel_id: transferredChannel.id,
+      baseurl: selectedPeer.base_url,
     });
   } else {
     return Error('Channel Metadata is only downloaded when importing');

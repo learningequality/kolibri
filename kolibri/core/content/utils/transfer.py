@@ -149,7 +149,12 @@ class FileDownload(Transfer):
         self.response = self.session.get(
             self.source, stream=True, timeout=self.timeout)
         self.response.raise_for_status()
-        self.total_size = int(self.response.headers['content-length'])
+        try:
+            self.total_size = int(self.response.headers['content-length'])
+        except Exception:
+            # HACK: set the total_size very large so downloads are not considered "corrupted"
+            # in importcontent._start_file_transfer
+            self.total_size = 1e100
 
         self.started = True
 

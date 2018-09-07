@@ -195,9 +195,9 @@ export function annotateNode(node, selectedNodes, forImport = true) {
  * into a form that can be used in k-breadcrumbs props.items { text, link: LinkObject }.
  *
  */
-export function transformBreadrumb(node) {
+export function transformBreadrumb(node, query) {
   return {
     text: node.title || translator.$tr('noTitle'),
-    link: selectContentTopicLink(node),
+    link: selectContentTopicLink(node, query),
   };
 }

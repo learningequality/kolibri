@@ -2,7 +2,7 @@ Feature: Admin manage import network locations
   Admin needs to be able to add and remove a network location from which they can import content
 
   Background:
-    Given I am signed in to Kolibri as an admin userId
+    Given I am signed in to Kolibri as an admin user
       And I am on the *Device > Content* page
 
   Scenario: Access the Select Network Address modal

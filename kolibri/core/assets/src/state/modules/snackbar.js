@@ -1,7 +1,10 @@
 export default {
   state: {
     isVisible: false,
-    options: {},
+    options: {
+      text: '',
+      autoDismiss: true,
+    },
   },
   getters: {
     snackbarIsVisible(state) {
