@@ -109,7 +109,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
-  import { PageNames } from '../constants';
+  import { PageNames } from '../../constants';
 
   const SUCCESS = 'SUCCESS';
   const IN_PROGRESS = 'IN_PROGRESS';
@@ -278,8 +278,8 @@
 
   table {
     width: 100%;
-    table-layout: fixed;
     text-align: left;
+    table-layout: fixed;
   }
   th {
     width: 112px;
