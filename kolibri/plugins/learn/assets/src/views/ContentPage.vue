@@ -16,13 +16,14 @@
       @startTracking="startTracking"
       @stopTracking="stopTracking"
       @updateProgress="updateProgress"
+      @updateContentState="updateContentState"
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
       :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
-      :extraFields="content.extra_fields"
+      :extraFields="extraFields"
       :initSession="initSession"
     />
 
@@ -33,13 +34,14 @@
       @startTracking="startTracking"
       @stopTracking="stopTracking"
       @updateProgress="updateProgress"
+      @updateContentState="updateContentState"
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
       :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
-      :extraFields="content.extra_fields"
+      :extraFields="extraFields"
       :initSession="initSession"
     />
 
@@ -182,6 +184,7 @@
       ...mapState({
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,
+        extraFields: state => state.core.logging.summary.extra_fields,
       }),
       isTopic() {
         return this.content.kind === ContentNodeKinds.TOPIC;
@@ -243,6 +246,7 @@
         updateProgressAction: 'updateProgress',
         startTracking: 'startTrackingProgress',
         stopTracking: 'stopTrackingProgress',
+        updateContentNodeState: 'updateContentState',
       }),
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
@@ -257,6 +261,9 @@
       updateProgress(progressPercent, forceSave = false) {
         const summaryProgress = this.updateProgressAction({ progressPercent, forceSave });
         updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
+      },
+      updateContentState(contentState, forceSave = true) {
+        this.updateContentNodeState(contentState, forceSave);
       },
       markAsComplete() {
         this.wasIncomplete = false;

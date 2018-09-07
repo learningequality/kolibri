@@ -4,6 +4,7 @@
 *
 * For more information, see: https://developer.mozilla.org/en-US/docs/Web/API/Storage
 */
+
 class Storage {
     constructor() {
         // This copy of the data does not persist, and is simply used to speed up
@@ -15,10 +16,8 @@ class Storage {
         // Per the spec, key ordering is defined by user agent, so we don't have to
         // model any specific sorting behavior, just be consistent.
         this.sessionKeys = [];
-    }
-
-    _loadCallback() {
-
+        this.initMessageSent = false;
+        this.dataReceived = false;
     }
 
     _sendMessage(name, data) {
@@ -26,8 +25,40 @@ class Storage {
             'action': name,
             'params': data
         };
-        console.log("Sending message to parent: " + JSON.stringify(message));
         window.parent.postMessage(JSON.stringify(message), '*');
+    }
+
+    initData() {
+      var timeout = 5000;
+      var pinkyPromise = null;
+      if (!this.initMessageSent) {
+        var self = this;
+        pinkyPromise = new Promise(function(resolve, reject) {
+            function parentMessageReceived(event) {
+              if (self.timer) {
+                clearTimeout(self.timer);
+              }
+              var message = JSON.parse(event.data);
+              if (message.action === 'kolibriDataLoaded') {
+                self.sessionData = message.params['data'];
+                self.sessionKeys = Object.keys(self.sessionData);
+                self.dataReceived = true;
+                resolve(self);
+              }
+            }
+
+            function timedOut() {
+                reject("Load timed out.");
+            }
+
+            window.addEventListener('message', parentMessageReceived);
+            self._sendMessage('hashiInitialized', {});
+            self.timer = setTimeout(timedOut, timeout);
+        });
+
+        this.initMessageSent = true;
+      }
+      return pinkyPromise;
     }
 
     get length() {
@@ -49,7 +80,7 @@ class Storage {
             this.sessionKeys.push(keyName);
         }
         this.sessionData[keyName] = value
-        this._sendMessage('ls_setItem', {'key': keyName, 'value': value});
+        this._sendMessage('stateUpdated', this.sessionData);
     }
 
     removeItem(keyName) {
@@ -59,14 +90,14 @@ class Storage {
         if (keyIndex != -1) {
             this.sessionKeys.splice(keyIndex, 1);
         }
-        this._sendMessage('ls_removeItem', {'key': keyName});
+        this._sendMessage('stateUpdated', this.sessionData);
     }
 
     clear() {
         this.sessionKeys = [];
         this.sessionData = {};
 
-        this._sendMessage('ls_clear', {});
+        this._sendMessage('stateUpdated', this.sessionData);
     }
 }
 
@@ -84,6 +115,7 @@ function getLocalStorage() {
         if (e.name === 'SecurityError') {
             console.log("Running in sandboxed iFrame, setting localStorage to Hashi.Storage instance.");
             storage = new Storage();
+            return storage.initData();
         } else {
             throw e;
         }
