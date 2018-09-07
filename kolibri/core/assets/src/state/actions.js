@@ -404,7 +404,7 @@ function saveContentSessionLog(store, sessionModel, contentSession) {
   });
 }
 
-const debouncedSaveContentSessionLog = debounce(saveContentSessionLog, 1000, { maxWait: 10000 });
+const debouncedSaveContentSessionLog = debounce(saveContentSessionLog, 1000, { maxWait: 5000 });
 
 function saveContentSummaryLog(store, summaryModel, contentSummary) {
   summaryModel.save(contentSummary).catch(error => {
@@ -412,7 +412,7 @@ function saveContentSummaryLog(store, summaryModel, contentSummary) {
   });
 }
 
-const debouncedSaveContentSummaryLog = debounce(saveContentSummaryLog, 1000, { maxWait: 10000 });
+const debouncedSaveContentSummaryLog = debounce(saveContentSummaryLog, 1000, { maxWait: 5000 });
 
 /**
  * Do a PATCH to update existing logging models
