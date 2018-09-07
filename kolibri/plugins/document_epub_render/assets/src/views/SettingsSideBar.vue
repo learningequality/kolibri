@@ -25,6 +25,7 @@
           :percentage="true"
         >
           <KButton
+            ref="increaseFontSizeButton"
             @click="$emit('increaseFontSize')"
             class="settings-button"
           >
@@ -40,15 +41,18 @@
 
     <div class="o-f-h">
       <h3>{{ $tr('background') }}</h3>
-      <KGrid :gutter="16">
+      <KGrid
+        :cols="12"
+        :gutter="2 * Math.round((64 / Object.keys(themes).length) / 2)"
+      >
         <KGridItem
           v-for="(value, key) in themes"
           :key="key"
-          size="25"
-          :percentage="true"
+          :size="12 / Object.keys(themes).length"
+          :percentage="false"
         >
           <KButton
-            class=" settings-button theme-button"
+            class="settings-button theme-button"
             :style="{ backgroundColor: value.backgroundColor }"
             :class="{ 'theme-button-selected': isCurrentlySelectedTheme(value) }"
             :aria-label="$tr('setTheme', {themeName: key })"
@@ -63,31 +67,37 @@
       <h3>{{ $tr('layout') }}</h3>
       <KGrid :gutter="16">
         <KGridItem
-          v-for="(alignment, index) in textAlignments"
-          :key="index"
           size="50"
           :percentage="true"
         >
           <KButton
+            ref="leftAlignmentButton"
             class="settings-button alignment-button"
-            :class="{'alignment-button-selected': alignment === textAlignment}"
-            @click="$emit('setTextAlignment', alignment)"
+            :class="{'alignment-button-selected': textAlignments.LEFT === textAlignment}"
+            @click="$emit('setTextAlignment', textAlignments.LEFT)"
           >
-            <template v-if="alignment === textAlignments.LEFT">
-              <mat-svg
-                name="format_align_left"
-                category="editor"
-              />
-              <div class="truncate">{{ $tr('leftAligned') }}</div>
-            </template>
-
-            <template v-else-if="alignment === textAlignments.JUSTIFY">
-              <mat-svg
-                name="format_align_justify"
-                category="editor"
-              />
-              <div class="truncate">{{ $tr('justified') }}</div>
-            </template>
+            <mat-svg
+              name="format_align_left"
+              category="editor"
+            />
+            <div class="truncate">{{ $tr('alignmentLeft') }}</div>
+          </KButton>
+        </KGridItem>
+        <KGridItem
+          size="50"
+          :percentage="true"
+        >
+          <KButton
+            ref="justifiedAlignmentButton"
+            class="settings-button alignment-button"
+            :class="{'alignment-button-selected': textAlignments.JUSTIFY === textAlignment}"
+            @click="$emit('setTextAlignment', textAlignments.JUSTIFY)"
+          >
+            <mat-svg
+              name="format_align_justify"
+              category="editor"
+            />
+            <div class="truncate">{{ $tr('alignmentJustified') }}</div>
           </KButton>
         </KGridItem>
       </KGrid>
@@ -114,8 +124,8 @@
       increase: 'Increase',
       background: 'Background',
       layout: 'Layout',
-      leftAligned: 'Left aligned',
-      justified: 'Justified',
+      alignmentLeft: 'Left',
+      alignmentJustified: 'Justified',
       setTheme: 'Set { themeName } theme',
     },
     components: {
