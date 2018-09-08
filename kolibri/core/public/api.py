@@ -71,7 +71,7 @@ def get_public_channel_list(request, version):
     try:
         channel_list = _get_channel_list(version, request.query_params)
     except LookupError:
-        return HttpResponseNotFound(json.dumps({'id': error_constants.NOT_FOUND, 'metadata': {'view': ''}}))
+        return HttpResponseNotFound(json.dumps({'id': error_constants.NOT_FOUND, 'metadata': {'view': ''}}), content_type='application/json')
     return HttpResponse(json.dumps(PublicChannelSerializer(channel_list, many=True).data), content_type='application/json')
 
 
@@ -81,8 +81,8 @@ def get_public_channel_lookup(request, version, identifier):
     try:
         channel_list = _get_channel_list(version, request.query_params, identifier=identifier.strip().replace('-', ''))
     except LookupError:
-        return HttpResponseNotFound(json.dumps({'id': error_constants.NOT_FOUND, 'metadata': {'view': ''}}))
+        return HttpResponseNotFound(json.dumps({'id': error_constants.NOT_FOUND, 'metadata': {'view': ''}}), content_type='application/json')
 
     if not channel_list.exists():
-        return HttpResponseNotFound(json.dumps({'id': error_constants.NOT_FOUND, 'metadata': {'view': ''}}))
+        return HttpResponseNotFound(json.dumps({'id': error_constants.NOT_FOUND, 'metadata': {'view': ''}}), content_type='application/json')
     return HttpResponse(json.dumps(PublicChannelSerializer(channel_list, many=True).data), content_type='application/json')

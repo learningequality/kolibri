@@ -42,14 +42,14 @@ class TestMigrations(TestCase):
         pass
 
 
-class MultipleCollectionTestCase(TestMigrations):
+class ChannelFieldsTestCase(TestMigrations):
 
     migrate_from = '0010_merge_20180504_1540'
     migrate_to = '0011_auto_20180907_1017'
 
     def setUp(self):
         self.file_size = 10
-        super(MultipleCollectionTestCase, self).setUp()
+        super(ChannelFieldsTestCase, self).setUp()
 
     def setUpBeforeMigration(self, apps):
         ChannelMetadata = apps.get_model('content', 'ChannelMetadata')
@@ -60,6 +60,7 @@ class MultipleCollectionTestCase(TestMigrations):
 
         channel_id = uuid.uuid4().hex
         Language.objects.create(id='es', lang_code='es')
+        Language.objects.create(id='en', lang_code='en')
         root = ContentNode.objects.create(id=uuid.uuid4(),
                                           title='test',
                                           content_id=uuid.uuid4(),
