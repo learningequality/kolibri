@@ -15,6 +15,7 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import fix_multiple_trees_with_id_one
 from kolibri.core.content.utils.annotation import mark_local_files_as_available
+from kolibri.core.content.utils.annotation import recurse_availability_coach_content
 from kolibri.core.content.utils.annotation import recurse_availability_up_tree
 from kolibri.core.content.utils.annotation import set_leaf_node_availability_from_local_file_availability
 from kolibri.core.content.utils.annotation import set_local_file_availability_from_disk
@@ -99,7 +100,7 @@ class AnnotationTreeRecursion(TransactionTestCase):
 
     def test_all_content_nodes_available_coach_content(self):
         ContentNode.objects.exclude(kind=content_kinds.TOPIC).update(available=True, coach_content=True)
-        recurse_availability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        recurse_availability_coach_content(channel_id="6199dde695db4ee4ab392222d5af1e5c")
         self.assertTrue(ContentNode.objects.get(id="da7ecc42e62553eebc8121242746e88a").coach_content)
         self.assertTrue(ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").coach_content)
 
