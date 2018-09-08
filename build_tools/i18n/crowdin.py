@@ -9,6 +9,7 @@ import argparse
 import io
 import logging
 import os
+import shutil
 import sys
 import zipfile
 
@@ -85,6 +86,7 @@ PRETRANSLATE_URL = CROWDIN_API_URL.format(
     params="&method=tm&approve_translated=1&perfect_match=0&json",
 )
 
+PERSEUS_FILE = "exercise_perseus_render_module-messages.json"
 
 """
 Shared helpers
@@ -176,6 +178,15 @@ def command_download(branch):
         logging.info("\tExtracting {} to {}".format(code, target))
         z.extractall(target)
 
+        # hack for perseus
+        perseus_target = utils.local_perseus_locale_path(lang)
+        if not os.path.exists(perseus_target):
+            os.makedirs(perseus_target)
+        shutil.move(
+            os.path.join(target, PERSEUS_FILE),
+            os.path.join(perseus_target, PERSEUS_FILE),
+        )
+
     logging.info("Crowdin: download succeeded!")
 
 
@@ -189,7 +200,10 @@ def _is_source(file_name):
 
 
 def _file_upload_ref(file_name):
-    file_pointer = open(os.path.join(utils.SOURCE_PATH, file_name), "rb")
+    if file_name == PERSEUS_FILE:  # hack for perseus, assumes the same file name
+        file_pointer = open(os.path.join(utils.PERSEUS_SOURCE_PATH, file_name), "rb")
+    else:
+        file_pointer = open(os.path.join(utils.SOURCE_PATH, file_name), "rb")
     return ("files[{0}]".format(file_name), file_pointer)
 
 
@@ -230,6 +244,10 @@ def command_upload(branch):
         for file_name in os.listdir(utils.SOURCE_PATH)
         if _is_source(file_name)
     )
+
+    # hack for perseus
+    source_files.add(PERSEUS_FILE)
+
     current_files = _crowdin_files(branch, details)
     to_add = source_files.difference(current_files)
     to_update = source_files.intersection(current_files)

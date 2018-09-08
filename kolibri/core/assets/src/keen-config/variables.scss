@@ -1,3 +1,5 @@
-$brand-primary-color: #996189;
-$font-stack: 'Noto Sans';
+@import '../styles/definitions';
+
+$brand-primary-color: $core-action-normal;
+$font-stack: $core-font;
 $ui-input-border-width: 2px !default;

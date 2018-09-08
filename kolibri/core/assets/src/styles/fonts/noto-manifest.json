@@ -1,0 +1,34 @@
+[
+  {
+    "name": "NotoSans",
+    "has_ui_variant": false
+  },
+  {
+    "name": "NotoSansArabic",
+    "has_ui_variant": true
+  },
+  {
+    "name": "NotoSansBengali",
+    "has_ui_variant": true
+  },
+  {
+    "name": "NotoSansDevanagari",
+    "has_ui_variant": true
+  },
+  {
+    "name": "NotoSansKannada",
+    "has_ui_variant": true
+  },
+  {
+    "name": "NotoSansMyanmar",
+    "has_ui_variant": true
+  },
+  {
+    "name": "NotoSansTamil",
+    "has_ui_variant": true
+  },
+  {
+    "name": "NotoSansTelugu",
+    "has_ui_variant": true
+  }
+]
