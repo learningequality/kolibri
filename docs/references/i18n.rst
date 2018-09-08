@@ -125,25 +125,11 @@ Note that you have to specify branch names for most commands.
 Prerequisites
 ~~~~~~~~~~~~~
 
-First, you'll need to have these dependencies available on your path:
-
-* GNU ``gettext``
-* Java
-
-You may be able to install them using your system's package manager.
-
-Next, download the crowdin jar to the current directory using this command:
-
-.. code-block:: bash
-
-    $ make translation-crowdin-install
-
-
-Finally, ensure you have an environment variable ``CROWDIN_API_KEY`` set to the Learning Equality organization `account API key <https://support.crowdin.com/api/api-integration-setup/>`_.
-
-.. note:: We do not currently support making translations on Windows. It might be possible, but would require inspection of the Makefile and running alternate commands.
+First, you'll need to have GNU ``gettext`` available on your path. You may be able to install it using your system's package manager.
 
 .. note:: If you install ``gettext`` on Mac with Homebrew, you may need to add the binary to your path manually
+
+Next, ensure you have an environment variable ``CROWDIN_API_KEY`` set to the Learning Equality organization `account API key <https://support.crowdin.com/api/api-integration-setup/>`_.
 
 
 Exporting and uploading
@@ -163,17 +149,46 @@ And this command will upload the strings to Crowdin:
 
 .. code-block:: bash
 
-  $ make translation-crowdin-upload branch=[release-branch-name]
+  $ make i18n-upload branch=[release-branch-name]
 
 The branch name will typically look something like: ``release-v0.8.x``
 
-Next, apply `translation memory <https://support.crowdin.com/translation-memory/#applying-translation-memory-via-pre-translation>`_ via the Crowdin UI to copy over perfect matches from previous releases for all languages. Use settings like this:
+After uploading, ``i18n-upload`` will also apply 'pre-translation' (which can take some time). This copies over translations for strings that have the same text but different IDs.
 
-.. image:: ./translation-memory.png
 
-This could take some time.
+Displaying stats
+~~~~~~~~~~~~~~~~
 
-Now, some percentage of the newly updated strings should show as already having been translated in crowdin because the perfect matches were automatically copied over.
+Every release, we need to let translators for each language know how much work they will have to do. In order to see how many new strings and words are in a particular release, run:
+
+.. code-block:: bash
+
+  $ make i18n-stats branch=[release-branch-name]
+
+This will give you some output like this:
+
+.. code-block::
+
+    Branch: develop-alpha
+
+    New since last release:
+    -------------  ---
+    Total strings   67
+    Total words    402
+    -------------  ---
+
+    Untranslated:
+    Language                        Strings    Words
+    ----------------------------  ---------  -------
+    ** average, all languages **         49      370
+    Arabic                               48      366
+    Bengali                              47      370
+    ...
+    Yoruba                               50      375
+    Zulu                                 49      367
+
+
+This information can be provided to translators; it's also available on the Crowdin website.
 
 
 Fetching and building translations
@@ -181,25 +196,23 @@ Fetching and building translations
 
 In order to get the newly translated strings into the application, they need to be downloaded from Crowdin and checked in to the Kolibri github repo.
 
-First, make sure to build the project using the Crowdin website. This is under:
-
-    Projects → Kolibri → Settings → Build & Download → Build Project
-
-.. warning:: By default Crowdin will download all translations, not just approved ones. It will often download untranslated strings also. You must manually delete files that are not relevant.
-
 You can download them using this command:
 
 .. code-block:: bash
 
-    $ make translation-crowdin-download branch=[release-branch-name]
+    $ make i18n-download branch=[release-branch-name]
 
-This will update local translation files. Find and delete all files for unsupported or partially-translated languages. Then, check in new strings to git and submit them in a PR to the release branch.
+Before downloading, this will build the project (which can take some time).
+
+.. warning:: Builds can only happen once every 30 minutes, as per the Crowdin API.
 
 Finally, build the backend .mo files for Django:
 
 .. code-block:: bash
 
     $ make translation-django-compilemessages
+
+This will update local translation files. Check in new strings to git and submit them in a PR to the release branch.
 
 
 .. _new_language:
@@ -229,6 +242,14 @@ For the language names, consult:
 Any time a language is added to supported languages the command ``yarn run generate-locale-data`` must be run, and the resulting file changes committed to the code base.
 
 If a language is added that is not part of the natively supported languages for Django, then a Django mo file must be compiled for that language using ``make translation-django-compilemessages``, and the resulting mo file committed to the code base.
+
+Adding new font files
+~~~~~~~~~~~~~~~~~~~~~
+
+We use `Noto Sans <https://fonts.google.com/specimen/Noto+Sans>`_ in Regular and Bold throughout the application. Many languages have alphabets which are not fully represented in the basic Latin alphabet.
+
+Search the `Noto database <https://www.google.com/get/noto/>`_ to see which font pack supports the language. If necessary, add a new font pack. (Instructions forthcoming...)
+
 
 Other complexities
 ~~~~~~~~~~~~~~~~~~
