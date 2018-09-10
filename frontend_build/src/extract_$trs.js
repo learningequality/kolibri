@@ -3,6 +3,7 @@ var path = require('path');
 var esprima = require('esprima');
 var escodegen = require('escodegen');
 var mkdirp = require('mkdirp');
+var url = require('url');
 var logging = require('./logging');
 var coreAliases = require('./apiSpecExportTools').coreAliases;
 
@@ -82,10 +83,12 @@ extract$trs.prototype.apply = function(compiler) {
       // Explore each module within the chunk (built inputs):
       for (const module of chunk.modulesIterable) {
         var ast;
+        var parsedUrl = module.resource && url.parse(module.resource);
         if (
           module.resource &&
-          module.resource.includes('.vue') &&
-          module.resource.includes('lang=js')
+          parsedUrl.pathname.endsWith('.vue') &&
+          parsedUrl.query &&
+          parsedUrl.query.includes('lang=js')
         ) {
           // Inspect each source file in the chunk if it is a vue file.
           var messageNameSpace;
