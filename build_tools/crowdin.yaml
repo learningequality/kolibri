@@ -6,8 +6,8 @@ base_path: '../kolibri/locale'
 preserve_hierachy: false
 
 files:
-  - source: '/en/LC_FRONTEND_MESSAGES/*.json'
-    translation: '/%locale_with_underscore%/LC_FRONTEND_MESSAGES/%original_file_name%'
+  - source: '/en/LC_MESSAGES/*.json'
+    translation: '/%locale_with_underscore%/LC_MESSAGES/%original_file_name%'
     languages_mapping:
       locale_with_underscore:
         ar: ar
