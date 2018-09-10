@@ -1,5 +1,5 @@
-import ChannelResource from '../../apiResources/deviceChannel';
 import { canManageContent } from 'kolibri.coreVue.vuex.getters';
+import ChannelResource from '../../apiResources/deviceChannel';
 
 /**
  * Force-refresh the ChannelResource Collection
