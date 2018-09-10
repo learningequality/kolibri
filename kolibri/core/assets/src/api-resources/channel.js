@@ -11,4 +11,7 @@ export default class ChannelResource extends Resource {
   static resourceName() {
     return 'channel';
   }
+  static usesContentCacheKey() {
+    return true;
+  }
 }

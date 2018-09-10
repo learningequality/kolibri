@@ -9,6 +9,8 @@ import ConditionalPromise from './conditionalPromise';
 
 export const logging = logger.getLogger(__filename);
 
+const contentCacheKey = global.contentCacheKey;
+
 /** Class representing a single API resource object */
 export class Model {
   /**
@@ -65,8 +67,13 @@ export class Model {
             resolve(this.attributes);
           } else {
             this.synced = false;
+            let cacheBust;
+            if (this.resource.contentCacheKey) {
+              getParams['contentCacheKey'] = this.resource.contentCacheKey;
+              cacheBust = false;
+            }
             // Do a fetch on the URL.
-            this.resource.client({ path: this.url, params: getParams }).then(
+            this.resource.client({ path: this.url, params: getParams, cacheBust }).then(
               response => {
                 // Set the retrieved Object onto the Model instance.
                 this.set(response.entity);
@@ -286,8 +293,13 @@ export class Collection {
           if (!force && this.synced) {
             resolve(this.data);
           } else {
+            let cacheBust;
+            if (this.resource.contentCacheKey) {
+              getParams['contentCacheKey'] = this.resource.contentCacheKey;
+              cacheBust = false;
+            }
             this.synced = false;
-            this.resource.client({ path: this.url, params: getParams }).then(
+            this.resource.client({ path: this.url, params: getParams, cacheBust }).then(
               response => {
                 // Set response object - an Array - on the Collection to record the data.
                 // First check that the response *is* an Array
@@ -844,5 +856,13 @@ export class Resource {
 
   get bulkDelete() {
     return this.constructor.canBulkDelete();
+  }
+
+  static usesContentCacheKey() {
+    return false;
+  }
+
+  get contentCacheKey() {
+    return this.constructor.usesContentCacheKey() && contentCacheKey;
   }
 }

@@ -10,6 +10,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import View
 from le_utils.constants import exercises
 
+from .api import cache_forever
 from .utils.paths import get_content_storage_file_path
 
 # Do this to prevent import of broken Windows filetype registry that makes guesstype not work.
@@ -36,6 +37,7 @@ class ZipContentView(View):
         _add_access_control_headers(request, response)
         return response
 
+    @cache_forever
     @xframe_options_exempt
     def get(self, request, zipped_filename, embedded_filepath):
         """
@@ -83,9 +85,6 @@ class ZipContentView(View):
                 content_with_path = content.replace(str_to_be_replaced, zipcontent)
                 response = HttpResponse(content_with_path, content_type=content_type)
                 file_size = len(content_with_path)
-
-        # cache these resources forever; this is safe due to the MD5-naming used on content files
-        response["Expires"] = "Sun, 17-Jan-2038 19:14:07 GMT"
 
         # set the content-length header to the size of the embedded file
         if info.file_size:
