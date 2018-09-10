@@ -9,4 +9,5 @@ import { Resource } from '../api-resource';
  */
 export default new Resource({
   name: 'channel',
+  useContentCacheKey: true,
 });

@@ -21,6 +21,12 @@
     "english_name": "Spanish"
   },
   {
+    "language_code": "es",
+    "territory_code": "mx",
+    "language_name": "Español (Mexicano)",
+    "english_name": "Spanish (Mexican)"
+  },
+  {
     "language_code": "fa",
     "language_name": "فارسی",
     "english_name": "Farsi (Persian)"

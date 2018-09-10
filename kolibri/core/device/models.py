@@ -1,4 +1,7 @@
+import time
+
 from django.conf import settings
+from django.core.cache import cache
 from django.db import models
 
 from .permissions import UserCanManageDevicePermissions
@@ -39,3 +42,35 @@ class DeviceSettings(models.Model):
     def save(self, *args, **kwargs):
         self.pk = 1
         super(DeviceSettings, self).save(*args, **kwargs)
+
+
+CONTENT_CACHE_KEY_CACHE_KEY = 'content_cache_key'
+
+
+class ContentCacheKey(models.Model):
+    """
+    This class stores a cache key for content models that should be updated
+    whenever the content metadata stored on the device changes.
+    """
+
+    key = models.IntegerField(default=time.time)
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super(ContentCacheKey, self).save(*args, **kwargs)
+
+    @classmethod
+    def update_cache_key(cls):
+        cache_key, created = cls.objects.get_or_create()
+        cache_key.key = time.time()
+        cache_key.save()
+        cache.delete(CONTENT_CACHE_KEY_CACHE_KEY)
+
+    @classmethod
+    def get_cache_key(cls):
+        key = cache.get(CONTENT_CACHE_KEY_CACHE_KEY)
+        if key is None:
+            cache_key = cls.objects.get()
+            key = cache_key.key
+            cache.set(CONTENT_CACHE_KEY_CACHE_KEY, key, 5000)
+        return key

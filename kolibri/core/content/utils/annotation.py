@@ -19,6 +19,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_database_dir_path
+from kolibri.core.device.models import ContentCacheKey
 
 logger = logging.getLogger(__name__)
 
@@ -251,3 +252,4 @@ def set_availability(channel_id, checksums=None):
 
     set_leaf_node_availability_from_local_file_availability(channel_id)
     recurse_availability_up_tree(channel_id)
+    ContentCacheKey.update_cache_key()

@@ -8,6 +8,8 @@ import ConditionalPromise from './conditionalPromise';
 
 export const logging = logger.getLogger(__filename);
 
+const contentCacheKey = global.contentCacheKey;
+
 /** Class representing a single API resource object */
 export class Model {
   /**
@@ -578,7 +580,13 @@ export class Resource {
   /**
    * Create a resource with a Django REST API name corresponding to the name parameter.
    */
-  constructor({ name, idKey = 'id', namespace = 'core', ...options } = {}) {
+  constructor({
+    name,
+    idKey = 'id',
+    namespace = 'core',
+    useContentCacheKey = false,
+    ...options
+  } = {}) {
     if (!name) {
       throw ReferenceError('Resource must be instantiated with a name property');
     }
@@ -593,6 +601,7 @@ export class Resource {
       }
     }
     this.idKey = idKey;
+    this.useContentCacheKey = useContentCacheKey;
     const optionsDefinitions = Object.getOwnPropertyDescriptors(options);
     Object.keys(optionsDefinitions).forEach(key => {
       Object.defineProperty(this, key, optionsDefinitions[key]);
@@ -990,8 +999,14 @@ export class Resource {
     return this.getUrlFunction('list');
   }
 
-  get client() {
+  client(options) {
     const client = require('./core-app/client').default;
-    return client;
+    // Add in content cache parameter if relevant
+    if (this.useContentCacheKey && !options.entity) {
+      options.params = options.params || {};
+      options.params['contentCacheKey'] = contentCacheKey;
+      options.cacheBust = false;
+    }
+    return client(options);
   }
 }
