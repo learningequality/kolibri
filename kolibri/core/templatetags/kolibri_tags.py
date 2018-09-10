@@ -26,11 +26,25 @@ from django_js_reverse.templatetags.js_reverse import js_reverse_inline
 from rest_framework.renderers import JSONRenderer
 from six import iteritems
 
+from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import UserNavigationHook
 from kolibri.utils import conf
 
 register = template.Library()
+
+
+@register.simple_tag()
+def kolibri_content_cache_key():
+    js = """
+    <script>
+      var contentCacheKey = '{cache_key}';
+    </script>
+    """.format(
+        cache_key=ContentCacheKey.get_cache_key(),
+    )
+    return mark_safe(js)
+
 
 @register.simple_tag(takes_context=True)
 def kolibri_language_globals(context):

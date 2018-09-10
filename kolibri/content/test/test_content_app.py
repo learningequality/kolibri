@@ -608,12 +608,6 @@ class ContentNodeAPITestCase(APITestCase):
         self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})
         self.assertTrue(mock_cache_set.called)
 
-    @mock.patch.object(cache, 'set')
-    def test_parent_query_cache_not_set(self, mock_cache_set):
-        id = content.ContentNode.objects.get(title="c2c3").id
-        self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id, 'kind': content_kinds.EXERCISE})
-        self.assertFalse(mock_cache_set.called)
-
     def test_parent_query_cache_hit(self):
         id = content.ContentNode.objects.get(title="c2c3").id
         self.client.get(self._reverse_channel_url("contentnode-list"), data={"parent": id})

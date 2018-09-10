@@ -40,6 +40,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
     available = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
+        # TODO: rtibbles - cleanup this for device specific serializer.
         value = super(ChannelMetadataSerializer, self).to_representation(instance)
 
         value.update({"num_coach_contents": get_num_coach_contents(instance.root)})
