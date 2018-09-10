@@ -1,9 +1,9 @@
 var fs = require('fs');
 var path = require('path');
+var url = require('url');
 var esprima = require('esprima');
 var escodegen = require('escodegen');
 var mkdirp = require('mkdirp');
-var url = require('url');
 var logging = require('./logging');
 var coreAliases = require('./apiSpecExportTools').coreAliases;
 
@@ -80,29 +80,40 @@ extract$trs.prototype.apply = function(compiler) {
       }
     }
     compilation.chunks.forEach(function(chunk) {
+      var messageNameSpace;
+      var messages;
+      var ast;
+      var parsedUrl;
       // Explore each module within the chunk (built inputs):
       for (const module of chunk.modulesIterable) {
-        var ast;
-        var parsedUrl = module.resource && url.parse(module.resource);
+        messageNameSpace = undefined;
+        messages = {};
+        parsedUrl = module.resource && url.parse(module.resource);
         if (
           module.resource &&
           parsedUrl.pathname.endsWith('.vue') &&
           parsedUrl.query &&
-          parsedUrl.query.includes('lang=js')
+          parsedUrl.query.includes('lang=js') &&
+          !parsedUrl.pathname.includes('node_modules')
         ) {
           // Inspect each source file in the chunk if it is a vue file.
-          var messageNameSpace;
-          var messages = {};
           // Parse the AST for the Vue file.
           ast = esprima.parse(module._source.source(), {
             sourceType: 'module',
           });
+          // Maintain references to possible component definitions in case
+          // it is not exported as the default export
+          var componentCache = {};
           ast.body.forEach(function(node) {
             // Look through each top level node until we find the module.exports or export default
-            // N.B. this relies on our convention of directly exporting the Vue component
-            // with the module.exports or export default, rather than defining it and then setting
-            // it to export.
-
+            // Can either be a direct export of the component object,
+            // or variable name that defines it.
+            if (
+              node.type === 'VariableDeclaration' &&
+              node.declarations[0].init.type === 'ObjectExpression'
+            ) {
+              componentCache[node.declarations[0].id.name] = node.declarations[0].init.properties;
+            }
             // Is it an expression?
             if (
               (node.type === 'ExpressionStatement' &&
@@ -118,44 +129,56 @@ extract$trs.prototype.apply = function(compiler) {
               // Is it an export default declaration?
               (node.type === 'ExportDefaultDeclaration' &&
                 // Is it an object expression?
-                node.declaration.type === 'ObjectExpression')
+                (node.declaration.type === 'ObjectExpression' ||
+                  // Is it an identifier?
+                  node.declaration.type === 'Identifier'))
             ) {
-              const properties = node.declaration
-                ? node.declaration.properties
-                : node.expression.right.properties;
-              // Look through each of the properties in the object that is being exported.
-              properties.forEach(function(property) {
-                // If the property is called $trs we have hit paydirt! Some messages for us to grab!
-                if (property.key.name === '$trs') {
-                  // Grab every message in our $trs property and save it into our messages object.
-                  property.value.properties.forEach(function(message) {
-                    // Check that the trs id is camelCase.
-                    if (!isCamelCase(message.key.name)) {
-                      logging.error(
-                        `$trs id "${message.key.name}" should be in camelCase. Found in ${
-                          module.resource
-                        }`
-                      );
-                    }
-                    // Check that the value is valid, and not an expression
-                    if (!message.value.value) {
-                      logging.error(
-                        `The value for $trs "${
-                          message.key.name
-                        }", is not valid. Make sure it is not an expression. Found in ${
-                          module.resource
-                        }.`
-                      );
-                    } else {
-                      messages[message.key.name] = message.value.value;
-                    }
-                  });
-                  // We also want to take a note of the name space
-                  // these messages have been put in too!
-                } else if (property.key.name === 'name') {
-                  messageNameSpace = property.value.value;
+              let properties;
+              if (node.type === 'ExportDefaultDeclaration') {
+                if (node.declaration.type === 'ObjectExpression') {
+                  properties = node.declaration.properties;
+                } else if (node.declaration.type === 'Identifier') {
+                  properties = componentCache[node.declaration.name];
                 }
-              });
+              } else if (node.type === 'ExpressionStatement') {
+                properties = node.expression.right.properties;
+              }
+              if (properties) {
+                // Look through each of the properties in the object that is being exported.
+                properties.forEach(function(property) {
+                  // If the property is called $trs we have hit paydirt!
+                  // Some messages for us to grab!
+                  if (property.key.name === '$trs') {
+                    // Grab every message in our $trs property and save it into our messages object.
+                    property.value.properties.forEach(function(message) {
+                      // Check that the trs id is camelCase.
+                      if (!isCamelCase(message.key.name)) {
+                        logging.error(
+                          `$trs id "${message.key.name}" should be in camelCase. Found in ${
+                            module.resource
+                          }`
+                        );
+                      }
+                      // Check that the value is valid, and not an expression
+                      if (!message.value.value) {
+                        logging.error(
+                          `The value for $trs "${
+                            message.key.name
+                          }", is not valid. Make sure it is not an expression. Found in ${
+                            module.resource
+                          }.`
+                        );
+                      } else {
+                        messages[message.key.name] = message.value.value;
+                      }
+                    });
+                    // We also want to take a note of the name space
+                    // these messages have been put in too!
+                  } else if (property.key.name === 'name') {
+                    messageNameSpace = property.value.value;
+                  }
+                });
+              }
               registerFoundMessages(messageNameSpace, messages, module);
             }
           });
