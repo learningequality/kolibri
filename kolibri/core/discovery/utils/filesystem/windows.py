@@ -69,7 +69,13 @@ def _wmic_output():
     )
 
     # pipe output from the WMIC command to the temp file
-    cmd = "wmic logicaldisk list full /format:csv > {}".format(OUTPUT_PATH)
+    csv_path = os.path.join(os.environ["WINDIR"], "System32", "wbem", "en-us", "csv.xsl")
+    # Use different WMIC commands, depending on whether the csv_path exists.
+    if os.path.exists(csv_path):
+        cmd = "wmic logicaldisk list full /format:\"{}\" > \"{}\"".format(csv_path, OUTPUT_PATH)
+    else:
+        # fallback when en-us directory does not exist
+        cmd = "wmic logicaldisk list full /format:csv > \"{}\"".format(OUTPUT_PATH)
     returnCode = os.system(cmd)
     if returnCode:
         raise Exception("Could not run command '{}'".format(cmd))
