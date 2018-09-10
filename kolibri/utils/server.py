@@ -341,7 +341,7 @@ def installation_type():
     install_type = 'unknown'
     if len(sys.argv) > 1:
         launcher = sys.argv[0]
-        if sys.argv[1] == 'start':
+        if 'start' in sys.argv:
             if launcher.endswith('.pex'):
                 install_type = 'PEX file'
             elif launcher == '/usr/bin/kolibri':
@@ -355,8 +355,7 @@ def installation_type():
             else:
                 install_type = 'Executable compiled from code'
         else:
-            for arg in sys.argv:
-                if arg == 'runserver':
-                    install_type = 'Development code'
-                    break
+            if 'runserver' in sys.argv:
+                install_type = 'Development code'
+
     return install_type
