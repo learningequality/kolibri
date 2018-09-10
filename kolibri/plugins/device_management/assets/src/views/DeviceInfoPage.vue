@@ -52,6 +52,10 @@
           <th>{{ $tr('serverType') }}</th>
           <td>{{ deviceInfo.server_type }}</td>
         </tr>
+        <tr>
+          <th>{{ $tr('serverInstallation') }}</th>
+          <td>{{ deviceInfo.installer }}</td>
+        </tr>
       </table>
     </template>
 
@@ -93,6 +97,7 @@
       formattedTime: '{datetime, time, long} on {datetime, date, long}',
       serverTimezone: 'Server timezone',
       serverType: 'Server type',
+      serverInstallation: 'Server installer',
     },
   };
 

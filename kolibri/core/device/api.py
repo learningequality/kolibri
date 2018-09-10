@@ -18,6 +18,7 @@ from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.utils.server import get_urls
+from kolibri.utils.server import installation_type
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time import local_now
 
@@ -92,5 +93,6 @@ class DeviceInfoView(views.APIView):
         info['server_time'] = local_now()
         # Returns the named timezone for the server (the time above only includes the offset)
         info['server_timezone'] = settings.TIME_ZONE
+        info['installer'] = installation_type()
 
         return Response(info)

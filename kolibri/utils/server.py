@@ -1,6 +1,7 @@
 import atexit
 import logging
 import os
+import sys
 import threading
 
 import cherrypy
@@ -322,3 +323,40 @@ def get_urls(listen_port=None):
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []
+
+
+def installation_type():
+    """
+    Tries to guess how the running kolibri server was installed
+
+    :returns: install_type is the type of detected installation
+    install_type can be any of these strings:
+        - 'PEX file'
+        - 'Debian package'
+        - 'Windows installer'
+        - 'Compiled from code or from a Whl file'
+        - 'Development code'
+        - 'unknown': this function has not been able to guess it
+    """
+    install_type = 'unknown'
+    if len(sys.argv) > 1:
+        launcher = sys.argv[0]
+        if sys.argv[1] == 'start':
+            if launcher.endswith('.pex'):
+                install_type = 'PEX file'
+            elif launcher == '/usr/bin/kolibri':
+                install_type = 'Debian package'
+            elif '\\Scripts\\kolibri' in launcher:
+                paths = sys.path
+                for path in paths:
+                    if 'kolibri.exe' in path:
+                        install_type = 'Windows installer'
+                        break
+            else:
+                install_type = 'Executable compiled from code'
+        else:
+            for arg in sys.argv:
+                if arg == 'runserver':
+                    install_type = 'Development code'
+                    break
+    return install_type
