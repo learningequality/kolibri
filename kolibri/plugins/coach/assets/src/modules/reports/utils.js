@@ -8,11 +8,11 @@ function _sumOfKeys(array, key, filter = () => true) {
 }
 
 export function countNodes(progressArray, filter) {
-  return _sumOfKeys(progressArray, 'nodeCount', filter);
+  return _sumOfKeys(progressArray, 'node_count', filter);
 }
 
 export function calcProgress(progressArray, filter, itemCount, userCount) {
-  const totalProgress = _sumOfKeys(progressArray, 'totalProgress', filter);
+  const totalProgress = _sumOfKeys(progressArray, 'total_progress', filter);
   if (itemCount && userCount) {
     return totalProgress / (itemCount * userCount);
   }

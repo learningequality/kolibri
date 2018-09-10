@@ -17,6 +17,7 @@ from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.decorators import signin_redirect_exempt
+from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
 from kolibri.utils.system import get_free_space
@@ -68,7 +69,7 @@ class DeviceInfoView(views.APIView):
         status, urls = get_urls()
         if not urls:
             # Will not return anything when running the debug server, so at least return the current URL
-            urls = [request.build_absolute_uri('/')]
+            urls = [request.build_absolute_uri(OPTIONS['Deployment']['PATH_PREFIX'])]
 
         filtered_urls = [url for url in urls if '127.0.0.1' not in url and 'localhost' not in url]
 

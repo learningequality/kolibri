@@ -38,6 +38,10 @@ merge_models = [
     Language,
 ]
 
+models_not_to_overwrite = [
+    LocalFile,
+]
+
 
 class ImportCancelError(Exception):
     pass
@@ -267,8 +271,14 @@ class ChannelImport(object):
                 val = convert_to_sqlite_value(model._meta.get_field(col).get_default())
             source_vals.append(val)
 
+        if model in models_not_to_overwrite:
+            method = "INSERT OR IGNORE"
+        else:
+            method = "REPLACE"
+
         # build and execute a raw SQL query to transfer the data in one fell swoop
-        query = """REPLACE INTO {table} ({destcols}) SELECT {sourcevals} FROM sourcedb.{table} AS source""".format(
+        query = """{method} INTO {table} ({destcols}) SELECT {sourcevals} FROM sourcedb.{table} AS source""".format(
+            method=method,
             table=dest_table.name,
             destcols=", ".join(dest_columns),
             sourcevals=", ".join(source_vals),
@@ -298,13 +308,14 @@ class ChannelImport(object):
         columns = [column_name for column_name, column_obj in dest_table.columns.items() if column_not_auto_integer_pk(column_obj)]
         data_to_insert = []
         merge = model in merge_models
+        do_not_overwrite = model in models_not_to_overwrite
         for record in table_mapper(SourceRecord):
             self.check_cancelled()
             data = {
                 str(column): row_mapper(record, column) for column in columns if row_mapper(record, column) is not None
             }
             if merge:
-                self.merge_record(data, model, DestinationRecord)
+                self.merge_record(data, model, DestinationRecord, do_not_overwrite=do_not_overwrite)
             else:
                 data_to_insert.append(data)
             unflushed_rows += 1
@@ -359,13 +370,16 @@ class ChannelImport(object):
 
         return result
 
-    def merge_record(self, data, model, DestinationRecord):
+    def merge_record(self, data, model, DestinationRecord, do_not_overwrite=False):
         # Models that should be merged (see list above) need to be individually merged into the session
         # as SQL Alchemy ORM does not support INSERT ... ON DUPLICATE KEY UPDATE style queries,
         # as not available in SQLite, only MySQL as far as I can tell:
         # http://hackthology.com/how-to-compile-mysqls-on-duplicate-key-update-in-sql-alchemy.html
         RowEntry = self.destination.session.query(DestinationRecord).get(data[model._meta.pk.name])
         if RowEntry:
+            # record already exists, so if we don't want to overwrite, abort here
+            if do_not_overwrite:
+                return
             for key, value in data.items():
                 setattr(RowEntry, key, value)
         else:

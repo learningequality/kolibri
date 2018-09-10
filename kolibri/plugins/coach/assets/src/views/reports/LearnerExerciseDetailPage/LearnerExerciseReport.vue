@@ -8,42 +8,44 @@
       :kind="exercise.kind"
       :summaryLog="summaryLog"
     />
-    <AttemptLogList
-      slot="aside"
-      :attemptLogs="attemptLogsWithCoachContents"
-      :selectedQuestionNumber="attemptLogIndex"
-      @select="navigateToNewAttempt($event)"
-    />
-    <div slot="main" class="exercise-section">
-      <h3>{{ $tr('question', {questionNumber: currentAttemptLog.questionNumber}) }}</h3>
-      <KCheckbox
-        :label="$tr('showCorrectAnswerLabel')"
-        :checked="showCorrectAnswer"
-        @change="toggleShowCorrectAnswer"
+    <template v-if="attemptLogs.length > 0">
+      <AttemptLogList
+        slot="aside"
+        :attemptLogs="attemptLogsWithCoachContents"
+        :selectedQuestionNumber="attemptLogIndex"
+        @select="navigateToNewAttempt($event)"
       />
-      <InteractionList
-        v-if="!showCorrectAnswer"
-        :interactions="currentInteractionHistory"
-        :selectedInteractionIndex="interactionIndex"
-        @select="navigateToNewInteraction($event)"
-      />
-      <ContentRenderer
-        v-if="currentInteraction"
-        :id="exercise.id"
-        :itemId="currentAttemptLog.item"
-        :assessment="true"
-        :allowHints="false"
-        :kind="exercise.kind"
-        :files="exercise.files"
-        :contentId="exercise.content_id"
-        :channelId="channelId"
-        :available="exercise.available"
-        :answerState="answerState"
-        :showCorrectAnswer="showCorrectAnswer"
-        :interactive="false"
-        :extraFields="exercise.extra_fields"
-      />
-    </div>
+      <div slot="main" class="exercise-section">
+        <h3>{{ $tr('question', {questionNumber: currentAttemptLog.questionNumber}) }}</h3>
+        <KCheckbox
+          :label="$tr('showCorrectAnswerLabel')"
+          :checked="showCorrectAnswer"
+          @change="toggleShowCorrectAnswer"
+        />
+        <InteractionList
+          v-if="!showCorrectAnswer"
+          :interactions="currentInteractionHistory"
+          :selectedInteractionIndex="interactionIndex"
+          @select="navigateToNewInteraction($event)"
+        />
+        <ContentRenderer
+          v-if="currentInteraction"
+          :id="exercise.id"
+          :itemId="currentAttemptLog.item"
+          :assessment="true"
+          :allowHints="false"
+          :kind="exercise.kind"
+          :files="exercise.files"
+          :contentId="exercise.content_id"
+          :channelId="channelId"
+          :available="exercise.available"
+          :answerState="answerState"
+          :showCorrectAnswer="showCorrectAnswer"
+          :interactive="false"
+          :extraFields="exercise.extra_fields"
+        />
+      </div>
+    </template>
   </MultiPaneLayout>
 
 </template>
@@ -51,7 +53,8 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
+  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
@@ -85,14 +88,16 @@
       };
     },
     computed: {
-      ...mapState(['pageName', 'classId']),
+      ...mapState(['pageName', 'classId', 'reportRefreshInterval']),
+      ...mapGetters('exerciseDetail', [
+        'currentAttemptLog',
+        'currentInteraction',
+        'currentInteractionHistory',
+      ]),
       ...mapState('exerciseDetail', [
         'attemptLogs',
         'attemptLogIndex',
         'channelId',
-        'currentAttemptLog',
-        'currentInteraction',
-        'currentInteractionHistory',
         'exercise',
         'interactionIndex',
         'summaryLog',
@@ -117,7 +122,22 @@
         return null;
       },
     },
+    mounted() {
+      this.intervalId = setInterval(this.refreshReportData, this.reportRefreshInterval);
+    },
+    beforeDestroy() {
+      this.intervalId = clearInterval(this.intervalId);
+    },
     methods: {
+      // Data to do a proper refresh. See showExerciseDetailView for details.
+      refreshReportData() {
+        return this.$store.dispatch('exerciseDetail/setAttemptLogs', {
+          userId: this.user.id,
+          exercise: this.exercise,
+          shouldSetAttemptLogs: true,
+          isSamePage: samePageCheckGenerator(this.$store),
+        });
+      },
       navigateToNewAttempt(attemptLogIndex) {
         this.showCorrectAnswer = false;
         this.$router.push({

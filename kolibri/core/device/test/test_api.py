@@ -53,7 +53,7 @@ class DeviceProvisionTestCase(APITestCase):
             "settings": self.settings,
             "language_id": self.language_id,
         }
-        response = self.client.post(reverse('deviceprovision'), data, format="json")
+        response = self.client.post(reverse('kolibri:core:deviceprovision'), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_superuser_created(self):
@@ -64,7 +64,7 @@ class DeviceProvisionTestCase(APITestCase):
             "settings": self.settings,
             "language_id": self.language_id,
         }
-        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.client.post(reverse('kolibri:core:deviceprovision'), data, format="json")
         self.assertEqual(FacilityUser.objects.get().username, self.superuser_data["username"])
 
     def test_superuser_password_set_correctly(self):
@@ -75,7 +75,7 @@ class DeviceProvisionTestCase(APITestCase):
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
-        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.client.post(reverse('kolibri:core:deviceprovision'), data, format="json")
         self.assertTrue(FacilityUser.objects.get().check_password(self.superuser_data["password"]))
 
     def test_superuser_device_permissions_created(self):
@@ -86,7 +86,7 @@ class DeviceProvisionTestCase(APITestCase):
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
-        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.client.post(reverse('kolibri:core:deviceprovision'), data, format="json")
         self.assertEqual(DevicePermissions.objects.get(), FacilityUser.objects.get().devicepermissions)
 
     def test_facility_created(self):
@@ -97,7 +97,7 @@ class DeviceProvisionTestCase(APITestCase):
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
-        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.client.post(reverse('kolibri:core:deviceprovision'), data, format="json")
         self.assertEqual(Facility.objects.get().name, self.facility_data["name"])
 
     def test_admin_role_created(self):
@@ -108,7 +108,7 @@ class DeviceProvisionTestCase(APITestCase):
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
-        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.client.post(reverse('kolibri:core:deviceprovision'), data, format="json")
         self.assertEqual(Role.objects.get().kind, ADMIN)
 
     def test_facility_role_created(self):
@@ -119,7 +119,7 @@ class DeviceProvisionTestCase(APITestCase):
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
-        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.client.post(reverse('kolibri:core:deviceprovision'), data, format="json")
         self.assertEqual(Role.objects.get().collection.name, self.facility_data["name"])
 
     def test_dataset_set_created(self):
@@ -130,7 +130,7 @@ class DeviceProvisionTestCase(APITestCase):
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
-        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.client.post(reverse('kolibri:core:deviceprovision'), data, format="json")
         self.assertEqual(FacilityDataset.objects.get().learner_can_edit_username, self.dataset_data["learner_can_edit_username"])
         self.assertEqual(FacilityDataset.objects.get().learner_can_edit_name, self.dataset_data["learner_can_edit_name"])
         self.assertEqual(FacilityDataset.objects.get().learner_can_edit_password, self.dataset_data["learner_can_edit_password"])
@@ -147,7 +147,7 @@ class DeviceProvisionTestCase(APITestCase):
             "language_id": self.language_id,
         }
         self.assertEqual(DeviceSettings.objects.count(), 0)
-        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.client.post(reverse('kolibri:core:deviceprovision'), data, format="json")
         self.assertEqual(DeviceSettings.objects.count(), 1)
 
     def test_device_settings_default_facility_set(self):
@@ -158,7 +158,7 @@ class DeviceProvisionTestCase(APITestCase):
             "preset": self.preset_data,
             "language_id": self.language_id,
         }
-        self.client.post(reverse('deviceprovision'), data, format="json")
+        self.client.post(reverse('kolibri:core:deviceprovision'), data, format="json")
         self.assertEqual(DeviceSettings.objects.get().default_facility, Facility.objects.get())
 
 
@@ -172,11 +172,11 @@ class DevicePermissionsTestCase(APITestCase):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_superuser_delete_own_permissions(self):
-        response = self.client.delete(reverse('devicepermissions-detail', kwargs={'pk': self.superuser.devicepermissions.pk}), format="json")
+        response = self.client.delete(reverse('kolibri:core:devicepermissions-detail', kwargs={'pk': self.superuser.devicepermissions.pk}), format="json")
         self.assertEqual(response.status_code, 403)
 
     def test_superuser_update_own_permissions(self):
-        response = self.client.patch(reverse('devicepermissions-detail',
+        response = self.client.patch(reverse('kolibri:core:devicepermissions-detail',
                                              kwargs={'pk': self.superuser.devicepermissions.pk}),
                                      {'is_superuser': False},
                                      format="json")
@@ -197,7 +197,7 @@ class FreeSpaceTestCase(APITestCase):
                 statvfs_result = namedtuple('statvfs_result', ['f_frsize', 'f_bavail'])
                 os_statvfs_mock.return_value = statvfs_result(f_frsize=1, f_bavail=2)
 
-                response = self.client.get(reverse("freespace"), {'path': 'test'})
+                response = self.client.get(reverse("kolibri:core:freespace"), {'path': 'test'})
 
                 os_statvfs_mock.assert_called_with('test')
                 self.assertEqual(response.data, {'freespace': 2})
@@ -209,7 +209,7 @@ class FreeSpaceTestCase(APITestCase):
                 ctypes_mock.windll.kernel32.GetDiskFreeSpaceExW.return_value = 0
                 ctypes_mock.winError.side_effect = OSError
                 try:
-                    self.client.get(reverse('freespace'), {'path': 'test'})
+                    self.client.get(reverse('kolibri:core:freespace'), {'path': 'test'})
                 except OSError:
                     # check if ctypes.winError() has been called
                     ctypes_mock.winError.assert_called_with()
@@ -225,11 +225,11 @@ class DeviceInfoTestCase(APITestCase):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_has_version(self):
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         self.assertEqual(response.data['version'], kolibri.__version__)
 
     def test_urls(self):
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         self.assertFalse(len(response.data['urls']) == 0)
         for url in response.data['urls']:
             # Make sure each url is a valid link
@@ -237,52 +237,52 @@ class DeviceInfoTestCase(APITestCase):
 
     @patch('kolibri.core.device.api.get_urls', return_value=(1, ['http://127.0.0.1:8000', 'http://kolibri.com']))
     def test_no_localhost_urls_when_others_available(self, get_urls_mock):
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         self.assertEqual(len(response.data['urls']), 1)
         self.assertEqual(response.data['urls'][0], 'http://kolibri.com')
 
     @patch('kolibri.core.device.api.get_urls', return_value=(1, ['http://127.0.0.1:8000']))
     def test_localhost_urls_when_no_others_available(self, get_urls_mock):
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         self.assertEqual(len(response.data['urls']), 1)
         self.assertEqual(response.data['urls'][0], 'http://127.0.0.1:8000')
 
     def test_database_path(self):
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         if settings.DATABASES['default']['ENGINE'].endswith('sqlite3'):
             self.assertEqual(response.data['database_path'], settings.DATABASES['default']['NAME'])
         else:
             self.assertTrue('database_path' not in response.data)
 
     def test_device_name(self):
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         self.assertEqual(response.data['device_name'], platform.node())
 
     def test_os(self):
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         self.assertEqual(response.data['os'], platform.platform())
 
     def test_device_id(self):
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         self.assertEqual(response.data['device_id'], InstanceIDModel.get_or_create_current_instance()[0].id)
 
     def test_time_zone(self):
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         self.assertTrue(response.data['server_timezone'], settings.TIME_ZONE)
 
     def test_free_space(self):
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         self.assertEqual(type(response.data['content_storage_free_space']), int)
 
     def test_superuser_permissions(self):
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         self.assertEqual(response.status_code, 200)
 
     def test_user_permissions(self):
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.client.logout()
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         self.assertEqual(response.status_code, 403)
 
     def test_user_with_permissions(self):
@@ -290,5 +290,5 @@ class DeviceInfoTestCase(APITestCase):
         DevicePermissions.objects.create(user=self.user, can_manage_content=True)
         self.client.logout()
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.get(reverse('deviceinfo'), format="json")
+        response = self.client.get(reverse('kolibri:core:deviceinfo'), format="json")
         self.assertEqual(response.status_code, 200)

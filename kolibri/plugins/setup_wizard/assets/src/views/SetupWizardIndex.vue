@@ -107,7 +107,7 @@
       }),
       continueOnboarding() {
         if (this.isLastStep) {
-          if (this.onboardingData.preset === 'personal') {
+          if (this.onboardingData.preset === 'informal') {
             this.provisionDevice({
               ...this.onboardingData,
               facility: {

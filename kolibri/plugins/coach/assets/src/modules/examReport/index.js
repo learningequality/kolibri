@@ -34,6 +34,9 @@ export default {
     SET_EXAMS(state, exams) {
       state.exams = exams;
     },
+    SET_EXAM_REPORT_TABLE_DATA(state, examTakers) {
+      state.examTakers = [...examTakers];
+    },
   },
   actions,
 };

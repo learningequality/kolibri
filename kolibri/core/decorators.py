@@ -97,13 +97,14 @@ class ParamValidator(object):
             param = query_set.get(**{self.field: param})
         else:
             raise InvalidQueryParamsException("Invalid param type: %s" % self.param_type.____name__)
+        return param
 
     def check_type(self, param):
         """ Check that the type of param is valid, or raise an Exception. This doesn't take self.many into account. """
         if isinstance(self.param_type, TUPLE_TYPES):
             self.check_tuple_type(param)
         else:
-            self.check_non_tuple_types(param)
+            param = self.check_non_tuple_types(param)
         return param
 
     def check_value(self, param):

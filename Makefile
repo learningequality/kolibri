@@ -1,4 +1,5 @@
-.PHONY: help clean clean-pyc clean-build list test test-all coverage docs release sdist
+# Specifies the targets that should ALWAYS have their recipies run
+.PHONY: help clean clean-pyc clean-build clean-assets writeversion lint test test-all coverage docs release translation-crowdin-upload translation-crowdin-download
 
 help:
 	@echo "Usage:"
@@ -134,7 +135,7 @@ staticdeps:
 staticdeps-cext:
 	rm -rf kolibri/dist/cext || true # remove everything
 	python build_tools/install_cexts.py --file "requirements/cext.txt" # pip install c extensions
-	pip install -t kolibri/dist -r "requirements/cext_noarch.txt" --no-deps
+	pip install -t kolibri/dist/cext -r "requirements/cext_noarch.txt" --no-deps
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	rm -rf kolibri/dist/cext/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	make test-namespaced-packages
@@ -160,7 +161,10 @@ dist: writeversion staticdeps staticdeps-cext buildconfig assets translation-dja
 pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
-translation-extract: assets
+translation-extract: clean-build
+	@echo ""
+	@echo "!! This assumes that you are running with latest assets. Run 'make assets' if in doubt !!"
+	@echo ""
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
 
 translation-django-compilemessages:
@@ -174,7 +178,11 @@ translation-crowdin-install:
 translation-crowdin-upload:
 	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml upload sources -b ${branch}
 
-translation-crowdin-download:
+# This rule must depend on translation-extract, such that source files have been generated
+# for CrowdIn CLI's pattern matching. If they are not in place, stuff will break.
+# See: https://github.com/learningequality/kolibri/pull/4121
+translation-crowdin-download: translation-extract
+	@echo "\nWhen doing new releases: Remember to build the project on CrowdIn\n\n"
 	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${branch}
 
 dockerenvclean:

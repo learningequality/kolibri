@@ -9,6 +9,7 @@ function defaultState() {
     selectedExercises: [],
     subtopics: [],
     topic: {},
+    availableQuestions: 0,
   };
 }
 
@@ -37,6 +38,9 @@ export default {
     },
     SET_EXAMS_MODAL(state, modalName) {
       state.examsModalSet = modalName;
+    },
+    SET_AVAILABLE_QUESTIONS(state, availableQuestions) {
+      state.availableQuestions = availableQuestions;
     },
   },
   actions,

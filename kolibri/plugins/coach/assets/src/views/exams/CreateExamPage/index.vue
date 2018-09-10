@@ -62,6 +62,7 @@
               <tr>
                 <th class="core-table-checkbox-col">
                   <KCheckbox
+                    v-if="exercises.length || !subtopics.every(subtopic => subtopic.channel)"
                     :label="$tr('selectAll')"
                     :showLabel="false"
                     :checked="allExercisesWithinCurrentTopicSelected"
@@ -88,7 +89,9 @@
               />
               <TopicRow
                 v-for="topic in subtopics"
+                v-if="topic.allExercisesWithinTopic.length"
                 :key="topic.id"
+                :channel="topic.channel"
                 :topicId="topic.id"
                 :topicTitle="topic.title"
                 :numCoachContents="topic.num_coach_contents"
@@ -226,6 +229,7 @@
         'selectedExercises',
         'subtopics',
         'topic',
+        'availableQuestions',
       ]),
       numCols() {
         return this.windowSize.breakpoint > 3 ? 2 : 1;
@@ -241,15 +245,8 @@
       titleIsInvalid() {
         return Boolean(this.titleIsInvalidText);
       },
-      maxQuestionsFromSelection() {
-        // in case numAssestments is null, return 0
-        return this.selectedExercises.reduce(
-          (sum, exercise) => sum + (exercise.numAssessments || 0),
-          0
-        );
-      },
       numQuestExceedsSelection() {
-        return this.inputNumQuestions > this.maxQuestionsFromSelection;
+        return this.inputNumQuestions > this.availableQuestions;
       },
       exercisesAreSelected() {
         return this.selectedExercises.length > 0;
@@ -268,7 +265,7 @@
           if (this.exercisesAreSelected && this.numQuestExceedsSelection) {
             return this.$tr('numQuestionsExceed', {
               inputNumQuestions: this.inputNumQuestions,
-              maxQuestionsFromSelection: this.maxQuestionsFromSelection,
+              maxQuestionsFromSelection: this.availableQuestions,
             });
           }
         }

@@ -6,3 +6,4 @@ django-debug-panel==0.8.3
 django-debug-toolbar==1.9.1
 sphinx-autobuild
 django-rest-swagger==2.2.0
+coreapi==2.3.3

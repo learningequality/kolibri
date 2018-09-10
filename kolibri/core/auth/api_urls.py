@@ -7,7 +7,6 @@ from .api import FacilityUserViewSet
 from .api import FacilityViewSet
 from .api import LearnerGroupViewSet
 from .api import MembershipViewSet
-from .api import PublicFacilityViewSet
 from .api import RoleViewSet
 from .api import SessionViewSet
 from .api import SignUpViewSet
@@ -23,8 +22,6 @@ router.register(r'session', SessionViewSet, base_name='session')
 router.register(r'classroom', ClassroomViewSet, base_name='classroom')
 router.register(r'learnergroup', LearnerGroupViewSet, base_name='learnergroup')
 router.register(r'signup', SignUpViewSet, base_name='signup')
-
-router.register(r'public/v1/facility', PublicFacilityViewSet, base_name='publicfacility')
 
 bulk_delete_router = BulkDeleteRouter()
 

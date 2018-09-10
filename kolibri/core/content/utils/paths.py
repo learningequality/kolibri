@@ -2,13 +2,9 @@ import os
 import re
 
 from django.core.urlresolvers import reverse
+from six.moves.urllib.parse import urljoin
 
 from kolibri.utils import conf
-
-try:
-    from urlparse import urljoin
-except ImportError:
-    from urllib.parse import urljoin
 
 
 # valid storage filenames consist of 32-char hex plus a file extension
@@ -85,10 +81,7 @@ def get_content_storage_file_path(filename, datafolder=None):
 # URL PATHS
 
 def get_content_url(baseurl=None):
-    return urljoin(
-        baseurl or conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'],
-        "content/",
-    )
+    return get_content_server_url("content/", baseurl=baseurl)
 
 
 def get_content_database_url(baseurl=None):
@@ -116,14 +109,27 @@ def get_content_storage_remote_url(filename, baseurl=None):
     return "{}{}/{}/{}".format(get_content_storage_url(baseurl), filename[0], filename[1], filename)
 
 
-def get_channel_lookup_url(identifier=None, baseurl=None):
-    studio_url = "/api/public/v1/channels"
+def get_content_server_url(path, baseurl=None):
+    if not baseurl:
+        baseurl = conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL']
+    return urljoin(baseurl, path)
+
+
+def get_info_url(baseurl=None):
+    return get_content_server_url('/api/public/info', baseurl=baseurl)
+
+
+def get_channel_lookup_url(version='1', identifier=None, baseurl=None, keyword=None, language=None):
+    content_server_path = '/api/public/v{}/channels'.format(version)
     if identifier:
-        studio_url += "/lookup/{}".format(identifier)
-    return urljoin(
-        baseurl or conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'],
-        studio_url
-    )
+        content_server_path += '/lookup/{}'.format(identifier)
+    content_server_path += '?'
+    if keyword:
+        content_server_path += 'keyword={}&'.format(keyword)
+    if language:
+        content_server_path += 'language={}'.format(language)
+
+    return get_content_server_url(content_server_path, baseurl=baseurl)
 
 
 def get_content_storage_file_url(filename, baseurl=None):
@@ -134,6 +140,6 @@ def get_content_storage_file_url(filename, baseurl=None):
     """
     ext = os.path.splitext(filename)[1]
     if ext in POSSIBLE_ZIPPED_FILE_EXTENSIONS:
-        return reverse("zipcontent", kwargs={"zipped_filename": filename, "embedded_filepath": ""})
+        return reverse("kolibri:core:zipcontent", kwargs={"zipped_filename": filename, "embedded_filepath": ""})
     else:
         return "{}{}/{}/{}".format(get_content_storage_url(baseurl), filename[0], filename[1], filename)

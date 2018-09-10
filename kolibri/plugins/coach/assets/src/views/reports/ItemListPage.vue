@@ -78,6 +78,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
@@ -88,7 +89,6 @@
   import NameCell from './table-cells/NameCell';
   import ProgressCell from './table-cells/ProgressCell';
   import ActivityCell from './table-cells/ActivityCell';
-
   import alignMixin from './align-mixin';
 
   export default {
@@ -125,8 +125,14 @@
     },
     computed: {
       ...mapGetters('reports', ['standardDataTable', 'contentCount', 'exerciseCount']),
-      ...mapState(['classId', 'pageName']),
-      ...mapState('reports', ['contentScopeSummary', 'channelId']),
+      ...mapState(['classId', 'pageName', 'reportRefreshInterval']),
+      ...mapState('reports', [
+        'contentScopeSummary',
+        'channelId',
+        'contentScopeId',
+        'userScope',
+        'userScopeId',
+      ]),
       documentTitle() {
         switch (this.pageName) {
           case PageNames.LEARNER_CHANNEL_ROOT:
@@ -143,7 +149,25 @@
         return TableColumns;
       },
     },
+    mounted() {
+      this.intervalId = setInterval(this.refreshReportData, this.reportRefreshInterval);
+    },
+    beforeDestroy() {
+      this.intervalId = clearInterval(this.intervalId);
+    },
     methods: {
+      refreshReportData() {
+        // The data needed to do a proper refresh. See _showContentList for details
+        this.$store.dispatch('reports/setItemsForTopicTableData', {
+          reportPayload: {
+            channel_id: this.channelId,
+            content_node_id: this.contentScopeId,
+            collection_kind: this.userScope,
+            collection_id: this.userScopeId,
+          },
+          isSamePage: samePageCheckGenerator(this.$store),
+        });
+      },
       genRowLink(row) {
         const rowIsTopic = row.kind === ContentNodeKinds.TOPIC;
         const params = {

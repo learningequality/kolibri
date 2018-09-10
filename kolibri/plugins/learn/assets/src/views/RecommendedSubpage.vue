@@ -6,7 +6,6 @@
     <ContentCardGroupGrid
       :contents="recommendations"
       :genContentLink="genContentLink"
-      :showContentKindFilter="false"
     />
   </div>
 

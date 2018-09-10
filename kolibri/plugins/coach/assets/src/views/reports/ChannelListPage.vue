@@ -57,6 +57,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -99,8 +100,8 @@
     },
     computed: {
       ...mapGetters('reports', ['standardDataTable']),
-      ...mapState('reports', ['showRecentOnly']),
-      ...mapState(['classId', 'pageName']),
+      ...mapState('reports', ['showRecentOnly', 'userScope', 'userScopeId']),
+      ...mapState(['classId', 'pageName', 'reportRefreshInterval']),
       ...mapGetters({
         channels: 'getChannels',
       }),
@@ -124,7 +125,22 @@
         return RECENCY_THRESHOLD_IN_DAYS;
       },
     },
+    mounted() {
+      this.intervalId = setInterval(this.refreshReportData, this.reportRefreshInterval);
+    },
+    beforeDestroy() {
+      this.intervalId = clearInterval(this.intervalId);
+    },
     methods: {
+      refreshReportData() {
+        // The data needed to do a proper refresh. See _showChannelList for details
+        return this.$store.dispatch('reports/setChannelsTableData', {
+          channels: this.channels,
+          collectionKind: this.userScope,
+          collectionId: this.userScopeId,
+          isSamePage: samePageCheckGenerator(this.$store),
+        });
+      },
       reportLink(channelId) {
         const linkTargets = {
           [PageNames.RECENT_CHANNELS]: PageNames.RECENT_ITEMS_FOR_CHANNEL,

@@ -6,6 +6,11 @@
  * still on the same page as when the action was first triggered.
  */
 export default function samePageCheckGenerator(store) {
-  const pageId = store.getters.pageSessionId;
-  return () => store.getters.pageSessionId === pageId;
+  let pageId = store.getters.pageSessionId;
+  if (!pageId) {
+    pageId = store.rootGetters.pageSessionId;
+    return () => store.rootGetters.pageSessionId === pageId;
+  } else {
+    return () => store.getters.pageSessionId === pageId;
+  }
 }

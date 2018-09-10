@@ -21,57 +21,23 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from django.conf import settings
 from django.conf.urls import include
 from django.conf.urls import url
 from django.contrib import admin
 from morango import urls as morango_urls
 
-urlpatterns = [
+from kolibri.utils.conf import OPTIONS
+
+path_prefix = OPTIONS['Deployment']['PATH_PREFIX']
+
+if path_prefix == '/':
+    path_prefix = ''
+
+url_patterns_prefixed = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'', include('kolibri.core.urls')),
-    url(r'', include('kolibri.core.content.urls')),
-    url(r'^api/', include('kolibri.core.auth.api_urls')),
-    url(r'^api/', include('kolibri.core.content.api_urls')),
-    url(r'^api/', include('kolibri.core.logger.api_urls')),
-    url(r'^api/', include('kolibri.core.tasks.api_urls')),
-    url(r'^api/', include('kolibri.core.exams.api_urls')),
-    url(r'^api/', include('kolibri.core.device.api_urls')),
-    url(r'^api/', include('kolibri.core.lessons.api_urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'', include(morango_urls)),
+    url(r'', include('kolibri.core.urls')),
 ]
 
-if getattr(settings, 'DEBUG_PANEL_ACTIVE', False):
-
-    import debug_toolbar
-    urlpatterns = [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ] + urlpatterns
-
-if getattr(settings, 'REST_SWAGGER', False):
-    from rest_framework_swagger.views import get_swagger_view
-
-    schema_view = get_swagger_view(title='Kolibri API')
-
-    urlpatterns += [
-        url(r'^api_explorer/', schema_view)
-    ]
-
-if getattr(settings, 'REDIRECT_WEBPACK', False):
-    from django.http.response import HttpResponseRedirect
-
-    def webpack_redirect_view(request):
-        return HttpResponseRedirect('http://127.0.0.1:3000/__open-in-editor?{query}'.format(query=request.GET.urlencode()))
-
-    urlpatterns += [
-        url(r'^__open-in-editor/', webpack_redirect_view)
-    ]
-
-if getattr(settings, 'DEBUG', False):
-    from kolibri.utils.api import Generator
-    from rest_framework.documentation import include_docs_urls
-
-    urlpatterns += [
-        url(r'^docs/', include_docs_urls(title='Kolibri API', generator_class=Generator))
-    ]
+urlpatterns = [url(path_prefix, include(url_patterns_prefixed))]

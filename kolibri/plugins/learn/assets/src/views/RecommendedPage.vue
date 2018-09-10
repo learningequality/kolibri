@@ -14,7 +14,6 @@
         v-if="windowIsSmall"
         :genContentLink="genContentLink"
         :contents="trimmedPopular"
-        :showContentKindFilter="false"
       />
       <ContentCardGroupCarousel
         v-else
@@ -33,7 +32,6 @@
         v-if="windowIsSmall"
         :genContentLink="genContentLink"
         :contents="trimmedNextSteps"
-        :showContentKindFilter="false"
       />
       <ContentCardGroupCarousel
         v-else
@@ -52,7 +50,6 @@
         v-if="windowIsSmall"
         :genContentLink="genContentLink"
         :contents="trimmedResume"
-        :showContentKindFilter="false"
       />
       <ContentCardGroupCarousel
         v-else
