@@ -3,6 +3,8 @@ import logging
 import os
 import sys
 import threading
+from subprocess import CalledProcessError
+from subprocess import check_output
 
 import cherrypy
 import ifcfg
@@ -325,14 +327,15 @@ def get_urls(listen_port=None):
         return e.status_code, []
 
 
-def installation_type():
+def installation_type():  # noqa:C901
     """
     Tries to guess how the running kolibri server was installed
 
     :returns: install_type is the type of detected installation
     install_type can be any of these strings:
         - 'PEX file'
-        - 'Debian package'
+        - 'Debian package (manual)' if installation was done manually
+        - 'Debian package (using apt)' if installation was done using apt (ppa usually)
         - 'Windows installer'
         - 'Compiled from code or from a Whl file'
         - 'Development code'
@@ -345,7 +348,14 @@ def installation_type():
             if launcher.endswith('.pex'):
                 install_type = 'PEX file'
             elif launcher == '/usr/bin/kolibri':
-                install_type = 'Debian package'
+                install_type = 'Debian package (Manual)'
+                try:
+                    apt_cache = str(check_output(['apt-cache', 'show', 'kolibri']))
+                except CalledProcessError:  # kolibri package not installed!
+                    apt_cache = ''
+                    install_type = 'Executable compiled from code'
+                if '.deb' in apt_cache and 'ilename' in apt_cache:
+                    install_type = 'Debian package (using apt)'
             elif '\\Scripts\\kolibri' in launcher:
                 paths = sys.path
                 for path in paths:
