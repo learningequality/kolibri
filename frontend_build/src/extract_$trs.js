@@ -1,9 +1,9 @@
+var fs = require('fs');
+var path = require('path');
 var esprima = require('esprima');
 var escodegen = require('escodegen');
-var logging = require('./logging');
-var fs = require('fs');
 var mkdirp = require('mkdirp');
-var path = require('path');
+var logging = require('./logging');
 var coreAliases = require('./apiSpecExportTools').coreAliases;
 
 // Find alias for i18n utils, do this so that we don't have to hard code it here
@@ -14,12 +14,12 @@ function isCamelCase(str) {
 }
 
 function isPascalCase(str) {
-  return /^[A-Z][a-z]+(?:[A-Z][a-z]+)*$/.test(str);
+  return /^[A-Z][a-z0-9]*(?:[A-Z][a-z0-9]*)*$/.test(str);
 }
 
 function generateMessagesObject(messagesObject) {
   // define here and then let it be assigned during eval
-  var messages;
+  var messages; // eslint-disable-line no-unused-vars
   // AST node that can be used to generate the messages object once parsed from the module
   var messagesAST = {
     type: 'ExpressionStatement',
@@ -68,7 +68,8 @@ extract$trs.prototype.apply = function(compiler) {
             messageExport[msgId] = messages[key];
           });
         }
-        // Someone defined a $trs object, but didn't namespace it - warn them about it here so they can fix their foolishness.
+        // Someone defined a $trs object, but didn't namespace it
+        // warn them about it here so they can fix their foolishness.
       } else if (Object.keys(messages).length) {
         logging.error(
           'Translatable messages have been defined in ' +
@@ -79,19 +80,25 @@ extract$trs.prototype.apply = function(compiler) {
     }
     compilation.chunks.forEach(function(chunk) {
       // Explore each module within the chunk (built inputs):
-      chunk.forEachModule(function(module) {
-        if (module.resource && module.resource.indexOf('.vue') === module.resource.length - 4) {
+      for (const module of chunk.modulesIterable) {
+        var ast;
+        if (
+          module.resource &&
+          module.resource.includes('.vue') &&
+          module.resource.includes('lang=js')
+        ) {
           // Inspect each source file in the chunk if it is a vue file.
           var messageNameSpace;
           var messages = {};
           // Parse the AST for the Vue file.
-          var ast = esprima.parse(module._source.source(), {
+          ast = esprima.parse(module._source.source(), {
             sourceType: 'module',
           });
           ast.body.forEach(function(node) {
             // Look through each top level node until we find the module.exports or export default
             // N.B. this relies on our convention of directly exporting the Vue component
-            // with the module.exports or export default, rather than defining it and then setting it to export.
+            // with the module.exports or export default, rather than defining it and then setting
+            // it to export.
 
             // Is it an expression?
             if (
@@ -140,7 +147,8 @@ extract$trs.prototype.apply = function(compiler) {
                       messages[message.key.name] = message.value.value;
                     }
                   });
-                  // We also want to take a note of the name space these messages have been put in too!
+                  // We also want to take a note of the name space
+                  // these messages have been put in too!
                 } else if (property.key.name === 'name') {
                   messageNameSpace = property.value.value;
                 }
@@ -154,7 +162,7 @@ extract$trs.prototype.apply = function(compiler) {
           !module.resource.includes('node_modules')
         ) {
           // Inspect each source file in the chunk if it is a js file too.
-          var ast = esprima.parse(module._source.source(), {
+          ast = esprima.parse(module._source.source(), {
             sourceType: 'module',
           });
           var createTranslateFn;
@@ -175,10 +183,12 @@ extract$trs.prototype.apply = function(compiler) {
               });
             }
           });
+          /* eslint-disable no-inner-declarations */
           function traverseTree(node, scopeChain) {
             function getVarScope(name) {
               return scopeChain.find(scope => typeof scope[name] !== 'undefined');
             }
+            var varScope;
             if (node) {
               if (
                 node.type === esprima.Syntax.FunctionDeclaration ||
@@ -209,7 +219,7 @@ extract$trs.prototype.apply = function(compiler) {
                 // If no scope matches, either it is an undeclared variable, or is an ES6
                 // style default function parameter, either way, assign to localScope for
                 // safety.
-                var varScope = getVarScope(node.expression.left.name) || localScope;
+                varScope = getVarScope(node.expression.left.name) || localScope;
                 varScope[node.expression.left.name] = node.expression.right;
               }
               if (
@@ -223,7 +233,7 @@ extract$trs.prototype.apply = function(compiler) {
                   messageNameSpace = firstArg.value;
                 } else if (firstArg.type === esprima.Syntax.Identifier) {
                   // First argument is a variable, lookup in the appropriate scope
-                  var varScope = getVarScope(firstArg.name);
+                  varScope = getVarScope(firstArg.name);
                   if (varScope) {
                     messageNameSpace = varScope[firstArg.name].value;
                   } else {
@@ -240,7 +250,7 @@ extract$trs.prototype.apply = function(compiler) {
                   messages = generateMessagesObject(secondArg);
                 } else if (secondArg.type === esprima.Syntax.Identifier) {
                   // Second argument is a variable, lookup in the appropriate scope
-                  var varScope = getVarScope(secondArg.name);
+                  varScope = getVarScope(secondArg.name);
                   if (varScope) {
                     messages = generateMessagesObject(varScope[secondArg.name]);
                   } else {
@@ -281,8 +291,9 @@ extract$trs.prototype.apply = function(compiler) {
             traverseTree(ast, []);
           }
         }
-      });
+      }
     });
+    /* eslint-enable no-inner-declarations */
     if (Object.keys(messageExport).length) {
       // If we've got any messages to write out, write them out. Otherwise, don't bother.
       self.writeOutput(messageExport);
