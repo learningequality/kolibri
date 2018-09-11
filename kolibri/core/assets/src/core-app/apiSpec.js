@@ -68,6 +68,7 @@ import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
+import UserType from '../utils/UserType';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import AppBar from '../views/AppBar';
 import CoreSnackbar from '../views/CoreSnackbar';
@@ -77,6 +78,7 @@ import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
 import KDropdownMenu from '../views/KDropdownMenu';
 import CoachContentLabel from '../views/CoachContentLabel';
+import UserTypeDisplay from '../views/UserTypeDisplay';
 
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
@@ -162,6 +164,7 @@ export default {
       CoreFullscreen,
       CoreLogo,
       UiAlert,
+      UserTypeDisplay,
     },
     router,
     mixins: {
@@ -188,5 +191,6 @@ export default {
     navComponents,
     samePageCheckGenerator,
     CatchErrors,
+    UserType,
   },
 };

@@ -28,7 +28,7 @@
               {{ $tr('userTypeLabel') }}
             </th>
             <td>
-              <UserTypeDisplay :user="user" />
+              <UserTypeDisplay :userType="UserType(user)" />
             </td>
           </tr>
 
@@ -105,13 +105,14 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
+  import UserType from 'kolibri.utils.UserType';
   import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
+  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import { PageNames } from '../../constants';
-  import UserTypeDisplay from './UserTypeDisplay';
 
   const SUCCESS = 'SUCCESS';
   const IN_PROGRESS = 'IN_PROGRESS';
@@ -149,17 +150,6 @@
       // IDEA Make this a core getter? Need audit
       facilityName() {
         return this.facilities.find(facility => facility.id === this.currentFacilityId).name;
-      },
-      userKind() {
-        // TODO translate these
-        if (this.permissions.is_superuser) {
-          return 'Super admin';
-        }
-
-        if (!this.user.roles.length) {
-          return 'Learner';
-        }
-        return 'Some other thing';
       },
       isCurrentUser() {
         return this.currentUsername === this.user.username;
@@ -218,7 +208,7 @@
     },
     methods: {
       ...mapActions('userPermissions', ['addOrUpdateUserPermissions']),
-      ...mapActions(['getCurrentSession', 'createSnackbar']),
+      ...mapActions(['createSnackbar']),
       save() {
         this.uiBlocked = true;
         this.saveProgress = IN_PROGRESS;
@@ -243,6 +233,7 @@
       goBack() {
         this.$router.push({ path: '/permissions' });
       },
+      UserType,
     },
     $trs: {
       cancelButton: 'Cancel',

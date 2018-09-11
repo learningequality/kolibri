@@ -2,9 +2,9 @@
 
   <span
     class="user-type-display"
-    v-if="typeLabel"
+    v-if="typeDisplay"
   >
-    {{ typeLabel }}
+    {{ typeDisplay }}
   </span>
 
 </template>
@@ -24,23 +24,9 @@
       learnerLabel: 'Learner',
     },
     props: {
-      /**
-       * Roles array, from backend
-       **/
-      user: {
-        type: Object,
+      userType: {
+        type: String,
         required: true,
-        validator(userObject) {
-          const requiredFields = [
-            'id',
-            'username',
-            'full_name',
-            'is_superuser',
-            'roles',
-            'facility',
-          ];
-          return requiredFields.every(field => userObject[field] !== undefined);
-        },
       },
       distinguishCoachTypes: {
         type: Boolean,
@@ -54,7 +40,7 @@
       },
     },
     computed: {
-      kindToLabelMap() {
+      typeDisplayMap() {
         return {
           [UserKinds.SUPERUSER]: this.$tr('superUserLabel'),
           [UserKinds.ADMIN]: this.$tr('adminLabel'),
@@ -65,19 +51,8 @@
           [UserKinds.LEARNER]: this.displayLearner ? this.$tr('learnerLabel') : '',
         };
       },
-      type() {
-        if (this.user.is_superuser) {
-          return UserKinds.SUPERUSER;
-        }
-        if (!this.user.roles.length) {
-          return UserKinds.LEARNER;
-        }
-
-        // get first role associated with this facility
-        return this.user.roles.find(role => role.collection === this.user.facility).kind;
-      },
-      typeLabel() {
-        return this.kindToLabelMap[this.type];
+      typeDisplay() {
+        return this.typeDisplayMap[this.userType];
       },
     },
   };
