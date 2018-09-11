@@ -54,7 +54,7 @@
         </tr>
         <tr>
           <th>{{ $tr('serverInstallation') }}</th>
-          <td>{{ deviceInfo.installer }}</td>
+          <td>{{ $tr(deviceInfo.installer) }}</td>
         </tr>
       </table>
     </template>
@@ -98,6 +98,13 @@
       serverTimezone: 'Server timezone',
       serverType: 'Server type',
       serverInstallation: 'Server installer',
+      installed_pex: 'PEX file',
+      installed_dpkg: 'Debian package installed manually',
+      installed_apt: 'Debian package installed using apt (usually from a ppa)',
+      installed_windows: 'Windows Installer',
+      installed_whl: 'Binary created after building the sources',
+      installed_dev: 'Development server',
+      installed_unknown: 'Unknown',
     },
   };
 

@@ -333,39 +333,38 @@ def installation_type():  # noqa:C901
 
     :returns: install_type is the type of detected installation
     install_type can be any of these strings:
-        - 'PEX file'
-        - 'Debian package (manual)' if installation was done manually
-        - 'Debian package (using apt)' if installation was done using apt (ppa usually)
-        - 'Windows installer'
-        - 'Compiled from code or from a Whl file'
-        - 'Development code'
-        - 'unknown': this function has not been able to guess it
+        - installed_pex:  A PEX file
+        - installed_dpkg: A Debian package installed manually
+        - installed_apt: A Debian package installed using apt (usually from a ppa)
+        - installed_windows: Windows Installer
+        - installed_whl: Binary created after building the sources
+        - installed_dev: Development server
+        - installed_unknown: this function has not been able to guess it
     """
-    install_type = 'unknown'
+    install_type = 'installed_unknown'
     if len(sys.argv) > 1:
         launcher = sys.argv[0]
-        if 'start' in sys.argv:
-            if launcher.endswith('.pex'):
-                install_type = 'PEX file'
-            elif launcher == '/usr/bin/kolibri':
-                install_type = 'Debian package (Manual)'
-                try:
-                    apt_cache = str(check_output(['apt-cache', 'show', 'kolibri']))
-                except CalledProcessError:  # kolibri package not installed!
-                    apt_cache = ''
-                    install_type = 'Executable compiled from code'
-                if '.deb' in apt_cache and 'ilename' in apt_cache:
-                    install_type = 'Debian package (using apt)'
-            elif '\\Scripts\\kolibri' in launcher:
-                paths = sys.path
-                for path in paths:
-                    if 'kolibri.exe' in path:
-                        install_type = 'Windows installer'
-                        break
-            else:
-                install_type = 'Executable compiled from code'
-        else:
-            if 'runserver' in sys.argv:
-                install_type = 'Development code'
+        if launcher.endswith('.pex'):
+            install_type = 'installed_pex'
+        elif 'runserver' in sys.argv:
+            install_type = 'installed_dev'
+        elif launcher == '/usr/bin/kolibri':
+            # find out if this is from the debian package
+            install_type = 'installed_dpkg'
+            try:
+                check_output(['apt-cache', 'show', 'kolibri'])
+                apt_repo = str(check_output(['apt-cache', 'madison', 'kolibri']))
+                if apt_repo:
+                    install_type = 'installed_apt'
+            except CalledProcessError:  # kolibri package not installed!
+                install_type = 'installed_whl'
+        elif '\\Scripts\\kolibri' in launcher:
+            paths = sys.path
+            for path in paths:
+                if 'kolibri.exe' in path:
+                    install_type = 'installed_windows'
+                    break
+        elif 'start' in sys.argv:
+            install_type = 'installed_whl'
 
     return install_type
