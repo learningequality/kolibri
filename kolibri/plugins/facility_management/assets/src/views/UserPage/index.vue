@@ -90,7 +90,6 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
-  import UserRole from '../UserRole';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import UserCreateModal from './UserCreateModal';
   import EditUserModal from './EditUserModal';
@@ -114,7 +113,6 @@
       KButton,
       KFilterTextbox,
       KDropdownMenu,
-      UserRole,
       KSelect,
       KGrid,
       KGridItem,
