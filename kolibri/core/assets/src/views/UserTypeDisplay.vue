@@ -33,7 +33,7 @@
         required: false,
         default: true,
       },
-      displayLearner: {
+      omitLearner: {
         type: Boolean,
         required: false,
         default: true,
@@ -48,7 +48,7 @@
             ? this.$tr('facilityCoachLabel')
             : this.$tr('coachLabel'),
           [UserKinds.ASSIGNABLE_COACH]: this.$tr('coachLabel'),
-          [UserKinds.LEARNER]: this.displayLearner ? this.$tr('learnerLabel') : '',
+          [UserKinds.LEARNER]: this.omitLearner ? '' : this.$tr('learnerLabel'),
         };
       },
       typeDisplay() {
