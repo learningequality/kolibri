@@ -1,29 +1,37 @@
 import { mount } from '@vue/test-utils';
-import Epub from 'epubjs/src/epub';
 import SearchSideBar from '../src/views/SearchSideBar';
-import Base64EncodedEpub from './Base64EncodedEpub';
+import SampleSearchResults from './SampleSearchResults';
 
-function loadBook() {
-  return new Promise(resolve => {
-    global.ePub = Epub;
-    new Epub(Base64EncodedEpub, { encoding: 'base64' }).ready.then(book => resolve(book));
-  });
-}
-
-function createWrapper({ book } = {}) {
+function createWrapper() {
   return mount(SearchSideBar, {
     propsData: {
-      book,
+      book: {},
     },
   });
 }
 
 describe('Search side bar', () => {
   it('should mount', () => {
+    const wrapper = createWrapper();
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it('should allow parent to focus on input box', () => {
+    const wrapper = createWrapper();
+    wrapper.vm.focusOnInput();
+    const elementThatIsFocused = document.activeElement;
+    expect(elementThatIsFocused.classList.contains('search-input')).toBe(true);
+  });
+
+  it('should highlight search terms', () => {
+    const wrapper = createWrapper();
+    wrapper.vm.searchQuery = 'biology';
+    wrapper.vm.searchResults = SampleSearchResults;
+    wrapper.vm.createMarks(wrapper.vm.searchQuery);
     expect.assertions(1);
-    loadBook().then(book => {
-      const wrapper = createWrapper({ book });
-      expect(wrapper.exists()).toBe(true);
+    wrapper.vm.$nextTick(() => {
+      const allMarks = wrapper.findAll('mark');
+      expect(allMarks.length).toBeGreaterThanOrEqual(wrapper.vm.searchResults.length);
     });
   });
 });
