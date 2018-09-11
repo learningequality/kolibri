@@ -9,8 +9,8 @@
     </section>
 
     <section>
-      <h2>{{ $tr('role') }}</h2>
-      {{ role }}
+      <h2>{{ $tr('userType') }}</h2>
+      <UserTypeDisplay :userType="getUserKind" />
     </section>
 
     <section v-if="userHasPermissions">
@@ -113,8 +113,9 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
+  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import { PermissionTypes, UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import { PermissionTypes, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 
   export default {
@@ -124,13 +125,10 @@
       username: 'Username',
       name: 'Full name',
       updateProfile: 'Save changes',
-      isLearner: 'Learner',
-      isCoach: 'Coach',
-      isAdmin: 'Admin',
-      isSuperuser: 'Superuser permissions ',
+      isSuperuser: 'Super admin permissions ',
       manageContent: 'Manage content',
       points: 'Points',
-      role: 'Role',
+      userType: 'User type',
       devicePermissions: 'Device permissions',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       required: 'This field is required',
@@ -152,6 +150,7 @@
       PointsIcon,
       PermissionsIcon,
       ChangeUserPasswordModal,
+      UserTypeDisplay,
     },
     mixins: [responsiveWindow],
     data() {
@@ -168,7 +167,6 @@
         'facilityConfig',
         'getUserKind',
         'getUserPermissions',
-        'isAdmin',
         'isCoach',
         'isLearner',
         'isSuperuser',
@@ -181,16 +179,6 @@
       ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success', 'profileErrors']),
       passwordModalVisible() {
         return this.passwordState.modal;
-      },
-      role() {
-        if (this.getUserKind === UserKinds.ADMIN) {
-          return this.$tr('isAdmin');
-        } else if (this.getUserKind === UserKinds.COACH) {
-          return this.$tr('isCoach');
-        } else if (this.getUserKind === UserKinds.LEARNER) {
-          return this.$tr('isLearner');
-        }
-        return '';
       },
       permissionType() {
         if (this.isSuperuser) {
