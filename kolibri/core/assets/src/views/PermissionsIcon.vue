@@ -1,23 +1,35 @@
 <template>
 
-  <span class="icon" ref="icon">
-    <UiIcon
-      v-if="permissionType === PermissionTypes.SUPERUSER"
-      :ariaLabel="$tr('superAdminTooltip')"
-      class="super-admin"
-    >
-      <mat-svg name="vpn_key" category="communication" />
-    </UiIcon>
+  <!-- UiTooltip automatically uses aria-describedby, pointing to UiTooltip element -->
+  <span class="permission-icon" ref="permission-icon">
+    <mat-svg
+      v-if="hasSuperAdminPermission"
+      class="super-admin icon"
+      name="vpn_key"
+      category="communication"
+    />
 
-    <UiIcon
-      v-else-if="permissionType === PermissionTypes.LIMITED_PERMISSIONS"
-      :ariaLabel="$tr('limitedPermissionsTooltip')"
-      class="some-permissions"
-    >
-      <mat-svg name="vpn_key" category="communication" />
-    </UiIcon>
+    <mat-svg
+      v-else-if="hasLimitedPermissions"
+      class="some-permissions icon"
+      name="vpn_key"
+      category="communication"
+    />
 
-    <UiTooltip trigger="icon">{{ tooltipText }}</UiTooltip>
+    <UiTooltip
+      :position="tooltipPosition"
+      trigger="permission-icon"
+    >
+
+      <UserTypeDisplay
+        v-if="hasSuperAdminPermission"
+        :userType="UserKinds.SUPERUSER"
+      />
+
+      <template v-else-if="hasLimitedPermissions">
+        {{ $tr('limitedPermissionsTooltip') }}
+      </template>
+    </UiTooltip>
   </span>
 
 </template>
@@ -25,15 +37,15 @@
 
 <script>
 
-  import UiIcon from 'keen-ui/src/UiIcon';
   import UiTooltip from 'keen-ui/src/UiTooltip';
-  import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
+  import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
 
   export default {
     name: 'PermissionsIcon',
     components: {
-      UiIcon,
       UiTooltip,
+      UserTypeDisplay,
     },
     props: {
       permissionType: {
@@ -44,23 +56,21 @@
         },
       },
     },
-    data: () => ({
-      PermissionTypes,
-    }),
     computed: {
-      tooltipText() {
-        switch (this.permissionType) {
-          case PermissionTypes.SUPERUSER:
-            return this.$tr('superAdminTooltip');
-          case PermissionTypes.LIMITED_PERMISSIONS:
-            return this.$tr('limitedPermissionsTooltip');
-          default:
-            return '';
-        }
+      UserKinds() {
+        return UserKinds;
+      },
+      hasSuperAdminPermission() {
+        return this.permissionType === PermissionTypes.SUPERUSER;
+      },
+      hasLimitedPermissions() {
+        return this.permissionType === PermissionTypes.LIMITED_PERMISSIONS;
+      },
+      tooltipPosition() {
+        return `bottom ${this.isRtl ? 'right' : 'left'}`;
       },
     },
     $trs: {
-      superAdminTooltip: 'Super admin',
       limitedPermissionsTooltip: 'Limited permissions',
     },
   };
@@ -73,11 +83,13 @@
   @import '~kolibri.styles.definitions';
 
   .icon {
-    .super-admin {
-      color: $core-status-mastered;
+    vertical-align: text-bottom;
+
+    &.super-admin {
+      fill: $core-status-mastered;
     }
-    .some-permissions {
-      color: $core-text-default;
+    &.some-permissions {
+      fill: $core-text-default;
     }
   }
 
