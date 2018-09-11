@@ -142,14 +142,14 @@
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser', 'currentFacilityId', 'facilities']),
+      ...mapGetters(['isSuperuser', 'facilities']),
       ...mapState('userPermissions', ['user', 'permissions']),
       ...mapState({
         currentUsername: state => state.core.session.username,
       }),
       // IDEA Make this a core getter? Need audit
       facilityName() {
-        return this.facilities.find(facility => facility.id === this.currentFacilityId).name;
+        return this.facilities.find(facility => facility.id === this.user.facility).name;
       },
       isCurrentUser() {
         return this.currentUsername === this.user.username;
