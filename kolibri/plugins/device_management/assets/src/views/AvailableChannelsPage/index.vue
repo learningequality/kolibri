@@ -81,7 +81,9 @@
       </div>
     </div>
     <p v-else>
-      {{ $tr('noChannelsAvailable') }}
+      <span v-if="!status">
+        {{ $tr('noChannelsAvailable') }}
+      </span>
     </p>
   </div>
 
