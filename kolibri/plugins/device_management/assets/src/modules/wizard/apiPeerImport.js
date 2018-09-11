@@ -48,7 +48,7 @@ export function getTransferredChannelOnPeerServer(store, { addressId, channelId 
               resolve({ ...channels[0] });
             })
             .catch(() => {
-              // Only appears of channel is not on the device. Will still load
+              // Only appears if channel with channelId is not on the device. Will still load
               // gracefully if channel has zero resources
               reject({ error: ContentWizardErrors.NETWORK_LOCATION_DOES_NOT_HAVE_CHANNEL });
             });

@@ -6,7 +6,7 @@
       :errorType="status"
     />
 
-    <h1 v-if="status===''" class="spec-ref-title">
+    <h1 v-if="status === ''" class="spec-ref-title">
       <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
       <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
       <span v-else>{{ $tr('channels') }}</span>

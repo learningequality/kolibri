@@ -6,6 +6,7 @@
     :cancelText="$tr('cancelButtonLabel')"
     size="medium"
     @submit="handleSubmit"
+    :submitDisabled="attemptingToConnect"
     @cancel="$emit('cancel')"
   >
     <KTextbox
@@ -48,7 +49,6 @@
   import { createAddress } from './api';
 
   const Statuses = {
-    ATTEMPTING_TO_CONNECT: 'ATTEMPTING_TO_CONNECT',
     COULD_NOT_CONNECT: 'COULD_NOT_CONNECT',
     INVALID_ADDRESS: 'INVALID_ADDRESS',
   };
@@ -65,10 +65,10 @@
       return {
         address: '',
         addressBlurred: false,
+        attemptingToConnect: false,
         name: '',
         nameBlurred: false,
         status: '',
-        attemptingToConnect: false,
       };
     },
     computed: {
@@ -92,9 +92,6 @@
       },
       formIsInvalid() {
         return this.addressIsInvalid || this.nameIsInvalid;
-      },
-      isTryingToConnect() {
-        return this.status === Statuses.ATTEMPTING_TO_CONNECT;
       },
     },
     methods: {
