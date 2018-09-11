@@ -26,8 +26,12 @@ export function fetchAddresses(withChannelId = '') {
     // locations that do not have the channel we are importing from.
     if (withChannelId !== '') {
       const locationsWithAvailbilityPromises = locations.map(location => {
-        return channelIsAvailableAtLocation(withChannelId, location).then(isAvailable => {
-          return { ...location, hasContent: isAvailable };
+        // Need to wrap in normal promise, otherwise Promise.all will cause some of these
+        // to resolve as undefined
+        return new Promise(resolve => {
+          return channelIsAvailableAtLocation(withChannelId, location).then(isAvailable => {
+            resolve({ ...location, hasContent: isAvailable });
+          });
         });
       });
       return Promise.all(locationsWithAvailbilityPromises);
