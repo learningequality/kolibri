@@ -44,8 +44,8 @@ class TestMigrations(TestCase):
 
 class ChannelFieldsTestCase(TestMigrations):
 
-    migrate_from = '0010_merge_20180504_1540'
-    migrate_to = '0011_auto_20180907_1017'
+    migrate_from = '0011_auto_20180907_1017'
+    migrate_to = '0012_auto_20180910_1702'
 
     def setUp(self):
         self.file_size = 10

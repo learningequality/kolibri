@@ -5,14 +5,6 @@ from __future__ import unicode_literals
 from django.db import migrations
 from django.db import models
 
-from kolibri.core.content.utils.annotation import calculate_channel_fields
-
-
-def calculate_fields(apps, schema_editor):
-    ChannelMetadata = apps.get_model('content', 'ChannelMetadata')
-    for channel in ChannelMetadata.objects.all():
-        calculate_channel_fields(channel.id)
-
 
 class Migration(migrations.Migration):
 
@@ -29,12 +21,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='channelmetadata',
             name='published_size',
-            field=models.IntegerField(blank=True, default=0, null=True),
+            field=models.IntegerField(default=0, blank=True, null=True),
         ),
         migrations.AddField(
             model_name='channelmetadata',
             name='total_resource_count',
-            field=models.IntegerField(blank=True, default=0, null=True),
+            field=models.IntegerField(default=0, blank=True, null=True),
         ),
-        migrations.RunPython(calculate_fields, migrations.RunPython.noop),
     ]
