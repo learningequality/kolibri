@@ -23,6 +23,7 @@ from mptt.models import MPTTModel
 from mptt.models import TreeForeignKey
 
 from .utils import paths
+from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.fields import DateTimeTzField
 
 PRESET_LOOKUP = dict(format_presets.choices)
@@ -304,3 +305,4 @@ class ChannelMetadata(models.Model):
     def delete_content_tree_and_files(self):
         # Use Django ORM to ensure cascading delete:
         self.root.delete()
+        ContentCacheKey.update_cache_key()
