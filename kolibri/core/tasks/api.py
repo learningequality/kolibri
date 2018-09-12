@@ -96,7 +96,7 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The channel_id field is required.")
 
         # optional arguments
-        baseurl = request.data.get("base_url", conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'])
+        baseurl = request.data.get("baseurl", conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'])
         node_ids = request.data.get("node_ids", None)
         exclude_node_ids = request.data.get("exclude_node_ids", None)
 
@@ -116,7 +116,7 @@ class TasksViewSet(viewsets.ViewSet):
             "importcontent",
             "network",
             channel_id,
-            base_url=baseurl,
+            baseurl=baseurl,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             extra_metadata=job_metadata,

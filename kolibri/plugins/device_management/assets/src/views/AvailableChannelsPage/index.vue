@@ -6,7 +6,7 @@
       :errorType="status"
     />
 
-    <h1 class="spec-ref-title">
+    <h1 v-if="status === ''" class="spec-ref-title">
       <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
       <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
       <span v-else>{{ $tr('channels') }}</span>
@@ -80,6 +80,11 @@
         />
       </div>
     </div>
+    <p v-else>
+      <span v-if="!status">
+        {{ $tr('noChannelsAvailable') }}
+      </span>
+    </p>
   </div>
 
 </template>
@@ -142,6 +147,7 @@
       ...mapState('manageContent/wizard', [
         'availableChannels',
         'selectedDrive',
+        'selectedPeer',
         'status',
         'transferType',
       ]),
@@ -155,6 +161,10 @@
             });
           case TransferTypes.REMOTEIMPORT:
             return this.$tr('documentTitleForRemoteImport');
+          case TransferTypes.PEERIMPORT:
+            return this.$tr('documentTitleForLocalImport', {
+              driveName: this.selectedPeer.device_name,
+            });
           default:
             return '';
         }
@@ -208,6 +218,11 @@
             return this.$tr('exportToDisk', { driveName: this.selectedDrive.name });
           case TransferTypes.LOCALIMPORT:
             return this.$tr('importFromDisk', { driveName: this.selectedDrive.name });
+          case TransferTypes.PEERIMPORT:
+            return this.$tr('importFromPeer', {
+              deviceName: this.selectedPeer.device_name,
+              address: this.selectedPeer.base_url,
+            });
           default:
             return this.$tr('kolibriCentralServer');
         }
@@ -219,6 +234,7 @@
       goToSelectContentPageForChannel(channel) {
         this.$router.push(
           selectContentPageLink({
+            addressId: this.$route.query.address_id,
             channelId: channel.id,
             driveId: this.$route.query.drive_id,
             forExport: this.$route.query.for_export,
@@ -251,6 +267,7 @@
       channels: 'Channels',
       exportToDisk: 'Export to {driveName}',
       importFromDisk: 'Import from {driveName}',
+      importFromPeer: 'Import from {deviceName} ({address})',
       kolibriCentralServer: 'Kolibri Studio',
       languageFilterLabel: 'Language',
       titleFilterPlaceholder: 'Search for a channel…',
@@ -261,6 +278,7 @@
       documentTitleForLocalImport: "Available Channels on '{driveName}'",
       documentTitleForRemoteImport: 'Available Channels on Kolibri Studio',
       documentTitleForExport: 'Available Channels on this device',
+      noChannelsAvailable: 'No channels are available on this device',
     },
   };
 

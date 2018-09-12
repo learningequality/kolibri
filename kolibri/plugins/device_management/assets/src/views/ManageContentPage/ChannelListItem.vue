@@ -172,6 +172,7 @@
       },
       selectContentLink() {
         return selectContentPageLink({
+          addressId: this.$route.query.address_id,
           channelId: this.channel.id,
           driveId: this.$route.query.drive_id,
           forExport: this.$route.query.for_export,

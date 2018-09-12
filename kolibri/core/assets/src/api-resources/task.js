@@ -7,13 +7,12 @@ export default new Resource({
   /**
    * Initiates a Task that imports a Channel Metadata DB from a remote source
    *
-   * @param {string} channel_id -
+   * @param {string} params.channel_id -
+   * @param {string} [params.baseurl]
    *
    */
-  startRemoteChannelImport({ channel_id }) {
-    return this.postListEndpoint('startremotechannelimport', {
-      channel_id,
-    });
+  startRemoteChannelImport(params) {
+    return this.postListEndpoint('startremotechannelimport', pickBy(params));
   },
 
   /**

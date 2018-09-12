@@ -10,8 +10,6 @@ const translator = createTranslator('ContentWizardTexts', {
   loadingChannelsToolbar: 'Loading channels…',
 });
 
-const { LOCAL_DRIVE, KOLIBRI_STUDIO } = ContentSources;
-
 // Provide a intermediate state before Available Channels is fully-loaded
 function prepareForAvailableChannelsPage(store) {
   store.commit('manageContent/SET_TOOLBAR_TITLE', translator.$tr('loadingChannelsToolbar'), {
@@ -25,12 +23,12 @@ export function goForwardFromSelectImportSourceModal(store, source) {
   const { transferredChannel } = store.state;
   const { isImportingMore } = store.getters;
 
-  if (source === LOCAL_DRIVE) {
+  if (source === ContentSources.LOCAL_DRIVE) {
     store.commit('SET_TRANSFER_TYPE', TransferTypes.LOCALIMPORT);
     store.commit('SET_WIZARD_PAGENAME', ContentWizardPages.SELECT_DRIVE);
   }
 
-  if (source === KOLIBRI_STUDIO) {
+  if (source === ContentSources.KOLIBRI_STUDIO) {
     store.commit('SET_TRANSFER_TYPE', TransferTypes.REMOTEIMPORT);
     if (isImportingMore) {
       // From import-more-from-channel workflow
@@ -39,6 +37,11 @@ export function goForwardFromSelectImportSourceModal(store, source) {
     // From top-level import workflow
     prepareForAvailableChannelsPage(store);
     return router.push(availableChannelsPageLink());
+  }
+
+  if (source === ContentSources.PEER_KOLIBRI_SERVER) {
+    store.commit('SET_TRANSFER_TYPE', TransferTypes.PEERIMPORT);
+    store.commit('SET_WIZARD_PAGENAME', ContentWizardPages.SELECT_NETWORK_ADDRESS);
   }
 }
 

@@ -2,7 +2,7 @@
 
   <KModal
     :title="title"
-    size="small"
+    size="medium"
     :submitText="$tr('continue')"
     :cancelText="$tr('cancel')"
     :submitDisabled="selectedDriveId===''"

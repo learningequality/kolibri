@@ -96,7 +96,7 @@
         'transferType',
       ]),
       breadcrumbs() {
-        return this.path.map(transformBreadrumb);
+        return this.path.map(x => transformBreadrumb(x, this.$route.query));
       },
       childNodes() {
         // Guard against when state is reset going back to manage content page
@@ -163,7 +163,7 @@
         return node.importable && node.total_resources;
       },
       updateCurrentTopicNode(node) {
-        return navigateToTopicUrl.call(this, node);
+        return navigateToTopicUrl.call(this, node, this.$route.query);
       },
       toggleSelectAll() {
         this.toggleSelection(this.annotatedTopicNode);

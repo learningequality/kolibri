@@ -9,8 +9,8 @@ import { ContentWizardPages } from '../constants';
 import { selectContentTopicLink } from '../views/ManageContentPage/manageContentLinks';
 
 // To update the treeview topic programatically
-export function navigateToTopicUrl(node) {
-  router.push(selectContentTopicLink(node));
+export function navigateToTopicUrl(node, query) {
+  router.push(selectContentTopicLink(node, query));
 }
 
 export default [
@@ -20,6 +20,7 @@ export default [
     handler: ({ query }) => {
       return showAvailableChannelsPage(store, {
         for_export: String(query.for_export) === 'true',
+        address_id: query.address_id,
         drive_id: query.drive_id,
       });
     },
@@ -36,6 +37,7 @@ export default [
 
       return showSelectContentPage(store, {
         channel_id: params.channel_id,
+        address_id: query.address_id,
         drive_id: query.drive_id,
         for_export: String(query.for_export) === 'true',
       });

@@ -19,24 +19,18 @@ export function nodeTransferCounts(state) {
   return function(transferType) {
     const { included, omitted } = state.nodesForTransfer;
     const getDifference = key => (sumBy(included, key) || 0) - (sumBy(omitted, key) || 0);
-    // This will overestimate transfer size, since it counts items under topic that may not
-    // be on the USB drive
-    if (transferType === TransferTypes.LOCALIMPORT) {
-      return {
-        resources: getDifference('total_resources') - getDifference('on_device_resources'),
-        fileSize: getDifference('total_file_size') - getDifference('on_device_file_size'),
-      };
-    }
-    if (transferType === TransferTypes.REMOTEIMPORT) {
-      return {
-        resources: getDifference('total_resources') - getDifference('on_device_resources'),
-        fileSize: getDifference('total_file_size') - getDifference('on_device_file_size'),
-      };
-    }
     if (transferType === TransferTypes.LOCALEXPORT) {
       return {
         resources: getDifference('on_device_resources'),
         fileSize: getDifference('on_device_file_size'),
+      };
+    } else {
+      // For REMOTE/LOCAL/PEERIMPORT
+      // This will overestimate transfer size, since it counts items under topic that may not
+      // be on the USB drive
+      return {
+        resources: getDifference('total_resources') - getDifference('on_device_resources'),
+        fileSize: getDifference('total_file_size') - getDifference('on_device_file_size'),
       };
     }
   };
@@ -52,6 +46,10 @@ export function inLocalImportMode(state) {
 
 export function inRemoteImportMode(state) {
   return state.transferType === TransferTypes.REMOTEIMPORT;
+}
+
+export function inPeerImportMode(state) {
+  return state.transferType === TransferTypes.PEERIMPORT;
 }
 
 export function driveCanBeUsedForTransfer(state, getters, rootState, rootGetters) {

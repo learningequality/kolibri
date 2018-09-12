@@ -5,9 +5,8 @@ import { TaskResource } from 'kolibri.resources';
  *
  */
 export function transferChannelContent(store) {
-  let promise;
   const combineIds = nodes => nodes.map(({ id }) => id);
-  const { transferredChannel, selectedDrive, nodesForTransfer } = store.state;
+  const { transferredChannel, selectedDrive, nodesForTransfer, selectedPeer } = store.state;
   const params = {
     channel_id: transferredChannel.id,
     node_ids: combineIds(nodesForTransfer.included),
@@ -15,17 +14,25 @@ export function transferChannelContent(store) {
   };
 
   if (store.getters.inRemoteImportMode) {
-    promise = TaskResource.startRemoteContentImport(params);
-  } else if (store.getters.inLocalImportMode) {
-    promise = TaskResource.startDiskContentImport({
+    return TaskResource.startRemoteContentImport(params);
+  }
+
+  if (store.getters.inPeerImportMode) {
+    return TaskResource.startRemoteContentImport({
       ...params,
-      drive_id: selectedDrive.id,
+      baseurl: selectedPeer.base_url,
     });
-  } else {
-    promise = TaskResource.startDiskContentExport({
+  }
+
+  if (store.getters.inLocalImportMode) {
+    return TaskResource.startDiskContentImport({
       ...params,
       drive_id: selectedDrive.id,
     });
   }
-  return promise;
+
+  return TaskResource.startDiskContentExport({
+    ...params,
+    drive_id: selectedDrive.id,
+  });
 }

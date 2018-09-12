@@ -1,14 +1,9 @@
 <template>
 
   <div>
-    <SelectImportSourceModal
-      v-if="atSelectImportSource"
-      ref="selectImportSourceModal"
-    />
-    <SelectDriveModal
-      v-if="atSelectDrive"
-      ref="selectDriveModal"
-    />
+    <SelectImportSourceModal v-if="atSelectImportSource" />
+    <SelectDriveModal v-if="atSelectDrive" />
+    <SelectNetworkAddressModal v-if="atSelectNetworkAddress" />
   </div>
 
 </template>
@@ -17,14 +12,16 @@
 <script>
 
   import { ContentWizardPages } from '../../../constants';
+  import SelectNetworkAddressModal from '../SelectNetworkAddressModal';
   import SelectImportSourceModal from './SelectImportSourceModal';
   import SelectDriveModal from './SelectDriveModal';
 
   export default {
     name: 'SelectTransferSourceModal',
     components: {
-      SelectImportSourceModal,
       SelectDriveModal,
+      SelectImportSourceModal,
+      SelectNetworkAddressModal,
     },
     props: {
       pageName: {
@@ -37,6 +34,9 @@
       },
       atSelectDrive() {
         return this.pageName === ContentWizardPages.SELECT_DRIVE;
+      },
+      atSelectNetworkAddress() {
+        return this.pageName === ContentWizardPages.SELECT_NETWORK_ADDRESS;
       },
     },
   };
