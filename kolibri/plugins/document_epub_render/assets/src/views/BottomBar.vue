@@ -4,28 +4,42 @@
     <div class="bottom-bar-heading">
       <h3 v-if="heading">{{ heading }}</h3>
     </div>
-    <div class="d-t">
-      <div class="d-t-r">
-        <div class="d-t-c bottom-bar-progress-container">
-          <div class="bottom-bar-progress">
-            {{ $tr('progress', { progress: sliderValue / 100 }) }}
+    <transition mode="in-out">
+      <div v-if="locationsAreReady">
+        <div class="d-t">
+          <div class="d-t-r">
+            <div class="d-t-c bottom-bar-progress-container">
+              <div class="bottom-bar-progress">
+                {{ $tr('progress', { progress: sliderValue / 100 }) }}
+              </div>
+            </div>
+            <div class="d-t-c full-width">
+              <input
+                class="full-width"
+                type="range"
+                :min="0"
+                :max="100"
+                :step="sliderStep"
+                :value="sliderValue"
+                :aria-label="$tr('jumpToPositionInBook')"
+                @change="handleChange($event.target.value)"
+              >
+            </div>
           </div>
         </div>
-        <div class="d-t-c full-width">
-          <input
-            class="full-width"
-            type="range"
-            :min="0"
-            :max="100"
-            :step="sliderStep"
-            :value="sliderValue"
-            :aria-label="$tr('jumpToPositionInBook')"
-            @change="handleChange($event.target.value)"
-          >
-        </div>
       </div>
-    </div>
-
+      <div
+        v-else
+        class="loader-container"
+      >
+        <KLinearLoader
+          type="indeterminate"
+          :delay="false"
+          class="loader"
+        />
+        <span>{{ $tr('preparingSlider') }}</span>
+      </div>
+    </transition>
   </div>
 
 </template>
@@ -33,11 +47,17 @@
 
 <script>
 
+  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+
   export default {
     name: 'BottomBar',
     $trs: {
       progress: `{progress, number, percent}`,
       jumpToPositionInBook: 'Jump to position in book',
+      preparingSlider: 'Preparing slider',
+    },
+    components: {
+      KLinearLoader,
     },
     props: {
       heading: {
@@ -50,6 +70,10 @@
       },
       sliderStep: {
         type: Number,
+        required: true,
+      },
+      locationsAreReady: {
+        type: Boolean,
         required: true,
       },
     },
@@ -71,17 +95,19 @@
   .bottom-bar {
     height: 54px;
     padding: 8px 8px 0;
+    overflow: hidden;
+    text-align: center;
     background-color: $core-grey-200;
     box-shadow: $epub-box-shadow;
   }
 
   .bottom-bar-heading {
     height: 17px;
+    margin-bottom: 4px;
     h3 {
       @include truncate-text;
 
-      margin: 0 0 4px;
-      text-align: center;
+      margin: 0;
     }
   }
 
@@ -109,6 +135,16 @@
 
   .d-t-c {
     @include d-t-c;
+  }
+
+  .loader-container {
+    font-size: smaller;
+  }
+
+  .loader {
+    width: 200px;
+    max-width: 100%;
+    margin: 0 auto;
   }
 
 </style>

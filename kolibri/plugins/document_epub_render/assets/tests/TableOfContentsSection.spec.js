@@ -6,6 +6,11 @@ const section = {
   href: 'href1',
 };
 
+const sectionWithEmptyLabel = {
+  label: '  ',
+  href: 'href1',
+};
+
 const sectionWithSubItems = {
   label: 'Top level section',
   href: 'href1',
@@ -55,6 +60,14 @@ describe('Table of Contents Section', () => {
       depth: 0,
     });
     expect(wrapper.findAll({ name: 'TableOfContentsSection' }).length).toBe(2);
+  });
+
+  it('should display href if label is empty', () => {
+    const wrapper = createWrapper({
+      section: sectionWithEmptyLabel,
+      depth: 0,
+    });
+    expect(wrapper.find({ name: 'KButton' }).text()).toBe(sectionWithEmptyLabel.href);
   });
 
   it('should not have a custom class if not top level section', () => {

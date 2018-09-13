@@ -4,7 +4,7 @@
     class="next-button"
     :class="{'next-button-white': color === 'white'}"
     type="secondary"
-    :disableRipple="true"
+    :disableRipple="false"
     :ariaLabel="$tr('goToNextPage')"
     @click="$emit('goToNextPage')"
   >

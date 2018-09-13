@@ -9,7 +9,7 @@
       :title="content.title"
       :thumbnail="content.thumbnail"
       :kind="content.kind"
-      :progress="content.progress"
+      :progress="content.progress || 0"
       :numCoachContents="content.num_coach_contents"
       :link="genContentLink(content.id, content.kind)"
       :contentId="content.content_id"

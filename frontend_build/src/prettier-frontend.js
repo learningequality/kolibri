@@ -109,7 +109,7 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
 if (require.main === module) {
   const program = require('commander');
   const glob = require('glob');
-  const defaultGlobPattern = './{kolibri/**/assets,frontend_build,karma_config}/**/*.{js,vue,scss}';
+  const defaultGlobPattern = '{kolibri/**/assets,frontend_build,karma_config}/**/*.{js,vue,scss}';
 
   program
     .version('0.0.1')
@@ -137,7 +137,9 @@ if (require.main === module) {
   } else {
     Promise.all(
       files.map(file => {
-        const matches = glob.sync(file);
+        const matches = glob.sync(file, {
+          ignore: ['**/node_modules/**'],
+        });
         return Promise.all(
           matches.map(globbedFile => {
             return prettierFrontend(Object.assign({}, baseOptions, { file: globbedFile }))

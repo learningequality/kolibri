@@ -1,12 +1,18 @@
 import { mount } from '@vue/test-utils';
 import BottomBar from '../src/views/BottomBar';
 
-function createWrapper({ heading, sliderValue = 0, sliderStep = 1 } = {}) {
+function createWrapper({
+  heading,
+  sliderValue = 0,
+  sliderStep = 1,
+  locationsAreReady = true,
+} = {}) {
   return mount(BottomBar, {
     propsData: {
       heading,
       sliderValue,
       sliderStep,
+      locationsAreReady,
     },
   });
 }
@@ -24,6 +30,14 @@ describe('Bottom bar', () => {
     const heading = 'Chapter 1';
     const wrapper = createWrapper({ heading });
     expect(wrapper.contains('h3')).toBe(true);
+  });
+  it('should not display slider if locations are not ready', () => {
+    const wrapper = createWrapper({ locationsAreReady: false });
+    expect(wrapper.contains('input')).toBeFalsy();
+  });
+  it('should display slider if locations are ready', () => {
+    const wrapper = createWrapper();
+    expect(wrapper.contains('input')).toBeTruthy();
   });
   it('should set the correct value on the slider', () => {
     const sliderValue = 100;

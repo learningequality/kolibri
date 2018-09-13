@@ -8,7 +8,7 @@
     <KButton
       class="toc-list-item-button"
       :class="{ 'toc-list-item-button-current': isCurrentSection }"
-      :text="section.label.trim()"
+      :text="section.label.trim() || section.href"
       :id="sectionId"
       appearance="basic-link"
       @click="$emit('tocNavigation', section)"

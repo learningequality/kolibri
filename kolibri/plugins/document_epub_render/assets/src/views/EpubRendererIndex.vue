@@ -27,8 +27,8 @@
       />
 
       <FocusLock
-        :disabled="!tocSideBarIsOpen"
-        :returnFocus="false"
+        :disabled="!tocSideBarIsOpen || clickedOutsideRenderer"
+        :returnFocus="true"
       >
         <TocButton
           v-if="tocSideBarIsOpen"
@@ -36,18 +36,20 @@
           @click="handleTocToggle"
         />
 
-        <TableOfContentsSideBar
-          v-show="tocSideBarIsOpen"
-          ref="tocSideBar"
-          :toc="toc"
-          :currentSection="currentSection"
-          class="side-bar side-bar-left"
-          @tocNavigation="handleTocNavigation"
-        />
+        <transition name="fade">
+          <TableOfContentsSideBar
+            v-show="tocSideBarIsOpen"
+            ref="tocSideBar"
+            :toc="toc"
+            :currentSection="currentSection"
+            class="side-bar side-bar-left"
+            @tocNavigation="handleTocNavigation"
+          />
+        </transition>
       </FocusLock>
 
       <FocusLock
-        :disabled="!settingsSideBarIsOpen"
+        :disabled="!settingsSideBarIsOpen || clickedOutsideRenderer"
         :returnFocus="false"
       >
         <SettingsButton
@@ -56,21 +58,23 @@
           @click="handleSettingToggle"
         />
 
-        <SettingsSideBar
-          v-show="settingsSideBarIsOpen"
-          ref="settingsSideBar"
-          class="side-bar side-bar-right"
-          :theme="theme"
-          :textAlignment="textAlignment"
-          @decreaseFontSize="decreaseFontSize"
-          @increaseFontSize="increaseFontSize"
-          @setTheme="setTheme"
-          @setTextAlignment="setTextAlignment"
-        />
+        <transition name="fade">
+          <SettingsSideBar
+            v-show="settingsSideBarIsOpen"
+            ref="settingsSideBar"
+            class="side-bar side-bar-right"
+            :theme="theme"
+            :textAlignment="textAlignment"
+            @decreaseFontSize="decreaseFontSize"
+            @increaseFontSize="increaseFontSize"
+            @setTheme="setTheme"
+            @setTextAlignment="setTextAlignment"
+          />
+        </transition>
       </FocusLock>
 
       <FocusLock
-        :disabled="!searchSideBarIsOpen"
+        :disabled="!searchSideBarIsOpen || clickedOutsideRenderer"
         :returnFocus="false"
       >
         <SearchButton
@@ -79,14 +83,16 @@
           @click="handleSearchToggle"
         />
 
-        <SearchSideBar
-          v-show="searchSideBarIsOpen"
-          ref="searchSideBar"
-          class="side-bar side-bar-right"
-          :book="book"
-          @newSearchQuery="handleNewSearchQuery"
-          @navigateToSearchResult="handleNavigateToSearchResult"
-        />
+        <transition name="fade">
+          <SearchSideBar
+            v-show="searchSideBarIsOpen"
+            ref="searchSideBar"
+            class="side-bar side-bar-right"
+            :book="book"
+            @newSearchQuery="handleNewSearchQuery"
+            @navigateToSearchResult="handleNavigateToSearchResult"
+          />
+        </transition>
       </FocusLock>
 
       <div class="navigation-and-epubjs">
@@ -120,6 +126,7 @@
 
       <BottomBar
         class="bottom-bar"
+        :locationsAreReady="locations.length > 0"
         :heading="bottomBarHeading"
         :sliderValue="sliderValue"
         :sliderStep="sliderStep"
@@ -162,10 +169,23 @@
 
   import { TEXT_ALIGNMENTS, THEMES } from './EpubConstants';
 
-  const FONT_SIZE_INC = 2;
-  const MIN_FONT_SIZE = 8;
-  const DEFAULT_FONT_SIZE = 16;
-  const MAX_FONT_SIZE = 24;
+  const FONT_SIZES = {
+    px: {
+      step: 1,
+      min: 4,
+      max: Infinity,
+    },
+    em: {
+      step: 0.1,
+      min: 0.1,
+      max: Infinity,
+    },
+    rem: {
+      step: 0.1,
+      min: 0.1,
+      max: Infinity,
+    },
+  };
 
   const TOP_BAR_HEIGHT = 36;
   const BOTTOM_BAR_HEIGHT = 54;
@@ -208,7 +228,7 @@
       sideBarOpen: null,
       theme: THEMES.WHITE,
       textAlignment: TEXT_ALIGNMENTS.LEFT,
-      fontSize: DEFAULT_FONT_SIZE,
+      fontSize: null,
       isInFullscreen: false,
       markInstance: null,
       currentSection: null,
@@ -216,6 +236,8 @@
       sliderValue: 0,
 
       currentLocationCfi: null,
+
+      clickedOutsideRenderer: false,
 
       // TODO
       progress: 0,
@@ -232,35 +254,26 @@
         return this.theme.textColor;
       },
       themeStyle() {
+        let baseStyle = {
+          'background-color': `${this.backgroundColor}!important`,
+          color: `${this.textColor}!important`,
+        };
+        if (this.fontSize) {
+          baseStyle = {
+            ...baseStyle,
+            'font-size': this.fontSize,
+          };
+        }
         return {
+          html: {
+            ...baseStyle,
+          },
           body: {
-            'background-color': this.backgroundColor,
-            color: this.textColor,
-            'font-size': `${this.fontSize}px`,
+            ...baseStyle,
           },
           p: {
-            'background-color': this.backgroundColor,
-            color: this.textColor,
-            'font-size': '1em',
+            ...baseStyle,
             'text-align': this.textAlignment,
-          },
-          h1: {
-            'font-size': '2.441em',
-          },
-          h2: {
-            'font-size': '1.953em',
-          },
-          h3: {
-            'font-size': '1.563em',
-          },
-          h4: {
-            'font-size': '1.25em',
-          },
-          h5: {
-            'font-size': '0.8em',
-          },
-          h6: {
-            'font-size': '0.64em',
           },
         };
       },
@@ -307,7 +320,7 @@
       },
       sliderStep() {
         if (this.locations.length > 0) {
-          return Math.min(Math.max(100 / this.locations.length, 0.1), 100);
+          return Math.floor(Math.min(Math.max(100 / this.locations.length, 0.1), 100));
         }
         return 1;
       },
@@ -375,6 +388,10 @@
     },
     mounted() {
       this.book.ready.then(() => {
+        if (this.book.navigation) {
+          this.toc = this.book.navigation.toc;
+        }
+
         const width = this.calculateRenditionWidth(this.elementWidth);
         const height = this.calculateRenditionHeight(this.elementHeight);
         this.rendition = this.book.renderTo(this.$refs.epubjsContainer, {
@@ -385,19 +402,23 @@
           spread: 'auto',
           minSpreadWidth: 600,
         });
+
         this.rendition.display().then(() => {
-          if (this.book.navigation) {
-            this.toc = this.book.navigation.toc;
-          }
+          // this is not working, hence the delay via the debounce
+          // this.resizeRendition(width, height);
+          this.debounceResizeRendition(width, height);
+
+          const themeName = JSON.stringify(this.themeStyle);
+          this.rendition.themes.register(themeName, this.themeStyle);
+          this.rendition.themes.select(themeName);
+
+          this.rendition.on('relocated', location => this.relocatedHandler(location));
+          window.addEventListener('mousedown', this.handleMouseDown, true);
+
+          this.loaded = true;
 
           this.book.locations.generate(1000).then(locations => {
             this.locations = locations;
-            // force resize on load
-            this.$nextTick().then(() => {
-              this.resizeRendition(width, height);
-            });
-            this.loaded = true;
-            this.rendition.on('relocated', location => this.relocatedHandler(location));
           });
         });
       });
@@ -406,11 +427,18 @@
       // TODO
       this.updateProgress();
       this.$emit('stopTracking');
+      window.removeEventListener('mousedown', this.handleMouseDown, true);
     },
     destroyed() {
       delete global.ePub;
     },
     methods: {
+      handleMouseDown(event) {
+        // This check is necessary because event listeners don't seem to be removed on beforeDestroy
+        if (this.$refs.epubRenderer) {
+          this.clickedOutsideRenderer = !this.$refs.epubRenderer.$el.contains(event.target);
+        }
+      },
       closeSideBar() {
         this.sideBarOpen = null;
       },
@@ -448,11 +476,61 @@
         this.jumpToLocation(item.href);
         this.sideBarOpen = null;
       },
+      getCurrentFontSize() {
+        const iframe = this.$refs.epubjsContainer.querySelector('iframe');
+        const iframeBody = iframe.contentWindow.document.body;
+        const fontSize = window.getComputedStyle(iframeBody).getPropertyValue('font-size');
+        return fontSize;
+      },
       increaseFontSize() {
-        this.fontSize = Math.min(this.fontSize + FONT_SIZE_INC, MAX_FONT_SIZE);
+        const currentFontSize = this.getCurrentFontSize();
+        const fontSizeNumericValue = parseFloat(currentFontSize);
+        let newFontSizeNumericValue;
+
+        if (currentFontSize.endsWith('px')) {
+          newFontSizeNumericValue = Math.max(
+            fontSizeNumericValue + FONT_SIZES.px.step,
+            FONT_SIZES.px.min
+          );
+          this.fontSize = `${newFontSizeNumericValue}px`;
+        } else if (currentFontSize.endsWith('em')) {
+          newFontSizeNumericValue = Math.max(
+            fontSizeNumericValue + FONT_SIZES.em.step,
+            FONT_SIZES.em.min
+          );
+          this.fontSize = `${newFontSizeNumericValue}em`;
+        } else if (currentFontSize.endsWith('rem')) {
+          newFontSizeNumericValue = Math.max(
+            fontSizeNumericValue + FONT_SIZES.rem.step,
+            FONT_SIZES.rem.min
+          );
+          this.fontSize = `${newFontSizeNumericValue}rem`;
+        }
       },
       decreaseFontSize() {
-        this.fontSize = Math.max(this.fontSize - FONT_SIZE_INC, MIN_FONT_SIZE);
+        const currentFontSize = this.getCurrentFontSize();
+        const fontSizeNumericValue = parseFloat(currentFontSize);
+        let newFontSizeNumericValue;
+
+        if (currentFontSize.endsWith('px')) {
+          newFontSizeNumericValue = Math.max(
+            fontSizeNumericValue - FONT_SIZES.px.step,
+            FONT_SIZES.px.min
+          );
+          this.fontSize = `${newFontSizeNumericValue}px`;
+        } else if (currentFontSize.endsWith('em')) {
+          newFontSizeNumericValue = Math.max(
+            fontSizeNumericValue - FONT_SIZES.em.step,
+            FONT_SIZES.em.min
+          );
+          this.fontSize = `${newFontSizeNumericValue}em`;
+        } else if (currentFontSize.endsWith('rem')) {
+          newFontSizeNumericValue = Math.max(
+            fontSizeNumericValue - FONT_SIZES.rem.step,
+            FONT_SIZES.rem.min
+          );
+          this.fontSize = `${newFontSizeNumericValue}rem`;
+        }
       },
       setTheme(theme) {
         this.theme = theme;
@@ -534,13 +612,15 @@
             cfiToJumpTo = currentLocation.start.cfi;
           } else if (this.currentLocationCfi) {
             cfiToJumpTo = this.currentLocationCfi;
-          } else {
+          } else if (this.locations[0]) {
             cfiToJumpTo = this.locations[0];
+          } else {
+            return;
           }
           this.currentLocationCfi = cfiToJumpTo;
           this.rendition.resize(width, height);
 
-          if (!this.$refs.epubjsContainer.querySelector('iframe')) {
+          if (this.$refs.epubjsContainer && !this.$refs.epubjsContainer.querySelector('iframe')) {
             // Re-render since resize currently breaks
             this.jumpToLocation(this.currentLocationCfi);
           }
@@ -587,6 +667,17 @@
 
   .side-bar-right {
     right: 0;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: all 0.1s ease;
+  }
+
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
   }
 
   .toc-button,
