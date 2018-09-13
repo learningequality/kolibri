@@ -77,6 +77,7 @@ export function updateUser(store, { userId, updates }) {
         }
         return setUserRole(updatedUser, updates.role).then(userWithRole => {
           update(userWithRole);
+          store.dispatch('displayModal', false);
         });
       } else {
         update(updatedUser);
