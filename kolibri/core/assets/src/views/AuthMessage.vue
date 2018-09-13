@@ -42,9 +42,9 @@
       },
     },
     $trs: {
-      admin: 'You must be signed in as an Admin to view this page',
-      adminOrCoach: 'You must be signed in as an Admin or Coach to view this page',
-      learner: 'You must be signed in as a Learner to view this page',
+      admin: 'You must be signed in as an admin to view this page',
+      adminOrCoach: 'You must be signed in as an admin or coach to view this page',
+      learner: 'You must be signed in as a learner to view this page',
       registeredUser: 'You must be signed in to view this page',
       superuser: 'You must have super admin permissions to view this page',
       forgetToSignIn: 'Did you forget to sign in?',
