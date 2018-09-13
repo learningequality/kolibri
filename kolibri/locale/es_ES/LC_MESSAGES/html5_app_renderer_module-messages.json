@@ -1,4 +1,4 @@
 {
-    "html5Renderer.exitFullscreen": "Salir de la pantalla completa",
-    "html5Renderer.enterFullscreen": "Pantalla completa"
+    "Html5AppRendererIndex.exitFullscreen": "Salir de la pantalla completa",
+    "Html5AppRendererIndex.enterFullscreen": "Pantalla completa"
 }
