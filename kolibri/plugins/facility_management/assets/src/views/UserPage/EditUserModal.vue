@@ -32,26 +32,43 @@
       v-model="newUsername"
     />
 
-    <KSelect
-      :label="$tr('userType')"
-      :options="userKinds"
-      v-model="newKind"
-    />
+    <template v-if="kind === UserKinds.SUPERUSER">
+      <h2 class="user-type header">
+        {{ $tr('userType') }}
+      </h2>
 
-    <fieldset class="coach-selector" v-if="coachIsSelected">
-      <KRadioButton
-        :label="$tr('classCoachLabel')"
-        :description="$tr('classCoachDescription')"
-        :value="true"
-        v-model="classCoachIsSelected"
+      <UserTypeDisplay
+        :userType="kind"
+        class="user-type"
       />
-      <KRadioButton
-        :label="$tr('facilityCoachLabel')"
-        :description="$tr('facilityCoachDescription')"
-        :value="false"
-        v-model="classCoachIsSelected"
+      <span class="super-admin-description">
+        Go to Device permissions to change this
+      </span>
+
+    </template>
+    <template v-else>
+      <KSelect
+        :label="$tr('userType')"
+        :options="userKindOptions"
+        v-model="newKind"
       />
-    </fieldset>
+
+      <fieldset class="coach-selector" v-if="coachIsSelected">
+        <KRadioButton
+          :label="$tr('classCoachLabel')"
+          :description="$tr('classCoachDescription')"
+          :value="true"
+          v-model="classCoachIsSelected"
+        />
+        <KRadioButton
+          :label="$tr('facilityCoachLabel')"
+          :description="$tr('facilityCoachDescription')"
+          :value="false"
+          v-model="classCoachIsSelected"
+        />
+      </fieldset>
+    </template>
+
   </KModal>
 
 </template>
@@ -64,9 +81,11 @@
   import { validateUsername } from 'kolibri.utils.validators';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
+  // TODO use UserTypeDisplay for strings in options
   export default {
     name: 'EditUserModal',
     $trs: {
@@ -92,6 +111,7 @@
       KTextbox,
       KSelect,
       KRadioButton,
+      UserTypeDisplay,
     },
     props: {
       id: {
@@ -132,7 +152,10 @@
       coachIsSelected() {
         return this.newKind.value === UserKinds.COACH;
       },
-      userKinds() {
+      UserKinds() {
+        return UserKinds;
+      },
+      userKindOptions() {
         return [
           {
             label: this.$tr('learner'),
@@ -197,7 +220,7 @@
       },
     },
     beforeMount() {
-      const coachOption = this.userKinds[1];
+      const coachOption = this.userKindOptions[1];
       if (this.kind === UserKinds.ASSIGNABLE_COACH) {
         this.newKind = coachOption;
         this.classCoachIsSelected = true;
@@ -205,7 +228,7 @@
         this.newKind = coachOption;
         this.classCoachIsSelected = false;
       } else {
-        this.newKind = this.userKinds.find(kind => kind.value === this.kind);
+        this.newKind = this.userKindOptions.find(kind => kind.value === this.kind);
       }
     },
     methods: {
@@ -256,6 +279,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .coach-selector {
     padding: 0;
     margin: 0;
@@ -265,6 +290,21 @@
 
   .edit-user-form {
     min-height: 350px;
+  }
+
+  .super-admin-description,
+  .user-type.header,
+  .user-admin {
+    display: block;
+  }
+
+  .super-admin-description {
+    font-size: 12px;
+    color: $core-text-annotation;
+  }
+
+  .user-type.header {
+    font-size: 16px;
   }
 
 </style>
