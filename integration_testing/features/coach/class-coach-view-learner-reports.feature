@@ -1,5 +1,5 @@
 Feature: Class coach view
-    Class coaches need to be able to review the progress in class(es) they are assigned to, but not other classes in the facility.
+  Class coaches need to be able to review the progress in class(es) they are assigned to, but not other classes in the facility.
 
   Background:
     Given I am signed in to Kolibri as a class coach
@@ -28,9 +28,9 @@ Feature: Class coach view
     When I click the subtopic <subtopic>
     Then I see the *Classes > '<class>' > Learners > '<full_name>' > '<channel>' > '<topic>' > '<subtopic>'* breadcrumb
       And I see all the content items of the subtopic <subtopic> of the <topic> topic for the channel <channel>
-      And I see *Avg. exercises progress* progress bar(s) for the excercise content items 
+      And I see *Avg. exercises progress* progress bar(s) for the excercise content items
       And *Avg. resource progress* progress bar(s) for the resource content items
-      But I cannot click the individual content items 
+      But I cannot click the individual content items
 
 Examples:
 | full_name | class     | channel        | topic    | subtopic |

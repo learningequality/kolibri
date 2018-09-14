@@ -15,8 +15,8 @@ Feature: Coach rename lesson
     When I rename the *Title*
     When I click *Save* button
     Then the modal closes
-			And the snackbar notification appears
-			And I see the <lesson_title> is changed
+      And the snackbar notification appears
+      And I see the <lesson_title> is changed
 
 Examples:
 | lesson_title          |

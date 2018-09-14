@@ -1,5 +1,5 @@
 Feature: Admin edit users
-    Admin needs to be able to edit user's full name and username, reset the passwords, change the user types, and delete them from the facility
+  Admin needs to be able to edit user's full name and username, reset the passwords, change the user types, and delete them from the facility
 
   Background:
     Given I am signed in to Kolibri as admin user
@@ -48,4 +48,3 @@ Feature: Admin edit users
       And I click the *Save* button
     Then the modal closes
       And I see the *Facility > Users* page again # no confirmation that the password has been reset
-

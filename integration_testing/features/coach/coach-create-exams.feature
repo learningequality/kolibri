@@ -1,5 +1,5 @@
 Feature: Coach create exams
-    Coach needs to be able to create exams from existing content
+  Coach needs to be able to create exams from existing content
 
   Background:
     Given I am signed in to Kolibri as a coach user
