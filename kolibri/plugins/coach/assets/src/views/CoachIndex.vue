@@ -21,6 +21,7 @@
       </template>
 
       <component :is="currentPage" />
+      <router-view />
 
     </CoreBase>
   </div>
@@ -50,14 +51,17 @@
   import NavTitle from './NavTitle';
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
-  import LessonResourceSelectionPage from './lessons/LessonResourceSelectionPage';
   import LessonContentPreviewPage from './lessons/LessonContentPreviewPage';
   import LessonResourceUserReportPage from './reports/LearnerExerciseDetailPage/LearnerExerciseReport';
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
 
   // IDEA set up routenames that all use the same PageName instead of doing this?
   // See Content Preview routes in app.js + PageName handling here
-  const selectionPages = [LessonsPageNames.SELECTION, LessonsPageNames.SELECTION_ROOT];
+  const selectionPages = [
+    LessonsPageNames.SELECTION,
+    LessonsPageNames.SELECTION_ROOT,
+    LessonsPageNames.SELECTION_SEARCH,
+  ];
   const resourceUserPages = [
     LessonsPageNames.RESOURCE_USER_SUMMARY,
     LessonsPageNames.RESOURCE_USER_REPORT,
@@ -67,6 +71,8 @@
     ...selectionPages,
     ...resourceUserPages,
     LessonsPageNames.CONTENT_PREVIEW,
+    LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
+    LessonsPageNames.SELECTION_CONTENT_PREVIEW,
     LessonsPageNames.RESOURCE_CLASSROOM_REPORT,
     PageNames.EXAM_REPORT_DETAIL,
   ];
@@ -96,9 +102,9 @@
     // lessons
     [LessonsPageNames.ROOT]: LessonsRootPage,
     [LessonsPageNames.SUMMARY]: LessonSummaryPage,
-    [LessonsPageNames.SELECTION_ROOT]: LessonResourceSelectionPage,
-    [LessonsPageNames.SELECTION]: LessonResourceSelectionPage,
     [LessonsPageNames.CONTENT_PREVIEW]: LessonContentPreviewPage,
+    [LessonsPageNames.RESOURCE_CONTENT_PREVIEW]: LessonContentPreviewPage,
+    [LessonsPageNames.SELECTION_CONTENT_PREVIEW]: LessonContentPreviewPage,
     [LessonsPageNames.RESOURCE_USER_SUMMARY]: LessonResourceUserSummaryPage,
     [LessonsPageNames.RESOURCE_USER_REPORT]: LessonResourceUserReportPage,
   };
@@ -107,7 +113,7 @@
     name: 'CoachIndex',
     $trs: {
       coachToolbarHeader: 'Coach',
-      selectPageToolbarHeader: 'Select resources',
+      selectPageToolbarHeader: 'Manage resources',
       resourceUserPageToolbarHeader: 'Lesson Report Details',
       previewContentPageToolbarHeader: 'Preview resources',
       noAssignmentErrorHeader: "You aren't assigned to any classes",

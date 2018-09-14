@@ -43,7 +43,7 @@
       </template>
 
       <dt>
-        {{ $tr('recipients') }}
+        {{ $tr('assignedGroupsListLabel') }}
       </dt>
       <dd>
         <template v-if="!recipients.length">
@@ -123,7 +123,7 @@
       changeStatus: 'Change',
       description: 'Description',
       noDescription: 'No description',
-      recipients: 'Recipients',
+      assignedGroupsListLabel: 'Visible to',
       noOne: 'No one',
       entireClass: 'Entire class',
     },
