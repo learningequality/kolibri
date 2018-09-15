@@ -32,4 +32,13 @@ steps:
 
   - block: "Create APK?"
   - label: Build the Android APK file
-    command: mkdir -p dist && .buildkite/build_apk.sh
+    command:
+     - mkdir -p dist
+     - .buildkite/build_apk.sh
+
+  - block: "Test .debs?"
+  - label: Test on Trusty, Xenial, Bionic
+    command:
+     - mkdir -p dist
+     - buildkite-agent artifact download 'dist/*.deb' dist/
+     - make docker-deb-test

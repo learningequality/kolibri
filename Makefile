@@ -201,6 +201,15 @@ docker-deb: writeversion
 	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
 	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb"
 
+docker-deb-test:
+	@echo "\n  !! This assumes that there are *.deb files in dist/ for testing !!\n"
+	docker image build -t "learningequality/kolibri-deb-test-trusty" -f docker/test_trusty.dockerfile .
+	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-trusty"
+	docker image build -t "learningequality/kolibri-deb-test-xenial" -f docker/test_xenial.dockerfile .
+	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-xenial"
+	docker image build -t "learningequality/kolibri-deb-test-bionic" -f docker/test_bionic.dockerfile .
+	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-bionic"
+
 docker-windows: writeversion
 	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
 	docker image build -t "learningequality/kolibri-windows" -f docker/build_windows.dockerfile .
