@@ -203,8 +203,8 @@ docker-deb: writeversion
 
 docker-deb-test:
 	@echo "\n  !! This assumes that there are *.deb files in dist/ for testing !!\n"
-	docker image build -t "learningequality/kolibri-deb-test-trusty" -f docker/test_trusty.dockerfile .
-	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-trusty"
+	# docker image build -t "learningequality/kolibri-deb-test-trusty" -f docker/test_trusty.dockerfile .
+	# docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-trusty"
 	docker image build -t "learningequality/kolibri-deb-test-xenial" -f docker/test_xenial.dockerfile .
 	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-xenial"
 	docker image build -t "learningequality/kolibri-deb-test-bionic" -f docker/test_bionic.dockerfile .
