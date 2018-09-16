@@ -20,6 +20,7 @@ from functools import partial
 from django.conf import settings as django_settings
 from django.contrib.staticfiles import finders
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.core.cache import cache
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.six.moves.urllib.request import url2pathname
@@ -337,20 +338,26 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         Reads file contents using given `charset` and returns it as text.
         """
-        # Removes Byte Oorder Mark
-        charset = 'utf-8-sig'
-        basename = self.get_basename(url)
+        cache_key = 'inline_static_file_content_{url}'.format(url=url)
+        content = cache.get(cache_key)
+        if content is None:
+            # Removes Byte Oorder Mark
+            charset = 'utf-8-sig'
+            basename = self.get_basename(url)
 
-        if basename is None:
-            return None
+            if basename is None:
+                return None
 
-        filename = self.get_filename(basename)
+            filename = self.get_filename(basename)
 
-        if filename is None:
-            return None
+            if filename is None:
+                return None
 
-        with codecs.open(filename, 'r', charset) as fd:
-            return fd.read()
+            with codecs.open(filename, 'r', charset) as fd:
+                content = fd.read()
+            # Cache this forever, as URLs will update for new files
+            cache.set(cache_key, content, None)
+        return content
 
     def render_to_page_load_sync_html(self):
         """
