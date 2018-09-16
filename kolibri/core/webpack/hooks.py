@@ -9,6 +9,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import codecs
 import io
 import json
 import logging
@@ -17,13 +18,16 @@ import time
 from functools import partial
 
 from django.conf import settings as django_settings
+from django.contrib.staticfiles import finders
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
+from django.utils.six.moves.urllib.request import url2pathname
 from django.utils.translation import get_language
 from django.utils.translation import get_language_info
 from django.utils.translation import to_locale
 from pkg_resources import resource_filename
+from six import text_type
 
 import kolibri
 from . import settings
@@ -81,6 +85,10 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     # : Kolibri version for build hashes
     version = kolibri.__version__
+
+    # When being included for synchronous loading, should the source files
+    # for this be inlined?
+    inline = False
 
     def __init__(self, *args, **kwargs):
         super(WebpackBundleHook, self).__init__(*args, **kwargs)
@@ -256,12 +264,25 @@ class WebpackBundleHook(hooks.KolibriHook):
     def js_and_css_tags(self):
         js_tag = '<script type="text/javascript" src="{url}"></script>'
         css_tag = '<link type="text/css" href="{url}" rel="stylesheet"/>'
+        inline_js_tag = '<script type="text/javascript">{src}</script>'
+        inline_css_tag = '<style>{src}</style>'
         # Sorted to load css before js
         for chunk in self.sorted_chunks():
+            src = None
             if chunk['name'].endswith('.js'):
-                yield js_tag.format(url=chunk['url'])
+                if self.inline:
+                    src = self.get_filecontent(chunk['url'])
+                if src is not None:
+                    yield inline_js_tag.format(src=src)
+                else:
+                    yield js_tag.format(url=chunk['url'])
             elif chunk['name'].endswith('.css'):
-                yield css_tag.format(url=chunk['url'])
+                if self.inline:
+                    src = self.get_filecontent(chunk['url'])
+                if src is not None:
+                    yield inline_css_tag.format(src=src)
+                else:
+                    yield css_tag.format(url=chunk['url'])
 
     def frontend_message_tag(self):
         if self.frontend_messages():
@@ -273,6 +294,63 @@ class WebpackBundleHook(hooks.KolibriHook):
             )]
         else:
             return []
+
+    def get_basename(self, url):
+        """
+        Takes full path to a static file (eg. "/static/css/style.css") and
+        returns path with storage's base url removed (eg. "css/style.css").
+        """
+        base_url = staticfiles_storage.base_url
+
+        # Cast ``base_url`` to a string to allow it to be
+        # a string-alike object to e.g. add ``SCRIPT_NAME``
+        # WSGI param as a *path prefix* to the output URL.
+        # See https://code.djangoproject.com/ticket/25598.
+        base_url = text_type(base_url)
+
+        if not url.startswith(base_url):
+            return None
+
+        basename = url.replace(base_url, "", 1)
+        # drop the querystring, which is used for non-compressed cache-busting.
+        return basename.split("?", 1)[0]
+
+    def get_filename(self, basename):
+        """
+        Returns full path to a file, for example:
+
+        get_filename('css/one.css') -> '/full/path/to/static/css/one.css'
+        """
+        filename = None
+        # First try finding the file using the storage class.
+        # This is skipped in DEBUG mode as files might be outdated
+        if not django_settings.DEBUG:
+            filename = staticfiles_storage.path(basename)
+            if not staticfiles_storage.exists(basename):
+                filename = None
+        # secondly try to find it with staticfiles
+        if not filename and finders:
+            filename = finders.find(url2pathname(basename))
+        return filename
+
+    def get_filecontent(self, url):
+        """
+        Reads file contents using given `charset` and returns it as text.
+        """
+        # Removes Byte Oorder Mark
+        charset = 'utf-8-sig'
+        basename = self.get_basename(url)
+
+        if basename is None:
+            return None
+
+        filename = self.get_filename(basename)
+
+        if filename is None:
+            return None
+
+        with codecs.open(filename, 'r', charset) as fd:
+            return fd.read()
 
     def render_to_page_load_sync_html(self):
         """
