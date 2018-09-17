@@ -14,7 +14,7 @@
         :percentage="0"
         :showButtons="true"
         :cancellable="true"
-        @cleartask="cancelMetadataDownloadTask()"
+        @cleartask="cancelUpdateChannel()"
         id="updatingchannel"
       />
       <TaskProgress
@@ -26,7 +26,7 @@
         @cleartask="returnToChannelsList()"
       />
 
-      <template v-if="!taskInProgress && onDeviceInfoIsReady">
+      <template v-if="mainAreaIsVisible">
         <section class="notifications">
           <UiAlert
             v-if="newVersionAvailable"
@@ -134,6 +134,10 @@
       return {
         showUpdateProgressBar: false,
         contentTransferError: false,
+        pageWillRefresh: false,
+        // need to store ID in component to make sure cancellation works properly
+        // in beforeDestroy
+        metadataDownloadTaskId: '',
       };
     },
     computed: {
@@ -149,6 +153,13 @@
       ]),
       mode() {
         return this.transferType === 'localexport' ? 'export' : 'import';
+      },
+      mainAreaIsVisible() {
+        // Don't show main area if page is about to refresh after updating (or cancelling update)
+        if (this.pageWillRefresh) {
+          return false;
+        }
+        return !this.taskInProgress && this.onDeviceInfoIsReady;
       },
       onDeviceInfoIsReady() {
         return !isEmpty(this.currentTopicNode);
@@ -185,10 +196,10 @@
     },
     watch: {
       metadataDownloadTask(val) {
-        // turn progress bar off and refresh if update was cancelled
-        if (this.showUpdateProgressBar && !val) {
-          this.showUpdateProgressBar = false;
-          this.refreshPage();
+        if (val) {
+          this.metadataDownloadTaskId = val.id;
+        } else {
+          this.metadataDownloadTaskId = '';
         }
       },
       transferredChannel(val) {
@@ -215,11 +226,13 @@
       }),
       ...mapActions('manageContent/wizard', ['transferChannelContent']),
       downloadChannelMetadata,
+      cancelUpdateChannel() {
+        this.showUpdateProgressBar = false;
+        this.cancelMetadataDownloadTask().then(this.refreshPage);
+      },
       cancelMetadataDownloadTask() {
-        const task = find(this.taskList, { type: TaskTypes.REMOTECHANNELIMPORT });
-        // TODO can remove this guard once cancelTask resolves even if Task is not there
-        if (task) {
-          return TaskResource.cancelTask(task.id);
+        if (this.metadataDownloadTaskId) {
+          return TaskResource.cancelTask(this.metadataDownloadTaskId);
         }
         return Promise.resolve();
       },
@@ -227,6 +240,7 @@
         // NOTE: This only updates the metadata, not the underlying content.
         // This could produced unexpected behavior for users.
         this.showUpdateProgressBar = true;
+        this.pageWillRefresh = true;
         return this.downloadChannelMetadata(this.$store)
           .then(() => this.refreshPage())
           .catch(error => {
