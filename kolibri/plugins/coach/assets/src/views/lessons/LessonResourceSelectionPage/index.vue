@@ -316,9 +316,9 @@
       documentTitle: `Manage resources in '{lessonName}'`,
       selectAllCheckboxLabel: 'Select all',
       resourcesAddedSnackbarText:
-        'Added {count, number, integer} {count, plural, one {resource} other {resouces}} to lesson',
+        'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
       resourcesRemovedSnackbarText:
-        'Removed {count, number, integer} {count, plural, one {resource} other {resouces}} from lesson',
+        'Removed {count, number, integer} {count, plural, one {resource} other {resources}} from lesson',
       resourcesChangedErrorSnackbarText: 'There was a problem updating this lesson',
       saveBeforeExitSnackbarText: 'Saving your changes…',
       // only shown on search page
