@@ -35,7 +35,6 @@ from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
 from morango.certificates import Certificate
 from morango.manager import SyncableModelManager
 from morango.models import SyncableModel
@@ -225,18 +224,19 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     USERNAME_FIELD = "username"
 
     username = models.CharField(
-        _('username'),
+        'username',
         max_length=30,
-        help_text=_('Required. 30 characters or fewer. Letters and digits only'),
+        help_text='Required. 30 characters or fewer. Letters and digits only',
         validators=[
             validators.RegexValidator(
-                r'^\w+$',
-                _('Enter a valid username. This value can contain only letters, numbers, and underscores.')
+                r'[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;"\'<>,\.\?]',
+                'Enter a valid username. This value can contain only letters, numbers, and underscores.',
+                inverse_match=True,
             ),
         ],
     )
-    full_name = models.CharField(_('full name'), max_length=120, blank=True)
-    date_joined = DateTimeTzField(_('date joined'), default=local_now, editable=False)
+    full_name = models.CharField('full name', max_length=120, blank=True)
+    date_joined = DateTimeTzField('date joined', default=local_now, editable=False)
 
     is_staff = False
     is_superuser = False
@@ -478,7 +478,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         if 'facility' not in extra_fields:
             extra_fields['facility'] = Facility.get_default_facility()
         if self.filter(username__iexact=username, facility=extra_fields['facility']).exists():
-            raise ValidationError(_('An account with that username already exists'))
+            raise ValidationError('An account with that username already exists')
         user = self.model(username=username, password=password, **extra_fields)
         user.full_clean()
         user.set_password(password)
@@ -494,7 +494,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         facility = Facility.get_default_facility()
 
         if self.filter(username__iexact=username, facility=facility).exists():
-            raise ValidationError(_('An account with that username already exists'))
+            raise ValidationError('An account with that username already exists')
 
         # create the new account in that facility
         superuser = FacilityUser(username=username, password=password, facility=facility)
