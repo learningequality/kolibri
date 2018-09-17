@@ -28,7 +28,7 @@ from morango import urls as morango_urls
 
 from kolibri.utils.conf import OPTIONS
 
-path_prefix = OPTIONS['Deployment']['PATH_PREFIX']
+path_prefix = OPTIONS['Deployment']['URL_PATH_PREFIX']
 
 if path_prefix == '/':
     path_prefix = ''

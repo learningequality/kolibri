@@ -215,7 +215,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-path_prefix = conf.OPTIONS['Deployment']['PATH_PREFIX']
+path_prefix = conf.OPTIONS['Deployment']['URL_PATH_PREFIX']
 
 if path_prefix != '/':
     path_prefix = '/' + path_prefix

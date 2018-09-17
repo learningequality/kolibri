@@ -82,10 +82,10 @@ option_spec = {
             "type": "string",
             "envvars": ("KOLIBRI_RUN_MODE",),
         },
-        "PATH_PREFIX": {
+        "URL_PATH_PREFIX": {
             "type": "string",
             "default": "/",
-            "envvars": ("KOLIBRI_PATH_PREFIX", ),
+            "envvars": ("KOLIBRI_URL_PATH_PREFIX", ),
             "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
         },
     },
