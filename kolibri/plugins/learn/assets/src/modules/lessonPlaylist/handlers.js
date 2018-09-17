@@ -17,7 +17,7 @@ export function showLessonPlaylist(store, { lessonId }) {
       })
       .then(contentNodes => {
         const sortedContentNodes = contentNodes.sort((a, b) => {
-          const lesson = store.state.pageState.currentLesson;
+          const lesson = store.state.lessonPlaylist.currentLesson;
           const aKey = lesson.resources.findIndex(resource => resource.contentnode_id === a.id);
           const bKey = lesson.resources.findIndex(resource => resource.contentnode_id === b.id);
           return aKey - bKey;
