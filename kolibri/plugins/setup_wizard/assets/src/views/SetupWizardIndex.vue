@@ -49,10 +49,25 @@
   import GuestAccessForm from './onboarding-forms/GuestAccessForm';
   import CreateLearnerAccountForm from './onboarding-forms/CreateLearnerAccountForm';
   import RequirePasswordForLearnersForm from './onboarding-forms/RequirePasswordForLearnersForm';
+  import PersonalDataConsentForm from './onboarding-forms/PersonalDataConsentForm';
+
+  const stepToOnboardingFormMap = {
+    1: DefaultLanguageForm,
+    2: FacilityPermissionsForm,
+    3: GuestAccessForm,
+    4: CreateLearnerAccountForm,
+    5: RequirePasswordForLearnersForm,
+    6: SuperuserCredentialsForm,
+    7: PersonalDataConsentForm,
+  };
 
   export default {
     name: 'SetupWizardIndex',
-    components: { ProgressToolbar, LoadingPage, ErrorPage },
+    components: {
+      ProgressToolbar,
+      LoadingPage,
+      ErrorPage,
+    },
     mixins: [responsiveWindow],
     $trs: {
       onboardingNextStepButton: 'Continue',
@@ -67,28 +82,13 @@
     },
     data() {
       return {
-        totalOnboardingSteps: 6,
+        totalOnboardingSteps: 7,
       };
     },
     computed: {
       ...mapState(['onboardingStep', 'onboardingData', 'loading', 'error']),
       currentOnboardingForm() {
-        switch (this.onboardingStep) {
-          case 1:
-            return DefaultLanguageForm;
-          case 2:
-            return FacilityPermissionsForm;
-          case 3:
-            return GuestAccessForm;
-          case 4:
-            return CreateLearnerAccountForm;
-          case 5:
-            return RequirePasswordForLearnersForm;
-          case 6:
-            return SuperuserCredentialsForm;
-          default:
-            return null;
-        }
+        return stepToOnboardingFormMap[this.onboardingStep] || null;
       },
       isLastStep() {
         return this.onboardingStep === this.totalOnboardingSteps;
@@ -105,6 +105,14 @@
         goToNextStep: 'INCREMENT_ONBOARDING_STEP',
         goToPreviousStep: 'DECREMENT_ONBOARDING_STEP',
       }),
+      goToPreviousStep() {
+        // Clear password if going backwards from SuperUserCredentialsForm or
+        // PersonalDataConsentForm
+        if (this.onboardingStep === 6 || this.onboardingStep === 7) {
+          this.$store.commit('CLEAR_PASSWORD');
+        }
+        this.$store.commit('DECREMENT_ONBOARDING_STEP');
+      },
       continueOnboarding() {
         if (this.isLastStep) {
           if (this.onboardingData.preset === 'informal') {

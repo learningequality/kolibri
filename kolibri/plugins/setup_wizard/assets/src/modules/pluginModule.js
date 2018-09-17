@@ -53,6 +53,9 @@ export default {
     },
   },
   mutations: {
+    CLEAR_PASSWORD(state) {
+      state.onboardingData.superuser.password = '';
+    },
     SET_LANGUAGE(state, language_id) {
       state.onboardingData.language_id = language_id;
     },

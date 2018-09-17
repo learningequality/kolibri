@@ -46,7 +46,8 @@
       },
     },
     $trs: {
-      description: 'This allows anyone to view content on Kolibri without needing to make an account',
+      description:
+        'This allows anyone to view content on Kolibri without needing to make an account',
       header: 'Enable guest access?',
       noOptionLabel: 'No. Users must have an account to view content on Kolibri',
     },
