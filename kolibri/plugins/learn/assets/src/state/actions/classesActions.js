@@ -1,6 +1,11 @@
-import { ContentNodeResource } from 'kolibri.resources';
+import {
+  ContentNodeResource,
+  ContentNodeProgressResource,
+  ContentNodeSlimResource,
+} from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { handleApiError } from 'kolibri.coreVue.vuex.actions';
+import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
 import { LearnerClassroomResource, LearnerLessonResource } from '../../apiResources';
 import { ClassesPageNames } from '../../constants';
 
@@ -67,12 +72,6 @@ export function showClassAssignmentsPage(store, classId) {
     });
 }
 
-function getAllLessonContentNodes(lessonResources) {
-  return Promise.all(
-    lessonResources.map(resource => ContentNodeResource.getModel(resource.contentnode_id).fetch())
-  );
-}
-
 // For a given Lesson, shows a "playlist" of all the resources in the Lesson
 export function showLessonPlaylist(store, { lessonId }) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -91,10 +90,26 @@ export function showLessonPlaylist(store, { lessonId }) {
         },
       });
       store.dispatch('SET_CURRENT_LESSON', lesson);
-      return ContentNodeResource.getCollection({ in_lesson: lesson.id }).fetch();
+      return ContentNodeSlimResource.getCollection({ in_lesson: lesson.id }).fetch();
     })
     .then(contentNodes => {
-      store.dispatch('SET_LESSON_CONTENTNODES', contentNodes);
+      const sortedContentNodes = contentNodes.sort((a, b) => {
+        const lesson = store.state.pageState.currentLesson;
+        const aKey = lesson.resources.findIndex(resource => resource.contentnode_id === a.id);
+        const bKey = lesson.resources.findIndex(resource => resource.contentnode_id === b.id);
+        return aKey - bKey;
+      });
+      store.dispatch('SET_LESSON_CONTENTNODES', sortedContentNodes);
+      if (isUserLoggedIn(store.state)) {
+        const contentNodeIds = contentNodes.map(({ id }) => id);
+        if (contentNodeIds.length > 0) {
+          ContentNodeProgressResource.getCollection({ ids: contentNodeIds })
+            .fetch()
+            .then(progresses => {
+              store.dispatch('SET_LESSON_CONTENTNODES_PROGRESS', progresses);
+            });
+        }
+      }
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
     .catch(error => {
@@ -132,7 +147,13 @@ export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
         return Promise.reject(`Lesson does not have a resource at index ${index}.`);
       }
       const nextResource = lesson.resources[index + 1];
-      return getAllLessonContentNodes([currentResource, nextResource].filter(Boolean));
+      const nextResourcePromise = nextResource
+        ? ContentNodeSlimResource.getModel(nextResource.contentnode_id).fetch()
+        : Promise.resolve();
+      return Promise.all([
+        ContentNodeResource.getModel(currentResource.contentnode_id).fetch(),
+        nextResourcePromise,
+      ]);
     })
     .then(resources => {
       store.dispatch('CORE_SET_TITLE', resources[0].title);
