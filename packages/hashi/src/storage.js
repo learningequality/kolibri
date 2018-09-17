@@ -21,7 +21,7 @@ class Storage {
     }
 
     _sendMessage(name, data) {
-        var message = {
+        const message = {
             'action': name,
             'params': data
         };
@@ -29,21 +29,20 @@ class Storage {
     }
 
     initData() {
-      var timeout = 5000;
-      var pinkyPromise = null;
+      const timeout = 5000;
+      let initDataPromise = null;
       if (!this.initMessageSent) {
-        var self = this;
-        pinkyPromise = new Promise(function(resolve, reject) {
+        initDataPromise = new Promise((resolve, reject) => {
             function parentMessageReceived(event) {
-              if (self.timer) {
-                clearTimeout(self.timer);
+              if (this.timer) {
+                clearTimeout(this.timer);
               }
               var message = JSON.parse(event.data);
               if (message.action === 'kolibriDataLoaded') {
                 self.sessionData = message.params['data'];
                 self.sessionKeys = Object.keys(self.sessionData);
                 self.dataReceived = true;
-                resolve(self);
+                resolve(this);
               }
             }
 
@@ -52,13 +51,13 @@ class Storage {
             }
 
             window.addEventListener('message', parentMessageReceived);
-            self._sendMessage('hashiInitialized', {});
-            self.timer = setTimeout(timedOut, timeout);
+            this._sendMessage('hashiInitialized', {});
+            this.timer = setTimeout(timedOut, timeout);
         });
 
         this.initMessageSent = true;
       }
-      return pinkyPromise;
+      return initDataPromise;
     }
 
     get length() {
@@ -101,13 +100,13 @@ class Storage {
     }
 }
 
-function getLocalStorage() {
+export const getLocalStorage = () => {
     // even referencing localStorage can throw a SecurityError, so don't assign to localStorage by default here.
-    var storage = null;
+    let storage = null;
     try {
         // while some browsers throw immediately when trying to access localStorage, others only throw when
         // you try to write to it, so we use a write test as the canonical way of testing if it works
-        var key = "testing_that_local_storage_is_allowed_using_a_key_that_would_never_actually_be_used";
+        const key = "testing_that_local_storage_is_allowed_using_a_key_that_would_never_actually_be_used";
         localStorage.setItem(key, "It works!");
         localStorage.removeItem(key);
         storage = localStorage;
