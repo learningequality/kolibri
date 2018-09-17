@@ -46,8 +46,8 @@
       },
     },
     $trs: {
-      header: 'Require passwords for learners to sign in',
-      noOptionLabel: 'No. Learners can sign in with just their username',
+      header: 'Enable passwords on learner accounts?',
+      noOptionLabel: 'No. Learner accounts can sign in with just a username',
       noOptionTooltip:
         'Helpful for younger learners or when you are not concerned about account security',
     },

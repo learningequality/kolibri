@@ -3,6 +3,7 @@
   <OnboardingForm
     :header="headerText"
     :submitText="submitText"
+    :description="description"
     @submit="emitSetting"
   >
     <KRadioButton
@@ -64,6 +65,9 @@
       headerText: {
         type: String,
         required: true,
+      },
+      description: {
+        type: String,
       },
       submitText: {
         type: String,
