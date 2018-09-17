@@ -1,7 +1,17 @@
+import Vue from 'kolibri.lib.vue';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 
 export function SET_LESSON_CONTENTNODES(state, contentNodes) {
   state.pageState.contentNodes = [...contentNodes];
+}
+
+export function SET_LESSON_CONTENTNODES_PROGRESS(state, progressArray) {
+  progressArray.forEach(progress => {
+    const contentNode = state.pageState.contentNodes.find(node => node.pk === progress.pk);
+    if (contentNode) {
+      Vue.set(contentNode, 'progress_fraction', progress.progress_fraction);
+    }
+  });
 }
 
 export function SET_CURRENT_LESSON(state, lesson) {
