@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import SettingsSideBar from '../src/views/SettingsSideBar';
 import { THEMES, TEXT_ALIGNMENTS } from '../src/views/EpubConstants';
 
-function createWrapper({ theme = THEMES.BLACK, textAlignment = TEXT_ALIGNMENTS.JUSTIFY } = {}) {
+function createWrapper({ theme = THEMES.BEIGE, textAlignment = TEXT_ALIGNMENTS.JUSTIFY } = {}) {
   return mount(SettingsSideBar, {
     propsData: {
       theme,

@@ -3,14 +3,18 @@
   <SideBar>
     <div class="o-f-h">
       <h3>{{ $tr('textSize') }}</h3>
-      <KGrid :gutter="16">
+      <KGrid
+        :cols="12"
+        :gutter="8"
+      >
         <KGridItem
-          size="50"
-          :percentage="true"
+          size="6"
+          :percentage="false"
         >
           <KButton
             ref="decreaseFontSizeButton"
             class="settings-button"
+            :disabled="decreaseFontSizeDisabled"
             @click="$emit('decreaseFontSize')"
           >
             <mat-svg
@@ -21,11 +25,12 @@
           </KButton>
         </KGridItem>
         <KGridItem
-          size="50"
-          :percentage="true"
+          size="6"
+          :percentage="false"
         >
           <KButton
             ref="increaseFontSizeButton"
+            :disabled="increaseFontSizeDisabled"
             @click="$emit('increaseFontSize')"
             class="settings-button"
           >
@@ -40,10 +45,10 @@
     </div>
 
     <div class="o-f-h">
-      <h3>{{ $tr('background') }}</h3>
+      <h3>{{ $tr('theme') }}</h3>
       <KGrid
         :cols="12"
-        :gutter="2 * Math.round((64 / Object.keys(themes).length) / 2)"
+        :gutter="8"
       >
         <KGridItem
           v-for="(value, key) in themes"
@@ -54,18 +59,27 @@
           <KButton
             class="settings-button theme-button"
             :style="{ backgroundColor: value.backgroundColor }"
-            :class="{ 'theme-button-selected': isCurrentlySelectedTheme(value) }"
-            :aria-label="$tr('setTheme', {themeName: key })"
+            :aria-label="generateThemeAriaLabel(key)"
             @click="$emit('setTheme', value)"
-          />
+          >
+            <mat-svg
+              v-if="isCurrentlySelectedTheme(value) "
+              name="check"
+              category="navigation"
+              :style="{ fill: value.textColor }"
+            />
+          </KButton>
 
         </KGridItem>
       </KGrid>
     </div>
 
     <div class="o-f-h">
-      <h3>{{ $tr('layout') }}</h3>
-      <KGrid :gutter="16">
+      <h3>{{ $tr('textAlignment') }}</h3>
+      <KGrid
+        :cols="12"
+        :gutter="8"
+      >
         <KGridItem
           size="50"
           :percentage="true"
@@ -122,11 +136,14 @@
       textSize: 'Text size',
       decrease: 'Decrease',
       increase: 'Increase',
-      background: 'Background',
-      layout: 'Layout',
+      theme: 'Theme',
+      textAlignment: 'Text alignment',
       alignmentLeft: 'Left',
       alignmentJustified: 'Justified',
-      setTheme: 'Set { themeName } theme',
+      setWhiteTheme: 'Set white theme',
+      setBeigeTheme: 'Set beige theme',
+      setGreyTheme: 'Set grey theme',
+      setBlackTheme: 'Set black theme',
     },
     components: {
       SideBar,
@@ -149,6 +166,16 @@
           return Object.values(TEXT_ALIGNMENTS).includes(val);
         },
       },
+      decreaseFontSizeDisabled: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      increaseFontSizeDisabled: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     computed: {
       themes() {
@@ -159,6 +186,20 @@
       },
     },
     methods: {
+      generateThemeAriaLabel(themeName) {
+        switch (themeName) {
+          case 'WHITE':
+            return this.$tr('setWhiteTheme');
+          case 'BEIGE':
+            return this.$tr('setBeigeTheme');
+          case 'GREY':
+            return this.$tr('setGreyTheme');
+          case 'BLACK':
+            return this.$tr('setBlackTheme');
+          default:
+            return '';
+        }
+      },
       isCurrentlySelectedTheme(theme) {
         return (
           theme.backgroundColor === this.theme.backgroundColor &&
@@ -183,7 +224,6 @@
     padding: 8px;
     margin: 2px;
     line-height: unset;
-    box-shadow: none;
     transition: none;
     &:focus {
       outline: $core-outline;
@@ -191,7 +231,7 @@
   }
 
   .theme-button {
-    height: 36.5px;
+    height: 44.5px;
   }
 
   .theme-button,
@@ -200,7 +240,6 @@
     border-width: 2px;
   }
 
-  .theme-button-selected,
   .alignment-button-selected {
     border-bottom-color: $core-action-normal;
     border-bottom-width: 3px;

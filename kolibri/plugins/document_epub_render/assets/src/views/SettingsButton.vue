@@ -8,8 +8,8 @@
     @click="$emit('click')"
   >
     <mat-svg
-      name="settings"
-      category="action"
+      name="tune"
+      category="image"
     />
   </UiIconButton>
 

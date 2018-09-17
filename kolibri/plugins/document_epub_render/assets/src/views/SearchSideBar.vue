@@ -9,8 +9,10 @@
         <input
           class="d-tc search-input"
           ref="searchInput"
+          type="search"
           :aria-label="$tr('enterSearchQuery')"
           v-model.trim="searchQuery"
+          @keyup.esc.stop
         >
 
         <UiIconButton
@@ -235,7 +237,7 @@
   }
 
   .search-input {
-    width: 165px;
+    width: 160px;
     vertical-align: middle;
   }
 
