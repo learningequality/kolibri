@@ -304,7 +304,7 @@ class LocalFile(models.Model):
         The same url will also be exposed by the file serializer.
         """
         if self.available:
-            return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl=OPTIONS['Deployment']['PATH_PREFIX'])
+            return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl=OPTIONS['Deployment']['URL_PATH_PREFIX'])
         else:
             return None
 
