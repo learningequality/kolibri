@@ -65,12 +65,16 @@ class ContentCacheKey(models.Model):
         cache_key.key = time.time()
         cache_key.save()
         cache.delete(CONTENT_CACHE_KEY_CACHE_KEY)
+        return cache_key
 
     @classmethod
     def get_cache_key(cls):
         key = cache.get(CONTENT_CACHE_KEY_CACHE_KEY)
         if key is None:
-            cache_key = cls.objects.get()
+            try:
+                cache_key = cls.objects.get()
+            except cls.DoesNotExist:
+                cache_key = cls.update_cache_key()
             key = cache_key.key
             cache.set(CONTENT_CACHE_KEY_CACHE_KEY, key, 5000)
         return key
