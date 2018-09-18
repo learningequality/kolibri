@@ -8,7 +8,7 @@
       <p v-if="standardDataTable.length">{{ $tr('showingRecent', { threshold }) }}</p>
     </template>
     <template v-else>
-      <h1>{{ $tr('topicsTitle') }}</h1>
+      <h1>{{ $tr('channels') }}</h1>
     </template>
     <CoreTable :caption="$tr('channelList')">
       <thead slot="thead">

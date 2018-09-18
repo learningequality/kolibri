@@ -27,7 +27,7 @@
       areYouSure: "Are you sure you want to delete '{ groupName }'?",
       learnersWillBecomeUngrouped: "Learners within this group will become 'Ungrouped'.",
       cancel: 'Cancel',
-      deleteGroup: 'Delete group',
+      deleteGroup: 'Delete',
     },
     components: {
       KModal,

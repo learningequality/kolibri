@@ -175,7 +175,7 @@
         return [
           { label: this.$tr('previewExam') },
           { label: this.$tr('editDetails') },
-          { label: this.$tr('copyTo') },
+          { label: this.$tr('copyExamOptionLabel') },
           { label: this.$tr('delete') },
         ];
       },
@@ -202,7 +202,7 @@
           this.setExamsModal(ExamModals.PREVIEW_EXAM);
         } else if (action === this.$tr('editDetails')) {
           this.setExamsModal(AssignmentActions.EDIT_DETAILS);
-        } else if (action === this.$tr('copyTo')) {
+        } else if (action === this.$tr('copyExamOptionLabel')) {
           this.setExamsModal(AssignmentActions.COPY);
         } else if (action === this.$tr('delete')) {
           this.setExamsModal(AssignmentActions.DELETE);
@@ -234,16 +234,16 @@
       completed: 'Completed',
       remaining: '{ num, number } {num, plural, one {question} other {questions}} remaining',
       notstarted: 'Not started',
-      name: 'Name',
+      name: 'Full Name',
       progress: 'Progress',
       score: 'Score',
       scorePercentage: '{num, number, percent}',
       group: 'Group',
       noExamData: 'No data to show.',
       options: 'Options',
-      previewExam: 'Preview exam',
+      previewExam: 'Preview',
       editDetails: 'Edit details',
-      copyTo: 'Copy to',
+      copyExamOptionLabel: 'Copy exam',
       delete: 'Delete',
       viewByGroups: 'View by groups',
       allLearners: 'All learners',

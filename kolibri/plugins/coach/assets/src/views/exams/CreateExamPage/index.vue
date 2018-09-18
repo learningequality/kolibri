@@ -121,7 +121,12 @@
       <KButton :text="$tr('preview')" @click="preview" />
 
       <br>
-      <KButton :text="$tr('finish')" :primary="true" @click="finish" :disabled="submitting" />
+      <KButton
+        :text="$tr('saveButtonlabel')"
+        :primary="true"
+        @click="finish"
+        :disabled="submitting"
+      />
     </div>
 
     <PreviewNewExamModal
@@ -183,19 +188,21 @@
     },
     mixins: [responsiveWindow],
     $trs: {
-      createNewExam: 'Create a new exam',
-      chooseExercises: 'Select exercises to pull questions from',
+      createNewExam: 'Create new exam',
+      chooseExercises: 'Select topics or exercises',
       selectAll: 'Select all',
       title: 'Exam title',
       numQuestions: 'Number of questions',
-      examRequiresTitle: 'The exam requires a title',
+      examRequiresTitle: 'This field is required',
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+      numQuestionsNotMet:
+        'Add more exercises to reach 40 questions. Alternately, lower the number of exam questions.',
       noneSelected: 'No exercises are selected',
       searchContent: 'Search for content within channel',
       preview: 'Preview',
-      finish: 'Finish',
+      saveButtonlabel: 'Save',
       added: 'Added',
       removed: 'Removed',
       selected:

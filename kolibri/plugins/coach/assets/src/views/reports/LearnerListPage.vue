@@ -24,7 +24,7 @@
           <th class="core-table-icon-col"></th>
           <HeaderCell
             :align="alignStart"
-            :text="$tr('name')"
+            :text="$tr('fullNameColumnLabel')"
             :column="TableColumns.NAME"
             :sortable="true"
           />
@@ -114,7 +114,7 @@
     mixins: [alignMixin],
     $trs: {
       learners: 'Learner reports',
-      name: 'Name',
+      fullNameColumnLabel: 'Full name',
       group: 'Group',
       channelIconColumnHeader: 'Channel icon',
       userIconColumnHeader: 'User icon',
