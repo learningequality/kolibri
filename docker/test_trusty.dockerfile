@@ -11,4 +11,4 @@ VOLUME /kolibridist/
 
 # Install the new .deb for testing purposes
 CMD DEBIAN_FRONTEND=noninteractive dpkg -i /kolibridist/*.deb && \
-    su kolibri -c 'kolibri start ; kolibri stop'
+    su kolibri -p -c 'kolibri start ; kolibri stop'
