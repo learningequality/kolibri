@@ -21,7 +21,7 @@
   import urls from 'kolibri.urls';
 
   const component = {
-    name: 'learnSideNavEntry',
+    name: 'LearnSideNavEntry',
     components: {
       CoreMenuOption,
     },

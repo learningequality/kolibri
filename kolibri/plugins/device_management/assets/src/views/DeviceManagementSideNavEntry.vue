@@ -22,7 +22,7 @@
   import urls from 'kolibri.urls';
 
   const component = {
-    name: 'deviceManagementSideNavEntry',
+    name: 'DeviceManagementSideNavEntry',
     components: {
       CoreMenuOption,
     },
