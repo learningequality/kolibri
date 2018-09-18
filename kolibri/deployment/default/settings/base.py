@@ -87,6 +87,7 @@ LOCALE_PATHS += [
 MIDDLEWARE = [
     'kolibri.core.device.middleware.IgnoreGUIMiddleware',
     'django.middleware.gzip.GZipMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'kolibri.core.device.middleware.KolibriLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -97,9 +98,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 QUEUE_JOB_STORAGE_PATH = os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
+
+# By default don't cache anything unless it explicitly requests it to!
+CACHE_MIDDLEWARE_SECONDS = 0
 
 ROOT_URLCONF = 'kolibri.deployment.default.urls'
 
@@ -215,7 +220,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-path_prefix = conf.OPTIONS['Deployment']['PATH_PREFIX']
+path_prefix = conf.OPTIONS['Deployment']['URL_PATH_PREFIX']
 
 if path_prefix != '/':
     path_prefix = '/' + path_prefix
@@ -309,7 +314,12 @@ LOGGING = {
             'handlers': ['file', 'console'],
             'level': 'INFO',
             'propagate': True,
-        }
+        },
+        'morango': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
     }
 }
 

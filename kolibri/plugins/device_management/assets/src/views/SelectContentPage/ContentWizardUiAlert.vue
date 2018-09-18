@@ -25,6 +25,10 @@
     [ContentWizardErrors.TRANSFER_IN_PROGRESS]: 'transferInProgressError',
     // Recycling 'channel not found error'
     [ContentWizardErrors.TREEVIEW_LOADING_ERROR]: 'channelNotFoundError',
+    [ContentWizardErrors.NETWORK_LOCATION_DOES_NOT_EXIST]: 'networkLocationDoesNotExist',
+    [ContentWizardErrors.NETWORK_LOCATION_UNAVAILABLE]: 'networkLocationUnavailable',
+    [ContentWizardErrors.NETWORK_LOCATION_DOES_NOT_HAVE_CHANNEL]:
+      'networkLocationDoesNotHaveChannel',
   };
 
   export default {
@@ -49,7 +53,12 @@
       driveUnavailableError: 'Drive not found or is disconnected',
       driveNotWritableError: 'Drive is not writable',
       driveError: 'There was a problem accessing the drives connected to the server',
+      networkLocationDoesNotExist: 'The device with this ID does not exist',
+      networkLocationUnavailable:
+        'The Kolibri server on the selected device is not available at the moment',
       transferInProgressError: 'A content transfer is currently in progress',
+      networkLocationDoesNotHaveChannel:
+        'The device with this ID does not have the desired channel',
     },
   };
 

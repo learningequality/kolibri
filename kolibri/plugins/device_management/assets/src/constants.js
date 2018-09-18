@@ -12,6 +12,7 @@ export const ContentWizardPages = {
   SELECT_CONTENT_TOPIC: 'SELECT_CONTENT_TOPIC',
   SELECT_DRIVE: 'SELECT_DRIVE',
   SELECT_IMPORT_SOURCE: 'SELECT_IMPORT_SOURCE',
+  SELECT_NETWORK_ADDRESS: 'SELECT_NETWORK_ADDRESS',
 };
 
 export const TaskTypes = {
@@ -34,9 +35,10 @@ export const TaskStatuses = {
 };
 
 export const TransferTypes = {
-  LOCALIMPORT: 'localimport',
-  REMOTEIMPORT: 'remoteimport',
   LOCALEXPORT: 'localexport',
+  LOCALIMPORT: 'localimport',
+  PEERIMPORT: 'peerimport',
+  REMOTEIMPORT: 'remoteimport',
 };
 
 export const ContentWizardErrors = {
@@ -50,6 +52,9 @@ export const ContentWizardErrors = {
   DRIVE_ERROR: 'DRIVE_ERROR',
   TRANSFER_IN_PROGRESS: 'TRANSFER_IN_PROGRESS',
   TREEVIEW_LOADING_ERROR: 'TREEVIEW_LOADING_ERROR',
+  NETWORK_LOCATION_DOES_NOT_EXIST: 'NETWORK_LOCATION_DOES_NOT_EXIST',
+  NETWORK_LOCATION_UNAVAILABLE: 'NETWORK_LOCATION_UNAVAILABLE',
+  NETWORK_LOCATION_DOES_NOT_HAVE_CHANNEL: 'NETWORK_LOCATION_DOES_NOT_HAVE_CHANNEL',
 };
 
 export const ErrorTypes = {
@@ -61,6 +66,7 @@ export const ErrorTypes = {
 export const ContentSources = {
   LOCAL_DRIVE: 'local',
   KOLIBRI_STUDIO: 'network',
+  PEER_KOLIBRI_SERVER: 'PEER_KOLIBRI_SERVER',
 };
 
 export const pageNameToModuleMap = {

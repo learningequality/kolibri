@@ -60,6 +60,7 @@ from mptt.models import MPTTModel
 from mptt.models import TreeForeignKey
 
 from .utils import paths
+from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.conf import OPTIONS
 
@@ -304,7 +305,7 @@ class LocalFile(models.Model):
         The same url will also be exposed by the file serializer.
         """
         if self.available:
-            return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl=OPTIONS['Deployment']['PATH_PREFIX'])
+            return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl=OPTIONS['Deployment']['URL_PATH_PREFIX'])
         else:
             return None
 
@@ -367,3 +368,4 @@ class ChannelMetadata(models.Model):
     def delete_content_tree_and_files(self):
         # Use Django ORM to ensure cascading delete:
         self.root.delete()
+        ContentCacheKey.update_cache_key()

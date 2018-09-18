@@ -11,6 +11,8 @@ from django.db.models import Sum
 from django.db.models import When
 from django.db.models.aggregates import Count
 from django.http import Http404
+from django.utils.cache import patch_response_headers
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
@@ -43,6 +45,21 @@ from kolibri.core.logger.models import ContentSummaryLog
 logger = logging.getLogger(__name__)
 
 
+def cache_forever(some_func):
+    """
+    Decorator for patch_response_headers function
+    """
+    # Approximately 20 years
+    cache_timeout = 620000000
+
+    def wrapper_func(*args, **kwargs):
+        response = some_func(*args, **kwargs)
+        patch_response_headers(response, cache_timeout=cache_timeout)
+        return response
+
+    return wrapper_func
+
+
 class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available")
     has_exercise = BooleanFilter(method="filter_has_exercise")
@@ -67,6 +84,7 @@ class ChannelMetadataFilter(FilterSet):
         return queryset.filter(root__available=value)
 
 
+@method_decorator(cache_forever, name='dispatch')
 class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ChannelMetadataSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -178,6 +196,7 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
+@method_decorator(cache_forever, name='dispatch')
 class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -304,6 +323,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         return Response({'kind': next_item.kind, 'id': next_item.id, 'title': next_item.title})
 
 
+@method_decorator(cache_forever, name='dispatch')
 class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeSlimSerializer
     filter_backends = (DjangoFilterBackend,)

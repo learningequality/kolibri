@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('selectLocalRemoteSourceTitle')"
-    size="small"
+    size="medium"
     :submitText="$tr('continue')"
     :cancelText="$tr('cancel')"
     :submitDisabled="formIsDisabled"
@@ -13,14 +13,20 @@
       <KRadioButton
         :label="$tr('network')"
         v-model="source"
-        value="network"
+        :value="ContentSources.KOLIBRI_STUDIO"
         :disabled="formIsDisabled || kolibriStudioIsOffline"
         :autofocus="!kolibriStudioIsOffline"
       />
       <KRadioButton
+        :label="$tr('localNetworkOrInternet')"
+        v-model="source"
+        :value="ContentSources.PEER_KOLIBRI_SERVER"
+        :disabled="formIsDisabled"
+      />
+      <KRadioButton
         :label="$tr('localDrives')"
         v-model="source"
-        value="local"
+        :value="ContentSources.LOCAL_DRIVE"
         :disabled="formIsDisabled"
       />
     </div>
@@ -31,13 +37,11 @@
 
 <script>
 
-  import { mapActions, mapMutations } from 'vuex';
+  import { mapActions, mapGetters, mapMutations } from 'vuex';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { RemoteChannelResource } from 'kolibri.resources';
   import KModal from 'kolibri.coreVue.components.KModal';
   import { ContentSources } from '../../../constants';
-
-  const { LOCAL_DRIVE, KOLIBRI_STUDIO } = ContentSources;
 
   export default {
     name: 'SelectImportSourceModal',
@@ -47,15 +51,19 @@
     },
     data() {
       return {
-        source: KOLIBRI_STUDIO,
+        source: ContentSources.KOLIBRI_STUDIO,
         formIsDisabled: true,
         kolibriStudioIsOffline: false,
+        ContentSources,
       };
+    },
+    computed: {
+      ...mapGetters('manageContent/wizard', ['isImportingMore']),
     },
     created() {
       RemoteChannelResource.getKolibriStudioStatus().then(({ entity }) => {
         if (entity.status === 'offline') {
-          this.source = LOCAL_DRIVE;
+          this.source = ContentSources.PEER_KOLIBRI_SERVER;
           this.kolibriStudioIsOffline = true;
         }
         this.formIsDisabled = false;
@@ -64,7 +72,8 @@
     $trs: {
       cancel: 'Cancel',
       continue: 'Continue',
-      network: 'Kolibri Studio',
+      network: 'Kolibri Studio (online)',
+      localNetworkOrInternet: 'Local network or internet',
       localDrives: 'Attached drive or memory card',
       selectLocalRemoteSourceTitle: 'Import from',
     },

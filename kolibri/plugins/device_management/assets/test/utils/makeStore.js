@@ -63,6 +63,10 @@ const channelsOnDevice = [
   },
 ];
 
+export default function makeStore() {
+  return coreStoreFactory(pluginModule);
+}
+
 // Use for availableChannelsPage and all children:
 // channel-list-item
 export function makeAvailableChannelsPageStore() {

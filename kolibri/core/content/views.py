@@ -10,6 +10,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import View
 from le_utils.constants import exercises
 
+from .api import cache_forever
 from .utils.paths import get_content_storage_file_path
 from kolibri.utils.conf import OPTIONS
 
@@ -37,6 +38,7 @@ class ZipContentView(View):
         _add_access_control_headers(request, response)
         return response
 
+    @cache_forever
     @xframe_options_exempt
     def get(self, request, zipped_filename, embedded_filepath):
         """
@@ -85,9 +87,6 @@ class ZipContentView(View):
                 response = HttpResponse(content_with_path, content_type=content_type)
                 file_size = len(content_with_path)
 
-        # cache these resources forever; this is safe due to the MD5-naming used on content files
-        response["Expires"] = "Sun, 17-Jan-2038 19:14:07 GMT"
-
         # set the content-length header to the size of the embedded file
         if info.file_size:
             response["Content-Length"] = file_size
@@ -100,7 +99,7 @@ class ZipContentView(View):
 
         # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
         # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
-        host = request.build_absolute_uri(OPTIONS['Deployment']['PATH_PREFIX']).strip("/")
+        host = request.build_absolute_uri(OPTIONS['Deployment']['URL_PATH_PREFIX']).strip("/")
         response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: " + host
 
         return response

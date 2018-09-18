@@ -3,14 +3,15 @@ import router from 'kolibri.coreVue.router';
 import { createTranslator } from 'kolibri.utils.i18n';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import {
-  ContentNodeGranularResource,
-  RemoteChannelResource,
-  ChannelResource,
-} from 'kolibri.resources';
+import { ContentNodeGranularResource, RemoteChannelResource } from 'kolibri.resources';
+import ChannelResource from '../../apiResources/deviceChannel';
 import { ContentWizardPages, ContentWizardErrors, TransferTypes } from '../../constants';
 import { manageContentPageLink } from '../../views/ManageContentPage/manageContentLinks';
 import { getAvailableSpaceOnDrive, loadChannelMetaData } from './actions/selectContentActions';
+import {
+  getAvailableChannelsOnPeerServer,
+  getTransferredChannelOnPeerServer,
+} from './apiPeerImport';
 
 const translator = createTranslator('WizardHandlerTexts', {
   loadingChannelToolbar: 'Loading channel…',
@@ -53,16 +54,22 @@ function getInstalledChannelsPromise(store) {
 }
 
 function getTransferType(params) {
-  const { for_export, drive_id } = params;
-  // invalid combination
-  if (for_export && !drive_id) {
-    return null;
+  const { for_export, drive_id, address_id } = params;
+  // invalid combinations
+  if (for_export) {
+    if (!drive_id || address_id) {
+      return null;
+    }
   }
   if (drive_id) {
     return for_export ? TransferTypes.LOCALEXPORT : TransferTypes.LOCALIMPORT;
-  } else {
-    return TransferTypes.REMOTEIMPORT;
   }
+
+  if (address_id) {
+    return TransferTypes.PEERIMPORT;
+  }
+  // If no parameters, assume REMOTEIMPORT
+  return TransferTypes.REMOTEIMPORT;
 }
 
 function handleError(store, error) {
@@ -110,13 +117,20 @@ export function showAvailableChannelsPage(store, params) {
     availableChannelsPromise = new Promise((resolve, reject) => {
       getInstalledChannelsPromise(store).then(() => {
         return RemoteChannelResource.fetchCollection()
-          .then(publicChannels => {
+          .then(remoteChannels => {
             return store
-              .dispatch('manageContent/wizard/getAllRemoteChannels', publicChannels)
+              .dispatch('manageContent/wizard/getAllRemoteChannels', remoteChannels)
               .then(allChannels => resolve(allChannels));
           })
           .catch(() => reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE }));
       });
+    });
+  }
+
+  if (transferType === TransferTypes.PEERIMPORT) {
+    selectedDrivePromise = Promise.resolve({});
+    availableChannelsPromise = getInstalledChannelsPromise(store).then(() => {
+      return getAvailableChannelsOnPeerServer(store, params.address_id);
     });
   }
 
@@ -160,7 +174,6 @@ export function showSelectContentPage(store, params) {
   // HACK if going directly to URL, we make sure channelList has this channel at the minimum.
   // We only get the one channel, since GETing /api/channel with file sizes is slow.
   // We let it fail silently, since it is only used to show "on device" files/resources.
-  // eslint-disable-next-line
   const installedChannelPromise = ChannelResource.fetchModel({
     id: params.channel_id,
     getParams: {
@@ -222,6 +235,14 @@ export function showSelectContentPage(store, params) {
           },
           () => reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO })
         );
+    });
+  }
+
+  if (transferType === TransferTypes.PEERIMPORT) {
+    availableSpacePromise = getAvailableSpaceOnDrive();
+    transferredChannelPromise = getTransferredChannelOnPeerServer(store, {
+      addressId: params.address_id,
+      channelId: params.channel_id,
     });
   }
 

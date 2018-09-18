@@ -16,6 +16,7 @@ function defaultState() {
     transferType: '',
     availableChannels: [],
     selectedDrive: {},
+    selectedPeer: {},
     availableSpace: null,
     transferredChannel: {},
     currentTopicNode: {},
@@ -60,6 +61,9 @@ export default {
   mutations: {
     RESET_STATE(state) {
       Object.assign(state, defaultState());
+    },
+    SET_SELECTED_PEER(state, selectedPeer) {
+      state.selectedPeer = selectedPeer;
     },
     ADD_NODE_TO_INCLUDE_LIST(state, node) {
       state.nodesForTransfer.included.push(node);

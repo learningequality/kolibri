@@ -37,6 +37,7 @@
   export default {
     name: 'KTextbox',
     components: { UiTextbox },
+    inheritAttrs: true,
     props: {
       /**
        * v-model

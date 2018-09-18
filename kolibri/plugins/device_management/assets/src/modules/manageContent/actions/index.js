@@ -1,5 +1,5 @@
-import { ChannelResource } from 'kolibri.resources';
 import { ContentWizardPages, TransferTypes } from '../../../constants';
+import ChannelResource from '../../../apiResources/deviceChannel';
 import * as taskActions from './taskActions';
 
 function refreshChannelList(store) {

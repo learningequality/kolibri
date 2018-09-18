@@ -68,7 +68,7 @@ class DeviceInfoView(views.APIView):
         status, urls = get_urls()
         if not urls:
             # Will not return anything when running the debug server, so at least return the current URL
-            urls = [request.build_absolute_uri(OPTIONS['Deployment']['PATH_PREFIX'])]
+            urls = [request.build_absolute_uri(OPTIONS['Deployment']['URL_PATH_PREFIX'])]
 
         filtered_urls = [url for url in urls if '127.0.0.1' not in url and 'localhost' not in url]
 
