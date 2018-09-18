@@ -3,7 +3,13 @@ import {
   ContentNodeSlimResource,
   ContentNodeProgressResource,
 } from 'kolibri.resources';
-import { currentUserId, getChannelObject, isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
+import {
+  currentUserId,
+  getChannelObject,
+  isUserLoggedIn,
+  isCoach,
+  isAdmin,
+} from 'kolibri.coreVue.vuex.getters';
 import {
   samePageCheckGenerator,
   setChannelInfo,
@@ -25,16 +31,29 @@ const translator = createTranslator('learnerRecommendationPageTitles', {
 });
 
 // User-agnostic recommendations
-function _getPopular() {
-  return ContentNodeSlimResource.getCollection({ popular: 'true', by_role: true }).fetch();
+function _getPopular(state) {
+  const include_fields = [];
+  if (isCoach(state) || isAdmin(state)) {
+    include_fields.push('num_coach_contents');
+  }
+  return ContentNodeSlimResource.getCollection({
+    popular: 'true',
+    by_role: true,
+    include_fields,
+  }).fetch();
 }
 
 // User-specific recommendations
 function _getNextSteps(state) {
   if (isUserLoggedIn(state)) {
+    const include_fields = [];
+    if (isCoach(state) || isAdmin(state)) {
+      include_fields.push('num_coach_contents');
+    }
     return ContentNodeSlimResource.getCollection({
       next_steps: currentUserId(state),
       by_role: true,
+      include_fields,
     }).fetch();
   }
   return Promise.resolve([]);
@@ -42,9 +61,14 @@ function _getNextSteps(state) {
 
 function _getResume(state) {
   if (isUserLoggedIn(state)) {
+    const include_fields = [];
+    if (isCoach(state) || isAdmin(state)) {
+      include_fields.push('num_coach_contents');
+    }
     return ContentNodeSlimResource.getCollection({
       resume: currentUserId(state),
       by_role: true,
+      include_fields,
     }).fetch();
   }
   return Promise.resolve([]);
@@ -101,7 +125,7 @@ export function showLearn(store) {
 
   return ConditionalPromise.all([
     _getNextSteps(state),
-    _getPopular(),
+    _getPopular(state),
     _getResume(state),
     setAndCheckChannels(store),
   ]).only(
