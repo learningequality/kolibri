@@ -16,13 +16,7 @@ export function showLessonPlaylist(store, { lessonId }) {
         return ContentNodeSlimResource.fetchCollection({ getParams: { in_lesson: lesson.id } });
       })
       .then(contentNodes => {
-        const sortedContentNodes = contentNodes.sort((a, b) => {
-          const lesson = store.state.lessonPlaylist.currentLesson;
-          const aKey = lesson.resources.findIndex(resource => resource.contentnode_id === a.id);
-          const bKey = lesson.resources.findIndex(resource => resource.contentnode_id === b.id);
-          return aKey - bKey;
-        });
-        store.commit('lessonPlaylist/SET_LESSON_CONTENTNODES', sortedContentNodes);
+        store.commit('lessonPlaylist/SET_LESSON_CONTENTNODES', contentNodes);
         // Only load contentnode progress if the user is logged in
         if (store.getters.isUserLoggedIn) {
           const contentNodeIds = contentNodes.map(({ id }) => id);
