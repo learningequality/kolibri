@@ -423,12 +423,14 @@
     width: 300px
     background-color: $core-bg-light
     margin: 16px auto
+    border-radius: $radius
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2),
                 0 1px 1px 0 rgba(0, 0, 0, 0.14),
                 0 2px 1px -1px rgba(0, 0, 0, 0.12)
 
   .logo
     margin-top: 16px
+    filter: grayscale(70%) sepia(50%) hue-rotate(9deg) brightness(90%)
 
   .login-form
     width: 70%
@@ -436,6 +438,7 @@
     position: relative
     text-align: left
     margin: auto
+    color: $core-text-default
 
   .login-btn
     width: calc(100% - 16px)
@@ -486,7 +489,7 @@
   h1
     font-size: 1.5em
     font-weight: 100
-    color: #9174a9
+    color: $core-text-annotation
     margin-top: 0
 
   .create-button
