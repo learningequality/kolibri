@@ -74,10 +74,16 @@ class BaseLogModel(AbstractFacilityDataModel):
     def infer_dataset(self, *args, **kwargs):
         if self.user:
             return self.user.dataset
-        else:
-            facility = Facility.get_default_facility()
-            assert facility, "Before you can save logs, you must have a facility"
-            return facility.dataset
+        elif self.dataset_id:
+            # confirm that there exists a facility with that dataset_id
+            try:
+                return Facility.objects.get(dataset_id=self.dataset_id).dataset
+            except Facility.DoesNotExist:
+                pass
+        # if no user or matching facility, infer dataset from the default facility
+        facility = Facility.get_default_facility()
+        assert facility, "Before you can save logs, you must have a facility"
+        return facility.dataset
 
     objects = BaseLogQuerySet.as_manager()
 
