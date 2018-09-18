@@ -216,7 +216,7 @@ def recurse_availability_up_tree(channel_id):
     bridge.end()
 
 
-def recurse_availability_coach_content(channel_id):
+def topic_coach_content_annotation(channel_id):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeClass = bridge.get_class(ContentNode)
@@ -227,7 +227,7 @@ def recurse_availability_coach_content(channel_id):
 
     node_depth = bridge.session.query(func.max(ContentNodeClass.level)).scalar()
 
-    logger.info('Setting availability of coach content ContentNode objects with children for {levels} levels'.format(levels=node_depth))
+    logger.info('Setting totals of coach content ContentNode objects with children for {levels} levels'.format(levels=node_depth))
 
     child = ContentNodeTable.alias()
 
@@ -264,7 +264,7 @@ def recurse_availability_coach_content(channel_id):
                 )
             )
 
-        logger.info('Setting availability of coach content ContentNode objects with children for level {level}'.format(level=level))
+        logger.info('Setting totals of coach content ContentNode objects with children for level {level}'.format(level=level))
 
         # Update all ContentNodes
         connection.execute(ContentNodeTable.update().where(
@@ -280,7 +280,7 @@ def recurse_availability_coach_content(channel_id):
     trans.commit()
 
     elapsed = (datetime.datetime.now() - start)
-    logger.debug("Availability of coach content annotation took {} seconds".format(elapsed.seconds))
+    logger.debug("Topic coach content annotation took {} seconds".format(elapsed.seconds))
 
     bridge.end()
 
@@ -304,7 +304,7 @@ def annotate_content(channel_id, checksums=None):
 
     set_leaf_node_availability_from_local_file_availability(channel_id)
     recurse_availability_up_tree(channel_id)
-    recurse_availability_coach_content(channel_id)
+    topic_coach_content_annotation(channel_id)
     calculate_channel_fields(channel_id)
 
 

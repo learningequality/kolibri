@@ -354,7 +354,7 @@ class ChannelMetadata(models.Model):
     included_languages = models.ManyToManyField(
         "Language",
         related_name='channels',
-        verbose_name=_("languages"),
+        verbose_name="languages",
         blank=True,
     )
 
