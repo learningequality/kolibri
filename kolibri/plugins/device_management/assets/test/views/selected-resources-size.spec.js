@@ -46,7 +46,7 @@ describe('selectedResourcesSize component', () => {
   it('shows correct "resources selected" message given resourceCount & fileSize props', () => {
     const wrapper = makeWrapper();
     const { resourcesSelectedMsg } = getElements(wrapper);
-    expect(resourcesSelectedMsg()).toEqual('Resources selected: 10 (9 MB)');
+    expect(resourcesSelectedMsg()).toEqual('Resources selected: 10 (10 MB)');
   });
 
   it('confirmation button is disabled when no resources are selected', () => {
