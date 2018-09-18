@@ -62,7 +62,7 @@ def _get_channel_list_v1(params, identifier=None):
                             .filter(Q(lang__id__icontains=language_id) | Q(files__lang__id__icontains=language_id)).values_list('tree_id', flat=True)
         channels = channels.filter(Q(root__lang__id__icontains=language_id) | Q(root__tree_id__in=matching_tree_ids))
 
-    return channels.distinct()
+    return channels.filter(root__available=True).distinct()
 
 
 @api_view(['GET'])
