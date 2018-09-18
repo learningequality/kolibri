@@ -62,7 +62,7 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
             const styleBlock = compiler.parseComponent(formatted).styles[i];
 
             // Is a scss style block
-            if (styleBlock.lang === 'scss') {
+            if (styleBlock && styleBlock.lang === 'scss') {
               vueComponentOptions.parser = 'scss';
 
               const start = styleBlock.start;
