@@ -2,31 +2,27 @@
 
   <div>
     <h1>{{ $tr('createNewExam') }}</h1>
-    <KGrid>
-      <KGridItem size="100" percentage>
-        <KTextbox
-          ref="title"
-          :label="$tr('title')"
-          :autofocus="true"
-          :invalid="titleIsInvalid"
-          :invalidText="titleIsInvalidText"
-          :maxlength="100"
-          @blur="titleBlurred = true"
-          v-model.trim="inputTitle"
-        />
-      </KGridItem>
-      <KGridItem size="100" percentage>
-        <KTextbox
-          ref="numQuest"
-          type="number"
-          :label="$tr('numQuestions')"
-          :invalid="numQuestIsInvalid"
-          :invalidText="numQuestIsInvalidText"
-          @blur="numQuestBlurred = true"
-          v-model.trim.number="inputNumQuestions"
-        />
-      </KGridItem>
-    </KGrid>
+    <div>
+      <KTextbox
+        ref="title"
+        :label="$tr('title')"
+        :autofocus="true"
+        :invalid="titleIsInvalid"
+        :invalidText="titleIsInvalidText"
+        :maxlength="100"
+        @blur="titleBlurred = true"
+        v-model.trim="inputTitle"
+      />
+      <KTextbox
+        ref="numQuest"
+        type="number"
+        :label="$tr('numQuestions')"
+        :invalid="numQuestIsInvalid"
+        :invalidText="numQuestIsInvalidText"
+        @blur="numQuestBlurred = true"
+        v-model.trim.number="inputNumQuestions"
+      />
+    </div>
 
     <h2>{{ $tr('chooseExercises') }}</h2>
 
@@ -147,8 +143,6 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import shuffle from 'lodash/shuffle';
@@ -172,8 +166,6 @@
       KCircularLoader,
       KButton,
       KTextbox,
-      KGrid,
-      KGridItem,
       TopicRow,
       ExerciseRow,
       PreviewNewExamModal,
