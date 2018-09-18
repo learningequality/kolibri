@@ -4,7 +4,7 @@
     <KNavbarLink
       v-if="canManageContent"
       type="icon-and-title"
-      :title="$tr('contentLabel')"
+      :title="$tr('channelsTabLabel')"
       :link="linkify(PageNames.MANAGE_CONTENT_PAGE)"
     >
       <mat-svg name="apps" category="navigation" />
@@ -52,7 +52,7 @@
       },
     },
     $trs: {
-      contentLabel: 'Content',
+      channelsTabLabel: 'Channels',
       permissionsLabel: 'Permissions',
       infoLabel: 'Info',
     },

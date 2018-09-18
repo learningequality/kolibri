@@ -83,7 +83,7 @@
       network: 'Kolibri Studio (online)',
       localNetworkOrInternet: 'Local network or internet',
       localDrives: 'Attached drive or memory card',
-      selectLocalRemoteSourceTitle: 'Import from',
+      selectLocalRemoteSourceTitle: 'Select a source',
       loadingMessage: 'Loading connections…',
     },
     methods: {
