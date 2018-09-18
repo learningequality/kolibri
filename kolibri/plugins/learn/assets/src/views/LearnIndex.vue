@@ -41,7 +41,7 @@
     </div>
 
     <div v-if="pointsAreVisible" class="points-wrapper">
-      <a class="points-link" href="/user"><TotalPoints /></a>
+      <a class="points-link" :href="userProfileLink"><TotalPoints /></a>
     </div>
 
     <div>
@@ -62,6 +62,7 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
+  import urls from 'kolibri.urls';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
@@ -231,6 +232,12 @@
         const isAssessment = content && content.assessment;
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
+      },
+      userProfileLink() {
+        const profileLink = urls['kolibri:user:user'];
+        if (profileLink) {
+          return profileLink();
+        }
       },
     },
   };

@@ -3,7 +3,7 @@
   <div>
     <h1>{{ $tr('header') }}</h1>
     <p>
-      <KExternalLink :text="$tr('adminLink')" href="/device/#/content" />
+      <KExternalLink v-if="deviceContentUrl" :text="$tr('adminLink')" :href="deviceContentUrl" />
     </p>
   </div>
 
@@ -13,6 +13,7 @@
 <script>
 
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+  import urls from 'kolibri.urls';
 
   export default {
     name: 'ContentUnavailablePage',
@@ -23,6 +24,14 @@
     },
     components: {
       KExternalLink,
+    },
+    computed: {
+      deviceContentUrl() {
+        const deviceContentUrl = urls['kolibri:devicemanagementplugin:device_management'];
+        if (deviceContentUrl) {
+          return `${deviceContentUrl()}#/content`;
+        }
+      },
     },
     $trs: {
       header: 'No content channels available',
