@@ -56,8 +56,10 @@ from le_utils.constants import content_kinds
 from le_utils.constants import file_formats
 from le_utils.constants import format_presets
 from le_utils.constants.languages import LANGUAGE_DIRECTIONS
+from mptt.managers import TreeManager
 from mptt.models import MPTTModel
 from mptt.models import TreeForeignKey
+from mptt.querysets import TreeQuerySet
 
 from .utils import paths
 from kolibri.core.device.models import ContentCacheKey
@@ -140,6 +142,38 @@ class ContentTag(models.Model):
         return self.tag_name
 
 
+class ContentNodeQueryset(TreeQuerySet):
+
+    def dedupe_by_content_id(self):
+        # remove duplicate content nodes based on content_id
+        if OPTIONS['Database']["DATABASE_ENGINE"] == "sqlite":
+            # filter by ids for the deduplicated content nodes
+            deduped_list = []
+            content_ids = set()
+            for node in self:
+                if node.content_id not in content_ids:
+                    deduped_list.append(node)
+                    content_ids.add(node.content_id)
+            return self.filter(id__in=[node.id for node in deduped_list])
+
+        # when using postgres, we can call distinct on a specific column
+        elif OPTIONS['Database']["DATABASE_ENGINE"] == "postgres":
+            return self.order_by('content_id').distinct('content_id')
+
+
+class ContentNodeManager(models.Manager.from_queryset(ContentNodeQueryset), TreeManager):
+
+    def get_queryset(self, *args, **kwargs):
+        """
+        Ensures that this manager always returns nodes in tree order.
+        """
+        return super(TreeManager, self).get_queryset(
+            *args, **kwargs
+        ).order_by(
+            self.tree_id_attr, self.left_attr
+        )
+
+
 @python_2_unicode_compatible
 class ContentNode(MPTTModel):
     """
@@ -172,6 +206,8 @@ class ContentNode(MPTTModel):
     available = models.BooleanField(default=False)
     stemmed_metaphone = models.CharField(max_length=1800, blank=True)  # for fuzzy search in title and description
     lang = models.ForeignKey('Language', blank=True, null=True)
+
+    objects = ContentNodeManager()
 
     class Meta:
         ordering = ('lft',)

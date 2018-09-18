@@ -49,7 +49,10 @@ class LocalFileFactory(factory.DjangoModelFactory):
 def create_mini_channel(channel_name='channel', channel_id=uuid.uuid4(), root_lang='en'):
     root = ContentNodeFactory.create(kind=content_kinds.TOPIC, channel_id=channel_id, lang_id=root_lang)
     child1 = ContentNodeFactory.create(parent=root, kind=content_kinds.VIDEO, channel_id=channel_id)
-    child2 = ContentNodeFactory.create(parent=root, kind=content_kinds.VIDEO, channel_id=channel_id)
+    dupe_content_id = uuid.uuid4().hex
+    child2 = ContentNodeFactory.create(parent=root, kind=content_kinds.VIDEO, channel_id=channel_id, content_id=dupe_content_id)
+    # create child3 node with duplicate content_id
+    ContentNodeFactory.create(parent=child1, kind=content_kinds.VIDEO, channel_id=channel_id, content_id=dupe_content_id)
     l1 = LocalFileFactory.create(id=uuid.uuid4().hex)
     l2 = LocalFileFactory.create(id=uuid.uuid4().hex)
     FileFactory.create(contentnode=child1, local_file=l1)
@@ -127,7 +130,7 @@ class PublicAPITestCase(APITestCase):
             'name': 'science',
             'language': 'es',  # root node language
             'description': '',
-            'total_resource_count': 2,
+            'total_resource_count': 2,  # should account for nodes with duplicate content_ids
             'version': 0,
             'published_size': 20,
             'last_published': None,
