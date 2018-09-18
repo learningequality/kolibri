@@ -93,7 +93,9 @@
         this.$refs.searchinput.focus();
       },
       search() {
-        this.$emit('searchterm', this.searchTerm);
+        if (this.searchTerm !== '') {
+          this.$emit('searchterm', this.searchTerm);
+        }
       },
     },
   };
