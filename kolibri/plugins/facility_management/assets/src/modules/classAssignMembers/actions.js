@@ -2,7 +2,6 @@ import { MembershipResource, RoleResource } from 'kolibri.resources';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 
 export function enrollLearnersInClass(store, { classId, users }) {
-  // TODO no error handling
   return MembershipResource.saveCollection({
     getParams: {
       collection: classId,
@@ -11,11 +10,12 @@ export function enrollLearnersInClass(store, { classId, users }) {
       collection: classId,
       user: userId,
     })),
+  }).catch(err => {
+    store.dispatch('handleApiError', err, { root: true });
   });
 }
 
 export function assignCoachesToClass(store, { classId, coaches }) {
-  // TODO no error handling
   return RoleResource.saveCollection({
     getParams: {
       collection: classId,
@@ -25,5 +25,7 @@ export function assignCoachesToClass(store, { classId, coaches }) {
       user: userId,
       kind: UserKinds.COACH,
     })),
+  }).catch(err => {
+    store.dispatch('handleApiError', err, { root: true });
   });
 }
