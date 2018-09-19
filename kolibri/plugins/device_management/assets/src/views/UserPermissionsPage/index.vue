@@ -300,6 +300,8 @@
 
   .permissions-icon {
     display: inline;
+    // was 5px in the mocks, this is kolibri standard(?)
+    margin-left: 8px;
   }
 
 </style>
