@@ -26,7 +26,7 @@
           color="black"
           size="small"
           class="clear-button"
-          :class="searchTerm === '' ? '' : 'clear-button-visble'"
+          :class="searchTerm === '' ? '' : 'clear-button-visible'"
           :ariaLabel="$tr('clearButtonLabel')"
           @click="clearSearchTerm"
         >
@@ -162,7 +162,7 @@
     visibility: hidden;
   }
 
-  .clear-button-visble {
+  .clear-button-visible {
     visibility: visible;
   }
 
