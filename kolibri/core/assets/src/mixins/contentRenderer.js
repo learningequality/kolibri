@@ -95,7 +95,7 @@ export default {
     },
     extraFields: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     showCorrectAnswer: {
       type: Boolean,

@@ -59,8 +59,7 @@
       this.$emit('stopTracking');
     },
     methods: {
-      iframeMessageReceived(event)
-      {
+      iframeMessageReceived(event) {
         if (!event) {
           return;
         }
@@ -68,7 +67,7 @@
         if (message.action === 'stateUpdated') {
           this.$emit('updateContentState', message.params);
         } else if (message.action === 'hashiInitialized') {
-          var iframe = document.getElementsByTagName("iframe")[0].contentWindow;
+          var iframe = document.getElementsByTagName('iframe')[0].contentWindow;
 
           // On guest access, the user will be signed out, so just return
           // an empty key value store in that case.
@@ -78,12 +77,11 @@
           }
           var data = {
             action: 'kolibriDataLoaded',
-            params: {data: contentState}
-
-          }
+            params: { data: contentState },
+          };
           iframe.postMessage(JSON.stringify(data), '*');
         }
-      }
+      },
     },
     $trs: {
       exitFullscreen: 'Exit fullscreen',
