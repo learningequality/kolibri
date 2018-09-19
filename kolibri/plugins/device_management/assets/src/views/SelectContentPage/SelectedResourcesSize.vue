@@ -1,45 +1,40 @@
 <template>
 
-  <section>
-    <div class="counters">
-      <div class="choose-message">
-        <span v-if="isInImportMode">
-          {{ $tr('chooseContentToImport') }}
-        </span>
-        <span v-else>
-          {{ $tr('chooseContentToExport') }}
-        </span>
-      </div>
-
-      <div class="table-row">
-        <span class="remaining-space">
-          {{ $tr('remainingSpace', { space: bytesForHumans(remainingSpaceAfterTransfer) }) }}
-        </span>
-
-        <div class="resources-selected">
-          <span class="resources-selected-message">
-            {{ fileSizeText }}
-          </span>
-
-          <KButton
-            class="confirm-button"
-            :text="buttonText"
-            :primary="true"
-            :disabled="buttonIsDisabled"
-            @click="$emit('clickconfirm')"
-          />
-        </div>
-      </div>
-    </div>
-
-    <UiAlert
-      v-if="remainingSpaceAfterTransfer<=0"
-      type="error"
-      :dismissible="false"
-    >
-      {{ $tr('notEnoughSpace') }}
-    </UiAlert>
-  </section>
+  <KGrid>
+    <KGridItem sizes="100, 75, 75" percentage>
+      <h3 class="choose-message" v-if="isInImportMode">
+        {{ $tr('chooseContentToImport') }}
+      </h3>
+      <h3 class="choose-message" v-else>
+        {{ $tr('chooseContentToExport') }}
+      </h3>
+      <p class="available-space">
+        {{ $tr('availableSpace', { space: bytesForHumans(spaceOnDrive) }) }}
+      </p>
+      <p class="resources-selected-message">
+        {{ fileSizeText }}
+      </p>
+    </KGridItem>
+    <KGridItem sizes="100, 25, 25" percentage alignments="left, right, right">
+      <KButton
+        class="confirm-button"
+        :text="buttonText"
+        :primary="true"
+        :disabled="buttonIsDisabled"
+        @click="$emit('clickconfirm')"
+        :style="{ top: buttonOffset }"
+      />
+    </KGridItem>
+    <KGridItem size="100" percentage>
+      <UiAlert
+        v-if="remainingSpaceAfterTransfer <= 0"
+        type="error"
+        :dismissible="false"
+      >
+        {{ $tr('notEnoughSpace') }}
+      </UiAlert>
+    </KGridItem>
+  </KGrid>
 
 </template>
 
@@ -47,6 +42,9 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiAlert from 'keen-ui/src/UiAlert';
   import bytesForHumans from '../ManageContentPage/bytesForHumans';
 
@@ -56,8 +54,11 @@
     name: 'SelectedResourcesSize',
     components: {
       KButton,
+      KGrid,
+      KGridItem,
       UiAlert,
     },
+    mixins: [responsiveWindow],
     props: {
       mode: {
         type: String,
@@ -89,6 +90,12 @@
           resources: this.resourceCount,
         });
       },
+      buttonOffset() {
+        if (this.windowIsSmall) {
+          return '0';
+        }
+        return '72px';
+      },
     },
     methods: {
       bytesForHumans,
@@ -99,8 +106,9 @@
       export: 'export',
       import: 'import',
       notEnoughSpace: 'Not enough space on your device. Select less content to make more space.',
-      remainingSpace: 'Your remaining space: {space}',
-      resourcesSelected: 'Resources selected: {resources, number, integer} ({fileSize})',
+      availableSpace: 'Space available: {space}',
+      resourcesSelected:
+        'Content selected: {fileSize} ({resources, number, integer} {resources, plural, one {resource} other {resources}})',
     },
   };
 
@@ -109,36 +117,9 @@
 
 <style lang="scss" scoped>
 
-  .counters {
-    // using table to separate element by alignment while keeping them on the same line
-    // avoids magic numbers, keeps text lined up.
-    display: table;
-    width: 100%;
-    line-height: 1em;
-  }
-
-  .choose-message {
-    display: table-row;
-    padding: 8px 0;
-    font-weight: bold;
-  }
-
-  .remaining-space {
-    display: table-cell;
-    text-align: left;
-  }
-
-  .resources-selected {
-    display: table-cell;
-    text-align: right;
-  }
-
-  .table-row {
-    display: table-row;
-  }
-
   .confirm-button {
-    margin-right: 0;
+    position: relative;
+    margin: 0;
   }
 
 </style>

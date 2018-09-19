@@ -23,7 +23,7 @@ function getElements(wrapper) {
     buttonText: () => wrapper.find(KButton).text().trim(),
     chooseMsg: () => wrapper.find('.choose-message').text().trim(),
     notification: () => wrapper.find(UiAlert),
-    remainingSpaceMsg: () => wrapper.find('.remaining-space').text().trim(),
+    availableSpaceMsg: () => wrapper.find('.available-space').text().trim(),
     resourcesSelectedMsg: () => wrapper.find('.resources-selected-message').text().trim(),
   }
 }
@@ -46,7 +46,7 @@ describe('selectedResourcesSize component', () => {
   it('shows correct "resources selected" message given resourceCount & fileSize props', () => {
     const wrapper = makeWrapper();
     const { resourcesSelectedMsg } = getElements(wrapper);
-    expect(resourcesSelectedMsg()).toEqual('Resources selected: 10 (10 MB)');
+    expect(resourcesSelectedMsg()).toEqual('Content selected: 10 MB (10 resources)');
   });
 
   it('confirmation button is disabled when no resources are selected', () => {
@@ -86,8 +86,8 @@ describe('selectedResourcesSize component', () => {
 
   it('shows the "remaining space message"', () => {
     const wrapper = makeWrapper();
-    const { remainingSpaceMsg } = getElements(wrapper);
-    expect(remainingSpaceMsg()).toEqual('Your remaining space: 4 GB');
+    const { availableSpaceMsg } = getElements(wrapper);
+    expect(availableSpaceMsg()).toEqual('Space available: 5 GB');
   });
 
   it('shows an error notification when remaining space goes to zero', () => {
