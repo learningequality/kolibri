@@ -1,7 +1,10 @@
 import atexit
 import logging
 import os
+import sys
 import threading
+from subprocess import CalledProcessError
+from subprocess import check_output
 
 import cherrypy
 import ifcfg
@@ -322,3 +325,38 @@ def get_urls(listen_port=None):
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []
+
+
+def installation_type():  # noqa:C901
+    """
+    Tries to guess how the running kolibri server was installed
+
+    :returns: install_type is the type of detected installation
+    """
+    install_type = 'Unknown'
+    if len(sys.argv) > 1:
+        launcher = sys.argv[0]
+        if launcher.endswith('.pex'):
+            install_type = 'pex'
+        elif 'runserver' in sys.argv:
+            install_type = 'devserver'
+        elif launcher == '/usr/bin/kolibri':
+            # find out if this is from the debian package
+            install_type = 'dpkg'
+            try:
+                check_output(['apt-cache', 'show', 'kolibri'])
+                apt_repo = str(check_output(['apt-cache', 'madison', 'kolibri']))
+                if apt_repo:
+                    install_type = 'apt'
+            except CalledProcessError:  # kolibri package not installed!
+                install_type = 'whl'
+        elif '\\Scripts\\kolibri' in launcher:
+            paths = sys.path
+            for path in paths:
+                if 'kolibri.exe' in path:
+                    install_type = 'Windows'
+                    break
+        elif 'start' in sys.argv:
+            install_type = 'whl'
+
+    return install_type
