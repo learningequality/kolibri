@@ -5,10 +5,6 @@
       <h1>{{ $tr('header') }}</h1>
       <table>
         <tr>
-          <th>{{ $tr('kolibriVersion') }}</th>
-          <td>{{ deviceInfo.version }}</td>
-        </tr>
-        <tr>
           <th>
             {{ $tr('url', { count: deviceInfo.urls.length }) }}
           </th>
@@ -25,38 +21,30 @@
           </td>
         </tr>
         <tr>
-          <th>{{ $tr('database') }}</th>
-          <td>{{ deviceInfo.database_path }}</td>
-        </tr>
-        <tr>
-          <th>{{ $tr('deviceName') }}</th>
-          <td>{{ deviceInfo.device_name }}</td>
-        </tr>
-        <tr>
-          <th>{{ $tr('os') }}</th>
-          <td>{{ deviceInfo.os }}</td>
-        </tr>
-        <tr>
           <th>{{ $tr('freeDisk') }}</th>
           <td>{{ deviceInfo.content_storage_free_space }}</td>
         </tr>
         <tr>
-          <th>{{ $tr('serverTime') }}</th>
-          <td>{{ $tr('formattedTime', { datetime: deviceInfo.server_time }) }}</td>
-        </tr>
-        <tr>
-          <th>{{ $tr('serverTimezone') }}</th>
-          <td>{{ deviceInfo.server_timezone }}</td>
-        </tr>
-        <tr>
-          <th>{{ $tr('serverType') }}</th>
-          <td>{{ deviceInfo.server_type }}</td>
-        </tr>
-        <tr>
-          <th>{{ $tr('serverInstallation') }}</th>
-          <td>{{ $tr(deviceInfo.installer) }}</td>
+          <th>{{ $tr('kolibriVersion') }}</th>
+          <td>{{ deviceInfo.version }}</td>
         </tr>
       </table>
+
+      <h1>{{ $tr('advanced') }}</h1>
+      <p>{{ $tr('advancedDescription') }}</p>
+      <div>
+        <KButton
+          :text="buttonText"
+          @click="advancedShown = !advancedShown"
+          appearance="basic-link"
+        />
+      </div>
+      <TechnicalTextBlock
+        v-if="advancedShown"
+        :text="infoText"
+        class="bottom-section"
+        downloadFileName="device-info.txt"
+      />
     </template>
 
     <!-- TODO: Update to: Anyone who can manage content -->
@@ -70,6 +58,8 @@
 
   import { mapState, mapGetters } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
 
   export default {
     name: 'DeviceInfoPage',
@@ -80,31 +70,43 @@
     },
     components: {
       AuthMessage,
+      KButton,
+      TechnicalTextBlock,
+    },
+    data() {
+      return {
+        advancedShown: false,
+      };
     },
     computed: {
       ...mapGetters(['canManageContent']),
       ...mapState('deviceInfo', ['deviceInfo']),
+      buttonText() {
+        return this.advancedShown ? this.$tr('hide') : this.$tr('show');
+      },
+      infoText() {
+        return [
+          `Version:           ${this.deviceInfo.version}`,
+          `OS:                ${this.deviceInfo.os}`,
+          `Installer:         ${this.deviceInfo.installer}`,
+          `Server:            ${this.deviceInfo.server_type}`,
+          `Database:          ${this.deviceInfo.database_path}`,
+          `Device name:       ${this.deviceInfo.device_name}`,
+          `Free disk space:   ${this.deviceInfo.content_storage_free_space}`,
+          `Server time:       ${this.deviceInfo.server_time}`,
+          `Server timezone:   ${this.deviceInfo.server_timezone}`,
+        ].join('\n');
+      },
     },
     $trs: {
       header: 'Device info',
       kolibriVersion: 'Kolibri version',
       url: 'Server {count, plural, one {URL} other {URLs}}',
-      database: 'Database path',
-      deviceName: 'Device name',
-      os: 'Operating system',
       freeDisk: 'Free disk space',
-      serverTime: 'Server time',
-      formattedTime: '{datetime, time, long} on {datetime, date, long}',
-      serverTimezone: 'Server timezone',
-      serverType: 'Server type',
-      serverInstallation: 'Server installer',
-      installed_pex: 'PEX file',
-      installed_dpkg: 'Debian package installed manually',
-      installed_apt: 'Debian package installed using apt (usually from a ppa)',
-      installed_windows: 'Windows Installer',
-      installed_whl: 'Binary created after building the sources',
-      installed_dev: 'Development server',
-      installed_unknown: 'Unknown',
+      advanced: 'Advanced',
+      advancedDescription: 'This information may be helpful for troubleshooting or error reporting',
+      show: 'Show',
+      hide: 'Hide',
     },
   };
 
@@ -112,6 +114,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '~kolibri.styles.definitions';
 
   table {
     margin-top: 16px;
@@ -134,6 +138,10 @@
 
   .link:not(:last-child) {
     margin-bottom: 8px;
+  }
+
+  .bottom-section {
+    margin-top: 16px;
   }
 
 </style>

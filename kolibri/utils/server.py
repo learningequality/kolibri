@@ -332,39 +332,31 @@ def installation_type():  # noqa:C901
     Tries to guess how the running kolibri server was installed
 
     :returns: install_type is the type of detected installation
-    install_type can be any of these strings:
-        - installed_pex:  A PEX file
-        - installed_dpkg: A Debian package installed manually
-        - installed_apt: A Debian package installed using apt (usually from a ppa)
-        - installed_windows: Windows Installer
-        - installed_whl: Binary created after building the sources
-        - installed_dev: Development server
-        - installed_unknown: this function has not been able to guess it
     """
-    install_type = 'installed_unknown'
+    install_type = 'Unknown'
     if len(sys.argv) > 1:
         launcher = sys.argv[0]
         if launcher.endswith('.pex'):
-            install_type = 'installed_pex'
+            install_type = 'pex'
         elif 'runserver' in sys.argv:
-            install_type = 'installed_dev'
+            install_type = 'devserver'
         elif launcher == '/usr/bin/kolibri':
             # find out if this is from the debian package
-            install_type = 'installed_dpkg'
+            install_type = 'dpkg'
             try:
                 check_output(['apt-cache', 'show', 'kolibri'])
                 apt_repo = str(check_output(['apt-cache', 'madison', 'kolibri']))
                 if apt_repo:
-                    install_type = 'installed_apt'
+                    install_type = 'apt'
             except CalledProcessError:  # kolibri package not installed!
-                install_type = 'installed_whl'
+                install_type = 'whl'
         elif '\\Scripts\\kolibri' in launcher:
             paths = sys.path
             for path in paths:
                 if 'kolibri.exe' in path:
-                    install_type = 'installed_windows'
+                    install_type = 'Windows'
                     break
         elif 'start' in sys.argv:
-            install_type = 'installed_whl'
+            install_type = 'whl'
 
     return install_type
