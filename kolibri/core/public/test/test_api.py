@@ -15,6 +15,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.annotation import calculate_channel_fields
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 
 
@@ -53,7 +54,7 @@ def create_mini_channel(channel_name='channel', channel_id=uuid.uuid4(), root_la
     l2 = LocalFileFactory.create(id=uuid.uuid4().hex)
     FileFactory.create(contentnode=child1, local_file=l1)
     FileFactory.create(contentnode=child2, local_file=l2)
-    ChannelMetadata.objects.create(id=channel_id, name=channel_name, min_schema_version=1, root=root)
+    return ChannelMetadata.objects.create(id=channel_id, name=channel_name, min_schema_version=1, root=root)
 
 
 class PublicAPITestCase(APITestCase):
@@ -70,7 +71,8 @@ class PublicAPITestCase(APITestCase):
         self.channel_id1 = uuid.uuid4().hex
         self.channel_id2 = uuid.uuid4().hex
         create_mini_channel(channel_name='math', channel_id=self.channel_id1)
-        create_mini_channel(channel_name='science', channel_id=self.channel_id2, root_lang='es')
+        channel2 = create_mini_channel(channel_name='science', channel_id=self.channel_id2, root_lang='es')
+        calculate_channel_fields(channel2.id)
 
     def test_info_endpoint(self):
         response = self.client.get(reverse('kolibri:core:info-list'))
@@ -124,7 +126,6 @@ class PublicAPITestCase(APITestCase):
             'id': self.channel_id2,
             'name': 'science',
             'language': 'es',  # root node language
-            'included_languages': ['en', 'es'],
             'description': '',
             'total_resource_count': 2,
             'version': 0,
@@ -136,6 +137,8 @@ class PublicAPITestCase(APITestCase):
             }
         for key, value in iteritems(expected):
             self.assertEqual(data[key], value)
+        # we don't care what order these elements are in
+        self.assertSetEqual(set(['en', 'es']), set(data['included_languages']))
 
     def test_public_channel_lookup_no_version(self):
         response = self.client.get(get_channel_lookup_url(identifier=uuid.uuid4().hex, version='100000'))

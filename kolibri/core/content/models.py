@@ -60,6 +60,7 @@ from mptt.models import MPTTModel
 from mptt.models import TreeForeignKey
 
 from .utils import paths
+from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.conf import OPTIONS
 
@@ -304,7 +305,7 @@ class LocalFile(models.Model):
         The same url will also be exposed by the file serializer.
         """
         if self.available:
-            return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl=OPTIONS['Deployment']['PATH_PREFIX'])
+            return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl=OPTIONS['Deployment']['URL_PATH_PREFIX'])
         else:
             return None
 
@@ -348,6 +349,15 @@ class ChannelMetadata(models.Model):
     # Minimum version of Kolibri that this content database is compatible with
     min_schema_version = models.CharField(max_length=50)
     root = models.ForeignKey(ContentNode)
+    # precalculated fields during annotation/migration
+    published_size = models.IntegerField(default=0, null=True, blank=True)
+    total_resource_count = models.IntegerField(default=0, null=True, blank=True)
+    included_languages = models.ManyToManyField(
+        "Language",
+        related_name='channels',
+        verbose_name="languages",
+        blank=True,
+    )
 
     class Admin:
         pass
@@ -358,3 +368,4 @@ class ChannelMetadata(models.Model):
     def delete_content_tree_and_files(self):
         # Use Django ORM to ensure cascading delete:
         self.root.delete()
+        ContentCacheKey.update_cache_key()

@@ -18,7 +18,10 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.serializers import _files_for_nodes
+from kolibri.core.content.serializers import _total_file_size
 from kolibri.core.content.utils.paths import get_content_database_dir_path
+from kolibri.core.device.models import ContentCacheKey
 
 logger = logging.getLogger(__name__)
 
@@ -197,6 +200,52 @@ def recurse_availability_up_tree(channel_id):
             )
         )
 
+        logger.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
+        # Only modify topic availability here
+        connection.execute(ContentNodeTable.update().where(
+            and_(
+                ContentNodeTable.c.level == level - 1,
+                ContentNodeTable.c.channel_id == channel_id,
+                ContentNodeTable.c.kind == content_kinds.TOPIC)).values(available=exists(available_nodes)))
+
+    # commit the transaction
+    trans.commit()
+
+    elapsed = (datetime.datetime.now() - start)
+    logger.debug("Availability annotation took {} seconds".format(elapsed.seconds))
+
+    bridge.end()
+
+
+def topic_coach_content_annotation(channel_id):
+    bridge = Bridge(app_name=CONTENT_APP_NAME)
+
+    ContentNodeClass = bridge.get_class(ContentNode)
+
+    ContentNodeTable = bridge.get_table(ContentNode)
+
+    connection = bridge.get_connection()
+
+    node_depth = bridge.session.query(func.max(ContentNodeClass.level)).scalar()
+
+    logger.info('Setting totals of coach content ContentNode objects with children for {levels} levels'.format(levels=node_depth))
+
+    child = ContentNodeTable.alias()
+
+    # start a transaction
+
+    trans = connection.begin()
+    # Go from the deepest level to the shallowest
+    start = datetime.datetime.now()
+    for level in range(node_depth, 0, -1):
+
+        available_nodes = select([child.c.available]).where(
+            and_(
+                child.c.available == True,  # noqa
+                ContentNodeTable.c.id == child.c.parent_id
+            )
+        )
+
         # Create an expression that will resolve a boolean value for all the available children
         # of a content node, whereby if they all have coach_content flagged on them, it will be true,
         # but otherwise false.
@@ -216,13 +265,7 @@ def recurse_availability_up_tree(channel_id):
                 )
             )
 
-        logger.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
-        # Only modify topic availability here
-        connection.execute(ContentNodeTable.update().where(
-            and_(
-                ContentNodeTable.c.level == level - 1,
-                ContentNodeTable.c.channel_id == channel_id,
-                ContentNodeTable.c.kind == content_kinds.TOPIC)).values(available=exists(available_nodes)))
+        logger.info('Setting totals of coach content ContentNode objects with children for level {level}'.format(level=level))
 
         # Update all ContentNodes
         connection.execute(ContentNodeTable.update().where(
@@ -238,7 +281,7 @@ def recurse_availability_up_tree(channel_id):
     trans.commit()
 
     elapsed = (datetime.datetime.now() - start)
-    logger.debug("Availability annotation took {} seconds".format(elapsed.seconds))
+    logger.debug("Topic coach content annotation took {} seconds".format(elapsed.seconds))
 
     bridge.end()
 
@@ -251,3 +294,42 @@ def set_availability(channel_id, checksums=None):
 
     set_leaf_node_availability_from_local_file_availability(channel_id)
     recurse_availability_up_tree(channel_id)
+    calculate_channel_fields(channel_id)
+    ContentCacheKey.update_cache_key()
+
+
+def annotate_content(channel_id, checksums=None):
+    if checksums is None:
+        set_local_file_availability_from_disk()
+    else:
+        mark_local_files_as_available(checksums)
+
+    set_leaf_node_availability_from_local_file_availability(channel_id)
+    recurse_availability_up_tree(channel_id)
+    topic_coach_content_annotation(channel_id)
+    calculate_channel_fields(channel_id)
+
+
+def calculate_channel_fields(channel_id):
+    channel = ChannelMetadata.objects.get(id=channel_id)
+    calculate_published_size(channel)
+    calculate_total_resource_count(channel)
+    calculate_included_languages(channel)
+
+
+def calculate_published_size(channel):
+    content_nodes = ContentNode.objects.filter(channel_id=channel.id)
+    channel.published_size = _total_file_size(_files_for_nodes(content_nodes).filter(available=True))
+    channel.save()
+
+
+def calculate_total_resource_count(channel):
+    content_nodes = ContentNode.objects.filter(channel_id=channel.id)
+    channel.total_resource_count = content_nodes.filter(available=True).exclude(kind=content_kinds.TOPIC).count()
+    channel.save()
+
+
+def calculate_included_languages(channel):
+    content_nodes = ContentNode.objects.filter(channel_id=channel.id, available=True)
+    languages = content_nodes.order_by('lang').values_list('lang', flat=True).distinct()
+    channel.included_languages.add(*list(languages))

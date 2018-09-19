@@ -30,6 +30,12 @@ module.exports = function(locale) {
           resolve(require('vue-intl/locale-data/es.js'));
         });
       });
+    case 'es-MX':
+      return new Promise(function(resolve) {
+        require.ensure(['vue-intl/locale-data/es.js'], function(require) {
+          resolve(require('vue-intl/locale-data/es.js'));
+        });
+      });
     case 'fa':
       return new Promise(function(resolve) {
         require.ensure(['vue-intl/locale-data/fa.js'], function(require) {
