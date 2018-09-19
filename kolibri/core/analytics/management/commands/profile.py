@@ -76,6 +76,7 @@ class Command(BaseCommand):
             except psutil.NoSuchProcess:
                 pass  # Kolibri server is not running
 
-        collected_information = (active_sessions, active_users, active_users_minute, used_cpu, used_memory, free_memory, total_processes, kolibri_cpu, kolibri_mem)
+        collected_information = (active_sessions, active_users, active_users_minute, used_cpu,
+                                 used_memory, free_memory, total_processes, kolibri_cpu, kolibri_mem)
         logs = ','.join(collected_information)
         return logs
