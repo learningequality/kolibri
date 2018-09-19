@@ -7,7 +7,9 @@
     @changeFullscreen="isInFullscreen = $event"
   >
 
-    <LoadingScreen v-show="!loaded" />
+    <LoadingError v-if="errorLoading" />
+
+    <LoadingScreen v-show="!loaded && !errorLoading" />
 
     <div
       v-show="loaded"
@@ -147,6 +149,7 @@
   import Epub from 'epubjs/src/epub';
   import defaultManager from 'epubjs/src/managers/default';
   import iFrameView from 'epubjs/src/managers/views/iframe';
+  import { EVENTS } from 'epubjs/src/utils/constants';
 
   import Mark from 'mark.js';
   import debounce from 'lodash/debounce';
@@ -160,6 +163,7 @@
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
 
   import LoadingScreen from './LoadingScreen';
+  import LoadingError from './LoadingError';
   import TopBar from './TopBar';
   import TableOfContentsSideBar from './TableOfContentsSideBar.vue';
   import SettingsSideBar from './SettingsSideBar';
@@ -202,11 +206,6 @@
 
   export default {
     name: 'EpubRendererIndex',
-    $trs: {
-      exitFullscreen: 'Exit fullscreen',
-      enterFullscreen: 'Enter fullscreen',
-      loadingBook: 'Loading book',
-    },
     components: {
       CoreFullscreen,
       TopBar,
@@ -221,6 +220,7 @@
       TocButton,
       SettingsButton,
       SearchButton,
+      LoadingError,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
     data: () => ({
@@ -229,6 +229,7 @@
       toc: [],
       locations: [],
       loaded: false,
+      errorLoading: false,
       sideBarOpen: null,
       theme: THEMES.WHITE,
       textAlignment: TEXT_ALIGNMENTS.LEFT,
@@ -437,6 +438,12 @@
             this.locations = locations;
           });
         });
+        this.rendition.on(EVENTS.RENDITION.DISPLAY_ERROR, () => {
+          this.errorLoading = true;
+        });
+      });
+      this.book.on(EVENTS.BOOK.OPEN_FAILED, () => {
+        this.errorLoading = true;
       });
     },
     beforeDestroy() {
