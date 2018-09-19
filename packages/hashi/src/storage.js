@@ -39,12 +39,13 @@ class Storage {
               }
               var message = JSON.parse(event.data);
               if (message.action === 'kolibriDataLoaded') {
-                self.sessionData = message.params['data'];
-                self.sessionKeys = Object.keys(self.sessionData);
-                self.dataReceived = true;
+                this.sessionData = message.params['data'];
+                this.sessionKeys = Object.keys(this.sessionData);
+                this.dataReceived = true;
                 resolve(this);
               }
             }
+            parentMessageReceived = parentMessageReceived.bind(this);
 
             function timedOut() {
                 reject("Load timed out.");
@@ -74,7 +75,6 @@ class Storage {
     }
 
     setItem(keyName, value) {
-        console.log("setItem called");
         if (this.sessionKeys.indexOf(keyName) === -1) {
             this.sessionKeys.push(keyName);
         }
