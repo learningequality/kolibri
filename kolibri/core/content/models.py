@@ -49,6 +49,7 @@ from gettext import gettext as _
 
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models import Min
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
 from jsonfield import JSONField
@@ -147,14 +148,9 @@ class ContentNodeQueryset(TreeQuerySet):
     def dedupe_by_content_id(self):
         # remove duplicate content nodes based on content_id
         if OPTIONS['Database']["DATABASE_ENGINE"] == "sqlite":
-            # filter by ids for the deduplicated content nodes
-            deduped_list = []
-            content_ids = set()
-            for node in self:
-                if node.content_id not in content_ids:
-                    deduped_list.append(node)
-                    content_ids.add(node.content_id)
-            return self.filter(id__in=[node.id for node in deduped_list])
+            # adapted from https://code.djangoproject.com/ticket/22696
+            deduped_ids = self.values('content_id').annotate(node_id=Min('id')).values_list('node_id', flat=True)
+            return self.filter(id__in=deduped_ids)
 
         # when using postgres, we can call distinct on a specific column
         elif OPTIONS['Database']["DATABASE_ENGINE"] == "postgres":
