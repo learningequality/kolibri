@@ -8,7 +8,7 @@ export const THEMES = {
     textColor: '#603e22',
   },
   GREY: {
-    backgroundColor: '#6d6d6f',
+    backgroundColor: '#58585a',
     textColor: 'white',
   },
   BLACK: {

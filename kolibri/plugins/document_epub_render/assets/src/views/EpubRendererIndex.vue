@@ -11,6 +11,7 @@
 
     <div
       v-show="loaded"
+      @mousedown.stop="handleMouseDown"
       @keyup.esc="closeSideBar"
     >
 
@@ -25,7 +26,7 @@
       />
 
       <FocusLock
-        :disabled="!tocSideBarIsOpen || clickedOutsideRenderer"
+        :disabled="!tocSideBarIsOpen"
         :returnFocus="true"
       >
         <TocButton
@@ -47,7 +48,7 @@
       </FocusLock>
 
       <FocusLock
-        :disabled="!settingsSideBarIsOpen || clickedOutsideRenderer"
+        :disabled="!settingsSideBarIsOpen"
         :returnFocus="false"
       >
         <SettingsButton
@@ -74,7 +75,7 @@
       </FocusLock>
 
       <FocusLock
-        :disabled="!searchSideBarIsOpen || clickedOutsideRenderer"
+        :disabled="!searchSideBarIsOpen"
         :returnFocus="false"
       >
         <SearchButton
@@ -230,7 +231,7 @@
       loaded: false,
       sideBarOpen: null,
       theme: THEMES.WHITE,
-      textAlignment: TEXT_ALIGNMENTS.JUSTIFY,
+      textAlignment: TEXT_ALIGNMENTS.LEFT,
       defaultFontSize: null,
       fontSize: null,
       isInFullscreen: false,
@@ -240,8 +241,6 @@
       sliderValue: 0,
 
       currentLocationCfi: null,
-
-      clickedOutsideRenderer: false,
 
       // TODO
       progress: 0,
@@ -279,8 +278,8 @@
           h3: { ...colorStyle },
           h4: { ...colorStyle },
           h5: { ...colorStyle },
-          span: { ...colorStyle },
           'p:first-of-type::first-letter': { ...colorStyle },
+          video: { 'max-width': '100%' },
         };
       },
       tocSideBarIsOpen() {
@@ -428,9 +427,7 @@
 
           this.rendition.on('relocated', location => this.relocatedHandler(location));
           this.rendition.on('keyup', this.handleKeyUps);
-          this.rendition.on('click', () => {
-            this.sideBarOpen = null;
-          });
+          this.rendition.on('click', () => this.closeSideBar());
 
           window.addEventListener('mousedown', this.handleMouseDown, true);
 
@@ -473,7 +470,17 @@
       handleMouseDown(event) {
         // This check is necessary because event listeners don't seem to be removed on beforeDestroy
         if (this.$refs.epubRenderer) {
-          this.clickedOutsideRenderer = !this.$refs.epubRenderer.$el.contains(event.target);
+          let closeSideBar = false;
+          if (this.tocSideBarIsOpen) {
+            closeSideBar = !this.$refs.tocSideBar.$el.contains(event.target);
+          } else if (this.settingsSideBarIsOpen) {
+            closeSideBar = !this.$refs.settingsSideBar.$el.contains(event.target);
+          } else if (this.searchSideBarIsOpen) {
+            closeSideBar = !this.$refs.searchSideBar.$el.contains(event.target);
+          }
+          if (closeSideBar) {
+            this.closeSideBar();
+          }
         }
       },
       closeSideBar() {
@@ -496,22 +503,22 @@
       },
       handleTocToggle() {
         this.sideBarOpen === SIDE_BARS.TOC
-          ? (this.sideBarOpen = null)
+          ? this.closeSideBar()
           : (this.sideBarOpen = SIDE_BARS.TOC);
       },
       handleSearchToggle() {
         this.sideBarOpen === SIDE_BARS.SEARCH
-          ? (this.sideBarOpen = null)
+          ? this.closeSideBar()
           : (this.sideBarOpen = SIDE_BARS.SEARCH);
       },
       handleSettingToggle() {
         this.sideBarOpen === SIDE_BARS.SETTINGS
-          ? (this.sideBarOpen = null)
+          ? this.closeSideBar()
           : (this.sideBarOpen = SIDE_BARS.SETTINGS);
       },
       handleTocNavigation(item) {
         this.jumpToLocation(item.href);
-        this.sideBarOpen = null;
+        this.closeSideBar();
       },
       getCurrentFontSize() {
         const iframe = this.getIframe();
