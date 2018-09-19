@@ -50,7 +50,7 @@
       :contentHasCheckbox="contentIsDirectoryKind"
       :contentCardMessage="selectionMetadata"
       :contentCardLink="contentLink"
-      @change_select_all="toggleTopicInWorkingResources"
+      @changeselectall="toggleTopicInWorkingResources"
       @change_content_card="toggleSelected"
     />
 

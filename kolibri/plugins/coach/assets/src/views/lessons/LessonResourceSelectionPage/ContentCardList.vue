@@ -5,7 +5,7 @@
       :label="$tr('selectAllCheckboxLabel')"
       v-if="showSelectAll"
       :checked="selectAllChecked"
-      @change="$emit('change_select_all', $event)"
+      @change="$emit('changeselectall', $event)"
     />
     <li
       v-for="content in contentList"
