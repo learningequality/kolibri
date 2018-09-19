@@ -2,7 +2,7 @@
 
   <div class="resource-selection-page">
     <h1>
-      {{ $tr('addResourcesHeader') }}
+      {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
     </h1>
 
     <KGrid>
@@ -308,11 +308,11 @@
     },
     $trs: {
       // TODO semantic string names
-      addResourcesHeader: 'Manage resources in this lesson',
       save: 'Save',
       selectionInformation:
         '{count, number, integer} of {total, number, integer} resources selected',
-      totalResourcesSelected: 'Total resources selected: {total, number, integer}',
+      totalResourcesSelected:
+        '{total, number, integer} {total, plural, one {resource} other {resources}} in this lesson',
       documentTitle: `Manage resources in '{lessonName}'`,
       selectAllCheckboxLabel: 'Select all',
       resourcesAddedSnackbarText:
