@@ -1,7 +1,7 @@
 import find from 'lodash/find';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { handleApiError, samePageCheckGenerator } from 'kolibri.coreVue.vuex.actions';
-import { RemoteChannelResource, ChannelResource } from 'kolibri.resources';
+import { RemoteChannelResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { ContentWizardPages, ContentWizardErrors, TransferTypes } from '../../constants';
@@ -10,6 +10,7 @@ import {
   selectContentPageLink,
   manageContentPageLink,
 } from '../../views/manage-content-page/manageContentLinks';
+import ChannelResource from '../../apiResources/deviceChannel';
 import { isImportingMore } from '../getters';
 import {
   getAvailableSpaceOnDrive,
