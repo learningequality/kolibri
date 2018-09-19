@@ -221,7 +221,7 @@ docker-build-base: writeversion
 		-f docker/base.dockerfile \
 		-t "learningequality/kolibribase"
 
-docker-demoserver: docker-build-base
+docker-demoserver:
 	# Build the demoserver image
 	docker image build \
 			-f docker/demoserver.dockerfile \
@@ -236,7 +236,7 @@ docker-demoserver: docker-build-base
 	echo "Check http://localhost:8080 you should have a demoserver running there."
 
 
-docker-devserver: docker-build-base
+docker-devserver:
 	# Build the kolibridev image: contains source code + pip install -e of kolibri
 	docker image build \
 			-f docker/dev.dockerfile \
