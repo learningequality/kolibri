@@ -10,6 +10,7 @@ from django.db.utils import OperationalError
 from django.utils import timezone
 
 from kolibri.core.logger.models import UserSessionLog
+from kolibri.utils.server import PID_FILE
 
 logger = logging.getLogger('profiler')
 
@@ -57,21 +58,23 @@ class Command(BaseCommand):
         total_processes = str(len(psutil.pids()))
 
         # Kolibri usage information
+        kolibri_mem = kolibri_cpu = 'None'
         kolibri_pid = None
-        current_command_pid = psutil.Process().pid
-        for proc in psutil.process_iter():
-            if proc.pid == current_command_pid:
-                continue  # don't catch this kolibri command as the kolibri server process
-            process_name = proc.name().lower()
-            if process_name in ('kolibri', '/usr/bin/kolibri', '/usr/local/bin/kolibri') or process_name.startswith('kolibri'):
-                kolibri_pid = proc.pid
-                break
+        try:
+            with open(PID_FILE, 'r') as f:
+                kolibri_pid = int(f.readline())
+        except IOError:
+            pass  # Kolibri PID file does not exist
+        except ValueError:
+            pass  # corrupted Kolibri PID file
+
         if kolibri_pid:
-            kolibri_proc = psutil.Process(kolibri_pid)
-            kolibri_mem = str(kolibri_proc.memory_info().vms / pow(2, 20))
-            kolibri_cpu = str(kolibri_proc.cpu_percent())
-        else:
-            kolibri_mem = kolibri_cpu = 'None'
+            try:
+                kolibri_proc = psutil.Process(kolibri_pid)
+                kolibri_mem = str(kolibri_proc.memory_info().vms / pow(2, 20))
+                kolibri_cpu = str(kolibri_proc.cpu_percent())
+            except psutil.NoSuchProcess:
+                pass  # Kolibri server is not running
 
         collected_information = (active_sessions, active_users, active_users_minute, used_cpu, used_memory, free_memory, total_processes, kolibri_cpu, kolibri_mem)
         logs = ','.join(collected_information)
