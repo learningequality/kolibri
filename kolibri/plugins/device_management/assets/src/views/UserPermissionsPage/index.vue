@@ -285,8 +285,8 @@
 
   .checkbox-description {
     // visual estimate, supposed to line up with checkbox label
-    margin: 0;
-    margin-left: 14px;
+    padding: 0;
+    margin: 0 0 0 50px;
     font-size: 12px;
     color: $core-text-annotation;
     &.disabled {
