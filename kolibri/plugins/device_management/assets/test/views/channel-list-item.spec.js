@@ -135,7 +135,7 @@ describe('channelListItem', () => {
     // ...and does not show the "On Device" indicator
     function test(wrapper) {
       const { resourcesSizeText, onDevice } = getElements(wrapper);
-      expect(resourcesSizeText()).toEqual('90 MB');
+      expect(resourcesSizeText()).toEqual('95 MB');
       expect(onDevice().exists()).toEqual(false);
     }
     test(manageWrapper);
