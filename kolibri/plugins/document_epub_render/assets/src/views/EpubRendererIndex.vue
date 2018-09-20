@@ -195,14 +195,16 @@
     },
   };
 
-  const TOP_BAR_HEIGHT = 36;
-  const BOTTOM_BAR_HEIGHT = 54;
-
   const SIDE_BARS = {
     TOC: 'TOC',
     SEARCH: 'SEARCH',
     SETTINGS: 'SETTINGS',
   };
+
+  const TOP_BAR_HEIGHT = 36;
+  const BOTTOM_BAR_HEIGHT = 54;
+
+  const LOCATIONS_INTERVAL = 1000;
 
   export default {
     name: 'EpubRendererIndex',
@@ -242,12 +244,9 @@
       sliderValue: 0,
 
       currentLocationCfi: null,
-
-      // TODO
-      progress: 0,
-      totalPages: null,
     }),
     computed: {
+      ...mapGetters(['sessionTimeSpent']),
       epubURL() {
         return this.defaultFile.storage_url;
       },
@@ -341,11 +340,12 @@
       increaseFontSizeDisabled() {
         return this.fontSize === `${FONT_SIZES.px.max}px`;
       },
-
-      // TODO
-      ...mapGetters(['sessionTimeSpent']),
-      targetTime() {
-        return this.totalPages * 30;
+      expectedTimeToRead() {
+        const WORDS_PER_MINUTE = 300;
+        const CHARS_PER_WORD = 10;
+        const numberOfWords = (this.locations.length * LOCATIONS_INTERVAL) / CHARS_PER_WORD;
+        const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
+        return seconds;
       },
     },
     watch: {
@@ -434,8 +434,9 @@
 
           this.loaded = true;
 
-          this.book.locations.generate(1000).then(locations => {
+          this.book.locations.generate(LOCATIONS_INTERVAL).then(locations => {
             this.locations = locations;
+            this.$emit('startTracking');
           });
         });
         this.rendition.on(EVENTS.RENDITION.DISPLAY_ERROR, () => {
@@ -684,7 +685,9 @@
       },
       // TODO
       updateProgress() {
-        this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);
+        if (this.locations.length > 0) {
+          this.$emit('updateProgress', this.sessionTimeSpent / this.expectedTimeToRead);
+        }
       },
     },
   };
