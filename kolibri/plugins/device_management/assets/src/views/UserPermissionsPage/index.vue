@@ -46,7 +46,7 @@
         />
         <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
 
-        <ul :class="['checkbox-description', {disabled: superuserDisabled}]">
+        <ul class="checkbox-description" :class="{disabled: superuserDisabled}">
           <li>{{ $tr('superAdminExplanation1') }}</li>
           <li>{{ $tr('superAdminExplanation2') }}</li>
         </ul>
