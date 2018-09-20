@@ -10,8 +10,9 @@
       {{ $tr('addedToLessonIndicator') }}
       <KButton
         @click="removeFromWorkingResources"
-        :text="$tr('undoButtonLabel')"
-        appearance="basic-link"
+        :text="$tr('removeLabel')"
+        :primary="true"
+        class="no-margin"
       />
       <!-- TODO include undo button here -->
     </template>
@@ -19,6 +20,8 @@
       v-else
       @click="addToWorkingResources"
       :text="$tr('addToLessonButtonLabel')"
+      :primary="true"
+      class="no-margin"
     />
   </div>
 
@@ -35,7 +38,7 @@
       KButton,
     },
     $trs: {
-      undoButtonLabel: 'Undo',
+      removeLabel: 'Remove',
       addToLessonButtonLabel: 'Add to lesson',
       addedToLessonIndicator: 'Added to lesson',
     },
@@ -73,9 +76,14 @@
 <style lang="scss" scoped>
 
   .selected-icon {
+    position: relative;
+    top: 4px;
     width: 20px;
     height: 20px;
-    vertical-align: bottom;
+  }
+
+  .no-margin {
+    margin-right: 0;
   }
 
 </style>

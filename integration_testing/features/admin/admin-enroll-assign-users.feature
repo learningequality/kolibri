@@ -1,5 +1,5 @@
 Feature: Admin enroll learners and assign coaches to classes
-    Admin needs to be able to enroll learners and assign coaches to classes in the facility
+  Admin needs to be able to enroll learners and assign coaches to classes in the facility
 
   Background:
     Given I am signed in to Kolibri as admin user

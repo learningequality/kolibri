@@ -1,12 +1,11 @@
 Feature: Coach assign exams
-    Coach needs to be able to assign exams to one or more groups, as the exam by default is assigned to the entire class
+  Coach needs to be able to assign exams to one or more groups, as the exam by default is assigned to the entire class
 
   Background:
     Given there are 2 or more learner groups
       And I am signed in to Kolibri as a coach user
       And I am on the *Coach > Exams* page
       And I see the exam <exam_title>
-    
 
     Scenario: Coach assigns exam to group(s)
       When I click the exam <exam_title>

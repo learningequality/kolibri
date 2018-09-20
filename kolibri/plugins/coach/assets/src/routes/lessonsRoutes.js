@@ -4,12 +4,14 @@ import {
   showLessonResourceSelectionRootPage,
   showLessonResourceSelectionTopicPage,
   showLessonSelectionContentPreview,
+  showLessonResourceSearchPage,
 } from '../modules/lessonResources/handlers';
 import { showLessonsRootPage } from '../modules/lessonsRoot/handlers';
 import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
 import { showLessonResourceUserReportPage } from '../modules/exerciseDetail/handlers';
 import { showLessonResourceUserSummaryPage } from '../modules/lessonResourceUserSummary/handlers';
 import { LessonsPageNames } from '../constants/lessonsConstants';
+import LessonResourceSelectionPage from '../views/lessons/LessonResourceSelectionPage';
 
 export default [
   {
@@ -49,6 +51,7 @@ export default [
   {
     name: LessonsPageNames.SELECTION_ROOT,
     path: '/:classId/lessons/:lessonId/selection',
+    component: LessonResourceSelectionPage,
     handler: toRoute => {
       showLessonResourceSelectionRootPage(store, toRoute.params);
     },
@@ -56,8 +59,17 @@ export default [
   {
     name: LessonsPageNames.SELECTION,
     path: '/:classId/lessons/:lessonId/selection/topic/:topicId',
+    component: LessonResourceSelectionPage,
     handler: toRoute => {
       showLessonResourceSelectionTopicPage(store, toRoute.params);
+    },
+  },
+  {
+    name: LessonsPageNames.SELECTION_SEARCH,
+    path: '/:classId/lessons/:lessonId/selection/search/:searchTerm',
+    component: LessonResourceSelectionPage,
+    handler: toRoute => {
+      showLessonResourceSearchPage(store, toRoute.params);
     },
   },
   {

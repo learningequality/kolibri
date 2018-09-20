@@ -28,7 +28,7 @@
           <div class="resource-list-header-add-resource-button">
             <KRouterLink
               :to="lessonSelectionRootPage"
-              :text="$tr('addResourcesButtonPrompt')"
+              :text="$tr('manageResourcesButton')"
               :primary="true"
               appearance="raised-button"
             />
@@ -140,7 +140,7 @@
       noResourcesInLesson: 'No resources in this lesson',
       options: 'Options',
       resources: 'Resources',
-      addResourcesButtonPrompt: 'Add resources',
+      manageResourcesButton: 'Manage resources',
     },
   };
 

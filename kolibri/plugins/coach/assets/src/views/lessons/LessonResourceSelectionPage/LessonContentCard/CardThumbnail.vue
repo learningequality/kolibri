@@ -5,28 +5,13 @@
     :style="thumbnailBackground"
   >
 
+    <CornerIcon :kind="kind" />
+
     <ContentIcon
       v-if="!thumbnail"
       :kind="kind"
       class="thumbnail-icon"
     />
-
-    <div class="content-icon-wrapper">
-      <svg
-        height="64"
-        width="64"
-        viewBox="0 0 64 64"
-        class="content-icon-bg"
-        :style="contentIconBgColor"
-      >
-        <polygon stroke-width="0" :points="contentIconBgCoords" />
-      </svg>
-      <ContentIcon
-        :kind="kind"
-        :showTooltip="true"
-        class="content-icon"
-      />
-    </div>
 
   </div>
 
@@ -37,11 +22,13 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
+  import CornerIcon from './CornerIcon';
 
   export default {
     name: 'CardThumbnail',
     components: {
       ContentIcon,
+      CornerIcon,
     },
     props: {
       thumbnail: {
@@ -58,32 +45,6 @@
       thumbnailBackground() {
         if (this.thumbnail) {
           return { backgroundImage: `url('${this.thumbnail}')` };
-        }
-        return {};
-      },
-      contentIconBgCoords() {
-        const topLeft = '0,0';
-        const topRight = '64,0';
-        const bottomLeft = '0,64';
-        const bottomRight = '64,64';
-        if (this.isRtl) {
-          return `${topLeft} ${topRight} ${bottomRight}`;
-        }
-        return `${topLeft} ${topRight} ${bottomLeft}`;
-      },
-      contentIconBgColor() {
-        if (this.kind === 'exercise') {
-          return { fill: '#0eafaf' };
-        } else if (this.kind === 'video') {
-          return { fill: '#3938A5' };
-        } else if (this.kind === 'audio') {
-          return { fill: '#E65997' };
-        } else if (this.kind === 'document') {
-          return { fill: '#ED2828' };
-        } else if (this.kind === 'topic') {
-          return { fill: '#262626' };
-        } else if (this.kind === 'html5') {
-          return { fill: '#FF8B41' };
         }
         return {};
       },
@@ -114,26 +75,6 @@
     left: 50%;
     color: $core-text-annotation;
     transform: translate(-50%, -50%) scale(2);
-  }
-
-  .content-icon-wrapper {
-    position: absolute;
-    width: 48px;
-    height: 48px;
-  }
-
-  .content-icon {
-    position: absolute;
-    font-size: 18px;
-    color: white;
-    transform: translate(25%, 0);
-  }
-
-  .content-icon-bg {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    fill-opacity: 0.9;
   }
 
 </style>

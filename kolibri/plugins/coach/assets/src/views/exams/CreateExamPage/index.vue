@@ -2,31 +2,27 @@
 
   <div>
     <h1>{{ $tr('createNewExam') }}</h1>
-    <KGrid>
-      <KGridItem size="4">
-        <KTextbox
-          ref="title"
-          :label="$tr('title')"
-          :autofocus="true"
-          :invalid="titleIsInvalid"
-          :invalidText="titleIsInvalidText"
-          :maxlength="100"
-          @blur="titleBlurred = true"
-          v-model.trim="inputTitle"
-        />
-      </KGridItem>
-      <KGridItem size="3">
-        <KTextbox
-          ref="numQuest"
-          type="number"
-          :label="$tr('numQuestions')"
-          :invalid="numQuestIsInvalid"
-          :invalidText="numQuestIsInvalidText"
-          @blur="numQuestBlurred = true"
-          v-model.trim.number="inputNumQuestions"
-        />
-      </KGridItem>
-    </KGrid>
+    <div>
+      <KTextbox
+        ref="title"
+        :label="$tr('title')"
+        :autofocus="true"
+        :invalid="titleIsInvalid"
+        :invalidText="titleIsInvalidText"
+        :maxlength="100"
+        @blur="titleBlurred = true"
+        v-model.trim="inputTitle"
+      />
+      <KTextbox
+        ref="numQuest"
+        type="number"
+        :label="$tr('numQuestions')"
+        :invalid="numQuestIsInvalid"
+        :invalidText="numQuestIsInvalidText"
+        @blur="numQuestBlurred = true"
+        v-model.trim.number="inputNumQuestions"
+      />
+    </div>
 
     <h2>{{ $tr('chooseExercises') }}</h2>
 
@@ -147,8 +143,6 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import shuffle from 'lodash/shuffle';
@@ -172,8 +166,6 @@
       KCircularLoader,
       KButton,
       KTextbox,
-      KGrid,
-      KGridItem,
       TopicRow,
       ExerciseRow,
       PreviewNewExamModal,
@@ -183,10 +175,10 @@
     },
     mixins: [responsiveWindow],
     $trs: {
-      createNewExam: 'Create a new exam',
-      chooseExercises: 'Select exercises to pull questions from',
+      createNewExam: 'New exam',
+      chooseExercises: 'Select exercises',
       selectAll: 'Select all',
-      title: 'Exam title',
+      title: 'Title',
       numQuestions: 'Number of questions',
       examRequiresTitle: 'The exam requires a title',
       numQuestionsBetween: 'Enter a number between 1 and 50',
@@ -198,8 +190,7 @@
       finish: 'Finish',
       added: 'Added',
       removed: 'Removed',
-      selected:
-        '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
+      selected: '{count, number, integer} total selected',
       name: 'Name',
       documentTitle: 'Create new exam',
     },

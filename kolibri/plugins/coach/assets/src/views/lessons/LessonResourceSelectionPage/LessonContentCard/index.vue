@@ -96,6 +96,14 @@
         return this.kind === ContentNodeKinds.CHANNEL || this.kind === ContentNodeKinds.TOPIC;
       },
     },
+    $trs: {
+      // These strings are not used yet
+      resourcesInTopic: '{count} {count, plural, one {resource} other {resources}}',
+      selectedResourcesInTopic: '{selected} of {total} selected',
+      previewButtonLabel: 'Preview',
+      goToTopicButtonLabel: 'Go to topic',
+      searchResultTopicLink: 'From {parentTopic} in {channelName}',
+    },
   };
 
 </script>
