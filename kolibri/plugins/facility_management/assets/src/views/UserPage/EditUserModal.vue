@@ -316,7 +316,6 @@
 
   .super-admin-description {
     font-size: 12px;
-    color: $core-text-annotation;
   }
 
   .user-type.header {
