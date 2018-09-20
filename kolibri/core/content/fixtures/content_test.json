@@ -400,7 +400,10 @@
       "author": "eli",
       "version": 0,
       "min_schema_version": "1",
-      "root": "da7ecc42e62553eebc8121242746e88a"
+      "root": "da7ecc42e62553eebc8121242746e88a",
+      "published_size": 0,
+      "total_resource_count": 0,
+      "included_languages": []
     },
     "pk": "6199dde695db4ee4ab392222d5af1e5c",
     "model": "content.channelmetadata"

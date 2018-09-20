@@ -123,6 +123,7 @@
   import UiToolbar from 'keen-ui/src/UiToolbar';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import KSelect from 'kolibri.coreVue.components.KSelect';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
 
@@ -174,7 +175,7 @@
     }),
     computed: {
       ...mapGetters(['facilities', 'session']),
-      ...mapState('signUp', ['errorCode', 'busy']),
+      ...mapState('signUp', ['errors', 'busy']),
       signInPage() {
         return { name: PageNames.SIGN_IN };
       },
@@ -196,7 +197,7 @@
         return Boolean(this.nameIsInvalidText);
       },
       usernameDoesNotExistYet() {
-        if (this.errorCode === 400) {
+        if (this.errors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
           return false;
         }
         return true;
@@ -206,7 +207,7 @@
           if (this.username === '') {
             return this.$tr('required');
           }
-          if (!validateUsername(this.username)) {
+          if (!validateUsername(this.username) || this.errors.includes(ERROR_CONSTANTS.INVALID)) {
             return this.$tr('usernameAlphaNumError');
           }
           if (!this.usernameDoesNotExistYet) {

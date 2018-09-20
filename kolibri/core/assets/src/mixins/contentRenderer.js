@@ -1,4 +1,7 @@
 import { defaultLanguage, languageValidator } from 'kolibri.utils.i18n';
+import logger from 'kolibri.lib.logging';
+
+const logging = logger.getLogger(__filename);
 
 const fileFieldMap = {
   storage_url: {
@@ -37,21 +40,24 @@ const fileFieldMap = {
   },
 };
 
-const fileValidator = file => {
-  // Do this as a reduce, as any failure will short cut any other computation
-  return Object.keys(fileFieldMap).reduce(
-    (acc, key) =>
-      acc &&
+function fileValidator(file) {
+  let result = true;
+  for (const key in fileFieldMap) {
+    const val =
       typeof file[key] !== undefined &&
       typeof file[key] === typeof fileFieldMap[key].type() &&
-      (fileFieldMap[key].validator ? fileFieldMap[key].validator(file[key]) : true),
-    true
-  );
-};
+      (fileFieldMap[key].validator ? fileFieldMap[key].validator(file[key]) : true);
+    if (!val) {
+      logging.error(`Validation failed for '${key}' in `, file);
+      result = false;
+    }
+  }
+  return result;
+}
 
-const multipleFileValidator = files => {
+function multipleFileValidator(files) {
   return files.reduce((acc, file) => acc && fileValidator(file), true);
-};
+}
 
 export default {
   props: {

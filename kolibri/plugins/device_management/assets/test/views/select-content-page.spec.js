@@ -73,7 +73,7 @@ describe('selectContentPage', () => {
     const { totalSizeRows } = getElements(wrapper);
     const rows = totalSizeRows();
     expect(rows.at(1).text()).toEqual('1,000');
-    expect(rows.at(2).text()).toEqual('4 GB');
+    expect(rows.at(2).text()).toEqual('5 GB');
   });
 
   it('if resources are on the device, it shows the total size of those', () => {
@@ -81,7 +81,7 @@ describe('selectContentPage', () => {
     const { onDeviceRows } = getElements(wrapper);
     const rows = onDeviceRows();
     expect(rows.at(1).text()).toEqual('2,000');
-    expect(rows.at(2).text()).toEqual('90 MB');
+    expect(rows.at(2).text()).toEqual('95 MB');
   });
 
   it('if channel is not on device, it shows size and resources as 0', () => {

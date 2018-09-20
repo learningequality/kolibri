@@ -286,7 +286,10 @@
       "thumbnail": "",
       "root_id": "da7ecc42e62553eebc8121242746e88a",
       "version": 0,
-      "name": "testing"
+      "name": "testing",
+      "published_size": 0,
+      "total_resource_count": 0,
+      "included_languages": []
     }
   ],
   "content_contentnode_has_prerequisite": [

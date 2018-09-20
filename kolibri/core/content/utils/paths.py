@@ -2,6 +2,7 @@ import os
 import re
 
 from django.core.urlresolvers import reverse
+from django.utils.http import urlencode
 from six.moves.urllib.parse import urljoin
 
 from kolibri.utils import conf
@@ -124,10 +125,12 @@ def get_channel_lookup_url(version='1', identifier=None, baseurl=None, keyword=N
     if identifier:
         content_server_path += '/lookup/{}'.format(identifier)
     content_server_path += '?'
+    query_params = {}
     if keyword:
-        content_server_path += 'keyword={}&'.format(keyword)
+        query_params['keyword'] = keyword
     if language:
-        content_server_path += 'language={}'.format(language)
+        query_params['language'] = language
+    content_server_path += urlencode(query_params)
 
     return get_content_server_url(content_server_path, baseurl=baseurl)
 
