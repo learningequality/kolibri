@@ -9,7 +9,7 @@
   >
     <div>
       <p>{{ $tr('confirmationQuestion') }}</p>
-      <p>{{ $tr('changesWillBeLost') }}</p>
+      <p>{{ $tr('reconfirmation') }}</p>
     </div>
   </KModal>
 
@@ -35,9 +35,8 @@
     },
     $trs: {
       cancel: 'Cancel',
-      changesWillBeLost: 'Your changes will be lost',
       confirmationQuestion: 'Are you sure you want to reset your settings?',
-      reconfirmationDescription: 'Any custom changes will be lost.',
+      reconfirmation: 'Any custom changes will be lost.',
       reset: 'Reset',
       title: 'Reset to defaults',
     },
