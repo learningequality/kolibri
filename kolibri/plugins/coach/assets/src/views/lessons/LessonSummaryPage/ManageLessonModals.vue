@@ -120,7 +120,6 @@
       copyLessonTitle: 'Copy lesson to',
       changeLessonStatusActive: 'Active',
       changeLessonStatusInactive: 'Inactive',
-      copyExplanation: 'Copy this lesson to',
       assignmentQuestion: 'Assign lesson to',
       deleteLessonTitle: 'Delete lesson',
       deleteLessonConfirmation: "Are you sure you want to delete '{ title }'?",

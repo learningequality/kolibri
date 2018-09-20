@@ -11,7 +11,6 @@
       @cancel="closeModal"
       @submit="goToAvailableGroups"
     >
-      <p>{{ copyExplanation }}</p>
       <KRadioButton
         v-for="classroom in availableClassrooms"
         :key="classroom.id"
@@ -69,10 +68,6 @@
     },
     props: {
       modalTitle: {
-        type: String,
-        required: true,
-      },
-      copyExplanation: {
         type: String,
         required: true,
       },
