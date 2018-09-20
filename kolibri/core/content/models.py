@@ -48,6 +48,7 @@ import uuid
 from gettext import gettext as _
 
 from django.core.urlresolvers import reverse
+from django.db import connection
 from django.db import models
 from django.db.models import Min
 from django.utils.encoding import python_2_unicode_compatible
@@ -146,14 +147,15 @@ class ContentTag(models.Model):
 class ContentNodeQueryset(TreeQuerySet):
 
     def dedupe_by_content_id(self):
+        # import ipdb; ipdb.set_trace()
         # remove duplicate content nodes based on content_id
-        if OPTIONS['Database']["DATABASE_ENGINE"] == "sqlite":
+        if connection.vendor == "sqlite":
             # adapted from https://code.djangoproject.com/ticket/22696
             deduped_ids = self.values('content_id').annotate(node_id=Min('id')).values_list('node_id', flat=True)
             return self.filter(id__in=deduped_ids)
 
         # when using postgres, we can call distinct on a specific column
-        elif OPTIONS['Database']["DATABASE_ENGINE"] == "postgres":
+        elif connection.vendor == "postgresql":
             return self.order_by('content_id').distinct('content_id')
 
 
