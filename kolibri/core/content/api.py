@@ -456,16 +456,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
                     .order_by('-content_id__count')
 
                 most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:20]))
-
-                # remove duplicate content items
-                deduped_list = []
-                content_ids = set()
-                for node in most_popular:
-                    if node.content_id not in content_ids:
-                        deduped_list.append(node)
-                        content_ids.add(node.content_id)
-
-                queryset = most_popular.filter(id__in=[node.id for node in deduped_list])
+                queryset = most_popular.dedupe_by_content_id()
 
             serializer = self.get_serializer(queryset, many=True)
 
@@ -503,16 +494,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
                 queryset = queryset.none()
             else:
                 resume = queryset.filter(content_id__in=list(content_ids[:10]))
-
-                # remove duplicate content items
-                deduped_list = []
-                content_ids = set()
-                for node in resume:
-                    if node.content_id not in content_ids:
-                        deduped_list.append(node)
-                        content_ids.add(node.content_id)
-
-                queryset = resume.filter(id__in=[node.id for node in deduped_list])
+                queryset = resume.dedupe_by_content_id()
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
