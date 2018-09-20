@@ -22,6 +22,7 @@
       <p>
         {{ $tr('youCan') }}
         <ul class="permissions-list">
+          <li v-if="isSuperuser">{{ $tr('manageDevicePermissions') }}</li>
           <li v-for="(value, key) in getUserPermissions" v-if="value" :key="key">
             {{ getPermissionString(key) }}
           </li>
@@ -127,6 +128,7 @@
       updateProfile: 'Save changes',
       isSuperuser: 'Super admin permissions ',
       manageContent: 'Manage content',
+      manageDevicePermissions: 'Manage device permissions',
       points: 'Points',
       userType: 'User type',
       devicePermissions: 'Device permissions',
