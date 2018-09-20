@@ -524,8 +524,15 @@
           : (this.sideBarOpen = SIDE_BARS.SETTINGS);
       },
       handleTocNavigation(item) {
-        this.jumpToLocation(item.href);
-        this.closeSideBar();
+        this.jumpToLocation(item.href)
+          .then(() => {
+            this.closeSideBar();
+          })
+          .catch(() => {
+            this.jumpToLocation(`xhtml/${item.href}`).then(() => {
+              this.closeSideBar();
+            });
+          });
       },
       getCurrentFontSize() {
         const iframe = this.getIframe();
