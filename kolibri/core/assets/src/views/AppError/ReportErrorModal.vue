@@ -12,8 +12,8 @@
       <h3 v-if="offline">
         {{ $tr('forumPrompt') }}
       </h3>
-      <p> {{ $tr('forumUseTips') }} </p>
-      <p> {{ $tr('forumPostingTips') }} </p>
+      <p>{{ $tr('forumUseTips') }}</p>
+      <p>{{ $tr('forumPostingTips') }}</p>
       <KExternalLink
         class="download-as-text-link"
         :text="forumLink"
@@ -23,8 +23,8 @@
 
     <!-- only when offline -->
     <section v-if="offline">
-      <h3> {{ $tr('emailPrompt') }} </h3>
-      <p> {{ $tr('emailDescription') }} </p>
+      <h3>{{ $tr('emailPrompt') }}</h3>
+      <p>{{ $tr('emailDescription') }}</p>
       <!-- email link goes here. TODO Probably not an href? -->
       <KExternalLink
         :text="emailAddress"
@@ -32,33 +32,14 @@
       />
     </section>
 
-    <section>
-      <h3>
-        {{ $tr('errorDetailsHeader') }}
-      </h3>
-      <pre ref="errorLog" class="error-log">{{ error }}</pre>
-    </section>
-
-
-    <section class="error-copying-options">
-      <div>
-        <KButton
-          v-if="clipboardCapable"
-          class="copy-to-clipboard-button"
-          :primary="false"
-          :text="$tr('copyToClipboardButtonPrompt')"
-          ref="errorCopyButton"
-        />
-      </div>
-      <div>
-        <KExternalLink
-          :text="$tr('downloadAsTextPrompt')"
-          :download="errorTextFileName"
-          :href="errorTextFileLink"
-        />
-      </div>
-    </section>
-
+    <h3>
+      {{ $tr('errorDetailsHeader') }}
+    </h3>
+    <TechnicalTextBlock
+      :text="error"
+      :downloadFileName="downloadFileName"
+      :maxHeight="240"
+    />
 
   </KModal>
 
@@ -67,11 +48,11 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import ClipboardJS from 'clipboard';
+  import TechnicalTextBlock from './TechnicalTextBlock';
 
   export default {
     name: 'ReportErrorModal',
@@ -87,9 +68,6 @@
       emailDescription:
         'Contact the support team with your error details and we’ll do our best to help.',
       errorDetailsHeader: 'Error details',
-      copyToClipboardButtonPrompt: 'Copy to clipboard',
-      copiedToClipboardConfirmation: 'Copied to clipboard',
-      downloadAsTextPrompt: 'Or download as a .txt file',
       closeErrorModalButtomPrompt: 'Close',
       errorFileDenotation: 'error',
     },
@@ -97,6 +75,7 @@
       KButton,
       KExternalLink,
       KModal,
+      TechnicalTextBlock,
     },
     data() {
       return {
@@ -109,9 +88,6 @@
       ...mapState({
         error: state => state.core.error,
       }),
-      clipboardCapable() {
-        return ClipboardJS.isSupported();
-      },
       forumLink() {
         return 'https://community.learningequality.org/c/support/kolibri';
       },
@@ -121,41 +97,10 @@
       emailAddressLink() {
         return `mailto:${this.emailAddress}`;
       },
-      errorTextFileLink() {
-        const errorBlob = new Blob([this.error], { type: 'text/plain' });
-        if (navigator.msSaveBlob) {
-          return navigator.msSaveBlob(errorBlob, this.errorTextFileName);
-        }
-        return URL.createObjectURL(errorBlob);
-      },
-      errorTextFileName() {
+      downloadFileName() {
         const downloadTime = new Date();
         return `kolibri-${this.$tr('errorFileDenotation')}-${downloadTime.toISOString()}.txt`;
       },
-    },
-    mounted() {
-      if (this.clipboardCapable) {
-        this.clipboard = new ClipboardJS(this.$refs.errorCopyButton.$el, {
-          text: () => this.error,
-          // needed because modal changes browser focus
-          container: this.$refs.errorLog,
-        });
-
-        this.clipboard.on('success', () => {
-          this.createSnackbar({
-            text: this.$tr('copiedToClipboardConfirmation'),
-            autoDismiss: true,
-          });
-        });
-      }
-    },
-    destroyed() {
-      if (this.clipboard) {
-        this.clipboard.destroy();
-      }
-    },
-    methods: {
-      ...mapActions(['createSnackbar']),
     },
   };
 
@@ -168,23 +113,6 @@
 
   .error-detail-modal {
     text-align: left;
-  }
-
-  .error-log {
-    display: block;
-    max-width: 100%;
-    max-height: 240px;
-    padding: 8px;
-    background-color: $core-bg-error;
-    border: $core-grey-300;
-  }
-
-  .copy-to-clipboard-button {
-    margin-left: 0;
-  }
-
-  .download-as-text-link {
-    word-wrap: break-word;
   }
 
 </style>

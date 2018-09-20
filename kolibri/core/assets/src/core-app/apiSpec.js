@@ -79,6 +79,7 @@ import CoreTable from '../views/CoreTable';
 import KDropdownMenu from '../views/KDropdownMenu';
 import CoachContentLabel from '../views/CoachContentLabel';
 import UserTypeDisplay from '../views/UserTypeDisplay';
+import TechnicalTextBlock from '../views/AppError/TechnicalTextBlock';
 
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
@@ -165,6 +166,7 @@ export default {
       CoreLogo,
       UiAlert,
       UserTypeDisplay,
+      TechnicalTextBlock,
     },
     router,
     mixins: {

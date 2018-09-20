@@ -2,6 +2,7 @@
 
   <button
     ref="button"
+    dir="auto"
     :class="buttonClasses"
     :type="type"
     :disabled="disabled"

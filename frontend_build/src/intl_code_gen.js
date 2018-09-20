@@ -12,43 +12,20 @@ const commonHeader = `/*
 * yarn run generate-locale-data
 */
 `;
-const vueIntlHeader = `module.exports = function (locale) {
-  switch (locale) {`;
+const vueIntlHeader = `module.exports = function () {
+  const data = [];`;
 
 const generateVueIntlItems = language => {
   const language_code = language.language_code;
-  // Language territory uses upper case
-  const language_territory_string = language.territory_code
-    ? '-' + language.territory_code.toUpperCase()
-    : '';
   /*
    * Generate entries of this form:
-   * case 'sw':
-   *  return new Promise(function (resolve) {
-   *    require.ensure(
-   *      ['vue-intl/locale-data/sw.js'],
-   *      function (require) {
-   *        resolve(require('vue-intl/locale-data/sw.js'));
-   *      }
-   *    );
-   *  });
+   *   data.push(require('vue-intl/locale-data/ar.js'));
    */
-  return `
-    case '${language_code}${language_territory_string}':
-      return new Promise(function (resolve) {
-        require.ensure(
-          ['vue-intl/locale-data/${language_code}.js'],
-          function (require) {
-            resolve(require('vue-intl/locale-data/${language_code}.js'));
-          }
-        );
-      });`;
+  return `data.push(require('vue-intl/locale-data/${language_code}.js'));`;
 };
 
 const vueIntlFooter = `
-    default:
-      return Promise.resolve({});
-  }
+  return data;
 };
 `;
 
