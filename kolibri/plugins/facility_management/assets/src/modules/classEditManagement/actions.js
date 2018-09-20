@@ -61,7 +61,7 @@ export function updateClass(store, { id, updateData }) {
       store.dispatch('displayModal', false);
     },
     error => {
-      store.dispatch('handleApiError', error);
+      store.dispatch('handleApiError', error, { root: true });
     }
   );
 }

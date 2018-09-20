@@ -89,7 +89,7 @@ export function updateUser(store, { userId, updates }) {
       if (errorsCaught) {
         setError(store, errorsCaught);
       } else {
-        store.dispatch('handleApiError', error);
+        store.dispatch('handleApiError', error, { root: true });
       }
     }
   );

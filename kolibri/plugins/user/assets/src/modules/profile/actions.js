@@ -48,7 +48,7 @@ export function updateUserProfile(store, { edits, session }) {
         store.commit('SET_PROFILE_SUCCESS', false);
         store.commit('SET_PROFILE_BUSY', false);
       } else {
-        store.dispatch('handleApiError', error);
+        store.dispatch('handleApiError', error, { root: true });
       }
     }
   );
