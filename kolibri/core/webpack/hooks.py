@@ -18,7 +18,7 @@ import time
 from functools import partial
 
 from django.conf import settings as django_settings
-from django.contrib.staticfiles import finders
+from django.contrib.staticfiles.finders import find as find_staticfiles
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import cache
 from django.utils.functional import cached_property
@@ -87,8 +87,8 @@ class WebpackBundleHook(hooks.KolibriHook):
     # : Kolibri version for build hashes
     version = kolibri.__version__
 
-    # When being included for synchronous loading, should the source files
-    # for this be inlined?
+    # : When being included for synchronous loading, should the source files
+    # : for this be inlined?
     inline = False
 
     def __init__(self, *args, **kwargs):
@@ -121,17 +121,17 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         global _JSON_STATS_FILE_CACHE
         try:
-            if not _JSON_STATS_FILE_CACHE.get(self.unique_slug) or django_settings.DEBUG:
+            if not _JSON_STATS_FILE_CACHE.get(self.unique_slug) or getattr(django_settings, 'DEVELOPER_MODE', False):
                 with io.open(self._stats_file, mode='r', encoding='utf-8') as f:
                     stats = json.load(f)
-                if django_settings.DEBUG:
+                if getattr(django_settings, 'DEVELOPER_MODE', False):
                     timeout = 0
                     while stats['status'] == 'compiling':
-                        time.sleep(getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1))
-                        timeout += getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1)
+                        time.sleep(0.1)
+                        timeout += 0.1
                         with io.open(self._stats_file, mode='r', encoding='utf-8') as f:
                             stats = json.load(f)
-                        if timeout >= getattr(settings, 'WEBPACK_POLL_INTERVAL', 1.0):
+                        if timeout >= 5:
                             raise WebpackError('Webpack compilation still in progress')
                     if stats['status'] == 'error':
                         raise WebpackError('Webpack compilation has errored')
@@ -155,7 +155,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             if any(list(regex.match(filename) for regex in settings.IGNORE_PATTERNS)):
                 continue
             relpath = '{0}/{1}'.format(self.unique_slug, filename)
-            if django_settings.DEBUG:
+            if getattr(django_settings, 'DEVELOPER_MODE', False):
                 f['url'] = f['publicPath']
             else:
                 f['url'] = staticfiles_storage.url(relpath)
@@ -247,7 +247,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     def frontend_messages(self):
         global _JSON_MESSAGES_FILE_CACHE
         lang_code = get_language()
-        if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code) or django_settings.DEBUG:
+        if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code) or getattr(django_settings, 'DEVELOPER_MODE', False):
             frontend_message_file = self.frontend_message_file(lang_code)
             if frontend_message_file:
                 with io.open(frontend_message_file, mode='r', encoding='utf-8') as f:
@@ -324,14 +324,15 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         filename = None
         # First try finding the file using the storage class.
-        # This is skipped in DEBUG mode as files might be outdated
-        if not django_settings.DEBUG:
+        # This is skipped in DEVELOPER_MODE mode as files might be outdated
+        # Or may not even be on disk.
+        if not getattr(django_settings, 'DEVELOPER_MODE', False):
             filename = staticfiles_storage.path(basename)
             if not staticfiles_storage.exists(basename):
                 filename = None
         # secondly try to find it with staticfiles
-        if not filename and finders:
-            filename = finders.find(url2pathname(basename))
+        if not filename:
+            filename = find_staticfiles(url2pathname(basename))
         return filename
 
     def get_filecontent(self, url):
