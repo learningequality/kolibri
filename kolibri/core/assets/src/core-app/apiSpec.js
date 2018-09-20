@@ -77,6 +77,7 @@ import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
 import KDropdownMenu from '../views/KDropdownMenu';
 import CoachContentLabel from '../views/CoachContentLabel';
+import PrivacyInfoModal from '../views/PrivacyInfoModal';
 
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
@@ -162,6 +163,7 @@ export default {
       CoreFullscreen,
       CoreLogo,
       UiAlert,
+      PrivacyInfoModal,
     },
     router,
     mixins: {
