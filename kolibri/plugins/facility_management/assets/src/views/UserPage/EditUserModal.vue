@@ -32,7 +32,7 @@
       v-model="newUsername"
     />
 
-    <template v-if="kind === UserKinds.SUPERUSER">
+    <template v-if="isSuperuser && kind === UserKinds.SUPERUSER">
       <h2 class="user-type header">
         {{ $tr('userType') }}
       </h2>
@@ -41,9 +41,12 @@
         :userType="kind"
         class="user-type"
       />
-      <span class="super-admin-description">
-        Go to Device permissions to change this
-      </span>
+
+      <KExternalLink
+        class="super-admin-description"
+        :text="editingSelf ? $tr('viewInDeviceTabPrompt') : $tr('changeInDeviceTabPrompt')"
+        :href="devicePermissionsPageLink"
+      />
 
     </template>
     <template v-else>
@@ -77,10 +80,12 @@
 <script>
 
   import { mapActions, mapState, mapGetters } from 'vuex';
+  import urls from 'kolibri.urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
@@ -100,6 +105,8 @@
       cancel: 'Cancel',
       required: 'This field is required',
       usernameAlreadyExists: 'Username already exists',
+      changeInDeviceTabPrompt: 'Go to Device permissions to change this',
+      viewInDeviceTabPrompt: 'View details in Device permissions',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
@@ -111,6 +118,7 @@
       KTextbox,
       KSelect,
       KRadioButton,
+      KExternalLink,
       UserTypeDisplay,
     },
     props: {
@@ -216,6 +224,11 @@
       },
       editingSelf() {
         return this.currentUserId === this.id;
+      },
+      devicePermissionsPageLink() {
+        const devicePageUrl = urls['kolibri:devicemanagementplugin:device_management']();
+        // HACK needs longer term method
+        return `${devicePageUrl}#/permissions/${this.id}`;
       },
     },
     beforeMount() {
