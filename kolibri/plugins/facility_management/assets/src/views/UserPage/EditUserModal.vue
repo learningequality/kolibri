@@ -85,7 +85,7 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
-  // TODO use UserTypeDisplay for strings in options
+  // IDEA use UserTypeDisplay for strings in options
   export default {
     name: 'EditUserModal',
     $trs: {
@@ -143,11 +143,7 @@
       };
     },
     computed: {
-      ...mapGetters(['currentFacilityId']),
-      ...mapState({
-        currentUserId: state => state.core.session.user_id,
-        currentUserKind: state => state.core.session.kind[0],
-      }),
+      ...mapGetters(['currentFacilityId', 'isSuperuser', 'currentUserId']),
       ...mapState('userManagement', ['facilityUsers', 'error', 'isBusy']),
       coachIsSelected() {
         return this.newKind.value === UserKinds.COACH;
@@ -218,6 +214,9 @@
       formIsValid() {
         return !this.nameIsInvalid && !this.usernameIsInvalid;
       },
+      editingSelf() {
+        return this.currentUserId === this.id;
+      },
     },
     beforeMount() {
       const coachOption = this.userKindOptions[1];
@@ -256,11 +255,7 @@
               role: roleUpdate,
             },
           });
-          if (
-            this.currentUserId === this.id &&
-            this.currentUserKind !== UserKinds.SUPERUSER &&
-            this.newKind.value === UserKinds.LEARNER
-          ) {
+          if (this.editingSelf && this.isSuperuser && this.newKind.value === UserKinds.LEARNER) {
             window.location.href = window.location.origin;
           }
         } else {
