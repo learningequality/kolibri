@@ -2,6 +2,7 @@ import tempfile
 import uuid
 
 from django.core.management import call_command
+from django.test import TestCase
 from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
 from mock import call
@@ -12,7 +13,9 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
+from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.annotation import calculate_included_languages
 from kolibri.core.content.utils.annotation import fix_multiple_trees_with_id_one
 from kolibri.core.content.utils.annotation import mark_local_files_as_available
 from kolibri.core.content.utils.annotation import recurse_availability_up_tree
@@ -500,3 +503,24 @@ class FixMultipleTreesWithIdOneTestCase(TransactionTestCase):
         with self.assertRaises(AssertionError):
             import_mock.assert_called_with(root_node_1.channel_id)
         import_mock.assert_called_with(root_node_2.channel_id)
+
+
+class CalculateChannelFieldsTestCase(TestCase):
+
+    def setUp(self):
+        self.node = ContentNode.objects.create(
+            title='test',
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            available=True
+        )
+        self.channel = ChannelMetadata.objects.create(id=self.node.channel_id, name="channel", root=self.node)
+        Language.objects.create(id='en', lang_code='en')
+
+    def test_calculate_included_languages(self):
+        calculate_included_languages(self.channel)
+        self.assertEqual(list(self.channel.included_languages.values_list('id', flat=True)), [])
+        ContentNode.objects.update(lang_id='en')
+        calculate_included_languages(self.channel)
+        self.assertEqual(list(self.channel.included_languages.values_list('id', flat=True)), ['en'])

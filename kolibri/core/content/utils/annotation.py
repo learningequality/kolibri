@@ -330,6 +330,6 @@ def calculate_total_resource_count(channel):
 
 
 def calculate_included_languages(channel):
-    content_nodes = ContentNode.objects.filter(channel_id=channel.id, available=True)
+    content_nodes = ContentNode.objects.filter(channel_id=channel.id, available=True).exclude(lang=None)
     languages = content_nodes.order_by('lang').values_list('lang', flat=True).distinct()
     channel.included_languages.add(*list(languages))
