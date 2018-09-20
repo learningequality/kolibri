@@ -87,7 +87,7 @@ describe('selectedResourcesSize component', () => {
   it('shows the "remaining space message"', () => {
     const wrapper = makeWrapper();
     const { availableSpaceMsg } = getElements(wrapper);
-    expect(availableSpaceMsg()).toEqual('Space available: 5 GB');
+    expect(availableSpaceMsg()).toEqual('Drive space available: 5 GB');
   });
 
   it('shows an error notification when remaining space goes to zero', () => {

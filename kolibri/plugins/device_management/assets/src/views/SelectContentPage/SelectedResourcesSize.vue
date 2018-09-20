@@ -106,7 +106,7 @@
       export: 'export',
       import: 'import',
       notEnoughSpace: 'Not enough space on your device. Select less content to make more space.',
-      availableSpace: 'Space available: {space}',
+      availableSpace: 'Drive space available: {space}',
       resourcesSelected:
         'Content selected: {fileSize} ({resources, number, integer} {resources, plural, one {resource} other {resources}})',
     },
