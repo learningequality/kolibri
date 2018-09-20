@@ -46,7 +46,7 @@ const channelsOnDevice = [
   {
     ...allChannels[0],
     on_device_resources: 2000,
-    on_device_file_size: 95189556, // about 90 MB
+    on_device_file_size: 95189556, // about 95 MB
     available: true,
   },
   {

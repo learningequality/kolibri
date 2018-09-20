@@ -99,6 +99,15 @@ button {
   }
 }
 
+hr {
+  display: block;
+  height: 1px;
+  padding: 0;
+  margin: 1em 0;
+  border: 0;
+  border-top: 1px solid $core-text-disabled;
+}
+
 .rtl-icon {
   transform: scaleX(-1);
 }

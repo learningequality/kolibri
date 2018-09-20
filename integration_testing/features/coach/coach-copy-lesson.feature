@@ -1,5 +1,5 @@
 Feature: Coach copy lesson
-   Coaches need to be able to copy lessons to the same or a different class, and assign it to different groups or an entire class
+  Coaches need to be able to copy lessons to the same or a different class, and assign it to different groups or an entire class
 
   Background:
     Given I am signed in to Kolibri as coach user
@@ -31,7 +31,7 @@ Feature: Coach copy lesson
       And I select *Copy lesson* option
     Then I see the *Copy lesson* modal
       And I see *'<class>' (current class)* is selected
-    When I select class <class2> 
+    When I select class <class2>
       And I click *Continue* button
     Then the modal content changes and asks to select recipients
       And I see *Entire class* selected
@@ -39,7 +39,7 @@ Feature: Coach copy lesson
       And I click *Copy* button
     Then the modal closes
       And the snackbar confirmation appears
-    When open the sidebar 
+    When open the sidebar
       And I click on *Coach*
       And I click class <class2>
       And I click on *Lessons* tab

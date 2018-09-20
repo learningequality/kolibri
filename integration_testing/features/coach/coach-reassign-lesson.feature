@@ -1,5 +1,5 @@
 Feature: Coach reassign lessons
-    Coach needs to be able to reassign lessons to group(s) or entire class
+  Coach needs to be able to reassign lessons to group(s) or entire class
 
   Background:
     Given there are 2 or more learner groups

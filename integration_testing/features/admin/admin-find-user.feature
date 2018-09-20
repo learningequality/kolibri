@@ -1,5 +1,5 @@
 Feature: Admin find users
-    Admin needs to be able to search for and find users 
+  Admin needs to be able to search for and find users
 
   Background:
     Given I am signed in to Kolibri as admin user

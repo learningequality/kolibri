@@ -1,5 +1,5 @@
 Feature: Coach review of class report per channel
-    Coach needs to be able to review progress of the complete class for a particular channel in Kolibri
+  Coach needs to be able to review progress of the complete class for a particular channel in Kolibri
 
   Background:
     Given I am signed in to Kolibri as a facility coach
@@ -27,7 +27,7 @@ Feature: Coach review of class report per channel
     When I click the subtopic <subtopic>
     Then I see the *Classes > '<class>' > Channels > '<channel>' > '<topic>' > '<subtopic>'* breadcrumb
       And I see all the content items of the subtopic <subtopic> of the <topic> topic for the channel <channel>
-      And I see *Avg. exercises progress* progress bar(s) for the excercise content items 
+      And I see *Avg. exercises progress* progress bar(s) for the excercise content items
       And I see *Avg. resource progress* progress bar(s) for the resource content items
     When I click the <content_item> content item
     Then I see the *Classes > '<class>' > Channels > '<channel>' > '<topic>' > '<subtopic>' > '<content_item>'* breadcrumb

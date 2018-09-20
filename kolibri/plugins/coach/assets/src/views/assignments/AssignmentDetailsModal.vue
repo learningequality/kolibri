@@ -35,7 +35,7 @@
     />
 
     <fieldset>
-      <legend>{{ $tr('recipients') }}</legend>
+      <legend>{{ $tr('assignedGroupsLabel') }}</legend>
       <RecipientSelector
         v-model="selectedCollectionIds"
         :groups="groups"
@@ -191,7 +191,7 @@
       fieldRequiredErro: 'This field is required',
       save: 'Save',
       lessonTitlePlaceholder: 'Lesson title',
-      recipients: 'Recipients',
+      assignedGroupsLabel: 'Visible to',
     },
   };
 

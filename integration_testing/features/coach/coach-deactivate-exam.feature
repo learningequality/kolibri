@@ -1,5 +1,5 @@
 Feature: Coach deactivate exams
-    Coaches need to make exams inactive when the submission period is over
+  Coaches need to make exams inactive when the submission period is over
 
   Background:
     Given I am signed in to Kolibri as coach user

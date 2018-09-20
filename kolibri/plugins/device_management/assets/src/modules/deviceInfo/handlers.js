@@ -12,6 +12,10 @@ export function getDeviceInfo() {
     const data = response.entity;
     data.server_time = new Date(data.server_time);
     data.content_storage_free_space = bytesForHumans(data.content_storage_free_space);
+
+    if (response.headers.Server.includes('0.0.0.0')) data.server_type = 'Kolibri internal server';
+    else data.server_type = response.headers.Server;
+
     return data;
   });
 }

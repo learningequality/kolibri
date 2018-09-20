@@ -5,6 +5,8 @@
       v-if="lessonsModalSet === AssignmentActions.CHANGE_STATUS"
       :modalTitle="$tr('changeLessonStatusTitle')"
       :modalDescription="$tr('changeLessonStatusDescription')"
+      :modalActiveOption="$tr('changeLessonStatusActive')"
+      :modalInactiveOption="$tr('changeLessonStatusInactive')"
       :active="currentLesson.is_active"
       @changeStatus="handleChangeStatus"
       @cancel="setLessonsModal(null)"
@@ -115,6 +117,9 @@
       changeLessonStatusTitle: 'Change lesson status',
       changeLessonStatusDescription: 'Learners can only see active lessons',
       copyLessonTitle: 'Copy lesson to',
+      changeLessonStatusActive: 'Active',
+      changeLessonStatusInactive: 'Inactive',
+      copyExplanation: 'Copy this lesson to',
       assignmentQuestion: 'Assign lesson to',
       deleteLessonTitle: 'Delete lesson',
       deleteLessonConfirmation: "Are you sure you want to delete '{ title }'?",

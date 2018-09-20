@@ -14,6 +14,8 @@
       v-else-if="examsModalSet === AssignmentActions.CHANGE_STATUS"
       :modalTitle="$tr('changeExamStatusTitle')"
       :modalDescription="$tr('changeExamStatusDescription')"
+      :modalActiveOption="$tr('changeExamStatusActive')"
+      :modalInactiveOption="$tr('changeExamStatusInactive')"
       :active="exam.active"
       @changeStatus="handleChangeStatus"
       @cancel="setExamsModal(null)"
@@ -150,6 +152,8 @@
       changeExamStatusTitle: 'Change exam status',
       changeExamStatusDescription: 'Learners can only see active exams',
       copyExamTitle: 'Copy exam to',
+      changeExamStatusActive: 'Active',
+      changeExamStatusInactive: 'Inactive',
       assignmentQuestion: 'Assign exam to',
       deleteExamTitle: 'Delete exam',
       deleteExamDescription: "Are you sure you want to delete '{ title }'?",

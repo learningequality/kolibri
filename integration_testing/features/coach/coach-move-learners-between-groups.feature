@@ -1,5 +1,5 @@
 Feature: Move user accounts in and out of groups
-    Coach needs to be able to move user accounts between groups to support different learning needs and speeds
+  Coach needs to be able to move user accounts between groups to support different learning needs and speeds
 
   Background:
     Given there are learners in the selected class

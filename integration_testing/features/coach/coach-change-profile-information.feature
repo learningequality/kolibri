@@ -1,5 +1,5 @@
 Feature: Coach change profile information
-	Coach needs to be able to change their own profile information
+  Coach needs to be able to change their own profile information
 
   Background:
     Given I am signed in to Kolibri as a coach user
@@ -7,11 +7,11 @@ Feature: Coach change profile information
       And I have permission to edit my full name and username
 
   Scenario: Coach changes username and full name
-  	 When I change my full name
-  	  And I change my username
-  	  And if my changes are valid (I did not leave the fields empty)
-  	  And I click the “Save changes” button
-  	 Then I see the *Profile details updated* inline notification
+     When I change my full name
+      And I change my username
+      And if my changes are valid (I did not leave the fields empty)
+      And I click the “Save changes” button
+     Then I see the *Profile details updated* inline notification
       And I see the new full name and username on the profile page
       And I see the new username in the user menu
 

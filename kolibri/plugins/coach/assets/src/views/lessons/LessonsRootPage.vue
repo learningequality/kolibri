@@ -22,7 +22,7 @@
           <th class="core-table-icon-col"></th>
           <th class="core-table-main-col">{{ $tr('title') }}</th>
           <th>{{ $tr('size') }}</th>
-          <th>{{ $tr('recipients') }}</th>
+          <th>{{ $tr('assignedGroupsHeader') }}</th>
           <th>
             {{ $tr('status') }}
             <CoreInfoIcon
@@ -190,7 +190,7 @@
       newLessonModalTitle: 'Create new lesson',
       title: 'Title',
       size: 'Size',
-      recipients: 'Recipients',
+      assignedGroupsHeader: 'Visible to',
       entireClass: 'Entire class',
       numberOfGroups: '{count, number, integer} {count, plural, one {group} other {groups}}',
       noOne: 'No one',

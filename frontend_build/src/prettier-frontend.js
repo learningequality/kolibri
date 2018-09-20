@@ -34,24 +34,27 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
       );
       try {
         // Raw JS or SCSS file
-        if (file.endsWith('.js') || file.endsWith('.scss')) {
+        if (file.endsWith('.js')) {
+          options.parser = 'babylon';
+          formatted = prettier.format(source, options);
+        } else if (file.endsWith('.scss')) {
+          options.parser = 'scss';
           formatted = prettier.format(source, options);
         } else if (file.endsWith('.vue')) {
           let vueComponent = compiler.parseComponent(source);
           // Prettier strips the 2 space indentation that we enforce within script tags for vue
           // components. So here we account for those 2 spaces that will be added.
-          const vueComponentOptions = Object.assign({}, options);
-          vueComponentOptions.printWidth = vueComponentOptions.printWidth - 2;
+          options.printWidth = options.printWidth - 2;
 
           // Format script block
           if (vueComponent.script) {
-            vueComponentOptions.parser = 'babylon';
+            options.parser = 'babylon';
 
             const scriptStart = vueComponent.script.start;
             const scriptEnd = vueComponent.script.end;
 
             const js = source.slice(scriptStart, scriptEnd).replace(/(\n) {2}/g, '$1');
-            let formattedJs = prettier.format(js, vueComponentOptions);
+            let formattedJs = prettier.format(js, options);
             formattedJs = indentAndAddNewLines(formattedJs);
             formatted = source.replace(source.slice(scriptStart, scriptEnd), formattedJs);
           }
@@ -63,7 +66,7 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
 
             // Is a scss style block
             if (styleBlock && styleBlock.lang === 'scss') {
-              vueComponentOptions.parser = 'scss';
+              options.parser = 'scss';
 
               const start = styleBlock.start;
               const end = styleBlock.end;
@@ -71,7 +74,7 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
               // Is not an empty single line style block
               if (start !== end || styleBlock.content.trim().length > 0) {
                 const scss = formatted.slice(start, end);
-                let formattedScss = prettier.format(scss, vueComponentOptions);
+                let formattedScss = prettier.format(scss, options);
                 formattedScss = indentAndAddNewLines(formattedScss);
                 formatted = formatted.replace(formatted.slice(start, end), formattedScss);
               }
@@ -109,7 +112,7 @@ function prettierFrontend({ file, write, encoding = 'utf-8', prettierOptions }) 
 if (require.main === module) {
   const program = require('commander');
   const glob = require('glob');
-  const defaultGlobPattern = './{kolibri/**/assets,frontend_build,karma_config}/**/*.{js,vue,scss}';
+  const defaultGlobPattern = '{kolibri/**/assets,frontend_build,karma_config}/**/*.{js,vue,scss}';
 
   program
     .version('0.0.1')
@@ -137,7 +140,9 @@ if (require.main === module) {
   } else {
     Promise.all(
       files.map(file => {
-        const matches = glob.sync(file);
+        const matches = glob.sync(file, {
+          ignore: ['**/node_modules/**'],
+        });
         return Promise.all(
           matches.map(globbedFile => {
             return prettierFrontend(Object.assign({}, baseOptions, { file: globbedFile }))

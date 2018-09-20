@@ -1,5 +1,5 @@
 Feature: Admin import content
-    Admin who has been granted the device permissions needs to be able to import content channels on the device
+  Admin who has been granted the device permissions needs to be able to import content channels on the device
 
   Background:
     Given I am signed in to Kolibri as admin user

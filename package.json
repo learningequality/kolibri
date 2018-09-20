@@ -18,7 +18,7 @@
     "clean": "node ./frontend_build/src/clean.js",
     "preinstall": "node ./frontend_build/src/npm_deprecation_warning.js",
     "lint-js": "node ./frontend_build/src/prettier-frontend.js --prettierPath ./.prettier.js",
-    "lint-js:fix": "yarn run lint-js -- -w",
+    "lint-js:fix": "yarn run lint-js -w",
     "generate-locale-data": "node ./frontend_build/src/intl_code_gen.js"
   },
   "repository": {

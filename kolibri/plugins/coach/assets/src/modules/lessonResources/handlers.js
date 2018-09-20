@@ -1,17 +1,15 @@
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
-import { ContentNodeResource, ContentNodeSlimResource } from 'kolibri.resources';
+import {
+  ContentNodeResource,
+  ContentNodeSlimResource,
+  ContentNodeSearchResource,
+} from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
-function showResourceSelectionPage(
-  store,
-  classId,
-  lessonId,
-  contentList,
-  pageName,
-  ancestors = []
-) {
+function showResourceSelectionPage(store, params) {
+  const { classId, lessonId, contentList, pageName, ancestors = [] } = params;
   const pendingSelections = store.state.lessonSummary.workingResources || [];
   const cache = store.state.lessonSummary.resourceCache || {};
   const lessonSummaryState = {
@@ -49,9 +47,15 @@ function showResourceSelectionPage(
 
         const ancestorCounts = {};
 
-        const getResourceAncestors = store.state.lessonSummary.workingResources.map(resourceId =>
-          ContentNodeSlimResource.fetchAncestors(resourceId)
-        );
+        let getResourceAncestors;
+        // Don't get ancestors if at the Channels page
+        if (pageName === LessonsPageNames.SELECTION_ROOT) {
+          getResourceAncestors = [];
+        } else {
+          getResourceAncestors = store.state.lessonSummary.workingResources.map(resourceId =>
+            ContentNodeSlimResource.fetchAncestors(resourceId)
+          );
+        }
 
         return Promise.all(getResourceAncestors).then(
           // there has to be a better way
@@ -85,70 +89,47 @@ function showResourceSelectionPage(
 }
 
 export function showLessonResourceSelectionRootPage(store, params) {
-  const { classId, lessonId } = params;
   return store.dispatch('loading').then(() => {
     const channelContentList = store.getters.getChannels.map(channel => {
       return {
+        ...channel,
         id: channel.root_id,
-        description: channel.description,
-        title: channel.title,
-        thumbnail: channel.thumbnail,
-        num_coach_contents: channel.num_coach_contents,
         kind: ContentNodeKinds.CHANNEL,
       };
     });
 
-    return showResourceSelectionPage(
-      store,
-      classId,
-      lessonId,
-      channelContentList,
-      LessonsPageNames.SELECTION_ROOT
-    );
+    return showResourceSelectionPage(store, {
+      classId: params.classId,
+      lessonId: params.lessonId,
+      contentList: channelContentList,
+      pageName: LessonsPageNames.SELECTION_ROOT,
+    });
   });
 }
 
 export function showLessonResourceSelectionTopicPage(store, params) {
-  const { classId, lessonId, topicId } = params;
   // IDEA should probably have both selection pages set loading themselves
   return store.dispatch('loading').then(() => {
+    const { topicId } = params;
     const loadRequirements = [
       ContentNodeResource.fetchModel({ id: topicId }),
       ContentNodeResource.fetchCollection({ getParams: { parent: topicId } }),
       ContentNodeSlimResource.fetchAncestors(topicId),
     ];
 
-    return Promise.all(loadRequirements).then(
-      ([topicNode, childNodes, ancestors]) => {
-        const topicAncestors = [...ancestors, topicNode];
-        // TODO state mapper
-        const topicContentList = childNodes.map(node => {
-          return {
-            id: node.id,
-            content_id: node.content_id,
-            channel_id: node.channel_id,
-            description: node.description,
-            num_coach_contents: node.num_coach_contents,
-            title: node.title,
-            thumbnail: getContentNodeThumbnail(node),
-            kind: node.kind,
-          };
-        });
+    return Promise.all(loadRequirements).then(([topicNode, childNodes, ancestors]) => {
+      const topicContentList = childNodes.map(node => {
+        return { ...node, thumbnail: getContentNodeThumbnail(node) };
+      });
 
-        return showResourceSelectionPage(
-          store,
-          classId,
-          lessonId,
-          topicContentList,
-          LessonsPageNames.SELECTION,
-          topicAncestors
-        );
-      },
-      error => {
-        store.dispatch('notLoading');
-        return store.dispatch('handleApiError', error);
-      }
-    );
+      return showResourceSelectionPage(store, {
+        classId: params.classId,
+        lessonId: params.lessonId,
+        contentList: topicContentList,
+        pageName: LessonsPageNames.SELECTION,
+        ancestors: [...ancestors, topicNode],
+      });
+    });
   });
 }
 
@@ -174,9 +155,7 @@ export function showLessonSelectionContentPreview(store, params) {
     ])
       .then(([contentNode, lesson]) => {
         // TODO state mapper
-        const preselectedResources = lesson.resources.map(
-          resourceObj => resourceObj.contentnode_id
-        );
+        const preselectedResources = lesson.resources.map(({ contentnode_id }) => contentnode_id);
         store.commit('SET_TOOLBAR_ROUTE', {
           name: LessonsPageNames.SELECTION,
           params: {
@@ -198,26 +177,21 @@ export function showLessonSelectionContentPreview(store, params) {
 
 function _prepLessonContentPreview(store, classId, lessonId, contentId) {
   const cache = store.state.lessonSummary.resourceCache || {};
-  const lessonSummaryState = {
-    currentContentNode: {},
-    toolbarRoute: {},
-    // only exist if exercises
-    workingResources: null,
-    resourceCache: cache,
-  };
-  const previewState = {
-    questions: null,
-    completionData: null,
-  };
   return ContentNodeResource.fetchModel({ id: contentId }).then(
     contentNode => {
       // set up intial pageState
       const contentMetadata = assessmentMetaDataState(contentNode);
-      lessonSummaryState.currentContentNode = contentNode;
-      previewState.questions = contentMetadata.assessmentIds;
-      previewState.completionData = contentMetadata.masteryModel;
-      store.commit('lessonSummary/SET_STATE', lessonSummaryState);
-      store.commit('lessonSummary/resources/SET_PREVIEW_STATE', previewState);
+      store.commit('lessonSummary/SET_STATE', {
+        currentContentNode: { ...contentNode },
+        toolbarRoute: {},
+        // only exist if exercises
+        workingResources: null,
+        resourceCache: cache,
+      });
+      store.commit('lessonSummary/resources/SET_PREVIEW_STATE', {
+        questions: contentMetadata.assessmentIds,
+        completionData: contentMetadata.masteryModel,
+      });
       store.commit('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
       return contentNode;
     },
@@ -225,4 +199,21 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
       return store.dispatch('handleApiError', error);
     }
   );
+}
+
+export function showLessonResourceSearchPage(store, params) {
+  return store.dispatch('loading').then(() => {
+    return ContentNodeSearchResource.fetchCollection({
+      getParams: {
+        search: params.searchTerm,
+      },
+    }).then(results => {
+      return showResourceSelectionPage(store, {
+        classId: params.classId,
+        lessonId: params.lessonId,
+        contentList: results.results,
+        pageName: LessonsPageNames.SELECTION_SEARCH,
+      });
+    });
+  });
 }
