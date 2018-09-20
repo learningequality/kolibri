@@ -57,7 +57,10 @@
     computed: {
       isCurrentSection() {
         if (this.currentSection) {
-          return this.currentSection.href === this.section.href;
+          return (
+            this.currentSection.href === this.section.href &&
+            this.currentSection.label === this.section.label
+          );
         }
         return false;
       },
@@ -89,16 +92,10 @@
     @include toc-list-item;
 
     padding-left: 8px;
-    margin-bottom: 8px;
   }
 
   .toc-list-item-top-level {
     padding-left: 0;
-  }
-
-  .toc-list-item-top-level:not(:last-child) {
-    padding-left: 0;
-    border-bottom: 1px solid $core-grey;
   }
 
   .toc-list-item-button {
@@ -107,6 +104,7 @@
 
   .toc-list-item-button-current {
     font-weight: bold;
+    text-decoration: underline;
   }
 
 </style>
