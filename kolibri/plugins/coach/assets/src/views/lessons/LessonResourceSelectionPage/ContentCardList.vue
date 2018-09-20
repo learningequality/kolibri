@@ -88,6 +88,8 @@
     },
     $trs: {
       selectAllCheckboxLabel: 'Select all',
+      // Used for future 'View more' button
+      viewMoreButtonLabel: 'View more',
     },
   };
 
