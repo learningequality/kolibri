@@ -163,18 +163,17 @@
     },
     beforeDestroy() {
       // saves data if going backwards in wizard
-      this.saveSuperuserCredentials(false);
+      this.saveSuperuserCredentials();
     },
     methods: {
       ...mapMutations({
         setSuperuser: 'SET_SU',
       }),
-      saveSuperuserCredentials(final = true) {
+      saveSuperuserCredentials() {
         this.setSuperuser({
           name: this.name,
           username: this.username,
-          // clear password if not finalizing wizard
-          password: final ? this.password : '',
+          password: this.password,
         });
       },
       submitSuperuserCredentials() {

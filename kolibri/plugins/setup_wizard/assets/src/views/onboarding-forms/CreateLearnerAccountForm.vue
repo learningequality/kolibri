@@ -46,7 +46,7 @@
     },
     $trs: {
       header: 'Allow anyone to create their own learner account?',
-      noOptionLabel: 'No. Admins must create all user accounts',
+      noOptionLabel: 'No. Admins must create all accounts',
     },
   };
 

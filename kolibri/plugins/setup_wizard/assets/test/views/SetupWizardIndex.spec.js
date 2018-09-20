@@ -15,6 +15,7 @@ function makeWrapper() {
     CreateLearnerAccountForm: () => wrapper.find({ name: 'CreateLearnerAccountForm' }),
     RequirePasswordForLearnersForm: () => wrapper.find({ name: 'RequirePasswordForLearnersForm' }),
     SuperuserCredentialsForm: () => wrapper.find({ name: 'SuperuserCredentialsForm' }),
+    PersonalDataConsentForm: () => wrapper.find({ name: 'PersonalDataConsentForm' }),
   };
   return { wrapper, store, els };
 }
@@ -52,6 +53,12 @@ describe('SetupWizardIndex', () => {
     // Step 6: Superuser Credentials Form
     expect(els.SuperuserCredentialsForm().isVueComponent).toBe(true);
     els.SuperuserCredentialsForm().vm.$emit('submit');
+    expect(els.SuperuserCredentialsForm().exists()).toBe(false);
+
+    // Step 7: Personal Data Consent Form
+    expect(els.PersonalDataConsentForm().isVueComponent).toBe(true);
+    els.PersonalDataConsentForm().vm.$emit('submit');
+
     expect(wrapper.vm.provisionDevice).toHaveBeenCalledTimes(1);
   });
 
@@ -64,8 +71,8 @@ describe('SetupWizardIndex', () => {
       username: 'mr_rogers',
       password: 'password',
     });
-    store.commit('SET_ONBOARDING_STEP', 6);
-    els.SuperuserCredentialsForm().vm.$emit('submit');
+    store.commit('SET_ONBOARDING_STEP', 7);
+    els.PersonalDataConsentForm().vm.$emit('submit');
     const matcher = expect.objectContaining({ facility: { name: 'Home Facility Fred Rogers' } });
     expect(wrapper.vm.provisionDevice).toHaveBeenCalledWith(matcher);
   });
@@ -83,8 +90,8 @@ describe('SetupWizardIndex', () => {
     store.commit('SET_ALLOW_GUEST_ACCESS', true);
     store.commit('SET_LEARNER_CAN_SIGN_UP', false);
     store.commit('SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD', true);
-    store.commit('SET_ONBOARDING_STEP', 6);
-    els.SuperuserCredentialsForm().vm.$emit('submit');
+    store.commit('SET_ONBOARDING_STEP', 7);
+    els.PersonalDataConsentForm().vm.$emit('submit');
     const matcher = expect.objectContaining({
       language_id: 'en',
       facility: { name: "Mr. Roger's Neighborhood" },

@@ -4,6 +4,7 @@
     :noOptionLabel="$tr('noOptionLabel')"
     :settingIsEnabled="settingIsEnabled"
     :submitText="submitText"
+    :description="$tr('description')"
     :headerText="$tr('header')"
     @submit="setSetting"
   />
@@ -45,8 +46,10 @@
       },
     },
     $trs: {
-      header: 'Allow anyone to use Kolibri as a guest?',
-      noOptionLabel: 'No. Users must sign into view content',
+      description:
+        'This allows anyone to view content on Kolibri without needing to make an account',
+      header: 'Enable guest access?',
+      noOptionLabel: 'No. Users must have an account to view content on Kolibri',
     },
   };
 
