@@ -48,6 +48,7 @@
       v-else-if="examsModalSet === AssignmentActions.DELETE"
       :modalTitle="$tr('deleteExamTitle')"
       :modalDescription="$tr('deleteExamDescription', { title: exam.title })"
+      :modalConfirmation="$tr('deleteExamConfirmation')"
       @delete="deleteExam(exam.id)"
       @cancel="setExamsModal(null)"
     />
