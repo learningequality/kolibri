@@ -1,35 +1,56 @@
 <template>
 
   <ImmersiveFullScreen v-bind="{ backPageLink, backPageText }">
+    <!-- TODO should I try and use the baked in auth page? Does this have a URL-->
     <AuthMessage v-if="!isSuperuser" authorizedRole="superuser" />
 
     <h1 v-else-if="user === null">{{ $tr('userDoesNotExist') }}</h1>
 
     <template v-else>
-      <div class="section">
+      <div class="section user-info">
         <h1>
           {{ user.full_name }}
           <span v-if="isCurrentUser">
             ({{ $tr('you') }})
           </span>
         </h1>
-        <h3>{{ user.username }}</h3>
+
+        <table>
+          <tr>
+            <th scope="row">{{ $tr('usernameLabel') }}</th>
+            <td>{{ user.username }}</td>
+          </tr>
+
+          <tr>
+            <th scope="row">{{ $tr('userTypeLabel') }}</th>
+            <td>
+              <UserTypeDisplay :userType="UserType(user)" />
+            </td>
+          </tr>
+
+          <tr>
+            <th scope="row">{{ $tr('facilityLabel') }}</th>
+            <td>{{ facilityName }}</td>
+          </tr>
+        </table>
+
       </div>
 
-      <div class="section">
+      <div class="section superuser">
         <KCheckbox
+          class="super-admin-checkbox"
           :disabled="superuserDisabled"
-          :label="$tr('makeSuperuser')"
+          :label="$tr('makeSuperAdmin')"
           :checked="superuserChecked"
           @change="superuserChecked=$event"
         />
-        <p>
-          <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
-          {{ $tr('makeSuperuserDetails') }}
-        </p>
-      </div>
+        <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
 
-      <hr>
+        <ul class="checkbox-description" :class="{disabled: superuserDisabled}">
+          <li>{{ $tr('superAdminExplanation1') }}</li>
+          <li>{{ $tr('superAdminExplanation2') }}</li>
+        </ul>
+      </div>
 
       <div class="section">
         <h2>{{ $tr('devicePermissions') }}</h2>
@@ -74,12 +95,14 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
+  import UserType from 'kolibri.utils.UserType';
   import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
-  import { PageNames } from '../constants';
+  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
+  import { PageNames } from '../../constants';
 
   const SUCCESS = 'SUCCESS';
   const IN_PROGRESS = 'IN_PROGRESS';
@@ -98,6 +121,7 @@
       KButton,
       KCheckbox,
       PermissionsIcon,
+      UserTypeDisplay,
     },
     data() {
       return {
@@ -108,11 +132,15 @@
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser']),
+      ...mapGetters(['isSuperuser', 'facilities']),
       ...mapState('userPermissions', ['user', 'permissions']),
       ...mapState({
         currentUsername: state => state.core.session.username,
       }),
+      // IDEA Make this a core getter? Need audit
+      facilityName() {
+        return this.facilities.find(facility => facility.id === this.user.facility).name;
+      },
       isCurrentUser() {
         return this.currentUsername === this.user.username;
       },
@@ -170,6 +198,7 @@
     },
     methods: {
       ...mapActions('userPermissions', ['addOrUpdateUserPermissions']),
+      ...mapActions(['createSnackbar']),
       save() {
         this.uiBlocked = true;
         this.saveProgress = IN_PROGRESS;
@@ -179,8 +208,12 @@
           can_manage_content: this.devicePermissionsChecked,
         })
           .then(() => {
+            this.createSnackbar({
+              text: this.$tr('permissionChangeConfirmation'),
+              autoDismiss: true,
+            });
             this.saveProgress = SUCCESS;
-            this.goBack();
+            this.uiBlocked = false;
           })
           .catch(() => {
             this.uiBlocked = false;
@@ -190,23 +223,29 @@
       goBack() {
         this.$router.push({ path: '/permissions' });
       },
+      UserType,
     },
     $trs: {
       cancelButton: 'Cancel',
       devicePermissions: 'Device permissions',
       devicePermissionsDetails: 'Can import and export content channels',
+      documentTitle: "{ name }'s Device Permissions",
       goBack: 'Go Back',
       invalidUser: 'Invalid user ID',
-      makeSuperuser: 'Make superuser',
-      makeSuperuserDetails:
-        'A superuser has all device permissions and is able to manage permissions of other users',
+      makeSuperAdmin: 'Make super admin',
+      permissionChangeConfirmation: 'Changes saved',
       saveButton: 'Save Changes',
       saveFailureNotification: 'There was a problem saving these changes.',
       saveInProgressNotification: 'Saving...',
       saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
+      usernameLabel: 'Username',
+      userTypeLabel: 'User type',
+      facilityLabel: 'Facility',
+      superAdminExplanation1:
+        'Has all device permissions and can manage device permissions of other users',
+      superAdminExplanation2: 'Has admin permissions for all facilities on this device',
       you: 'You',
-      documentTitle: "{ name }'s Device Permissions",
     },
   };
 
@@ -221,12 +260,38 @@
     margin-left: 0;
   }
 
+  table {
+    line-height: 1.5em;
+    text-align: left;
+    table-layout: fixed;
+  }
+  th {
+    min-width: 112px;
+  }
+
+  .super-admin-checkbox {
+    display: inline-table;
+  }
+
+  .checkbox-description {
+    // visual estimate, supposed to line up with checkbox label
+    padding: 0;
+    margin: 0 0 0 50px;
+    font-size: 12px;
+    color: $core-text-annotation;
+    &.disabled {
+      color: $core-text-disabled;
+    }
+  }
+
   .section {
     padding: 1em;
   }
 
   .permissions-icon {
-    padding-right: 8px;
+    display: inline;
+    // was 5px in the mocks, this is kolibri standard(?)
+    margin-left: 8px;
   }
 
 </style>
