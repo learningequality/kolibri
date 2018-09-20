@@ -128,4 +128,4 @@ class RootURLRedirectView(View):
             url = get_url_by_role(user_kinds.ANONYMOUS, first_login)
         if url:
             return HttpResponseRedirect(url)
-        raise Http404(_("No appropriate redirect pages found, it is likely that Kolibri is badly configured"))
+        raise Http404(_("No appropriate redirect pages found. It is likely that Kolibri is badly configured"))
