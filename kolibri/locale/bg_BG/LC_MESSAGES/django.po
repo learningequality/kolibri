@@ -1,0 +1,121 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-05-30 19:55-0700\n"
+"PO-Revision-Date: 2018-08-29 06:55\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Bulgarian\n"
+"Language: bg_BG\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: bg\n"
+"X-Crowdin-File: /release-v0.10.x/django.po\n"
+
+#: kolibri/auth/constants/collection_kinds.py:14
+#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "Институция"
+
+#: kolibri/auth/constants/collection_kinds.py:15
+msgid "Classroom"
+msgstr "Класна стая"
+
+#: kolibri/auth/constants/collection_kinds.py:16
+msgid "Learner group"
+msgstr "Група ученици"
+
+#: kolibri/auth/constants/role_kinds.py:13
+msgid "Admin"
+msgstr "Администратор"
+
+#: kolibri/auth/constants/role_kinds.py:14
+msgid "Coach"
+msgstr "Учител"
+
+#: kolibri/auth/constants/role_kinds.py:15
+msgid "Classroom Assignable Coach"
+msgstr "Учител на класа"
+
+#: kolibri/auth/models.py:227
+msgid "username"
+msgstr "потребителско име"
+
+#: kolibri/auth/models.py:229
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr "Задължително поле. Максимум 30 знака (букви или цифри)"
+
+#: kolibri/auth/models.py:233
+msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
+msgstr "Въведи валидно потребителско име. Името може да съдържа само букви, цифри и долни черти."
+
+#: kolibri/auth/models.py:237
+msgid "full name"
+msgstr "три имена"
+
+#: kolibri/auth/models.py:238
+msgid "date joined"
+msgstr "дата на присъединяване"
+
+#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
+#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
+#: kolibri/auth/serializers.py:55
+msgid "An account with that username already exists"
+msgstr "Има регистриран потребител с това потребителско име"
+
+#: kolibri/content/api.py:93
+msgid "Content"
+msgstr "Материали"
+
+#: kolibri/content/api.py:523
+msgid "The requested channel does not exist on the content server"
+msgstr "Този канал не съществува на сървъра с материали"
+
+#: kolibri/content/models.py:242
+msgid "Unknown format"
+msgstr "Неизвестен формат"
+
+#: kolibri/core/device/serializers.py:44
+msgid "Language is not supported by Kolibri"
+msgstr "Този език не се поддържа от Колибри"
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr "Колибри"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "Неподдържан браузър"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "Съжаляваме, тази версия на браузъра не се поддържа."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "За използване на Колибри препоръчваме Firefox или Chrome."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "Можш също да опиташ да актуализираш текущия си браузър."
+
+#: kolibri/plugins/device_management/kolibri_plugin.py:30
+msgid "Device"
+msgstr "Устройство"
+
+#: kolibri/tasks/api.py:33
+msgid "There was a network error."
+msgstr "Възникна грешка в мрежата."
+
+#: kolibri/tasks/api.py:35
+msgid "There was a disk access error."
+msgstr "Възникна грешка с достъпа до устройството."
+
+#: kolibri/tasks/api.py:37
+msgid "There was an unknown error."
+msgstr "Възникна неизвестна грешка."
+

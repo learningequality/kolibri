@@ -12,6 +12,12 @@ module.exports = function(locale) {
           resolve(require('vue-intl/locale-data/ar.js'));
         });
       });
+    case 'bg-BG':
+      return new Promise(function(resolve) {
+        require.ensure(['vue-intl/locale-data/bg.js'], function(require) {
+          resolve(require('vue-intl/locale-data/bg.js'));
+        });
+      });
     case 'bn-BD':
       return new Promise(function(resolve) {
         require.ensure(['vue-intl/locale-data/bn.js'], function(require) {

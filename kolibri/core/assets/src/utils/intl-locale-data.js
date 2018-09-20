@@ -12,6 +12,12 @@ module.exports = function(locale) {
           resolve(() => require('intl/locale-data/jsonp/ar.js'));
         });
       });
+    case 'bg-BG':
+      return new Promise(function(resolve) {
+        require.ensure(['intl/locale-data/jsonp/bg-BG.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/bg-BG.js'));
+        });
+      });
     case 'bn-BD':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/bn-BD.js'], function(require) {
