@@ -261,12 +261,12 @@
   }
 
   table {
-    width: 100%;
+    line-height: 1.5em;
     text-align: left;
     table-layout: fixed;
   }
   th {
-    width: 112px;
+    min-width: 112px;
   }
 
   .super-admin-checkbox {
