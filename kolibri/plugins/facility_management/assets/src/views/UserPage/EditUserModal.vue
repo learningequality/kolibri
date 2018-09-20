@@ -49,11 +49,12 @@
       />
 
     </template>
+
     <template v-else>
       <KSelect
         :label="$tr('userType')"
-        :options="userKindOptions"
-        v-model="newKind"
+        :options="userTypeOptions"
+        v-model="typeSelected"
       />
 
       <fieldset class="coach-selector" v-if="coachIsSelected">
@@ -141,22 +142,21 @@
     },
     data() {
       return {
-        classCoachIsSelected: true,
         newName: this.name,
         newUsername: this.username,
-        newKind: null,
+        classCoachIsSelected: true,
+        typeSelected: null, // see beforeMount
         nameBlurred: false,
         usernameBlurred: false,
-        formSubmitted: false,
       };
     },
     computed: {
       ...mapGetters(['currentFacilityId', 'currentUserId']),
       ...mapState('userManagement', ['facilityUsers', 'error', 'isBusy']),
       coachIsSelected() {
-        return this.newKind.value === UserKinds.COACH;
+        return this.typeSelected.value === UserKinds.COACH;
       },
-      userKindOptions() {
+      userTypeOptions() {
         return [
           {
             label: this.$tr('learner'),
@@ -173,7 +173,7 @@
         ];
       },
       nameIsInvalidText() {
-        if (this.nameBlurred || this.formSubmitted) {
+        if (this.nameBlurred) {
           if (this.newName === '') {
             return this.$tr('required');
           }
@@ -200,7 +200,7 @@
         );
       },
       usernameIsInvalidText() {
-        if (this.usernameBlurred || this.formSubmitted) {
+        if (this.usernameBlurred) {
           if (this.newUsername === '') {
             return this.$tr('required');
           }
@@ -216,8 +216,8 @@
       usernameIsInvalid() {
         return Boolean(this.usernameIsInvalidText);
       },
-      formIsValid() {
-        return !this.nameIsInvalid && !this.usernameIsInvalid;
+      formIsInvalid() {
+        return this.nameIsInvalid || this.usernameIsInvalid;
       },
       editingSelf() {
         return this.currentUserId === this.id;
@@ -230,51 +230,62 @@
         // HACK needs longer term method
         return `${devicePageUrl}#/permissions/${this.id}`;
       },
+      newType() {
+        // never got the chance to even change it
+        if (this.editingSuperAdmin) {
+          return '';
+        }
+        if (this.typeSelected.value === UserKinds.COACH) {
+          if (this.classCoachIsSelected) {
+            return UserKinds.ASSIGNABLE_COACH;
+          }
+
+          return UserKinds.COACH;
+        }
+        return this.typeSelected.value;
+      },
     },
     beforeMount() {
-      const coachOption = this.userKindOptions[1];
+      const coachOption = this.userTypeOptions[1];
       if (this.kind === UserKinds.ASSIGNABLE_COACH) {
-        this.newKind = coachOption;
+        this.typeSelected = coachOption;
         this.classCoachIsSelected = true;
       } else if (this.kind === UserKinds.COACH) {
-        this.newKind = coachOption;
+        this.typeSelected = coachOption;
         this.classCoachIsSelected = false;
       } else {
-        this.newKind = this.userKindOptions.find(kind => kind.value === this.kind);
+        this.typeSelected = this.userTypeOptions.find(kind => kind.value === this.kind) || {};
       }
     },
     methods: {
       ...mapActions('userManagement', ['updateUser', 'displayModal', 'setError']),
       submitForm() {
-        const roleUpdate = {
-          collection: this.currentFacilityId,
-        };
-        this.formSubmitted = true;
-        if (this.formIsValid) {
-          if (this.newKind.value === UserKinds.COACH) {
-            if (this.classCoachIsSelected) {
-              roleUpdate.kind = UserKinds.ASSIGNABLE_COACH;
-            } else {
-              roleUpdate.kind = UserKinds.COACH;
-            }
-          } else {
-            roleUpdate.kind = this.newKind.value;
-          }
-          this.updateUser({
-            userId: this.id,
-            updates: {
-              username: this.newUsername,
-              full_name: this.newName,
-              role: roleUpdate,
-            },
-          });
-        } else {
+        if (this.formIsInvalid) {
           if (this.nameIsInvalid) {
             this.$refs.name.focus();
           } else if (this.usernameIsInvalid) {
             this.$refs.username.focus();
           }
+
+          return;
         }
+
+        const updates = {
+          username: this.newUsername,
+          full_name: this.newName,
+        };
+
+        if (this.newType) {
+          updates.role = {
+            collection: this.currentFacilityId,
+            kind: this.newType,
+          };
+        }
+
+        this.updateUser({
+          userId: this.id,
+          updates,
+        });
       },
     },
   };
