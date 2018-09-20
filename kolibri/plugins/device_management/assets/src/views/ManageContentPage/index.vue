@@ -64,7 +64,7 @@
   export default {
     name: 'ManageContentPage',
     $trs: {
-      title: 'Content',
+      title: 'Channels',
       import: 'Import',
       export: 'Export',
       noAccessDetails:
