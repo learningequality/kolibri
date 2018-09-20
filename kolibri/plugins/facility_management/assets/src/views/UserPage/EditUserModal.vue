@@ -32,7 +32,7 @@
       v-model="newUsername"
     />
 
-    <template v-if="isSuperuser && kind === UserKinds.SUPERUSER">
+    <template v-if="editingSuperAdmin">
       <h2 class="user-type header">
         {{ $tr('userType') }}
       </h2>
@@ -151,13 +151,10 @@
       };
     },
     computed: {
-      ...mapGetters(['currentFacilityId', 'isSuperuser', 'currentUserId']),
+      ...mapGetters(['currentFacilityId', 'currentUserId']),
       ...mapState('userManagement', ['facilityUsers', 'error', 'isBusy']),
       coachIsSelected() {
         return this.newKind.value === UserKinds.COACH;
-      },
-      UserKinds() {
-        return UserKinds;
       },
       userKindOptions() {
         return [
@@ -224,6 +221,9 @@
       },
       editingSelf() {
         return this.currentUserId === this.id;
+      },
+      editingSuperAdmin() {
+        return this.kind === UserKinds.SUPERUSER;
       },
       devicePermissionsPageLink() {
         const devicePageUrl = urls['kolibri:devicemanagementplugin:device_management']();
