@@ -268,9 +268,6 @@
               role: roleUpdate,
             },
           });
-          if (this.editingSelf && this.isSuperuser && this.newKind.value === UserKinds.LEARNER) {
-            window.location.href = window.location.origin;
-          }
         } else {
           if (this.nameIsInvalid) {
             this.$refs.name.focus();
