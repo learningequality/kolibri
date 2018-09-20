@@ -252,6 +252,10 @@ def update():
     from kolibri.core.content.utils.annotation import update_channel_metadata
     update_channel_metadata()
 
+    from django.core.cache import caches
+    cache = caches['built_files']
+    cache.clear()
+
 
 update.called = False
 

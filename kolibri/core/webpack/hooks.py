@@ -20,7 +20,7 @@ from functools import partial
 from django.conf import settings as django_settings
 from django.contrib.staticfiles.finders import find as find_staticfiles
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.core.cache import cache
+from django.core.cache import caches
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.six.moves.urllib.request import url2pathname
@@ -35,13 +35,8 @@ from . import settings
 from kolibri.plugins import hooks
 from kolibri.utils import conf
 
-# We load quite a few JSON files from disk, as cached properties of
-# the WebpackBundleHook - but these are only cached per instance
-# whereas we want them cached on a per class basis.
-# Use this global to cache the results of JSON file loads and reduce
-# disk access.
-_JSON_STATS_FILE_CACHE = {}
-_JSON_MESSAGES_FILE_CACHE = {}
+# Use the cache specifically for built files
+cache = caches['built_files']
 
 
 class BundleNotFound(Exception):
@@ -119,9 +114,10 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: A dict of the data contained in the JSON files which are
           written by Webpack.
         """
-        global _JSON_STATS_FILE_CACHE
+        cache_key = 'json_stats_file_cache_{slug}'.format(slug=self.unique_slug)
         try:
-            if not _JSON_STATS_FILE_CACHE.get(self.unique_slug) or getattr(django_settings, 'DEVELOPER_MODE', False):
+            stats_file_content = cache.get(cache_key)
+            if not stats_file_content or getattr(django_settings, 'DEVELOPER_MODE', False):
                 with io.open(self._stats_file, mode='r', encoding='utf-8') as f:
                     stats = json.load(f)
                 if getattr(django_settings, 'DEVELOPER_MODE', False):
@@ -135,11 +131,14 @@ class WebpackBundleHook(hooks.KolibriHook):
                             raise WebpackError('Webpack compilation still in progress')
                     if stats['status'] == 'error':
                         raise WebpackError('Webpack compilation has errored')
-                _JSON_STATS_FILE_CACHE[self.unique_slug] = {
+                stats_file_content = {
                     "files": stats.get("chunks", {}).get(self.unique_slug, []),
                     "hasMessages": stats.get("messages", False),
                 }
-            return _JSON_STATS_FILE_CACHE[self.unique_slug]
+                # Don't invalidate during runtime.
+                # Might need to change this if we move to a different cache backend.
+                cache.set(cache_key, stats_file_content, None)
+            return stats_file_content
         except IOError:
             raise WebpackError('Webpack build file missing, front-end assets cannot be loaded')
 
@@ -245,18 +244,17 @@ class WebpackBundleHook(hooks.KolibriHook):
                 return file_path
 
     def frontend_messages(self):
-        global _JSON_MESSAGES_FILE_CACHE
         lang_code = get_language()
-        if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code) or getattr(django_settings, 'DEVELOPER_MODE', False):
+        cache_key = 'json_stats_file_cache_{slug}_{lang}'.format(slug=self.unique_slug, lang=lang_code)
+        message_file_content = cache.get(cache_key)
+        if not message_file_content or getattr(django_settings, 'DEVELOPER_MODE', False):
             frontend_message_file = self.frontend_message_file(lang_code)
             if frontend_message_file:
                 with io.open(frontend_message_file, mode='r', encoding='utf-8') as f:
-                    if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug):
-                        _JSON_MESSAGES_FILE_CACHE[self.unique_slug] = {}
                     # Load JSON file, then immediately convert it to a string in minified form.
-                    _JSON_MESSAGES_FILE_CACHE[self.unique_slug][lang_code] = json.dumps(
-                        json.load(f), separators=(',', ':'))
-        return _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code)
+                    message_file_content = json.dumps(json.load(f), separators=(',', ':'))
+                cache.set(cache_key, message_file_content, None)
+        return message_file_content
 
     def sorted_chunks(self):
         bidi = get_language_info(get_language())['bidi']
