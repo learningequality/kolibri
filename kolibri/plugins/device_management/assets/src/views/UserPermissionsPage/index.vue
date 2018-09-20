@@ -17,25 +17,19 @@
 
         <table>
           <tr>
-            <th scope="row">
-              {{ $tr('usernameLabel') }}
-            </th>
-            <td> {{ user.username }} </td>
+            <th scope="row">{{ $tr('usernameLabel') }}</th>
+            <td>{{ user.username }}</td>
           </tr>
 
           <tr>
-            <th scope="row">
-              {{ $tr('userTypeLabel') }}
-            </th>
+            <th scope="row">{{ $tr('userTypeLabel') }}</th>
             <td>
               <UserTypeDisplay :userType="UserType(user)" />
             </td>
           </tr>
 
           <tr>
-            <th scope="row">
-              {{ $tr('facilityLabel') }}
-            </th>
+            <th scope="row">{{ $tr('facilityLabel') }}</th>
             <td>{{ facilityName }}</td>
           </tr>
         </table>
@@ -53,12 +47,8 @@
         <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
 
         <ul :class="['checkbox-description', {disabled: superuserDisabled}]">
-          <li>
-            {{ $tr('superAdminExplanation1') }}
-          </li>
-          <li>
-            {{ $tr('superAdminExplanation2') }}
-          </li>
+          <li>{{ $tr('superAdminExplanation1') }}</li>
+          <li>{{ $tr('superAdminExplanation2') }}</li>
         </ul>
       </div>
 
