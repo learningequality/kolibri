@@ -48,7 +48,9 @@ import uuid
 from gettext import gettext as _
 
 from django.core.urlresolvers import reverse
+from django.db import connection
 from django.db import models
+from django.db.models import Min
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
 from jsonfield import JSONField
@@ -56,10 +58,13 @@ from le_utils.constants import content_kinds
 from le_utils.constants import file_formats
 from le_utils.constants import format_presets
 from le_utils.constants.languages import LANGUAGE_DIRECTIONS
+from mptt.managers import TreeManager
 from mptt.models import MPTTModel
 from mptt.models import TreeForeignKey
+from mptt.querysets import TreeQuerySet
 
 from .utils import paths
+from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.conf import OPTIONS
 
@@ -139,6 +144,34 @@ class ContentTag(models.Model):
         return self.tag_name
 
 
+class ContentNodeQueryset(TreeQuerySet):
+
+    def dedupe_by_content_id(self):
+        # import ipdb; ipdb.set_trace()
+        # remove duplicate content nodes based on content_id
+        if connection.vendor == "sqlite":
+            # adapted from https://code.djangoproject.com/ticket/22696
+            deduped_ids = self.values('content_id').annotate(node_id=Min('id')).values_list('node_id', flat=True)
+            return self.filter(id__in=deduped_ids)
+
+        # when using postgres, we can call distinct on a specific column
+        elif connection.vendor == "postgresql":
+            return self.order_by('content_id').distinct('content_id')
+
+
+class ContentNodeManager(models.Manager.from_queryset(ContentNodeQueryset), TreeManager):
+
+    def get_queryset(self, *args, **kwargs):
+        """
+        Ensures that this manager always returns nodes in tree order.
+        """
+        return super(TreeManager, self).get_queryset(
+            *args, **kwargs
+        ).order_by(
+            self.tree_id_attr, self.left_attr
+        )
+
+
 @python_2_unicode_compatible
 class ContentNode(MPTTModel):
     """
@@ -171,6 +204,8 @@ class ContentNode(MPTTModel):
     available = models.BooleanField(default=False)
     stemmed_metaphone = models.CharField(max_length=1800, blank=True)  # for fuzzy search in title and description
     lang = models.ForeignKey('Language', blank=True, null=True)
+
+    objects = ContentNodeManager()
 
     class Meta:
         ordering = ('lft',)
@@ -348,6 +383,15 @@ class ChannelMetadata(models.Model):
     # Minimum version of Kolibri that this content database is compatible with
     min_schema_version = models.CharField(max_length=50)
     root = models.ForeignKey(ContentNode)
+    # precalculated fields during annotation/migration
+    published_size = models.IntegerField(default=0, null=True, blank=True)
+    total_resource_count = models.IntegerField(default=0, null=True, blank=True)
+    included_languages = models.ManyToManyField(
+        "Language",
+        related_name='channels',
+        verbose_name="languages",
+        blank=True,
+    )
 
     class Admin:
         pass
@@ -358,3 +402,4 @@ class ChannelMetadata(models.Model):
     def delete_content_tree_and_files(self):
         # Use Django ORM to ensure cascading delete:
         self.root.delete()
+        ContentCacheKey.update_cache_key()

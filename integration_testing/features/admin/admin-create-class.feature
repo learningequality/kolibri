@@ -1,5 +1,5 @@
 Feature: Admin create classes
-    Admin needs to be able create classes for each facility
+  Admin needs to be able create classes for each facility
 
   Background:
     Given I am signed in to Kolibri as admin user

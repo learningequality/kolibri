@@ -8,6 +8,7 @@
     @cancel="closeModal"
   >
     <p>{{ modalDescription }}</p>
+    <p>{{ modalConfirmation }}</p>
   </KModal>
 
 </template>
@@ -30,6 +31,10 @@
       modalDescription: {
         type: String,
         required: true,
+      },
+      modalConfirmation: {
+        type: String,
+        required: false,
       },
     },
     methods: {

@@ -9,7 +9,7 @@
       <KGridItem sizes="100, 50, 50" percentage align="right">
         <KButton
           @click="displayModal(Modals.CREATE_USER)"
-          :text="$tr('addNew')"
+          :text="$tr('newUserButtonLabel')"
           :primary="true"
         />
       </KGridItem>
@@ -38,7 +38,7 @@
     >
       <template slot="action" slot-scope="userRow">
         <KDropdownMenu
-          :text="$tr('manage')"
+          :text="$tr('optionsButtonLabel')"
           :options="manageUserOptions(userRow.user.id)"
           :disabled="!userCanBeEdited(userRow.user)"
           appearance="flat-button"
@@ -90,7 +90,6 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
-  import UserRole from '../UserRole';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import UserCreateModal from './UserCreateModal';
   import EditUserModal from './EditUserModal';
@@ -103,7 +102,7 @@
     name: 'UserPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.$tr('userPageTitle'),
       };
     },
     components: {
@@ -114,7 +113,6 @@
       KButton,
       KFilterTextbox,
       KDropdownMenu,
-      UserRole,
       KSelect,
       KGrid,
       KGridItem,
@@ -196,7 +194,8 @@
       admins: 'Admins',
       coaches: 'Coaches',
       learners: 'Learners',
-      addNew: 'Add New',
+      newUserButtonLabel: 'New User',
+      userCountLabel: '{userCount} users',
       fullName: 'Full name',
       users: 'Users',
       role: 'Role',
@@ -204,12 +203,12 @@
       edit: 'Edit',
       noUsersExist: 'No users exist',
       allUsersFilteredOut: 'No users match the filter',
-      manage: 'Manage',
-      editUser: 'Edit',
+      optionsButtonLabel: 'Options',
+      editUser: 'Edit details',
       resetUserPassword: 'Reset password',
       deleteUser: 'Delete',
       userActions: 'User management actions',
-      documentTitle: 'Manage Users',
+      userPageTitle: 'Users',
     },
   };
 

@@ -2,31 +2,27 @@
 
   <div>
     <h1>{{ $tr('createNewExam') }}</h1>
-    <KGrid>
-      <KGridItem size="4">
-        <KTextbox
-          ref="title"
-          :label="$tr('title')"
-          :autofocus="true"
-          :invalid="titleIsInvalid"
-          :invalidText="titleIsInvalidText"
-          :maxlength="100"
-          @blur="titleBlurred = true"
-          v-model.trim="inputTitle"
-        />
-      </KGridItem>
-      <KGridItem size="3">
-        <KTextbox
-          ref="numQuest"
-          type="number"
-          :label="$tr('numQuestions')"
-          :invalid="numQuestIsInvalid"
-          :invalidText="numQuestIsInvalidText"
-          @blur="numQuestBlurred = true"
-          v-model.trim.number="inputNumQuestions"
-        />
-      </KGridItem>
-    </KGrid>
+    <div>
+      <KTextbox
+        ref="title"
+        :label="$tr('title')"
+        :autofocus="true"
+        :invalid="titleIsInvalid"
+        :invalidText="titleIsInvalidText"
+        :maxlength="100"
+        @blur="titleBlurred = true"
+        v-model.trim="inputTitle"
+      />
+      <KTextbox
+        ref="numQuest"
+        type="number"
+        :label="$tr('numQuestions')"
+        :invalid="numQuestIsInvalid"
+        :invalidText="numQuestIsInvalidText"
+        @blur="numQuestBlurred = true"
+        v-model.trim.number="inputNumQuestions"
+      />
+    </div>
 
     <h2>{{ $tr('chooseExercises') }}</h2>
 
@@ -121,7 +117,12 @@
       <KButton :text="$tr('preview')" @click="preview" />
 
       <br>
-      <KButton :text="$tr('finish')" :primary="true" @click="finish" :disabled="submitting" />
+      <KButton
+        :text="$tr('saveButtonlabel')"
+        :primary="true"
+        @click="finish"
+        :disabled="submitting"
+      />
     </div>
 
     <PreviewNewExamModal
@@ -147,8 +148,6 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import shuffle from 'lodash/shuffle';
@@ -172,8 +171,6 @@
       KCircularLoader,
       KButton,
       KTextbox,
-      KGrid,
-      KGridItem,
       TopicRow,
       ExerciseRow,
       PreviewNewExamModal,
@@ -183,23 +180,24 @@
     },
     mixins: [responsiveWindow],
     $trs: {
-      createNewExam: 'Create a new exam',
-      chooseExercises: 'Select exercises to pull questions from',
+      createNewExam: 'Create new exam',
+      chooseExercises: 'Select topics or exercises',
       selectAll: 'Select all',
-      title: 'Exam title',
+      title: 'Title',
       numQuestions: 'Number of questions',
-      examRequiresTitle: 'The exam requires a title',
+      examRequiresTitle: 'This field is required',
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+      numQuestionsNotMet:
+        'Add more exercises to reach 40 questions. Alternately, lower the number of exam questions.',
       noneSelected: 'No exercises are selected',
       searchContent: 'Search for content within channel',
       preview: 'Preview',
-      finish: 'Finish',
+      saveButtonlabel: 'Save',
       added: 'Added',
       removed: 'Removed',
-      selected:
-        '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected',
+      selected: '{count, number, integer} total selected',
       name: 'Name',
       documentTitle: 'Create new exam',
     },

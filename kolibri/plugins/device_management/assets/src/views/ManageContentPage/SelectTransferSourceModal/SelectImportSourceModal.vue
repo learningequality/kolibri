@@ -9,25 +9,31 @@
     @submit="goForward"
     @cancel="resetContentWizardState"
   >
-    <div>
+    <UiAlert
+      v-if="formIsDisabled"
+      type="info"
+      :dismissible="false"
+    >
+      {{ $tr('loadingMessage') }}
+    </UiAlert>
+
+    <div v-else>
       <KRadioButton
         :label="$tr('network')"
         v-model="source"
         :value="ContentSources.KOLIBRI_STUDIO"
-        :disabled="formIsDisabled || kolibriStudioIsOffline"
+        :disabled="kolibriStudioIsOffline"
         :autofocus="!kolibriStudioIsOffline"
       />
       <KRadioButton
         :label="$tr('localNetworkOrInternet')"
         v-model="source"
         :value="ContentSources.PEER_KOLIBRI_SERVER"
-        :disabled="formIsDisabled"
       />
       <KRadioButton
         :label="$tr('localDrives')"
         v-model="source"
         :value="ContentSources.LOCAL_DRIVE"
-        :disabled="formIsDisabled"
       />
     </div>
   </KModal>
@@ -41,6 +47,7 @@
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { RemoteChannelResource } from 'kolibri.resources';
   import KModal from 'kolibri.coreVue.components.KModal';
+  import UiAlert from 'keen-ui/src/UiAlert';
   import { ContentSources } from '../../../constants';
 
   export default {
@@ -48,6 +55,7 @@
     components: {
       KRadioButton,
       KModal,
+      UiAlert,
     },
     data() {
       return {
@@ -75,7 +83,8 @@
       network: 'Kolibri Studio (online)',
       localNetworkOrInternet: 'Local network or internet',
       localDrives: 'Attached drive or memory card',
-      selectLocalRemoteSourceTitle: 'Import from',
+      selectLocalRemoteSourceTitle: 'Select a source',
+      loadingMessage: 'Loading connections…',
     },
     methods: {
       ...mapActions('manageContent/wizard', ['goForwardFromSelectImportSourceModal']),

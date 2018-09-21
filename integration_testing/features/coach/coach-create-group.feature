@@ -1,5 +1,5 @@
 Feature: Coach create groups
-    Coach needs to be able create groups to support different learning needs and speeds
+  Coach needs to be able create groups to support different learning needs and speeds
 
   Background:
     Given I am signed in to Kolibri as a coach user

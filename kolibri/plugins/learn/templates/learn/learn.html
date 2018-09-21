@@ -4,8 +4,6 @@
 {% load cache %}
 
 {% block content %}
-  <!-- Bootstrapping the initial information for all channels. -->
-  {% kolibri_bootstrap_collection 'channel' 'ChannelResource' available="true" %}
 
   {% if request.user.is_facility_user %}
     <!-- Bootstrapping the the user's memberships. -->

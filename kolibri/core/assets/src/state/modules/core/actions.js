@@ -1,3 +1,4 @@
+import debounce from 'lodash/debounce';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import logger from 'kolibri.lib.logging';
 import {
@@ -29,8 +30,8 @@ import samePageCheckGenerator from '../../../utils/samePageCheckGenerator';
 
 const logging = logger.getLogger(__filename);
 const intervalTime = 5000; // Frequency at which time logging is updated
-const progressThreshold = 0.25; // Update logs if user has reached 25% more progress
-const timeThreshold = 60; // Update logs if 60 seconds have passed since last update
+const progressThreshold = 0.4; // Update logs if user has reached 40% more progress
+const timeThreshold = 120; // Update logs if 120 seconds have passed since last update
 
 /**
  * Vuex State Mappers
@@ -395,6 +396,22 @@ export function setChannelInfo(store) {
   );
 }
 
+function saveContentSessionLog(store, id, data) {
+  ContentSessionLogResource.saveModel({ id, data }).catch(error => {
+    handleApiError(store, error);
+  });
+}
+
+const debouncedSaveContentSessionLog = debounce(saveContentSessionLog, 1000, { maxWait: 5000 });
+
+function saveContentSummaryLog(store, id, data) {
+  ContentSummaryLogResource.saveModel({ id, data }).catch(error => {
+    handleApiError(store, error);
+  });
+}
+
+const debouncedSaveContentSummaryLog = debounce(saveContentSummaryLog, 1000, { maxWait: 5000 });
+
 /**
  * Do a PATCH to update existing logging models
  * Must be called after initContentSession
@@ -412,22 +429,18 @@ export function saveLogs(store) {
 
   /* If a session model exists, save it with updated values */
   if (sessionLog.id) {
-    ContentSessionLogResource.saveModel({
-      id: sessionLog.id,
-      data: _contentSessionModel(store),
-    }).catch(error => {
-      store.dispatch('handleApiError', error);
-    });
+    const contentSession = _contentSessionModel(store);
+    // Get all data from the vuex store synchronously, but then debounce the save to
+    // prevent repeated saves to the server.
+    debouncedSaveContentSessionLog(store, sessionLog.id, contentSession);
   }
 
   /* If a summary model exists, save it with updated values */
   if (summaryLog.id) {
-    ContentSummaryLogResource.saveModel({
-      id: summaryLog.id,
-      data: _contentSummaryModel(store),
-    }).catch(error => {
-      store.dispatch('handleApiError', error);
-    });
+    const contentSummary = _contentSummaryModel(store);
+    // Get all data from the vuex store synchronously, but then debounce the save to
+    // prevent repeated saves to the server.
+    debouncedSaveContentSummaryLog(store, summaryLog.id, contentSummary);
   }
 }
 

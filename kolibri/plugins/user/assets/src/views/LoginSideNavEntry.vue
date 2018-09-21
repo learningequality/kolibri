@@ -23,7 +23,7 @@
   import urls from 'kolibri.urls';
 
   const component = {
-    name: 'loginSideNavEntry',
+    name: 'LoginSideNavEntry',
     components: {
       CoreMenuOption,
     },

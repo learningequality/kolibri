@@ -52,7 +52,9 @@ export default {
       return state.user_id;
     },
     getUserKind(state, getters) {
-      if (getters.isAdmin) {
+      if (getters.isSuperuser) {
+        return UserKinds.SUPERUSER;
+      } else if (getters.isAdmin) {
         return UserKinds.ADMIN;
       } else if (getters.isCoach) {
         return UserKinds.COACH;

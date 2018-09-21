@@ -41,9 +41,10 @@ function fetchUserPermissions(userId) {
  * @returns Promise<void>
  */
 export function showUserPermissionsPage(store, userId) {
-  const promise = ConditionalPromise.all([fetchUserPermissions(userId)]).only(
-    samePageCheckGenerator(store)
-  );
+  const promise = ConditionalPromise.all([
+    fetchUserPermissions(userId),
+    store.dispatch('getFacilities'),
+  ]).only(samePageCheckGenerator(store));
   return promise
     .then(function onUserSuccess([data]) {
       return store.commit('userPermissions/SET_STATE', data);

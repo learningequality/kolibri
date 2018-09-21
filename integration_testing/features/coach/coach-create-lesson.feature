@@ -1,5 +1,5 @@
 Feature: Coach create lessons
-    Coach need to be able to create lessons from existing content
+  Coach need to be able to create lessons from existing content
 
   Background:
     Given I am signed in to Kolibri as a coach user
@@ -26,8 +26,8 @@ Feature: Coach create lessons
     When I click on *back arrow* button
     Then I see the *Select resources* page again
     When I check the resource(s) checkbox
-    Then I see the *Total resources selected* count changed 
-    When I click *Save* button
+    Then I see the *Total resources selected* count changed
+    When I click the *Exit* button on the *Manage resources* header
     Then *Select resources* page closes
       And I see the added resources on the <title> lesson page
 

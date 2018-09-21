@@ -47,7 +47,7 @@
                 @click="setSort('name')"
                 class="header-button"
                 appearance="basic-link"
-                :text="$tr('nameTableColumnHeader')"
+                :text="$tr('fullnameTableColumnHeader')"
               />
               <!-- TODO should probably use constants -->
               <UiIconButton
@@ -306,7 +306,7 @@
       resourceTitleLabel: 'Resource',
       exerciseTitleLabel: 'Exercise',
       previewContentButtonLabel: 'Preview',
-      nameTableColumnHeader: 'Name',
+      fullnameTableColumnHeader: 'Full name',
       progressTableColumnHeader: 'Resource Progress',
       exerciseProgressTableColumnHeader: 'Exercise Progress',
       groupTableColumnHeader: 'Group',

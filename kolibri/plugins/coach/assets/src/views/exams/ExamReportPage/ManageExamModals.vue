@@ -14,6 +14,8 @@
       v-else-if="examsModalSet === AssignmentActions.CHANGE_STATUS"
       :modalTitle="$tr('changeExamStatusTitle')"
       :modalDescription="$tr('changeExamStatusDescription')"
+      :modalActiveOption="$tr('changeExamStatusActive')"
+      :modalInactiveOption="$tr('changeExamStatusInactive')"
       :active="exam.active"
       @changeStatus="handleChangeStatus"
       @cancel="setExamsModal(null)"
@@ -37,7 +39,6 @@
     <AssignmentCopyModal
       v-else-if="examsModalSet === AssignmentActions.COPY"
       :modalTitle="$tr('copyExamTitle')"
-      :copyExplanation="$tr('copyExplanation')"
       :assignmentQuestion="$tr('assignmentQuestion')"
       :classId="classId"
       :classList="classList"
@@ -49,6 +50,7 @@
       v-else-if="examsModalSet === AssignmentActions.DELETE"
       :modalTitle="$tr('deleteExamTitle')"
       :modalDescription="$tr('deleteExamDescription', { title: exam.title })"
+      :modalConfirmation="$tr('deleteExamConfirmation')"
       @delete="deleteExam(exam.id)"
       @cancel="setExamsModal(null)"
     />
@@ -149,11 +151,13 @@
     $trs: {
       changeExamStatusTitle: 'Change exam status',
       changeExamStatusDescription: 'Learners can only see active exams',
-      copyExamTitle: 'Copy exam',
-      copyExplanation: 'Copy this exam to',
+      copyExamTitle: 'Copy exam to',
+      changeExamStatusActive: 'Active',
+      changeExamStatusInactive: 'Inactive',
       assignmentQuestion: 'Assign exam to',
       deleteExamTitle: 'Delete exam',
-      deleteExamDescription: "Delete '{ title }'?",
+      deleteExamDescription: "Are you sure you want to delete '{ title }'?",
+      deleteExamConfirmation: 'All learner progress on this exam will be lost.',
       editExamDetails: 'Edit exam details',
       saveExamError: 'There was a problem saving this exam',
       copyOfExam: 'Copy of { examTitle }',

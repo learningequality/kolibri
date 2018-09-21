@@ -28,9 +28,9 @@
     $trs: {
       welcomeModalHeader: 'Welcome to Kolibri!',
       welcomeModalContentDescription:
-        'The first thing you should do is import some content from the Content tab.',
+        'The first thing you should do is import some content from the Channel tab.',
       welcomeModalPermissionsDescription:
-        'The admin account you created during setup has special permissions to do this. Learn more in the Permissions tab later.',
+        'The super admin account you created during setup has special permissions to do this. Learn more in the Permissions tab later.',
       welcomeButtonDismissText: 'OK',
     },
     components: { KModal, KButton },

@@ -2,13 +2,13 @@
 import omit from 'lodash/fp/omit';
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import {
-  ChannelResource,
   ContentNodeFileSizeResource,
   ContentNodeGranularResource,
   TaskResource,
 } from 'kolibri.resources';
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
 import { updateTreeViewTopic } from '../../src/modules/wizard/handlers';
+import ChannelResource from '../../src/apiResources/deviceChannel';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
 const simplePath = (...ids) => ids.map(id => ({ id, title: `node_${id}` }));

@@ -1,5 +1,5 @@
 Feature: Admin create classes
-    Admin needs to be able to delete classes from the facility
+  Admin needs to be able to delete classes from the facility
 
   Background:
     Given I am signed in to Kolibri as admin user

@@ -21,7 +21,7 @@
         <tr>
           <th class="core-table-icon-col"></th>
           <th class="core-table-main-col">{{ $tr('title') }}</th>
-          <th>{{ $tr('recipients') }}</th>
+          <th>{{ $tr('assignedGroupsHeader') }}</th>
           <th>
             {{ $tr('status') }}
             <CoreInfoIcon
@@ -92,7 +92,7 @@
       inactiveExams: 'Inactive exams',
       newExam: 'New exam',
       title: 'Title',
-      recipients: 'Recipients',
+      assignedGroupsHeader: 'Visible to',
       noExams: 'You do not have any exams',
       noActiveExams: 'No active exams',
       noInactiveExams: 'No inactive exams',

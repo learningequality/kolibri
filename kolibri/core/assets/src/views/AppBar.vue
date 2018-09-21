@@ -54,10 +54,10 @@
         @close="userMenuDropdownIsOpen = false"
       >
         <template slot="header" v-if="isUserLoggedIn">
-          <div class="role">{{ $tr('role') }}</div>
-          <div v-if="isAdmin">{{ $tr('admin') }}</div>
-          <div v-else-if="isCoach">{{ $tr('coach') }}</div>
-          <div v-else-if="isLearner">{{ $tr('learner') }}</div>
+          <div class="role">{{ $tr('userTypeLabel') }}</div>
+          <div>
+            <UserTypeDisplay :userType="getUserKind" />
+          </div>
         </template>
 
         <template slot="options">
@@ -96,6 +96,7 @@
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
+  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UiButton from 'keen-ui/src/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
@@ -113,13 +114,11 @@
       LanguageSwitcherModal,
       CoreMenuOption,
       LogoutSideNavEntry,
+      UserTypeDisplay,
     },
     mixins: [responsiveWindow, navComponentsMixin],
     $trs: {
-      role: 'Role',
-      admin: 'Admin',
-      coach: 'Coach',
-      learner: 'Learner',
+      userTypeLabel: 'User type',
       languageSwitchMenuOption: 'Change language',
       userMenu: 'User menu',
     },
@@ -142,7 +141,7 @@
       userMenuDropdownIsOpen: false,
     }),
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'isAdmin', 'isCoach', 'isLearner']),
+      ...mapGetters(['isUserLoggedIn', 'getUserKind']),
       ...mapState({
         username: state => state.core.session.username,
       }),

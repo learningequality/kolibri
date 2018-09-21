@@ -1,5 +1,5 @@
 Feature: Admin export usage data
-    Admin needs to be able to export session and summary logs for the facility
+  Admin needs to be able to export session and summary logs for the facility
 
   Background:
     Given I am signed in to Kolibri as an admin user

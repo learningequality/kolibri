@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('enterChannelToken')"
-    :submitText="$tr('confirm')"
+    :submitText="$tr('continueButtonLabel')"
     :cancelText="$tr('cancel')"
     :submitDisabled="formIsDisabled"
     :cancelDisabled="formIsDisabled"
@@ -95,7 +95,7 @@
     $trs: {
       cancel: 'Cancel',
       channelTokenLabel: 'Channel token',
-      confirm: 'Confirm',
+      continueButtonLabel: 'Continue',
       enterChannelToken: 'Enter channel token',
       invalidTokenMessage: 'Check whether you entered token correctly',
       networkErrorMessage: 'Unable to connect to token',

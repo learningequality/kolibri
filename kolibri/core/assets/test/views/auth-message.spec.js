@@ -25,14 +25,14 @@ describe('auth message component', () => {
     const wrapper = makeWrapper({ propsData: { authorizedRole: 'learner' } });
     const { headerText, detailsText } = getElements(wrapper);
     expect(headerText()).toEqual('Did you forget to sign in?');
-    expect(detailsText()).toEqual('You must be signed in as a Learner to view this page');
+    expect(detailsText()).toEqual('You must be signed in as a learner to view this page');
   });
 
   it('shows the correct details when authorized role is "admin"', () => {
     const wrapper = makeWrapper({ propsData: { authorizedRole: 'admin' } });
     const { headerText, detailsText } = getElements(wrapper);
     expect(headerText()).toEqual('Did you forget to sign in?');
-    expect(detailsText()).toEqual('You must be signed in as an Admin to view this page');
+    expect(detailsText()).toEqual('You must be signed in as an admin to view this page');
   });
 
   it('shows correct text when both texts manually provided as prop', () => {

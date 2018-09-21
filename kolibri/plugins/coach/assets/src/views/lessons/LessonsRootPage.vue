@@ -22,7 +22,7 @@
           <th class="core-table-icon-col"></th>
           <th class="core-table-main-col">{{ $tr('title') }}</th>
           <th>{{ $tr('size') }}</th>
-          <th>{{ $tr('recipients') }}</th>
+          <th>{{ $tr('assignedGroupsHeader') }}</th>
           <th>
             {{ $tr('status') }}
             <CoreInfoIcon
@@ -69,7 +69,7 @@
 
     <AssignmentDetailsModal
       v-if="showModal"
-      :modalTitle="$tr('newLesson')"
+      :modalTitle="$tr('newLessonModalTitle')"
       :submitErrorMessage="$tr('saveLessonError')"
       :initialDescription="''"
       :showDescriptionField="true"
@@ -187,9 +187,10 @@
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
       newLesson: 'New lesson',
+      newLessonModalTitle: 'Create new lesson',
       title: 'Title',
       size: 'Size',
-      recipients: 'Recipients',
+      assignedGroupsHeader: 'Visible to',
       entireClass: 'Entire class',
       numberOfGroups: '{count, number, integer} {count, plural, one {group} other {groups}}',
       noOne: 'No one',

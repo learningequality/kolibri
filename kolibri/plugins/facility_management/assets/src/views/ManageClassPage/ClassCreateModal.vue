@@ -1,9 +1,9 @@
 <template>
 
   <KModal
-    :title="$tr('addNewClassTitle')"
+    :title="$tr('createNewClassHeader')"
     size="small"
-    :submitText="$tr('create')"
+    :submitText="$tr('saveClassButtonLabel')"
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @cancel="close"
@@ -34,10 +34,10 @@
   export default {
     name: 'ClassCreateModal',
     $trs: {
-      addNewClassTitle: 'Add new class',
+      createNewClassHeader: 'Create new class',
       classname: 'Class name',
       cancel: 'Cancel',
-      create: 'Create',
+      saveClassButtonLabel: 'Save',
       duplicateName: 'A class with that name already exists',
       required: 'This field is required',
     },

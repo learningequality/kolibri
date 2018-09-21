@@ -1,5 +1,5 @@
 Feature: Coach activate exams
-    Coaches need to activate exams in order for learners to gain access and start submitting them
+  Coaches need to activate exams in order for learners to gain access and start submitting them
 
   Background:
     Given I am signed in to kolibri as coach user

@@ -50,11 +50,11 @@
           </td>
           <td>
             {{ user.full_name }}
-            <UserRole
+            <UserTypeDisplay
               aria-hidden="true"
-              class="role-badge"
-              :role="user.kind"
+              :userType="user.kind"
               :omitLearner="true"
+              class="role-badge"
             />
           </td>
           <td class="visuallyhidden">
@@ -82,18 +82,18 @@
 
 <script>
 
+  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import UiIcon from 'keen-ui/src/UiIcon';
   import difference from 'lodash/difference';
-  import UserRole from './UserRole';
 
   export default {
     name: 'UserTable',
     components: {
       CoreTable,
       KCheckbox,
-      UserRole,
+      UserTypeDisplay,
       UiIcon,
     },
     props: {
@@ -168,6 +168,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .empty-message {
     margin-bottom: 16px;
   }
@@ -177,7 +179,15 @@
   }
 
   .role-badge {
+    display: inline-block;
+    padding-right: 1em;
+    padding-left: 1em;
     margin-left: 8px;
+    font-size: small;
+    color: $core-bg-light;
+    white-space: nowrap;
+    background-color: $core-text-annotation;
+    border-radius: 0.5em;
   }
 
 </style>

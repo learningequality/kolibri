@@ -6,6 +6,8 @@ import { Resource } from '../api-resource';
 export default new Resource({
   name: 'contentnode_slim',
 
+  useContentCacheKey: true,
+
   fetchAncestors(id) {
     return this.fetchDetailCollection('ancestors', id);
   },

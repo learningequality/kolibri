@@ -153,7 +153,7 @@ buildconfig:
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: writeversion staticdeps staticdeps-cext buildconfig assets translation-django-compilemessages
+dist: writeversion staticdeps staticdeps-cext buildconfig translation-extract assets translation-django-compilemessages
 	python setup.py sdist --format=gztar --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
 	ls -l dist
@@ -161,10 +161,8 @@ dist: writeversion staticdeps staticdeps-cext buildconfig assets translation-dja
 pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
-translation-extract: clean-build
-	@echo ""
-	@echo "!! This assumes that you are running with latest assets. Run 'make assets' if in doubt !!"
-	@echo ""
+translation-extract:
+	yarn run makemessages
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
 
 translation-django-compilemessages:
@@ -181,7 +179,7 @@ translation-crowdin-upload:
 # This rule must depend on translation-extract, such that source files have been generated
 # for CrowdIn CLI's pattern matching. If they are not in place, stuff will break.
 # See: https://github.com/learningequality/kolibri/pull/4121
-translation-crowdin-download: translation-extract
+translation-crowdin-download: clean translation-extract
 	@echo "\nWhen doing new releases: Remember to build the project on CrowdIn\n\n"
 	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${branch}
 

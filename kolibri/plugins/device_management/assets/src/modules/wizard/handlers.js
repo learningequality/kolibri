@@ -3,11 +3,8 @@ import router from 'kolibri.coreVue.router';
 import { createTranslator } from 'kolibri.utils.i18n';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import {
-  ContentNodeGranularResource,
-  RemoteChannelResource,
-  ChannelResource,
-} from 'kolibri.resources';
+import { ContentNodeGranularResource, RemoteChannelResource } from 'kolibri.resources';
+import ChannelResource from '../../apiResources/deviceChannel';
 import { ContentWizardPages, ContentWizardErrors, TransferTypes } from '../../constants';
 import { manageContentPageLink } from '../../views/ManageContentPage/manageContentLinks';
 import { getAvailableSpaceOnDrive, loadChannelMetaData } from './actions/selectContentActions';

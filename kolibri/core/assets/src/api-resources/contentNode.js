@@ -2,6 +2,7 @@ import { Resource } from '../api-resource';
 
 export default new Resource({
   name: 'contentnode',
+  useContentCacheKey: true,
   fetchDescendantsCollection(id, getParams = {}) {
     return this.fetchDetailCollection('descendants', id, getParams);
   },

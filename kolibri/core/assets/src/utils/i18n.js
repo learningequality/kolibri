@@ -1,7 +1,7 @@
 import vue from 'kolibri.lib.vue';
 import logger from '../logging';
 import importIntlLocale from './intl-locale-data';
-import importVueIntlLocaleData from './vue-intl-locale-data';
+import vueIntlLocaleData from './vue-intl-locale-data';
 
 const logging = logger.getLogger(__filename);
 
@@ -183,11 +183,8 @@ export function setUpVueIntl() {
     if (global.coreLanguageMessages) {
       vue.registerMessages(currentLanguage, global.coreLanguageMessages);
     }
-    return importVueIntlLocaleData(currentLanguage).then(localeData => {
-      VueIntl.addLocaleData(localeData);
-    });
+    vueIntlLocaleData().forEach(localeData => VueIntl.addLocaleData(localeData));
   }
-  return Promise.resolve();
 }
 
 export function setUpIntl() {
@@ -210,12 +207,11 @@ export function setUpIntl() {
         importIntlLocale(global.languageCode),
       ]).then(
         // eslint-disable-line
-        requires => {
-          // Executes function that requires 'intl'
-          requires[0]();
-          // Executes function that requires intl locale data - needs intl to have run
-          requires[1]();
-          setUpVueIntl().then(() => resolve());
+        ([requireIntl, requireIntlLocaleData]) => {
+          requireIntl(); // requireIntl must run before requireIntlLocaleData
+          requireIntlLocaleData();
+          setUpVueIntl();
+          resolve();
         },
         error => {
           logging.error(error);
@@ -224,7 +220,8 @@ export function setUpIntl() {
         }
       );
     } else {
-      setUpVueIntl().then(() => resolve());
+      setUpVueIntl();
+      resolve();
     }
   });
 }

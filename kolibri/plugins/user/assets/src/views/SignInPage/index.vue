@@ -139,6 +139,7 @@
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+  import { validateUsername } from 'kolibri.utils.validators';
   import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import UiAlert from 'keen-ui/src/UiAlert';
@@ -162,6 +163,7 @@
       poweredBy: 'Kolibri {version}',
       required: 'This field is required',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       documentTitle: 'User Sign In',
       privacyLink: 'Usage and privacy',
     },
@@ -222,6 +224,8 @@
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
             return this.$tr('required');
+          } else if (!validateUsername(this.username)) {
+            return this.$tr('usernameNotAlphaNumUnderscore');
           }
         }
         return '';
@@ -457,6 +461,7 @@
     width: 300px;
     margin: 16px auto;
     background-color: $core-bg-light;
+    border-radius: $radius;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
       0 2px 1px -1px rgba(0, 0, 0, 0.12);
   }

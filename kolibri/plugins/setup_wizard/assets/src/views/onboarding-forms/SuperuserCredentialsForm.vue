@@ -76,7 +76,7 @@
       KTextbox,
     },
     $trs: {
-      adminAccountCreationHeader: 'Create superuser account',
+      adminAccountCreationHeader: 'Create super admin account',
       adminAccountCreationDescription:
         'This account allows you to manage the facility, content, and user accounts on this device',
       adminNameFieldLabel: 'Full name',

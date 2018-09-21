@@ -63,7 +63,7 @@ export function updateUser(store, { userId, updates }) {
   setError(store, null);
   store.commit('SET_BUSY', true);
   const origUserState = store.state.facilityUsers.find(user => user.id === userId);
-  const facilityRoleHasChanged = origUserState.kind !== updates.role.kind;
+  const facilityRoleHasChanged = updates.role && origUserState.kind !== updates.role.kind;
 
   return updateFacilityUser(store, { userId, updates }).then(
     updatedUser => {
@@ -77,6 +77,7 @@ export function updateUser(store, { userId, updates }) {
         }
         return setUserRole(updatedUser, updates.role).then(userWithRole => {
           update(userWithRole);
+          store.dispatch('displayModal', false);
         });
       } else {
         update(updatedUser);
@@ -89,7 +90,7 @@ export function updateUser(store, { userId, updates }) {
       if (errorsCaught) {
         setError(store, errorsCaught);
       } else {
-        store.dispatch('handleApiError', error);
+        store.dispatch('handleApiError', error, { root: true });
       }
     }
   );

@@ -1,4 +1,5 @@
-import { ChannelResource, RemoteChannelResource, TaskResource } from 'kolibri.resources';
+import { RemoteChannelResource, TaskResource } from 'kolibri.resources';
+import ChannelResource from '../../apiResources/deviceChannel';
 import { ErrorTypes } from '../../constants';
 import { waitForTaskToComplete } from '../manageContent/utils';
 

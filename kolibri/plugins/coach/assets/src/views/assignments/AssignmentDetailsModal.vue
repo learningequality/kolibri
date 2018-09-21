@@ -18,7 +18,7 @@
     <KTextbox
       @blur="titleIsVisited = true"
       ref="titleField"
-      :label="$tr('title')"
+      :label="$tr('lessonTitlePlaceholder')"
       :maxlength="50"
       :autofocus="true"
       :invalid="titleIsInvalid"
@@ -35,7 +35,7 @@
     />
 
     <fieldset>
-      <legend>{{ $tr('recipients') }}</legend>
+      <legend>{{ $tr('assignedGroupsLabel') }}</legend>
       <RecipientSelector
         v-model="selectedCollectionIds"
         :groups="groups"
@@ -126,7 +126,7 @@
         // submission is handled because "blur" event happens on submit
         if (this.titleIsVisited) {
           if (this.title === '') {
-            return this.$tr('required');
+            return this.$tr('fieldRequiredErro');
           }
         }
         return '';
@@ -188,10 +188,10 @@
       cancel: 'Cancel',
       continue: 'Continue',
       description: 'Description',
-      required: 'This is required',
+      fieldRequiredErro: 'This field is required',
       save: 'Save',
-      title: 'Title',
-      recipients: 'Recipients',
+      lessonTitlePlaceholder: 'Lesson title',
+      assignedGroupsLabel: 'Visible to',
     },
   };
 

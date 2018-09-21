@@ -34,7 +34,7 @@
   export default {
     name: 'CreateGroupModal',
     $trs: {
-      newLearnerGroup: 'Add new group',
+      newLearnerGroup: 'Create new group',
       learnerGroupName: 'Group name',
       cancel: 'Cancel',
       save: 'Save',

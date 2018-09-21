@@ -9,12 +9,12 @@
   >
     <p>{{ modalDescription }}</p>
     <KRadioButton
-      :label="$tr('activeOption')"
+      :label="modalActiveOption"
       :value="true"
       v-model="activeIsSelected"
     />
     <KRadioButton
-      :label="$tr('inactiveOption')"
+      :label="modalInactiveOption"
       :value="false"
       v-model="activeIsSelected"
     />
@@ -40,6 +40,14 @@
         required: true,
       },
       modalDescription: {
+        type: String,
+        required: true,
+      },
+      modalActiveOption: {
+        type: String,
+        required: true,
+      },
+      modalInactiveOption: {
         type: String,
         required: true,
       },
@@ -76,8 +84,6 @@
     $trs: {
       save: 'Save',
       cancel: 'Cancel',
-      activeOption: 'Active',
-      inactiveOption: 'Inactive',
     },
   };
 

@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$tr('editUser')"
+    :title="$tr('editUserDetailsHeader')"
     :submitText="$tr('save')"
     :cancelText="$tr('cancel')"
     :submitDisabled="isBusy"
@@ -32,26 +32,47 @@
       v-model="newUsername"
     />
 
-    <KSelect
-      :label="$tr('userType')"
-      :options="userKinds"
-      v-model="newKind"
-    />
+    <template v-if="editingSuperAdmin">
+      <h2 class="user-type header">
+        {{ $tr('userType') }}
+      </h2>
 
-    <fieldset class="coach-selector" v-if="coachIsSelected">
-      <KRadioButton
-        :label="$tr('classCoachLabel')"
-        :description="$tr('classCoachDescription')"
-        :value="true"
-        v-model="classCoachIsSelected"
+      <UserTypeDisplay
+        :userType="kind"
+        class="user-type"
       />
-      <KRadioButton
-        :label="$tr('facilityCoachLabel')"
-        :description="$tr('facilityCoachDescription')"
-        :value="false"
-        v-model="classCoachIsSelected"
+
+      <KExternalLink
+        class="super-admin-description"
+        :text="editingSelf ? $tr('viewInDeviceTabPrompt') : $tr('changeInDeviceTabPrompt')"
+        :href="devicePermissionsPageLink"
       />
-    </fieldset>
+
+    </template>
+
+    <template v-else>
+      <KSelect
+        :label="$tr('userType')"
+        :options="userTypeOptions"
+        v-model="typeSelected"
+      />
+
+      <fieldset class="coach-selector" v-if="coachIsSelected">
+        <KRadioButton
+          :label="$tr('classCoachLabel')"
+          :description="$tr('classCoachDescription')"
+          :value="true"
+          v-model="classCoachIsSelected"
+        />
+        <KRadioButton
+          :label="$tr('facilityCoachLabel')"
+          :description="$tr('facilityCoachDescription')"
+          :value="false"
+          v-model="classCoachIsSelected"
+        />
+      </fieldset>
+    </template>
+
   </KModal>
 
 </template>
@@ -60,17 +81,21 @@
 <script>
 
   import { mapActions, mapState, mapGetters } from 'vuex';
+  import urls from 'kolibri.urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
+  // IDEA use UserTypeDisplay for strings in options
   export default {
     name: 'EditUserModal',
     $trs: {
-      editUser: 'Edit user',
+      editUserDetailsHeader: 'Edit user details',
       fullName: 'Full name',
       username: 'Username',
       userType: 'User type',
@@ -81,6 +106,8 @@
       cancel: 'Cancel',
       required: 'This field is required',
       usernameAlreadyExists: 'Username already exists',
+      changeInDeviceTabPrompt: 'Go to Device permissions to change this',
+      viewInDeviceTabPrompt: 'View details in Device permissions',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
@@ -92,6 +119,8 @@
       KTextbox,
       KSelect,
       KRadioButton,
+      KExternalLink,
+      UserTypeDisplay,
     },
     props: {
       id: {
@@ -113,26 +142,21 @@
     },
     data() {
       return {
-        classCoachIsSelected: true,
         newName: this.name,
         newUsername: this.username,
-        newKind: null,
+        classCoachIsSelected: true,
+        typeSelected: null, // see beforeMount
         nameBlurred: false,
         usernameBlurred: false,
-        formSubmitted: false,
       };
     },
     computed: {
-      ...mapGetters(['currentFacilityId']),
-      ...mapState({
-        currentUserId: state => state.core.session.user_id,
-        currentUserKind: state => state.core.session.kind[0],
-      }),
+      ...mapGetters(['currentFacilityId', 'currentUserId']),
       ...mapState('userManagement', ['facilityUsers', 'error', 'isBusy']),
       coachIsSelected() {
-        return this.newKind.value === UserKinds.COACH;
+        return this.typeSelected.value === UserKinds.COACH;
       },
-      userKinds() {
+      userTypeOptions() {
         return [
           {
             label: this.$tr('learner'),
@@ -149,7 +173,7 @@
         ];
       },
       nameIsInvalidText() {
-        if (this.nameBlurred || this.formSubmitted) {
+        if (this.nameBlurred) {
           if (this.newName === '') {
             return this.$tr('required');
           }
@@ -176,7 +200,7 @@
         );
       },
       usernameIsInvalidText() {
-        if (this.usernameBlurred || this.formSubmitted) {
+        if (this.usernameBlurred) {
           if (this.newUsername === '') {
             return this.$tr('required');
           }
@@ -192,61 +216,76 @@
       usernameIsInvalid() {
         return Boolean(this.usernameIsInvalidText);
       },
-      formIsValid() {
-        return !this.nameIsInvalid && !this.usernameIsInvalid;
+      formIsInvalid() {
+        return this.nameIsInvalid || this.usernameIsInvalid;
+      },
+      editingSelf() {
+        return this.currentUserId === this.id;
+      },
+      editingSuperAdmin() {
+        return this.kind === UserKinds.SUPERUSER;
+      },
+      devicePermissionsPageLink() {
+        const devicePageUrl = urls['kolibri:devicemanagementplugin:device_management']();
+        // HACK needs longer term method
+        return `${devicePageUrl}#/permissions/${this.id}`;
+      },
+      newType() {
+        // never got the chance to even change it
+        if (this.editingSuperAdmin) {
+          return '';
+        }
+        if (this.typeSelected.value === UserKinds.COACH) {
+          if (this.classCoachIsSelected) {
+            return UserKinds.ASSIGNABLE_COACH;
+          }
+
+          return UserKinds.COACH;
+        }
+        return this.typeSelected.value;
       },
     },
     beforeMount() {
-      const coachOption = this.userKinds[1];
+      const coachOption = this.userTypeOptions[1];
       if (this.kind === UserKinds.ASSIGNABLE_COACH) {
-        this.newKind = coachOption;
+        this.typeSelected = coachOption;
         this.classCoachIsSelected = true;
       } else if (this.kind === UserKinds.COACH) {
-        this.newKind = coachOption;
+        this.typeSelected = coachOption;
         this.classCoachIsSelected = false;
       } else {
-        this.newKind = this.userKinds.find(kind => kind.value === this.kind);
+        this.typeSelected = this.userTypeOptions.find(kind => kind.value === this.kind) || {};
       }
     },
     methods: {
       ...mapActions('userManagement', ['updateUser', 'displayModal', 'setError']),
       submitForm() {
-        const roleUpdate = {
-          collection: this.currentFacilityId,
-        };
-        this.formSubmitted = true;
-        if (this.formIsValid) {
-          if (this.newKind.value === UserKinds.COACH) {
-            if (this.classCoachIsSelected) {
-              roleUpdate.kind = UserKinds.ASSIGNABLE_COACH;
-            } else {
-              roleUpdate.kind = UserKinds.COACH;
-            }
-          } else {
-            roleUpdate.kind = this.newKind.value;
-          }
-          this.updateUser({
-            userId: this.id,
-            updates: {
-              username: this.newUsername,
-              full_name: this.newName,
-              role: roleUpdate,
-            },
-          });
-          if (
-            this.currentUserId === this.id &&
-            this.currentUserKind !== UserKinds.SUPERUSER &&
-            this.newKind.value === UserKinds.LEARNER
-          ) {
-            window.location.href = window.location.origin;
-          }
-        } else {
+        if (this.formIsInvalid) {
           if (this.nameIsInvalid) {
             this.$refs.name.focus();
           } else if (this.usernameIsInvalid) {
             this.$refs.username.focus();
           }
+
+          return;
         }
+
+        const updates = {
+          username: this.newUsername,
+          full_name: this.newName,
+        };
+
+        if (this.newType) {
+          updates.role = {
+            collection: this.currentFacilityId,
+            kind: this.newType,
+          };
+        }
+
+        this.updateUser({
+          userId: this.id,
+          updates,
+        });
       },
     },
   };
@@ -255,6 +294,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '~kolibri.styles.definitions';
 
   .coach-selector {
     padding: 0;
@@ -265,6 +306,20 @@
 
   .edit-user-form {
     min-height: 350px;
+  }
+
+  .super-admin-description,
+  .user-type.header,
+  .user-admin {
+    display: block;
+  }
+
+  .super-admin-description {
+    font-size: 12px;
+  }
+
+  .user-type.header {
+    font-size: 16px;
   }
 
 </style>
