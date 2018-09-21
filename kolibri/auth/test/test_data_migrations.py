@@ -65,9 +65,7 @@ class MultipleCollectionTestCase(TestMigrations):
         DeviceOwner.objects.create(
             username="test2",
         )
-
-    def test_username_migrated(self):
-        self.assertTrue(FacilityUser.objects.filter(username=self.username).exists())
+        self.username2 = deviceowner.username
 
     def test_in_default_facility_migrated(self):
         self.assertEqual(self.facility, FacilityUser.objects.get(username=self.username).facility)
@@ -75,3 +73,10 @@ class MultipleCollectionTestCase(TestMigrations):
     def test_admin(self):
         self.assertEqual(FacilityUser.objects.get(username=self.username).roles.first().collection, self.facility)
         self.assertEqual(FacilityUser.objects.get(username=self.username).roles.first().kind, ADMIN)
+
+    def test_device_owners_created(self):
+        self.assertTrue(FacilityUser.objects.filter(username=self.username).exists())
+        self.assertTrue(FacilityUser.objects.filter(username=self.username2).exists())
+
+    def test_facilityuser_deleted(self):
+        self.assertTrue(FacilityUser.objects.get(username=self.username).is_superuser)
