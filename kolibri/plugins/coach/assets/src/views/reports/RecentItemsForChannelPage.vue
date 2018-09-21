@@ -92,7 +92,7 @@
     mixins: [alignMixin],
     $trs: {
       title: 'Recent activity',
-      name: 'Full name',
+      name: 'Title',
       progress: 'Class progress',
       reportProgress: '{completed} {descriptor}',
       listened: '{proportionCompleted} listened',
