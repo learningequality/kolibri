@@ -3,6 +3,7 @@ function defaultState() {
     ancestorCounts: {},
     ancestors: [],
     contentList: [],
+    searchResults: {},
     currentContentNode: {},
     preview: {
       completionData: null,
@@ -29,6 +30,9 @@ export default {
     },
     SET_CONTENT_LIST(state, contentList) {
       state.contentList = contentList;
+    },
+    SET_SEARCH_RESULTS(state, searchResults) {
+      state.searchResults = searchResults;
     },
     SET_PREVIEW_STATE(state, previewState) {
       state.preview = previewState;

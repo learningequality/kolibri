@@ -35,7 +35,7 @@
       v-if="inSearchMode"
       class="search-filters"
       :searchTerm="searchTerm"
-      :searchResults="contentList"
+      :searchResults="searchResults"
       v-model="filters"
     />
 
@@ -65,6 +65,7 @@
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import debounce from 'lodash/debounce';
   import every from 'lodash/every';
+  import pickBy from 'lodash/pickBy';
   import xor from 'lodash/xor';
   import UiToolbar from 'keen-ui/src/UiToolbar';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -99,9 +100,9 @@
       return {
         // null corresponds to 'All' filter value
         filters: {
-          channel: null,
-          kind: null,
-          role: null,
+          channel: this.$route.query.channel || null,
+          kind: this.$route.query.kind || null,
+          role: this.$route.query.role || null,
         },
         isExiting: false,
         workingResourcesCopy: [...this.$store.state.lessonSummary.workingResources],
@@ -110,7 +111,7 @@
     computed: {
       ...mapState(['classId', 'pageName']),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
-      ...mapState('lessonSummary/resources', ['ancestorCounts', 'contentList']),
+      ...mapState('lessonSummary/resources', ['ancestorCounts', 'contentList', 'searchResults']),
       ...mapGetters(['contentNodeIsTopic']),
       filteredContentList() {
         const { channel, kind, role } = this.filters;
@@ -172,6 +173,11 @@
       workingResources(newVal, oldVal) {
         this.showResourcesDifferenceMessage(newVal.length - oldVal.length);
         this.debouncedSaveResources();
+      },
+      filters(newVal) {
+        this.$router.push({
+          query: pickBy(newVal),
+        });
       },
     },
     beforeRouteLeave(to, from, next) {
