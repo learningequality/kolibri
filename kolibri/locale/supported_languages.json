@@ -5,31 +5,8 @@
     "english_name": "Arabic"
   },
   {
-    "language_code": "bn",
-    "territory_code": "bd",
-    "language_name": "বাংলা",
-    "english_name": "Bengali"
-  },
-  {
     "language_code": "en",
     "language_name": "English"
-  },
-  {
-    "language_code": "es",
-    "territory_code": "es",
-    "language_name": "Español",
-    "english_name": "Spanish"
-  },
-  {
-    "language_code": "es",
-    "territory_code": "mx",
-    "language_name": "Español (Mexicano)",
-    "english_name": "Spanish (Mexican)"
-  },
-  {
-    "language_code": "fa",
-    "language_name": "فارسی",
-    "english_name": "Farsi (Persian)"
   },
   {
     "language_code": "fr",
@@ -38,67 +15,9 @@
     "english_name": "French"
   },
   {
-    "language_code": "hi",
-    "territory_code": "in",
-    "language_name": "हिंदी (भारत)",
-    "english_name": "Hindi"
-  },
-  {
-    "language_code": "kn",
-    "language_name": "ಕನ್ನಡ",
-    "english_name": "Kannada"
-  },
-  {
-    "language_code": "mr",
-    "language_name": "मराठी",
-    "english_name": "Marathi"
-  },
-  {
-    "language_code": "my",
-    "language_name": "ဗမာစာ",
-    "english_name": "Burmese"
-  },
-  {
-    "language_code": "nyn",
-    "language_name": "Chinyanja",
-    "english_name": "Chichewa, Chewa, Nyanja"
-  },
-  {
-    "language_code": "pt",
-    "territory_code": "br",
-    "language_name": "Português",
-    "english_name": "Portuguese (Brazilian)"
-  },
-  {
     "language_code": "sw",
     "territory_code": "tz",
     "language_name": "Kiswahili",
     "english_name": "Swahili"
-  },
-  {
-    "language_code": "ta",
-    "language_name": "தமிழ்",
-    "english_name": "Tamil"
-  },
-  {
-    "language_code": "te",
-    "language_name": "తెలుగు",
-    "english_name": "Telugu"
-  },
-  {
-    "language_code": "ur",
-    "territory_code": "pk",
-    "language_name": "اُردو (پاکستان)‏",
-    "english_name": "Urdu (Pakistani)"
-  },
-  {
-    "language_code": "yo",
-    "language_name": "Yorùbá",
-    "english_name": "Yoruba"
-  },
-  {
-    "language_code": "zu",
-    "language_name": "isiZulu",
-    "english_name": "Zulu"
   }
 ]
