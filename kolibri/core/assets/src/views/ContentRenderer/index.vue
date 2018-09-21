@@ -17,6 +17,7 @@
           @startTracking="startTracking"
           @stopTracking="stopTracking"
           @updateProgress="updateProgress"
+          @updateContentState="updateContentState"
           @answerGiven="answerGiven"
           @hintTaken="hintTaken"
           @itemError="itemError"
@@ -24,6 +25,7 @@
           :files="availableFiles"
           :defaultFile="defaultFile"
           :itemId="itemId"
+          :extraFields="extraFields"
           :answerState="answerState"
           :allowHints="allowHints"
           :supplementaryFiles="supplementaryFiles"
@@ -104,6 +106,10 @@
       allowHints: {
         type: Boolean,
         default: true,
+      },
+      extraFields: {
+        type: Object,
+        default: () => {},
       },
       initSession: {
         type: Function,
@@ -203,6 +209,9 @@
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);
         heartbeat.setActive();
+      },
+      updateContentState(...args) {
+        this.$emit('updateContentState', ...args);
       },
       startTracking(...args) {
         this.$emit('startTracking', ...args);
