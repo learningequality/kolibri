@@ -430,7 +430,6 @@
 
   .logo
     margin-top: 16px
-    filter: grayscale(70%) sepia(50%) hue-rotate(9deg) brightness(90%)
 
   .login-form
     width: 70%
