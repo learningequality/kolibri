@@ -15,7 +15,7 @@
         </td>
 
         <th class="core-table-main-col">
-          {{ $tr('nameColumnHeaderForTable') }}
+          {{ $tr('lessonTitleColumnHeaderForTable') }}
         </th>
         <th>
           {{ $tr('resourceProgressColumnHeaderForTable') }}
@@ -260,7 +260,7 @@
       resourceReorderColumnHeaderForTable:
         'Use buttons in this column to re-order resources in the lesson',
       resourceTypeColumnHeaderForTable: 'Resource type',
-      nameColumnHeaderForTable: 'Name',
+      lessonTitleColumnHeaderForTable: 'Title',
       resourceProgressColumnHeaderForTable: 'Resource progress',
       resourceRemovalColumnHeaderForTable:
         'Use buttons in this column to remove resources from the lesson',

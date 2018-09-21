@@ -64,12 +64,12 @@
   export default {
     name: 'ManageContentPage',
     $trs: {
-      title: 'Content',
+      title: 'Channels',
       import: 'Import',
       export: 'Export',
       noAccessDetails:
         'You must be signed in as a superuser or have content management permissions to view this page',
-      documentTitle: 'Manage Device Content',
+      documentTitle: 'Manage Device Channels',
     },
     metaInfo() {
       return {

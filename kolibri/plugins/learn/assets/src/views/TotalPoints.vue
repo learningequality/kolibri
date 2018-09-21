@@ -21,7 +21,7 @@
 
   export default {
     name: 'TotalPoints',
-    $trs: { pointsTooltip: 'You earned { points, number } points!' },
+    $trs: { pointsTooltip: 'You earned { points, number } points' },
     components: {
       PointsIcon,
       UiTooltip,

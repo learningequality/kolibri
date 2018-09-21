@@ -31,7 +31,6 @@
     <AssignmentCopyModal
       v-else-if="lessonsModalSet === AssignmentActions.COPY"
       :modalTitle="$tr('copyLessonTitle')"
-      :copyExplanation="$tr('copyExplanation')"
       :assignmentQuestion="$tr('assignmentQuestion')"
       :classId="classId"
       :classList="classList"
@@ -42,7 +41,8 @@
     <AssignmentDeleteModal
       v-else-if="lessonsModalSet === AssignmentActions.DELETE"
       :modalTitle="$tr('deleteLessonTitle')"
-      :modalDescription="$tr('deleteLessonDescription', { title: currentLesson.title })"
+      :modalDescription="$tr('deleteLessonConfirmation', { title: currentLesson.title })"
+      :modalConfirmation="$tr('deleteLessonReassurance')"
       @delete="deleteLesson({ lessonId: currentLesson.id, classId })"
       @cancel="setLessonsModal(null)"
     />
@@ -117,15 +117,15 @@
     $trs: {
       changeLessonStatusTitle: 'Change lesson status',
       changeLessonStatusDescription: 'Learners can only see active lessons',
+      copyLessonTitle: 'Copy lesson to',
       changeLessonStatusActive: 'Active',
       changeLessonStatusInactive: 'Inactive',
-      copyLessonTitle: 'Copy lesson',
-      copyExplanation: 'Copy this lesson to',
       assignmentQuestion: 'Assign lesson to',
       deleteLessonTitle: 'Delete lesson',
-      deleteLessonDescription: "Delete '{ title }'?",
+      deleteLessonConfirmation: "Are you sure you want to delete '{ title }'?",
+      deleteLessonReassurance: 'You can still view progress on these resources from Channels',
       editLessonDetails: 'Edit lesson details',
-      newLesson: 'New lesson',
+      newLesson: 'Create new lesson',
       saveLessonError: 'There was a problem saving this lesson',
       copyOfLesson: 'Copy of { lessonTitle }',
     },

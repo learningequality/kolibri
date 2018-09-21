@@ -46,7 +46,7 @@
               @change="toggleSelectAll"
             />
           </th>
-          <th class="core-table-main-col">{{ $tr('name') }}</th>
+          <th class="core-table-main-col">{{ $tr('fullNameColumnTitle') }}</th>
           <th>{{ $tr('username') }}</th>
         </tr>
       </thead>
@@ -99,9 +99,9 @@
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       moveLearners: 'Move Learners',
       actions: 'Actions',
-      renameGroup: 'Rename group',
-      deleteGroup: 'Delete group',
-      name: 'Name',
+      renameGroup: 'Rename',
+      deleteGroup: 'Delete',
+      fullNameColumnTitle: 'Full name',
       username: 'Username',
       selected: 'Selected',
       noLearners: 'No learners in this group',

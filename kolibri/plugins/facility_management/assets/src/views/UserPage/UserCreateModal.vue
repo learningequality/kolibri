@@ -1,8 +1,8 @@
 <template>
 
   <KModal
-    :title="$tr('addNewAccountTitle')"
-    :submitText="$tr('createAccount')"
+    :title="$tr('createNewUserHeader')"
+    :submitText="$tr('saveUserButtonLabel')"
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @submit="createNewUser"
@@ -90,14 +90,14 @@
   export default {
     name: 'UserCreateModal',
     $trs: {
-      addNewAccountTitle: 'Add new account',
+      createNewUserHeader: 'Create new user',
       cancel: 'Cancel',
       name: 'Full name',
       username: 'Username',
       password: 'Password',
       reEnterPassword: 'Re-enter password',
       userType: 'User type',
-      createAccount: 'Create Account',
+      saveUserButtonLabel: 'Save',
       learner: 'Learner',
       coach: 'Coach',
       admin: 'Admin',

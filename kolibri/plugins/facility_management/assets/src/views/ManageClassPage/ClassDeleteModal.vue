@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('modalTitle')"
-    :submitText="$tr('delete')"
+    :submitText="$tr('deleteClassButtonLabel')"
     :cancelText="$tr('cancel')"
     :hasError="false"
     @submit="classDelete"
@@ -24,7 +24,7 @@
     name: 'ClassDeleteModal',
     $trs: {
       modalTitle: 'Delete class',
-      delete: 'Delete class',
+      deleteClassButtonLabel: 'Delete',
       cancel: 'Cancel',
       confirmation: "Are you sure you want to delete '{ classname }'?",
       description:

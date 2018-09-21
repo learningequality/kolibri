@@ -22,7 +22,7 @@
         <tr>
           <th class="core-table-icon-col"></th>
           <HeaderCell
-            :text="$tr('name')"
+            :text="$tr('titleColumnLabel')"
             :align="alignStart"
             :sortable="true"
             :column="tableColumns.NAME"
@@ -109,7 +109,7 @@
     },
     mixins: [alignMixin],
     $trs: {
-      name: 'Name',
+      titleColumnLabel: 'Title',
       avgExerciseProgress: 'Avg. exercise progress',
       avgContentProgress: 'Avg. resource progress',
       lastActivity: 'Last activity',

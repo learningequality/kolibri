@@ -62,7 +62,7 @@ describe('channel list page component', () => {
     it('shows the correct header', () => {
       const wrapper = makeWrapper({ store });
       const { headerText } = getElements(wrapper);
-      expect(headerText().text()).toEqual('Content');
+      expect(headerText().text()).toEqual('Channels');
     });
 
     it('shows all channels, regardless of activity', () => {

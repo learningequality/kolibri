@@ -69,7 +69,7 @@
 
     <AssignmentDetailsModal
       v-if="showModal"
-      :modalTitle="$tr('newLesson')"
+      :modalTitle="$tr('newLessonModalTitle')"
       :submitErrorMessage="$tr('saveLessonError')"
       :initialDescription="''"
       :showDescriptionField="true"
@@ -187,6 +187,7 @@
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
       newLesson: 'New lesson',
+      newLessonModalTitle: 'Create new lesson',
       title: 'Title',
       size: 'Size',
       assignedGroupsHeader: 'Visible to',

@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$tr('editUser')"
+    :title="$tr('editUserDetailsHeader')"
     :submitText="$tr('save')"
     :cancelText="$tr('cancel')"
     :submitDisabled="isBusy"
@@ -95,7 +95,7 @@
   export default {
     name: 'EditUserModal',
     $trs: {
-      editUser: 'Edit user',
+      editUserDetailsHeader: 'Edit user details',
       fullName: 'Full name',
       username: 'Username',
       userType: 'User type',

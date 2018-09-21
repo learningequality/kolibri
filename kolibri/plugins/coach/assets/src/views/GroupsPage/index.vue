@@ -82,7 +82,7 @@
   export default {
     name: 'GroupsPage',
     $trs: {
-      classGroups: 'Class groups',
+      classGroups: 'Groups',
       newGroup: 'New group',
       ungrouped: 'Ungrouped',
       noGroups: 'You do not have any groups',

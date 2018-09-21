@@ -18,7 +18,7 @@
     <KTextbox
       @blur="titleIsVisited = true"
       ref="titleField"
-      :label="$tr('title')"
+      :label="$tr('lessonTitlePlaceholder')"
       :maxlength="50"
       :autofocus="true"
       :invalid="titleIsInvalid"
@@ -126,7 +126,7 @@
         // submission is handled because "blur" event happens on submit
         if (this.titleIsVisited) {
           if (this.title === '') {
-            return this.$tr('required');
+            return this.$tr('fieldRequiredErro');
           }
         }
         return '';
@@ -188,9 +188,9 @@
       cancel: 'Cancel',
       continue: 'Continue',
       description: 'Description',
-      required: 'This is required',
+      fieldRequiredErro: 'This field is required',
       save: 'Save',
-      title: 'Title',
+      lessonTitlePlaceholder: 'Lesson title',
       assignedGroupsLabel: 'Visible to',
     },
   };
