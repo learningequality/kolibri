@@ -1,8 +1,14 @@
-from django.test import TestCase
-from django.db.migrations.executor import MigrationExecutor
+import os
+import unittest
+
 from django.db import connection
-from kolibri.auth.models import Classroom, Facility, FacilityUser
+from django.db.migrations.executor import MigrationExecutor
+from django.test import TestCase
+
 from kolibri.auth.constants.role_kinds import ADMIN
+from kolibri.auth.models import Classroom
+from kolibri.auth.models import Facility
+from kolibri.auth.models import FacilityUser
 
 # Modified from https://www.caktusgroup.com/blog/2016/02/02/writing-unit-tests-django-migrations/
 
@@ -37,6 +43,7 @@ class TestMigrations(TestCase):
         pass
 
 
+@unittest.skipIf(os.environ.get('TOX_ENV') == 'postgres', "Skipping postgres due to unsupported upgrade")
 class MultipleCollectionTestCase(TestMigrations):
 
     migrate_from = '0003_auto_20170621_0958'
@@ -45,6 +52,11 @@ class MultipleCollectionTestCase(TestMigrations):
     def setUp(self):
         self.facility = Facility.objects.create(name='Test')
         self.classroom = Classroom.objects.create(name='TestClass', parent=self.facility)
+        # does the migration run successfully with 2 users having the same username?
+        FacilityUser.objects.create(
+            username="test",
+            facility_id=self.facility.id
+        )
         super(MultipleCollectionTestCase, self).setUp()
 
     def setUpBeforeMigration(self, apps):
@@ -53,13 +65,22 @@ class MultipleCollectionTestCase(TestMigrations):
             username="test",
         )
         self.username = deviceowner.username
-
-    def test_username_migrated(self):
-        self.assertEqual(self.username, FacilityUser.objects.get().username)
+        # does the migration run successfully with 2 device owners?
+        DeviceOwner.objects.create(
+            username="test2",
+        )
+        self.username2 = deviceowner.username
 
     def test_in_default_facility_migrated(self):
-        self.assertEqual(self.facility, FacilityUser.objects.get().facility)
+        self.assertEqual(self.facility, FacilityUser.objects.get(username=self.username).facility)
 
     def test_admin(self):
-        self.assertEqual(FacilityUser.objects.get().roles.first().collection, self.facility)
-        self.assertEqual(FacilityUser.objects.get().roles.first().kind, ADMIN)
+        self.assertEqual(FacilityUser.objects.get(username=self.username).roles.first().collection, self.facility)
+        self.assertEqual(FacilityUser.objects.get(username=self.username).roles.first().kind, ADMIN)
+
+    def test_device_owners_created(self):
+        self.assertTrue(FacilityUser.objects.filter(username=self.username).exists())
+        self.assertTrue(FacilityUser.objects.filter(username=self.username2).exists())
+
+    def test_facilityuser_deleted(self):
+        self.assertTrue(FacilityUser.objects.get(username=self.username).is_superuser)
