@@ -122,6 +122,7 @@
     <PrivacyInfoModal
       v-if="privacyModalVisible"
       @cancel="privacyModalVisible = false"
+      hideOwnersSection
     />
 
   </div>

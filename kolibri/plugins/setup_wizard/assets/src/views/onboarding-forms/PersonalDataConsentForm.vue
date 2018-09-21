@@ -15,7 +15,11 @@
       />
     </OnboardingForm>
 
-    <PrivacyInfoModal v-if="showModal" @cancel="closeModal" />
+    <PrivacyInfoModal
+      v-if="showModal"
+      @cancel="closeModal"
+      hideUsersSection
+    />
   </div>
 
 </template>
