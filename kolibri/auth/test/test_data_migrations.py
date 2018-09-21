@@ -1,3 +1,6 @@
+import os
+import unittest
+
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
 from django.test import TestCase
@@ -40,6 +43,7 @@ class TestMigrations(TestCase):
         pass
 
 
+@unittest.skipIf(os.environ.get('TOX_ENV') == 'postgres', "Skipping postgres due to unsupported upgrade")
 class MultipleCollectionTestCase(TestMigrations):
 
     migrate_from = '0003_auto_20170621_0958'
