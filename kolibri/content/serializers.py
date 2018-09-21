@@ -320,6 +320,7 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
 
 class ContentNodeSerializer(serializers.ModelSerializer):
+    num_coach_contents = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
     assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
@@ -342,6 +343,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             'license_description',
             'license_name',
             'license_owner',
+            'num_coach_contents',
             'parent',
             'pk',  # TODO remove after UI standardizes on 'id'
             'sort_order',
@@ -381,6 +383,14 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         value = super(ContentNodeSerializer, self).to_representation(instance)
         value['progress_fraction'] = progress_fraction
         return value
+
+    def get_num_coach_contents(self, instance):
+        user = self.context["request"].user
+        if user.is_facility_user:  # exclude anon users
+            if user.roles.exists() or user.is_superuser:  # must have coach role or higher
+                return get_num_coach_contents(instance)
+        # all other conditions return 0
+        return 0
 
 
 class ContentNodeSlimSerializer(serializers.ModelSerializer):
