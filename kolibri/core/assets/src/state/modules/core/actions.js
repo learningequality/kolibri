@@ -41,7 +41,7 @@ const timeThreshold = 120; // Update logs if 120 seconds have passed since last 
  */
 
 function _contentSummaryLoggingState(data) {
-  var extraFields = data.extraFields;
+  let extraFields = data.extraFields;
   if (!extraFields) {
     extraFields = {};
   } else if (typeof extraFields === 'string') {

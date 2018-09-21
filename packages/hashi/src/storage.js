@@ -37,7 +37,7 @@ class Storage {
               if (this.timer) {
                 clearTimeout(this.timer);
               }
-              var message = JSON.parse(event.data);
+              const message = JSON.parse(event.data);
               if (message.action === 'kolibriDataLoaded') {
                 this.sessionData = message.params['data'];
                 this.sessionKeys = Object.keys(this.sessionData);
@@ -85,7 +85,7 @@ class Storage {
     removeItem(keyName) {
         delete this.sessionData[keyName];
 
-        var keyIndex = this.sessionKeys.indexOf(keyName);
+        const keyIndex = this.sessionKeys.indexOf(keyName);
         if (keyIndex != -1) {
             this.sessionKeys.splice(keyIndex, 1);
         }

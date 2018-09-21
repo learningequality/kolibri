@@ -16,6 +16,7 @@
       <mat-svg v-else name="fullscreen" category="navigation" />
     </UiIconButton>
     <iframe
+      ref="iframe"
       class="iframe"
       sandbox="allow-scripts"
       frameBorder="0"
@@ -76,19 +77,19 @@
         if (!event) {
           return;
         }
-        var message = JSON.parse(event.data);
+        const message = JSON.parse(event.data);
         if (message.action === 'stateUpdated') {
           this.$emit('updateContentState', message.params);
         } else if (message.action === 'hashiInitialized') {
-          var iframe = document.getElementsByTagName('iframe')[0].contentWindow;
+          const iframe = this.$refs.iframe.contentWindow;
 
           // On guest access, the user will be signed out, so just return
           // an empty key value store in that case.
-          var contentState = {};
+          let contentState = {};
           if (this.extraFields && this.extraFields.contentState) {
             contentState = this.extraFields.contentState;
           }
-          var data = {
+          const data = {
             action: 'kolibriDataLoaded',
             params: { data: contentState },
           };
