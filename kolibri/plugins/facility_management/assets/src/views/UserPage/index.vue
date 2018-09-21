@@ -103,7 +103,7 @@
     name: 'UserPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.$tr('userPageTitle'),
       };
     },
     components: {
@@ -210,7 +210,7 @@
       resetUserPassword: 'Reset password',
       deleteUser: 'Delete',
       userActions: 'User management actions',
-      documentTitle: 'Manage Users',
+      userPageTitle: 'Users',
     },
   };
 
