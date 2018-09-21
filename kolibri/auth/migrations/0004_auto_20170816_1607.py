@@ -31,6 +31,9 @@ def device_owner_to_super_user(apps, schema_editor):
                 dataset_id=dataset_id
             )
             uuid = real_superuser.calculate_uuid()
+            # due to uniqueness constraints, can't have two users with same username for a facility
+            # so we end up only keeping the superuser
+            FacilityUser.objects.filter(username=device_owner.username).delete()
             superuser = FacilityUser.objects.create(
                 username=device_owner.username,
                 password=device_owner.password,

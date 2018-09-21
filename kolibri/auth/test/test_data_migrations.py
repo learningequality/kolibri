@@ -48,6 +48,11 @@ class MultipleCollectionTestCase(TestMigrations):
     def setUp(self):
         self.facility = Facility.objects.create(name='Test')
         self.classroom = Classroom.objects.create(name='TestClass', parent=self.facility)
+        # does the migration run successfully with 2 users having the same username?
+        FacilityUser.objects.create(
+            username="test",
+            facility_id=self.facility.id
+        )
         super(MultipleCollectionTestCase, self).setUp()
 
     def setUpBeforeMigration(self, apps):
