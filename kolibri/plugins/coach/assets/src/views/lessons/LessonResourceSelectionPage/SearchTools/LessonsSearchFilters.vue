@@ -5,7 +5,7 @@
       {{ searchResultsSubheader }}
     </h2>
 
-    <div v-if="searchResults.results.length > 0">
+    <div>
       <div class="ib">
         <mat-svg
           category="content"
@@ -40,7 +40,10 @@
         />
       </div>
 
-      <div class="ib">
+      <div
+        v-show="roleFilterOptions.length > 0"
+        class="ib"
+      >
         <mat-svg
           category="social"
           name="person"
@@ -89,7 +92,11 @@
       searchResults: {
         type: Object,
         default() {
-          return {};
+          return {
+            results: [],
+            content_kinds: [],
+            channel_ids: [],
+          };
         },
       },
       value: {

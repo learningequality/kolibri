@@ -45,6 +45,7 @@
       v-if="!isExiting"
       :contentList="filteredContentList"
       :showSelectAll="selectAllIsVisible"
+      :viewMoreButtonState="viewMoreButtonState"
       :selectAllChecked="addableContent.length === 0"
       :contentIsChecked="contentIsInLesson"
       :contentHasCheckbox="contentIsDirectoryKind"
@@ -52,6 +53,7 @@
       :contentCardLink="contentLink"
       @changeselectall="toggleTopicInWorkingResources"
       @change_content_card="toggleSelected"
+      @moreresults="handleMoreResults"
     />
 
   </div>
@@ -106,26 +108,22 @@
         },
         isExiting: false,
         workingResourcesCopy: [...this.$store.state.lessonSummary.workingResources],
+        moreResultsState: null,
       };
     },
     computed: {
       ...mapState(['classId', 'pageName']),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
       ...mapState('lessonSummary/resources', ['ancestorCounts', 'contentList', 'searchResults']),
+      ...mapGetters('lessonSummary/resources', ['numRemainingSearchResults']),
       ...mapGetters(['contentNodeIsTopic']),
       filteredContentList() {
-        const { channel, kind, role } = this.filters;
+        const { role } = this.filters;
         if (!this.inSearchMode) {
           return this.contentList;
         }
-        return this.contentList.filter(contentNode => {
+        return this.searchResults.results.filter(contentNode => {
           let passesFilters = true;
-          if (channel) {
-            passesFilters = passesFilters && contentNode.channel_id === channel;
-          }
-          if (kind) {
-            passesFilters = passesFilters && contentNode.kind === kind;
-          }
           if (role === 'nonCoach') {
             passesFilters = passesFilters && contentNode.num_coach_contents === 0;
           }
@@ -158,6 +156,15 @@
           this.pageName !== LessonsPageNames.SELECTION_ROOT &&
           !every(this.contentList, this.contentIsDirectoryKind)
         );
+      },
+      viewMoreButtonState() {
+        if (this.moreResultsState === 'waiting' || this.moreResultsState === 'error') {
+          return this.moreResultsState;
+        }
+        if (this.numRemainingSearchResults === 0) {
+          return 'no_more_results';
+        }
+        return 'visible';
       },
       contentIsInLesson() {
         return ({ id }) => this.workingResources.includes(id);
@@ -216,6 +223,7 @@
     methods: {
       ...mapActions(['createSnackbar', 'clearSnackbar']),
       ...mapActions('lessonSummary', ['saveLessonResources', 'addToResourceCache']),
+      ...mapActions('lessonSummary/resources', ['fetchAdditionalSearchResults']),
       ...mapMutations('lessonSummary', {
         addToWorkingResources: 'ADD_TO_WORKING_RESOURCES',
         removeFromSelectedResources: 'REMOVE_FROM_WORKING_RESOURCES',
@@ -310,6 +318,21 @@
             last_id: lastId,
           },
         });
+      },
+      handleMoreResults() {
+        this.moreResultsState = 'waiting';
+        this.fetchAdditionalSearchResults({
+          searchTerm: this.searchTerm,
+          kind: this.filters.kind,
+          channelId: this.filters.channel,
+          currentResults: this.searchResults.results,
+        })
+          .then(() => {
+            this.moreResultsState = null;
+          })
+          .catch(() => {
+            this.moreResultsState = 'error';
+          });
       },
     },
     $trs: {
