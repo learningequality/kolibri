@@ -95,19 +95,35 @@
         @blur="facilityBlurred = true"
       />
 
-      <KButton
-        :disabled="busy"
-        :primary="true"
-        :text="$tr('finish')"
-        type="submit"
-        class="submit"
-      />
+      <p class="privacy-link">
+        <KButton
+          :text="$tr('privacyLink')"
+          appearance="basic-link"
+          @click="privacyModalVisible = true"
+        />
+      </p>
+
+      <p>
+        <KButton
+          :disabled="busy"
+          :primary="true"
+          :text="$tr('finish')"
+          type="submit"
+          class="submit"
+        />
+      </p>
 
     </form>
 
     <div class="footer">
       <LanguageSwitcherFooter />
     </div>
+
+    <PrivacyInfoModal
+      v-if="privacyModalVisible"
+      @cancel="privacyModalVisible = false"
+    />
+
   </div>
 
 </template>
@@ -123,6 +139,7 @@
   import UiToolbar from 'keen-ui/src/UiToolbar';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import KSelect from 'kolibri.coreVue.components.KSelect';
+  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { PageNames } from '../constants';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
 
@@ -144,6 +161,7 @@
       facility: 'Facility',
       required: 'This field is required',
       documentTitle: 'User Sign Up',
+      privacyLink: 'Usage and privacy in Kolibri',
     },
     metaInfo() {
       return {
@@ -158,6 +176,7 @@
       CoreLogo,
       KSelect,
       LanguageSwitcherFooter,
+      PrivacyInfoModal,
     },
     data: () => ({
       name: '',
@@ -171,6 +190,7 @@
       confirmedPasswordBlurred: false,
       facilityBlurred: false,
       formSubmitted: false,
+      privacyModalVisible: false,
     }),
     computed: {
       ...mapGetters(['facilities', 'session']),
@@ -370,6 +390,10 @@
   .footer {
     margin: 36px;
     margin-top: 96px;
+  }
+
+  .privacy-link {
+    margin-top: 24px;
   }
 
   .submit {

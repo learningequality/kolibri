@@ -102,7 +102,15 @@
                 appearance="basic-link"
               />
             </div>
-            <p class="version">{{ versionMsg }}</p>
+            <div class="small-text">
+              <span class="version-string">{{ versionMsg }}</span>
+              |
+              <KButton
+                :text="$tr('privacyLink')"
+                appearance="basic-link"
+                @click="privacyModalVisible = true"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -110,6 +118,11 @@
         <LanguageSwitcherFooter class="footer-cell" />
       </div>
     </div>
+
+    <PrivacyInfoModal
+      v-if="privacyModalVisible"
+      @cancel="privacyModalVisible = false"
+    />
 
   </div>
 
@@ -127,6 +140,7 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
+  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import UiAlert from 'keen-ui/src/UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import urls from 'kolibri.urls';
@@ -149,6 +163,7 @@
       required: 'This field is required',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       documentTitle: 'User Sign In',
+      privacyLink: 'Usage and privacy',
     },
     metaInfo() {
       return {
@@ -165,6 +180,7 @@
       UiAutocompleteSuggestion,
       UiAlert,
       LanguageSwitcherFooter,
+      PrivacyInfoModal,
     },
     mixins: [responsiveWindow],
     data() {
@@ -180,6 +196,7 @@
         passwordBlurred: false,
         formSubmitted: false,
         autoFilledByChromeAndNotEdited: false,
+        privacyModalVisible: false,
       };
     },
     computed: {
@@ -460,11 +477,15 @@
     width: calc(100% - 16px);
   }
 
-  .version {
+  .small-text {
     padding-bottom: 16px;
     margin-top: 24px;
     margin-bottom: 0;
     font-size: 0.8em;
+  }
+
+  .version-string {
+    white-space: nowrap;
   }
 
   .footer-row {
