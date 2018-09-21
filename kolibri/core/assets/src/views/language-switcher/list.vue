@@ -24,18 +24,6 @@
       class="lang"
       appearance="basic-link"
     />
-    <k-button
-      :text="$tr('showMoreLanguagesSelector')"
-      :primary="false"
-      appearance="flat-button"
-      class="more"
-      @click="showLanguageModal = true"
-    />
-    <language-switcher-modal
-      v-if="showLanguageModal"
-      @close="showLanguageModal = false"
-      class="modal"
-    />
   </div>
 
 </template>
