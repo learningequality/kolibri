@@ -9,7 +9,7 @@
     >
       <KButton
         ref="modalButton"
-        :text="$tr('viewStatementButton')"
+        :text="$tr('moreInfo')"
         @click="showModal = true"
         appearance="basic-link"
       />
@@ -66,12 +66,10 @@
       },
     },
     $trs: {
-      acceptanceCheckboxLabel:
-        'I accept the statement on how Learning Equality handles personal data.',
       description:
         'If you are setting up Kolibri to be used by other users, you or someone you delegate will be responsible for protecting and managing the user accounts and personal information stored on this device.',
       header: 'Responsibilities as an administrator',
-      viewStatementButton: 'View statement',
+      moreInfo: 'More information',
     },
   };
 
