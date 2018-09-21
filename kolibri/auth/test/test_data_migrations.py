@@ -1,8 +1,11 @@
-from django.test import TestCase
-from django.db.migrations.executor import MigrationExecutor
 from django.db import connection
-from kolibri.auth.models import Classroom, Facility, FacilityUser
+from django.db.migrations.executor import MigrationExecutor
+from django.test import TestCase
+
 from kolibri.auth.constants.role_kinds import ADMIN
+from kolibri.auth.models import Classroom
+from kolibri.auth.models import Facility
+from kolibri.auth.models import FacilityUser
 
 # Modified from https://www.caktusgroup.com/blog/2016/02/02/writing-unit-tests-django-migrations/
 
@@ -53,13 +56,17 @@ class MultipleCollectionTestCase(TestMigrations):
             username="test",
         )
         self.username = deviceowner.username
+        # does the migration run successfully with 2 device owners?
+        DeviceOwner.objects.create(
+            username="test2",
+        )
 
     def test_username_migrated(self):
-        self.assertEqual(self.username, FacilityUser.objects.get().username)
+        self.assertTrue(FacilityUser.objects.filter(username=self.username).exists())
 
     def test_in_default_facility_migrated(self):
-        self.assertEqual(self.facility, FacilityUser.objects.get().facility)
+        self.assertEqual(self.facility, FacilityUser.objects.get(username=self.username).facility)
 
     def test_admin(self):
-        self.assertEqual(FacilityUser.objects.get().roles.first().collection, self.facility)
-        self.assertEqual(FacilityUser.objects.get().roles.first().kind, ADMIN)
+        self.assertEqual(FacilityUser.objects.get(username=self.username).roles.first().collection, self.facility)
+        self.assertEqual(FacilityUser.objects.get(username=self.username).roles.first().kind, ADMIN)
