@@ -99,6 +99,10 @@ export default {
       default: () => defaultLanguage,
       validator: languageValidator,
     },
+    extraFields: {
+      type: Object,
+      default: () => {},
+    },
     showCorrectAnswer: {
       type: Boolean,
       default: false,
