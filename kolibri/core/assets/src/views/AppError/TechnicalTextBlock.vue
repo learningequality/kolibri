@@ -78,7 +78,8 @@
         return ClipboardJS.isSupported();
       },
       textFileLink() {
-        const errorBlob = new Blob([this.text], { type: 'text/plain' });
+        const windowsFormattedText = this.text.replace('\n', '\r\n');
+        const errorBlob = new Blob([windowsFormattedText], { type: 'text/plain', endings: 'native' });
         if (navigator.msSaveBlob) {
           return navigator.msSaveBlob(errorBlob, this.downloadFileName);
         }
