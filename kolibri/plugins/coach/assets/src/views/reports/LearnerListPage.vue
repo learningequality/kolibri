@@ -9,7 +9,7 @@
           :kind="contentScopeSummary.kind"
           colorstyle="text-default"
         />
-        {{ contentScopeSummary.title }}
+        <span dir="auto">{{ contentScopeSummary.title }}</span>
       </h1>
       <CoachContentLabel
         :isTopic="isTopic(contentScopeSummary)"
@@ -64,7 +64,7 @@
             :num="isExercisePage ? row.exerciseProgress : row.contentProgress"
             :isExercise="isExercisePage"
           />
-          <td>{{ row.groupName || '–' }}</td>
+          <td dir="auto">{{ row.groupName || '–' }}</td>
           <ActivityCell v-if="!isRootLearnerPage" :date="row.lastActive" />
         </tr>
       </tbody>

@@ -3,7 +3,7 @@
   <div>
     <h2>
       <template v-if="className">
-        {{ className }}
+        <span dir="auto">{{ className }}</span>
       </template>
       <template v-else>
         {{ $tr('coachPageHeader') }}
@@ -20,7 +20,7 @@
           v-for="(coach, idx) in classCoaches"
           :key="idx"
         >
-          <span>{{ coach.full_name }}</span>
+          <span dir="auto">{{ coach.full_name }}</span>
         </li>
       </ul>
     </div>

@@ -7,7 +7,7 @@
           :kind="kind"
           class="title-lesson-icon"
         />
-        <h1 class="lesson-summary-header-title">
+        <h1 class="lesson-summary-header-title" dir="auto">
           {{ title }}
         </h1>
       </div>
@@ -37,7 +37,7 @@
         <dt>
           {{ $tr('description') }}
         </dt>
-        <dd>
+        <dd dir="auto">
           {{ description || $tr('noDescription') }}
         </dd>
       </template>
@@ -61,7 +61,7 @@
             v-for="recipientGroup in recipientGroups"
             :key="recipientGroup.id"
           >
-            <span>{{ recipientGroup.name }}</span>
+            <span dir="auto">{{ recipientGroup.name }}</span>
           </li>
         </ul>
       </dd>
