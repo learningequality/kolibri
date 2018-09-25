@@ -52,7 +52,7 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
         const questionList = createQuestionList(questionSources);
 
         const contentPromise = ContentNodeResource.getCollection({
-          in_exam: exam.id,
+          ids: questionSources.map(item => item.exercise_id),
         }).fetch();
 
         contentPromise.only(

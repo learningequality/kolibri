@@ -5,10 +5,8 @@ from random import sample
 
 import requests
 from django.core.cache import cache
-from django.db.models import Case
 from django.db.models import Q
 from django.db.models import Sum
-from django.db.models import When
 from django.db.models.aggregates import Count
 from django.http import Http404
 from django.utils.cache import patch_response_headers
@@ -35,8 +33,6 @@ from kolibri.content.permissions import CanManageContent
 from kolibri.content.utils.content_types_tools import renderable_contentnodes_q_filter
 from kolibri.content.utils.paths import get_channel_lookup_url
 from kolibri.content.utils.stopwords import stopwords_set
-from kolibri.core.exams.models import Exam
-from kolibri.core.lessons.models import Lesson
 from kolibri.logger.models import ContentSessionLog
 from kolibri.logger.models import ContentSummaryLog
 
@@ -328,38 +324,6 @@ class ContentNodeFilter(IdFilter):
 
         # In all other cases, exclude nodes that are coach content
         return queryset.exclude(coach_content=True)
-
-    def filter_in_lesson(self, queryset, name, value):
-        """
-        Show only content associated with this lesson
-
-        :param queryset: all content nodes
-        :param value: id of target lesson
-        :return: content nodes for this lesson
-        """
-        try:
-            resources = Lesson.objects.get(id=value).resources
-            contentnode_id_list = [node['contentnode_id'] for node in resources]
-            # the order_by will order according to the position in the list
-            id_order = Case(*[When(id=ident, then=pos) for pos, ident in enumerate(contentnode_id_list)])
-            return queryset.filter(pk__in=contentnode_id_list).order_by(id_order)
-        except (Lesson.DoesNotExist, ValueError):  # also handles invalid uuid
-            queryset.none()
-
-    def filter_in_exam(self, queryset, name, value):
-        """
-        Show only content associated with this exam
-
-        :param queryset: all content nodes
-        :param value: id of target exam
-        :return: content nodes for this exam
-        """
-        try:
-            question_sources = Exam.objects.get(id=value).question_sources
-            exercise_id_list = [node['exercise_id'] for node in question_sources]
-            return queryset.filter(pk__in=exercise_id_list)
-        except (Exam.DoesNotExist, ValueError):  # also handles invalid uuid
-            return queryset.none()
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):

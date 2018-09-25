@@ -95,7 +95,7 @@ export function showLessonPlaylist(store, { lessonId }) {
         include_fields.push('num_coach_contents');
       }
       return ContentNodeSlimResource.getCollection({
-        in_lesson: lesson.id,
+        ids: lesson.resources.map(resource => resource.contentnode_id),
         include_fields,
       }).fetch();
     })
