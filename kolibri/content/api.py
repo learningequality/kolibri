@@ -95,7 +95,11 @@ class IdFilter(FilterSet):
     ids = CharFilter(method="filter_ids")
 
     def filter_ids(self, queryset, name, value):
-        return queryset.filter(pk__in=value.split(','))
+        try:
+            return queryset.filter(pk__in=value.split(','))
+        except ValueError:
+            # Catch in case of a poorly formed UUID
+            return queryset.none()
 
     class Meta:
         fields = ['ids', ]
