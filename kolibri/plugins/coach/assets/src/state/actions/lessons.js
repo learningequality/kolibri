@@ -99,8 +99,9 @@ export function showLessonSummaryPage(store, classId, lessonId) {
       // TODO state mapper
       const resourceIds = currentLesson.resources.map(resourceObj => resourceObj.contentnode_id);
 
-      return getResourceCache(store, resourceIds).then(() => {
-        store.dispatch('SET_WORKING_RESOURCES', resourceIds);
+      return getResourceCache(store, resourceIds).then(resourceCache => {
+        const availableResourceIds = resourceIds.filter(id => resourceCache[id]);
+        store.dispatch('SET_WORKING_RESOURCES', availableResourceIds);
         store.dispatch('SET_LEARNER_GROUPS', learnerGroups);
         store.dispatch('SET_LESSON_REPORT', lessonReport);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -159,18 +160,21 @@ function showResourceSelectionPage(
         ContentNodeResource.fetchAncestors(resourceId)
       );
 
-      return Promise.all(getResourceAncestors).then(
-        // there has to be a better way
-        resourceAncestors => {
-          resourceAncestors.forEach(ancestorArray =>
+      return Promise.all(
+        getResourceAncestors.map(getResourceAncestor =>
+          getResourceAncestor.then(ancestorArray => {
             ancestorArray.forEach(ancestor => {
               if (ancestorCounts[ancestor.pk]) {
                 ancestorCounts[ancestor.pk]++;
               } else {
                 ancestorCounts[ancestor.pk] = 1;
               }
-            })
-          );
+            });
+          })
+        )
+      ).finally(
+        // there has to be a better way
+        () => {
           store.dispatch('SET_ANCESTOR_COUNTS', ancestorCounts);
           // carry pendingSelections over from other interactions in this modal
           store.dispatch('SET_CONTENT_LIST', contentList);
@@ -281,14 +285,18 @@ function getResourceCache(store, resourceIds) {
 
 export function saveLessonResources(store, lessonId, resourceIds) {
   return getResourceCache(store, resourceIds).then(resourceCache => {
-    const resources = resourceIds.map(resourceId => {
-      const node = resourceCache[resourceId];
-      return {
-        contentnode_id: resourceId,
-        channel_id: node.channel_id,
-        content_id: node.content_id,
-      };
-    });
+    const resources = resourceIds
+      .map(resourceId => {
+        const node = resourceCache[resourceId];
+        if (node) {
+          return {
+            contentnode_id: resourceId,
+            channel_id: node.channel_id,
+            content_id: node.content_id,
+          };
+        }
+      })
+      .filter(resource => resource);
 
     return LessonResource.getModel(lessonId).save({ resources });
   });
