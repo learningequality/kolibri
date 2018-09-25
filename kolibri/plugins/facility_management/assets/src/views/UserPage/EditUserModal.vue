@@ -258,7 +258,7 @@
       }
     },
     methods: {
-      ...mapActions('userManagement', ['updateUser', 'displayModal', 'setError']),
+      ...mapActions('userManagement', ['updateUser', 'displayModal', 'setError', 'displayModal']),
       submitForm() {
         if (this.formIsInvalid) {
           if (this.nameIsInvalid) {
@@ -285,7 +285,7 @@
         this.updateUser({
           userId: this.id,
           updates,
-        });
+        }).then(() => this.displayModal(false));
       },
     },
   };
