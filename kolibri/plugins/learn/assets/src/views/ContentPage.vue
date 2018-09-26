@@ -263,7 +263,7 @@
         updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
       },
       updateContentState(contentState, forceSave = true) {
-        this.updateContentNodeState(contentState, forceSave);
+        this.updateContentNodeState({ contentState, forceSave });
       },
       markAsComplete() {
         this.wasIncomplete = false;

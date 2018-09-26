@@ -212,6 +212,7 @@
       },
       updateContentState(...args) {
         this.$emit('updateContentState', ...args);
+        heartbeat.setActive();
       },
       startTracking(...args) {
         this.$emit('startTracking', ...args);

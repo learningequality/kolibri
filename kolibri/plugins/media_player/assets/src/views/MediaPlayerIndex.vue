@@ -67,6 +67,8 @@
 
   const GlobalLangCode = vue.locale;
 
+  const MEDIA_PLAYER_SETTINGS_KEY = 'kolibriMediaPlayerSettings';
+
   export default {
     name: 'MediaPlayerIndex',
     $trs: {
@@ -147,7 +149,8 @@
       ForwardButton.prototype.controlText_ = this.$tr('forward');
       videojs.registerComponent('ReplayButton', ReplayButton);
       videojs.registerComponent('ForwardButton', ForwardButton);
-      this.videoLangCode = Lockr.get('videoLangCode') || this.videoLangCode;
+      const { videoLangCode = this.videoLangCode } = this.getSavedSettings();
+      this.videoLangCode = videoLangCode;
     },
     mounted() {
       this.initPlayer();
@@ -280,13 +283,27 @@
         this.updateVolume();
       }, 1000),
 
+      getSavedSettings() {
+        return Lockr.get(MEDIA_PLAYER_SETTINGS_KEY) || {};
+      },
+      saveSettings(updatedSettings) {
+        const savedSettings = this.getSavedSettings();
+        Lockr.set(MEDIA_PLAYER_SETTINGS_KEY, {
+          ...savedSettings,
+          ...updatedSettings,
+        });
+      },
       updateVolume() {
-        Lockr.set('playerVolume', this.player.volume());
-        Lockr.set('playerMuted', this.player.muted());
+        this.saveSettings({
+          playerVolume: this.player.volume(),
+          playerMuted: this.player.muted(),
+        });
       },
 
       updateRate() {
-        Lockr.set('playerRate', this.player.playbackRate());
+        this.saveSettings({
+          playerRate: this.player.playbackRate(),
+        });
       },
 
       updateLang() {
@@ -294,14 +311,21 @@
           track => track.mode === 'showing'
         );
         if (currentTrack) {
-          Lockr.set('videoLangCode', currentTrack.language);
+          this.saveSettings({
+            videoLangCode: currentTrack.language,
+          });
         }
       },
 
       getDefaults() {
-        this.playerVolume = Lockr.get('playerVolume') || this.playerVolume;
-        this.playerMuted = Lockr.get('playerMuted') || this.playerMuted;
-        this.playerRate = Lockr.get('playerRate') || this.playerRate;
+        const {
+          savedPlayerVolume = this.playerVolume,
+          savedPlayerMuted = this.playerMuted,
+          savedPlayerRate = this.playerRate,
+        } = this.getSavedSettings();
+        this.playerVolume = savedPlayerVolume;
+        this.playerMuted = savedPlayerMuted;
+        this.playerRate = savedPlayerRate;
         this.player.volume(this.playerVolume);
         this.player.muted(this.playerMuted);
         this.player.playbackRate(this.playerRate);

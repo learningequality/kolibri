@@ -40,6 +40,9 @@ export default {
     },
     SET_LOGGING_CONTENT_STATE(state, contentState) {
       // TODO: Consider whether we want to save these to the session log as well.
+      if (!state.summary.extra_fields) {
+        state.summary.extra_fields = {};
+      }
       state.summary.extra_fields.contentState = contentState;
     },
     SET_LOGGING_TIME(state, { sessionTime, summaryTime, currentTime }) {
