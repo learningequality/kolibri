@@ -5,7 +5,7 @@ import {
 } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { handleApiError } from 'kolibri.coreVue.vuex.actions';
-import { isUserLoggedIn } from 'kolibri.coreVue.vuex.getters';
+import { isUserLoggedIn, isCoach, isAdmin } from 'kolibri.coreVue.vuex.getters';
 import { LearnerClassroomResource, LearnerLessonResource } from '../../apiResources';
 import { ClassesPageNames } from '../../constants';
 
@@ -90,7 +90,14 @@ export function showLessonPlaylist(store, { lessonId }) {
         },
       });
       store.dispatch('SET_CURRENT_LESSON', lesson);
-      return ContentNodeSlimResource.getCollection({ in_lesson: lesson.id }).fetch();
+      const include_fields = [];
+      if (isCoach(store.state) || isAdmin(store.state)) {
+        include_fields.push('num_coach_contents');
+      }
+      return ContentNodeSlimResource.getCollection({
+        in_lesson: lesson.id,
+        include_fields,
+      }).fetch();
     })
     .then(contentNodes => {
       const sortedContentNodes = contentNodes.sort((a, b) => {

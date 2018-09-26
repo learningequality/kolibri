@@ -1,5 +1,6 @@
-import { ChannelResource, TaskResource } from 'kolibri.resources';
+import { TaskResource } from 'kolibri.resources';
 import { taskList, wizardState, inLocalImportMode, inRemoteImportMode } from '../getters';
+import ChannelResource from '../../apiResources/deviceChannel';
 import { TaskStatuses } from '../../constants';
 
 export const ErrorTypes = {

@@ -3,7 +3,9 @@
 from __future__ import unicode_literals
 
 import django.core.validators
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+
 from kolibri.auth.constants.role_kinds import ADMIN
 
 
@@ -29,6 +31,9 @@ def device_owner_to_super_user(apps, schema_editor):
                 dataset_id=dataset_id
             )
             uuid = real_superuser.calculate_uuid()
+            # due to uniqueness constraints, can't have two users with same username for a facility
+            # so we end up only keeping the superuser
+            FacilityUser.objects.filter(username=device_owner.username).delete()
             superuser = FacilityUser.objects.create(
                 username=device_owner.username,
                 password=device_owner.password,
@@ -41,7 +46,7 @@ def device_owner_to_super_user(apps, schema_editor):
                 _morango_partition=real_superuser._morango_partition,
             )
             real_role = RealRole(
-                user=real_superuser,
+                user_id=superuser.id,
                 collection=real_default_facility,
                 kind=ADMIN,
                 dataset_id=dataset_id,

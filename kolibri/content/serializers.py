@@ -415,6 +415,20 @@ class ContentNodeSlimSerializer(serializers.ModelSerializer):
             'title',
         )
 
+    def to_representation(self, instance):
+        value = super(ContentNodeSlimSerializer, self).to_representation(instance)
+        # if the request includes a GET param 'include_fields', add the requested calculated fields
+        if 'request' in self.context:
+
+            include_fields = self.context['request'].GET.get('include_fields', '').split(',')
+
+            if include_fields:
+
+                if 'num_coach_contents' in include_fields:
+                    value['num_coach_contents'] = get_num_coach_contents(instance)
+
+        return value
+
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
     num_coach_contents = serializers.SerializerMethodField()

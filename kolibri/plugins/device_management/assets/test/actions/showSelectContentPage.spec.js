@@ -2,7 +2,8 @@
 import { expect } from 'chai';
 import Vue from 'vue-test'; // eslint-disable-line
 import sinon from 'sinon';
-import { ChannelResource, ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
+import { ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
+import ChannelResource from '../../src/apiResources/deviceChannel';
 import { loadChannelMetaData } from '../../src/state/actions/selectContentActions';
 import { wizardState } from '../../src/state/getters';
 import { mockResource } from 'testUtils'; // eslint-disable-line

@@ -7,7 +7,13 @@ import {
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 
-import { getChannelObject, isUserLoggedIn, currentUserId } from 'kolibri.coreVue.vuex.getters';
+import {
+  getChannelObject,
+  isUserLoggedIn,
+  currentUserId,
+  isCoach,
+  isAdmin,
+} from 'kolibri.coreVue.vuex.getters';
 import {
   setChannelInfo,
   handleError,
@@ -131,7 +137,11 @@ export function showChannels(store) {
         return;
       }
       const channelRootIds = channels.map(channel => channel.root);
-      ContentNodeSlimResource.getCollection({ ids: channelRootIds, by_role: true })
+      const include_fields = [];
+      if (isCoach(store.state) || isAdmin(store.state)) {
+        include_fields.push('num_coach_contents');
+      }
+      ContentNodeSlimResource.getCollection({ ids: channelRootIds, by_role: true, include_fields })
         .fetch()
         .then(channelCollection => {
           // we want them to be in the same order as the channels list
@@ -169,11 +179,16 @@ export function getCopies(store, contentId) {
 export function showTopicsTopic(store, id, isRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
+  const include_fields = [];
+  if (isCoach(store.state) || isAdmin(store.state)) {
+    include_fields.push('num_coach_contents');
+  }
   const promises = [
     ContentNodeSlimResource.getModel(id).fetch(), // the topic
     ContentNodeSlimResource.getCollection({
       parent: id,
       by_role: true,
+      include_fields,
     }).fetch(), // the topic's children
     ContentNodeSlimResource.fetchAncestors(id), // the topic's ancestors
     setChannelInfo(store),
