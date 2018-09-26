@@ -65,8 +65,8 @@ export function updateUser(store, { userId, updates }) {
   const origUserState = store.state.facilityUsers.find(user => user.id === userId);
   const facilityRoleHasChanged = updates.role && origUserState.kind !== updates.role.kind;
 
-  return updateFacilityUser(store, { userId, updates }).then(
-    updatedUser => {
+  return updateFacilityUser(store, { userId, updates })
+    .then(updatedUser => {
       const update = userData => store.commit('UPDATE_USER', _userState(userData));
       if (facilityRoleHasChanged) {
         if (store.rootGetters.currentUserId === userId && store.rootGetters.isSuperuser) {
@@ -81,8 +81,8 @@ export function updateUser(store, { userId, updates }) {
       } else {
         update(updatedUser);
       }
-    },
-    error => {
+    })
+    .catch(error => {
       store.commit('SET_BUSY', false);
       const errorsCaught = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
       if (errorsCaught) {
@@ -90,8 +90,7 @@ export function updateUser(store, { userId, updates }) {
       } else {
         store.dispatch('handleApiError', error, { root: true });
       }
-    }
-  );
+    });
 }
 
 export function setError(store, error) {
