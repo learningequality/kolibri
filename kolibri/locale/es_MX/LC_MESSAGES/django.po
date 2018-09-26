@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-30 19:55-0700\n"
-"PO-Revision-Date: 2018-08-25 00:24\n"
+"POT-Creation-Date: 2018-09-20 19:50-0700\n"
+"PO-Revision-Date: 2018-09-26 03:12\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish, Mexico\n"
 "Language: es_MX\n"
@@ -14,74 +14,47 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: es-MX\n"
-"X-Crowdin-File: /release-v0.10.x/django.po\n"
+"X-Crowdin-File: /release-v0.11.x/django.po\n"
 
-#: kolibri/auth/constants/collection_kinds.py:14
-#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+#: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
-msgstr "Escuela o Centro Educativo"
+msgstr "Centro Educativo"
 
-#: kolibri/auth/constants/collection_kinds.py:15
+#: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Classroom"
-msgstr "Salón de aula"
+msgstr "Clase"
 
-#: kolibri/auth/constants/collection_kinds.py:16
+#: kolibri/core/auth/constants/collection_kinds.py:16
 msgid "Learner group"
-msgstr "Equipo de alumnos"
+msgstr "Grupo de estudiantes"
 
-#: kolibri/auth/constants/role_kinds.py:13
-msgid "Admin"
-msgstr "Administrador"
-
-#: kolibri/auth/constants/role_kinds.py:14
-msgid "Coach"
-msgstr "Docente"
-
-#: kolibri/auth/constants/role_kinds.py:15
-msgid "Classroom Assignable Coach"
-msgstr "Docente de grupo"
-
-#: kolibri/auth/models.py:227
-msgid "username"
-msgstr "nombre de usuario"
-
-#: kolibri/auth/models.py:229
-msgid "Required. 30 characters or fewer. Letters and digits only"
-msgstr "Requerido. 30 caracteres o menos. Solamente letras y numeros"
-
-#: kolibri/auth/models.py:233
-msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
-msgstr "Escribir un nombre de usuario válido. Este valor puede contener sólo letras, números y guiones bajos."
-
-#: kolibri/auth/models.py:237
-msgid "full name"
-msgstr "nombre completo"
-
-#: kolibri/auth/models.py:238
-msgid "date joined"
-msgstr "fecha de registro"
-
-#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
-#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
-#: kolibri/auth/serializers.py:55
-msgid "An account with that username already exists"
-msgstr "Ya existe una cuenta con ese nombre de usuario"
-
-#: kolibri/content/api.py:93
+#: kolibri/core/content/api.py:114
 msgid "Content"
-msgstr "Contenido"
+msgstr "Canales"
 
-#: kolibri/content/api.py:523
+#: kolibri/core/content/api.py:655
 msgid "The requested channel does not exist on the content server"
-msgstr "El canal solicitado no existe en el servidor de contenido."
+msgstr "El canal solicitado no existe en el servidor de contenidos"
 
-#: kolibri/content/models.py:242
+#: kolibri/core/content/models.py:279
 msgid "Unknown format"
 msgstr "Formato desconocido"
 
-#: kolibri/core/device/serializers.py:44
+#: kolibri/core/device/serializers.py:50
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri todavía no está disponible en este idioma"
+
+#: kolibri/core/tasks/api.py:32
+msgid "There was a network error."
+msgstr "Hubo un error de red."
+
+#: kolibri/core/tasks/api.py:34
+msgid "There was a disk access error."
+msgstr "Hubo un error de acceso a disco."
+
+#: kolibri/core/tasks/api.py:36
+msgid "There was an unknown error."
+msgstr "Se ha producido un error desconocido."
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
@@ -103,19 +76,7 @@ msgstr "Para utilizar el Kolibri, recomendamos usar Firefox o Chrome."
 msgid "You can also try updating your current browser."
 msgstr "También puedes actualizar tu navegador actual."
 
-#: kolibri/plugins/device_management/kolibri_plugin.py:30
-msgid "Device"
-msgstr "Dispositivo"
-
-#: kolibri/tasks/api.py:33
-msgid "There was a network error."
-msgstr "Hubo un error de red."
-
-#: kolibri/tasks/api.py:35
-msgid "There was a disk access error."
-msgstr "Hubo un error de acceso a disco."
-
-#: kolibri/tasks/api.py:37
-msgid "There was an unknown error."
-msgstr "Se ha producido un error desconocido."
+#: kolibri/core/views.py:131
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "Fue imposible redirigir página correctamente. Es probable que Kolibri está mal configurado"
 

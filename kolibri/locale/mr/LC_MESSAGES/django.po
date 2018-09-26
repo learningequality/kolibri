@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-30 19:55-0700\n"
-"PO-Revision-Date: 2018-06-21T02:39:55+0000\n"
+"POT-Creation-Date: 2018-09-20 19:50-0700\n"
+"PO-Revision-Date: 2018-09-26 03:11\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Marathi\n"
 "Language: mr_IN\n"
@@ -14,74 +14,47 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: mr\n"
-"X-Crowdin-File: /release-v0.10.x/django.po\n"
+"X-Crowdin-File: /release-v0.11.x/django.po\n"
 
-#: kolibri/auth/constants/collection_kinds.py:14
-#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+#: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
 msgstr "सुविधा"
 
-#: kolibri/auth/constants/collection_kinds.py:15
+#: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Classroom"
 msgstr "वर्ग"
 
-#: kolibri/auth/constants/collection_kinds.py:16
+#: kolibri/core/auth/constants/collection_kinds.py:16
 msgid "Learner group"
 msgstr "विद्यार्थ्यांचा गट"
 
-#: kolibri/auth/constants/role_kinds.py:13
-msgid "Admin"
-msgstr "अॅडमिन"
-
-#: kolibri/auth/constants/role_kinds.py:14
-msgid "Coach"
-msgstr "प्रशिक्षक"
-
-#: kolibri/auth/constants/role_kinds.py:15
-msgid "Classroom Assignable Coach"
-msgstr "वर्ग नियुक्तीयोग्य प्रशिक्षक"
-
-#: kolibri/auth/models.py:227
-msgid "username"
-msgstr "युझरनेम"
-
-#: kolibri/auth/models.py:229
-msgid "Required. 30 characters or fewer. Letters and digits only"
-msgstr "अनिवार्य आहे. ३० किंवा कमी अक्षरे. फक्त अक्षरे आणि अंक"
-
-#: kolibri/auth/models.py:233
-msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
-msgstr "वैध युझरनेम प्रविष्ट करा. यात फक्त अक्षरे, अंक आणि अंडरस्कोअर असू शकतात."
-
-#: kolibri/auth/models.py:237
-msgid "full name"
-msgstr "पूर्ण नाव"
-
-#: kolibri/auth/models.py:238
-msgid "date joined"
-msgstr "सुरू करण्याची तारीख"
-
-#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
-#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
-#: kolibri/auth/serializers.py:55
-msgid "An account with that username already exists"
-msgstr "या युझरनेमचे खाते आधीपासून अस्तित्वात आहे"
-
-#: kolibri/content/api.py:93
+#: kolibri/core/content/api.py:114
 msgid "Content"
 msgstr "मजकूर"
 
-#: kolibri/content/api.py:523
+#: kolibri/core/content/api.py:655
 msgid "The requested channel does not exist on the content server"
 msgstr "तुम्हाला हवी असलेली वाहिनी या सर्व्हर वर उपलब्ध नाही"
 
-#: kolibri/content/models.py:242
+#: kolibri/core/content/models.py:279
 msgid "Unknown format"
 msgstr "अनोळखी फॉरमॅट"
 
-#: kolibri/core/device/serializers.py:44
+#: kolibri/core/device/serializers.py:50
 msgid "Language is not supported by Kolibri"
 msgstr "कोलिब्री सुविधा या भाषेत उपलब्ध नाही"
+
+#: kolibri/core/tasks/api.py:32
+msgid "There was a network error."
+msgstr "नेटवर्कमध्ये समस्या निर्माण झाली."
+
+#: kolibri/core/tasks/api.py:34
+msgid "There was a disk access error."
+msgstr "डिस्क वापरताना समस्या निर्माण झाली."
+
+#: kolibri/core/tasks/api.py:36
+msgid "There was an unknown error."
+msgstr "समस्येचे कारण माहिती नाही."
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
@@ -103,19 +76,7 @@ msgstr "कोलिब्री वापरण्यासाठी फाय�
 msgid "You can also try updating your current browser."
 msgstr "तुम्ही तुमच्या सध्याच्या ब्राऊझरची अद्ययावत आवृत्ती इन्स्टॉ्ल करण्याचाही प्रयत्न करू शकता."
 
-#: kolibri/plugins/device_management/kolibri_plugin.py:30
-msgid "Device"
-msgstr "उपकरण"
-
-#: kolibri/tasks/api.py:33
-msgid "There was a network error."
-msgstr "नेटवर्कमध्ये समस्या निर्माण झाली."
-
-#: kolibri/tasks/api.py:35
-msgid "There was a disk access error."
-msgstr "डिस्क वापरताना समस्या निर्माण झाली."
-
-#: kolibri/tasks/api.py:37
-msgid "There was an unknown error."
-msgstr "समस्येचे कारण माहिती नाही."
+#: kolibri/core/views.py:131
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr ""
 

@@ -90,7 +90,7 @@
     "TopicsPage.navigate": "ಶೀರ್ಷಿಕೆಗಳನ್ನು ಬಳಸಿ ವಿಷಯಗಳನ್ನು ನ್ಯಾವಿಗೇಟ್ ಮಾಡಿ",
     "TopicsPage.documentTitleForChannel": "ವಿಷಯಗಳು - { channelTitle }",
     "TopicsPage.documentTitleForTopic": "",
-    "TotalPoints.pointsTooltip": "ನೀವು {points, number} ಅಂಕ ಗಳಿಸಿದ್ದೀರಿ!",
+    "TotalPoints.pointsTooltip": "",
     "AllClassesPage.allClassesHeader": "ವರ್ಗಗಳು",
     "AllClassesPage.documentTitle": "ಎಲ್ಲಾ ವರ್ಗಗಳು",
     "AssignedExamsCards.examsHeader": "ಪರೀಕ್ಷೆಗಳು",
