@@ -10,7 +10,7 @@
 
     <section>
       <h2>{{ $tr('userType') }}</h2>
-      <UserTypeDisplay :userType="getUserKind" />
+      <UserTypeDisplay :distinguishCoachTypes="false" :userType="getUserKind" />
     </section>
 
     <section v-if="userHasPermissions">

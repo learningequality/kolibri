@@ -56,7 +56,10 @@
         <template slot="header" v-if="isUserLoggedIn">
           <div class="role">{{ $tr('userTypeLabel') }}</div>
           <div>
-            <UserTypeDisplay :userType="getUserKind" />
+            <UserTypeDisplay
+              :distinguishCoachTypes="false"
+              :userType="getUserKind"
+            />
           </div>
         </template>
 
