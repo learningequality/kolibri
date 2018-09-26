@@ -17,8 +17,9 @@ export function showExamReportPage(store, params) {
         ExamResource.fetchCollection({ getParams: { collection: classId }, force: true }),
         ContentNodeSlimResource.fetchCollection({
           getParams: {
-            in_exam: exam.id,
-            fields: ['id', 'num_coach_contents'],
+            ids: exam.question_sources.map(item => item.exercise_id),
+            fields: ['id'],
+            include_fields: ['num_coach_contents'],
           },
         }),
         store.dispatch('setClassState', classId),

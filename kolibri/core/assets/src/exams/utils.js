@@ -57,7 +57,7 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
 
         const contentPromise = ContentNodeResource.fetchCollection({
           getParams: {
-            in_exam: exam.id,
+            ids: questionSources.map(item => item.exercise_id),
           },
         });
 
