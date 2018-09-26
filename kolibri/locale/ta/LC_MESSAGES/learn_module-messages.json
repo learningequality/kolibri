@@ -90,7 +90,7 @@
     "TopicsPage.navigate": "தலைப்புகள் பயன்படுத்தி உள்ளடக்கத்தில் வழிசெல்ல",
     "TopicsPage.documentTitleForChannel": "தலைப்புகள் - { channelTitle }",
     "TopicsPage.documentTitleForTopic": "",
-    "TotalPoints.pointsTooltip": "உங்களுக்கு { points, number } புள்ளிகள்!",
+    "TotalPoints.pointsTooltip": "",
     "AllClassesPage.allClassesHeader": "வகுப்புகள்",
     "AllClassesPage.documentTitle": "அனைத்து வகுப்புகள்",
     "AssignedExamsCards.examsHeader": "தேர்வுகள்",

@@ -90,7 +90,7 @@
     "TopicsPage.navigate": "جابجاییِ محتوا با استفاده از سرفصل‌ها",
     "TopicsPage.documentTitleForChannel": "موضوعات - { channelTitle }",
     "TopicsPage.documentTitleForTopic": "",
-    "TotalPoints.pointsTooltip": "شما { points, number } امتیاز بدست آورده‌اید!",
+    "TotalPoints.pointsTooltip": "شما { points, number } امتیاز بدست آورده‌اید",
     "AllClassesPage.allClassesHeader": "کلاس‌ها",
     "AllClassesPage.documentTitle": "همه کلاس‌ها",
     "AssignedExamsCards.examsHeader": "آزمون‌ها",

@@ -90,7 +90,7 @@
     "TopicsPage.navigate": "Hlola okuqukethwe ngokusebenzisa izihloko",
     "TopicsPage.documentTitleForChannel": "Izihloko - { channelTitle }",
     "TopicsPage.documentTitleForTopic": "",
-    "TotalPoints.pointsTooltip": "Uzuze { points, number } wamaphuzu!",
+    "TotalPoints.pointsTooltip": "Uzuze { points, number } wamaphuzu",
     "AllClassesPage.allClassesHeader": "Amakilasi",
     "AllClassesPage.documentTitle": "Wonke amakilasi",
     "AssignedExamsCards.examsHeader": "Izivivinyo",
