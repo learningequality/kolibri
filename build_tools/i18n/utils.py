@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+import functools
 import io
 import json
 import logging
@@ -26,6 +28,7 @@ KEY_LANG_CODE = "language_code"
 KEY_TERR_CODE = "territory_code"
 KEY_ENG_NAME = "english_name"
 KEY_LANG_NAME = "language_name"
+KEY_DEFAULT_FONT = "default_font"
 
 IN_CTXT_LANG = {
     "crowdin_code": "ach",
@@ -35,13 +38,26 @@ IN_CTXT_LANG = {
     "english_name": "In context translation",
 }
 
-with io.open(SUPPORTED_LANGS_PATH, mode="r", encoding="utf-8") as f:
-    SUPPORTED_LANGS = json.load(f)
+
+def memoize(func):
+    cache = func.cache = {}
+
+    @functools.wraps(func)
+    def memoized_func(*args, **kwargs):
+        key = str(args) + str(kwargs)
+        if key not in cache:
+            cache[key] = func(*args, **kwargs)
+        return cache[key]
+
+    return memoized_func
 
 
+@memoize
 def supported_languages(include_in_context=False, include_english=False):
     result = []
-    for lang in SUPPORTED_LANGS:
+    with io.open(SUPPORTED_LANGS_PATH, mode="r", encoding="utf-8") as f:
+        languages = json.load(f)
+    for lang in languages:
         if include_english or lang[KEY_LANG_CODE] != "en":
             result.append(lang)
     if include_in_context:
@@ -49,7 +65,17 @@ def supported_languages(include_in_context=False, include_english=False):
     return result
 
 
-def _directory_for_language(lang_object):
+@memoize
+def locale_string(lang_object):
+    if KEY_TERR_CODE not in lang_object.keys():
+        return lang_object[KEY_LANG_CODE]
+    return "{}-{}".format(
+        lang_object[KEY_LANG_CODE], lang_object[KEY_TERR_CODE].lower()
+    )
+
+
+@memoize
+def _directory(lang_object):
     if KEY_TERR_CODE not in lang_object.keys():
         return lang_object[KEY_LANG_CODE]
     return "{}_{}".format(
@@ -57,13 +83,11 @@ def _directory_for_language(lang_object):
     )
 
 
+@memoize
 def local_locale_path(lang_object):
-    return os.path.join(
-        LOCALE_PATH, _directory_for_language(lang_object), "LC_MESSAGES"
-    )
+    return os.path.join(LOCALE_PATH, _directory(lang_object), "LC_MESSAGES")
 
 
+@memoize
 def local_perseus_locale_path(lang_object):
-    return os.path.join(
-        PERSEUS_LOCALE_PATH, _directory_for_language(lang_object), "LC_MESSAGES"
-    )
+    return os.path.join(PERSEUS_LOCALE_PATH, _directory(lang_object), "LC_MESSAGES")

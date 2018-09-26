@@ -1,6 +1,5 @@
 import vue from 'kolibri.lib.vue';
 import logger from '../logging';
-import importIntlAppText from '../styles/fonts/generated/intl-ui-text';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
 
@@ -179,7 +178,6 @@ export function setUpVueIntl() {
   if (global.languageCode) {
     vue.setLocale(global.languageCode);
     setLanguageDensity(global.languageCode);
-    importIntlAppText(global.languageCode);
 
     if (global.coreLanguageMessages) {
       vue.registerMessages(global.languageCode, global.coreLanguageMessages);

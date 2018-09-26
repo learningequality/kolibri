@@ -10,8 +10,10 @@ import copy
 import json
 import re
 
+import user_agents
 from django import template
 from django.conf import settings
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import resolve
 from django.core.urlresolvers import reverse
@@ -46,17 +48,76 @@ def kolibri_content_cache_key():
     return mark_safe(js)
 
 
+def _supports_modern_fonts(request):
+    """
+    In order to use the modern font-loading strategy we need to ensure two things:
+
+    1. The browser needs to properly use the font-face unicode-range descriptor in order
+       only load fonts when they are needed. This allows us to reference fonts for every
+       supported alphabet while ensuring that the client doesn't download many megabytes
+       of font data.
+
+    2. The browser needs to avoid a flash of invisible text (FOIT) while extra fonts are
+       loading, and instead render text using the browser's default fonts (FOUT). This
+       allows users to view and begin reading text, even if the fonts haven't loaded yet.
+       With some browsers this means supporting the new font-display descriptor. The
+       Edge browser uses FOUT instead of FOIT by default, and therefore doesn't need to
+       support font-display.
+
+    Based on https://caniuse.com/#feat=font-unicode-range
+    """
+
+    if 'HTTP_USER_AGENT' not in request.META:
+        return False
+
+    browser = user_agents.parse(request.META['HTTP_USER_AGENT']).browser
+
+    if browser.family == "Edge":  # Edge only needs unicode-range, not font-display
+        return browser.version[0] >= 17
+    if browser.family in ("Firefox", "Firefox Mobile"):
+        return browser.version[0] >= 58
+    if browser.family in ("Chrome", "Chrome Mobile"):
+        return browser.version[0] >= 60
+    if browser.family == "Safari":
+        return browser.version[0] >= 11 and browser.version[1] >= 1
+    if browser.family == "Opera":
+        return browser.version[0] >= 47
+    if browser.family == "Mobile Safari":
+        return browser.version[0] >= 11 and browser.version[1] >= 4
+
+    return False
+
+
 @register.simple_tag(takes_context=True)
 def kolibri_language_globals(context):
+
     lang_dir = "rtl" if get_language_bidi() else "ltr"
-    js = """
+    is_modern = _supports_modern_fonts(context['request'])
+    language = get_language()
+
+    master_file = '<link type="text/css" href="{}" rel="stylesheet"/>'.format(
+        static('assets/fonts/all-fonts.css')
+    )
+    lang_file = static(
+        'assets/fonts/fonts.{language}.{browser}.css'.format(
+            language=language,
+            browser='modern' if is_modern else 'basic'
+        )
+    )
+
+    template = """
     <script>
       var languageCode = '{lang_code}';
       var languageDir = '{lang_dir}';
       var languages = JSON.parse('{languages}');
+      var modernFonts = {modern};
     </script>
-    """.format(
-        lang_code=get_language(),
+    {master_css_file}
+    <link type="text/css" href="{lang_css_file}" rel="stylesheet"/>
+    """
+
+    return mark_safe(template.format(
+        lang_code=language,
         lang_dir=lang_dir,
         languages=json.dumps({code: {
             # Format to match the schema of the content Language model
@@ -64,8 +125,10 @@ def kolibri_language_globals(context):
             'lang_name': name,
             'lang_direction': get_language_info(code)['bidi']
         } for code, name in settings.LANGUAGES}),
-    )
-    return mark_safe(js)
+        modern=is_modern,
+        master_css_file=master_file if is_modern else "",
+        lang_css_file=lang_file,
+    ))
 
 
 @register.simple_tag()
