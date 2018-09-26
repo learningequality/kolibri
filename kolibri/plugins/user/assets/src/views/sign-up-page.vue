@@ -4,7 +4,7 @@
 
     <ui-toolbar type="colored" textColor="white">
       <template slot="icon">
-        <logo class="app-bar-icon" />
+        <kolibri-logo class="app-bar-icon" />
       </template>
       <template slot="brand">
         {{ $tr('kolibri') }}
@@ -120,7 +120,7 @@
   import uiAlert from 'kolibri.coreVue.components.uiAlert';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import uiToolbar from 'keen-ui/src/UiToolbar';
-  import logo from 'kolibri.coreVue.components.logo';
+  import kolibriLogo from 'kolibri.coreVue.components.kolibriLogo';
   import kSelect from 'kolibri.coreVue.components.kSelect';
   import { PageNames } from '../constants';
   import { signUpNewUser, resetSignUpState } from '../state/actions';
@@ -149,7 +149,7 @@
       uiAlert,
       kTextbox,
       uiToolbar,
-      logo,
+      kolibriLogo,
       kSelect,
       languageSwitcherFooter,
     },

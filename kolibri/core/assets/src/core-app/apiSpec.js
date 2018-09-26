@@ -41,7 +41,8 @@ import kRouterLink from '../views/buttons-and-links/k-router-link';
 import kTextbox from '../views/k-textbox';
 import kNavbar from '../views/k-navbar';
 import kNavbarLink from '../views/k-navbar/link';
-import logo from '../views/logo';
+import kolibriLogo from '../views/logo/kolibri';
+import kicdLogo from '../views/logo/kicd';
 import languageSwitcherList from '../views/language-switcher/list.vue';
 import immersiveFullScreen from '../views/immersive-full-screen';
 import elapsedTime from '../views/elapsed-time';
@@ -131,7 +132,8 @@ export default {
       kNavbar,
       kNavbarLink,
       languageSwitcherList,
-      logo,
+      kolibriLogo,
+      kicdLogo,
       immersiveFullScreen,
       elapsedTime,
       pointsIcon,

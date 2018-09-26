@@ -139,7 +139,8 @@
           </core-menu>
 
           <div class="side-nav-scrollable-area-footer">
-            <logo class="side-nav-scrollable-area-footer-logo" />
+            <kicd-logo class="side-nav-scrollable-area-footer-logo" />
+            <kolibri-logo class="side-nav-scrollable-area-footer-logo" />
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
@@ -179,14 +180,16 @@
   import coreMenu from 'kolibri.coreVue.components.coreMenu';
   import coreMenuOption from 'kolibri.coreVue.components.coreMenuOption';
   import uiIconButton from 'keen-ui/src/UiIconButton';
-  import logo from 'kolibri.coreVue.components.logo';
+  import kicdLogo from 'kolibri.coreVue.components.kicdLogo';
+  import kolibriLogo from 'kolibri.coreVue.components.kolibriLogo';
 
   export default {
     name: 'sideNav',
     components: {
       coreMenu,
       uiIconButton,
-      logo,
+      kicdLogo,
+      kolibriLogo,
       coreMenuOption,
     },
     mixins: [responsiveWindow, responsiveElement],

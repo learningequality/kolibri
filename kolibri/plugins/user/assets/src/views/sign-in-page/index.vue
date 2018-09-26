@@ -11,7 +11,11 @@
       <div class="main-row">
         <div class="main-cell">
           <div class="box">
-            <logo
+            <kicd-logo
+              class="logo"
+              :style="{'height': `${logoHeight}px`}"
+            />
+            <kolibri-logo
               class="logo"
               :style="{'height': `${logoHeight}px`}"
             />
@@ -125,7 +129,8 @@
   import kRouterLink from 'kolibri.coreVue.components.kRouterLink';
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
-  import logo from 'kolibri.coreVue.components.logo';
+  import kicdLogo from 'kolibri.coreVue.components.kicdLogo';
+  import kolibriLogo from 'kolibri.coreVue.components.kolibriLogo';
   import uiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import uiAlert from 'keen-ui/src/UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -154,7 +159,8 @@
       kExternalLink,
       kTextbox,
       facilityModal,
-      logo,
+      kicdLogo,
+      kolibriLogo,
       uiAutocompleteSuggestion,
       uiAlert,
       languageSwitcherFooter,
@@ -487,8 +493,7 @@
 
   h1
     font-size: 1.5em
-    font-weight: 100
-    color: $core-text-annotation
+    color: $core-action-normal
     margin-top: 0
 
   .create-button
