@@ -445,7 +445,7 @@ export function showExamReportPage(store, classId, examId) {
         LearnerGroupResource.getCollection({ parent: classId }).fetch(),
         ExamResource.getCollection({ collection: classId }).fetch({}, true),
         ContentNodeResource.getCollection({
-          in_exam: exam.id,
+          ids: exam.question_sources.map(item => item.exercise_id),
           fields: ['id', 'num_coach_contents'],
         }).fetch(),
         setClassState(store, classId),
