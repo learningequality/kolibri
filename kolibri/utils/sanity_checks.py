@@ -5,6 +5,7 @@ import sys
 
 from .conf import OPTIONS
 from .server import get_status
+from .server import LISTEN_ADDRESS
 from .server import NotRunning
 
 logger = logging.getLogger(__name__)
@@ -24,7 +25,7 @@ def check_other_kolibri_running(port):
     except NotRunning:
         # In case that something other than Kolibri occupies the port,
         # check the port's availability.
-        check_port_availability('127.0.0.1', port)
+        check_port_availability(LISTEN_ADDRESS, port)
 
 
 def check_port_availability(host, port):
