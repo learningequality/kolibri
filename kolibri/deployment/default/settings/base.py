@@ -88,6 +88,7 @@ MIDDLEWARE = [
     'kolibri.core.device.middleware.IgnoreGUIMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
+    'kolibri.core.analytics.middleware.MetricsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'kolibri.core.device.middleware.KolibriLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -304,6 +305,13 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': os.path.join(conf.KOLIBRI_HOME, 'performance.log'),
             'formatter': 'profiling',
+        },
+        'requests_profiling': {
+            'level': 'INFO',
+            'filters': [],
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(conf.KOLIBRI_HOME, 'requests_performance.log'),
+            'formatter': 'profiling',
         }
     },
     'loggers': {
@@ -332,6 +340,11 @@ LOGGING = {
         },
         'profiler': {
             'handlers': ['file_profiling'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'requests_profiler': {
+            'handlers': ['requests_profiling'],
             'level': 'INFO',
             'propagate': True,
         }
