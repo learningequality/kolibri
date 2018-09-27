@@ -85,7 +85,11 @@ describe('selectContentPage', () => {
   });
 
   it('if channel is not on device, it shows size and resources as 0', () => {
-    updateMetaChannel(store, { id: 'not_awesome_channel' });
+    updateMetaChannel(store, {
+      id: 'not_awesome_channel',
+      on_device_resources: 0,
+      on_device_file_size: 0,
+    });
     const wrapper = makeWrapper({ store });
     const { onDeviceRows } = getElements(wrapper);
     const rows = onDeviceRows();
