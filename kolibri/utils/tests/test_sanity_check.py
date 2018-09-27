@@ -1,5 +1,4 @@
-import socket
-
+import portend
 from django.test import TestCase
 from mock import patch
 
@@ -16,11 +15,11 @@ class SanityCheckTestCase(TestCase):
             logging_mock.assert_called()
 
     @patch('kolibri.utils.sanity_checks.logging.error')
-    @patch('kolibri.utils.sanity_checks.socket.socket')
+    @patch('kolibri.utils.sanity_checks.portend.free')
     @patch('kolibri.utils.sanity_checks.get_status')
-    def test_port_occupied(self, status_mock, socket_mock, logging_mock):
+    def test_port_occupied(self, status_mock, portend_mock, logging_mock):
         status_mock.side_effect = NotRunning('Kolibri not running')
-        socket_mock.return_value.bind.side_effect = socket.error
+        portend_mock.side_effect = portend.Timeout
         with self.assertRaises(SystemExit):
             cli.main({'start': True})
             logging_mock.assert_called()
