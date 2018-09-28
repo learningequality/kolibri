@@ -43,7 +43,6 @@
         v-if="advancedShown"
         :text="infoText"
         class="bottom-section"
-        downloadFileName="device-info.txt"
       />
     </template>
 
