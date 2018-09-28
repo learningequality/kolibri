@@ -43,8 +43,8 @@ def get_machine_info():
     :returns: tuple of strings containing cpu percentage, used memory, free memory and number of active processes
     """
     used_cpu = str(psutil.cpu_percent())
-    used_memory = str(psutil.virtual_memory().used / pow(2, 20))  # In Megabytes
-    free_memory = str(psutil.virtual_memory().available / pow(2, 20))  # In Megabytes
+    used_memory = str(psutil.virtual_memory().used / pow(2, 10))  # In Kilobytes
+    free_memory = str(psutil.virtual_memory().available / pow(2, 10))  # In Kilobytes
     total_processes = str(len(psutil.pids()))
 
     return (used_cpu, used_memory, free_memory, total_processes)
@@ -73,7 +73,7 @@ def get_kolibri_use(development=False):
     if kolibri_pid:
         try:
             kolibri_proc = psutil.Process(kolibri_pid)
-            kolibri_mem = str(kolibri_proc.memory_info().vms / pow(2, 20))
+            kolibri_mem = str(kolibri_proc.memory_info().vms / pow(2, 10))
             kolibri_cpu = str(kolibri_proc.cpu_percent())
         except psutil.NoSuchProcess:
             # Kolibri server is not running
@@ -82,6 +82,18 @@ def get_kolibri_use(development=False):
     return (kolibri_cpu, kolibri_mem)
 
 class Command(BaseCommand):
+    """
+    This command will produce a performance.log file with this structure in every line:
+    - Timestamp
+    - Number of Kolibri active sessions
+    - Number of Kolibri active users
+    - Number of Kolibri active users that have interacted in the last minute
+    - Percentage of use of the cpu of the server
+    - Used memory (In Kbytes) in the server
+    - Number of processes in the server
+    - Percentage of use of cpu by the Kolibri process
+    - Memory (In Kbytes) used by the kolibri process
+    """
     help = "Logs performance/profiling info in the server running Kolibri"
 
     def add_arguments(self, parser):

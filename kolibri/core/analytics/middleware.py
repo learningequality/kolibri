@@ -33,17 +33,28 @@ class Metrics(object):
         Calcutes time spent in processing the request
         and difference in memory and load consumed
         by kolibri while processing the request
-        :returns: tuple of strings containing difference in memory (in bytes),
-                  difference in cpu load (in %) and time consumed (in seconds)
+        :returns: tuple of strings containing time consumed (in seconds),
+                  Kolibri used memory (in bytes) before and after executing the request,
+                  Kolibri cpu load (in %) before and after executing the request.
         """
-        memory_delta = str(self.get_used_memory() - self.memory)
-        load_delta = str(self.get_load_average() - self.load)
+        memory = str(self.get_used_memory())
+        load = str(self.get_load_average())
         time_delta = str(time.time() - self.time)
-        return (memory_delta, load_delta, time_delta)
+        return (time_delta, str(self.memory), memory, str(self.load), load)
 
 
 class MetricsMiddleware(MiddlewareMixin):
-
+    """
+    This Middleware will produce a requests_performance.log file, with one line per requests having this structure:
+    - Timestamp
+    - Request path
+    - Time spent processing the request
+    - Memory (in Kbytes) used by the kolibri process when the request came in
+    - Memory (in Kbytes) used by the kolibri process when the response was sent
+    - Percentage of use of cpu by the Kolibri process when the request came in
+    - Percentage of use of cpu by the Kolibri process when the response was sent
+    - One flag indicating if this request is the slowest since the analysis was started
+    """
     slowest_request = 'unknown'
     slowest_request_time = 0
     disabled = True
@@ -68,18 +79,19 @@ class MetricsMiddleware(MiddlewareMixin):
         """
         Calculate and output the page generation details
         Log output consist on:
-        Datetime, request path, request duration, memory diff, memory load diff, max
+        Datetime, request path, request duration, memory before, memory after requests is finished,
+        cpu load before, cpu load after the request is finished, max
         Being `max` True or False to indicate if this is the slowest request since logging began.
         """
         if not MetricsMiddleware.disabled and hasattr(self, 'metrics'):
             path = request.get_full_path()
-            memory, load, duration = self.metrics.get_stats()
+            duration, memory_before, memory, load_before, load = self.metrics.get_stats()
             max_time = False
             if duration > MetricsMiddleware.slowest_request_time:
                 MetricsMiddleware.slowest_request = path
                 MetricsMiddleware.slowest_request_time = duration
                 max_time = True
-            collected_information = (path, duration, memory, load, str(max_time))
+            collected_information = (path, duration, memory_before, memory, load_before, load, str(max_time))
             logger.info(','.join(collected_information))
             if not psutil.pid_exists(MetricsMiddleware.command_pid):
                 self.shutdown()
