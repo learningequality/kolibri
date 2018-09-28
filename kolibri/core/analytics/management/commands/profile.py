@@ -98,7 +98,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--num-samples', action='store', dest='num_samples', default=100, type=int,
+            '--num-samples', action='store', dest='num_samples', default=60, type=int,
             help='Specifies the number of times the profile will take measures before ending'
         )
 
