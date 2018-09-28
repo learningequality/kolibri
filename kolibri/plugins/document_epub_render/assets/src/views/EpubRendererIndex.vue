@@ -441,7 +441,7 @@
       this.updateContentState();
       this.updateProgress();
       this.$emit('stopTracking');
-      window.removeEventListener('mousedown', this.handleMouseDown, true);
+      window.removeEventListener('mousedown', this.handleMouseDown, { passive: true });
     },
     destroyed() {
       delete global.ePub;
@@ -463,7 +463,7 @@
         this.rendition.on('keyup', this.handleKeyUps);
         this.rendition.on('click', () => this.closeSideBar());
 
-        window.addEventListener('mousedown', this.handleMouseDown, true);
+        window.addEventListener('mousedown', this.handleMouseDown, { passive: true });
 
         this.loaded = true;
 
