@@ -111,6 +111,7 @@
       playerMuted: false,
       playerRate: 1.0,
       videoLangCode: GlobalLangCode,
+      updateContentStateInterval: null,
     }),
 
     computed: {
@@ -143,6 +144,12 @@
       isVideo() {
         return this.videoSources.length;
       },
+      savedLocation() {
+        if (this.extraFields && this.extraFields.contentState) {
+          return this.extraFields.contentState.savedLocation;
+        }
+        return 0;
+      },
     },
     created() {
       ReplayButton.prototype.controlText_ = this.$tr('replay');
@@ -157,9 +164,11 @@
       window.addEventListener('resize', this.throttledResizePlayer);
     },
     beforeDestroy() {
+      this.updateContentState();
       this.$emit('stopTracking');
       window.removeEventListener('resize', this.throttledResizePlayer);
       this.player.dispose();
+      clearInterval(this.updateContentStateInterval);
     },
     methods: {
       isDefaultTrack(langCode) {
@@ -174,7 +183,6 @@
         const videojsConfig = {
           fluid: true,
           aspectRatio: '16:9',
-          autoplay: true,
           controls: true,
           textTrackDisplay: true,
           bigPlayButton: true,
@@ -249,15 +257,24 @@
         });
       },
       handleReadyPlayer() {
-        this.player.on('play', this.focusOnPlayControl);
-        this.player.on('pause', this.focusOnPlayControl);
+        const startTime = this.savedLocation >= this.player.duration() ? 0 : this.savedLocation;
+        this.player.currentTime(startTime);
+        this.player.play();
+
+        this.player.on('play', () => {
+          this.focusOnPlayControl();
+          this.setPlayState(true);
+        });
+        this.player.on('pause', () => {
+          this.focusOnPlayControl();
+          this.setPlayState(false);
+          this.updateContentState();
+        });
         this.player.on('timeupdate', this.updateTime);
         this.player.on('seeking', this.handleSeek);
         this.player.on('volumechange', this.throttledUpdateVolume);
         this.player.on('ratechange', this.updateRate);
         this.player.on('texttrackchange', this.updateLang);
-        this.player.on('play', () => this.setPlayState(true));
-        this.player.on('pause', () => this.setPlayState(false));
         this.player.on('ended', () => this.setPlayState(false));
         this.player.on('mimicFullscreenToggled', () => {
           this.$refs.container.toggleFullscreen();
@@ -265,9 +282,11 @@
         this.$watch('elementWidth', this.updatePlayerSizeClass);
         this.updatePlayerSizeClass();
         this.resizePlayer();
-        this.getDefaults();
+        this.useSavedSettings();
         this.loading = false;
         this.$refs.player.tabIndex = -1;
+
+        this.updateContentStateInterval = setInterval(this.updateContentState, 30000);
       },
       resizePlayer() {
         const wrapperWidth = this.$refs.wrapper.clientWidth;
@@ -317,7 +336,7 @@
         }
       },
 
-      getDefaults() {
+      useSavedSettings() {
         const {
           savedPlayerVolume = this.playerVolume,
           savedPlayerMuted = this.playerMuted,
@@ -394,6 +413,19 @@
         if (this.elementWidth < 360) {
           this.player.addClass('player-tiny');
         }
+      },
+      updateContentState() {
+        const currentLocation = this.player.currentTime();
+        let contentState;
+        if (this.extraFields) {
+          contentState = {
+            ...this.extraFields.contentState,
+            savedLocation: currentLocation || this.savedLocation,
+          };
+        } else {
+          contentState = { savedLocation: currentLocation || this.savedLocation };
+        }
+        this.$emit('updateContentState', contentState);
       },
     },
   };

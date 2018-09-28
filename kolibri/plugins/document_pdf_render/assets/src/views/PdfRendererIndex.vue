@@ -120,6 +120,7 @@
       recycleListIsMounted: false,
       isInFullscreen: false,
       currentLocation: 0,
+      updateContentStateInterval: null,
     }),
     computed: {
       ...mapGetters(['sessionTimeSpent']),
@@ -209,7 +210,7 @@
           this.progress = 1;
         }
         this.$emit('startTracking');
-        setInterval(this.updateProgress, 30000);
+        this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
         // Automatically master after the targetTime, convert seconds -> milliseconds
         this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
       });
@@ -228,6 +229,7 @@
       }
 
       this.$emit('stopTracking');
+      this.clearInterval(this.updateContentStateInterval);
     },
     methods: {
       getPage(pageNum) {

@@ -230,6 +230,7 @@
       sliderValue: 0,
 
       currentLocation: null,
+      updateContentStateInterval: null,
     }),
     computed: {
       ...mapGetters(['sessionTimeSpent']),
@@ -442,6 +443,7 @@
       this.updateProgress();
       this.$emit('stopTracking');
       window.removeEventListener('mousedown', this.handleMouseDown, { passive: true });
+      clearInterval(this.updateContentStateInterval);
     },
     destroyed() {
       delete global.ePub;
@@ -470,7 +472,7 @@
         this.book.locations.generate(LOCATIONS_INTERVAL).then(locations => {
           this.locations = locations;
           this.$emit('startTracking');
-          setInterval(this.updateProgress, 30000);
+          this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
         });
       },
       updateRenditionTheme(newTheme) {
