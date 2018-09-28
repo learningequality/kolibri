@@ -68,6 +68,7 @@ except ImportError:
         "kolibri.plugins.user",
         "kolibri_exercise_perseus_plugin",
         "kolibri.plugins.style_guide",
+        "kolibri.plugins.document_epub_render",
     ]
 
 #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
