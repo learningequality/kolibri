@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-30 19:55-0700\n"
-"PO-Revision-Date: 2018-06-21T02:41:23+0000\n"
+"POT-Creation-Date: 2018-09-20 19:50-0700\n"
+"PO-Revision-Date: 2018-09-26 03:12\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Acholi\n"
 "Language: ach_UG\n"
@@ -14,108 +14,69 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: ach\n"
-"X-Crowdin-File: /release-v0.10.x/django.po\n"
+"X-Crowdin-File: /release-v0.11.x/django.po\n"
 
-#: kolibri/auth/constants/collection_kinds.py:14
-#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+#: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
-msgstr "crwdns37501:0crwdne37501:0"
+msgstr "crwdns43933:0crwdne43933:0"
 
-#: kolibri/auth/constants/collection_kinds.py:15
+#: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Classroom"
-msgstr "crwdns37502:0crwdne37502:0"
+msgstr "crwdns43934:0crwdne43934:0"
 
-#: kolibri/auth/constants/collection_kinds.py:16
+#: kolibri/core/auth/constants/collection_kinds.py:16
 msgid "Learner group"
-msgstr "crwdns37503:0crwdne37503:0"
+msgstr "crwdns43935:0crwdne43935:0"
 
-#: kolibri/auth/constants/role_kinds.py:13
-msgid "Admin"
-msgstr "crwdns37504:0crwdne37504:0"
-
-#: kolibri/auth/constants/role_kinds.py:14
-msgid "Coach"
-msgstr "crwdns37505:0crwdne37505:0"
-
-#: kolibri/auth/constants/role_kinds.py:15
-msgid "Classroom Assignable Coach"
-msgstr "crwdns37506:0crwdne37506:0"
-
-#: kolibri/auth/models.py:227
-msgid "username"
-msgstr "crwdns37507:0crwdne37507:0"
-
-#: kolibri/auth/models.py:229
-msgid "Required. 30 characters or fewer. Letters and digits only"
-msgstr "crwdns37508:0crwdne37508:0"
-
-#: kolibri/auth/models.py:233
-msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
-msgstr "crwdns37509:0crwdne37509:0"
-
-#: kolibri/auth/models.py:237
-msgid "full name"
-msgstr "crwdns37510:0crwdne37510:0"
-
-#: kolibri/auth/models.py:238
-msgid "date joined"
-msgstr "crwdns37511:0crwdne37511:0"
-
-#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
-#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
-#: kolibri/auth/serializers.py:55
-msgid "An account with that username already exists"
-msgstr "crwdns37512:0crwdne37512:0"
-
-#: kolibri/content/api.py:93
+#: kolibri/core/content/api.py:114
 msgid "Content"
-msgstr "crwdns37513:0crwdne37513:0"
+msgstr "crwdns43936:0crwdne43936:0"
 
-#: kolibri/content/api.py:523
+#: kolibri/core/content/api.py:655
 msgid "The requested channel does not exist on the content server"
-msgstr "crwdns37514:0crwdne37514:0"
+msgstr "crwdns43937:0crwdne43937:0"
 
-#: kolibri/content/models.py:242
+#: kolibri/core/content/models.py:279
 msgid "Unknown format"
-msgstr "crwdns37515:0crwdne37515:0"
+msgstr "crwdns43938:0crwdne43938:0"
 
-#: kolibri/core/device/serializers.py:44
+#: kolibri/core/device/serializers.py:50
 msgid "Language is not supported by Kolibri"
-msgstr "crwdns37516:0crwdne37516:0"
+msgstr "crwdns43939:0crwdne43939:0"
+
+#: kolibri/core/tasks/api.py:32
+msgid "There was a network error."
+msgstr "crwdns43940:0crwdne43940:0"
+
+#: kolibri/core/tasks/api.py:34
+msgid "There was a disk access error."
+msgstr "crwdns43941:0crwdne43941:0"
+
+#: kolibri/core/tasks/api.py:36
+msgid "There was an unknown error."
+msgstr "crwdns43942:0crwdne43942:0"
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
-msgstr "crwdns37517:0crwdne37517:0"
+msgstr "crwdns43943:0crwdne43943:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:28
 msgid "Unsupported browser"
-msgstr "crwdns37518:0crwdne37518:0"
+msgstr "crwdns43944:0crwdne43944:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:29
 msgid "Sorry, your browser version is not supported."
-msgstr "crwdns37519:0crwdne37519:0"
+msgstr "crwdns43945:0crwdne43945:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:30
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "crwdns37520:0crwdne37520:0"
+msgstr "crwdns43946:0crwdne43946:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:31
 msgid "You can also try updating your current browser."
-msgstr "crwdns37521:0crwdne37521:0"
+msgstr "crwdns43947:0crwdne43947:0"
 
-#: kolibri/plugins/device_management/kolibri_plugin.py:30
-msgid "Device"
-msgstr "crwdns37522:0crwdne37522:0"
-
-#: kolibri/tasks/api.py:33
-msgid "There was a network error."
-msgstr "crwdns37523:0crwdne37523:0"
-
-#: kolibri/tasks/api.py:35
-msgid "There was a disk access error."
-msgstr "crwdns37524:0crwdne37524:0"
-
-#: kolibri/tasks/api.py:37
-msgid "There was an unknown error."
-msgstr "crwdns37525:0crwdne37525:0"
+#: kolibri/core/views.py:131
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "crwdns43948:0crwdne43948:0"
 

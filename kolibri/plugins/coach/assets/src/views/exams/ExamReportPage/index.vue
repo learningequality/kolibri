@@ -59,9 +59,9 @@
                   :text="examTaker.name"
                   :to="examDetailPageLink(examTaker.id)"
                 />
-                <template v-else>
+                <span dir="auto" v-else>
                   {{ examTaker.name }}
-                </template>
+                </span>
               </td>
               <td>
                 {{ examTakerProgressText(examTaker) }}
@@ -69,7 +69,7 @@
               <td>
                 {{ examTakerScoreText(examTaker) }}
               </td>
-              <td v-if="!viewByGroups">{{ examTaker.group.name || '–' }}</td>
+              <td dir="auto" v-if="!viewByGroups">{{ examTaker.group.name || '–' }}</td>
             </tr>
           </tbody>
         </CoreTable>

@@ -1,56 +1,87 @@
 <template>
 
-  <ul class="content-list">
-    <KCheckbox
-      :label="$tr('selectAllCheckboxLabel')"
-      v-if="showSelectAll"
-      :checked="selectAllChecked"
-      @change="$emit('changeselectall', $event)"
-    />
-    <li
-      v-for="content in contentList"
-      class="content-list-item"
-      :key="content.id"
-    >
+  <div>
+    <ul class="content-list">
       <KCheckbox
-        v-if="!contentHasCheckbox(content)"
-        class="content-checkbox"
-        :label="content.title"
-        :showLabel="false"
-        :checked="contentIsChecked(content)"
-        @change="handleCheckboxChange(content.id, $event)"
+        :label="$tr('selectAllCheckboxLabel')"
+        v-if="showSelectAll"
+        :checked="selectAllChecked"
+        @change="$emit('changeselectall', $event)"
       />
-      <LessonContentCard
-        class="content-card"
-        :title="content.title"
-        :thumbnail="content.thumbnail"
-        :description="content.description"
-        :kind="content.kind"
-        :message="contentCardMessage(content)"
-        :link="contentCardLink(content)"
-        :numCoachContents="content.num_coach_contents"
+      <li
+        v-for="content in contentList"
+        class="content-list-item"
+        :key="content.id"
+      >
+        <KCheckbox
+          v-if="!contentHasCheckbox(content)"
+          class="content-checkbox"
+          :label="content.title"
+          :showLabel="false"
+          :checked="contentIsChecked(content)"
+          @change="handleCheckboxChange(content.id, $event)"
+        />
+        <LessonContentCard
+          class="content-card"
+          :title="content.title"
+          :thumbnail="content.thumbnail"
+          :description="content.description"
+          :kind="content.kind"
+          :message="contentCardMessage(content)"
+          :link="contentCardLink(content)"
+          :numCoachContents="content.num_coach_contents"
+        />
+      </li>
+    </ul>
+
+    <template>
+      <KButton
+        v-if="showButton"
+        :text="$tr('viewMoreButtonLabel')"
+        @click="$emit('moreresults')"
+        :primary="false"
       />
-    </li>
-  </ul>
+      <KCircularLoader
+        v-if="viewMoreButtonState === 'waiting'"
+        :delay="false"
+      />
+      <!-- TODO introduce messages in next version -->
+      <p v-else-if="viewMoreButtonState === 'error'">
+        <mat-svg category="alert" name="error" />
+        <!-- {{ $tr('moreResultsError') }} -->
+      </p>
+      <!-- <p v-else-if="viewMoreButtonState === 'no_more_results'">
+        {{ $tr('noMoreResults') }}
+      </p> -->
+    </template>
+  </div>
 
 </template>
 
 
 <script>
 
+  import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import LessonContentCard from './LessonContentCard';
 
   export default {
     name: 'ContentCardList',
     components: {
+      KButton,
       KCheckbox,
+      KCircularLoader,
       LessonContentCard,
     },
     props: {
       showSelectAll: {
         type: Boolean,
         default: false,
+      },
+      viewMoreButtonState: {
+        type: String,
+        required: true,
       },
       selectAllChecked: {
         type: Boolean,
@@ -81,6 +112,13 @@
         required: true,
       },
     },
+    computed: {
+      showButton() {
+        return (
+          this.viewMoreButtonState !== 'waiting' && this.viewMoreButtonState !== 'no_more_results'
+        );
+      },
+    },
     methods: {
       handleCheckboxChange(contentId, checked) {
         this.$emit('change_content_card', { contentId, checked });
@@ -88,8 +126,9 @@
     },
     $trs: {
       selectAllCheckboxLabel: 'Select all',
-      // Used for future 'View more' button
       viewMoreButtonLabel: 'View more',
+      noMoreResults: 'No more results',
+      moreResultsError: 'Failed to get more results',
     },
   };
 

@@ -90,7 +90,7 @@
     "TopicsPage.navigate": "Tafuta yaliyomo kwa kutumia vichwa vya habari",
     "TopicsPage.documentTitleForChannel": "Mada - { channelTitle }",
     "TopicsPage.documentTitleForTopic": "",
-    "TotalPoints.pointsTooltip": "Umepata pointi { points, number }!",
+    "TotalPoints.pointsTooltip": "Umepata pointi { points, number }",
     "AllClassesPage.allClassesHeader": "Madarasa",
     "AllClassesPage.documentTitle": "Madarasa yote",
     "AssignedExamsCards.examsHeader": "Mitihani",

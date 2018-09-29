@@ -5,7 +5,7 @@
       {{ searchResultsSubheader }}
     </h2>
 
-    <div v-if="searchResults.length > 0">
+    <div>
       <div class="ib">
         <mat-svg
           category="content"
@@ -40,7 +40,10 @@
         />
       </div>
 
-      <div class="ib">
+      <div
+        v-show="roleFilterOptions.length > 0"
+        class="ib"
+      >
         <mat-svg
           category="social"
           name="person"
@@ -66,7 +69,6 @@
 
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
-  import map from 'lodash/map';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -88,9 +90,13 @@
     },
     props: {
       searchResults: {
-        type: Array,
+        type: Object,
         default() {
-          return [];
+          return {
+            results: [],
+            content_kinds: [],
+            channel_ids: [],
+          };
         },
       },
       value: {
@@ -109,7 +115,9 @@
       }),
       searchResultsSubheader() {
         const msg =
-          this.searchResults.length === 0 ? 'noSearchResultsMessage' : 'searchResultsMessage';
+          this.searchResults.results.length === 0
+            ? 'noSearchResultsMessage'
+            : 'searchResultsMessage';
         return this.$tr(msg, { searchTerm: this.searchTerm });
       },
       allFilter() {
@@ -119,42 +127,35 @@
         return find(this.contentKindFilterOptions, { value: this.value.kind }) || {};
       },
       contentKindFilterOptions() {
-        const contentKinds = map(this.searchResults, 'kind');
-        if (contentKinds.length === 0) {
-          return [];
-        }
-        const options = Object.keys(kindFilterToLabelMap)
-          .filter(kind => contentKinds.includes(kind))
-          .map(kind => ({
-            label: this.$tr(kindFilterToLabelMap[kind]),
-            value: kind,
-          }));
+        const contentKinds = this.searchResults.content_kinds;
+        const options = contentKinds.map(kind => ({
+          label: this.$tr(kindFilterToLabelMap[kind]),
+          value: kind,
+        }));
         return [this.allFilter, ...options];
       },
       channelValue() {
         return find(this.channelFilterOptions, { value: this.value.channel }) || {};
       },
       channelFilterOptions() {
-        const channelIds = map(this.searchResults, 'channel_id');
-        if (channelIds.length === 0) {
-          return [];
-        }
-        const options = this.channels
-          .filter(channel => channelIds.includes(channel.id))
-          .map(channel => ({
-            label: channel.title,
-            value: channel.id,
-          }));
+        const channelIds = this.searchResults.channel_ids;
+        const options = channelIds.map(id => find(this.channels, { id })).map(channel => ({
+          label: channel.title,
+          value: channel.id,
+        }));
         return [this.allFilter, ...options];
       },
       roleValue() {
         return find(this.roleFilterOptions, { value: this.value.role }) || {};
       },
       roleFilterOptions() {
-        if (this.searchResults.length === 0) {
+        if (this.searchResults.results.length === 0) {
           return [];
         }
-        const hasCoachContents = find(this.searchResults, result => result.num_coach_contents > 0);
+        const hasCoachContents = find(
+          this.searchResults.results,
+          result => result.num_coach_contents > 0
+        );
         const options = [this.allFilter];
         if (hasCoachContents) {
           options.push({ label: this.$tr('coach'), value: 'coach' });

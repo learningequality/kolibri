@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-30 19:55-0700\n"
-"PO-Revision-Date: 2018-06-21T02:39:33+0000\n"
+"POT-Creation-Date: 2018-09-20 19:50-0700\n"
+"PO-Revision-Date: 2018-09-26 03:12\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Portuguese, Brazilian\n"
 "Language: pt_BR\n"
@@ -14,74 +14,47 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: pt-BR\n"
-"X-Crowdin-File: /release-v0.10.x/django.po\n"
+"X-Crowdin-File: /release-v0.11.x/django.po\n"
 
-#: kolibri/auth/constants/collection_kinds.py:14
-#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+#: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
 msgstr "Instituição"
 
-#: kolibri/auth/constants/collection_kinds.py:15
+#: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Classroom"
 msgstr "Classe"
 
-#: kolibri/auth/constants/collection_kinds.py:16
+#: kolibri/core/auth/constants/collection_kinds.py:16
 msgid "Learner group"
 msgstr "Grupo de alunos"
 
-#: kolibri/auth/constants/role_kinds.py:13
-msgid "Admin"
-msgstr "Administrador"
-
-#: kolibri/auth/constants/role_kinds.py:14
-msgid "Coach"
-msgstr "Professor"
-
-#: kolibri/auth/constants/role_kinds.py:15
-msgid "Classroom Assignable Coach"
-msgstr "Professor(a) de classe"
-
-#: kolibri/auth/models.py:227
-msgid "username"
-msgstr "nome do usuário"
-
-#: kolibri/auth/models.py:229
-msgid "Required. 30 characters or fewer. Letters and digits only"
-msgstr "Obrigatório. 30 caracteres ou menos. Apenas letras e dígitos"
-
-#: kolibri/auth/models.py:233
-msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
-msgstr "Digite um nome de usuário válido, contendo apenas letras, números e sublinhados."
-
-#: kolibri/auth/models.py:237
-msgid "full name"
-msgstr "nome completo"
-
-#: kolibri/auth/models.py:238
-msgid "date joined"
-msgstr "data do cadastro"
-
-#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
-#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
-#: kolibri/auth/serializers.py:55
-msgid "An account with that username already exists"
-msgstr "Já existe uma conta para esse usuário"
-
-#: kolibri/content/api.py:93
+#: kolibri/core/content/api.py:114
 msgid "Content"
 msgstr "Conteúdo"
 
-#: kolibri/content/api.py:523
+#: kolibri/core/content/api.py:655
 msgid "The requested channel does not exist on the content server"
-msgstr "O canal solicitado não existe no servidor de conteúdo"
+msgstr "O canal solicitado não existe no servidor de conteúdos"
 
-#: kolibri/content/models.py:242
+#: kolibri/core/content/models.py:279
 msgid "Unknown format"
 msgstr "Formato desconhecido"
 
-#: kolibri/core/device/serializers.py:44
+#: kolibri/core/device/serializers.py:50
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri ainda não está disponível neste idioma"
+
+#: kolibri/core/tasks/api.py:32
+msgid "There was a network error."
+msgstr "Ocorreu um erro de rede."
+
+#: kolibri/core/tasks/api.py:34
+msgid "There was a disk access error."
+msgstr "Houve um erro ao acessar o disco."
+
+#: kolibri/core/tasks/api.py:36
+msgid "There was an unknown error."
+msgstr "Ocorreu um erro desconhecido."
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
@@ -103,19 +76,7 @@ msgstr "Para usar Kolibri, recomendamos utilizar Firefox ou Chrome."
 msgid "You can also try updating your current browser."
 msgstr "Você também pode tentar atualizar seu navegador."
 
-#: kolibri/plugins/device_management/kolibri_plugin.py:30
-msgid "Device"
-msgstr "Dispositivo"
-
-#: kolibri/tasks/api.py:33
-msgid "There was a network error."
-msgstr "Ocorreu um erro de rede."
-
-#: kolibri/tasks/api.py:35
-msgid "There was a disk access error."
-msgstr "Houve um erro ao acessar o disco."
-
-#: kolibri/tasks/api.py:37
-msgid "There was an unknown error."
-msgstr "Ocorreu um erro desconhecido."
+#: kolibri/core/views.py:131
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr ""
 

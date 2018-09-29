@@ -1,3 +1,4 @@
+import pickBy from 'lodash/pickBy';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import {
   ContentNodeResource,
@@ -72,6 +73,9 @@ function showResourceSelectionPage(store, params) {
             store.commit('lessonSummary/resources/SET_ANCESTOR_COUNTS', ancestorCounts);
             // carry pendingSelections over from other interactions in this modal
             store.commit('lessonSummary/resources/SET_CONTENT_LIST', contentList);
+            if (params.searchResults) {
+              store.commit('lessonSummary/resources/SET_SEARCH_RESULTS', params.searchResults);
+            }
             store.commit('SET_PAGE_NAME', pageName);
             store.commit('SET_TOOLBAR_ROUTE', {
               name: LessonsPageNames.SUMMARY,
@@ -201,17 +205,22 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
   );
 }
 
-export function showLessonResourceSearchPage(store, params) {
+export function showLessonResourceSearchPage(store, params, query = {}) {
   return store.dispatch('loading').then(() => {
     return ContentNodeSearchResource.fetchCollection({
       getParams: {
         search: params.searchTerm,
+        ...pickBy({
+          kind: query.kind,
+          channel_id: query.channel,
+        }),
       },
     }).then(results => {
       return showResourceSelectionPage(store, {
         classId: params.classId,
         lessonId: params.lessonId,
         contentList: results.results,
+        searchResults: results,
         pageName: LessonsPageNames.SELECTION_SEARCH,
       });
     });

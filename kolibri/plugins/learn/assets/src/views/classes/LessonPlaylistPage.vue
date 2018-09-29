@@ -7,14 +7,14 @@
           kind="lesson"
           class="lesson-icon"
         />
-        <h1 class="title">
+        <h1 dir="auto" class="title">
           {{ currentLesson.title }}
           <ProgressIcon v-if="lessonHasResources" :progress="lessonProgress" />
         </h1>
       </div>
       <div v-if="currentLesson.description!==''">
         <h3>{{ $tr('teacherNote') }}</h3>
-        <p> {{ currentLesson.description }}</p>
+        <p dir="auto">{{ currentLesson.description }}</p>
       </div>
     </section>
 

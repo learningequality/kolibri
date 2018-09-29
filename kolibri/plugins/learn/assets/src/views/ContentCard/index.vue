@@ -14,6 +14,7 @@
       </h3>
       <p
         v-if="subtitle"
+        dir="auto"
         class="subtitle"
         :class="{ 'no-footer': !hasFooter }"
       >

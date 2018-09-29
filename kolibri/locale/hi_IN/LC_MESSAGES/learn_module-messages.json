@@ -90,7 +90,7 @@
     "TopicsPage.navigate": "शीर्षकों का उपयोग कर सामग्री को नेविगेट करें",
     "TopicsPage.documentTitleForChannel": "विषय - { channelTitle }",
     "TopicsPage.documentTitleForTopic": "",
-    "TotalPoints.pointsTooltip": "आपने { points, number } अंक प्राप्त किए हैं!",
+    "TotalPoints.pointsTooltip": "",
     "AllClassesPage.allClassesHeader": "वर्ग",
     "AllClassesPage.documentTitle": "सभी वर्ग",
     "AssignedExamsCards.examsHeader": "परीक्षा",

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-30 19:55-0700\n"
-"PO-Revision-Date: 2018-06-21T02:39:45+0000\n"
+"POT-Creation-Date: 2018-09-20 19:50-0700\n"
+"PO-Revision-Date: 2018-09-26 03:12\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Tamil\n"
 "Language: ta_IN\n"
@@ -14,74 +14,47 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: ta\n"
-"X-Crowdin-File: /release-v0.10.x/django.po\n"
+"X-Crowdin-File: /release-v0.11.x/django.po\n"
 
-#: kolibri/auth/constants/collection_kinds.py:14
-#: kolibri/plugins/facility_management/kolibri_plugin.py:30
+#: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
 msgstr "மய்யம்"
 
-#: kolibri/auth/constants/collection_kinds.py:15
+#: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Classroom"
 msgstr "வகுப்பறை"
 
-#: kolibri/auth/constants/collection_kinds.py:16
+#: kolibri/core/auth/constants/collection_kinds.py:16
 msgid "Learner group"
 msgstr "பழகுநர் குழு"
 
-#: kolibri/auth/constants/role_kinds.py:13
-msgid "Admin"
-msgstr "நிர்வாகி"
-
-#: kolibri/auth/constants/role_kinds.py:14
-msgid "Coach"
-msgstr "பயிற்சியாளர்"
-
-#: kolibri/auth/constants/role_kinds.py:15
-msgid "Classroom Assignable Coach"
-msgstr "வகுப்புக்கு நியமிக்கப்படமுடிய பயிற்சியாளர்"
-
-#: kolibri/auth/models.py:227
-msgid "username"
-msgstr "பயனர் பெயர்"
-
-#: kolibri/auth/models.py:229
-msgid "Required. 30 characters or fewer. Letters and digits only"
-msgstr "தேவைப்படும். 30 எழுத்துக்குறிகள் அல்லது அதற்கும் குறைவான. எழுத்துக்கள் அல்லது எண்கள் மட்டுமே"
-
-#: kolibri/auth/models.py:233
-msgid "Enter a valid username. This value can contain only letters, numbers, and underscores."
-msgstr "செல்லுபடியாகும் பயனர்பெயரை உள்ளிடவும். இந்த மதிப்பு எழுத்துக்கள், எண்கள் மற்றும் அடிக்கோடுகள் கொண்டிருக்கலாம்."
-
-#: kolibri/auth/models.py:237
-msgid "full name"
-msgstr "முழுப்பெயர்"
-
-#: kolibri/auth/models.py:238
-msgid "date joined"
-msgstr "சேர்ந்த தேதி"
-
-#: kolibri/auth/models.py:480 kolibri/auth/models.py:496
-#: kolibri/auth/serializers.py:42 kolibri/auth/serializers.py:47
-#: kolibri/auth/serializers.py:55
-msgid "An account with that username already exists"
-msgstr "அந்த பயனர் பெயர் ஏற்கனவே உள்ளது"
-
-#: kolibri/content/api.py:93
+#: kolibri/core/content/api.py:114
 msgid "Content"
 msgstr "உள்ளடக்கம்"
 
-#: kolibri/content/api.py:523
+#: kolibri/core/content/api.py:655
 msgid "The requested channel does not exist on the content server"
 msgstr "கோரப்பட்ட தடம் வழங்கி உள்ளடக்கத்தில் இல்லை"
 
-#: kolibri/content/models.py:242
+#: kolibri/core/content/models.py:279
 msgid "Unknown format"
 msgstr "அறியாத வடிவமைப்பு"
 
-#: kolibri/core/device/serializers.py:44
+#: kolibri/core/device/serializers.py:50
 msgid "Language is not supported by Kolibri"
 msgstr "இந்த மொழி மூலம் கோளிப்பிரி ஆதரிக்கப்படவில்லை"
+
+#: kolibri/core/tasks/api.py:32
+msgid "There was a network error."
+msgstr "ஒரு பிணைய பிழை ஏற்பட்டது."
+
+#: kolibri/core/tasks/api.py:34
+msgid "There was a disk access error."
+msgstr "வட்டு அணுகல் பிழை ஏற்பட்டுள்ளது."
+
+#: kolibri/core/tasks/api.py:36
+msgid "There was an unknown error."
+msgstr "அறியாத பிழை ஏற்பட்டது."
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
@@ -103,19 +76,7 @@ msgstr "கோழிப்பிரியை பயன்படுத்த, Fir
 msgid "You can also try updating your current browser."
 msgstr "நீங்கள் உங்கள் தற்போதைய உலாவியில் புதுப்பிக்கும் முயற்சி செய்யலாம்."
 
-#: kolibri/plugins/device_management/kolibri_plugin.py:30
-msgid "Device"
-msgstr "கருவி"
-
-#: kolibri/tasks/api.py:33
-msgid "There was a network error."
-msgstr "ஒரு பிணைய பிழை ஏற்பட்டது."
-
-#: kolibri/tasks/api.py:35
-msgid "There was a disk access error."
-msgstr "வட்டு அணுகல் பிழை ஏற்பட்டுள்ளது."
-
-#: kolibri/tasks/api.py:37
-msgid "There was an unknown error."
-msgstr "அறியாத பிழை ஏற்பட்டது."
+#: kolibri/core/views.py:131
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr ""
 

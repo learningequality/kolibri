@@ -17,6 +17,7 @@
         v-model.trim="searchTerm"
         type="search"
         class="input"
+        dir="auto"
         :placeholder="$tr('searchBoxLabel')"
         ref="searchinput"
       >

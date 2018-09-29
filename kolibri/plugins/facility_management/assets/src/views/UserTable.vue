@@ -49,7 +49,9 @@
             </UiIcon>
           </td>
           <td>
-            {{ user.full_name }}
+            <span dir="auto">
+              {{ user.full_name }}
+            </span>
             <UserTypeDisplay
               aria-hidden="true"
               :userType="user.kind"
