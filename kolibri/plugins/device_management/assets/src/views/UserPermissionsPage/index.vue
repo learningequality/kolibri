@@ -8,7 +8,7 @@
 
     <template v-else>
       <div class="section user-info">
-        <h1>
+        <h1 dir="auto">
           {{ user.full_name }}
           <span v-if="isCurrentUser">
             ({{ $tr('you') }})
@@ -30,7 +30,7 @@
 
           <tr>
             <th scope="row">{{ $tr('facilityLabel') }}</th>
-            <td>{{ facilityName }}</td>
+            <td dir="auto">{{ facilityName }}</td>
           </tr>
         </table>
 

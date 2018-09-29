@@ -65,7 +65,7 @@
               :to="resourceUserSummaryLink(resourceId)"
               :text="resourceTitle(resourceId)"
             />
-            <p class="channel-title">
+            <p dir="auto" class="channel-title">
               <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
               {{ resourceChannelTitle(resourceId) }}
             </p>

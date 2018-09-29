@@ -45,6 +45,7 @@
 
       <label
         v-if="label"
+        dir="auto"
         class="k-checkbox-label"
         :for="id"
         :class="{ 'visuallyhidden': !showLabel }"

@@ -69,7 +69,7 @@ export default [
     path: '/:classId/lessons/:lessonId/selection/search/:searchTerm',
     component: LessonResourceSelectionPage,
     handler: toRoute => {
-      showLessonResourceSearchPage(store, toRoute.params);
+      showLessonResourceSearchPage(store, toRoute.params, toRoute.query);
     },
   },
   {

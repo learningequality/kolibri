@@ -14,7 +14,11 @@
     <td class="core-table-main-col">
       <div class="topic-title">
         <ContentIcon :kind="topic" />
-        <button class="title" @click="$emit('goToTopic', topicId)">
+        <button
+          dir="auto"
+          class="title"
+          @click="$emit('goToTopic', topicId)"
+        >
           {{ topicTitle }}
         </button>
       </div>

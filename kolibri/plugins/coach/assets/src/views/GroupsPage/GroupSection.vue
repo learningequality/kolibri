@@ -4,7 +4,7 @@
 
     <KGrid>
       <KGridItem sizes="100, 100, 50" percentage>
-        <h2 class="group-name right-margin">{{ group.name }}</h2>
+        <h2 dir="auto" class="group-name right-margin">{{ group.name }}</h2>
         <span class="small-text">
           {{ $tr('numLearners', {count: group.users.length }) }}
         </span>
@@ -66,7 +66,7 @@
               @click.native.stop
             />
           </td>
-          <td class="core-table-main-col">{{ user.full_name }}</td>
+          <td dir="auto" class="core-table-main-col">{{ user.full_name }}</td>
           <td>{{ user.username }}</td>
         </tr>
       </tbody>
