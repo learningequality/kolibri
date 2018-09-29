@@ -96,12 +96,12 @@ def kolibri_language_globals(context):
     language = get_language()
 
     master_file = '<link type="text/css" href="{}" rel="stylesheet"/>'.format(
-        static('assets/fonts/all-fonts.css')
+        static('fonts/all-fonts.css')
     )
     lang_file = static(
-        'assets/fonts/fonts.{language}.{browser}.css'.format(
-            language=language,
-            browser='modern' if is_modern else 'basic'
+        'fonts/fonts.{language_code}.{browser_type}.css'.format(
+            language_code=language,
+            browser_type='modern' if is_modern else 'basic'
         )
     )
 
@@ -110,7 +110,7 @@ def kolibri_language_globals(context):
       var languageCode = '{lang_code}';
       var languageDir = '{lang_dir}';
       var languages = JSON.parse('{languages}');
-      var modernFonts = {modern};
+      var useModernFontLoading = {use_modern};
     </script>
     {master_css_file}
     <link type="text/css" href="{lang_css_file}" rel="stylesheet"/>
@@ -125,7 +125,7 @@ def kolibri_language_globals(context):
             'lang_name': name,
             'lang_direction': get_language_info(code)['bidi']
         } for code, name in settings.LANGUAGES}),
-        modern=is_modern,
+        use_modern='true' if is_modern else 'false',
         master_css_file=master_file if is_modern else "",
         lang_css_file=lang_file,
     ))

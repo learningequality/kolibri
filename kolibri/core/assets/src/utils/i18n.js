@@ -1,5 +1,9 @@
+import find from 'lodash/find';
+import FontFaceObserver from 'fontfaceobserver';
+import Lockr from 'lockr';
 import vue from 'kolibri.lib.vue';
 import logger from '../logging';
+import supportedLanguages from '../../../../locale/supported_languages.json';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
 
@@ -26,7 +30,7 @@ export const languageDirections = {
   RTL: 'rtl',
 };
 
-const defaultLocale = 'en';
+const DEFAULT_LOCALE = 'en';
 
 export const defaultLanguage = {
   id: 'en',
@@ -42,7 +46,7 @@ export const availableLanguages = {
   en: defaultLanguage,
 };
 
-export let currentLanguage = defaultLocale;
+export let currentLanguage = DEFAULT_LOCALE;
 
 // Default to ltr
 export let languageDirection = languageDirections.LTR;
@@ -154,16 +158,13 @@ export function createTranslator(nameSpace, defaultMessages) {
   return new Translator(nameSpace, defaultMessages);
 }
 
-export function setUpVueIntl() {
+function _setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
    **/
   const VueIntl = require('vue-intl');
-
-  vue.use(VueIntl, { defaultLocale });
-
+  vue.use(VueIntl, { DEFAULT_LOCALE });
   vue.prototype.isRtl = global.languageDir === 'rtl';
-
   languageDirection = global.languageDir || languageDirection;
 
   if (global.languages) {
@@ -175,24 +176,92 @@ export function setUpVueIntl() {
     return $trWrapper(nameSpace, this.$options.$trs, this.$formatMessage, messageId, args);
   };
 
-  if (global.languageCode) {
-    vue.setLocale(global.languageCode);
-    setLanguageDensity(global.languageCode);
-
-    if (global.coreLanguageMessages) {
-      vue.registerMessages(global.languageCode, global.coreLanguageMessages);
-    }
-    importVueIntlLocaleData().forEach(localeData => VueIntl.addLocaleData(localeData));
+  vue.setLocale(currentLanguage);
+  if (global.coreLanguageMessages) {
+    vue.registerMessages(currentLanguage, global.coreLanguageMessages);
   }
+  importVueIntlLocaleData().forEach(localeData => VueIntl.addLocaleData(localeData));
 }
 
-export function setUpIntl() {
+function _loadFonts() {
+  /*
+   * On older browsers we load the full fonts asynchronously, but avoid referencing them
+   * until they've been fully loaded. This is done by adding a class to the HTML root
+   * which has the effect of switching fonts from system defaults to Noto.
+   *
+   * This prevents the text from being invisible while the fonts are loading ("FOIT")
+   * and instead falls back on system fonts while they're loading ("FOUT").
+   *
+   * NOTE: Currently only the default font for the current language is loaded on older
+   * browsers, which means that content in other alphabets will always render using the
+   * default system fonts.
+   */
+
+  if (global.useModernFontLoading) {
+    logging.info(
+      'Fonts should be loaded on-demand based on the text currently visible. ' +
+        "If you see fonts being loaded unnecessarily, it's a bug!"
+    );
+    return;
+  }
+
+  // We use the <html> element to store CSS class flags
+  const htmlEl = document.documentElement;
+
+  // If we have previously loaded the font bail out early
+  const LOCAL_STORAGE_KEY = 'font-cache-info';
+  const fontCacheInfo = Lockr.get(LOCAL_STORAGE_KEY) || {};
+  if (fontCacheInfo[currentLanguage]) {
+    htmlEl.classList.add('fonts-loaded');
+    logging.debug(`Already loaded full font for '${currentLanguage}'`);
+    // TODO: uncomment below
+    // return;
+  }
+
+  const codes = currentLanguage.split('-');
+  const language = find(
+    supportedLanguages,
+    lang => lang.language_code == codes[0] && lang.territory_code == codes[1]
+  );
+
+  const uiFontObserver = new FontFaceObserver('noto-ui');
+  uiFontObserver
+    // passing 'language_name' to 'load' for its glyphs, not its value per se
+    .load(language.language_name, 20000)
+    .then(function() {
+      logging.debug(`Loaded full font for '${currentLanguage}'`);
+      // update local flag
+      htmlEl.classList.add('fonts-loaded');
+      // update cache
+      fontCacheInfo[currentLanguage] = true;
+      Lockr.set(LOCAL_STORAGE_KEY, fontCacheInfo);
+    })
+    .catch(function() {
+      logging.warning(`Could not load full font for '${currentLanguage}'`);
+    });
+}
+
+export function i18nSetup(skipPolyfill = false) {
   /**
-   * If the browser doesn't support the Intl polyfill, we retrieve that and
-   * the modules need to wait until that happens.
+   * Load fonts, app strings, and Intl polyfills
    **/
+
+  // Set up exported module variable
+  if (global.languageCode) {
+    currentLanguage = global.languageCode;
+  }
+
+  // Set up typography
+  setLanguageDensity(currentLanguage);
+  _loadFonts();
+
+  // If the browser doesn't support the Intl polyfill, we retrieve that and
+  // the modules need to wait until that happens.
   return new Promise((resolve, reject) => {
-    if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
+    if (Object.prototype.hasOwnProperty.call(global, 'Intl') || skipPolyfill) {
+      _setUpVueIntl();
+      resolve();
+    } else {
       Promise.all([
         new Promise(resolve => {
           require.ensure(
@@ -209,7 +278,7 @@ export function setUpIntl() {
         ([requireIntl, requireIntlLocaleData]) => {
           requireIntl(); // requireIntl must run before requireIntlLocaleData
           requireIntlLocaleData();
-          setUpVueIntl();
+          _setUpVueIntl();
           resolve();
         },
         error => {
@@ -218,9 +287,6 @@ export function setUpIntl() {
           reject();
         }
       );
-    } else {
-      setUpVueIntl();
-      resolve();
     }
   });
 }

@@ -39,6 +39,7 @@
     "date-fns": "^1.28.2",
     "engine-strict": "^1.0.0",
     "filesize": "^3.3.0 ",
+    "fontfaceobserver": "^2.0.13",
     "frame-throttle": "^2.0.1",
     "intl": "^1.2.4",
     "js-cookie": "^2.1.2",

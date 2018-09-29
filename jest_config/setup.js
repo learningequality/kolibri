@@ -4,7 +4,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import router from 'kolibri.coreVue.router';
-import { setUpVueIntl } from 'kolibri.utils.i18n';
+import { i18nSetup } from 'kolibri.utils.i18n';
 
 router.init([]);
 
@@ -12,7 +12,7 @@ Vue.prototype.Kolibri = {};
 Vue.config.silent = true;
 Vue.use(Vuex);
 Vue.use(VueRouter);
-setUpVueIntl();
+i18nSetup();
 Vue.config.productionTip = false;
 
 const csrf = global.document.createElement('input');
