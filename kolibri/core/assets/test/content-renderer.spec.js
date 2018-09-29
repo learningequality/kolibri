@@ -5,6 +5,10 @@ import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
 import contentRenderer from '../src/views/content-renderer';
 
+Vue.prototype.Kolibri = {
+  canRenderContent: () => true,
+};
+
 describe('contentRenderer Component', () => {
   const defaultFiles = [
     {
@@ -102,13 +106,11 @@ describe('contentRenderer Component', () => {
         describe('when renderer is available', () => {
           const dummyComponent = { test: 'testing' };
           before(() => {
-            Vue.prototype.Kolibri = {
-              retrieveContentRenderer: () => Promise.resolve(dummyComponent),
-            };
+            Vue.prototype.Kolibri.retrieveContentRenderer = () => Promise.resolve(dummyComponent);
           });
 
           after(() => {
-            Vue.prototype.Kolibri = {};
+            delete Vue.prototype.Kolibri.retrieveContentRenderer;
           });
 
           it('should set currentViewClass to returned component', () => {
@@ -139,13 +141,12 @@ describe('contentRenderer Component', () => {
 
         describe('when no renderer is available', () => {
           before(() => {
-            Vue.prototype.Kolibri = {
-              retrieveContentRenderer: () => Promise.reject({ message: 'oh no' }),
-            };
+            Vue.prototype.Kolibri.retrieveContentRenderer = () =>
+              Promise.reject({ message: 'oh no' });
           });
 
           after(() => {
-            Vue.prototype.Kolibri = {};
+            delete Vue.prototype.Kolibri.retrieveContentRenderer;
           });
 
           it('calling updateRendererComponent should set noRendererAvailable to true', () => {
