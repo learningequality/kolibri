@@ -213,8 +213,7 @@ def _modern_font_faces():
     font_faces = []
 
     # skip previously accounted for glyphs so there is no overlap between font-faces
-    previous_ui_glyphs = _get_common_glyphs()
-    previous_content_glyphs = set()
+    previous_glyphs = set()
 
     # all available fonts
     for font_info in FONT_MANIFEST:
@@ -222,51 +221,49 @@ def _modern_font_faces():
         # regular content
         font_faces.append(
             _full_font_face(
-                "noto-content",
+                "noto-content-full",
                 font_info["name"],
                 is_ui=False,
                 is_bold=False,
-                omit_glyphs=previous_content_glyphs,
+                omit_glyphs=previous_glyphs,
             )
         )
         # bold content
         font_faces.append(
             _full_font_face(
-                "noto-content",
+                "noto-content-full",
                 font_info["name"],
                 is_ui=False,
                 is_bold=True,
-                omit_glyphs=previous_content_glyphs,
+                omit_glyphs=previous_glyphs,
             )
         )
 
         # regular UI
         font_faces.append(
             _full_font_face(
-                "noto-ui",
+                "noto-ui-full",
                 font_info["name"],
                 is_ui=font_info["has_ui_variant"],
                 is_bold=False,
-                omit_glyphs=previous_ui_glyphs,
+                omit_glyphs=previous_glyphs,
             )
         )
         # bold UI
         font_faces.append(
             _full_font_face(
-                "noto-ui",
+                "noto-ui-full",
                 font_info["name"],
                 is_ui=font_info["has_ui_variant"],
                 is_bold=True,
-                omit_glyphs=previous_ui_glyphs,
+                omit_glyphs=previous_glyphs,
             )
         )
 
         # Assumes all four variants have the same glyphs, from the Content Regular font
-        new_glyphs = _font_glyphs(
+        previous_glyphs |= _font_glyphs(
             _woff_font_path(font_info["name"], is_ui=False, is_full=True, is_bold=False)
         )
-        previous_content_glyphs |= new_glyphs
-        previous_ui_glyphs |= new_glyphs
 
     return "".join(font_faces)
 
@@ -300,17 +297,17 @@ def _generate_css_for_language(lang):
     )
     with open(css_file_modern, "w") as modern, open(css_file_basic, "w") as basic:
         # Common subsets of UI font for both modern and basic
-        _write_inline_ui_font(modern, "Common", "noto-ui", is_bold=False)
-        _write_inline_ui_font(modern, "Common", "noto-ui", is_bold=True)
-        _write_inline_ui_font(basic, "Common", "noto-ui", is_bold=False)
-        _write_inline_ui_font(basic, "Common", "noto-ui", is_bold=True)
+        _write_inline_ui_font(modern, "Common", "noto-ui-subset", is_bold=False)
+        _write_inline_ui_font(modern, "Common", "noto-ui-subset", is_bold=True)
+        _write_inline_ui_font(basic, "Common", "noto-ui-subset", is_bold=False)
+        _write_inline_ui_font(basic, "Common", "noto-ui-subset", is_bold=True)
 
         # Language-specific subsets of UI font for both modern and basic
         lang_name = lang[utils.KEY_INTL_CODE]
-        _write_inline_ui_font(modern, lang_name, "noto-ui", is_bold=False)
-        _write_inline_ui_font(modern, lang_name, "noto-ui", is_bold=True)
-        _write_inline_ui_font(basic, lang_name, "noto-ui", is_bold=False)
-        _write_inline_ui_font(basic, lang_name, "noto-ui", is_bold=True)
+        _write_inline_ui_font(modern, lang_name, "noto-ui-subset", is_bold=False)
+        _write_inline_ui_font(modern, lang_name, "noto-ui-subset", is_bold=True)
+        _write_inline_ui_font(basic, lang_name, "noto-ui-subset", is_bold=False)
+        _write_inline_ui_font(basic, lang_name, "noto-ui-subset", is_bold=True)
 
         # Full UI font of default language for basic only
         name = lang[utils.KEY_DEFAULT_FONT]
@@ -318,29 +315,27 @@ def _generate_css_for_language(lang):
 
         basic.write(
             _full_font_face(
-                "noto-ui",
+                "noto-ui-full",
                 font_name=name,
                 is_ui=font_info["has_ui_variant"],
                 is_bold=False,
-                omit_glyphs=_get_common_glyphs(),
             )
         )
         basic.write(
             _full_font_face(
-                "noto-ui",
+                "noto-ui-full",
                 font_name=name,
                 is_ui=font_info["has_ui_variant"],
                 is_bold=True,
-                omit_glyphs=_get_common_glyphs(),
             )
         )
 
         # Full content font of default language for basic only
         basic.write(
-            _full_font_face("noto-content", font_name=name, is_ui=False, is_bold=False)
+            _full_font_face("noto-content-full", font_name=name, is_ui=False, is_bold=False)
         )
         basic.write(
-            _full_font_face("noto-content", font_name=name, is_ui=False, is_bold=True)
+            _full_font_face("noto-content-full", font_name=name, is_ui=False, is_bold=True)
         )
 
 

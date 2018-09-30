@@ -33,5 +33,5 @@ $login-overlay: #201a21;
 
 $core-outline: $core-action-light 2px solid;
 
-$core-font: serif;
-$core-font-loaded: 'noto-ui', serif;
+$core-font-subset: 'noto-ui-subset', sans-serif;
+$core-font-full: 'noto-ui-subset', 'noto-ui-full', sans-serif;
