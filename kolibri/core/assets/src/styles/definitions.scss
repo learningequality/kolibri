@@ -33,5 +33,11 @@ $login-overlay: #201a21;
 
 $core-outline: $core-action-light 2px solid;
 
-$core-font-subset: 'noto-ui-subset', sans-serif;
-$core-font-full: 'noto-ui-subset', 'noto-ui-full', sans-serif;
+// Mixin for font-family to ensure that the full fonts are not
+// referenced until they've been loaded.
+@mixin font-family-ui {
+  font-family: 'noto-ui-subset', sans-serif;
+  .full-fonts-loaded & {
+    font-family: 'noto-ui-subset', 'noto-ui-full', sans-serif;
+  }
+}
