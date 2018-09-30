@@ -293,10 +293,10 @@ def _write_inline_ui_font(file_object, font_name, font_family, is_bold):
 
 def _generate_css_for_language(lang):
     css_file_modern = os.path.join(
-        OUTPUT_PATH, "fonts.{}.modern.css".format(utils.locale_string(lang))
+        OUTPUT_PATH, "fonts.{}.modern.css".format(lang[utils.KEY_INTL_CODE])
     )
     css_file_basic = os.path.join(
-        OUTPUT_PATH, "fonts.{}.basic.css".format(utils.locale_string(lang))
+        OUTPUT_PATH, "fonts.{}.basic.css".format(lang[utils.KEY_INTL_CODE])
     )
     with open(css_file_modern, "w") as modern, open(css_file_basic, "w") as basic:
         # Common subsets of UI font for both modern and basic
@@ -306,7 +306,7 @@ def _generate_css_for_language(lang):
         _write_inline_ui_font(basic, "Common", "noto-ui", is_bold=True)
 
         # Language-specific subsets of UI font for both modern and basic
-        lang_name = utils.locale_string(lang)
+        lang_name = lang[utils.KEY_INTL_CODE]
         _write_inline_ui_font(modern, lang_name, "noto-ui", is_bold=False)
         _write_inline_ui_font(modern, lang_name, "noto-ui", is_bold=True)
         _write_inline_ui_font(basic, lang_name, "noto-ui", is_bold=False)
@@ -544,7 +544,7 @@ def command_gen_subset_fonts():
         lang_glyphs |= _get_lang_glyphs(lang, utils.local_perseus_locale_path(lang))
         lang_glyphs -= common_glyphs
 
-        name = utils.locale_string(lang)
+        name = lang[utils.KEY_INTL_CODE]
 
         reg_font_path = _woff_font_path(name, is_ui=True, is_full=False, is_bold=False)
         bold_font_path = _woff_font_path(name, is_ui=True, is_full=False, is_bold=True)

@@ -218,11 +218,7 @@ function _loadFonts() {
     // return;
   }
 
-  const codes = currentLanguage.split('-');
-  const language = find(
-    supportedLanguages,
-    lang => lang.language_code == codes[0] && lang.territory_code == codes[1]
-  );
+  const language = find(supportedLanguages, lang => lang.intl_code == currentLanguage);
 
   const uiFontObserver = new FontFaceObserver('noto-ui');
   uiFontObserver

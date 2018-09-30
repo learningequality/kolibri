@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import importlib
+import io
+import json
 import os
 
 EXTERNAL_PLUGINS_PREFIX = "kolibri_"
@@ -31,12 +33,20 @@ def get_installed_app_locale_path(appname):
         return module_locale_path
 
 
-def parse_supported_languages(language_list):
-    languages = []
-    for language in language_list:
-        lang = language.get("language_code", "")
-        for key in ["language_script", "script_code", "territory_code"]:
-            if key in language:
-                lang += "-" + language[key]
-        languages.append((lang, language["language_name"]))
-    return languages
+def get_supported_languages(kolibri_module_path):
+    """
+    Returns a list of tuples like:
+
+        [ ('bn-bd', 'বাংলা'), ('en', 'English'), ...]
+
+    Language codes must correspond to lowercase versions of those used in the
+    Intl pollyfill. See:
+
+        node_modules/intl/locale-data
+
+    """
+    file_path = os.path.join(kolibri_module_path, "locale", "supported_languages.json")
+    with io.open(file_path, encoding="utf-8") as f:
+        languages = json.load(f)
+
+    return [(lang["intl_code"], lang["language_name"]) for lang in languages]

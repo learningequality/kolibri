@@ -16,12 +16,15 @@ const vueIntlHeader = `module.exports = function () {
   const data = [];`;
 
 const generateVueIntlItems = language => {
-  const language_code = language.language_code;
   /*
    * Generate entries of this form:
    *   data.push(require('vue-intl/locale-data/ar.js'));
+   *
+   * Some Intl codes look like 'ar' and others look like 'bn-bd', so for Vue Intl
+   * we strip off the territory code if it's there.
    */
-  return `data.push(require('vue-intl/locale-data/${language_code}.js'));`;
+  const vue_intl_code = language.intl_code.split('-')[0];
+  return `data.push(require('vue-intl/locale-data/${vue_intl_code}.js'));`;
 };
 
 const vueIntlFooter = `
@@ -48,7 +51,8 @@ const intlHeader = `module.exports = function(locale) {
 const generateIntlItems = language => {
   /*
    * Generate entries of the form:
-   * case 'sw-TZ':
+   *
+   * case 'sw-tz':
    *   return new Promise(function(resolve) {
    *     require.ensure(
    *       ['intl/locale-data/jsonp/sw-TZ.js'],
@@ -57,23 +61,22 @@ const generateIntlItems = language => {
    *       }
    *     );
    *   });
+   *
+   * Note that not all codes have two parts, e.g. 'en' vs 'es-mx'.
    */
-  const language_code = language.language_code;
-  // Language script uses title case
-  const language_script_string = language.script_code
-    ? '-' + language.script_code[0].toUpperCase() + language.script_code.slice(1)
-    : '';
-  // Language territory uses upper case
-  const language_territory_string = language.territory_code
-    ? '-' + language.territory_code.toUpperCase()
-    : '';
+
+  const codes = language.intl_code.split('-');
+  let file_name = codes[0];
+  if (codes.length > 1) {
+    file_name += '-' + codes[1].toUpperCase();
+  }
   return `
-    case '${language_code}${language_script_string}${language_territory_string}':
+    case '${language.intl_code}':
       return new Promise(function(resolve) {
         require.ensure(
-          ['intl/locale-data/jsonp/${language_code}${language_script_string}${language_territory_string}.js'],
+          ['intl/locale-data/jsonp/${file_name}.js'],
           function(require) {
-            resolve(() => require('intl/locale-data/jsonp/${language_code}${language_script_string}${language_territory_string}.js'));
+            resolve(() => require('intl/locale-data/jsonp/${file_name}.js'));
           }
         );
       });`;

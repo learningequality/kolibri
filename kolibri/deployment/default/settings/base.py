@@ -12,8 +12,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import io
-import json
 import os
 
 import pytz
@@ -163,8 +161,7 @@ elif conf.OPTIONS['Database']['DATABASE_ENGINE'] == "postgres":
 # https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # http://helpsharepointvision.nevron.com/Culture_Table.html
 
-with io.open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json"), encoding="utf-8") as f:
-    LANGUAGES = i18n.parse_supported_languages(json.load(f))
+LANGUAGES = i18n.get_supported_languages(KOLIBRI_MODULE_PATH)
 
 # Some languages are not supported out-of-the-box by Django
 # Here, we use the language code in Intl.js
