@@ -5,11 +5,16 @@ import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
 import contentRenderer from '../src/views/content-renderer';
 
-Vue.prototype.Kolibri = {
-  canRenderContent: () => true,
-};
 
 describe('contentRenderer Component', () => {
+  before(()=>
+    Vue.prototype.Kolibri = {
+      canRenderContent: () => true,
+    }
+  );
+  after(()=>
+    Vue.prototype.Kolibri = {}
+  );
   const defaultFiles = [
     {
       available: true,
