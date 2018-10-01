@@ -195,22 +195,34 @@ function _loadDefaultFonts() {
 
   // We use the <html> element to store the CSS 'loaded' class
   const htmlEl = document.documentElement;
-  const LOADED_CLASS = 'full-fonts-loaded';
+  const FULL_FONTS = 'full-fonts-loaded';
+  const PARTIAL_FONTS = 'partial-fonts-loaded';
+  htmlEl.classList.add(PARTIAL_FONTS);
 
   // If this is a modern browser, go ahead and immediately reference the full fonts.
   // Then, continue pre-emptively loading the full default language fonts below.
   if (global.useModernFontLoading) {
-    htmlEl.classList.add(LOADED_CLASS);
+    htmlEl.classList.remove(PARTIAL_FONTS);
+    htmlEl.classList.add(FULL_FONTS);
   }
 
   const language = find(supportedLanguages, lang => lang.intl_code == currentLanguage);
 
-  const uiFontObserver = new FontFaceObserver('noto-ui-full');
-  uiFontObserver
-    // passing 'language_name' to 'load' for its glyphs, not its value per se
-    .load(language.language_name, 20000)
+  const uiNormal = new FontFaceObserver('noto-ui-full', { weight: 400 });
+  const uiBold = new FontFaceObserver('noto-ui-full', { weight: 700 });
+  const contentNormal = new FontFaceObserver('noto-content-full', { weight: 400 });
+  const contentBold = new FontFaceObserver('noto-content-full', { weight: 700 });
+
+  // passing 'language_name' to 'load' for its glyphs, not its value per se
+  Promise.all([
+    uiNormal.load(language.language_name, 20000),
+    uiBold.load(language.language_name, 20000),
+    contentNormal.load(language.language_name, 20000),
+    contentBold.load(language.language_name, 20000),
+  ])
     .then(function() {
-      htmlEl.classList.add(LOADED_CLASS);
+      htmlEl.classList.remove(PARTIAL_FONTS);
+      htmlEl.classList.add(FULL_FONTS);
       logging.debug(`Loaded full font for '${currentLanguage}'`);
     })
     .catch(function() {

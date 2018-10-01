@@ -332,10 +332,14 @@ def _generate_css_for_language(lang):
 
         # Full content font of default language for basic only
         basic.write(
-            _full_font_face("noto-content-full", font_name=name, is_ui=False, is_bold=False)
+            _full_font_face(
+                "noto-content-full", font_name=name, is_ui=False, is_bold=False
+            )
         )
         basic.write(
-            _full_font_face("noto-content-full", font_name=name, is_ui=False, is_bold=True)
+            _full_font_face(
+                "noto-content-full", font_name=name, is_ui=False, is_bold=True
+            )
         )
 
 

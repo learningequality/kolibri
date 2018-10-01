@@ -33,11 +33,29 @@ $login-overlay: #201a21;
 
 $core-outline: $core-action-light 2px solid;
 
-// Mixin for font-family to ensure that the full fonts are not
-// referenced until they've been loaded.
+/*
+  Mixins for font-family to ensure that the full fonts are not
+  referenced until they've been loaded.
+
+  Even though partials are loaded immediately, need partial-fonts-loaded for specificity.
+*/
 @mixin font-family-ui {
-  font-family: 'noto-ui-subset', sans-serif;
+  .partial-fonts-loaded & {
+    font-family: 'noto-ui-subset', sans-serif;
+  }
   .full-fonts-loaded & {
+    // Continue to include the subset when possible since it contains glyphs from other
+    // languages, for the language switcher
     font-family: 'noto-ui-subset', 'noto-ui-full', sans-serif;
+  }
+}
+
+@mixin font-family-content {
+  .partial-fonts-loaded & {
+    // Use the UI font initially because there's no 'content' subset
+    font-family: 'noto-ui-subset', sans-serif;
+  }
+  .full-fonts-loaded & {
+    font-family: 'noto-content-full', sans-serif;
   }
 }
