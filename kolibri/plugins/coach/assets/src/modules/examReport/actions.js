@@ -78,6 +78,11 @@ export function updateExamDetails(store, { examId, payload }) {
         exams[examIndex] = _examState(exam);
 
         store.commit('SET_EXAMS', exams);
+        // Update state.exam if it was just saved.
+        // Is this necessary? Where is state.exams used?
+        if (store.state.exam.id === exam.id) {
+          store.commit('SET_EXAM', exam);
+        }
         store.dispatch('setExamsModal', false);
         store.dispatch(
           'createSnackbar',
