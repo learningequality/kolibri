@@ -80,7 +80,9 @@
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import ActionBarSearchBox from './ActionBarSearchBox';
 
-  const BOTTOM_SPACED_RESERVED = 117;
+  // Bottom toolbar is 111px high on mobile, 113px normally.
+  // We reserve the smaller number so there is no gap on either screen size.
+  const BOTTOM_SPACED_RESERVED = 111;
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
