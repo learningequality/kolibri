@@ -190,7 +190,7 @@
       },
       examTakerProgressText({ progress, closed }) {
         const { question_count } = this.exam;
-        if (progress === question_count || closed) {
+        if (closed) {
           return this.$tr('completed');
         } else if (progress !== undefined) {
           return this.$tr('remaining', { num: question_count - progress });
