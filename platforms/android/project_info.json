@@ -1,0 +1,7 @@
+{
+  "name": "Kolibri",
+  "version": "0.0.1",
+  "identifier": "org.learningequality.Kolibri",
+  "requirements": {"android": ["python2","pyjnius","genericndkbuild", "sqlite3", "cryptography", "pyopenssl", "openssl"]},
+  "whitelist_file": {"android": "whitelist.txt"}
+}

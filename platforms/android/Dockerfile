@@ -31,10 +31,17 @@ RUN dpkg --add-architecture i386 && \
     xsel \
     zlib1g-dev \
     zlib1g:i386 \
+    python-wxgtk3.0 \
     && apt-get clean && \
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
     python get-pip.py && \
     pip install cython buildozer
+
+RUN rm -rf pyeverywhere python-for-android /home/kivy/.local/share/python-for-android
+RUN git clone -b dev https://github.com/kollivier/pyeverywhere
+RUN git clone -b webview_fixes https://github.com/kollivier/python-for-android
+RUN pip install -e ./pyeverywhere
+RUN pip install -e ./python-for-android
 
 # would be nice if we could batch this into the bash file
 # Copy over files vital to build environment
@@ -43,10 +50,9 @@ COPY buildozer.spec ./
 
 # Set up build environment
 RUN useradd -l kivy && \
-  chown kivy:kivy /home/kivy && \
-  su kivy -c "buildozer android update"
+  chown kivy:kivy /home/kivy
 
-COPY Makefile .git ./
+COPY Makefile .git project_info.json whitelist.txt ./
 
 # Keeping these copies separate to keep cache valid as long as possible in setup
 # for kolibri builds. Buildozer takes a while to rebuild itself
@@ -56,9 +62,8 @@ COPY assets assets/
 COPY src  src/
 
 # Extract .whl files and build the apk
-RUN chown kivy:kivy /home/kivy/src && \
+RUN chown kivy:kivy /home/kivy/src && cd /home/kivy && \
   su kivy -c "\
-    make replaceloadingpage && \
     make extractkolibriwhl && \
     make generateversion && \
     make builddebugapk"

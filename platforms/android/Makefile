@@ -26,7 +26,8 @@ generateversion:
 
 # Buld the debug version of the apk
 builddebugapk:
-	buildozer android debug
+	pew init android
+	pew build android
 
 # Buld the release version of the apk
 buildreleaseapk:
