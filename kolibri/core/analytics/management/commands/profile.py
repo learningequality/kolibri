@@ -19,6 +19,7 @@ from kolibri.utils.server import PID_FILE
 
 logger = logging.getLogger('profiler')
 
+
 def get_db_info():
     # Users information
     active_sessions = 'unknown'
@@ -37,6 +38,7 @@ def get_db_info():
 
     return (active_sessions, active_users, active_users_minute)
 
+
 def get_machine_info():
     """
     Gets information on the memory, cpu and processes in the server
@@ -48,6 +50,7 @@ def get_machine_info():
     total_processes = str(len(psutil.pids()))
 
     return (used_cpu, used_memory, free_memory, total_processes)
+
 
 def get_kolibri_process_info():
     kolibri_pid = None
@@ -61,6 +64,7 @@ def get_kolibri_process_info():
     except ValueError:
         pass  # corrupted Kolibri PID file
     return (kolibri_pid, kolibri_port)
+
 
 def get_kolibri_use(development=False):
     """
@@ -80,6 +84,7 @@ def get_kolibri_use(development=False):
             sys.exit("Profile command executed while Kolibri server was not running")
 
     return (kolibri_cpu, kolibri_mem)
+
 
 class Command(BaseCommand):
     """
