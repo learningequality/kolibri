@@ -115,10 +115,10 @@ def kolibri_language_globals(context):
     }
     is_modern = _supports_modern_fonts(context['request'])
     master_file = '<link type="text/css" href="{}" rel="stylesheet"/>'.format(
-        static('fonts/all-fonts.css')
+        static('assets/fonts/all-fonts.css')
     )
     lang_file = static(
-        'fonts/fonts.{code}.{browser_type}.css'.format(
+        'assets/fonts/fonts.{code}.{browser_type}.css'.format(
             code=language_code,
             browser_type='modern' if is_modern else 'basic'
         )

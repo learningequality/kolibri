@@ -52,6 +52,7 @@ OUTPUT_PATH = os.path.abspath(
         "kolibri",
         "core",
         "static",
+        "assets",
         "fonts",
     )
 )
