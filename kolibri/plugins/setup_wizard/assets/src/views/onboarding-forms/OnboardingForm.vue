@@ -87,6 +87,8 @@
     }
 
     &-legend {
+      // Fixes issue in IE11 where the description span would not be broken up
+      width: 100%;
       margin-bottom: 8px;
     }
 
