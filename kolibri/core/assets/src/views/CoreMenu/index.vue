@@ -101,7 +101,6 @@
     margin: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    font-family: $font-stack;
     list-style: none;
     background-color: white;
     border: rem-calc(1px) solid rgba(black, 0.08);

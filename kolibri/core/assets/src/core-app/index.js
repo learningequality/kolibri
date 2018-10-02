@@ -8,6 +8,7 @@ require('keen-ui/src/bootstrap');
 // configure Keen
 const KeenUiConfig = require('keen-ui/src/config').default;
 KeenUiConfig.set(require('../keen-config/options.json'));
+require('../keen-config/font-stack.scss');
 
 // polyfill for older browsers
 // TODO: rtibbles whittle down these polyfills to only what is needed for the application
