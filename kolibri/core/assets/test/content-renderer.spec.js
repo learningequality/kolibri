@@ -5,16 +5,15 @@ import { mount } from '@vue/test-utils';
 import sinon from 'sinon';
 import contentRenderer from '../src/views/content-renderer';
 
-
 describe('contentRenderer Component', () => {
-  before(()=>
+  before(() => {
     Vue.prototype.Kolibri = {
       canRenderContent: () => true,
-    }
-  );
-  after(()=>
-    Vue.prototype.Kolibri = {}
-  );
+    };
+  });
+  after(() => {
+    Vue.prototype.Kolibri = {};
+  });
   const defaultFiles = [
     {
       available: true,
@@ -38,6 +37,12 @@ describe('contentRenderer Component', () => {
         });
         expect(wrapper.vm.availableFiles.length).to.equal(expected);
       }
+
+      it('should be 0 if the mediator concludes that there are no compatible renderers', () => {
+        Vue.prototype.Kolibri.canRenderContent = () => false;
+        testAvailableFiles(defaultFiles, 0);
+        Vue.prototype.Kolibri.canRenderContent = () => true;
+      });
 
       it('should be 1 when there is one available file', () => {
         testAvailableFiles(defaultFiles, 1);
