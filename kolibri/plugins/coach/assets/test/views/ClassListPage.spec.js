@@ -1,6 +1,9 @@
 import { mount } from '@vue/test-utils';
+import urls from 'kolibri.urls';
 import makeStore from '../makeStore';
 import ClassListPage from '../../src/views/ClassListPage';
+
+jest.mock('kolibri.urls');
 
 function makeWrapper() {
   const store = makeStore();
@@ -45,7 +48,9 @@ describe('ClassListPage', () => {
       });
     });
 
-    it('when an admin and no classes in facility', () => {
+    it('when an admin and no classes in facility and a facility url is defined', () => {
+      const testUrl = '/facility';
+      urls.__setUrl(testUrl);
       const { els, store } = makeWrapper();
       store.state.core.session.kind = ['admin'];
       testAuthMessage(els, {
@@ -53,7 +58,19 @@ describe('ClassListPage', () => {
         bodyText: 'Create a class and enroll learners',
       });
       // prettier-ignore
-      expect(els.AuthMessage().find('a').attributes().href).toEqual('/facility');
+      expect(els.AuthMessage().find('a').attributes().href).toEqual(testUrl);
+    });
+
+    it('when an admin and no classes in facility and no facility url is defined', () => {
+      urls.__setUrl(undefined);
+      const { els, store } = makeWrapper();
+      store.state.core.session.kind = ['admin'];
+      testAuthMessage(els, {
+        headerText: 'There are no classes yet',
+        bodyText: 'Create a class and enroll learners',
+      });
+      // prettier-ignore
+      expect(els.AuthMessage().find('a').exists()).toBeFalsy();
     });
 
     it('when a facility coach and no classes in facility', () => {
