@@ -22,13 +22,6 @@
         ref="copyButton"
       />
     </div>
-    <div>
-      <KExternalLink
-        :text="$tr('downloadAsTextPrompt')"
-        :download="downloadFileName"
-        :href="textFileLink"
-      />
-    </div>
   </div>
 
 </template>
@@ -65,10 +58,6 @@
         type: Number,
         default: 72,
       },
-      downloadFileName: {
-        type: String,
-        required: true,
-      },
     },
     computed: {
       ...mapState({
@@ -76,13 +65,6 @@
       }),
       clipboardCapable() {
         return ClipboardJS.isSupported();
-      },
-      textFileLink() {
-        const errorBlob = new Blob([this.text], { type: 'text/plain' });
-        if (navigator.msSaveBlob) {
-          return navigator.msSaveBlob(errorBlob, this.downloadFileName);
-        }
-        return URL.createObjectURL(errorBlob);
       },
       dynamicHeightStyle() {
         return {
@@ -139,14 +121,6 @@
 
   .copy-to-clipboard-button {
     margin-left: 0;
-  }
-
-  .download-as-text-link {
-    word-wrap: break-word;
-  }
-
-  .hide {
-    display: none;
   }
 
 </style>
