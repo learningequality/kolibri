@@ -227,7 +227,7 @@ class Command(AsyncCommand):
                 self.progresstrackers[0].progress = original_value
                 self.progresstrackers[0].update_callback(original_progress.progress_fraction, original_progress)
 
-                logging.info('Waiting for 30 seconds before retrying import: {}\n'.format(
+                logger.info('Waiting for 30 seconds before retrying import: {}\n'.format(
                     filetransfer.source))
                 sleep(30)
                 return False, 0

@@ -125,17 +125,17 @@ class Command(AsyncCommand):
                     try:
                         os.remove(dest)
                     except IOError as e:
-                        logging.error("Tried to remove {}, but exception {} occurred.".format(
+                        logger.error("Tried to remove {}, but exception {} occurred.".format(
                             dest, e))
                         pass
                     self.cancel()
                 return True
 
         except Exception as e:
-            logging.error("An error occurred during channel import: {}".format(e))
+            logger.error("An error occurred during channel import: {}".format(e))
             retry_import(e, skip_404=False)
 
-            logging.info('Waiting for 30 seconds before retrying import: {}\n'.format(
+            logger.info('Waiting for 30 seconds before retrying import: {}\n'.format(
                 filetransfer.source))
             sleep(30)
 
