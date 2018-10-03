@@ -47,7 +47,7 @@ DAEMON_LOG = os.path.join(conf.KOLIBRI_HOME, "server.log")
 LISTEN_ADDRESS = "0.0.0.0"
 
 # use locks so vacuum doesn't conflict with ping
-lock = threading.Lock()
+vacuum_db_lock = threading.Lock()
 
 
 class NotRunning(Exception):
@@ -106,8 +106,7 @@ class PingbackThread(threading.Thread):
         thread.start()
 
     def run(self):
-        with lock:
-            call_command("ping")
+        call_command("ping")
 
 
 class VacuumThread(threading.Thread):
@@ -119,9 +118,8 @@ class VacuumThread(threading.Thread):
         thread.start()
 
     def run(self):
-        with lock:
-            # Try to do the vacuum every 3 hours
-            call_command("vacuumsqlite", interval=10)
+        # Try to do the vacuum every 3 hours
+        call_command("vacuumsqlite", interval=10)
 
 
 def stop(pid=None, force=False):

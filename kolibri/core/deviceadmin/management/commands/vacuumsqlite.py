@@ -5,6 +5,8 @@ from django.core.management.base import BaseCommand
 from django.db import connections
 from django.db import DEFAULT_DB_ALIAS
 
+from kolibri.utils.server import vacuum_db_lock
+
 logger = logging.getLogger(__name__)
 
 
@@ -27,7 +29,8 @@ class Command(BaseCommand):
         interval = options['interval']
         if connection.vendor == "sqlite":
             while True:
-                self.perform_vacuum(connection)
+                with vacuum_db_lock:
+                    self.perform_vacuum(connection)
                 if not interval:
                     break
                 logger.info("Next Vacuum in {interval} minutes.".format(interval=interval))
