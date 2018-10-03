@@ -3,7 +3,7 @@
   <section class="question-list">
 
     <h2 class="header">
-      {{ $tr('questionListHeader', {numOfQuestions:questions.length}) }}
+      {{ $tr('questionListHeader', {numOfQuestions: questions.length}) }}
     </h2>
 
     <ul class="list">
@@ -38,7 +38,8 @@
       KButton,
     },
     $trs: {
-      questionListHeader: '{numOfQuestions, number} Questions',
+      questionListHeader:
+        '{numOfQuestions, number} {numOfQuestions, plural, one {question} other {questions}}',
       questionLabel: 'Question { questionNumber, number }',
     },
     props: {
