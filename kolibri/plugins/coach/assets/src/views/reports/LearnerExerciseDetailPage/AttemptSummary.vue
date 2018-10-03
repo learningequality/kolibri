@@ -79,7 +79,7 @@
     $trs: {
       statusMastered: 'Completed',
       statusInProgress: 'In progress',
-      requirementsMOfN: 'Completion: {m ,number} out of {n, number} correct',
+      requirementsMOfN: 'Completion: {correct, number} correct out of last {total, number}',
       attemptDateIndicator: 'on { date }',
       notStarted: 'Not started',
     },
@@ -162,8 +162,8 @@
           const requirements = this.summaryLog.currentmasterylog.mastery_criterion;
           // TODO might be more types?
           return this.$tr('requirementsMOfN', {
-            m: requirements.m,
-            n: requirements.n,
+            correct: requirements.m,
+            total: requirements.n,
           });
         } catch (e) {
           if (e instanceof TypeError) {
