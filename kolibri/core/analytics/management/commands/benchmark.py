@@ -16,6 +16,7 @@ from kolibri.utils.server import installation_type
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time import local_now
 
+
 def format_line(parameter, value, indented=False):
     if indented:
         info = '  * {:30}'.format('{}:'.format(parameter))
