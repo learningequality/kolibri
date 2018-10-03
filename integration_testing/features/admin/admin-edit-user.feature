@@ -5,6 +5,10 @@ Feature: Admin edit users
     Given I am signed in to Kolibri as admin user
       And I am on *Facility > Users* page
 
+  Scenario: Admins cannot edit the user account details of a super admin
+    When I find a super admin in the Users list
+    Then I see that the *Manage* dropdown button is disabled for them
+
   Scenario: Edit user's full name
     When I click on *Manage* button for the user I want to edit
       And I select *Edit* option

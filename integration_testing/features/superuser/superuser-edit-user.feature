@@ -2,8 +2,8 @@ Feature: Superuser edit users
     Superuser needs to be able to edit user's full name and username, reset the passwords, change the user types, and delete them from the facility
 
   Background:
-    Given I am signed in to Kolibri as superuser
-      And I am on *Facility > Users* page
+    Given I am signed in to Kolibri as a super admin
+      And I am on the *Facility > Users* page
 
   Scenario: Edit user's full name
     When I click on *Manage* button for the user I want to edit
@@ -49,3 +49,39 @@ Feature: Superuser edit users
     Then the modal closes
       And I see the *Facility > Users* page again # no confirmation that the password has been reset
 
+  Feature: Super admin can see that their role is distinguished in the user list in *Facility > Users* and there are different Manage options than other users
+
+    Scenario: Super admin can see the label *Super admin* next to their full name, not their facility role
+      When I scroll to my name in the user list
+      Then I see a label with *Super admin* next to my full name
+
+    Scenario: Super admin can see that they can’t delete themselves
+      Given I have scrolled to my name in the user list
+      When I click on the *Manage* dropdown button
+      Then I see that the *Delete* action is disabled
+
+  Feature: Super admin cannot edit their own user type from the *Edit user* modal, but can find a cross link to the Device permissions page
+
+    Scenario: Super admin can see the read-only label *Super admin* under *User type*, not their facility role
+      When I look at the field for *User type*
+      Then I see that I am a Super admin
+      And a message that directs me to *Device permissions* to view more details
+
+    Scenario: Super admin navigates to *Device permissions* from the *Edit user* modal
+      When I click on the link to *Device permissions*
+      Then I am redirected to my permissions page in *Device > Permissions*
+
+  Feature: Super admin cannot edit the user type of another super admin from the *Edit user* modal, but can find a cross link to the Device permissions page to make changes there
+
+    Scenario: Super admin can see the read-only *Super admin* label under *User type*, and a cross-link to *Device permissions* to make changes
+    	When I look at the field for *User type*
+    	Then I see that I am a Super admin
+    	And a message that directs me to *Device permissions* to make changes
+
+    Scenario: Super admin navigates to *Device permissions* from the *Edit user* modal
+      When I click on the link to *Device permissions*
+      Then I am redirected to that user’s device permissions page in *Device > Permissions*
+
+    Scenario: Super admin navigates to *Device permissions* from the *Edit user* modal
+      When I click on the link to *Device permissions*
+      Then I am redirected to that user’s device permissions page in *Device > Permissions*
