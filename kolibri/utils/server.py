@@ -159,7 +159,8 @@ def run_server(port):
     })
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
-    serve_static_dir(paths.get_content_dir_path(), paths.get_content_url(conf.OPTIONS['Deployment']['URL_PATH_PREFIX']))
+    serve_static_dir(paths.get_content_dir_path(),
+                     paths.get_content_url(conf.OPTIONS['Deployment']['URL_PATH_PREFIX']))
 
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()
@@ -327,18 +328,20 @@ def get_urls(listen_port=None):
         return e.status_code, []
 
 
-def installation_type():  # noqa:C901
+def installation_type(cmd_line=None):  # noqa:C901
     """
     Tries to guess how the running kolibri server was installed
 
     :returns: install_type is the type of detected installation
     """
+    if cmd_line is None:
+        cmd_line = sys.argv
     install_type = 'Unknown'
-    if len(sys.argv) > 1:
-        launcher = sys.argv[0]
+    if len(cmd_line) > 1:
+        launcher = cmd_line[0]
         if launcher.endswith('.pex'):
             install_type = 'pex'
-        elif 'runserver' in sys.argv:
+        elif 'runserver' in cmd_line:
             install_type = 'devserver'
         elif launcher == '/usr/bin/kolibri':
             # find out if this is from the debian package
@@ -356,7 +359,7 @@ def installation_type():  # noqa:C901
                 if 'kolibri.exe' in path:
                     install_type = 'Windows'
                     break
-        elif 'start' in sys.argv:
+        elif 'start' in cmd_line:
             install_type = 'whl'
 
     return install_type

@@ -1,15 +1,25 @@
 import sys
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
+from morango.models import InstanceIDModel
 
+import kolibri
+from kolibri.core.analytics.measurements import get_channels_usage_info
 from kolibri.core.analytics.measurements import get_db_info
+from kolibri.core.analytics.measurements import get_kolibri_process_cmd
 from kolibri.core.analytics.measurements import get_kolibri_use
 from kolibri.core.analytics.measurements import get_machine_info
 from kolibri.core.analytics.measurements import KolibriNotRunning
+from kolibri.utils.server import installation_type
+from kolibri.utils.system import get_free_space
+from kolibri.utils.time import local_now
 
-
-def format_line(parameter, value):
-    info = '* {:31}'.format('{}:'.format(parameter))
+def format_line(parameter, value, indented=False):
+    if indented:
+        info = '  * {:30}'.format('{}:'.format(parameter))
+    else:
+        info = '* {:32}'.format('{}:'.format(parameter))
     return '{info}{value}'.format(info=info, value=value)
 
 
@@ -30,19 +40,27 @@ class Command(BaseCommand):
 
     Memory
     * Used memory:                   9.3 GB
-    * Free memory:                   16.0 GB
+    * Total memory:                  16.0 GB
     * Kolibri memory usage:          56.8 MB
 
     Device info
     * Version:                       (version)
     * OS:                            (os)
     * Installer:                     (installer)
-    * Server:                        (server_type)
     * Database:                      (database_path)
     * Device name:                   (device_name)
     * Free disk space:               (content_storage_free_space)
     * Server time:                   (server_time)
     * Server timezone:               (server_timezone)
+
+    Channels
+    * Total Channels:                2
+    * Khan Academy (English)
+      * Accesses:                    150
+      * Time spent:                  301.22 s
+    * African Storybook
+      * Accesses:                     3
+      * Time spent:                  18.00 s
     """
     help = "Outputs performance info and statistics of usage for the running Kolibri instance in this server"
 
@@ -60,21 +78,41 @@ class Command(BaseCommand):
 
         self.add_header('CPU')
         kolibri_cpu, kolibri_mem = get_kolibri_use()
-        used_cpu, used_memory, free_memory, total_processes = get_machine_info()
+        used_cpu, used_memory, total_memory, total_processes = get_machine_info()
         cpu_parameters = ('Total processes', 'Used CPU', 'Kolibri CPU usage')
         cpu_values = (total_processes, '{} %'.format(used_cpu), '{} %'.format(kolibri_cpu))
         self.add_section(cpu_parameters, cpu_values)
 
         self.add_header('Memory')
-        memory_parameters = ('Used memory', 'Free memory', 'Kolibri memory usage')
-        memory_values = ('{} Mb'.format(used_memory), '{} Mb'.format(free_memory), '{} Kb'.format(kolibri_mem))
+        memory_parameters = ('Used memory', 'Total memory', 'Kolibri memory usage')
+        memory_values = ('{} Mb'.format(used_memory), '{} Mb'.format(total_memory), '{} Kb'.format(kolibri_mem))
         self.add_section(memory_parameters, memory_values)
+
+        self.add_header('Device info')
+        instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+        self.messages.append(format_line('Version', kolibri.__version__))
+        self.messages.append(format_line('OS', instance_model.platform))
+        self.messages.append(format_line('Installer', installation_type(get_kolibri_process_cmd())))
+        self.messages.append(format_line('Database', settings.DATABASES['default']['NAME']))
+        self.messages.append(format_line('Device name', instance_model.hostname))
+        self.messages.append(format_line('Free disk space', '{} Mb'.format(get_free_space() / pow(2, 20))))
+        self.messages.append(format_line('Server time', local_now()))
+        self.messages.append(format_line('Server timezone', settings.TIME_ZONE))
+
+        self.add_header('Channels')
+        channels_stats = get_channels_usage_info()
+        self.messages.append(format_line('Total Channels', str(len(channels_stats))))
+        for channel in channels_stats:
+            self.messages.append('\033[95m* {}\033[0m'.format(channel.name))
+            self.messages.append(format_line('Accesses', channel.accesses, True))
+            self.messages.append(format_line('Time spent', channel.time_spent, True))
+
         self.messages.append('')
         print('\n'.join(self.messages))
 
     def add_header(self, header):
         self.messages.append('')
-        self.messages.append(header)
+        self.messages.append('\033[1m{}\033[0m'.format(header))
 
     def add_section(self, params, values):
         for index, param in enumerate(params):
