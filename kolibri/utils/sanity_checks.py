@@ -11,6 +11,8 @@ from .server import NotRunning
 
 logger = logging.getLogger(__name__)
 
+PORT_AVAILABILITY_CHECK_TIMEOUT = 2
+
 
 def check_other_kolibri_running(port):
     try:
@@ -31,7 +33,7 @@ def check_other_kolibri_running(port):
 
 def check_port_availability(host, port):
     try:
-        portend.free(host, port, timeout=2)
+        portend.free(host, port, timeout=PORT_AVAILABILITY_CHECK_TIMEOUT)
     except portend.Timeout:
         # Port is occupied
         logger.error(
