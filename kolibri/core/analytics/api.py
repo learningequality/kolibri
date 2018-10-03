@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 
 from kolibri.core.analytics.middleware import MetricsMiddleware
 
+
 def get_client_ip(request):
     """
     Returns the ip of the client doing the request and its IP version

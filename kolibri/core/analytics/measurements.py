@@ -1,7 +1,9 @@
+import time
 from collections import namedtuple
 from datetime import timedelta
 
 import psutil
+import requests
 from django.contrib.sessions.models import Session
 from django.db import connection
 from django.db.models import Count
@@ -39,7 +41,13 @@ def get_db_info():
 
     return (active_sessions, active_users, active_users_minute)
 
+
 def get_channels_usage_info():
+    """
+    Scan the channels Kolibri has installed, getting information on how many times
+    their resources have been accessed and how long they have been used
+    :returns: List containing namedtuples, with each channel: id, name, accesses and time spent
+    """
     channels_info = []
     ChannelsInfo = namedtuple('ChannelsInfo', 'id name accesses time_spent')
 
@@ -60,6 +68,31 @@ def get_channels_usage_info():
     except OperationalError:
         print('Database unavailable, impossible to retrieve channels usage info')
     return channels_info
+
+
+def get_requests_info():
+    """
+    Returns timing information on some Kolibri pages that can be hit without credentials
+    :returns: tuple of strings containing time in seconds when requesting
+              - Kolibri homepage
+              - Kolibri recommended channels
+              - Kolibri channels list
+    """
+    def format_url(url, base_url):
+        formatted = '{base_url}{url}&contentCacheKey={cache}'.format(base_url=base_url, url=url, cache=time.time())
+        return formatted
+
+    _, port = get_kolibri_process_info()
+    if port:
+        base_url = 'http://localhost:{}'.format(port)
+        homepage_time = '{:.2f} s'.format(requests.get(base_url).elapsed.total_seconds())
+        recommended_url = format_url('/api/content/contentnode_slim/popular/?by_role=true', base_url)
+        recommended_time = '{:.2f} s'.format(requests.get(recommended_url).elapsed.total_seconds())
+        channels_url = format_url('/api/content/channel/?available=true', base_url)
+        channels_time = '{:.2f} s'.format(requests.get(channels_url).elapsed.total_seconds())
+
+    return (homepage_time, recommended_time, channels_time)
+
 
 def get_process_pid():
     """
@@ -101,6 +134,7 @@ def get_kolibri_process_info():
         pass  # corrupted Kolibri PID file
     return (kolibri_pid, kolibri_port)
 
+
 def get_kolibri_process_cmd():
     """
     Retrieve from the OS the command line executed to run Kolibri server
@@ -113,6 +147,7 @@ def get_kolibri_process_cmd():
         # Kolibri server is not running
         raise KolibriNotRunning()
     return kolibri_proc.cmdline()
+
 
 def get_kolibri_use(development=False):
     """
