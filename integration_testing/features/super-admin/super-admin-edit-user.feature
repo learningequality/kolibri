@@ -6,7 +6,7 @@ Feature: Superuser edit users
       And I am on the *Facility > Users* page
 
   Scenario: Edit user's full name
-    When I click on *Manage* button for the user I want to edit
+    When I click on *Options* button for the user I want to edit
       And I select *Edit* option
     Then I see *Edit user* modal
     When I click or tab into *Full name* field
@@ -16,7 +16,7 @@ Feature: Superuser edit users
       And I see the user with edited full name
 
   Scenario: Edit user's username
-    When I click on *Manage* button for the user I want to edit
+    When I click on *Options* button for the user I want to edit
       And I select *Edit* option
     Then I see *Edit user* modal
     When I click or tab into *Username* field
@@ -26,7 +26,7 @@ Feature: Superuser edit users
       And I see the user with edited username
 
   Scenario: Change user type
-    When I click on *Manage* button for the user I want to edit
+    When I click on *Options* button for the user I want to edit
       And I select *Edit* option
     Then I see *Edit user* modal
     When I click or tab into *User type*
@@ -38,7 +38,7 @@ Feature: Superuser edit users
 # TODO: add options for the 2 coach types
 
   Scenario: Reset user's password
-    When I click on *Manage* button of the user I want to reset password for
+    When I click on *Options* button of the user I want to reset password for
       And I select *Reset password* option
     Then I see *Reset user password* modal
     When I click or tab into *New password* field
@@ -49,7 +49,7 @@ Feature: Superuser edit users
     Then the modal closes
       And I see the *Facility > Users* page again # no confirmation that the password has been reset
 
-  Feature: Super admin can see that their role is distinguished in the user list in *Facility > Users* and there are different Manage options than other users
+  Feature: Super admin can see that their role is distinguished in the user list in *Facility > Users* and there are different Options options than other users
 
     Scenario: Super admin can see the label *Super admin* next to their full name, not their facility role
       When I scroll to my name in the user list
@@ -57,7 +57,7 @@ Feature: Superuser edit users
 
     Scenario: Super admin can see that they can’t delete themselves
       Given I have scrolled to my name in the user list
-      When I click on the *Manage* dropdown button
+      When I click on the *Options* dropdown button
       Then I see that the *Delete* action is disabled
 
   Feature: Super admin cannot edit their own user type from the *Edit user* modal, but can find a cross link to the Device permissions page

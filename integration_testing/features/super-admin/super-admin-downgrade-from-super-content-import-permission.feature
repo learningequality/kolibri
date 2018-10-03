@@ -5,10 +5,10 @@ Background:
     And I am on the *Device > Permissions* page
     And I have clicked *Edit Permissions* on another super admin
 
-  Scenario: Super admin can see what will happen if they change super admin permissions to device permissions
+  Scenario: Super admin can see what will happen if they change super admin permissions to content import permission
     Given I have deselected the *Make super admin* checkbox
       And I see that all checkboxes are deselected
-      And I see that all checkboxes also become active
+      And I see that every other checkbox is capable of selection
       And I see that the *Save changes* button becomes active
     When I click on a checkbox under *Device permissions*
     Then I should see that I can still *Save changes*

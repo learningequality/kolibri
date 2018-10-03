@@ -6,9 +6,9 @@ Feature: Super admin removes all device permissions from another super admin
       And I have clicked *Edit Permissions* on another super admin
 
   Scenario: Super admin can see what will happen if they want to remove super admin permissions
-    When I deselect the *Make super admin checkbox*
+    When I deselect the *Make super admin* checkbox
     Then I see that checkboxes under *Device permissions* also become unchecked
-      And I see that those checkboxes under *Device permissions also become active
+      And I see that those checkboxes under *Device permissions* also become active
       And I see the *Save changes* button becomes active
     When I click *Save changes*
     Then I remain on this page
