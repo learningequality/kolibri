@@ -1,8 +1,8 @@
-Feature: Superuser create users
-    Superuser needs to be able to grant the device permissions to other users to import content channels on the device
+Feature: Super Admin create users
+    Super Admin needs to be able to grant the device permissions to other users to import content channels on the device
 
   Background:
-    Given I am signed in to Kolibri as superuser
+    Given I am signed in to Kolibri as super admin
       And I am on *Device > Permissions* page
 
   Scenario: Grant import content device permissions

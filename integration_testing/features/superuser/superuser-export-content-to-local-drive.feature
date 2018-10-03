@@ -1,10 +1,10 @@
-Feature: Superuser export content to local drive
-    Superuser needs to be able to export content channels from Kolibri server to local drives
+Feature: Super Admin export content to local drive
+    Super Admin needs to be able to export content channels from Kolibri server to local drives
 
   Background:
     Given there is <channel> content channel on the device
       And there is a <drive> local drive attached to the device 
-      And I am signed in to Kolibri as superuser, or a user with device permissions to import content
+      And I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on *Device > Content* page
 
   Scenario: Export content channel to local drive

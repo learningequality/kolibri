@@ -1,10 +1,10 @@
-Feature: Superuser change user interface language
-  Superuser needs to be able to change the UI language from the user menu
+Feature: Super Admin change user interface language
+  Super Admin needs to be able to change the UI language from the user menu
 
   Background:
-    Given I am signed in to Kolibri as superuser user
+    Given I am signed in to Kolibri as super admin user
 
-  Scenario: Superuser changes language
+  Scenario: Super Admin changes language
     When I open the user menu
       And I click *Change language*
     Then I see the *Change language* modal

@@ -1,9 +1,9 @@
-Feature: Superuser import content from a new channel from local drive
-    Superuser needs to be able to import content channels available on local drives, but previously not imported on the device
+Feature: Super Admin import content from a new channel from local drive
+    Super Admin needs to be able to import content channels available on local drives, but previously not imported on the device
 
   Background:
     Given there is no content from <channel> channel on the device
-      And I am signed in to Kolibri as superuser, or a user with device permissions to import content
+      And I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on *Import from '<drive>'* page with the list of available content *Channels* on the <drive> local drive
 
   Scenario: Import new content channel from local drive

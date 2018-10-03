@@ -1,8 +1,8 @@
-Feature: Superuser select import content location
-    Superuser needs to be able to cancel import process when importing from either Kolibri Studio or attached drive 
+Feature: Super Admin select import content location
+    Super Admin needs to be able to cancel import process when importing from either Kolibri Studio or attached drive 
 
   Background:
-    Given I am signed in to Kolibri as superuser, or a user with device permissions to import content
+    Given I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on *Device > Content* page
 
   Scenario: Cancel import content channel from Kolibri Studio

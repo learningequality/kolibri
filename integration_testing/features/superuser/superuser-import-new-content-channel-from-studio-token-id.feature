@@ -1,10 +1,10 @@
-Feature: Superuser import content
+Feature: Super Admin import content
     Admin needs to be able to import private/unlisted content channels on the device using the channel token or ID
 
   Background:
     Given there is no content from <channel> channel on the device
       And I have the <token> token or the <id> ID for the <channel> channel
-      And I am signed in to Kolibri as superuser, or a user with device permissions to import content
+      And I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on the *Kolibri Studio* page with the list of available content *Channels*
 
   Scenario: Import new content channel from Kolibri Studio using the token
