@@ -1,3 +1,4 @@
+import datetime
 import logging
 import time
 
@@ -19,8 +20,8 @@ class Command(BaseCommand):
             help='Specifies the database to vacuum. Defaults to the "default" database.',
         )
         parser.add_argument(
-            '--interval', action='store', dest='interval', default=0, type=int,
-            help='Specifies the interval (in minutes) to run the process continuosly. If 0, no repetition will happen',
+            '--interval', action='store', dest='interval', default=False, type=bool,
+            help='Flag to specify whether to run the process continuosly (currently set every day at 3AM). If False, no repetition will happen',
         )
 
     def handle(self, *args, **options):
@@ -33,7 +34,18 @@ class Command(BaseCommand):
                     self.perform_vacuum(connection)
                 if not interval:
                     break
-                logger.info("Next Vacuum in {interval} minutes.".format(interval=interval))
+                current_dt = datetime.datetime.now()
+                _3AM = datetime.time(hour=3)
+                # calculate how many minutes until 3AM
+                if current_dt.time() < _3AM:
+                    calculated_time = current_dt.combine(current_dt.date(), _3AM)
+                    diff = calculated_time - current_dt
+                    interval = diff.seconds / 60  # minutes
+                else:  # calculate how many minutes until 3AM the next day
+                    calculated_time = current_dt.combine(current_dt.date(), _3AM) + datetime.timedelta(days=1)
+                    diff = calculated_time - current_dt
+                    interval = diff.seconds / 60  # minutes
+                logger.info("Next Vacuum at 3AM local server time (in {} minutes).".format(interval))
                 time.sleep(interval * 60)
 
     def perform_vacuum(self, connection):
