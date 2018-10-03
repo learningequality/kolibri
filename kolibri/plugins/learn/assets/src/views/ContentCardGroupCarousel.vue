@@ -81,7 +81,6 @@
 
   const contentCardWidth = 210;
   const gutterWidth = 20;
-  const horizontalShadowOffset = 12;
 
   export default {
     name: 'ContentCardGroupCarousel',
@@ -143,18 +142,14 @@
         return this.contentSetEnd >= this.contents.length - 1;
       },
       contentSetStyles() {
-        const cards = this.contentSetSize * contentCardWidth + horizontalShadowOffset;
+        const cards = this.contentSetSize * contentCardWidth;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         const maxCardShadowOffset = 14; // determined by css styles on cards
-        const topShadowOffset = 10;
         return {
           'min-width': `${contentCardWidth}px`,
-          'overflow-x': 'hidden',
           width: `${cards + gutters + maxCardShadowOffset}px`,
-          // Bottom shadow is a little bit bigger, so add a few pixels more
-          height: `${contentCardWidth + maxCardShadowOffset + topShadowOffset + 3}px`,
+          height: `${contentCardWidth + maxCardShadowOffset}px`,
           position: 'relative',
-          'padding-top': `${topShadowOffset}px`,
         };
       },
       contentControlsContainerStyles() {
@@ -214,7 +209,7 @@
         const indexInSet = index - this.contentSetStart;
         const gutterOffset = indexInSet * gutterWidth;
         const cardOffset = indexInSet * contentCardWidth;
-        return { [this.animationAttr]: `${cardOffset + gutterOffset + horizontalShadowOffset}px` };
+        return { [this.animationAttr]: `${cardOffset + gutterOffset}px` };
       },
       setStartPosition(el) {
         if (this.interacted) {
@@ -272,7 +267,9 @@
     @include clearfix();
 
     position: relative;
-    margin-top: 1em;
+    padding: ($control-hit-width / 2);
+    margin: -($control-hit-width / 2);
+    overflow: hidden;
 
     &-control-container {
       position: relative;
