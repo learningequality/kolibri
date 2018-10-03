@@ -18,22 +18,19 @@ RUN apt-get update && \
       gettext \
       git \
       nodejs=6.14.1-1nodesource1 \
-      psmisc \
       python2.7 \
       python-pip \
       python-sphinx \
       yarn
 
-
-# copy Kolibri source code into image
 COPY . /kolibri
 
-# A volume used to share `pex`/`whl` files and fixtures with docker host
-VOLUME /docker/mnt
+VOLUME /kolibridist/  # for mounting the whl files into other docker containers
 
-# do the time-consuming base install commands
-RUN cd /kolibri \
-    && pip install -r requirements/dev.txt \
-    && pip install -r requirements/build.txt \
-    && pip install -r requirements/test.txt \
-    && yarn install
+CMD cd /kolibri && \
+    pip install -r requirements/dev.txt && \
+    pip install -r requirements/build.txt && \
+    yarn install && \
+    make dist && \
+    make pex && \
+    cp /kolibri/dist/* /kolibridist/

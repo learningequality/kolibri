@@ -12,8 +12,10 @@ PARENT_PATH=`pwd`
 cd "$PARENT_PATH"
 
 mkdir -p dist
-buildkite-agent artifact download 'dist/*.whl' dist/
 
-make docker-windows
+buildkite-agent artifact download 'dist/*.tar.gz' dist/
 
-buildkite-agent artifact upload './dist/*.exe'
+make docker-deb
+
+# Upload built kolibri windows installer at buildkite artifact.
+buildkite-agent artifact upload './dist/*.deb'
