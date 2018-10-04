@@ -627,7 +627,7 @@ def command_add_source_fonts(font_name):
     # update manifest
     already_exists = False
     for font_info in new_manifest:
-        if font_info["font_name"] == font_name:
+        if font_info["name"] == font_name:
             already_exists = True
             font_info["has_ui_variant"] = has_ui_variant
             continue
@@ -639,7 +639,12 @@ def command_add_source_fonts(font_name):
         )
     )
     with open(FONTS_MANIFEST_PATH, "w") as mf:
-        json.dump(sorted(new_manifest, key=lambda d: d["name"]), mf, indent=2)
+        json.dump(
+            sorted(new_manifest, key=lambda d: d["name"]),
+            mf,
+            indent=2,
+            separators=(",", ": "),  # helps prevent trailing whitespace
+        )
     logging.info("Fonts: extraction complete")
 
 

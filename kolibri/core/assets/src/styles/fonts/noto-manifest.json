@@ -1,34 +1,34 @@
 [
   {
-    "name": "NotoSans",
-    "has_ui_variant": false
+    "has_ui_variant": false,
+    "name": "NotoSans"
   },
   {
-    "name": "NotoSansArabic",
-    "has_ui_variant": true
+    "has_ui_variant": true,
+    "name": "NotoSansArabic"
   },
   {
-    "name": "NotoSansBengali",
-    "has_ui_variant": true
+    "has_ui_variant": true,
+    "name": "NotoSansBengali"
   },
   {
-    "name": "NotoSansDevanagari",
-    "has_ui_variant": true
+    "has_ui_variant": true,
+    "name": "NotoSansDevanagari"
   },
   {
-    "name": "NotoSansKannada",
-    "has_ui_variant": true
+    "has_ui_variant": true,
+    "name": "NotoSansKannada"
   },
   {
-    "name": "NotoSansMyanmar",
-    "has_ui_variant": true
+    "has_ui_variant": true,
+    "name": "NotoSansMyanmar"
   },
   {
-    "name": "NotoSansTamil",
-    "has_ui_variant": true
+    "has_ui_variant": true,
+    "name": "NotoSansTamil"
   },
   {
-    "name": "NotoSansTelugu",
-    "has_ui_variant": true
+    "has_ui_variant": true,
+    "name": "NotoSansTelugu"
   }
 ]
