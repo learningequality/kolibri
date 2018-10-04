@@ -108,7 +108,7 @@ export function showExam(store, params) {
         } else {
           const contentPromise = ContentNodeResource.fetchCollection({
             getParams: {
-              in_exam: exam.id,
+              ids: exam.question_sources.map(item => item.exercise_id),
             },
           });
           contentPromise.only(

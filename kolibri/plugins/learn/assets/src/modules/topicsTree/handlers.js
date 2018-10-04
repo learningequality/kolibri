@@ -51,12 +51,17 @@ export function showTopicsContent(store, id) {
 export function showTopicsTopic(store, { id, isRoot = false }) {
   return store.dispatch('loading').then(() => {
     store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
+    const include_fields = [];
+    if (store.getters.isCoach || store.getters.isAdmin) {
+      include_fields.push('num_coach_contents');
+    }
     const promises = [
       ContentNodeResource.fetchModel({ id }), // the topic
       ContentNodeSlimResource.fetchCollection({
         getParams: {
           parent: id,
           by_role: true,
+          include_fields,
         },
       }), // the topic's children
       ContentNodeSlimResource.fetchAncestors(id), // the topic's ancestors

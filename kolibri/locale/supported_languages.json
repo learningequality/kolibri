@@ -7,6 +7,13 @@
     "default_font": "NotoSansArabic"
   },
   {
+    "crowdin_code": "bg",
+    "intl_code": "bg-bg",
+    "language_name": "Български",
+    "english_name": "Bulgarian",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "bn",
     "intl_code": "bn-bd",
     "language_name": "বাংলা",
