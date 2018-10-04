@@ -13,6 +13,7 @@ class MultipleCollectionTestCase(TestMigrations):
 
     migrate_from = '0003_auto_20170621_0958'
     migrate_to = '0004_auto_20170816_1607'
+    app = 'kolibriauth'
 
     def setUp(self):
         self.facility = Facility.objects.create(name='Test')
