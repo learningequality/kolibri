@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
+from django.http.request import HttpRequest
 from django.utils.cache import patch_response_headers
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
@@ -50,7 +51,20 @@ def cache_forever(some_func):
 
     def wrapper_func(*args, **kwargs):
         response = some_func(*args, **kwargs)
-        patch_response_headers(response, cache_timeout=cache_timeout)
+        # This caching has the unfortunate effect of also caching the dynamically
+        # generated filters for recommendation, this quick hack checks if
+        # the request is any of those filters, and then applies less long running
+        # caching on it.
+        timeout = cache_timeout
+        try:
+            request = args[0]
+            request = kwargs.get('request', request)
+        except IndexError:
+            request = kwargs.get('request', None)
+        if isinstance(request, HttpRequest):
+            if any(map(lambda x: x in request.GET, ['popular', 'next_steps', 'resume'])):
+                timeout = 600
+        patch_response_headers(response, cache_timeout=timeout)
         return response
 
     return wrapper_func

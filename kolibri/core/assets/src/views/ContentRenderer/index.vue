@@ -137,7 +137,13 @@
         return undefined;
       },
       availableFiles() {
-        return this.files.filter(file => !file.thumbnail && !file.supplementary && file.available);
+        return this.files.filter(
+          file =>
+            !file.thumbnail &&
+            !file.supplementary &&
+            file.available &&
+            this.Kolibri.canRenderContent(this.kind, file.extension)
+        );
       },
       defaultFile() {
         return this.availableFiles && this.availableFiles.length
