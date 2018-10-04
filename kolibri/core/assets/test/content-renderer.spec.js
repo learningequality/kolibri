@@ -6,6 +6,14 @@ import sinon from 'sinon';
 import contentRenderer from '../src/views/content-renderer';
 
 describe('contentRenderer Component', () => {
+  before(() => {
+    Vue.prototype.Kolibri = {
+      canRenderContent: () => true,
+    };
+  });
+  after(() => {
+    Vue.prototype.Kolibri = {};
+  });
   const defaultFiles = [
     {
       available: true,
@@ -29,6 +37,12 @@ describe('contentRenderer Component', () => {
         });
         expect(wrapper.vm.availableFiles.length).to.equal(expected);
       }
+
+      it('should be 0 if the mediator concludes that there are no compatible renderers', () => {
+        Vue.prototype.Kolibri.canRenderContent = () => false;
+        testAvailableFiles(defaultFiles, 0);
+        Vue.prototype.Kolibri.canRenderContent = () => true;
+      });
 
       it('should be 1 when there is one available file', () => {
         testAvailableFiles(defaultFiles, 1);
@@ -102,13 +116,11 @@ describe('contentRenderer Component', () => {
         describe('when renderer is available', () => {
           const dummyComponent = { test: 'testing' };
           before(() => {
-            Vue.prototype.Kolibri = {
-              retrieveContentRenderer: () => Promise.resolve(dummyComponent),
-            };
+            Vue.prototype.Kolibri.retrieveContentRenderer = () => Promise.resolve(dummyComponent);
           });
 
           after(() => {
-            Vue.prototype.Kolibri = {};
+            delete Vue.prototype.Kolibri.retrieveContentRenderer;
           });
 
           it('should set currentViewClass to returned component', () => {
@@ -139,13 +151,12 @@ describe('contentRenderer Component', () => {
 
         describe('when no renderer is available', () => {
           before(() => {
-            Vue.prototype.Kolibri = {
-              retrieveContentRenderer: () => Promise.reject({ message: 'oh no' }),
-            };
+            Vue.prototype.Kolibri.retrieveContentRenderer = () =>
+              Promise.reject({ message: 'oh no' });
           });
 
           after(() => {
-            Vue.prototype.Kolibri = {};
+            delete Vue.prototype.Kolibri.retrieveContentRenderer;
           });
 
           it('calling updateRendererComponent should set noRendererAvailable to true', () => {
