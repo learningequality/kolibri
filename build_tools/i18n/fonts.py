@@ -653,7 +653,7 @@ def main():
     parser = argparse.ArgumentParser(description=description)
     subparsers = parser.add_subparsers(dest="command")
     parser_add_source_fonts = subparsers.add_parser(
-        "add-source-fonts",
+        "add-source-font",
         help="Download TTF files from https://github.com/googlei18n/noto-fonts/",
     )
     parser_add_source_fonts.add_argument(
@@ -671,7 +671,7 @@ def main():
     subparsers.add_parser("generate-css", help="Generate CSS")
     args = parser.parse_args()
 
-    if args.command == "add-source-fonts":
+    if args.command == "add-source-font":
         command_add_source_fonts(args.fontname)
     elif args.command == "generate-subset-fonts":
         command_gen_subset_fonts()

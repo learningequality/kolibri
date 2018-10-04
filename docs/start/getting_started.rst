@@ -183,7 +183,7 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
 
     (kolibri)$ npm rebuild node-sass
 
-    
+
 
 Production
 ~~~~~~~~~~
@@ -213,13 +213,13 @@ The ``docker/`` directory contains the docker files and startup scripts needed f
  * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies (image tag ``leaningequality:kolibirbase``).
  * ``docker/build_whl.dockerfile``: generates a ``.whl``, ``tar.gz``, and ``.pex`` files in ``dist/``
  * ``docker/build_debian.dockerfile``: used to build Kolibri ``.deb`` package, and additionally
-   the docker files ``test_bionic.dockerfile``, ``test_trusty.dockerfile``, and 
+   the docker files ``test_bionic.dockerfile``, ``test_trusty.dockerfile``, and
    ``test_xenial.dockerfile`` can be used for test-installing the ``.deb`` file.
  * ``docker/build_windows.dockerfile``: used to generate the Windows installer.
  * ``docker/dev.dockerfile``: container with full development setup, running devserver.
  * ``docker/demoserver.dockerfile``: runs the pex from ``KOLIBRI_PEX_URL`` with production setup.
- * ``docker/entrypoint.py``: startup script that configures Kolibri based on ENV variables: 
- 
+ * ``docker/entrypoint.py``: startup script that configures Kolibri based on ENV variables:
+
     * Set ``KOLIBRI_PEX_URL`` to string ``default`` to run latest pex from Kolibri download page
     * Set ``KOLIBRI_PEX_URL`` to something like ``http://host.org/nameof.pex``
     * Set ``DOCKERMNT_PEX_PATH`` to something like ``/docker/mnt/nameof.pex``
@@ -228,7 +228,7 @@ The ``docker/`` directory contains the docker files and startup scripts needed f
       the entrypoint script will run the provision device an setup a facility
       with this name. The ``KOLIBRI_LANG`` environment variable and the following
       other environment variables will be used in the process:
-        
+
         * ``KOLIBRI_PROVISIONDEVICE_PRESET``: defaults to ``formal``, with the other options being ``nonformal`` and ``informal``
         * ``KOLIBRI_PROVISIONDEVICE_SUPERUSERNAME``: default ``devowner``
         * ``KOLIBRI_PROVISIONDEVICE_SUPERUSERPASSWORD``: default ``admin123``
@@ -244,7 +244,7 @@ Building a pex file
 When simply testing things out or reviewing a pull request, the easiest way to
 obtain a pex file is to get the link from the buildkite assets link that is present
 for every git branch and every pull request. This is the approach we recommend in
-combination with the ``demoserver`` approach for running described in the next section. 
+combination with the ``demoserver`` approach for running described in the next section.
 
 However, if you want to build and run a pex from the Kolibri code in your current
 local source files without relying on the github and the buildkite integration,
@@ -276,15 +276,16 @@ file ``docker/env.list``:
  * Set ``DOCKERMNT_PEX_PATH`` to something like ``/docker/mnt/nameof.pex``
 
 
- 
- Starting a devserver
- ^^^^^^^^^^^^^^^^^^^^
- Use these commands to start the Kolibri devserver running inside a container:
 
- .. code-block:: bash
+Starting a devserver
+^^^^^^^^^^^^^^^^^^^^
 
-   make docker-build-base      # only needed first time
-   make docker-devserver      # takes a few mins to run pip install -e + webpcak build
+Use these commands to start the Kolibri devserver running inside a container:
+
+.. code-block:: bash
+
+  make docker-build-base      # only needed first time
+  make docker-devserver      # takes a few mins to run pip install -e + webpcak build
 
 
 Additional Recommended Setup

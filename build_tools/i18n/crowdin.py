@@ -125,7 +125,7 @@ def command_rebuild(branch):
     """
     Rebuilds zip files for the given branch on Crowdin
     """
-    logging.info("Crowdin: rebuilding '{}'...".format(branch))
+    logging.info("Crowdin: rebuilding '{}'. This could take a while...".format(branch))
     r = requests.get(REBUILD_URL.format(branch=branch))
     r.raise_for_status()
     if r.json()["success"]["status"] == "skipped":

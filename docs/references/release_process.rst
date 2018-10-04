@@ -188,7 +188,7 @@ Confirm that the release is uploaded to `PyPi <https://pypi.org/>`_, and try ins
 
 
 Generate, test, and publish distributions
-----------------------------------
+-----------------------------------------
 
 When uploading files to the Pantry server, put them in a directory of the form ``/var/www/downloads/kolibri/vX.Y.Z/``.
 
