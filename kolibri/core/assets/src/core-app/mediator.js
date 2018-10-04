@@ -430,6 +430,17 @@ export default class Mediator {
       });
     });
   }
+
+  /**
+   * A method to for checking if we have a component for a specific kind/extension combination.
+   * @param  {String} kind      content kind
+   * @param  {String} extension content extension
+   * @return {Promise}          Promise that resolves with loaded content renderer Vue component
+   */
+  canRenderContent(kind, extension) {
+    return Boolean((this._contentRendererRegistry[kind] || {})[extension]);
+  }
+
   /**
    * A method to retrieve a content renderer component.
    * @param  {String} kind      content kind

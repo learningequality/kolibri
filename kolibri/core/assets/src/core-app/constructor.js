@@ -30,6 +30,7 @@ const publicMethods = [
   'retrieveContentRenderer',
   'loadDirectionalCSS',
   'scriptLoader',
+  'canRenderContent',
 ];
 
 /**

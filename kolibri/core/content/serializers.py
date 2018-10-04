@@ -438,7 +438,6 @@ class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
     Lighter version of the ContentNodeSerializer whose purpose is to provide a minimum
     subset of ContentNode fields necessary for functional content browsing
     """
-    num_coach_contents = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileThumbnailSerializer(many=True, read_only=True)
 
@@ -450,22 +449,24 @@ class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
             'description',
             'channel_id',
             'content_id',
-            'num_coach_contents',
             'kind',
             'files',
             'title',
         )
 
-    def get_num_coach_contents(self, instance):
-        user = self.context["request"].user
-        if user.is_facility_user:  # exclude anon users
-            # cache the user roles query on the instance
-            if getattr(self, "user_roles_exists", None) is None:
-                self.user_roles_exists = user.roles.exists()
-            if self.user_roles_exists or user.is_superuser:  # must have coach role or higher
-                return get_num_coach_contents(instance)
-        # all other conditions return 0
-        return 0
+    def to_representation(self, instance):
+        value = super(ContentNodeSlimSerializer, self).to_representation(instance)
+        # if the request includes a GET param 'include_fields', add the requested calculated fields
+        if 'request' in self.context:
+
+            include_fields = self.context['request'].GET.get('include_fields', '').split(',')
+
+            if include_fields:
+
+                if 'num_coach_contents' in include_fields:
+                    value['num_coach_contents'] = get_num_coach_contents(instance)
+
+        return value
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
