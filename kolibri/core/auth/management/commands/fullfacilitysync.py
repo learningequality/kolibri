@@ -44,7 +44,7 @@ class Command(AsyncCommand):
             for idx, f in enumerate(facilities):
                 message += "{}. {}\n".format(idx + 1, f['name'])
             idx = input(message)
-            dataset_id = facilities[int(idx-1)]['dataset']
+            dataset_id = facilities[int(idx - 1)]["dataset"]
         elif not dataset_id:
             dataset_id = facilities[0]['dataset']
         return dataset_id
