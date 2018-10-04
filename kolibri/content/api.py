@@ -57,7 +57,7 @@ def cache_forever(some_func):
             request = args[0]
             request = kwargs.get('request', request)
         except IndexError:
-            request = None
+            request = kwargs.get('request', None)
         if isinstance(request, HttpRequest):
             if any(map(lambda x: x in request.GET, ['popular', 'next_steps', 'resume'])):
                 timeout = 600
