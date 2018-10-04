@@ -3,7 +3,7 @@
   <div>
 
     <div>
-      <h1 class="title-header">
+      <h1 class="title-header" dir="auto">
         {{ currentClass.name }}
       </h1>
       <KButton

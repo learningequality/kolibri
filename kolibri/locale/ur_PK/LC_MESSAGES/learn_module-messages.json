@@ -90,7 +90,7 @@
     "TopicsPage.navigate": "مواد نیویگیٹ کرنے کے لیےعنوان استعمال کریں",
     "TopicsPage.documentTitleForChannel": "موضوعات - { channelTitle }",
     "TopicsPage.documentTitleForTopic": "",
-    "TotalPoints.pointsTooltip": "آپ نے { points, number } پوائنٹس حاصل کیے!",
+    "TotalPoints.pointsTooltip": "آپ نے { points, number } پوائنٹس حاصل کیے",
     "AllClassesPage.allClassesHeader": "جماعتیں",
     "AllClassesPage.documentTitle": "تمام جماعتیں",
     "AssignedExamsCards.examsHeader": "امتحانیں",

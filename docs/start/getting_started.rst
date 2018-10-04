@@ -207,10 +207,15 @@ Users who are familiar with Docker can spin up a Kolibri instance quickly withou
 the full JavaScript and Python development environments. We provide docker images that contain
 all the necessary prerequisites for running Kolibri.
 
+
+
 The ``docker/`` directory contains the docker files and startup scripts needed for various tasks.
- * ``docker/buildkite.dockerfile``: used as part of the automated build process for every commit and pull request.
- * ``docker/build.dockerfile``: build .whl and .pex files and put in ``/docker/mnt/``
  * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies (image tag ``leaningequality:kolibirbase``).
+ * ``docker/build_whl.dockerfile``: generates a ``.whl``, ``tar.gz``, and ``.pex`` files in ``dist/``
+ * ``docker/build_debian.dockerfile``: used to build Kolibri ``.deb`` package, and additionally
+   the docker files ``test_bionic.dockerfile``, ``test_trusty.dockerfile``, and 
+   ``test_xenial.dockerfile`` can be used for test-installing the ``.deb`` file.
+ * ``docker/build_windows.dockerfile``: used to generate the Windows installer.
  * ``docker/dev.dockerfile``: container with full development setup, running devserver.
  * ``docker/demoserver.dockerfile``: runs the pex from ``KOLIBRI_PEX_URL`` with production setup.
  * ``docker/entrypoint.py``: startup script that configures Kolibri based on ENV variables: 
@@ -243,28 +248,28 @@ combination with the ``demoserver`` approach for running described in the next s
 
 However, if you want to build and run a pex from the Kolibri code in your current
 local source files without relying on the github and the buildkite integration,
-you can run the following commands to build a pex file in ``docker/mnt/``:
+you can run the following commands to build a pex file:
 
 .. code-block:: bash
 
-  make dockerbuildbase      # only needed first time
-  make dockerbuild
+  make docker-whl
 
-Run the the resulting pex using the ``demoserver`` approach described below.
+The pex file will be generated in the ``dist/`` directory. You can run this pex
+file using the ``demoserver`` approach described below.
 
 
 Starting a demoserver
 ^^^^^^^^^^^^^^^^^^^^^
 You can start a Kolibri instance running any pex file by setting the appropriate
-environment variables in your local copy of `env.list` then running the commands:
+environment variables in your local copy of `docker/env.list` then running the commands:
 
 .. code-block:: bash
 
-  make dockerbuildbase      # only needed first time
-  make dockerdemoserver
+  make docker-build-base      # only needed first time
+  make docker-demoserver
 
 The choice of pex file can be controlled by setting environment variables in the
-file ``env.list``:
+file ``docker/env.list``:
 
  * Set ``KOLIBRI_PEX_URL`` to string ``default`` to run the latest pex from Kolibri download page
  * Set ``KOLIBRI_PEX_URL`` to something like ``http://host.org/nameof.pex``
@@ -278,11 +283,8 @@ file ``env.list``:
 
  .. code-block:: bash
 
-   make dockerbuildbase      # takes a long time (go get a coffee)
-   make dockerdevserver      # takes a few mins to run pip install -e + webpcak build
-
-
-
+   make docker-build-base      # only needed first time
+   make docker-devserver      # takes a few mins to run pip install -e + webpcak build
 
 
 Additional Recommended Setup

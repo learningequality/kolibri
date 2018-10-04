@@ -13,6 +13,7 @@
         type="search"
         class="search-input"
         ref="searchInput"
+        dir="auto"
         :placeholder="$tr('searchBoxLabel')"
       >
       <div class="search-buttons-wrapper">

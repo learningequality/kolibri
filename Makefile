@@ -153,7 +153,7 @@ buildconfig:
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: writeversion staticdeps staticdeps-cext buildconfig translation-extract assets translation-django-compilemessages
+dist: writeversion staticdeps staticdeps-cext buildconfig translation-extract-frontend assets translation-django-compilemessages
 	python setup.py sdist --format=gztar --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
 	ls -l dist
@@ -161,9 +161,13 @@ dist: writeversion staticdeps staticdeps-cext buildconfig translation-extract as
 pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
-translation-extract:
-	yarn run makemessages
+translation-extract-backend:
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
+
+translation-extract-frontend:
+	yarn run makemessages
+
+translation-extract: translation-extract-frontend translation-extract-backend
 
 translation-django-compilemessages:
 	# Change working directory to kolibri/ such that compilemessages
@@ -183,51 +187,56 @@ translation-crowdin-download: clean translation-extract
 	@echo "\nWhen doing new releases: Remember to build the project on CrowdIn\n\n"
 	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${branch}
 
-dockerenvclean:
+docker-clean:
 	docker container prune -f
 	docker image prune -f
 
-dockerenvbuild: writeversion
-	docker image build -t "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')" -t learningequality/kolibri:latest -f docker/buildkite.dockerfile .
+docker-whl: writeversion
+	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
+	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-whl"
 
-dockerenvdist: writeversion
-	docker run --env-file ./env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-builder:$$(cat kolibri/VERSION | sed 's/+/_/g')"
+docker-deb: writeversion
+	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
+	docker image build -t "learningequality/kolibri-deb" -f docker/build_debian.dockerfile .
+	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
+	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb"
 
-dockerbuildbase: writeversion
+docker-deb-test:
+	@echo "\n  !! This assumes that there are *.deb files in dist/ for testing !!\n"
+	# docker image build -t "learningequality/kolibri-deb-test-trusty" -f docker/test_trusty.dockerfile .
+	# docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-trusty"
+	docker image build -t "learningequality/kolibri-deb-test-xenial" -f docker/test_xenial.dockerfile .
+	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-xenial"
+	docker image build -t "learningequality/kolibri-deb-test-bionic" -f docker/test_bionic.dockerfile .
+	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-bionic"
+
+docker-windows: writeversion
+	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
+	docker image build -t "learningequality/kolibri-windows" -f docker/build_windows.dockerfile .
+	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
+	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-windows"
+
+docker-build-base: writeversion
 	docker image build . \
 		-f docker/base.dockerfile \
-		-t "learningequality/kolibribase" \
-		-t "learningequality/kolibribase:latest"
+		-t "learningequality/kolibribase"
 
-dockerbuild: writeversion
-	docker image build \
-			-f docker/build.dockerfile \
-			-t "learningequality/kolibribuild" .
-	# Run the container to produce the pex et al in /docker/mnt/
-	docker run --init \
-			-v $$PWD/docker/mnt:/docker/mnt \
-			"learningequality/kolibribuild"
-
-dockerdemoserver: writeversion
+docker-demoserver:
 	# Build the demoserver image
 	docker image build \
 			-f docker/demoserver.dockerfile \
 			-t "learningequality/demoserver" .
-	# Run the container using one of the following options:
-	#  --env KOLIBRI_PEX_URL set to URL for a pex file from release or pull request
-	#  --env KOLIBRI_PEX_URL="default" will run leq.org/r/kolibri-pex-latest
-	#  --env DOCKERMNT_PEX_PATH (e.g. /docker/mnt/kolibri-vX.Y.Z.pex)
 	docker run --init \
 			-v $$PWD/docker/mnt:/docker/mnt \
 			-p 8080:8080 \
-			--env-file ./env.list \
+			--env-file ./docker/env.list \
 			--env KOLIBRI_PEX_URL="default" \
 			--env KOLIBRI_CHANNELS_TO_IMPORT="7765d6aeabc35de790f8bc4532aeb529" \
 			"learningequality/demoserver"
 	echo "Check http://localhost:8080 you should have a demoserver running there."
 
 
-dockerdevserver: writeversion
+docker-devserver:
 	# Build the kolibridev image: contains source code + pip install -e of kolibri
 	docker image build \
 			-f docker/dev.dockerfile \
@@ -236,7 +245,7 @@ dockerdevserver: writeversion
 			-v $$PWD/docker/mnt:/docker/mnt \
 			-p 8000:8000 \
 			-p 3000:3000 \
-			--env-file ./env.list \
+			--env-file ./docker/env.list \
 			"learningequality/kolibridev" \
 			yarn run devserver
 	echo "Check http://localhost:8000  you should have devserver running there."

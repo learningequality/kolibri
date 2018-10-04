@@ -10,6 +10,7 @@
           </th>
           <td>
             <a
+              dir="auto"
               v-for="(url, index) in deviceInfo.urls"
               :key="index"
               :href="url"
@@ -40,10 +41,10 @@
         />
       </div>
       <TechnicalTextBlock
+        dir="auto"
         v-if="advancedShown"
         :text="infoText"
         class="bottom-section"
-        downloadFileName="device-info.txt"
       />
     </template>
 

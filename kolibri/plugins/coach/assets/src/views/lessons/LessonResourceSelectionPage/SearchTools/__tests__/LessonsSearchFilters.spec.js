@@ -11,7 +11,11 @@ function makeWrapper() {
         channel: '123',
         role: null,
       },
-      searchResults: [{}],
+      searchResults: {
+        results: [],
+        content_kinds: [],
+        channel_ids: [],
+      },
     },
   });
   const kSelects = wrapper.findAll({ name: 'KSelect' });
@@ -23,26 +27,20 @@ function makeWrapper() {
   return { wrapper, els };
 }
 
-//
 describe('LessonsSearchFilters', () => {
-  it('does not show filters if there are no results', () => {
-    const { wrapper } = makeWrapper();
-    wrapper.setProps({
-      searchResults: [],
-    });
-    const filters = wrapper.findAll({ name: 'KSelect' });
-    expect(filters).toHaveLength(0);
-  });
-
   it('has the correct content kind filter options based on search results', () => {
     const { wrapper, els } = makeWrapper();
     wrapper.setProps({
-      searchResults: [{ kind: 'html5' }, { kind: 'exercise' }],
+      searchResults: {
+        results: [],
+        channel_ids: [],
+        content_kinds: ['html5', 'exercise'],
+      },
     });
     expect(els.kindSelect().props().options).toEqual([
       { label: 'All', value: null },
-      { label: 'Exercises', value: 'exercise' },
       { label: 'Apps', value: 'html5' },
+      { label: 'Exercises', value: 'exercise' },
     ]);
   });
 
@@ -50,10 +48,11 @@ describe('LessonsSearchFilters', () => {
     const { wrapper, els } = makeWrapper();
     wrapper.vm.$store.state.core.channels.list = [{ id: '123', title: 'Channel 123' }];
     wrapper.setProps({
-      searchResults: [
-        { kind: 'html5', channel_id: '123' },
-        { kind: 'exercise', channel_id: '123' },
-      ],
+      searchResults: {
+        channel_ids: ['123'],
+        content_kinds: [],
+        results: [{ kind: 'html5', channel_id: '123' }, { kind: 'exercise', channel_id: '123' }],
+      },
     });
     expect(els.channelSelect().props().options).toEqual([
       { label: 'All', value: null },
@@ -64,10 +63,14 @@ describe('LessonsSearchFilters', () => {
   it('has the correct role filter options when there are no coach contents', () => {
     const { wrapper, els } = makeWrapper();
     wrapper.setProps({
-      searchResults: [
-        { kind: 'topic', channel_id: '123', num_coach_contents: 0 },
-        { kind: 'exercise', channel_id: '123', num_coach_contents: 0 },
-      ],
+      searchResults: {
+        channel_ids: [],
+        content_kinds: [],
+        results: [
+          { kind: 'topic', channel_id: '123', num_coach_contents: 0 },
+          { kind: 'exercise', channel_id: '123', num_coach_contents: 0 },
+        ],
+      },
     });
     expect(els.roleSelect().props().options).toEqual([
       { label: 'All', value: null },
@@ -78,10 +81,14 @@ describe('LessonsSearchFilters', () => {
   it('has the correct role filter options when there are coach contents', () => {
     const { wrapper, els } = makeWrapper();
     wrapper.setProps({
-      searchResults: [
-        { kind: 'topic', channel_id: '123', num_coach_contents: 1 },
-        { kind: 'exercise', channel_id: '123', num_coach_contents: 0 },
-      ],
+      searchResults: {
+        channel_ids: [],
+        content_kinds: [],
+        results: [
+          { kind: 'topic', channel_id: '123', num_coach_contents: 1 },
+          { kind: 'exercise', channel_id: '123', num_coach_contents: 0 },
+        ],
+      },
     });
     expect(els.roleSelect().props().options).toEqual([
       { label: 'All', value: null },

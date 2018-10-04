@@ -90,7 +90,7 @@
     "TopicsPage.navigate": "Navegar pelos conteúdos usando os cabeçalhos",
     "TopicsPage.documentTitleForChannel": "Disciplinas - { channelTitle }",
     "TopicsPage.documentTitleForTopic": "",
-    "TotalPoints.pointsTooltip": "Você ganhou { points, number } pontos!",
+    "TotalPoints.pointsTooltip": "Você ganhou { points, number } pontos",
     "AllClassesPage.allClassesHeader": "Classes",
     "AllClassesPage.documentTitle": "Todas as classes",
     "AssignedExamsCards.examsHeader": "Exames",

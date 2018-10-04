@@ -114,7 +114,7 @@
       };
     },
     computed: {
-      ...mapGetters(['getChannelForNode']),
+      ...mapGetters('lessonSummary', ['getChannelForNode']),
       ...mapState('lessonSummary', ['workingResources', 'currentContentNode']),
       ...mapState('lessonSummary/resources', {
         questions: state => state.preview.questions,

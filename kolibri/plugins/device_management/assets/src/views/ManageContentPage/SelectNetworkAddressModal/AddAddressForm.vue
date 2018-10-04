@@ -45,6 +45,8 @@
 
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { createAddress } from './api';
 
@@ -111,11 +113,16 @@
             this.$emit('added_address');
           })
           .catch(err => {
-            const { id } = err.entity[0];
-            if (id === 'NETWORK_LOCATION_NOT_FOUND') {
+            const errorsCaught = CatchErrors(err, [
+              ERROR_CONSTANTS.NETWORK_LOCATION_NOT_FOUND,
+              ERROR_CONSTANTS.INVALID_NETWORK_LOCATION_FORMAT,
+            ]);
+            if (errorsCaught.includes(ERROR_CONSTANTS.NETWORK_LOCATION_NOT_FOUND)) {
               this.status = Statuses.COULD_NOT_CONNECT;
-            } else {
+            } else if (errorsCaught.includes(ERROR_CONSTANTS.INVALID_NETWORK_LOCATION_FORMAT)) {
               this.status = Statuses.INVALID_ADDRESS;
+            } else {
+              this.$store.dispatch('handleApiError', err);
             }
           })
           .then(() => {

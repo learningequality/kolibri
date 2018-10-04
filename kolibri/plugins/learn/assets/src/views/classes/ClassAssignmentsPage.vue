@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1 class="classroom-name">
+    <h1 dir="auto" class="classroom-name">
       {{ classroomName }}
     </h1>
 

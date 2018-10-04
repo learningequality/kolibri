@@ -173,7 +173,7 @@ class Command(AsyncCommand):
 
             if number_of_skipped_files > 0:
                 logger.warning(
-                    "{} files are skipped, because errors occured during the import.".format(
+                    "{} files are skipped, because errors occurred during the import.".format(
                         number_of_skipped_files))
 
             if exception:
@@ -203,7 +203,7 @@ class Command(AsyncCommand):
                 # file is corrupted. Skip this file.
                 if filetransfer.total_size < f.file_size:
                     e = "File {} is corrupted.".format(filetransfer.source)
-                    logger.error("An error occured during content import: {}".format(e))
+                    logger.error("An error occurred during content import: {}".format(e))
                     overall_progress_update(f.file_size)
                     return True, 1
 
@@ -217,7 +217,7 @@ class Command(AsyncCommand):
             return True, 2
 
         except Exception as e:
-            logger.error("An error occured during content import: {}".format(e))
+            logger.error("An error occurred during content import: {}".format(e))
             retry = import_export_content.retry_import(e, skip_404=True)
 
             if retry:
@@ -227,7 +227,7 @@ class Command(AsyncCommand):
                 self.progresstrackers[0].progress = original_value
                 self.progresstrackers[0].update_callback(original_progress.progress_fraction, original_progress)
 
-                logging.info('Waiting for 30 seconds before retrying import: {}\n'.format(
+                logger.info('Waiting for 30 seconds before retrying import: {}\n'.format(
                     filetransfer.source))
                 sleep(30)
                 return False, 0

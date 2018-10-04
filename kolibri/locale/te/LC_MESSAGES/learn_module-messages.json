@@ -90,7 +90,7 @@
     "TopicsPage.navigate": "శీర్షికలను ఉపయోగించి కంటెంట్‌ని నావిగేట్ చేయి",
     "TopicsPage.documentTitleForChannel": "అంశాలు - { channelTitle }",
     "TopicsPage.documentTitleForTopic": "",
-    "TotalPoints.pointsTooltip": "మీరు { points, number } సంపాదించారు!",
+    "TotalPoints.pointsTooltip": "",
     "AllClassesPage.allClassesHeader": "తరగతులు",
     "AllClassesPage.documentTitle": "అన్ని తరగతులు",
     "AssignedExamsCards.examsHeader": "పరీక్షలు",

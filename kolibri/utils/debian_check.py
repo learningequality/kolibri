@@ -1,3 +1,4 @@
+import getpass
 import os
 import sys
 
@@ -13,7 +14,9 @@ def check_debian_user():
 
     with open("/etc/kolibri/username", "r") as f:
         kolibri_user = f.read().rstrip()
-    current_user = os.environ.get("USER")
+
+    current_user = getpass.getuser()
+
     if not kolibri_user or kolibri_user == current_user:
         return
 

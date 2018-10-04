@@ -14,7 +14,7 @@
         :text="$tr('options')"
         :options="actionOptions"
         appearance="raised-button"
-        @select="handleSelection"
+        @select="setExamsModal($event.value)"
       />
     </AssignmentSummary>
 
@@ -35,7 +35,7 @@
         <h3>
           {{ viewByGroups ? reportGrouping[0].group.name || $tr('ungrouped') : $tr('allLearners') }}
         </h3>
-        <p class="average-score">{{ getAverageScore(reportGrouping) }}</p>
+        <p class="average-score">{{ averageScoreText(reportGrouping) }}</p>
 
         <CoreTable>
           <caption class="visuallyhidden">{{ $tr('examReport') }}</caption>
@@ -59,33 +59,17 @@
                   :text="examTaker.name"
                   :to="examDetailPageLink(examTaker.id)"
                 />
-                <template v-else>
+                <span dir="auto" v-else>
                   {{ examTaker.name }}
-                </template>
+                </span>
               </td>
-
               <td>
-                <template v-if="(examTaker.progress === exam.question_count) || examTaker.closed">
-                  {{ $tr('completed') }}
-                </template>
-                <template v-else-if="examTaker.progress !== undefined">
-                  {{ $tr('remaining', { num: (exam.question_count - examTaker.progress) }) }}
-                </template>
-                <template v-else>
-                  {{ $tr('notstarted') }}
-                </template>
+                {{ examTakerProgressText(examTaker) }}
               </td>
-
               <td>
-
-                {{
-                  examTaker.score === undefined ?
-                    '–' :
-                    $tr('scorePercentage', { num: examTaker.score / exam.question_count })
-                }}
+                {{ examTakerScoreText(examTaker) }}
               </td>
-
-              <td v-if="!viewByGroups">{{ examTaker.group.name || '–' }}</td>
+              <td dir="auto" v-if="!viewByGroups">{{ examTaker.group.name || '–' }}</td>
             </tr>
           </tbody>
         </CoreTable>
@@ -102,7 +86,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState, mapActions, mapGetters } from 'vuex';
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
@@ -137,46 +121,44 @@
     data() {
       return {
         viewByGroups: false,
+        AssignmentActions,
+        USER,
+        examKind: ContentNodeKinds.EXAM,
       };
     },
     computed: {
       ...mapState(['classId', 'reportRefreshInterval']),
       ...mapState('examReport', ['examTakers', 'exam', 'learnerGroups']),
+      ...mapGetters('examReport', ['learnerIsExamAssignee']),
       viewByGroupsIsDisabled() {
-        return !this.learnerGroups.length || this.examTakers.every(learner => !learner.group.id);
+        return !this.learnerGroups.length || this.examAssignees.every(learner => !learner.group.id);
+      },
+      examAssignees() {
+        return this.examTakers.filter(this.learnerIsExamAssignee);
       },
       reportGroupings() {
         let reportGroupings;
         if (this.viewByGroups) {
           reportGroupings = this.learnerGroups
-            .map(group => this.examTakers.filter(learner => learner.group.id === group.id))
+            .map(group => this.examAssignees.filter(learner => learner.group.id === group.id))
             .filter(grouping => grouping.length !== 0);
           reportGroupings = orderBy(
             reportGroupings,
             [grouping => grouping[0].group.name.toUpperCase()],
             ['asc']
           );
-          reportGroupings.push(this.examTakers.filter(learner => !learner.group.id));
+          reportGroupings.push(this.examAssignees.filter(learner => !learner.group.id));
         } else {
-          reportGroupings = [this.examTakers];
+          reportGroupings = [this.examAssignees];
         }
         return reportGroupings.filter(grouping => grouping.length !== 0);
       },
-      AssignmentActions() {
-        return AssignmentActions;
-      },
-      USER() {
-        return USER;
-      },
-      examKind() {
-        return ContentNodeKinds.EXAM;
-      },
       actionOptions() {
         return [
-          { label: this.$tr('previewExam') },
-          { label: this.$tr('editDetails') },
-          { label: this.$tr('copyExamOptionLabel') },
-          { label: this.$tr('delete') },
+          { label: this.$tr('previewExam'), value: ExamModals.PREVIEW_EXAM },
+          { label: this.$tr('editDetails'), value: AssignmentActions.EDIT_DETAILS },
+          { label: this.$tr('copyExamOptionLabel'), value: AssignmentActions.COPY },
+          { label: this.$tr('delete'), value: AssignmentActions.DELETE },
         ];
       },
     },
@@ -196,18 +178,6 @@
           isSamePage: samePageCheckGenerator(this.$store),
         });
       },
-      handleSelection(optionSelected) {
-        const action = optionSelected.label;
-        if (action === this.$tr('previewExam')) {
-          this.setExamsModal(ExamModals.PREVIEW_EXAM);
-        } else if (action === this.$tr('editDetails')) {
-          this.setExamsModal(AssignmentActions.EDIT_DETAILS);
-        } else if (action === this.$tr('copyExamOptionLabel')) {
-          this.setExamsModal(AssignmentActions.COPY);
-        } else if (action === this.$tr('delete')) {
-          this.setExamsModal(AssignmentActions.DELETE);
-        }
-      },
       examDetailPageLink(id) {
         return {
           name: PageNames.EXAM_REPORT_DETAIL_ROOT,
@@ -218,7 +188,23 @@
           },
         };
       },
-      getAverageScore(learners) {
+      examTakerProgressText({ progress, closed }) {
+        const { question_count } = this.exam;
+        if (closed) {
+          return this.$tr('completed');
+        } else if (progress !== undefined) {
+          return this.$tr('remaining', { num: question_count - progress });
+        } else {
+          return this.$tr('notstarted');
+        }
+      },
+      examTakerScoreText({ score }) {
+        if (score === undefined) {
+          return '–';
+        }
+        return this.$tr('scorePercentage', { num: score / this.exam.question_count });
+      },
+      averageScoreText(learners) {
         const examsInProgress = learners.filter(learner => learner.progress !== undefined);
         const totalScores = sumBy(examsInProgress, 'score');
         const averageScore = totalScores / examsInProgress.length / this.exam.question_count;

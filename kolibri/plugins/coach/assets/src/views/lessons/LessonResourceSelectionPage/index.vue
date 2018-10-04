@@ -35,7 +35,7 @@
       v-if="inSearchMode"
       class="search-filters"
       :searchTerm="searchTerm"
-      :searchResults="contentList"
+      :searchResults="searchResults"
       v-model="filters"
     />
 
@@ -45,6 +45,7 @@
       v-if="!isExiting"
       :contentList="filteredContentList"
       :showSelectAll="selectAllIsVisible"
+      :viewMoreButtonState="viewMoreButtonState"
       :selectAllChecked="addableContent.length === 0"
       :contentIsChecked="contentIsInLesson"
       :contentHasCheckbox="contentIsDirectoryKind"
@@ -52,6 +53,7 @@
       :contentCardLink="contentLink"
       @changeselectall="toggleTopicInWorkingResources"
       @change_content_card="toggleSelected"
+      @moreresults="handleMoreResults"
     />
 
   </div>
@@ -65,6 +67,7 @@
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import debounce from 'lodash/debounce';
   import every from 'lodash/every';
+  import pickBy from 'lodash/pickBy';
   import xor from 'lodash/xor';
   import UiToolbar from 'keen-ui/src/UiToolbar';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -99,32 +102,28 @@
       return {
         // null corresponds to 'All' filter value
         filters: {
-          channel: null,
-          kind: null,
-          role: null,
+          channel: this.$route.query.channel || null,
+          kind: this.$route.query.kind || null,
+          role: this.$route.query.role || null,
         },
         isExiting: false,
         workingResourcesCopy: [...this.$store.state.lessonSummary.workingResources],
+        moreResultsState: null,
       };
     },
     computed: {
       ...mapState(['classId', 'pageName']),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
-      ...mapState('lessonSummary/resources', ['ancestorCounts', 'contentList']),
+      ...mapState('lessonSummary/resources', ['ancestorCounts', 'contentList', 'searchResults']),
+      ...mapGetters('lessonSummary/resources', ['numRemainingSearchResults']),
       ...mapGetters(['contentNodeIsTopic']),
       filteredContentList() {
-        const { channel, kind, role } = this.filters;
+        const { role } = this.filters;
         if (!this.inSearchMode) {
           return this.contentList;
         }
-        return this.contentList.filter(contentNode => {
+        return this.searchResults.results.filter(contentNode => {
           let passesFilters = true;
-          if (channel) {
-            passesFilters = passesFilters && contentNode.channel_id === channel;
-          }
-          if (kind) {
-            passesFilters = passesFilters && contentNode.kind === kind;
-          }
           if (role === 'nonCoach') {
             passesFilters = passesFilters && contentNode.num_coach_contents === 0;
           }
@@ -158,6 +157,15 @@
           !every(this.contentList, this.contentIsDirectoryKind)
         );
       },
+      viewMoreButtonState() {
+        if (this.moreResultsState === 'waiting' || this.moreResultsState === 'error') {
+          return this.moreResultsState;
+        }
+        if (this.numRemainingSearchResults === 0) {
+          return 'no_more_results';
+        }
+        return 'visible';
+      },
       contentIsInLesson() {
         return ({ id }) => this.workingResources.includes(id);
       },
@@ -173,6 +181,24 @@
         this.showResourcesDifferenceMessage(newVal.length - oldVal.length);
         this.debouncedSaveResources();
       },
+      filters(newVal) {
+        this.$router.push({
+          query: pickBy(newVal),
+        });
+      },
+    },
+    beforeRouteEnter(to, from, next) {
+      // HACK if last page was LessonContentPreviewPage, then we need to make sure
+      // to immediately autosave just in case a change was made there. This gets
+      // called whether or not a change is made, because we don't track changes
+      // enough steps back.
+      if (from.name === LessonsPageNames.SELECTION_CONTENT_PREVIEW) {
+        next(vm => {
+          return vm.saveResources();
+        });
+      } else {
+        next();
+      }
     },
     beforeRouteLeave(to, from, next) {
       // Only autosave if changes have been made
@@ -210,6 +236,7 @@
     methods: {
       ...mapActions(['createSnackbar', 'clearSnackbar']),
       ...mapActions('lessonSummary', ['saveLessonResources', 'addToResourceCache']),
+      ...mapActions('lessonSummary/resources', ['fetchAdditionalSearchResults']),
       ...mapMutations('lessonSummary', {
         addToWorkingResources: 'ADD_TO_WORKING_RESOURCES',
         removeFromSelectedResources: 'REMOVE_FROM_WORKING_RESOURCES',
@@ -304,6 +331,21 @@
             last_id: lastId,
           },
         });
+      },
+      handleMoreResults() {
+        this.moreResultsState = 'waiting';
+        this.fetchAdditionalSearchResults({
+          searchTerm: this.searchTerm,
+          kind: this.filters.kind,
+          channelId: this.filters.channel,
+          currentResults: this.searchResults.results,
+        })
+          .then(() => {
+            this.moreResultsState = null;
+          })
+          .catch(() => {
+            this.moreResultsState = 'error';
+          });
       },
     },
     $trs: {

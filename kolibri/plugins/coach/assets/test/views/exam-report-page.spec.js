@@ -11,6 +11,7 @@ function makeWrapper(options = {}) {
     exam: {
       title: 'exam',
       question_count: 6,
+      assignments: [{ id: 'class_1', collection_kind: 'classroom' }],
     },
     learnerGroups: [],
   });
