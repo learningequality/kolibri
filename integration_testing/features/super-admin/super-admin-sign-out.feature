@@ -1,5 +1,5 @@
-Feature: Superuser sign-out
-    Superuser need to be able to sign out when finished using Kolibri
+Feature: Super Admin sign-out
+    Super Admin need to be able to sign out when finished using Kolibri
 
   Background:
     Given that I am signed in to Kolibri

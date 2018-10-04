@@ -1,8 +1,8 @@
-Feature: Superuser delete channel
-    Superuser needs to be able to delete content channels from the device
+Feature: Super Admin delete channel
+    Super Admin needs to be able to delete content channels from the device
 
   Background:
-    Given I am signed in to Kolibri as superuser, or a user with device permissions to import content
+    Given I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on *Device > Content* page
       And there is a <channel> channel on the device
 

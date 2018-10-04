@@ -1,8 +1,8 @@
-Feature: Superuser delete classes
-    Superuser needs to be able to delete classes from the facility
+Feature: Super Admin delete classes
+    Super Admin needs to be able to delete classes from the facility
 
   Background:
-    Given I am signed in to Kolibri as superuser
+    Given I am signed in to Kolibri as super admin
       And I am on *Facility > Classes* page
       And there is a class <class> created in the facility
 

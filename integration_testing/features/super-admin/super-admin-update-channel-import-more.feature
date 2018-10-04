@@ -1,9 +1,9 @@
-Feature: Superuser import more content
+Feature: Super Admin import more content
     Admin needs to be able to update channels on their device and import new or changed resources when the channel is republished on Studio
 
   Background:
     Given there is the <channel> channel on the device which has been updated and repubished on Studio since the original import
-      And I am signed in to Kolibri as superuser, or a user with device permissions to import content
+      And I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on the *Device > Content* page
 
   Scenario: Update channel and import new content from Studio

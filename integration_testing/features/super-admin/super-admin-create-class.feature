@@ -1,8 +1,8 @@
-Feature: Superuser create classes
-    Superuser needs to be able create classes for each facility
+Feature: Super Admin create classes
+    Super Admin needs to be able create classes for each facility
 
   Background:
-    Given I am signed in to Kolibri as superuser
+    Given I am signed in to Kolibri as super admin
       And I am on *Facility > Classes* page
 
   Scenario: Create class

@@ -5,6 +5,10 @@ Feature: Admin edit users
     Given I am signed in to Kolibri as admin user
       And I am on *Facility > Users* page
 
+  Scenario: Admins cannot edit the user account details of a super admin
+    When I find a super admin in the Users list
+    Then I see that the *Manage* dropdown button is disabled for them
+
   Scenario: Edit user's full name
     When I click on *Manage* button for the user I want to edit
       And I select *Edit* option
@@ -36,6 +40,18 @@ Feature: Admin edit users
     Then the modal closes
       And I see the user with edited type (label or no label depending on the change)
 # TODO: add options for the 2 coach types
+
+  Scenario: Change own user type
+    Given I am not a Super Admin
+    When I click on *Manage* button for myself
+      And I select *Edit* option
+    Then I see *Edit user* modal
+    When I click or tab into *User type*
+    Then the dropdown opens
+    When I select a role other than Admin
+      And I click the *Save* button
+    Then I am taken to the *Sign in* page
+
 
   Scenario: Reset user's password
     When I click on *Manage* button of the user I want to reset password for

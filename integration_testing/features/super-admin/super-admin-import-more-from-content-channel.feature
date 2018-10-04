@@ -1,9 +1,9 @@
-Feature: Superuser import more content
+Feature: Super Admin import more content
     Admin needs to be able to import additional resources from the content channels previously already imported on the device
 
   Background:
     Given there is partially imported content from the <channel> channel on the device
-      And I am signed in to Kolibri as superuser, or a user with device permissions to import content
+      And I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on the *Device > Content* page
 
   Scenario: Import more content into channel from Kolibri Studio

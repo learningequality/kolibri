@@ -1,5 +1,5 @@
-Feature: Superuser setup wizard
-    Superuser needs to create their own account and perform the initial facility configuration of Kolibri through the setup wizard
+Feature: Super Admin setup wizard
+    Super Admin needs to create their own account and perform the initial facility configuration of Kolibri through the setup wizard
 
   Background:
     Given that the Kolibri installation was successful
@@ -40,7 +40,7 @@ Feature: Superuser setup wizard
         And click *Continue*
       Then I see the *Step 4 of 4* of the setup wizard
 
-    Scenario: Superuser account details
+    Scenario: Super Admin account details
       Given that I am on the *Step 4 of 4* of the setup wizard
         And I see *Create your Admin account*
       When I fill in the full name, username and password fields

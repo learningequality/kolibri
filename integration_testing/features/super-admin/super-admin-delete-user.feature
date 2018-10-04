@@ -1,8 +1,8 @@
-Feature: Superuser delete users
-    Superuser needs to be able to delete users from the facility
+Feature: Super Admin delete users
+    Super Admin needs to be able to delete users from the facility
 
   Background:
-    Given I am signed in to Kolibri superuser
+    Given I am signed in to Kolibri super admin
       And I am on *Facility > Users* page
 
   Scenario: Delete user

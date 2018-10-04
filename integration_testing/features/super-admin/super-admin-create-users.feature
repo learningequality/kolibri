@@ -1,8 +1,8 @@
-Feature: Superuser create users
-    Superuser needs to be able to create user accounts for each role in the facility
+Feature: Super Admin create users
+    Super Admin needs to be able to create user accounts for each role in the facility
 
   Background:
-    Given I am signed in to Kolibri as superuser
+    Given I am signed in to Kolibri as super admin
       And I am on *Facility > Users* page
 
   Scenario: Create facility coach user account
