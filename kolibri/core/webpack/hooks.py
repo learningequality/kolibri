@@ -270,17 +270,29 @@ class WebpackBundleHook(hooks.KolibriHook):
             src = None
             if chunk['name'].endswith('.js'):
                 if self.inline:
+                    # During development, we do not write built files to disk
+                    # Because of this, this call might return None
                     src = self.get_filecontent(chunk['url'])
                 if src is not None:
+                    # If it is not None, then we can inline it
                     yield inline_js_tag.format(src=src)
                 else:
+                    # If src is None, either this is not something we should be inlining
+                    # or we are in development mode and need to fetch the file from the
+                    # development server, not the disk
                     yield js_tag.format(url=chunk['url'])
             elif chunk['name'].endswith('.css'):
                 if self.inline:
+                    # During development, we do not write built files to disk
+                    # Because of this, this call might return None
                     src = self.get_filecontent(chunk['url'])
                 if src is not None:
+                    # If it is not None, then we can inline it
                     yield inline_css_tag.format(src=src)
                 else:
+                    # If src is None, either this is not something we should be inlining
+                    # or we are in development mode and need to fetch the file from the
+                    # development server, not the disk
                     yield css_tag.format(url=chunk['url'])
 
     def frontend_message_tag(self):
