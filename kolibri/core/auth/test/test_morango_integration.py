@@ -96,22 +96,22 @@ class EcosystemTestCase(TestCase):
         # build up url and send request
         if lookup:
             lookup = lookup + '/'
-        url = urljoin(urljoin(server.base_url, "api/" + endpoint + "/"), lookup)
+        url = urljoin(urljoin(server.base_url, "api/auth/" + endpoint + "/"), lookup)
         auth = ("superuser", "password")
         resp = requests.request(method, url, json=data, params=params, auth=auth)
         resp.raise_for_status()
         return resp
 
-    def assertServerQuerysetEqual(self, s1, s2):
+    def assertServerQuerysetEqual(self, s1, s2, dataset_id):
         syncable_models = list(_profile_models['facilitydata'].values())
         syncable_models.pop(0)  # remove FacilityDataset because __str__() does not point to correct db alias
         for klass in syncable_models:
-            self.assertQuerysetEqual(klass.objects.using(s1.db_alias).all(),
-                                     [repr(u) for u in klass.objects.using(s2.db_alias).all()],
+            self.assertQuerysetEqual(klass.objects.using(s1.db_alias).filter(dataset_id=dataset_id),
+                                     [repr(u) for u in klass.objects.using(s2.db_alias).filter(dataset_id=dataset_id)],
                                      ordered=False)
         # morango models
-        self.assertQuerysetEqual(Store.objects.using(s1.db_alias).all(),
-                                 [repr(u) for u in Store.objects.using(s2.db_alias).all()],
+        self.assertQuerysetEqual(Store.objects.using(s1.db_alias).filter(partition__startswith=dataset_id),
+                                 [repr(u) for u in Store.objects.using(s2.db_alias).filter(partition__startswith=dataset_id)],
                                  ordered=False)
 
     @multiple_kolibri_servers(3)
@@ -130,7 +130,7 @@ class EcosystemTestCase(TestCase):
 
         # assert that all kolibri instances start off equal
         for i in range(servers_len):
-            self.assertServerQuerysetEqual(servers[i], servers[(i+1) % servers_len])
+            self.assertServerQuerysetEqual(servers[i], servers[(i+1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
 
         # assert created user is synced
         FacilityUser(username="user", facility=Facility.objects.using(s0_alias).first()).save(using=s0_alias)
@@ -199,7 +199,7 @@ class EcosystemTestCase(TestCase):
 
         # assert that the data of specific models match up
         for i in range(servers_len):
-            self.assertServerQuerysetEqual(servers[i], servers[(i+1) % servers_len])
+            self.assertServerQuerysetEqual(servers[i], servers[(i+1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
 
     @multiple_kolibri_servers(5)
     def test_chaos_sync(self, servers):
@@ -226,4 +226,4 @@ class EcosystemTestCase(TestCase):
 
         # assert that the data of specific models match up
         for i in range(servers_len):
-            self.assertServerQuerysetEqual(servers[i], servers[(i+1) % servers_len])
+            self.assertServerQuerysetEqual(servers[i], servers[(i+1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
