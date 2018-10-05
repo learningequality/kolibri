@@ -18,7 +18,7 @@ except ImportError:
 
 
 logger = logging.getLogger('profiler')
-
+LINUX = sys.platform.startswith("linux")
 
 class Command(BaseCommand):
     """
@@ -43,6 +43,10 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        if not LINUX:
+            print("This OS is not supported yet")
+            sys.exit(0)
+
         interval = 10  # the measures are taken every 10 seconds
         _, port = get_kolibri_process_info()
         if port:

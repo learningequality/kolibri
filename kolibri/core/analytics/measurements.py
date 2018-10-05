@@ -2,7 +2,6 @@ import time
 from collections import namedtuple
 from datetime import timedelta
 
-import psutil
 import requests
 from django.contrib.sessions.models import Session
 from django.db import connection
@@ -11,6 +10,7 @@ from django.db.models import Sum
 from django.db.utils import OperationalError
 from django.utils import timezone
 
+import kolibri.core.analytics.pskolibri as psutil
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import UserSessionLog

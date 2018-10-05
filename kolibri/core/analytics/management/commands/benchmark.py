@@ -16,6 +16,7 @@ from kolibri.utils.server import installation_type
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time import local_now
 
+LINUX = sys.platform.startswith("linux")
 
 def format_line(parameter, value, indented=False):
     if indented:
@@ -72,6 +73,10 @@ class Command(BaseCommand):
     help = "Outputs performance info and statistics of usage for the running Kolibri instance in this server"
 
     def handle(self, *args, **options):
+        if not LINUX:
+            print("This OS is not supported yet")
+            sys.exit(0)
+
         try:
             kolibri_cpu, kolibri_mem = get_kolibri_use()
         except KolibriNotRunning:
