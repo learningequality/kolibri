@@ -16,7 +16,7 @@ Patch releases (e.g. '0.3.1') follow the same process outlined below, except tha
 Create alpha releases
 ---------------------
 
-For the majority of development on a new release, PRs will target the ``develop`` branch. Tag alpha releases as desired using Github's `Releases <https://github.com/learningequality/kolibri/releases>`_ functionality, which both adds a tag to the git repo and creates a placeholder on the Github site with built distributions.
+For the majority of development on a new release, PRs will target the ``develop`` branch. Tag alpha releases as desired using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality, which both adds a tag to the git repo and creates a placeholder on the Github site with built distributions.
 
 Make sure to target ``develop``, use the standard tag naming convention (e.g. ``v0.3.0-alpha1``), and mark it has a "pre-release".
 
@@ -49,7 +49,7 @@ Create a release branch
 When we're nearing the end of major new feature development, cut a new release branch. If we're getting ready to release version 0.3.0, we'd do the following steps:
 
 * Create new branch off of ``develop`` with a name like ``release-v0.3.x``
-* Set up `branch protections <https://help.github.com/articles/about-protected-branches/>`_ in Github using the same settings as ``develop``
+* Set up `branch protections <https://help.github.com/articles/about-protected-branches/>`__ in Github using the same settings as ``develop``
 * Re-target any outstanding PRs for this release from ``develop`` to ``release-v0.3.x``
 
 Next, a couple book-keeping steps are necessary. The ``VERSION`` variable in *__init__.py* should currently be ``(0, 2, 0, 'alpha', 1)`` in both the  ``release-v0.3.x`` and ``develop`` branches.
@@ -59,7 +59,7 @@ Next, a couple book-keeping steps are necessary. The ``VERSION`` variable in *__
 
 These changes can be merged by a Github admin without code review.
 
-Finally, tag the first beta using Github's `Releases <https://github.com/learningequality/kolibri/releases>`_ functionality. Target the ``release-v0.3.x`` branch, use the standard tag naming convention (``v0.3.0-beta1``), and mark it has a "pre-release".
+Finally, tag the first beta using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality. Target the ``release-v0.3.x`` branch, use the standard tag naming convention (``v0.3.0-beta1``), and mark it has a "pre-release".
 
 
 Pin internal dependencies
@@ -84,7 +84,7 @@ When the user-facing strings have been signed off, upload the strings to Crowdin
 
 Remember to also include strings from the Perseus plugin if necessary.
 
-At this point, updates to the `user documentation <https://github.com/learningequality/kolibri-docs/>`_ can also begin.
+At this point, updates to the `user documentation <https://github.com/learningequality/kolibri-docs/>`__ can also begin.
 
 
 Integration testing and beta releases
@@ -98,7 +98,7 @@ Make sure to target tags to the release branch. For example, for 0.3.0 betas, ta
 
 These betas should be used for end-to-end testing as final, stabilizing changes are introduced. Risky changes should be avoided during the beta stage unless a critical issue is identified with no straightforward fix.
 
-When a new beta is published, delete any older betas using Github's 'delete release' functionality. This will *not* delete the git tag. Update `kolibribeta.learningequality.org <http://kolibribeta.learningequality.org/>`_ with the latest beta, and notify the team on Slack when new betas are available.
+When a new beta is published, delete any older betas using Github's 'delete release' functionality. This will *not* delete the git tag. Update `kolibribeta.learningequality.org <http://kolibribeta.learningequality.org/>`__ with the latest beta, and notify the team on Slack when new betas are available.
 
 
 Update with final translations
@@ -159,7 +159,7 @@ For example, if we were releasing version 0.3.0, we would perform these steps:
 
 * The ``VERSION`` variable in *__init__.py* should currently be ``(0, 3, 0, 'beta', 1)`` in ``release-v0.3.x``
 * Update this to be ``(0, 3, 0, 'final', 0)`` (no code review necessary)
-* Tag the final release as ``v0.3.0`` targetting the ``release-v0.3.x`` branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`_ functionality.
+* Tag the final release as ``v0.3.0`` targetting the ``release-v0.3.x`` branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality.
 * Copy the entries from the changelog into Github's "Release notes" and ensure that the formatting and links are correct.
 * Delete the most recent beta pre-lease on github.
 * Merge ``release-v0.3.x`` into ``master`` (no code review necessary)
@@ -184,7 +184,7 @@ Then sign the release and upload it:
 
     $ make release
 
-Confirm that the release is uploaded to `PyPi <https://pypi.org/>`_, and try installing it and running it on a few operating systems with both Python 2 and Python 3.
+Confirm that the release is uploaded to `PyPi <https://pypi.org/>`__, and try installing it and running it on a few operating systems with both Python 2 and Python 3.
 
 
 Generate, test, and publish distributions
@@ -212,9 +212,9 @@ For the example of version 0.3.0 we would do the following:
    * Upload .exe to Pantry as ``kolibri-v0.3.0-windows-installer.exe``
 
 
-Update `learningequality.org/download <https://learningequality.org/download/>`_ to point to the latest release by updating variables in the Admin page. Log in and navigate to:
+Update `learningequality.org/download <https://learningequality.org/download/>`__ to point to the latest release by updating variables in the Admin page. Log in and navigate to:
 
-    `Admin <https://learningequality.org/admin/>`_ → Redirects → Redirect variables
+    `Admin <https://learningequality.org/admin/>`__ → Redirects → Redirect variables
 
 Update the following variables:
 
@@ -229,7 +229,7 @@ Publish the Medium post if necessary.
 Update the demo server
 ----------------------
 
-Get `kolibridemo.learningequality.org <http://kolibridemo.learningequality.org/>`_ running the latest version:
+Get `kolibridemo.learningequality.org <http://kolibridemo.learningequality.org/>`__ running the latest version:
 
  * SSH into ``192.237.248.135``
  * ``sudo su www-data``
@@ -243,13 +243,13 @@ Then restart all running instances:
     run_all
 
 
-Verify that `the demo server <kolibridemo.learningequality.org>`_ is running the latest version.
+Verify that `the demo server <kolibridemo.learningequality.org>`__ is running the latest version.
 
 
 Wrap-up
 -------
 
-* Publish relevant updates to the `Toolkit <https://learningequality.org/r/toolkit>`_ and `User documentation <https://kolibri.readthedocs.io/en/latest/>`_
-* `Close the milestone <https://github.com/learningequality/kolibri/milestones>`_ on Github
+* Publish relevant updates to the `Toolkit <https://learningequality.org/r/toolkit>`__ and `User documentation <https://kolibri.readthedocs.io/en/latest/>`__
+* `Close the milestone <https://github.com/learningequality/kolibri/milestones>`__ on Github
 * For issues on this milestone that have been reported by the community, try to report in appropriate forum threads that the new release addresses the issues
 

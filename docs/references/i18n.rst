@@ -10,9 +10,9 @@ As a platform intended for use around the world, Kolibri has a strong mandate fo
 Writing localized strings
 -------------------------
 
-For strings in python files, we are using standard Django tools (``gettext`` and associated functions). See the `Django i18n documentation <https://docs.djangoproject.com/en/1.10/topics/i18n/>`_ for more information.
+For strings in python files, we are using standard Django tools (``gettext`` and associated functions). See the `Django i18n documentation <https://docs.djangoproject.com/en/1.10/topics/i18n/>`__ for more information.
 
-For strings in the frontend, we are using `Vue-Intl <https://www.npmjs.com/package/vue-intl>`_, an in house port of `React-intl <https://www.npmjs.com/package/react-intl>`_. Strings are collected during the build process, and bundled into exported JSON files.
+For strings in the frontend, we are using `Vue-Intl <https://www.npmjs.com/package/vue-intl>`__, an in house port of `React-intl <https://www.npmjs.com/package/react-intl>`__. Strings are collected during the build process, and bundled into exported JSON files.
 
 Messages will be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the frontend are based off the current Django language for the HTTP request.
 
@@ -89,7 +89,7 @@ Then messages are available from the ``$tr`` method on the translator object:
 ICU message syntax
 ~~~~~~~~~~~~~~~~~~
 
-All frontend translations can be parameterized using `ICU message syntax <https://formatjs.io/guides/message-syntax/>`_. Additional documentation is `available on crowdin <https://support.crowdin.com/icu-message-syntax/>`_.
+All frontend translations can be parameterized using `ICU message syntax <https://formatjs.io/guides/message-syntax/>`__. Additional documentation is `available on crowdin <https://support.crowdin.com/icu-message-syntax/>`__.
 
 This syntax can be used to do things like inject variables, pluralize words, and localize numbers.
 
@@ -119,7 +119,7 @@ We use the Crowdin platform to enable third parties to translate the strings in 
 
 Note that you have to specify branch names for most commands.
 
-.. note:: These notes are only for the Kolibri application. For translation of user documentation, please see the `kolibri-docs repository <https://github.com/learningequality/kolibri-docs/>`_.
+.. note:: These notes are only for the Kolibri application. For translation of user documentation, please see the `kolibri-docs repository <https://github.com/learningequality/kolibri-docs/>`__.
 
 
 Prerequisites
@@ -129,17 +129,17 @@ First, you'll need to have GNU ``gettext`` available on your path. You may be ab
 
 .. note:: If you install ``gettext`` on Mac with Homebrew, you may need to add the binary to your path manually
 
-Next, ensure you have an environment variable ``CROWDIN_API_KEY`` set to the Learning Equality organization `account API key <https://support.crowdin.com/api/api-integration-setup/>`_.
+Next, ensure you have an environment variable ``CROWDIN_API_KEY`` set to the Learning Equality organization `account API key <https://support.crowdin.com/api/api-integration-setup/>`__.
 
 
 Updating the Perseus plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The `perseus exercise plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`_ has its own translated files that also need to be updated.
+The `perseus exercise plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__ has its own translated files that also need to be updated.
 
 To do this, you'll need to install the Perseus Plugin in development mode (using ``pip install -e``). This will allow the scripts to properly upload sources and download translations from and to the Perseus plugin, which may then need to be released.
 
-See the `Perseus plugin development guide <https://github.com/learningequality/kolibri-exercise-perseus-plugin#development-guide>`_ for more information on setup and publication.
+See the `Perseus plugin development guide <https://github.com/learningequality/kolibri-exercise-perseus-plugin#development-guide>`__ for more information on setup and publication.
 
 
 Exporting and uploading
@@ -147,7 +147,7 @@ Exporting and uploading
 
 Typically, strings will be uploaded when a new release branch is cut from ``develop``, signifying the beginning of string freeze and the ``beta`` releases.
 
-Before translators can begin working on the strings in our application, they need to be uploaded to Crowdin. Translations are maintained in release branches on Crowdin in the `Crowdin kolibri project <http://crowdin.com/project/kolibri>`_.
+Before translators can begin working on the strings in our application, they need to be uploaded to Crowdin. Translations are maintained in release branches on Crowdin in the `Crowdin kolibri project <http://crowdin.com/project/kolibri>`__.
 
 This command will extract front- and backend strings and upload them to Crowdin:
 
@@ -234,15 +234,15 @@ The language must be described using the following keys, with everything in lowe
 
 Code references:
 
-* `Crowdin language codes <https://support.crowdin.com/api/language-codes/>`_
-* `Supported Intl language codes <https://github.com/andyearnshaw/Intl.js/tree/master/locale-data/jsonp>`_
+* `Crowdin language codes <https://support.crowdin.com/api/language-codes/>`__
+* `Supported Intl language codes <https://github.com/andyearnshaw/Intl.js/tree/master/locale-data/jsonp>`__
 
 For the language names, consult:
 
-1. Primarily, `ISO 639 codes <https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>`_
-2. `Backup reference <http://helpsharepointvision.nevron.com/Culture_Table.html>`_
+1. Primarily, `ISO 639 codes <https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>`__
+2. `Backup reference <http://helpsharepointvision.nevron.com/Culture_Table.html>`__
 
-For the font name, check the `Noto database <https://www.google.com/get/noto/>`_.
+For the font name, check the `Noto database <https://www.google.com/get/noto/>`__.
 
 Any time a language is added to supported languages the command ``yarn run generate-locale-data`` must be run, and the resulting file changes committed to the code base.
 
@@ -252,7 +252,7 @@ In some cases, the language doesn't exist in Django. In these situations, the la
 Adding a new font
 ~~~~~~~~~~~~~~~~~
 
-We use variants of Noto Sans in Regular and Bold throughout the application in different languages. Search the `Noto database <https://www.google.com/get/noto/>`_ to see which font supports the language you're interested in. You can update an existing font or add a new one by running:
+We use variants of Noto Sans in Regular and Bold throughout the application in different languages. Search the `Noto database <https://www.google.com/get/noto/>`__ to see which font supports the language you're interested in. You can update an existing font or add a new one by running:
 
 To do this, run:
 
@@ -262,7 +262,7 @@ To do this, run:
 
 Where ``[FontName]`` might for example be for exmaple ``NotoSansBengali``. Note that this will also automatically look for the ``[FontName]UI`` variant, e.g. ``NotoSansBengaliUI``.
 
-.. note:: We attempt to download Phase III hinted TTF fonts from the `Google Noto Fonts <https://github.com/googlei18n/noto-fonts/>`_ github repo. It is possible that the structure of this repo will change over time, and the installer script will need to be updated.
+.. note:: We attempt to download Phase III hinted TTF fonts from the `Google Noto Fonts <https://github.com/googlei18n/noto-fonts/>`__ github repo. It is possible that the structure of this repo will change over time, and the installer script will need to be updated.
 
 
 .. _rebuild_fonts:
