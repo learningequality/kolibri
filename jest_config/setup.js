@@ -12,7 +12,7 @@ Vue.prototype.Kolibri = {};
 Vue.config.silent = true;
 Vue.use(Vuex);
 Vue.use(VueRouter);
-i18nSetup();
+i18nSetup(true);
 Vue.config.productionTip = false;
 
 const csrf = global.document.createElement('input');
