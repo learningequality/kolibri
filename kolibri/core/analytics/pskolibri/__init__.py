@@ -160,6 +160,24 @@ def pids():
     return _psplatform.pids()
 
 
+def pid_exists(pid):
+    """Return True if given PID exists in the current process list.
+    This is faster than doing "pid in psutil.pids()" and
+    should be preferred.
+    """
+    if pid < 0:
+        return False
+    elif pid == 0 and POSIX:
+        # On POSIX we use os.kill() to determine PID existence.
+        # According to "man 2 kill" PID 0 has a special meaning
+        # though: it refers to <<every process in the process
+        # group of the calling process>> and that is not we want
+        # to do here.
+        return pid in pids()
+    else:
+        return _psplatform.pid_exists(pid)
+
+
 class Process(object):
     """Represents an OS process with the given PID.
     If PID is omitted current process PID (os.getpid()) is used.

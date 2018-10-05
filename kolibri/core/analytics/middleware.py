@@ -3,10 +3,11 @@ from __future__ import absolute_import
 import logging
 import time
 
-import psutil
 from django.conf import settings
 from django.core.cache import caches
 from django.utils.deprecation import MiddlewareMixin
+
+import kolibri.core.analytics.pskolibri as psutil
 
 logger = logging.getLogger('requests_profiler')
 cache = caches[settings.CACHE_MIDDLEWARE_ALIAS]
