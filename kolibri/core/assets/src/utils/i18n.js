@@ -160,6 +160,9 @@ export function createTranslator(nameSpace, defaultMessages) {
 function _setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
+   *
+   * Note that this _must_ be called after i18nSetup because this function sets up
+   * the currentLanguage module variable which is referenced inside of here.
    **/
   const VueIntl = require('vue-intl');
   vue.use(VueIntl, { defaultLocale });
