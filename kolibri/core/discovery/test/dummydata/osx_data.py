@@ -113,7 +113,7 @@ map auto_home on /home (autofs, automounted, nobrowse)
 }
 
 disk_sizes = {
-    "/Volumes/HP v125w": {'free': 1234, 'total': 45678, 'used': 45678-1234},
+    "/Volumes/HP v125w": {'free': 1234, 'total': 45678, 'used': 45678 - 1234},
     "/": {'free': 0, 'total': 1000, 'used': 1000},
 }
 

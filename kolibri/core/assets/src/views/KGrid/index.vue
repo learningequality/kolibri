@@ -129,7 +129,7 @@
 
   /deep/ .pure-g,
   /deep/ .pure-g [class*='pure-u'] {
-    font-family: $core-font;
+    @include font-family-ui;
   }
 
 </style>

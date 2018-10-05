@@ -432,7 +432,8 @@
     $button-height-normal: 40px;
     $button-font-size-normal: 24px;
 
-    font-family: $core-font;
+    @include font-family-ui;
+
     font-size: $video-player-font-size;
     color: $video-player-font-color;
 
@@ -558,7 +559,7 @@
     }
 
     .vjs-menu-content {
-      font-family: $core-font;
+      @include font-family-ui;
     }
 
     .vjs-volume-control {

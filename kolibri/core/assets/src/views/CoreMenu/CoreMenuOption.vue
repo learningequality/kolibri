@@ -98,7 +98,6 @@
     position: relative;
     display: block;
     width: 100%;
-    font-family: $font-stack;
     text-decoration: inherit;
     user-select: none;
 

@@ -8,7 +8,7 @@ import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import merge from 'lodash/merge';
-import { setUpIntl } from '../utils/i18n';
+import { i18nSetup } from '../utils/i18n';
 import Mediator from './mediator';
 import apiSpec from './apiSpec';
 
@@ -69,7 +69,7 @@ export default class CoreApp {
       mediator.setReady();
     };
 
-    setUpIntl().then(intlReady);
+    i18nSetup().then(intlReady);
 
     // Bind 'this' value for public methods - those that will be exposed in the Facade.
     this.kolibri_modules = mediator._kolibriModuleRegistry;

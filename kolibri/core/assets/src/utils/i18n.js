@@ -1,7 +1,10 @@
+import find from 'lodash/find';
+import FontFaceObserver from 'fontfaceobserver';
 import vue from 'kolibri.lib.vue';
 import logger from '../logging';
+import supportedLanguages from '../../../../locale/supported_languages.json';
 import importIntlLocale from './intl-locale-data';
-import vueIntlLocaleData from './vue-intl-locale-data';
+import importVueIntlLocaleData from './vue-intl-locale-data';
 
 const logging = logger.getLogger(__filename);
 
@@ -154,16 +157,16 @@ export function createTranslator(nameSpace, defaultMessages) {
   return new Translator(nameSpace, defaultMessages);
 }
 
-export function setUpVueIntl() {
+function _setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
+   *
+   * Note that this _must_ be called after i18nSetup because this function sets up
+   * the currentLanguage module variable which is referenced inside of here.
    **/
   const VueIntl = require('vue-intl');
-
   vue.use(VueIntl, { defaultLocale });
-
   vue.prototype.isRtl = global.languageDir === 'rtl';
-
   languageDirection = global.languageDir || languageDirection;
 
   if (global.languages) {
@@ -175,25 +178,82 @@ export function setUpVueIntl() {
     return $trWrapper(nameSpace, this.$options.$trs, this.$formatMessage, messageId, args);
   };
 
-  if (global.languageCode) {
-    currentLanguage = global.languageCode;
-    vue.setLocale(currentLanguage);
-    setLanguageDensity(currentLanguage);
-
-    if (global.coreLanguageMessages) {
-      vue.registerMessages(currentLanguage, global.coreLanguageMessages);
-    }
-    vueIntlLocaleData().forEach(localeData => VueIntl.addLocaleData(localeData));
+  vue.setLocale(currentLanguage);
+  if (global.coreLanguageMessages) {
+    vue.registerMessages(currentLanguage, global.coreLanguageMessages);
   }
+  importVueIntlLocaleData().forEach(localeData => VueIntl.addLocaleData(localeData));
 }
 
-export function setUpIntl() {
+function _loadDefaultFonts() {
+  /*
+   * Eagerly load the full default fonts for the current language asynchronously, but
+   * avoid referencing them until they've been fully loaded. This is done by adding a
+   * class to the HTML root which has the effect of switching fonts from system defaults
+   * to Noto.
+   *
+   * This prevents the text from being invisible while the fonts are loading ("FOIT")
+   * and instead falls back on system fonts while they're loading ("FOUT").
+   */
+
+  // We use the <html> element to store the CSS 'loaded' class
+  const htmlEl = document.documentElement;
+  const FULL_FONTS = 'full-fonts-loaded';
+  const PARTIAL_FONTS = 'partial-fonts-loaded';
+  htmlEl.classList.add(PARTIAL_FONTS);
+
+  // If this is a modern browser, go ahead and immediately reference the full fonts.
+  // Then, continue pre-emptively loading the full default language fonts below.
+  if (global.useModernFontLoading) {
+    htmlEl.classList.remove(PARTIAL_FONTS);
+    htmlEl.classList.add(FULL_FONTS);
+  }
+
+  const language = find(supportedLanguages, lang => lang.intl_code == currentLanguage);
+
+  const uiNormal = new FontFaceObserver('noto-ui-full', { weight: 400 });
+  const uiBold = new FontFaceObserver('noto-ui-full', { weight: 700 });
+  const contentNormal = new FontFaceObserver('noto-content-full', { weight: 400 });
+  const contentBold = new FontFaceObserver('noto-content-full', { weight: 700 });
+
+  // passing 'language_name' to 'load' for its glyphs, not its value per se
+  Promise.all([
+    uiNormal.load(language.language_name, 20000),
+    uiBold.load(language.language_name, 20000),
+    contentNormal.load(language.language_name, 20000),
+    contentBold.load(language.language_name, 20000),
+  ])
+    .then(function() {
+      htmlEl.classList.remove(PARTIAL_FONTS);
+      htmlEl.classList.add(FULL_FONTS);
+      logging.debug(`Loaded full font for '${currentLanguage}'`);
+    })
+    .catch(function() {
+      logging.warn(`Could not load full font for '${currentLanguage}'`);
+    });
+}
+
+export function i18nSetup(skipPolyfill = false) {
   /**
-   * If the browser doesn't support the Intl polyfill, we retrieve that and
-   * the modules need to wait until that happens.
+   * Load fonts, app strings, and Intl polyfills
    **/
+
+  // Set up exported module variable
+  if (global.languageCode) {
+    currentLanguage = global.languageCode;
+  }
+
+  // Set up typography
+  setLanguageDensity(currentLanguage);
+  _loadDefaultFonts();
+
+  // If the browser doesn't support the Intl polyfill, we retrieve that and
+  // the modules need to wait until that happens.
   return new Promise((resolve, reject) => {
-    if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
+    if (Object.prototype.hasOwnProperty.call(global, 'Intl') || skipPolyfill) {
+      _setUpVueIntl();
+      resolve();
+    } else {
       Promise.all([
         new Promise(resolve => {
           require.ensure(
@@ -210,7 +270,7 @@ export function setUpIntl() {
         ([requireIntl, requireIntlLocaleData]) => {
           requireIntl(); // requireIntl must run before requireIntlLocaleData
           requireIntlLocaleData();
-          setUpVueIntl();
+          _setUpVueIntl();
           resolve();
         },
         error => {
@@ -219,9 +279,6 @@ export function setUpIntl() {
           reject();
         }
       );
-    } else {
-      setUpVueIntl();
-      resolve();
     }
   });
 }

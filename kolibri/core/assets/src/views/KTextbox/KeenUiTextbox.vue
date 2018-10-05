@@ -363,7 +363,6 @@
   .ui-textbox {
     align-items: flex-start;
     display: flex;
-    font-family: $font-stack;
     margin-bottom: $ui-input-margin-bottom;
 
     &:hover:not(.is-disabled) {
@@ -497,7 +496,6 @@
     color: $ui-input-text-color;
     cursor: auto;
     display: block;
-    font-family: $font-stack;
     font-size: $ui-input-text-font-size;
     font-weight: normal;
     margin: 0;

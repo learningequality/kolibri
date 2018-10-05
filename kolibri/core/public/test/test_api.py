@@ -137,7 +137,7 @@ class PublicAPITestCase(APITestCase):
             'icon_encoding': '',
             'matching_tokens': [],
             'public': True,
-            }
+        }
         for key, value in iteritems(expected):
             self.assertEqual(data[key], value)
         # we don't care what order these elements are in
