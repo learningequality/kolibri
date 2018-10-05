@@ -1,6 +1,8 @@
 import logging
+logging.basicConfig(level=logging.DEBUG)
 import os
 import sys
+import time
 
 import pew
 pew.set_app_name("Kolibri")
@@ -9,14 +11,13 @@ import pew.ui
 
 logging.info("Entering main.py...")
 
-try:
+
+if True:  # pew.ui.platform == "android":
     from jnius import autoclass
     Environment = autoclass('android.os.Environment')
     File = autoclass('java.io.File')
     Timezone = autoclass('java.util.TimeZone')
 
-except:
-    pass
 
 # TODO check for storage availibility
 def get_home_folder():
@@ -31,7 +32,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "kolibri", "dist"))
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
 
-if pew.ui.platform == "android":
+if True:  # pew.ui.platform == "android":
     os.environ["KOLIBRI_HOME"] = get_home_folder()
     os.environ["TZ"] = Timezone.getDefault().toZoneId().toString()
 
@@ -67,16 +68,19 @@ class Application(pew.ui.PEWApp):
         """
         Start your UI and app run loop here.
         """
+        self.thread = pew.ui.PEWThread(target=start_django)
+        self.thread.daemon = True
+        self.thread.start()
+
+        # give the server thread time to start
+        # FIXME: Replace this with code to load assets/_load.html once we properly package it.
+        time.sleep(10)
 
         self.webview = pew.ui.WebUIView("Kolibri", 'http://localhost:5000', delegate=self)
         # make sure we show the UI before run completes, as otherwise
         # it is possible the run can complete before the UI is shown,
         # causing the app to shut down early
         self.webview.show()
-
-        self.thread = pew.ui.PEWThread(target=start_django)
-        self.thread.daemon = True
-        self.thread.start()
 
         return 0
 

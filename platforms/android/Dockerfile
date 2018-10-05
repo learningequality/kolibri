@@ -37,7 +37,6 @@ RUN dpkg --add-architecture i386 && \
     python get-pip.py && \
     pip install cython buildozer
 
-RUN rm -rf pyeverywhere python-for-android /home/kivy/.local/share/python-for-android
 RUN git clone -b dev https://github.com/kollivier/pyeverywhere
 RUN git clone -b webview_fixes https://github.com/kollivier/python-for-android
 RUN pip install -e ./pyeverywhere
