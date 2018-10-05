@@ -7,10 +7,7 @@ These instructions follow the hypothetical release of Kolibri version '0.3.0'.
 
 In this case, the repo would currently have a ``develop`` branch and a number of pre-existing release branches, the most recent being ``release-v0.2.x`` with potentially multiple tags for patch releases, e.g. ``v0.2.0`` and ``v0.2.1``.
 
-Patch releases (e.g. '0.3.1') follow the same process outlined below, except that development occurs exclusively on an existing release branch (e.g. ``release-v0.2.x``). Additionally, note that:
-
- * Patch releases only have betas, not alphas
- * Patch releases generally do not have new user-facing strings, so translation-related steps can be skipped
+Patch releases (e.g. '0.3.1') follow the same process outlined below, except that development occurs exclusively on an existing release branch (e.g. ``release-v0.2.x``). Patch releases generally do not have new user-facing strings, so translation- and font-related steps can be skipped
 
 
 Create alpha releases
@@ -22,25 +19,38 @@ Make sure to target ``develop``, use the standard tag naming convention (e.g. ``
 
 These alphas can be used for preliminary testing as major, unstable updates are introduced.
 
-When a new alpha is published, delete any older alphas using Github's 'delete release' functionality. This will *not* delete the git tag.
-
-
-Merge in previous release
--------------------------
+When a new alpha is published, *delete any older alphas* using Github's 'delete release' functionality. This will *not* delete the git tag.
 
 It's common that changes have been made in the previous release that need to be propagated to the current release. For an upcoming 0.3.0 release, we would need to merge ``release-v0.2.x`` into ``develop``.
 
+During the alpha phase is all the period when we should update our Python and Javascript dependencies. In general we should avoid updating dependencies in release branches.
 
-Schedule string freeze
-----------------------
 
-Once we are close to stabilizing the UI, we should schedule a string freeze.
+String freeze and translation
+-----------------------------
 
-* Create a temporary branch and merge any outstanding PRs with user-facing strings into it
-* Upload the strings to Crowdin, into a temporary branch called ``test-upload``
-* Estimate the number of new strings and words, and the approximate time when translators should be prepared to start translating
-* Notify translators
-* Delete the temporary branches
+Once we are close to stabilizing the UI, we should schedule a string freeze. This date is the time after which no user-facing text in the application can be changed, because after string freeze we will begin getting quotes from translators and initiating the translation process.
+
+On the string freeze date, the strings for the upcoming release should be uploaded to crowdin as described in :ref:`crowdin`. Use the stats outputted during that process to get quotes from our translators, and choose start and end dates for translations to occur in.
+
+Remember to also include strings from the Perseus plugin if necessary.
+
+Before the translation start date, provide time to do one final review of all user-facing strings. This can be done e.g. in the course of doing a preliminary translation into Spanish.
+
+When the user-facing strings have been signed off, notify translators that translation can begin.
+
+
+Pin internal dependencies
+-------------------------
+
+Make sure all our internal dependencies are pointing at the correct, published versions. Specifically check:
+
+* Morango
+* LE Utils
+* Perseus plugin
+* Windows installer
+
+Test to ensure that changes have propagated as expected.
 
 
 Create a release branch
@@ -62,43 +72,30 @@ These changes can be merged by a Github admin without code review.
 Finally, tag the first beta using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality. Target the ``release-v0.3.x`` branch, use the standard tag naming convention (``v0.3.0-beta1``), and mark it has a "pre-release".
 
 
-Pin internal dependencies
--------------------------
-
-Make sure all our internal dependencies are pointing at the correct, published versions. Specifically check:
-
-* Morango
-* LE Utils
-* Perseus plugin
-* Windows installer
-
-Test to ensure that changes have propagated as expected.
-
-
-Final string review and freeze
-------------------------------
-
-The team should make a final review of all user-facing strings introduced into the application in this release.
-
-When the user-facing strings have been signed off, upload the strings to Crowdin and notify translators that translation can begin.
-
-Remember to also include strings from the Perseus plugin if necessary.
-
-At this point, updates to the `user documentation <https://github.com/learningequality/kolibri-docs/>`__ can also begin.
-
-
 Integration testing and beta releases
 -------------------------------------
 
-Thoroughly test user stories, browsers, and operating systems. Publish beta Debian packages to `` kolibri-proposed``, update gherkin story test matrices, test performance, have bug bashes...
+Thoroughly test user stories, browsers, and operating systems. Update gherkin story test matrices, test performance, have bug bashes...
 
-As fixes are made, release a new beta at least every few days.
+As fixes are made, release a new beta every few days.
+
+For every beta release:
+
+* Publish Python package to PyPi
+* Publish Debian packages to ``kolibri-proposed``
+* Update `translations.learningequality.org <http://translations.learningequality.org>`__
+* Update `kolibri-beta.learningequality.org <http://kolibri-beta.learningequality.org>`__
+
+
+Tag beta releases as desired using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality, which both adds a tag to the git repo and creates a placeholder on the Github site with built distributions.
 
 Make sure to target tags to the release branch. For example, for 0.3.0 betas, target ``release-v0.3.x``. Use the standard tag naming convention (e.g. ``v0.3.0-beta1``), and mark it has a "pre-release" in the Github UI.
 
 These betas should be used for end-to-end testing as final, stabilizing changes are introduced. Risky changes should be avoided during the beta stage unless a critical issue is identified with no straightforward fix.
 
 When a new beta is published, delete any older betas using Github's 'delete release' functionality. This will *not* delete the git tag. Update `kolibribeta.learningequality.org <http://kolibribeta.learningequality.org/>`__ with the latest beta, and notify the team on Slack when new betas are available.
+
+At this point, updates to the `user documentation <https://github.com/learningequality/kolibri-docs/>`__ can also begin.
 
 
 Update with final translations
@@ -108,6 +105,8 @@ Update with final translations
 * Download all strings for supported languages in Kolibri and Perseus
 * Re-publish Perseus if necessary, and update the Kolibri dependency reference
 * Test that all languages render properly
+
+See :ref:`crowdin` for more information.
 
 
 Merge in previous release again
@@ -167,6 +166,7 @@ For example, if we were releasing version 0.3.0, we would perform these steps:
 
 At this point, all changes to the git tree are complete for the release.
 
+
 Publish to PyPI
 ---------------
 
@@ -225,6 +225,7 @@ Update the following variables:
 * ``LATEST_KOLIBRI_BLOG_URL``
 
 Publish the Medium post if necessary.
+
 
 Update the demo server
 ----------------------

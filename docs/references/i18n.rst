@@ -167,7 +167,7 @@ Every release, we need to let translators for each language know how much work t
 
 .. code-block:: bash
 
-  $ make i18n-stats branch=[release-branch-name]
+  $ make i18n-crowdin-stats branch=[release-branch-name]
 
 This will give you some output like this:
 
