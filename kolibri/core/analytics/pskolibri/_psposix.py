@@ -5,6 +5,7 @@ from __future__ import division
 import errno
 import os
 
+
 def pid_exists(pid):
     """Check whether pid exists in the current process table."""
     if pid == 0:
