@@ -20,19 +20,19 @@ class Command(BaseCommand):
             help='Specifies the database to vacuum. Defaults to the "default" database.',
         )
         parser.add_argument(
-            '--interval', action='store', dest='interval', default=False, type=bool,
+            '--scheduled', action='store', dest='scheduled', default=False, type=bool,
             help='Flag to specify whether to run the process continuosly (currently set every day at 3AM). If False, no repetition will happen',
         )
 
     def handle(self, *args, **options):
         database = options['database']
         connection = connections[database]
-        interval = options['interval']
+        scheduled = options['scheduled']
         if connection.vendor == "sqlite":
             while True:
                 with vacuum_db_lock:
                     self.perform_vacuum(connection)
-                if not interval:
+                if not scheduled:
                     break
                 current_dt = datetime.datetime.now()
                 _3AM = datetime.time(hour=3)

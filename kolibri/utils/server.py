@@ -118,8 +118,8 @@ class VacuumThread(threading.Thread):
         thread.start()
 
     def run(self):
-        # Try to do the vacuum every 3 hours
-        call_command("vacuumsqlite", interval=True)
+        # Do the vacuum every day at 3am local server time
+        call_command("vacuumsqlite", scheduled=True)
 
 
 def stop(pid=None, force=False):
