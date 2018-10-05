@@ -1,7 +1,7 @@
 Content database module
 =======================
 
-This is a core module found in ``kolibri/Content``.
+This is a core module found in ``kolibri/core/content``.
 
 .. toctree::
    :maxdepth: 1
@@ -15,5 +15,5 @@ This is a core module found in ``kolibri/Content``.
 Models
 ------
 
-.. automodule:: kolibri.content.models
+.. automodule:: kolibri.core.content.models
     :members:
