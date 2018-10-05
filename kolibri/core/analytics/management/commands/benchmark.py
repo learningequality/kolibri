@@ -18,6 +18,7 @@ from kolibri.utils.time import local_now
 
 LINUX = sys.platform.startswith("linux")
 
+
 def format_line(parameter, value, indented=False):
     if indented:
         info = '  * {:30}'.format('{}:'.format(parameter))

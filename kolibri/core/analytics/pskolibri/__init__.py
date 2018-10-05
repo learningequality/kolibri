@@ -30,6 +30,7 @@ else:  # pragma: no cover
 # elif MACOS:
 #     from kolibri.core.analytics.pskolibri import _psosx as _psplatform
 
+
 def _cpu_times_deltas(t1, t2):
     assert t1._fields == t2._fields, (t1, t2)
     field_deltas = []

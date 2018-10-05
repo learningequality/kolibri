@@ -20,6 +20,7 @@ except ImportError:
 logger = logging.getLogger('profiler')
 LINUX = sys.platform.startswith("linux")
 
+
 class Command(BaseCommand):
     """
     This command will produce a performance.log file with this structure in every line:
