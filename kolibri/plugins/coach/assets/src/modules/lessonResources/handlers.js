@@ -183,7 +183,6 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
   const cache = store.state.lessonSummary.resourceCache || {};
   return ContentNodeResource.fetchModel({ id: contentId }).then(
     contentNode => {
-      // set up intial pageState
       const contentMetadata = assessmentMetaDataState(contentNode);
       store.commit('lessonSummary/SET_STATE', {
         currentContentNode: { ...contentNode },
