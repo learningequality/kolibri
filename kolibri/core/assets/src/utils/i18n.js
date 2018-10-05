@@ -29,7 +29,7 @@ export const languageDirections = {
   RTL: 'rtl',
 };
 
-const DEFAULT_LOCALE = 'en';
+const defaultLocale = 'en';
 
 export const defaultLanguage = {
   id: 'en',
@@ -45,7 +45,7 @@ export const availableLanguages = {
   en: defaultLanguage,
 };
 
-export let currentLanguage = DEFAULT_LOCALE;
+export let currentLanguage = defaultLocale;
 
 // Default to ltr
 export let languageDirection = languageDirections.LTR;
@@ -162,7 +162,7 @@ function _setUpVueIntl() {
    * Use the vue-intl plugin.
    **/
   const VueIntl = require('vue-intl');
-  vue.use(VueIntl, { DEFAULT_LOCALE });
+  vue.use(VueIntl, { defaultLocale });
   vue.prototype.isRtl = global.languageDir === 'rtl';
   languageDirection = global.languageDir || languageDirection;
 
