@@ -28,12 +28,27 @@ Install environment dependencies
 
 #. Install `Python <https://www.python.org/downloads/windows/>`__ if you are on Windows, on Linux and OSX Python is preinstalled (recommended versions 2.7+ or 3.4+).
 #. Install `pip <https://pypi.python.org/pypi/pip>`__ package installer.
-#. Install `Node <https://nodejs.org/en/>`__ (version 6 is required).
-#. Install Yarn according the `instructions specific for your OS <https://yarnpkg.com/en/docs/install/>`__.
+#. Install `Node.js <https://nodejs.org/en/>`__ (version 6 is required).
+#. Install `Yarn <https://yarnpkg.com/>`__ according the `instructions specific for your OS <https://yarnpkg.com/en/docs/install/>`__.
 
-   .. note::
-     * On Ubuntu install Node.js via `nvm <https://github.com/creationix/nvm>`__ to avoid build issues.
-     * On a Mac, you may want to consider using the `Homebrew <http://brew.sh/>`__ package manager.
+.. note::
+  Installing Node.js version 6.x:
+
+  * On a Mac, you can use the `Homebrew <http://brew.sh/>`__ package manager.
+  * On Ubuntu/Debian, either install Node.js via `nvm <https://github.com/creationix/nvm>`__ or use the `apt` package manager to install a system-wide version and block upgrades:
+
+   .. code-block:: bash
+
+     # Add apt sources from nodesource.com  
+     curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+     # Verify the latest version 6 of nodejs
+     apt-cache showpkg nodejs-legacy
+     # Install latest version 6 nodejs
+     sudo apt install nodejs=6.14.1-1nodesource1
+     # Make sure it doesn't get upgrade to later versions available in
+     # the official repos.
+     sudo apt-mark hold nodejs
+
 
 Ready for the fun part in the Terminal? Here we go!
 
