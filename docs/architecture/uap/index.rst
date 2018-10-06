@@ -1,7 +1,7 @@
 Users, auth, and permissions module
 ===================================
 
-This is a core module found in ``kolibri/auth``.
+This is a core module found in ``kolibri/core/auth``.
 
 .. toctree::
    :maxdepth: 1
@@ -13,6 +13,6 @@ This is a core module found in ``kolibri/auth``.
 Models
 ------
 
-.. automodule:: kolibri.auth.models
+.. automodule:: kolibri.core.auth.models
     :members:
     :noindex:

@@ -8,14 +8,14 @@ Git workflow
 
 At a high level, we follow the 'Gitflow' model. Some helpful references:
 
-- `Atlassian tutorial <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/>`_
-- `Original description <http://nvie.com/posts/a-successful-git-branching-model/>`_
+- `Atlassian tutorial <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/>`__
+- `Original description <http://nvie.com/posts/a-successful-git-branching-model/>`__
 
 
 Pull requests
 -------------
 
-Developers maintain their own clones of the Learning Equality `Kolibri repo <https://github.com/learningequality/kolibri/>`_ in their personal Github accounts, and `submit pull requests <https://help.github.com/articles/creating-a-pull-request/>`_ back to the LE repo.
+Developers maintain their own clones of the Learning Equality `Kolibri repo <https://github.com/learningequality/kolibri/>`__ in their personal Github accounts, and `submit pull requests <https://help.github.com/articles/creating-a-pull-request/>`__ back to the LE repo.
 
 Every pull request (with a couple minor exceptions) requires testing, code review, automated tests, and potentially UI design review. Developers must fully test their own code before requesting a review, and then closely follow the template and checklist that appears in the PR description. All automated tests must pass.
 
@@ -23,7 +23,7 @@ Try to keep PRs as self-contained as possible. The bigger the PR, the more chall
 
 When reviewing PRs, keep feedback focused on critical changes. Lengthy conversations should be moved to a real-time chat when possible. In many situations it is preferable to open a new issue for follow-up changes rather than blocking merging of the PR.
 
-Be polite, respectful, and constructive. We highly recommend following the `guidance in this blog post <https://medium.freecodecamp.org/unlearning-toxic-behaviors-in-a-code-review-culture-b7c295452a3c>`_.
+Be polite, respectful, and constructive. We highly recommend following the `guidance in this blog post <https://medium.freecodecamp.org/unlearning-toxic-behaviors-in-a-code-review-culture-b7c295452a3c>`__.
 
 
 Git history
