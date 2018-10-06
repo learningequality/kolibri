@@ -115,11 +115,17 @@ export default {
     return {
       windowWidth: undefined,
       windowHeight: undefined,
+
+      /*
+        Implementing these as data controlled by watchers to work around
+        optimization issue: https://github.com/vuejs/vue/issues/8540
+
+        If that issue ever gets addressed, we should make them computed props.
+      */
       windowBreakpoint: undefined,
+      windowGutter: 16,
     };
   },
-  // Implementing this as a watcher to work around
-  // optimization issue: https://github.com/vuejs/vue/issues/8540
   watch: {
     windowWidth() {
       let newBreakpoint = undefined;
@@ -144,9 +150,16 @@ export default {
       if (this.windowBreakpoint !== newBreakpoint) {
         this.windowBreakpoint = newBreakpoint;
       }
+      this._updateGutter();
+    },
+    windowHeight() {
+      this._updateGutter();
     },
   },
   computed: {
+    /*
+      CAUTION: do not reference windowWidth or windowHeight in computed props.
+    */
     windowIsLarge() {
       return this.windowBreakpoint > 2;
     },
@@ -166,25 +179,23 @@ export default {
       // windowIsLarge
       return 12;
     },
-    windowGutter() {
-      if (this.windowIsSmall) {
-        return 16;
-      }
-      /*
-      commenting this logic out for now due to https://github.com/vuejs/vue/issues/8540
-
-      // 16px when the smallest width of the device is < 600
-      if (this.windowBreakpoint < 4 && Math.min(this.windowWidth, this.windowHeight) < 600) {
-        return 16;
-      }
-      */
-      return 24;
-    },
   },
   methods: {
     _updateWindow(metrics) {
       this.windowWidth = metrics.width;
       this.windowHeight = metrics.height;
+    },
+    _updateGutter() {
+      if (this.windowIsSmall) {
+        this.windowGutter = 16;
+        return;
+      }
+      // 16px when the smallest dimension of the window is < 600
+      if (this.windowBreakpoint < 4 && Math.min(this.windowWidth, this.windowHeight) < 600) {
+        this.windowGutter = 16;
+        return;
+      }
+      this.windowGutter = 24;
     },
   },
   mounted() {
