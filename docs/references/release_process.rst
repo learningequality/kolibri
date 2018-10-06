@@ -31,13 +31,15 @@ String freeze and translation
 
 Once we are close to stabilizing the UI, we should schedule a string freeze. This date is the time after which no user-facing text in the application can be changed, because after string freeze we will begin getting quotes from translators and initiating the translation process.
 
-On the string freeze date, the strings for the upcoming release should be uploaded to crowdin as described in :ref:`crowdin`. Use the stats outputted during that process to get quotes from our translators, and choose start and end dates for translations to occur in.
+You will need to log in to CrowdIn to create a new Version Branch, following the existing naming scheme ``release-vN.N.x``. CrowdIn will automatically reuse previously translated strings.
 
-Remember to also include strings from the Perseus plugin if necessary.
+On the string freeze date, the strings for the upcoming release should be uploaded to crowdin as described in :ref:`crowdin`. You can run ``make i18n-crowdin-stats branch=<release-vN.N.x>`` to get figures on the translation work. Send the stats to the i18n team, whom can use them for communication with translators to measure the translation efforts needed.
+
+Strings from the Perseus plugin should also be revisited. They are maintained in the repo `learningequality/kolibri-exercise-perseus-plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__, but the source strings are generated and uploaded through the main ``kolibri`` project. The translated files from CrowdIn such as ``exercise_perseus_render_module-messages.json`` are downloaded through the ``kolibri-exercise-perseus-plugin`` project.
 
 Before the translation start date, provide time to do one final review of all user-facing strings. This can be done e.g. in the course of doing a preliminary translation into Spanish.
 
-When the user-facing strings have been signed off, notify translators that translation can begin.
+When the user-facing strings have been signed off, notify the i18n team that translation can begin.
 
 
 Pin internal dependencies
