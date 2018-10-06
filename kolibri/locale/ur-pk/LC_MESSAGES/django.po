@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-09-20 19:50-0700\n"
-"PO-Revision-Date: 2018-09-26 03:12\n"
+"PO-Revision-Date: 2018-10-04 16:54\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Urdu (Pakistan)\n"
 "Language: ur_PK\n"
@@ -18,7 +18,7 @@ msgstr ""
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
-msgstr "سہولت"
+msgstr "تعلیمی ادارہ"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Classroom"
@@ -34,11 +34,11 @@ msgstr "مواد"
 
 #: kolibri/core/content/api.py:655
 msgid "The requested channel does not exist on the content server"
-msgstr "درخواست کردہ چینل مواد سرور پر موجود نہیں ہے"
+msgstr "مواد کے سرور میں التجا ہوا چینل موجود نہیں ہیں"
 
 #: kolibri/core/content/models.py:279
 msgid "Unknown format"
-msgstr "نامعلوم شکل"
+msgstr "نا معلوم فورمیٹ"
 
 #: kolibri/core/device/serializers.py:50
 msgid "Language is not supported by Kolibri"

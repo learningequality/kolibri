@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-09-20 19:50-0700\n"
-"PO-Revision-Date: 2018-09-26 03:12\n"
+"PO-Revision-Date: 2018-10-04 16:54\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish, Mexico\n"
 "Language: es_MX\n"
@@ -18,23 +18,23 @@ msgstr ""
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
-msgstr "Centro Educativo"
+msgstr "Escuela o Centro Educativo"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Classroom"
-msgstr "Clase"
+msgstr "Salón de aula"
 
 #: kolibri/core/auth/constants/collection_kinds.py:16
 msgid "Learner group"
-msgstr "Grupo de estudiantes"
+msgstr "Equipo de alumnos"
 
 #: kolibri/core/content/api.py:114
 msgid "Content"
-msgstr "Canales"
+msgstr "Contenido"
 
 #: kolibri/core/content/api.py:655
 msgid "The requested channel does not exist on the content server"
-msgstr "El canal solicitado no existe en el servidor de contenidos"
+msgstr "El canal solicitado no existe en el servidor de contenido."
 
 #: kolibri/core/content/models.py:279
 msgid "Unknown format"

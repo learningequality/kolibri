@@ -135,7 +135,7 @@
     "ChannelContentsSummary.totalSizeRow": "Taille totale",
     "ChannelContentsSummary.version": "Version {version, number, integer}",
     "ContentNodeRow.select": "Sélectionner",
-    "ContentTreeViewer.selectAll": "Sélectionner tout",
+    "ContentTreeViewer.selectAll": "Tout sélectionner",
     "ContentTreeViewer.topicHasNoContents": "Cette sujet n’a pas de sous-thèmes ni de ressources",
     "ContentWizardUiAlert.channelNotFoundError": "Chaîne non trouvée",
     "ContentWizardUiAlert.channelNotFoundOnDriveError": "Chaîne introuvable sur le disque dur",

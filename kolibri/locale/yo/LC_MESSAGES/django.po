@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-09-20 19:50-0700\n"
-"PO-Revision-Date: 2018-09-26 03:12\n"
+"PO-Revision-Date: 2018-10-04 16:55\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Yoruba\n"
 "Language: yo_NG\n"
@@ -30,7 +30,7 @@ msgstr "Ẹgbẹ́ akẹ́kọ̀ọ́"
 
 #: kolibri/core/content/api.py:114
 msgid "Content"
-msgstr "Àkoónú"
+msgstr "Àkóónú"
 
 #: kolibri/core/content/api.py:655
 msgid "The requested channel does not exist on the content server"

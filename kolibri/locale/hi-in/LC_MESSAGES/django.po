@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-09-20 19:50-0700\n"
-"PO-Revision-Date: 2018-09-26 03:11\n"
+"PO-Revision-Date: 2018-10-04 22:07\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Hindi\n"
 "Language: hi_IN\n"
@@ -18,7 +18,7 @@ msgstr ""
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
-msgstr ""
+msgstr "सुविधा"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Classroom"
@@ -26,11 +26,11 @@ msgstr "कक्षा"
 
 #: kolibri/core/auth/constants/collection_kinds.py:16
 msgid "Learner group"
-msgstr "शिक्षार्थी समूह"
+msgstr "पाठक समूह"
 
 #: kolibri/core/content/api.py:114
 msgid "Content"
-msgstr "विषय-वस्तु"
+msgstr "सामग्री"
 
 #: kolibri/core/content/api.py:655
 msgid "The requested channel does not exist on the content server"
@@ -42,7 +42,7 @@ msgstr "अज्ञात स्वरूप"
 
 #: kolibri/core/device/serializers.py:50
 msgid "Language is not supported by Kolibri"
-msgstr "भाषा Kolibri द्वारा समर्थित नहीं है"
+msgstr "भाषा कोलिब्री द्वारा समर्थित नहीं है"
 
 #: kolibri/core/tasks/api.py:32
 msgid "There was a network error."
@@ -50,15 +50,15 @@ msgstr "नेटवर्क में कोई त्रुटि थी ।"
 
 #: kolibri/core/tasks/api.py:34
 msgid "There was a disk access error."
-msgstr ""
+msgstr "डिस्क तक पहुंच पाने में त्रुटि थी ।"
 
 #: kolibri/core/tasks/api.py:36
 msgid "There was an unknown error."
-msgstr ""
+msgstr "कोई अज्ञात त्रुटि थी ।"
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
-msgstr "कोलीब्री"
+msgstr "कोलिब्री"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:28
 msgid "Unsupported browser"
@@ -66,11 +66,11 @@ msgstr "असमर्थित ब्राउज़र"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:29
 msgid "Sorry, your browser version is not supported."
-msgstr ""
+msgstr "क्षमा करें, आपका ब्राउज़र संस्करण समर्थित नहीं है।"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:30
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "कोलीब्री उपयोग करने के लिए, हम Firefox या Chrome का उपयोग करने की सलाह देते हैं ।"
+msgstr "कोलिब्री उपयोग करने के लिए, हम Firefox या Chrome का उपयोग करने की सलाह देते हैं ।"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:31
 msgid "You can also try updating your current browser."

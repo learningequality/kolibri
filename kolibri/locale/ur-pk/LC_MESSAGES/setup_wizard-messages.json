@@ -1,7 +1,7 @@
 {
     "ProgressToolbar.progressIndicator": "مرحلۃ {currentStep, number} کے {totalSteps, number}",
     "SetupWizardIndex.onboardingNextStepButton": "جاری رکھیں",
-    "SetupWizardIndex.onboardingFinishButton": "ختم کریں",
+    "SetupWizardIndex.onboardingFinishButton": "مکمل کریں",
     "SetupWizardIndex.documentTitle": "",
     "SetupWizardIndex.personalFacilityName": "",
     "CreateLearnerAccountForm.header": "",

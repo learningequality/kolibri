@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-09-20 19:50-0700\n"
-"PO-Revision-Date: 2018-09-26 03:10\n"
+"PO-Revision-Date: 2018-10-04 16:53\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Arabic\n"
 "Language: ar_SA\n"
@@ -22,7 +22,7 @@ msgstr "المَرْفق التّعليمي"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Classroom"
-msgstr "الفصل"
+msgstr "الصف الدراسي"
 
 #: kolibri/core/auth/constants/collection_kinds.py:16
 msgid "Learner group"
@@ -34,7 +34,7 @@ msgstr "المحتوى"
 
 #: kolibri/core/content/api.py:655
 msgid "The requested channel does not exist on the content server"
-msgstr "القناة المطلوبة غير موجودة على خادم المحتوى"
+msgstr "القناة التعليمية المطلوبة غير موجودة على خادم المحتوى"
 
 #: kolibri/core/content/models.py:279
 msgid "Unknown format"
@@ -50,7 +50,7 @@ msgstr "وقع خطأ ما في الشبكة."
 
 #: kolibri/core/tasks/api.py:34
 msgid "There was a disk access error."
-msgstr "وقع خطأ ما أثناء محاولة الوصول إلى القرص."
+msgstr "وقع خطأ ما أثناء محاولة الوصول إلى القرص التخزيني."
 
 #: kolibri/core/tasks/api.py:36
 msgid "There was an unknown error."
