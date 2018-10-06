@@ -132,6 +132,8 @@ First, you'll need to have GNU ``gettext`` available on your path. You may be ab
 Next, ensure you have an environment variable ``CROWDIN_API_KEY`` set to the Learning Equality organization `account API key <https://support.crowdin.com/api/api-integration-setup/>`__.
 
 
+.. _i18n-perseus:
+
 Updating the Perseus plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
