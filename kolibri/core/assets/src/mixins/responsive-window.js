@@ -128,28 +128,7 @@ export default {
   },
   watch: {
     windowWidth() {
-      let newBreakpoint = undefined;
-      const SCROLL_BAR = 16;
-      if (this.windowWidth < 480) {
-        newBreakpoint = 0;
-      } else if (this.windowWidth < 600) {
-        newBreakpoint = 1;
-      } else if (this.windowWidth < 840) {
-        newBreakpoint = 2;
-      } else if (this.windowWidth < 960 - SCROLL_BAR) {
-        newBreakpoint = 3;
-      } else if (this.windowWidth < 1280 - SCROLL_BAR) {
-        newBreakpoint = 4;
-      } else if (this.windowWidth < 1440 - SCROLL_BAR) {
-        newBreakpoint = 5;
-      } else if (this.windowWidth < 1600 - SCROLL_BAR) {
-        newBreakpoint = 6;
-      } else {
-        newBreakpoint = 7;
-      }
-      if (this.windowBreakpoint !== newBreakpoint) {
-        this.windowBreakpoint = newBreakpoint;
-      }
+      this._updateBreakpoint();
       this._updateGutter();
     },
     windowHeight() {
@@ -185,17 +164,35 @@ export default {
       this.windowWidth = metrics.width;
       this.windowHeight = metrics.height;
     },
+    _updateBreakpoint() {
+      const SCROLL_BAR = 16;
+      if (this.windowWidth < 480) {
+        this.windowBreakpoint = 0;
+      } else if (this.windowWidth < 600) {
+        this.windowBreakpoint = 1;
+      } else if (this.windowWidth < 840) {
+        this.windowBreakpoint = 2;
+      } else if (this.windowWidth < 960 - SCROLL_BAR) {
+        this.windowBreakpoint = 3;
+      } else if (this.windowWidth < 1280 - SCROLL_BAR) {
+        this.windowBreakpoint = 4;
+      } else if (this.windowWidth < 1440 - SCROLL_BAR) {
+        this.windowBreakpoint = 5;
+      } else if (this.windowWidth < 1600 - SCROLL_BAR) {
+        this.windowBreakpoint = 6;
+      } else {
+        this.windowBreakpoint = 7;
+      }
+    },
     _updateGutter() {
       if (this.windowIsSmall) {
         this.windowGutter = 16;
-        return;
-      }
-      // 16px when the smallest dimension of the window is < 600
-      if (this.windowBreakpoint < 4 && Math.min(this.windowWidth, this.windowHeight) < 600) {
+      } else if (this.windowBreakpoint < 4 && Math.min(this.windowWidth, this.windowHeight) < 600) {
+        // 16px when the smallest dimension of the window is < 600
         this.windowGutter = 16;
-        return;
+      } else {
+        this.windowGutter = 24;
       }
-      this.windowGutter = 24;
     },
   },
   mounted() {
