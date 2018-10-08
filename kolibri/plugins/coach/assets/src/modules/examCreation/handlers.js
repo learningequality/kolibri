@@ -7,6 +7,7 @@ import {
 } from 'kolibri.resources';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import pickBy from 'lodash/pickBy';
+import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { PageNames } from '../../constants';
 
 function showExamCreationPage(store, params) {
@@ -131,8 +132,44 @@ export function showExamCreationTopicPage(store, params) {
   });
 }
 
-// TODO
-export function showExamCreationPreviewPage() {}
+export function showExamCreationPreviewPage(store, params) {
+  const { classId, contentId } = params;
+  return store.dispatch('loading').then(() => {
+    return Promise.all([_prepExamContentPreview(store, classId, contentId)])
+      .then(([contentNode]) => {
+        store.commit('SET_TOOLBAR_ROUTE', {
+          name: PageNames.EXAM_CREATION_TOPIC,
+          params: {
+            topicId: contentNode.parent,
+          },
+        });
+        store.dispatch('notLoading');
+      })
+      .catch(error => {
+        store.dispatch('notLoading');
+        return store.dispatch('handleApiError', error);
+      });
+  });
+}
+
+function _prepExamContentPreview(store, classId, contentId) {
+  return ContentNodeResource.fetchModel({ id: contentId }).then(
+    contentNode => {
+      const contentMetadata = assessmentMetaDataState(contentNode);
+      store.commit('SET_TOOLBAR_ROUTE', {});
+      store.commit('examCreation/SET_CURRENT_CONTENT_NODE', { ...contentNode });
+      store.commit('examCreation/SET_PREVIEW_STATE', {
+        questions: contentMetadata.assessmentIds,
+        completionData: contentMetadata.masteryModel,
+      });
+      store.commit('SET_PAGE_NAME', PageNames.EXAM_CREATION_PREVIEW);
+      return contentNode;
+    },
+    error => {
+      return store.dispatch('handleApiError', error);
+    }
+  );
+}
 
 export function showExamCreationSearchPage(store, params, query = {}) {
   return store.dispatch('loading').then(() => {

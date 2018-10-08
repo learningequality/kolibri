@@ -19,8 +19,19 @@
           :classCoaches="classCoaches"
         />
       </template>
-
-      <component :is="currentPage" />
+      <LessonContentPreviewPage
+        v-if="isPreviewPage"
+        :currentContentNode="currentContentNode"
+        :isSelected="isSelected"
+        :questions="questions"
+        :completionData="completionData"
+        @addResource="handleAddResource"
+        @removeResource="handleRemoveResource"
+      />
+      <component
+        v-else
+        :is="currentPage"
+      />
       <router-view />
 
     </CoreBase>
@@ -31,7 +42,7 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState, mapGetters, mapActions } from 'vuex';
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
@@ -88,7 +99,7 @@
 
     [PageNames.EXAM_CREATION_ROOT]: ExamCreationPage,
     [PageNames.EXAM_CREATION_TOPIC]: ExamCreationPage,
-    [PageNames.EXAM_CREATION_PREVIEW]: ExamCreationPage,
+    [PageNames.EXAM_CREATION_PREVIEW]: LessonContentPreviewPage,
     [PageNames.EXAM_CREATION_SEARCH]: ExamCreationPage,
 
     // reports
@@ -133,13 +144,83 @@
       TopNav,
       CoreBase,
       NavTitle,
+      LessonContentPreviewPage,
     },
     computed: {
       ...mapGetters(['classCoaches', 'isAdmin', 'isCoach', 'isSuperuser']),
       ...mapState(['pageName', 'classList', 'className', 'classId', 'toolbarRoute']),
+      ...mapState('lessonSummary', {
+        lessonWorkingResources: state => state.workingResources,
+      }),
+      ...mapState('lessonSummary/resources', {
+        lessonCurrentContentNode: state => state.currentContentNode,
+        lessonPreviewQuestions: state => state.preview.questions,
+        lessonPreviewCompletionData: state => state.preview.completionData,
+      }),
+      ...mapState('examCreation', {
+        examSelectedExercises: state => state.selectedExercises,
+        examCurrentContentNode: state => state.currentContentNode,
+        examPreviewQuestions: state => state.preview.questions,
+        examPreviewCompletionData: state => state.preview.completionData,
+      }),
+
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
         return pageNameToComponentMap[this.pageName] || null;
+      },
+      isPreviewPage() {
+        return [
+          PageNames.EXAM_CREATION_PREVIEW,
+          LessonsPageNames.CONTENT_PREVIEW,
+          LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
+          LessonsPageNames.SELECTION_CONTENT_PREVIEW,
+        ].includes(this.pageName);
+      },
+      workingResources() {
+        if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
+          return this.examSelectedExercises;
+        } else {
+          return this.lessonWorkingResources;
+        }
+      },
+      currentContentNode() {
+        if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
+          return this.examCurrentContentNode;
+        } else {
+          return this.lessonCurrentContentNode;
+        }
+      },
+      isSelected() {
+        if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
+          return (
+            this.examSelectedExercises.findIndex(
+              exercise => exercise.id === this.examCurrentContentNode.id
+            ) !== -1
+          );
+        } else {
+          if (
+            this.lessonWorkingResources &&
+            this.lessonCurrentContentNode &&
+            this.lessonCurrentContentNode.id
+          ) {
+            return this.lessonWorkingResources.includes(this.lessonCurrentContentNode.id);
+          }
+          return false;
+        }
+      },
+      questions() {
+        if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
+          return this.examPreviewQuestions;
+        } else {
+          return this.lessonPreviewQuestions;
+        }
+      },
+      completionData() {
+        if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
+          return this.examPreviewCompletionData;
+        } else {
+          return this.lessonPreviewCompletionData;
+        }
       },
       showCoachNav() {
         return (
@@ -173,6 +254,7 @@
           LessonsPageNames.CONTENT_PREVIEW,
           ...resourceUserPages,
           PageNames.EXAM_REPORT_DETAIL,
+          PageNames.EXAM_CREATION_PREVIEW,
         ];
         if (backButtonPages.includes(this.pageName)) {
           return 'arrow_back';
@@ -180,14 +262,38 @@
         return 'close';
       },
       immersivePagePrimary() {
-        // TODO going to need to set a backgrund color
+        // TODO going to need to set a background color
         if (
-          this.pageName === LessonsPageNames.CONTENT_PREVIEW ||
-          this.pageName === PageNames.EXAM_REPORT_DETAIL
+          [
+            LessonsPageNames.CONTENT_PREVIEW,
+            PageNames.EXAM_REPORT_DETAIL,
+            PageNames.EXAM_CREATION_PREVIEW,
+          ].includes(this.pageName)
         ) {
           return false;
         }
         return true;
+      },
+    },
+    methods: {
+      ...mapActions('lessonSummary', ['addToResourceCache']),
+      ...mapActions('examCreation', ['addToSelectedExercises', 'removeFromSelectedExercises']),
+      handleAddResource(content) {
+        // TODO create snackbars
+        if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
+          this.addToSelectedExercises([content]);
+        } else {
+          this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', content.id);
+          this.addToResourceCache({ node: content });
+        }
+      },
+      handleRemoveResource(content) {
+        // TODO create snackbars
+        if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
+          this.removeFromSelectedExercises([content]);
+        } else {
+          this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', content.id);
+        }
       },
     },
   };

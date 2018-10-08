@@ -2,78 +2,67 @@
 
   <div>
     <h1>{{ $tr('createNewExam') }}</h1>
-    <KGrid>
-      <KGridItem
-        sizes="100, 50, 50"
-        percentage
+    <template v-if="!inSearchMode">
+      <KTextbox
+        ref="title"
+        :label="$tr('title')"
+        :autofocus="true"
+        :invalid="titleIsInvalid"
+        :invalidText="titleIsInvalidText"
+        :maxlength="100"
+        @blur="titleBlurred = true"
+        v-model.trim="examTitle"
+      />
+      <KTextbox
+        ref="numQuest"
+        type="number"
+        :label="$tr('numQuestions')"
+        :invalid="numQuestIsInvalid"
+        :invalidText="numQuestIsInvalidText"
+        @blur="numQuestBlurred = true"
+        v-model.trim.number="examNumberOfQuestions"
+      />
+
+      <UiAlert
+        v-if="formIsInvalid"
+        type="error"
+        :dismissible="false"
       >
-        <KTextbox
-          ref="title"
-          :label="$tr('title')"
-          :autofocus="true"
-          :invalid="titleIsInvalid"
-          :invalidText="titleIsInvalidText"
-          :maxlength="100"
-          @blur="titleBlurred = true"
-          v-model.trim="examTitle"
-        />
-      </KGridItem>
+        {{ formIsInvalidText }}
+      </UiAlert>
 
-      <KGridItem
-        sizes="100, 50, 25"
-        percentage
-      >
-        <KTextbox
-          ref="numQuest"
-          type="number"
-          :label="$tr('numQuestions')"
-          :invalid="numQuestIsInvalid"
-          :invalidText="numQuestIsInvalidText"
-          @blur="numQuestBlurred = true"
-          v-model.trim.number="examNumberOfQuestions"
-        />
-      </KGridItem>
-    </KGrid>
+      <KGrid>
+        <KGridItem
+          sizes="100, 100, 50"
+          percentage
+        >
+          <h2>{{ $tr('chooseExercises') }}</h2>
 
-    <UiAlert
-      v-if="formIsInvalid"
-      type="error"
-      :dismissible="false"
-    >
-      {{ formIsInvalidText }}
-    </UiAlert>
+        </KGridItem>
 
-    <KGrid>
-      <KGridItem
-        sizes="100, 100, 50"
-        percentage
-      >
-        <h2>{{ $tr('chooseExercises') }}</h2>
+        <KGridItem
+          sizes="100, 50, 25"
+          percentage
+          alignments="left, left, right"
+        >
+          <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
+        </KGridItem>
 
-      </KGridItem>
-
-      <KGridItem
-        sizes="100, 50, 25"
-        percentage
-        alignments="left, left, right"
-      >
-        <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
-      </KGridItem>
-
-      <KGridItem
-        sizes="100, 50, 25"
-        percentage
-        alignments="left, right, right"
-      >
-        <KButton :text="$tr('preview')" @click="preview" />
-        <KButton
-          :text="$tr('saveButtonlabel')"
-          :primary="true"
-          @click="finish"
-          :disabled="submitting"
-        />
-      </KGridItem>
-    </KGrid>
+        <KGridItem
+          sizes="100, 50, 25"
+          percentage
+          alignments="left, right, right"
+        >
+          <KButton :text="$tr('preview')" @click="preview" />
+          <KButton
+            :text="$tr('saveButtonlabel')"
+            :primary="true"
+            @click="finish"
+            :disabled="submitting"
+          />
+        </KGridItem>
+      </KGrid>
+    </template>
 
     <LessonsSearchBox
       class="search-box"

@@ -85,16 +85,12 @@ export const pageNameToModuleMap = {
   [PageNames.LEARNER_ITEM_LIST]: 'reports',
   [PageNames.LEARNER_ITEM_DETAILS]: 'exerciseDetail',
   [PageNames.EXAMS]: 'examsRoot',
-  [PageNames.EXAM_CREATION_ROOT]: 'examCreation',
-  [PageNames.EXAM_CREATION_TOPIC]: 'examCreation',
-  [PageNames.EXAM_CREATION_PREVIEW]: 'examCreation',
-  [PageNames.EXAM_CREATION_SEARCH]: 'examCreation',
   [PageNames.EXAM_REPORT]: 'examReport',
   [PageNames.EXAM_REPORT_DETAIL]: 'examReportDetail',
   [PageNames.GROUPS]: 'groups',
   [LessonsPageNames.ROOT]: 'lessonsRoot',
   [LessonsPageNames.RESOURCE_USER_SUMMARY]: 'lessonResourceUserSummary',
   [LessonsPageNames.RESOURCE_USER_REPORT]: 'exerciseDetail',
-  // Omitting modules for resource selection and preview to prevent
+  // Omitting modules for resource selection, exam creation, and preview to prevent
   // default module state resetting behavior.
 };

@@ -19,6 +19,11 @@ function defaultState() {
     ancestors: [],
     ancestorCounts: {},
     examsModalSet: false,
+    currentContentNode: {},
+    preview: {
+      completionData: null,
+      questions: null,
+    },
   };
 }
 
@@ -89,6 +94,12 @@ export default {
     },
     SET_EXAMS_MODAL(state, modalName) {
       state.examsModalSet = modalName;
+    },
+    SET_CURRENT_CONTENT_NODE(state, contentNode) {
+      state.currentContentNode = contentNode;
+    },
+    SET_PREVIEW_STATE(state, previewState) {
+      state.preview = previewState;
     },
   },
 };

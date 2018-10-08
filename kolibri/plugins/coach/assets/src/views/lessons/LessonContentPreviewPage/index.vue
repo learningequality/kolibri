@@ -12,11 +12,10 @@
           </KGridItem>
           <KGridItem sizes="100, 50, 50" percentage alignment="right">
             <SelectOptions
-              v-if="workingResources"
               class="select-options ib"
-              :workingResources="workingResources"
-              :contentId="content.id"
-              @addresource="addToCache"
+              :isSelected="isSelected"
+              @addResource="$emit('addResource', content)"
+              @removeResource="$emit('removeResource', content)"
             />
           </KGridItem>
         </KGrid>
@@ -70,7 +69,6 @@
 
 <script>
 
-  import { mapState, mapGetters, mapActions } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
@@ -108,18 +106,32 @@
       licenseDataHeader: 'License',
       copyrightHolderDataHeader: 'Copyright holder',
     },
+    props: {
+      currentContentNode: {
+        type: Object,
+        required: true,
+      },
+      isSelected: {
+        type: Boolean,
+        required: true,
+      },
+      questions: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
+      completionData: {
+        type: Object,
+        required: false,
+        default: () => {},
+      },
+    },
     data() {
       return {
         selectedQuestionIndex: 0,
       };
     },
     computed: {
-      ...mapGetters('lessonSummary', ['getChannelForNode']),
-      ...mapState('lessonSummary', ['workingResources', 'currentContentNode']),
-      ...mapState('lessonSummary/resources', {
-        questions: state => state.preview.questions,
-        completionData: state => state.preview.completionData,
-      }),
       isPerseusExercise() {
         return this.content.kind === 'exercise';
       },
@@ -147,10 +159,6 @@
       },
     },
     methods: {
-      ...mapActions('lessonSummary', ['addToResourceCache']),
-      addToCache() {
-        this.addToResourceCache({ node: this.content });
-      },
       questionLabel(questionIndex) {
         if (!this.isPerseusExercise) {
           return '';

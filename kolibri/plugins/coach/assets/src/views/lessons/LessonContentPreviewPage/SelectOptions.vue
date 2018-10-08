@@ -9,7 +9,7 @@
       />
       {{ $tr('addedToLessonIndicator') }}
       <KButton
-        @click="removeFromWorkingResources"
+        @click="$emit('removeResource')"
         :text="$tr('removeLabel')"
         :primary="true"
         class="no-margin"
@@ -18,7 +18,7 @@
     </template>
     <KButton
       v-else
-      @click="addToWorkingResources"
+      @click="$emit('addResource')"
       :text="$tr('addToLessonButtonLabel')"
       :primary="true"
       class="no-margin"
@@ -39,33 +39,13 @@
     },
     $trs: {
       removeLabel: 'Remove',
-      addToLessonButtonLabel: 'Add to lesson',
-      addedToLessonIndicator: 'Added to lesson',
+      addToLessonButtonLabel: 'Add',
+      addedToLessonIndicator: 'Added',
     },
     props: {
-      workingResources: {
-        type: Array,
+      isSelected: {
+        type: Boolean,
         required: true,
-      },
-      contentId: {
-        type: String,
-        required: true,
-      },
-    },
-    computed: {
-      isSelected() {
-        return this.workingResources.includes(this.contentId);
-      },
-    },
-    methods: {
-      // Maybe break these out to actual actions.
-      // Used by select page, summary page, and here
-      addToWorkingResources() {
-        this.$emit('addresource');
-        this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', this.contentId);
-      },
-      removeFromWorkingResources() {
-        this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', this.contentId);
       },
     },
   };

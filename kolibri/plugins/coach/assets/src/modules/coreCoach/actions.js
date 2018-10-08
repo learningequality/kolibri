@@ -39,15 +39,8 @@ export function resetModuleState(store, { toRoute, fromRoute }) {
   ) {
     return store.dispatch('lessonSummary/resetLessonSummaryState');
   }
-  const examCreationPages = [
-    PageNames.EXAM_CREATION_ROOT,
-    PageNames.EXAM_CREATION_TOPIC,
-    PageNames.EXAM_CREATION_SEARCH,
-    PageNames.EXAM_CREATION_PREVIEW,
-  ];
-  // Do not reset state if within create exam page
-  if (examCreationPages.includes(fromRoute.name) && examCreationPages.includes(toRoute.name)) {
-    return;
+  if (toRoute.name === PageNames.EXAMS) {
+    return store.dispatch('examCreation/resetExamCreationState');
   }
   const moduleName = pageNameToModuleMap[fromRoute.name];
   if (moduleName) {

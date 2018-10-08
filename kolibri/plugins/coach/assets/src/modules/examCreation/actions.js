@@ -10,6 +10,10 @@ const snackbarTranslator = createTranslator('ExamCreateSnackbarTexts', {
   newExamCreated: 'New exam created',
 });
 
+export function resetExamCreationState(store) {
+  store.commit('RESET_STATE');
+}
+
 export function setTitle(store, title) {
   store.commit('SET_TITLE', title);
 }
