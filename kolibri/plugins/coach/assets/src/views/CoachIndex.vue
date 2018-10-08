@@ -39,7 +39,7 @@
   import TopNav from './TopNav';
   import ClassListPage from './ClassListPage';
   import ExamsPage from './exams/CoachExamsPage';
-  import CreateExamPage from './exams/CreateExamPage';
+  import ExamCreationPage from './exams/CreateExamPage';
   import ExamReportPage from './exams/ExamReportPage';
   import ExamReportDetailPage from './exams/CoachExamReport';
   import GroupsPage from './GroupsPage';
@@ -75,13 +75,22 @@
     LessonsPageNames.SELECTION_CONTENT_PREVIEW,
     LessonsPageNames.RESOURCE_CLASSROOM_REPORT,
     PageNames.EXAM_REPORT_DETAIL,
+    PageNames.EXAM_CREATION_ROOT,
+    PageNames.EXAM_CREATION_TOPIC,
+    PageNames.EXAM_CREATION_PREVIEW,
+    PageNames.EXAM_CREATION_SEARCH,
   ];
 
   const pageNameToComponentMap = {
     [PageNames.CLASS_LIST]: ClassListPage,
     [PageNames.EXAMS]: ExamsPage,
     [PageNames.GROUPS]: GroupsPage,
-    [PageNames.CREATE_EXAM]: CreateExamPage,
+
+    [PageNames.EXAM_CREATION_ROOT]: ExamCreationPage,
+    [PageNames.EXAM_CREATION_TOPIC]: ExamCreationPage,
+    [PageNames.EXAM_CREATION_PREVIEW]: ExamCreationPage,
+    [PageNames.EXAM_CREATION_SEARCH]: ExamCreationPage,
+
     // reports
     [PageNames.RECENT_CHANNELS]: ChannelListPage,
     [PageNames.RECENT_ITEMS_FOR_CHANNEL]: RecentItemsForChannelPage,

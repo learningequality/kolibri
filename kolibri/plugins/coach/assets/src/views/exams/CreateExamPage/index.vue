@@ -2,135 +2,127 @@
 
   <div>
     <h1>{{ $tr('createNewExam') }}</h1>
-    <div>
-      <KTextbox
-        ref="title"
-        :label="$tr('title')"
-        :autofocus="true"
-        :invalid="titleIsInvalid"
-        :invalidText="titleIsInvalidText"
-        :maxlength="100"
-        @blur="titleBlurred = true"
-        v-model.trim="inputTitle"
-      />
-      <KTextbox
-        ref="numQuest"
-        type="number"
-        :label="$tr('numQuestions')"
-        :invalid="numQuestIsInvalid"
-        :invalidText="numQuestIsInvalidText"
-        @blur="numQuestBlurred = true"
-        v-model.trim.number="inputNumQuestions"
-      />
-    </div>
-
-    <h2>{{ $tr('chooseExercises') }}</h2>
-
-    <div>
-      <nav>
-        <ol>
-          <li
-            v-for="(topic, index) in topic.breadcrumbs"
-            :key="index"
-            :class="breadCrumbClass(index)"
-          >
-            <button v-if="notLastBreadcrumb(index)" @click="handleGoToTopic(topic.id)">
-              {{ topic.title }}
-            </button>
-            <strong v-else>{{ topic.title }}</strong>
-          </li>
-        </ol>
-      </nav>
-
-      <div>
-        <transition name="fade" mode="out-in">
-          <KCircularLoader
-            v-if="loading"
-            key="progress"
-            :delay="false"
-          />
-
-          <CoreTable
-            v-else
-            key="table"
-          >
-            <thead slot="thead">
-              <tr>
-                <th class="core-table-checkbox-col">
-                  <KCheckbox
-                    v-if="exercises.length || !subtopics.every(subtopic => subtopic.channel)"
-                    :label="$tr('selectAll')"
-                    :showLabel="false"
-                    :checked="allExercisesWithinCurrentTopicSelected"
-                    :indeterminate="someExercisesWithinCurrentTopicSelected"
-                    :disabled="!subtopics.length && !exercises.length"
-                    @change="changeSelection"
-                  />
-                </th>
-                <th class="core-table-main-col">{{ $tr('name') }}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody slot="tbody">
-              <ExerciseRow
-                v-for="exercise in exercises"
-                :key="exercise.id"
-                :exerciseId="exercise.id"
-                :exerciseTitle="exercise.title"
-                :numCoachContents="exercise.num_coach_contents"
-                :exerciseNumAssessments="exercise.numAssessments"
-                :selectedExercises="selectedExercises"
-                @addExercise="handleAddExercise(exercise)"
-                @removeExercise="handleRemoveExercise"
-              />
-              <TopicRow
-                v-for="topic in subtopics"
-                v-if="topic.allExercisesWithinTopic.length"
-                :key="topic.id"
-                :channel="topic.channel"
-                :topicId="topic.id"
-                :topicTitle="topic.title"
-                :numCoachContents="topic.num_coach_contents"
-                :allExercisesWithinTopic="topic.allExercisesWithinTopic"
-                :selectedExercises="selectedExercises"
-                @goToTopic="handleGoToTopic"
-                @addTopicExercises="handleAddTopicExercises"
-                @removeTopicExercises="handleRemoveTopicExercises"
-              />
-            </tbody>
-          </CoreTable>
-        </transition>
-      </div>
-    </div>
-
-    <div class="footer">
-      <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
-
-      <UiAlert
-        v-if="formIsInvalid"
-        type="error"
-        :dismissible="false"
+    <KGrid>
+      <KGridItem
+        sizes="100, 50, 50"
+        percentage
       >
-        {{ formIsInvalidText }}
-      </UiAlert>
+        <KTextbox
+          ref="title"
+          :label="$tr('title')"
+          :autofocus="true"
+          :invalid="titleIsInvalid"
+          :invalidText="titleIsInvalidText"
+          :maxlength="100"
+          @blur="titleBlurred = true"
+          v-model.trim="examTitle"
+        />
+      </KGridItem>
 
-      <KButton :text="$tr('preview')" @click="preview" />
+      <KGridItem
+        sizes="100, 50, 25"
+        percentage
+      >
+        <KTextbox
+          ref="numQuest"
+          type="number"
+          :label="$tr('numQuestions')"
+          :invalid="numQuestIsInvalid"
+          :invalidText="numQuestIsInvalidText"
+          @blur="numQuestBlurred = true"
+          v-model.trim.number="examNumberOfQuestions"
+        />
+      </KGridItem>
+    </KGrid>
 
-      <br>
+    <UiAlert
+      v-if="formIsInvalid"
+      type="error"
+      :dismissible="false"
+    >
+      {{ formIsInvalidText }}
+    </UiAlert>
+
+    <KGrid>
+      <KGridItem
+        sizes="100, 100, 50"
+        percentage
+      >
+        <h2>{{ $tr('chooseExercises') }}</h2>
+
+      </KGridItem>
+
+      <KGridItem
+        sizes="100, 50, 25"
+        percentage
+        alignments="left, left, right"
+      >
+        <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
+      </KGridItem>
+
+      <KGridItem
+        sizes="100, 50, 25"
+        percentage
+        alignments="left, right, right"
+      >
+        <KButton :text="$tr('preview')" @click="preview" />
+        <KButton
+          :text="$tr('saveButtonlabel')"
+          :primary="true"
+          @click="finish"
+          :disabled="submitting"
+        />
+      </KGridItem>
+    </KGrid>
+
+    <LessonsSearchBox
+      class="search-box"
+      @searchterm="handleSearchTerm"
+    />
+
+    <template v-if="inSearchMode">
       <KButton
-        :text="$tr('saveButtonlabel')"
-        :primary="true"
-        @click="finish"
-        :disabled="submitting"
+        class="exit-search-button"
+        :text="$tr('exitSearchButtonLabel')"
+        appearance="raised-button"
+        @click="handleExitSearch"
       />
-    </div>
+
+      <LessonsSearchFilters
+        class="search-filters"
+        :searchTerm="searchTerm"
+        :searchResults="searchResults"
+        v-model="filters"
+      />
+    </template>
+
+    <ResourceSelectionBreadcrumbs
+      v-else
+      :ancestors="ancestors"
+      :channelsLink="channelsLink"
+      :topicsLink="topicsLink"
+    />
+
+    <ContentCardList
+      :contentList="filteredContentList"
+      :showSelectAll="selectAllIsVisible"
+      :viewMoreButtonState="viewMoreButtonState"
+      :selectAllChecked="addableExercises.length === 0"
+      :contentIsChecked="contentIsSelected"
+      :contentHasCheckbox="contentHasCheckbox"
+      :contentCardMessage="selectionMetadata"
+      :contentCardLink="contentLink"
+      @changeselectall="toggleTopicInWorkingResources"
+      @change_content_card="toggleSelected"
+      @moreresults="handleMoreResults"
+    />
 
     <PreviewNewExamModal
       v-if="showPreviewNewExamModal"
       :examQuestionSources="questionSources"
-      :examSeed="seed"
-      :examNumQuestions="inputNumQuestions"
-      :exerciseContentNodes="exerciseContentNodes"
+      :examSeed="examSeed"
+      :examNumQuestions="examNumberOfQuestions"
+      :exerciseContentNodes="selectedExercises"
       @randomize="randomize"
       @close="setExamsModal(null)"
     />
@@ -142,25 +134,33 @@
 
 <script>
 
-  import uniqBy from 'lodash/uniqBy';
-  import { mapState, mapActions, mapMutations } from 'vuex';
+  import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
+
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+
+  import uniqBy from 'lodash/uniqBy';
   import shuffle from 'lodash/shuffle';
   import orderBy from 'lodash/orderBy';
   import random from 'lodash/random';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import flatMap from 'lodash/flatMap';
+  import pickBy from 'lodash/pickBy';
+
+  import { PageNames } from '../../../constants/';
   import { Modals as ExamModals } from '../../../constants/examConstants';
+  import LessonsSearchBox from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
+  import LessonsSearchFilters from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
+  import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
+  import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList';
   import PreviewNewExamModal from './PreviewNewExamModal';
-  import ExerciseRow from './ExerciseRow';
-  import TopicRow from './TopicRow';
 
   export default {
+    // TODO: Rename this to 'ExamCreationPage'
     name: 'CreateExamPage',
     metaInfo() {
       return {
@@ -168,73 +168,143 @@
       };
     },
     components: {
-      KCircularLoader,
       KButton,
       KTextbox,
-      TopicRow,
-      ExerciseRow,
       PreviewNewExamModal,
-      KCheckbox,
       UiAlert,
-      CoreTable,
+      LessonsSearchBox,
+      LessonsSearchFilters,
+      ResourceSelectionBreadcrumbs,
+      ContentCardList,
+      KGrid,
+      KGridItem,
     },
     mixins: [responsiveWindow],
     $trs: {
       createNewExam: 'Create new exam',
       chooseExercises: 'Select topics or exercises',
-      selectAll: 'Select all',
       title: 'Title',
       numQuestions: 'Number of questions',
       examRequiresTitle: 'This field is required',
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
-        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {examNumberOfQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
       numQuestionsNotMet:
         'Add more exercises to reach 40 questions. Alternately, lower the number of exam questions.',
       noneSelected: 'No exercises are selected',
-      searchContent: 'Search for content within channel',
       preview: 'Preview',
       saveButtonlabel: 'Save',
       added: 'Added',
       removed: 'Removed',
       selected: '{count, number, integer} total selected',
-      name: 'Name',
       documentTitle: 'Create new exam',
+      exitSearchButtonLabel: 'Exit search',
     },
     data() {
       return {
-        selectedChannel: '',
-        inputTitle: '',
-        inputNumQuestions: '',
+        examTitle: '',
+        examNumberOfQuestions: '',
+        examSeed: null,
         titleBlurred: false,
         numQuestBlurred: false,
         selectionMade: false,
-        searchInput: '',
-        loading: false,
-        seed: this.generateRandomSeed(),
-        selectAll: false,
         previewOrSubmissionAttempt: false,
         submitting: false,
-        dummyChannelId: null,
+        moreResultsState: null,
+        // null corresponds to 'All' filter value
+        filters: {
+          channel: this.$route.query.channel || null,
+          kind: this.$route.query.kind || null,
+          role: this.$route.query.role || null,
+        },
       };
     },
     computed: {
-      ...mapState(['classId']),
-      ...mapState('examCreate', [
-        'examsModalSet',
-        'exerciseContentNodes',
-        'exercises',
+      ...mapState(['classId', 'pageName']),
+      ...mapGetters({
+        channels: 'getChannels',
+      }),
+      ...mapState('examCreation', [
+        'title',
+        'numberOfQuestions',
+        'seed',
+        'contentList',
         'selectedExercises',
-        'subtopics',
-        'topic',
         'availableQuestions',
+        'searchResults',
+        'numRemainingSearchResults',
+        'ancestors',
+        'ancestorCounts',
+        'examsModalSet',
       ]),
-      numCols() {
-        return this.windowSize.breakpoint > 3 ? 2 : 1;
+      filteredContentList() {
+        const { role } = this.filters || {};
+        if (!this.inSearchMode) {
+          return this.contentList;
+        }
+        return this.searchResults.results.filter(contentNode => {
+          let passesFilters = true;
+          if (role === 'nonCoach') {
+            passesFilters = passesFilters && contentNode.num_coach_contents === 0;
+          }
+          if (role === 'coach') {
+            passesFilters = passesFilters && contentNode.num_coach_contents > 0;
+          }
+          return passesFilters;
+        });
       },
+      allExercises() {
+        const topics = this.contentList.filter(({ kind }) => kind === ContentNodeKinds.TOPIC);
+        const exercises = this.contentList.filter(({ kind }) => kind === ContentNodeKinds.EXERCISE);
+        const topicExercises = flatMap(topics, ({ exercises }) => exercises);
+        return [...exercises, ...topicExercises];
+      },
+      addableExercises() {
+        return this.allExercises.filter(
+          exercise =>
+            this.selectedExercises.findIndex(
+              selectedExercise => selectedExercise.id === exercise.id
+            ) === -1
+        );
+      },
+      questionSources() {
+        const questionSources = [];
+        for (let i = 0; i < this.examNumberOfQuestions; i++) {
+          const questionSourcesIndex = i % this.uniqueSelectedExercises.length;
+          if (questionSources[questionSourcesIndex]) {
+            questionSources[questionSourcesIndex].number_of_questions += 1;
+          } else {
+            questionSources.push({
+              exercise_id: this.uniqueSelectedExercises[i].id,
+              number_of_questions: 1,
+              title: this.uniqueSelectedExercises[i].title,
+            });
+          }
+        }
+        return orderBy(questionSources, [exercise => exercise.title.toLowerCase()]);
+      },
+      inSearchMode() {
+        return this.pageName === PageNames.EXAM_CREATION_SEARCH;
+      },
+      searchTerm() {
+        return this.$route.params.searchTerm;
+      },
+      selectAllIsVisible() {
+        return !this.inSearchMode && this.pageName !== PageNames.EXAM_CREATION_ROOT;
+      },
+      viewMoreButtonState() {
+        if (this.moreResultsState === 'waiting' || this.moreResultsState === 'error') {
+          return this.moreResultsState;
+        }
+        if (!this.numRemainingSearchResults) {
+          return 'no_more_results';
+        }
+        return 'visible';
+      },
+
       titleIsInvalidText() {
         if (this.titleBlurred || this.previewOrSubmissionAttempt) {
-          if (this.inputTitle === '') {
+          if (this.examTitle === '') {
             return this.$tr('examRequiresTitle');
           }
         }
@@ -244,25 +314,25 @@
         return Boolean(this.titleIsInvalidText);
       },
       numQuestExceedsSelection() {
-        return this.inputNumQuestions > this.availableQuestions;
+        return this.examNumberOfQuestions > this.availableQuestions;
       },
       exercisesAreSelected() {
         return this.selectedExercises.length > 0;
       },
       numQuestIsInvalidText() {
         if (this.numQuestBlurred || this.previewOrSubmissionAttempt) {
-          if (this.inputNumQuestions === '') {
+          if (this.examNumberOfQuestions === '') {
             return this.$tr('numQuestionsBetween');
           }
-          if (this.inputNumQuestions < 1 || this.inputNumQuestions > 50) {
+          if (this.examNumberOfQuestions < 1 || this.examNumberOfQuestions > 50) {
             return this.$tr('numQuestionsBetween');
           }
-          if (!Number.isInteger(this.inputNumQuestions)) {
+          if (!Number.isInteger(this.examNumberOfQuestions)) {
             return this.$tr('numQuestionsBetween');
           }
           if (this.exercisesAreSelected && this.numQuestExceedsSelection) {
             return this.$tr('numQuestionsExceed', {
-              inputNumQuestions: this.inputNumQuestions,
+              examNumberOfQuestions: this.examNumberOfQuestions,
               maxQuestionsFromSelection: this.availableQuestions,
             });
           }
@@ -298,127 +368,174 @@
       formIsInvalid() {
         return Boolean(this.formIsInvalidText);
       },
-      allExercisesWithinCurrentTopic() {
-        const subtopicExercises = flatMap(
-          this.subtopics,
-          subtopic => subtopic.allExercisesWithinTopic
-        );
-        return [...subtopicExercises, ...this.exercises];
-      },
-      allExercisesWithinCurrentTopicSelected() {
-        if (this.allExercisesWithinCurrentTopic.length === 0) {
-          return false;
-        }
-        return this.allExercisesWithinCurrentTopic.every(exercise =>
-          this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
-        );
-      },
-      noExercisesWithinCurrentTopicSelected() {
-        return this.allExercisesWithinCurrentTopic.every(
-          exercise =>
-            !this.selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)
-        );
-      },
       uniqueSelectedExercises() {
         return uniqBy(this.selectedExercises, 'content_id');
-      },
-      someExercisesWithinCurrentTopicSelected() {
-        return (
-          !this.allExercisesWithinCurrentTopicSelected &&
-          !this.noExercisesWithinCurrentTopicSelected
-        );
       },
       showPreviewNewExamModal() {
         return this.examsModalSet === ExamModals.PREVIEW_NEW_EXAM;
       },
-      questionSources() {
-        const questionSources = [];
-        for (let i = 0; i < this.inputNumQuestions; i++) {
-          const questionSourcesIndex = i % this.uniqueSelectedExercises.length;
-          if (questionSources[questionSourcesIndex]) {
-            questionSources[questionSourcesIndex].number_of_questions += 1;
-          } else {
-            questionSources.push({
-              exercise_id: this.uniqueSelectedExercises[i].id,
-              number_of_questions: 1,
-              title: this.uniqueSelectedExercises[i].title,
-            });
-          }
-        }
-        return orderBy(questionSources, [exercise => exercise.title.toLowerCase()]);
+      channelsLink() {
+        return {
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: this.classId,
+          },
+        };
       },
+    },
+    watch: {
+      filters(newVal) {
+        this.$router.push({
+          query: pickBy(newVal),
+        });
+      },
+    },
+    created() {
+      this.examTitle = this.title;
+      this.examNumberOfQuestions = this.numberOfQuestions;
+      this.examSeed = this.seed || this.generateRandomSeed();
+      this.$watch('examTitle', () => this.setTitle(this.examTitle));
+      this.$watch('examNumberOfQuestions', () =>
+        this.setNumberOfQuestions(this.examNumberOfQuestions)
+      );
+      this.$watch('examSeed', () => this.setSeed(this.examSeed));
     },
     methods: {
       ...mapActions(['createSnackbar']),
-      ...mapActions('examCreate', [
-        'addExercise',
-        'addExercisesToExam',
-        'createExamAndRoute',
-        'goToTopLevel',
-        'goToTopic',
-        'removeExercise',
-        'removeExercisesFromExam',
+      ...mapActions('examCreation', [
+        'setTitle',
+        'setNumberOfQuestions',
+        'setSeed',
+        'addToSelectedExercises',
+        'removeFromSelectedExercises',
         'setSelectedExercises',
+        'fetchAdditionalSearchResults',
+        'createExamAndRoute',
       ]),
-      ...mapMutations('examCreate', {
-        setExamsModal: 'SET_EXAMS_MODAL',
-      }),
-      setDummyChannelId(id) {
-        if (!this.dummyChannelId) {
-          this.dummyChannelId = id;
+      ...mapMutations('examCreation', { setExamsModal: 'SET_EXAMS_MODAL' }),
+      contentLink(content) {
+        if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
+          return {
+            name: PageNames.EXAM_CREATION_TOPIC,
+            params: {
+              classId: this.classId,
+              topicId: content.id,
+            },
+          };
         }
+        return {
+          name: PageNames.EXAM_CREATION_PREVIEW,
+          params: {
+            classId: this.classId,
+            contentId: content.id,
+          },
+        };
       },
-      changeSelection() {
-        this.selectionMade = true;
-        const allExercises = this.allExercisesWithinCurrentTopic;
-        const currentTopicTitle = this.topic.title;
-        if (this.allExercisesWithinCurrentTopicSelected) {
-          this.handleRemoveTopicExercises(allExercises, currentTopicTitle);
+      contentHasCheckbox() {
+        return this.pageName === PageNames.EXAM_CREATION_ROOT;
+      },
+      contentIsSelected(content) {
+        if (content.kind === ContentNodeKinds.TOPIC) {
+          return content.exercises.every(
+            exercise =>
+              this.selectedExercises.findIndex(
+                selectedExercise => selectedExercise.id === exercise.id
+              ) !== -1
+          );
         } else {
-          this.handleAddTopicExercises(allExercises, currentTopicTitle);
-        }
-        if (!this.dummyChannelId) {
-          this.setDummyChannelId(this.subtopics[0].id);
+          return (
+            this.selectedExercises.findIndex(
+              selectedExercise => selectedExercise.id === content.id
+            ) !== -1
+          );
         }
       },
-      handleGoToTopic(topicId) {
-        this.loading = true;
-        if (!topicId) {
-          this.goToTopLevel().then(() => {
-            this.loading = false;
+      selectionMetadata() {
+        // const count = this.ancestorCounts[content.id];
+        // if (count) {
+        //   return this.$tr('selectionInformation',
+        //   { count, total: this.selectedExercises.length }
+        //   );
+        // }
+        return '';
+      },
+      toggleTopicInWorkingResources(isChecked) {
+        const topicTitle = this.ancestors[this.ancestors.length - 1].title;
+        if (isChecked) {
+          this.addToSelectedExercises(this.addableExercises);
+          this.createSnackbar({ text: `${this.$tr('added')} ${topicTitle}`, autoDismiss: true });
+        } else {
+          this.removeFromSelectedExercises(this.allExercises);
+          this.createSnackbar({ text: `${this.$tr('removed')} ${topicTitle}`, autoDismiss: true });
+        }
+      },
+      toggleSelected({ checked, contentId }) {
+        let exercises;
+        const contentNode = this.contentList.find(item => item.id === contentId);
+        const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
+        if (checked && isTopic) {
+          exercises = contentNode.exercises;
+          this.addToSelectedExercises(exercises);
+          this.createSnackbar({
+            text: `${this.$tr('added')} ${contentNode.title}`,
+            autoDismiss: true,
+          });
+        } else if (checked && !isTopic) {
+          exercises = [contentNode];
+          this.addToSelectedExercises(exercises);
+          this.createSnackbar({
+            text: `${this.$tr('added')} ${contentNode.title}`,
+            autoDismiss: true,
+          });
+        } else if (!checked && isTopic) {
+          exercises = contentNode.exercises;
+          this.removeFromSelectedExercises(exercises);
+          this.createSnackbar({
+            text: `${this.$tr('removed')} ${contentNode.title}`,
+            autoDismiss: true,
+          });
+        } else if (!checked && !isTopic) {
+          exercises = [contentNode];
+          this.removeFromSelectedExercises(exercises);
+          this.createSnackbar({
+            text: `${this.$tr('removed')} ${contentNode.title}`,
+            autoDismiss: true,
+          });
+        }
+      },
+      handleMoreResults() {
+        this.moreResultsState = 'waiting';
+        this.fetchAdditionalSearchResults({
+          searchTerm: this.searchTerm,
+          kind: this.filters.kind,
+          channelId: this.filters.channel,
+          currentResults: this.searchResults.results,
+        })
+          .then(() => {
+            this.moreResultsState = null;
+          })
+          .catch(() => {
+            this.moreResultsState = 'error';
+          });
+      },
+      handleExitSearch() {
+        const lastId = this.$route.query.last_id;
+        if (lastId) {
+          this.$router.push({
+            name: PageNames.EXAM_CREATION_TOPIC,
+            params: {
+              classId: this.classId,
+              topicId: lastId,
+            },
           });
         } else {
-          this.goToTopic(topicId).then(() => {
-            this.loading = false;
+          this.$router.push({
+            name: PageNames.EXAM_CREATION_ROOT,
+            params: {
+              classId: this.classId,
+            },
           });
         }
-        if (!this.dummyChannelId) {
-          this.setDummyChannelId(topicId);
-        }
-      },
-      handleAddExercise(exercise) {
-        this.selectionMade = true;
-        this.addExercise(exercise);
-        this.createSnackbar({ text: `${this.$tr('added')} ${exercise.title}`, autoDismiss: true });
-      },
-      handleRemoveExercise(exercise) {
-        this.removeExercise(exercise);
-        this.createSnackbar({
-          text: `${this.$tr('removed')} ${exercise.title}`,
-          autoDismiss: true,
-        });
-      },
-      handleAddTopicExercises(allExercisesWithinTopic, topicTitle, topicId) {
-        this.selectionMade = true;
-        this.addExercisesToExam(allExercisesWithinTopic);
-        this.createSnackbar({ text: `${this.$tr('added')} ${topicTitle}`, autoDismiss: true });
-        if (!this.dummyChannelId) {
-          this.setDummyChannelId(topicId);
-        }
-      },
-      handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
-        this.removeExercisesFromExam(allExercisesWithinTopic);
-        this.createSnackbar({ text: `${this.$tr('removed')} ${topicTitle}`, autoDismiss: true });
       },
       preview() {
         this.previewOrSubmissionAttempt = true;
@@ -434,13 +551,14 @@
           this.focusOnInvalidField();
         } else {
           this.submitting = true;
+          const dummyChannelId = this.channels[0].id;
           const exam = {
             collection: this.classId,
-            channel_id: this.dummyChannelId,
-            title: this.inputTitle,
-            question_count: this.inputNumQuestions,
+            channel_id: dummyChannelId,
+            title: this.examTitle,
+            question_count: this.examNumberOfQuestions,
             question_sources: this.questionSources,
-            seed: this.seed,
+            seed: this.examSeed,
             assignments: [{ collection: this.classId }],
           };
           this.createExamAndRoute(exam);
@@ -453,21 +571,33 @@
           this.$refs.numQuest.focus();
         }
       },
-      notLastBreadcrumb(index) {
-        return index !== this.topic.breadcrumbs.length - 1;
-      },
-      breadCrumbClass(index) {
-        if (this.notLastBreadcrumb(index)) {
-          return 'not-last';
-        }
-        return '';
-      },
       generateRandomSeed() {
         return random(1000);
       },
       randomize() {
-        this.seed = this.generateRandomSeed();
+        this.examSeed = this.generateRandomSeed();
         this.setSelectedExercises(shuffle(this.selectedExercises));
+      },
+      handleSearchTerm(searchTerm) {
+        const lastId = this.$route.query.last_id || this.$route.params.topicId;
+        this.$router.push({
+          name: PageNames.EXAM_CREATION_SEARCH,
+          params: {
+            searchTerm,
+          },
+          query: {
+            last_id: lastId,
+          },
+        });
+      },
+      topicsLink(topicId) {
+        return {
+          name: PageNames.EXAM_CREATION_TOPIC,
+          params: {
+            classId: this.classId,
+            topicId,
+          },
+        };
       },
     },
   };
@@ -479,50 +609,9 @@
 
   @import '~kolibri.styles.definitions';
 
-  .footer {
-    text-align: center;
-
-    button {
-      margin: auto;
-      margin-bottom: 1em;
-    }
-  }
-
-  ol {
-    padding: 0.5em;
-  }
-
-  li {
+  .search-box {
     display: inline-block;
-
-    button {
-      padding: 0;
-      font-size: 1em;
-      vertical-align: baseline;
-      border: 0;
-    }
-  }
-
-  .not-last {
-    &::after {
-      padding-right: 0.5em;
-      padding-left: 0.5em;
-      content: '/';
-    }
-  }
-
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.1s;
-  }
-
-  .fade-enter,
-  .fade-leave-to .fade-leave-active {
-    opacity: 0;
-  }
-
-  .validation-error {
-    color: $core-text-error;
+    vertical-align: middle;
   }
 
 </style>

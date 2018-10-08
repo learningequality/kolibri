@@ -154,7 +154,7 @@
         return this.sortedExams;
       },
       newExamRoute() {
-        return { name: PageNames.CREATE_EXAM };
+        return { name: PageNames.EXAM_CREATION_ROOT };
       },
     },
     methods: {

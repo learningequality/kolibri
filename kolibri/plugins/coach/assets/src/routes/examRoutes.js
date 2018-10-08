@@ -1,6 +1,11 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants';
-import { showCreateExamPage } from '../modules/examCreate/handlers';
+import {
+  showExamCreationRootPage,
+  showExamCreationTopicPage,
+  showExamCreationPreviewPage,
+  showExamCreationSearchPage,
+} from '../modules/examCreation/handlers';
 import { showExamReportDetailPage } from '../modules/examReportDetail/handlers';
 import { showExamReportPage } from '../modules/examReport/handlers';
 import { showExamsPage } from '../modules/examsRoot/handlers';
@@ -14,10 +19,31 @@ export default [
     },
   },
   {
-    name: PageNames.CREATE_EXAM,
+    name: PageNames.EXAM_CREATION_ROOT,
     path: '/:classId/exams/new/',
     handler: toRoute => {
-      showCreateExamPage(store, toRoute.params.classId);
+      showExamCreationRootPage(store, toRoute.params);
+    },
+  },
+  {
+    name: PageNames.EXAM_CREATION_TOPIC,
+    path: '/:classId/exams/new/topic/:topicId',
+    handler: toRoute => {
+      showExamCreationTopicPage(store, toRoute.params);
+    },
+  },
+  {
+    name: PageNames.EXAM_CREATION_PREVIEW,
+    path: '/:classId/exams/new/preview/:contentId',
+    handler: toRoute => {
+      showExamCreationPreviewPage(store, toRoute.params);
+    },
+  },
+  {
+    name: PageNames.EXAM_CREATION_SEARCH,
+    path: '/:classId/exams/new/search/:searchTerm',
+    handler: toRoute => {
+      showExamCreationSearchPage(store, toRoute.params, toRoute.query);
     },
   },
   {

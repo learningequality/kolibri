@@ -1,5 +1,5 @@
 import { ClassroomResource } from 'kolibri.resources';
-import { pageNameToModuleMap } from '../../constants';
+import { pageNameToModuleMap, PageNames } from '../../constants';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
 export function setClassState(store, classId = null) {
@@ -38,6 +38,16 @@ export function resetModuleState(store, { toRoute, fromRoute }) {
     toRoute.name !== LessonsPageNames.SELECTION_ROOT
   ) {
     return store.dispatch('lessonSummary/resetLessonSummaryState');
+  }
+  const examCreationPages = [
+    PageNames.EXAM_CREATION_ROOT,
+    PageNames.EXAM_CREATION_TOPIC,
+    PageNames.EXAM_CREATION_SEARCH,
+    PageNames.EXAM_CREATION_PREVIEW,
+  ];
+  // Do not reset state if within create exam page
+  if (examCreationPages.includes(fromRoute.name) && examCreationPages.includes(toRoute.name)) {
+    return;
   }
   const moduleName = pageNameToModuleMap[fromRoute.name];
   if (moduleName) {
