@@ -188,7 +188,7 @@
       examRequiresTitle: 'This field is required',
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
-        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {examNumberOfQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
       numQuestionsNotMet:
         'Add more exercises to reach 40 questions. Alternately, lower the number of exam questions.',
       noneSelected: 'No exercises are selected',
@@ -332,7 +332,7 @@
           }
           if (this.exercisesAreSelected && this.numQuestExceedsSelection) {
             return this.$tr('numQuestionsExceed', {
-              examNumberOfQuestions: this.examNumberOfQuestions,
+              inputNumQuestions: this.examNumberOfQuestions,
               maxQuestionsFromSelection: this.availableQuestions,
             });
           }
