@@ -7,7 +7,7 @@
         category="action"
         name="check_circle"
       />
-      {{ $tr('addedToLessonIndicator') }}
+      {{ $tr('addedIndicator') }}
       <KButton
         @click="$emit('removeResource')"
         :text="$tr('removeLabel')"
@@ -19,7 +19,7 @@
     <KButton
       v-else
       @click="$emit('addResource')"
-      :text="$tr('addToLessonButtonLabel')"
+      :text="$tr('addButtonLabel')"
       :primary="true"
       class="no-margin"
     />
@@ -39,8 +39,8 @@
     },
     $trs: {
       removeLabel: 'Remove',
-      addToLessonButtonLabel: 'Add',
-      addedToLessonIndicator: 'Added',
+      addButtonLabel: 'Add',
+      addedIndicator: 'Added',
     },
     props: {
       isSelected: {

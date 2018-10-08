@@ -139,6 +139,7 @@
       noAssignmentErrorHeader: "You aren't assigned to any classes",
       noAssignmentErrorSubheader:
         'To start coaching a class, please consult your Kolibri administrator',
+      createNewExam: 'Create new exam',
     },
     components: {
       TopNav,
@@ -237,7 +238,11 @@
       },
       appBarTitle() {
         if (this.currentPageIsImmersive) {
-          if (this.pageName === LessonsPageNames.CONTENT_PREVIEW) {
+          if (
+            [LessonsPageNames.CONTENT_PREVIEW, PageNames.EXAM_CREATION_PREVIEW].includes(
+              this.pageName
+            )
+          ) {
             return this.$tr('previewContentPageToolbarHeader');
           }
           if (selectionPages.includes(this.pageName)) {
@@ -245,6 +250,15 @@
           }
           if (resourceUserPages.includes(this.pageName)) {
             return this.$tr('resourceUserPageToolbarHeader');
+          }
+          if (
+            [
+              PageNames.EXAM_CREATION_ROOT,
+              PageNames.EXAM_CREATION_TOPIC,
+              PageNames.EXAM_CREATION_SEARCH,
+            ].includes(this.pageName)
+          ) {
+            return this.$tr('createNewExam');
           }
         }
         return this.$tr('coachToolbarHeader');
