@@ -6,6 +6,7 @@ function makeWrapper() {
   const store = makeStore();
   const wrapper = mount(SetupWizardIndex, {
     store,
+    stubs: ['DefaultLanguageForm'],
   });
   jest.spyOn(wrapper.vm, 'provisionDevice').mockResolvedValue();
   const els = {
