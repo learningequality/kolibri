@@ -8,13 +8,21 @@ from collections import namedtuple
 
 PY3 = sys.version_info[0] == 3
 POSIX = os.name == "posix"
+WINDOWS = os.name == "nt"
+LINUX = sys.platform.startswith("linux")
+MACOS = sys.platform.startswith("darwin")
 
 if PY3:
+
     def b(s):
         return s.encode("latin-1")
+
+
 else:
+
     def b(s):
         return s
+
 
 ENCODING = sys.getfilesystemencoding()
 if not PY3:
@@ -25,19 +33,20 @@ else:
     except AttributeError:
         ENCODING_ERRS = "surrogateescape" if POSIX else "replace"
 
-pcputimes = namedtuple('pcputimes',
-                       ['user', 'system', 'children_user', 'children_system'])
+pcputimes = namedtuple('pcputimes', ['user', 'system', 'children_user', 'children_system'])
 
 
 class NoSuchProcess(Exception):
     """Exception raised when a process with a certain PID doesn't
     or no longer exists.
     """
+
     pass
 
 
 class AccessDenied(Exception):
     """Exception raised when permission to perform an action is denied."""
+
     pass
 
 
@@ -55,6 +64,7 @@ def memoize(fun):
     >>> foo.cache_clear()
     >>>
     """
+
     @functools.wraps(fun)
     def wrapper(*args, **kwargs):
         key = (args, frozenset(sorted(kwargs.items())))
@@ -99,6 +109,7 @@ def memoize_when_activated(fun):
     >>> foo()
     >>>
     """
+
     @functools.wraps(fun)
     def wrapper(self):
         if not wrapper.cache_activated:

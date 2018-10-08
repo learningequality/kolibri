@@ -161,6 +161,7 @@ def wrap_exceptions(fun):
     """Decorator which translates bare OSError and IOError exceptions
     into NoSuchProcess and AccessDenied.
     """
+
     @functools.wraps(fun)
     def wrapper(self, *args, **kwargs):
         try:
@@ -173,12 +174,12 @@ def wrap_exceptions(fun):
             if err.errno == errno.ESRCH:
                 raise NoSuchProcess()
             # ENOENT (no such file or directory) can be raised on open().
-            if err.errno == errno.ENOENT and not os.path.exists("%s/%s" % (
-                    self._procfs_path, self.pid)):
+            if err.errno == errno.ENOENT and not os.path.exists("%s/%s" % (self._procfs_path, self.pid)):
                 raise NoSuchProcess()
             # Note: zombies will keep existing under /proc until they're
             # gone so there's no way to distinguish them in here.
             raise
+
     return wrapper
 
 
@@ -192,8 +193,7 @@ def boot_time():
                 ret = float(line.strip().split()[1])
                 BOOT_TIME = ret
                 return ret
-        raise RuntimeError(
-            "line 'btime' not found in %s" % path)
+        raise RuntimeError("line 'btime' not found in %s" % path)
 
 
 def pid_exists(pid):
@@ -296,8 +296,7 @@ class Process(object):
         # | dirty  | dirty pages (unused in Linux 2.6)   | dt   |      |
         #  ============================================================
         with open_binary("%s/%s/statm" % (self._procfs_path, self.pid)) as f:
-            vms, rss, shared, text, lib, data, dirty = \
-                [int(x) * PAGESIZE for x in f.readline().split()[:7]]
+            vms, rss, shared, text, lib, data, dirty = [int(x) * PAGESIZE for x in f.readline().split()[:7]]
         return pmem(rss, vms, shared, text, lib, data, dirty)
 
     @wrap_exceptions

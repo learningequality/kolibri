@@ -10,6 +10,8 @@ from kolibri.core.analytics.measurements import get_kolibri_use
 from kolibri.core.analytics.measurements import get_machine_info
 from kolibri.core.analytics.measurements import get_process_pid
 from kolibri.core.analytics.measurements import KolibriNotRunning
+from kolibri.core.analytics.pskolibri.common import LINUX
+from kolibri.core.analytics.pskolibri.common import WINDOWS
 
 try:
     import urllib.request as urlrequest
@@ -18,7 +20,6 @@ except ImportError:
 
 
 logger = logging.getLogger('profiler')
-LINUX = sys.platform.startswith("linux")
 
 
 class Command(BaseCommand):
@@ -44,8 +45,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        if not LINUX:
-            print("This OS is not supported yet")
+        if not LINUX and not WINDOWS:
+            print("This OS is not yet supported")
             sys.exit(0)
 
         interval = 10  # the measures are taken every 10 seconds

@@ -5,14 +5,14 @@ import os
 import sys
 import time
 
+from kolibri.core.analytics.pskolibri.common import LINUX
 from kolibri.core.analytics.pskolibri.common import memoize_when_activated
 from kolibri.core.analytics.pskolibri.common import NoSuchProcess
+from kolibri.core.analytics.pskolibri.common import POSIX
 from kolibri.core.analytics.pskolibri.common import PY3
+from kolibri.core.analytics.pskolibri.common import WINDOWS
 
-POSIX = os.name == "posix"
-WINDOWS = os.name == "nt"
-LINUX = sys.platform.startswith("linux")
-MACOS = sys.platform.startswith("darwin")
+
 _TOTAL_PHYMEM = None
 _timer = getattr(time, 'monotonic', time.time)
 
@@ -22,11 +22,13 @@ if LINUX:
     PROCFS_PATH = "/proc"
 
     from kolibri.core.analytics.pskolibri import _pslinux as _psplatform
+
+elif WINDOWS:
+    from kolibri.core.analytics.pskolibri import _pswindows as _psplatform
+
 else:  # pragma: no cover
     raise NotImplementedError('platform %s is not supported' % sys.platform)
 
-# elif WINDOWS:
-#     from kolibri.core.analytics.pskolibri import _pswindows as _psplatform
 # elif MACOS:
 #     from kolibri.core.analytics.pskolibri import _psosx as _psplatform
 
@@ -82,6 +84,19 @@ def cpu_times():
     return _psplatform.cpu_times()
 
 
+try:
+    _last_cpu_times = cpu_times()
+except Exception:
+    # Don't want to crash at import time.
+    _last_cpu_times = None
+
+try:
+    _last_per_cpu_times = cpu_times(percpu=True)
+except Exception:
+    # Don't want to crash at import time.
+    _last_per_cpu_times = None
+
+
 def cpu_count():
     """Return the number of logical CPUs in the system (same as
     os.cpu_count() in Python 3.4).
@@ -102,11 +117,8 @@ def cpu_percent():
     """Return a float representing the current system-wide CPU
     utilization as a percentage.
     """
-    try:
-        _last_cpu_times = cpu_times()
-    except Exception:
-        # Don't want to crash at import time.
-        _last_cpu_times = None
+    global _last_cpu_times
+    global _last_per_cpu_times
 
     def calculate(t1, t2):
         times_delta = _cpu_times_deltas(t1, t2)
@@ -194,8 +206,7 @@ class Process(object):
             if not PY3 and not isinstance(pid, (int, long)):
                 raise TypeError('pid must be an integer (got %r)' % pid)
             if pid < 0:
-                raise ValueError('pid must be a positive integer (got %s)'
-                                 % pid)
+                raise ValueError('pid must be a positive integer (got %s)' % pid)
         self._pid = pid
         self._create_time = None
         # used for caching on Windows only (on POSIX ppid may change)
@@ -280,7 +291,7 @@ class Process(object):
             # This is the utilization split evenly between all CPUs.
             # E.g. a busy loop process on a 2-CPU-cores system at this
             # point is reported as 50% instead of 100%.
-            overall_cpus_percent = ((delta_proc / delta_time) * 100)
+            overall_cpus_percent = (delta_proc / delta_time) * 100
         except ZeroDivisionError:
             # interval was too low
             return 0.0
