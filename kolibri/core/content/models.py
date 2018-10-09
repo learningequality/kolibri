@@ -147,7 +147,6 @@ class ContentTag(models.Model):
 class ContentNodeQueryset(TreeQuerySet):
 
     def dedupe_by_content_id(self):
-        # import ipdb; ipdb.set_trace()
         # remove duplicate content nodes based on content_id
         if connection.vendor == "sqlite":
             # adapted from https://code.djangoproject.com/ticket/22696
