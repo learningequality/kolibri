@@ -14,6 +14,7 @@ import kolibri.core.analytics.pskolibri as psutil
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import UserSessionLog
+from kolibri.utils.server import NotRunning
 from kolibri.utils.server import PID_FILE
 
 
@@ -145,7 +146,7 @@ def get_kolibri_process_cmd():
         kolibri_proc = psutil.Process(kolibri_pid)
     except psutil.NoSuchProcess:
         # Kolibri server is not running
-        raise KolibriNotRunning()
+        raise NotRunning(0)
     return kolibri_proc.cmdline()
 
 
@@ -164,10 +165,6 @@ def get_kolibri_use(development=False):
             kolibri_cpu = str(kolibri_proc.cpu_percent())
         except psutil.NoSuchProcess:
             # Kolibri server is not running
-            raise KolibriNotRunning()
+            raise NotRunning(0)
 
     return (kolibri_cpu, kolibri_mem)
-
-
-class KolibriNotRunning(Exception):
-    pass

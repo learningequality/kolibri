@@ -47,7 +47,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not LINUX and not WINDOWS:
             print("This OS is not yet supported")
-            sys.exit(0)
+            sys.exit(1)
 
         interval = 10  # the measures are taken every 10 seconds
         _, port = get_kolibri_process_info()

@@ -76,7 +76,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not LINUX and not WINDOWS:
             print("This OS is not yet supported")
-            sys.exit(0)
+            sys.exit(1)
 
         try:
             kolibri_cpu, kolibri_mem = get_kolibri_use()

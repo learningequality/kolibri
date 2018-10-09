@@ -11,6 +11,17 @@ from kolibri.core.analytics.pskolibri.common import NoSuchProcess
 from kolibri.core.analytics.pskolibri.common import POSIX
 from kolibri.core.analytics.pskolibri.common import PY3
 from kolibri.core.analytics.pskolibri.common import WINDOWS
+# This module is heavily based on the psutil module
+#
+# https://github.com/giampaolo/psutil
+# Copyright (c) 2009, Jay Loden, Dave Daeschler, Giampaolo Rodola under BSD License
+#
+# Most of these functions are stripped versions of psutil
+# simplified/adapted integrated with Kolibri.
+#
+# Linux part follows psutil in most of the code
+# Windows adds some new ideas and has replaced the C code
+# by Python code wrapped over ctypes
 
 
 _TOTAL_PHYMEM = None
