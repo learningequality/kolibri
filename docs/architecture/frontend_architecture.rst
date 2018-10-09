@@ -6,11 +6,11 @@ Frontend architecture
 Components
 ----------
 
-We leverage `Vue.js components <https://vuejs.org/guide/components.html>`_ as the primary building blocks for our UI. For general UI development work, this is the most common tool a developer will use. It would be prudent to read through the `Vue.js guide <https://vuejs.org/guide/>`_ thoroughly.
+We leverage `Vue.js components <https://vuejs.org/guide/components.html>`__ as the primary building blocks for our UI. For general UI development work, this is the most common tool a developer will use. It would be prudent to read through the `Vue.js guide <https://vuejs.org/guide/>`__ thoroughly.
 
-Each component contains HTML with dynamic Vue.js directives, styling which is scoped to that component (written using `SCSS <https://sass-lang.com/>`_), and logic which is also scoped to that component (all code, including that in Vue components should be written using `Bublé compatible ES2015 JavaScript <https://buble.surge.sh/guide/#supported-features>`_). Non-scoped styles can also be added, but these should be carefully namespaced.
+Each component contains HTML with dynamic Vue.js directives, styling which is scoped to that component (written using `SCSS <https://sass-lang.com/>`__), and logic which is also scoped to that component (all code, including that in Vue components should be written using `Bublé compatible ES2015 JavaScript <https://buble.surge.sh/guide/#supported-features>`__). Non-scoped styles can also be added, but these should be carefully namespaced.
 
-Components allow us to define new custom tags that encapsulate a piece of self-contained, re-usable UI functionality. When composed together, they form a tree structure of parents and children. Each component has a well-defined interface used by its parent component, made up of `input properties <https://vuejs.org/guide/components.html#Props>`_, `events <https://vuejs.org/guide/components.html#Custom-Events>`_ and `content slots <https://vuejs.org/guide/components.html#Content-Distribution-with-Slots>`_. Components should never reference their parent.
+Components allow us to define new custom tags that encapsulate a piece of self-contained, re-usable UI functionality. When composed together, they form a tree structure of parents and children. Each component has a well-defined interface used by its parent component, made up of `input properties <https://vuejs.org/guide/components.html#Props>`__, `events <https://vuejs.org/guide/components.html#Custom-Events>`__ and `content slots <https://vuejs.org/guide/components.html#Content-Distribution-with-Slots>`__. Components should never reference their parent.
 
 Read through :doc:`/references/conventions` for some important consistency tips on writing new components.
 
@@ -117,7 +117,7 @@ Content renderers
 
 A special kind of Kolibri Module is dedicated to rendering particular content types. All content renderers should extend the ``ContentRendererModule`` class found in `kolibri/core/assets/src/content_renderer_module.js`. In addition, rather than subclassing the ``WebpackBundleHook`` class, content renderers should be defined in the Python code using the ``ContentRendererHook`` class defined in ``kolibri.content.hooks``. In addition to the standard options for the ``WebpackBundleHook``, the ``ContentRendererHook`` also accepts a json file defining the content types that it renders.
 
-.. automodule:: kolibri.content.hooks
+.. automodule:: kolibri.core.content.hooks
     :members:
     :noindex:
 
@@ -176,7 +176,7 @@ The following libraries are available globally, in all module code:
 
 - ``vue`` - the Vue.js object
 - ``vuex`` - the Vuex object
-- ``logging`` - our wrapper around the `loglevel logging module <https://github.com/pimterry/loglevel>`_
+- ``logging`` - our wrapper around the `loglevel logging module <https://github.com/pimterry/loglevel>`__
 - ``core-base`` - a shared base Vue.js component (*core-base.vue*)
 
 And many others. The complete specification for commonly shared modules can be found in `kolibri/core/assets/src/core-app/apiSpec.js` - this object defines which modules are imported into the core object. If the module in question has the 'requireName' attribute set on the core specification, then it can be used in code with a standard CommonJS-style require statement - e.g.:
@@ -186,7 +186,7 @@ And many others. The complete specification for commonly shared modules can be f
   const vue = require('kolibri.lib.vue');
   const coreBase = require('kolibri.coreVue.components.coreBase');
 
-Adding additional globally-available objects is relatively straightforward due to the `plugin and webpack build system </pipeline/frontend_build_pipeline>`_.
+Adding additional globally-available objects is relatively straightforward due to the `plugin and webpack build system </pipeline/frontend_build_pipeline>`__.
 
 To expose something on the core app, add a key to the object in `apiSpec.js` which maps to an object with the following keys:
 
@@ -229,7 +229,7 @@ Bootstrapped data
 
 The ``kolibriGlobal`` object is also used to bootstrap data into the JS app, rather than making unnecessary API requests.
 
-For example, we currently embellish the ``kolibriGlobal`` object with a ``urls`` object. This is defined by `Django JS Reverse <https://github.com/ierror/django-js-reverse>`_ and exposes Django URLs on the client side. This will primarily be used for accessing API Urls for synchronizing with the REST API. See the Django JS Reverse documentation for details on invoking the Url.
+For example, we currently embellish the ``kolibriGlobal`` object with a ``urls`` object. This is defined by `Django JS Reverse <https://github.com/ierror/django-js-reverse>`__ and exposes Django URLs on the client side. This will primarily be used for accessing API Urls for synchronizing with the REST API. See the Django JS Reverse documentation for details on invoking the Url.
 
 
 Styling
@@ -257,7 +257,7 @@ These methods are also publicly exposed methods of the core app:
 Unit testing
 ------------
 
-Unit testing is carried out using `Jest <https://facebook.github.io/jest/>`_. All JavaScript code should have unit tests for all object methods and functions.
+Unit testing is carried out using `Jest <https://facebook.github.io/jest/>`__. All JavaScript code should have unit tests for all object methods and functions.
 
 Tests are written in JavaScript, and placed in the 'assets/test' folder. An example test is shown below:
 
@@ -283,7 +283,7 @@ Vue.js components can also be tested. The management plugin contains an example 
 Adding dependencies
 -------------------
 
-Dependencies are tracked using ``yarn`` - `see the docs here <https://yarnpkg.com/en/docs/>`_.
+Dependencies are tracked using ``yarn`` - `see the docs here <https://yarnpkg.com/en/docs/>`__.
 
 We distinguish development dependencies from runtime dependencies, and these should be installed as such using ``yarn add --dev [dep]`` or ``yarn add [dep]``, respectively. Your new dependency should now be recorded in *package.json*, and all of its dependencies should be recorded in *yarn.lock*.
 

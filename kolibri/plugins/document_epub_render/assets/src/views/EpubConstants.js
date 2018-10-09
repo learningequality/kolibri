@@ -16,8 +16,3 @@ export const THEMES = {
     textColor: '#bebebe',
   },
 };
-
-export const TEXT_ALIGNMENTS = {
-  LEFT: 'left',
-  JUSTIFY: 'justify',
-};

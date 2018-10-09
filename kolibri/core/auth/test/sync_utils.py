@@ -47,7 +47,7 @@ class KolibriServer(object):
         self._wait_for_server_start()
 
     def _wait_for_server_start(self, timeout=20):
-        for i in range(timeout*2):
+        for i in range(timeout * 2):
             try:
                 resp = requests.get(self.base_url, timeout=3)
                 if resp.status_code > 0:
@@ -107,12 +107,12 @@ class multiple_kolibri_servers(object):
             if self.server_count == 3:
                 self.servers = [KolibriServer(pre_migrate=False,
                                               settings='kolibri.deployment.default.settings.postgres_test',
-                                              db_name="eco_test" + str(i+1)) for i in range(self.server_count)]
+                                              db_name="eco_test" + str(i + 1)) for i in range(self.server_count)]
 
             if self.server_count == 5:
                 self.servers = [KolibriServer(pre_migrate=False,
                                               settings='kolibri.deployment.default.settings.postgres_test',
-                                              db_name="eco2_test" + str(i+1)) for i in range(self.server_count)]
+                                              db_name="eco2_test" + str(i + 1)) for i in range(self.server_count)]
 
             # calculate the DATABASE settings
             connections.databases = {server.db_alias: {

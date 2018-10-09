@@ -12,8 +12,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import io
-import json
 import os
 
 import pytz
@@ -106,6 +104,17 @@ QUEUE_JOB_STORAGE_PATH = os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
 # By default don't cache anything unless it explicitly requests it to!
 CACHE_MIDDLEWARE_SECONDS = 0
 
+CACHES = {
+    # Default cache
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    # Cache for builtfiles - frontend assets that only change on upgrade.
+    'built_files': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+}
+
 ROOT_URLCONF = 'kolibri.deployment.default.urls'
 
 TEMPLATES = [
@@ -163,8 +172,7 @@ elif conf.OPTIONS['Database']['DATABASE_ENGINE'] == "postgres":
 # https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # http://helpsharepointvision.nevron.com/Culture_Table.html
 
-with io.open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json"), encoding="utf-8") as f:
-    LANGUAGES = i18n.parse_supported_languages(json.load(f))
+LANGUAGES = i18n.get_supported_languages(KOLIBRI_MODULE_PATH)
 
 # Some languages are not supported out-of-the-box by Django
 # Here, we use the language code in Intl.js
@@ -179,7 +187,7 @@ EXTRA_LANG_INFO = {
         'bidi': False,
         'code': 'nyn',
         'name': 'Chichewa, Chewa, Nyanja',
-        'name_local': 'chinyanja',
+        'name_local': 'Chinyanja',
     },
     'yo': {
         'bidi': False,

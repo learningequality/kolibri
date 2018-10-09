@@ -13,20 +13,20 @@ little bit helps, and credit will always be given.
 Talk to us
 ----------
 
-* Get support in our `Community Forums <http://community.learningequality.org/>`_.
+* Get support in our `Community Forums <http://community.learningequality.org/>`__.
 * Email us at info@learningequality.org
-* Sign up to receive developer announcements in `Google groups <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_
+* Sign up to receive developer announcements in `Google groups <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`__
 * Visit the ``#kolibri`` room on Freenode IRC
 
 Translate
 ---------
 
-Help us `translate the application on Crowdin <https://crowdin.com/project/kolibri>`_.
+Help us `translate the application on Crowdin <https://crowdin.com/project/kolibri>`__.
 
 Give Feedback
 -------------
 
-`Report issues on github <https://github.com/learningequality/kolibri/issues>`_. Please search the existing issues first to see if it's already been reported.
+`Report issues on github <https://github.com/learningequality/kolibri/issues>`__. Please search the existing issues first to see if it's already been reported.
 
 If you are reporting a bug, please include:
 
@@ -43,7 +43,7 @@ If you are proposing a new feature or giving feedback on an existing feature:
 Write Code
 ----------
 
-Look through the GitHub issues for issues you'd like to address. You can check our `upcoming milestones <https://github.com/learningequality/kolibri/milestones>`_ to look for high-priority items.
+Look through the GitHub issues for issues you'd like to address. You can check our `upcoming milestones <https://github.com/learningequality/kolibri/milestones>`__ to look for high-priority items.
 
 Then, visit :ref:`getting_started` to begin contributing.
 

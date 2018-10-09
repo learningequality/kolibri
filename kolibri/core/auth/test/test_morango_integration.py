@@ -130,7 +130,7 @@ class EcosystemTestCase(TestCase):
 
         # assert that all kolibri instances start off equal
         for i in range(servers_len):
-            self.assertServerQuerysetEqual(servers[i], servers[(i+1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
+            self.assertServerQuerysetEqual(servers[i], servers[(i + 1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
 
         # assert created user is synced
         FacilityUser(username="user", facility=Facility.objects.using(s0_alias).first()).save(using=s0_alias)
@@ -195,11 +195,11 @@ class EcosystemTestCase(TestCase):
         # sync in a circle node twice to ensure full consistency
         for i in range(2):
             for j in range(servers_len):
-                servers[j].manage("fullfacilitysync", base_url=servers[(j+1) % servers_len].base_url, username="superuser", password="password")
+                servers[j].manage("fullfacilitysync", base_url=servers[(j + 1) % servers_len].base_url, username="superuser", password="password")
 
         # assert that the data of specific models match up
         for i in range(servers_len):
-            self.assertServerQuerysetEqual(servers[i], servers[(i+1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
+            self.assertServerQuerysetEqual(servers[i], servers[(i + 1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
 
     @multiple_kolibri_servers(5)
     def test_chaos_sync(self, servers):
@@ -207,8 +207,8 @@ class EcosystemTestCase(TestCase):
 
         # consistent state for all servers
         servers[0].manage("generateuserdata", no_onboarding=True)
-        for i in range(servers_len-1):
-            servers[i+1].manage("fullfacilitysync", base_url=servers[0].base_url, username="superuser", password="password")
+        for i in range(servers_len - 1):
+            servers[i + 1].manage("fullfacilitysync", base_url=servers[0].base_url, username="superuser", password="password")
 
         # randomly create objects on two servers and sync with each other
         for i in range(10):
@@ -222,8 +222,8 @@ class EcosystemTestCase(TestCase):
         # sync in a circle node twice to ensure full consistency
         for i in range(2):
             for j in range(servers_len):
-                servers[j].manage("fullfacilitysync", base_url=servers[(j+1) % servers_len].base_url, username="superuser", password="password")
+                servers[j].manage("fullfacilitysync", base_url=servers[(j + 1) % servers_len].base_url, username="superuser", password="password")
 
         # assert that the data of specific models match up
         for i in range(servers_len):
-            self.assertServerQuerysetEqual(servers[i], servers[(i+1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
+            self.assertServerQuerysetEqual(servers[i], servers[(i + 1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
