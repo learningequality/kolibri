@@ -10,6 +10,7 @@ from django.test import TestCase
 from mock import patch
 
 from .. import models as auth_models
+from .. import utils
 from ..management.commands import deprovision
 from .helpers import setup_device
 from .test_api import ClassroomFactory
@@ -45,7 +46,7 @@ class UserImportCommandTestCase(TestCase):
 
     @patch('django.utils.six.moves.input', new=lambda x: "yes")
     def test_setup_no_headers_bad_user_good_user(self):
-        deprovision.input = mock.MagicMock(name='input', return_value='yes')
+        utils.input = mock.MagicMock(name='input', return_value='yes')
         models_that_should_get_deleted = deprovision.MODELS_TO_DELETE + [auth_models.FacilityUser, auth_models.Facility]
         models_that_should_remain = [content_models.LocalFile, content_models.ContentNode, content_models.File, content_models.AssessmentMetaData]
         assert count_instances(models_that_should_get_deleted) > 0
