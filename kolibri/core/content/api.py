@@ -116,11 +116,12 @@ class ContentNodeFilter(IdFilter):
     in_lesson = CharFilter(method="filter_in_lesson")
     in_exam = CharFilter(method="filter_in_exam")
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
+    kind_in = CharFilter(method="filter_kind_in",)
 
     class Meta:
         model = models.ContentNode
         fields = ['parent', 'prerequisite_for', 'has_prerequisite', 'related', 'exclude_content_ids',
-                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind', 'by_role']
+                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind', 'by_role', 'kind_in', ]
 
     def filter_kind(self, queryset, name, value):
         """
@@ -133,6 +134,17 @@ class ContentNodeFilter(IdFilter):
         if value == 'content':
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
+
+    def filter_kind_in(self, queryset, name, value):
+        """
+        Show only content of given kinds.
+
+        :param queryset: all content nodes for this channel
+        :param value: A list of content node kinds
+        :return: content nodes of the given kinds
+        """
+        kinds = value.split(",")
+        return queryset.filter(kind__in=kinds).order_by("lft")
 
     def filter_by_role(self, queryset, name, value):
         """

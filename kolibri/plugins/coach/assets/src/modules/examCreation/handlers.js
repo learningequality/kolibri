@@ -82,53 +82,51 @@ export function showExamCreationRootPage(store, params) {
 }
 
 export function showExamCreationTopicPage(store, params) {
-  // IDEA should probably have both selection pages set loading themselves
   return store.dispatch('loading').then(() => {
     const { topicId } = params;
     const topicNodePromise = ContentNodeResource.fetchModel({ id: topicId });
-    const childTopicsPromise = ContentNodeResource.fetchCollection({
-      getParams: { parent: topicId, kind: ContentNodeKinds.TOPIC },
-    });
-    const childExercisesPromise = ContentNodeResource.fetchCollection({
-      getParams: { parent: topicId, kind: ContentNodeKinds.EXERCISE },
+    const childNodesPromise = ContentNodeResource.fetchCollection({
+      getParams: {
+        parent: topicId,
+        kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
+      },
     });
     const ancestorsPromise = ContentNodeSlimResource.fetchAncestors(topicId);
-    const loadRequirements = [
-      topicNodePromise,
-      childTopicsPromise,
-      childExercisesPromise,
-      ancestorsPromise,
-    ];
+    const loadRequirements = [topicNodePromise, childNodesPromise, ancestorsPromise];
 
-    return Promise.all(loadRequirements).then(
-      ([topicNode, childTopics, childExercises, ancestors]) => {
-        const topicIds = childTopics.map(topic => topic.id);
-        const topicsThatHaveExerciseDescendants = getTopicsWithExerciseDescendants(topicIds);
-        topicsThatHaveExerciseDescendants.then(topics => {
-          const updatedChildTopics = topics.map(topicExerciseDetails => {
-            const topicNode = childTopics.find(
-              topicNode => topicNode.id === topicExerciseDetails.id
-            );
-            return {
-              ...topicExerciseDetails,
-              ...topicNode,
-            };
+    return Promise.all(loadRequirements).then(([topicNode, childNodes, ancestors]) => {
+      const childTopics = childNodes.filter(({ kind }) => kind === ContentNodeKinds.TOPIC);
+      const topicIds = childTopics.map(({ id }) => id);
+      const topicsThatHaveExerciseDescendants = getTopicsWithExerciseDescendants(topicIds);
+
+      topicsThatHaveExerciseDescendants.then(topics => {
+        const childNodesWithExerciseDescendants = childNodes
+          .map(childNode => {
+            const index = topics.findIndex(topic => topic.id === childNode.id);
+            if (index !== -1) {
+              return { ...childNode, ...topics[index] };
+            }
+            return childNode;
+          })
+          .filter(childNode => {
+            if (childNode.kind === ContentNodeKinds.TOPIC && (childNode.numAssessments || 0) < 1) {
+              return false;
+            }
+            return true;
           });
 
-          const childNodes = [...updatedChildTopics, ...childExercises];
-          const topicContentList = childNodes.map(node => {
-            return { ...node, thumbnail: getContentNodeThumbnail(node) };
-          });
-
-          return showExamCreationPage(store, {
-            classId: params.classId,
-            contentList: topicContentList,
-            pageName: PageNames.EXAM_CREATION_TOPIC,
-            ancestors: [...ancestors, topicNode],
-          });
+        const contentList = childNodesWithExerciseDescendants.map(node => {
+          return { ...node, thumbnail: getContentNodeThumbnail(node) };
         });
-      }
-    );
+
+        return showExamCreationPage(store, {
+          classId: params.classId,
+          contentList,
+          pageName: PageNames.EXAM_CREATION_TOPIC,
+          ancestors: [...ancestors, topicNode],
+        });
+      });
+    });
   });
 }
 

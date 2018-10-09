@@ -24,11 +24,11 @@
       />
 
       <UiAlert
-        v-if="formIsInvalid"
+        v-if="selectionIsInvalid"
         type="error"
         :dismissible="false"
       >
-        {{ formIsInvalidText }}
+        {{ selectionIsInvalidText }}
       </UiAlert>
 
       <KGrid>
