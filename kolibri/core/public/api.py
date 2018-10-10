@@ -54,13 +54,24 @@ def _get_channel_list_v1(params, identifier=None):
     else:
         channels = ChannelMetadata.objects.all()
 
-    if keyword != '':
-        channels = channels.filter(Q(name__icontains=keyword) | Q(description__icontains=keyword))
+    if keyword != "":
+        channels = channels.filter(
+            Q(name__icontains=keyword) | Q(description__icontains=keyword)
+        )
 
-    if language_id != '':
-        matching_tree_ids = ContentNode.objects.prefetch_related('files') \
-                            .filter(Q(lang__id__icontains=language_id) | Q(files__lang__id__icontains=language_id)).values_list('tree_id', flat=True)
-        channels = channels.filter(Q(root__lang__id__icontains=language_id) | Q(root__tree_id__in=matching_tree_ids))
+    if language_id != "":
+        matching_tree_ids = (
+            ContentNode.objects.prefetch_related("files")
+            .filter(
+                Q(lang__id__icontains=language_id)
+                | Q(files__lang__id__icontains=language_id)
+            )
+            .values_list("tree_id", flat=True)
+        )
+        channels = channels.filter(
+            Q(root__lang__id__icontains=language_id)
+            | Q(root__tree_id__in=matching_tree_ids)
+        )
 
     return channels.filter(root__available=True).distinct()
 

@@ -37,15 +37,20 @@ def get_path_with_arch(platform, path, abi, implementation, python_version):
     return os.path.join(path, platform_split[0], platform_split[1])
 
 
-def download_package(path, platform, version, implementation, abi, name, pk_version, index_url):
+def download_package(path, platform, version, implementation, abi, name, pk_version, index_url, filename):
     """
     Download the package according to platform, python version, implementation and abi.
     """
-    return_code = subprocess.call([
-        'python', 'kolibripip.pex', 'download', '-d', path, '--platform', platform,
-        '--python-version', version, '--implementation', implementation,
-        '--abi', abi, '-i', index_url, '{}=={}'.format(name, pk_version)
-    ])
+    if abi == 'abi3':
+        return_code = download_package_abi3(
+            path, platform, version, implementation, abi, name, pk_version, index_url, filename)
+
+    else:
+        return_code = subprocess.call([
+            'python', 'kolibripip.pex', 'download', '-q', '-d', path, '--platform', platform,
+            '--python-version', version, '--implementation', implementation,
+            '--abi', abi, '-i', index_url, '{}=={}'.format(name, pk_version)
+        ])
 
     # When downloaded as a tar.gz, convert to a wheel file first.
     # This is specifically for pycparser package.
@@ -53,9 +58,46 @@ def download_package(path, platform, version, implementation, abi, name, pk_vers
     for file in files:
         if file.endswith('tar.gz'):
             subprocess.call([
-                'python', 'kolibripip.pex', 'wheel', '-w',
+                'python', 'kolibripip.pex', 'wheel', '-q', '-w',
                 path, os.path.join(path, file), '--no-deps'])
             os.remove(os.path.join(path, file))
+
+    return return_code
+
+
+def download_package_abi3(path, platform, version, implementation, abi, name, pk_version, index_url, filename):
+    """
+    Download the package when the abi tag is abi3. Install the package to get the dependecies
+    information from METADATA in dist-info and download all the dependecies.
+    """
+    return_code = subprocess.call([
+        'python', 'kolibripip.pex', 'download', '-q', '-d', path, '--platform', platform,
+        '--python-version', version, '--implementation', implementation,
+        '--abi', abi, '-i', index_url, '--no-deps', '{}=={}'.format(name, pk_version)
+    ])
+
+    return_code = subprocess.call([
+        'python', 'kolibripip.pex', 'install', '-q', '-t', path, os.path.join(path, filename), '--no-deps'
+    ]) or return_code
+
+    os.remove(os.path.join(path, filename))
+
+    # Open the METADATA file inside dist-info folder to find out dependencies.
+    with open(os.path.join(path, '{}-{}.dist-info'.format(name, pk_version), 'METADATA'), 'r') as metadata:
+        for line in metadata:
+            if line.startswith('Requires-Dist:'):
+                requires_dist = line.rstrip('\n').split('Requires-Dist: ')
+                content = requires_dist[-1].split('; ')
+                version_constraint = content[0].split('(')[-1].split(')')[0]
+                name = content[0].split('(')[0].strip()
+                if content[-1].startswith('extra ==') or content[-1].startswith('python_version < \'3\''):
+                    continue
+
+                return_code = subprocess.call([
+                    'python', 'kolibripip.pex', 'download', '-q', '-d', path, '--platform', platform,
+                    '--python-version', version, '--implementation', implementation,
+                    '--abi', implementation+version+'m', '-i', index_url, '{}{}'.format(name, version_constraint)
+                ]) or return_code
 
     return return_code
 
@@ -66,10 +108,27 @@ def install_package_by_wheel(path):
     """
     files = os.listdir(path)
     for file in files:
-        return_code = subprocess.call([
-            'python', 'kolibripip.pex', 'install', '-t',
-            path, os.path.join(path, file), '--no-deps'
-        ])
+        # When the abi tag is abi3, the package has been installed, and a dist-info
+        # folder has been generated. Skip the installed package and remove the
+        # dist-info folder.
+        if os.path.isdir(os.path.join(path, file)):
+            if file.endswith('.dist-info'):
+                shutil.rmtree(os.path.join(path, file))
+            continue
+
+        # If the file is py2, py3 compatible, install it into kolibri/dist/cext
+        # instead of specific platform paths to reduce the size of installer
+        if 'py2.py3-none-any' in file:
+            return_code = subprocess.call([
+                'python', 'kolibripip.pex', 'install', '-q', '-U', '-t',
+                DIST_CEXT, os.path.join(path, file), '--no-deps'
+            ])
+        else:
+            return_code = subprocess.call([
+                'python', 'kolibripip.pex', 'install', '-q', '-t',
+                path, os.path.join(path, file), '--no-deps'
+            ])
+
         if return_code == 1:
             sys.exit('\nInstallation failed for package {}.\n'.format(file))
         else:
@@ -115,7 +174,7 @@ def parse_package_page(files, pk_version, index_url):
 
         download_return = download_package(
             path, platform, python_version, implementation, abi, file_name[0],
-            pk_version, index_url)
+            pk_version, index_url, file.string)
 
         # Successfully download package
         if download_return == 0:
@@ -123,6 +182,15 @@ def parse_package_page(files, pk_version, index_url):
         # Download failed
         else:
             sys.exit('\nDownload failed for package {}.\n'.format(file.string))
+
+    # Copy the packages in cp34 to cp35, cp36, cp37 due to abi3 tag.
+    # https://cryptography.io/en/latest/faq/#why-are-there-no-wheels-for-python-3-5-on-linux-or-macos
+    if index_url == PYPI_DOWNLOAD:
+        abi3_src = os.path.join(DIST_CEXT, 'cp34', 'Linux')
+        python_versions = ['cp35', 'cp36', 'cp37']
+        for version in python_versions:
+            abi3_dst = os.path.join(DIST_CEXT, version, 'Linux')
+            shutil.copytree(abi3_src, abi3_dst)
 
 
 def install(name, pk_version):
@@ -137,6 +205,11 @@ def install(name, pk_version):
             parse_package_page(files, pk_version, link)
         else:
             sys.exit('\nUnable to find package {} on {}.\n'.format(name, link))
+
+    files = os.listdir(DIST_CEXT)
+    for file in files:
+        if file.endswith('.dist-info'):
+            shutil.rmtree(os.path.join(DIST_CEXT, file))
 
 
 def parse_requirements(args):

@@ -55,6 +55,8 @@ export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
   // Changing from one Facility-Level Role to another. Any Classroom-Level Roles
   // are left untouched
   if (FACILITY_ROLES.includes(newRoleKind)) {
-    return RoleResource.deleteModel({ id: currentFacilityRole.id }).then(createFacilityRole);
+    return createFacilityRole().then(() =>
+      RoleResource.deleteModel({ id: currentFacilityRole.id })
+    );
   }
 }

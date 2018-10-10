@@ -37,13 +37,12 @@ body {
   background-color: $core-bg-canvas;
 }
 
-// https://purecss.io/grids/#using-grids-with-custom-fonts
-html,
+body,
 button,
 input,
 select,
 textarea {
-  font-family: $core-font;
+  @include font-family-ui;
 }
 
 h1 {

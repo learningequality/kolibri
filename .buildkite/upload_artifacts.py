@@ -41,9 +41,6 @@ PROJECT_PATH = os.path.join(os.getcwd())
 # Python packages artifact location
 DIST_DIR = os.path.join(PROJECT_PATH, "dist")
 
-# Installer artifact location
-INSTALLER_DIR = os.path.join(PROJECT_PATH, "installer")
-
 headers = {'Authorization': 'token %s' % ACCESS_TOKEN}
 
 INSTALLER_CAT = 'Installers'
@@ -52,6 +49,12 @@ PYTHON_PKG_CAT = 'Python packages'
 
 # Manifest of files, keyed by extension
 file_manifest = {
+    'deb': {
+        'extension': 'deb',
+        'description': 'Debian Package',
+        'category': INSTALLER_CAT,
+        'content_type': 'application/vnd.debian.binary-package',
+    },
     'exe': {
         'extension': 'exe',
         'description': 'Windows Installer',
@@ -85,6 +88,7 @@ file_manifest = {
 }
 
 file_order = [
+    'deb',
     'exe',
     # 'apk',
     'pex',
@@ -112,6 +116,7 @@ def create_status_report_html(artifacts):
         )
     html += "</body>\n</html>"
     return html
+
 
 def create_github_status(report_url):
     """
@@ -151,7 +156,6 @@ def collect_local_artifacts():
                 logging.info("Collect file data: (%s)" % data)
                 artifacts_dict[file_extension] = data
     create_artifact_data(DIST_DIR)
-    create_artifact_data(INSTALLER_DIR)
     return artifacts_dict
 
 

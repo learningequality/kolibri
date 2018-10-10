@@ -258,7 +258,8 @@
       }
     },
     methods: {
-      ...mapActions('userManagement', ['updateUser', 'displayModal', 'setError']),
+      ...mapActions('userManagement', ['updateUser', 'displayModal', 'setError', 'displayModal']),
+      ...mapActions(['kolibriLogout']),
       submitForm() {
         if (this.formIsInvalid) {
           if (this.nameIsInvalid) {
@@ -285,6 +286,13 @@
         this.updateUser({
           userId: this.id,
           updates,
+        }).then(() => {
+          // newType is falsey if Super Admin, since that's not a facility role
+          if (this.editingSelf && this.newType && this.newType !== UserKinds.ADMIN) {
+            // user has demoted themselves
+            this.kolibriLogout();
+          }
+          this.displayModal(false);
         });
       },
     },

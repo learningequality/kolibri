@@ -37,7 +37,6 @@
     </h3>
     <TechnicalTextBlock
       :text="error"
-      :downloadFileName="downloadFileName"
       :maxHeight="240"
     />
 
@@ -96,10 +95,6 @@
       },
       emailAddressLink() {
         return `mailto:${this.emailAddress}`;
-      },
-      downloadFileName() {
-        const downloadTime = new Date();
-        return `kolibri-${this.$tr('errorFileDenotation')}-${downloadTime.toISOString()}.txt`;
       },
     },
   };

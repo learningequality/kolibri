@@ -147,7 +147,6 @@
         const maxCardShadowOffset = 14; // determined by css styles on cards
         return {
           'min-width': `${contentCardWidth}px`,
-          'overflow-x': 'hidden',
           width: `${cards + gutters + maxCardShadowOffset}px`,
           height: `${contentCardWidth + maxCardShadowOffset}px`,
           position: 'relative',
@@ -268,7 +267,9 @@
     @include clearfix();
 
     position: relative;
-    margin-top: 1em;
+    padding: ($control-hit-width / 2);
+    margin: -($control-hit-width / 2);
+    overflow: hidden;
 
     &-control-container {
       position: relative;

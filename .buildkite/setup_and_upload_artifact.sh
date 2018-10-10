@@ -32,12 +32,11 @@ fi
 PYTHON_CMD="$PYTHON_PATH .buildkite/upload_artifacts.py"
 echo "Now excuting  upload artifacts script..."
 mkdir -p dist
-mkdir -p installer
 buildkite-agent artifact download 'dist/*.pex' dist/
 buildkite-agent artifact download 'dist/*.whl' dist/
 buildkite-agent artifact download 'dist/*.tar.gz' dist/
-buildkite-agent artifact download 'installer/*.exe' installer/
-# buildkite-agent artifact download 'installer/*.apk' installer/
+buildkite-agent artifact download 'dist/*.deb' dist/
+buildkite-agent artifact download 'dist/*.exe' dist/
 
 $PYTHON_CMD
 if [ $? -ne 0 ]; then

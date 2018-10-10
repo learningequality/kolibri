@@ -36,7 +36,7 @@
         </div>
       </div>
 
-      <ResourceListTable v-if="lessonResources.length" />
+      <ResourceListTable v-if="workingResources.length" />
 
       <p v-else class="no-resources-message">
         {{ $tr('noResourcesInLesson') }}
@@ -89,6 +89,7 @@
         lessonAssignments: state => state.currentLesson.lesson_assignments,
         lessonResources: state => state.currentLesson.resources,
         learnerGroups: state => state.learnerGroups,
+        workingResources: state => state.workingResources,
       }),
       lessonOptions() {
         return map(this.actionsToLabelMap, (label, action) => ({

@@ -9,9 +9,9 @@
     >
       <KExternalLink
         slot="details"
-        v-if="isAdmin"
+        v-if="isAdmin && createClassUrl"
         :text="$tr('noClassesDetailsForAdmin')"
-        href="/facility"
+        :href="createClassUrl"
       />
     </AuthMessage>
 
@@ -70,6 +70,7 @@
   import orderBy from 'lodash/orderBy';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+  import urls from 'kolibri.urls';
   import { PageNames } from '../constants';
   import { filterAndSortUsers } from '../../../../facility_management/assets/src/userSearchUtils';
 
@@ -122,6 +123,12 @@
         }
         if (this.isFacilityCoach) {
           return this.$tr('noClassesDetailsForFacilityCoach');
+        }
+      },
+      createClassUrl() {
+        const facilityUrl = urls['kolibri:facilitymanagementplugin:facility_management'];
+        if (facilityUrl) {
+          return facilityUrl();
         }
       },
     },

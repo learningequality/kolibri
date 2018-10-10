@@ -80,6 +80,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .btn {
     position: absolute;
     top: 8px;
@@ -98,6 +100,7 @@
   .iframe {
     width: 100%;
     height: 100%;
+    background-color: $core-bg-canvas;
   }
 
 </style>

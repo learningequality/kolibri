@@ -1,3 +1,7 @@
+"""
+Error constants to be returned from our API endpoints.
+Should be replicated in the frontend constants.js for the ERROR_CONSTANTS object.
+"""
 # 400 error based constants
 USERNAME_ALREADY_EXISTS = "USERNAME_ALREADY_EXISTS"
 USER_ALREADY_IN_GROUP_IN_CLASS = "USER_ALREADY_IN_GROUP_IN_CLASS"

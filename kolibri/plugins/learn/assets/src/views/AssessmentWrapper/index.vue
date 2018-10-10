@@ -27,7 +27,7 @@ oriented data synchronization.
         :contentId="content.content_id"
         :channelId="channelId"
         :available="content.available"
-        :extraFields="content.extra_fields"
+        :extraFields="extraFields"
         :assessment="true"
         :itemId="itemId"
         :initSession="initSession"
@@ -38,6 +38,7 @@ oriented data synchronization.
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
+        @updateContentState="updateContentState"
       />
     </div>
 
@@ -168,8 +169,8 @@ oriented data synchronization.
         default: false,
       },
       extraFields: {
-        type: String,
-        default: '{}',
+        type: Object,
+        default: () => {},
       },
       initSession: {
         type: Function,
@@ -507,6 +508,9 @@ oriented data synchronization.
       },
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);
+      },
+      updateContentState(...args) {
+        this.$emit('updateContentState', ...args);
       },
       startTracking(...args) {
         this.$emit('startTracking', ...args);

@@ -1,7 +1,7 @@
 User log module
 ===============
 
-This is a core module found in ``kolibri/logger``.
+This is a core module found in ``kolibri/core/logger``.
 
 .. toctree::
    :maxdepth: 1
@@ -13,6 +13,6 @@ This is a core module found in ``kolibri/logger``.
 Models
 ------
 
-.. automodule:: kolibri.logger.models
+.. automodule:: kolibri.core.logger.models
     :members:
     :noindex:

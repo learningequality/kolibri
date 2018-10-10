@@ -1,13 +1,17 @@
 import logging
 import os
-import socket
 import sys
+
+import portend
 
 from .conf import OPTIONS
 from .server import get_status
+from .server import LISTEN_ADDRESS
 from .server import NotRunning
 
 logger = logging.getLogger(__name__)
+
+PORT_AVAILABILITY_CHECK_TIMEOUT = 2
 
 
 def check_other_kolibri_running(port):
@@ -24,26 +28,19 @@ def check_other_kolibri_running(port):
     except NotRunning:
         # In case that something other than Kolibri occupies the port,
         # check the port's availability.
-        check_port_availability('127.0.0.1', port)
+        check_port_availability(LISTEN_ADDRESS, port)
 
 
 def check_port_availability(host, port):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # This is to prevent the previous execution has left the socket
-    # in a TIME_WAIT start, and can't be immediately reused.
-    # From the bottom of https://docs.python.org/2/library/socket.html#example
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
-        s.bind((host, port))
-        s.close()
-    except socket.error:
+        portend.free(host, port, timeout=PORT_AVAILABILITY_CHECK_TIMEOUT)
+    except portend.Timeout:
         # Port is occupied
         logger.error(
             "Port {} is occupied.\n"
             "Please check that you do not have other processes "
             "running on this port and try again.\n".format(port)
         )
-        s.close()
         sys.exit(1)
 
 

@@ -7,59 +7,39 @@ These instructions follow the hypothetical release of Kolibri version '0.3.0'.
 
 In this case, the repo would currently have a ``develop`` branch and a number of pre-existing release branches, the most recent being ``release-v0.2.x`` with potentially multiple tags for patch releases, e.g. ``v0.2.0`` and ``v0.2.1``.
 
-Patch releases (e.g. '0.3.1') follow the same process outlined below, except that development occurs exclusively on an existing release branch (e.g. ``release-v0.2.x``). Additionally, note that:
-
- * Patch releases only have betas, not alphas
- * Patch releases generally do not have new user-facing strings, so translation-related steps can be skipped
+Patch releases (e.g. '0.3.1') follow the same process outlined below, except that development occurs exclusively on an existing release branch (e.g. ``release-v0.2.x``). Patch releases generally do not have new user-facing strings, so translation- and font-related steps can be skipped
 
 
 Create alpha releases
 ---------------------
 
-For the majority of development on a new release, PRs will target the ``develop`` branch. Tag alpha releases as desired using Github's `Releases <https://github.com/learningequality/kolibri/releases>`_ functionality, which both adds a tag to the git repo and creates a placeholder on the Github site with built distributions.
+For the majority of development on a new release, PRs will target the ``develop`` branch. Tag alpha releases as desired using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality, which both adds a tag to the git repo and creates a placeholder on the Github site with built distributions.
 
 Make sure to target ``develop``, use the standard tag naming convention (e.g. ``v0.3.0-alpha1``), and mark it has a "pre-release".
 
 These alphas can be used for preliminary testing as major, unstable updates are introduced.
 
-When a new alpha is published, delete any older alphas using Github's 'delete release' functionality. This will *not* delete the git tag.
-
-
-Merge in previous release
--------------------------
+When a new alpha is published, *delete any older alphas* using Github's 'delete release' functionality. This will *not* delete the git tag.
 
 It's common that changes have been made in the previous release that need to be propagated to the current release. For an upcoming 0.3.0 release, we would need to merge ``release-v0.2.x`` into ``develop``.
 
-
-Schedule string freeze
-----------------------
-
-Once we are close to stabilizing the UI, we should schedule a string freeze.
-
-* Create a temporary branch and merge any outstanding PRs with user-facing strings into it
-* Upload the strings to Crowdin, into a temporary branch called ``test-upload``
-* Estimate the number of new strings and words, and the approximate time when translators should be prepared to start translating
-* Notify translators
-* Delete the temporary branches
+During the alpha phase is all the period when we should update our Python and Javascript dependencies. In general we should avoid updating dependencies in release branches.
 
 
-Create a release branch
------------------------
+String freeze and translation
+-----------------------------
 
-When we're nearing the end of major new feature development, cut a new release branch. If we're getting ready to release version 0.3.0, we'd do the following steps:
+Once we are close to stabilizing the UI, we should schedule a string freeze. This date is the time after which no user-facing text in the application can be changed, because after string freeze we will begin getting quotes from translators and initiating the translation process.
 
-* Create new branch off of ``develop`` with a name like ``release-v0.3.x``
-* Set up `branch protections <https://help.github.com/articles/about-protected-branches/>`_ in Github using the same settings as ``develop``
-* Re-target any outstanding PRs for this release from ``develop`` to ``release-v0.3.x``
+Each minor release (``N.N.*``) is maintained in a CrowdIn Version Branch, following the existing naming scheme ``release-vN.N.x``. The branch is automatically created when running the first ``make i18n-crowdin-upload`` command. CrowdIn will automatically reuse previously translated strings in new branches.
 
-Next, a couple book-keeping steps are necessary. The ``VERSION`` variable in *__init__.py* should currently be ``(0, 2, 0, 'alpha', 1)`` in both the  ``release-v0.3.x`` and ``develop`` branches.
+On the string freeze date, the strings for the upcoming release should be uploaded to crowdin as described in :ref:`crowdin`. You can run ``make i18n-crowdin-stats branch=<release-vN.N.x>`` to get figures on the translation work. Send the stats to the i18n team, whom can use them for communication with translators to measure the translation efforts needed.
 
-* In ``develop``, update the first three values from ``0, 2, 0`` to ``0, 3, 0``
-* In ``release-v0.3.x``, bump fourth value: ``'alpha'`` to  ``'beta'``
+Strings from the Perseus plugin should also be revisited. They are maintained in the repo `learningequality/kolibri-exercise-perseus-plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__, but the source strings are generated and uploaded through the main ``kolibri`` project. The translated files from CrowdIn such as ``exercise_perseus_render_module-messages.json`` are downloaded through the ``kolibri-exercise-perseus-plugin`` project. For instructions, see :ref:`i18n-perseus`.
 
-These changes can be merged by a Github admin without code review.
+Before the translation start date, provide time to do one final review of all user-facing strings. This can be done e.g. in the course of doing a preliminary translation into Spanish.
 
-Finally, tag the first beta using Github's `Releases <https://github.com/learningequality/kolibri/releases>`_ functionality. Target the ``release-v0.3.x`` branch, use the standard tag naming convention (``v0.3.0-beta1``), and mark it has a "pre-release".
+When the user-facing strings have been signed off, the i18n team should notify translators that translation can begin.
 
 
 Pin internal dependencies
@@ -75,30 +55,49 @@ Make sure all our internal dependencies are pointing at the correct, published v
 Test to ensure that changes have propagated as expected.
 
 
-Final string review and freeze
-------------------------------
+Create a release branch
+-----------------------
 
-The team should make a final review of all user-facing strings introduced into the application in this release.
+When we're nearing the end of major new feature development, cut a new release branch. If we're getting ready to release version 0.3.0, we'd do the following steps:
 
-When the user-facing strings have been signed off, upload the strings to Crowdin and notify translators that translation can begin.
+* Create new branch off of ``develop`` with a name like ``release-v0.3.x``
+* Set up `branch protections <https://help.github.com/articles/about-protected-branches/>`__ in Github using the same settings as ``develop``
+* Re-target any outstanding PRs for this release from ``develop`` to ``release-v0.3.x``
 
-Remember to also include strings from the Perseus plugin if necessary.
+Next, a couple book-keeping steps are necessary. The ``VERSION`` variable in *__init__.py* should currently be ``(0, 2, 0, 'alpha', 1)`` in both the  ``release-v0.3.x`` and ``develop`` branches.
 
-At this point, updates to the `user documentation <https://github.com/learningequality/kolibri-docs/>`_ can also begin.
+* In ``develop``, update the first three values from ``0, 2, 0`` to ``0, 3, 0``
+* In ``release-v0.3.x``, bump fourth value: ``'alpha'`` to  ``'beta'``
+
+These changes can be merged by a Github admin without code review.
+
+Finally, tag the first beta using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality. Target the ``release-v0.3.x`` branch, use the standard tag naming convention (``v0.3.0-beta1``), and mark it has a "pre-release".
 
 
 Integration testing and beta releases
 -------------------------------------
 
-Thoroughly test user stories, browsers, and operating systems. Publish beta Debian packages to `` kolibri-proposed``, update gherkin story test matrices, test performance, have bug bashes...
+Thoroughly test user stories, browsers, and operating systems. Update gherkin story test matrices, test performance, have bug bashes...
 
-As fixes are made, release a new beta at least every few days.
+As fixes are made, release a new beta every few days.
+
+For every beta release:
+
+* Publish Python package to PyPi
+* Publish Debian packages to ``kolibri-proposed``
+* Update `translations.learningequality.org <http://translations.learningequality.org>`__
+* Update `kolibri-beta.learningequality.org <http://kolibri-beta.learningequality.org>`__
+
+
+Tag beta releases as desired using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality, which both adds a tag to the git repo and creates a placeholder on the Github site with built distributions.
 
 Make sure to target tags to the release branch. For example, for 0.3.0 betas, target ``release-v0.3.x``. Use the standard tag naming convention (e.g. ``v0.3.0-beta1``), and mark it has a "pre-release" in the Github UI.
 
 These betas should be used for end-to-end testing as final, stabilizing changes are introduced. Risky changes should be avoided during the beta stage unless a critical issue is identified with no straightforward fix.
 
-When a new beta is published, delete any older betas using Github's 'delete release' functionality. This will *not* delete the git tag. Update `kolibribeta.learningequality.org <http://kolibribeta.learningequality.org/>`_ with the latest beta, and notify the team on Slack when new betas are available.
+When a new beta is published, delete any older betas using Github's 'delete release' functionality. This will *not* delete the git tag. Update `kolibribeta.learningequality.org <http://kolibribeta.learningequality.org/>`__ with the latest beta, and notify the team on Slack when new betas are available.
+
+At this point, updates to the `user documentation <https://github.com/learningequality/kolibri-docs/>`__ can also begin.
 
 
 Update with final translations
@@ -108,6 +107,8 @@ Update with final translations
 * Download all strings for supported languages in Kolibri and Perseus
 * Re-publish Perseus if necessary, and update the Kolibri dependency reference
 * Test that all languages render properly
+
+See :ref:`crowdin` for more information.
 
 
 Merge in previous release again
@@ -159,13 +160,14 @@ For example, if we were releasing version 0.3.0, we would perform these steps:
 
 * The ``VERSION`` variable in *__init__.py* should currently be ``(0, 3, 0, 'beta', 1)`` in ``release-v0.3.x``
 * Update this to be ``(0, 3, 0, 'final', 0)`` (no code review necessary)
-* Tag the final release as ``v0.3.0`` targetting the ``release-v0.3.x`` branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`_ functionality.
+* Tag the final release as ``v0.3.0`` targetting the ``release-v0.3.x`` branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality.
 * Copy the entries from the changelog into Github's "Release notes" and ensure that the formatting and links are correct.
 * Delete the most recent beta pre-lease on github.
 * Merge ``release-v0.3.x`` into ``master`` (no code review necessary)
 * Update ``VERSION`` in ``release-v0.3.x`` to be ``(0, 3, 1, 'beta', 0)`` (no code review necessary)
 
 At this point, all changes to the git tree are complete for the release.
+
 
 Publish to PyPI
 ---------------
@@ -184,11 +186,11 @@ Then sign the release and upload it:
 
     $ make release
 
-Confirm that the release is uploaded to `PyPi <https://pypi.org/>`_, and try installing it and running it on a few operating systems with both Python 2 and Python 3.
+Confirm that the release is uploaded to `PyPi <https://pypi.org/>`__, and try installing it and running it on a few operating systems with both Python 2 and Python 3.
 
 
 Generate, test, and publish distributions
-----------------------------------
+-----------------------------------------
 
 When uploading files to the Pantry server, put them in a directory of the form ``/var/www/downloads/kolibri/vX.Y.Z/``.
 
@@ -212,9 +214,9 @@ For the example of version 0.3.0 we would do the following:
    * Upload .exe to Pantry as ``kolibri-v0.3.0-windows-installer.exe``
 
 
-Update `learningequality.org/download <https://learningequality.org/download/>`_ to point to the latest release by updating variables in the Admin page. Log in and navigate to:
+Update `learningequality.org/download <https://learningequality.org/download/>`__ to point to the latest release by updating variables in the Admin page. Log in and navigate to:
 
-    `Admin <https://learningequality.org/admin/>`_ → Redirects → Redirect variables
+    `Admin <https://learningequality.org/admin/>`__ → Redirects → Redirect variables
 
 Update the following variables:
 
@@ -226,10 +228,11 @@ Update the following variables:
 
 Publish the Medium post if necessary.
 
+
 Update the demo server
 ----------------------
 
-Get `kolibridemo.learningequality.org <http://kolibridemo.learningequality.org/>`_ running the latest version:
+Get `kolibridemo.learningequality.org <http://kolibridemo.learningequality.org/>`__ running the latest version:
 
  * SSH into ``192.237.248.135``
  * ``sudo su www-data``
@@ -243,13 +246,13 @@ Then restart all running instances:
     run_all
 
 
-Verify that `the demo server <kolibridemo.learningequality.org>`_ is running the latest version.
+Verify that `the demo server <kolibridemo.learningequality.org>`__ is running the latest version.
 
 
 Wrap-up
 -------
 
-* Publish relevant updates to the `Toolkit <https://learningequality.org/r/toolkit>`_ and `User documentation <https://kolibri.readthedocs.io/en/latest/>`_
-* `Close the milestone <https://github.com/learningequality/kolibri/milestones>`_ on Github
+* Publish relevant updates to the `Toolkit <https://learningequality.org/r/toolkit>`__ and `User documentation <https://kolibri.readthedocs.io/en/latest/>`__
+* `Close the milestone <https://github.com/learningequality/kolibri/milestones>`__ on Github
 * For issues on this milestone that have been reported by the community, try to report in appropriate forum threads that the new release addresses the issues
 

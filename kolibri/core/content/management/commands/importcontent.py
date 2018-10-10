@@ -169,7 +169,7 @@ class Command(AsyncCommand):
                     exception = e
                     break
 
-            annotation.set_availability(channel_id, file_checksums_to_annotate)
+            annotation.annotate_content(channel_id, file_checksums_to_annotate)
 
             if number_of_skipped_files > 0:
                 logger.warning(
@@ -227,7 +227,7 @@ class Command(AsyncCommand):
                 self.progresstrackers[0].progress = original_value
                 self.progresstrackers[0].update_callback(original_progress.progress_fraction, original_progress)
 
-                logging.info('Waiting for 30 seconds before retrying import: {}\n'.format(
+                logger.info('Waiting for 30 seconds before retrying import: {}\n'.format(
                     filetransfer.source))
                 sleep(30)
                 return False, 0

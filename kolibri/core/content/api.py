@@ -5,15 +5,14 @@ from random import sample
 
 import requests
 from django.core.cache import cache
-from django.db.models import Case
 from django.db.models import IntegerField
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import Sum
-from django.db.models import When
 from django.db.models.aggregates import Count
 from django.http import Http404
+from django.http.request import HttpRequest
 from django.utils.cache import patch_response_headers
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
@@ -40,8 +39,6 @@ from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
-from kolibri.core.exams.models import Exam
-from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 
@@ -57,7 +54,20 @@ def cache_forever(some_func):
 
     def wrapper_func(*args, **kwargs):
         response = some_func(*args, **kwargs)
-        patch_response_headers(response, cache_timeout=cache_timeout)
+        # This caching has the unfortunate effect of also caching the dynamically
+        # generated filters for recommendation, this quick hack checks if
+        # the request is any of those filters, and then applies less long running
+        # caching on it.
+        timeout = cache_timeout
+        try:
+            request = args[0]
+            request = kwargs.get('request', request)
+        except IndexError:
+            request = kwargs.get('request', None)
+        if isinstance(request, HttpRequest):
+            if any(map(lambda x: x in request.GET, ['popular', 'next_steps', 'resume'])):
+                timeout = 600
+        patch_response_headers(response, cache_timeout=timeout)
         return response
 
     return wrapper_func
@@ -103,7 +113,11 @@ class IdFilter(FilterSet):
     ids = CharFilter(method="filter_ids")
 
     def filter_ids(self, queryset, name, value):
-        return queryset.filter(pk__in=value.split(','))
+        try:
+            return queryset.filter(pk__in=value.split(','))
+        except ValueError:
+            # Catch in case of a poorly formed UUID
+            return queryset.none()
 
     class Meta:
         fields = ['ids', ]
@@ -164,41 +178,6 @@ class ContentNodeFilter(IdFilter):
 
         # In all other cases, exclude nodes that are coach content
         return queryset.exclude(coach_content=True)
-
-    def filter_in_lesson(self, queryset, name, value):
-        """
-        Show only content associated with this lesson
-
-        :param queryset: all content nodes
-        :param value: id of target lesson
-        :return: content nodes for this lesson
-        """
-        try:
-            resources = Lesson.objects.get(id=value).resources
-            contentnode_id_list = [node['contentnode_id'] for node in resources]
-            # the order_by will order according to the position in the list
-            id_order = Case(*[When(id=ident, then=pos) for pos, ident in enumerate(contentnode_id_list)])
-            return queryset.filter(pk__in=contentnode_id_list).order_by(id_order)
-        except (Lesson.DoesNotExist, ValueError):  # also handles invalid uuid
-            queryset.none()
-
-    def filter_in_exam(self, queryset, name, value):
-        """
-        Show only content associated with this exam
-
-        :param queryset: all content nodes
-        :param value: id of target exam
-        :return: content nodes for this exam
-        """
-        try:
-            question_sources = Exam.objects.get(id=value).question_sources
-            exercise_id_list = [node['exercise_id'] for node in question_sources]
-            return queryset.filter(pk__in=exercise_id_list)
-        except (Exam.DoesNotExist, ValueError):  # also handles invalid uuid
-            return queryset.none()
-
-    def filter_exclude_content_ids(self, queryset, name, value):
-        return queryset.exclude(content_id__in=value.split(','))
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
@@ -272,10 +251,10 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         if kind:
             descendants = descendants.filter(kind=kind)
         data = list(descendants.annotate(ancestor_id=Subquery(nodes.filter(
-                tree_id=OuterRef('tree_id'),
-                lft__lt=OuterRef('lft'),
-                rght__gt=OuterRef('rght'),
-            ).values_list('id', flat=True)[:1])).values('id', 'title', 'content_id', 'ancestor_id'))
+            tree_id=OuterRef('tree_id'),
+            lft__lt=OuterRef('lft'),
+            rght__gt=OuterRef('rght'),
+        ).values_list('id', flat=True)[:1])).values('id', 'title', 'content_id', 'ancestor_id'))
         return Response(data)
 
     @list_route(methods=['get'])
@@ -283,12 +262,12 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         ids = self.request.query_params.get('ids', '').split(',')
         queryset = models.ContentNode.objects.filter(id__in=ids, available=True)
         data = list(queryset.annotate(num_assessments=SQSum(models.ContentNode.objects.filter(
-                tree_id=OuterRef('tree_id'),
-                lft__gte=OuterRef('lft'),
-                lft__lt=OuterRef('rght'),
-                kind=content_kinds.EXERCISE,
-                available=True,
-            ).values_list('assessmentmetadata__number_of_assessments', flat=True), field='number_of_assessments')).values('id', 'num_assessments'))
+            tree_id=OuterRef('tree_id'),
+            lft__gte=OuterRef('lft'),
+            lft__lt=OuterRef('rght'),
+            kind=content_kinds.EXERCISE,
+            available=True,
+        ).values_list('assessmentmetadata__number_of_assessments', flat=True), field='number_of_assessments')).values('id', 'num_assessments'))
         return Response(data)
 
     @list_route(methods=['get'])

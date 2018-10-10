@@ -77,6 +77,11 @@ kolibri/**/build/*
 kolibri/**/static/*
 js-dist
 
+# allow static assets to be checked in
+!kolibri/**/static/assets/
+!kolibri/**/static/assets/*
+!kolibri/**/static/assets/**/*
+
 # swap files
 *.swp
 

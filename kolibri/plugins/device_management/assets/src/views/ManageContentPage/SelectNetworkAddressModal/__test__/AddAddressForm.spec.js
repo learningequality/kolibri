@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
 import AddAddressForm from '../AddAddressForm';
 import makeStore from '../../../../../test/utils/makeStore';
 import { createAddress } from '../api';
@@ -35,7 +36,7 @@ describe('AddAddressForm', () => {
     createAddress.mockRejectedValue({
       entity: [
         {
-          id: 'NETWORK_LOCATION_NOT_FOUND',
+          id: ERROR_CONSTANTS.NETWORK_LOCATION_NOT_FOUND,
         },
       ],
     });
@@ -53,7 +54,7 @@ describe('AddAddressForm', () => {
   it('shows a server unavailable error if API responds with one', async () => {
     const { els, wrapper } = makeWrapper();
     createAddress.mockRejectedValue({
-      entity: [{ id: 'INVALID_NETWORK_LOCATION_FORMAT' }],
+      entity: [{ id: ERROR_CONSTANTS.INVALID_NETWORK_LOCATION_FORMAT }],
     });
     expect(els.addressTextbox().props().invalid).toEqual(false);
     try {

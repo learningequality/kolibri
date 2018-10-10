@@ -17,6 +17,7 @@
           @startTracking="startTracking"
           @stopTracking="stopTracking"
           @updateProgress="updateProgress"
+          @updateContentState="updateContentState"
           @answerGiven="answerGiven"
           @hintTaken="hintTaken"
           @itemError="itemError"
@@ -24,6 +25,7 @@
           :files="availableFiles"
           :defaultFile="defaultFile"
           :itemId="itemId"
+          :extraFields="extraFields"
           :answerState="answerState"
           :allowHints="allowHints"
           :supplementaryFiles="supplementaryFiles"
@@ -105,6 +107,10 @@
         type: Boolean,
         default: true,
       },
+      extraFields: {
+        type: Object,
+        default: () => {},
+      },
       initSession: {
         type: Function,
         default: () => Promise.resolve(),
@@ -137,7 +143,13 @@
         return undefined;
       },
       availableFiles() {
-        return this.files.filter(file => !file.thumbnail && !file.supplementary && file.available);
+        return this.files.filter(
+          file =>
+            !file.thumbnail &&
+            !file.supplementary &&
+            file.available &&
+            this.Kolibri.canRenderContent(this.kind, file.extension)
+        );
       },
       defaultFile() {
         return this.availableFiles && this.availableFiles.length
@@ -202,6 +214,10 @@
       },
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);
+        heartbeat.setActive();
+      },
+      updateContentState(...args) {
+        this.$emit('updateContentState', ...args);
         heartbeat.setActive();
       },
       startTracking(...args) {

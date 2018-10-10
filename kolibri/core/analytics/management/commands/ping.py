@@ -13,6 +13,7 @@ from requests.exceptions import Timeout
 
 import kolibri
 from kolibri.core.device.models import DeviceSettings
+from kolibri.utils.server import vacuum_db_lock
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,8 @@ class Command(BaseCommand):
         while True:
             try:
                 logger.info("Attempting a ping.")
-                data = self.perform_ping(server)
+                with vacuum_db_lock:
+                    data = self.perform_ping(server)
                 logger.info("Ping succeeded! (response: {}) Sleeping for {} minutes.".format(data, interval))
                 time.sleep(interval * 60)
                 continue
