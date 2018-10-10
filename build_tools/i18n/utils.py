@@ -7,7 +7,6 @@ import os
 import sys
 
 import kolibri_exercise_perseus_plugin
-from django.utils.translation import to_locale
 
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
@@ -50,6 +49,19 @@ IN_CTXT_LANG = {
     KEY_LANG_NAME: "In context translation",
     KEY_ENG_NAME: "In context translation",
 }
+
+
+def to_locale(language):
+    """
+    Turns a language name (en-us) into a locale name (en_US).
+    """
+    p = language.find('-')
+    if p >= 0:
+        if len(language[p + 1:]) > 2:
+            return language[:p].lower() + '_' + language[p + 1].upper() + language[p + 2:].lower()
+        return language[:p].lower() + '_' + language[p + 1:].upper()
+    else:
+        return language.lower()
 
 
 def memoize(func):
