@@ -194,7 +194,8 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
 
 
 class SQSum(Subquery):
-    template = "(SELECT SUM(\"%(field)s\") FROM (%(subquery)s))"
+    # Include ALIAS at the end to support Postgres
+    template = "(SELECT SUM(%(field)s) FROM (%(subquery)s) AS %(field)s__sum)"
     output_field = IntegerField()
 
 
