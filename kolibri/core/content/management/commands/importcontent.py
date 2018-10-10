@@ -169,7 +169,7 @@ class Command(AsyncCommand):
                     exception = e
                     break
 
-            annotation.set_availability(channel_id, file_checksums_to_annotate)
+            annotation.annotate_content(channel_id, file_checksums_to_annotate)
 
             if number_of_skipped_files > 0:
                 logger.warning(

@@ -259,8 +259,9 @@
         });
       },
       updateProgress(progressPercent, forceSave = false) {
-        const summaryProgress = this.updateProgressAction({ progressPercent, forceSave });
-        updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
+        this.updateProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
+          updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
+        );
       },
       updateContentState(contentState, forceSave = true) {
         this.updateContentNodeState({ contentState, forceSave });
