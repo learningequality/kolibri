@@ -429,6 +429,17 @@ class ContentNodeAPITestCase(APITestCase):
             topic = topics.get(id=datum["ancestor_id"])
             self.assertTrue(topic.get_descendants().filter(id=datum["id"], kind=content_kinds.EXERCISE).exists())
 
+    def test_contentnode_descendants_topic_parent_child_ancestor_ids(self):
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        topic = content.ContentNode.objects.filter(parent=root, kind=content_kinds.TOPIC, children__isnull=False).first()
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants"), data={"ids": ",".join((root.id, topic.id))})
+        topic_items = [datum for datum in response.data if datum["ancestor_id"] == topic.id]
+        for node in topic.get_descendants(include_self=False).filter(available=True):
+            self.assertTrue(next(item for item in topic_items if item["id"] == node.id))
+        root_items = [datum for datum in response.data if datum["ancestor_id"] == root.id]
+        for node in root.get_descendants(include_self=False).filter(available=True):
+            self.assertTrue(next(item for item in root_items if item["id"] == node.id))
+
     def test_contentnode_slim_recommendations(self):
         node_id = content.ContentNode.objects.get(title="c2c2").id
         response = self.client.get(reverse("kolibri:core:contentnode_slim-recommendations-for", kwargs={'pk': node_id}))

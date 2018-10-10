@@ -249,15 +249,17 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
             return Response([])
         ids = ids.split(',')
         kind = self.request.query_params.get('descendant_kind', None)
+        data = []
         nodes = models.ContentNode.objects.filter(id__in=ids, available=True)
-        descendants = nodes.get_descendants(include_self=False).filter(available=True)
-        if kind:
-            descendants = descendants.filter(kind=kind)
-        data = list(descendants.annotate(ancestor_id=Subquery(nodes.filter(
-            tree_id=OuterRef('tree_id'),
-            lft__lt=OuterRef('lft'),
-            rght__gt=OuterRef('rght'),
-        ).values_list('id', flat=True)[:1])).values('id', 'title', 'content_id', 'ancestor_id'))
+        for node in nodes:
+            descendants = node.get_descendants(include_self=False).filter(available=True)
+            if kind:
+                descendants = descendants.filter(kind=kind)
+
+            def set_ancestor_id(x):
+                x['ancestor_id'] = node.id
+                return x
+            data += map(set_ancestor_id, list(descendants.values('id', 'title', 'content_id')))
         return Response(data)
 
     @list_route(methods=['get'])
