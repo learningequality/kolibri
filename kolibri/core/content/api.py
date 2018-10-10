@@ -6,7 +6,9 @@ from random import sample
 import requests
 from django.core.cache import cache
 from django.db.models import Case
+from django.db.models import OuterRef
 from django.db.models import Q
+from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models import When
 from django.db.models.aggregates import Count
@@ -255,26 +257,33 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 
         return obj
 
-    @detail_route(methods=['get'])
-    def descendants(self, request, **kwargs):
-        node = self.get_object(prefetch=False)
+    @list_route(methods=['get'])
+    def descendants(self, request):
+        ids = self.request.query_params.get('ids', '').split(',')
         kind = self.request.query_params.get('descendant_kind', None)
-        descendants = node.get_descendants().filter(available=True)
+        nodes = models.ContentNode.objects.filter(id__in=ids, available=True)
+        descendants = nodes.get_descendants(include_self=False).filter(available=True)
         if kind:
             descendants = descendants.filter(kind=kind)
+        data = list(descendants.annotate(ancestor_id=Subquery(nodes.filter(
+                tree_id=OuterRef('tree_id'),
+                lft__lt=OuterRef('lft'),
+                rght__gt=OuterRef('rght'),
+            ).values_list('id', flat=True)[:1])).values('id', 'title', 'content_id', 'ancestor_id'))
+        return Response(data)
 
-        serializer = self.get_serializer(descendants, many=True)
-        return Response(serializer.data)
-
-    @detail_route(methods=['get'])
-    def descendants_assessments(self, request, **kwargs):
-        node = self.get_object(prefetch=False)
-        kind = self.request.query_params.get('descendant_kind', None)
-        descendants = node.get_descendants().filter(available=True).prefetch_related('assessmentmetadata')
-        if kind:
-            descendants = descendants.filter(kind=kind)
-
-        data = descendants.aggregate(Sum('assessmentmetadata__number_of_assessments'))['assessmentmetadata__number_of_assessments__sum'] or 0
+    @list_route(methods=['get'])
+    def descendants_assessments(self, request):
+        ids = self.request.query_params.get('ids', '').split(',')
+        queryset = models.ContentNode.objects.filter(id__in=ids, available=True)
+        data = list(queryset.annotate(num_assessments=Sum(
+            Subquery(models.ContentNode.objects.filter(
+                tree_id=OuterRef('tree_id'),
+                lft__gte=OuterRef('lft'),
+                lft__lt=OuterRef('rght'),
+                kind=content_kinds.EXERCISE,
+                available=True,
+            ).values_list('assessmentmetadata__number_of_assessments', flat=True)))).values('id', 'num_assessments'))
         return Response(data)
 
     @list_route(methods=['get'])

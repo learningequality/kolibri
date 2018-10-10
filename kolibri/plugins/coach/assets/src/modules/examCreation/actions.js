@@ -118,30 +118,32 @@ export function createExamAndRoute(store, exam) {
 
 function _getTopicsWithExerciseDescendants(topicIds = []) {
   return new Promise(resolve => {
-    const topicsNumAssessmentDescendantsPromises = topicIds.map(topicId =>
-      ContentNodeResource.fetchDescendantsAssessments(topicId)
+    if (!topicIds.length) {
+      resolve([]);
+      return;
+    }
+    const topicsNumAssessmentDescendantsPromise = ContentNodeResource.fetchDescendantsAssessments(
+      topicIds
     );
 
-    Promise.all(topicsNumAssessmentDescendantsPromises).then(topicsNumAssessmentDescendants => {
+    topicsNumAssessmentDescendantsPromise.then(response => {
       const topicsWithExerciseDescendants = [];
-      topicsNumAssessmentDescendants.forEach((numAssessments, index) => {
-        if (numAssessments > 0) {
+      response.entity.forEach(descendantAssessments => {
+        if (descendantAssessments.num_assessments > 0) {
           topicsWithExerciseDescendants.push({
-            id: topicIds[index],
-            numAssessments,
+            id: descendantAssessments.id,
+            numAssessments: descendantAssessments.num_assessments,
+            exercises: [],
           });
         }
       });
 
-      const topicExercisesPromises = topicsWithExerciseDescendants.map(topic =>
-        ContentNodeResource.fetchDescendantsCollection(topic.id, {
-          descendant_kind: ContentNodeKinds.EXERCISE,
-          fields: ['id', 'title', 'content_id'],
-        })
-      );
-      Promise.all(topicExercisesPromises).then(exercises => {
-        exercises.forEach((exercise, index) => {
-          topicsWithExerciseDescendants[index].exercises = exercise;
+      ContentNodeResource.fetchDescendants(topicsWithExerciseDescendants.map(topic => topic.id), {
+        descendant_kind: ContentNodeKinds.EXERCISE,
+      }).then(response => {
+        response.entity.forEach(exercise => {
+          const topic = topicsWithExerciseDescendants.find(t => t.id === exercise.ancestor_id);
+          topic.exercises.push(exercise);
         });
         resolve(topicsWithExerciseDescendants);
       });
