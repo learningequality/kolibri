@@ -179,17 +179,6 @@ def cpu_count_logical():
     return ncpus
 
 
-def pid_exists(pid):
-
-    hProcess = kernel32.OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, False, pid)
-    if not hProcess:
-        result = False
-    else:
-        result = pid in pids()
-    kernel32.CloseHandle(hProcess)
-    return result
-
-
 def wrap_exceptions(fun):
     """Decorator which translates bare OSError and WindowsError
     exceptions into NoSuchProcess and AccessDenied.

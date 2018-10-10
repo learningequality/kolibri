@@ -8,6 +8,7 @@ from django.core.cache import caches
 from django.utils.deprecation import MiddlewareMixin
 
 import kolibri.core.analytics.pskolibri as psutil
+from kolibri.utils.system import pid_exists
 
 logger = logging.getLogger('requests_profiler')
 cache = caches[settings.CACHE_MIDDLEWARE_ALIAS]
@@ -94,6 +95,6 @@ class MetricsMiddleware(MiddlewareMixin):
                 max_time = True
             collected_information = (path, duration, memory_before, memory, load_before, load, str(max_time))
             logger.info(','.join(collected_information))
-            if not psutil.pid_exists(MetricsMiddleware.command_pid):
+            if not pid_exists(MetricsMiddleware.command_pid):
                 self.shutdown()
         return response

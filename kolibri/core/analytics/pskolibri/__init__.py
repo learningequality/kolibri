@@ -8,7 +8,6 @@ import time
 from kolibri.core.analytics.pskolibri.common import LINUX
 from kolibri.core.analytics.pskolibri.common import memoize_when_activated
 from kolibri.core.analytics.pskolibri.common import NoSuchProcess
-from kolibri.core.analytics.pskolibri.common import POSIX
 from kolibri.core.analytics.pskolibri.common import PY3
 from kolibri.core.analytics.pskolibri.common import WINDOWS
 # This module is heavily based on the psutil module
@@ -181,24 +180,6 @@ def virtual_memory():
 def pids():
     """Return a list of current running PIDs."""
     return _psplatform.pids()
-
-
-def pid_exists(pid):
-    """Return True if given PID exists in the current process list.
-    This is faster than doing "pid in psutil.pids()" and
-    should be preferred.
-    """
-    if pid < 0:
-        return False
-    elif pid == 0 and POSIX:
-        # On POSIX we use os.kill() to determine PID existence.
-        # According to "man 2 kill" PID 0 has a special meaning
-        # though: it refers to <<every process in the process
-        # group of the calling process>> and that is not we want
-        # to do here.
-        return pid in pids()
-    else:
-        return _psplatform.pid_exists(pid)
 
 
 class Process(object):
