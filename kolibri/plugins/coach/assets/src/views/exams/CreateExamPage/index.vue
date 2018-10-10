@@ -31,38 +31,34 @@
         {{ selectionIsInvalidText }}
       </UiAlert>
 
-      <KGrid>
-        <KGridItem
-          sizes="100, 100, 50"
-          percentage
-        >
-          <h2>{{ $tr('chooseExercises') }}</h2>
-
-        </KGridItem>
-
-        <KGridItem
-          sizes="100, 50, 25"
-          percentage
-          alignments="left, left, right"
-        >
-          <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
-        </KGridItem>
-
-        <KGridItem
-          sizes="100, 50, 25"
-          percentage
-          alignments="left, right, right"
-        >
-          <KButton :text="$tr('preview')" @click="preview" />
-          <KButton
-            :text="$tr('saveButtonlabel')"
-            :primary="true"
-            @click="finish"
-            :disabled="submitting"
-          />
-        </KGridItem>
-      </KGrid>
+      <div class="buttons-container">
+        <KButton :text="$tr('preview')" @click="preview" />
+        <KButton
+          :text="$tr('saveButtonlabel')"
+          :primary="true"
+          @click="finish"
+          :disabled="submitting"
+        />
+      </div>
     </template>
+
+    <KGrid>
+      <KGridItem
+        sizes="100, 50, 50"
+        percentage
+      >
+        <h2>{{ $tr('chooseExercises') }}</h2>
+
+      </KGridItem>
+
+      <KGridItem
+        sizes="100, 50, 50"
+        percentage
+        alignments="left, right, right"
+      >
+        <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
+      </KGridItem>
+    </KGrid>
 
     <LessonsSearchBox
       class="search-box"
@@ -71,14 +67,12 @@
 
     <template v-if="inSearchMode">
       <KButton
-        class="exit-search-button"
         :text="$tr('exitSearchButtonLabel')"
         appearance="raised-button"
         @click="handleExitSearch"
       />
 
       <LessonsSearchFilters
-        class="search-filters"
         :searchTerm="searchTerm"
         :searchResults="searchResults"
         v-model="filters"
@@ -213,6 +207,7 @@
       ...mapGetters({
         channels: 'getChannels',
       }),
+      ...mapGetters('examCreation', ['numRemainingSearchResults']),
       ...mapState('examCreation', [
         'title',
         'numberOfQuestions',
@@ -221,7 +216,6 @@
         'selectedExercises',
         'availableQuestions',
         'searchResults',
-        'numRemainingSearchResults',
         'ancestors',
         'ancestorCounts',
         'examsModalSet',
@@ -282,6 +276,9 @@
         return !this.inSearchMode && this.pageName !== PageNames.EXAM_CREATION_ROOT;
       },
       viewMoreButtonState() {
+        if (!this.inSearchMode) {
+          return 'no_more_results';
+        }
         if (this.moreResultsState === 'waiting' || this.moreResultsState === 'error') {
           return this.moreResultsState;
         }
@@ -601,6 +598,13 @@
   .search-box {
     display: inline-block;
     vertical-align: middle;
+  }
+
+  .buttons-container {
+    text-align: right;
+    button {
+      margin: 0 0 0 16px;
+    }
   }
 
 </style>

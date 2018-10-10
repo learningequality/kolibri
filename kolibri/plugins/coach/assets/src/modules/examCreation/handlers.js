@@ -1,3 +1,5 @@
+import pickBy from 'lodash/pickBy';
+import uniq from 'lodash/uniq';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import {
   ContentNodeResource,
@@ -5,10 +7,9 @@ import {
   ContentNodeSearchResource,
   ChannelResource,
 } from 'kolibri.resources';
-import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-import pickBy from 'lodash/pickBy';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { PageNames } from '../../constants';
+import { filterAndAnnotateContentList } from './actions';
 
 function showExamCreationPage(store, params) {
   const { classId, contentList, pageName, ancestors = [], searchResults = null } = params;
@@ -20,7 +21,6 @@ function showExamCreationPage(store, params) {
 
         const ancestorCounts = {};
         let getResourceAncestors;
-        // Don't get ancestors if at the Channels page
         if (pageName === PageNames.EXAM_CREATION_ROOT) {
           getResourceAncestors = [];
         } else {
@@ -29,30 +29,27 @@ function showExamCreationPage(store, params) {
           );
         }
 
-        return Promise.all(getResourceAncestors).then(
-          // there has to be a better way
-          resourceAncestors => {
-            resourceAncestors.forEach(ancestorArray =>
-              ancestorArray.forEach(ancestor => {
-                if (ancestorCounts[ancestor.id]) {
-                  ancestorCounts[ancestor.id]++;
-                } else {
-                  ancestorCounts[ancestor.id] = 1;
-                }
-              })
-            );
-            store.commit('examCreation/SET_ANCESTOR_COUNTS', ancestorCounts);
-            store.commit('examCreation/SET_CONTENT_LIST', contentList);
-            if (searchResults) {
-              store.commit('examCreation/SET_SEARCH_RESULTS', searchResults);
-            }
-            store.commit('SET_PAGE_NAME', pageName);
-            store.commit('SET_TOOLBAR_ROUTE', {
-              name: PageNames.EXAMS,
-            });
-            store.dispatch('notLoading');
+        return Promise.all(getResourceAncestors).then(resourceAncestors => {
+          resourceAncestors.forEach(ancestorArray =>
+            ancestorArray.forEach(ancestor => {
+              if (ancestorCounts[ancestor.id]) {
+                ancestorCounts[ancestor.id]++;
+              } else {
+                ancestorCounts[ancestor.id] = 1;
+              }
+            })
+          );
+          store.commit('examCreation/SET_ANCESTOR_COUNTS', ancestorCounts);
+          store.commit('examCreation/SET_CONTENT_LIST', contentList);
+          if (searchResults) {
+            store.commit('examCreation/SET_SEARCH_RESULTS', searchResults);
           }
-        );
+          store.commit('SET_PAGE_NAME', pageName);
+          store.commit('SET_TOOLBAR_ROUTE', {
+            name: PageNames.EXAMS,
+          });
+          store.dispatch('notLoading');
+        });
       },
       error => {
         store.dispatch('notLoading');
@@ -64,7 +61,7 @@ function showExamCreationPage(store, params) {
 
 export function showExamCreationRootPage(store, params) {
   return store.dispatch('loading').then(() => {
-    ChannelResource.fetchCollection({
+    return ChannelResource.fetchCollection({
       getParams: { available: true, has_exercise: true },
     }).then(channels => {
       const channelContentList = channels.map(channel => ({
@@ -95,30 +92,7 @@ export function showExamCreationTopicPage(store, params) {
     const loadRequirements = [topicNodePromise, childNodesPromise, ancestorsPromise];
 
     return Promise.all(loadRequirements).then(([topicNode, childNodes, ancestors]) => {
-      const childTopics = childNodes.filter(({ kind }) => kind === ContentNodeKinds.TOPIC);
-      const topicIds = childTopics.map(({ id }) => id);
-      const topicsThatHaveExerciseDescendants = getTopicsWithExerciseDescendants(topicIds);
-
-      topicsThatHaveExerciseDescendants.then(topics => {
-        const childNodesWithExerciseDescendants = childNodes
-          .map(childNode => {
-            const index = topics.findIndex(topic => topic.id === childNode.id);
-            if (index !== -1) {
-              return { ...childNode, ...topics[index] };
-            }
-            return childNode;
-          })
-          .filter(childNode => {
-            if (childNode.kind === ContentNodeKinds.TOPIC && (childNode.numAssessments || 0) < 1) {
-              return false;
-            }
-            return true;
-          });
-
-        const contentList = childNodesWithExerciseDescendants.map(node => {
-          return { ...node, thumbnail: getContentNodeThumbnail(node) };
-        });
-
+      return filterAndAnnotateContentList(childNodes).then(contentList => {
         return showExamCreationPage(store, {
           classId: params.classId,
           contentList,
@@ -171,52 +145,35 @@ function _prepExamContentPreview(store, classId, contentId) {
 
 export function showExamCreationSearchPage(store, params, query = {}) {
   return store.dispatch('loading').then(() => {
-    // TODO: Also include topics
+    let kinds;
+    if (query.kind) {
+      kinds = [query.kind];
+    } else {
+      kinds = [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC];
+    }
+
     return ContentNodeSearchResource.fetchCollection({
       getParams: {
         search: params.searchTerm,
-        kind: ContentNodeKinds.EXERCISE,
+        kind_in: kinds,
         ...pickBy({ channel_id: query.channel }),
       },
     }).then(results => {
-      return showExamCreationPage(store, {
-        classId: params.classId,
-        contentList: results.results,
-        pageName: PageNames.EXAM_CREATION_SEARCH,
-        searchResults: results,
-      });
-    });
-  });
-}
-
-function getTopicsWithExerciseDescendants(topicIds = []) {
-  return new Promise(resolve => {
-    const topicsNumAssessmentDescendantsPromises = topicIds.map(topicId =>
-      ContentNodeResource.fetchDescendantsAssessments(topicId)
-    );
-
-    Promise.all(topicsNumAssessmentDescendantsPromises).then(topicsNumAssessmentDescendants => {
-      const topicsWithExerciseDescendants = [];
-      topicsNumAssessmentDescendants.forEach((numAssessments, index) => {
-        if (numAssessments > 0) {
-          topicsWithExerciseDescendants.push({
-            id: topicIds[index],
-            numAssessments,
-          });
-        }
-      });
-
-      const topicExercisesPromises = topicsWithExerciseDescendants.map(topic =>
-        ContentNodeResource.fetchDescendantsCollection(topic.id, {
-          descendant_kind: ContentNodeKinds.EXERCISE,
-          fields: ['id', 'title', 'content_id'],
-        })
-      );
-      Promise.all(topicExercisesPromises).then(exercises => {
-        exercises.forEach((exercise, index) => {
-          topicsWithExerciseDescendants[index].exercises = exercise;
+      return filterAndAnnotateContentList(results.results).then(contentList => {
+        const searchResults = {
+          ...results,
+          results: contentList,
+          content_kinds: results.content_kinds.filter(kind =>
+            [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE].includes(kind)
+          ),
+          contentIdsFetched: uniq(results.results.map(({ content_id }) => content_id)),
+        };
+        return showExamCreationPage(store, {
+          classId: params.classId,
+          contentList: contentList,
+          pageName: PageNames.EXAM_CREATION_SEARCH,
+          searchResults,
         });
-        resolve(topicsWithExerciseDescendants);
       });
     });
   });

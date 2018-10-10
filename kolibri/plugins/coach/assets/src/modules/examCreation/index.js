@@ -1,5 +1,4 @@
 import unionBy from 'lodash/unionBy';
-import union from 'lodash/union';
 import * as actions from './actions';
 
 function defaultState() {
@@ -15,6 +14,7 @@ function defaultState() {
       content_kinds: [],
       results: [],
       total_results: 0,
+      contentIdsFetched: [], // to account for topics without exercises that are filtered out
     },
     ancestors: [],
     ancestorCounts: {},
@@ -33,7 +33,7 @@ export default {
   actions,
   getters: {
     numRemainingSearchResults(state) {
-      return state.searchResults.total_results - state.searchResults.results.length;
+      return state.searchResults.total_results - state.searchResults.contentIdsFetched.length;
     },
   },
   mutations: {
@@ -77,20 +77,6 @@ export default {
     },
     SET_SEARCH_RESULTS(state, searchResults) {
       state.searchResults = searchResults;
-    },
-    SET_ADDITIONAL_SEARCH_RESULTS(state, searchResults) {
-      // Append the new results
-      state.searchResults.results = unionBy(
-        [...state.searchResults.results, ...searchResults.results],
-        'id'
-      );
-      // Append the filters
-      state.searchResults.channel_ids = union(
-        state.searchResults.channel_ids,
-        searchResults.channel_ids
-      );
-      // NOTE: Don't update total_results. Must keep the value set initially
-      // for remainingSearchResults to work properly
     },
     SET_EXAMS_MODAL(state, modalName) {
       state.examsModalSet = modalName;

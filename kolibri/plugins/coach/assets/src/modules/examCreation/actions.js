@@ -1,8 +1,12 @@
-import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
-import router from 'kolibri.coreVue.router';
-import { createTranslator } from 'kolibri.utils.i18n';
 import pickBy from 'lodash/pickBy';
 import uniq from 'lodash/uniq';
+import unionBy from 'lodash/unionBy';
+import union from 'lodash/union';
+import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
+import { createTranslator } from 'kolibri.utils.i18n';
+import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
+import router from 'kolibri.coreVue.router';
+import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
 import { _createExam } from '../shared/exams';
 
@@ -55,15 +59,42 @@ export function updateAvailableQuestions(store) {
 }
 
 export function fetchAdditionalSearchResults(store, params) {
+  let kinds;
+  if (params.kind) {
+    kinds = [params.kind];
+  } else {
+    kinds = [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC];
+  }
   return ContentNodeSearchResource.fetchCollection({
-    getParams: pickBy({
-      search: params.searchTerm,
-      kind: params.kind,
-      channel_id: params.channelId,
-      exclude_content_ids: uniq(params.currentResults.map(({ content_id }) => content_id)),
-    }),
+    getParams: {
+      ...pickBy({
+        search: params.searchTerm,
+        channel_id: params.channelId,
+        exclude_content_ids: store.state.searchResults.contentIdsFetched,
+      }),
+      kind_in: kinds,
+    },
   }).then(results => {
-    store.commit('SET_ADDITIONAL_SEARCH_RESULTS', results);
+    return filterAndAnnotateContentList(results.results).then(contentList => {
+      const updatedChannelIds = union(store.state.searchResults.channel_ids, results.channel_ids);
+      const updatedContentKinds = union(
+        store.state.searchResults.content_kinds,
+        results.content_kinds
+      ).filter(kind => [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE].includes(kind));
+      const updatedResults = unionBy([...store.state.searchResults.results, ...contentList], 'id');
+      const updatedContentIdsFetched = uniq([
+        ...store.state.searchResults.contentIdsFetched,
+        ...results.results.map(({ content_id }) => content_id),
+      ]);
+      const searchResults = {
+        total_results: store.state.searchResults.total_results,
+        channel_ids: updatedChannelIds,
+        content_kinds: updatedContentKinds,
+        results: updatedResults,
+        contentIdsFetched: updatedContentIdsFetched,
+      };
+      store.commit('SET_SEARCH_RESULTS', searchResults);
+    });
   });
 }
 
@@ -83,4 +114,68 @@ export function createExamAndRoute(store, exam) {
     },
     error => store.dispatch('handleApiError', error, { root: true })
   );
+}
+
+function _getTopicsWithExerciseDescendants(topicIds = []) {
+  return new Promise(resolve => {
+    const topicsNumAssessmentDescendantsPromises = topicIds.map(topicId =>
+      ContentNodeResource.fetchDescendantsAssessments(topicId)
+    );
+
+    Promise.all(topicsNumAssessmentDescendantsPromises).then(topicsNumAssessmentDescendants => {
+      const topicsWithExerciseDescendants = [];
+      topicsNumAssessmentDescendants.forEach((numAssessments, index) => {
+        if (numAssessments > 0) {
+          topicsWithExerciseDescendants.push({
+            id: topicIds[index],
+            numAssessments,
+          });
+        }
+      });
+
+      const topicExercisesPromises = topicsWithExerciseDescendants.map(topic =>
+        ContentNodeResource.fetchDescendantsCollection(topic.id, {
+          descendant_kind: ContentNodeKinds.EXERCISE,
+          fields: ['id', 'title', 'content_id'],
+        })
+      );
+      Promise.all(topicExercisesPromises).then(exercises => {
+        exercises.forEach((exercise, index) => {
+          topicsWithExerciseDescendants[index].exercises = exercise;
+        });
+        resolve(topicsWithExerciseDescendants);
+      });
+    });
+  });
+}
+
+export function filterAndAnnotateContentList(childNodes) {
+  return new Promise(resolve => {
+    const childTopics = childNodes.filter(({ kind }) => kind === ContentNodeKinds.TOPIC);
+    const topicIds = childTopics.map(({ id }) => id);
+    const topicsThatHaveExerciseDescendants = _getTopicsWithExerciseDescendants(topicIds);
+
+    topicsThatHaveExerciseDescendants.then(topics => {
+      const childNodesWithExerciseDescendants = childNodes
+        .map(childNode => {
+          const index = topics.findIndex(topic => topic.id === childNode.id);
+          if (index !== -1) {
+            return { ...childNode, ...topics[index] };
+          }
+          return childNode;
+        })
+        .filter(childNode => {
+          if (childNode.kind === ContentNodeKinds.TOPIC && (childNode.numAssessments || 0) < 1) {
+            return false;
+          }
+          return true;
+        });
+
+      const contentList = childNodesWithExerciseDescendants.map(node => ({
+        ...node,
+        thumbnail: getContentNodeThumbnail(node),
+      }));
+      resolve(contentList);
+    });
+  });
 }
