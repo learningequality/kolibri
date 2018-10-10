@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 import functools
+import io
 import os
 import sys
 from collections import namedtuple
@@ -138,7 +139,7 @@ def memoize_when_activated(fun):
 
 
 def open_binary(fname, **kwargs):
-    return open(fname, "rb", **kwargs)
+    return io.open(fname, "rb", **kwargs)
 
 
 def open_text(fname, **kwargs):
@@ -149,4 +150,4 @@ def open_text(fname, **kwargs):
     if PY3:
         kwargs.setdefault('encoding', ENCODING)
         kwargs.setdefault('errors', ENCODING_ERRS)
-    return open(fname, "rt", **kwargs)
+    return io.open(fname, "rt", **kwargs)
