@@ -337,6 +337,100 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data['description'], "balbla2")
         self.assertTrue("id" not in response.data)
 
+    def test_contentnode_descendants_assessments_exercise_node(self):
+        c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
+        c1_id = c1.id
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants-assessments"), data={"ids": c1_id})
+        self.assertEqual(next(item['num_assessments'] for item in response.data if item['id'] == c1_id), c1.assessmentmetadata.first().number_of_assessments)
+
+    def test_contentnode_descendants_assessments_exercise_parent(self):
+        c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
+        parent = c1.parent
+        parent_id = parent.id
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants-assessments"), data={"ids": parent_id})
+        self.assertEqual(
+            next(item['num_assessments'] for item in response.data if item['id'] == parent_id),
+            c1.assessmentmetadata.first().number_of_assessments,
+        )
+
+    def test_contentnode_descendants_assessments_exercise_root(self):
+        c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        root_id = root.id
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants-assessments"), data={"ids": root_id})
+        self.assertEqual(next(item['num_assessments'] for item in response.data if item['id'] == root_id), c1.assessmentmetadata.first().number_of_assessments)
+
+    def test_contentnode_descendants_assessments_exercise_parent_sum_siblings(self):
+        c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
+        parent = c1.parent
+        parent_id = parent.id
+        sibling = content.ContentNode.objects.create(
+            pk="6a406ac66b224106aa2e93f73a94333d",
+            channel_id=c1.channel_id,
+            content_id="ded4a083e75f4689b386fd2b706e792a",
+            kind=content_kinds.EXERCISE,
+            parent=parent,
+            title="sibling exercise",
+            available=True,
+        )
+        sibling_assessment_metadata = content.AssessmentMetaData.objects.create(
+            id="6a406ac66b224106aa2e93f73a94333d",
+            contentnode=sibling,
+            number_of_assessments=5,
+        )
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants-assessments"), data={"ids": parent_id})
+        self.assertEqual(
+            next(item['num_assessments'] for item in response.data if item['id'] == parent_id),
+            c1.assessmentmetadata.first().number_of_assessments + sibling_assessment_metadata.number_of_assessments,
+        )
+
+    def test_contentnode_descendants_assessments_exercise_parent_sum_siblings_one_unavailable(self):
+        c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
+        c1.available = False
+        c1.save()
+        parent = c1.parent
+        parent_id = parent.id
+        sibling = content.ContentNode.objects.create(
+            pk="6a406ac66b224106aa2e93f73a94333d",
+            channel_id=c1.channel_id,
+            content_id="ded4a083e75f4689b386fd2b706e792a",
+            kind=content_kinds.EXERCISE,
+            parent=parent,
+            title="sibling exercise",
+            available=True,
+        )
+        sibling_assessment_metadata = content.AssessmentMetaData.objects.create(
+            id="6a406ac66b224106aa2e93f73a94333d",
+            contentnode=sibling,
+            number_of_assessments=5,
+        )
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants-assessments"), data={"ids": parent_id})
+        self.assertEqual(
+            next(item['num_assessments'] for item in response.data if item['id'] == parent_id),
+            sibling_assessment_metadata.number_of_assessments,
+        )
+
+    def test_contentnode_descendants_topic_siblings_ancestor_ids(self):
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        topics = content.ContentNode.objects.filter(parent=root, kind=content_kinds.TOPIC)
+        topic_ids = topics.values_list('id', flat=True)
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants"), data={"ids": ",".join(topic_ids)})
+        for datum in response.data:
+            topic = topics.get(id=datum["ancestor_id"])
+            self.assertTrue(topic.get_descendants().filter(id=datum["id"]).exists())
+
+    def test_contentnode_descendants_topic_siblings_kind_filter(self):
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        topics = content.ContentNode.objects.filter(parent=root, kind=content_kinds.TOPIC)
+        topic_ids = topics.values_list('id', flat=True)
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants"), data={
+            "ids": ",".join(topic_ids),
+            "descendant_kind": content_kinds.EXERCISE,
+        })
+        for datum in response.data:
+            topic = topics.get(id=datum["ancestor_id"])
+            self.assertTrue(topic.get_descendants().filter(id=datum["id"], kind=content_kinds.EXERCISE).exists())
+
     def test_contentnode_slim_recommendations(self):
         node_id = content.ContentNode.objects.get(title="c2c2").id
         response = self.client.get(reverse("kolibri:core:contentnode_slim-recommendations-for", kwargs={'pk': node_id}))

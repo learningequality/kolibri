@@ -6,6 +6,7 @@ from random import sample
 import requests
 from django.core.cache import cache
 from django.db.models import Case
+from django.db.models import IntegerField
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
@@ -210,6 +211,11 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
+class SQSum(Subquery):
+    template = "(SELECT SUM(\"%(field)s\") FROM (%(subquery)s))"
+    output_field = IntegerField()
+
+
 @method_decorator(cache_forever, name='dispatch')
 class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ContentNodeSerializer
@@ -276,14 +282,13 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
     def descendants_assessments(self, request):
         ids = self.request.query_params.get('ids', '').split(',')
         queryset = models.ContentNode.objects.filter(id__in=ids, available=True)
-        data = list(queryset.annotate(num_assessments=Sum(
-            Subquery(models.ContentNode.objects.filter(
+        data = list(queryset.annotate(num_assessments=SQSum(models.ContentNode.objects.filter(
                 tree_id=OuterRef('tree_id'),
                 lft__gte=OuterRef('lft'),
                 lft__lt=OuterRef('rght'),
                 kind=content_kinds.EXERCISE,
                 available=True,
-            ).values_list('assessmentmetadata__number_of_assessments', flat=True)))).values('id', 'num_assessments'))
+            ).values_list('assessmentmetadata__number_of_assessments', flat=True), field='number_of_assessments')).values('id', 'num_assessments'))
         return Response(data)
 
     @list_route(methods=['get'])
