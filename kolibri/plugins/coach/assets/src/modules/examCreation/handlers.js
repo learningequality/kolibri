@@ -18,38 +18,15 @@ function showExamCreationPage(store, params) {
     return store.dispatch('setClassState', classId).then(
       () => {
         store.commit('examCreation/SET_ANCESTORS', ancestors);
-
-        const ancestorCounts = {};
-        let getResourceAncestors;
-        if (pageName === PageNames.EXAM_CREATION_ROOT) {
-          getResourceAncestors = [];
-        } else {
-          getResourceAncestors = store.state.examCreation.selectedExercises.map(({ id }) =>
-            ContentNodeSlimResource.fetchAncestors(id)
-          );
+        store.commit('examCreation/SET_CONTENT_LIST', contentList);
+        if (searchResults) {
+          store.commit('examCreation/SET_SEARCH_RESULTS', searchResults);
         }
-
-        return Promise.all(getResourceAncestors).then(resourceAncestors => {
-          resourceAncestors.forEach(ancestorArray =>
-            ancestorArray.forEach(ancestor => {
-              if (ancestorCounts[ancestor.id]) {
-                ancestorCounts[ancestor.id]++;
-              } else {
-                ancestorCounts[ancestor.id] = 1;
-              }
-            })
-          );
-          store.commit('examCreation/SET_ANCESTOR_COUNTS', ancestorCounts);
-          store.commit('examCreation/SET_CONTENT_LIST', contentList);
-          if (searchResults) {
-            store.commit('examCreation/SET_SEARCH_RESULTS', searchResults);
-          }
-          store.commit('SET_PAGE_NAME', pageName);
-          store.commit('SET_TOOLBAR_ROUTE', {
-            name: PageNames.EXAMS,
-          });
-          store.dispatch('notLoading');
+        store.commit('SET_PAGE_NAME', pageName);
+        store.commit('SET_TOOLBAR_ROUTE', {
+          name: PageNames.EXAMS,
         });
+        store.dispatch('notLoading');
       },
       error => {
         store.dispatch('notLoading');

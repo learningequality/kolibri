@@ -17,7 +17,6 @@ function defaultState() {
       contentIdsFetched: [], // to account for topics without exercises that are filtered out
     },
     ancestors: [],
-    ancestorCounts: {},
     examsModalSet: false,
     currentContentNode: {},
     preview: {
@@ -71,9 +70,6 @@ export default {
     },
     SET_ANCESTORS(state, ancestors) {
       state.ancestors = [...ancestors];
-    },
-    SET_ANCESTOR_COUNTS(state, ancestorCountsObject) {
-      state.ancestorCounts = ancestorCountsObject;
     },
     SET_SEARCH_RESULTS(state, searchResults) {
       state.searchResults = searchResults;

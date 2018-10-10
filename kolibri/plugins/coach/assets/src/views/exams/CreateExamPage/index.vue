@@ -179,11 +179,15 @@
       noneSelected: 'No exercises are selected',
       preview: 'Preview',
       saveButtonlabel: 'Save',
+      // TODO: Interpolate strings correctly
       added: 'Added',
       removed: 'Removed',
       selected: '{count, number, integer} total selected',
       documentTitle: 'Create new exam',
       exitSearchButtonLabel: 'Exit search',
+      // TODO: Handle singular/plural
+      selectionInformation:
+        '{count, number, integer} of {total, number, integer} resources selected',
     },
     data() {
       return {
@@ -219,7 +223,6 @@
         'availableQuestions',
         'searchResults',
         'ancestors',
-        'ancestorCounts',
         'examsModalSet',
       ]),
       filteredContentList() {
@@ -457,26 +460,33 @@
                 selectedExercise => selectedExercise.id === exercise.id
               ) !== -1
           );
+          if (everyExerciseSelected) {
+            return false;
+          }
           const someExerciseSelected = content.exercises.some(
             exercise =>
               this.selectedExercises.findIndex(
                 selectedExercise => selectedExercise.id === exercise.id
               ) !== -1
           );
-          if (everyExerciseSelected) {
-            return false;
-          }
           return someExerciseSelected;
         }
         return false;
       },
-      selectionMetadata() {
-        // const count = this.ancestorCounts[content.id];
-        // if (count) {
-        //   return this.$tr('selectionInformation',
-        //   { count, total: this.selectedExercises.length }
-        //   );
-        // }
+      selectionMetadata(content) {
+        if (content.kind === ContentNodeKinds.TOPIC) {
+          const count = content.exercises.filter(
+            exercise =>
+              this.selectedExercises.findIndex(
+                selectedExercise => selectedExercise.id === exercise.id
+              ) !== -1
+          ).length;
+          if (count === 0) {
+            return '';
+          }
+          const total = content.exercises.length;
+          return this.$tr('selectionInformation', { count, total });
+        }
         return '';
       },
       toggleTopicInWorkingResources(isChecked) {
