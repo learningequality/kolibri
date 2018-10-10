@@ -7,6 +7,7 @@ import os
 import sys
 
 import kolibri_exercise_perseus_plugin
+from django.utils.translation import to_locale
 
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
@@ -79,9 +80,9 @@ def supported_languages(include_in_context=False, include_english=False):
 
 @memoize
 def local_locale_path(lang_object):
-    return os.path.join(LOCALE_PATH, lang_object[KEY_INTL_CODE], "LC_MESSAGES")
+    return os.path.join(LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES")
 
 
 @memoize
 def local_perseus_locale_path(lang_object):
-    return os.path.join(PERSEUS_LOCALE_PATH, lang_object[KEY_INTL_CODE], "LC_MESSAGES")
+    return os.path.join(PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES")

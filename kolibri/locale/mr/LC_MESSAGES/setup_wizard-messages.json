@@ -42,7 +42,7 @@
     "SuperuserCredentialsForm.usernameFieldEmptyErrorMessage": "युझरनेम रिकामे असू शकत नाही",
     "SuperuserCredentialsForm.usernameCharacterErrorMessage": "युझरनेममध्ये फक्त अक्षरे, अंक आणि अंडरस्कोअर वापरण्याची परवानगी आहे",
     "SuperuserCredentialsForm.passwordFieldEmptyErrorMessage": "पासवर्ड रिकामा असू शकत नाही",
-    "SuperuserCredentialsForm.passwordsMismatchErrorMessage": "पासवर्ड जुळत नाहीत",
+    "SuperuserCredentialsForm.passwordsMismatchErrorMessage": "पासवर्ड जुळत नाही",
     "SuperuserCredentialsForm.facilityFieldEmptyErrorMessage": "सुविधा रिकामी असू शकत नाही",
     "SuperuserCredentialsForm.setupProgressFeedback": "तुमचे उपकरण तयार होत आहे...",
     "YesNoForm.details": "",

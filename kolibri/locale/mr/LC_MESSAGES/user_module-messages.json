@@ -48,7 +48,7 @@
     "SignUpPage.username": "युझरनेम",
     "SignUpPage.password": "पासवर्ड",
     "SignUpPage.reEnterPassword": "पासवर्ड पुन्हा प्रविष्ट करा",
-    "SignUpPage.passwordMatchError": "पासवर्ड जुळत नाहीत",
+    "SignUpPage.passwordMatchError": "पासवर्ड जुळत नाही",
     "SignUpPage.genericError": "साइन अप करताना काहीतरी चुकले",
     "SignUpPage.usernameAlphaNumError": "युझरनेममध्ये फक्त अक्षरे, अंक आणि अंडरस्कोअर वापरण्याची परवानगी आहे",
     "SignUpPage.usernameAlreadyExistsError": "या युझरनेमचे खाते आधीपासून अस्तित्वात आहे",

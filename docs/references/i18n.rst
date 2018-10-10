@@ -248,7 +248,7 @@ For the font name, check the `Noto database <https://www.google.com/get/noto/>`_
 
 Any time a language is added to supported languages the command ``yarn run generate-locale-data`` must be run, and the resulting file changes committed to the code base.
 
-In some cases, the language doesn't exist in Django. In these situations, the language needs to be added to ``EXTRA_LANG_INFO`` in ``base.py``.
+In some cases, the language doesn't exist in Django. In these situations, the language needs to be added to ``EXTRA_LANG_INFO`` in ``base.py``. In addition, for this language to work during development, the mo files for the language must be generated and committed to the repo, first run the command ``make i18n-django-compilemessages`` and then use ``git add -f kolibri/locale/<lang_code>/LC_MESSAGES/django.mo``.
 
 
 Adding a new font
