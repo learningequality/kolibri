@@ -95,15 +95,6 @@ def get_requests_info():
     return (homepage_time, recommended_time, channels_time)
 
 
-def get_process_pid():
-    """
-    Returns the pid of the command in execution
-    :returns: Integer number with the pid of this command
-    """
-    this_command = psutil.Process()
-    return this_command.pid
-
-
 def get_machine_info():
     """
     Gets information on the memory, cpu and processes in the server

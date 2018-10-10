@@ -1,6 +1,7 @@
 import logging
 import sys
 import time
+from os import getpid
 
 from django.core.management.base import BaseCommand
 
@@ -8,7 +9,6 @@ from kolibri.core.analytics.measurements import get_db_info
 from kolibri.core.analytics.measurements import get_kolibri_process_info
 from kolibri.core.analytics.measurements import get_kolibri_use
 from kolibri.core.analytics.measurements import get_machine_info
-from kolibri.core.analytics.measurements import get_process_pid
 from kolibri.core.analytics.measurements import KolibriNotRunning
 from kolibri.core.analytics.pskolibri.common import LINUX
 from kolibri.core.analytics.pskolibri.common import WINDOWS
@@ -52,7 +52,7 @@ class Command(BaseCommand):
         interval = 10  # the measures are taken every 10 seconds
         _, port = get_kolibri_process_info()
         if port:
-            this_pid = get_process_pid()
+            this_pid = getpid()
             try:
                 urlrequest.urlopen('http://localhost:{port}/api/analytics/activate/{pid}/'.
                                    format(port=port, pid=this_pid))
