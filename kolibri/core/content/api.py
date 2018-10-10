@@ -244,7 +244,10 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 
     @list_route(methods=['get'])
     def descendants(self, request):
-        ids = self.request.query_params.get('ids', '').split(',')
+        ids = self.request.query_params.get('ids', None)
+        if not ids:
+            return Response([])
+        ids = ids.split(',')
         kind = self.request.query_params.get('descendant_kind', None)
         nodes = models.ContentNode.objects.filter(id__in=ids, available=True)
         descendants = nodes.get_descendants(include_self=False).filter(available=True)
@@ -259,7 +262,10 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 
     @list_route(methods=['get'])
     def descendants_assessments(self, request):
-        ids = self.request.query_params.get('ids', '').split(',')
+        ids = self.request.query_params.get('ids', None)
+        if not ids:
+            return Response([])
+        ids = ids.split(',')
         queryset = models.ContentNode.objects.filter(id__in=ids, available=True)
         data = list(queryset.annotate(num_assessments=SQSum(models.ContentNode.objects.filter(
             tree_id=OuterRef('tree_id'),
