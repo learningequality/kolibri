@@ -3,7 +3,7 @@
     "SetupWizardIndex.onboardingNextStepButton": "Продължи",
     "SetupWizardIndex.onboardingFinishButton": "Завърши",
     "SetupWizardIndex.documentTitle": "Съветник за настройване",
-    "SetupWizardIndex.personalFacilityName": "Основна институция {name}",
+    "SetupWizardIndex.personalFacilityName": "Институция {name}",
     "CreateLearnerAccountForm.header": "Позволяване на всеки потребител да създава своя собствен ученически профил?",
     "CreateLearnerAccountForm.noOptionLabel": "Не. Администраторите трябва да създадат всички профили",
     "DefaultLanguageForm.languageFormHeader": "Моля, избери език по подразбиране за Колибри",
