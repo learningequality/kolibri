@@ -1,4 +1,5 @@
 import logging
+import os.path
 import sys
 import time
 from os import getpid
@@ -6,18 +7,14 @@ from os import getpid
 from django.core.management.base import BaseCommand
 
 from kolibri.core.analytics.measurements import get_db_info
-from kolibri.core.analytics.measurements import get_kolibri_process_info
 from kolibri.core.analytics.measurements import get_kolibri_use
 from kolibri.core.analytics.measurements import get_machine_info
-from kolibri.core.analytics.measurements import KolibriNotRunning
 from kolibri.core.analytics.pskolibri.common import LINUX
 from kolibri.core.analytics.pskolibri.common import WINDOWS
-
-try:
-    import urllib.request as urlrequest
-except ImportError:
-    import urllib as urlrequest
-
+from kolibri.utils import conf
+from kolibri.utils.server import NotRunning
+from kolibri.utils.server import PROFILE_LOCK
+from kolibri.utils.system import pid_exists
 
 logger = logging.getLogger('profiler')
 
@@ -45,19 +42,44 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        def remove_lock():
+            # Kolibri command PID file exists but no command is running, it's corrupted
+            try:
+                os.remove(PROFILE_LOCK)
+            except OSError:
+                pass  # lock file was deleted by other process
+
         if not LINUX and not WINDOWS:
             print("This OS is not yet supported")
             sys.exit(1)
 
-        interval = 10  # the measures are taken every 10 seconds
-        _, port = get_kolibri_process_info()
-        if port:
-            this_pid = getpid()
+        if not conf.OPTIONS["Server"]["PROFILE"]:
+            print("Kolibri has not enabled profiling of its requests."
+                  "To enable it, edit the Kolibri options.ini file and"
+                  "add `PROFILE = true` in the [Server] section")
+
+        if os.path.exists(PROFILE_LOCK):
+            command_pid = None
             try:
-                urlrequest.urlopen('http://localhost:{port}/api/analytics/activate/{pid}/'.
-                                   format(port=port, pid=this_pid))
-            except IOError:
-                logger.info("Impossible to connect to a Kolibri server in the current machine")
+                with open(PROFILE_LOCK, 'r') as f:
+                    command_pid = int(f.readline())
+            except (IOError, TypeError, ValueError):
+                remove_lock()
+            if command_pid:
+                if pid_exists(command_pid):
+                    print("Profile command is already running")
+                    sys.exit(1)
+                else:
+                    remove_lock()
+
+        interval = 10  # the measures are taken every 10 seconds
+
+        this_pid = getpid()
+        try:
+            with open(PROFILE_LOCK, 'w') as f:
+                f.write("%d" % this_pid)
+        except (IOError, OSError):
+            logger.info("Impossible to create profile lock file. Kolibri won't profile its requests")
         samples = 1
         num_samples = options['num_samples']
         while samples <= num_samples:
@@ -72,7 +94,7 @@ class Command(BaseCommand):
         """
         try:
             kolibri_cpu, kolibri_mem = get_kolibri_use()
-        except KolibriNotRunning:
+        except NotRunning:
             sys.exit("Profile command executed while Kolibri server was not running")
 
         active_sessions, active_users, active_users_minute = get_db_info()

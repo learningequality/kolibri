@@ -39,6 +39,9 @@ PID_FILE = os.path.join(conf.KOLIBRI_HOME, "server.pid")
 # to daemon mode
 STARTUP_LOCK = os.path.join(conf.KOLIBRI_HOME, "server.lock")
 
+# File used to activate profiling middleware and get profiler PID
+PROFILE_LOCK = os.path.join(conf.KOLIBRI_HOME, "server_profile.lock")
+
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
 DAEMON_LOG = os.path.join(conf.KOLIBRI_HOME, "server.log")

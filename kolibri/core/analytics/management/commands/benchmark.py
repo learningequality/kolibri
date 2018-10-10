@@ -11,10 +11,10 @@ from kolibri.core.analytics.measurements import get_kolibri_process_cmd
 from kolibri.core.analytics.measurements import get_kolibri_use
 from kolibri.core.analytics.measurements import get_machine_info
 from kolibri.core.analytics.measurements import get_requests_info
-from kolibri.core.analytics.measurements import KolibriNotRunning
 from kolibri.core.analytics.pskolibri.common import LINUX
 from kolibri.core.analytics.pskolibri.common import WINDOWS
 from kolibri.utils.server import installation_type
+from kolibri.utils.server import NotRunning
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time import local_now
 
@@ -80,7 +80,7 @@ class Command(BaseCommand):
 
         try:
             kolibri_cpu, kolibri_mem = get_kolibri_use()
-        except KolibriNotRunning:
+        except NotRunning:
             sys.exit("Profile command executed while Kolibri server was not running")
         get_requests_info()
         self.messages = []

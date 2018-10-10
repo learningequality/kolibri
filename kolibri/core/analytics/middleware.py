@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import logging
+import os
 import time
 
 from django.conf import settings
@@ -8,6 +9,8 @@ from django.core.cache import caches
 from django.utils.deprecation import MiddlewareMixin
 
 import kolibri.core.analytics.pskolibri as psutil
+from kolibri.utils import conf
+from kolibri.utils.server import PROFILE_LOCK
 from kolibri.utils.system import pid_exists
 
 logger = logging.getLogger('requests_profiler')
@@ -76,6 +79,11 @@ class MetricsMiddleware(MiddlewareMixin):
         MetricsMiddleware.disabled = True
         MetricsMiddleware.command_pid = 0
         delattr(self, 'metrics')
+        if os.path.exists(PROFILE_LOCK):
+            try:
+                os.remove(PROFILE_LOCK)
+            except OSError:
+                pass  # lock file was deleted by other process
 
     def process_response(self, request, response):
         """
@@ -85,6 +93,19 @@ class MetricsMiddleware(MiddlewareMixin):
         cpu load before, cpu load after the request is finished, max
         Being `max` True or False to indicate if this is the slowest request since logging began.
         """
+        if MetricsMiddleware.disabled and conf.OPTIONS["Server"]["PROFILE"]:
+            if os.path.exists(PROFILE_LOCK):
+                try:
+                    with open(PROFILE_LOCK, 'r') as f:
+                        MetricsMiddleware.command_pid = int(f.readline())
+                        MetricsMiddleware.disabled = False
+                except (IOError, TypeError, ValueError):
+                    # Kolibri command PID file has been deleted or it's corrupted
+                    try:
+                        os.remove(PROFILE_LOCK)
+                    except OSError:
+                        pass  # lock file was deleted by other process
+
         if not MetricsMiddleware.disabled and hasattr(self, 'metrics'):
             path = request.get_full_path()
             duration, memory_before, memory, load_before, load = self.metrics.get_stats()
@@ -95,6 +116,6 @@ class MetricsMiddleware(MiddlewareMixin):
                 max_time = True
             collected_information = (path, duration, memory_before, memory, load_before, load, str(max_time))
             logger.info(','.join(collected_information))
-            if not pid_exists(MetricsMiddleware.command_pid):
+            if not pid_exists(MetricsMiddleware.command_pid) or not os.path.exists(PROFILE_LOCK):
                 self.shutdown()
         return response
