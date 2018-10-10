@@ -89,7 +89,7 @@
         lessonAssignments: state => state.currentLesson.lesson_assignments,
         lessonResources: state => state.currentLesson.resources,
         learnerGroups: state => state.learnerGroups,
-        workingResources: state => state.pageState.workingResources,
+        workingResources: state => state.workingResources,
       }),
       lessonOptions() {
         return map(this.actionsToLabelMap, (label, action) => ({
