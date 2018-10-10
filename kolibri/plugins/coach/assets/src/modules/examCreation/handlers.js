@@ -157,6 +157,7 @@ export function showExamCreationSearchPage(store, params, query = {}) {
         search: params.searchTerm,
         kind_in: kinds,
         ...pickBy({ channel_id: query.channel }),
+        include_fields: ['num_coach_contents'],
       },
     }).then(results => {
       return filterAndAnnotateContentList(results.results).then(contentList => {

@@ -179,6 +179,9 @@ class ContentNodeFilter(IdFilter):
         # In all other cases, exclude nodes that are coach content
         return queryset.exclude(coach_content=True)
 
+    def filter_exclude_content_ids(self, queryset, name, value):
+        return queryset.exclude(content_id__in=value.split(','))
+
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
     """
