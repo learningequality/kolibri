@@ -90,8 +90,10 @@
       :contentList="filteredContentList"
       :showSelectAll="selectAllIsVisible"
       :viewMoreButtonState="viewMoreButtonState"
-      :selectAllChecked="addableExercises.length === 0"
+      :selectAllChecked="selectAllChecked"
+      :selectAllIndeterminate="selectAllIndeterminate"
       :contentIsChecked="contentIsSelected"
+      :contentIsIndeterminate="contentIsIndeterminate"
       :contentHasCheckbox="contentHasCheckbox"
       :contentCardMessage="selectionMetadata"
       :contentCardLink="contentLink"
@@ -249,6 +251,15 @@
               selectedExercise => selectedExercise.id === exercise.id
             ) === -1
         );
+      },
+      selectAllChecked() {
+        return this.addableExercises.length === 0;
+      },
+      selectAllIndeterminate() {
+        if (this.selectAllChecked) {
+          return false;
+        }
+        return this.addableExercises.length !== this.allExercises.length;
       },
       questionSources() {
         const questionSources = [];
@@ -435,6 +446,27 @@
             ) !== -1
           );
         }
+      },
+      contentIsIndeterminate(content) {
+        if (content.kind === ContentNodeKinds.TOPIC) {
+          const everyExerciseSelected = content.exercises.every(
+            exercise =>
+              this.selectedExercises.findIndex(
+                selectedExercise => selectedExercise.id === exercise.id
+              ) !== -1
+          );
+          const someExerciseSelected = content.exercises.some(
+            exercise =>
+              this.selectedExercises.findIndex(
+                selectedExercise => selectedExercise.id === exercise.id
+              ) !== -1
+          );
+          if (everyExerciseSelected) {
+            return false;
+          }
+          return someExerciseSelected;
+        }
+        return false;
       },
       selectionMetadata() {
         // const count = this.ancestorCounts[content.id];
