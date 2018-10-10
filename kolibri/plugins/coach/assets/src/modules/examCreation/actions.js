@@ -18,18 +18,6 @@ export function resetExamCreationState(store) {
   store.commit('RESET_STATE');
 }
 
-export function setTitle(store, title) {
-  store.commit('SET_TITLE', title);
-}
-
-export function setNumberOfQuestions(store, title) {
-  store.commit('SET_NUMBER_OF_QUESTIONS', title);
-}
-
-export function setSeed(store, seed) {
-  store.commit('SET_SEED', seed);
-}
-
 export function addToSelectedExercises(store, exercises) {
   store.commit('ADD_TO_SELECTED_EXERCISES', exercises);
   return updateAvailableQuestions(store);

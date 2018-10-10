@@ -400,16 +400,18 @@
     methods: {
       ...mapActions(['createSnackbar']),
       ...mapActions('examCreation', [
-        'setTitle',
-        'setNumberOfQuestions',
-        'setSeed',
         'addToSelectedExercises',
         'removeFromSelectedExercises',
         'setSelectedExercises',
         'fetchAdditionalSearchResults',
         'createExamAndRoute',
       ]),
-      ...mapMutations('examCreation', { setExamsModal: 'SET_EXAMS_MODAL' }),
+      ...mapMutations('examCreation', {
+        setExamsModal: 'SET_EXAMS_MODAL',
+        setTitle: 'SET_TITLE',
+        setNumberOfQuestions: 'SET_NUMBER_OF_QUESTIONS',
+        setSeed: 'SET_SEED',
+      }),
       contentLink(content) {
         if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
           return {
