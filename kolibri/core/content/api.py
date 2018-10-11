@@ -5,7 +5,10 @@ from random import sample
 
 import requests
 from django.core.cache import cache
+from django.db.models import IntegerField
+from django.db.models import OuterRef
 from django.db.models import Q
+from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
@@ -130,11 +133,12 @@ class ContentNodeFilter(IdFilter):
     in_lesson = CharFilter(method="filter_in_lesson")
     in_exam = CharFilter(method="filter_in_exam")
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
+    kind_in = CharFilter(method="filter_kind_in",)
 
     class Meta:
         model = models.ContentNode
         fields = ['parent', 'prerequisite_for', 'has_prerequisite', 'related', 'exclude_content_ids',
-                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind', 'by_role']
+                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind', 'by_role', 'kind_in', ]
 
     def filter_kind(self, queryset, name, value):
         """
@@ -147,6 +151,17 @@ class ContentNodeFilter(IdFilter):
         if value == 'content':
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
+
+    def filter_kind_in(self, queryset, name, value):
+        """
+        Show only content of given kinds.
+
+        :param queryset: all content nodes for this channel
+        :param value: A list of content node kinds
+        :return: content nodes of the given kinds
+        """
+        kinds = value.split(",")
+        return queryset.filter(kind__in=kinds).order_by("lft")
 
     def filter_by_role(self, queryset, name, value):
         """
@@ -164,6 +179,9 @@ class ContentNodeFilter(IdFilter):
         # In all other cases, exclude nodes that are coach content
         return queryset.exclude(coach_content=True)
 
+    def filter_exclude_content_ids(self, queryset, name, value):
+        return queryset.exclude(content_id__in=value.split(','))
+
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
     """
@@ -173,6 +191,12 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     """
     page_size = None
     page_size_query_param = "page_size"
+
+
+class SQSum(Subquery):
+    # Include ALIAS at the end to support Postgres
+    template = "(SELECT SUM(%(field)s) FROM (%(subquery)s) AS %(field)s__sum)"
+    output_field = IntegerField()
 
 
 @method_decorator(cache_forever, name='dispatch')
@@ -222,26 +246,40 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 
         return obj
 
-    @detail_route(methods=['get'])
-    def descendants(self, request, **kwargs):
-        node = self.get_object(prefetch=False)
+    @list_route(methods=['get'])
+    def descendants(self, request):
+        ids = self.request.query_params.get('ids', None)
+        if not ids:
+            return Response([])
+        ids = ids.split(',')
         kind = self.request.query_params.get('descendant_kind', None)
-        descendants = node.get_descendants().filter(available=True)
-        if kind:
-            descendants = descendants.filter(kind=kind)
+        data = []
+        nodes = models.ContentNode.objects.filter(id__in=ids, available=True)
+        for node in nodes:
+            descendants = node.get_descendants(include_self=False).filter(available=True)
+            if kind:
+                descendants = descendants.filter(kind=kind)
 
-        serializer = self.get_serializer(descendants, many=True)
-        return Response(serializer.data)
+            def set_ancestor_id(x):
+                x['ancestor_id'] = node.id
+                return x
+            data += map(set_ancestor_id, list(descendants.values('id', 'title', 'content_id')))
+        return Response(data)
 
-    @detail_route(methods=['get'])
-    def descendants_assessments(self, request, **kwargs):
-        node = self.get_object(prefetch=False)
-        kind = self.request.query_params.get('descendant_kind', None)
-        descendants = node.get_descendants().filter(available=True).prefetch_related('assessmentmetadata')
-        if kind:
-            descendants = descendants.filter(kind=kind)
-
-        data = descendants.aggregate(Sum('assessmentmetadata__number_of_assessments'))['assessmentmetadata__number_of_assessments__sum'] or 0
+    @list_route(methods=['get'])
+    def descendants_assessments(self, request):
+        ids = self.request.query_params.get('ids', None)
+        if not ids:
+            return Response([])
+        ids = ids.split(',')
+        queryset = models.ContentNode.objects.filter(id__in=ids, available=True)
+        data = list(queryset.annotate(num_assessments=SQSum(models.ContentNode.objects.filter(
+            tree_id=OuterRef('tree_id'),
+            lft__gte=OuterRef('lft'),
+            lft__lt=OuterRef('rght'),
+            kind=content_kinds.EXERCISE,
+            available=True,
+        ).values_list('assessmentmetadata__number_of_assessments', flat=True), field='number_of_assessments')).values('id', 'num_assessments'))
         return Response(data)
 
     @list_route(methods=['get'])

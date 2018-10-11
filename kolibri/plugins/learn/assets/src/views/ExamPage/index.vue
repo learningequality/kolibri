@@ -163,6 +163,15 @@
         return debounce(this.setAndSaveCurrentExamAttemptLog, 5000);
       },
     },
+    watch: {
+      itemId(newVal, oldVal) {
+        // HACK: manually dismiss the perseus renderer message when moving
+        // to a different item (fixes #3853)
+        if (newVal !== oldVal) {
+          this.$refs.contentRenderer.$refs.contentView.dismissMessage();
+        }
+      },
+    },
     methods: {
       ...mapActions('examViewer', ['setAndSaveCurrentExamAttemptLog', 'closeExam']),
       checkAnswer() {

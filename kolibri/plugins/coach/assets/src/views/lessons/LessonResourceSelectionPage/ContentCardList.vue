@@ -6,6 +6,7 @@
         :label="$tr('selectAllCheckboxLabel')"
         v-if="showSelectAll"
         :checked="selectAllChecked"
+        :indeterminate="selectAllIndeterminate"
         @change="$emit('changeselectall', $event)"
       />
       <li
@@ -19,6 +20,7 @@
           :label="content.title"
           :showLabel="false"
           :checked="contentIsChecked(content)"
+          :indeterminate="contentIsIndeterminate(content)"
           @change="handleCheckboxChange(content.id, $event)"
         />
         <LessonContentCard
@@ -87,14 +89,24 @@
         type: Boolean,
         default: false,
       },
+      selectAllIndeterminate: {
+        type: Boolean,
+        default: false,
+      },
       contentList: {
         type: Array,
         required: true,
       },
-      // Function that returns true if content item is in the assignment
+      // Function that returns true if content item checkbox is checked
       contentIsChecked: {
         type: Function, // ContentNode => Boolean
         required: true,
+      },
+      // Function that returns true if content item checkbox is indeterminate
+      contentIsIndeterminate: {
+        type: Function, // ContentNode => Boolean
+        required: false,
+        default: () => false,
       },
       // Function that returns true if content item needs a checkbox
       contentHasCheckbox: {
@@ -127,8 +139,8 @@
     $trs: {
       selectAllCheckboxLabel: 'Select all',
       viewMoreButtonLabel: 'View more',
-      noMoreResults: 'No more results',
-      moreResultsError: 'Failed to get more results',
+      // noMoreResults: 'No more results',
+      // moreResultsError: 'Failed to get more results',
     },
   };
 

@@ -7,27 +7,37 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
-  import { selectionRootLink, topicListingLink } from '../../lessonsRouterUtils';
 
   export default {
     name: 'ResourceSelectionBreadcrumbs',
     components: {
       KBreadcrumbs,
     },
+    props: {
+      ancestors: {
+        type: Array,
+        default: () => [],
+      },
+      channelsLink: {
+        type: Object,
+        required: true,
+      },
+      topicsLink: {
+        type: Function,
+        required: true,
+      },
+    },
     computed: {
-      ...mapState('lessonSummary/resources', ['ancestors']),
       selectionCrumbs() {
-        const routerParams = this.$route.params;
         return [
           // The "Channels" breadcrumb
-          { text: this.$tr('channelBreadcrumbLabel'), link: selectionRootLink(routerParams) },
+          { text: this.$tr('channelBreadcrumbLabel'), link: this.channelsLink },
           // Ancestors breadcrumbs
           // NOTE: The current topic is injected into `ancestors` in the showPage action
           ...this.ancestors.map(a => ({
             text: a.title,
-            link: topicListingLink({ ...routerParams, topicId: a.id }),
+            link: this.topicsLink(a.id),
           })),
         ];
       },
