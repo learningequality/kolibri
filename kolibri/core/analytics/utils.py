@@ -20,6 +20,18 @@ from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import UserSessionLog
 
+facility_settings = [
+    "preset",
+    "learner_can_edit_username",
+    "learner_can_edit_name",
+    "learner_can_edit_password",
+    "learner_can_sign_up",
+    "learner_can_delete_account",
+    "learner_can_login_with_no_password",
+    "show_download_button_in_learn",
+    "allow_guest_access",
+]
+
 
 def dump_zipped_json(data):
     jsondata = json.dumps(data)
@@ -35,6 +47,8 @@ def dump_zipped_json(data):
 def extract_facility_statistics(facility):
 
     dataset_id = facility.dataset_id
+
+    settings = {name: getattr(facility.dataset, name) for name in facility_settings if hasattr(facility.dataset, name)}
 
     learners = FacilityUser.objects.filter(dataset_id=dataset_id).exclude(roles__kind__in=[role_kinds.ADMIN, role_kinds.COACH])
     coaches = FacilityUser.objects.filter(dataset_id=dataset_id, roles__kind__in=[role_kinds.ADMIN, role_kinds.COACH])
@@ -59,6 +73,7 @@ def extract_facility_statistics(facility):
 
     return {
         "fi": base64.encodestring(hashlib.md5(facility.id).digest())[:10],  # facility_id
+        "s": settings,  # settings
         "lc": learners.count(),  # learners_count
         "llc": usersessions.exclude(user__roles__kind__in=[role_kinds.ADMIN, role_kinds.COACH]).distinct().count(),  # learner_login_count
         "cc": coaches.count(),  # coaches_count
