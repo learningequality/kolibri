@@ -51,6 +51,19 @@ IN_CTXT_LANG = {
 }
 
 
+def to_locale(language):
+    """
+    Turns a language name (en-us) into a locale name (en_US).
+    """
+    p = language.find('-')
+    if p >= 0:
+        if len(language[p + 1:]) > 2:
+            return language[:p].lower() + '_' + language[p + 1].upper() + language[p + 2:].lower()
+        return language[:p].lower() + '_' + language[p + 1:].upper()
+    else:
+        return language.lower()
+
+
 def memoize(func):
     cache = func.cache = {}
 
@@ -79,9 +92,9 @@ def supported_languages(include_in_context=False, include_english=False):
 
 @memoize
 def local_locale_path(lang_object):
-    return os.path.join(LOCALE_PATH, lang_object[KEY_INTL_CODE], "LC_MESSAGES")
+    return os.path.join(LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES")
 
 
 @memoize
 def local_perseus_locale_path(lang_object):
-    return os.path.join(PERSEUS_LOCALE_PATH, lang_object[KEY_INTL_CODE], "LC_MESSAGES")
+    return os.path.join(PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES")

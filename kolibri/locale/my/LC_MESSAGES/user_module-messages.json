@@ -15,7 +15,7 @@
     "ProfilePage.updateProfile": "သင်လုပ်ထားသော ပြောင်းလဲမှုများကို သိမ်းဆည်းမည်",
     "ProfilePage.isSuperuser": "",
     "ProfilePage.manageContent": "မာတိကာများကိုစီစဉ်မည်",
-    "ProfilePage.manageDevicePermissions": "",
+    "ProfilePage.manageDevicePermissions": "ကိရိယာခွင့့်ပြု ချက်များကို စီမံခြင်း",
     "ProfilePage.points": "အမှတ်များ",
     "ProfilePage.userType": "အသုံးပြုသူအမျိုးအစား",
     "ProfilePage.devicePermissions": "ကိရိယာခွင့်ပြုချက်များ",

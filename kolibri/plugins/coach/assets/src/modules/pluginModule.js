@@ -1,6 +1,6 @@
 import getters from './coreCoach/getters';
 import * as actions from './coreCoach/actions';
-import examCreate from './examCreate';
+import examCreation from './examCreation';
 import examReport from './examReport';
 import examReportDetail from './examReportDetail';
 import examsRoot from './examsRoot';
@@ -45,7 +45,7 @@ export default {
   actions,
   getters,
   modules: {
-    examCreate,
+    examCreation,
     examReport,
     examReportDetail,
     examsRoot,
