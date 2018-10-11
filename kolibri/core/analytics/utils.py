@@ -56,6 +56,7 @@ def extract_facility_statistics(facility):
     usersessions = UserSessionLog.objects.filter(dataset_id=dataset_id)
     contsessions = ContentSessionLog.objects.filter(dataset_id=dataset_id, time_spent__lt=3600 * 2)
 
+    # the aggregates below are used to calculate the first and most recent times this device was used
     usersess_agg = (usersessions
                     .filter(start_timestamp__gt=datetime.datetime(2016, 1, 1))
                     .aggregate(first=Min("start_timestamp"), last=Max("last_interaction_timestamp")))
@@ -72,26 +73,46 @@ def extract_facility_statistics(facility):
     contsessions_anon = contsessions.filter(user=None)
 
     return {
-        "fi": base64.encodestring(hashlib.md5(facility.id).digest())[:10],  # facility_id
-        "s": settings,  # settings
-        "lc": learners.count(),  # learners_count
-        "llc": usersessions.exclude(user__roles__kind__in=[role_kinds.ADMIN, role_kinds.COACH]).distinct().count(),  # learner_login_count
-        "cc": coaches.count(),  # coaches_count
-        "clc": usersessions.filter(user__roles__kind__in=[role_kinds.ADMIN, role_kinds.COACH]).distinct().count(),  # coach_login_count
-        "f" : min(usersess_agg["first"], contsess_agg["first"]).strftime("%Y-%m-%d"),  # first
-        "l": max(usersess_agg["last"], contsess_agg["last"]).strftime("%Y-%m-%d"),  # last
-        "ss": summarylogs.count(),  # summ_started
-        "sc": summarylogs.exclude(completion_timestamp=None).count(),  # summ_complete
-        "sk": sesslogs_by_kind,  # sess_kinds
-        "lec": Lesson.objects.filter(dataset_id=dataset_id).count(),  # lesson_count
-        "ec": Exam.objects.filter(dataset_id=dataset_id).count(),  # exam_count
-        "elc": ExamLog.objects.filter(dataset_id=dataset_id).count(),  # exam_log_count
-        "alc": AttemptLog.objects.filter(dataset_id=dataset_id).count(),  # att_log_count
-        "ealc": ExamAttemptLog.objects.filter(dataset_id=dataset_id).count(),  # exam_att_log_count
-        "suc": contsessions_user.count(),  # sess_user_count
-        "sac": contsessions_anon.count(),  # sess_anon_count
-        "sut": int((contsessions_user.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),  # sess_user_time
-        "sat": int((contsessions_anon.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),  # sess_anon_time
+        # facility_id
+        "fi": base64.encodestring(hashlib.md5(facility.id).digest())[:10],
+        # settings
+        "s": settings,
+        # learners_count
+        "lc": learners.count(),
+        # learner_login_count
+        "llc": usersessions.exclude(user__roles__kind__in=[role_kinds.ADMIN, role_kinds.COACH]).distinct().count(),
+        # coaches_count
+        "cc": coaches.count(),
+        # coach_login_count
+        "clc": usersessions.filter(user__roles__kind__in=[role_kinds.ADMIN, role_kinds.COACH]).distinct().count(),
+        # first
+        "f" : min(usersess_agg["first"], contsess_agg["first"]).strftime("%Y-%m-%d"),
+        # last
+        "l": max(usersess_agg["last"], contsess_agg["last"]).strftime("%Y-%m-%d"),
+        # summ_started
+        "ss": summarylogs.count(),
+        # summ_complete
+        "sc": summarylogs.exclude(completion_timestamp=None).count(),
+        # sess_kinds
+        "sk": sesslogs_by_kind,
+        # lesson_count
+        "lec": Lesson.objects.filter(dataset_id=dataset_id).count(),
+        # exam_count
+        "ec": Exam.objects.filter(dataset_id=dataset_id).count(),
+        # exam_log_count
+        "elc": ExamLog.objects.filter(dataset_id=dataset_id).count(),
+        # att_log_count
+        "alc": AttemptLog.objects.filter(dataset_id=dataset_id).count(),
+        # exam_att_log_count
+        "ealc": ExamAttemptLog.objects.filter(dataset_id=dataset_id).count(),
+        # sess_user_count
+        "suc": contsessions_user.count(),
+        # sess_anon_count
+        "sac": contsessions_anon.count(),
+        # sess_user_time
+        "sut": int((contsessions_user.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
+        # sess_anon_time
+        "sat": int((contsessions_anon.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
     }
 
 
@@ -114,17 +135,30 @@ def extract_channel_statistics(channel):
     contsessions_anon = sessionlogs.filter(user=None)
 
     return {
-        "ci": channel_id[:10],  # channel_id
-        "v": channel.version,  # version
-        "u": channel.last_updated.strftime("%Y-%m-%d") if channel.last_updated else None,  # updated
-        "pi": [item["content_id"][:10] for item in pop],  # popular_ids
-        "pc": [item["count"] for item in pop],  # popular_counts
-        "s": (localfiles.aggregate(Sum("file_size"))["file_size__sum"] or 0) / (2 ** 20),  # storage
-        "ss": summarylogs.count(),  # summ_started
-        "sc": summarylogs.exclude(completion_timestamp=None).count(),  # summ_complete
-        "sk": sesslogs_by_kind,  # sess_kinds
-        "suc": contsessions_user.count(),  # sess_user_count
-        "sac": contsessions_anon.count(),  # sess_anon_count
-        "sut": int((contsessions_user.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),  # sess_user_time
-        "sat": int((contsessions_anon.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),  # sess_anon_time
+        # channel_id
+        "ci": channel_id[:10],
+        # version
+        "v": channel.version,
+        # updated
+        "u": channel.last_updated.strftime("%Y-%m-%d") if channel.last_updated else None,
+        # popular_ids
+        "pi": [item["content_id"][:10] for item in pop],
+        # popular_counts
+        "pc": [item["count"] for item in pop],
+        # storage
+        "s": (localfiles.aggregate(Sum("file_size"))["file_size__sum"] or 0) / (2 ** 20),
+        # summ_started
+        "ss": summarylogs.count(),
+        # summ_complete
+        "sc": summarylogs.exclude(completion_timestamp=None).count(),
+        # sess_kinds
+        "sk": sesslogs_by_kind,
+        # sess_user_count
+        "suc": contsessions_user.count(),
+        # sess_anon_count
+        "sac": contsessions_anon.count(),
+        # sess_user_time
+        "sut": int((contsessions_user.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
+        # sess_anon_time
+        "sat": int((contsessions_anon.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
     }
