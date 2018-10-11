@@ -27,7 +27,7 @@
     "ProfilePage.usernameAlreadyExists": "அந்த பயனர் பெயர் ஏற்கனவே உள்ளது",
     "ProfilePage.documentTitle": "பயனர் சுயவிவரம்",
     "FacilityModal.facilitySelectionPrompt": "எந்த மய்யத்தில் உள்நுழைய விரும்புகிறீர்ள்?",
-    "FacilityModal.submitFacilitySelectionButtonPrompt": "தேர்ந்தெடுக்கவும்",
+    "FacilityModal.submitFacilitySelectionButtonPrompt": "தேர்ந்தெடு",
     "FacilityModal.facilitySelectionModalHeader": "மய்யத்தை தேர்ந்தெடுக்கவும்",
     "FacilityModal.close": "மூடவும்",
     "SignInPage.kolibri": "கோழிப்பிரி",

@@ -176,7 +176,7 @@ class ImportContentTestCase(TestCase):
         cancel_mock.assert_called_with()
         # Check that the temp file we created where the first file was being downloaded to has not been deleted
         self.assertTrue(os.path.exists(local_path_1))
-        annotation_mock.set_availability.assert_called()
+        annotation_mock.annotate_content.assert_called()
 
     @patch('kolibri.core.content.management.commands.importcontent.transfer.FileCopy')
     @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel')
@@ -210,7 +210,7 @@ class ImportContentTestCase(TestCase):
         FileCopyMock.assert_called_with(local_src_path, local_dest_path)
         FileCopyMock.assert_has_calls([call().cancel()])
         cancel_mock.assert_called_with()
-        annotation_mock.set_availability.assert_called()
+        annotation_mock.annotate_content.assert_called()
 
     @patch('kolibri.core.content.management.commands.importcontent.len')
     @patch('kolibri.core.content.utils.transfer.Transfer.next', side_effect=ConnectionError('connection error'))
@@ -222,7 +222,7 @@ class ImportContentTestCase(TestCase):
         call_command('importcontent', 'network', self.the_channel_id, node_ids=['32a941fb77c2576e8f6b294cde4c3b0c'])
         cancel_mock.assert_called_with()
         len_mock.assert_not_called()
-        annotation_mock.set_availability.assert_called()
+        annotation_mock.annotate_content.assert_called()
 
     @patch('kolibri.core.content.management.commands.importcontent.logger.error')
     @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.start_progress')
@@ -245,7 +245,7 @@ class ImportContentTestCase(TestCase):
         url_mock.return_value = 'http://httpbin.org/status/502'
         call_command('importcontent', 'network', self.the_channel_id)
         cancel_mock.assert_called_with()
-        annotation_mock.set_availability.assert_called()
+        annotation_mock.annotate_content.assert_called()
         sleep_mock.assert_called_once()
         self.assertTrue('502' in logger_mock.call_args_list[0][0][0])
 
@@ -256,7 +256,7 @@ class ImportContentTestCase(TestCase):
         with self.assertRaises(HTTPError):
             call_command('importcontent', 'network', self.the_channel_id)
             self.assertTrue('500' in logger_mock.call_args_list[0][0][0])
-        annotation_mock.set_availability.assert_called()
+        annotation_mock.annotate_content.assert_called()
 
     @patch('kolibri.core.content.management.commands.importcontent.logger.error')
     @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.start_progress')
@@ -268,7 +268,7 @@ class ImportContentTestCase(TestCase):
         path_mock.side_effect = [dest_path, '/test/dne']
         call_command('importcontent', 'disk', self.the_channel_id, 'destination')
         self.assertTrue('No such file or directory' in logger_mock.call_args_list[0][0][0])
-        annotation_mock.set_availability.assert_called()
+        annotation_mock.annotate_content.assert_called()
 
     @patch('kolibri.core.content.management.commands.importcontent.logger.error')
     @patch('kolibri.core.content.utils.transfer.os.path.getsize')
@@ -280,7 +280,7 @@ class ImportContentTestCase(TestCase):
         with self.assertRaises(OSError):
             call_command('importcontent', 'disk', self.the_channel_id, 'destination')
             self.assertTrue('Permission denied' in logger_mock.call_args_list[0][0][0])
-            annotation_mock.set_availability.assert_called()
+            annotation_mock.annotate_content.assert_called()
 
     @patch('kolibri.core.content.utils.transfer.os.path.getsize', return_value=0)
     @patch('kolibri.core.content.management.commands.importcontent.os.path.isfile', return_value=False)

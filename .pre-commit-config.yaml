@@ -7,8 +7,7 @@
     -   id: check-added-large-files
     -   id: debug-statements
     -   id: end-of-file-fixer
-        exclude: '^.+?\/locale\/.+?\/LC_MESSAGES\/.+?\.json$'
-        exclude: '^.+?\/noto-manifest\.json$'
+        exclude: '^.+?\.json$'
 -   repo: https://github.com/asottile/reorder_python_imports
     sha: v0.3.5
     hooks:

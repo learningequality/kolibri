@@ -90,7 +90,7 @@
     "TopicsPage.navigate": "ခေါင်းစဉ်ကိုအသုံးပြု၍ မာတိကာများသို့ သွားပါ",
     "TopicsPage.documentTitleForChannel": "ခေါင်းစဉ် - { channelTitle }",
     "TopicsPage.documentTitleForTopic": "{ topicTitle } - { channelTitle }",
-    "TotalPoints.pointsTooltip": "",
+    "TotalPoints.pointsTooltip": "သင်သည် အမှတ် { points, number } မှတ် ကိုရရှိခဲ့သည်",
     "AllClassesPage.allClassesHeader": "အတန်းများအားလုံး",
     "AllClassesPage.documentTitle": "အတန်းများအားလုံး",
     "AssignedExamsCards.examsHeader": "စာမေးပွဲများ",

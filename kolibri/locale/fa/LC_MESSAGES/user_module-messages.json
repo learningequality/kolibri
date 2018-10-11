@@ -13,9 +13,9 @@
     "ProfilePage.username": "نام کاربری",
     "ProfilePage.name": "نام کامل",
     "ProfilePage.updateProfile": "ذخیره‌ی تغییرات",
-    "ProfilePage.isSuperuser": "",
+    "ProfilePage.isSuperuser": "دسترسی مدیر یا ادمین حرفه‌ای ",
     "ProfilePage.manageContent": "مدیریت محتوا",
-    "ProfilePage.manageDevicePermissions": "",
+    "ProfilePage.manageDevicePermissions": "مدیریت اجازه دسترسیِ دستگاه",
     "ProfilePage.points": "امتیازها",
     "ProfilePage.userType": "نوع کاربر",
     "ProfilePage.devicePermissions": "دسترسی به دستگاه‌ها",
@@ -36,7 +36,7 @@
     "SignInPage.password": "رمز عبور",
     "SignInPage.enterPassword": "رمز عبور را وارد کنید",
     "SignInPage.createAccount": "ایجاد یک حساب کاربری",
-    "SignInPage.accessAsGuest": "",
+    "SignInPage.accessAsGuest": "به عنوان مهمان در سایت ادامه دهید",
     "SignInPage.signInError": "نام کاربری یا رمز عبور نادرست است",
     "SignInPage.poweredBy": "Kolibri {version}",
     "SignInPage.required": "پُر کردن این قسمت ضروری است",
@@ -47,7 +47,7 @@
     "SignUpPage.name": "نام کامل",
     "SignUpPage.username": "نام کاربری",
     "SignUpPage.password": "رمز عبور",
-    "SignUpPage.reEnterPassword": "رمز عبور را دوباره وارد کنید",
+    "SignUpPage.reEnterPassword": "دوباره رمز عبور را وارد کنید",
     "SignUpPage.passwordMatchError": "رمزهای عبور مطابقت ندارند",
     "SignUpPage.genericError": "مشکلی در طولِ زمان ثبت‌نام به وجود آمد",
     "SignUpPage.usernameAlphaNumError": "نام کاربری فقط می‌تواند شامل حروف و اعداد و زیرین‌خط یا آندِرلاین باشد",
@@ -58,5 +58,5 @@
     "SignUpPage.facility": "مرکز آموزشی",
     "SignUpPage.required": "پُر کردن این قسمت ضروری است",
     "SignUpPage.documentTitle": "خروج از سیستم کاربر",
-    "UserIndex.userProfileTitle": "پروفایل (مشخصات)"
+    "UserIndex.userProfileTitle": "پروفایل"
 }

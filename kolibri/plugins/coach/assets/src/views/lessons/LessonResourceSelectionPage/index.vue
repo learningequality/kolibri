@@ -39,7 +39,12 @@
       v-model="filters"
     />
 
-    <ResourceSelectionBreadcrumbs v-if="!inSearchMode" />
+    <ResourceSelectionBreadcrumbs
+      v-if="!inSearchMode"
+      :ancestors="ancestors"
+      :channelsLink="channelsLink"
+      :topicsLink="topicsLink"
+    />
 
     <ContentCardList
       v-if="!isExiting"
@@ -114,7 +119,12 @@
     computed: {
       ...mapState(['classId', 'pageName']),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
-      ...mapState('lessonSummary/resources', ['ancestorCounts', 'contentList', 'searchResults']),
+      ...mapState('lessonSummary/resources', [
+        'ancestorCounts',
+        'contentList',
+        'searchResults',
+        'ancestors',
+      ]),
       ...mapGetters('lessonSummary/resources', ['numRemainingSearchResults']),
       ...mapGetters(['contentNodeIsTopic']),
       filteredContentList() {
@@ -174,6 +184,9 @@
         return this.contentList.filter(
           content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
         );
+      },
+      channelsLink() {
+        return selectionRootLink(this.$route.params);
       },
     },
     watch: {
@@ -347,10 +360,14 @@
             this.moreResultsState = 'error';
           });
       },
+      topicsLink(topicId) {
+        return topicListingLink({ ...this.$route.params, topicId });
+      },
     },
     $trs: {
       // TODO semantic string names
       save: 'Save',
+      // TODO: Handle singular/plural
       selectionInformation:
         '{count, number, integer} of {total, number, integer} resources selected',
       totalResourcesSelected:
