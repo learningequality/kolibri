@@ -7,6 +7,7 @@ from datetime import datetime
 import requests
 from django.core.management.base import BaseCommand
 from django.utils.six.moves.urllib.parse import urljoin
+from django.utils.timezone import get_current_timezone
 from morango.models import InstanceIDModel
 from requests.exceptions import ConnectionError
 from requests.exceptions import RequestException
@@ -75,6 +76,11 @@ class Command(BaseCommand):
         devicesettings = DeviceSettings.objects.first()
         language = devicesettings.language_id if devicesettings else ""
 
+        try:
+            timezone = get_current_timezone().zone
+        except Exception:
+            timezone = ""
+
         data = {
             "instance_id": instance.id,
             "version": kolibri.__version__,
@@ -85,6 +91,7 @@ class Command(BaseCommand):
             "system_id": instance.system_id,
             "node_id": instance.node_id,
             "language": language,
+            "timezone": timezone,
             "uptime": int((datetime.now() - self.started).total_seconds() / 60),
         }
 
