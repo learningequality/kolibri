@@ -278,7 +278,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
                 return new_node
 
             # Find any topics that are descendants of this node
-            descendant_topics = filter(lambda x: x['ancestor_id'] == node_id and x['kind'] == content_kinds.TOPIC, query_data)
+            descendant_topics = list(filter(lambda x: x['ancestor_id'] == node_id and x['kind'] == content_kinds.TOPIC, query_data))
             # Loop through these topics while they exist
             while descendant_topics:
                 # Create a new list of descendant topics of additional topics that we find
@@ -286,12 +286,12 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
                 new_descendant_topics = []
                 for topic in descendant_topics:
                     # Find all descendant items that have this topic as an ancestor
-                    descendant_items = filter(lambda x: x['ancestor_id'] == topic['id'], query_data)
+                    descendant_items = list(filter(lambda x: x['ancestor_id'] == topic['id'], query_data))
                     # Filter these items to find any topics, as we will then need to check for any contents of these
-                    new_descendant_topics += filter(lambda x: x['kind'] == content_kinds.TOPIC, descendant_items)
+                    new_descendant_topics += list(filter(lambda x: x['kind'] == content_kinds.TOPIC, descendant_items))
                     # Add a copy of all these descendant items to the data we will return, but change the ancestor_id
                     # to the current node
-                    data += map(copy_node, descendant_items)
+                    data += list(map(copy_node, descendant_items))
                 # Set descendant topics to the new descendant topics we discovered during this iteration
                 # If this is empty it will halt the iteration
                 descendant_topics = new_descendant_topics
@@ -299,7 +299,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         data = query_data + data
         if kind:
             # If we are filtering by kind, filter out any data that does not match the kind
-            data = filter(lambda x: x['kind'] == kind, data)
+            data = list(filter(lambda x: x['kind'] == kind, data))
         return Response(data)
 
     @list_route(methods=['get'])
