@@ -19,6 +19,14 @@ from kolibri.utils.system import pid_exists
 logger = logging.getLogger('profiler')
 
 
+def remove_lock():
+    # Kolibri command PID file exists but no command is running, it's corrupted
+    try:
+        os.remove(PROFILE_LOCK)
+    except OSError:
+        pass  # lock file was deleted by other process
+
+
 class Command(BaseCommand):
     """
     This command will produce a performance.log file with this structure in every line:
@@ -41,14 +49,7 @@ class Command(BaseCommand):
             help='Specifies the number of times the profile will take measures before ending'
         )
 
-    def handle(self, *args, **options):
-        def remove_lock():
-            # Kolibri command PID file exists but no command is running, it's corrupted
-            try:
-                os.remove(PROFILE_LOCK)
-            except OSError:
-                pass  # lock file was deleted by other process
-
+    def check_start_conditons(self):
         if not LINUX and not WINDOWS:
             print("This OS is not yet supported")
             sys.exit(1)
@@ -72,6 +73,8 @@ class Command(BaseCommand):
                 else:
                     remove_lock()
 
+    def handle(self, *args, **options):
+        self.check_start_conditons()
         interval = 10  # the measures are taken every 10 seconds
 
         this_pid = getpid()
