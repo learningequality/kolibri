@@ -3,8 +3,8 @@
     "UserPageSnackbars.dismiss": "Yọ kúrò",
     "UserPageSnackbars.signedOut": "A mú ọ jáde láìrótẹ́lẹ̀ nítorí àìṣedédé",
     "ChangeUserPasswordModal.passwordChangeFormHeader": "Ṣàyípadà ọ̀rọ̀ aṣínà",
-    "ChangeUserPasswordModal.newPasswordFieldLabel": "Ṣàmúlò ọ̀rọ̀ aṣínà titun",
-    "ChangeUserPasswordModal.confirmNewPasswordFieldLabel": "Tún ọ̀rọ̀ aṣínà tẹ̀",
+    "ChangeUserPasswordModal.newPasswordFieldLabel": "Ṣàmúlò ọ̀rọ̀ ìgbaniwọ́lé titun",
+    "ChangeUserPasswordModal.confirmNewPasswordFieldLabel": "Ṣètúnjẹ́rì ọ̀rọ̀ ìgbaniwọ́lé titun",
     "ChangeUserPasswordModal.passwordMismatchErrorMessage": "Ọ̀rọ̀ aṣínà kò báramu",
     "ChangeUserPasswordModal.required": "A nilo pápá yìí",
     "ChangeUserPasswordModal.cancelButtonLabel": "fagileé",
@@ -32,7 +32,7 @@
     "FacilityModal.close": "Padé",
     "SignInPage.kolibri": "Kolibri",
     "SignInPage.signIn": "Wọlé",
-    "SignInPage.username": "Orúkọ aṣàmúlò",
+    "SignInPage.username": "Orúkọ àmúlò",
     "SignInPage.password": "Ọ̀rọ̀ aṣínà",
     "SignInPage.enterPassword": "Tún ọ̀rọ̀ aṣínà tẹ̀",
     "SignInPage.createAccount": "Ṣẹ̀dá Àkọọ́lẹ̀",
@@ -45,9 +45,9 @@
     "SignInPage.documentTitle": "Ìwọlé aṣàmúlò",
     "SignUpPage.createAccount": "Ṣẹ̀dá Àkọọ́lẹ̀",
     "SignUpPage.name": "Orúko ní kíkún",
-    "SignUpPage.username": "Orúkọ aṣàmúlò",
+    "SignUpPage.username": "Orúkọ àmúlò",
     "SignUpPage.password": "Ọ̀rọ̀ aṣínà",
-    "SignUpPage.reEnterPassword": "Tún ọ̀rọ̀ aṣínà tẹ̀",
+    "SignUpPage.reEnterPassword": "Tún ọ̀rọ̀ ìgbàniwọlé tẹ̀",
     "SignUpPage.passwordMatchError": "Ọ̀rọ̀ ìgbaniwọ́lé kò báramu",
     "SignUpPage.genericError": "Ohun kan ò tọ́ lákókò ìforúkọsílẹ̀",
     "SignUpPage.usernameAlphaNumError": "Orúkọ olùṣàmúlò gbọ́dọ̀ ní àwọn lẹ́tà, nọ́ḿbà, àti ìlà abẹ́ nìkan",
@@ -58,5 +58,5 @@
     "SignUpPage.facility": "Ohun èlò",
     "SignUpPage.required": "A nilo pápá yìí",
     "SignUpPage.documentTitle": "Forúkọsílẹ̀ aṣàmúlò",
-    "UserIndex.userProfileTitle": "Ìrísí Olùṣàmúlò"
+    "UserIndex.userProfileTitle": "Ìrísí olùṣàmúlò"
 }

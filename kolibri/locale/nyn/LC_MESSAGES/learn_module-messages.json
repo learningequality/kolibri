@@ -95,7 +95,7 @@
     "AllClassesPage.documentTitle": "Makalasi onse",
     "AssignedExamsCards.examsHeader": "Mayeso",
     "AssignedExamsCards.noExamsMessage": "Simunapatsidwe mayeso aliwonse",
-    "AssignedExamsCards.notStarted": "Simunayambe",
+    "AssignedExamsCards.notStarted": "Sizinayambe",
     "AssignedExamsCards.questionsLeft": "{questionsLeft, number, integer} {questionsLeft, plural, one {funso} other {mafunso}} kumanzere",
     "AssignedExamsCards.completed": "Zamalizidwa",
     "AssignedLessonsCards.lessonsHeader": "Maphunziro",

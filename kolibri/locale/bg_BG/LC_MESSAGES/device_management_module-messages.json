@@ -24,7 +24,7 @@
     "AvailableChannelsPage.exportToDisk": "Експортиране към {driveName}",
     "AvailableChannelsPage.importFromDisk": "Импортиране от {driveName}",
     "AvailableChannelsPage.importFromPeer": "Импортирай от {deviceName} ({address})",
-    "AvailableChannelsPage.kolibriCentralServer": "Студио Колибри",
+    "AvailableChannelsPage.kolibriCentralServer": "Kolibri Studio",
     "AvailableChannelsPage.languageFilterLabel": "Език",
     "AvailableChannelsPage.titleFilterPlaceholder": "Търсене на канал…",
     "AvailableChannelsPage.yourChannels": "Твоите канали",

@@ -40,7 +40,7 @@
     "SuperuserCredentialsForm.rememberThisAccountInformation": "",
     "SuperuserCredentialsForm.nameFieldEmptyErrorMessage": "Jina kamili haliwezi kuachwa wazi",
     "SuperuserCredentialsForm.usernameFieldEmptyErrorMessage": "Jina la mtumiaji haliwezi kuachwa wazi",
-    "SuperuserCredentialsForm.usernameCharacterErrorMessage": "Jina la mtumiaji ni lazima liwe na herufi, namba na kistarichini",
+    "SuperuserCredentialsForm.usernameCharacterErrorMessage": "Jina la mtumiaji ni lazima liwe na herufi, namba and kistari chini",
     "SuperuserCredentialsForm.passwordFieldEmptyErrorMessage": "Nywila haiwezi kuachwa wazi",
     "SuperuserCredentialsForm.passwordsMismatchErrorMessage": "Nywila hazioani",
     "SuperuserCredentialsForm.facilityFieldEmptyErrorMessage": "Kituo hakipaswi kuachwa wazi",
