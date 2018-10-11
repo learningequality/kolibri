@@ -139,8 +139,8 @@
     $trs: {
       selectAllCheckboxLabel: 'Select all',
       viewMoreButtonLabel: 'View more',
-      noMoreResults: 'No more results',
-      moreResultsError: 'Failed to get more results',
+      // noMoreResults: 'No more results',
+      // moreResultsError: 'Failed to get more results',
     },
   };
 
