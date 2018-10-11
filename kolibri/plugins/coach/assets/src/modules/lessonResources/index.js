@@ -70,5 +70,8 @@ export default {
       // NOTE: Don't update total_results. Must keep the value set initially
       // for remainingSearchResults to work properly
     },
+    SET_CURRENT_CONTENT_NODE(state, contentNode) {
+      state.currentContentNode = contentNode;
+    },
   },
 };

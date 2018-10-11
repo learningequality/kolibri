@@ -185,12 +185,12 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
     contentNode => {
       const contentMetadata = assessmentMetaDataState(contentNode);
       store.commit('lessonSummary/SET_STATE', {
-        currentContentNode: { ...contentNode },
         toolbarRoute: {},
         // only exist if exercises
         workingResources: null,
         resourceCache: cache,
       });
+      store.commit('lessonSummary/resources/SET_CURRENT_CONTENT_NODE', contentNode);
       store.commit('lessonSummary/resources/SET_PREVIEW_STATE', {
         questions: contentMetadata.assessmentIds,
         completionData: contentMetadata.masteryModel,
@@ -213,6 +213,7 @@ export function showLessonResourceSearchPage(store, params, query = {}) {
           kind: query.kind,
           channel_id: query.channel,
         }),
+        include_fields: ['num_coach_contents'],
       },
     }).then(results => {
       return showResourceSelectionPage(store, {

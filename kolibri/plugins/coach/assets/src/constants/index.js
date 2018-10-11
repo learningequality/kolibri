@@ -21,7 +21,10 @@ export const PageNames = {
   LEARNER_ITEM_DETAILS: 'LEARNER_ITEM_DETAILS',
   LEARNER_ITEM_DETAILS_ROOT: 'LEARNER_ITEM_DETAILS_ROOT',
   EXAMS: 'EXAMS',
-  CREATE_EXAM: 'CREATE_EXAM',
+  EXAM_CREATION_ROOT: 'EXAM_CREATION_ROOT',
+  EXAM_CREATION_TOPIC: 'EXAM_CREATION_TOPIC',
+  EXAM_CREATION_PREVIEW: 'EXAM_CREATION_PREVIEW',
+  EXAM_CREATION_SEARCH: 'EXAM_CREATION_SEARCH',
   EXAM_REPORT: 'EXAM_REPORT',
   EXAM_REPORT_DETAIL: 'EXAM_REPORT_DETAIL',
   EXAM_REPORT_DETAIL_ROOT: 'EXAM_REPORT_DETAIL_ROOT',
@@ -82,13 +85,12 @@ export const pageNameToModuleMap = {
   [PageNames.LEARNER_ITEM_LIST]: 'reports',
   [PageNames.LEARNER_ITEM_DETAILS]: 'exerciseDetail',
   [PageNames.EXAMS]: 'examsRoot',
-  [PageNames.CREATE_EXAM]: 'examCreate',
   [PageNames.EXAM_REPORT]: 'examReport',
   [PageNames.EXAM_REPORT_DETAIL]: 'examReportDetail',
   [PageNames.GROUPS]: 'groups',
   [LessonsPageNames.ROOT]: 'lessonsRoot',
   [LessonsPageNames.RESOURCE_USER_SUMMARY]: 'lessonResourceUserSummary',
   [LessonsPageNames.RESOURCE_USER_REPORT]: 'exerciseDetail',
-  // Omitting modules for resource selection and preview to prevent
+  // Omitting modules for resource selection, exam creation, and preview to prevent
   // default module state resetting behavior.
 };
