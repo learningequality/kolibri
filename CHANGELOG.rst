@@ -6,7 +6,29 @@ Changes are ordered reverse-chronologically.
 0.11.0
 ------
 
-- Setting for enabling/disabling guest access has been added
+ - Upgrades to exam and lesson creation, including search functionality and auto-save
+ - Support for EPUB-format electronic books
+ - New error handling and reporting functionality
+ - Added a new setting for enabling or disabling guest access
+ - Auto-refresh in coach reports
+ - Import from custom network locations
+ - Improvements to search behavior in filtering and handling of large result sets
+ - Added some basic commands to help with GDPR compliance
+ - Added privacy information to help users and admins understand how their data is stored
+ - Improved consistency of language across the application, and renamed "Superuser" to "Super admin"
+ - Many fixes to internationalization
+ - Consistent font rendering across all languages
+ - Allow usernames in non-latin alphabets
+ - Improvements to the setup wizard based on user feedback and testing
+ - Improvements to user management, particularly for admins and super admins
+ - Added more validation to help with log-in
+ - Improvements in drive listing and space availability reporting
+ - Improved rendering of some pages on smaller screens
+ - Security: upgraded Python cryptography and pyopenssl libraries for CVE-2018-10903
+ - Many additional bug fixes, under-the-hood updates, and performance improvements
+ - Languages: [ coming soon... ]
+
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.11.0>`__ of changes on Github
 
 
 0.10.2
@@ -15,7 +37,7 @@ Changes are ordered reverse-chronologically.
  - Performance improvements and bug fixes for content import
  - Exam creation optimizations
 
-See a `more detailed list <https://github.com/learningequality/kolibri/pulls?q=is%3Apr+milestone%3A0.10.2+label%3Achangelog+is%3Aclosed>`__ of changes on Github
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.10.2>`__ of changes on Github
 
 
 0.10.1
@@ -26,7 +48,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/pulls?q=i
  - Fixes for SSL issues on low-spec devices / unstable connectivity
  - Compatibility fixes for older system libraries
 
-See a `more detailed list <https://github.com/learningequality/kolibri/pulls?q=is%3Apr+milestone%3A0.10.1+label%3Achangelog+is%3Aclosed>`__ of changes on Github
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.10.1>`__ of changes on Github
 
 
 0.10.0
