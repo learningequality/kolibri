@@ -169,7 +169,14 @@ def get_git_changeset():
         # repo - it's safe.
         timestamp = git_log.communicate()[0]
         timestamp = datetime.datetime.utcfromtimestamp(int(timestamp))
-        return "+git-{}".format(timestamp.strftime('%Y%m%d%H%M%S'))
+        # We have some issues because something normalizes separators to "."
+        # From PEP440: With a local version, in addition to the use of . as a
+        # separator of segments, the use of - and _ is also acceptable. The
+        # normal form is using the . character. This allows versions such as
+        # 1.0+ubuntu-1 to be normalized to 1.0+ubuntu.1.
+        #
+        # TODO: This might be more useful if it had a git commit has also
+        return "+git.{}".format(timestamp.strftime('%Y%m%d%H%M%S'))
     except (EnvironmentError, ValueError):
         return None
 
