@@ -188,7 +188,7 @@ def get_git_describe(version):
             # commit for this minor version should be in accordance to the current version.
             # This prevents cascade merges from patch releases in earlier versions necessitating
             # a new tag in the higher minor version branch.
-            "git describe --tags --abbrev=8 --match 'v{0}.{1}*'".format(*version),
+            "git describe --tags --abbrev=8 --match 'v[[:digit:]]*.[[:digit:]]*.[[:digit:]]*'".format(*version),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             shell=True,
@@ -251,7 +251,10 @@ def get_version_file():
     Looks for a file VERSION in the package data and returns the contents in
     this. Does not check consistency.
     """
-    return pkgutil.get_data('kolibri', 'VERSION').decode('utf-8')
+    try:
+        return pkgutil.get_data('kolibri', 'VERSION').decode('utf-8')
+    except IOError:
+        return None
 
 
 def get_prerelease_version(version):
