@@ -30,12 +30,12 @@ Changed or fixed
  - Added more validation to help with log-in
  - Security: upgraded Python cryptography and pyopenssl libraries for CVE-2018-10903
 
-Translations
-~~~~~~~~~~~~
+Internationalization and localization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  - Languages: [ coming soon... ]
  - Improved consistency of language across the application, and renamed "Superuser" to "Super admin"
- - Many fixes to internationalization
+ - Many fixes to translation and localization
  - Consistent font rendering across all languages
 
 See a `full list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.11.0>`__ of changes on Github
