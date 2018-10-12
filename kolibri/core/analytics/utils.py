@@ -64,6 +64,10 @@ def extract_facility_statistics(facility):
                     .filter(start_timestamp__gt=datetime.datetime(2016, 1, 1))
                     .aggregate(first=Min("start_timestamp"), last=Max("end_timestamp")))
 
+    # since newly provisioned devices won't have logs, we don't know whether we have an available datetime object
+    first_interaction_timestamp = getattr(min(usersess_agg["first"], contsess_agg["first"]), 'strftime', None)
+    last_interaction_timestamp = getattr(max(usersess_agg["last"], contsess_agg["last"]), 'strftime', None)
+
     sesslogs_by_kind = contsessions.order_by("kind").values("kind").annotate(count=Count("kind"))
     sesslogs_by_kind = {log["kind"]: log["count"] for log in sesslogs_by_kind}
 
@@ -86,9 +90,9 @@ def extract_facility_statistics(facility):
         # coach_login_count
         "clc": usersessions.filter(user__roles__kind__in=[role_kinds.ADMIN, role_kinds.COACH]).distinct().count(),
         # first
-        "f" : min(usersess_agg["first"], contsess_agg["first"]).strftime("%Y-%m-%d"),
+        "f" : first_interaction_timestamp("%Y-%m-%d") if first_interaction_timestamp else None,
         # last
-        "l": max(usersess_agg["last"], contsess_agg["last"]).strftime("%Y-%m-%d"),
+        "l": last_interaction_timestamp("%Y-%m-%d") if last_interaction_timestamp else None,
         # summ_started
         "ss": summarylogs.count(),
         # summ_complete
@@ -145,7 +149,7 @@ def extract_channel_statistics(channel):
         "pi": [item["content_id"][:10] for item in pop],
         # popular_counts
         "pc": [item["count"] for item in pop],
-        # storage
+        # storage calculated by the MB
         "s": (localfiles.aggregate(Sum("file_size"))["file_size__sum"] or 0) / (2 ** 20),
         # summ_started
         "ss": summarylogs.count(),
