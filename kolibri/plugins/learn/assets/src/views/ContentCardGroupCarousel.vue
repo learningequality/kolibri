@@ -314,7 +314,7 @@
 
     // position-specific styles for each control button
     &-next-control {
-      right: -($control-hit-width / 2);
+      right: -($control-hit-width / 2) - 25;
     }
     &-previous-control {
       left: -($control-hit-width / 2);
