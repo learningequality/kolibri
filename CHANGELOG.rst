@@ -6,27 +6,38 @@ Changes are ordered reverse-chronologically.
 0.11.0
 ------
 
+Added
+~~~~~
+
+ - Added some basic commands to help with GDPR compliance
+ - Added privacy information to help users and admins understand how their data is stored
  - Upgrades to exam and lesson creation, including search functionality and auto-save
  - Support for EPUB-format electronic books
  - New error handling and reporting functionality
- - Added a new setting for enabling or disabling guest access
- - Auto-refresh in coach reports
  - Import from custom network locations
- - Improvements to search behavior in filtering and handling of large result sets
- - Added some basic commands to help with GDPR compliance
- - Added privacy information to help users and admins understand how their data is stored
- - Improved consistency of language across the application, and renamed "Superuser" to "Super admin"
- - Many fixes to internationalization
- - Consistent font rendering across all languages
+ - Added a new setting for enabling or disabling guest access
+
+Changed or fixed
+~~~~~~~~~~~~~~~~
+
  - Allow usernames in non-latin alphabets
+ - Improvements in drive listing and space availability reporting
+ - Improved rendering of some pages on smaller screens
+ - Auto-refresh in coach reports
+ - Improvements to search behavior in filtering and handling of large result sets
  - Improvements to the setup wizard based on user feedback and testing
  - Improvements to user management, particularly for admins and super admins
  - Added more validation to help with log-in
- - Improvements in drive listing and space availability reporting
- - Improved rendering of some pages on smaller screens
  - Security: upgraded Python cryptography and pyopenssl libraries for CVE-2018-10903
  - Many additional bug fixes, under-the-hood updates, and performance improvements
+
+Translations
+~~~~~~~~~~~~
+
  - Languages: [ coming soon... ]
+ - Improved consistency of language across the application, and renamed "Superuser" to "Super admin"
+ - Many fixes to internationalization
+ - Consistent font rendering across all languages
 
 See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.11.0>`__ of changes on Github
 
