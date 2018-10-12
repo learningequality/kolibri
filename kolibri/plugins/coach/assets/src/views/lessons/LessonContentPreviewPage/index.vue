@@ -12,6 +12,7 @@
           </KGridItem>
           <KGridItem sizes="100, 50, 50" percentage alignment="right">
             <SelectOptions
+              v-if="displaySelectOptions"
               class="select-options ib"
               :isSelected="isSelected"
               @addResource="$emit('addResource', content)"
@@ -124,6 +125,11 @@
         type: Object,
         required: false,
         default: () => {},
+      },
+      displaySelectOptions: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
     data() {

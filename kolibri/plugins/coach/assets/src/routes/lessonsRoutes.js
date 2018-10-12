@@ -76,7 +76,7 @@ export default [
     name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
     path: '/:classId/lessons/:lessonId/selection/preview/:contentId',
     handler: toRoute => {
-      showLessonSelectionContentPreview(store, toRoute.params);
+      showLessonSelectionContentPreview(store, toRoute.params, toRoute.query);
     },
   },
   {

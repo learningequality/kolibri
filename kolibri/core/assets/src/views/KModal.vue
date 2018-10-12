@@ -4,7 +4,7 @@
   <transition name="fade">
     <div
       class="modal-overlay"
-      @keyup.esc="emitCancelEvent"
+      @keyup.esc.stop="emitCancelEvent"
       @keyup.enter="emitSubmitEvent"
       ref="modal-overlay"
       id="modal-window"
@@ -37,7 +37,7 @@
 
         <!-- Stop propagation of enter key to prevent the submit event from being emitted twice -->
         <form
-          @submit.prevent="emitSubmitEvent"
+          @submit.prevent.once="emitSubmitEvent"
           @keyup.enter.stop
         >
           <!-- Default slot for content -->
@@ -169,6 +169,7 @@
         lastFocus: null,
         maxContentHeight: '1000',
         scrollShadow: false,
+        delayedEnough: false,
       };
     },
     computed: {
@@ -199,6 +200,7 @@
       });
       window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);
+      window.setTimeout(() => (this.delayedEnough = true), 500);
     },
     updated() {
       this.updateContentSectionStyle();
@@ -225,7 +227,7 @@
             32;
           this.scrollShadow = this.maxContentHeight < this.$refs.content.scrollHeight;
         }
-      }, 100),
+      }, 50),
       emitCancelEvent() {
         if (!this.cancelDisabled) {
           // Emitted when the cancel button is clicked or the esc key is pressed
@@ -233,7 +235,7 @@
         }
       },
       emitSubmitEvent() {
-        if (!this.submitDisabled) {
+        if (!this.submitDisabled && this.delayedEnough) {
           // Emitted when the submit button or the enter key is pressed
           this.$emit('submit');
         }

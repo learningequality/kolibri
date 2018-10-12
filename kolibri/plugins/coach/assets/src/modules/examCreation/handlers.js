@@ -81,17 +81,28 @@ export function showExamCreationTopicPage(store, params) {
   });
 }
 
-export function showExamCreationPreviewPage(store, params) {
+export function showExamCreationPreviewPage(store, params, query = {}) {
   const { classId, contentId } = params;
   return store.dispatch('loading').then(() => {
     return Promise.all([_prepExamContentPreview(store, classId, contentId)])
       .then(([contentNode]) => {
-        store.commit('SET_TOOLBAR_ROUTE', {
-          name: PageNames.EXAM_CREATION_TOPIC,
-          params: {
-            topicId: contentNode.parent,
-          },
-        });
+        const { searchTerm, ...otherQueryParams } = query;
+        if (searchTerm) {
+          store.commit('SET_TOOLBAR_ROUTE', {
+            name: PageNames.EXAM_CREATION_SEARCH,
+            params: {
+              searchTerm,
+            },
+            query: otherQueryParams,
+          });
+        } else {
+          store.commit('SET_TOOLBAR_ROUTE', {
+            name: PageNames.EXAM_CREATION_TOPIC,
+            params: {
+              topicId: contentNode.parent,
+            },
+          });
+        }
         store.dispatch('notLoading');
       })
       .catch(error => {
