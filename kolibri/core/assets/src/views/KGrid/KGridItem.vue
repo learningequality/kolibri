@@ -1,6 +1,6 @@
 <template>
 
-  <div :class="unitClass" :style="computedStyle">
+  <div class="grid-item" :class="unitClass" :style="computedStyle">
     <div :class="{ debug: gridMetrics.debug, error: !validInputs }">
       <slot></slot>
     </div>
@@ -213,6 +213,17 @@
 
 
 <style lang="scss" scoped>
+
+  // pure grid units
+  @import '~purecss/build/grids-units.css';
+  @import './extra-units.css';
+
+  @import '~kolibri.styles.definitions';
+
+  .grid-item {
+    // override pure grid default font family
+    @include font-family-ui;
+  }
 
   .debug {
     border: 1px solid #e6c003;
