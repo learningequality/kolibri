@@ -7,13 +7,16 @@
     @submit="setLang"
     @cancel="closeModal"
   >
-    <k-radio-button
-      v-for="language in languageOptions"
-      :key="language.id"
-      :value="language.id"
-      :label="language.lang_name"
-      v-model="selectedLanguage"
-    />
+    <div class = "language-list">
+      <k-radio-button
+        v-for="language in languageOptions"
+        :key="language.id"
+        :value="language.id"
+        :label="language.lang_name"
+        v-model="selectedLanguage"
+      />
+    </div>
+
   </k-modal>
 
 </template>
@@ -53,4 +56,29 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .language-list {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  @media only screen and (min-width: 375px) {
+    .language-list {
+      .k-radio-button {
+        flex: 1 0 calc(50% - 10px);
+        margin-top: 10px;
+        margin-left: 10px;
+      }
+    }
+  }
+
+  @media only screen and (max-width: 374px) {
+    .language-list {
+      .k-radio-button {
+        flex: 1 0 200px;
+      }
+    }
+  }
+
+</style>
