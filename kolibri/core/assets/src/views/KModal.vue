@@ -5,7 +5,7 @@
     <div
       class="modal-overlay"
       @keyup.esc.stop="emitCancelEvent"
-      @keyup.enter="emitSubmitEvent"
+      @keyup.enter="handleEnter"
       ref="modal-overlay"
       id="modal-window"
     >
@@ -235,9 +235,14 @@
         }
       },
       emitSubmitEvent() {
-        if (!this.submitDisabled && this.delayedEnough) {
+        if (!this.submitDisabled) {
           // Emitted when the submit button or the enter key is pressed
           this.$emit('submit');
+        }
+      },
+      handleEnter() {
+        if (this.delayedEnough) {
+          this.emitSubmitEvent();
         }
       },
       focusModal() {
