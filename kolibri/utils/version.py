@@ -169,7 +169,14 @@ def get_git_changeset():
         # repo - it's safe.
         timestamp = git_log.communicate()[0]
         timestamp = datetime.datetime.utcfromtimestamp(int(timestamp))
-        return "+git-{}".format(timestamp.strftime('%Y%m%d%H%M%S'))
+        # We have some issues because something normalizes separators to "."
+        # From PEP440: With a local version, in addition to the use of . as a
+        # separator of segments, the use of - and _ is also acceptable. The
+        # normal form is using the . character. This allows versions such as
+        # 1.0+ubuntu-1 to be normalized to 1.0+ubuntu.1.
+        #
+        # TODO: This might be more useful if it had a git commit has also
+        return "+git.{}".format(timestamp.strftime('%Y%m%d%H%M%S'))
     except (EnvironmentError, ValueError):
         return None
 
@@ -188,7 +195,7 @@ def get_git_describe(version):
             # commit for this minor version should be in accordance to the current version.
             # This prevents cascade merges from patch releases in earlier versions necessitating
             # a new tag in the higher minor version branch.
-            "git describe --tags --abbrev=8 --match 'v{0}.{1}*'".format(*version),
+            "git describe --tags --abbrev=8 --match 'v[[:digit:]]*.[[:digit:]]*.[[:digit:]]*'".format(*version),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             shell=True,
@@ -251,7 +258,10 @@ def get_version_file():
     Looks for a file VERSION in the package data and returns the contents in
     this. Does not check consistency.
     """
-    return pkgutil.get_data('kolibri', 'VERSION').decode('utf-8')
+    try:
+        return pkgutil.get_data('kolibri', 'VERSION').decode('utf-8')
+    except IOError:
+        return None
 
 
 def get_prerelease_version(version):

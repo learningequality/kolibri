@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-20 19:50-0700\n"
-"PO-Revision-Date: 2018-10-04 16:53\n"
+"POT-Creation-Date: 2018-10-10 17:35-0700\n"
+"PO-Revision-Date: 2018-10-11 01:16\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Chewa\n"
 "Language: ny_MW\n"
@@ -28,15 +28,15 @@ msgstr "Kalasi"
 msgid "Learner group"
 msgstr "Gulu lophunzirira pamodzi"
 
-#: kolibri/core/content/api.py:114
+#: kolibri/core/content/api.py:131
 msgid "Content"
 msgstr "Zam'kati"
 
-#: kolibri/core/content/api.py:655
+#: kolibri/core/content/api.py:672
 msgid "The requested channel does not exist on the content server"
 msgstr "Tchanelo imene mukufuna sikupezeka pa seva"
 
-#: kolibri/core/content/models.py:279
+#: kolibri/core/content/models.py:278
 msgid "Unknown format"
 msgstr "Fomati yosadziwika"
 

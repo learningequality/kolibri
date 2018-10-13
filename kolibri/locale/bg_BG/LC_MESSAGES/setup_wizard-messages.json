@@ -1,7 +1,7 @@
 {
     "ProgressToolbar.progressIndicator": "Стъпка {currentStep, number} от {totalSteps, number}",
     "SetupWizardIndex.onboardingNextStepButton": "Продължи",
-    "SetupWizardIndex.onboardingFinishButton": "Завърши",
+    "SetupWizardIndex.onboardingFinishButton": "Завършване",
     "SetupWizardIndex.documentTitle": "Съветник за настройване",
     "SetupWizardIndex.personalFacilityName": "Институция {name}",
     "CreateLearnerAccountForm.header": "Позволяване на всеки потребител да създава своя собствен ученически профил?",

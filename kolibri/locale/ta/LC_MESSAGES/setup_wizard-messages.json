@@ -34,7 +34,7 @@
     "SuperuserCredentialsForm.adminAccountCreationHeader": "",
     "SuperuserCredentialsForm.adminAccountCreationDescription": "",
     "SuperuserCredentialsForm.adminNameFieldLabel": "முழுப்பெயர்",
-    "SuperuserCredentialsForm.adminUsernameFieldLabel": "பயனர்பெயர்",
+    "SuperuserCredentialsForm.adminUsernameFieldLabel": "பயனர் பெயர்",
     "SuperuserCredentialsForm.adminPasswordFieldLabel": "கடவுச்சொல்",
     "SuperuserCredentialsForm.adminPasswordConfirmationFieldLabel": "கடவுச்சொல்லை மீண்டும் உள்ளிடவும்",
     "SuperuserCredentialsForm.rememberThisAccountInformation": "",

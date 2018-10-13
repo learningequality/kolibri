@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-20 19:50-0700\n"
-"PO-Revision-Date: 2018-10-10 21:16\n"
+"POT-Creation-Date: 2018-10-10 17:35-0700\n"
+"PO-Revision-Date: 2018-10-11 01:18\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Telugu\n"
 "Language: te_IN\n"
@@ -28,15 +28,15 @@ msgstr "తరగతిగది"
 msgid "Learner group"
 msgstr "విద్యార్థుల సమూహం"
 
-#: kolibri/core/content/api.py:114
+#: kolibri/core/content/api.py:131
 msgid "Content"
 msgstr "కాంటెంట్"
 
-#: kolibri/core/content/api.py:655
+#: kolibri/core/content/api.py:672
 msgid "The requested channel does not exist on the content server"
 msgstr "కావలసిన ఛానల్ కంటెంట్ సర్వర్ ఫై లేదు"
 
-#: kolibri/core/content/models.py:279
+#: kolibri/core/content/models.py:278
 msgid "Unknown format"
 msgstr "తెలియని రకం"
 
@@ -58,7 +58,7 @@ msgstr "తెలియని దోషం ఏర్పడింది."
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
-msgstr "కొలిబ్రి"
+msgstr "Kolibri"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:28
 msgid "Unsupported browser"

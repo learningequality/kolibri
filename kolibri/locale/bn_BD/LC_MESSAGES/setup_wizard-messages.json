@@ -1,6 +1,6 @@
 {
     "ProgressToolbar.progressIndicator": "{totalSteps, number}টি ধাপের মধ্যে {currentStep, number}টি ধাপ",
-    "SetupWizardIndex.onboardingNextStepButton": "চালিয়ে যান",
+    "SetupWizardIndex.onboardingNextStepButton": "চালিয়ে যাও",
     "SetupWizardIndex.onboardingFinishButton": "শেষ করুন",
     "SetupWizardIndex.documentTitle": "",
     "SetupWizardIndex.personalFacilityName": "",

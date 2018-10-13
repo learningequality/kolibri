@@ -1,6 +1,6 @@
 {
     "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Igama loungena lishintshile",
-    "UserPageSnackbars.dismiss": "Yala",
+    "UserPageSnackbars.dismiss": "Yeka",
     "UserPageSnackbars.signedOut": "Ukhishwe ngokuzenzakalela ngenxa yokungayisebenzisi",
     "ChangeUserPasswordModal.passwordChangeFormHeader": "Shintsha igama lokungena",
     "ChangeUserPasswordModal.newPasswordFieldLabel": "Faka igama lomsebenzisi elisha",
@@ -47,7 +47,7 @@
     "SignUpPage.name": "Igama eliphelele",
     "SignUpPage.username": "Igama lomsebenzisi",
     "SignUpPage.password": "Igama lokungena",
-    "SignUpPage.reEnterPassword": "Faka igama lomsebenzisi futhi",
+    "SignUpPage.reEnterPassword": "Faka kabusha igama lokungena",
     "SignUpPage.passwordMatchError": "Amagama okuvula awahambelani",
     "SignUpPage.genericError": "Kukhona okungahambanga kahle ngenkathi ungena",
     "SignUpPage.usernameAlphaNumError": "Igama lomsebenzisi lingaqukatha izinhlamvu, izinombolo, nezimpawu kuphela",

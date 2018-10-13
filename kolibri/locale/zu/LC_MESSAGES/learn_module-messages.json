@@ -50,7 +50,7 @@
     "LearnIndex.recommended": "Okutusiwe",
     "LearnIndex.channels": "Amashaneli",
     "LearnIndex.classes": "Amakilasi",
-    "LearnIndex.examReportTitle": "umbiko {examTitle}",
+    "LearnIndex.examReportTitle": "{examTitle} umbiko",
     "Snackbar.close": "Vala",
     "MasteredSnackbars.plusPoints": "+ { maxPoints, number } Amaphuzu",
     "MasteredSnackbars.next": "Okulandelayo:",
