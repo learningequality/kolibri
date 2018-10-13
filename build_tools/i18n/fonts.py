@@ -507,6 +507,7 @@ def _subset_and_merge_ui_fonts(glyphs, reg_woff_path, bold_woff_path):
     """
     reg_subsets = []
     bold_subsets = []
+    skipped = []
     for font_info in FONT_MANIFEST:
         reg_ttf_path = _ttf_font_path(font_info, is_ui=True, is_bold=False)
         bold_ttf_path = _ttf_font_path(font_info, is_ui=True, is_bold=True)
@@ -515,6 +516,7 @@ def _subset_and_merge_ui_fonts(glyphs, reg_woff_path, bold_woff_path):
 
         if _cannot_merge(reg_subset) or _cannot_merge(bold_subset):
             logging.warning("Fonts: {} has incompatible metrics".format(reg_ttf_path))
+            skipped.append(font_info["name"])
             continue
 
         reg_subsets.append(reg_subset)
@@ -522,6 +524,8 @@ def _subset_and_merge_ui_fonts(glyphs, reg_woff_path, bold_woff_path):
 
     _merge_fonts(reg_subsets, os.path.join(OUTPUT_PATH, reg_woff_path))
     _merge_fonts(bold_subsets, os.path.join(OUTPUT_PATH, bold_woff_path))
+
+    logging.warning("Skipped fonts: {}".format(", ".join(skipped)))
 
 
 def command_gen_subset_fonts():
