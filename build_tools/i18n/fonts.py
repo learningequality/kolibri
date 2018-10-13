@@ -437,23 +437,26 @@ Subset fonts
 """
 
 
-def _get_subset_font(source_file_path, code_points):
+def _get_subset_font(source_file_path, text):
     """
-    Given a TTF file and a set of code points, returns a new, in-memory fontTools
-    Font object that has only the glyphs specified in the set.
+    Given a TTF file and some text, returns a new, in-memory fontTools Font object that
+    has only the glyphs specified in the set.
+
+    Note that passing actual text instead of a glyph set to the subsetter allows it to
+    generate appropriate ligatures and other features important for correct rendering.
     """
     if not os.path.exists(source_file_path):
         logging.error("Fonts: '{}' not found".format(source_file_path))
 
     font = _load_font(source_file_path)
     subsetter = subset.Subsetter(options=FONT_TOOLS_OPTIONS)
-    subsetter.populate(unicodes=code_points)
+    subsetter.populate(text=text)
     subsetter.subset(font)
     return font
 
 
-def _get_lang_glyphs(lang, locale_dir):
-    code_points = set()
+def _get_lang_text(lang, locale_dir):
+    text = []
     for file_name in os.listdir(locale_dir):
         if not file_name.endswith(".json"):
             continue
@@ -462,36 +465,28 @@ def _get_lang_glyphs(lang, locale_dir):
             strings = json.load(f).values()
 
         for string in strings:
-            for char in string:
-                code_points.add(ord(char))
-                # include upper-case variant for use in buttons
-                code_points.add(ord(char.upper()))
-    return code_points
+            text.append(string)
+            text.append(string.upper())
+    return " ".join(text)
 
 
 @utils.memoize
-def _get_common_glyphs():
+def _get_common_text():
     """
-    Glyphs necessary for all languages: displaying the language switcher,
-    Kolibri version numbers, the 'copywrite' symbol, and other un-translated text
+    Text useful for all languages: displaying the language switcher, Kolibri version
+    numbers, the 'copywrite' symbol, and other un-translated text
     """
-    # null, form feed, carriage return
-    code_points = set((0x0, 0xC, 0xD))
-    # copywrite, m-dash, ellipsis, curly quotes
-    for c in "©–…‘’“”":
-        code_points.add(ord(c))
+    # null, form feed, carriage return, copywrite, m-dash, ellipsis, curly quotes
+    common_text = [chr(0x0), chr(0xC), chr(0xD), "©", "–", "…", "‘", "’", "“", "”"]
     # all the basic printable ascii characters
-    for c in range(32, 127):
-        code_points.add(c)
-    # glyphs from language names, both lower- and upper-case
+    common_text.extend([chr(c) for c in range(32, 127)])
+    # text from language names, both lower- and upper-case
     for lang in utils.supported_languages():
-        for c in lang[utils.KEY_LANG_NAME]:
-            code_points.add(ord(c))
-            code_points.add(ord(c.upper()))
-        for c in lang[utils.KEY_ENG_NAME]:
-            code_points.add(ord(c))
-            code_points.add(ord(c.upper()))
-    return code_points
+        common_text.append(lang[utils.KEY_LANG_NAME])
+        common_text.append(lang[utils.KEY_LANG_NAME].upper())
+        common_text.append(lang[utils.KEY_ENG_NAME])
+        common_text.append(lang[utils.KEY_ENG_NAME].upper())
+    return " ".join(common_text)
 
 
 def _merge_fonts(fonts, output_file_path):
@@ -518,9 +513,9 @@ def _cannot_merge(font):
     return font["head"].unitsPerEm != 1000
 
 
-def _subset_and_merge_ui_fonts(glyphs, reg_woff_path, bold_woff_path):
+def _subset_and_merge_ui_fonts(text, reg_woff_path, bold_woff_path):
     """
-    Given a list of glyphs, generate both a bold and a regular font with all glyphs.
+    Given text, generate both a bold and a regular font that can render it.
     """
     reg_subsets = []
     bold_subsets = []
@@ -528,8 +523,8 @@ def _subset_and_merge_ui_fonts(glyphs, reg_woff_path, bold_woff_path):
     for font_info in FONT_MANIFEST:
         reg_ttf_path = _ttf_font_path(font_info, is_ui=True, is_bold=False)
         bold_ttf_path = _ttf_font_path(font_info, is_ui=True, is_bold=True)
-        reg_subset = _get_subset_font(reg_ttf_path, glyphs)
-        bold_subset = _get_subset_font(bold_ttf_path, glyphs)
+        reg_subset = _get_subset_font(reg_ttf_path, text)
+        bold_subset = _get_subset_font(bold_ttf_path, text)
 
         if _cannot_merge(reg_subset) or _cannot_merge(bold_subset):
             logging.warning("Fonts: {} has incompatible metrics".format(reg_ttf_path))
@@ -542,34 +537,37 @@ def _subset_and_merge_ui_fonts(glyphs, reg_woff_path, bold_woff_path):
     _merge_fonts(reg_subsets, os.path.join(OUTPUT_PATH, reg_woff_path))
     _merge_fonts(bold_subsets, os.path.join(OUTPUT_PATH, bold_woff_path))
 
-    logging.warning("Skipped fonts: {}".format(", ".join(skipped)))
+    logging.warning(
+        "Could not subset and merge fonts: {}. These will show a flash of unstyled text.".format(
+            ", ".join(skipped)
+        )
+    )
 
 
 def command_gen_subset_fonts():
     """
-    Creates custom fonts that attempt to contain all the glyphs (and only the glyphs)
+    Creates custom fonts that attempt to contain all the glyphs and other font features
     that are used in user-facing text for the translation in each language.
     """
     logging.info("Fonts: generating subset fonts...")
 
     # First, generate common fonts
-    common_glyphs = _get_common_glyphs()
+    common_text = _get_common_text()
 
     reg_font_path = _woff_font_path("Common", is_ui=True, is_full=False, is_bold=False)
     bold_font_path = _woff_font_path("Common", is_ui=True, is_full=False, is_bold=True)
-    _subset_and_merge_ui_fonts(common_glyphs, reg_font_path, bold_font_path)
+    _subset_and_merge_ui_fonts(common_text, reg_font_path, bold_font_path)
 
     # Next, generate a UI font subset for each language based on app text
     for lang in utils.supported_languages(include_english=True):
-        lang_glyphs = _get_lang_glyphs(lang, utils.local_locale_path(lang))
-        lang_glyphs |= _get_lang_glyphs(lang, utils.local_perseus_locale_path(lang))
-        lang_glyphs -= common_glyphs
+        lang_text = _get_lang_text(lang, utils.local_locale_path(lang))
+        # lang_text |= _get_lang_text(lang, utils.local_perseus_locale_path(lang))
 
         name = lang[utils.KEY_INTL_CODE]
 
         reg_font_path = _woff_font_path(name, is_ui=True, is_full=False, is_bold=False)
         bold_font_path = _woff_font_path(name, is_ui=True, is_full=False, is_bold=True)
-        _subset_and_merge_ui_fonts(lang_glyphs, reg_font_path, bold_font_path)
+        _subset_and_merge_ui_fonts(lang_text, reg_font_path, bold_font_path)
 
     logging.info("Fonts: created")
 
