@@ -7,13 +7,23 @@
     @submit="setLang"
     @cancel="closeModal"
   >
-    <KRadioButton
-      v-for="language in languageOptions"
-      :key="language.id"
-      :value="language.id"
-      :label="language.lang_name"
-      v-model="selectedLanguage"
-    />
+
+    <KGrid>
+      <KGridItem
+        v-for="language in languageOptions"
+        :key="language.id"
+        sizes = "100, 100, 50"
+        percentage
+        alignment = "left"
+      >
+        <KRadioButton
+          :value="language.id"
+          :label="language.lang_name"
+          v-model="selectedLanguage"
+        />
+      </KGridItem>
+    </KGrid>
+
   </KModal>
 
 </template>
@@ -24,11 +34,18 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { currentLanguage } from 'kolibri.utils.i18n';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import languageSwitcherMixin from './mixin';
 
   export default {
     name: 'LanguageSwitcherModal',
-    components: { KModal, KRadioButton },
+    components: {
+      KModal,
+      KGrid,
+      KGridItem,
+      KRadioButton,
+    },
     mixins: [languageSwitcherMixin],
     $trs: {
       changeLanguageModalHeader: 'Change language',
@@ -54,3 +71,4 @@
 
 
 <style lang="scss" scoped></style>
+
