@@ -100,9 +100,8 @@ def _gen_font_face(family, url, is_bold, unicodes):
 
 
 @utils.memoize
-def _woff_font_name(name, is_ui, is_full, is_bold):
-    return "{type}.{scope}.{name}.{weight}.woff".format(
-        type="ui" if is_ui else "content",
+def _woff_font_name(name, is_full, is_bold):
+    return "{scope}.{name}.{weight}.woff".format(
         name=name,
         scope="full" if is_full else "subset",
         weight="700" if is_bold else "400",
@@ -110,15 +109,15 @@ def _woff_font_name(name, is_ui, is_full, is_bold):
 
 
 @utils.memoize
-def _woff_font_path(name, is_ui, is_full, is_bold):
-    return os.path.join(OUTPUT_PATH, _woff_font_name(name, is_ui, is_full, is_bold))
+def _woff_font_path(name, is_full, is_bold):
+    return os.path.join(OUTPUT_PATH, _woff_font_name(name, is_full, is_bold))
 
 
 @utils.memoize
-def _ttf_font_path(font_info, is_ui=False, is_bold=False):
+def _ttf_font_path(font_info, is_bold=False):
     font_name = font_info[utils.KEY_NAME]
     weight = "Bold" if is_bold else "Regular"
-    if is_ui and font_info[utils.KEY_HAS_UI]:
+    if font_info[utils.KEY_HAS_UI]:
         return os.path.join(TTF_PATH, "{}UI-{}.ttf".format(font_name, weight))
     return os.path.join(TTF_PATH, "{}-{}.ttf".format(font_name, weight))
 
@@ -186,9 +185,9 @@ def _font_glyphs(font_path):
     return glyphs
 
 
-def _full_font_face(font_family, font_name, is_ui, is_bold, omit_glyphs=set()):
-    file_name = _woff_font_name(font_name, is_ui=is_ui, is_full=True, is_bold=is_bold)
-    file_path = _woff_font_path(font_name, is_ui=is_ui, is_full=True, is_bold=is_bold)
+def _full_font_face(font_family, font_name, is_bold, omit_glyphs=set()):
+    file_name = _woff_font_name(font_name, is_full=True, is_bold=is_bold)
+    file_path = _woff_font_path(font_name, is_full=True, is_bold=is_bold)
     glyphs = _font_glyphs(file_path) - omit_glyphs
     if not glyphs:
         return ""
@@ -211,33 +210,11 @@ def _modern_font_faces():
     # all available fonts
     for font_info in FONT_MANIFEST:
 
-        # regular content
-        font_faces.append(
-            _full_font_face(
-                "noto-content-full",
-                font_info[utils.KEY_NAME],
-                is_ui=False,
-                is_bold=False,
-                omit_glyphs=previous_glyphs,
-            )
-        )
-        # bold content
-        font_faces.append(
-            _full_font_face(
-                "noto-content-full",
-                font_info[utils.KEY_NAME],
-                is_ui=False,
-                is_bold=True,
-                omit_glyphs=previous_glyphs,
-            )
-        )
-
         # regular UI
         font_faces.append(
             _full_font_face(
-                "noto-ui-full",
+                "noto-full",
                 font_info[utils.KEY_NAME],
-                is_ui=font_info[utils.KEY_HAS_UI],
                 is_bold=False,
                 omit_glyphs=previous_glyphs,
             )
@@ -245,9 +222,8 @@ def _modern_font_faces():
         # bold UI
         font_faces.append(
             _full_font_face(
-                "noto-ui-full",
+                "noto-full",
                 font_info[utils.KEY_NAME],
-                is_ui=font_info[utils.KEY_HAS_UI],
                 is_bold=True,
                 omit_glyphs=previous_glyphs,
             )
@@ -255,14 +231,14 @@ def _modern_font_faces():
 
         # Assumes all four variants have the same glyphs, from the content Regular font
         previous_glyphs |= _font_glyphs(
-            _woff_font_path(font_info[utils.KEY_NAME], is_ui=False, is_full=True, is_bold=False)
+            _woff_font_path(font_info[utils.KEY_NAME], is_full=True, is_bold=False)
         )
 
     return "".join(font_faces)
 
 
 def _write_inline_ui_font(file_object, font_name, font_family, is_bold):
-    font_path = _woff_font_path(font_name, is_ui=True, is_full=False, is_bold=is_bold)
+    font_path = _woff_font_path(font_name, is_full=False, is_bold=is_bold)
     with io.open(font_path, mode="rb") as f:
         data = f.read()
     data_uri = "data:application/x-font-woff;charset=utf-8;base64,{}".format(
@@ -307,46 +283,15 @@ def _generate_css_for_language(lang):
 
         # Language-specific subsets of UI font for both modern and basic
         lang_name = lang[utils.KEY_INTL_CODE]
-        _write_inline_ui_font(modern, lang_name, "noto-ui-subset", is_bold=False)
-        _write_inline_ui_font(modern, lang_name, "noto-ui-subset", is_bold=True)
-        _write_inline_ui_font(basic, lang_name, "noto-ui-subset", is_bold=False)
-        _write_inline_ui_font(basic, lang_name, "noto-ui-subset", is_bold=True)
+        _write_inline_ui_font(modern, lang_name, "noto-subset", is_bold=False)
+        _write_inline_ui_font(modern, lang_name, "noto-subset", is_bold=True)
+        _write_inline_ui_font(basic, lang_name, "noto-subset", is_bold=False)
+        _write_inline_ui_font(basic, lang_name, "noto-subset", is_bold=True)
 
         # Full UI font of default language for basic only
         name = lang[utils.KEY_DEFAULT_FONT]
-        font_info = _get_font_info(name)
-
-        basic.write(
-            _full_font_face(
-                "noto-ui-full",
-                font_name=name,
-                is_ui=font_info[utils.KEY_HAS_UI],
-                is_bold=False,
-            )
-        )
-        basic.write(
-            _full_font_face(
-                "noto-ui-full",
-                font_name=name,
-                is_ui=font_info[utils.KEY_HAS_UI],
-                is_bold=True,
-            )
-        )
-
-        """ Don't use 'content' fonts yet - basic browsers will load them.
-
-        # Full content font of default language for basic only
-        basic.write(
-            _full_font_face(
-                "noto-content-full", font_name=name, is_ui=False, is_bold=False
-            )
-        )
-        basic.write(
-            _full_font_face(
-                "noto-content-full", font_name=name, is_ui=False, is_bold=True
-            )
-        )
-        """
+        basic.write(_full_font_face("noto-full", font_name=name, is_bold=False))
+        basic.write(_full_font_face("noto-full", font_name=name, is_bold=True))
 
 
 def command_gen_css():
@@ -399,22 +344,17 @@ Full Fonts
 """
 
 
-def _write_full_font(font_info, is_ui=False, is_bold=False):
-    font = _load_font(_ttf_font_path(font_info, is_ui=False, is_bold=is_bold))
-    font.save(
-        _woff_font_path(font_info[utils.KEY_NAME], is_ui=is_ui, is_full=True, is_bold=is_bold)
-    )
+def _write_full_font(font_info, is_bold):
+    font = _load_font(_ttf_font_path(font_info, is_bold=is_bold))
+    font.save(_woff_font_path(font_info[utils.KEY_NAME], is_full=True, is_bold=is_bold))
 
 
 def command_gen_full_fonts():
     logging.info("Fonts: generating full fonts...")
 
     for font_info in FONT_MANIFEST:
-        _write_full_font(font_info, is_ui=False, is_bold=False)
-        _write_full_font(font_info, is_ui=False, is_bold=True)
-        if font_info[utils.KEY_HAS_UI]:
-            _write_full_font(font_info, is_ui=True, is_bold=False)
-            _write_full_font(font_info, is_ui=True, is_bold=True)
+        _write_full_font(font_info, is_bold=False)
+        _write_full_font(font_info, is_bold=True)
 
     logging.info("Fonts: finished generating full fonts")
 
@@ -527,7 +467,7 @@ def _cannot_merge(font):
     return font["head"].unitsPerEm != 1000
 
 
-def _subset_and_merge_fonts(text, reg_woff_path, bold_woff_path, is_ui):
+def _subset_and_merge_fonts(text, reg_woff_path, bold_woff_path):
     """
     Given text, generate both a bold and a regular font that can render it.
     """
@@ -535,8 +475,8 @@ def _subset_and_merge_fonts(text, reg_woff_path, bold_woff_path, is_ui):
     bold_subsets = []
     skipped = []
     for font_info in FONT_MANIFEST:
-        reg_ttf_path = _ttf_font_path(font_info, is_ui=is_ui, is_bold=False)
-        bold_ttf_path = _ttf_font_path(font_info, is_ui=is_ui, is_bold=True)
+        reg_ttf_path = _ttf_font_path(font_info, is_bold=False)
+        bold_ttf_path = _ttf_font_path(font_info, is_bold=True)
         reg_subset = _get_subset_font(reg_ttf_path, text)
         bold_subset = _get_subset_font(bold_ttf_path, text)
 
@@ -558,34 +498,26 @@ def _subset_and_merge_fonts(text, reg_woff_path, bold_woff_path, is_ui):
     )
 
 
-def command_gen_subset_fonts(is_ui=True):
+def command_gen_subset_fonts():
     """
     Creates custom fonts that attempt to contain all the glyphs and other font features
     that are used in user-facing text for the translation in each language.
-
-    'UI' (User Interface) variants of fonts are sometimes available for languages with
-    tall glyph heights, and are redrawn to fit within constrained vertical space.
-    Not all fonts have (or need to have) a 'UI' variant.
-
-    'Content' variants are easier to read but are not guaranteed to fit within UI
-    elements or avoid overlapping when rendered in blocks of text. 'Tall' alphabets
-    need to have more line height allotted when content fonts are used.
     """
     logging.info("Fonts: generating subset fonts...")
 
     common_strings = _get_common_strings()
 
-    for lang in utils.supported_languages(include_english=True):
+    for lang in utils.supported_languages(include_in_context=True, include_english=True):
         strings = []
         strings.extend(common_strings)
         strings.extend(_get_lang_strings(utils.local_locale_path(lang)))
         strings.extend(_get_lang_strings(utils.local_perseus_locale_path(lang)))
 
         name = lang[utils.KEY_INTL_CODE]
-        reg_font_path = _woff_font_path(name, is_ui=is_ui, is_full=False, is_bold=False)
-        bold_font_path = _woff_font_path(name, is_ui=is_ui, is_full=False, is_bold=True)
+        reg_font_path = _woff_font_path(name, is_full=False, is_bold=False)
+        bold_font_path = _woff_font_path(name, is_full=False, is_bold=True)
 
-        _subset_and_merge_fonts(" ".join(strings), reg_font_path, bold_font_path, is_ui)
+        _subset_and_merge_fonts(" ".join(strings), reg_font_path, bold_font_path)
 
     logging.info("Fonts: created")
 
@@ -599,6 +531,14 @@ def _get_variations(font_name):
     """
     For a given font name, return information about the four relevant variations on
     the font, and how we expect it the files to be named on github.
+
+    'UI' (User Interface) variants of fonts are sometimes available for languages with
+    tall glyph heights, and are redrawn to fit within constrained vertical space.
+    Not all fonts have (or need to have) a 'UI' variant.
+
+    'Content' variants are easier to read but are not guaranteed to fit within UI
+    elements or avoid overlapping when rendered in blocks of text. 'Tall' alphabets
+    need to have more line height allotted when content fonts are used.
 
     Returns four tuples of the form:
         (directory_name, file_name, is_ui)
@@ -676,7 +616,9 @@ def command_add_source_fonts(font_name):
             font_info[utils.KEY_HAS_UI] = has_ui_variant
             continue
     if not already_exists:
-        new_manifest.append({utils.KEY_NAME: font_name, utils.KEY_HAS_UI: has_ui_variant})
+        new_manifest.append(
+            {utils.KEY_NAME: font_name, utils.KEY_HAS_UI: has_ui_variant}
+        )
     logging.info(
         "Updating manifest - '{}' {} UI variant".format(
             font_name, "with" if has_ui_variant else "without"

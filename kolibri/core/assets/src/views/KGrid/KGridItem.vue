@@ -222,7 +222,7 @@
 
   .grid-item {
     // override pure grid default font family
-    @include font-family-ui;
+    @include font-family-noto;
   }
 
   .debug {
