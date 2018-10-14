@@ -116,9 +116,9 @@ def _woff_font_path(name, is_ui, is_full, is_bold):
 
 @utils.memoize
 def _ttf_font_path(font_info, is_ui=False, is_bold=False):
-    font_name = font_info["name"]
+    font_name = font_info[utils.KEY_NAME]
     weight = "Bold" if is_bold else "Regular"
-    if is_ui and font_info["has_ui_variant"]:
+    if is_ui and font_info[utils.KEY_HAS_UI]:
         return os.path.join(TTF_PATH, "{}UI-{}.ttf".format(font_name, weight))
     return os.path.join(TTF_PATH, "{}-{}.ttf".format(font_name, weight))
 
@@ -129,7 +129,7 @@ def _load_font(path):
 
 def _get_font_info(name):
     for font_info in FONT_MANIFEST:
-        if font_info["name"] == name:
+        if font_info[utils.KEY_NAME] == name:
             return font_info
     raise KeyError(name)
 
@@ -215,7 +215,7 @@ def _modern_font_faces():
         font_faces.append(
             _full_font_face(
                 "noto-content-full",
-                font_info["name"],
+                font_info[utils.KEY_NAME],
                 is_ui=False,
                 is_bold=False,
                 omit_glyphs=previous_glyphs,
@@ -225,7 +225,7 @@ def _modern_font_faces():
         font_faces.append(
             _full_font_face(
                 "noto-content-full",
-                font_info["name"],
+                font_info[utils.KEY_NAME],
                 is_ui=False,
                 is_bold=True,
                 omit_glyphs=previous_glyphs,
@@ -236,8 +236,8 @@ def _modern_font_faces():
         font_faces.append(
             _full_font_face(
                 "noto-ui-full",
-                font_info["name"],
-                is_ui=font_info["has_ui_variant"],
+                font_info[utils.KEY_NAME],
+                is_ui=font_info[utils.KEY_HAS_UI],
                 is_bold=False,
                 omit_glyphs=previous_glyphs,
             )
@@ -246,8 +246,8 @@ def _modern_font_faces():
         font_faces.append(
             _full_font_face(
                 "noto-ui-full",
-                font_info["name"],
-                is_ui=font_info["has_ui_variant"],
+                font_info[utils.KEY_NAME],
+                is_ui=font_info[utils.KEY_HAS_UI],
                 is_bold=True,
                 omit_glyphs=previous_glyphs,
             )
@@ -255,7 +255,7 @@ def _modern_font_faces():
 
         # Assumes all four variants have the same glyphs, from the content Regular font
         previous_glyphs |= _font_glyphs(
-            _woff_font_path(font_info["name"], is_ui=False, is_full=True, is_bold=False)
+            _woff_font_path(font_info[utils.KEY_NAME], is_ui=False, is_full=True, is_bold=False)
         )
 
     return "".join(font_faces)
@@ -320,7 +320,7 @@ def _generate_css_for_language(lang):
             _full_font_face(
                 "noto-ui-full",
                 font_name=name,
-                is_ui=font_info["has_ui_variant"],
+                is_ui=font_info[utils.KEY_HAS_UI],
                 is_bold=False,
             )
         )
@@ -328,7 +328,7 @@ def _generate_css_for_language(lang):
             _full_font_face(
                 "noto-ui-full",
                 font_name=name,
-                is_ui=font_info["has_ui_variant"],
+                is_ui=font_info[utils.KEY_HAS_UI],
                 is_bold=True,
             )
         )
@@ -402,7 +402,7 @@ Full Fonts
 def _write_full_font(font_info, is_ui=False, is_bold=False):
     font = _load_font(_ttf_font_path(font_info, is_ui=False, is_bold=is_bold))
     font.save(
-        _woff_font_path(font_info["name"], is_ui=is_ui, is_full=True, is_bold=is_bold)
+        _woff_font_path(font_info[utils.KEY_NAME], is_ui=is_ui, is_full=True, is_bold=is_bold)
     )
 
 
@@ -412,7 +412,7 @@ def command_gen_full_fonts():
     for font_info in FONT_MANIFEST:
         _write_full_font(font_info, is_ui=False, is_bold=False)
         _write_full_font(font_info, is_ui=False, is_bold=True)
-        if font_info["has_ui_variant"]:
+        if font_info[utils.KEY_HAS_UI]:
             _write_full_font(font_info, is_ui=True, is_bold=False)
             _write_full_font(font_info, is_ui=True, is_bold=True)
 
@@ -542,7 +542,7 @@ def _subset_and_merge_fonts(text, reg_woff_path, bold_woff_path, is_ui):
 
         if _cannot_merge(reg_subset) or _cannot_merge(bold_subset):
             logging.warning("Fonts: {} has incompatible metrics".format(reg_ttf_path))
-            skipped.append(font_info["name"])
+            skipped.append(font_info[utils.KEY_NAME])
             continue
 
         reg_subsets.append(reg_subset)
@@ -671,12 +671,12 @@ def command_add_source_fonts(font_name):
     # update manifest
     already_exists = False
     for font_info in new_manifest:
-        if font_info["name"] == font_name:
+        if font_info[utils.KEY_NAME] == font_name:
             already_exists = True
-            font_info["has_ui_variant"] = has_ui_variant
+            font_info[utils.KEY_HAS_UI] = has_ui_variant
             continue
     if not already_exists:
-        new_manifest.append({"name": font_name, "has_ui_variant": has_ui_variant})
+        new_manifest.append({utils.KEY_NAME: font_name, utils.KEY_HAS_UI: has_ui_variant})
     logging.info(
         "Updating manifest - '{}' {} UI variant".format(
             font_name, "with" if has_ui_variant else "without"
@@ -684,7 +684,7 @@ def command_add_source_fonts(font_name):
     )
     with open(FONTS_MANIFEST_PATH, "w") as mf:
         json.dump(
-            sorted(new_manifest, key=lambda d: d["name"]),
+            sorted(new_manifest, key=lambda d: d[utils.KEY_NAME]),
             mf,
             indent=2,
             separators=(",", ": "),  # helps prevent trailing whitespace

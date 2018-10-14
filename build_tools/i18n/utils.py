@@ -37,6 +37,7 @@ if not (os.path.exists(PERSEUS_LOCALE_PATH)):
     sys.exit(1)
 
 
+# Keys used in supported_languages.json
 KEY_CROWDIN_CODE = "crowdin_code"
 KEY_INTL_CODE = "intl_code"
 KEY_LANG_NAME = "language_name"
@@ -50,6 +51,10 @@ IN_CTXT_LANG = {
     KEY_ENG_NAME: "In context translation",
     KEY_DEFAULT_FONT: "NotoSans",
 }
+
+# Keys used in simple internal 'font info' dictionaries
+KEY_NAME = "name"
+KEY_HAS_UI = "has_ui_variant"
 
 
 def to_locale(language):
