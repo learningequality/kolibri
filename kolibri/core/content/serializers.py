@@ -75,7 +75,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
                 if 'total_resources' in include_fields:
                     # count the total number of renderable non-topic resources in the channel
                     # (note: it's faster to count them all and then subtract the unrenderables, of which there are fewer)
-                    value['total_resources'] = channel_nodes.count() - unrenderable_nodes.count()
+                    value['total_resources'] = channel_nodes.dedupe_by_content_id().count() - unrenderable_nodes.dedupe_by_content_id().count()
 
                 if 'total_file_size' in include_fields:
                     # count the total file size of files associated with renderable content nodes
@@ -83,12 +83,12 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
                     value['total_file_size'] = _total_file_size(channel_nodes) - _total_file_size(unrenderable_nodes)
 
                 if 'on_device_resources' in include_fields:
-                    # count the total number of resources from the channel already available
-                    value['on_device_resources'] = channel_nodes.filter(available=True).exclude(kind=content_kinds.TOPIC).count()
+                    # read the precalculated total number of resources from the channel already available
+                    value['on_device_resources'] = instance.total_resource_count
 
                 if 'on_device_file_size' in include_fields:
-                    # count the total size of available files associated with the channel
-                    value['on_device_file_size'] = _total_file_size(_files_for_nodes(channel_nodes).filter(available=True))
+                    # read the precalculated total size of available files associated with the channel
+                    value['on_device_file_size'] = instance.published_size
 
         return value
 
