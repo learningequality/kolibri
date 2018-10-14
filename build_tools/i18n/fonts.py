@@ -652,6 +652,13 @@ def command_add_source_fonts(font_name):
             logging.warning("\tNot found: {}".format(target_url))
             if is_ui:
                 has_ui_variant = False
+            else:
+                logging.error(
+                    "Font '{}' was not found. You can add it manually.".format(
+                        font_name
+                    )
+                )
+                sys.exit(1)
             continue
         else:
             r.raise_for_status()
