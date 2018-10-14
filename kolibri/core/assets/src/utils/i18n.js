@@ -1,8 +1,6 @@
-import find from 'lodash/find';
 import FontFaceObserver from 'fontfaceobserver';
 import vue from 'kolibri.lib.vue';
 import logger from '../logging';
-import supportedLanguages from '../../../../locale/supported_languages.json';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
 
@@ -166,12 +164,7 @@ function _setUpVueIntl() {
    **/
   const VueIntl = require('vue-intl');
   vue.use(VueIntl, { defaultLocale });
-  vue.prototype.isRtl = global.languageDir === 'rtl';
-  languageDirection = global.languageDir || languageDirection;
-
-  if (global.languages) {
-    Object.assign(availableLanguages, global.languages);
-  }
+  vue.prototype.isRtl = languageDirection === 'rtl';
 
   vue.prototype.$tr = function $tr(messageId, args) {
     const nameSpace = this.$options.name || this.$options.$trNameSpace;
@@ -209,7 +202,7 @@ function _loadDefaultFonts() {
     htmlEl.classList.add(FULL_FONTS);
   }
 
-  const language = find(supportedLanguages, lang => lang.intl_code == currentLanguage);
+  const language = availableLanguages[currentLanguage];
 
   const uiNormal = new FontFaceObserver('noto-ui-full', { weight: 400 });
   const uiBold = new FontFaceObserver('noto-ui-full', { weight: 700 });
@@ -242,6 +235,12 @@ export function i18nSetup(skipPolyfill = false) {
   if (global.languageCode) {
     currentLanguage = global.languageCode;
   }
+
+  if (global.languages) {
+    Object.assign(availableLanguages, global.languages);
+  }
+
+  languageDirection = global.languageDir || languageDirection;
 
   // Set up typography
   setLanguageDensity(currentLanguage);
