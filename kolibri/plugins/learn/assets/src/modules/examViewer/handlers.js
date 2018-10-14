@@ -106,11 +106,16 @@ export function showExam(store, params) {
             `Question number ${questionNumber} is not valid for this exam`
           );
         } else {
-          const contentPromise = ContentNodeResource.fetchCollection({
-            getParams: {
-              ids: exam.question_sources.map(item => item.exercise_id),
-            },
-          });
+          let contentPromise;
+          if (exam.question_sources.length) {
+            contentPromise = ContentNodeResource.fetchCollection({
+              getParams: {
+                ids: exam.question_sources.map(item => item.exercise_id),
+              },
+            });
+          } else {
+            contentPromise = ConditionalPromise.resolve([]);
+          }
           contentPromise.only(
             samePageCheckGenerator(store),
             contentNodes => {

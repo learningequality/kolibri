@@ -15,13 +15,15 @@ export function showExamReportPage(store, params) {
       const promises = [
         LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
         ExamResource.fetchCollection({ getParams: { collection: classId }, force: true }),
-        ContentNodeSlimResource.fetchCollection({
-          getParams: {
-            ids: exam.question_sources.map(item => item.exercise_id),
-            fields: ['id'],
-            include_fields: ['num_coach_contents'],
-          },
-        }),
+        exam.question_sources.length
+          ? ContentNodeSlimResource.fetchCollection({
+              getParams: {
+                ids: exam.question_sources.map(item => item.exercise_id),
+                fields: ['id'],
+                include_fields: ['num_coach_contents'],
+              },
+            })
+          : ConditionalPromise.resolve([]),
         store.dispatch('setClassState', classId),
       ];
       ConditionalPromise.all(promises).only(
