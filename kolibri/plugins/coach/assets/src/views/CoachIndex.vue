@@ -24,6 +24,7 @@
         :currentContentNode="currentContentNode"
         :isSelected="isSelected"
         :questions="questions"
+        :displaySelectOptions="displaySelectOptions"
         :completionData="completionData"
         @addResource="handleAddResource"
         @removeResource="handleRemoveResource"
@@ -140,6 +141,13 @@
       noAssignmentErrorSubheader:
         'To start coaching a class, please consult your Kolibri administrator',
       createNewExam: 'Create new exam',
+      resourcesAddedSnackbarText:
+        'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
+      resourcesRemovedSnackbarText:
+        'Removed {count, number, integer} {count, plural, one {resource} other {resources}} from lesson',
+      // TODO: Interpolate strings correctly
+      added: 'Added',
+      removed: 'Removed',
     },
     components: {
       TopNav,
@@ -223,6 +231,11 @@
           return this.lessonPreviewCompletionData;
         }
       },
+      displaySelectOptions() {
+        return (
+          this.pageName === PageNames.EXAM_CREATION_PREVIEW || Boolean(this.lessonWorkingResources)
+        );
+      },
       showCoachNav() {
         return (
           this.pageName !== PageNames.CLASS_LIST &&
@@ -290,24 +303,31 @@
       },
     },
     methods: {
+      ...mapActions(['createSnackbar']),
       ...mapActions('lessonSummary', ['addToResourceCache']),
       ...mapActions('examCreation', ['addToSelectedExercises', 'removeFromSelectedExercises']),
       handleAddResource(content) {
-        // TODO create snackbars
+        let text;
         if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
           this.addToSelectedExercises([content]);
+          text = `${this.$tr('added')} ${content.title}`;
         } else {
           this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', content.id);
           this.addToResourceCache({ node: content });
+          text = this.$tr('resourcesAddedSnackbarText', { count: 1 });
         }
+        this.createSnackbar({ text, autoDismiss: true });
       },
       handleRemoveResource(content) {
-        // TODO create snackbars
+        let text;
         if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
           this.removeFromSelectedExercises([content]);
+          text = `${this.$tr('removed')} ${content.title}`;
         } else {
           this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', content.id);
+          text = this.$tr('resourcesRemovedSnackbarText', { count: 1 });
         }
+        this.createSnackbar({ text, autoDismiss: true });
       },
     },
   };

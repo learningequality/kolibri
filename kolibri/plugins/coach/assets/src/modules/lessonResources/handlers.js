@@ -149,7 +149,7 @@ export function showLessonResourceContentPreview(store, params) {
   });
 }
 
-export function showLessonSelectionContentPreview(store, params) {
+export function showLessonSelectionContentPreview(store, params, query = {}) {
   const { classId, lessonId, contentId } = params;
   return store.dispatch('loading').then(() => {
     const pendingSelections = store.state.lessonSummary.workingResources || [];
@@ -160,12 +160,25 @@ export function showLessonSelectionContentPreview(store, params) {
       .then(([contentNode, lesson]) => {
         // TODO state mapper
         const preselectedResources = lesson.resources.map(({ contentnode_id }) => contentnode_id);
-        store.commit('SET_TOOLBAR_ROUTE', {
-          name: LessonsPageNames.SELECTION,
-          params: {
-            topicId: contentNode.parent,
-          },
-        });
+
+        const { searchTerm, ...otherQueryParams } = query;
+        if (searchTerm) {
+          store.commit('SET_TOOLBAR_ROUTE', {
+            name: LessonsPageNames.SELECTION_SEARCH,
+            params: {
+              searchTerm,
+            },
+            query: otherQueryParams,
+          });
+        } else {
+          store.commit('SET_TOOLBAR_ROUTE', {
+            name: LessonsPageNames.SELECTION,
+            params: {
+              topicId: contentNode.parent,
+            },
+          });
+        }
+
         store.commit(
           'lessonSummary/SET_WORKING_RESOURCES',
           pendingSelections.length ? pendingSelections : preselectedResources
