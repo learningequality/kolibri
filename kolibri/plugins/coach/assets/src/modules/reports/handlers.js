@@ -1,10 +1,5 @@
 import { now } from 'kolibri.utils.serverClock';
-import {
-  ChannelResource,
-  ContentNodeResource,
-  FacilityUserResource,
-  LearnerGroupResource,
-} from 'kolibri.resources';
+import { ChannelResource, FacilityUserResource, LearnerGroupResource } from 'kolibri.resources';
 import { PageNames } from '../../constants';
 import {
   ContentScopes,
@@ -32,10 +27,6 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
       collectionKind: userScope,
       collectionId: userScopeId,
     }),
-    // Get the ContentNode for the ChannelRoot for getting num_coach_contents
-    ContentNodeResource.fetchCollection({
-      getParams: { ids: channels.map(({ root_id }) => root_id) },
-    }),
     store.dispatch('setClassState', classId),
   ];
 
@@ -44,7 +35,7 @@ function _showChannelList(store, classId, userId = null, showRecentOnly = false)
   }
 
   return Promise.all(promises).then(
-    ([, , , user]) => {
+    ([, , user]) => {
       const defaultSortCol = showRecentOnly ? TableColumns.DATE : TableColumns.NAME;
       setReportSorting(store, { sortColumn: defaultSortCol, sortOrder: SortOrders.DESCENDING });
       store.commit('reports/SET_REPORT_PROPERTIES', {
