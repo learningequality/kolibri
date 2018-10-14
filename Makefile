@@ -191,7 +191,6 @@ i18n-download:
 i18n-regenerate-fonts:
 	python build_tools/i18n/fonts.py generate-full-fonts
 	python build_tools/i18n/fonts.py generate-subset-fonts
-	python build_tools/i18n/fonts.py generate-css
 
 i18n-update: i18n-download i18n-regenerate-fonts
 
