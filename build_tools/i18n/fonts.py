@@ -465,12 +465,30 @@ def _get_lang_text(lang, locale_dir):
 def _get_common_text():
     """
     Text useful for all languages: displaying the language switcher, Kolibri version
-    numbers, the 'copywrite' symbol, and other un-translated text
+    numbers, symbols, and other un-translated text
     """
-    # null, form feed, carriage return, copywrite, m-dash, ellipsis, curly quotes
-    common_text = [chr(0x0), chr(0xC), chr(0xD), "©", "–", "…", "‘", "’", "“", "”"]
+
+    # Special characters that are used directly in untranslated template strings.
+    # Search the codebase with this regex to find new ones: [^\x00-\x7F©–—…‘’“”•→]
+    common_text = [
+        chr(0x0),  # null
+        chr(0xC),  # form feed
+        chr(0xD),  # carriage return
+        "©",
+        "–",  # en dash
+        "—",  # em dash
+        "…",
+        "‘",
+        "’",
+        "“",
+        "”",
+        "•",
+        "→",
+    ]
+
     # all the basic printable ascii characters
     common_text.extend([chr(c) for c in range(32, 127)])
+
     # text from language names, both lower- and upper-case
     for lang in utils.supported_languages():
         common_text.append(lang[utils.KEY_LANG_NAME])
