@@ -116,14 +116,6 @@ def _woff_font_path(name, is_ui, is_full, is_bold):
 
 @utils.memoize
 def _ttf_font_path(font_info, is_ui=False, is_bold=False):
-    """
-    'User Interface' variants of fonts are sometimes available for languages with
-    tall glyph heights, and are redrawn to fit within constrained vertical space.
-    Not all fonts have or need a 'UI' variant.
-
-    Normal variants are easier to read but have fewer guarantees about whether they
-    will fit within UI elements.
-    """
     font_name = font_info["name"]
     weight = "bold" if is_bold else "regular"
     if is_ui and font_info["has_ui_variant"]:
@@ -261,7 +253,7 @@ def _modern_font_faces():
             )
         )
 
-        # Assumes all four variants have the same glyphs, from the Content Regular font
+        # Assumes all four variants have the same glyphs, from the content Regular font
         previous_glyphs |= _font_glyphs(
             _woff_font_path(font_info["name"], is_ui=False, is_full=True, is_bold=False)
         )
@@ -347,6 +339,8 @@ def _generate_css_for_language(lang):
             )
         )
 
+        """ Don't use 'content' fonts yet - basic browsers will load them.
+
         # Full content font of default language for basic only
         basic.write(
             _full_font_face(
@@ -358,6 +352,7 @@ def _generate_css_for_language(lang):
                 "noto-content-full", font_name=name, is_ui=False, is_bold=True
             )
         )
+        """
 
 
 def command_gen_css():
@@ -366,11 +361,7 @@ def command_gen_css():
 
     Both versions include the common and language-specific application 'UI' subset fonts
     inline to load quickly and prevent a flash of unstyled text, at least for all
-    application text.
-
-    Full 'content' font files are linked and will load asynchronously. This means that
-    content might have a flash of unstyled text while the font is loading. However, we
-    provide the UI subsets as backup so in many cases the flash might not be significant.
+    application text. Full font files are linked and will load asynchronously.
 
     # Modern behavior
 
@@ -544,10 +535,18 @@ def _subset_and_merge_ui_fonts(text, reg_woff_path, bold_woff_path):
     )
 
 
-def command_gen_subset_fonts():
+def command_gen_subset_fonts(is_ui=True):
     """
     Creates custom fonts that attempt to contain all the glyphs and other font features
     that are used in user-facing text for the translation in each language.
+
+    'UI' (User Interface) variants of fonts are sometimes available for languages with
+    tall glyph heights, and are redrawn to fit within constrained vertical space.
+    Not all fonts have (or need to have) a 'UI' variant.
+
+    'Content' variants are easier to read but are not guaranteed to fit within UI
+    elements or avoid overlapping when rendered in blocks of text. 'Tall' alphabets
+    need to have more line height allotted when content fonts are used.
     """
     logging.info("Fonts: generating subset fonts...")
 
@@ -686,13 +685,10 @@ def main():
         type=str,
     )
     subparsers.add_parser(
-        "generate-subset-fonts",
-        help="Generate subset UI fonts and CSS based on app text",
+        "generate-subset-fonts", help="Generate subset fonts based on app text"
     )
-    subparsers.add_parser(
-        "generate-full-fonts", help="Generate full UI and content fonts"
-    )
-    subparsers.add_parser("generate-css", help="Generate CSS")
+    subparsers.add_parser("generate-full-fonts", help="Generate full fonts")
+    subparsers.add_parser("generate-css", help="Generate CSS for all languages")
     args = parser.parse_args()
 
     if args.command == "add-source-font":

@@ -213,15 +213,24 @@ function _loadDefaultFonts() {
 
   const uiNormal = new FontFaceObserver('noto-ui-full', { weight: 400 });
   const uiBold = new FontFaceObserver('noto-ui-full', { weight: 700 });
+
+  /*
+   * Don't use 'content' fonts until we support variable line heights for tall alphabets
+   *
   const contentNormal = new FontFaceObserver('noto-content-full', { weight: 400 });
   const contentBold = new FontFaceObserver('noto-content-full', { weight: 700 });
+  */
 
   // passing 'language_name' to 'load' for its glyphs, not its value per se
   Promise.all([
     uiNormal.load(language.language_name, 20000),
     uiBold.load(language.language_name, 20000),
+    /*
+     * Don't use 'content' fonts yet
+     *
     contentNormal.load(language.language_name, 20000),
     contentBold.load(language.language_name, 20000),
+    */
   ])
     .then(function() {
       htmlEl.classList.remove(PARTIAL_FONTS);

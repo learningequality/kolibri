@@ -44,12 +44,15 @@ $core-outline: $core-action-light 2px solid;
     font-family: 'noto-ui-subset', sans-serif;
   }
   .full-fonts-loaded & {
-    // Continue to include the subset when possible since it contains glyphs from other
-    // languages, for the language switcher
+    // Continue to include the subset since it contains glyphs from other languages,
+    // necessary for the language switcher and some English characters
     font-family: 'noto-ui-subset', 'noto-ui-full', sans-serif;
   }
 }
 
+/*
+ * Don't use 'content' fonts until we support variable line heights for tall alphabets
+ *
 @mixin font-family-content {
   .partial-fonts-loaded & {
     // Use the UI font initially because there's no 'content' subset
@@ -59,3 +62,4 @@ $core-outline: $core-action-light 2px solid;
     font-family: 'noto-content-full', sans-serif;
   }
 }
+*/
