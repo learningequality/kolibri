@@ -117,7 +117,7 @@ def _woff_font_path(name, is_ui, is_full, is_bold):
 @utils.memoize
 def _ttf_font_path(font_info, is_ui=False, is_bold=False):
     font_name = font_info["name"]
-    weight = "bold" if is_bold else "regular"
+    weight = "Bold" if is_bold else "Regular"
     if is_ui and font_info["has_ui_variant"]:
         return os.path.join(TTF_PATH, "{}UI-{}.ttf".format(font_name, weight))
     return os.path.join(TTF_PATH, "{}-{}.ttf".format(font_name, weight))
@@ -380,7 +380,7 @@ def command_gen_css():
     logging.info("Fonts: generating css...")
 
     # generate language-specific font files
-    for lang in utils.supported_languages(include_english=True):
+    for lang in utils.supported_languages(include_english=True, include_in_context=True):
         _generate_css_for_language(lang)
 
     # for all modern browsers, add all fonts references segmented by unicode range

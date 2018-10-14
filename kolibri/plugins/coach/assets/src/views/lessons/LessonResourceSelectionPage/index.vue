@@ -171,7 +171,7 @@
         if (this.moreResultsState === 'waiting' || this.moreResultsState === 'error') {
           return this.moreResultsState;
         }
-        if (this.numRemainingSearchResults === 0) {
+        if (!this.inSearchMode || this.numRemainingSearchResults === 0) {
           return 'no_more_results';
         }
         return 'visible';
@@ -196,7 +196,7 @@
       },
       filters(newVal) {
         this.$router.push({
-          query: pickBy(newVal),
+          query: { ...this.$route.query, ...pickBy(newVal) },
         });
       },
     },
@@ -296,11 +296,18 @@
         if (this.contentIsDirectoryKind(content)) {
           return topicListingLink({ ...this.routerParams, topicId: content.id });
         }
+        const { query } = this.$route;
         return {
           name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
           params: {
             ...this.routerParams,
             contentId: content.id,
+          },
+          query: {
+            ...query,
+            ...pickBy({
+              searchTerm: this.$route.params.searchTerm,
+            }),
           },
         };
       },
@@ -338,7 +345,7 @@
         this.$router.push({
           name: LessonsPageNames.SELECTION_SEARCH,
           params: {
-            searchTerm: searchTerm,
+            searchTerm,
           },
           query: {
             last_id: lastId,

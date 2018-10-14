@@ -36,7 +36,7 @@ export default [
     name: PageNames.EXAM_CREATION_PREVIEW,
     path: '/:classId/exams/new/preview/:contentId',
     handler: toRoute => {
-      showExamCreationPreviewPage(store, toRoute.params);
+      showExamCreationPreviewPage(store, toRoute.params, toRoute.query);
     },
   },
   {

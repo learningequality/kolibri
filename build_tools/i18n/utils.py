@@ -48,6 +48,7 @@ IN_CTXT_LANG = {
     KEY_INTL_CODE: "ach-ug",
     KEY_LANG_NAME: "In context translation",
     KEY_ENG_NAME: "In context translation",
+    KEY_DEFAULT_FONT: "NotoSans",
 }
 
 

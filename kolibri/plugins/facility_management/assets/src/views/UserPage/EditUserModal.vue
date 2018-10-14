@@ -43,6 +43,7 @@
       />
 
       <KExternalLink
+        v-if="devicePermissionsPageLink"
         class="super-admin-description"
         :text="editingSelf ? $tr('viewInDeviceTabPrompt') : $tr('changeInDeviceTabPrompt')"
         :href="devicePermissionsPageLink"
@@ -226,9 +227,10 @@
         return this.kind === UserKinds.SUPERUSER;
       },
       devicePermissionsPageLink() {
-        const devicePageUrl = urls['kolibri:devicemanagementplugin:device_management']();
-        // HACK needs longer term method
-        return `${devicePageUrl}#/permissions/${this.id}`;
+        const devicePageUrl = urls['kolibri:devicemanagementplugin:device_management'];
+        if (devicePageUrl) {
+          return `${devicePageUrl()}#/permissions/${this.id}`;
+        }
       },
       newType() {
         // never got the chance to even change it

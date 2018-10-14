@@ -229,7 +229,7 @@
       }
 
       this.$emit('stopTracking');
-      this.clearInterval(this.updateContentStateInterval);
+      clearInterval(this.updateContentStateInterval);
     },
     methods: {
       getPage(pageNum) {
