@@ -470,7 +470,7 @@ def _get_common_strings():
     """
 
     # Special characters that are used directly in untranslated template strings.
-    # Search the codebase with this regex to find new ones: [^\x00-\x7F©–—…‘’“”•→]
+    # Search the codebase with this regex to find new ones: [^\x00-\x7F©–—…‘’“”•→›]
     strings = [
         chr(0x0),  # null
         chr(0xC),  # form feed
@@ -485,6 +485,7 @@ def _get_common_strings():
         "”",
         "•",
         "→",
+        "›",
     ]
 
     # all the basic printable ascii characters
