@@ -1,5 +1,5 @@
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { LessonResource, ContentNodeResource } from 'kolibri.resources';
+import { LessonResource, ContentNodeSlimResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { error as logError } from 'kolibri.lib.logging';
 import router from 'kolibri.coreVue.router';
@@ -58,9 +58,10 @@ export function getResourceCache(store, resourceIds) {
   }
 
   if (nonCachedResourceIds.length) {
-    return ContentNodeResource.fetchCollection({
+    return ContentNodeSlimResource.fetchCollection({
       getParams: {
         ids: nonCachedResourceIds,
+        include_fields: ['num_coach_contents'],
       },
     }).then(contentNodes => {
       contentNodes.forEach(contentNode =>
