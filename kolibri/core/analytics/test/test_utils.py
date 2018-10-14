@@ -185,7 +185,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
         actual = extract_facility_statistics(facility)
         facility_id_hash = actual.pop('fi')
         # just assert the beginning hex values of the facility id don't match
-        self.assertFalse(facility_id_hash.startswith(facility.id[:3]))
+        self.assertFalse(facility_id_hash.startswith(facility.id[:3].encode()))
         expected = {
             "s": {
                 "preset": facility_presets.default,
@@ -217,7 +217,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
             "sut": 20,  # sess_user_time
             "sat": 20,  # sess_anon_time
         }
-        self.assertItemsEqual(actual, expected)
+        assert actual == expected
 
 
 class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
@@ -239,4 +239,4 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
             "sut": 20,  # sess_user_time
             "sat": 20,  # sess_anon_time
         }
-        self.assertItemsEqual(actual, expected)
+        assert actual == expected
