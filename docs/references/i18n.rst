@@ -155,7 +155,7 @@ This command will extract front- and backend strings and upload them to Crowdin:
 
 .. code-block:: bash
 
-  $ make i18n-crowdin-upload branch=[release-branch-name]
+  make i18n-upload branch=[release-branch-name]
 
 The branch name will typically look something like: ``release-v0.8.x``
 
@@ -169,7 +169,7 @@ Every release, we need to let translators for each language know how much work t
 
 .. code-block:: bash
 
-  $ make i18n-crowdin-stats branch=[release-branch-name]
+  make i18n-stats branch=[release-branch-name]
 
 This will give you some output like this:
 
@@ -202,16 +202,23 @@ Fetching and building translations
 
 In order to get the newly translated strings into the application, they need to be downloaded from Crowdin and checked in to the Kolibri github repo.
 
-You can download them using this command:
+You can download them and update Kolibri using the command below. **It can take a long time!**
 
 .. code-block:: bash
 
-    $ make i18n-crowdin-download branch=[release-branch-name]
+    make i18n-download branch=[release-branch-name]
 
-This will update local translation files. Check in new strings to git and submit them in a PR to the release branch.
+This will do a number of things for you:
 
-.. warning:: Before downloading, this will build the project (which can take some time). Builds can only happen once every 30 minutes, as per the Crowdin API.
+* Rebuild the crowdin project (note that builds can only happen once every 30 minutes, as per the Crowdin API)
+* Download and update all translations for the currently supported languages
+* Run Django's ``compilemessages`` command
+* Regenerate all font and css files
+* Regenerate Intl JS files
 
+Check in all the updated files to git and submit them in a PR to the release branch.
+
+.. note:: This may also require submitting a separate PR for the Perseus plugin, releasing a new version of it, and referencing the new version in Kolibri's base.txt Pip requirements file.
 
 
 .. _new_language:
@@ -221,71 +228,43 @@ Adding a newly supported language
 
 In order to add a new supported language to Kolibri, the appropriate language information object must be added to the array in ``kolibri/locale/supported_languages.json``.
 
+.. warning::
+
+  Always test a newly added language thoroughly because there are many things that can go wrong. At a minumum, ensure that you can run the development server, switch to the language, and navigate around the app (including Perseus exercises). Additionally, ensure that the fonts are `rendered with Noto <https://developers.google.com/web/updates/2013/09/DevTools-answers-What-font-is-that>`__.
+
 The language must be described using the following keys, with everything in lower case
 
 .. code-block:: javascript
 
   {
-    "crowdin_code": "<Code used to refer to the language on Crowdin>",
-    "intl_code": "<Lowercase code from Intl.js>",
-    "language_name": "<Language name in the target language>",
-    "english_name": "<Optional: Language name in English>",
-    "default_font": "Name of the primary Noto font"
+    "crowdin_code":   "[Code used to refer to the language on Crowdin]",
+    "intl_code":      "[Lowercase code from Intl.js]",
+    "language_name":  "[Language name in the target language]",
+    "english_name":   "[Language name in English]",
+    "default_font":   "[Name of the primary Noto font]"
   }
 
 
-Code references:
+* For ``crowdin_code``, see `Crowdin language codes <https://support.crowdin.com/api/language-codes/>`__.
+* For ``intl_code``, see `Supported Intl language codes <https://github.com/andyearnshaw/Intl.js/tree/master/locale-data/jsonp>`__ and make it lowercase.
+* For ``language_name`` and ``english_name``, refer to the `ISO 639 codes <https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>`__. If necessary, use `this backup reference <http://helpsharepointvision.nevron.com/Culture_Table.html>`__. If the language is a dialect specific to a region, include the name of the region in parentheses after the language name.
+* For the ``default_font``, we use variants of Noto Sans. Search the `Noto database <https://www.google.com/get/noto/>`__ to see which font supports the language you are adding.
 
-* `Crowdin language codes <https://support.crowdin.com/api/language-codes/>`__
-* `Supported Intl language codes <https://github.com/andyearnshaw/Intl.js/tree/master/locale-data/jsonp>`__
-
-For the language names, consult:
-
-1. Primarily, `ISO 639 codes <https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>`__
-2. `Backup reference <http://helpsharepointvision.nevron.com/Culture_Table.html>`__
-
-For the font name, check the `Noto database <https://www.google.com/get/noto/>`__.
-
-Any time a language is added to supported languages the command ``yarn run generate-locale-data`` must be run, and the resulting file changes committed to the code base.
-
-In some cases, the language doesn't exist in Django. In these situations, the language needs to be added to ``EXTRA_LANG_INFO`` in ``base.py``. In addition, for this language to work during development, the mo files for the language must be generated and committed to the repo, first run the command ``make i18n-django-compilemessages`` and then use ``git add -f kolibri/locale/<lang_code>/LC_MESSAGES/django.mo``.
-
-
-Adding a new font
-~~~~~~~~~~~~~~~~~
-
-We use variants of Noto Sans in Regular and Bold throughout the application in different languages. Search the `Noto database <https://www.google.com/get/noto/>`__ to see which font supports the language you're interested in. You can update an existing font or add a new one by running:
-
-To do this, run:
+Add a new font or update an existing one by running:
 
 .. code-block:: bash
 
-    $ make i18n-install-font name=[FontName]
+    make i18n-install-font name=[FontName]
 
 Where ``[FontName]`` might for example be for exmaple ``NotoSansBengali``. Note that this will also automatically look for the ``[FontName]UI`` variant, e.g. ``NotoSansBengaliUI``.
 
-.. note:: We attempt to download Phase III hinted TTF fonts from the `Google Noto Fonts <https://github.com/googlei18n/noto-fonts/>`__ github repo. It is possible that the structure of this repo will change over time, and the installer script will need to be updated.
-
-
-.. _rebuild_fonts:
-
-Rebuilding fonts
-----------------
-
-Whenever translations are updated or new fonts are added, we also need to re-generate our custom fonts and CSS. These custom fonts are built to include a minimal subset of glyphs that can be quickly loaded to display application text in particular languages, and then lazily load the full font files.
-
-To re-generate the font files and CSS, run:
+If the language doesn't exist in Django, you may get errors when trying to view the language. In this case it needs to be added to ``EXTRA_LANG_INFO`` in ``base.py``. Additionally, for this language to work during development, the django.mo files for the language must be generated and committed to the repo. After running ``make i18n-download`` as described above, add the new file:
 
 .. code-block:: bash
 
-    $ make i18n-generate-fonts
+  git add --force kolibri/locale/[lang_code]/LC_MESSAGES/django.mo
 
-Then, check the newly-created and -updated files into git.
+The ``--force`` flag will bypass .gitignore
 
-
-
-
-
-
-
+.. note:: We attempt to download Phase III hinted TTF fonts from the `Google Noto Fonts <https://github.com/googlei18n/noto-fonts/>`__ github repo. It is possible that the structure of this repo will change over time, and the installer script will need to be updated.
 

@@ -1,5 +1,5 @@
 # Specifies the targets that should ALWAYS have their recipies run
-.PHONY: help clean clean-pyc clean-build clean-assets writeversion lint test test-all coverage docs release i18n-crowdin-upload i18n-crowdin-download
+.PHONY: help clean clean-pyc clean-build clean-assets writeversion lint test test-all coverage docs release i18n-upload i18n-download
 
 help:
 	@echo "Usage:"
@@ -36,12 +36,11 @@ help:
 	@echo "--------------------"
 	@echo ""
 	@echo "i18n-extract: extract all strings from application (both front- and back-end)"
-	@echo "i18n-crowdin-upload branch=<crowdin-branch>: upload strings to Crowdin"
-	@echo "i18n-crowdin-download branch=<crowdin-branch>: download strings from Crowdin and compile"
-	@echo "i18n-crowdin-stats branch=<crowdin-branch>: output information about translation status"
+	@echo "i18n-upload branch=<crowdin-branch>: upload sources to Crowdin"
+	@echo "i18n-download branch=<crowdin-branch>: download strings from Crowdin and regenerate files"
+	@echo "i18n-stats branch=<crowdin-branch>: output information about translation status"
 	@echo "i18n-django-compilemessages: compiles .po files to .mo files for Django"
 	@echo "i18n-install-font name=<noto-font>: Downloads and installs a new or updated font"
-	@echo "i18n-generate-fonts: Generates custom fonts and CSS based on current languages and app strings"
 
 
 clean: clean-build clean-pyc clean-assets
@@ -176,26 +175,25 @@ i18n-django-compilemessages:
 	# finds only the .po files nested there.
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
 
-i18n-crowdin-upload: i18n-extract
+i18n-upload: i18n-extract
 	python build_tools/i18n/crowdin.py upload ${branch}
 	python build_tools/i18n/crowdin.py pre-translate ${branch}
 	python build_tools/i18n/crowdin.py stats ${branch}
 
-i18n-crowdin-download:
+i18n-download:
 	python build_tools/i18n/crowdin.py rebuild ${branch}
 	python build_tools/i18n/crowdin.py download ${branch}
+	python build_tools/i18n/fonts.py generate-full-fonts
+	python build_tools/i18n/fonts.py generate-subset-fonts
+	python build_tools/i18n/fonts.py generate-css
+	yarn run generate-locale-data
 	$(MAKE) i18n-django-compilemessages
 
-i18n-crowdin-stats:
+i18n-stats:
 	python build_tools/i18n/crowdin.py stats ${branch}
 
 i18n-install-font:
 	python build_tools/i18n/fonts.py add-source-font ${name}
-
-i18n-generate-fonts:
-	python build_tools/i18n/fonts.py generate-full-fonts
-	python build_tools/i18n/fonts.py generate-subset-fonts
-	python build_tools/i18n/fonts.py generate-css
 
 docker-clean:
 	docker container prune -f
