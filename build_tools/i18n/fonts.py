@@ -380,7 +380,9 @@ def command_gen_css():
     logging.info("Fonts: generating css...")
 
     # generate language-specific font files
-    for lang in utils.supported_languages(include_english=True, include_in_context=True):
+    for lang in utils.supported_languages(
+        include_english=True, include_in_context=True
+    ):
         _generate_css_for_language(lang)
 
     # for all modern browsers, add all fonts references segmented by unicode range
