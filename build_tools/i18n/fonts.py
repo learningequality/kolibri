@@ -305,12 +305,6 @@ def _generate_css_for_language(lang):
         modern.write(CSS_HEADER)
         basic.write(CSS_HEADER)
 
-        # Common subsets of UI font for both modern and basic
-        _write_inline_ui_font(modern, "Common", "noto-ui-subset", is_bold=False)
-        _write_inline_ui_font(modern, "Common", "noto-ui-subset", is_bold=True)
-        _write_inline_ui_font(basic, "Common", "noto-ui-subset", is_bold=False)
-        _write_inline_ui_font(basic, "Common", "noto-ui-subset", is_bold=True)
-
         # Language-specific subsets of UI font for both modern and basic
         lang_name = lang[utils.KEY_INTL_CODE]
         _write_inline_ui_font(modern, lang_name, "noto-ui-subset", is_bold=False)
@@ -446,23 +440,30 @@ def _get_subset_font(source_file_path, text):
     return font
 
 
-def _get_lang_text(lang, locale_dir):
-    text = []
+def _get_lang_strings(locale_dir):
+    """
+    Text used in a particular language
+    """
+
+    strings = []
+
     for file_name in os.listdir(locale_dir):
         if not file_name.endswith(".json"):
             continue
+
         file_path = os.path.join(locale_dir, file_name)
         with io.open(file_path, mode="r", encoding="utf-8") as f:
-            strings = json.load(f).values()
+            lang_strings = json.load(f).values()
 
-        for string in strings:
-            text.append(string)
-            text.append(string.upper())
-    return " ".join(text)
+        for s in lang_strings:
+            strings.append(s)
+            strings.append(s.upper())
+
+    return strings
 
 
 @utils.memoize
-def _get_common_text():
+def _get_common_strings():
     """
     Text useful for all languages: displaying the language switcher, Kolibri version
     numbers, symbols, and other un-translated text
@@ -470,7 +471,7 @@ def _get_common_text():
 
     # Special characters that are used directly in untranslated template strings.
     # Search the codebase with this regex to find new ones: [^\x00-\x7F©–—…‘’“”•→]
-    common_text = [
+    strings = [
         chr(0x0),  # null
         chr(0xC),  # form feed
         chr(0xD),  # carriage return
@@ -487,15 +488,16 @@ def _get_common_text():
     ]
 
     # all the basic printable ascii characters
-    common_text.extend([chr(c) for c in range(32, 127)])
+    strings.extend([chr(c) for c in range(32, 127)])
 
     # text from language names, both lower- and upper-case
     for lang in utils.supported_languages():
-        common_text.append(lang[utils.KEY_LANG_NAME])
-        common_text.append(lang[utils.KEY_LANG_NAME].upper())
-        common_text.append(lang[utils.KEY_ENG_NAME])
-        common_text.append(lang[utils.KEY_ENG_NAME].upper())
-    return " ".join(common_text)
+        strings.append(lang[utils.KEY_LANG_NAME])
+        strings.append(lang[utils.KEY_LANG_NAME].upper())
+        strings.append(lang[utils.KEY_ENG_NAME])
+        strings.append(lang[utils.KEY_ENG_NAME].upper())
+
+    return strings
 
 
 def _merge_fonts(fonts, output_file_path):
@@ -522,7 +524,7 @@ def _cannot_merge(font):
     return font["head"].unitsPerEm != 1000
 
 
-def _subset_and_merge_ui_fonts(text, reg_woff_path, bold_woff_path):
+def _subset_and_merge_fonts(text, reg_woff_path, bold_woff_path, is_ui):
     """
     Given text, generate both a bold and a regular font that can render it.
     """
@@ -530,8 +532,8 @@ def _subset_and_merge_ui_fonts(text, reg_woff_path, bold_woff_path):
     bold_subsets = []
     skipped = []
     for font_info in FONT_MANIFEST:
-        reg_ttf_path = _ttf_font_path(font_info, is_ui=True, is_bold=False)
-        bold_ttf_path = _ttf_font_path(font_info, is_ui=True, is_bold=True)
+        reg_ttf_path = _ttf_font_path(font_info, is_ui=is_ui, is_bold=False)
+        bold_ttf_path = _ttf_font_path(font_info, is_ui=is_ui, is_bold=True)
         reg_subset = _get_subset_font(reg_ttf_path, text)
         bold_subset = _get_subset_font(bold_ttf_path, text)
 
@@ -568,23 +570,19 @@ def command_gen_subset_fonts(is_ui=True):
     """
     logging.info("Fonts: generating subset fonts...")
 
-    # First, generate common fonts
-    common_text = _get_common_text()
+    common_strings = _get_common_strings()
 
-    reg_font_path = _woff_font_path("Common", is_ui=True, is_full=False, is_bold=False)
-    bold_font_path = _woff_font_path("Common", is_ui=True, is_full=False, is_bold=True)
-    _subset_and_merge_ui_fonts(common_text, reg_font_path, bold_font_path)
-
-    # Next, generate a UI font subset for each language based on app text
     for lang in utils.supported_languages(include_english=True):
-        lang_text = _get_lang_text(lang, utils.local_locale_path(lang))
-        # lang_text |= _get_lang_text(lang, utils.local_perseus_locale_path(lang))
+        strings = []
+        strings.extend(common_strings)
+        strings.extend(_get_lang_strings(utils.local_locale_path(lang)))
+        strings.extend(_get_lang_strings(utils.local_perseus_locale_path(lang)))
 
         name = lang[utils.KEY_INTL_CODE]
+        reg_font_path = _woff_font_path(name, is_ui=is_ui, is_full=False, is_bold=False)
+        bold_font_path = _woff_font_path(name, is_ui=is_ui, is_full=False, is_bold=True)
 
-        reg_font_path = _woff_font_path(name, is_ui=True, is_full=False, is_bold=False)
-        bold_font_path = _woff_font_path(name, is_ui=True, is_full=False, is_bold=True)
-        _subset_and_merge_ui_fonts(lang_text, reg_font_path, bold_font_path)
+        _subset_and_merge_fonts(" ".join(strings), reg_font_path, bold_font_path, is_ui)
 
     logging.info("Fonts: created")
 
