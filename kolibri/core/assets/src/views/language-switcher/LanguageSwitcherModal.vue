@@ -12,9 +12,9 @@
       <KGridItem
         v-for="language in languageOptions"
         :key="language.id"
-        sizes = "100, 100, 50"
+        sizes="100, 100, 50"
         percentage
-        alignment = "left"
+        alignment="left"
       >
         <KRadioButton
           :value="language.id"
