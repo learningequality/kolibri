@@ -1,6 +1,6 @@
 <template>
 
-  <div class="resource-selection-page">
+  <div>
     <h1>
       {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
     </h1>
@@ -53,7 +53,7 @@
       :viewMoreButtonState="viewMoreButtonState"
       :selectAllChecked="addableContent.length === 0"
       :contentIsChecked="contentIsInLesson"
-      :contentHasCheckbox="contentIsDirectoryKind"
+      :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
       :contentCardMessage="selectionMetadata"
       :contentCardLink="contentLink"
       @changeselectall="toggleTopicInWorkingResources"
@@ -396,11 +396,6 @@
 
 
 <style lang="scss" scoped>
-
-  .resource-selection-page {
-    // offset to maintain straight lines in form w/ dynamic checkbox
-    margin-left: 64px;
-  }
 
   .exit-search-button {
     margin-left: 0;

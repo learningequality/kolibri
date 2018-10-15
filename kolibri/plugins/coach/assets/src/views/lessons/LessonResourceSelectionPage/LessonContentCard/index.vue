@@ -137,12 +137,14 @@
   }
 
   .text {
+    $left-offset: $thumb-width + $checkbox-offset;
+
     position: absolute;
     top: 0;
     bottom: 0;
-    left: $thumb-width;
-    width: calc(100% - #{$thumb-width});
-    padding: 24px;
+    left: $left-offset;
+    width: calc(100% - #{$left-offset});
+    padding: 16px;
     overflow-y: auto;
     color: $core-text-default;
   }
@@ -175,8 +177,8 @@
 
   .message {
     position: absolute;
-    top: 24px;
-    right: 24px;
+    top: 16px;
+    right: 16px;
     color: $core-text-default;
   }
 

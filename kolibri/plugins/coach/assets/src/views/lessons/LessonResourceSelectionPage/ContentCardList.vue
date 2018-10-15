@@ -24,7 +24,7 @@
           @change="handleCheckboxChange(content.id, $event)"
         />
         <LessonContentCard
-          class="content-card"
+          :class="{'with-checkbox': needCheckboxes}"
           :title="content.title"
           :thumbnail="content.thumbnail"
           :description="content.description"
@@ -130,6 +130,9 @@
           this.viewMoreButtonState !== 'waiting' && this.viewMoreButtonState !== 'no_more_results'
         );
       },
+      needCheckboxes() {
+        return this.contentList.some(c => this.contentHasCheckbox(c));
+      },
     },
     methods: {
       handleCheckboxChange(contentId, checked) {
@@ -149,6 +152,8 @@
 
 <style lang="scss" scoped>
 
+  @import './LessonContentCard/card';
+
   .content-list {
     display: block;
     padding: 0;
@@ -164,12 +169,12 @@
   .content-checkbox {
     position: absolute;
     top: 34%; // offset accouting for shadow on card
-    left: -32px;
+    left: 0;
     display: inline-block;
   }
 
-  .content-card {
-    width: 100%;
+  .with-checkbox {
+    margin-left: $checkbox-offset;
   }
 
 </style>
