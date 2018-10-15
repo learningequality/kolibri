@@ -325,9 +325,8 @@ def command_gen_css():
     logging.info("Fonts: generating css...")
 
     # generate language-specific font files
-    for lang in utils.supported_languages(
-        include_english=True, include_in_context=True
-    ):
+    languages = utils.supported_languages(include_in_context=True, include_english=True)
+    for lang in languages:
         _generate_css_for_language(lang)
 
     # for all modern browsers, add all fonts references segmented by unicode range
@@ -434,7 +433,8 @@ def _get_common_strings():
     strings.extend([chr(c) for c in range(32, 127)])
 
     # text from language names, both lower- and upper-case
-    for lang in utils.supported_languages():
+    languages = utils.supported_languages(include_in_context=True, include_english=True)
+    for lang in languages:
         strings.append(lang[utils.KEY_LANG_NAME])
         strings.append(lang[utils.KEY_LANG_NAME].upper())
         strings.append(lang[utils.KEY_ENG_NAME])
@@ -507,17 +507,19 @@ def command_gen_subset_fonts():
 
     common_strings = _get_common_strings()
 
-    for lang in utils.supported_languages(include_in_context=True, include_english=True):
+    languages = utils.supported_languages(include_in_context=True, include_english=True)
+    for lang in languages:
         strings = []
         strings.extend(common_strings)
         strings.extend(_get_lang_strings(utils.local_locale_path(lang)))
         strings.extend(_get_lang_strings(utils.local_perseus_locale_path(lang)))
 
         name = lang[utils.KEY_INTL_CODE]
-        reg_font_path = _woff_font_path(name, is_full=False, is_bold=False)
-        bold_font_path = _woff_font_path(name, is_full=False, is_bold=True)
-
-        _subset_and_merge_fonts(" ".join(strings), reg_font_path, bold_font_path)
+        _subset_and_merge_fonts(
+            text=" ".join(strings),
+            reg_woff_path=_woff_font_path(name, is_full=False, is_bold=False),
+            bold_woff_path=_woff_font_path(name, is_full=False, is_bold=True),
+        )
 
     logging.info("Fonts: created")
 
