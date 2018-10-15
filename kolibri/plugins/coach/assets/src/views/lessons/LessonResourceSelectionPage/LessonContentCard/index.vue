@@ -23,7 +23,7 @@
 
       <TextTruncator
         :text="description"
-        :maxHeight="40"
+        :maxHeight="80"
         :showViewMore="true"
         class="description"
       />
