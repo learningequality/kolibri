@@ -5,7 +5,7 @@ Feature: Coach delete exam
     Given I am signed in to Kolibri as coach user
       And I am on *Coach > Exams* page
 
-  Scenario: Coach deletes the exam
+  Scenario: Delete exam
     When I click the exam <exam_name>
     Then I see the <exam_name> page
     When I click *Options* button

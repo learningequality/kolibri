@@ -10,8 +10,8 @@ Feature: Coach copy exam
     When I click the exam <exam>
     Then I see the <exam> page
     When I click *Options* button
-      And I select *Copy to* option
-    Then I see the *Copy exam* modal
+      And I select *Copy exam* option
+    Then I see the *Copy exam to* modal
       And I see *'<class>' (current class)* is selected
     When I click *Continue* button
     Then the modal content changes and asks to select recipients
@@ -21,15 +21,15 @@ Feature: Coach copy exam
       And the snackbar confirmation appears
     When I click on *exam*
     Then I see the *Copy of '<exam>'* in the list of exam on *Coach > Exams* page
-      And I see *Entire class* value for it under the *Recipients* column header
+      And I see *Entire class* value for it under the *Visible to* column header
 
   Scenario: Copy exam to a different class and assign it to just one group
     Given there is a class <class2> that has a group <group>
     When I click the exam <exam>
     Then I see the <exam> page
     When I click *Options* button
-      And I select *Copy to* option
-    Then I see the *Copy exam* modal
+      And I select *Copy exam* option
+    Then I see the *Copy exam to* modal
       And I see *'<class>' (current class)* is selected
     When I select class <class2> 
       And I click *Continue* button
@@ -44,7 +44,7 @@ Feature: Coach copy exam
       And I click class <class2>
       And I click on *Exams* tab
     Then I see the *Copy of '<exam>'* in the list of exams on *Coach > Exams* page
-      And I see *1 group* value for it under the *Recipients* column header
+      And I see *1 group* value for it under the *Visible to* column header
 
 Examples:
 | exam          | class    | class2   | group     |

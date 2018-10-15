@@ -1,4 +1,4 @@
-Feature: Coach learner reports for exams
+Feature: Coach reviews learner reports for exams
   Coach can see the progress and score for each learner for a given exam
 
   Background:
