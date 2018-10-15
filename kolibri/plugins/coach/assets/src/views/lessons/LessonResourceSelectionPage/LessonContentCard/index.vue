@@ -121,7 +121,7 @@
   .content-card {
     display: block;
     height: $thumb-height;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
     text-align: left;
     text-decoration: none;
     background-color: $core-bg-light;
