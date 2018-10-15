@@ -110,6 +110,7 @@
 <style lang="scss" scoped>
 
   .ar {
+    margin-top: 8px;
     text-align: right;
   }
 
