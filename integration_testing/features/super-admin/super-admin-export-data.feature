@@ -1,8 +1,8 @@
-Feature: Super Admin export usage data
-    Super Admin needs to be able to export session and summary logs for the facility
+Feature: Super admin export usage data
+    Super admin needs to be able to export session and summary logs for the facility
 
   Background:
-    Given I am signed in to Kolibri as super admin
+    Given I am signed in to Kolibri as Super admin
       And I am on *Facility > Data* page
       And the learners have had interactions with the content on the device
 

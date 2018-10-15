@@ -1,10 +1,10 @@
-Feature: Super Admin import content
+Feature: Super admin import content
     Admin needs to be able to import private/unlisted content channels on the device using the channel token or ID
 
   Background:
     Given there is no content from <channel> channel on the device
       And I have the <token> token or the <id> ID for the <channel> channel
-      And I am signed in to Kolibri as super admin, or a user with device permissions to import content
+      And I am signed in to Kolibri as Super admin, or a user with device permissions to import content
       And I am on the *Kolibri Studio* page with the list of available content *Channels*
 
   Scenario: Import new content channel from Kolibri Studio using the token
@@ -20,21 +20,21 @@ Feature: Super Admin import content
     When I check the *Select all* checkbox
     Then I see the checkboxes for all the topics are checked
       And I see the *Import* button is active
-      And I see the values for *Resources selected* increase
-      And I see the value for *Your remaining space* decreases (if the size of selected resources is close to 1GB)  
+      And I see the values for *Content selected* increase
+      And I see the value for *Drive space available* decreases (if the size of selected resources is close to 1GB)  
     When I uncheck the *Select all* checkbox
     Then I see the *Import* button is inactive
-      And I see the values for *Resources selected* is 0
-      And I see the value for *Your remaining space* increases to the initial state
+      And I see the values for *Content selected* is 0
+      And I see the value for *Drive space available* increases to the initial state
     # Select/unselect one full topic    
     When I check the <topic> topic checkbox
     Then I see the *Import* button is active
-      And I see the values for *Resources selected* increase
-      And I see the value for *Your remaining space* decreases (if the size of selected resources is close to 1GB)
+      And I see the values for *Content selected* increase
+      And I see the value for *Drive space available* decreases (if the size of selected resources is close to 1GB)
     When I uncheck the <topic> topic checkbox
     Then I see the *Import* button is inactive
-      And I see the values for *Resources selected* is 0
-      And I see the value for *Your remaining space* increases to the initial state
+      And I see the values for *Content selected* is 0
+      And I see the value for *Drive space available* increases to the initial state
     # Select and import just one resource from a subtopic of a topic
     When I click the <topic> topic
     Then see the list of subtopics for the <topic> topic
@@ -43,10 +43,10 @@ Feature: Super Admin import content
     When I check the <resource> resource checkbox
     Then I see the *Import* button is active 
       And I see the *1 resource selected* flag for the <resource> resource
-      And I see the values for *Resources selected* increase
-      And I see the value for *Your remaining space* decreases (if the size of selected resources is close to 1GB)
+      And I see the values for *Content selected* increase
+      And I see the value for *Drive space available* decreases (if the size of selected resources is close to 1GB)
     When I click the *Import* button
-    Then I see *Device > Content* page again
+    Then I see *Device > Channels* page again
       And I see the blue progress bar with the percentage increasing 
     When the import process concludes
     Then I see the progress bar at 100%

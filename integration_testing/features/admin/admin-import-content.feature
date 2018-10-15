@@ -8,5 +8,5 @@ Feature: Admin import content
   Scenario: Admin imports content channels
     When I open the sidebar
     Then I can click on *Device*
-      And I see the *Device > Content* page
+      And I see the *Device > Channels* page
       And I can click on *Import* button and select channels to import

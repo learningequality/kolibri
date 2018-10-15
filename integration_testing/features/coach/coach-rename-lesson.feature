@@ -11,8 +11,8 @@ Feature: Coach rename lesson
     Then I am on the <lesson_title> page
     When I click the *Options* button
     When I select *Edit details*
-    Then I see the *Edit details* modal
-    When I rename the *Title*
+    Then I see the *Edit lesson details* modal
+    When I rename the *Lesson title*
     When I click *Save* button
     Then the modal closes
       And the snackbar notification appears
