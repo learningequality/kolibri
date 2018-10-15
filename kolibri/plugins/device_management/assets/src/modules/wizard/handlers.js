@@ -298,6 +298,7 @@ export function updateTreeViewTopic(store, topic) {
   return ContentNodeGranularResource.fetchModel({
     id: topic.id,
     getParams: fetchArgs,
+    force: true,
   })
     .then(contents => {
       store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', contents);
