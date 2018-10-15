@@ -18,6 +18,7 @@ from fontTools import merge
 from fontTools import subset
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
+logging.getLogger("fontTools").setLevel(logging.WARNING)
 logging.StreamHandler(sys.stdout)
 
 
@@ -481,7 +482,6 @@ def _subset_and_merge_fonts(text, reg_woff_path, bold_woff_path):
         bold_subset = _get_subset_font(bold_ttf_path, text)
 
         if _cannot_merge(reg_subset) or _cannot_merge(bold_subset):
-            logging.warning("Fonts: {} has incompatible metrics".format(reg_ttf_path))
             skipped.append(font_info[utils.KEY_NAME])
             continue
 
