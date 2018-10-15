@@ -15,7 +15,7 @@
         :key="content.id"
       >
         <KCheckbox
-          v-if="!contentHasCheckbox(content)"
+          v-if="contentHasCheckbox(content)"
           class="content-checkbox"
           :label="content.title"
           :showLabel="false"

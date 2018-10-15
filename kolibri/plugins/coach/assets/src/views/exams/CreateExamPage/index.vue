@@ -441,7 +441,7 @@
         };
       },
       contentHasCheckbox() {
-        return this.pageName === PageNames.EXAM_CREATION_ROOT;
+        return this.pageName !== PageNames.EXAM_CREATION_ROOT;
       },
       contentIsSelected(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
