@@ -2,7 +2,6 @@
 
   <div>
     <KTextbox
-      :autofocus="true"
       v-model="facilityName"
       @blur="validateFacilityName"
       :invalid="facilityNameIsInvalid"
