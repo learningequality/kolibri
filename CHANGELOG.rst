@@ -4,6 +4,24 @@ Release Notes
 Changes are ordered reverse-chronologically.
 
 
+0.10.3
+------
+
+Internationalization and localization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ - Added Mexican Spanish (es_MX) and Bulgarian (bg)
+
+Fixed
+~~~~~
+
+ - Upgrade issue upon username conflict between device owner and facility user
+ - Channel import listing of USB devices when non-US locale
+ - Counts for coach-specific content would in some cases be wrongly displayed
+
+See a `more detailed list <https://github.com/learningequality/kolibri/pulls?q=is%3Apr+milestone%3A0.10.3+label%3Achangelog>`_ of changes on Github
+
+
 0.10.2
 ------
 
