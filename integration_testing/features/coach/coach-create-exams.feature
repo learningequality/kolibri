@@ -120,7 +120,7 @@ Feature: Coach create exams
     Then I am redirected to the search results page
       And I see the *No results found...* message
 
-  Scenario: Add a topic or exercise from search results page
+  Scenario: Add a topic or exercise from the search results page
     Given I am on the search results page
       And there are exercises and topics available in the search results
     When I check an exercise checkbox
@@ -130,7 +130,7 @@ Feature: Coach create exams
     Then I see the *n total selected* count increase for the number of exercises in the selected topic
       And I see a snackbar confirmation that the topic was added to the exam
 
-  Scenario: Remove a topic or exercise from search results page
+  Scenario: Remove a topic or exercise from the search results page
     Given I am on the search results page
       And there are exercises and topics available in the search results
       And some of them are selected 
@@ -143,86 +143,89 @@ Feature: Coach create exams
 
   Scenario: Filter search results by type
     Given I am on the search results page
-    When I select the type filter dropdown
+    When I open the *Type* filter dropdown
     Then I can see the available formats I can filter by (all/exercises/topics)
-    Given I select *all* filter option
-    Then the search results should display all resource results
-    Given I select *exercises*
-    Then the search results should only show exercises
-    Given I select *topics*
-    Then the search results should only show topics
+    When I select *Exercises* option
+    Then I see only exercises among search results
+    When I select *Topics* option
+    Then I see only topics among search results
+    When I select the option *All*
+    Then I see both topics and exercises in search results
 
-  Scenario: Coach uses the channel filter
+  Scenario: Use the channel filter
     Given I am on the search results page
-    When I select the channel filter dropdown
-    Then by default I can see channels that contain exercises or topics pertaining to the search results
-    And by default, channels that do not contain relevant exercises or topics are hidden
-    Given I select a channel
-    Then the search results should be filtered by only the selected channel
+      And I see content from channels related to the searched keyword
+      And I don't see content from channels that do not contain exercises
+    When I select a specific channel from the channel filter dropdown
+    Then I see the search results are filtered and present content only from the selected channel
 
-  Scenario: Coach filters by coach content only
+  Scenario: Filter only the coach content
     Given I am on the search results page
-    When I select *coach-only* filter option
-    Then the search results should include only show coach content
+    When I select *Coach* filter option
+    Then I see the search results are filtered and present only content for coaches
 
-  Scenario: Coach filters by non-coach content only
+  Scenario: Filter only the non-coach content
     Given I am on the search results page
-    When I select *non-coach* filter option
-    Then the search results should exclude coach content
+    When I select *Non-coach* filter option
+    Then I see the search results are filtered and exclude content for coaches
 
-  Scenario: Coach filters by all content
+  Scenario: Don't filter content by role visibility 
     Given I am on the search results page
-    When I select the *all* filter dropdown
-    Then the search results should include both coach and non-coach content
+    When I select the *All* filter dropdown
+    Then I see the search results include both coach and non-coach content
 
-  Scenario: Coach views metadata on exercise cards in search results
+  Scenario: View metadata on exercise cards in search results
     Given I am on the search results page
-    Given there are exercises in the search results
+      And there are exercises in the search results
     When I see an exercise card
-    Then I can see its title
-    And I can see its description
-    And I can see whether it is a coach exercise or not
+    Then I see its title
+      And I see its description
+      And I see whether it is a coach exercise or not
 
-  Scenario: Coach views metadata on topic cards in search results
+  Scenario: Views metadata on topic cards in search results
     Given I am on the search results page
-    Given there are topics in the search results
-    When I see the topic cards
-    Then I can see its title
-    And I can see its description
-    And I can see how many coach exercises/topics it contains inside
-    And I can see how many exercises inside were added to the exam
+      And there are topics in the search results
+    When I see a topic card
+    Then I see its title
+      And I see its description
+      And I see how many coach exercises/topics it contains
+      And I see how many exercises inside are added to the exam
 
-  Scenario: Coach previews a resource in the search results
+  Scenario: Preview a resource in the search results
     Given I am on the search results page
-    Given there are exercises in the search results page
-    When I click on *Preview* on an exercise card
-    Then I see the *Preview resource* page
-    When I click on *back arrow* button
+      And there are exercises in the search results page
+    When I click an exercise card
+    Then I see the *Preview resources* page
+    When I click the *back arrow* button
     Then I see the search results page again
-    And I see my results are still present
+      And I see my results are still present
 
-  Scenario: Coach exits the search results page
+  Scenario: Exit the search results page
     Given I am on the search results page
     When I click *Exit search*
-    Then I see the topic and channel I was viewing before I entered the search results page
+    Then I see the topic and channel I was viewing before I initiated the search
 
-  Scenario: Exam preview
-    Given that there are no validation errors
-    When I click on “preview”
-    Then a modal should appear with a question list pulled randomly from each exercise
-    And if I click on the randomize questions button
-    Then the modal should refresh with a newly randomized question list
+  Scenario: Preview Exam
+    Given I am on *Create new exam* page
+      And there are no validation errors
+    When I click “Preview”
+    Then I see a modal with a question list pulled randomly from each exercise
+    When I click on *Randomize questions* button
+    Then I see the modal is refreshed with reordered randomized question list
 
-  Scenario: save exam
-    Given that there are no validation errors
-    When I click on “save”
-    Then I should be redirected to the exam list page
-    And I should see a snackbar confirming the exam was created
+  Scenario: Save exam
+    Given I am on *Create new exam* page
+      And there are no validation errors
+    When I click “Save”
+    Then I am redirected to the *Coach > Exams* page
+      And I see a snackbar confirmation that the exam is created
 
-  Scenario: Click on the exit icon in the app bar
-    Given that i click on the exit icon in the app bar
-    Then i should be redirected to the exams list page
-    And I should lose all exam creation progress
+  Scenario: Exit exam creation from the app bar
+    Given I am on *Create new exam* page
+      But I did not save the exam
+    When I click the exit icon (X) in the app bar
+    Then I am redirected to the *Coach > Exams* page
+      And I loose all exam creation progress
 
     Examples:
       | exam_title    | number_of_question | exercises_questions | channel                | topic               |
