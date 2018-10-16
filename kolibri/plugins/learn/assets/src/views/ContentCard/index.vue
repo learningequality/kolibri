@@ -151,6 +151,7 @@
     display: inline-block;
     width: $thumb-width-desktop;
     text-decoration: none;
+    word-break: break-word;
     vertical-align: top;
     background-color: $core-bg-light;
     border-radius: 2px;
