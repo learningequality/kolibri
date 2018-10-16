@@ -305,7 +305,10 @@ export function updateTreeViewTopic(store, topic) {
       store.dispatch('manageContent/wizard/updatePathBreadcrumbs', topic);
     })
     .catch(() => {
-      store.commit('manageContent/wizard/SET_WIZARD_STATUS', 'TREEVIEW_LOADING_ERROR');
+      store.commit(
+        'manageContent/wizard/SET_WIZARD_STATUS',
+        ContentWizardErrors.TREEVIEW_LOADING_ERROR
+      );
     })
     .then(() => {
       store.commit('CORE_SET_PAGE_LOADING', false);

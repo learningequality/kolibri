@@ -32,6 +32,8 @@ export function loadChannelMetaData(store) {
       // Replacing them here with canonical type from ChannelResource.
       store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', {
         ...channel,
+        total_resources: transferredChannel.total_resources,
+        total_file_size: transferredChannel.total_file_size,
         version: transferredChannel.version,
         public: transferredChannel.public,
       });
