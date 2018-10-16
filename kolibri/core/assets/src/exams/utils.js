@@ -54,12 +54,17 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
         const questionSources = exam.question_sources;
 
         const questionList = createQuestionList(questionSources);
+        let contentPromise;
 
-        const contentPromise = ContentNodeResource.fetchCollection({
-          getParams: {
-            ids: questionSources.map(item => item.exercise_id),
-          },
-        });
+        if (questionSources.length) {
+          contentPromise = ContentNodeResource.fetchCollection({
+            getParams: {
+              ids: questionSources.map(item => item.exercise_id),
+            },
+          });
+        } else {
+          contentPromise = ConditionalPromise.resolve([]);
+        }
 
         contentPromise.only(
           samePageCheckGenerator(store),
