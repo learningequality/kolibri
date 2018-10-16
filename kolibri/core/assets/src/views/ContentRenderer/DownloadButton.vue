@@ -36,7 +36,7 @@
     },
     methods: {
       download(file) {
-        window.location.href = file.url;
+        window.open(file.url, '_blank');
       },
     },
   };
