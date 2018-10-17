@@ -513,12 +513,15 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data['name'], 'testing')
 
     def test_channelmetadata_resource_info(self):
+        content.ChannelMetadata.objects.all().update(total_resource_count=4, published_size=0)
         data = content.ChannelMetadata.objects.values()[0]
         c1_id = content.ContentNode.objects.get(title="c1").id
         content.ContentNode.objects.filter(pk=c1_id).update(available=False)
         get_params = {'include_fields': 'total_resources,total_file_size,on_device_resources,on_device_file_size'}
         response = self.client.get(reverse("kolibri:core:channel-detail", kwargs={'pk': data["id"]}), get_params)
-        self.assertEqual(response.data['total_resources'], 1)
+        # N.B. Because of our not very good fixture data, all of our content nodes are by default not renderable
+        # Hence this will return None if everything is deduped properly.
+        self.assertEqual(response.data['total_resources'], 0)
         self.assertEqual(response.data['total_file_size'], 0)
         self.assertEqual(response.data['on_device_resources'], 4)
         self.assertEqual(response.data['on_device_file_size'], 0)
@@ -563,8 +566,10 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data[0]["available"], False)
 
     def test_channelmetadata_include_fields_filter_has_total_resources(self):
+        # N.B. Because of our not very good fixture data, all of our content nodes are by default not renderable
+        # Hence this will return None if everything is deduped properly.
         response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'total_resources'})
-        self.assertEqual(response.data[0]["total_resources"], 1)
+        self.assertEqual(response.data[0]["total_resources"], 0)
 
     def test_channelmetadata_include_fields_filter_has_total_file_size(self):
         content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
@@ -572,23 +577,24 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data[0]["total_file_size"], 2)
 
     def test_channelmetadata_include_fields_filter_has_on_device_resources(self):
+        content.ChannelMetadata.objects.all().update(total_resource_count=5)
         response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'on_device_resources'})
         self.assertEqual(response.data[0]["on_device_resources"], 5)
 
     def test_channelmetadata_include_fields_filter_has_on_device_file_size(self):
-        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
+        content.ChannelMetadata.objects.all().update(published_size=4)
         response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'on_device_file_size'})
         self.assertEqual(response.data[0]["on_device_file_size"], 4)
 
     def test_channelmetadata_include_fields_filter_has_no_on_device_file_size(self):
-        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(available=True)
+        content.ChannelMetadata.objects.all().update(published_size=0)
         response = self.client.get(reverse("kolibri:core:channel-list"),
                                    {'include_fields': 'total_resources,total_file_size,on_device_resources,on_device_file_size'})
         self.assertEqual(response.data[0]["on_device_file_size"], 0)
 
     @mock.patch.object(kolibri.core.content.serializers, 'renderable_contentnodes_without_topics_q_filter', Q(kind="dummy"))
     def test_channelmetadata_include_fields_filter_has_no_renderable_on_device_file_size(self):
-        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
+        content.ChannelMetadata.objects.all().update(published_size=4)
         response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'on_device_file_size'})
         self.assertEqual(response.data[0]["on_device_file_size"], 4)
 
