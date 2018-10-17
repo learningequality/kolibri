@@ -1,7 +1,7 @@
 <template>
 
-  <div>
-    <div ref="icon">
+  <KTooltip placement="right">
+    <div slot="trigger">
       <mat-svg
         v-if="answer === 'right'"
         category="action"
@@ -25,22 +25,22 @@
         class="rectified"
       />
     </div>
-    <UiTooltip trigger="icon">
+    <div slot="tooltip">
       {{ tooltipText }}
-    </UiTooltip>
-  </div>
+    </div>
+  </KTooltip>
 
 </template>
 
 
 <script>
 
-  import UiTooltip from 'keen-ui/src/UiTooltip';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'AnswerIcon',
     components: {
-      UiTooltip,
+      KTooltip,
     },
     props: {
       answer: {

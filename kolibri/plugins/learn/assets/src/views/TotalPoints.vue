@@ -1,14 +1,18 @@
 <template>
 
-  <div v-if="isUserLoggedIn" class="points" ref="points">
-    <PointsIcon class="icon" :active="true" />
-    <div class="description">
-      <div class="description-value">{{ $formatNumber(totalPoints) }}</div>
+  <KTooltip v-if="isUserLoggedIn">
+    <div slot="trigger" class="points">
+      <PointsIcon class="icon" :active="true" />
+      <div class="description">
+        <div class="description-value">
+          {{ $formatNumber(totalPoints) }}
+        </div>
+      </div>
     </div>
-    <UiTooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">
+    <div slot="tooltip">
       {{ $tr('pointsTooltip', { points: totalPoints }) }}
-    </UiTooltip>
-  </div>
+    </div>
+  </KTooltip>
 
 </template>
 
@@ -17,14 +21,14 @@
 
   import { mapGetters, mapActions } from 'vuex';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
-  import UiTooltip from 'keen-ui/src/UiTooltip';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'TotalPoints',
     $trs: { pointsTooltip: 'You earned { points, number } points' },
     components: {
       PointsIcon,
-      UiTooltip,
+      KTooltip,
     },
     computed: {
       ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),

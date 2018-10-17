@@ -1,24 +1,26 @@
 <template>
 
-  <span ref="progress-icon">
-    <UiIcon
-      v-if="isInProgress"
-      :ariaLabel="$tr('inProgress')"
-      class="inprogress"
-    >
-      <mat-svg name="schedule" category="action" />
-    </UiIcon>
-    <UiIcon
-      v-else-if="isCompleted"
-      :ariaLabel="$tr('completed')"
-      class="completed"
-    >
-      <mat-svg name="star" category="toggle" />
-    </UiIcon>
-    <UiTooltip trigger="progress-icon">
+  <KTooltip>
+    <span slot="trigger">
+      <UiIcon
+        v-if="isInProgress"
+        :ariaLabel="$tr('inProgress')"
+        class="inprogress"
+      >
+        <mat-svg name="schedule" category="action" />
+      </UiIcon>
+      <UiIcon
+        v-else-if="isCompleted"
+        :ariaLabel="$tr('completed')"
+        class="completed"
+      >
+        <mat-svg name="star" category="toggle" />
+      </UiIcon>
+    </span>
+    <div slot="tooltip">
       {{ isInProgress ? $tr('inProgress') : $tr('completed') }}
-    </UiTooltip>
-  </span>
+    </div>
+  </KTooltip>
 
 </template>
 
@@ -26,7 +28,7 @@
 <script>
 
   import UiIcon from 'keen-ui/src/UiIcon';
-  import UiTooltip from 'keen-ui/src/UiTooltip';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'ProgressIcon',
@@ -36,7 +38,7 @@
     },
     components: {
       UiIcon,
-      UiTooltip,
+      KTooltip,
     },
     props: {
       progress: {

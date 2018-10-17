@@ -1,21 +1,17 @@
 <template>
 
-  <div class="info-icon-container">
+  <KTooltip>
     <UiIcon
-      ref="info-icon"
+      slot="trigger"
       class="info-icon"
       :iconAriaLabel="iconAriaLabel"
     >
       <mat-svg name="info" category="action" />
     </UiIcon>
-    <UiTooltip
-      trigger="info-icon"
-      class="info-icon-tooltip"
-      :position="tooltipPosition"
-    >
+    <div slot="tooltip">
       {{ tooltipText }}
-    </UiTooltip>
-  </div>
+    </div>
+  </KTooltip>
 
 </template>
 
@@ -23,13 +19,13 @@
 <script>
 
   import UiIcon from 'keen-ui/src/UiIcon';
-  import UiTooltip from 'keen-ui/src/UiTooltip';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'CoreInfoIcon',
     components: {
       UiIcon,
-      UiTooltip,
+      KTooltip,
     },
     props: {
       iconAriaLabel: {
@@ -54,11 +50,8 @@
 
   @import '~kolibri.styles.definitions';
 
-  .info-icon-container {
-    display: inline-block;
-  }
-
   .info-icon {
+    display: inline-block;
     font-size: 1.2em;
     color: $core-accent-color;
     vertical-align: top;

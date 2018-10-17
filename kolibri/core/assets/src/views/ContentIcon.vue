@@ -1,7 +1,7 @@
 <template>
 
-  <span>
-    <UiIcon ref="type-icon">
+  <KTooltip :disabled="!tooltipText || !showTooltip">
+    <UiIcon slot="trigger">
       <mat-svg
         v-if="is(ContentNodeKinds.CHANNEL)"
         category="navigation"
@@ -69,14 +69,10 @@
         :class="[colorClass]"
       />
     </UiIcon>
-    <UiTooltip
-      v-if="tooltipText && showTooltip"
-      trigger="type-icon"
-      position="top middle"
-    >
+    <div slot="tooltip">
       {{ tooltipText }}
-    </UiTooltip>
-  </span>
+    </div>
+  </KTooltip>
 
 </template>
 
@@ -86,7 +82,7 @@
   import { validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds, USER } from 'kolibri.coreVue.vuex.constants';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import UiTooltip from 'keen-ui/src/UiTooltip';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'ContentIcon',
@@ -104,7 +100,7 @@
     },
     components: {
       UiIcon,
-      UiTooltip,
+      KTooltip,
     },
     props: {
       kind: {
