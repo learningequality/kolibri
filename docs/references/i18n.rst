@@ -206,7 +206,7 @@ You can download them and update Kolibri using the command below. **It can take 
 
 .. code-block:: bash
 
-    make i18n-download branch=[release-branch-name]
+    make i18n-update branch=[release-branch-name]
 
 This will do a number of things for you:
 
@@ -258,7 +258,7 @@ Add a new font or update an existing one by running:
 
 Where ``[FontName]`` might for example be for exmaple ``NotoSansBengali``. Note that this will also automatically look for the ``[FontName]UI`` variant, e.g. ``NotoSansBengaliUI``.
 
-If the language doesn't exist in Django, you may get errors when trying to view the language. In this case it needs to be added to ``EXTRA_LANG_INFO`` in ``base.py``. Additionally, for this language to work during development, the django.mo files for the language must be generated and committed to the repo. After running ``make i18n-download`` as described above, add the new file:
+If the language doesn't exist in Django, you may get errors when trying to view the language. In this case it needs to be added to ``EXTRA_LANG_INFO`` in ``base.py``. Additionally, for this language to work during development, the django.mo files for the language must be generated and committed to the repo. After running ``make i18n-update`` as described above, add the new file:
 
 .. code-block:: bash
 
