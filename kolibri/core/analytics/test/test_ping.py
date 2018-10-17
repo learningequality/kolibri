@@ -10,6 +10,8 @@ from django.core.management import call_command
 from django.test import TestCase
 from requests.models import Response
 
+from .test_utils import BaseDeviceSetupMixin
+
 
 def load_zipped_json(data):
     try:
@@ -40,7 +42,7 @@ def mocked_requests_post_wrapper(json_data, status_code):
     return mocked_requests_post
 
 
-class PingCommandTestCase(TestCase):
+class PingCommandTestCase(BaseDeviceSetupMixin, TestCase):
 
     @mock.patch('requests.post', side_effect=mocked_requests_post_wrapper({"id": 17}, 200))
     def test_ping_succeeds(self, post_mock):

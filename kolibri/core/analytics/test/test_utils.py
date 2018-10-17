@@ -185,7 +185,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
         actual = extract_facility_statistics(facility)
         facility_id_hash = actual.pop('fi')
         # just assert the beginning hex values of the facility id don't match
-        self.assertFalse(facility_id_hash.startswith(facility.id[:3].encode()))
+        self.assertFalse(facility_id_hash.startswith(facility.id[:3]))
         expected = {
             "s": {
                 "preset": facility_presets.default,
