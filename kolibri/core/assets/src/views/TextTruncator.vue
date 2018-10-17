@@ -9,7 +9,7 @@
     >
       {{ text }}
     </div>
-    <div class="ar">
+    <div class="show-more">
       <KButton
         v-if="showViewMore && (textIsTruncated || viewAllText)"
         appearance="basic-link"
@@ -109,7 +109,7 @@
 
 <style lang="scss" scoped>
 
-  .ar {
+  .show-more {
     margin-top: 8px;
     text-align: right;
   }
