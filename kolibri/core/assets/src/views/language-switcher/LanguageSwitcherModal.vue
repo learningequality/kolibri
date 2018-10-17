@@ -7,10 +7,14 @@
     @submit="setLang"
     @cancel="closeModal"
   >
-
-    <KGrid>
+    <KGrid
+      class="language-column"
+      v-for="(languageCol, index) in splitLanguageOptions"
+      :key="index"
+    >
       <KGridItem
-        v-for="language in languageOptions"
+        class="language-item"
+        v-for="language in languageCol"
         :key="language.id"
         sizes="100, 100, 50"
         percentage
@@ -57,6 +61,14 @@
         selectedLanguage: currentLanguage,
       };
     },
+    computed: {
+      splitLanguageOptions() {
+        let secondCol = this.languageOptions;
+        let firstCol = secondCol.splice(0, Math.ceil(secondCol.length / 2));
+
+        return [firstCol, secondCol];
+      },
+    },
     methods: {
       closeModal() {
         this.$emit('close');
@@ -70,5 +82,24 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @media only screen and (min-width: 840px) {
+    .language-column {
+      display: inline-block;
+      width: 50%;
+      margin: 20px 0;
+      &:nth-child(2) {
+        padding-left: 20px;
+      }
+    }
+  }
+
+  .language-item {
+    .k-radio-button {
+      margin: 4px 0;
+    }
+  }
+
+</style>
 
