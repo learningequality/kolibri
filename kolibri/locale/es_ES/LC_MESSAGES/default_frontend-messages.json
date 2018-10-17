@@ -86,7 +86,7 @@
     "UserTypeDisplay.superUserLabel": "Super administrador",
     "UserTypeDisplay.adminLabel": "Administrador",
     "UserTypeDisplay.facilityCoachLabel": "Tutor del centro educativo",
-    "UserTypeDisplay.coachLabel": "Tutorizar",
+    "UserTypeDisplay.coachLabel": "Tutor",
     "UserTypeDisplay.learnerLabel": "Estudiante",
     "LanguageSwitcherList.showMoreLanguagesSelector": "Más idiomas",
     "LanguageSwitcherModal.changeLanguageModalHeader": "Cambiar idioma",

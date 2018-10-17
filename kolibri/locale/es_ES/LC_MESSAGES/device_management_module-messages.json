@@ -132,7 +132,7 @@
     "ChannelContentsSummary.resourcesCol": "Recursos",
     "ChannelContentsSummary.resourceCount": "{count, number, useGrouping}",
     "ChannelContentsSummary.sizeCol": "Tamaño",
-    "ChannelContentsSummary.totalSizeRow": "Tamaño total",
+    "ChannelContentsSummary.totalSizeRow": "Total",
     "ChannelContentsSummary.version": "Versión {version, number, integer}",
     "ContentNodeRow.select": "Seleccionar",
     "ContentTreeViewer.selectAll": "Seleccionar todo",
