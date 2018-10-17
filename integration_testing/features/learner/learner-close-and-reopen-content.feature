@@ -7,32 +7,32 @@ Feature: Learner close and reopen content
 
   Scenario: Learner reopens a video/audio within a Lesson
     Given <content_item> is a video/audio
-    And I reopened this it within a Lesson
+    When I reopen it within a Lesson
     Then The video/audio starts playing where I had left off at
 
   Scenario: Learner reopens a video/audio through *Channels* or *Recommended*
     Given <content_item> is a video/audio
-    And I reopened it through *Channels* or *Recommended*
+    When I reopen it through *Channels* or *Recommended*
     Then The video/audio starts playing where I had left off at
 
   Scenario: Learner reopens an epub within a Lesson
     Given <content_item> is an epub
-    And I reopened this it within a Lesson
+    When I reopen it within a Lesson
     Then The epub starts where I had left off at
 
   Scenario: Learner reopens an epub through *Channels* or *Recommended*
     Given <content_item> is an epub
-    And I reopened it through *Channels* or *Recommended*
+    When I reopen it through *Channels* or *Recommended*
     Then The epub starts where I had left off at
 
   Scenario: Learner reopens a pdf within a Lesson
     Given <content_item> is a pdf
-    And I reopened this it within a Lesson
+    When I reopen it within a Lesson
     Then The pdf starts where I had left off at
 
   Scenario: Learner reopens a pdf through *Channels* or *Recommended*
     Given <content_item> is a pdf
-    And I reopened it through *Channels* or *Recommended*
+    When I reopen it through *Channels* or *Recommended*
     Then The pdf starts where I had left off at
 
     Examples:

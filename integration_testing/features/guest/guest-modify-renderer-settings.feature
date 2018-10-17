@@ -7,28 +7,33 @@ Feature: Guest modify renderer settings
 
   Scenario: Guest modifies the media player's volume
     Given <content_item> is a video/audio
-    And I modify the volume to <volume_level>
-    Then If I visit another video/audio the volume should be <volume_level>
+    When I modify the volume to <volume_level>
+    And I visit another video/audio
+    Then the volume should be <volume_level>
 
   Scenario: Guest modifies the media player's playback rate
     Given <content_item> is a video/audio
-    And I modify the playback rate to <playback_rate>
-    Then If I visit another video/audio the playback rate should be <playback_rate>
+    When I modify the playback rate to <playback_rate>
+    And I visit another video/audio
+    Then the playback rate should be <playback_rate>
 
   Scenario: Guest mutes the media player
     Given <content_item> is a video/audio
-    And I mute the player
-    Then If I visit another video/audio the player should be muted
+    When I mute the player
+    And I visit another video/audio
+    Then the player should be muted
 
   Scenario: Guest modifies the epub renderer's theme
     Given <content_item> is an epub
-    And I modify the theme to <theme>
-    Then If I visit another epub, the renderer should be using the <theme> theme
+    When I modify the theme to <theme>
+    And If I visit another epub
+    Then the renderer should be using the <theme> theme
 
   Scenario: Guest modifies the epub renderer's font size
     Given <content_item> is an epub
-    And I modify the font size to <font_size>
-    Then If I visit another epub, the renderer should be using the <font_size> font size
+    When I modify the font size to <font_size>
+    And If I visit another epub
+    Then the renderer should be using the <font_size> font size
 
     Examples:
       | content_item                     | volume_level | playback_rate | theme | font_size |
