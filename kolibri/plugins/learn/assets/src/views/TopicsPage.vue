@@ -7,7 +7,7 @@
     <TextTruncator
       v-if="topic.description"
       :text="topic.description"
-      :maxHeight="50"
+      :maxHeight="90"
       :showTooltip="false"
       :showViewMore="true"
       dir="auto"

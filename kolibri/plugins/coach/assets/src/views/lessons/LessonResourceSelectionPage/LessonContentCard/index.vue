@@ -23,7 +23,7 @@
 
       <TextTruncator
         :text="description"
-        :maxHeight="40"
+        :maxHeight="80"
         :showViewMore="true"
         class="description"
       />
@@ -121,7 +121,7 @@
   .content-card {
     display: block;
     height: $thumb-height;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
     text-align: left;
     text-decoration: none;
     background-color: $core-bg-light;
@@ -137,12 +137,14 @@
   }
 
   .text {
+    $left-offset: $thumb-width + $checkbox-offset;
+
     position: absolute;
     top: 0;
     bottom: 0;
-    left: $thumb-width;
-    width: calc(100% - #{$thumb-width});
-    padding: 24px;
+    left: $left-offset;
+    width: calc(100% - #{$left-offset});
+    padding: 16px;
     overflow-y: auto;
     color: $core-text-default;
   }
@@ -170,13 +172,13 @@
   }
 
   .description {
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .message {
     position: absolute;
-    top: 24px;
-    right: 24px;
+    top: 16px;
+    right: 16px;
     color: $core-text-default;
   }
 
