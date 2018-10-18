@@ -132,8 +132,8 @@ Generally, only 'critical' items are considered blockers for a release.
 * **P3 - low**
 
 
-Tasks
-~~~~~
+Task types
+~~~~~~~~~~
 
 These labels are generally used to categorize issues by the *outcome* of closing the issue. They are not necessarily mutually exclusive, but often are.
 
@@ -155,7 +155,6 @@ These tags can be applied to either issues or PRs to help with general organizat
 * **TAG: dev experience**
 * **TAG: needs design**
 * **TAG: needs details**
-* **TAG: needs more info**
 * **TAG: tech debt**
 * **TAG: user strings**
 
