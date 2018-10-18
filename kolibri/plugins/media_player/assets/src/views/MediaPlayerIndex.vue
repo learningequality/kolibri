@@ -564,6 +564,7 @@
     /* Replay & Forward Buttons */
     .vjs-icon-replay_10,
     .vjs-icon-forward_10 {
+      font-family: VideoJS; // override our global noto fonts with more specificity
       &::before {
         font-size: $button-font-size-normal;
         line-height: $button-height-normal;
