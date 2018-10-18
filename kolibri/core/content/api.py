@@ -248,6 +248,13 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 
     @list_route(methods=['get'])
     def descendants(self, request):
+        """
+        Returns a slim view all the descendants of a set of content nodes (as designated by the passed in ids).
+        In addition to id, title, kind, and content_id, each node is also annotated with the ancestor_id of one
+        of the ids that are passed into the request.
+        In the case where a node has more than one ancestor in the set of content nodes requested, duplicates of
+        that content node are returned, each annotated with one of the ancestor_ids for a node.
+        """
         ids = self.request.query_params.get('ids', None)
         if not ids:
             return Response([])
