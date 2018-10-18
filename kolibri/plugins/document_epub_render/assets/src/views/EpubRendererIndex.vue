@@ -146,7 +146,6 @@
 
   import Epub from 'epubjs/src/epub';
   import defaultManager from 'epubjs/src/managers/default';
-  import iFrameView from 'epubjs/src/managers/views/iframe';
   import { EVENTS } from 'epubjs/src/utils/constants';
 
   import Mark from 'mark.js';
@@ -162,6 +161,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
 
+  import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
   import LoadingError from './LoadingError';
   import TopBar from './TopBar';
