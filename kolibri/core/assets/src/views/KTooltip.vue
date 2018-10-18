@@ -2,6 +2,7 @@
 
   <popper
     class="container d-ib"
+    :class="{ 'cursor' :!disabled}"
     trigger="hover"
     :disabled="disabled"
     :options="options"
@@ -14,7 +15,7 @@
     </div>
     <div
       dir="auto"
-      class="popper"
+      class="popper-custom"
     >
       <slot name="tooltip"></slot>
     </div>
@@ -26,7 +27,6 @@
 <script>
 
   import Popper from 'vue-popperjs';
-  import 'vue-popperjs/dist/css/vue-popper.css';
 
   export default {
     name: 'KTooltip',
@@ -63,9 +63,35 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
+  $box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
+
+  .popper-custom {
+    position: absolute;
+    z-index: 24;
+    display: inline-block;
+    padding: 8px;
+    font-size: 14px;
+    font-weight: normal;
+    color: white;
+    text-align: center;
+    background-color: $core-text-default;
+    border-radius: 8px;
+    box-shadow: $box-shadow;
+  }
+
+  /deep/ .popper-custom .popper__arrow {
+    display: none;
+  }
+
+  .cursor {
+    cursor: default;
+  }
+
   .container {
     position: relative;
-    cursor: pointer;
   }
 
   .d-ib {

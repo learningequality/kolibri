@@ -46,8 +46,15 @@
                 :to="learnerPageLink(classroom.id)"
               />
             </td>
-            <td data-test="coach-names" :title="formattedCoachNamesTooltip(classroom)">
-              {{ formattedCoachNames(classroom) }}
+            <td data-test="coach-names">
+              <KTooltip :disabled="!formattedCoachNamesTooltip(classroom)">
+                <span slot="trigger">
+                  {{ formattedCoachNames(classroom) }}
+                </span>
+                <div slot="tooltip">
+                  {{ formattedCoachNamesTooltip(classroom) }}
+                </div>
+              </KTooltip>
             </td>
             <td>{{ classroom.learner_count }}</td>
           </tr>
@@ -71,6 +78,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import urls from 'kolibri.urls';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import { PageNames } from '../constants';
   import { filterAndSortUsers } from '../../../../facility_management/assets/src/userSearchUtils';
 
@@ -94,6 +102,7 @@
       ContentIcon,
       KRouterLink,
       KExternalLink,
+      KTooltip,
     },
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),

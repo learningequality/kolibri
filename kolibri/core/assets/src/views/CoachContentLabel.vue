@@ -1,13 +1,18 @@
 <template>
 
-  <div class="vab" v-if="value > 0" :title="titleText">
-    <UiIcon class="coach-mat-icon">
-      <mat-svg name="local_library" category="maps" />
-    </UiIcon>
-    <span class="counter" v-if="isTopic">
-      {{ $formatNumber(value) }}
-    </span>
-  </div>
+  <KTooltip>
+    <div class="vab" v-if="value > 0" slot="trigger">
+      <UiIcon class="coach-mat-icon">
+        <mat-svg name="local_library" category="maps" />
+      </UiIcon>
+      <span class="counter" v-if="isTopic">
+        {{ $formatNumber(value) }}
+      </span>
+    </div>
+    <div slot="tooltip">
+      {{ titleText }}
+    </div>
+  </KTooltip>
 
 </template>
 
@@ -15,11 +20,13 @@
 <script>
 
   import UiIcon from 'keen-ui/src/UiIcon';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'CoachContentLabel',
     components: {
       UiIcon,
+      KTooltip,
     },
     props: {
       value: {

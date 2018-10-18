@@ -43,9 +43,17 @@
               :to="classEditLink(classroom.id)"
             />
           </td>
-          <td :title="formattedCoachNamesTooltip(classroom)">
-            {{ formattedCoachNames(classroom) }}
+          <td>
+            <KTooltip :disabled="!formattedCoachNamesTooltip(classroom)">
+              <span slot="trigger">
+                {{ formattedCoachNames(classroom) }}
+              </span>
+              <div slot="tooltip">
+                {{ formattedCoachNamesTooltip(classroom) }}
+              </div>
+            </KTooltip>
           </td>
+
           <td>
             {{ classroom.learner_count }}
           </td>
@@ -87,6 +95,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import { Modals, PageNames } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
@@ -114,6 +123,7 @@
       KGrid,
       KGridItem,
       UiIcon,
+      KTooltip,
     },
     data: () => ({ currentClassDelete: null }),
     computed: {

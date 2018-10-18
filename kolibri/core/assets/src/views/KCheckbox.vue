@@ -16,7 +16,6 @@
           :checked="isCurrentlyChecked"
           :indeterminate.prop="isCurrentlyIndeterminate"
           :disabled="disabled"
-          :title="label"
           @click.stop="toggleCheck"
           @focus="isActive = true"
           @blur="markInactive"

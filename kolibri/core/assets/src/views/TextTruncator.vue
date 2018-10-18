@@ -2,13 +2,17 @@
 
   <div>
     <div v-if="viewAllText">{{ text }}</div>
-    <div
-      v-else
-      ref="shaveEl"
-      :title="tooltipText"
-    >
-      {{ text }}
-    </div>
+    <KTooltip v-else>
+      <div
+        slot="trigger"
+        ref="shaveEl"
+      >
+        {{ text }}
+      </div>
+      <div slot="tooltip">
+        {{ tooltipText }}
+      </div>
+    </KTooltip>
     <div class="ar">
       <KButton
         v-if="showViewMore && (textIsTruncated || viewAllText)"
@@ -27,11 +31,13 @@
   import shave from 'shave';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'TextTruncator',
     components: {
       KButton,
+      KTooltip,
     },
     mixins: [responsiveElement],
     props: {
