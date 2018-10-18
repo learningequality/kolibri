@@ -126,7 +126,6 @@
         'ancestors',
       ]),
       ...mapGetters('lessonSummary/resources', ['numRemainingSearchResults']),
-      ...mapGetters(['contentNodeIsTopic']),
       filteredContentList() {
         const { role } = this.filters;
         if (!this.inSearchMode) {
