@@ -7,20 +7,18 @@
     @submit="setLang"
     @cancel="closeModal"
   >
-    <KGrid
-      class="language-column"
-      v-for="(languageCol, index) in splitLanguageOptions"
-      :key="index"
-    >
+    <KGrid>
       <KGridItem
-        class="language-item"
-        v-for="language in languageCol"
-        :key="language.id"
-        sizes="100, 100, 50"
+        v-for="(languageCol, index) in splitLanguageOptions"
+        :key="index"
+        :class="{ 'offset-col': windowIsSmall && index === 1 }"
+        sizes="100, 50, 50"
         percentage
         alignment="left"
       >
         <KRadioButton
+          v-for="language in languageCol"
+          :key="language.id"
           :value="language.id"
           :label="language.lang_name"
           v-model="selectedLanguage"
@@ -40,6 +38,7 @@
   import { currentLanguage } from 'kolibri.utils.i18n';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import languageSwitcherMixin from './mixin';
 
   export default {
@@ -50,7 +49,7 @@
       KGridItem,
       KRadioButton,
     },
-    mixins: [languageSwitcherMixin],
+    mixins: [languageSwitcherMixin, responsiveWindow],
     $trs: {
       changeLanguageModalHeader: 'Change language',
       cancelButtonText: 'Cancel',
@@ -84,22 +83,8 @@
 
 <style lang="scss" scoped>
 
-  @media only screen and (min-width: 840px) {
-    .language-column {
-      display: inline-block;
-      width: 50%;
-      margin: 20px 0;
-      &:nth-child(2) {
-        padding-left: 20px;
-      }
-    }
-  }
-
-  .language-item {
-    .k-radio-button {
-      margin: 4px 0;
-    }
+  .offset-col {
+    margin-top: -8px;
   }
 
 </style>
-
