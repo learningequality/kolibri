@@ -7,7 +7,7 @@ Feature: Coach assign exams
       And I am on the *Coach > Exams* page
       And I see the exam <exam_title>
 
-    Scenario: Coach assigns exam to group(s)
+    Scenario: Assign exam to group(s)
       When I click the exam <exam_title>
       Then I see the <exam_title> exam page
         And I see the full list of learners enrolled in the class
@@ -17,7 +17,7 @@ Feature: Coach assign exams
       When I select one or more groups
         And I click *Save* button
       Then the modal closes
-        And I see the chosen group(s) under *Recipients*
+        And I see the chosen group(s) under *Visible to*
 
 Examples:
 | exam_title     |

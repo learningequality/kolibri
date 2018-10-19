@@ -1,14 +1,14 @@
-Feature: Superuser edit users
-    Superuser needs to be able to edit user's full name and username, reset the passwords, change the user types, and delete them from the facility
+Feature: Super admin edit users
+    Super admin needs to be able to edit user's full name and username, reset the passwords, change the user types, and delete them from the facility
 
   Background:
-    Given I am signed in to Kolibri as a super admin
+    Given I am signed in to Kolibri as a Super admin
       And I am on the *Facility > Users* page
 
   Scenario: Edit user's full name
     When I click on *Options* button for the user I want to edit
-      And I select *Edit* option
-    Then I see *Edit user* modal
+      And I select *Edit details* option
+    Then I see *Edit user details* modal
     When I click or tab into *Full name* field
       And I edit the full name as needed
       And I click the *Save* button
@@ -17,8 +17,8 @@ Feature: Superuser edit users
 
   Scenario: Edit user's username
     When I click on *Options* button for the user I want to edit
-      And I select *Edit* option
-    Then I see *Edit user* modal
+      And I select *Edit details* option
+    Then I see *Edit user details* modal
     When I click or tab into *Username* field
       And I edit the username as needed
       And I click the *Save* button
@@ -27,8 +27,8 @@ Feature: Superuser edit users
 
   Scenario: Change user type
     When I click on *Options* button for the user I want to edit
-      And I select *Edit* option
-    Then I see *Edit user* modal
+      And I select *Edit details* option
+    Then I see *Edit user details* modal
     When I click or tab into *User type*
     Then the dropdown opens
     When I select the new role
@@ -53,11 +53,11 @@ Feature: Superuser edit users
 
     Scenario: Super admin can see the label *Super admin* next to their full name, not their facility role
       When I scroll to my name in the user list
-      Then I see a label with *Super admin* next to my full name
+      Then I see a label *Super admin* next to my full name
 
-    Scenario: Super admin can see that they can’t delete themselves
-      Given I have scrolled to my name in the user list
-      When I click on the *Options* dropdown button
+    Scenario: Super admin can’t delete themselves
+      When I scroll to my name in the user list
+        And I click on the *Options* dropdown button
       Then I see that the *Delete* action is disabled
 
   Feature: Super admin cannot edit their own user type from the *Edit user* modal, but can find a cross link to the Device permissions page
@@ -71,17 +71,14 @@ Feature: Superuser edit users
       When I click on the link to *Device permissions*
       Then I am redirected to my permissions page in *Device > Permissions*
 
-  Feature: Super admin cannot edit the user type of another super admin from the *Edit user* modal, but can find a cross link to the Device permissions page to make changes there
+  Feature: Super admin cannot edit the user type of another Super admin from the *Edit user* modal, but can find a cross link to the Device permissions page to make changes there
 
     Scenario: Super admin can see the read-only *Super admin* label under *User type*, and a cross-link to *Device permissions* to make changes
     	When I look at the field for *User type*
     	Then I see that I am a Super admin
     	And a message that directs me to *Device permissions* to make changes
 
-    Scenario: Super admin navigates to *Device permissions* from the *Edit user* modal
+    Scenario: Super admin navigates to *Device permissions* from the *Edit user details* modal
       When I click on the link to *Device permissions*
       Then I am redirected to that user’s device permissions page in *Device > Permissions*
 
-    Scenario: Super admin navigates to *Device permissions* from the *Edit user* modal
-      When I click on the link to *Device permissions*
-      Then I am redirected to that user’s device permissions page in *Device > Permissions*

@@ -6,7 +6,7 @@ Feature: Coach activate exams
       And I am on *Coach > Exams* page
       And I see the exam <exam_title>
 
-  Scenario: Coach changes the exam status to *Active*
+  Scenario: Change the exam status to *Active*
     When I click the exam <exam_title>
     Then I see the <exam_title> exam page
       And I see the exam *Status* is *Inactive*

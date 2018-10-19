@@ -6,7 +6,7 @@ Feature: Admin delete users
       And I am on *Facility > Users* page
 
   Scenario: Delete user
-    When I click on *Manage* button for the user I want to edit
+    When I click on *Options* button for the user I want to edit
       And I select *Delete* option
     Then I see *Delete user * modal
     When I click the *Delete* button
@@ -17,5 +17,5 @@ Feature: Admin delete users
     Then I see the *No users match the filter* result
 
   Scenario: Try (and fail) to delete your own account
-    When I click on *Manage* button for my own account
+    When I click on *Options* button for my own account
     Then I see that the *Delete* option is not active

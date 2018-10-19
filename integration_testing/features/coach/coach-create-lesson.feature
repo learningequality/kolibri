@@ -8,13 +8,13 @@ Feature: Coach create lessons
 
   Scenario: Coach creates a new lesson for entire class
     When I click *New lesson* button
-    Then I see the *New lesson* modal
+    Then I see the *Create new lesson* modal
     When I fill in the title <title>
      And I fill in the description <description>
       And I click *Continue* button
     Then the modal closes
       And I am on the <title> lesson page
-    When I click *Add resources* button
+    When I click *Manage resources* button
     Then I am on the *Select resources* page
       And I see the content channel <channel>
     When I select channel <channel>
@@ -27,7 +27,7 @@ Feature: Coach create lessons
     Then I see the *Select resources* page again
     When I check the resource(s) checkbox
     Then I see the *Total resources selected* count changed
-    When I click the *Exit* button on the *Manage resources* header
+    When I click the *Exit (X)* button on the *Manage resources* header
     Then *Select resources* page closes
       And I see the added resources on the <title> lesson page
 
