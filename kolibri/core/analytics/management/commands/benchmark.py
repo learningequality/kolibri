@@ -5,14 +5,13 @@ from django.core.management.base import BaseCommand
 from morango.models import InstanceIDModel
 
 import kolibri
+from kolibri.core.analytics import SUPPORTED_OS
 from kolibri.core.analytics.measurements import get_channels_usage_info
 from kolibri.core.analytics.measurements import get_db_info
 from kolibri.core.analytics.measurements import get_kolibri_process_cmd
 from kolibri.core.analytics.measurements import get_kolibri_use
 from kolibri.core.analytics.measurements import get_machine_info
 from kolibri.core.analytics.measurements import get_requests_info
-from kolibri.core.analytics.pskolibri.common import LINUX
-from kolibri.core.analytics.pskolibri.common import WINDOWS
 from kolibri.utils.server import installation_type
 from kolibri.utils.server import NotRunning
 from kolibri.utils.system import get_free_space
@@ -74,7 +73,7 @@ class Command(BaseCommand):
     help = "Outputs performance info and statistics of usage for the running Kolibri instance in this server"
 
     def handle(self, *args, **options):
-        if not LINUX and not WINDOWS:
+        if not SUPPORTED_OS:
             print("This OS is not yet supported")
             sys.exit(1)
 

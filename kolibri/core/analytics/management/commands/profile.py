@@ -6,11 +6,10 @@ from os import getpid
 
 from django.core.management.base import BaseCommand
 
+from kolibri.core.analytics import SUPPORTED_OS
 from kolibri.core.analytics.measurements import get_db_info
 from kolibri.core.analytics.measurements import get_kolibri_use
 from kolibri.core.analytics.measurements import get_machine_info
-from kolibri.core.analytics.pskolibri.common import LINUX
-from kolibri.core.analytics.pskolibri.common import WINDOWS
 from kolibri.utils import conf
 from kolibri.utils.server import NotRunning
 from kolibri.utils.server import PROFILE_LOCK
@@ -49,8 +48,8 @@ class Command(BaseCommand):
             help='Specifies the number of times the profile will take measures before ending'
         )
 
-    def check_start_conditons(self):
-        if not LINUX and not WINDOWS:
+    def check_start_conditions(self):
+        if not SUPPORTED_OS:
             print("This OS is not yet supported")
             sys.exit(1)
 
@@ -74,7 +73,7 @@ class Command(BaseCommand):
                     remove_lock()
 
     def handle(self, *args, **options):
-        self.check_start_conditons()
+        self.check_start_conditions()
         interval = 10  # the measures are taken every 10 seconds
 
         this_pid = getpid()

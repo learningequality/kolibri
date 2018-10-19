@@ -10,12 +10,18 @@ from django.db.models import Sum
 from django.db.utils import OperationalError
 from django.utils import timezone
 
-import kolibri.core.analytics.pskolibri as psutil
+from kolibri.core.analytics import SUPPORTED_OS
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.utils.server import NotRunning
 from kolibri.utils.server import PID_FILE
+
+try:
+    import kolibri.core.analytics.pskolibri as psutil
+except NotImplementedError:
+    # This module can't work on this OS
+    psutil = None
 
 
 def get_db_info():
@@ -91,6 +97,8 @@ def get_requests_info():
         recommended_time = '{:.2f} s'.format(requests.get(recommended_url).elapsed.total_seconds())
         channels_url = format_url('/api/content/channel/?available=true', base_url)
         channels_time = '{:.2f} s'.format(requests.get(channels_url).elapsed.total_seconds())
+    else:
+        homepage_time = recommended_time = channels_time = None
 
     return (homepage_time, recommended_time, channels_time)
 
@@ -100,6 +108,8 @@ def get_machine_info():
     Gets information on the memory, cpu and processes in the server
     :returns: tuple of strings containing cpu percentage, used memory, free memory and number of active processes
     """
+    if not SUPPORTED_OS:
+        return (None, None, None, None)
     used_cpu = str(psutil.cpu_percent())
     used_memory = str(psutil.virtual_memory().used / pow(2, 20))  # In Megabytes
     total_memory = str(psutil.virtual_memory().total / pow(2, 20))  # In Megabytes
@@ -132,6 +142,8 @@ def get_kolibri_process_cmd():
     Retrieve from the OS the command line executed to run Kolibri server
     :returns: tuple with command line and its arguments
     """
+    if not SUPPORTED_OS:
+        return None
     kolibri_pid, _ = get_kolibri_process_info()
     try:
         kolibri_proc = psutil.Process(kolibri_pid)
@@ -146,6 +158,8 @@ def get_kolibri_use(development=False):
     Gets information on the memory and cpu usage of the current Kolibri process
     :returns: tuple of strings containing cpu percentage and virtual memory used (in Kb)
     """
+    if not SUPPORTED_OS:
+        return (None, None)
     kolibri_mem = kolibri_cpu = 'None'
     kolibri_pid, _ = get_kolibri_process_info()
 

@@ -8,20 +8,27 @@ from django.conf import settings
 from django.core.cache import caches
 from django.utils.deprecation import MiddlewareMixin
 
-import kolibri.core.analytics.pskolibri as psutil
+from kolibri.core.analytics import SUPPORTED_OS
 from kolibri.utils import conf
 from kolibri.utils.server import PROFILE_LOCK
 from kolibri.utils.system import pid_exists
 
 logger = logging.getLogger('requests_profiler')
 cache = caches[settings.CACHE_MIDDLEWARE_ALIAS]
-kolibri_process = psutil.Process()
+try:
+    import kolibri.core.analytics.pskolibri as psutil
+    kolibri_process = psutil.Process()
+except NotImplementedError:
+    # This middleware can't work on this OS
+    kolibri_process = None
 
 
 class Metrics(object):
     def __init__(self):
         """
         Save the initial values when the request comes in
+        This class only will be used when MetricsMiddleware is not disabled, thus the OS is supported.
+        External instances of this class must check if the OS is supported before creating new objects.
         """
         self.memory = self.get_used_memory()
         self.load = self.get_load_average()
@@ -85,6 +92,24 @@ class MetricsMiddleware(MiddlewareMixin):
             except OSError:
                 pass  # lock file was deleted by other process
 
+    def check_start_conditions(self):
+        """
+        Do the needed checks to enable the Middleware if possible
+        """
+        if MetricsMiddleware.disabled and conf.OPTIONS["Server"]["PROFILE"]:
+            if os.path.exists(PROFILE_LOCK):
+                try:
+                    with open(PROFILE_LOCK, 'r') as f:
+                        MetricsMiddleware.command_pid = int(f.readline())
+                        if SUPPORTED_OS:
+                            MetricsMiddleware.disabled = False
+                except (IOError, TypeError, ValueError):
+                    # Kolibri command PID file has been deleted or it's corrupted
+                    try:
+                        os.remove(PROFILE_LOCK)
+                    except OSError:
+                        pass  # lock file was deleted by other process
+
     def process_response(self, request, response):
         """
         Calculate and output the page generation details
@@ -93,18 +118,7 @@ class MetricsMiddleware(MiddlewareMixin):
         cpu load before, cpu load after the request is finished, max
         Being `max` True or False to indicate if this is the slowest request since logging began.
         """
-        if MetricsMiddleware.disabled and conf.OPTIONS["Server"]["PROFILE"]:
-            if os.path.exists(PROFILE_LOCK):
-                try:
-                    with open(PROFILE_LOCK, 'r') as f:
-                        MetricsMiddleware.command_pid = int(f.readline())
-                        MetricsMiddleware.disabled = False
-                except (IOError, TypeError, ValueError):
-                    # Kolibri command PID file has been deleted or it's corrupted
-                    try:
-                        os.remove(PROFILE_LOCK)
-                    except OSError:
-                        pass  # lock file was deleted by other process
+        self.check_start_conditions()
 
         if not MetricsMiddleware.disabled and hasattr(self, 'metrics'):
             path = request.get_full_path()
