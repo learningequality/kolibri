@@ -97,7 +97,7 @@ class Command(BaseCommand):
 
         self.add_header('Memory')
         memory_parameters = ('Used memory', 'Total memory', 'Kolibri memory usage')
-        memory_values = ('{} Mb'.format(used_memory), '{} Mb'.format(total_memory), '{} Kb'.format(kolibri_mem))
+        memory_values = ('{} Mb'.format(used_memory), '{} Mb'.format(total_memory), '{} Mb'.format(kolibri_mem))
         self.add_section(memory_parameters, memory_values)
 
         self.add_header('Channels')

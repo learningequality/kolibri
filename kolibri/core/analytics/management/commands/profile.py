@@ -38,7 +38,7 @@ class Command(BaseCommand):
     - Total memory (In Mbytes) in the server
     - Number of processes in the server
     - Percentage of use of cpu by the Kolibri process
-    - Memory (In Kbytes) used by the kolibri process
+    - Memory (In Mbytes) used by the kolibri process (just RAM, not swap memory included)
     """
     help = "Logs performance/profiling info in the server running Kolibri"
 

@@ -156,7 +156,7 @@ def get_kolibri_process_cmd():
 def get_kolibri_use(development=False):
     """
     Gets information on the memory and cpu usage of the current Kolibri process
-    :returns: tuple of strings containing cpu percentage and virtual memory used (in Kb)
+    :returns: tuple of strings containing cpu percentage and virtual memory used (in Mb)
     """
     if not SUPPORTED_OS:
         return (None, None)
@@ -166,7 +166,7 @@ def get_kolibri_use(development=False):
     if kolibri_pid:
         try:
             kolibri_proc = psutil.Process(kolibri_pid)
-            kolibri_mem = str(kolibri_proc.memory_info().vms / pow(2, 10))
+            kolibri_mem = str(kolibri_proc.memory_info().rss / pow(2, 20))
             kolibri_cpu = str(kolibri_proc.cpu_percent())
         except psutil.NoSuchProcess:
             # Kolibri server is not running
