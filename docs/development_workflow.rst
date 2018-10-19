@@ -124,7 +124,7 @@ Priority
 
 These are used to sort issues and sometimes PRs by priority if *and only if* the item is assigned a milestone. Every issue in a milestone ought to have a priority label.
 
-Generally, only 'critical' items are considered blockers for a release.
+Only 'critical' items are strictly blockers for a release, but typically all important items should be expected to make it in, too. Priority within a release is generally assigned by a core Learning Equality team member.
 
 * **P0 - critical**
 * **P1 - important**
