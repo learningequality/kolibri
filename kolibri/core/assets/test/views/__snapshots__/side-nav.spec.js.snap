@@ -40,11 +40,18 @@ exports[`side nav component should be hidden if navShown is false 1`] = `
         <div class="side-nav-scrollable-area-footer-info">
           <p>Kolibri testversion</p>
           <p>© 2018 Learning Equality</p>
+          <p>
+            <button dir="auto" type="button" class="link">
+              Usage and privacy
+              <!---->
+            </button>
+          </p>
         </div>
       </div>
     </div>
   </div>
   <div class="side-nav-backdrop" style="display: none;"></div>
+  <!---->
   <div dir="ltr" class="resize-sensor" style="position: absolute; left: -10px; top: -10px; right: 0px; bottom: 0px; overflow: hidden; z-index: -1; visibility: hidden;">
     <div class="resize-sensor-expand" style="position: absolute; left: -10px; top: -10px; right: 0; bottom: 0; overflow: hidden; z-index: -1; visibility: hidden;">
       <div style="position: absolute; left: 0; top: 0; transition: 0s;"></div>
@@ -96,11 +103,18 @@ exports[`side nav component should show nothing if no components are added and u
         <div class="side-nav-scrollable-area-footer-info">
           <p>Kolibri testversion</p>
           <p>© 2018 Learning Equality</p>
+          <p>
+            <button dir="auto" type="button" class="link">
+              Usage and privacy
+              <!---->
+            </button>
+          </p>
         </div>
       </div>
     </div>
   </div>
   <div class="side-nav-backdrop"></div>
+  <!---->
   <div dir="ltr" class="resize-sensor" style="position: absolute; left: -10px; top: -10px; right: 0px; bottom: 0px; overflow: hidden; z-index: -1; visibility: hidden;">
     <div class="resize-sensor-expand" style="position: absolute; left: -10px; top: -10px; right: 0; bottom: 0; overflow: hidden; z-index: -1; visibility: hidden;">
       <div style="position: absolute; left: 0; top: 0; transition: 0s;"></div>
