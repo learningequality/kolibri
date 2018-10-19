@@ -8,6 +8,7 @@ import base64
 import io
 import json
 import logging
+import mimetypes
 import os
 import re
 import sys
@@ -88,6 +89,12 @@ def _woff_font_path(name, is_bold):
 
 
 def _load_font(path):
+    guess = mimetypes.guess_type(path)
+    if guess[0] not in ["font/ttc", "font/ttf", "font/otf", "font/woff"]:
+        logging.error("Not a font file: {}".format(path))
+        logging.error("Guessed mimetype: '{}'".format(guess[0]))
+        logging.error("If this is a text file: do you have Git LFS installed?")
+        sys.exit(1)
     return subset.load_font(path, FONT_TOOLS_OPTIONS, dontLoadGlyphNames=True)
 
 
