@@ -11,8 +11,8 @@
       authorizedRole="adminOrCoach"
     >
 
+      <TopNav slot="nav" />
       <template v-if="showCoachNav">
-        <TopNav class="top-nav" />
         <NavTitle
           class="nav-title"
           :className="className"
@@ -316,10 +316,6 @@
 
 
 <style lang="scss" scoped>
-
-  .top-nav {
-    margin-bottom: 32px;
-  }
 
   .nav-title {
     margin-bottom: 32px;

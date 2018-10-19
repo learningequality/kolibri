@@ -9,10 +9,10 @@
     :authorized="isAdmin || isSuperuser"
     :authorizationErrorDetails="$tr('adminOrSuperuser')"
   >
+    <TopNav slot="nav" v-if="!isEnrollmentPage" />
 
     <div class="facility-management">
       <!-- QUESTION should we explicitly define this in every page? -->
-      <TopNav v-if="!isEnrollmentPage" />
       <component :is="currentPage" />
     </div>
 

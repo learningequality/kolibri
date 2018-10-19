@@ -7,6 +7,8 @@
     :immersivePageRoute="exitWizardLink"
     :toolbarTitle="toolbarTitle"
   >
+    <DeviceTopNav slot="nav" v-if="canManageContent && !currentPageIsImmersive" />
+
     <transition name="delay-entry">
       <WelcomeModal
         v-if="welcomeModalVisible"
@@ -15,7 +17,6 @@
     </transition>
 
     <div>
-      <DeviceTopNav v-if="canManageContent && !currentPageIsImmersive" />
       <component :is="currentPage" />
     </div>
   </CoreBase>

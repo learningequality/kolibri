@@ -2,6 +2,7 @@
 
   <!-- class unused, used as identifier when debugging from DOM -->
   <div class="app-body" :style="contentStyle">
+    <slot name="nav"></slot>
     <div v-if="blockDoubleClicks" class="click-mask"></div>
     <KLinearLoader
       v-if="loading"

@@ -9,28 +9,26 @@ li {
   display: inline-block;
   min-width: 72px;
   max-width: 264px;
-  padding-top: 0;
-  padding-right: 12px;
-  padding-bottom: 0;
-  padding-left: 12px;
+  padding: 0 18px;
+  padding-bottom: 3px;
   margin: 0;
   font-size: 14px;
-  color: $core-text-annotation;
+  color: $core-action-light;
   text-decoration: none;
   border: 0;
   border-radius: 0;
   &:hover,
   &:focus {
-    color: $core-action-normal;
-    background-color: $core-action-light;
+    background-color: $core-action-dark;
     outline: none;
   }
 }
 
 .router-link-active,
 .tab-selected {
-  color: $core-action-normal;
-  border-bottom-color: $core-action-normal;
+  padding-bottom: 2px;
+  color: white;
+  border-bottom-color: white;
   border-bottom-style: solid;
   border-bottom-width: 2px;
 }
@@ -40,27 +38,22 @@ li {
 }
 
 .tab-icon {
-  padding-top: 11px;
-  padding-bottom: 11px;
+  display: inline-block;
+  margin-right: 8px;
 }
 
 .tab-title {
-  padding-top: 15px;
-  padding-bottom: 15px;
+  display: inline-block;
   overflow-x: hidden;
   font-weight: bold;
   text-overflow: ellipsis;
   text-transform: uppercase;
+  vertical-align: middle;
 }
 
 .tab-has-icon-and-title {
   .tab-icon {
     padding-top: 10px;
-    padding-bottom: 10px;
-  }
-
-  .tab-title {
-    padding-top: 0;
     padding-bottom: 10px;
   }
 }

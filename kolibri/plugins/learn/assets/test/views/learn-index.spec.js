@@ -19,7 +19,12 @@ function makeWrapper(options) {
     stubs: {
       breadcrumbs: true,
       contentUnavailablePage: true,
-      CoreBase: '<div><slot></slot></div>',
+      CoreBase: `
+        <div>
+          <slot></slot>
+          <slot name="nav"></slot>
+        </div>
+      `,
       topicsPage: true,
       TotalPoints: true,
     },

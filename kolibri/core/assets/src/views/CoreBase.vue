@@ -16,15 +16,17 @@
 
       <template v-else>
         <AppBar
-          class="app-bar align-to-parent"
+          class="core-base-app-bar align-to-parent"
           :title="toolbarTitle || appBarTitle"
           :height="headerHeight"
           :navShown="navShown"
           @toggleSideNav="navShown=!navShown"
         >
+          <slot name="totalPointsMenuItem" slot="totalPointsMenuItem"></slot>
           <div slot="app-bar-actions" class="app-bar-actions">
             <slot name="app-bar-actions"></slot>
           </div>
+          <slot name="nav" slot="nav"></slot>
         </AppBar>
         <SideNav
           :navShown="navShown"
@@ -37,7 +39,7 @@
     </template>
 
     <AppBody
-      :topGap="headerHeight"
+      :topGap="appBodyTopGap"
       :bottomGap="bottomMargin"
     >
       <AuthMessage
@@ -162,13 +164,23 @@
         },
       };
     },
-    data: () => ({ navShown: false }),
+    data() {
+      return {
+        navShown: false,
+      };
+    },
     computed: {
       ...mapState({
         error: state => state.core.error,
       }),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
+      },
+      appBodyTopGap() {
+        if (this.immersivePage) {
+          return this.headerHeight;
+        }
+        return this.headerHeight + 48;
       },
       navWidth() {
         return this.headerHeight * 4;
@@ -196,9 +208,10 @@
     left: 0;
   }
 
-  .app-bar {
+  .core-base-app-bar {
     width: 100%;
-    height: 64px;
+    height: calc(64px + 48px);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   }
 
   .app-bar-actions {
