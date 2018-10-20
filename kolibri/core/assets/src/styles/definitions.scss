@@ -34,18 +34,19 @@ $login-overlay: #201a21;
 $core-outline: $core-action-light 2px solid;
 
 /*
-  Mixins for font-family to ensure that the full fonts are not
-  referenced until they've been loaded.
+  Mixins for font-family to ensure that the full fonts are not referenced until they've
+  been loaded using the FontFaceObserver in i18n.js.
 
-  Even though partials are loaded immediately, need partial-fonts-loaded for specificity.
+  Even though partials are loaded immediately, we need the 'partial-fonts-loaded' class
+  for CSS specificity purposes.
 */
 @mixin font-family-noto {
   .partial-fonts-loaded & {
-    font-family: 'noto-subset', sans-serif;
+    font-family: 'noto-subset', 'noto-common', sans-serif;
   }
   .full-fonts-loaded & {
-    // Continue to include the subset since it contains glyphs from other languages,
-    // necessary for the language switcher and some English characters
-    font-family: 'noto-subset', 'noto-full', sans-serif;
+    // Continue to include the common font since it contains glyphs from other languages
+    // necessary for the language switcher and some Latin and UI characters.
+    font-family: 'noto-full', 'noto-subset', 'noto-common', sans-serif;
   }
 }

@@ -33,7 +33,7 @@ def get_installed_app_locale_path(appname):
         return module_locale_path
 
 
-def get_supported_languages(kolibri_module_path):
+def get_supported_language_info(kolibri_module_path):
     """
     Returns a list of tuples like:
 
@@ -47,6 +47,4 @@ def get_supported_languages(kolibri_module_path):
     """
     file_path = os.path.join(kolibri_module_path, "locale", "supported_languages.json")
     with io.open(file_path, encoding="utf-8") as f:
-        languages = json.load(f)
-
-    return [(lang["intl_code"], lang["language_name"]) for lang in languages]
+        return json.load(f)
