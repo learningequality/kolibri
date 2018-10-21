@@ -1,4 +1,4 @@
-import logging
+import csv
 import os.path
 import sys
 import time
@@ -14,8 +14,6 @@ from kolibri.utils import conf
 from kolibri.utils.server import NotRunning
 from kolibri.utils.server import PROFILE_LOCK
 from kolibri.utils.system import pid_exists
-
-logger = logging.getLogger('profiler')
 
 
 def remove_lock():
@@ -81,12 +79,29 @@ class Command(BaseCommand):
             with open(PROFILE_LOCK, 'w') as f:
                 f.write("%d" % this_pid)
         except (IOError, OSError):
-            logger.info("Impossible to create profile lock file. Kolibri won't profile its requests")
+            print("Impossible to create profile lock file. Kolibri won't profile its requests")
         samples = 1
         num_samples = options['num_samples']
+        performance_dir = os.path.join(conf.KOLIBRI_HOME, 'performance')
+        self.performance_file = os.path.join(performance_dir,
+                                             '{}_performance.csv'.format(time.strftime('%Y%m%d_%H%M%S')))
+        if not os.path.exists(performance_dir):
+            try:
+                os.mkdir(performance_dir)
+            except OSError:
+                print("Not enough permissions to write performance logs")
+                sys.exit(1)
+        with open(self.performance_file, mode='w+') as profile_file:
+            profile_writer = csv.writer(profile_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            profile_writer.writerow(('Date', 'Active sessions', 'Active users', 'Users last minute',
+                                     'Server CPU %', 'Server used memory (Mb)', 'Server memory (Mb)', 'Processes',
+                                     'Kolibri CPU % use ', 'Kolibri Memory (Mb)'))
+
         while samples <= num_samples:
             message = self.get_logs()
-            logger.info(message)
+            with open(self.performance_file, mode='a') as profile_file:
+                profile_writer = csv.writer(profile_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                profile_writer.writerow(message)
             samples += 1
             time.sleep(interval)
 
@@ -101,7 +116,8 @@ class Command(BaseCommand):
 
         active_sessions, active_users, active_users_minute = get_db_info()
         used_cpu, used_memory, total_memory, total_processes = get_machine_info()
-        collected_information = (active_sessions, active_users, active_users_minute, used_cpu,
+        timestamp = time.strftime('%Y/%m/%d %H:%M:%S.%f')
+        collected_information = (timestamp, active_sessions, active_users, active_users_minute, used_cpu,
                                  used_memory, total_memory, total_processes, kolibri_cpu, kolibri_mem)
 
-        return ','.join(collected_information)
+        return collected_information

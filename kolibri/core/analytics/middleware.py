@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-import logging
+import csv
 import os
 import time
 
@@ -13,7 +13,10 @@ from kolibri.utils import conf
 from kolibri.utils.server import PROFILE_LOCK
 from kolibri.utils.system import pid_exists
 
-logger = logging.getLogger('requests_profiler')
+requests_profiling_file = os.path.join(conf.KOLIBRI_HOME,
+                                       'performance',
+                                       '{}_requests_performance.csv'.format(time.strftime('%Y%m%d_%H%M%S')))
+
 cache = caches[settings.CACHE_MIDDLEWARE_ALIAS]
 try:
     import kolibri.core.analytics.pskolibri as psutil
@@ -103,6 +106,17 @@ class MetricsMiddleware(MiddlewareMixin):
                         MetricsMiddleware.command_pid = int(f.readline())
                         if SUPPORTED_OS:
                             MetricsMiddleware.disabled = False
+                            performance_dir = os.path.join(conf.KOLIBRI_HOME, 'performance')
+                            if not os.path.exists(performance_dir):
+                                try:
+                                    os.mkdir(performance_dir)
+                                except OSError:
+                                    print("Not enough permissions to write performance logs")
+                            with open(requests_profiling_file, mode='w+') as profile_file:
+                                profile_writer = csv.writer(profile_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                                profile_writer.writerow(('Date', 'Path', 'Duration', 'Memory before (Kb)',
+                                                         'Memory after (Kb)', 'Load before (%)', 'Load after(%)',
+                                                         'Longest time up to now'))
                 except (IOError, TypeError, ValueError):
                     # Kolibri command PID file has been deleted or it's corrupted
                     try:
@@ -128,8 +142,11 @@ class MetricsMiddleware(MiddlewareMixin):
                 MetricsMiddleware.slowest_request = path
                 MetricsMiddleware.slowest_request_time = duration
                 max_time = True
-            collected_information = (path, duration, memory_before, memory, load_before, load, str(max_time))
-            logger.info(','.join(collected_information))
+            timestamp = time.strftime('%Y/%m/%d %H:%M:%S.%f')
+            collected_information = (timestamp, path, duration, memory_before, memory, load_before, load, str(max_time))
+            with open(requests_profiling_file, mode='a') as profile_file:
+                profile_writer = csv.writer(profile_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                profile_writer.writerow(collected_information)
             if not pid_exists(MetricsMiddleware.command_pid) or not os.path.exists(PROFILE_LOCK):
                 self.shutdown()
         return response

@@ -245,9 +245,6 @@ LOGGING = {
         'simple_date': {
             'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
         },
-        'profiling': {
-            'format': '%(asctime)s,%(message)s'
-        },
         'color': {
             '()': 'colorlog.ColoredFormatter',
             'format': '%(log_color)s%(levelname)-8s %(message)s',
@@ -298,20 +295,6 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': os.path.join(conf.KOLIBRI_HOME, 'kolibri.log'),
             'formatter': 'simple_date',
-        },
-        'file_profiling': {
-            'level': 'INFO',
-            'filters': [],
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(conf.KOLIBRI_HOME, 'performance.log'),
-            'formatter': 'profiling',
-        },
-        'requests_profiling': {
-            'level': 'INFO',
-            'filters': [],
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(conf.KOLIBRI_HOME, 'requests_performance.log'),
-            'formatter': 'profiling',
         }
     },
     'loggers': {
@@ -335,16 +318,6 @@ LOGGING = {
         },
         'morango': {
             'handlers': ['file', 'console'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'profiler': {
-            'handlers': ['file_profiling'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'requests_profiler': {
-            'handlers': ['requests_profiling'],
             'level': 'INFO',
             'propagate': True,
         }
