@@ -22,6 +22,7 @@
           :value="language.id"
           :label="language.lang_name"
           v-model="selectedLanguage"
+          class="language-name"
         />
       </KGridItem>
     </KGrid>
@@ -82,6 +83,12 @@
 
 
 <style lang="scss" scoped>
+
+  @import './language-names';
+
+  .language-name {
+    @include font-family-language-names;
+  }
 
   .offset-col {
     margin-top: -8px;

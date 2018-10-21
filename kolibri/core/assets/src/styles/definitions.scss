@@ -45,8 +45,8 @@ $core-outline: $core-action-light 2px solid;
     font-family: 'noto-subset', 'noto-common', sans-serif;
   }
   .full-fonts-loaded & {
-    // Continue to include the common font since it contains glyphs from other languages
-    // necessary for the language switcher and some Latin and UI characters.
+    // Continue to include the common and subset font subsets since they may contain
+    // glyphs not available in the language's default font.
     font-family: 'noto-full', 'noto-subset', 'noto-common', sans-serif;
   }
 }

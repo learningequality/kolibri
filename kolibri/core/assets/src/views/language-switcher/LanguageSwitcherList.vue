@@ -93,6 +93,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+  @import './language-names';
 
   .globe {
     position: relative;
@@ -105,6 +106,8 @@
   }
 
   .lang {
+    @include font-family-language-names;
+
     margin-right: 8px;
     margin-left: 8px;
   }
