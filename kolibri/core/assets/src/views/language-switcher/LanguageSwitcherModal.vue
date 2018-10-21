@@ -21,6 +21,7 @@
           :key="language.id"
           :value="language.id"
           :label="language.lang_name"
+          :title="language.english_name"
           v-model="selectedLanguage"
           class="language-name"
         />

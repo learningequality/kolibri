@@ -12,14 +12,15 @@
       />
     </UiIconButton>
 
-    <span class="selected">
-      {{ selectedLanguage }}
+    <span class="selected" :title="selectedLanguage.english_name">
+      {{ selectedLanguage.lang_name }}
     </span>
     <KButton
       v-for="language in buttonLanguages"
       @click="switchLanguage(language.id)"
       :key="language.id"
       :text="language.lang_name"
+      :title="language.english_name"
       class="lang"
       appearance="basic-link"
     />
@@ -67,7 +68,7 @@
     },
     computed: {
       selectedLanguage() {
-        return availableLanguages[currentLanguage].lang_name;
+        return availableLanguages[currentLanguage];
       },
       numVisibleLanguages() {
         if (this.windowBreakpoint <= 2) {

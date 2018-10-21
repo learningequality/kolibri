@@ -106,7 +106,6 @@ def kolibri_language_globals(context):
     language_code = get_language()
     lang_dir = "rtl" if get_language_bidi() else "ltr"
 
-    default_font = None
     languages = {}
     for lang_info in settings.KOLIBRI_SUPPORTED_LANGUAGES:
         code = lang_info["intl_code"]
@@ -114,19 +113,18 @@ def kolibri_language_globals(context):
             # Format to match the schema of the content Language model
             "id": code,
             "lang_name": lang_info["language_name"],
+            "english_name": lang_info["english_name"],
             "lang_direction": get_language_info(code)["bidi"],
         }
-        if code == language_code:
-            default_font = lang_info["default_font"]
 
     common_file = static("assets/fonts/noto-common.css")
     subset_file = static("assets/fonts/noto-subset.{}.css".format(language_code))
-
     is_modern = _supports_modern_fonts(context["request"])
-    if is_modern or not default_font:
-        full_file = static("assets/fonts/noto-full.css")
-    else:
-        full_file = static("assets/fonts/noto-full.{}.css".format(default_font))
+    full_file = static(
+        "assets/fonts/noto-full.{}.{}.css".format(
+            language_code, "modern" if is_modern else "basic"
+        )
+    )
 
     return mark_safe(
         template.format(
