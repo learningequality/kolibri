@@ -11,7 +11,7 @@
       authorizedRole="adminOrCoach"
     >
 
-      <TopNav slot="nav" />
+      <CoachTopNav v-if="showCoachNav" slot="nav" />
       <template v-if="showCoachNav">
         <NavTitle
           class="nav-title"
@@ -47,7 +47,7 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
-  import TopNav from './TopNav';
+  import CoachTopNav from './CoachTopNav';
   import ClassListPage from './ClassListPage';
   import ExamsPage from './exams/CoachExamsPage';
   import ExamCreationPage from './exams/CreateExamPage';
@@ -142,7 +142,7 @@
       createNewExam: 'Create new exam',
     },
     components: {
-      TopNav,
+      CoachTopNav,
       CoreBase,
       NavTitle,
       LessonContentPreviewPage,

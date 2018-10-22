@@ -9,7 +9,7 @@
     :authorized="isAdmin || isSuperuser"
     :authorizationErrorDetails="$tr('adminOrSuperuser')"
   >
-    <TopNav slot="nav" v-if="!isEnrollmentPage" />
+    <FacilityTopNav slot="nav" v-if="!isEnrollmentPage" />
 
     <div class="facility-management">
       <!-- QUESTION should we explicitly define this in every page? -->
@@ -33,7 +33,7 @@
   import DataPage from './DataPage';
   import FacilitiesConfigPage from './FacilityConfigPage';
   import ManageClassPage from './ManageClassPage';
-  import TopNav from './TopNav';
+  import FacilityTopNav from './FacilityTopNav';
   import UserPage from './UserPage';
 
   const classEnrollmentPages = [PageNames.CLASS_ENROLL_LEARNER, PageNames.CLASS_ASSIGN_COACH];
@@ -58,7 +58,7 @@
     name: 'FacilityIndex',
     components: {
       CoreBase,
-      TopNav,
+      FacilityTopNav,
     },
     computed: {
       ...mapGetters(['isAdmin', 'isSuperuser']),

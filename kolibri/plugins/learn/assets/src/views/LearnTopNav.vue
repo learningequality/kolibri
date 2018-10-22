@@ -2,7 +2,6 @@
 
   <KNavbar>
     <KNavbarLink
-      type="icon-and-title"
       name="classes-link"
       v-if="isUserLoggedIn && userHasMemberships"
       :title="$tr('classes')"
@@ -14,7 +13,6 @@
       />
     </KNavbarLink>
     <KNavbarLink
-      type="icon-and-title"
       :title="$tr('channels')"
       :link="channelsLink"
     >
@@ -24,7 +22,6 @@
       />
     </KNavbarLink>
     <KNavbarLink
-      type="icon-and-title"
       :title="$tr('recommended')"
       :link="recommendedLink"
     >
