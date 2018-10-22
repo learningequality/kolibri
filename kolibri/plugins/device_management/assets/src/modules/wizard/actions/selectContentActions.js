@@ -1,28 +1,31 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { downloadChannelMetadata } from '../utils';
+import { getChannelWithContentSizes } from '../apiChannelMetadata';
 
 /**
  * Transitions the import/export wizard to the 'load-channel-metadata' interstitial state
  *
  */
-export function loadChannelMetaData(store) {
+export function loadChannelMetadata(store) {
   let dbPromise;
   const { transferredChannel } = store.state.manageContent.wizard;
   const channelOnDevice = store.getters['manageContent/channelIsInstalled'](transferredChannel.id);
 
-  // Downloading the Content Metadata DB
-  if (!channelOnDevice) {
-    // Update metadata when no content db has been downloaded
-    dbPromise = downloadChannelMetadata(store);
-  } else if (!channelOnDevice.available && channelOnDevice.version < transferredChannel.version) {
-    // If channel _is_ on the device, but not "available" (i.e. no resources installed yet)
-    // _and_ has been updated, then download the metadata
+  // If channel _is_ on the device, but not "available" (i.e. no resources installed yet)
+  // _and_ has been updated, then download the metadata
+  const newChannelDbAvailable =
+    channelOnDevice &&
+    !channelOnDevice.available &&
+    channelOnDevice.version < transferredChannel.version;
+
+  // Update metadata when no content db has been downloaded or if it is stale
+  if (!channelOnDevice || newChannelDbAvailable) {
     dbPromise = downloadChannelMetadata(store);
   } else {
     // If already on device, then skip the DB download, and use on-device
     // Channel metadata, since it has root id.
-    dbPromise = Promise.resolve(channelOnDevice);
+    dbPromise = getChannelWithContentSizes(transferredChannel.id);
   }
 
   // Hydrating the store with the Channel Metadata
@@ -32,8 +35,6 @@ export function loadChannelMetaData(store) {
       // Replacing them here with canonical type from ChannelResource.
       store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', {
         ...channel,
-        total_resources: transferredChannel.total_resources,
-        total_file_size: transferredChannel.total_file_size,
         version: transferredChannel.version,
         public: transferredChannel.public,
       });

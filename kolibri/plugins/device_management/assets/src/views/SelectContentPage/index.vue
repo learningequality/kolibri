@@ -63,7 +63,7 @@
         />
 
         <UiAlert
-          v-if="status!==''"
+          v-if="status !== ''"
           type="error"
           :dismissible="false"
         >
@@ -79,7 +79,7 @@
         </UiAlert>
         <!-- Contains size estimates + submit button -->
         <SelectedResourcesSize
-          v-if="availableSpace!==null"
+          v-if="availableSpace !== null"
           :mode="mode"
           :fileSize="nodeCounts.fileSize"
           :resourceCount="nodeCounts.resources"
