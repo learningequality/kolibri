@@ -70,7 +70,6 @@ class MetricsMiddleware(MiddlewareMixin):
     - Percentage of use of cpu by the Kolibri process when the response was sent
     - One flag indicating if this request is the slowest since the analysis was started
     """
-    slowest_request = 'unknown'
     slowest_request_time = 0
     disabled = True
     command_pid = 0
@@ -104,15 +103,13 @@ class MetricsMiddleware(MiddlewareMixin):
                 try:
                     with open(PROFILE_LOCK, 'r') as f:
                         MetricsMiddleware.command_pid = int(f.readline())
+                        file_timestamp = f.readline()
                         if SUPPORTED_OS:
                             MetricsMiddleware.disabled = False
-                            performance_dir = os.path.join(conf.KOLIBRI_HOME, 'performance')
-                            if not os.path.exists(performance_dir):
-                                try:
-                                    os.mkdir(performance_dir)
-                                except OSError:
-                                    print("Not enough permissions to write performance logs")
-                            with open(requests_profiling_file, mode='w+') as profile_file:
+                            self.requests_profiling_file = os.path.join(conf.KOLIBRI_HOME,
+                                                                        'performance',
+                                                                        '{}_requests_performance.csv'.format(file_timestamp))
+                            with open(self.requests_profiling_file, mode='a') as profile_file:
                                 profile_writer = csv.writer(profile_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                                 profile_writer.writerow(('Date', 'Path', 'Duration', 'Memory before (Kb)',
                                                          'Memory after (Kb)', 'Load before (%)', 'Load after(%)',
@@ -139,12 +136,11 @@ class MetricsMiddleware(MiddlewareMixin):
             duration, memory_before, memory, load_before, load = self.metrics.get_stats()
             max_time = False
             if duration > MetricsMiddleware.slowest_request_time:
-                MetricsMiddleware.slowest_request = path
                 MetricsMiddleware.slowest_request_time = duration
                 max_time = True
             timestamp = time.strftime('%Y/%m/%d %H:%M:%S.%f')
             collected_information = (timestamp, path, duration, memory_before, memory, load_before, load, str(max_time))
-            with open(requests_profiling_file, mode='a') as profile_file:
+            with open(self.requests_profiling_file, mode='a') as profile_file:
                 profile_writer = csv.writer(profile_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 profile_writer.writerow(collected_information)
             if not pid_exists(MetricsMiddleware.command_pid) or not os.path.exists(PROFILE_LOCK):

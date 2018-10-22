@@ -75,23 +75,25 @@ class Command(BaseCommand):
         interval = 10  # the measures are taken every 10 seconds
 
         this_pid = getpid()
+        file_timestamp = time.strftime('%Y%m%d_%H%M%S')
         try:
             with open(PROFILE_LOCK, 'w') as f:
                 f.write("%d" % this_pid)
+                f.write("\n{}".format(file_timestamp))
         except (IOError, OSError):
             print("Impossible to create profile lock file. Kolibri won't profile its requests")
         samples = 1
         num_samples = options['num_samples']
         performance_dir = os.path.join(conf.KOLIBRI_HOME, 'performance')
         self.performance_file = os.path.join(performance_dir,
-                                             '{}_performance.csv'.format(time.strftime('%Y%m%d_%H%M%S')))
+                                             '{}_performance.csv'.format(file_timestamp))
         if not os.path.exists(performance_dir):
             try:
                 os.mkdir(performance_dir)
             except OSError:
                 print("Not enough permissions to write performance logs")
                 sys.exit(1)
-        with open(self.performance_file, mode='w+') as profile_file:
+        with open(self.performance_file, mode='w') as profile_file:
             profile_writer = csv.writer(profile_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             profile_writer.writerow(('Date', 'Active sessions', 'Active users', 'Users last minute',
                                      'Server CPU %', 'Server used memory (Mb)', 'Server memory (Mb)', 'Processes',
