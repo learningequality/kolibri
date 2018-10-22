@@ -6,6 +6,7 @@ import time
 
 from django.conf import settings
 from django.core.cache import caches
+from django.core.exceptions import MiddlewareNotUsed
 from django.utils.deprecation import MiddlewareMixin
 
 from kolibri.core.analytics import SUPPORTED_OS
@@ -73,6 +74,11 @@ class MetricsMiddleware(MiddlewareMixin):
     slowest_request_time = 0
     disabled = True
     command_pid = 0
+
+    def __init__(self, get_response=None):
+        super(MetricsMiddleware, self).__init__(get_response=get_response)
+        if not conf.OPTIONS["Server"]["PROFILE"]:
+            raise MiddlewareNotUsed('Request profiling is not enabled')
 
     def process_request(self, request):
         """
