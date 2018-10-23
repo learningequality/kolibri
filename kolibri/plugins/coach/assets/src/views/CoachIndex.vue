@@ -9,9 +9,11 @@
       :immersivePagePrimary="immersivePagePrimary"
       :authorized="userCanAccessPage"
       authorizedRole="adminOrCoach"
+      :showSubNav="Boolean(classId) && showCoachNav"
     >
 
-      <CoachTopNav v-if="showCoachNav" slot="nav" />
+      <CoachTopNav slot="sub-nav" />
+
       <template v-if="showCoachNav">
         <NavTitle
           class="nav-title"

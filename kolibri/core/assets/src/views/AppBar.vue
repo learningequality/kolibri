@@ -92,7 +92,7 @@
       </div>
     </UiToolbar>
     <div class="subpage-nav">
-      <slot name="nav"></slot>
+      <slot name="sub-nav"></slot>
     </div>
   </div>
 
@@ -222,7 +222,7 @@
 
   .total-points {
     margin-top: 16px;
-    margin-left: -30px;
+    margin-left: -32px;
   }
 
 </style>

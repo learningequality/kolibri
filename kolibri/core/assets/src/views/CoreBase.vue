@@ -21,12 +21,18 @@
           :height="headerHeight"
           :navShown="navShown"
           @toggleSideNav="navShown=!navShown"
+          ref="appBar"
         >
           <slot name="totalPointsMenuItem" slot="totalPointsMenuItem"></slot>
           <div slot="app-bar-actions" class="app-bar-actions">
             <slot name="app-bar-actions"></slot>
           </div>
-          <slot name="nav" slot="nav"></slot>
+          <slot
+            v-if="showSubNav"
+            name="sub-nav"
+            slot="sub-nav"
+          >
+          </slot>
         </AppBar>
         <SideNav
           :navShown="navShown"
@@ -147,6 +153,12 @@
         required: false,
         default: '',
       },
+      // If true, will render the component in the "sub-nav" slot and add 48px
+      // to AppBody's top offset.
+      showSubNav: {
+        type: Boolean,
+        default: false,
+      },
     },
     metaInfo() {
       return {
@@ -177,10 +189,11 @@
         return this.windowIsSmall ? 56 : 64;
       },
       appBodyTopGap() {
-        if (this.immersivePage) {
-          return this.headerHeight;
+        if (this.showSubNav) {
+          // Adds the height of KNavBar
+          return this.headerHeight + 48;
         }
-        return this.headerHeight + 48;
+        return this.headerHeight;
       },
       navWidth() {
         return this.headerHeight * 4;

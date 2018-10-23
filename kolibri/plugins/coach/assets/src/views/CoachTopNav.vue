@@ -69,37 +69,31 @@
       recentLink() {
         return {
           name: PageNames.RECENT_CHANNELS,
-          params: { classId: this.classId },
         };
       },
       channelsLink() {
         return {
           name: PageNames.TOPIC_CHANNELS,
-          params: { classId: this.classId },
         };
       },
       examsLink() {
         return {
           name: PageNames.EXAMS,
-          params: { classId: this.classId },
         };
       },
       learnersLink() {
         return {
           name: PageNames.LEARNER_LIST,
-          params: { classId: this.classId },
         };
       },
       groupsLink() {
         return {
           name: PageNames.GROUPS,
-          params: { classId: this.classId },
         };
       },
       lessonsLink() {
         return {
           name: LessonsPageNames.ROOT,
-          params: { classId: this.classId },
         };
       },
     },

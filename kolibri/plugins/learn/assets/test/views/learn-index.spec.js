@@ -22,7 +22,7 @@ function makeWrapper(options) {
       CoreBase: `
         <div>
           <slot></slot>
-          <slot name="nav"></slot>
+          <slot name="sub-nav"></slot>
         </div>
       `,
       topicsPage: true,
@@ -39,6 +39,7 @@ function getElements(wrapper) {
     recommendedLink: () => wrapper.find('[href="#/recommended"]'),
     topicsLink: () => wrapper.find('[href="#/topics"]'),
     tabLinks: () => wrapper.findAll({ name: 'KNavbarLink' }),
+    CoreBase: () => wrapper.find({ name: 'CoreBase' }),
   };
 }
 
@@ -63,8 +64,8 @@ describe('learn plugin index page', () => {
   it('there are no tabs if showing content unavailable page', () => {
     setPageName('CONTENT_UNAVAILABLE');
     const wrapper = makeWrapper({ store });
-    const { tabLinks } = getElements(wrapper);
-    expect(tabLinks().length).toEqual(0);
+    const { CoreBase } = getElements(wrapper);
+    expect(CoreBase().props().showSubNav).toEqual(false);
   });
 
   it('the recommended and channel links are always available to everybody', () => {

@@ -6,10 +6,11 @@
     immersivePageIcon="arrow_back"
     :immersivePageRoute="appBarBackLink"
     :immersivePagePrimary="true"
-    :authorized="isAdmin || isSuperuser"
+    :authorized="userIsAuthorized"
     :authorizationErrorDetails="$tr('adminOrSuperuser')"
+    :showSubNav="userIsAuthorized && !isEnrollmentPage"
   >
-    <FacilityTopNav slot="nav" v-if="!isEnrollmentPage" />
+    <FacilityTopNav slot="sub-nav" />
 
     <div class="facility-management">
       <!-- QUESTION should we explicitly define this in every page? -->
@@ -69,6 +70,9 @@
       topLevelPageName: () => TopLevelPageNames.MANAGE,
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
+      },
+      userIsAuthorized() {
+        return this.isAdmin || this.isSuperuser;
       },
       appBarTitle() {
         if (this.isEnrollmentPage) {

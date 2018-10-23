@@ -7,12 +7,14 @@
     :immersivePageIcon="immersivePageIcon"
     :immersivePagePrimary="immersivePageIsPrimary"
     :immersivePageRoute="immersiveToolbarRoute"
+    :showSubNav="topNavIsVisible"
   >
     <template slot="app-bar-actions">
       <ActionBarSearchBox v-if="!isWithinSearchPage" />
     </template>
 
-    <LearnTopNav v-if="topNavIsVisible" slot="nav" />
+    <LearnTopNav slot="sub-nav" />
+
     <TotalPoints slot="totalPointsMenuItem" />
 
     <div>
