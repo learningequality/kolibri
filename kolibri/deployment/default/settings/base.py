@@ -86,6 +86,7 @@ MIDDLEWARE = [
     'kolibri.core.device.middleware.IgnoreGUIMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
+    'kolibri.core.analytics.middleware.MetricsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'kolibri.core.device.middleware.KolibriLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -302,7 +303,7 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': os.path.join(conf.KOLIBRI_HOME, 'kolibri.log'),
             'formatter': 'simple_date',
-        },
+        }
     },
     'loggers': {
         'django': {
@@ -327,7 +328,7 @@ LOGGING = {
             'handlers': ['file', 'console'],
             'level': 'INFO',
             'propagate': True,
-        },
+        }
     }
 }
 
