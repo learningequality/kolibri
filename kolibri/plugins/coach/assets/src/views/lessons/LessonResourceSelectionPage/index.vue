@@ -126,7 +126,6 @@
         'ancestors',
       ]),
       ...mapGetters('lessonSummary/resources', ['numRemainingSearchResults']),
-      ...mapGetters(['contentNodeIsTopic']),
       filteredContentList() {
         const { role } = this.filters;
         if (!this.inSearchMode) {
@@ -199,19 +198,6 @@
           query: { ...this.$route.query, ...pickBy(newVal) },
         });
       },
-    },
-    beforeRouteEnter(to, from, next) {
-      // HACK if last page was LessonContentPreviewPage, then we need to make sure
-      // to immediately autosave just in case a change was made there. This gets
-      // called whether or not a change is made, because we don't track changes
-      // enough steps back.
-      if (from.name === LessonsPageNames.SELECTION_CONTENT_PREVIEW) {
-        next(vm => {
-          return vm.saveResources();
-        });
-      } else {
-        next();
-      }
     },
     beforeRouteLeave(to, from, next) {
       // Only autosave if changes have been made

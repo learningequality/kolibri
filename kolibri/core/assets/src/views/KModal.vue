@@ -37,7 +37,7 @@
 
         <!-- Stop propagation of enter key to prevent the submit event from being emitted twice -->
         <form
-          @submit.prevent.once="emitSubmitEvent"
+          @submit.prevent="emitSubmitEvent"
           @keyup.enter.stop
         >
           <!-- Default slot for content -->
