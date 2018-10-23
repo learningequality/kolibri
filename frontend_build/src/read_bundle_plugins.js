@@ -132,7 +132,16 @@ var readBundlePlugins = function() {
   // predict which one will get resolved first. Caveat emptor.
   setNodePaths(nodePaths);
 
-  return bundles;
+  // Sort bundles to give a consistent return order in case this is being read by different
+  // processes.
+  return bundles.sort((a, b) => {
+    if (a.name > b.name) {
+      return 1;
+    } else if (a.name < b.name) {
+      return -1;
+    }
+    return 0;
+  });
 };
 
 module.exports = readBundlePlugins;
