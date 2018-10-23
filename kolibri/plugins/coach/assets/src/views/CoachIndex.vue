@@ -9,10 +9,12 @@
       :immersivePagePrimary="immersivePagePrimary"
       :authorized="userCanAccessPage"
       authorizedRole="adminOrCoach"
+      :showSubNav="Boolean(classId) && showCoachNav"
     >
 
+      <CoachTopNav slot="sub-nav" />
+
       <template v-if="showCoachNav">
-        <TopNav class="top-nav" />
         <NavTitle
           class="nav-title"
           :className="className"
@@ -47,7 +49,7 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
-  import TopNav from './TopNav';
+  import CoachTopNav from './CoachTopNav';
   import ClassListPage from './ClassListPage';
   import ExamsPage from './exams/CoachExamsPage';
   import ExamCreationPage from './exams/CreateExamPage';
@@ -142,7 +144,7 @@
       createNewExam: 'Create new exam',
     },
     components: {
-      TopNav,
+      CoachTopNav,
       CoreBase,
       NavTitle,
       LessonContentPreviewPage,
@@ -316,10 +318,6 @@
 
 
 <style lang="scss" scoped>
-
-  .top-nav {
-    margin-bottom: 32px;
-  }
 
   .nav-title {
     margin-bottom: 32px;

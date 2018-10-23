@@ -1,11 +1,26 @@
 <template>
 
-  <div v-if="isUserLoggedIn" class="points" ref="points">
-    <PointsIcon class="icon" :active="true" />
+  <div
+    v-if="isUserLoggedIn"
+    class="points"
+  >
+    <PointsIcon
+      class="icon"
+      :active="true"
+      ref="points"
+    />
+
     <div class="description">
-      <div class="description-value">{{ $formatNumber(totalPoints) }}</div>
+      <div class="description-value">
+        {{ $formatNumber(totalPoints) }}
+      </div>
     </div>
-    <UiTooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">
+
+    <UiTooltip
+      trigger="points"
+      position="bottom right"
+      openOn="hover focus"
+    >
       {{ $tr('pointsTooltip', { points: totalPoints }) }}
     </UiTooltip>
   </div>
@@ -15,7 +30,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'vuex';
+  import { mapGetters } from 'vuex';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import UiTooltip from 'keen-ui/src/UiTooltip';
 
@@ -31,10 +46,7 @@
     },
     watch: { currentUserId: 'fetchPoints' },
     created() {
-      this.fetchPoints();
-    },
-    methods: {
-      ...mapActions(['fetchPoints']),
+      this.$store.dispatch('fetchPoints');
     },
   };
 
@@ -46,25 +58,21 @@
   @import '~kolibri.styles.definitions';
 
   .points {
-    font-size: small;
-    font-weight: bold;
+    padding: 8px 0;
+    color: $core-text-annotation;
   }
 
   .icon {
     position: relative;
     top: 2px;
     display: inline-block;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
   }
 
   .description {
     display: inline-block;
-    margin-left: 8px;
-  }
-
-  .description-value {
-    font-size: x-large;
+    margin-left: 16px;
   }
 
 </style>

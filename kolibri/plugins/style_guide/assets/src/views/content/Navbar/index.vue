@@ -17,21 +17,18 @@
     <Show>
       <KNavbar>
         <KNavbarLink
-          type="icon-and-title"
           title="Trending"
           :link="a"
         >
           <mat-svg name="trending_up" category="action" />
         </KNavbarLink>
         <KNavbarLink
-          type="icon-and-title"
           title="Lit"
           :link="b"
         >
           <mat-svg name="whatshot" category="social" />
         </KNavbarLink>
         <KNavbarLink
-          type="icon-and-title"
           title="Favorites"
           :link="c"
         >
