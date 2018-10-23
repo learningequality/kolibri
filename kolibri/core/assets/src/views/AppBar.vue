@@ -1,12 +1,13 @@
 <template>
 
-  <div>
+  <div class="wrapper">
     <UiToolbar
       :title="title"
       type="colored"
       textColor="white"
       class="app-bar"
       :style="{ height: height + 'px' }"
+      :raised="false"
     >
       <UiIconButton
         slot="icon"
@@ -190,6 +191,10 @@
 
   /deep/ .override-ui-toolbar {
     color: $core-text-default;
+  }
+
+  .wrapper {
+    background-color: $core-action-normal;
   }
 
   .app-bar {
