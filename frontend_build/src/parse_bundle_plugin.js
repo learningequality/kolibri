@@ -17,6 +17,7 @@ var merge = require('webpack-merge');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 var WebpackRTLPlugin = require('webpack-rtl-plugin');
 var { VueLoaderPlugin } = require('vue-loader');
+const WebpackMessages = require('webpack-messages');
 var extract$trs = require('./extract_$trs');
 var logging = require('./logging');
 var base_config = require('./webpack.config.base');
@@ -139,6 +140,11 @@ var parseBundlePlugin = function(data) {
         __publicPath: JSON.stringify(publicPath),
       }),
       new extract$trs(data.locale_data_folder, data.name),
+      // Add custom messages per bundle.
+      new WebpackMessages({
+        name: data.name,
+        logger: str => logging.info(str),
+      }),
     ],
   };
 

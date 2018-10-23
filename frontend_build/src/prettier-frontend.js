@@ -8,6 +8,7 @@ const HTMLHint = require('htmlhint').HTMLHint;
 const esLintFormatter = require('eslint/lib/formatters/stylish');
 const stylelint = require('stylelint');
 const colors = require('colors');
+const chokidar = require('chokidar');
 const stylelintFormatter = require('stylelint').formatters.string;
 const esLintConfig = require('../../.eslintrc.js');
 const htmlHintConfig = require('../../.htmlhintrc.js');
@@ -213,7 +214,9 @@ if (require.main === module) {
     .option('-e, --encoding <string>', 'Text encoding of file', 'utf-8')
     .option('--prettierPath <filePath>', 'Path to prettier bin')
     .option('-v, --verbose', 'Print output to stdout', false)
+    .option('-m, --monitor', 'Monitor files and check on change', false)
     .parse(process.argv);
+  const watchMode = program.monitor;
   const files = program.args.length ? program.args : [defaultGlobPattern];
   const baseOptions = Object.assign({}, program);
   if (baseOptions.prettierPath) {
@@ -229,34 +232,41 @@ if (require.main === module) {
   if (!files.length) {
     program.help();
   } else {
-    Promise.all(
-      files.map(file => {
-        const matches = glob.sync(file, {
-          ignore: ['**/node_modules/**'],
-        });
-        return Promise.all(
-          matches.map(globbedFile => {
-            return prettierFrontend(Object.assign({}, baseOptions, { file: globbedFile }))
-              .then(logSuccess)
-              .catch(error => {
-                console.log(globbedFile, error);
-                logging.error('Error: ', error.message);
-                return error.code;
-              });
-          })
-        ).then(sources => {
-          return sources.reduce((code, result) => {
+    const runPrettier = file => prettierFrontend(Object.assign({}, baseOptions, { file }));
+    if (watchMode) {
+      logging.info('Initializing watcher for the following patterns: ' + files.join(', '));
+      const watcher = chokidar.watch(files, { ignored: /node_modules/ });
+      watcher.on('change', runPrettier);
+    } else {
+      Promise.all(
+        files.map(file => {
+          const matches = glob.sync(file, {
+            ignore: ['**/node_modules/**'],
+          });
+          return Promise.all(
+            matches.map(globbedFile => {
+              return runPrettier(globbedFile)
+                .then(logSuccess)
+                .catch(error => {
+                  console.log(globbedFile, error);
+                  logging.error('Error: ', error.message);
+                  return error.code;
+                });
+            })
+          ).then(sources => {
+            return sources.reduce((code, result) => {
+              return Math.max(code, result);
+            }, noChange);
+          });
+        })
+      ).then(sources => {
+        process.exit(
+          sources.reduce((code, result) => {
             return Math.max(code, result);
-          }, noChange);
-        });
-      })
-    ).then(sources => {
-      process.exit(
-        sources.reduce((code, result) => {
-          return Math.max(code, result);
-        }, noChange)
-      );
-    });
+          }, noChange)
+        );
+      });
+    }
   }
 }
 

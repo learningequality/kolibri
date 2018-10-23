@@ -18,13 +18,8 @@
 var path = require('path');
 var mkdirp = require('mkdirp');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
-// adds custom rules
-require('./htmlhint_custom');
 var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 var OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-var StyleLintPlugin = require('stylelint-webpack-plugin');
-var prettierOptions = require('../../.prettier');
-var PrettierFrontendPlugin = require('./prettier-frontend-webpack-plugin');
 
 var production = process.env.NODE_ENV === 'production';
 
@@ -59,56 +54,18 @@ var sassLoaders = [
   },
 ];
 
-var eslintLoader = {
-  loader: 'eslint-loader',
-  options: {
-    failOnError: production,
-    emitError: production,
-    emitWarning: !production,
-    fix: !production,
-    configFile: path.resolve(path.join(base_dir, '.eslintrc.js')),
-  },
-};
-
-var htmlLoaders = [
-  {
-    // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
-    loader: 'svg-icon-inline-loader',
-  },
-  {
-    loader: 'htmlhint-loader',
-    options: { failOnError: production, emitAs: production ? 'error' : 'warning' },
-  },
-];
-
 // primary webpack config
 module.exports = {
   context: base_dir,
   module: {
     rules: [
-      // Linting and preprocessing rules
+      // Preprocessing rules
       {
-        test: /\.html$/,
+        test: /\.(html|vue)$/,
         enforce: 'pre',
-        use: htmlLoaders,
+        // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
+        loader: 'svg-icon-inline-loader',
         exclude: /node_modules/,
-      },
-      {
-        test: /\.vue$/,
-        enforce: 'pre',
-        use: htmlLoaders.concat(eslintLoader),
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.js$/,
-        enforce: 'pre',
-        use: eslintLoader,
-        // Without this exclude, VueLoader will add this linting into the
-        // chained loaders after svg-inline-loader has been run
-        // The output of svg-inline-loader violates our max attribute per
-        // line vue template rules, which triggers an autofix, and
-        // permanently saves the files with the injected svg.
-        exclude: /(node_modules|\.vue)/,
       },
       // Transpilation and code loading rules
       {
@@ -169,19 +126,7 @@ module.exports = {
       new OptimizeCSSAssetsPlugin({}),
     ],
   },
-  plugins: [
-    new PrettierFrontendPlugin({
-      extensions: ['.js', '.vue', '.scss'],
-      logLevel: 'warn',
-      prettierOptions,
-    }),
-    new StyleLintPlugin({
-      files: ['**/*.scss', '**/*.vue'],
-      fix: true,
-      lintDirtyModulesOnly: true,
-      emitErrors: production,
-    }),
-  ],
+  plugins: [],
   resolve: {
     extensions: ['.js', '.vue', '.scss'],
     alias: {},
