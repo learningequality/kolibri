@@ -1,14 +1,13 @@
 const path = require('path');
 const fs = require('fs');
-const stripJsonComments = require('strip-json-comments');
 const HTMLHint = require('htmlhint').HTMLHint;
 
 // add base rules
 function getConfig() {
-  const configPath = path.join(__dirname, '..', '..', '.htmlhintrc');
+  const configPath = path.join(__dirname, '..', '..', '.htmlhintrc.js');
   if (fs.existsSync(configPath)) {
-    const config = fs.readFileSync(configPath, 'utf-8');
-    return JSON.parse(stripJsonComments(config));
+    const config = require(configPath);
+    return config;
   }
 }
 const ruleset = getConfig();

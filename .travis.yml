@@ -61,7 +61,7 @@ matrix:
         - TOX_ENV=postgres
     - python: "2.7"
       env:
-        - TOX_ENV=npmbuild
+        - TOX_ENV=frontendlint
     - python: "2.7"
       env:
         - TOX_ENV=nocext
