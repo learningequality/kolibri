@@ -36,7 +36,7 @@
         </div>
       </div>
 
-      <resource-list-table v-if="lessonResources.length" />
+      <resource-list-table v-if="workingResources.length" />
 
       <p v-else class="no-resources-message">
         {{ $tr('noResourcesInLesson') }}
@@ -115,6 +115,7 @@
         lessonAssignments: state => state.pageState.currentLesson.lesson_assignments,
         lessonResources: state => state.pageState.currentLesson.resources,
         learnerGroups: state => state.pageState.learnerGroups,
+        workingResources: state => state.pageState.workingResources,
       },
     },
     $trs: {
