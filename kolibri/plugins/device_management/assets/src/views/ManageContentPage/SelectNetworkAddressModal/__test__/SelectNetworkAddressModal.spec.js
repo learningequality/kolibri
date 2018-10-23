@@ -31,14 +31,14 @@ function makeWrapper() {
 describe('SelectNetworkAddressModal', () => {
   it('starts on the Select Address Form', () => {
     const { els } = makeWrapper();
-    expect(els.SelectAddressForm().isVueComponent).toBe(true);
+    expect(els.SelectAddressForm().isVueInstance()).toBe(true);
   });
 
   it('clicking the "new address" button takes you to the New Address Form', () => {
     const { els, actions } = makeWrapper();
     actions.clickNewAddress();
     expect(els.SelectAddressForm().exists()).toBe(false);
-    expect(els.AddAddressForm().isVueComponent).toBe(true);
+    expect(els.AddAddressForm().isVueInstance()).toBe(true);
   });
 
   it('clicking "cancel" on the New Address Form takes you back', () => {
