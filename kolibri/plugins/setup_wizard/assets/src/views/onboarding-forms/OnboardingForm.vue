@@ -102,8 +102,8 @@
   }
 
   .form-footer {
-    margin-top: 24px;
     margin: 24px 0;
+    margin-top: 24px;
   }
 
 </style>

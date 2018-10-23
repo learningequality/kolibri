@@ -1,4 +1,4 @@
-{
+module.exports = {
   "tagname-lowercase": false,
   "tag-pair": true,
   "spec-char-escape": true,

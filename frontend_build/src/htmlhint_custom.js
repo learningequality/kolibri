@@ -54,7 +54,6 @@ HTMLHint.addRule({
     var mapEmptyTags = parser.makeMap(
       'area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed,track,command,source,keygen,wbr'
     ); //HTML 4.01 + HTML 5
-    var inTopLevelTag = false;
     parser.addListener('text', function(event) {
       var eventData = clean(event.raw);
       var last = event.lastEvent;
@@ -87,23 +86,13 @@ HTMLHint.addRule({
       var eventData = clean(event.raw);
       if (stack.length === 1) {
         if (eventData && !eventData.trim()) {
-          if (eventData.indexOf('\n') !== -1) {
-            reporter.error(
-              'Empty top-level tags should be on a single line.',
-              event.line,
-              event.col,
-              self,
-              event.raw
-            );
-          } else {
-            reporter.error(
-              'Empty top-level tags should not contain spaces.',
-              event.line,
-              event.col,
-              self,
-              event.raw
-            );
-          }
+          reporter.error(
+            'Empty top-level tags should be deleted.',
+            event.line,
+            event.col,
+            self,
+            event.raw
+          );
         } else {
           // note - [^] is like . except it matches newlines
           // http://stackoverflow.com/questions/1068280/javascript-regex-multiline-flag-doesnt-work
@@ -174,7 +163,6 @@ HTMLHint.addRule({
       }
     });
     parser.addListener('tagend', function(event) {
-      var eventData = clean(event.raw);
       var last = event.lastEvent;
       var lastData = clean(last.raw);
       if (last.type === 'text') {

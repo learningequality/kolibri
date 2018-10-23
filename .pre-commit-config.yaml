@@ -17,19 +17,7 @@
     hooks:
       -   id: frontend-prettify
           name: Prettier Linting of JS and Vue files
-          description: This hook rewrites JS and the JS portion of Vue files to conform to prettier standards.
-          entry: yarn run lint-js -- -w
+          description: This hook handles all frontend linting for Kolibri
+          entry: yarn run lint-js -w
           language: system
-          files: \.(js|vue)$
-      -   id: frontend-eslint
-          name: ESLinting of JS and Vue files
-          description: This hook rewrites JS and the JS portion of Vue files to conform to our ESLint standards.
-          entry: node node_modules/eslint/bin/eslint.js
-          language: system
-          files: \.(js|vue)$
-      -   id: frontend-stylelint
-          name: Lint SCSS
-          description: This hook checks that SCSS conforms to our Stylelint standards.
-          entry: node node_modules/stylelint/bin/stylelint.js
-          language: system
-          files: \.(scss|vue)$
+          files: \.(js|vue|scss)$
