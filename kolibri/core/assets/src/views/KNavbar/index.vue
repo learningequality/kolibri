@@ -84,7 +84,8 @@
           const itemWidth = Math.ceil(item.$el.getBoundingClientRect().width);
           widthOfItems += itemWidth;
         });
-        this.enoughSpace = widthOfItems <= availableWidth;
+        // Subtract 16px to account for padding-left
+        this.enoughSpace = widthOfItems <= availableWidth - 16;
       },
       throttleCheckSpace: throttle(function() {
         this.checkSpace();
