@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`app bar component drop down user menu should show the language modal link if no components are added and user is not logged in 1`] = `
-<div class="wrapper">
+<div class="wrapper" navshown="true">
   <div class="ui-toolbar app-bar ui-toolbar--type-colored ui-toolbar--text-color-white ui-toolbar--progress-position-bottom" style="height: 20px;">
     <div class="ui-toolbar__left">
       <div class="ui-toolbar__nav-icon">
