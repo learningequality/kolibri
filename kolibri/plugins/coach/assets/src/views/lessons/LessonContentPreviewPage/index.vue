@@ -33,7 +33,6 @@
             {{ content.license_name }}
             <InfoIcon
               v-if="content.license_description"
-              tooltipPosition="right middle"
               :tooltipText="content.license_description"
               :iconAriaLabel="content.license_description"
             />

@@ -1,6 +1,6 @@
 <template>
 
-  <KTooltip>
+  <KTooltip :placement="tooltipPlacement">
     <UiIcon
       slot="trigger"
       class="info-icon"
@@ -36,9 +36,9 @@
         type: String,
         required: true,
       },
-      tooltipPosition: {
+      tooltipPlacement: {
         type: String,
-        required: true,
+        required: false,
       },
     },
   };

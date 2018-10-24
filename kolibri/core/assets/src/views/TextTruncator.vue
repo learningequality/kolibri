@@ -2,7 +2,10 @@
 
   <div>
     <div v-if="viewAllText">{{ text }}</div>
-    <KTooltip v-else>
+    <KTooltip
+      v-else
+      :disabled="!tooltipText"
+    >
       <div
         slot="trigger"
         ref="shaveEl"

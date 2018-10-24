@@ -1,6 +1,6 @@
 <template>
 
-  <KTooltip placement="right">
+  <KTooltip class="here">
     <span slot="trigger">
       <mat-svg
         v-if="hasSuperAdminPermission"

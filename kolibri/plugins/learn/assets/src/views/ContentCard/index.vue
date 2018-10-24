@@ -168,7 +168,6 @@
     position: relative;
     height: 92px;
     padding: $margin;
-    overflow: hidden;
     color: $core-text-default;
   }
 

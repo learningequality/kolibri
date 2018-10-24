@@ -27,7 +27,7 @@
             <CoreInfoIcon
               :iconAriaLabel="$tr('statusDescription')"
               :tooltipText="$tr('statusTooltipText')"
-              tooltipPosition="bottom right"
+              tooltipPlacement="bottom"
             />
           </th>
         </tr>
