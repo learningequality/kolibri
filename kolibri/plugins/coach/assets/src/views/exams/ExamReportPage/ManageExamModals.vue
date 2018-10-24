@@ -23,6 +23,7 @@
 
     <AssignmentDetailsModal
       v-else-if="examsModalSet === AssignmentActions.EDIT_DETAILS"
+      ref="detailsModal"
       :modalTitle="$tr('editExamDetails')"
       :submitErrorMessage="$tr('saveExamError')"
       :showDescriptionField="false"
@@ -33,7 +34,6 @@
       :groups="learnerGroups"
       @save="handleUpdateExamDetails"
       @cancel="setExamsModal(null)"
-      ref="detailsModal"
     />
 
     <AssignmentCopyModal

@@ -26,9 +26,9 @@
     />
     <UserRemoveConfirmationModal
       v-if="modalShown===Modals.REMOVE_USER"
-      @confirm="removalAction({ classId: currentClass.id, userId: userToBeRemoved.id })"
       :classname="currentClass.name"
       :username="userToBeRemoved.username"
+      @confirm="removalAction({ classId: currentClass.id, userId: userToBeRemoved.id })"
     />
     <!-- /Modals -->
 

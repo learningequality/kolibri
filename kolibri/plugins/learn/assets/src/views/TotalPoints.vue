@@ -5,9 +5,9 @@
     class="points"
   >
     <PointsIcon
+      ref="points"
       class="icon"
       :active="true"
-      ref="points"
     />
 
     <div class="description">

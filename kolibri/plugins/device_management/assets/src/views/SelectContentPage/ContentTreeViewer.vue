@@ -31,10 +31,10 @@
           <ContentNodeRow
             v-for="node in annotatedChildNodes"
             v-if="showNode(node)"
+            :key="node.id"
             :checked="nodeIsChecked(node)"
             :disabled="disableAll || node.disabled"
             :indeterminate="nodeIsIndeterminate(node)"
-            :key="node.id"
             :message="node.message"
             :node="node"
             @clicktopic="updateCurrentTopicNode(node)"

@@ -1,10 +1,10 @@
 <template>
 
-  <div class="vab" v-if="value > 0" :title="titleText">
+  <div v-if="value > 0" class="vab" :title="titleText">
     <UiIcon class="coach-mat-icon">
       <mat-svg name="local_library" category="maps" />
     </UiIcon>
-    <span class="counter" v-if="isTopic">
+    <span v-if="isTopic" class="counter">
       {{ $formatNumber(value) }}
     </span>
   </div>

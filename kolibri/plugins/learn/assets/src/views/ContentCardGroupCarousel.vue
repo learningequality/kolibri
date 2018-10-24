@@ -5,9 +5,9 @@
     <div :style="contentControlsContainerStyles">
 
       <div
+        v-show="!isFirstSet"
         class="content-carousel-previous-control"
         @click="previousSet"
-        v-show="!isFirstSet"
       >
         <UiIconButton
           class="content-carousel-previous-control-button"
@@ -29,11 +29,11 @@
       >
 
         <ContentCard
-          class="content-carousel-card"
           v-for="(content, index) in contents"
           v-if="isInThisSet(index)"
-          :style="positionCalc(index)"
           :key="content.id"
+          class="content-carousel-card"
+          :style="positionCalc(index)"
           :title="content.title"
           :thumbnail="content.thumbnail"
           :kind="content.kind"
@@ -44,9 +44,9 @@
       </transition-group>
 
       <div
+        v-show="!isLastSet"
         class="content-carousel-next-control"
         @click="nextSet"
-        v-show="!isLastSet"
       >
         <UiIconButton
           class="content-carousel-next-control-button"

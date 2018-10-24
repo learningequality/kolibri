@@ -11,8 +11,8 @@
         percentage
       >
         <KButton
-          class="exit-search-button"
           v-if="inSearchMode"
+          class="exit-search-button"
           :text="$tr('exitSearchButtonLabel')"
           appearance="raised-button"
           @click="handleExitSearch"
@@ -33,10 +33,10 @@
 
     <LessonsSearchFilters
       v-if="inSearchMode"
+      v-model="filters"
       class="search-filters"
       :searchTerm="searchTerm"
       :searchResults="searchResults"
-      v-model="filters"
     />
 
     <ResourceSelectionBreadcrumbs

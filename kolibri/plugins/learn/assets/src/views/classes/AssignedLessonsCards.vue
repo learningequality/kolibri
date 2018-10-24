@@ -10,9 +10,9 @@
       </p>
     </div>
     <ContentCard
-      class="content-card"
       v-for="lesson in lessons"
       :key="lesson.id"
+      class="content-card"
       :link="lessonPlaylistLink(lesson.id)"
       :showContentIcon="false"
       :title="lesson.title"

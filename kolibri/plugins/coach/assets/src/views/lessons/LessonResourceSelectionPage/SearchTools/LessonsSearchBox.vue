@@ -14,12 +14,12 @@
       </label>
 
       <input
+        ref="searchinput"
         v-model.trim="searchTerm"
         type="search"
         class="input"
         dir="auto"
         :placeholder="$tr('searchBoxLabel')"
-        ref="searchinput"
       >
 
       <div class="buttons-wrapper">

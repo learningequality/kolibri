@@ -2,24 +2,24 @@
 
   <div>
     <UiAlert
-      type="error"
       v-if="notification===notificationTypes.PAGELOAD_FAILURE"
+      type="error"
       @dismiss="dismiss()"
     >
       {{ $tr('pageloadFailure') }}
     </UiAlert>
 
     <UiAlert
-      type="success"
       v-if="notification===notificationTypes.SAVE_SUCCESS"
+      type="success"
       @dismiss="dismiss()"
     >
       {{ $tr('saveSuccess') }}
     </UiAlert>
 
     <UiAlert
-      type="success"
       v-if="notification===notificationTypes.SAVE_FAILURE"
+      type="success"
       @dismiss="dismiss()"
     >
       {{ $tr('saveFailure') }}

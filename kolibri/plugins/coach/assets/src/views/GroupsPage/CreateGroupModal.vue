@@ -11,6 +11,7 @@
   >
     <KTextbox
       ref="name"
+      v-model.trim="name"
       type="text"
       :label="$tr('learnerGroupName')"
       :autofocus="true"
@@ -18,7 +19,6 @@
       :invalidText="nameIsInvalidText"
       :maxlength="50"
       @blur="nameBlurred = true"
-      v-model.trim="name"
     />
   </KModal>
 

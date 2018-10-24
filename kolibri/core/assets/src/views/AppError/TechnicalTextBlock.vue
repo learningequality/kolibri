@@ -12,14 +12,14 @@
     >
     </textarea>
     <!-- invisible text block for copying, visible to screenreaders -->
-    <pre class="visuallyhidden" ref="textBox">{{ text }}</pre>
+    <pre ref="textBox" class="visuallyhidden">{{ text }}</pre>
     <div>
       <KButton
         v-if="clipboardCapable"
+        ref="copyButton"
         class="copy-to-clipboard-button"
         :primary="false"
         :text="$tr('copyToClipboardButtonPrompt')"
-        ref="copyButton"
       />
     </div>
   </div>

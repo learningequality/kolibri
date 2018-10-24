@@ -9,34 +9,34 @@
     >
       <KRadioButton
         ref="first-button"
-        class="permission-preset-radio-button"
         v-model="selectedPreset"
+        class="permission-preset-radio-button"
         value="nonformal"
         :label="$tr('selfManagedSetupTitle')"
         :description="$tr('selfManagedSetupDescription')"
       />
       <FacilityNameTextbox
+        v-show="nonformalIsSelected"
         ref="facility-name-nonformal"
         class="facility-name-form"
-        v-show="nonformalIsSelected"
       />
 
       <KRadioButton
-        class="permission-preset-radio-button"
         v-model="selectedPreset"
+        class="permission-preset-radio-button"
         value="formal"
         :label="$tr('adminManagedSetupTitle')"
         :description="$tr('adminManagedSetupDescription')"
       />
       <FacilityNameTextbox
+        v-show="formalIsSelected"
         ref="facility-name-formal"
         class="facility-name-form"
-        v-show="formalIsSelected"
       />
 
       <KRadioButton
-        class="permission-preset-radio-button"
         v-model="selectedPreset"
+        class="permission-preset-radio-button"
         value="informal"
         :label="$tr('informalSetupTitle')"
         :description="$tr('informalSetupDescription')"

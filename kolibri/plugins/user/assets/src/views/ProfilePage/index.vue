@@ -40,8 +40,9 @@
       </UiAlert>
 
       <KTextbox
-        ref="name"
         v-if="canEditName"
+        ref="name"
+        v-model="name"
         type="text"
         autocomplete="name"
         :autofocus="false"
@@ -50,7 +51,6 @@
         :maxlength="120"
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
-        v-model="name"
       />
       <template v-else>
         <h2>{{ $tr('name') }}</h2>
@@ -58,8 +58,9 @@
       </template>
 
       <KTextbox
-        ref="username"
         v-if="canEditUsername"
+        ref="username"
+        v-model="username"
         type="text"
         autocomplete="username"
         :label="$tr('username')"
@@ -69,7 +70,6 @@
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
         @input="resetProfileState"
-        v-model="username"
       />
       <template v-else>
         <h2>{{ $tr('username') }}</h2>

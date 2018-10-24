@@ -19,20 +19,20 @@
 
     <div v-else>
       <KRadioButton
-        :label="$tr('network')"
         v-model="source"
+        :label="$tr('network')"
         :value="ContentSources.KOLIBRI_STUDIO"
         :disabled="kolibriStudioIsOffline"
         :autofocus="!kolibriStudioIsOffline"
       />
       <KRadioButton
-        :label="$tr('localNetworkOrInternet')"
         v-model="source"
+        :label="$tr('localNetworkOrInternet')"
         :value="ContentSources.PEER_KOLIBRI_SERVER"
       />
       <KRadioButton
-        :label="$tr('localDrives')"
         v-model="source"
+        :label="$tr('localDrives')"
         :value="ContentSources.LOCAL_DRIVE"
       />
     </div>

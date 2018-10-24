@@ -9,10 +9,10 @@
 
       <div class="k-checkbox" :class="{ 'k-checkbox-active': isActive }">
         <input
+          :id="id"
           ref="kCheckboxInput"
           type="checkbox"
           class="k-checkbox-input"
-          :id="id"
           :checked="isCurrentlyChecked"
           :indeterminate.prop="isCurrentlyIndeterminate"
           :disabled="disabled"

@@ -10,6 +10,7 @@
   >
     <KTextbox
       ref="name"
+      v-model="newName"
       type="text"
       :label="$tr('fullName')"
       :autofocus="true"
@@ -17,11 +18,11 @@
       :invalid="nameIsInvalid"
       :invalidText="nameIsInvalidText"
       @blur="nameBlurred = true"
-      v-model="newName"
     />
 
     <KTextbox
       ref="username"
+      v-model="newUsername"
       type="text"
       :label="$tr('username')"
       :maxlength="30"
@@ -29,7 +30,6 @@
       :invalidText="usernameIsInvalidText"
       @blur="usernameBlurred = true"
       @input="setError(null)"
-      v-model="newUsername"
     />
 
     <template v-if="editingSuperAdmin">
@@ -53,23 +53,23 @@
 
     <template v-else>
       <KSelect
+        v-model="typeSelected"
         :label="$tr('userType')"
         :options="userTypeOptions"
-        v-model="typeSelected"
       />
 
-      <fieldset class="coach-selector" v-if="coachIsSelected">
+      <fieldset v-if="coachIsSelected" class="coach-selector">
         <KRadioButton
+          v-model="classCoachIsSelected"
           :label="$tr('classCoachLabel')"
           :description="$tr('classCoachDescription')"
           :value="true"
-          v-model="classCoachIsSelected"
         />
         <KRadioButton
+          v-model="classCoachIsSelected"
           :label="$tr('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
-          v-model="classCoachIsSelected"
         />
       </fieldset>
     </template>

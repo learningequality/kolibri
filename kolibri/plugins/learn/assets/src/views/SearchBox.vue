@@ -8,11 +8,11 @@
     <div class="search-box-row">
       <label class="visuallyhidden" for="searchfield">{{ $tr('searchBoxLabel') }}</label>
       <input
-        v-model.trim="searchQuery"
         id="searchfield"
+        ref="searchInput"
+        v-model.trim="searchQuery"
         type="search"
         class="search-input"
-        ref="searchInput"
         dir="auto"
         :placeholder="$tr('searchBoxLabel')"
       >
@@ -68,14 +68,14 @@
           class="filter-icon"
         />
         <KSelect
+          ref="contentKindFilter"
           :label="$tr('resourceType')"
           :options="contentKindFilterOptions"
           :inline="true"
           :disabled="!contentKindFilterOptions.length"
           :value="contentKindFilterSelection"
-          @change="updateFilter"
-          ref="contentKindFilter"
           class="filter"
+          @change="updateFilter"
         />
       </div>
       <div
@@ -87,14 +87,14 @@
           class="filter-icon"
         />
         <KSelect
+          ref="channelFilter"
           :label="$tr('channels')"
           :options="channelFilterOptions"
           :inline="true"
           :disabled="!channelFilterOptions.length"
           :value="channelFilterSelection"
-          @change="updateFilter"
-          ref="channelFilter"
           class="filter"
+          @change="updateFilter"
         />
       </div>
     </div>

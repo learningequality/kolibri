@@ -1,10 +1,10 @@
 <template>
 
   <KModal
-    @cancel="$emit('cancel')"
     size="large"
     :cancelText="$tr('cancelButtonLabel')"
     :title="$tr('privacyModalHeader')"
+    @cancel="$emit('cancel')"
   >
     <section v-if="!hideUsersSection">
       <h2>{{ $tr('kolibriUsersTitle') }}</h2>

@@ -10,15 +10,15 @@
       <KButton
         ref="modalButton"
         :text="$tr('moreInfo')"
-        @click="showModal = true"
         appearance="basic-link"
+        @click="showModal = true"
       />
     </OnboardingForm>
 
     <PrivacyInfoModal
       v-if="showModal"
-      @cancel="closeModal"
       hideUsersSection
+      @cancel="closeModal"
     />
   </div>
 

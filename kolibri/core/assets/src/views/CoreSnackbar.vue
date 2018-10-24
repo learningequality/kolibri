@@ -13,8 +13,8 @@
         class="snackbar"
         :message="text"
         :action="actionText"
-        @action-click="$emit('actionClicked')"
         tabindex="0"
+        @action-click="$emit('actionClicked')"
       />
     </transition>
   </div>

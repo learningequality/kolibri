@@ -18,8 +18,8 @@
           :inline="true"
           :disabled="!contentKindFilterOptions.length"
           :value="contentKindValue"
-          @change="updateFilter('kind', $event)"
           class="filter"
+          @change="updateFilter('kind', $event)"
         />
       </div>
 
@@ -35,8 +35,8 @@
           :inline="true"
           :disabled="!channelFilterOptions.length"
           :value="channelValue"
-          @change="updateFilter('channel', $event)"
           class="filter"
+          @change="updateFilter('channel', $event)"
         />
       </div>
 
@@ -55,8 +55,8 @@
           :inline="true"
           :disabled="!roleFilterOptions.length"
           :value="roleValue"
-          @change="updateFilter('role', $event)"
           class="filter"
+          @change="updateFilter('role', $event)"
         />
       </div>
     </div>

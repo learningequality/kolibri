@@ -20,8 +20,8 @@ oriented data synchronization.
     </UiAlert>
     <div>
       <ContentRenderer
-        ref="contentRenderer"
         :id="content.id"
+        ref="contentRenderer"
         :kind="content.kind"
         :files="content.files"
         :contentId="content.content_id"

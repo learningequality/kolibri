@@ -5,16 +5,16 @@
       :value="true"
       :label="$tr('entireClass')"
       :currentValue="entireClassIsSelected"
-      @change="selectEntireClass()"
       :disabled="disabled"
+      @change="selectEntireClass()"
     />
     <KCheckbox
       v-for="group in groups"
       :key="group.id"
       :label="group.name"
       :checked="groupIsChecked(group.id)"
-      @change="toggleGroup($event, group.id)"
       :disabled="disabled"
+      @change="toggleGroup($event, group.id)"
     />
   </div>
 

@@ -7,9 +7,9 @@
     >
     </div>
     <div
-      class="overlay"
       v-for="n in cols-1"
       :key="n"
+      class="overlay"
       :style="gutterStyle(n)"
     >
     </div>

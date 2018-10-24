@@ -3,8 +3,8 @@
   <div>
     <transition mode="out-in">
       <p
-        class="no-channels"
         v-if="noChannelsToShow"
+        class="no-channels"
       >
         {{ $tr('emptyChannelListMessage') }}
       </p>

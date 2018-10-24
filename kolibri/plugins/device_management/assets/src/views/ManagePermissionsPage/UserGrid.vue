@@ -29,9 +29,9 @@
           </td>
           <td>
             <KButton
-              @click="goToUserPermissionsPage(user.id)"
               appearance="flat-button"
               :text="permissionsButtonText(user.username)"
+              @click="goToUserPermissionsPage(user.id)"
             />
           </td>
         </tr>

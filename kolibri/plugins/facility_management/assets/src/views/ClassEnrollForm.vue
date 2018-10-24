@@ -3,8 +3,8 @@
   <form @submit.prevent="$emit('submit', selectedUsers)">
     <div class="actions-header">
       <KFilterTextbox
-        :placeholder="$tr('searchForUser')"
         v-model.trim="filterInput"
+        :placeholder="$tr('searchForUser')"
         @input="pageNum = 1"
       />
     </div>

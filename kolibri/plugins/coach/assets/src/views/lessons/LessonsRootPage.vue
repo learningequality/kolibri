@@ -4,10 +4,10 @@
     <h1>{{ $tr('classLessons') }}</h1>
     <div class="filter-and-button">
       <KSelect
+        v-model="filterSelection"
         :label="$tr('show')"
         :options="filterOptions"
         :inline="true"
-        v-model="filterSelection"
       />
       <KButton
         :primary="true"
@@ -69,6 +69,7 @@
 
     <AssignmentDetailsModal
       v-if="showModal"
+      ref="detailsModal"
       :modalTitle="$tr('newLessonModalTitle')"
       :submitErrorMessage="$tr('saveLessonError')"
       :initialDescription="''"
@@ -80,7 +81,6 @@
       :groups="learnerGroups"
       @continue="handleDetailsModalContinue"
       @cancel="showModal=false"
-      ref="detailsModal"
     />
   </div>
 

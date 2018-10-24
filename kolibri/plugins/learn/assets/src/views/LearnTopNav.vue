@@ -2,8 +2,8 @@
 
   <KNavbar>
     <KNavbarLink
-      name="classes-link"
       v-if="isUserLoggedIn && userHasMemberships"
+      name="classes-link"
       :title="$tr('classes')"
       :link="allClassesLink"
     >

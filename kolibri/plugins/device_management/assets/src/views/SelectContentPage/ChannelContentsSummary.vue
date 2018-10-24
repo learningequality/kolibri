@@ -12,8 +12,8 @@
           {{ channel.name }}
         </h2>
         <UiIcon
-          class="lock-icon"
           v-if="channel.public === false"
+          class="lock-icon"
         >
           <mat-svg name="lock_open" category="action" />
         </UiIcon>

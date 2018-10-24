@@ -15,7 +15,7 @@
       <h1 v-else class="search-results">
         {{ $tr('showingResultsFor', {
           searchTerm,
-            totalResults: total_results
+          totalResults: total_results
         }) }}
       </h1>
 

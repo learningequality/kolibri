@@ -41,8 +41,8 @@
             :sortable="true"
           />
           <HeaderCell
-            :align="alignStart"
             v-if="!isRootLearnerPage"
+            :align="alignStart"
             :text="$tr('lastActivity')"
             :column="TableColumns.DATE"
             :sortable="true"

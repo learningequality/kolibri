@@ -11,8 +11,8 @@
 
     <KRadioButton
       v-for="facility in facilities"
-      v-model="selectedFacility"
       :key="facility.id"
+      v-model="selectedFacility"
       :label="facility.name"
       :value="facility.id"
     />

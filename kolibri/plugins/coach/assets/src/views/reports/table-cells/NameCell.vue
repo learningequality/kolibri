@@ -4,7 +4,7 @@
     <div class="title">
       <div>
         <KRouterLink v-if="link" :text="title" :to="link" class="link" />
-        <span dir="auto" v-else>{{ title }}</span>
+        <span v-else dir="auto">{{ title }}</span>
       </div>
       <div>
         <slot name="details"></slot>

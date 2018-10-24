@@ -5,17 +5,17 @@
     :title="$tr('preview')"
     :submitText="$tr('close')"
     size="large"
-    @submit="close"
-    @cancel="close"
     :width="`${windowWidth - 16}px`"
     :height="`${windowHeight - 16}px`"
+    @submit="close"
+    @cancel="close"
   >
     <transition mode="out-in">
       <KCircularLoader
         v-if="loading"
         :delay="false"
       />
-      <div class="no-exercise-x" v-else-if="exerciseContentNodes.length === 0">
+      <div v-else-if="exerciseContentNodes.length === 0" class="no-exercise-x">
         <mat-svg category="navigation" name="close" />
       </div>
       <div v-else @keyup.enter.stop>
@@ -36,19 +36,19 @@
               <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
                 <li
-                  class="question-list-item"
                   v-for="(question, questionIndex) in
                   getExerciseQuestions(exercise.exercise_id)"
                   :key="questionIndex"
+                  class="question-list-item"
                 >
                   <KButton
-                    @click="goToQuestion(question.itemId, exercise.exercise_id)"
                     :primary="isSelected(question.itemId, exercise.exercise_id)"
                     appearance="flat-button"
                     :text="$tr(
                       'question',
                       { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
                     )"
+                    @click="goToQuestion(question.itemId, exercise.exercise_id)"
                   />
                   <CoachContentLabel
                     class="coach-content-label"
@@ -66,8 +66,8 @@
           >
             <ContentRenderer
               v-if="content && itemId"
-              ref="contentRenderer"
               :id="content.id"
+              ref="contentRenderer"
               :kind="content.kind"
               :files="content.files"
               :contentId="content.content_id"

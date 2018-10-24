@@ -22,7 +22,7 @@
         </KGrid>
         <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
         <p v-if="completionRequirements">{{ completionRequirements }}</p>
-        <p v-if="description" v-html="description" dir="auto"></p>
+        <p v-if="description" dir="auto" v-html="description"></p>
         <ul class="meta">
           <li v-if="content.author">
             {{ $tr('authorDataHeader') }}:
@@ -48,12 +48,12 @@
     </div>
 
     <QuestionList
-      slot="aside"
       v-if="isPerseusExercise"
-      @select="selectedQuestionIndex = $event"
+      slot="aside"
       :questions="questions"
       :questionLabel="questionLabel"
       :selectedIndex="selectedQuestionIndex"
+      @select="selectedQuestionIndex = $event"
     />
 
     <ContentArea
