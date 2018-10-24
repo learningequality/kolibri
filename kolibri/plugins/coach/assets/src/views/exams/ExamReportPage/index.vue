@@ -49,7 +49,7 @@
             </tr>
           </thead>
           <tbody slot="tbody">
-            <tr v-for="(examTaker, i) in reportGrouping" :key="i">
+            <tr v-for="(examTaker, j) in reportGrouping" :key="j">
               <td class="core-table-icon-col">
                 <ContentIcon :kind="USER" />
               </td>

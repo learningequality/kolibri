@@ -23,7 +23,7 @@
         {{ $tr('youCan') }}
         <ul class="permissions-list">
           <li v-if="isSuperuser">{{ $tr('manageDevicePermissions') }}</li>
-          <li v-for="(value, key) in getUserPermissions" v-if="value" :key="key">
+          <li v-for="(value, key) in userPermissions" :key="key">
             {{ getPermissionString(key) }}
           </li>
         </ul>
@@ -179,6 +179,9 @@
         session: state => state.core.session,
       }),
       ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success', 'profileErrors']),
+      userPermissions() {
+        return this.getUserPermissions.filter(Boolean);
+      },
       passwordModalVisible() {
         return this.passwordState.modal;
       },

@@ -22,6 +22,7 @@
         </KGrid>
         <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
         <p v-if="completionRequirements">{{ completionRequirements }}</p>
+        <!-- eslint-disable-next-line vue/no-v-html -->
         <p v-if="description" dir="auto" v-html="description"></p>
         <ul class="meta">
           <li v-if="content.author">

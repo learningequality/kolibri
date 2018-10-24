@@ -29,8 +29,7 @@
       >
 
         <ContentCard
-          v-for="(content, index) in contents"
-          v-if="isInThisSet(index)"
+          v-for="(content, index) in showableContents"
           :key="content.id"
           class="content-carousel-card"
           :style="positionCalc(index)"
@@ -118,6 +117,9 @@
       };
     },
     computed: {
+      showableContents() {
+        return this.contents.filter((x, index) => this.isInThisSet(index));
+      },
       animationAttr() {
         return this.isRtl ? 'right' : 'left';
       },

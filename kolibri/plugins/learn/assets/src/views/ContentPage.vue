@@ -46,6 +46,7 @@
     />
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
+    <!-- eslint-disable-next-line vue/no-v-html -->
     <p dir="auto" v-html="description"></p>
 
 

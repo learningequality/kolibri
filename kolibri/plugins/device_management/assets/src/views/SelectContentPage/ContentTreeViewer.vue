@@ -29,8 +29,7 @@
         </thead>
         <tbody slot="tbody">
           <ContentNodeRow
-            v-for="node in annotatedChildNodes"
-            v-if="showNode(node)"
+            v-for="node in showableAnnotatedChildNodes"
             :key="node.id"
             :checked="nodeIsChecked(node)"
             :disabled="disableAll || node.disabled"
@@ -137,6 +136,9 @@
         return this.childNodesWithPath.map(n =>
           annotateNode(n, this.nodesForTransfer, !this.inExportMode)
         );
+      },
+      showableAnnotatedChildNodes() {
+        return this.annotatedChildNodes.filter(this.showNode);
       },
       annotatedTopicNode() {
         // For the purposes of annotating the parent topic node, we need to add
