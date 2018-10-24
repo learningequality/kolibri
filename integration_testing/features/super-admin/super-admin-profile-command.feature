@@ -8,13 +8,15 @@ Feature: Super Admin profile manage command
   Scenario: A terminal is open in the same machine where Kolibri is running
     Given that I have access to the kolibri command line
     When I enter <kolibri manage profile --num_samples=6>
-    Then Two new log files appear in the KOLIBRI_HOME (Usually $HOME/.kolibri) performance.log and requests_performance.log
+      And I look at the KOLIBRI_HOME/performance directory (Usually $HOME/.kolibri/performance)
+    Then I see a xxxxxxxx_xxxxxx_performance.csv file, where xxxxxxxx_xxxxxx is current date and time, example 20181022_194415_performance.csv
     When I use the browser to navigate through kolibri pages
-    Then I see new data appearing in requests_performance.log
+      And I look at the KOLIBRI_HOME/performance directory (Usually $HOME/.kolibri/performance)
+    Then I see another file called xxxxxxxx_xxxxxx_requests_performance.csv, where xxxxxxxx_xxxxxx is the same date and time shown in the previous file
     When 1 minutes pass
-    Then I see again the prompt in the terminal and performance.log and requests_performance.log don't change anymore.
-    When I open performance.log with a text editor
-    Then I check it has at least 60 lines beginning with a timestamp and several numbers per line
-    When I open requests_performance.log with a text editor
+    Then I see again the prompt in the terminal and performance.csv and requests_performance.csv files don't change anymore.
+    When I open performance.csv with a text editor or with a Spreadsheet application
+    Then I check it has at least 60 lines beginning with a timestamp and several numbers per line. First line is a header with the name of the fields
+    When I open requests_performance.csvwith a text editor
     Then I check it has at least one line per Kolibri page I have visited in the browser. Each lines begins with a timestamp and has several numbers.
 
