@@ -51,8 +51,6 @@
 
   import { mapMutations } from 'vuex';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import OnboardingForm from './OnboardingForm';
   import FacilityNameTextbox from './FacilityNameTextbox';
 
@@ -62,8 +60,6 @@
       FacilityNameTextbox,
       OnboardingForm,
       KRadioButton,
-      KButton,
-      KTextbox,
     },
     $trs: {
       facilityPermissionsSetupFormHeader: 'What kind of facility are you installing Kolibri in?',

@@ -80,7 +80,6 @@
 <script>
 
   import { mapActions, mapState, mapGetters } from 'vuex';
-  import UiIcon from 'keen-ui/src/UiIcon';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
@@ -117,13 +116,14 @@
       KGrid,
       KGridItem,
       UserTable,
-      UiIcon,
     },
-    data: () => ({
-      searchFilter: '',
-      roleFilter: null,
-      selectedUser: null,
-    }),
+    data() {
+      return {
+        searchFilter: '',
+        roleFilter: null,
+        selectedUser: null,
+      };
+    },
     computed: {
       ...mapGetters(['currentUserId', 'isSuperuser']),
       ...mapState('userManagement', ['facilityUsers', 'modalShown']),

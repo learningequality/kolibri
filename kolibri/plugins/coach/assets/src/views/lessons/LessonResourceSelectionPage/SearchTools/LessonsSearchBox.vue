@@ -63,8 +63,6 @@
 <script>
 
   import UiIconButton from 'keen-ui/src/UiIconButton';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
 
   export default {
     name: 'LessonsSearchBox',
@@ -75,8 +73,6 @@
     },
     components: {
       UiIconButton,
-      KButton,
-      KSelect,
     },
     data() {
       return {

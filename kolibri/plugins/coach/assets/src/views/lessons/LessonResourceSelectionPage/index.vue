@@ -74,7 +74,6 @@
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
   import xor from 'lodash/xor';
-  import UiToolbar from 'keen-ui/src/UiToolbar';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -101,7 +100,6 @@
       LessonsSearchFilters,
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
-      UiToolbar,
     },
     data() {
       return {

@@ -31,7 +31,6 @@
 
   import { mapState, mapActions } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import ClipboardJS from 'clipboard';
 
   export default {
@@ -43,7 +42,6 @@
     },
     components: {
       KButton,
-      KExternalLink,
     },
     props: {
       text: {

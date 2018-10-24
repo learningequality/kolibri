@@ -70,7 +70,6 @@
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   const kindFilterToLabelMap = {
@@ -85,7 +84,6 @@
   export default {
     name: 'LessonsSearchFilters',
     components: {
-      ContentIcon,
       KSelect,
     },
     props: {

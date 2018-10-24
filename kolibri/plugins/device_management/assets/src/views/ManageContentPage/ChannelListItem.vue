@@ -103,8 +103,6 @@
       CoachContentLabel,
       KDropdownMenu,
       KRouterLink,
-      ChannelListItemLarge,
-      ChannelListItemSmall,
       UiIcon,
     },
     mixins: [responsiveWindow],

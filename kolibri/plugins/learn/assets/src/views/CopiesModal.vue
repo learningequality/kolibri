@@ -47,7 +47,6 @@
   import toArray from 'lodash/toArray';
   import { mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import sortBy from 'lodash/sortBy';
@@ -57,7 +56,6 @@
     name: 'CopiesModal',
     components: {
       KModal,
-      KButton,
       KCircularLoader,
       KRouterLink,
     },

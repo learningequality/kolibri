@@ -33,8 +33,6 @@
   import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import KNavbar from 'kolibri.coreVue.components.KNavbar';
-  import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
@@ -89,8 +87,6 @@
       ActionBarSearchBox,
       Breadcrumbs,
       CoreBase,
-      KNavbar,
-      KNavbarLink,
       LearnTopNav,
       TotalPoints,
     },

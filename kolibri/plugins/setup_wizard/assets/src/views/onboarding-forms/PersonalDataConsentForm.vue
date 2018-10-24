@@ -28,7 +28,6 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import OnboardingForm from './OnboardingForm';
 
@@ -36,7 +35,6 @@
     name: 'PersonalDataConsentForm',
     components: {
       KButton,
-      KCheckbox,
       PrivacyInfoModal,
       OnboardingForm,
     },

@@ -24,14 +24,12 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
   export default {
     name: 'RecipientSelector',
     components: {
-      KButton,
       KCheckbox,
       KRadioButton,
     },

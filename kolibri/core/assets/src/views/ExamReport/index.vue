@@ -53,11 +53,9 @@
 
 <script>
 
-  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
@@ -74,12 +72,10 @@
       showCorrectAnswerLabel: 'Show correct answer',
     },
     components: {
-      ImmersiveFullScreen,
       ContentRenderer,
       PageStatus,
       AttemptLogList,
       InteractionList,
-      KButton,
       KCheckbox,
       MultiPaneLayout,
     },

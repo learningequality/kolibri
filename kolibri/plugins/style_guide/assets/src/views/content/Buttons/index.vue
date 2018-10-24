@@ -150,15 +150,15 @@
       VueExample,
       Show,
       KButton,
-      KRouterLink,
-      KExternalLink,
     },
-    data: () => ({
-      kButtonApi,
-      kRouterLinkApi,
-      kExternalLinkApi,
-      example,
-    }),
+    data() {
+      return {
+        kButtonApi,
+        kRouterLinkApi,
+        kExternalLinkApi,
+        example,
+      };
+    },
   };
 
 </script>

@@ -99,7 +99,6 @@
 
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { TaskResource } from 'kolibri.resources';
   import isEmpty from 'lodash/isEmpty';
@@ -124,7 +123,6 @@
       ChannelContentsSummary,
       ContentTreeViewer,
       ContentWizardUiAlert,
-      ImmersiveFullScreen,
       KButton,
       SelectedResourcesSize,
       TaskProgress,

@@ -70,7 +70,6 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -92,7 +91,6 @@
       QuestionList,
       ContentArea,
       SelectOptions,
-      KButton,
       CoachContentLabel,
       InfoIcon,
       KGrid,

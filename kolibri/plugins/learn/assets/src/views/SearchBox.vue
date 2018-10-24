@@ -108,7 +108,6 @@
   import { mapGetters, mapState } from 'vuex';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import { PageNames } from '../constants';
 
@@ -141,7 +140,6 @@
     },
     components: {
       UiIconButton,
-      KButton,
       KSelect,
     },
     props: {

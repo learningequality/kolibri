@@ -95,7 +95,6 @@
   import { mapState, mapMutations, mapGetters } from 'vuex';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
@@ -121,7 +120,6 @@
       ChannelListItem,
       ChannelTokenModal,
       ContentWizardUiAlert,
-      ImmersiveFullScreen,
       KButton,
       KFilterTextbox,
       KGrid,
