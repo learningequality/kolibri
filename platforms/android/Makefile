@@ -6,10 +6,6 @@ clean:
 	rm -f bin/*.apk 2> /dev/null
 	rm -rf ./src/kolibri 2> /dev/null
 
-# Update build system (download NDK/SDK, build Python, etc)
-updatedependencies:
-	buildozer android update
-
 # Replace the default loading page, so that it will be replaced with our own version
 replaceloadingpage:
 	rm -f .buildozer/android/platform/build/dists/kolibri/webview_includes/_load.html
@@ -26,13 +22,7 @@ generateversion:
 
 # Buld the debug version of the apk
 builddebugapk:
-	pew init android
 	pew build android
-
-# Buld the release version of the apk
-buildreleaseapk:
-	buildozer android release
-
 
 # DOCKER BUILD
 
@@ -47,7 +37,7 @@ rundocker: clean builddocker
 # NON DOCKER BUILD
 
 # Build non-docker local apk
-buildapklocally: clean updatedependencies replaceloadingpage extractkolibriwhl generateversion builddebugapk
+buildapklocally: clean replaceloadingpage extractkolibriwhl generateversion builddebugapk
 
 # Deploys the apk on a device
 installapk:

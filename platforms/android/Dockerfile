@@ -2,8 +2,6 @@ FROM ubuntu:16.04
 LABEL maintainer="Learning Equality <info@learningequality.org>" tag="kolibrikivy"
 ENV DEBIAN_FRONTEND noninteractive
 
-WORKDIR /home/kivy
-
 # Install the dependencies for the build system
 RUN dpkg --add-architecture i386 && \
     apt-get update && apt-get install -y \
@@ -32,37 +30,35 @@ RUN dpkg --add-architecture i386 && \
     zlib1g-dev \
     zlib1g:i386 \
     python-wxgtk3.0 \
-    && apt-get clean && \
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-    python get-pip.py && \
-    pip install cython buildozer
+    && apt-get clean
 
-RUN git clone -b dev https://github.com/kollivier/pyeverywhere
-RUN git clone -b webview_fixes https://github.com/kollivier/python-for-android
-RUN pip install -e ./pyeverywhere
-RUN pip install -e ./python-for-android
+# install python dependencies
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+  python get-pip.py && \
+  pip install cython && \
+  # get kevin's custom packages
+  git clone -b dev https://github.com/kollivier/pyeverywhere && \
+  git clone -b webview_fixes https://github.com/kollivier/python-for-android && \
+  pip install -e ./pyeverywhere ./python-for-android && \
+  useradd -lm kivy
 
-# would be nice if we could batch this into the bash file
-# Copy over files vital to build environment
-# NOTE: Technically, the only file necessary here is buildozer.spec
-COPY buildozer.spec ./
+USER kivy:kivy
+WORKDIR /home/kivy
 
-# Set up build environment
-RUN useradd -l kivy && \
-  chown kivy:kivy /home/kivy
+# Needed to setup & install necessary p4a environment
+COPY project_info.json whitelist.txt Makefile ./
 
-COPY Makefile .git project_info.json whitelist.txt ./
+# Downlads p4a and all python dependencies for packaging in android
+RUN pew init android
 
-# Keeping these copies separate to keep cache valid as long as possible in setup
-# for kolibri builds. Buildozer takes a while to rebuild itself
-COPY scripts scripts/
-COPY assets assets/
-# Copy over kolibri-apk specific build files
-COPY src  src/
+
+# Must be explicit, since * only gets files and COPY empties dirs
+COPY --chown=kivy:kivy icons icons
+COPY --chown=kivy:kivy scripts scripts
+COPY --chown=kivy:kivy assets assets
+COPY --chown=kivy:kivy src src
 
 # Extract .whl files and build the apk
-RUN chown kivy:kivy /home/kivy/src && cd /home/kivy && \
-  su kivy -c "\
-    make extractkolibriwhl && \
+RUN make extractkolibriwhl && \
     make generateversion && \
-    make builddebugapk"
+    make builddebugapk
