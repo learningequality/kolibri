@@ -139,8 +139,14 @@ class WebpackBundleHook(hooks.KolibriHook):
                 # Might need to change this if we move to a different cache backend.
                 cache.set(cache_key, stats_file_content, None)
             return stats_file_content
-        except IOError:
-            raise WebpackError('Webpack build file missing, front-end assets cannot be loaded')
+        except IOError as e:
+            if hasattr(e, "filename"):
+                problem = "Problems loading: {file}".format(file=e.filename)
+            else:
+                problem = "Not file-related."
+            raise WebpackError(
+                'Webpack build file missing, front-end assets cannot be loaded. {problem}'.format(problem=problem)
+            )
 
     @property
     @hooks.registered_method

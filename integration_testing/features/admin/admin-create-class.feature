@@ -7,9 +7,9 @@ Feature: Admin create classes
 
   Scenario: Create class
     When I click on *New class* button
-    Then I see *Add new class* modal
+    Then I see *Create new class* modal
     When I enter class name <class>
-      And I click *Create* button
+      And I click *Save* button
     Then the modal closes
       And I see the new class on the *Classes* page
 

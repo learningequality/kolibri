@@ -87,10 +87,10 @@
     },
     methods: {
       downloadSessionLog() {
-        window.location = urls['kolibri:core:contentsessionlogcsv-list']();
+        window.open(urls['kolibri:core:contentsessionlogcsv-list'](), '_blank');
       },
       downloadSummaryLog() {
-        window.location = urls['kolibri:core:contentsummarylogcsv-list']();
+        window.open(urls['kolibri:core:contentsummarylogcsv-list'](), '_blank');
       },
     },
   };

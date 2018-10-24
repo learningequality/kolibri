@@ -386,7 +386,7 @@
     watch: {
       filters(newVal) {
         this.$router.push({
-          query: pickBy(newVal),
+          query: { ...this.$route.query, ...pickBy(newVal) },
         });
       },
     },
@@ -425,16 +425,23 @@
             },
           };
         }
+        const { query } = this.$route;
         return {
           name: PageNames.EXAM_CREATION_PREVIEW,
           params: {
             classId: this.classId,
             contentId: content.id,
           },
+          query: {
+            ...query,
+            ...pickBy({
+              searchTerm: this.$route.params.searchTerm,
+            }),
+          },
         };
       },
       contentHasCheckbox() {
-        return this.pageName === PageNames.EXAM_CREATION_ROOT;
+        return this.pageName !== PageNames.EXAM_CREATION_ROOT;
       },
       contentIsSelected(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {

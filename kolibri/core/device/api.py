@@ -51,6 +51,8 @@ class FreeSpaceView(mixins.ListModelMixin, viewsets.GenericViewSet):
         path = request.query_params.get('path')
         if path is None:
             free = get_free_space()
+        elif path == "Content":
+            free = get_free_space(OPTIONS["Paths"]["CONTENT_DIR"])
         else:
             free = get_free_space(path)
 

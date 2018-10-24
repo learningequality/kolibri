@@ -153,7 +153,7 @@ def get_free_space(path=KOLIBRI_HOME):
             raise ctypes.winError()
         result = free.value
     else:
-        st = os.statvfs(path)
+        st = os.statvfs(os.path.realpath(path))
         result = st.f_bavail * st.f_frsize
 
     return result

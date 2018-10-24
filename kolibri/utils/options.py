@@ -57,6 +57,11 @@ option_spec = {
             "default": 0.1,
             "envvars": ("KOLIBRI_CHERRYPY_QUEUE_TIMEOUT",),
         },
+        "PROFILE": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_SERVER_PROFILE",),
+        },
     },
     "Paths": {
         "CONTENT_DIR": {

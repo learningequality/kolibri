@@ -1,6 +1,6 @@
 <template>
 
-  <div class="resource-selection-page">
+  <div>
     <h1>
       {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
     </h1>
@@ -53,7 +53,7 @@
       :viewMoreButtonState="viewMoreButtonState"
       :selectAllChecked="addableContent.length === 0"
       :contentIsChecked="contentIsInLesson"
-      :contentHasCheckbox="contentIsDirectoryKind"
+      :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
       :contentCardMessage="selectionMetadata"
       :contentCardLink="contentLink"
       @changeselectall="toggleTopicInWorkingResources"
@@ -126,7 +126,6 @@
         'ancestors',
       ]),
       ...mapGetters('lessonSummary/resources', ['numRemainingSearchResults']),
-      ...mapGetters(['contentNodeIsTopic']),
       filteredContentList() {
         const { role } = this.filters;
         if (!this.inSearchMode) {
@@ -171,7 +170,7 @@
         if (this.moreResultsState === 'waiting' || this.moreResultsState === 'error') {
           return this.moreResultsState;
         }
-        if (this.numRemainingSearchResults === 0) {
+        if (!this.inSearchMode || this.numRemainingSearchResults === 0) {
           return 'no_more_results';
         }
         return 'visible';
@@ -196,22 +195,9 @@
       },
       filters(newVal) {
         this.$router.push({
-          query: pickBy(newVal),
+          query: { ...this.$route.query, ...pickBy(newVal) },
         });
       },
-    },
-    beforeRouteEnter(to, from, next) {
-      // HACK if last page was LessonContentPreviewPage, then we need to make sure
-      // to immediately autosave just in case a change was made there. This gets
-      // called whether or not a change is made, because we don't track changes
-      // enough steps back.
-      if (from.name === LessonsPageNames.SELECTION_CONTENT_PREVIEW) {
-        next(vm => {
-          return vm.saveResources();
-        });
-      } else {
-        next();
-      }
     },
     beforeRouteLeave(to, from, next) {
       // Only autosave if changes have been made
@@ -296,11 +282,18 @@
         if (this.contentIsDirectoryKind(content)) {
           return topicListingLink({ ...this.routerParams, topicId: content.id });
         }
+        const { query } = this.$route;
         return {
           name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
           params: {
             ...this.routerParams,
             contentId: content.id,
+          },
+          query: {
+            ...query,
+            ...pickBy({
+              searchTerm: this.$route.params.searchTerm,
+            }),
           },
         };
       },
@@ -338,7 +331,7 @@
         this.$router.push({
           name: LessonsPageNames.SELECTION_SEARCH,
           params: {
-            searchTerm: searchTerm,
+            searchTerm,
           },
           query: {
             last_id: lastId,
@@ -389,11 +382,6 @@
 
 
 <style lang="scss" scoped>
-
-  .resource-selection-page {
-    // offset to maintain straight lines in form w/ dynamic checkbox
-    margin-left: 64px;
-  }
 
   .exit-search-button {
     margin-left: 0;

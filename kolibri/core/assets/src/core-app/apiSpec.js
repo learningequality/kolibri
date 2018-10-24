@@ -78,6 +78,7 @@ import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
 import KDropdownMenu from '../views/KDropdownMenu';
 import CoachContentLabel from '../views/CoachContentLabel';
+import PrivacyInfoModal from '../views/PrivacyInfoModal';
 import UserTypeDisplay from '../views/UserTypeDisplay';
 import TechnicalTextBlock from '../views/AppError/TechnicalTextBlock';
 
@@ -165,6 +166,7 @@ export default {
       CoreFullscreen,
       CoreLogo,
       UiAlert,
+      PrivacyInfoModal,
       UserTypeDisplay,
       TechnicalTextBlock,
     },

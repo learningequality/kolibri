@@ -60,8 +60,23 @@ export default [
     name: LessonsPageNames.SELECTION,
     path: '/:classId/lessons/:lessonId/selection/topic/:topicId',
     component: LessonResourceSelectionPage,
-    handler: toRoute => {
-      showLessonResourceSelectionTopicPage(store, toRoute.params);
+    handler: (toRoute, fromRoute) => {
+      // HACK if last page was LessonContentPreviewPage, then we need to make sure
+      // to immediately autosave just in case a change was made there. This gets
+      // called whether or not a change is made, because we don't track changes
+      // enough steps back.
+      let preHandlerPromise;
+      if (fromRoute.name === LessonsPageNames.SELECTION_CONTENT_PREVIEW) {
+        preHandlerPromise = store.dispatch('lessonSummary/saveLessonResources', {
+          lessonId: toRoute.params.lessonId,
+          resourceIds: store.state.lessonSummary.workingResources,
+        });
+      } else {
+        preHandlerPromise = Promise.resolve();
+      }
+      preHandlerPromise.then(() => {
+        showLessonResourceSelectionTopicPage(store, toRoute.params);
+      });
     },
   },
   {
@@ -76,7 +91,7 @@ export default [
     name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
     path: '/:classId/lessons/:lessonId/selection/preview/:contentId',
     handler: toRoute => {
-      showLessonSelectionContentPreview(store, toRoute.params);
+      showLessonSelectionContentPreview(store, toRoute.params, toRoute.query);
     },
   },
   {

@@ -53,6 +53,13 @@
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
               <p>© {{ copyrightYear }} Learning Equality</p>
+              <p>
+                <KButton
+                  :text="$tr('privacyLink')"
+                  appearance="basic-link"
+                  @click="privacyModalVisible = true"
+                />
+              </p>
             </div>
           </div>
         </div>
@@ -66,6 +73,12 @@
       @click="toggleNav"
     >
     </div>
+
+    <PrivacyInfoModal
+      v-if="privacyModalVisible"
+      @cancel="privacyModalVisible = false"
+    />
+
   </div>
 
 </template>
@@ -81,7 +94,9 @@
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import navComponents from 'kolibri.utils.navComponents';
+  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import navComponentsMixin from '../mixins/nav-components';
   import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
@@ -104,6 +119,8 @@
       CoreLogo,
       CoreMenuOption,
       SideNavDivider,
+      KButton,
+      PrivacyInfoModal,
     },
     mixins: [responsiveWindow, responsiveElement, navComponentsMixin],
     $trs: {
@@ -111,6 +128,7 @@
       navigationLabel: 'Main user navigation',
       closeNav: 'Close navigation',
       poweredBy: 'Kolibri {version}',
+      privacyLink: 'Usage and privacy',
     },
     props: {
       navShown: {
@@ -131,6 +149,7 @@
         previouslyFocusedElement: null,
         // __copyrightYear is injected by Webpack DefinePlugin
         copyrightYear: __copyrightYear,
+        privacyModalVisible: false,
       };
     },
     computed: {

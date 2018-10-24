@@ -1,8 +1,8 @@
-Feature: Super Admin enroll learners and assign coaches to classes
-    Super Admin needs to be able to enroll learners and assign coaches to classes in the facility
+Feature: Super admin enroll learners and assign coaches to classes
+    Super admin needs to be able to enroll learners and assign coaches to classes in the facility
 
   Background:
-    Given I am signed in to Kolibri as super admin
+    Given I am signed in to Kolibri as Super admin
       And I am on *Facility > Classes* page
       And there is a class <class> in the facility
       And there are learner and coach users created in the facility

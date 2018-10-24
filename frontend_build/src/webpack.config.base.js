@@ -123,7 +123,6 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'buble-loader',
-        exclude: /node_modules\/(?!(keen-ui)\/).*/,
         options: {
           objectAssign: 'Object.assign',
         },
