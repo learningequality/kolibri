@@ -22,10 +22,9 @@ module.exports = {
   ],
   parserOptions: {
     sourceType: 'module',
-    ecmaVersion: 7,
+    ecmaVersion: 2018,
     ecmaFeatures: {
       impliedStrict: true,
-      experimentalObjectRestSpread: true,
     },
   },
   globals: {
