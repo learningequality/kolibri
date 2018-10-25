@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "प्रशिक्षक आणि अॅडमिनसाठी पासवर्ड अनिवार्य आहे",
     "SignInPage.usernameNotAlphaNumUnderscore": "युझरनेममध्ये फक्त अक्षरे, अंक आणि अंडरस्कोअर वापरण्याची परवानगी आहे",
     "SignInPage.documentTitle": "युझर साइन इन",
+    "SignInPage.privacyLink": "वापर आणि गोपनीयता",
     "SignUpPage.createAccount": "खाते उघडा",
     "SignUpPage.name": "पूर्ण नाव",
     "SignUpPage.username": "युझरनेम",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "सुविधा",
     "SignUpPage.required": "ही माहिती अनिवार्य आहे",
     "SignUpPage.documentTitle": "युझर साइन अप",
+    "SignUpPage.privacyLink": "कोलिब्रीचा वापर आणि गोपनीयता",
     "UserIndex.userProfileTitle": "प्रोफाइल"
 }

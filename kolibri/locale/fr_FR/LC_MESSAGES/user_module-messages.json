@@ -13,9 +13,9 @@
     "ProfilePage.username": "Nom d'utilisateur",
     "ProfilePage.name": "Nom complet",
     "ProfilePage.updateProfile": "Enregistrer les modifications",
-    "ProfilePage.isSuperuser": "",
+    "ProfilePage.isSuperuser": "Autorisations du super admin ",
     "ProfilePage.manageContent": "Gérer le contenu",
-    "ProfilePage.manageDevicePermissions": "",
+    "ProfilePage.manageDevicePermissions": "Gérer les permissions sur l'appareil",
     "ProfilePage.points": "Points",
     "ProfilePage.userType": "Type d'utilisateur",
     "ProfilePage.devicePermissions": "Autorisations de l'appareil",
@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "Le mot de passe est requis pour les enseignants et les administrateurs",
     "SignInPage.usernameNotAlphaNumUnderscore": "Le nom d’utilisateur ne peut contenir que des lettres, chiffres et caractères de soulignement",
     "SignInPage.documentTitle": "Connexion utilisateur",
+    "SignInPage.privacyLink": "Utilisation et confidentialité",
     "SignUpPage.createAccount": "Créer un compte",
     "SignUpPage.name": "Nom complet",
     "SignUpPage.username": "Nom d'utilisateur",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "Institut",
     "SignUpPage.required": "Ce champ est requis",
     "SignUpPage.documentTitle": "Inscription utilisateur",
+    "SignUpPage.privacyLink": "",
     "UserIndex.userProfileTitle": "Profil"
 }

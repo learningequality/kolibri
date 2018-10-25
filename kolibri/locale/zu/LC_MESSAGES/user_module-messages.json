@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "Kudingeka igama lokungena labaqeqeshi nabalawuli",
     "SignInPage.usernameNotAlphaNumUnderscore": "Igama lomsebenzisi lingaqukatha izinhlamvu, izinombolo, nezimpawu kuphela",
     "SignInPage.documentTitle": "Ukungena komsebenzisi",
+    "SignInPage.privacyLink": "",
     "SignUpPage.createAccount": "Yakha I-akhawunti",
     "SignUpPage.name": "Igama eliphelele",
     "SignUpPage.username": "Igama lomsebenzisi",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "Isikhungo",
     "SignUpPage.required": "Lokhu kuyadingeka",
     "SignUpPage.documentTitle": "Ukubhalisa komsebenzisi",
+    "SignUpPage.privacyLink": "",
     "UserIndex.userProfileTitle": "Iphrofayela"
 }

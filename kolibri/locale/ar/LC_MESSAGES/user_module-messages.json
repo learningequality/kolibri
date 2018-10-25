@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "كلمة المرور مطلوبة للمدرّبين والمشرفين",
     "SignInPage.usernameNotAlphaNumUnderscore": "اسم المستخدم يمكن أن يحتوي فقط على أحرف وأرقام ومحارف سفلية (_)",
     "SignInPage.documentTitle": "تسجيل دخول المستخدم",
+    "SignInPage.privacyLink": "الاستخدام والخصوصية",
     "SignUpPage.createAccount": "إنشاء حساب",
     "SignUpPage.name": "الاسم الكامل",
     "SignUpPage.username": "اسم المستخدم",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "المَرْفق التّعليمي",
     "SignUpPage.required": "هذا الحقل مطلوب",
     "SignUpPage.documentTitle": "إعداد حساب المستخدم",
+    "SignUpPage.privacyLink": "الاستخدام والخصوصية في كوليبري",
     "UserIndex.userProfileTitle": "الملف الشخصي"
 }

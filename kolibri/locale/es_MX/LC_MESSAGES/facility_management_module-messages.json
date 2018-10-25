@@ -73,7 +73,7 @@
     "FacilityConfigPage.pageHeader": "Configuración de la escuela o centro educativo",
     "FacilityConfigPage.resetToDefaultSettings": "Restablecer valores por defecto",
     "FacilityConfigPage.saveChanges": "Guardar cambios",
-    "FacilityConfigPage.documentTitle": "Configurar Centro educativo",
+    "FacilityConfigPage.documentTitle": "Configurar el centro educativo",
     "FacilityIndex.facilityTitle": "Escuela o Centro Educativo",
     "FacilityIndex.adminOrSuperuser": "Necesitas iniciar sesión como admin o super admin para acceder a esta página",
     "FacilityIndex.detailPageReturnPrompt": "Detalles del grupo",

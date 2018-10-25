@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "နည်းပြများနှင့်အက်ဒမင်များအတွက် စကားဝှက် လိုအပ်ပါသည်",
     "SignInPage.usernameNotAlphaNumUnderscore": "အသုံးပြုသူအမည်သည် စာလုံးများ၊ နံပါတ်များ၊ နှင့် underscores တို့သာပါဝင်ရပါမည်",
     "SignInPage.documentTitle": "အသုံးပြုသူ ဝင်ရောက်ရန်",
+    "SignInPage.privacyLink": "",
     "SignUpPage.createAccount": "အကောင့်ဖန်တီးမည်",
     "SignUpPage.name": "အမည်အပြည့်အစုံ",
     "SignUpPage.username": "အသုံးပြုသူအမည်",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "ဌာန",
     "SignUpPage.required": "၎င်းအကွက်များသည် လိုအပ်ပါသည်",
     "SignUpPage.documentTitle": "အသုံးပြုသူ အကောင့်ပြုလုပ်ရန်",
+    "SignUpPage.privacyLink": "",
     "UserIndex.userProfileTitle": "မိမိစာမျက်နှာ"
 }
