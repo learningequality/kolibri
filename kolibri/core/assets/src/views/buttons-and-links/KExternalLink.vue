@@ -5,6 +5,7 @@
     :class="buttonClasses"
     :href="href"
     :download="download"
+    dir="auto"
   >
     {{ text }}
   </a>
