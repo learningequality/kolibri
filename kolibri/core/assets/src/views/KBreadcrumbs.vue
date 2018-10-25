@@ -261,7 +261,7 @@
       margin-right: 8px;
       margin-left: 8px;
       vertical-align: middle;
-      content: '\203A';
+      content: '›';
     }
   }
 
@@ -316,7 +316,7 @@
       margin-right: 8px;
       margin-left: 8px;
       vertical-align: middle;
-      content: '\203A';
+      content: '›';
     }
   }
 
