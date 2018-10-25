@@ -108,6 +108,7 @@
 <script>
 
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
+  import pickBy from 'lodash/pickBy';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -180,7 +181,7 @@
       }),
       ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success', 'profileErrors']),
       userPermissions() {
-        return this.getUserPermissions.filter(Boolean);
+        return pickBy(this.getUserPermissions);
       },
       passwordModalVisible() {
         return this.passwordState.modal;

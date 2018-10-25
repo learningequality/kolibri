@@ -158,24 +158,24 @@
 
   .permission-preset {
     cursor: pointer;
+  }
 
-    &-modal {
-      &-dismiss-button {
-        text-transform: uppercase;
-      }
-    }
+  .permission-preset-modal-dismiss-button {
+    text-transform: uppercase;
   }
 
   .permission-preset-human {
     margin-bottom: 8px;
-    &-title {
-      font-weight: bold;
-    }
-    &-detail {
-      display: list-item;
-      margin-left: 20px;
-      line-height: 1.4em;
-    }
+  }
+
+  .permission-preset-human-title {
+    font-weight: bold;
+  }
+
+  .permission-preset-human-detail {
+    display: list-item;
+    margin-left: 20px;
+    line-height: 1.4em;
   }
 
 </style>

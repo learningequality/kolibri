@@ -191,13 +191,14 @@
   .group-list {
     padding: 0;
     margin: 0;
-    &-item {
-      display: inline;
-      margin: 0;
-      list-style: none;
-      &:not(:last-child)::after {
-        content: ', ';
-      }
+  }
+
+  .group-list-item {
+    display: inline;
+    margin: 0;
+    list-style: none;
+    &:not(:last-child)::after {
+      content: ', ';
     }
   }
 

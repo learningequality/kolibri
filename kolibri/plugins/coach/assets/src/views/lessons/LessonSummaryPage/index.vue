@@ -155,21 +155,21 @@
     // maintaining a simple right/left alignment in a single text-line without floats. Simple RTL
     display: table;
     width: 100%;
+  }
 
-    &-title {
-      display: inline-block;
-      font-size: 1em;
+  .resource-list-header-title {
+    display: inline-block;
+    font-size: 1em;
+  }
 
-      &-block {
-        display: table-cell;
-        text-align: left;
-      }
-    }
+  .resource-list-header-title-block {
+    display: table-cell;
+    text-align: left;
+  }
 
-    &-add-resource-button {
-      display: table-cell;
-      text-align: right;
-    }
+  .resource-list-header-add-resource-button {
+    display: table-cell;
+    text-align: right;
   }
 
   .no-resources-message {

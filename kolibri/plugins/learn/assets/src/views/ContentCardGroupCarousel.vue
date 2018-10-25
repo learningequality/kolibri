@@ -28,8 +28,10 @@
         @enter="slide"
       >
 
+        <!-- eslint-disable vue/no-use-v-if-with-v-for -->
         <ContentCard
-          v-for="(content, index) in showableContents"
+          v-for="(content, index) in contents"
+          v-if="isInThisSet(index)"
           :key="content.id"
           class="content-carousel-card"
           :style="positionCalc(index)"
@@ -117,9 +119,6 @@
       };
     },
     computed: {
-      showableContents() {
-        return this.contents.filter((x, index) => this.isInThisSet(index));
-      },
       animationAttr() {
         return this.isRtl ? 'right' : 'left';
       },
@@ -275,52 +274,53 @@
 
     position: relative;
     margin-top: 1em;
+  }
 
-    &-control-container {
-      position: relative;
-      overflow: visible;
-    }
+  .content-carousel-control-container {
+    position: relative;
+    overflow: visible;
+  }
 
-    &-card {
-      position: absolute;
-      left: 0;
-      transition: left 0.4s ease, box-shadow $core-time ease;
-    }
+  .content-carousel-card {
+    position: absolute;
+    left: 0;
+    transition: left 0.4s ease, box-shadow $core-time ease;
+  }
 
-    &-next-control,
-    &-previous-control {
-      position: absolute;
-      top: $card-height / 2;
-      z-index: 2; // material
-      width: $control-hit-width;
-      height: $control-hit-height;
-      text-align: center;
-      vertical-align: middle;
-      transform: translateY(-($control-hit-height / 2));
-      // styles that apply to both control buttons
-      &:active {
-        z-index: 8; // material
-      }
+  .content-carousel-next-control,
+  .content-carousel-previous-control {
+    position: absolute;
+    top: $card-height / 2;
+    z-index: 2; // material
+    width: $control-hit-width;
+    height: $control-hit-height;
+    text-align: center;
+    vertical-align: middle;
+    transform: translateY(-($control-hit-height / 2));
+    // styles that apply to both control buttons
+    &:active {
+      z-index: 8; // material
+    }
+  }
 
-      &-button {
-        // center align within hitbox
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-        &:active {
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23); // material
-        }
-      }
+  .content-carousel-next-control-button,
+  .content-carousel-previous-control-button {
+    // center align within hitbox
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    &:active {
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23); // material
     }
+  }
 
-    // position-specific styles for each control button
-    &-next-control {
-      right: -($control-hit-width / 2) - 25;
-    }
-    &-previous-control {
-      left: -($control-hit-width / 2);
-    }
+  // position-specific styles for each control button
+  .content-carousel-next-control {
+    right: -($control-hit-width / 2) - 25;
+  }
+  .content-carousel-previous-control {
+    left: -($control-hit-width / 2);
   }
 
 </style>
