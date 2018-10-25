@@ -35,13 +35,6 @@
     "default_font": "NotoSans"
   },
   {
-    "crowdin_code": "es-MX",
-    "intl_code": "es-mx",
-    "language_name": "Español (México)",
-    "english_name": "Spanish (Mexico)",
-    "default_font": "NotoSans"
-  },
-  {
     "crowdin_code": "fa",
     "intl_code": "fa",
     "language_name": "فارسی",
@@ -77,13 +70,6 @@
     "default_font": "NotoSansArabic"
   },
   {
-    "crowdin_code": "my",
-    "intl_code": "my",
-    "language_name": "ဗမာစာ",
-    "english_name": "Burmese",
-    "default_font": "NotoSansMyanmar"
-  },
-  {
     "crowdin_code": "ny",
     "intl_code": "nyn",
     "language_name": "Chinyanja",
@@ -105,13 +91,6 @@
     "default_font": "NotoSans"
   },
   {
-    "crowdin_code": "ta",
-    "intl_code": "ta",
-    "language_name": "தமிழ்",
-    "english_name": "Tamil",
-    "default_font": "NotoSansTamil"
-  },
-  {
     "crowdin_code": "te",
     "intl_code": "te",
     "language_name": "తెలుగు",
@@ -124,6 +103,13 @@
     "language_name": "اُردو (پاکستان)‏",
     "english_name": "Urdu (Pakistan)",
     "default_font": "NotoSansArabic"
+  },
+  {
+    "crowdin_code": "vi",
+    "intl_code": "vi",
+    "language_name": "Tiếng Việt",
+    "english_name": "Vietnamese",
+    "default_font": "NotoSans"
   },
   {
     "crowdin_code": "yo",
