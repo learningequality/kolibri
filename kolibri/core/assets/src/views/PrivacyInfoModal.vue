@@ -34,7 +34,6 @@
         <KExternalLink
           text="https://learningequality.org"
           href="https://learningequality.org"
-          dir="auto"
           target="_blank"
         />
       </p>
