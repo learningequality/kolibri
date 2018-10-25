@@ -1,6 +1,6 @@
 <template>
 
-  <core-fullscreen
+  <CoreFullscreen
     ref="epubRenderer"
     class="epub-renderer"
     :style="epubRendererStyle"
@@ -137,7 +137,7 @@
         @sliderChanged="handleSliderChanged"
       />
     </div>
-  </core-fullscreen>
+  </CoreFullscreen>
 
 </template>
 

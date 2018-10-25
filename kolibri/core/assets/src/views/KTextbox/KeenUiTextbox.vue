@@ -12,7 +12,7 @@
   <div class="ui-textbox" :class="classes">
     <div v-if="icon || $slots.icon" class="ui-textbox-icon-wrapper">
       <slot name="icon">
-        <ui-icon :icon="icon" />
+        <UiIcon :icon="icon" />
       </slot>
     </div>
 

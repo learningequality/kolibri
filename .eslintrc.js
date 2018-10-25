@@ -36,10 +36,10 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
-    'prettier',
     'plugin:vue/recommended',
     'plugin:import/errors',
     'plugin:import/warnings',
+    'prettier',
   ],
   plugins: ['import', 'vue', 'kolibri'],
   settings: {
@@ -54,7 +54,7 @@ module.exports = {
   rules: {
     'comma-style': 2,
     'max-len': [
-      'error',
+      2,
       100,
       {
         ignoreStrings: true,
@@ -63,10 +63,9 @@ module.exports = {
       },
     ],
     'vue/attribute-hyphenation': [2, 'never'],
-    'vue/name-property-casing': [2, 'PascalCase'],
     'vue/require-default-prop': 0,
     'vue/html-self-closing': [
-      'error',
+      2,
       {
         html: {
           void: 'never',
@@ -88,20 +87,32 @@ module.exports = {
       },
     ],
     'vue/html-closing-bracket-newline': [
-      'error',
+      2,
       {
         singleline: 'never',
         multiline: 'always',
       },
     ],
-    'vue/html-closing-bracket-spacing': ['error'],
-    // Waiting on https://github.com/vuejs/eslint-plugin-vue/pull/397
-    // 'vue/component-name-in-template-casing': 3
-
-    'import/first': 1,
-    'import/no-duplicates': 1,
-    'import/newline-after-import': 1,
-    'import/order': 1,
+    'vue/component-name-in-template-casing': [
+      2,
+      'PascalCase',
+      {
+        ignores: [
+          'mat-svg',
+          'file-svg',
+          'component',
+          'transition',
+          'transition-group',
+          'router-link',
+          'router-view',
+        ],
+      },
+    ],
+    'vue/no-spaces-around-equal-signs-in-attribute': 2,
+    'import/first': 2,
+    'import/no-duplicates': 2,
+    'import/newline-after-import': 2,
+    'import/order': 2,
 
     // Custom vue rules
     'kolibri/vue-filename-and-component-name-match': 2,
