@@ -28,8 +28,10 @@
         @enter="slide"
       >
 
+        <!-- eslint-disable vue/no-use-v-if-with-v-for -->
         <ContentCard
-          v-for="(content, index) in showableContents"
+          v-for="(content, index) in contents"
+          v-if="isInThisSet(index)"
           :key="content.id"
           class="content-carousel-card"
           :style="positionCalc(index)"
@@ -117,9 +119,6 @@
       };
     },
     computed: {
-      showableContents() {
-        return this.contents.filter((x, index) => this.isInThisSet(index));
-      },
       animationAttr() {
         return this.isRtl ? 'right' : 'left';
       },
