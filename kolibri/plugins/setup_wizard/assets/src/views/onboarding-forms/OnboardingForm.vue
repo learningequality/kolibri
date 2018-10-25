@@ -72,38 +72,36 @@
 
   $core-title-md: 21px; // filling in for future typography styles
 
-  .onboarding-form {
-    &-fields {
-      padding: 0;
-      margin: 0;
-      margin-bottom: 24px;
-      border: 0;
-    }
+  .onboarding-form-fields {
+    padding: 0;
+    margin: 0;
+    margin-bottom: 24px;
+    border: 0;
+  }
 
-    &-header {
-      margin-top: 0;
-      margin-bottom: 16px;
-      font-size: $core-title-md;
-    }
+  .onboarding-form-header {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: $core-title-md;
+  }
 
-    &-legend {
-      // Fixes issue in IE11 where the description span would not be broken up
-      width: 100%;
-      margin-bottom: 8px;
-    }
+  .onboarding-form-legend {
+    // Fixes issue in IE11 where the description span would not be broken up
+    width: 100%;
+    margin-bottom: 8px;
+  }
 
-    &-description {
-      margin-bottom: 8px;
-    }
+  .onboarding-form-description {
+    margin-bottom: 8px;
+  }
 
-    &-submit {
-      margin: 0;
-    }
+  .onboarding-form-submit {
+    margin: 0;
   }
 
   .form-footer {
-    margin-top: 24px;
     margin: 24px 0;
+    margin-top: 24px;
   }
 
 </style>

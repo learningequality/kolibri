@@ -50,25 +50,25 @@
     margin-top: $header-size;
     margin-bottom: $header-size / 2;
     vertical-align: bottom;
+  }
 
-    &-header,
-    &-view-more {
-      display: inline-block;
-      width: 50%;
-    }
+  .card-group-details-header,
+  .card-group-details-view-more {
+    display: inline-block;
+    width: 50%;
+  }
 
-    &-header {
-      margin: 0;
-      clear: none;
-      font-size: $header-size;
-      color: $core-text-default;
-      text-align: left;
-    }
+  .card-group-details-header {
+    margin: 0;
+    clear: none;
+    font-size: $header-size;
+    color: $core-text-default;
+    text-align: left;
+  }
 
-    &-view-more {
-      text-align: right;
-      text-decoration: underline;
-    }
+  .card-group-details-view-more {
+    text-align: right;
+    text-decoration: underline;
   }
 
 </style>
