@@ -32,8 +32,8 @@
         @removeResource="handleRemoveResource"
       />
       <component
-        v-else
         :is="currentPage"
+        v-else
       />
       <router-view />
 

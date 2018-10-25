@@ -12,8 +12,8 @@
             <ol class="breadcrumbs-dropdown-items">
               <li
                 v-for="(crumb, index) in collapsedCrumbs"
-                class="breadcrumbs-dropdown-item"
                 :key="index"
+                class="breadcrumbs-dropdown-item"
               >
                 <KRouterLink
                   :text="crumb.text"
@@ -31,9 +31,9 @@
         <template v-for="(crumb, index) in crumbs">
           <li
             v-if="index !== crumbs.length - 1"
-            class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
             v-show="!crumb.collapsed"
             :key="index"
+            class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
           >
             <KRouterLink
               :text="crumb.text"
@@ -44,8 +44,8 @@
 
           <li
             v-else
-            class="breadcrumbs-visible-item breadcrumb-visible-item-last"
             :key="index"
+            class="breadcrumbs-visible-item breadcrumb-visible-item-last"
           >
             <span
               :style="{ maxWidth: `${lastCrumbMaxWidth}px` }"
@@ -66,8 +66,8 @@
           <li
             v-if="index !== crumbs.length - 1"
             :ref="`crumb${index}`"
-            class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
             :key="index"
+            class="breadcrumbs-visible-item breadcrumbs-visible-item-notlast"
           >
             <KRouterLink :text="crumb.text" :to="crumb.link" tabindex="-1" />
           </li>
@@ -75,8 +75,8 @@
           <li
             v-else
             :ref="`crumb${index}`"
-            class="breadcrumbs-visible-item breadcrumb-visible-item-last"
             :key="index"
+            class="breadcrumbs-visible-item breadcrumb-visible-item-last"
           >
             <span :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">{{ crumb.text }}</span>
           </li>

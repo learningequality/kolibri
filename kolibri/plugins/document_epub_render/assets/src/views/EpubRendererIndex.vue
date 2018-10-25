@@ -105,9 +105,9 @@
           :style="navigationButtonContainerStyle"
         >
           <PreviousButton
-            @goToPreviousPage="goToPreviousPage"
             :color="navigationButtonColor"
             :style="navigationButtonsStyle"
+            @goToPreviousPage="goToPreviousPage"
           />
         </div>
         <div

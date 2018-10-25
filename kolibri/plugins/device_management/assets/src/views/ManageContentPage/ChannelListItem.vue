@@ -1,9 +1,9 @@
 <template>
 
   <component
+    :is="componentTemplate"
     class="channel-list-item"
     :style="verticalPadding"
-    :is="componentTemplate"
   >
     <template slot="thumbnail">
       <div class="spec-ref-thumbnail">
@@ -17,7 +17,7 @@
     <template slot="header">
       <div>
         <h2 class="title" dir="auto">{{ channel.name }}</h2>
-        <UiIcon class="icon" v-if="isPrivateChannel">
+        <UiIcon v-if="isPrivateChannel" class="icon">
           <mat-svg name="lock_open" category="action" />
         </UiIcon>
       </div>
@@ -103,8 +103,6 @@
       CoachContentLabel,
       KDropdownMenu,
       KRouterLink,
-      ChannelListItemLarge,
-      ChannelListItemSmall,
       UiIcon,
     },
     mixins: [responsiveWindow],

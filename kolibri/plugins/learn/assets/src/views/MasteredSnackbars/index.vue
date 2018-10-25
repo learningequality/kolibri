@@ -24,11 +24,11 @@
 
         <UiAlert
           v-if="!isUserLoggedIn"
+          slot="alert"
           :dismissible="false"
           :removeIcon="true"
           type="warning"
           class="alert"
-          slot="alert"
         >
           {{ $tr('signIn') }}
         </UiAlert>

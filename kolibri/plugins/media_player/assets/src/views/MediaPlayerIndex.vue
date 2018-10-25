@@ -9,8 +9,8 @@
     </div>
     <CoreFullscreen
       v-show="!loading"
-      class="fill-space"
       ref="container"
+      class="fill-space"
     >
       <video
         v-if="isVideo"
@@ -19,19 +19,19 @@
       >
         <template v-for="video in videoSources">
           <source
+            :key="video.storage_url"
             :src="video.storage_url"
             :type="`video/${video.extension}`"
-            :key="video.storage_url"
           >
         </template>
         <template v-for="track in trackSources">
           <track
+            :key="track.storage_url"
             kind="captions"
             :src="track.storage_url"
             :srclang="track.lang.id"
             :label="track.lang.lang_name"
             :default="isDefaultTrack(track.lang.id)"
-            :key="track.storage_url"
           >
         </template>
       </video>
@@ -39,9 +39,9 @@
       <audio v-else ref="player" class="video-js custom-skin">
         <template v-for="audio in audioSources">
           <source
+            :key="audio.storage_url"
             :src="audio.storage_url"
             :type="`audio/${audio.extension}`"
-            :key="audio.storage_url"
           >
         </template>
       </audio>

@@ -3,15 +3,15 @@
   <!-- Accessibility properties for the overlay -->
   <transition name="fade">
     <div
+      id="modal-window"
+      ref="modal-overlay"
       class="modal-overlay"
       @keyup.esc.stop="emitCancelEvent"
       @keyup.enter="handleEnter"
-      ref="modal-overlay"
-      id="modal-window"
     >
       <div
-        class="modal"
         ref="modal"
+        class="modal"
         :tabindex="0"
         role="dialog"
         aria-labelledby="modal-title"
@@ -21,9 +21,9 @@
 
         <!-- Modal Title -->
         <h1
-          class="title"
           id="modal-title"
           ref="title"
+          class="title"
         >
           {{ title }}
           <!-- Accessible error reporting per @radina -->
@@ -42,8 +42,8 @@
         >
           <!-- Default slot for content -->
           <div
-            class="content"
             ref="content"
+            class="content"
             :style="contentSectionMaxHeight"
             :class="{ 'scroll-shadow': scrollShadow }"
           >
@@ -51,8 +51,8 @@
           </div>
 
           <div
-            class="actions"
             ref="actions"
+            class="actions"
           >
             <!-- Slot for buttons -->
             <slot

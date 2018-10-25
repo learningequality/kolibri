@@ -1,7 +1,7 @@
 <template>
 
   <div class="wrapper">
-    <div class="visuallyhidden" id="progress-bar-label">{{ $tr('label') }}</div>
+    <div id="progress-bar-label" class="visuallyhidden">{{ $tr('label') }}</div>
     <div
       class="progress-bar-wrapper"
       role="progressbar"
@@ -13,7 +13,7 @@
       <div class="progress-bar-complete" :style="{ width: percent + '%', backgroundColor: color}">
       </div>
     </div>
-    <div class="progress-bar-text" v-if="showPercentage">{{ $tr('pct', [progress]) }}</div>
+    <div v-if="showPercentage" class="progress-bar-text">{{ $tr('pct', [progress]) }}</div>
   </div>
 
 </template>

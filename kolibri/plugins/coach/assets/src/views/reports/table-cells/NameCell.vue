@@ -4,7 +4,7 @@
     <div class="title">
       <div>
         <KRouterLink v-if="link" :text="title" :to="link" class="link" />
-        <span dir="auto" v-else>{{ title }}</span>
+        <span v-else dir="auto">{{ title }}</span>
       </div>
       <div>
         <slot name="details"></slot>
@@ -24,7 +24,6 @@
 
   import { validateLinkObject } from 'kolibri.utils.validators';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
@@ -32,7 +31,6 @@
     name: 'NameCell',
     components: {
       CoachContentLabel,
-      ContentIcon,
       KRouterLink,
     },
     props: {

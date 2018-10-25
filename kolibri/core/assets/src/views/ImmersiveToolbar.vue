@@ -5,9 +5,9 @@
     textColor="white"
     type="colored"
     :showIcon="showIcon"
-    @nav-icon-click="$emit('navIconClick')"
     :class="{ secondary: !primary }"
     :style="{ height: height + 'px' }"
+    @nav-icon-click="$emit('navIconClick')"
   >
     <router-link
       v-if="hasRoute"
@@ -18,8 +18,8 @@
       <!-- TODO add aria label? -->
       <UiIconButton
         type="flat"
-        @click="$emit('navIconClick')"
         class="icon"
+        @click="$emit('navIconClick')"
       >
         <mat-svg
           v-if="icon === 'close'"
@@ -42,8 +42,8 @@
     <UiIconButton
       v-else
       type="flat"
-      @click="$emit('navIconClick')"
       class="icon"
+      @click="$emit('navIconClick')"
     >
       <mat-svg
         v-if="icon === 'close'"

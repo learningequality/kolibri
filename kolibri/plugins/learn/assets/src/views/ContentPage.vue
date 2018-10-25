@@ -11,13 +11,8 @@
 
     <ContentRenderer
       v-if="!content.assessment"
-      class="content-renderer"
-      @sessionInitialized="setWasIncomplete"
-      @startTracking="startTracking"
-      @stopTracking="stopTracking"
-      @updateProgress="updateProgress"
-      @updateContentState="updateContentState"
       :id="content.id"
+      class="content-renderer"
       :kind="content.kind"
       :files="content.files"
       :contentId="contentId"
@@ -25,17 +20,17 @@
       :available="content.available"
       :extraFields="extraFields"
       :initSession="initSession"
+      @sessionInitialized="setWasIncomplete"
+      @startTracking="startTracking"
+      @stopTracking="stopTracking"
+      @updateProgress="updateProgress"
+      @updateContentState="updateContentState"
     />
 
     <AssessmentWrapper
       v-else
-      class="content-renderer"
-      @sessionInitialized="setWasIncomplete"
-      @startTracking="startTracking"
-      @stopTracking="stopTracking"
-      @updateProgress="updateProgress"
-      @updateContentState="updateContentState"
       :id="content.id"
+      class="content-renderer"
       :kind="content.kind"
       :files="content.files"
       :contentId="contentId"
@@ -43,10 +38,16 @@
       :available="content.available"
       :extraFields="extraFields"
       :initSession="initSession"
+      @sessionInitialized="setWasIncomplete"
+      @startTracking="startTracking"
+      @stopTracking="stopTracking"
+      @updateProgress="updateProgress"
+      @updateContentState="updateContentState"
     />
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
-    <p v-html="description" dir="auto"></p>
+    <!-- eslint-disable-next-line vue/no-v-html -->
+    <p dir="auto" v-html="description"></p>
 
 
     <section class="metadata">

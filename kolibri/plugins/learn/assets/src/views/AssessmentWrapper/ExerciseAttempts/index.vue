@@ -2,20 +2,20 @@
 
   <div class="exercise-attempts">
     <div
-      class="attempt"
       v-for="(item, index) in itemsToRender"
-      :style="styleForIndex(index, item.originalIndex)"
       :key="`attempt-${item.originalIndex}`"
+      class="attempt"
+      :style="styleForIndex(index, item.originalIndex)"
     >
       <transition name="fade">
         <AnswerIcon :answer="item.answer" />
       </transition>
     </div>
     <div
-      class="placeholder"
       v-for="i in numSpaces"
-      :class="{ 'placeholder-first': i === 1 }"
       :key="`placeholder-${i}`"
+      class="placeholder"
+      :class="{ 'placeholder-first': i === 1 }"
     >
     </div>
   </div>

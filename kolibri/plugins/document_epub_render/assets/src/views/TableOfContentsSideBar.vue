@@ -3,8 +3,8 @@
   <SideBar>
     <nav>
       <ul
-        class="toc-list"
         ref="tocList"
+        class="toc-list"
       >
         <template
           v-for="(section, index) in toc"

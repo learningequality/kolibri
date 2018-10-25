@@ -6,10 +6,10 @@
     <ul class="history-list">
       <template v-for="(attemptLog, index) in attemptLogs">
         <li
-          @click="setSelectedAttemptLog(index)"
+          :key="index"
           class="clickable attempt-item"
           :class="{selected: isSelected(index)}"
-          :key="index"
+          @click="setSelectedAttemptLog(index)"
         >
           <div class="title">
             <mat-svg

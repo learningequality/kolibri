@@ -20,13 +20,13 @@
     </UiAlert>
 
     <KTextbox
-      :label="$tr('channelTokenLabel')"
       v-model.trim="token"
+      :label="$tr('channelTokenLabel')"
       :invalid="!tokenIsValid"
       :invalidText="$tr('invalidTokenMessage')"
       autofocus
-      @blur="tokenIsBlurred=true"
       :disabled="formIsDisabled"
+      @blur="tokenIsBlurred=true"
     />
   </KModal>
 

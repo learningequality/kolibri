@@ -8,8 +8,8 @@
       :details="authMessageDetails"
     >
       <KExternalLink
-        slot="details"
         v-if="isAdmin && createClassUrl"
+        slot="details"
         :text="$tr('noClassesDetailsForAdmin')"
         :href="createClassUrl"
       />

@@ -12,17 +12,17 @@
     <KRadioButton
       v-for="group in groupsExcludingCurrent"
       :key="group.id"
+      v-model="groupSelected"
       :value="group.id"
       :label="group.name"
-      v-model="groupSelected"
     />
 
     <div v-if="!isUngrouped">
       <hr>
       <KRadioButton
+        v-model="groupSelected"
         value="ungrouped"
         :label="$tr('ungrouped')"
-        v-model="groupSelected"
       />
     </div>
   </KModal>

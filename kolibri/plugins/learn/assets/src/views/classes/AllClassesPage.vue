@@ -6,9 +6,9 @@
 
       <div class="classrooms">
         <ContentCard
-          class="content-card"
           v-for="c in classrooms"
           :key="c.id"
+          class="content-card"
           :link="classAssignmentsLink(c.id)"
           :showContentIcon="false"
           :title="c.name"
@@ -17,7 +17,7 @@
         />
       </div>
     </div>
-    <AuthMessage authorizedRole="learner" v-else />
+    <AuthMessage v-else authorizedRole="learner" />
   </div>
 
 </template>

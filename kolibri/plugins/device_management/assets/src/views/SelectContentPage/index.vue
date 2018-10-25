@@ -9,13 +9,13 @@
     <template v-else>
       <TaskProgress
         v-if="showUpdateProgressBar"
+        id="updatingchannel"
         type="UPDATING_CHANNEL"
         status="QUEUED"
         :percentage="0"
         :showButtons="true"
         :cancellable="true"
         @cleartask="cancelUpdateChannel()"
-        id="updatingchannel"
       />
       <TaskProgress
         v-else-if="metadataDownloadTask"
@@ -38,12 +38,12 @@
           </UiAlert>
         </section>
         <section
-          class="updates"
           v-if="transferredChannel && onDeviceInfoIsReady"
+          class="updates"
         >
           <div
-            class="updates-available"
             v-if="newVersionAvailable"
+            class="updates-available"
           >
             <span>
               {{ $tr('newVersionAvailable', { version: transferredChannel.version }) }}
@@ -99,7 +99,6 @@
 
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { TaskResource } from 'kolibri.resources';
   import isEmpty from 'lodash/isEmpty';
@@ -124,7 +123,6 @@
       ChannelContentsSummary,
       ContentTreeViewer,
       ContentWizardUiAlert,
-      ImmersiveFullScreen,
       KButton,
       SelectedResourcesSize,
       TaskProgress,

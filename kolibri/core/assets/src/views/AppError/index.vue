@@ -23,10 +23,10 @@
         @click="reloadPage"
       />
       <KRouterLink
-        @click.native="clearErrorState"
         appearance="raised-button"
         :to="{path: '/'}"
         :text="$tr('defaultErrorExitPrompt')"
+        @click.native="clearErrorState"
       />
     </p>
     <p>

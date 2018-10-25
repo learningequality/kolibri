@@ -11,8 +11,8 @@
         percentage
       >
         <KButton
-          class="exit-search-button"
           v-if="inSearchMode"
+          class="exit-search-button"
           :text="$tr('exitSearchButtonLabel')"
           appearance="raised-button"
           @click="handleExitSearch"
@@ -33,10 +33,10 @@
 
     <LessonsSearchFilters
       v-if="inSearchMode"
+      v-model="filters"
       class="search-filters"
       :searchTerm="searchTerm"
       :searchResults="searchResults"
-      v-model="filters"
     />
 
     <ResourceSelectionBreadcrumbs
@@ -74,7 +74,6 @@
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
   import xor from 'lodash/xor';
-  import UiToolbar from 'keen-ui/src/UiToolbar';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -101,7 +100,6 @@
       LessonsSearchFilters,
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
-      UiToolbar,
     },
     data() {
       return {

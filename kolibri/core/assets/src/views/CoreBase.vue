@@ -16,21 +16,21 @@
 
       <template v-else>
         <AppBar
+          ref="appBar"
           class="core-base-app-bar align-to-parent"
           :title="toolbarTitle || appBarTitle"
           :height="headerHeight"
           :navShown="navShown"
           @toggleSideNav="navShown=!navShown"
-          ref="appBar"
         >
-          <slot name="totalPointsMenuItem" slot="totalPointsMenuItem"></slot>
+          <slot slot="totalPointsMenuItem" name="totalPointsMenuItem"></slot>
           <div slot="app-bar-actions" class="app-bar-actions">
             <slot name="app-bar-actions"></slot>
           </div>
           <slot
             v-if="showSubNav"
-            name="sub-nav"
             slot="sub-nav"
+            name="sub-nav"
           >
           </slot>
         </AppBar>

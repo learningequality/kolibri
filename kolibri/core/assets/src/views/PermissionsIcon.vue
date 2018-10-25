@@ -1,7 +1,7 @@
 <template>
 
   <!-- UiTooltip automatically uses aria-describedby, pointing to UiTooltip element -->
-  <span class="permission-icon" ref="permission-icon">
+  <span ref="permission-icon" class="permission-icon">
     <mat-svg
       v-if="hasSuperAdminPermission"
       class="super-admin icon"

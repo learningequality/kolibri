@@ -28,21 +28,21 @@
       </tr>
     </thead>
     <transition-group
-      name="resource-reorder"
       slot="tbody"
+      name="resource-reorder"
       tag="tbody"
     >
       <tr
-        :key="resourceId"
         v-for="(resourceId, index) in workingResources"
+        :key="resourceId"
       >
         <td class="core-table-icon-col">
           <UiIconButton
             type="flat"
             :ariaLabel="$tr('moveResourceUpButtonDescription')"
             :disabled="index === 0"
-            @click="moveUpOne(index)"
             class="position-adjustment-button"
+            @click="moveUpOne(index)"
           >
             <mat-svg name="keyboard_arrow_up" category="hardware" />
           </UiIconButton>
@@ -50,8 +50,8 @@
             type="flat"
             :ariaLabel="$tr('moveResourceDownButtonDescription')"
             :disabled="index === (workingResources.length - 1)"
-            @click="moveDownOne(index)"
             class="position-adjustment-button"
+            @click="moveDownOne(index)"
           >
             <mat-svg name="keyboard_arrow_down" category="hardware" />
           </UiIconButton>
@@ -91,8 +91,8 @@
         <td>
           <KButton
             :text="$tr('resourceRemovalButtonLabel')"
-            @click="removeResource(resourceId)"
             appearance="flat-button"
+            @click="removeResource(resourceId)"
           />
         </td>
       </tr>

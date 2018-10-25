@@ -6,10 +6,10 @@
       class="visuallyhidden"
     />
     <ContentCardGroupGrid
+      v-if="channels.length"
       class="grid"
       :contents="channels"
       :genContentLink="genChannelLink"
-      v-if="channels.length"
     />
   </div>
 

@@ -2,8 +2,8 @@
 
   <CoreSnackbar
     v-if="snackbarIsVisible"
-    :text="snackbarOptions.text"
     :key="key"
+    :text="snackbarOptions.text"
     :actionText="snackbarOptions.actionText"
     :backdrop="snackbarOptions.backdrop"
     :autoDismiss="snackbarOptions.autoDismiss"

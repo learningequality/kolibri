@@ -3,8 +3,8 @@
   <div>
     <UiIconButton
       type="secondary"
-      @click="showLanguageModal = true"
       class="globe"
+      @click="showLanguageModal = true"
     >
       <mat-svg
         name="language"
@@ -17,11 +17,11 @@
     </span>
     <KButton
       v-for="language in buttonLanguages"
-      @click="switchLanguage(language.id)"
       :key="language.id"
       :text="language.lang_name"
       class="lang"
       appearance="basic-link"
+      @click="switchLanguage(language.id)"
     />
     <KButton
       :text="$tr('showMoreLanguagesSelector')"
@@ -32,8 +32,8 @@
     />
     <LanguageSwitcherModal
       v-if="showLanguageModal"
-      @close="showLanguageModal = false"
       class="ta-l"
+      @close="showLanguageModal = false"
     />
   </div>
 

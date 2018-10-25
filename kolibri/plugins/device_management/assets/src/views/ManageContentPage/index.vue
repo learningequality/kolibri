@@ -16,21 +16,21 @@
             <h1>{{ $tr('title') }}</h1>
           </KGridItem>
           <KGridItem
+            v-if="!tasksInQueue"
             sizes="100, 50, 50"
             alignments="left, right, right"
             percentage
-            v-if="!tasksInQueue"
           >
             <KButton
               :text="$tr('import')"
-              @click="startImportWorkflow()"
               :primary="true"
+              @click="startImportWorkflow()"
             />
             <KButton
               v-if="deviceHasChannels"
               :text="$tr('export')"
-              @click="startExportWorkflow()"
               class="flush-right"
+              @click="startExportWorkflow()"
             />
           </KGridItem>
         </KGrid>

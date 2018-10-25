@@ -1,6 +1,6 @@
 <template>
 
-  <div @keydown.esc="toggleNav" ref="sideNav" class="side-nav-wrapper">
+  <div ref="sideNav" class="side-nav-wrapper" @keydown.esc="toggleNav">
     <transition name="side-nav">
       <div
         v-show="navShown"
@@ -42,7 +42,7 @@
             :aria-label="$tr('navigationLabel')"
           >
             <template slot="options">
-              <component v-for="component in menuOptions" :is="component" :key="component.name" />
+              <component :is="component" v-for="component in menuOptions" :key="component.name" />
               <SideNavDivider />
             </template>
           </CoreMenu>
@@ -91,7 +91,6 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
-  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -117,7 +116,6 @@
       CoreMenu,
       UiIconButton,
       CoreLogo,
-      CoreMenuOption,
       SideNavDivider,
       KButton,
       PrivacyInfoModal,

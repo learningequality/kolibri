@@ -6,12 +6,12 @@
     textColor="white"
   >
     <UiIconButton
-      slot="icon"
       v-show="currentStep > 1"
+      slot="icon"
       type="secondary"
       color="white"
-      @click="$emit('backButtonClicked')"
       :class="{ 'rtl-icon': isRtl }"
+      @click="$emit('backButtonClicked')"
     >
       <mat-svg name="arrow_back" category="navigation" />
     </UiIconButton>

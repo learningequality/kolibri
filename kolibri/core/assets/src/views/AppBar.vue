@@ -55,7 +55,7 @@
           :hasIcons="true"
           @close="userMenuDropdownIsOpen = false"
         >
-          <template slot="header" v-if="isUserLoggedIn">
+          <template v-if="isUserLoggedIn" slot="header">
             <div class="role">{{ $tr('userTypeLabel') }}</div>
             <div>
               <UserTypeDisplay
@@ -69,7 +69,7 @@
           </template>
 
           <template slot="options">
-            <component v-for="component in menuOptions" :is="component" :key="component.name" />
+            <component :is="component" v-for="component in menuOptions" :key="component.name" />
             <CoreMenuOption
               :label="$tr('languageSwitchMenuOption')"
               @select="showLanguageModal = true"
@@ -87,8 +87,8 @@
 
         <LanguageSwitcherModal
           v-if="showLanguageModal"
-          @close="showLanguageModal = false"
           class="override-ui-toolbar"
+          @close="showLanguageModal = false"
         />
       </div>
     </UiToolbar>

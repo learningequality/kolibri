@@ -35,9 +35,6 @@
     name: 'UserIndex',
     components: {
       CoreBase,
-      SignInPage,
-      SignUpPage,
-      ProfilePage,
     },
     computed: {
       ...mapState(['pageName']),

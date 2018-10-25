@@ -30,8 +30,8 @@
     </div>
     <footer
       v-if="$slots.footer"
-      class="footer"
       ref="footer"
+      class="footer"
     >
       <slot name="footer"></slot>
     </footer>

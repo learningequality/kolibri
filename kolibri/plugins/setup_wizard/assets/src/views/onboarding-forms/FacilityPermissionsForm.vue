@@ -9,34 +9,34 @@
     >
       <KRadioButton
         ref="first-button"
-        class="permission-preset-radio-button"
         v-model="selectedPreset"
+        class="permission-preset-radio-button"
         value="nonformal"
         :label="$tr('selfManagedSetupTitle')"
         :description="$tr('selfManagedSetupDescription')"
       />
       <FacilityNameTextbox
+        v-show="nonformalIsSelected"
         ref="facility-name-nonformal"
         class="facility-name-form"
-        v-show="nonformalIsSelected"
       />
 
       <KRadioButton
-        class="permission-preset-radio-button"
         v-model="selectedPreset"
+        class="permission-preset-radio-button"
         value="formal"
         :label="$tr('adminManagedSetupTitle')"
         :description="$tr('adminManagedSetupDescription')"
       />
       <FacilityNameTextbox
+        v-show="formalIsSelected"
         ref="facility-name-formal"
         class="facility-name-form"
-        v-show="formalIsSelected"
       />
 
       <KRadioButton
-        class="permission-preset-radio-button"
         v-model="selectedPreset"
+        class="permission-preset-radio-button"
         value="informal"
         :label="$tr('informalSetupTitle')"
         :description="$tr('informalSetupDescription')"
@@ -51,8 +51,6 @@
 
   import { mapMutations } from 'vuex';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import OnboardingForm from './OnboardingForm';
   import FacilityNameTextbox from './FacilityNameTextbox';
 
@@ -62,8 +60,6 @@
       FacilityNameTextbox,
       OnboardingForm,
       KRadioButton,
-      KButton,
-      KTextbox,
     },
     $trs: {
       facilityPermissionsSetupFormHeader: 'What kind of facility are you installing Kolibri in?',

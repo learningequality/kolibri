@@ -31,8 +31,8 @@
           <KButton
             ref="increaseFontSizeButton"
             :disabled="increaseFontSizeDisabled"
-            @click="$emit('increaseFontSize')"
             class="settings-button"
+            @click="$emit('increaseFontSize')"
           >
             <mat-svg
               name="add"

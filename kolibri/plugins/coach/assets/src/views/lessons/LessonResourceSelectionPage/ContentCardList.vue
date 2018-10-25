@@ -3,16 +3,16 @@
   <div>
     <ul class="content-list">
       <KCheckbox
-        :label="$tr('selectAllCheckboxLabel')"
         v-if="showSelectAll"
+        :label="$tr('selectAllCheckboxLabel')"
         :checked="selectAllChecked"
         :indeterminate="selectAllIndeterminate"
         @change="$emit('changeselectall', $event)"
       />
       <li
         v-for="content in contentList"
-        class="content-list-item"
         :key="content.id"
+        class="content-list-item"
       >
         <KCheckbox
           v-if="contentHasCheckbox(content)"
@@ -40,8 +40,8 @@
       <KButton
         v-if="showButton"
         :text="$tr('viewMoreButtonLabel')"
-        @click="$emit('moreresults')"
         :primary="false"
+        @click="$emit('moreresults')"
       />
       <KCircularLoader
         v-if="viewMoreButtonState === 'waiting'"

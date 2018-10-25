@@ -18,7 +18,6 @@
 
   import { mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
 
   export default {
     name: 'DeleteGroupModal',
@@ -31,7 +30,6 @@
     },
     components: {
       KModal,
-      KTextbox,
     },
     props: {
       groupName: {

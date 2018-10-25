@@ -11,6 +11,7 @@
     <section>
       <KTextbox
         ref="name"
+        v-model.trim="fullName"
         type="text"
         :label="$tr('name')"
         :autofocus="true"
@@ -18,55 +19,54 @@
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
         @blur="nameBlurred = true"
-        v-model.trim="fullName"
       />
       <KTextbox
         ref="username"
+        v-model="username"
         type="text"
         :label="$tr('username')"
         :maxlength="30"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
-        v-model="username"
       />
       <KTextbox
         ref="password"
+        v-model="password"
         type="password"
         :label="$tr('password')"
         :invalid="passwordIsInvalid"
         :invalidText="passwordIsInvalidText"
         @blur="passwordBlurred = true"
-        v-model="password"
       />
       <KTextbox
         ref="confirmedPassword"
+        v-model="confirmedPassword"
         type="password"
         :label="$tr('reEnterPassword')"
         :invalid="confirmedPasswordIsInvalid"
         :invalidText="confirmedPasswordIsInvalidText"
         @blur="confirmedPasswordBlurred = true"
-        v-model="confirmedPassword"
       />
 
       <KSelect
+        v-model="kind"
         :label="$tr('userType')"
         :options="userKindDropdownOptions"
-        v-model="kind"
       />
 
-      <fieldset class="coach-selector" v-if="coachIsSelected">
+      <fieldset v-if="coachIsSelected" class="coach-selector">
         <KRadioButton
+          v-model="classCoach"
           :label="$tr('classCoachLabel')"
           :description="$tr('classCoachDescription')"
           :value="true"
-          v-model="classCoach"
         />
         <KRadioButton
+          v-model="classCoach"
           :label="$tr('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
-          v-model="classCoach"
         />
       </fieldset>
     </section>
@@ -85,7 +85,6 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import UiAlert from 'kolibri.coreVue.components.UiAlert';
 
   export default {
     name: 'UserCreateModal',
@@ -117,7 +116,6 @@
       KRadioButton,
       KModal,
       KTextbox,
-      UiAlert,
       KSelect,
     },
     data() {

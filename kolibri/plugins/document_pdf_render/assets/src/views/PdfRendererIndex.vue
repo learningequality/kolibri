@@ -78,7 +78,6 @@
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
   import 'intersection-observer';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -101,7 +100,6 @@
   export default {
     name: 'PdfRendererIndex',
     components: {
-      KButton,
       KLinearLoader,
       UiIconButton,
       PdfPage,

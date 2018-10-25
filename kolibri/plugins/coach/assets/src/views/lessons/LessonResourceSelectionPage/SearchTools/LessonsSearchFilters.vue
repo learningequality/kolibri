@@ -18,8 +18,8 @@
           :inline="true"
           :disabled="!contentKindFilterOptions.length"
           :value="contentKindValue"
-          @change="updateFilter('kind', $event)"
           class="filter"
+          @change="updateFilter('kind', $event)"
         />
       </div>
 
@@ -35,8 +35,8 @@
           :inline="true"
           :disabled="!channelFilterOptions.length"
           :value="channelValue"
-          @change="updateFilter('channel', $event)"
           class="filter"
+          @change="updateFilter('channel', $event)"
         />
       </div>
 
@@ -55,8 +55,8 @@
           :inline="true"
           :disabled="!roleFilterOptions.length"
           :value="roleValue"
-          @change="updateFilter('role', $event)"
           class="filter"
+          @change="updateFilter('role', $event)"
         />
       </div>
     </div>
@@ -70,7 +70,6 @@
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   const kindFilterToLabelMap = {
@@ -85,7 +84,6 @@
   export default {
     name: 'LessonsSearchFilters',
     components: {
-      ContentIcon,
       KSelect,
     },
     props: {

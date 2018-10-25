@@ -5,9 +5,9 @@
       {{ header }}
     </h2>
     <ContentRenderer
+      :id="content.id"
       :class="{ hof: isPerseusExercise}"
       :showCorrectAnswer="true"
-      :id="content.id"
       :itemId="selectedQuestion"
       :allowHints="false"
       :kind="content.kind"

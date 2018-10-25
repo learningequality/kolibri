@@ -44,17 +44,17 @@
             </th>
             <th>
               <KButton
-                @click="setSort('name')"
                 class="header-button"
                 appearance="basic-link"
                 :text="$tr('fullnameTableColumnHeader')"
+                @click="setSort('name')"
               />
               <!-- TODO should probably use constants -->
               <UiIconButton
                 v-if="sortBy==='name'"
-                @click="invert=!invert"
                 size="small"
                 type="secondary"
+                @click="invert=!invert"
               >
                 <mat-svg
                   v-if="invert"
@@ -70,16 +70,16 @@
             </th>
             <th>
               <KButton
-                @click="setSort('progress')"
                 class="header-button"
                 appearance="basic-link"
                 :text="progressHeader"
+                @click="setSort('progress')"
               />
               <UiIconButton
                 v-if="sortBy==='progress'"
-                @click="invert=!invert"
                 size="small"
                 type="secondary"
+                @click="invert=!invert"
               >
                 <mat-svg
                   v-if="invert"
@@ -95,16 +95,16 @@
             </th>
             <th>
               <KButton
-                @click="setSort('groupName')"
                 class="header-button"
                 appearance="basic-link"
                 :text="$tr('groupTableColumnHeader')"
+                @click="setSort('groupName')"
               />
               <UiIconButton
                 v-if="sortBy==='groupName'"
-                @click="invert=!invert"
                 size="small"
                 type="secondary"
+                @click="invert=!invert"
               >
                 <mat-svg
                   v-if="invert"
@@ -121,16 +121,16 @@
             </th>
             <th>
               <KButton
-                @click="setSort('lastActive')"
                 class="header-button"
                 appearance="basic-link"
                 :text="$tr('lastActiveTableColumnHeader')"
+                @click="setSort('lastActive')"
               />
               <UiIconButton
                 v-if="sortBy==='lastActive'"
-                @click="invert=!invert"
                 size="small"
                 type="secondary"
+                @click="invert=!invert"
               >
                 <mat-svg
                   v-if="invert"
