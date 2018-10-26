@@ -3,13 +3,13 @@ Feature: Learner engage completed exam
 
   Background:
     Given I am signed in to Kolibri as a Learner user
-      And I have an completed exam
       And I am on *Learn > Classes* page
+      And I have previously completed an exam
 
-  Scenario: Learner can access completed exam
-    When I select on one completed exam
+  Scenario: Review a completed exam
+    When I click one completed exam
     Then I see all my overall score
-     And I select one question with wrong answer
-    Then I see *show correct answer* check box
-     And I check *show correct answer* check box
-    Then The correct answer showed
+    When I select one of incorrectly answered questions
+    Then I see *Show correct answer* check box
+    When I check the *Show correct answer* check box
+    Then I see the correct answer below

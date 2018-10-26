@@ -51,7 +51,7 @@
           <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
           <td>{{ getLessonVisibility(lesson.lesson_assignments) }}</td>
           <td>
-            <StatusIcon :active="lesson.is_active" />
+            <StatusIcon :active="lesson.is_active" :type="lessonKind" />
           </td>
         </tr>
       </tbody>

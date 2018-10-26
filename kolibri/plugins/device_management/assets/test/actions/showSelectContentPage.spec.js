@@ -1,6 +1,6 @@
 //
 import { ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
-import { loadChannelMetaData } from '../../src/modules/wizard/actions/selectContentActions';
+import { loadChannelMetadata } from '../../src/modules/wizard/actions/selectContentActions';
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import ChannelResource from '../../src/apiResources/deviceChannel';
 import { defaultChannel } from '../utils/data';
@@ -18,7 +18,7 @@ function hackStoreWatcher(store) {
   }, 1);
 }
 
-describe('loadChannelMetaData action', () => {
+describe('loadChannelMetadata action', () => {
   let store;
 
   beforeEach(() => {
@@ -76,7 +76,7 @@ describe('loadChannelMetaData action', () => {
 
   // Tests for common behavior
   function testNoChannelsAreImported(store, options) {
-    return loadChannelMetaData(store, options).then(() => {
+    return loadChannelMetadata(store, options).then(() => {
       expect(TaskResource.startDiskChannelImport).not.toHaveBeenCalled();
       expect(TaskResource.startRemoteChannelImport).not.toHaveBeenCalled();
     });
@@ -93,7 +93,7 @@ describe('loadChannelMetaData action', () => {
     });
 
     it('if channel is *not* on device, then "startdiskchannelimport" is called', () => {
-      return loadChannelMetaData(store).then(() => {
+      return loadChannelMetadata(store).then(() => {
         expect(TaskResource.startDiskChannelImport).toHaveBeenCalledWith({
           channel_id: 'localimport_brand_new_channel',
           drive_id: 'localimport_specs_drive',
@@ -104,7 +104,7 @@ describe('loadChannelMetaData action', () => {
 
     it('errors from startDiskChannelImport are handled', () => {
       TaskResource.startDiskChannelImport.mockRejectedValue();
-      return loadChannelMetaData(store).then(() => {
+      return loadChannelMetadata(store).then(() => {
         expect(store.state.manageContent.wizard.status).toEqual('CONTENT_DB_LOADING_ERROR');
       });
     });
@@ -121,7 +121,7 @@ describe('loadChannelMetaData action', () => {
     });
 
     it('if channel is *not* on device, then "startremotechannelimport" is called', () => {
-      return loadChannelMetaData(store).then(() => {
+      return loadChannelMetadata(store).then(() => {
         expect(TaskResource.startRemoteChannelImport).toHaveBeenCalledWith({
           channel_id: 'remoteimport_brand_new_channel',
         });
@@ -131,7 +131,7 @@ describe('loadChannelMetaData action', () => {
 
     it('errors from startRemoteChannelImport are handled', () => {
       TaskResource.startRemoteChannelImport.mockRejectedValue();
-      return loadChannelMetaData(store).then(() => {
+      return loadChannelMetadata(store).then(() => {
         expect(store.state.manageContent.wizard.status).toEqual('CONTENT_DB_LOADING_ERROR');
       });
     });

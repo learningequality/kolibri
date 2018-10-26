@@ -488,7 +488,7 @@
     $button-height-normal: 40px;
     $button-font-size-normal: 24px;
 
-    @include font-family-ui;
+    @include font-family-noto;
 
     font-size: $video-player-font-size;
     color: $video-player-font-color;
@@ -564,6 +564,7 @@
     /* Replay & Forward Buttons */
     .vjs-icon-replay_10,
     .vjs-icon-forward_10 {
+      font-family: VideoJS; // override our global noto fonts with more specificity
       &::before {
         font-size: $button-font-size-normal;
         line-height: $button-height-normal;
@@ -615,7 +616,7 @@
     }
 
     .vjs-menu-content {
-      @include font-family-ui;
+      @include font-family-noto;
     }
 
     .vjs-volume-control {

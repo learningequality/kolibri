@@ -204,17 +204,13 @@ function _loadDefaultFonts() {
 
   const language = availableLanguages[currentLanguage];
 
-  const uiNormal = new FontFaceObserver('noto-ui-full', { weight: 400 });
-  const uiBold = new FontFaceObserver('noto-ui-full', { weight: 700 });
-  const contentNormal = new FontFaceObserver('noto-content-full', { weight: 400 });
-  const contentBold = new FontFaceObserver('noto-content-full', { weight: 700 });
+  const uiNormal = new FontFaceObserver('noto-full', { weight: 400 });
+  const uiBold = new FontFaceObserver('noto-full', { weight: 700 });
 
   // passing 'language_name' to 'load' for its glyphs, not its value per se
   Promise.all([
     uiNormal.load(language.language_name, 20000),
     uiBold.load(language.language_name, 20000),
-    contentNormal.load(language.language_name, 20000),
-    contentBold.load(language.language_name, 20000),
   ])
     .then(function() {
       htmlEl.classList.remove(PARTIAL_FONTS);

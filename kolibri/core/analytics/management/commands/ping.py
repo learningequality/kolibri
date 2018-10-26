@@ -39,12 +39,15 @@ class Command(BaseCommand):
                             help='Number of minutes to wait between failed ping attempts.')
         parser.add_argument('--server', action='store', dest='server',
                             help='Base URL of the server to connect to.')
+        parser.add_argument('--once', action='store_true', dest='once',
+                            help='Only try to ping once, then exit')
 
     def handle(self, *args, **options):
 
         interval = float(options.get("interval") or DEFAULT_PING_INTERVAL)
         checkrate = float(options.get("checkrate") or DEFAULT_PING_CHECKRATE)
         server = options.get("server") or DEFAULT_SERVER_URL
+        once = options.get("once") or False
 
         self.started = datetime.now()
 
@@ -56,6 +59,8 @@ class Command(BaseCommand):
                     logger.info("Ping succeeded! (response: {})".format(data))
                     if "id" in data:
                         self.perform_statistics(server, data["id"])
+                if once:
+                    break
                 logger.info("Sleeping for {} minutes.".format(interval))
                 time.sleep(interval * 60)
                 continue
@@ -65,6 +70,8 @@ class Command(BaseCommand):
                 logger.warn("Ping failed (connection timed out). Trying again in {} minutes.".format(checkrate))
             except RequestException as e:
                 logger.warn("Ping failed ({})! Trying again in {} minutes.".format(e, checkrate))
+            if once:
+                break
             time.sleep(checkrate * 60)
 
     def perform_ping(self, server):
@@ -103,7 +110,7 @@ class Command(BaseCommand):
 
         response.raise_for_status()
 
-        return json.loads(response.content or "{}")
+        return json.loads(response.content.decode() or "{}")
 
     def perform_statistics(self, server, pingback_id):
 
@@ -126,4 +133,4 @@ class Command(BaseCommand):
 
         response.raise_for_status()
 
-        return json.loads(response.content or "{}")
+        return json.loads(response.content.decode() or "{}")

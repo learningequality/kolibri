@@ -23,7 +23,7 @@
         />
       </dt>
       <dd>
-        <StatusIcon :active="active" />
+        <StatusIcon :active="active" :type="kind" />
         <KButton
           appearance="basic-link"
           class="change-status-button"

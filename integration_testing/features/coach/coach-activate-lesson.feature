@@ -1,5 +1,5 @@
-Feature: Coach activate lessons
-   Coaches need to activate lessons in order for learners to gain access and start submitting them
+Feature: Coach activate and deactivate lessons
+   Coaches need to activate lessons in order for learners to gain access and start submitting them, and deactivate them afterwards
 
   Background:
     Given I am signed in to kolibri as coach user
@@ -16,6 +16,17 @@ Feature: Coach activate lessons
       And I click *Save* button
     Then the modal closes
       And I see the lesson *Status* is *Active*
+
+  Scenario: Coach changes the lesson status to *Inactive*
+    When I click the lesson <lesson_title>
+    Then I see the <lesson_title> lesson page
+      And I see the lesson *Status* is *Active*
+    When I click *Change*
+    Then I see the *Change lesson status* modal
+    When I select *Inactive*
+      And I click *Save* button
+    Then the modal closes
+      And I see the lesson *Status* is *Inactive*
 
 Examples:
 | lesson_title          |

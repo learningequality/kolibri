@@ -38,7 +38,7 @@
           :key="exam.id"
         >
           <td class="core-table-icon-col">
-            <ContentIcon :kind="examIcon" />
+            <ContentIcon :kind="examKind" />
           </td>
 
           <td class="core-table-main-col">
@@ -51,7 +51,7 @@
           <td> {{ genRecipientsString(exam.assignments) }} </td>
 
           <td>
-            <StatusIcon :active="exam.active" />
+            <StatusIcon :active="exam.active" :type="examKind" />
           </td>
         </tr>
       </tbody>
@@ -125,7 +125,7 @@
     },
     computed: {
       ...mapState('examsRoot', ['exams']),
-      examIcon() {
+      examKind() {
         return ContentNodeKinds.EXAM;
       },
       sortedExams() {

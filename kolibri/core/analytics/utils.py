@@ -78,7 +78,7 @@ def extract_facility_statistics(facility):
 
     return {
         # facility_id
-        "fi": base64.encodestring(hashlib.md5(facility.id.encode()).digest())[:10],
+        "fi": base64.encodestring(hashlib.md5(facility.id.encode()).digest())[:10].decode(),
         # settings
         "s": settings,
         # learners_count
