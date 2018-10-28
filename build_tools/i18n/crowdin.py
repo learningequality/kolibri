@@ -84,7 +84,7 @@ PRETRANSLATE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="pre-translate",
-    params="&method=tm&approve_translated=1&perfect_match=0&json",
+    params="&method=tm&approve_translated=1&auto_approve_option=1&json&&apply_untranslated_strings_only=1&perfect_match=1",
 )
 
 PERSEUS_FILE = "exercise_perseus_render_module-messages.json"
