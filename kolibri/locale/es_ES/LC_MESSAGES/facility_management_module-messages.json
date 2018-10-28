@@ -15,7 +15,7 @@
   "ClassEditPage.coachTableTitle": "Tutores",
   "ClassEditPage.documentTitle": "Editar clase",
   "ClassEditPage.edit": "Editar nombre de la clase",
-  "ClassEditPage.enrollLearnerButtonLabel": "Añadir estudiantes",
+  "ClassEditPage.enrollLearnerButtonLabel": "Inscribir estudiantes",
   "ClassEditPage.learnerTableTitle": "Estudiantes",
   "ClassEditPage.noCoachesInClassMessge": "No hay tutores asignados",
   "ClassEditPage.noLearnersInClassMessage": "No hay estudiantes inscritos",
