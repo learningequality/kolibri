@@ -8,6 +8,7 @@ This set of functions interacts with the crowdin API as documented here:
 """
 import argparse
 import io
+import json
 import logging
 import os
 import shutil
@@ -120,6 +121,24 @@ def _crowdin_files(branch, details):
     return set(
         node["name"] for node in branch_node["files"] if node["node_type"] == "file"
     )
+
+
+def _format_json_files():
+    """
+    re-print all json files to ensure consistent diffs with ordered keys
+    """
+    locale_paths = []
+    for lang_info in utils.supported_languages(include_in_context=True):
+        locale_paths.append(utils.local_locale_path(lang_info))
+        locale_paths.append(utils.local_perseus_locale_path(lang_info))
+    for locale_path in locale_paths:
+        for file_name in os.listdir(locale_path):
+            if not file_name.endswith(".json"):
+                continue
+            file_path = os.path.join(locale_path, file_name)
+            with io.open(file_path, mode="r", encoding="utf-8") as f:
+                data = json.load(f)
+            utils.json_dump_formatted(data, file_path)
 
 
 """
@@ -261,6 +280,7 @@ def command_download(branch):
             os.path.join(perseus_target, PERSEUS_FILE),
         )
 
+    _format_json_files()  # clean them up to make git diffs more meaningful
     logging.info("Crowdin: download succeeded!")
 
 

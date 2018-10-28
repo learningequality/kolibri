@@ -227,9 +227,7 @@ def update_manifest(ref):
     font_info.update(_phase_3_info(ref))  # prefer phase 3
 
     new_manifest = {KEY_REF: ref, KEY_FONTS: font_info}
-    with open(FONT_MANIFEST_PATH, "w") as f:
-        # 'separators' prevents trailing whitespace
-        json.dump(new_manifest, f, sort_keys=True, indent=2, separators=(",", ": "))
+    utils.json_dump_formatted(new_manifest, FONT_MANIFEST_PATH)
 
 
 def fetch_fonts():
