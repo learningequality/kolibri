@@ -1,7 +1,7 @@
 <template>
 
-  <KTooltip class="here">
-    <span slot="trigger">
+  <div class="pos-rel">
+    <span ref="icon">
       <mat-svg
         v-if="hasSuperAdminPermission"
         class="super-admin icon"
@@ -16,7 +16,10 @@
         category="communication"
       />
     </span>
-    <div slot="tooltip">
+    <KTooltip
+      v-if="ready"
+      :reference="$refs.icon"
+    >
       <UserTypeDisplay
         v-if="hasSuperAdminPermission"
         :userType="UserKinds.SUPERUSER"
@@ -24,8 +27,8 @@
       <template v-else-if="hasLimitedPermissions">
         {{ $tr('limitedPermissionsTooltip') }}
       </template>
-    </div>
-  </KTooltip>
+    </KTooltip>
+  </div>
 
 </template>
 
@@ -51,6 +54,11 @@
         },
       },
     },
+    data() {
+      return {
+        ready: false,
+      };
+    },
     computed: {
       UserKinds() {
         return UserKinds;
@@ -61,6 +69,9 @@
       hasLimitedPermissions() {
         return this.permissionType === PermissionTypes.LIMITED_PERMISSIONS;
       },
+    },
+    mounted() {
+      this.ready = true;
     },
     $trs: {
       limitedPermissionsTooltip: 'Limited permissions',
@@ -73,6 +84,10 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+
+  .pos-rel {
+    position: relative;
+  }
 
   .icon {
     vertical-align: text-bottom;

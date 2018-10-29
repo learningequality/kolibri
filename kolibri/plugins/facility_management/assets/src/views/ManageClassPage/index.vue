@@ -44,13 +44,14 @@
             />
           </td>
           <td>
-            <KTooltip :disabled="!formattedCoachNamesTooltip(classroom)">
-              <span slot="trigger">
-                {{ formattedCoachNames(classroom) }}
-              </span>
-              <div slot="tooltip">
-                {{ formattedCoachNamesTooltip(classroom) }}
-              </div>
+            <span :ref="`coachNames${classroom.id}`">
+              {{ formattedCoachNames(classroom) }}
+            </span>
+            <KTooltip
+              v-if="ready && formattedCoachNamesTooltip(classroom)"
+              :reference="$refs[`coachNames${classroom.id}`][0]"
+            >
+              {{ formattedCoachNamesTooltip(classroom) }}
             </KTooltip>
           </td>
 
@@ -125,7 +126,7 @@
       UiIcon,
       KTooltip,
     },
-    data: () => ({ currentClassDelete: null }),
+    data: () => ({ currentClassDelete: null, ready: false }),
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes']),
       noClassesExist() {
@@ -135,6 +136,9 @@
       sortedClassrooms() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
+    },
+    mounted() {
+      this.ready = true;
     },
     methods: {
       ...mapActions('classManagement', ['displayModal']),

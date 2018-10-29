@@ -2,20 +2,16 @@
 
   <div>
     <div v-if="viewAllText">{{ text }}</div>
-    <KTooltip
-      v-else
-      :disabled="!tooltipText"
-    >
-      <div
-        slot="trigger"
-        ref="shaveEl"
+    <template v-else>
+      <div ref="shaveEl">{{ text }}</div>
+      <KTooltip
+        v-if="ready"
+        :reference="$refs.shaveEl"
+        :disabled="!tooltipText"
       >
-        {{ text }}
-      </div>
-      <div slot="tooltip">
         {{ tooltipText }}
-      </div>
-    </KTooltip>
+      </KTooltip>
+    </template>
     <div class="show-more">
       <KButton
         v-if="showViewMore && (textIsTruncated || viewAllText)"
@@ -71,6 +67,7 @@
       return {
         textIsTruncated: false,
         viewAllText: false,
+        ready: false,
       };
     },
     computed: {
@@ -96,6 +93,9 @@
       currentDimensions() {
         this.debouncedHandleUpdate();
       },
+    },
+    mounted() {
+      this.ready = true;
     },
     methods: {
       handleUpdate() {

@@ -1,7 +1,7 @@
 <template>
 
-  <KTooltip placement="right">
-    <div slot="trigger">
+  <div>
+    <div ref="icon">
       <mat-svg
         v-if="answer === 'right'"
         category="action"
@@ -25,10 +25,14 @@
         class="rectified"
       />
     </div>
-    <div slot="tooltip">
+    <KTooltip
+      v-if="ready"
+      :reference="$refs.icon"
+      placement="right"
+    >
       {{ tooltipText }}
-    </div>
-  </KTooltip>
+    </KTooltip>
+  </div>
 
 </template>
 
@@ -51,6 +55,11 @@
         },
       },
     },
+    data() {
+      return {
+        ready: false,
+      };
+    },
     computed: {
       tooltipText() {
         switch (this.answer) {
@@ -64,6 +73,9 @@
             return this.$tr('incorrectFirstTry');
         }
       },
+    },
+    mounted() {
+      this.ready = true;
     },
     $trs: {
       correct: 'Correct',

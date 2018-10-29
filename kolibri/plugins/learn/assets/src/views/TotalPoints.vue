@@ -1,7 +1,7 @@
 <template>
 
-  <KTooltip v-if="isUserLoggedIn">
-    <div slot="trigger" class="points">
+  <div v-if="isUserLoggedIn">
+    <div class="points" ref="icon">
       <PointsIcon class="icon" :active="true" />
       <div class="description">
         <div class="description-value">
@@ -9,10 +9,13 @@
         </div>
       </div>
     </div>
-    <div slot="tooltip">
+    <KTooltip
+      v-if="ready"
+      :reference="$refs.icon"
+    >
       {{ $tr('pointsTooltip', { points: totalPoints }) }}
-    </div>
-  </KTooltip>
+    </KTooltip>
+  </div>
 
 </template>
 
@@ -30,12 +33,20 @@
       PointsIcon,
       KTooltip,
     },
+    data() {
+      return {
+        ready: false,
+      };
+    },
     computed: {
       ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
     },
     watch: { currentUserId: 'fetchPoints' },
     created() {
       this.fetchPoints();
+    },
+    mounted() {
+      this.ready = true;
     },
     methods: {
       ...mapActions(['fetchPoints']),

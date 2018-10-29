@@ -1,0 +1,28 @@
+<template>
+
+  <div>
+    <button ref="button">Hover me</button>
+    <k-tooltip
+      v-if="ready"
+      :reference="$refs.button"
+    >
+      Content of tooltip goes here.
+    </k-tooltip>
+
+  </div>
+
+</template>
+
+
+<script>
+
+  module.exports = {
+    data: () => ({
+      ready: false,
+    }),
+    mounted() {
+      this.ready = true;
+    }
+  };
+
+</script>

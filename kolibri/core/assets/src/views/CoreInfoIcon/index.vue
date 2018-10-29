@@ -1,17 +1,21 @@
 <template>
 
-  <KTooltip :placement="tooltipPlacement">
+  <span class="pos-rel">
     <UiIcon
-      slot="trigger"
+      ref="icon"
       class="info-icon"
       :iconAriaLabel="iconAriaLabel"
     >
       <mat-svg name="info" category="action" />
     </UiIcon>
-    <div slot="tooltip">
+    <KTooltip
+      v-if="ready"
+      :reference="$refs.icon.$el"
+      :placement="tooltipPlacement"
+    >
       {{ tooltipText }}
-    </div>
-  </KTooltip>
+    </KTooltip>
+  </span>
 
 </template>
 
@@ -41,6 +45,14 @@
         required: false,
       },
     },
+    data() {
+      return {
+        ready: false,
+      };
+    },
+    mounted() {
+      this.ready = true;
+    },
   };
 
 </script>
@@ -56,6 +68,10 @@
     color: $core-accent-color;
     vertical-align: top;
     cursor: pointer;
+  }
+
+  .pos-rel {
+    position: relative;
   }
 
 </style>

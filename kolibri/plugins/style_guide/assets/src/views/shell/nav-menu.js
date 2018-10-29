@@ -17,6 +17,7 @@ import DropdownMenusPage from '../content/DropdownMenus';
 import LoadersPage from '../content/Loaders';
 import ModalsPage from '../content/Modals';
 import GridsPage from '../content/Grids';
+import TooltipsPage from '../content/Tooltips';
 
 function sortSectionItems(items) {
   return sortBy(items, [item => item.itemName]);
@@ -131,6 +132,13 @@ const navMenu = [
         itemRoute: {
           path: `/components/grids`,
           component: GridsPage,
+        },
+      },
+      {
+        itemName: 'Tooltips',
+        itemRoute: {
+          path: `/components/tooltips`,
+          component: TooltipsPage,
         },
       },
     ]),

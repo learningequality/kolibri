@@ -47,13 +47,14 @@
               />
             </td>
             <td data-test="coach-names">
-              <KTooltip :disabled="!formattedCoachNamesTooltip(classroom)">
-                <span slot="trigger">
-                  {{ formattedCoachNames(classroom) }}
-                </span>
-                <div slot="tooltip">
-                  {{ formattedCoachNamesTooltip(classroom) }}
-                </div>
+              <span :ref="`coachNames${classroom.id}`">
+                {{ formattedCoachNames(classroom) }}
+              </span>
+              <KTooltip
+                v-if="ready && formattedCoachNamesTooltip(classroom)"
+                :reference="$refs[`coachNames${classroom.id}`][0]"
+              >
+                {{ formattedCoachNamesTooltip(classroom) }}
               </KTooltip>
             </td>
             <td>{{ classroom.learner_count }}</td>
@@ -104,6 +105,11 @@
       KExternalLink,
       KTooltip,
     },
+    data() {
+      return {
+        ready: false,
+      };
+    },
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
       ...mapState(['classList']),
@@ -140,6 +146,9 @@
           return facilityUrl();
         }
       },
+    },
+    mounted() {
+      this.ready = true;
     },
     methods: {
       learnerPageLink,

@@ -1,7 +1,7 @@
 <template>
 
-  <KTooltip>
-    <span slot="trigger">
+  <div>
+    <span ref="icon">
       <UiIcon
         v-if="isInProgress"
         :ariaLabel="$tr('inProgress')"
@@ -17,11 +17,13 @@
         <mat-svg name="star" category="toggle" />
       </UiIcon>
     </span>
-    <div slot="tooltip">
+    <KTooltip
+      v-if="ready"
+      :reference="$refs.icon"
+    >
       {{ isInProgress ? $tr('inProgress') : $tr('completed') }}
-    </div>
-  </KTooltip>
-
+    </KTooltip>
+  </div>
 </template>
 
 
@@ -49,6 +51,12 @@
         },
       },
     },
+    data() {
+      return {
+        ready: false,
+      };
+    },
+
     computed: {
       isInProgress() {
         return this.progress !== null && this.progress >= 0 && this.progress < 1;
@@ -56,6 +64,9 @@
       isCompleted() {
         return this.progress >= 1;
       },
+    },
+    mounted() {
+      this.ready = true;
     },
   };
 

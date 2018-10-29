@@ -3,7 +3,7 @@
   <div>
     <Vuep
       :template="code"
-      :options="{ theme: 'mdn-like' }"
+      :options="{ theme: 'dracula' }"
     />
   </div>
 
@@ -27,6 +27,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~codemirror/theme/mdn-like.css';
+  @import '~codemirror/theme/dracula.css';
 
 </style>

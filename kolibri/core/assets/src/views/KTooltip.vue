@@ -1,23 +1,19 @@
 <template>
 
   <popper
+    :reference="reference"
     :disabled="disabled"
     :visibleArrow="false"
     :options="options"
     trigger="hover"
-    class="container d-ib"
+    class="d-b"
   >
-    <div
-      slot="reference"
-      class="d-ib"
-    >
-      <slot name="trigger"></slot>
-    </div>
     <div
       dir="auto"
       class="popper-custom-skin"
     >
-      <slot name="tooltip"></slot>
+      <!--Default slot that will contain the tooltip content.-->
+      <slot></slot>
     </div>
   </popper>
 
@@ -28,16 +24,32 @@
 
   import Popper from 'vue-popperjs';
 
+  /**
+   * Used to create a tooltip.
+   */
   export default {
     name: 'KTooltip',
     components: {
       Popper,
     },
     props: {
+      /**
+       * Element tooltip will be positioned relative to
+       */
+      reference: {
+        type: HTMLElement,
+        required: true,
+      },
+      /**
+       * Whether or not tooltip is disabled
+       */
       disabled: {
         type: Boolean,
         default: false,
       },
+      /**
+       * Placement of tooltip relative to reference element. Supports any popper.js placement string
+       */
       placement: {
         type: String,
         default: 'auto',
@@ -50,12 +62,9 @@
           modifiers: {
             preventOverflow: {
               // enabled: true,
-              escapeWithReference: true,
+              // escapeWithReference: true,
               // boundariesElement: 'viewport',
             },
-            // hide: {
-            //   enabled: false,
-            // },
           },
         };
       },
@@ -69,19 +78,10 @@
 
   @import '~kolibri.styles.definitions';
 
-  .container {
-    position: relative;
-    cursor: default;
-  }
-
-  .d-ib {
-    display: inline-block;
-  }
-
   .popper-custom-skin {
     position: absolute;
     z-index: 24;
-    display: inline-block;
+    min-width: 75px;
     padding: 8px;
     font-size: 12px;
     font-weight: normal;
@@ -92,6 +92,10 @@
     border-radius: 8px;
     box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
       0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  }
+
+  .d-b {
+    display: block;
   }
 
 </style>

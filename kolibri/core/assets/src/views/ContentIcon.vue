@@ -1,7 +1,7 @@
 <template>
 
-  <KTooltip :disabled="!tooltipText || !showTooltip">
-    <UiIcon slot="trigger">
+  <div>
+    <UiIcon ref="icon">
       <mat-svg
         v-if="is(ContentNodeKinds.CHANNEL)"
         category="navigation"
@@ -69,10 +69,13 @@
         :class="[colorClass]"
       />
     </UiIcon>
-    <div slot="tooltip">
+    <KTooltip
+      v-if="ready && (tooltipText || showTooltip)"
+      :reference="$refs.icon.$el"
+    >
       {{ tooltipText }}
-    </div>
-  </KTooltip>
+    </KTooltip>
+  </div>
 
 </template>
 
@@ -119,6 +122,11 @@
         default: false,
       },
     },
+    data() {
+      return {
+        ready: false,
+      };
+    },
     computed: {
       ContentNodeKinds() {
         return ContentNodeKinds;
@@ -145,6 +153,9 @@
         const label = kindToLabeLMap[this.kind];
         return label ? this.$tr(label) : '';
       },
+    },
+    mounted() {
+      this.ready = true;
     },
     methods: {
       is(kind) {
