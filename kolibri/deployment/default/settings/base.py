@@ -173,11 +173,11 @@ elif conf.OPTIONS['Database']['DATABASE_ENGINE'] == "postgres":
 # https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # http://helpsharepointvision.nevron.com/Culture_Table.html
 
-# Kolibri format
-KOLIBRI_SUPPORTED_LANGUAGES = i18n.get_supported_language_info(KOLIBRI_MODULE_PATH)
-
-# django-specific format
-LANGUAGES = [(lang["intl_code"], lang["language_name"]) for lang in KOLIBRI_SUPPORTED_LANGUAGES]
+# django-specific format, e.g.: [ ('bn-bd', 'বাংলা'), ('en', 'English'), ...]
+LANGUAGES = [
+    (lang["intl_code"], lang["language_name"])
+    for lang in i18n.KOLIBRI_SUPPORTED_LANGUAGES
+]
 
 # Some languages are not supported out-of-the-box by Django
 # Here, we use the language code in Intl.js

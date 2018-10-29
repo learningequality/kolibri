@@ -32,6 +32,7 @@ from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.webpack.utils import webpack_asset_render
 from kolibri.utils import conf
+from kolibri.utils import i18n
 
 register = template.Library()
 
@@ -107,7 +108,7 @@ def kolibri_language_globals(context):
     lang_dir = "rtl" if get_language_bidi() else "ltr"
 
     languages = {}
-    for lang_info in settings.KOLIBRI_SUPPORTED_LANGUAGES:
+    for lang_info in i18n.KOLIBRI_SUPPORTED_LANGUAGES:
         code = lang_info["intl_code"]
         languages[code] = {
             # Format to match the schema of the content Language model
