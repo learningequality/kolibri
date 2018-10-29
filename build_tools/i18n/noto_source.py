@@ -18,22 +18,9 @@ logging.StreamHandler(sys.stdout)
 
 
 # local paths
-FONTS_SOURCE = os.path.abspath(
-    os.path.join(
-        os.path.dirname(__file__),
-        os.pardir,
-        os.pardir,
-        "kolibri",
-        "core",
-        "assets",
-        "src",
-        "styles",
-        "fonts",
-    )
-)
+FONTS_SOURCE = os.path.abspath(os.path.join(os.path.dirname(__file__), "noto_source"))
 
-
-FONT_MANIFEST_PATH = os.path.join(FONTS_SOURCE, "noto-manifest.json")
+FONT_MANIFEST_PATH = os.path.join(FONTS_SOURCE, "manifest.json")
 with open(FONT_MANIFEST_PATH, "r") as mf:
     MANIFEST = json.load(mf)
 
@@ -45,7 +32,7 @@ KEY_BOLD_URL = "bold_url"
 FONT_MANIFEST = MANIFEST[KEY_FONTS]
 
 
-TTF_PATH = os.path.join(FONTS_SOURCE, "noto-sources")
+TTF_PATH = os.path.join(FONTS_SOURCE, "sources")
 
 # Github API object keys
 GH_NAME = "name"
