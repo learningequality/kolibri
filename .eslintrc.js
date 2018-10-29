@@ -1,4 +1,7 @@
 var path = require('path');
+var OFF = 0;
+var WARNING = 1;
+var ERROR = 2;
 
 module.exports = {
   env: {
@@ -52,9 +55,9 @@ module.exports = {
     },
   },
   rules: {
-    'comma-style': 2,
+    'comma-style': ERROR,
     'max-len': [
-      2,
+      ERROR,
       100,
       {
         ignoreStrings: true,
@@ -62,10 +65,10 @@ module.exports = {
         ignoreUrls: true,
       },
     ],
-    'vue/attribute-hyphenation': [2, 'never'],
-    'vue/require-default-prop': 0,
+    'vue/attribute-hyphenation': [ERROR, 'never'],
+    'vue/require-default-prop': OFF,
     'vue/html-self-closing': [
-      2,
+      ERROR,
       {
         html: {
           void: 'never',
@@ -77,7 +80,7 @@ module.exports = {
       },
     ],
     'vue/max-attributes-per-line': [
-      2,
+      ERROR,
       {
         singleline: 5,
         multiline: {
@@ -87,14 +90,14 @@ module.exports = {
       },
     ],
     'vue/html-closing-bracket-newline': [
-      2,
+      ERROR,
       {
         singleline: 'never',
         multiline: 'always',
       },
     ],
     'vue/component-name-in-template-casing': [
-      2,
+      ERROR,
       'PascalCase',
       {
         ignores: [
@@ -108,14 +111,14 @@ module.exports = {
         ],
       },
     ],
-    'vue/no-spaces-around-equal-signs-in-attribute': 2,
-    'import/first': 2,
-    'import/no-duplicates': 2,
-    'import/newline-after-import': 2,
-    'import/order': 2,
+    'vue/no-spaces-around-equal-signs-in-attribute': ERROR,
+    'import/first': ERROR,
+    'import/no-duplicates': ERROR,
+    'import/newline-after-import': ERROR,
+    'import/order': ERROR,
 
     // Custom vue rules
-    'kolibri/vue-filename-and-component-name-match': 2,
-    'kolibri/vue-component-registration-casing': 2,
+    'kolibri/vue-filename-and-component-name-match': ERROR,
+    'kolibri/vue-component-registration-casing': ERROR,
   },
 };
