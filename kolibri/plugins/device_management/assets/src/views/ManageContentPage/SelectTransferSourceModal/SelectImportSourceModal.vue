@@ -18,23 +18,25 @@
       {{ $tr('loadingMessage') }}
     </UiAlert>
 
-    <div v-if="!formIsDisabled">
+    <div>
       <KRadioButton
         :label="$tr('network')"
         v-model="source"
         :value="ContentSources.KOLIBRI_STUDIO"
-        :disabled="kolibriStudioIsOffline"
+        :disabled="kolibriStudioIsOffline || formIsDisabled"
         :autofocus="!kolibriStudioIsOffline"
       />
       <KRadioButton
         :label="$tr('localNetworkOrInternet')"
         v-model="source"
         :value="ContentSources.PEER_KOLIBRI_SERVER"
+        :disabled="formIsDisabled"
       />
       <KRadioButton
         :label="$tr('localDrives')"
         v-model="source"
         :value="ContentSources.LOCAL_DRIVE"
+        :disabled="formIsDisabled"
       />
     </div>
   </KModal>
