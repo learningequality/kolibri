@@ -256,11 +256,23 @@ Download command
 """
 
 
+def _wipe_translations(locale_path):
+    for file_name in os.listdir(locale_path):
+        target = os.path.join(locale_path, file_name)
+        if file_name != "en" and os.path.isdir(target):
+            shutil.rmtree(target)
+
+
 def command_download(branch):
     """
     Downloads and updates the local translation files from the given branch on Crowdin
     """
     logging.info("Crowdin: downloading '{}'...".format(branch))
+
+    # delete previous files
+    _wipe_translations(utils.LOCALE_PATH)
+    _wipe_translations(utils.PERSEUS_LOCALE_PATH)
+
     for lang in utils.supported_languages(include_in_context=True):
         code = lang[utils.KEY_CROWDIN_CODE]
         url = DOWNLOAD_URL.format(language=code, branch=branch)
