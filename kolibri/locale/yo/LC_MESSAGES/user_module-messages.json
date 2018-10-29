@@ -13,9 +13,9 @@
     "ProfilePage.username": "Orúkọ aṣàmúlò",
     "ProfilePage.name": "Orúko ní kíkún",
     "ProfilePage.updateProfile": "Ṣe àpamọ́ ìyípadà",
-    "ProfilePage.isSuperuser": "",
+    "ProfilePage.isSuperuser": "Ẹ̀tọ́ alábòójútó tó ga jù ",
     "ProfilePage.manageContent": "Ṣàkóso àkoonú",
-    "ProfilePage.manageDevicePermissions": "",
+    "ProfilePage.manageDevicePermissions": "Ṣàyẹ̀wò ohun èlò tó ò ń lò níbí",
     "ProfilePage.points": "Àwọn kókó",
     "ProfilePage.userType": "Irúfẹ́ olùṣàmúlò",
     "ProfilePage.devicePermissions": "Àwọn àṣẹ tí ohun elo",
@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "A nílò ọ̀rọ̀ aṣínà fún àwọn olùkọ́ àti alákóso",
     "SignInPage.usernameNotAlphaNumUnderscore": "Orúkọ olùṣàmúlò gbọ́dọ̀ ní àwọn lẹ́tà, nọ́ḿbà, àti ìlà abẹ́ nìkan",
     "SignInPage.documentTitle": "Ìwọlé aṣàmúlò",
+    "SignInPage.privacyLink": "Ìlò ati Ìpamọ́",
     "SignUpPage.createAccount": "Ṣẹ̀dá Àkọọ́lẹ̀",
     "SignUpPage.name": "Orúko ní kíkún",
     "SignUpPage.username": "Orúkọ àmúlò",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "Ohun èlò",
     "SignUpPage.required": "A nilo pápá yìí",
     "SignUpPage.documentTitle": "Forúkọsílẹ̀ aṣàmúlò",
+    "SignUpPage.privacyLink": "Lilo ati ipamo lori Kolibri",
     "UserIndex.userProfileTitle": "Ìrísí olùṣàmúlò"
 }

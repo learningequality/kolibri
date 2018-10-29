@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "Pasiwedi ya makochi ndi ma adimini ikufunika",
     "SignInPage.usernameNotAlphaNumUnderscore": "Dzina lolowera liyenera kukhala ndi zilembo, manambala komanso ma andasikolo",
     "SignInPage.documentTitle": "Lowani",
+    "SignInPage.privacyLink": "Kagwiritsidwe ntchito komanso zokhudza kusunga chinsinsi",
     "SignUpPage.createAccount": "Pangani Akaunti",
     "SignUpPage.name": "Dzina lonse",
     "SignUpPage.username": "Dzina lolowera",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "Bungwe",
     "SignUpPage.required": "Izi zikufunika",
     "SignUpPage.documentTitle": "Tembetsani",
+    "SignUpPage.privacyLink": "Zokhudza kagwiritsidwe ntchito komanso kusunga chinsinsi pa Kolibri",
     "UserIndex.userProfileTitle": "Pulofailo"
 }

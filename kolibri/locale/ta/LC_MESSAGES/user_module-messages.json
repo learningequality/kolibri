@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "பயிற்றுநர்களுக்கு மற்றும் நிர்வாகிகளுக்கு கடவுச்சொல் கண்டிப்பாக தேவை",
     "SignInPage.usernameNotAlphaNumUnderscore": "பயனர்பெயர் எழுத்துக்கள், எண்கள் மற்றும் அடிக்கோடுகளை மட்டும் கொண்டிருக்கலாம்",
     "SignInPage.documentTitle": "பயனர் உள்நுழைதல்",
+    "SignInPage.privacyLink": "",
     "SignUpPage.createAccount": "ஒரு கணக்கை உருவாக்கவும்",
     "SignUpPage.name": "முழுப்பெயர்",
     "SignUpPage.username": "பயனர் பெயர்",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "மய்யம்",
     "SignUpPage.required": "இந்தப் விவரம் கண்டிப்பாக தேவை",
     "SignUpPage.documentTitle": "பயனர் பதிவு",
+    "SignUpPage.privacyLink": "",
     "UserIndex.userProfileTitle": "சுயவிவரம்"
 }

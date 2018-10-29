@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "رمز عبور برای آموزگاران، مربیان و مدیران لازم است",
     "SignInPage.usernameNotAlphaNumUnderscore": "نام کاربری فقط می‌تواند شامل حروف و اعداد و زیرین‌خط یا آندِرلاین باشد",
     "SignInPage.documentTitle": "ورود به سیستم کاربر",
+    "SignInPage.privacyLink": "استفاده و حفظ حریم خصوصی",
     "SignUpPage.createAccount": "ایجاد یک حساب کاربری",
     "SignUpPage.name": "نام کامل",
     "SignUpPage.username": "نام کاربری",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "مرکز آموزشی",
     "SignUpPage.required": "پُر کردن این قسمت ضروری است",
     "SignUpPage.documentTitle": "خروج از سیستم کاربر",
+    "SignUpPage.privacyLink": "استفاده و حفظ حریم خصوصی در Kolibri",
     "UserIndex.userProfileTitle": "پروفایل"
 }
