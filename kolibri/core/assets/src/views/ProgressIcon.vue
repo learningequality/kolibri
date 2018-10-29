@@ -24,6 +24,7 @@
       {{ isInProgress ? $tr('inProgress') : $tr('completed') }}
     </KTooltip>
   </div>
+
 </template>
 
 
