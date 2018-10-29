@@ -124,13 +124,12 @@ class ImportContentTestCase(TestCase):
         annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
         annotation_mock.recurse_availability_up_tree.assert_not_called()
 
-    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.start_progress')
     @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url')
     @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path')
     @patch('kolibri.core.content.management.commands.importcontent.transfer.FileDownload')
     @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel')
     @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, True, True, True, True])
-    def test_remote_cancel_during_transfer(self, is_cancelled_mock, cancel_mock, FileDownloadMock, local_path_mock, remote_path_mock, start_progress_mock,
+    def test_remote_cancel_during_transfer(self, is_cancelled_mock, cancel_mock, FileDownloadMock, local_path_mock, remote_path_mock,
                                            annotation_mock):
         # If transfer is cancelled during transfer of first file
         local_path = tempfile.mkstemp()[1]
@@ -153,7 +152,6 @@ class ImportContentTestCase(TestCase):
         annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
         annotation_mock.recurse_availability_up_tree.assert_not_called()
 
-    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.start_progress')
     @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url')
     @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path')
     @patch('kolibri.core.content.management.commands.importcontent.transfer.FileDownload')
@@ -161,7 +159,7 @@ class ImportContentTestCase(TestCase):
     @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled',
            side_effect=[False, False, False, False, False, True, True, True])
     def test_remote_cancel_after_file_copy_file_not_deleted(self, is_cancelled_mock, cancel_mock, FileDownloadMock, local_path_mock, remote_path_mock,
-                                                            start_progress_mock, annotation_mock):
+                                                            annotation_mock):
         # If transfer is cancelled after transfer of first file
         local_path_1 = tempfile.mkstemp()[1]
         local_path_2 = tempfile.mkstemp()[1]
@@ -192,12 +190,11 @@ class ImportContentTestCase(TestCase):
         annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
         annotation_mock.recurse_availability_up_tree.assert_not_called()
 
-    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.start_progress')
     @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path')
     @patch('kolibri.core.content.management.commands.importcontent.transfer.FileCopy')
     @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel')
     @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, True, True, True, True])
-    def test_local_cancel_during_transfer(self, is_cancelled_mock, cancel_mock, FileCopyMock, local_path_mock, start_progress_mock, annotation_mock):
+    def test_local_cancel_during_transfer(self, is_cancelled_mock, cancel_mock, FileCopyMock, local_path_mock, annotation_mock):
         # Local version of test above
         local_dest_path = tempfile.mkstemp()[1]
         local_src_path = tempfile.mkstemp()[1]
@@ -225,13 +222,13 @@ class ImportContentTestCase(TestCase):
         annotation_mock.annotate_content.assert_called()
 
     @patch('kolibri.core.content.management.commands.importcontent.logger.error')
-    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.start_progress')
     @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path')
-    def test_remote_import_httperror_404(self, path_mock, start_progress_mock, logger_mock, annotation_mock):
+    def test_remote_import_httperror_404(self, path_mock, logger_mock, annotation_mock):
         local_dest_path_1 = tempfile.mkstemp()[1]
         local_dest_path_2 = tempfile.mkstemp()[1]
         local_dest_path_3 = tempfile.mkstemp()[1]
         path_mock.side_effect = [local_dest_path_1, local_dest_path_2, local_dest_path_3]
+        LocalFile.objects.filter(files__contentnode__pk='2b6926ed22025518a8b9da91745b51d3').update(file_size=1)
         call_command('importcontent', 'network', self.the_channel_id, node_ids=['2b6926ed22025518a8b9da91745b51d3'], renderable_only=False)
         self.assertTrue(logger_mock.call_count == 3)
         self.assertTrue('404' in logger_mock.call_args_list[0][0][0])
@@ -259,13 +256,13 @@ class ImportContentTestCase(TestCase):
         annotation_mock.annotate_content.assert_called()
 
     @patch('kolibri.core.content.management.commands.importcontent.logger.error')
-    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.start_progress')
     @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path')
     @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel')
     @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, True, True, True])
-    def test_local_import_oserror_dne(self, is_cancelled_mock, cancel_mock, path_mock, start_progress_mock, logger_mock, annotation_mock):
+    def test_local_import_oserror_dne(self, is_cancelled_mock, cancel_mock, path_mock, logger_mock, annotation_mock):
         dest_path = tempfile.mkstemp()[1]
         path_mock.side_effect = [dest_path, '/test/dne']
+        LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
         call_command('importcontent', 'disk', self.the_channel_id, 'destination')
         self.assertTrue('No such file or directory' in logger_mock.call_args_list[0][0][0])
         annotation_mock.annotate_content.assert_called()

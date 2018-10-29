@@ -18,7 +18,7 @@ Most of the steps below require entering commands into your Terminal (Linux, Mac
 Git & GitHub
 ~~~~~~~~~~~~
 
-#. Install and set-up `Git <https://help.github.com/articles/set-up-git/>`__ on your computer. Try this `tutorial <http://learngitbranching.js.org/>`__ if you need more practice with Git!
+#. Install and set up `Git <https://help.github.com/articles/set-up-git/>`__ on your computer. Try this `tutorial <http://learngitbranching.js.org/>`__ if you need more practice with Git!
 #. `Sign up and configure your GitHub account <https://github.com/join>`__ if you don't have one already.
 #. `Fork the main Kolibri repository <https://github.com/learningequality/kolibri>`__. This will make it easier to `submit pull requests <https://help.github.com/articles/using-pull-requests/>`__. Read more details `about forking <https://help.github.com/articles/fork-a-repo/>`__ from GitHub.
 
@@ -30,6 +30,7 @@ Install environment dependencies
 #. Install `pip <https://pypi.python.org/pypi/pip>`__ package installer.
 #. Install `Node.js <https://nodejs.org/en/>`__ (version 6 is required).
 #. Install `Yarn <https://yarnpkg.com/>`__ according the `instructions specific for your OS <https://yarnpkg.com/en/docs/install/>`__.
+#. Install and set up the `Git LFS extension <https://git-lfs.github.com/>`__. Remember to initialize with ``git lfs install`` after installing.
 
 .. note::
   Installing Node.js version 6.x:
@@ -39,7 +40,7 @@ Install environment dependencies
 
    .. code-block:: bash
 
-     # Add apt sources from nodesource.com  
+     # Add apt sources from nodesource.com
      curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
      # Verify the latest version 6 of nodejs
      apt-cache showpkg nodejs-legacy

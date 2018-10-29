@@ -32,6 +32,7 @@ from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.webpack.utils import webpack_asset_render
 from kolibri.utils import conf
+from kolibri.utils import i18n
 
 register = template.Library()
 
@@ -98,29 +99,31 @@ def kolibri_language_globals(context):
       var languages = JSON.parse('{languages}');
       var useModernFontLoading = {use_modern};
     </script>
-    {master_css_file}
-    <link type="text/css" href="{lang_css_file}" rel="stylesheet"/>
+    <link type="text/css" href="{common_css_file}" rel="stylesheet"/>
+    <link type="text/css" href="{subset_css_file}" rel="stylesheet"/>
+    <link type="text/css" href="{full_css_file}" rel="stylesheet"/>
     """
 
     language_code = get_language()
     lang_dir = "rtl" if get_language_bidi() else "ltr"
-    languages = {
-        code: {
+
+    languages = {}
+    for lang_info in i18n.KOLIBRI_SUPPORTED_LANGUAGES:
+        code = lang_info["intl_code"]
+        languages[code] = {
             # Format to match the schema of the content Language model
             "id": code,
-            "lang_name": name,
+            "lang_name": lang_info["language_name"],
+            "english_name": lang_info["english_name"],
             "lang_direction": get_language_info(code)["bidi"],
         }
-        for code, name in settings.LANGUAGES
-    }
-    is_modern = _supports_modern_fonts(context['request'])
-    master_file = '<link type="text/css" href="{}" rel="stylesheet"/>'.format(
-        static('assets/fonts/all-fonts.css')
-    )
-    lang_file = static(
-        'assets/fonts/fonts.{code}.{browser_type}.css'.format(
-            code=language_code,
-            browser_type='modern' if is_modern else 'basic'
+
+    common_file = static("assets/fonts/noto-common.css")
+    subset_file = static("assets/fonts/noto-subset.{}.css".format(language_code))
+    is_modern = _supports_modern_fonts(context["request"])
+    full_file = static(
+        "assets/fonts/noto-full.{}.{}.css".format(
+            language_code, "modern" if is_modern else "basic"
         )
     )
 
@@ -130,8 +133,9 @@ def kolibri_language_globals(context):
             lang_dir=lang_dir,
             languages=json.dumps(languages),
             use_modern="true" if is_modern else "false",
-            master_css_file=master_file if is_modern else "",
-            lang_css_file=lang_file,
+            common_css_file=common_file,
+            subset_css_file=subset_file,
+            full_css_file=full_file,
         )
     )
 

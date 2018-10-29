@@ -18,7 +18,7 @@
     <KTextbox
       ref="titleField"
       v-model="title"
-      :label="$tr('lessonTitlePlaceholder')"
+      :label="$tr('titlePlaceholder')"
       :maxlength="50"
       :autofocus="true"
       :invalid="titleIsInvalid"
@@ -141,7 +141,7 @@
         const unsharedIds = xor(this.selectedCollectionIds, this.initialSelectedCollectionIds);
         return unsharedIds.length > 0;
       },
-      lessonDetailsHaveChanged() {
+      detailsHaveChanged() {
         return (
           this.initialTitle !== this.title ||
           this.initialDescription !== this.description ||
@@ -160,7 +160,7 @@
 
         if (this.formIsValid) {
           this.formIsSubmitted = true;
-          if (!this.lessonDetailsHaveChanged) {
+          if (!this.detailsHaveChanged) {
             this.closeModal();
             return;
           }
@@ -190,7 +190,7 @@
       description: 'Description',
       fieldRequiredErro: 'This field is required',
       save: 'Save',
-      lessonTitlePlaceholder: 'Lesson title',
+      titlePlaceholder: 'Title',
       assignedGroupsLabel: 'Visible to',
     },
   };

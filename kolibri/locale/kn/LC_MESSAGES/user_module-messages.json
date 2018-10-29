@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "ತರಬೇತುದಾರರು ಮತ್ತು ನಿರ್ವಾಹಕರಿಗೆ ಪಾಸ್‌ವರ್ಡ್‌ ಅಗತ್ಯ",
     "SignInPage.usernameNotAlphaNumUnderscore": "ಬಳಕೆದಾರಹೆಸರು ಅಕ್ಷರಗಳು, ಸಂಖ್ಯೆಗಳು ಮತ್ತು ಅಂಡರ್‌ಸ್ಕೋರ್‌ಗಳನ್ನು ಮಾತ್ರ ಒಳಗೊಂಡಿರಬಹುದು",
     "SignInPage.documentTitle": "ಬಳಕೆದಾರ ಸೈನ್ ಇನ್",
+    "SignInPage.privacyLink": "ಬಳಕೆ ಮತ್ತು ಗೌಪ್ಯತೆ",
     "SignUpPage.createAccount": "ಒಂದು ಖಾತೆಯನ್ನು ರಚಿಸಿ",
     "SignUpPage.name": "ಪೂರ್ಣ ಹೆಸರು",
     "SignUpPage.username": "ಬಳಕೆದಾರಹೆಸರು",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "ಸೌಲಭ್ಯ",
     "SignUpPage.required": "ಈ ಪ್ರದೇಶ ಅಗತ್ಯ",
     "SignUpPage.documentTitle": "ಬಳಕೆದಾರ ಸೈನ್ ಅಪ್",
+    "SignUpPage.privacyLink": "",
     "UserIndex.userProfileTitle": "ಪ್ರೊಫೈಲ್"
 }

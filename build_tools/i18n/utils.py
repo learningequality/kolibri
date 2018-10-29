@@ -37,6 +37,7 @@ if not (os.path.exists(PERSEUS_LOCALE_PATH)):
     sys.exit(1)
 
 
+# Keys used in supported_languages.json
 KEY_CROWDIN_CODE = "crowdin_code"
 KEY_INTL_CODE = "intl_code"
 KEY_LANG_NAME = "language_name"
@@ -55,12 +56,16 @@ IN_CTXT_LANG = {
 def to_locale(language):
     """
     Turns a language name (en-us) into a locale name (en_US).
+    Logic is derived from Django so be careful about changing it.
     """
-    p = language.find('-')
+    p = language.find("-")
     if p >= 0:
-        if len(language[p + 1:]) > 2:
-            return language[:p].lower() + '_' + language[p + 1].upper() + language[p + 2:].lower()
-        return language[:p].lower() + '_' + language[p + 1:].upper()
+        if len(language[p + 1 :]) > 2:
+            return "{}_{}".format(
+                language[:p].lower(),
+                language[p + 1].upper() + language[p + 2 :].lower(),
+            )
+        return "{}_{}".format(language[:p].lower(), language[p + 1 :].upper())
     else:
         return language.lower()
 
@@ -93,9 +98,13 @@ def supported_languages(include_in_context=False, include_english=False):
 
 @memoize
 def local_locale_path(lang_object):
-    return os.path.join(LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES")
+    return os.path.join(
+        LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
+    )
 
 
 @memoize
 def local_perseus_locale_path(lang_object):
-    return os.path.join(PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES")
+    return os.path.join(
+        PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
+    )

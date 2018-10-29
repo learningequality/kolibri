@@ -137,7 +137,7 @@
     &::after {
       margin-right: 8px;
       margin-left: 8px;
-      content: '\203A';
+      content: '›';
     }
   }
 
