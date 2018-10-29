@@ -94,7 +94,6 @@
       title: 'Recent activity',
       name: 'Title',
       progress: 'Class progress',
-      reportProgress: '{completed} {descriptor}',
       listened: '{proportionCompleted} listened',
       opened: '{proportionCompleted} opened',
       watched: '{proportionCompleted} watched',
