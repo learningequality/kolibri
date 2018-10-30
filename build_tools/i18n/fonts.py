@@ -580,7 +580,11 @@ def main():
     subparsers.add_parser(
         "update-font-manifest",
         help="Update manifest from https://github.com/googlei18n/noto-fonts/",
-    ).add_argument("ref", help="Github reference, e.g. commit or tag", type=str)
+    ).add_argument(
+        "--ref",
+        help="Github reference, e.g. commit or tag. Defaults to head of master.",
+        type=str,
+    )
 
     subparsers.add_parser(
         "download-source-fonts",
