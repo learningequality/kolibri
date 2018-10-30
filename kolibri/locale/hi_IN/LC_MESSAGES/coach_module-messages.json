@@ -311,7 +311,7 @@
   "MoveLearnersModal.ungrouped": "असमूहीकृत",
   "NavTitle.coach": "कोच: {name}",
   "NavTitle.coachPageHeader": "कक्षाएँ",
-  "NavTitle.coachesLabel": "{count, plural, one {Coach} other {Coaches}}:",
+  "NavTitle.coachesLabel": "{count, plural, one {कोच} other {कोच}}:",
   "PreviewExamModal.close": "बंद (close)",
   "PreviewExamModal.exercise": "अभ्यास{ num }",
   "PreviewExamModal.numQuestions": "{num} {num, plural, one {प्रश्न } other {प्रश्न}}",

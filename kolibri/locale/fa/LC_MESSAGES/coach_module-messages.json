@@ -311,7 +311,7 @@
   "MoveLearnersModal.ungrouped": "گروه‌بندی نشده",
   "NavTitle.coach": "نام معلم: {name}",
   "NavTitle.coachPageHeader": "کلاس‌ها",
-  "NavTitle.coachesLabel": "{count, plural, one {Coach} other {Coaches}}:",
+  "NavTitle.coachesLabel": "{count, plural, one {معلم} other {معلم‌ها}}:",
   "PreviewExamModal.close": "بستن",
   "PreviewExamModal.exercise": "تمرین { num }",
   "PreviewExamModal.numQuestions": "{num} {num, plural, one {سوال} other {سوال}}",

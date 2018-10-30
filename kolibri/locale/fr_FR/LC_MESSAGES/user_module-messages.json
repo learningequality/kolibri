@@ -51,7 +51,7 @@
   "SignUpPage.name": "Nom complet",
   "SignUpPage.password": "Mot de passe",
   "SignUpPage.passwordMatchError": "Les mots de passe ne sont pas identiques",
-  "SignUpPage.privacyLink": "",
+  "SignUpPage.privacyLink": "Utilisation et confidentialité dans Kolibri",
   "SignUpPage.reEnterPassword": "Ressaisir le mot de passe",
   "SignUpPage.required": "Ce champ est requis",
   "SignUpPage.username": "Nom d'utilisateur",
