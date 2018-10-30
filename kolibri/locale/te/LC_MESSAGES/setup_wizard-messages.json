@@ -25,7 +25,7 @@
   "LoadingPage.loadingPageSubheader": "దయచేసి సహనంగా ఉండండి. సెటప్‌కు అనేక నిమిషాల సమయం పడుతుంది",
   "PersonalDataConsentForm.description": "ఇతరులు కూడా Kolibriని ఉపయోగించేలా మీరు సెటప్ చేస్తున్నట్లయితే, మీరు లేదా మీరు అనుమతించిన మరెవరైనా ఈ పరికరంలో భద్రపరచబడిన వినియోగదారు ఖాతాలు మరియు వ్యక్తిగత సమాచారాన్ని రక్షించడం మరియు నిర్వహించడం వంటి వాటికి బాధ్యత వహించవలసి ఉంటుంది.",
   "PersonalDataConsentForm.header": "నిర్వాహకునిగా బాధ్యతలు",
-  "PersonalDataConsentForm.moreInfo": "",
+  "PersonalDataConsentForm.moreInfo": "మరింత సమాచారం",
   "ProgressToolbar.progressIndicator": "{totalSteps, number}లో {currentStep, number}వ దశ",
   "RequirePasswordForLearnersForm.header": "అభ్యాసకుల ఖాతాలకు పాస్‌‌వర్డ్‌లను ప్రారంభించమంటారా?",
   "RequirePasswordForLearnersForm.noOptionLabel": "వద్దు. అభ్యాసకుల ఖాతాలు కేవలం వినియోగదారు పేరుని ఉపయోగించి సైన్ ఇన్ చేయవచ్చు",

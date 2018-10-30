@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-17 17:16-0700\n"
-"PO-Revision-Date: 2018-10-25 02:10\n"
+"POT-Creation-Date: 2018-10-25 15:19-0700\n"
+"PO-Revision-Date: 2018-10-30 22:06\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Bengali\n"
 "Language: bn_BD\n"
@@ -32,7 +32,7 @@ msgstr "শিক্ষার্থী দল"
 msgid "Content"
 msgstr "বিষয়বস্তু"
 
-#: kolibri/core/content/api.py:672
+#: kolibri/core/content/api.py:715
 msgid "The requested channel does not exist on the content server"
 msgstr "এই চ্যানেলের বিষয়বস্তু সার্ভারে বিদ্যমান নয়"
 

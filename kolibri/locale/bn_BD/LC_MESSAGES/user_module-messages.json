@@ -51,7 +51,7 @@
   "SignUpPage.name": "পুরো নাম",
   "SignUpPage.password": "পাসওয়ার্ড",
   "SignUpPage.passwordMatchError": "পাসওয়ার্ড মিলছে না",
-  "SignUpPage.privacyLink": "",
+  "SignUpPage.privacyLink": "কলিব্রির ব্যবহার ও গোপনীয়তা",
   "SignUpPage.reEnterPassword": "পাসওয়ার্ড আবার লিখুন",
   "SignUpPage.required": "এই ঘরটি পূরণ করা আবশ্যক",
   "SignUpPage.username": "ব্যবহারকারী নাম",

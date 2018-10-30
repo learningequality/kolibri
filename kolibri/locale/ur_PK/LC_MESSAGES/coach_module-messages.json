@@ -311,7 +311,7 @@
   "MoveLearnersModal.ungrouped": "بغیر گرووپ",
   "NavTitle.coach": "کوچ: {name}",
   "NavTitle.coachPageHeader": "کلاسیں",
-  "NavTitle.coachesLabel": "{count, plural, one {Coach} other {Coaches}}:",
+  "NavTitle.coachesLabel": "{count, plural, one {کوچ} other {کوچ}}:",
   "PreviewExamModal.close": "بند کریں",
   "PreviewExamModal.exercise": "مشق { num }",
   "PreviewExamModal.numQuestions": "{num, plural, one {سوال} other {سوالات}}",

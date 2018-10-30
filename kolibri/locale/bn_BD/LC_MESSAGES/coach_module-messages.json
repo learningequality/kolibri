@@ -311,7 +311,7 @@
   "MoveLearnersModal.ungrouped": "দলভুক্ত নয়",
   "NavTitle.coach": "প্রশিক্ষক: {name}",
   "NavTitle.coachPageHeader": "শ্রেণী",
-  "NavTitle.coachesLabel": "{count, plural, one {Coach} other {Coaches}}:",
+  "NavTitle.coachesLabel": "{count, plural, one {প্রশিক্ষক} other {প্রশিক্ষক}}:",
   "PreviewExamModal.close": "বন্ধ করুন",
   "PreviewExamModal.exercise": "অনুশীলনী { num }",
   "PreviewExamModal.numQuestions": "{num} {num, plural, one {টি প্রশ্ন} other {টি প্রশ্ন}}",

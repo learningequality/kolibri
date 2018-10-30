@@ -184,7 +184,7 @@
   "LearnerExerciseReport.question": "Ìbéèrè { questionNumber, number }",
   "LearnerExerciseReport.showCorrectAnswerLabel": "Fi ìdáhùn tó tọ̀nà hàn",
   "LearnerListPage.channelIconColumnHeader": "Àwòrán asàmì ìkànnì",
-  "LearnerListPage.contentCountText": "{count, number, integer} {count, plural, one {resource} other {resources}}",
+  "LearnerListPage.contentCountText": "{count, number, integer} {count, plural, one {ohun elo} other {ohun elo}}",
   "LearnerListPage.contentProgress": "Ìtẹsiwájú Itilẹhin",
   "LearnerListPage.documentTitleForLearners": "Àwọn Akẹ́kọ̀ọ́",
   "LearnerListPage.documentTitleForRecentItems": "Àwọn akẹkọ - Láìpẹ",
