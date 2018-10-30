@@ -120,16 +120,9 @@
 </script>
 
 
-<style lang="scss" scoped>
+<style lang="scss">
 
+  // Include pure-css definitions globally (unscoped)
   @import '~purecss/build/grids-core.css';
-  @import '~purecss/build/grids-units.css';
-  @import './extra-units.css';
-  @import '~kolibri.styles.definitions';
-
-  /deep/ .pure-g,
-  /deep/ .pure-g [class*='pure-u'] {
-    @include font-family-ui;
-  }
 
 </style>

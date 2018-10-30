@@ -77,7 +77,7 @@ kolibri/**/build/*
 kolibri/**/static/*
 js-dist
 
-# allow static assets to be checked in
+# Allow static assets to be checked in. For large binary files, use Git LFS
 !kolibri/**/static/assets/
 !kolibri/**/static/assets/*
 !kolibri/**/static/assets/**/*

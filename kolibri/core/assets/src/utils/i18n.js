@@ -187,6 +187,11 @@ function _loadDefaultFonts() {
    *
    * This prevents the text from being invisible while the fonts are loading ("FOIT")
    * and instead falls back on system fonts while they're loading ("FOUT").
+   *
+   * We need to do this even for 'modern' browsers, because not all browsers implement
+   * fall-back behaviors of the font stacks correctly. See:
+   *
+   *    https://bugs.chromium.org/p/chromium/issues/detail?id=897539
    */
 
   // We use the <html> element to store the CSS 'loaded' class
@@ -195,27 +200,12 @@ function _loadDefaultFonts() {
   const PARTIAL_FONTS = 'partial-fonts-loaded';
   htmlEl.classList.add(PARTIAL_FONTS);
 
-  // If this is a modern browser, go ahead and immediately reference the full fonts.
-  // Then, continue pre-emptively loading the full default language fonts below.
-  if (global.useModernFontLoading) {
-    htmlEl.classList.remove(PARTIAL_FONTS);
-    htmlEl.classList.add(FULL_FONTS);
-  }
+  const uiNormal = new FontFaceObserver('noto-full', { weight: 400 });
+  const uiBold = new FontFaceObserver('noto-full', { weight: 700 });
 
-  const language = availableLanguages[currentLanguage];
-
-  const uiNormal = new FontFaceObserver('noto-ui-full', { weight: 400 });
-  const uiBold = new FontFaceObserver('noto-ui-full', { weight: 700 });
-  const contentNormal = new FontFaceObserver('noto-content-full', { weight: 400 });
-  const contentBold = new FontFaceObserver('noto-content-full', { weight: 700 });
-
-  // passing 'language_name' to 'load' for its glyphs, not its value per se
-  Promise.all([
-    uiNormal.load(language.language_name, 20000),
-    uiBold.load(language.language_name, 20000),
-    contentNormal.load(language.language_name, 20000),
-    contentBold.load(language.language_name, 20000),
-  ])
+  // passing the language name to 'load' for its glyphs, not its value per se
+  const string = availableLanguages[currentLanguage].lang_name;
+  Promise.all([uiNormal.load(string, 20000), uiBold.load(string, 20000)])
     .then(function() {
       htmlEl.classList.remove(PARTIAL_FONTS);
       htmlEl.classList.add(FULL_FONTS);

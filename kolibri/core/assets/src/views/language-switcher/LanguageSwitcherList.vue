@@ -12,13 +12,14 @@
       />
     </UiIconButton>
 
-    <span class="selected">
-      {{ selectedLanguage }}
+    <span class="selected" :title="selectedLanguage.english_name">
+      {{ selectedLanguage.lang_name }}
     </span>
     <KButton
       v-for="language in buttonLanguages"
       :key="language.id"
       :text="language.lang_name"
+      :title="language.english_name"
       class="lang"
       appearance="basic-link"
       @click="switchLanguage(language.id)"
@@ -67,7 +68,7 @@
     },
     computed: {
       selectedLanguage() {
-        return availableLanguages[currentLanguage].lang_name;
+        return availableLanguages[currentLanguage];
       },
       numVisibleLanguages() {
         if (this.windowBreakpoint <= 2) {
@@ -93,6 +94,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+  @import './language-names';
 
   .globe {
     position: relative;
@@ -105,6 +107,8 @@
   }
 
   .lang {
+    @include font-family-language-names;
+
     margin-right: 8px;
     margin-left: 8px;
   }

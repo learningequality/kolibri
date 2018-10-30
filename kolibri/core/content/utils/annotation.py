@@ -286,17 +286,21 @@ def topic_coach_content_annotation(channel_id):
     bridge.end()
 
 
+def update_content_metadata(channel_id):
+    set_leaf_node_availability_from_local_file_availability(channel_id)
+    recurse_availability_up_tree(channel_id)
+    topic_coach_content_annotation(channel_id)
+    calculate_channel_fields(channel_id)
+    ContentCacheKey.update_cache_key()
+
+
 def annotate_content(channel_id, checksums=None):
     if checksums is None:
         set_local_file_availability_from_disk()
     else:
         mark_local_files_as_available(checksums)
 
-    set_leaf_node_availability_from_local_file_availability(channel_id)
-    recurse_availability_up_tree(channel_id)
-    topic_coach_content_annotation(channel_id)
-    calculate_channel_fields(channel_id)
-    ContentCacheKey.update_cache_key()
+    update_content_metadata(channel_id)
 
 
 def calculate_channel_fields(channel_id):

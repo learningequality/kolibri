@@ -10,30 +10,33 @@
     @cancel="resetContentWizardState"
   >
     <UiAlert
-      v-if="formIsDisabled"
+      v-if="formIsDisabled && !initialDelay"
       type="info"
       :dismissible="false"
+      class="delay"
     >
       {{ $tr('loadingMessage') }}
     </UiAlert>
 
-    <div v-else>
+    <div>
       <KRadioButton
         v-model="source"
         :label="$tr('network')"
         :value="ContentSources.KOLIBRI_STUDIO"
-        :disabled="kolibriStudioIsOffline"
+        :disabled="kolibriStudioIsOffline || formIsDisabled"
         :autofocus="!kolibriStudioIsOffline"
       />
       <KRadioButton
         v-model="source"
         :label="$tr('localNetworkOrInternet')"
         :value="ContentSources.PEER_KOLIBRI_SERVER"
+        :disabled="formIsDisabled"
       />
       <KRadioButton
         v-model="source"
         :label="$tr('localDrives')"
         :value="ContentSources.LOCAL_DRIVE"
+        :disabled="formIsDisabled"
       />
     </div>
   </KModal>
@@ -60,6 +63,7 @@
     data() {
       return {
         source: ContentSources.KOLIBRI_STUDIO,
+        initialDelay: true, // hide everything for a second to prevent flicker
         formIsDisabled: true,
         kolibriStudioIsOffline: false,
         ContentSources,
@@ -69,6 +73,9 @@
       ...mapGetters('manageContent/wizard', ['isImportingMore']),
     },
     created() {
+      setTimeout(() => {
+        this.initialDelay = false;
+      }, 1000);
       RemoteChannelResource.getKolibriStudioStatus().then(({ entity }) => {
         if (entity.status === 'offline') {
           this.source = ContentSources.PEER_KOLIBRI_SERVER;

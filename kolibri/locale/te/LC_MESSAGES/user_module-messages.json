@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "శిక్షకులు మరియు నిర్వాహకుల కోసం పాస్‌వర్డ్ అవసరం అవుతుంది",
     "SignInPage.usernameNotAlphaNumUnderscore": "వినియోగదారు పేరులో కేవలం అక్షరాలు, నంబర్‌లు, మరియు అండర్‌స్కోర్‌లు మాత్రమే ఉండవచ్చు",
     "SignInPage.documentTitle": "వినియోగదారు సైన్ ఇన్",
+    "SignInPage.privacyLink": "వినియోగం మరియు గోప్యత",
     "SignUpPage.createAccount": "ఖాతాని సృష్టించండి",
     "SignUpPage.name": "ఫుల్ నామ",
     "SignUpPage.username": "వాడుకరి పేరు",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "సౌకర్యం",
     "SignUpPage.required": "ఈ ఫీల్డ్ ఆవశ్యకం",
     "SignUpPage.documentTitle": "వినియోగదారు సైన్ అప్",
+    "SignUpPage.privacyLink": "",
     "UserIndex.userProfileTitle": "ప్రొఫైల్"
 }

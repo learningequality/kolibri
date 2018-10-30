@@ -1,6 +1,6 @@
 {
     "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Nywila imebadilishwa",
-    "UserPageSnackbars.dismiss": "Fukuza",
+    "UserPageSnackbars.dismiss": "Ondoa",
     "UserPageSnackbars.signedOut": "Umetolewa moja kwa moja kwa kutotumia",
     "ChangeUserPasswordModal.passwordChangeFormHeader": "Badilisha nywila",
     "ChangeUserPasswordModal.newPasswordFieldLabel": "Ingiza Nywila mpya",
@@ -13,9 +13,9 @@
     "ProfilePage.username": "Jina la mtumiaji",
     "ProfilePage.name": "Jina kamili",
     "ProfilePage.updateProfile": "Hifadhi mabadiliko",
-    "ProfilePage.isSuperuser": "",
+    "ProfilePage.isSuperuser": "Ruhusa za mtumiaji mkuu ",
     "ProfilePage.manageContent": "Dhibiti Maudhui",
-    "ProfilePage.manageDevicePermissions": "",
+    "ProfilePage.manageDevicePermissions": "Simamia ruhusa kwenye kifaa",
     "ProfilePage.points": "Pointi",
     "ProfilePage.userType": "Aina ya mtumiaji",
     "ProfilePage.devicePermissions": "Idhini ya kifaa",
@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "Nywila inahitajika kwa wakufunzi na wasimamizi",
     "SignInPage.usernameNotAlphaNumUnderscore": "Jina la mtumiaji ni lazima liwe na herufi, namba and kistari chini",
     "SignInPage.documentTitle": "Kuingia kwa Mtumiaji",
+    "SignInPage.privacyLink": "Matumizi na faragha",
     "SignUpPage.createAccount": "Tengeneza akaunti",
     "SignUpPage.name": "Jina kamili",
     "SignUpPage.username": "Jina la mtumiaji",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "Kituo",
     "SignUpPage.required": "Sehemu hii inhitajika",
     "SignUpPage.documentTitle": "Usajili wa Mtumiaji",
+    "SignUpPage.privacyLink": "Matumizi na faragha katika Kolibri",
     "UserIndex.userProfileTitle": "Wasifu"
 }
