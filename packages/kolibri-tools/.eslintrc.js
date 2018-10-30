@@ -34,7 +34,6 @@ module.exports = {
     __version: true,
     __coreAPISpec: true,
     __filename: true,
-    __publicPath: true,
     __copyrightYear: true,
   },
   extends: [
@@ -48,7 +47,7 @@ module.exports = {
   settings: {
     'import/resolver': {
       [path.resolve(
-        path.join(path.dirname(__filename), './frontend_build/src/alias_import_resolver.js')
+        path.join(path.dirname(__filename), './lib/alias_import_resolver.js')
       )]: {
         extensions: ['.js', '.vue'],
       },

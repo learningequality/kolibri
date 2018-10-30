@@ -1,15 +1,15 @@
 const path = require('path');
-const rewire = require('rewire');
 const _ = require('lodash');
-const parseBundlePlugin = require('../src/parse_bundle_plugin');
+const parseBundlePlugin = require('../lib/parse_bundle_plugin');
 
-const readBundlePlugins = rewire('../src/read_bundle_plugins');
+const readBundlePlugins = require('../lib/read_bundle_plugins');
 
-jest.mock('../src/apiSpecExportTools', () => ({
+jest.mock('../lib/apiSpecExportTools', () => ({
   coreAliases: () => ({}),
+  coreExternals: () => ({}),
 }));
 
-jest.mock('../src/logging', () => ({
+jest.mock('../lib/logging', () => ({
   error: () => {},
 }));
 
@@ -86,11 +86,6 @@ describe('parseBundlePlugin', function() {
     it('should include the version in the output chunk filename', function() {
       expect(parseBundlePlugin(data).output.chunkFilename).toContain(data.version);
     });
-    it('should set the public path to the static url', function() {
-      expect(parseBundlePlugin(data).output.publicPath).toEqual(
-        path.join('/', data.static_url_root, data.name, '/')
-      );
-    });
   });
 
   function expectParsedDataIsUndefined(data) {
@@ -144,16 +139,10 @@ describe('parseBundlePlugin', function() {
 describe('readBundlePlugins', function() {
   let data = [];
 
-  beforeEach(function() {
-    readBundlePlugins.__set__('readWebpackJson', function() {
-      return data;
-    });
-  });
-
   describe('two valid inputs, output', function() {
     it('should have two entries', function() {
       data = [baseData, baseData1];
-      expect(readBundlePlugins()).toHaveLength(2);
+      expect(readBundlePlugins(data)).toHaveLength(2);
     });
   });
   describe('one valid input out of two, output', function() {
@@ -161,7 +150,7 @@ describe('readBundlePlugins', function() {
       const badData = _.clone(baseData);
       delete badData.src_file;
       data = [badData, baseData1];
-      expect(readBundlePlugins()).toHaveLength(1);
+      expect(readBundlePlugins(data)).toHaveLength(1);
     });
   });
   describe('no valid input, output', function() {
@@ -171,7 +160,7 @@ describe('readBundlePlugins', function() {
       const badData1 = _.clone(baseData1);
       delete badData1.src_file;
       data = [badData, badData1];
-      expect(readBundlePlugins()).toHaveLength(0);
+      expect(readBundlePlugins(data)).toHaveLength(0);
     });
   });
 });

@@ -1,5 +1,5 @@
 const path = require('path');
-const apiSpecAliases = require('../frontend_build/src/apiSpecExportTools').coreAliases();
+const apiSpecAliases = require('../lib/apiSpecExportTools').coreAliases();
 
 const moduleNameMapper = {
   '^testUtils$': path.resolve(__dirname, './testUtils'),
@@ -13,20 +13,18 @@ module.exports = {
   globals: {
     __kolibriModuleName: 'testmodule',
     __version: 'testversion',
-    __events: {},
-    __once: {},
     __copyrightYear: '2018',
   },
-  rootDir: path.resolve(__dirname, '../'),
+  rootDir: path.resolve(process.cwd()),
   moduleFileExtensions: ['js', 'json', 'vue'],
   moduleNameMapper,
   testURL: 'http://kolibri.time',
   transform: {
-    '^.+\\.js$': '<rootDir>/node_modules/babel-jest',
-    '.*\\.(vue)$': '<rootDir>/node_modules/vue-jest',
+    '^.+\\.js$': 'babel-jest',
+    '.*\\.(vue)$': 'vue-jest',
   },
   transformIgnorePatterns: ['/node_modules/(?!(keen-ui|epubjs)/).*/'],
-  snapshotSerializers: ['<rootDir>/node_modules/jest-serializer-vue'],
+  snapshotSerializers: ['jest-serializer-vue'],
   setupFiles: [path.resolve(__dirname, './setup')],
   coverageDirectory: '<rootDir>/coverage',
   collectCoverageFrom: [

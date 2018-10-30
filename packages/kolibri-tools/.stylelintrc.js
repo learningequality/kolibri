@@ -26,5 +26,6 @@ module.exports = {
     'selector-class-pattern': null, // Deep selector classes do not follow this
 
     'order/properties-alphabetical-order': null,
+    'scss/percent-placeholder-pattern': null,
   },
 };

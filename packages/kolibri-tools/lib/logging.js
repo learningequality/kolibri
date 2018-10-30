@@ -35,6 +35,11 @@ var logging = {
   error(msg) {
     this.log(msg, colors.red);
   },
+  getLogger(name) {
+    const logger = Object.assign({}, this);
+    logger.prefix = name + ': ';
+    return logger;
+  }
 };
 
 module.exports = logging;

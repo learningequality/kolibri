@@ -119,9 +119,6 @@ build_tools/crowdin-cli.jar
 # Ignore pytest cache directory
 .pytest_cache/
 
-# Do not ignore this lib dir
-!eslint-plugin-kolibri/**/lib/
-
 # ignore source font files
 *.ttf
 *.ttc

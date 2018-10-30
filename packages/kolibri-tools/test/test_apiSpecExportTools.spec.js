@@ -1,6 +1,6 @@
 const rewire = require('rewire');
 
-const apiSpecExportTools = rewire('../src/apiSpecExportTools');
+const apiSpecExportTools = rewire('../lib/apiSpecExportTools');
 
 const testSpec = 'test';
 

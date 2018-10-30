@@ -4,7 +4,7 @@ const HTMLHint = require('htmlhint').HTMLHint;
 
 // add base rules
 function getConfig() {
-  const configPath = path.join(__dirname, '..', '..', '.htmlhintrc.js');
+  const configPath = path.join(__dirname, '..', '.htmlhintrc.js');
   if (fs.existsSync(configPath)) {
     const config = require(configPath);
     return config;
@@ -13,7 +13,7 @@ function getConfig() {
 const ruleset = getConfig();
 
 // add custom rules
-require('../src/htmlhint_custom');
+require('../lib/htmlhint_custom');
 
 //rule is currently disabled
 /*
