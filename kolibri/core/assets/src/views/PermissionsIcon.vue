@@ -17,8 +17,8 @@
       />
     </span>
     <KTooltip
-      v-if="ready"
-      :reference="$refs.icon"
+      reference="icon"
+      :refs="$refs"
     >
       <UserTypeDisplay
         v-if="hasSuperAdminPermission"
@@ -54,11 +54,6 @@
         },
       },
     },
-    data() {
-      return {
-        ready: false,
-      };
-    },
     computed: {
       UserKinds() {
         return UserKinds;
@@ -69,9 +64,6 @@
       hasLimitedPermissions() {
         return this.permissionType === PermissionTypes.LIMITED_PERMISSIONS;
       },
-    },
-    mounted() {
-      this.ready = true;
     },
     $trs: {
       limitedPermissionsTooltip: 'Limited permissions',

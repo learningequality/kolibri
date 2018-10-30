@@ -22,8 +22,8 @@
       </span>
     </div>
     <KTooltip
-      v-if="ready"
-      :reference="$refs.icon"
+      reference="icon"
+      :refs="$refs"
     >
       {{ titleText }}
     </KTooltip>
@@ -54,11 +54,6 @@
         default: false,
       },
     },
-    data() {
-      return {
-        ready: false,
-      };
-    },
     computed: {
       titleText() {
         if (this.isTopic) {
@@ -66,9 +61,6 @@
         }
         return this.$tr('coachResourceLabel');
       },
-    },
-    mounted() {
-      this.ready = true;
     },
     $trs: {
       coachResourceLabel: 'Coach resource',

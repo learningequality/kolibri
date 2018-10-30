@@ -9,8 +9,8 @@
       <mat-svg name="info" category="action" />
     </UiIcon>
     <KTooltip
-      v-if="ready"
-      :reference="$refs.icon.$el"
+      reference="icon"
+      :refs="$refs"
       :placement="tooltipPlacement"
     >
       {{ tooltipText }}
@@ -44,14 +44,6 @@
         type: String,
         required: false,
       },
-    },
-    data() {
-      return {
-        ready: false,
-      };
-    },
-    mounted() {
-      this.ready = true;
     },
   };
 

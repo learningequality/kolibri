@@ -70,8 +70,9 @@
       />
     </UiIcon>
     <KTooltip
-      v-if="ready && (tooltipText || showTooltip)"
-      :reference="$refs.icon.$el"
+      v-if="tooltipText && showTooltip"
+      reference="icon"
+      :refs="$refs"
     >
       {{ tooltipText }}
     </KTooltip>
@@ -122,11 +123,6 @@
         default: false,
       },
     },
-    data() {
-      return {
-        ready: false,
-      };
-    },
     computed: {
       ContentNodeKinds() {
         return ContentNodeKinds;
@@ -153,9 +149,6 @@
         const label = kindToLabeLMap[this.kind];
         return label ? this.$tr(label) : '';
       },
-    },
-    mounted() {
-      this.ready = true;
     },
     methods: {
       is(kind) {

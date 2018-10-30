@@ -26,8 +26,8 @@
       />
     </div>
     <KTooltip
-      v-if="ready"
-      :reference="$refs.icon"
+      reference="icon"
+      :refs="$refs"
       placement="right"
     >
       {{ tooltipText }}
@@ -55,11 +55,6 @@
         },
       },
     },
-    data() {
-      return {
-        ready: false,
-      };
-    },
     computed: {
       tooltipText() {
         switch (this.answer) {
@@ -73,9 +68,6 @@
             return this.$tr('incorrectFirstTry');
         }
       },
-    },
-    mounted() {
-      this.ready = true;
     },
     $trs: {
       correct: 'Correct',

@@ -1,7 +1,8 @@
 <template>
 
   <popper
-    :reference="reference"
+    v-if="mounted"
+    :reference="htmlElement"
     :disabled="disabled"
     :visibleArrow="false"
     :options="options"
@@ -23,6 +24,7 @@
 <script>
 
   import Popper from 'vue-popperjs';
+  import isArray from 'lodash/isArray';
 
   /**
    * Used to create a tooltip.
@@ -34,11 +36,18 @@
     },
     props: {
       /**
-       * Element tooltip will be positioned relative to
+       * String of ref which tooltip will be positioned relative to.
        */
       reference: {
-        type: HTMLElement,
+        type: String,
         required: true,
+      },
+      /**
+       * Refs object.
+       */
+      refs: {
+        type: Object,
+        default: () => {},
       },
       /**
        * Whether or not tooltip is disabled
@@ -55,6 +64,11 @@
         default: 'auto',
       },
     },
+    data() {
+      return {
+        mounted: false,
+      };
+    },
     computed: {
       options() {
         return {
@@ -68,6 +82,21 @@
           },
         };
       },
+      htmlElement() {
+        let element = this.refs[this.reference];
+        if (isArray(element)) {
+          element = element[0];
+        }
+        if (element._isVue) {
+          element = element.$el;
+        }
+        return element;
+      },
+    },
+    mounted() {
+      this.$nextTick(() => {
+        this.mounted = true;
+      });
     },
   };
 

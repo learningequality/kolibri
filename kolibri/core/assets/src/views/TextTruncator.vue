@@ -5,8 +5,8 @@
     <template v-else>
       <div ref="shaveEl">{{ text }}</div>
       <KTooltip
-        v-if="ready"
-        :reference="$refs.shaveEl"
+        reference="shaveEl"
+        :refs="$refs"
         :disabled="!tooltipText"
       >
         {{ tooltipText }}
@@ -67,7 +67,6 @@
       return {
         textIsTruncated: false,
         viewAllText: false,
-        ready: false,
       };
     },
     computed: {
@@ -93,9 +92,6 @@
       currentDimensions() {
         this.debouncedHandleUpdate();
       },
-    },
-    mounted() {
-      this.ready = true;
     },
     methods: {
       handleUpdate() {

@@ -10,8 +10,8 @@
       </div>
     </div>
     <KTooltip
-      v-if="ready"
-      :reference="$refs.icon"
+      reference="icon"
+      :refs="$refs"
     >
       {{ $tr('pointsTooltip', { points: totalPoints }) }}
     </KTooltip>
@@ -33,20 +33,12 @@
       PointsIcon,
       KTooltip,
     },
-    data() {
-      return {
-        ready: false,
-      };
-    },
     computed: {
       ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
     },
     watch: { currentUserId: 'fetchPoints' },
     created() {
       this.fetchPoints();
-    },
-    mounted() {
-      this.ready = true;
     },
     methods: {
       ...mapActions(['fetchPoints']),

@@ -3,10 +3,10 @@
   <div>
     <button ref="button">Hover me</button>
     <k-tooltip
-      v-if="ready"
-      :reference="$refs.button"
+      reference="button"
+      :refs="$refs"
     >
-      Content of tooltip goes here.
+      Content of tooltip.
     </k-tooltip>
 
   </div>
@@ -16,13 +16,6 @@
 
 <script>
 
-  module.exports = {
-    data: () => ({
-      ready: false,
-    }),
-    mounted() {
-      this.ready = true;
-    }
-  };
+  module.exports = {};
 
 </script>

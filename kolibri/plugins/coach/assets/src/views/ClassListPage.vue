@@ -51,8 +51,9 @@
                 {{ formattedCoachNames(classroom) }}
               </span>
               <KTooltip
-                v-if="ready && formattedCoachNamesTooltip(classroom)"
-                :reference="$refs[`coachNames${classroom.id}`][0]"
+                v-if="formattedCoachNamesTooltip(classroom)"
+                :reference="`coachNames${classroom.id}`"
+                :refs="$refs"
               >
                 {{ formattedCoachNamesTooltip(classroom) }}
               </KTooltip>

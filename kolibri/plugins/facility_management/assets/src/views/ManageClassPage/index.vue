@@ -48,8 +48,9 @@
               {{ formattedCoachNames(classroom) }}
             </span>
             <KTooltip
-              v-if="ready && formattedCoachNamesTooltip(classroom)"
-              :reference="$refs[`coachNames${classroom.id}`][0]"
+              v-if="formattedCoachNamesTooltip(classroom)"
+              :reference="`coachNames${classroom.id}`"
+              :refs="$refs"
             >
               {{ formattedCoachNamesTooltip(classroom) }}
             </KTooltip>
@@ -126,7 +127,7 @@
       UiIcon,
       KTooltip,
     },
-    data: () => ({ currentClassDelete: null, ready: false }),
+    data: () => ({ currentClassDelete: null }),
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes']),
       noClassesExist() {
@@ -136,9 +137,6 @@
       sortedClassrooms() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
       },
-    },
-    mounted() {
-      this.ready = true;
     },
     methods: {
       ...mapActions('classManagement', ['displayModal']),

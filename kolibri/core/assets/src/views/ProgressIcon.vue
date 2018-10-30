@@ -18,8 +18,8 @@
       </UiIcon>
     </span>
     <KTooltip
-      v-if="ready"
-      :reference="$refs.icon"
+      reference="icon"
+      :refs="$refs"
     >
       {{ isInProgress ? $tr('inProgress') : $tr('completed') }}
     </KTooltip>
@@ -52,12 +52,6 @@
         },
       },
     },
-    data() {
-      return {
-        ready: false,
-      };
-    },
-
     computed: {
       isInProgress() {
         return this.progress !== null && this.progress >= 0 && this.progress < 1;
@@ -65,9 +59,6 @@
       isCompleted() {
         return this.progress >= 1;
       },
-    },
-    mounted() {
-      this.ready = true;
     },
   };
 
