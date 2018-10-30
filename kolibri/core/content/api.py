@@ -49,8 +49,9 @@ def cache_forever(some_func):
     """
     Decorator for patch_response_headers function
     """
-    # Approximately 20 years
-    cache_timeout = 620000000
+    # Approximately 1 year
+    # Source: https://stackoverflow.com/a/3001556/405682
+    cache_timeout = 31556926
 
     def wrapper_func(*args, **kwargs):
         response = some_func(*args, **kwargs)
