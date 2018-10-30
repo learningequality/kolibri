@@ -46,7 +46,7 @@ describe('Table of Contents Section', () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it('should handle section with so sub items', () => {
+  it('should handle section with no sub items', () => {
     const wrapper = createWrapper({
       section,
       depth: 0,
