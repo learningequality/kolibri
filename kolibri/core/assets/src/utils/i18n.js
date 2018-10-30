@@ -1,6 +1,6 @@
 import FontFaceObserver from 'fontfaceobserver';
 import vue from 'kolibri.lib.vue';
-import logger from '../logging';
+import logger from 'kolibri.lib.logging';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
 
