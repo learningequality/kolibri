@@ -34,7 +34,8 @@ const vueIntlFooter = `
 };
 `;
 
-const vueIntlModule = commonHeader +
+const vueIntlModule =
+  commonHeader +
   vueIntlHeader +
   supportedLanguages.map(generateVueIntlItems).join('') +
   vueIntlFooter;
@@ -95,7 +96,8 @@ const intlFooter = `
 };
 `;
 
-const intlModule = commonHeader + intlHeader + supportedLanguages.map(generateIntlItems).join('') + intlFooter;
+const intlModule =
+  commonHeader + intlHeader + supportedLanguages.map(generateIntlItems).join('') + intlFooter;
 
 const intlModulePath = path.resolve(
   __dirname,
@@ -109,9 +111,11 @@ fs.writeFileSync(intlModulePath, intlModule, { encoding: 'utf-8' });
 lint({
   file: intlModulePath,
   write: true,
+  silent: true,
 });
 
 lint({
   file: vueIntlModulePath,
   write: true,
+  silent: true,
 });

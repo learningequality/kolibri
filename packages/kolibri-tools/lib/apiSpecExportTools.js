@@ -179,7 +179,7 @@ const __builder = {
     }
     recurseObjectKeysAndMapToExportedSpec(apiSpec, [], specObj);
     ensureDist();
-    fs.writeFileSync(distSpecFilePath, JSON.stringify(specObj, undefined, 4), {
+    fs.writeFileSync(distSpecFilePath, JSON.stringify(specObj, undefined, 2), {
       encoding: 'utf-8',
     });
     Object.keys(baseAliasSourcePaths).forEach(key => {
@@ -204,6 +204,7 @@ const __builder = {
     // Keep track of all the external dependencies so that they can be added to the package.json for
     // for the exported API spec.
     const externalDependencies = {};
+    const files = [];
 
     function parseJSDependencies(sourceContents, destinationFolder, sourceFolder) {
       const sourceTree = espree.parse(sourceContents, { sourceType: 'module', ecmaVersion: 2018 });
@@ -328,6 +329,7 @@ const __builder = {
         }
         // Write out the final contents of the file to disk
         fs.writeFileSync(destinationFile, finalSource, { encoding: 'utf-8' });
+        files.push(destinationFile);
         // Return a relative path to the copied file
         return './' + prefix + path.basename(sourceFile);
       } else {
@@ -356,7 +358,10 @@ const __builder = {
       });
     }
     recurseSpecAndCopy([], apiSpec);
-    return Object.keys(externalDependencies);
+    return {
+      dependencies: Object.keys(externalDependencies),
+      files,
+    };
   },
 };
 

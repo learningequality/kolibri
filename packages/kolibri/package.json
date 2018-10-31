@@ -1,0 +1,38 @@
+{
+  "name": "kolibri",
+  "version": "0.12.0-dev0",
+  "description": "The Kolibri core API",
+  "repository": "github.com/learningequality/kolibri",
+  "author": "Learning Equality",
+  "license": "MIT",
+  "private": false,
+  "bin": {
+    "kolibri-tools": "./lib/cli.js"
+  },
+  "scripts": {
+    "build": "node ./build/index.js"
+  },
+  "dependencies": {
+    "rest": "^1.3.2",
+    "js-cookie": "^2.1.2",
+    "lockr": "0.8.4",
+    "loglevel": "^1.4.1",
+    "vue": "^2.5.17",
+    "vuex": "^3.0.1",
+    "lodash": "^4.17.4",
+    "seededshuffle": "^0.1.1",
+    "keen-ui": "https://github.com/learningequality/Keen-UI/",
+    "filesize": "^3.3.0 ",
+    "clipboard": "^2.0.1",
+    "css-element-queries": "1.0.1",
+    "purecss": "^0.6.2",
+    "shave": "^2.1.3",
+    "screenfull": "^3.3.2",
+    "vue-router": "^2.1.1",
+    "frame-throttle": "^2.0.1",
+    "fontfaceobserver": "^2.0.13"
+  },
+  "peerDependencies": {
+    "kolibri-tools": "^0.12.0"
+  }
+}

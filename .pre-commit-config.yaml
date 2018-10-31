@@ -1,5 +1,6 @@
+repos:
 -   repo: git://github.com/pre-commit/pre-commit-hooks
-    sha: a11d9314b22d8f8c7556443875b731ef05965464
+    rev: v2.0.0
     hooks:
     -   id: trailing-whitespace
     -   id: flake8
@@ -9,15 +10,15 @@
     -   id: end-of-file-fixer
         exclude: '^.+?\.json$'
 -   repo: https://github.com/asottile/reorder_python_imports
-    sha: v0.3.5
+    rev: v1.3.3
     hooks:
     -   id: reorder-python-imports
         language_version: python2.7
 -   repo: local
     hooks:
-      -   id: frontend-prettify
-          name: Prettier Linting of JS and Vue files
+      -   id: frontend-lint
+          name: Linting of JS, Vue, SCSS and CSS files
           description: This hook handles all frontend linting for Kolibri
           entry: yarn run lint -w
           language: system
-          files: \.(js|vue|scss)$
+          files: \.(js|vue|scss|css)$

@@ -51,7 +51,7 @@ function insertContent(source, block, formatted) {
   return source.replace(source.slice(start, end), indented);
 }
 
-function lint({ file, write, encoding = 'utf-8' }) {
+function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
   return new Promise((resolve, reject) => {
     fs.readFile(file, { encoding }, (err, buffer) => {
       if (err) {
@@ -194,7 +194,7 @@ function lint({ file, write, encoding = 'utf-8' }) {
             return;
           }
           const code = errorOrChange;
-          if (messages.length) {
+          if (messages.length && !silent) {
             logging.log('');
             logging.info(`Linting errors for ${file}`);
             messages.forEach(msg => {
@@ -208,7 +208,9 @@ function lint({ file, write, encoding = 'utf-8' }) {
                 reject({ error: error.message, code: errorOrChange });
                 return;
               }
-              logging.info(`Rewriting a prettier version of ${file}`);
+              if (!silent) {
+                logging.info(`Rewriting a prettier version of ${file}`);
+              }
               resolve({ code });
             });
           }

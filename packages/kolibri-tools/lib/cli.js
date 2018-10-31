@@ -123,10 +123,8 @@ program
 // Lint
 program
   .command('lint')
+  .arguments('[files...]', 'List of custom file globs or file names to lint')
   .description('Run linting on files or files matching glob patterns')
-  .option('-f , --files <files...>', 'Set custom file globs or file names, comma separated', list, [
-    '{kolibri*/**/assets,packages}/**/*.{js,vue,scss,less,css}',
-  ])
   .option('-w, --write', 'Write autofixes to file', false)
   .option('-e, --encoding <string>', 'Text encoding of file', 'utf-8')
   .option('-m, --monitor', 'Monitor files and check on change', false)
@@ -134,17 +132,21 @@ program
     '**/node_modules/**',
     '**/static/**',
   ])
-  .action(function(options) {
-    if (!(options instanceof program.Command)) {
-      cliLogging.error('lint subcommand takes no positional arguments');
-      process.exit(1);
+  .action(function(args, options) {
+    const files = [];
+    if (!(args instanceof program.Command)) {
+      files.push(...args);
+    } else {
+      options = args;
+    }
+    if (!files.length) {
+      files.push('{kolibri*/**/assets,packages}/**/*.{js,vue,scss,less,css}');
     }
     const glob = require('glob');
     const { logging, lint, noChange } = require('./lint');
     const chokidar = require('chokidar');
     const watchMode = options.monitor;
     const ignore = options.ignore;
-    const files = options.files;
 
     if (!files.length) {
       program.help();
