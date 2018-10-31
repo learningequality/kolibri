@@ -1,14 +1,12 @@
 import logging
-logging.basicConfig(level=logging.DEBUG)
 import os
 import sys
 import time
-
 import pew
-pew.set_app_name("Kolibri")
-
 import pew.ui
 
+logging.basicConfig(level=logging.DEBUG)
+pew.set_app_name("Kolibri")
 logging.info("Entering main.py...")
 
 
@@ -34,10 +32,10 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base
 
 if True:  # pew.ui.platform == "android":
     os.environ["KOLIBRI_HOME"] = get_home_folder()
-    os.environ["TZ"] = Timezone.getDisplayName()
+    # os.environ["TZ"] = Timezone.getDisplayName()
 
     logging.info("Home folder: {}".format(os.environ["KOLIBRI_HOME"]))
-    logging.info("Timezone: {}".format(os.environ["TZ"]))
+    # logging.info("Timezone: {}".format(os.environ["TZ"]))
 
 
 def start_django():
@@ -68,27 +66,43 @@ class Application(pew.ui.PEWApp):
         """
         Start your UI and app run loop here.
         """
+
+        # Set loading screen
+        self.webview = pew.ui.WebUIView("Kolibri", '_load.html', delegate=self)
+        self.webview.show()
+
+        # start thread
         self.thread = pew.ui.PEWThread(target=start_django)
         self.thread.daemon = True
         self.thread.start()
 
-        # give the server thread time to start
-        # FIXME: Replace this with code to load assets/_load.html once we properly package it.
-        time.sleep(10)
+        def serverNotRunning():
+            from kolibri.utils import server
+            status = True
+            try:
+                server.get_status()
+                status = False
 
-        self.webview = pew.ui.WebUIView("Kolibri", 'http://localhost:5000', delegate=self)
+            except:
+                logging.basicConfig(level=logging.DEBUG)
+                logging.info('get_status failed')
+
+            return status
+
+        while serverNotRunning():
+            # seems to be refresh value in get_status code
+            time.sleep(3)
+
+        self.webview.load_url("http://localhost:5000")
+        self.webview.show()
         # make sure we show the UI before run completes, as otherwise
         # it is possible the run can complete before the UI is shown,
         # causing the app to shut down early
-        self.webview.show()
 
         return 0
 
     def get_main_window(self):
         return self.webview
-
-    def load_complete(self):
-        self.webview.load_url("http://localhost:5000")
 
 if __name__ == "__main__":
     app = Application()
