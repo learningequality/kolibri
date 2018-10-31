@@ -27,15 +27,8 @@ module.exports = {
     '^.+\\.js$': path.resolve(__dirname, './babel-jest-transform'),
     '.*\\.(vue)$': 'vue-jest',
   },
-  transformIgnorePatterns: ['/node_modules/(?!(keen-ui|epubjs)/).*/'],
   snapshotSerializers: ['jest-serializer-vue'],
   setupFiles: [path.resolve(__dirname, './setup')],
   coverageDirectory: '<rootDir>/coverage',
-  collectCoverageFrom: [
-    'frontend_build/src/*.js',
-    'kolibri/**/assets/src/**/*.{js,vue}',
-    '!**/node_modules/**',
-    'kolibri/**/**/assets/src/**/*.{js,vue}',
-  ],
   verbose: false,
 };

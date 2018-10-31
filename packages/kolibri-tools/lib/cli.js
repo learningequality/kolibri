@@ -180,15 +180,26 @@ program
 
 // Test
 program
-  .command('*')
-  .action(function(command, argv) {
-    if (command === 'test') {
-      if (process.env.NODE_ENV == null) {
-        process.env.NODE_ENV = 'test';
-      }
-
-      require('jest-cli/build/cli').run();
+  .command('test')
+  .option('--extraConfig [extraConfig]', 'Additional configuration to merge and overwrite the default jest config')
+  .allowUnknownOption()
+  .action(function(options) {
+    const baseConfig = require('../jest_config/jest.conf.js');
+    if (process.env.NODE_ENV == null) {
+      process.env.NODE_ENV = 'test';
     }
+    let config;
+    if (options.extraConfig) {
+      const importConfig = require(path.resolve(process.cwd(), options.extraConfig));
+      config = Object.assign({}, baseConfig, importConfig);
+      const extraConfigIndex = process.argv.findIndex(item => item === '--extraConfig');
+      process.argv.splice(extraConfigIndex, 2);
+    } else {
+      config = baseConfig;
+    }
+    process.argv.push('--config');
+    process.argv.push(JSON.stringify(config));
+    require('jest-cli/build/cli').run();
   });
 
 program.parse(process.argv);
