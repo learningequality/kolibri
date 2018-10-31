@@ -68,6 +68,8 @@ docs/_build
 # node
 node_modules
 npm-debug.log
+yarn-error.log
+lerna-debug.log
 
 # Node coverage data
 coverage
