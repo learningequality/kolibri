@@ -189,15 +189,15 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         inconsistencies, make sure it matches the inferred dataset, otherwise raise a ``KolibriValidationError``.
         If we have no dataset and it can't be inferred, we raise a ``KolibriValidationError`` exception as well.
         """
-        inferred_dataset = self.infer_dataset(*args, **kwargs)
+        inferred_dataset_id = self.infer_dataset(*args, **kwargs)
         if self.dataset_id:
             # make sure currently stored dataset matches inferred dataset, if any
-            if inferred_dataset and inferred_dataset != self.dataset:
+            if inferred_dataset_id and inferred_dataset_id != self.dataset_id:
                 raise KolibriValidationError("This model is not associated with the correct FacilityDataset.")
         else:
             # use the inferred dataset, if there is one, otherwise throw an error
-            if inferred_dataset:
-                self.dataset = inferred_dataset
+            if inferred_dataset_id:
+                self.dataset_id = inferred_dataset_id
             else:
                 raise KolibriValidationError("FacilityDataset ('dataset') not provided, and could not be inferred.")
 
@@ -541,7 +541,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         return "{dataset_id}:user-ro:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)
 
     def infer_dataset(self, *args, **kwargs):
-        return self.facility.dataset
+        return self.facility.dataset_id
 
     def get_permission(self, permission):
         try:
@@ -882,7 +882,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
         if self.parent:
             # subcollections inherit dataset from root of their tree
             # (we can't call `get_root` directly on self, as it won't work if self hasn't yet been saved)
-            return self.parent.get_root().dataset
+            return self.parent.get_root().dataset_id
         else:
             return None  # the root node (i.e. Facility) must be explicitly tied to a dataset
 
@@ -929,11 +929,11 @@ class Membership(AbstractFacilityDataModel):
         return '{collection_id}'.format(collection_id=self.collection_id)
 
     def infer_dataset(self, *args, **kwargs):
-        user_dataset = self.user.dataset
-        collection_dataset = self.collection.dataset
-        if user_dataset != collection_dataset:
+        user_dataset_id = self.user.dataset_id
+        collection_dataset_id = self.collection.dataset_id
+        if user_dataset_id != collection_dataset_id:
             raise KolibriValidationError("Collection and user for a Membership object must be in same dataset.")
-        return user_dataset
+        return user_dataset_id
 
     def __str__(self):
         return "{user}'s membership in {collection}".format(user=self.user, collection=self.collection)
@@ -978,11 +978,11 @@ class Role(AbstractFacilityDataModel):
         return '{collection_id}:{kind}'.format(collection_id=self.collection_id, kind=self.kind)
 
     def infer_dataset(self, *args, **kwargs):
-        user_dataset = self.user.dataset
-        collection_dataset = self.collection.dataset
-        if user_dataset != collection_dataset:
+        user_dataset_id = self.user.dataset_id
+        collection_dataset_id = self.collection.dataset_id
+        if user_dataset_id != collection_dataset_id:
             raise KolibriValidationError("The collection and user for a Role object must be in the same dataset.")
-        return user_dataset
+        return user_dataset_id
 
     def __str__(self):
         return "{user}'s {kind} role for {collection}".format(user=self.user, kind=self.kind, collection=self.collection)
@@ -1042,7 +1042,7 @@ class Facility(Collection):
         # if we don't yet have a dataset, create a new one for this facility
         if not self.dataset_id:
             self.dataset = FacilityDataset.objects.create()
-        return self.dataset
+        return self.dataset_id
 
     def get_classrooms(self):
         """
