@@ -100,7 +100,10 @@ var parseBundlePlugin = function(data) {
     },
     resolveLoader: {
       // Add local resolution paths for loaders
-      modules: [path.join(data.plugin_path, 'node_modules'), path.join(process.cwd(), 'node_modules')],
+      modules: [
+        path.join(data.plugin_path, 'node_modules'),
+        path.join(process.cwd(), 'node_modules'),
+      ],
     },
     plugins: [
       new VueLoaderPlugin(),

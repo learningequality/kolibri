@@ -41,11 +41,9 @@ function setNodePaths(nodePaths) {
  * @returns {Array} bundles - An array containing webpack config objects.
  */
 var readBundlePlugins = function(bundles) {
-  bundles = bundles
-    .map(parseBundlePlugin)
-    .filter(function(bundle) {
-      return bundle;
-    });
+  bundles = bundles.map(parseBundlePlugin).filter(function(bundle) {
+    return bundle;
+  });
 
   if (bundles.length > 0) {
     for (var k = 0; k < bundles.length; k++) {

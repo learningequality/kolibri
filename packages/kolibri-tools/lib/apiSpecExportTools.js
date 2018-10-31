@@ -47,9 +47,8 @@ function specModule(filePath) {
     }
   });
 
-  var properties = apiSpecTree.body.find(
-    dec => dec.type === espree.Syntax.ExportDefaultDeclaration
-  ).declaration.properties;
+  var properties = apiSpecTree.body.find(dec => dec.type === espree.Syntax.ExportDefaultDeclaration)
+    .declaration.properties;
 
   function recurseProperties(props) {
     props.forEach(prop => {
@@ -121,7 +120,7 @@ const baseAliasSourcePaths = {
     __dirname,
     '../../../kolibri/core/assets/src/content_renderer_module'
   ),
-}
+};
 
 const baseAliasDistPaths = {
   kolibri_module: path.resolve(__dirname, '../dist/kolibri_module'),
@@ -142,7 +141,9 @@ const __builder = {
      * Function to check that we are in the Kolibri source repo whenever doing any of these build tasks.
      */
     if (!fs.existsSync(specFilePath)) {
-      throw new ReferenceError('Attempting to build the API Spec from outside the Kolibri source repo');
+      throw new ReferenceError(
+        'Attempting to build the API Spec from outside the Kolibri source repo'
+      );
     }
   },
   buildApiSpec() {
@@ -161,7 +162,11 @@ const __builder = {
           spec[lastKey] = {};
         }
         Object.keys(obj).forEach(function(key) {
-          recurseObjectKeysAndMapToExportedSpec(obj[key], pathArray.concat(key), spec[lastKey] || spec);
+          recurseObjectKeysAndMapToExportedSpec(
+            obj[key],
+            pathArray.concat(key),
+            spec[lastKey] || spec
+          );
         });
       } else {
         // Check if this is a global import (i.e. from node_modules)
@@ -174,10 +179,14 @@ const __builder = {
     }
     recurseObjectKeysAndMapToExportedSpec(apiSpec, [], specObj);
     ensureDist();
-    fs.writeFileSync(distSpecFilePath, JSON.stringify(specObj, undefined, 4), { encoding: 'utf-8' });
+    fs.writeFileSync(distSpecFilePath, JSON.stringify(specObj, undefined, 4), {
+      encoding: 'utf-8',
+    });
     Object.keys(baseAliasSourcePaths).forEach(key => {
       // Paths above have no extensions so resolve the source and then use extension on the destination.
-      const source = resolve.sync(baseAliasSourcePaths[key], { extensions: ['.js', '.json', '.vue', '.scss', '.css']});
+      const source = resolve.sync(baseAliasSourcePaths[key], {
+        extensions: ['.js', '.json', '.vue', '.scss', '.css'],
+      });
       fs.copyFileSync(source, baseAliasDistPaths[key] + path.extname(source));
     });
   },
@@ -198,12 +207,20 @@ const __builder = {
 
     function parseJSDependencies(sourceContents, destinationFolder, sourceFolder) {
       const sourceTree = espree.parse(sourceContents, { sourceType: 'module', ecmaVersion: 2018 });
-      const importNodes = esquery.query(sourceTree, '[type=/(ImportDeclaration|ExportNamedDeclaration|ExportAllDeclaration)/]');
+      const importNodes = esquery.query(
+        sourceTree,
+        '[type=/(ImportDeclaration|ExportNamedDeclaration|ExportAllDeclaration)/]'
+      );
       importNodes.forEach(node => {
         if (node.source) {
           const importPath = node.source.value;
           // Prefix any resolved files with an underscore as they are not part of the core spec
-          const replacePath = resolveDependenciesAndCopy(importPath, destinationFolder, sourceFolder, "_");
+          const replacePath = resolveDependenciesAndCopy(
+            importPath,
+            destinationFolder,
+            sourceFolder,
+            '_'
+          );
           sourceContents = sourceContents.replace(importPath, replacePath);
         }
       });
@@ -213,12 +230,19 @@ const __builder = {
     function parseScssDependencies(sourceContents, destinationFolder, sourceFolder) {
       const sourceTree = scssParser.parse(sourceContents);
       const scssWrapper = createQueryWrapper(sourceTree);
-      const importNodes = scssWrapper('atrule').has((wrapper) => wrapper.node.value === 'import').children('string_single').nodes;
+      const importNodes = scssWrapper('atrule')
+        .has(wrapper => wrapper.node.value === 'import')
+        .children('string_single').nodes;
       importNodes.forEach(node => {
         // This should be the path for the import statement
         const importPath = node.node.value;
         // Prefix any resolved files with an underscore as they are not part of the core spec
-        const replacePath = resolveDependenciesAndCopy(importPath, destinationFolder, sourceFolder, '_');
+        const replacePath = resolveDependenciesAndCopy(
+          importPath,
+          destinationFolder,
+          sourceFolder,
+          '_'
+        );
         sourceContents.replace(importPath, replacePath);
       });
       return sourceContents;
@@ -231,7 +255,7 @@ const __builder = {
         const end = block.end;
         return source.replace(source.slice(start, end), newCode);
       }
-      const args = [ destinationFolder, sourceFolder ];
+      const args = [destinationFolder, sourceFolder];
       if (template.script) {
         const newJs = parseJSDependencies(template.script.content, ...args);
         sourceContents = insertContent(sourceContents, template.script, newJs);
@@ -245,24 +269,38 @@ const __builder = {
       return sourceContents;
     }
 
-    function resolveDependenciesAndCopy(sourcePath, destinationFolder, sourceFolder = '', prefix = '') {
+    function resolveDependenciesAndCopy(
+      sourcePath,
+      destinationFolder,
+      sourceFolder = '',
+      prefix = ''
+    ) {
       // The source file path must be an absolute or relative path, otherwise it is a library external to Kolibri
       // like vue, vuex etc. Do not copy these. Alternatively it is a kolibri API spec reference.
       // Create a path without ~ because this is used for node_module or alias import resolution in SCSS/CSS
       if (sourcePath.startsWith('/') || sourcePath.startsWith('.')) {
         source = path.join(sourceFolder, sourcePath);
         // Find the actual source file name, as many path references do not have an extension.
-        const sourceFile = resolve.sync(source, { extensions: ['.js', '.json', '.vue', '.scss', '.css']});
+        const sourceFile = resolve.sync(source, {
+          extensions: ['.js', '.json', '.vue', '.scss', '.css'],
+        });
 
         let extraPath = '';
 
         // Possible that the resolved file is actually an index file inside a folder
         // Check for that case.
         if (path.basename(sourceFile).startsWith('index')) {
-          extraPath = path.dirname(sourceFile).split(path.sep).slice(-1)[0];
+          extraPath = path
+            .dirname(sourceFile)
+            .split(path.sep)
+            .slice(-1)[0];
         }
         // Create the destination file name based on the source file name base name, copy it exactly.
-        const destinationFile = path.join(destinationFolder, extraPath, prefix + path.basename(sourceFile));
+        const destinationFile = path.join(
+          destinationFolder,
+          extraPath,
+          prefix + path.basename(sourceFile)
+        );
         // Copy from the source to the destination.
         const sourceContents = fs.readFileSync(sourceFile, { encoding: 'utf-8' });
 
@@ -293,8 +331,11 @@ const __builder = {
         // Return a relative path to the copied file
         return './' + prefix + path.basename(sourceFile);
       } else {
-        const exportSourcePath = (sourcePath.startsWith('~') ? sourcePath.slice(1) : sourcePath).split('/')[0];
-        if (!knownAliases[exportSourcePath] && !externalDependencies[exportSourcePath]){
+        const exportSourcePath = (sourcePath.startsWith('~')
+          ? sourcePath.slice(1)
+          : sourcePath
+        ).split('/')[0];
+        if (!knownAliases[exportSourcePath] && !externalDependencies[exportSourcePath]) {
           externalDependencies[exportSourcePath] = true;
         }
       }
@@ -317,8 +358,7 @@ const __builder = {
     recurseSpecAndCopy([], apiSpec);
     return Object.keys(externalDependencies);
   },
-}
-
+};
 
 function coreExternals() {
   /*

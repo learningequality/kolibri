@@ -35,7 +35,7 @@ export default class ConditionalPromise {
         if (continueCheck() && resolve) {
           return resolve(success);
         }
-        return success
+        return success;
       },
       error => {
         if (continueCheck() && reject) {

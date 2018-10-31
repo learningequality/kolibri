@@ -39,7 +39,7 @@ var logging = {
     const logger = Object.assign({}, this);
     logger.prefix = name + ': ';
     return logger;
-  }
+  },
 };
 
 module.exports = logging;

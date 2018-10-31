@@ -5,10 +5,7 @@ const temp = require('temp').track();
 
 const webpack_json = path.resolve(path.dirname(__filename), './webpack_json.py');
 
-module.exports = function({
-  pluginFile,
-  plugins,
-}) {
+module.exports = function({ pluginFile, plugins }) {
   // the temporary path where the webpack_json json is stored
   const webpack_json_tempfile = temp.openSync({ suffix: '.json' }).path;
 
@@ -32,9 +29,7 @@ module.exports = function({
     command += `--plugins ${allPlugins}`;
   }
   if (process.platform !== 'win32') {
-    execSync(
-      `PATH=$(echo $PATH | sed 's/\\/usr\\/bin://g')\":/usr/bin\" ${command}`
-    );
+    execSync(`PATH=$(echo $PATH | sed 's/\\/usr\\/bin://g')\":/usr/bin\" ${command}`);
   } else {
     execSync(command);
   }

@@ -2,7 +2,6 @@
 const { __buildKolibriName } = require('./lib/kolibriName');
 const { __builder } = require('./lib/apiSpecExportTools');
 
-
 /*
  * Step 1: Generate a local copy of the KOLIBRI_CORE_JS_NAME file
  */

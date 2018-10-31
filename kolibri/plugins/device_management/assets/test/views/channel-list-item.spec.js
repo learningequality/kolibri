@@ -86,9 +86,15 @@ describe('channelListItem', () => {
     });
 
     it('defaults to a material design icon if there is no thumbnail', () => {
-      exportWrapper = makeWrapper({ props: { mode: 'EXPORT', channel: { ...defaultChannel, thumbnail: '' } } });
-      importWrapper = makeWrapper({ props: { mode: 'IMPORT', channel: { ...defaultChannel, thumbnail: '' } } });
-      manageWrapper = makeWrapper({ props: { mode: 'MANAGE', channel: { ...defaultChannel, thumbnail: '' } } });
+      exportWrapper = makeWrapper({
+        props: { mode: 'EXPORT', channel: { ...defaultChannel, thumbnail: '' } },
+      });
+      importWrapper = makeWrapper({
+        props: { mode: 'IMPORT', channel: { ...defaultChannel, thumbnail: '' } },
+      });
+      manageWrapper = makeWrapper({
+        props: { mode: 'MANAGE', channel: { ...defaultChannel, thumbnail: '' } },
+      });
       function test(wrapper) {
         const { thumbnail } = getElements(wrapper);
         const thumb = thumbnail();

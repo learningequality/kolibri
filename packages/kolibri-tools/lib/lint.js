@@ -26,7 +26,9 @@ const esLinter = new ESLinter();
 const styleLangs = ['scss', 'css', 'less'];
 const styleLinters = {};
 styleLangs.forEach(lang => {
-  styleLinters[lang] = stylelint.createLinter({ config: Object.assign({}, stylelintConfig, { syntax: lang }) });
+  styleLinters[lang] = stylelint.createLinter({
+    config: Object.assign({}, stylelintConfig, { syntax: lang }),
+  });
 });
 
 const errorOrChange = 1;
@@ -78,7 +80,7 @@ function lint({ file, write, encoding = 'utf-8' }) {
           options.printWidth -= 2;
         }
         return options;
-      }
+      };
       function eslint(code) {
         const esLintOutput = esLinter.verifyAndFix(code, esLintConfig, { filename: file });
         let linted = esLintOutput.output;
@@ -129,7 +131,7 @@ function lint({ file, write, encoding = 'utf-8' }) {
             notSoPretty = true;
           }
           formatted = eslint(formatted);
-        // Recognized style file
+          // Recognized style file
         } else if (styleLangs.some(lang => lang === extension)) {
           formatted = lintStyle(source, extension);
         } else if (extension === 'vue') {

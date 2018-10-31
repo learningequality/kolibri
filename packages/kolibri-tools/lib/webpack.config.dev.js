@@ -25,5 +25,4 @@ function bundles(pluginsData) {
   return pluginBundles;
 }
 
-
 module.exports = bundles;

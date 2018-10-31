@@ -19,17 +19,23 @@ function list(val) {
   return val.split(',');
 }
 
-program
-  .version(version)
-  .description('Tools for Kolibri frontend plugins')
+program.version(version).description('Tools for Kolibri frontend plugins');
 
 // Build
 program
   .command('build')
   .description('Build frontend assets for Kolibri frontend plugins')
-  .arguments('<mode>', 'Mode to run in, options are: d/dev/development, p/prod/production, i/i18n/internationalization')
+  .arguments(
+    '<mode>',
+    'Mode to run in, options are: d/dev/development, p/prod/production, i/i18n/internationalization'
+  )
   .option('-f , --file <file>', 'Set custom file which lists plugins that should be built')
-  .option('-p, --plugins <plugins...>', 'An explicit comma separated list of plugins that should be built', list, [])
+  .option(
+    '-p, --plugins <plugins...>',
+    'An explicit comma separated list of plugins that should be built',
+    list,
+    []
+  )
   .action(function(mode, options) {
     const webpack = require('webpack');
     const { fork } = require('child_process');
@@ -81,7 +87,7 @@ program
           env: {
             data,
             index,
-          }
+          },
         });
         children.push(forked);
         forked.on('exit', (code, signal) => {
@@ -110,20 +116,24 @@ program
           process.exit(1);
         }
         process.exit(0);
-      })
+      });
     }
   });
-
 
 // Lint
 program
   .command('lint')
   .description('Run linting on files or files matching glob patterns')
-  .option('-f , --files <files...>', 'Set custom file globs or file names, comma separated', list, ['{kolibri*/**/assets,packages}/**/*.{js,vue,scss,less,css}'])
+  .option('-f , --files <files...>', 'Set custom file globs or file names, comma separated', list, [
+    '{kolibri*/**/assets,packages}/**/*.{js,vue,scss,less,css}',
+  ])
   .option('-w, --write', 'Write autofixes to file', false)
   .option('-e, --encoding <string>', 'Text encoding of file', 'utf-8')
   .option('-m, --monitor', 'Monitor files and check on change', false)
-  .option('-i, --ignore <patterns...>', 'Ignore these comma separated patterns', list, ['**/node_modules/**' , '**/static/**'])
+  .option('-i, --ignore <patterns...>', 'Ignore these comma separated patterns', list, [
+    '**/node_modules/**',
+    '**/static/**',
+  ])
   .action(function(options) {
     if (!(options instanceof program.Command)) {
       cliLogging.error('lint subcommand takes no positional arguments');
@@ -181,7 +191,10 @@ program
 // Test
 program
   .command('test')
-  .option('--extraConfig [extraConfig]', 'Additional configuration to merge and overwrite the default jest config')
+  .option(
+    '--extraConfig [extraConfig]',
+    'Additional configuration to merge and overwrite the default jest config'
+  )
   .allowUnknownOption()
   .action(function(options) {
     const baseConfig = require('../jest_config/jest.conf.js');

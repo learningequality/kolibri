@@ -18,10 +18,10 @@ const publicPath = 'http://' + address + ':' + port + '/' + (basePath ? basePath
 bundle.output.publicPath = publicPath;
 const compiler = webpack(bundle);
 compiler.hooks.compile.tap('Process', () => {
-    process.send('compile');
+  process.send('compile');
 });
 compiler.hooks.done.tap('Process', () => {
-    process.send('done');
+  process.send('done');
 });
 var server = new WebpackDevServer(compiler, {
   // webpack-dev-server options
