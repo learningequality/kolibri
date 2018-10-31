@@ -11,7 +11,7 @@ import tempfile
 
 import requests
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
 
 os.environ.setdefault(
     "RUN_TIME_PLUGINS", os.path.realpath(os.path.join(os.path.dirname(__file__), "default_plugins.txt"))
