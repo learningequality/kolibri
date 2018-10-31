@@ -4,7 +4,8 @@ import sys
 
 dest = 'py2only'
 futures_dirname = 'concurrent'
-DIST_DIR = os.path.realpath('kolibri/dist')
+DIST_DIR = os.path.join(
+    os.path.dirname(os.path.realpath(os.path.dirname(__file__))), 'kolibri', 'dist')
 
 
 def hide_py2_modules():
@@ -36,7 +37,7 @@ def _move_modules_to_py2only(module_name):
 
 if __name__ == '__main__':
     # Temporarily add `kolibri/dist` to PYTHONPATH to import future
-    sys.path = sys.path + [os.path.realpath(os.path.join(DIST_DIR))]
+    sys.path.append(DIST_DIR)
 
     try:
         os.makedirs(os.path.join(DIST_DIR, dest))
