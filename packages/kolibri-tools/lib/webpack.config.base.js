@@ -24,8 +24,6 @@ var production = process.env.NODE_ENV === 'production';
 
 var base_dir = path.join(__dirname, '..');
 
-var kolibri_source_dir = path.join(__dirname, '..', '..', '..');
-
 var postCSSLoader = {
   loader: 'postcss-loader',
   options: {
@@ -76,7 +74,6 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'buble-loader',
-        exclude: /node_modules\/(?!(keen-ui)\/).*/,
         options: {
           objectAssign: 'Object.assign',
         },

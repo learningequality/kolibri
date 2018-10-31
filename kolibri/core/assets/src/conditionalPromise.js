@@ -33,13 +33,15 @@ export default class ConditionalPromise {
     this._promise.then(
       success => {
         if (continueCheck() && resolve) {
-          resolve(success);
+          return resolve(success);
         }
+        return success
       },
       error => {
         if (continueCheck() && reject) {
-          reject(error);
+          return reject(error);
         }
+        return error;
       }
     );
     return this;
