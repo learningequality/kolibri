@@ -5,7 +5,8 @@
   "author": "Learning Equality",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha tests --recursive"
+    "test": "mocha tests --recursive",
+    "build": "node ./build.js"
   },
   "dependencies": {
     "requireindex": "^1.1.0"

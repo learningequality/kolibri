@@ -1,10 +1,12 @@
 const fs = require('fs');
 const execSync = require('child_process').execSync;
-const path = require('path');
 const temp = require('temp').track();
 const semver = require('semver');
+const logger = require('./logging');
 
-module.exports = function(packageFile) {
+const logging = logger.getLogger('Kolibri Version');
+
+function getVersion(prerelease = false) {
   // the temporary path where the version is stored
   const filename = temp.openSync().path;
 
@@ -29,20 +31,47 @@ module.exports = function(packageFile) {
 
   const version = fs.readFileSync(filename, { encoding: 'utf-8' }).trim();
 
-  let semVersion = semver.parse(version);
+  temp.cleanupSync(); // cleanup the tempfile immediately!
 
-  if (semVersion === null) {
-    // Semantic versioning has failed to parse, coerce
-    const start = semver.coerce(version).version;
-    const remainder = version.replace(start, '');
-    semVersion = semver.parse(start + '-' + remainder.split('.').join(''));
+  const semVersion = semver.coerce(version);
+  const start = semVersion.version;
+  const remainder = version.replace(start, '');
+
+  let suffix = '';
+
+  if (remainder && prerelease) {
+    const preidMap = {
+      b: 'beta',
+      a: 'alpha',
+      dev: 'dev',
+    };
+
+    const preid = ['b', 'a', 'dev'].find(pre => remainder.includes(pre));
+
+    const prereleaseId = preidMap[preid];
+
+    const prereleaseNumRe = new RegExp(`${preid}([0-9]+)`);
+
+    const prereleaseNum = preid === 'dev' ? 'x' : prereleaseNumRe[Symbol.match](remainder)[1];
+
+    suffix = `-${prereleaseId}.${prereleaseNum}`;
   }
 
-  temp.cleanupSync(); // cleanup the tempfile immediately!
+  return semVersion.version + suffix;
+}
+
+function setVersion(packageFile) {
+  const version = getVersion();
 
   const pkg = require(packageFile);
 
-  pkg.version = semVersion.version;
+  pkg.version = version;
 
   fs.writeFileSync(packageFile, JSON.stringify(pkg, undefined, 2), { encoding: 'utf-8' });
-};
+}
+
+module.exports = setVersion;
+
+if (require.main === module) {
+  logging.info('Suggested release version is ' + getVersion(true));
+}
