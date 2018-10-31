@@ -1,4 +1,3 @@
-var readWebpackJson = require('./read_webpack_json');
 var path = require('path');
 var fs = require('fs');
 var logging = require('./logging');
@@ -19,9 +18,9 @@ var deleteRecursive = function(p) {
   }
 };
 
-var plugins = readWebpackJson();
-
-plugins.forEach(function(plugin) {
-  deleteRecursive(path.resolve(plugin.static_dir, plugin.name));
-  deleteRecursive(path.resolve(plugin.stats_file));
-});
+module.exports = function clean(plugins) {
+  plugins.forEach(function(plugin) {
+    deleteRecursive(path.resolve(plugin.static_dir, plugin.name));
+    deleteRecursive(path.resolve(plugin.stats_file));
+  });
+};

@@ -27,7 +27,7 @@ program
   .description('Build frontend assets for Kolibri frontend plugins')
   .arguments(
     '<mode>',
-    'Mode to run in, options are: d/dev/development, p/prod/production, i/i18n/internationalization'
+    'Mode to run in, options are: d/dev/development, p/prod/production, i/i18n/internationalization, c/clean, s/stats'
   )
   .option('-f , --file <file>', 'Set custom file which lists plugins that should be built')
   .option(
@@ -39,14 +39,17 @@ program
   .action(function(mode, options) {
     const webpack = require('webpack');
     const { fork } = require('child_process');
-    const os = require('os');
     const buildLogging = logger.getLogger('Kolibri Build');
     const modes = {
       DEV: 'dev',
       PROD: 'prod',
       I18N: 'i18n',
+      CLEAN: 'clean',
+      STATS: 'stats',
     };
     const modeMaps = {
+      c: modes.CLEAN,
+      clean: modes.CLEAN,
       d: modes.DEV,
       dev: modes.DEV,
       development: modes.DEV,
@@ -56,6 +59,8 @@ program
       i: modes.I18N,
       i18n: modes.I18N,
       internationalization: modes.I18N,
+      s: modes.STATS,
+      stats: modes.STATS,
     };
     if (typeof mode !== 'string') {
       cliLogging.error('Build mode must be specified');
@@ -75,8 +80,9 @@ program
       [modes.PROD]: webpackConfigProd,
       [modes.DEV]: webpackConfigDev,
       [modes.I18N]: webpackConfigI18N,
+      [modes.STATS]: webpackConfigProd,
     }[mode];
-    let config;
+
     if (mode === modes.DEV) {
       const numberOfBundles = bundleData.length;
       let currentlyCompiling = 0;
@@ -107,8 +113,59 @@ program
           }
         });
       }
+    } else if (mode === modes.CLEAN) {
+      const clean = require('./clean');
+      clean(bundleData);
+    } else if (mode === modes.STATS) {
+      const viewer = require('webpack-bundle-analyzer/lib/viewer');
+      const config = webpackConfig(bundleData);
+      const express = require('express');
+      const http = require('http');
+      webpack(config, (err, stats) => {
+        if (stats.hasErrors()) {
+          buildLogging.error('There was a build error');
+          process.exit(1);
+        } else {
+          let port = 8888;
+          const host = '127.0.0.1';
+          const rootPort = port;
+          const servers = {};
+          Promise.all(
+            stats.stats.map(stat => {
+              port += 1;
+              viewer.startServer(stat.toJson(), {
+                openBrowser: false,
+                port,
+              });
+              servers[stat.compilation.options.name] = port;
+            })
+          ).then(() => {
+            const app = express();
+            let response = `<html>
+            <body>
+            <h1>Kolibri Stats Links</h1>
+            <ul>`;
+            Object.keys(servers).forEach(key => {
+              response += `<li><a href="http://${host}:${servers[key]}">${key}</a></li>`;
+            });
+            response += '</ul></body></html>';
+
+            app.use('/', (req, res) => {
+              res.send(response);
+            });
+            const server = http.createServer(app);
+            server.listen(rootPort, host, () => {
+              const url = `http://${host}:${server.address().port}`;
+              logger.info(
+                `Webpack Bundle Analyzer Reports are available at ${url}\n` +
+                  `Use ${'Ctrl+C'} to close it`
+              );
+            });
+          });
+        }
+      });
     } else {
-      config = webpackConfig(bundleData);
+      const config = webpackConfig(bundleData);
       webpack(config, (err, stats) => {
         if (stats.hasErrors()) {
           buildLogging.error('There was a build error');
