@@ -5,7 +5,7 @@ const temp = require('temp').track();
 
 const webpack_json = path.resolve(path.dirname(__filename), './webpack_json.py');
 
-module.exports = function({ pluginFile, plugins }) {
+module.exports = function({ pluginFile, plugins, pluginPaths }) {
   // the temporary path where the webpack_json json is stored
   const webpack_json_tempfile = temp.openSync({ suffix: '.json' }).path;
 
@@ -27,6 +27,12 @@ module.exports = function({ pluginFile, plugins }) {
   } else if (plugins.length) {
     const allPlugins = plugins.join(' ');
     command += `--plugins ${allPlugins}`;
+    if (pluginPaths.length && pluginPaths.length === plugins.length) {
+      const allPaths = pluginPaths.map(p => path.resolve(process.cwd(), p)).join(' ');
+      command += ` --plugin_paths ${allPaths}`;
+    } else if (pluginPaths.length && pluginPaths.length !== plugins.length) {
+      throw ReferenceError('Plugin paths and plugins must be of equal length');
+    }
   }
   if (process.platform !== 'win32') {
     execSync(`PATH=$(echo $PATH | sed 's/\\/usr\\/bin://g')\":/usr/bin\" ${command}`);

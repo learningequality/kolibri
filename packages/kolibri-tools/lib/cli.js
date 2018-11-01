@@ -36,6 +36,12 @@ program
     list,
     []
   )
+  .option(
+    '--pluginPaths <pluginPaths...>',
+    'An explicit comma separated list of explicit file paths to plugins',
+    list,
+    []
+  )
   .action(function(mode, options) {
     const webpack = require('webpack');
     const { fork } = require('child_process');
@@ -75,7 +81,12 @@ program
     const bundleData = readWebpackJson({
       pluginFile: options.file,
       plugins: options.plugins,
+      pluginPaths: options.pluginPaths,
     });
+    if (!bundleData.length) {
+      cliLogging.log('No valid bundle data was returned from the plugins specified');
+      process.exit(1);
+    }
     const webpackConfig = {
       [modes.PROD]: webpackConfigProd,
       [modes.DEV]: webpackConfigDev,
