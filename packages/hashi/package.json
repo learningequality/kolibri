@@ -1,0 +1,20 @@
+{
+  "name": "hashi",
+  "version": "0.1.0",
+  "description": "A library for integrating HTML5 apps and games with Kolibri.",
+  "main": "hashi.js",
+  "scripts": {
+    "build": "webpack --config ./webpack.config.js && python scripts/make_test_zip.py"
+  },
+  "author": "Learning Equality",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^0.11.1",
+    "jsdoc": "^3.5.5",
+    "npm-run-all": "^4.1.3",
+    "webpack": "4.6.0",
+    "webpack-cli": "2.0.15"
+  },
+  "dependencies": {
+  }
+}

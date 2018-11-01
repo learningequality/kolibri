@@ -16,6 +16,7 @@
       <mat-svg v-else name="fullscreen" category="navigation" />
     </UiIconButton>
     <iframe
+      ref="iframe"
       class="iframe"
       :style="{ backgroundColor: $coreBgCanvas }"
       sandbox="allow-scripts"
@@ -60,6 +61,8 @@
       },
     },
     mounted() {
+      this.iframeMessageReceived = this.iframeMessageReceived.bind(this);
+      window.addEventListener('message', this.iframeMessageReceived, true);
       this.$emit('startTracking');
       const self = this;
       this.timeout = setTimeout(() => {
@@ -67,10 +70,36 @@
       }, 15000);
     },
     beforeDestroy() {
+      window.removeEventListener('message', this.iframeMessageReceived);
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
+    },
+    methods: {
+      iframeMessageReceived(event) {
+        if (!event) {
+          return;
+        }
+        const message = JSON.parse(event.data);
+        if (message.action === 'stateUpdated') {
+          this.$emit('updateContentState', message.params);
+        } else if (message.action === 'hashiInitialized') {
+          const iframe = this.$refs.iframe.contentWindow;
+
+          // On guest access, the user will be signed out, so just return
+          // an empty key value store in that case.
+          let contentState = {};
+          if (this.extraFields && this.extraFields.contentState) {
+            contentState = this.extraFields.contentState;
+          }
+          const data = {
+            action: 'kolibriDataLoaded',
+            params: { data: contentState },
+          };
+          iframe.postMessage(JSON.stringify(data), '*');
+        }
+      },
     },
     $trs: {
       exitFullscreen: 'Exit fullscreen',

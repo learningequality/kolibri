@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <script src="hashi.js"></script>
+    </head>
+    <body>
+        <div id="timesLoaded-results">
+            TIMES LOADED: DETERMINING....
+        </div>
+        <div id="clear-results">
+
+        </div>
+        <script>
+            var storage = hashi.getLocalStorage().then(function(storage) {
+                console.log("It's loaded!");
+                var timesLoaded = storage.getItem("timesLoaded");
+                if (!timesLoaded) {
+                  timesLoaded = 0;
+                }
+                timesLoaded++;
+                storage.setItem("timesLoaded", timesLoaded);
+                var results = document.getElementById("timesLoaded-results");
+                results.innerText = "TIMES LOADED: " + timesLoaded;
+            });
+
+        </script>
+    </body>
+</html>
