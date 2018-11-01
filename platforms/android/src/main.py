@@ -2,15 +2,19 @@ import logging
 import os
 import sys
 import time
+import urllib2
+
+# initialize logging before loading any third-party modules, as they may cause logging to get configured.
+logging.basicConfig(level=logging.DEBUG)
+
 import pew
 import pew.ui
 
-logging.basicConfig(level=logging.DEBUG)
 pew.set_app_name("Kolibri")
 logging.info("Entering main.py...")
 
 
-if True:  # pew.ui.platform == "android":
+if pew.ui.platform == "android":
     from jnius import autoclass
     Environment = autoclass('android.os.Environment')
     File = autoclass('java.io.File')
@@ -30,12 +34,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "kolibri", "dist"))
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
 
-if True:  # pew.ui.platform == "android":
+if pew.ui.platform == "android":
     os.environ["KOLIBRI_HOME"] = get_home_folder()
-    # os.environ["TZ"] = Timezone.getDisplayName()
+    os.environ["TZ"] = Timezone.getDefault().getDisplayName()
 
     logging.info("Home folder: {}".format(os.environ["KOLIBRI_HOME"]))
-    # logging.info("Timezone: {}".format(os.environ["TZ"]))
+    logging.info("Timezone: {}".format(os.environ["TZ"]))
 
 
 def start_django():
@@ -68,38 +72,44 @@ class Application(pew.ui.PEWApp):
         """
 
         # Set loading screen
-        self.webview = pew.ui.WebUIView("Kolibri", '_load.html', delegate=self)
-        self.webview.show()
+        loader_page = os.path.abspath('_load.html')
+        loader_url = 'file://{}'.format(loader_page)
+        self.webview = pew.ui.WebUIView("Kolibri", loader_url, delegate=self)
 
         # start thread
         self.thread = pew.ui.PEWThread(target=start_django)
         self.thread.daemon = True
         self.thread.start()
 
-        def serverNotRunning():
-            from kolibri.utils import server
-            status = True
-            try:
-                server.get_status()
-                status = False
+        self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
+        self.load_thread.daemon = True
+        self.load_thread.start()
 
-            except:
-                logging.basicConfig(level=logging.DEBUG)
-                logging.info('get_status failed')
-
-            return status
-
-        while serverNotRunning():
-            # seems to be refresh value in get_status code
-            time.sleep(3)
-
-        self.webview.load_url("http://localhost:5000")
-        self.webview.show()
         # make sure we show the UI before run completes, as otherwise
         # it is possible the run can complete before the UI is shown,
         # causing the app to shut down early
-
+        self.webview.show()
         return 0
+
+    def load_complete(self):
+        """
+        This is a PyEverywhere delegate method to let us know the WebView is ready to use. Just pass for now.
+        """
+        pass
+
+    def wait_for_server(self):
+        from kolibri.utils import server
+        running = False
+        while not running:
+            try:
+                url = 'http://localhost:5000'
+                result = urllib2.urlopen(url)
+                running = True
+                pew.ui.run_on_main_thread(self.webview.load_url(url))
+            except Exception as e:
+                import traceback
+                logging.info('Kolibri server not yet started, checking again in one second...')
+                time.sleep(2)
 
     def get_main_window(self):
         return self.webview
