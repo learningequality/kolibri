@@ -17,11 +17,14 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
       gettext \
       git \
+      git-lfs \
       nodejs=6.14.1-1nodesource1 \
       python2.7 \
       python-pip \
       python-sphinx \
       yarn
+
+RUN git lfs install
 
 COPY . /kolibri
 
