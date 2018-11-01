@@ -169,11 +169,14 @@ const __builder = {
           );
         });
       } else {
-        // Check if this is a global import (i.e. from node_modules)
-        if (!obj.startsWith('/') && lastKey) {
-          spec[lastKey] = obj;
-        } else {
-          spec[lastKey] = requireName(['kolibri'].concat(pathArray), '/');
+        if (lastKey) {
+          // Check if this is a global import (i.e. from node_modules)
+          if (!obj.startsWith('/')) {
+            spec[lastKey] = obj;
+          } else {
+            // Add any file extension from the original spec
+            spec[lastKey] = requireName(['kolibri'].concat(pathArray), '/') + path.extname(obj);
+          }
         }
       }
     }
@@ -216,12 +219,12 @@ const __builder = {
         if (node.source) {
           const importPath = node.source.value;
           // Prefix any resolved files with an underscore as they are not part of the core spec
-          const replacePath = resolveDependenciesAndCopy(
-            importPath,
+          const replacePath = resolveDependenciesAndCopy({
+            sourcePath: importPath,
             destinationFolder,
             sourceFolder,
-            '_'
-          );
+            prefix: '_',
+          });
           sourceContents = sourceContents.replace(importPath, replacePath);
         }
       });
@@ -238,12 +241,12 @@ const __builder = {
         // This should be the path for the import statement
         const importPath = node.node.value;
         // Prefix any resolved files with an underscore as they are not part of the core spec
-        const replacePath = resolveDependenciesAndCopy(
-          importPath,
+        const replacePath = resolveDependenciesAndCopy({
+          sourcePath: importPath,
           destinationFolder,
           sourceFolder,
-          '_'
-        );
+          prefix: '_',
+        });
         sourceContents.replace(importPath, replacePath);
       });
       return sourceContents;
@@ -270,12 +273,13 @@ const __builder = {
       return sourceContents;
     }
 
-    function resolveDependenciesAndCopy(
+    function resolveDependenciesAndCopy({
       sourcePath,
       destinationFolder,
       sourceFolder = '',
-      prefix = ''
-    ) {
+      prefix = '',
+      destinationFileBase = '',
+    } = {}) {
       // The source file path must be an absolute or relative path, otherwise it is a library external to Kolibri
       // like vue, vuex etc. Do not copy these. Alternatively it is a kolibri API spec reference.
       // Create a path without ~ because this is used for node_module or alias import resolution in SCSS/CSS
@@ -300,7 +304,10 @@ const __builder = {
         const destinationFile = path.join(
           destinationFolder,
           extraPath,
-          prefix + path.basename(sourceFile)
+          prefix +
+            (destinationFileBase
+              ? destinationFileBase + path.extname(sourceFile)
+              : path.basename(sourceFile))
         );
         // Copy from the source to the destination.
         const sourceContents = fs.readFileSync(sourceFile, { encoding: 'utf-8' });
@@ -353,7 +360,11 @@ const __builder = {
           // Make a folder so that we have a directory structure that maps to the core API object structure
           const destinationFolder = path.resolve(path.join(distPath, ...pathsArray));
           mkdirp.sync(destinationFolder);
-          resolveDependenciesAndCopy(obj[key], destinationFolder);
+          resolveDependenciesAndCopy({
+            sourcePath: obj[key],
+            destinationFolder,
+            destinationFileBase: key,
+          });
         }
       });
     }
