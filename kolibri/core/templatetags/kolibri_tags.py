@@ -108,13 +108,13 @@ def kolibri_language_globals(context):
     lang_dir = "rtl" if get_language_bidi() else "ltr"
 
     languages = {}
-    for lang_info in i18n.KOLIBRI_SUPPORTED_LANGUAGES:
-        code = lang_info["intl_code"]
+    for code, language_name in settings.LANGUAGES:
+        lang_info = next((lang for lang in i18n.KOLIBRI_SUPPORTED_LANGUAGES if lang['intl_code'] == code), None)
         languages[code] = {
             # Format to match the schema of the content Language model
             "id": code,
-            "lang_name": lang_info["language_name"],
-            "english_name": lang_info["english_name"],
+            "lang_name": language_name,
+            "english_name": lang_info["english_name"] if lang_info else get_language_info(code)["name"],
             "lang_direction": get_language_info(code)["bidi"],
         }
 
