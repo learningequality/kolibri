@@ -1,17 +1,17 @@
 <template>
 
   <popper
-    v-if="mounted"
+    v-if="readyToInit"
     :reference="htmlElement"
     :disabled="disabled"
     :visibleArrow="false"
     :options="options"
     trigger="hover"
-    class="d-b"
+    class="k-tooltip-container"
   >
     <div
       dir="auto"
-      class="popper-custom-skin"
+      class="k-tooltip"
     >
       <!--Default slot that will contain the tooltip content.-->
       <slot></slot>
@@ -70,6 +70,9 @@
       };
     },
     computed: {
+      readyToInit() {
+        return this.mounted && this.htmlElement;
+      },
       options() {
         return {
           placement: this.placement,
@@ -84,6 +87,9 @@
       },
       htmlElement() {
         let element = this.refs[this.reference];
+        if (!element) {
+          return null;
+        }
         if (isArray(element)) {
           element = element[0];
         }
@@ -107,7 +113,11 @@
 
   @import '~kolibri.styles.definitions';
 
-  .popper-custom-skin {
+  .k-tooltip-container {
+    display: block;
+  }
+
+  .k-tooltip {
     position: absolute;
     z-index: 24;
     min-width: 75px;
@@ -121,10 +131,6 @@
     border-radius: 8px;
     box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
       0 1px 3px 0 rgba(0, 0, 0, 0.12);
-  }
-
-  .d-b {
-    display: block;
   }
 
 </style>
