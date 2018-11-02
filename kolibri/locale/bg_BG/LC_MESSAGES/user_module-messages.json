@@ -43,6 +43,7 @@
     "SignInPage.requiredForCoachesAdmins": "За учители и администратори се изисква парола",
     "SignInPage.usernameNotAlphaNumUnderscore": "Потребителското име може да съдържа само букви, цифри и долни черти",
     "SignInPage.documentTitle": "Потребителски вход",
+    "SignInPage.privacyLink": "Употреба и поверителност",
     "SignUpPage.createAccount": "Създаване на профил",
     "SignUpPage.name": "Име и фамилия",
     "SignUpPage.username": "Потребителско име",
@@ -58,5 +59,6 @@
     "SignUpPage.facility": "Институция",
     "SignUpPage.required": "Това поле е задължително",
     "SignUpPage.documentTitle": "Потребителска регистрация",
+    "SignUpPage.privacyLink": "Употреба и поверителност в Колибри",
     "UserIndex.userProfileTitle": "Профил"
 }

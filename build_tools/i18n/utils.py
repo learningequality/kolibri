@@ -52,10 +52,6 @@ IN_CTXT_LANG = {
     KEY_DEFAULT_FONT: "NotoSans",
 }
 
-# Keys used in simple internal 'font info' dictionaries
-KEY_NAME = "name"
-KEY_HAS_UI = "has_ui_variant"
-
 
 def to_locale(language):
     """
