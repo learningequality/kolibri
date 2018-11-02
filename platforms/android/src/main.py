@@ -29,8 +29,9 @@ def get_home_folder():
     return kolibri_home_file.toString()
 
 
-sys.path.append(os.path.dirname(__file__))
-sys.path.append(os.path.join(os.path.dirname(__file__), "kolibri", "dist"))
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(script_dir)
+sys.path.append(os.path.join(script_dir, "kolibri", "dist"))
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
 
@@ -72,7 +73,7 @@ class Application(pew.ui.PEWApp):
         """
 
         # Set loading screen
-        loader_page = os.path.abspath('_load.html')
+        loader_page = os.path.abspath(os.path.join('assets', '_load.html'))
         loader_url = 'file://{}'.format(loader_page)
         self.webview = pew.ui.WebUIView("Kolibri", loader_url, delegate=self)
 
