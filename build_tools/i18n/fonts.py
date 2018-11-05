@@ -305,14 +305,22 @@ Subset fonts
 """
 
 
+def _chunks(string, n=72):
+    """
+    Yield successive n-sized chunks from string
+    """
+    for i in range(0, len(string), n):
+        yield string[i : i + n]
+
+
 def _write_inline_font(file_object, font_path, font_family, is_bold):
     """
     Inlines a font as base64 encoding within a CSS file
     """
     with io.open(font_path, mode="rb") as f:
         data = f.read()
-    data_uri = "data:application/x-font-woff;charset=utf-8;base64,{}".format(
-        base64.b64encode(data).decode()
+    data_uri = "data:application/x-font-woff;charset=utf-8;base64,\\\n{}".format(
+        "\\\n".join(_chunks(base64.b64encode(data).decode()))
     )
     glyphs = _font_glyphs(font_path)
     if not glyphs:
