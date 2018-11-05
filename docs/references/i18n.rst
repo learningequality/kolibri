@@ -197,12 +197,16 @@ This will give you some output like this:
 This information can be provided to translators; it's also available on the Crowdin website.
 
 
-Fetching and building translations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Updating i18n files
+~~~~~~~~~~~~~~~~~~~
 
-In order to get the newly translated strings into the application, they need to be downloaded from Crowdin and checked in to the Kolibri github repo.
+Before fetching and building the internationalization files, you need to download source fonts from Google. In order to do this, run:
 
-You can download them and update Kolibri using the command below. **It can take a long time!**
+.. code-block:: bash
+
+    make i18n-download-source-fonts
+
+Next, we download the latest translations from Crowdin and rebuild a number of dependent files which will be checked in to git. Do this using the command below. **It can take a long time!**
 
 .. code-block:: bash
 
@@ -250,14 +254,6 @@ The language must be described using the following keys, with everything in lowe
 * For ``language_name`` and ``english_name``, refer to the `ISO 639 codes <https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>`__. If necessary, use `this backup reference <http://helpsharepointvision.nevron.com/Culture_Table.html>`__. If the language is a dialect specific to a region, include the name of the region in parentheses after the language name.
 * For the ``default_font``, we use variants of Noto Sans. Search the `Noto database <https://www.google.com/get/noto/>`__ to see which font supports the language you are adding.
 
-Add a new font or update an existing one by running:
-
-.. code-block:: bash
-
-    make i18n-install-font name=[FontName]
-
-Where ``[FontName]`` might for example be for exmaple ``NotoSansBengali``. Note that this will also automatically look for the ``[FontName]UI`` variant, e.g. ``NotoSansBengaliUI``.
-
 If the language doesn't exist in Django, you may get errors when trying to view the language. In this case it needs to be added to ``EXTRA_LANG_INFO`` in ``base.py``. Additionally, for this language to work during development, the django.mo files for the language must be generated and committed to the repo. After running ``make i18n-update`` as described above, add the new file:
 
 .. code-block:: bash
@@ -266,5 +262,26 @@ If the language doesn't exist in Django, you may get errors when trying to view 
 
 The ``--force`` flag will bypass .gitignore
 
-.. note:: We attempt to download Phase III hinted TTF fonts from the `Google Noto Fonts <https://github.com/googlei18n/noto-fonts/>`__ github repo. It is possible that the structure of this repo will change over time, and the installer script will need to be updated.
 
+Updating font files
+~~~~~~~~~~~~~~~~~~~
+
+We pin our font source files to a particular commit in the `Google Noto Fonts <https://github.com/googlei18n/noto-fonts/>`__ github repo.
+
+Google occasionally adds new font files and updates existing ones based on feedback from the community. They're also in the process of converting older-style fonts to their "Phase III" fonts, which are better for us because they can be merged together.
+
+In order to update the version of the repo that we're using to the latest HEAD, run:
+
+.. code-block:: bash
+
+  python build_tools/i18n/fonts.py update-font-manifest
+
+You can also specify a particular git hash or tag:
+
+.. code-block:: bash
+
+  python build_tools/i18n/fonts.py update-font-manifest [commit hash]
+
+Make sure to test re-generating font files after updating the sources.
+
+.. note:: We attempt to download fonts from the repo. It is possible that the structure of this repo will change over time, and the download script might need to be updated after changing which version of the repo we're pinned to.

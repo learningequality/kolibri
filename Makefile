@@ -38,6 +38,7 @@ help:
 	@echo "i18n-extract: extract all strings from application (both front- and back-end)"
 	@echo "i18n-upload branch=<crowdin-branch>: upload sources to Crowdin"
 	@echo "i18n-download branch=<crowdin-branch>: download strings from Crowdin"
+	@echo "i18n-download-source-fonts: retrieve source Google Noto fonts"
 	@echo "i18n-regenerate-fonts: regenerate font files"
 	@echo "i18n-update branch=<crowdin-branch>: i18n-download + i18n-regenerate-fonts"
 	@echo "i18n-stats branch=<crowdin-branch>: output information about translation status"
@@ -187,6 +188,9 @@ i18n-download:
 	python build_tools/i18n/crowdin.py download ${branch}
 	yarn run generate-locale-data
 	$(MAKE) i18n-django-compilemessages
+
+i18n-download-source-fonts:
+	python build_tools/i18n/fonts.py download-source-fonts
 
 i18n-regenerate-fonts:
 	python build_tools/i18n/fonts.py generate-full-fonts
