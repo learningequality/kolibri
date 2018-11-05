@@ -170,7 +170,14 @@
           paddingRight: padding,
         };
         if (this.currentAlignment) {
-          style.textAlign = this.currentAlignment;
+          // TODO: rename the alignment inputs to 'start' and 'end'
+          if (this.isRtl && this.currentAlignment === 'left') {
+            style.textAlign = 'right';
+          } else if (this.isRtl && this.currentAlignment === 'right') {
+            style.textAlign = 'left';
+          } else {
+            style.textAlign = this.currentAlignment;
+          }
         }
         return style;
       },
