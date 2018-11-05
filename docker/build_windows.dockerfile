@@ -6,8 +6,11 @@ RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       ca-certificates \
       git \
+      git-lfs \
       sudo \
       software-properties-common
+
+RUN git lfs install
 
 RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
