@@ -6,12 +6,8 @@
   "author": "Learning Equality",
   "license": "MIT",
   "private": false,
-  "bin": {
-    "kolibri-tools": "./lib/cli.js"
-  },
   "scripts": {
-    "build": "node ./build/index.js",
-    "prepublish": "node ./build/prepublish.js"
+    "build": "node ./build/index.js"
   },
   "dependencies": {
     "clipboard": "^2.0.1",
@@ -33,7 +29,7 @@
     "vue-router": "^2.1.1",
     "vuex": "^3.0.1"
   },
-  "peerDependencies": {
-    "kolibri-tools": "^0.12.0"
+  "devDependencies": {
+    "kolibri-tools": "0.12.0-dev.1"
   }
 }

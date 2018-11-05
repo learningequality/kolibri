@@ -2,7 +2,7 @@
 const path = require('path');
 const { __buildKolibriName } = require('./lib/kolibriName');
 const { __builder } = require('./lib/apiSpecExportTools');
-const writeVersion = require('./lib/version');
+const versionTools = require('./lib/version');
 
 /*
  * Step 1: Generate a local copy of the KOLIBRI_CORE_JS_NAME file
@@ -15,14 +15,3 @@ __buildKolibriName();
  */
 
 __builder.buildApiSpec();
-
-/*
- * Step 3: Set the version to the current Kolibri version
- */
-
-writeVersion(path.resolve(__dirname, 'package.json'));
-
-/*
- * Step 4: Set the lerna.json version to the same version
- */
-writeVersion(path.resolve(__dirname, '..', '..', 'lerna.json'));

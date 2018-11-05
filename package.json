@@ -1,6 +1,6 @@
 {
   "name": "kolibri-root",
-  "version": "0.0.1",
+  "version": "0.12.0-dev.1",
   "description": "Development utilities for Kolibri",
   "workspaces": [
     "packages/*",
@@ -24,9 +24,10 @@
     "lint:fix": "yarn run lint -w",
     "lint:watch": "yarn lint:fix -m",
     "generate-locale-data": "node ./build_tools/i18n/intl_code_gen.js",
-    "build-packages": "lerna run build",
-    "publish-packages": "node ./packages/kolibri-tools/lib/version.js && lerna publish --no-git-tag-version",
-    "bootstrap-packages": "lerna bootstrap"
+    "build-kolibri": "yarn workspace kolibri run build",
+    "build-kolibri-tools": "yarn workspace kolibri-tools run build",
+    "build-packages": "npm-run-all build-kolibri build-kolibri-tools",
+    "publish-packages": "node ./packages/publish.js"
   },
   "repository": {
     "type": "git",
@@ -41,7 +42,6 @@
   "dependencies": {},
   "devDependencies": {
     "kolibri-tools": "0.12.0",
-    "lerna": "^3.4.3",
     "responselike": "^1.0.2",
     "stylelint-scss": "^3.3.2",
     "yarn-run-all": "^3.1.1"

@@ -1,12 +1,10 @@
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 const temp = require('temp').track();
+const readlineSync = require('readline-sync');
 const semver = require('semver');
-const logger = require('./logging');
 
-const logging = logger.getLogger('Kolibri Version');
-
-function getVersion(prerelease = false) {
+function getVersion(prompt = false) {
   // the temporary path where the version is stored
   const filename = temp.openSync().path;
 
@@ -39,7 +37,7 @@ function getVersion(prerelease = false) {
 
   let suffix = '';
 
-  if (remainder && prerelease) {
+  if (remainder) {
     const preidMap = {
       b: 'beta',
       a: 'alpha',
@@ -52,7 +50,26 @@ function getVersion(prerelease = false) {
 
     const prereleaseNumRe = new RegExp(`${preid}([0-9]+)`);
 
-    const prereleaseNum = preid === 'dev' ? 'x' : prereleaseNumRe[Symbol.match](remainder)[1];
+    let userNum;
+
+    const userDefinedPrerelease = prompt && preid === 'dev';
+
+    if (userDefinedPrerelease) {
+      // If required, prompt for a dev release number
+      // As Kolibri versioning will not give us an extra number of dev releases,
+      // but will for all prereleases
+      // If we are not generating a version number for use in a published package, this
+      // does not matter.
+      while (isNaN(Number(userNum))) {
+        userNum = readlineSync
+          .question('What version suffix number should be used for the dev release? ')
+          .trim();
+      }
+    }
+
+    const prereleaseNum = userDefinedPrerelease
+      ? userNum
+      : prereleaseNumRe[Symbol.match](remainder)[1];
 
     suffix = `-${prereleaseId}.${prereleaseNum}`;
   }
@@ -60,18 +77,52 @@ function getVersion(prerelease = false) {
   return semVersion.version + suffix;
 }
 
-function setVersion(packageFile) {
-  const version = getVersion();
+function setVersion(packageFile, version = null) {
+  if (version === null) {
+    version = getVersion(true);
+  }
 
   const pkg = require(packageFile);
 
   pkg.version = version;
 
   fs.writeFileSync(packageFile, JSON.stringify(pkg, undefined, 2), { encoding: 'utf-8' });
+
+  return version;
 }
 
-module.exports = setVersion;
+function setDependencyVersion(dependencyName, packageFile, version = null) {
+  if (version === null) {
+    version = getVersion(true);
+  }
 
-if (require.main === module) {
-  logging.info('Suggested release version is ' + getVersion(true));
+  const pkg = require(packageFile);
+
+  if (pkg.dependencies && pkg.dependencies[dependencyName]) {
+    pkg.dependencies[dependencyName] = version;
+  }
+
+  if (pkg.devDependencies && pkg.devDependencies[dependencyName]) {
+    pkg.devDependencies[dependencyName] = version;
+  }
+
+  fs.writeFileSync(packageFile, JSON.stringify(pkg, undefined, 2), { encoding: 'utf-8' });
+
+  return version;
 }
+
+function isPrerelease(version = null) {
+  if (version === null) {
+    version = getVersion(true);
+  }
+  const parsed = semver.parse(version);
+
+  return Boolean(parsed.prerelease.length);
+}
+
+module.exports = {
+  setVersion,
+  getVersion,
+  setDependencyVersion,
+  isPrerelease,
+};
