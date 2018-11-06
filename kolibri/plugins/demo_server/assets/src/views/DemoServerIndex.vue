@@ -29,24 +29,31 @@
 
         <p>
           To learn more about using Kolibri, take a look at our
-          <a href="https://learningequality.org/documentation/">
-            documentation guides
-          </a> and
-          <a href="https://learningequality.org/download/">
-            download the latest release
-          </a> to better understand the platform in an offline context.
+          <KExternalLink href="https://learningequality.org/documentation/" text="documentation guides" />
+          and
+          <KExternalLink href="https://learningequality.org/download/" text="download the latest release" />
+          to better understand the platform in an offline context.
         </p>
+        <KButton
+          class="close-button"
+          :text="'Close'"
+          appearance="flat-button"
+          :primary="true"
+          @click="toggleBannerState"
+        />
       </div>
       <div v-else>
-        <h1 class="closed-text">Welcome to the Kolibri demo site!</h1>
+        <h1>
+          Welcome to the Kolibri demo site!
+          <KButton
+            class="open-button"
+            :text="'Open'"
+            appearance="flat-button"
+            :primary="true"
+            @click="toggleBannerState"
+          />
+        </h1>
       </div>
-      <KButton
-        class="close-button"
-        :text="bannerClosed ? 'Open' : 'Close'"
-        appearance="flat-button"
-        :primary="true"
-        @click="bannerClosed = !bannerClosed"
-      />
 
     </div>
   </div>
@@ -57,16 +64,25 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
 
   export default {
     name: 'DemoServerIndex',
     components: {
       KButton,
+      KExternalLink,
     },
     data() {
       return {
         bannerClosed: false,
       };
+    },
+    methods: {
+      toggleBannerState(event) {
+        this.bannerClosed = !this.bannerClosed;
+        event.target.blur();
+        return false;
+      },
     },
   };
 
@@ -85,18 +101,15 @@
     margin: 0 auto;
     overflow-y: auto;
     background: $core-bg-light;
-    border-radius: $radius;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   }
 
   .banner-inner {
     max-width: 1000px;
-    padding-top: 24px;
+    padding-top: 0;
     padding-right: 12px;
     padding-left: 12px;
     margin: 0 auto;
     h1 {
-      font-size: 14px;
       font-weight: bold;
     }
   }
@@ -106,8 +119,9 @@
     margin-bottom: 24px;
   }
 
-  .closed-text {
-    float: left;
+  .open-button {
+    float: right;
+    margin-top: 0;
   }
 
 </style>
