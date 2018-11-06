@@ -27,28 +27,28 @@ For example:
 .. code-block:: none
 
   kolibri/
-    core/                       # core (shared) items
+    core/                             # core (shared) items
       assets/
         src/
-          core-base.vue         # global base template, used by apps
-          core-modal.vue        # example of another shared component
-          core-global.scss      # globally defined styles, indluded in head
-          core-theme.scss       # style variable values
-          font-noto-sans.css     # embedded font
+          CoreBase.vue                # global base template, used by plugins
+          CoreModal.vue               # example of another shared component
+          core-global.scss            # globally defined styles, included in head
+          core-theme.scss             # style variable values
+          font-noto-sans.css          # embedded font
         test/
-          ...                   # tests for core assets
+          ...                         # tests for core assets
     plugins/
-      learn                     # learn plugin
+      learn                           # learn plugin
         assets/
           src/
-            vue/
-              index.vue         # root view
-              some-page.vue     # top-level client-side page
-              another-page/     # top-level client-side page
+            views/
+              LearnIndex.vue          # root view
+              SomePage.vue            # top-level client-side page
+              AnotherPage/            # top-level client-side page
                 index.vue
-                child.vue       # child component used only by parent
-              shared.vue        # shared across this plugin
-            app.js              # instantiate learn app on client-side
+                Child.vue             # child component used only by parent
+              Shared.vue              # shared across this plugin
+            app.js                    # instantiate learn app on client-side
             router.js
             store.js
           test/
@@ -56,14 +56,14 @@ For example:
       management/
         assets/
           src/
-            vue/user-page.vue   # nested-view
-            vue/index.vue       # root view
-            app.js              # instantiate mgmt app on client-side
+            views/UserPage.vue        # nested-view
+            views/ManagementIndex.vue # root view
+            app.js                    # instantiate mgmt app on client-side
           test/
             app.js
 
 
-In the example above, the *vue/another-page/index.vue* file in *learn* can use other assets in the same directory (such as *child.vue*), components in *vue* (such as *shared.vue*), and assets in core (such as variables in *core-theme.scss*). However it cannot use files in other plugin directories (such as *management*).
+In the example above, the *views/AnotherPage/index.vue* file in *learn* can use other assets in the same directory (such as *Child.vue*), components in *views* (such as *Shared.vue*), and assets in core (such as variables in *core-theme.scss*). However it cannot use files in other plugin directories (such as *management*).
 
 .. note::
 
@@ -75,14 +75,14 @@ In the example above, the *vue/another-page/index.vue* file in *learn* can use o
 SVG Icons
 ---------
 
-SVGs can be inlined into Vue components using a special syntax:
-
+`Material Design Icon <https://material.io/tools/icons/>`__ SVGs or local SVGs can be inlined using the `svg-icon-inline-loader <https://github.com/learningequality/svg-icon-inline-loader>`__
 
 .. code-block:: html
 
-  <svg src="icon.svg"></svg>
+  <mat-svg category="navigation" name="fullscreen_exit"/>
+  <file-svg src="./icon.svg"/>
 
-Then, if there is a file called ``icon.svg`` in the same directory, that file will be inserted directly into the outputted HTML. This allows aspects of the icon (e.g. fill) to be styled using CSS.
+Inlining an SVG allows it to be inserted directly into the outputted HTML. This allows aspects of the icon (e.g. fill) to be styled using CSS.
 
 Attributes (such as vue directives like ``v-if`` and SVG attributes like ``viewbox``) can also be added to the svg tag.
 
@@ -177,52 +177,40 @@ The following libraries are available globally, in all module code:
 - ``vue`` - the Vue.js object
 - ``vuex`` - the Vuex object
 - ``logging`` - our wrapper around the `loglevel logging module <https://github.com/pimterry/loglevel>`__
-- ``core-base`` - a shared base Vue.js component (*core-base.vue*)
+- ``CoreBase`` - a shared base Vue.js component (*CoreBase.vue*)
 
-And many others. The complete specification for commonly shared modules can be found in `kolibri/core/assets/src/core-app/apiSpec.js` - this object defines which modules are imported into the core object. If the module in question has the 'requireName' attribute set on the core specification, then it can be used in code with a standard CommonJS-style require statement - e.g.:
+And many others. The complete specification for commonly shared modules can be found in `kolibri/core/assets/src/core-app/apiSpec.js` - this object defines which modules are imported into the core object. These can then be imported throughout the codebase - e.g.:
 
 .. code-block:: javascript
 
-  const vue = require('kolibri.lib.vue');
-  const coreBase = require('kolibri.coreVue.components.coreBase');
+  import Vue from 'kolibri.lib.vue';
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
 
 Adding additional globally-available objects is relatively straightforward due to the `plugin and webpack build system </pipeline/frontend_build_pipeline>`__.
 
-To expose something on the core app, add a key to the object in `apiSpec.js` which maps to an object with the following keys:
+To expose something in the core app, add the module to the object in `apiSpec.js`, scoping it to the appropriate property for better organization - e.g.:
 
 .. code-block:: javascript
 
-  modulePath: {
-      module: require('module-name'),
-    }
+  components: {
+    CoreTable,
+  },
+ utils: {
+    navComponents,
+  },
 
-This module would now be available for import anywhere with the following statement:
-
-.. code-block:: javascript
-
-  const MODULE = require('kolibri.modulePath');
-
-For better organisation of the Core API specification, modules can also be attached at arbitrarily nested paths:
+These modules would now be available for import anywhere with the following statements:
 
 .. code-block:: javascript
 
-  modulePath: {
-      nestedPath: {
-        module: require('module-name'),
-      }
-    }
-
-This module would now be available for import anywhere with the following statement:
-
-.. code-block:: javascript
-
-    const MODULE = require('kolibri.modulePath.nestedPath');
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import navComponents from 'kolibri.utils.navComponents';
 
 For convenience (and to prevent accidental imports), 3rd party (NPM) modules installed in node_modules can be required by their usual name also:
 
   .. code-block:: javascript
 
-    const vue = require('vue');
+    import Vue from 'vue';
 
 Bootstrapped data
 ~~~~~~~~~~~~~~~~~
@@ -237,8 +225,8 @@ Styling
 
 For shared styles, two mechanisms are provided:
 
-* The *core-theme.scss* file provides values for some globally-relevant SCSS variables. These variables can be used in any component's ``<style>`` block by adding the line ``@require '~core-theme.scss'``.
-* The *core-global.scss* file is always inserted into the ``<head>`` after normalize.css and provides some basic styling to global elements
+* The *core-theme.scss* file provides values for some globally-relevant SCSS variables. These variables can be used in any component's ``<style>`` block by adding the line `` @import '~kolibri.styles.theme';``.
+* The *main.scss* file is always inserted into the ``<head>`` after normalize.css and provides some basic styling to global elements
 
 
 Additional functionality
