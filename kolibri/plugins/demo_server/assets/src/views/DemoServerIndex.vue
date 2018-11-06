@@ -47,7 +47,7 @@
           Welcome to the Kolibri demo site!
           <KButton
             class="open-button"
-            :text="'Open'"
+            :text="'More info'"
             appearance="flat-button"
             :primary="true"
             @click="toggleBannerState"
