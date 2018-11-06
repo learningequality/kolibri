@@ -30,6 +30,12 @@ versionTools.setDependencyVersion(
   version
 );
 
+versionTools.setDependencyVersion(
+  'kolibri-tools',
+  path.resolve(__dirname, '../package.json'),
+  version
+);
+
 /*
  * Step 5 - Set version of kolibri-tools' kolibri dependency and eslint-plugin-kolibri dependency
  */
@@ -53,7 +59,9 @@ const currentCwd = process.cwd();
 process.chdir(path.resolve(__dirname, '..'));
 
 function publishCommand(workspace) {
-  execSync(`yarn workspace ${workspace} publish --new-version ${version} --tag ${tag}`);
+  execSync(`yarn workspace ${workspace} publish --new-version ${version} --tag ${tag}`, {
+    stdio: 'inherit',
+  });
 }
 
 ['eslint-plugin-kolibri', 'kolibri', 'kolibri-tools'].forEach(publishCommand);
