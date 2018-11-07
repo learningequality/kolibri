@@ -44,10 +44,6 @@ export default class CoreApp {
     // Assign API spec
     Object.assign(this, apiSpec);
 
-    // Assign any overridden core API elements here
-    // Use the default object if it has been specified using an ES6 default export.
-    merge(this, __coreAPISpec.default || __coreAPISpec);
-
     const mediator = new Mediator();
 
     Vue.prototype.Kolibri = this;

@@ -23,7 +23,7 @@ const specFilePath = path.resolve(
 );
 
 function specModule(filePath) {
-  var rootPath = path.dirname(filePath);
+  const rootPath = path.dirname(filePath);
   function newPath(p1) {
     if (p1.startsWith('.')) {
       return path.join(rootPath, p1);
@@ -35,11 +35,11 @@ function specModule(filePath) {
   // Read the spec file and do a regex replace to change all instances of 'require('...')'
   // to just be the string of the require path.
   // Our strict linting rules should ensure that this regex suffices.
-  var apiSpecFile = fs.readFileSync(filePath, { encoding: 'utf-8' });
+  const apiSpecFile = fs.readFileSync(filePath, { encoding: 'utf-8' });
 
-  var apiSpecTree = espree.parse(apiSpecFile, { sourceType: 'module', ecmaVersion: 2018 });
+  const apiSpecTree = espree.parse(apiSpecFile, { sourceType: 'module', ecmaVersion: 2018 });
 
-  var pathLookup = {};
+  const pathLookup = {};
 
   apiSpecTree.body.forEach(function(dec) {
     if (dec.type === espree.Syntax.ImportDeclaration) {
@@ -47,15 +47,16 @@ function specModule(filePath) {
     }
   });
 
-  var properties = apiSpecTree.body.find(dec => dec.type === espree.Syntax.ExportDefaultDeclaration)
-    .declaration.properties;
+  const properties = apiSpecTree.body.find(
+    dec => dec.type === espree.Syntax.ExportDefaultDeclaration
+  ).declaration.properties;
 
   function recurseProperties(props) {
     props.forEach(prop => {
       if (prop.value.type === espree.Syntax.ObjectExpression) {
         recurseProperties(prop.value.properties);
       } else if (prop.value.type === espree.Syntax.Identifier) {
-        var path = pathLookup[prop.key.name];
+        const path = pathLookup[prop.key.name];
         (prop.value = {
           type: 'Literal',
           value: path,
@@ -69,7 +70,7 @@ function specModule(filePath) {
   recurseProperties(properties);
 
   // Manually construct an AST that will contain the apiSpec object we need
-  var objectTree = {
+  const objectTree = {
     type: 'Program',
     body: [
       {
@@ -380,7 +381,7 @@ function coreExternals() {
   /*
    * Function for creating a hash of externals for modules that are exposed on the core kolibri object.
    */
-  var externalsObj = {
+  const externalsObj = {
     kolibri: kolibriName,
   };
   function recurseObjectKeysAndExternalize(obj, pathArray) {
@@ -400,11 +401,11 @@ function coreExternals() {
   return externalsObj;
 }
 
-function coreAliases(localAPISpec) {
+function coreAliases() {
   /*
    * Function for creating a hash of aliases for modules that are exposed on the core kolibri object.
    */
-  var aliasesObj = Object.assign({}, baseAliases);
+  const aliasesObj = Object.assign({}, baseAliases);
   function recurseObjectKeysAndAlias(obj, pathArray) {
     if (typeof obj === 'object') {
       Object.keys(obj).forEach(function(key) {
@@ -426,11 +427,6 @@ function coreAliases(localAPISpec) {
     }
   }
   recurseObjectKeysAndAlias(apiSpec, ['kolibri']);
-  if (localAPISpec) {
-    // If there is a local API spec being injected, just overwrite previous aliases.
-    var localSpec = specModule(localAPISpec);
-    recurseObjectKeysAndAlias(localSpec, ['kolibri']);
-  }
   return aliasesObj;
 }
 

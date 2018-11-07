@@ -5,9 +5,6 @@ const program = require('commander');
 const version = require('../package.json').version;
 const logger = require('./logging');
 const readWebpackJson = require('./read_webpack_json');
-const webpackConfigProd = require('./webpack.config.prod');
-const webpackConfigDev = require('./webpack.config.dev');
-const webpackConfigI18N = require('./webpack.config.trs');
 
 // ensure the correct version of node is being used
 // (specified in package.json)
@@ -20,6 +17,40 @@ function list(val) {
 }
 
 program.version(version).description('Tools for Kolibri frontend plugins');
+
+function statsCompletionCallback(bundleData) {
+  const express = require('express');
+  const http = require('http');
+  const host = '127.0.0.1';
+  const rootPort = 8888;
+  if (bundleData.length > 1) {
+    const app = express();
+    let response = `<html>
+    <body>
+    <h1>Kolibri Stats Links</h1>
+    <ul>`;
+    bundleData.forEach((bundle, i) => {
+      response += `<li><a href="http://${host}:${rootPort + i + 1}">${bundle.name}</a></li>`;
+    });
+    response += '</ul></body></html>';
+
+    app.use('/', (req, res) => {
+      res.send(response);
+    });
+    const server = http.createServer(app);
+    server.listen(rootPort, host, () => {
+      const url = `http://${host}:${server.address().port}`;
+      logger.info(
+        `Webpack Bundle Analyzer Reports are available at ${url}\n` + `Use ${'Ctrl+C'} to close it`
+      );
+    });
+  } else {
+    const url = `http://${host}:${rootPort + 1}`;
+    logger.info(
+      `Webpack Bundle Analyzer Report is available at ${url}\n` + `Use ${'Ctrl+C'} to close it`
+    );
+  }
+}
 
 // Build
 program
@@ -42,8 +73,8 @@ program
     list,
     []
   )
+  .option('-m, --multi', 'Run using multiple cores to improve build speed', false)
   .action(function(mode, options) {
-    const webpack = require('webpack');
     const { fork } = require('child_process');
     const buildLogging = logger.getLogger('Kolibri Build');
     const modes = {
@@ -78,6 +109,7 @@ program
       program.help();
       process.exit(1);
     }
+    const multi = options.multi || process.env.KOLIBRI_BUILD_MULTI;
     const bundleData = readWebpackJson({
       pluginFile: options.file,
       plugins: options.plugins,
@@ -87,103 +119,80 @@ program
       cliLogging.log('No valid bundle data was returned from the plugins specified');
       process.exit(1);
     }
-    const webpackConfig = {
-      [modes.PROD]: webpackConfigProd,
-      [modes.DEV]: webpackConfigDev,
-      [modes.I18N]: webpackConfigI18N,
-      [modes.STATS]: webpackConfigProd,
+    const buildModule = {
+      [modes.PROD]: 'production.js',
+      [modes.DEV]: 'webpackdevserver.js',
+      [modes.I18N]: 'i18n.js',
+      [modes.STATS]: 'bundleStats.js',
     }[mode];
 
-    if (mode === modes.DEV) {
+    const modulePath = path.resolve(__dirname, buildModule);
+
+    function spawnWebpackProcesses({ completionCallback = null, persistent = true } = {}) {
       const numberOfBundles = bundleData.length;
-      let currentlyCompiling = 0;
+      let currentlyCompiling = numberOfBundles;
+      // The way we are binding this callback to the webpack compilation hooks
+      // it seems to miss this on first compilation, so we will only use this for
+      // watched builds where rebuilds are possible.
+      function startCallback() {
+        currentlyCompiling += 1;
+      }
+      function doneCallback() {
+        currentlyCompiling -= 1;
+        if (currentlyCompiling === 0) {
+          buildLogging.info('All builds complete!');
+          if (completionCallback) {
+            completionCallback(bundleData);
+          }
+        }
+      }
       const children = [];
       for (let index = 0; index < numberOfBundles; index++) {
-        const data = JSON.stringify(bundleData[index]);
-        const forked = fork(path.resolve(__dirname, './webpackdevserver.js'), {
-          env: {
-            data,
-            index,
-          },
-        });
-        children.push(forked);
-        forked.on('exit', (code, signal) => {
-          children.forEach(process => {
-            process.kill(signal);
+        if (multi) {
+          const data = JSON.stringify(bundleData[index]);
+          const childProcess = fork(modulePath, {
+            env: {
+              data,
+              index,
+            },
+            stdio: 'inherit',
           });
-          process.exit(code);
-        });
-        forked.on('message', msg => {
-          if (msg === 'compile') {
-            currentlyCompiling += 1;
-          } else if (msg === 'done') {
-            currentlyCompiling -= 1;
+          children.push(childProcess);
+          if (persistent) {
+            childProcess.on('exit', (code, signal) => {
+              children.forEach(child => {
+                child.kill(signal);
+              });
+              process.exit(code);
+            });
           }
-          if (currentlyCompiling === 0) {
-            buildLogging.info('All builds complete!');
-          }
-        });
+          childProcess.on('message', msg => {
+            if (msg === 'compile') {
+              startCallback();
+            } else if (msg === 'done') {
+              doneCallback();
+            }
+          });
+        } else {
+          const buildFunction = require(modulePath);
+          buildFunction(bundleData[index], index, startCallback, doneCallback);
+        }
       }
-    } else if (mode === modes.CLEAN) {
+    }
+
+    if (mode === modes.CLEAN) {
       const clean = require('./clean');
       clean(bundleData);
     } else if (mode === modes.STATS) {
-      const viewer = require('webpack-bundle-analyzer/lib/viewer');
-      const config = webpackConfig(bundleData);
-      const express = require('express');
-      const http = require('http');
-      webpack(config, (err, stats) => {
-        if (stats.hasErrors()) {
-          buildLogging.error('There was a build error');
-          process.exit(1);
-        } else {
-          let port = 8888;
-          const host = '127.0.0.1';
-          const rootPort = port;
-          const servers = {};
-          Promise.all(
-            stats.stats.map(stat => {
-              port += 1;
-              viewer.startServer(stat.toJson(), {
-                openBrowser: false,
-                port,
-              });
-              servers[stat.compilation.options.name] = port;
-            })
-          ).then(() => {
-            const app = express();
-            let response = `<html>
-            <body>
-            <h1>Kolibri Stats Links</h1>
-            <ul>`;
-            Object.keys(servers).forEach(key => {
-              response += `<li><a href="http://${host}:${servers[key]}">${key}</a></li>`;
-            });
-            response += '</ul></body></html>';
-
-            app.use('/', (req, res) => {
-              res.send(response);
-            });
-            const server = http.createServer(app);
-            server.listen(rootPort, host, () => {
-              const url = `http://${host}:${server.address().port}`;
-              logger.info(
-                `Webpack Bundle Analyzer Reports are available at ${url}\n` +
-                  `Use ${'Ctrl+C'} to close it`
-              );
-            });
-          });
-        }
+      spawnWebpackProcesses({
+        completionCallback: statsCompletionCallback,
       });
+    } else if (mode === modes.DEV) {
+      spawnWebpackProcesses();
     } else {
-      const config = webpackConfig(bundleData);
-      webpack(config, (err, stats) => {
-        if (stats.hasErrors()) {
-          buildLogging.error('There was a build error');
-          buildLogging.log(stats.toString('errors-only'));
-          process.exit(1);
-        }
-        process.exit(0);
+      // Don't persist for production builds or message extraction
+      spawnWebpackProcesses({
+        persistent: false,
       });
     }
   });

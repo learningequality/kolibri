@@ -32,7 +32,6 @@ module.exports = {
   },
   globals: {
     __version: true,
-    __coreAPISpec: true,
     __filename: true,
     __copyrightYear: true,
   },
@@ -46,9 +45,7 @@ module.exports = {
   plugins: ['import', 'vue', 'kolibri'],
   settings: {
     'import/resolver': {
-      [path.resolve(
-        path.join(path.dirname(__filename), './lib/alias_import_resolver.js')
-      )]: {
+      [path.resolve(path.join(path.dirname(__filename), './lib/alias_import_resolver.js'))]: {
         extensions: ['.js', '.vue'],
       },
     },

@@ -36,6 +36,12 @@ versionTools.setDependencyVersion(
   version
 );
 
+versionTools.setDependencyVersion(
+  'kolibri-tools',
+  path.resolve(__dirname, '../kolibri/core/package.json'),
+  version
+);
+
 /*
  * Step 5 - Set version of kolibri-tools' kolibri dependency and eslint-plugin-kolibri dependency
  */

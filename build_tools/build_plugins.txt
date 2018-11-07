@@ -1,3 +1,2 @@
 kolibri.core
 kolibri.plugins.*
-kolibri_exercise_perseus_plugin
