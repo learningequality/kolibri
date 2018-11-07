@@ -1,5 +1,3 @@
-.. _conventions:
-
 Frontend code conventions
 =========================
 
@@ -12,7 +10,7 @@ Many of our conventions are enforced through various linters including `ESLint <
 
 We also use `Prettier <https://prettier.io/>`__ to auto format ``.vue``, ``.js``, and ``.scss`` files.
 
-The linting and auto formating is incorporated into the dev server and pre commit hooks, so make sure you've set up `pre-commit` as described in :doc:`../start/getting_started`.
+The linting and auto formating is incorporated into the dev server and pre commit hooks, so make sure you've set up `pre-commit` as described in :doc:`/start/getting_started`.
 
 You can also install the appropriate editor plugins for the various linters to see linting warnings/errors inline.
 
@@ -23,10 +21,12 @@ Vue.js components
 - Make sure to follow the official `Vue.js style guide <https://vuejs.org/v2/style-guide/>`__ when creating Vue components.
 - Keep components stateless and declarative as much as possible
 - For simple components, make *SomeComonent.vue*. For more complex components, make *SomeComponent/index.vue* and add private sub-components
-- All user-visible app text should be internationalized. See :doc:`i18n` for details
+- All user-visible app text should be internationalized. See :doc:`/references/i18n` for details
 - Avoid direct DOM references and Vue component "lifecycle events" except in special cases
 - Props, slots, and Vuex state/getters for communicating down the view hierarchy
 - Events and Vuex actions for communicating up the view hierarchy
+- If possible, use `<template/>` for conditionals to avoid extra unnecessary nested elements.
+
 
 Styling anti-patterns
 ---------------------

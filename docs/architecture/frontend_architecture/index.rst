@@ -7,6 +7,7 @@ Frontend architecture
   layout
   core
   components
+  conventions
   vuex
   dependencies
   unit_testing

@@ -20,7 +20,7 @@ Table of contents
    :maxdepth: 2
 
    start/index
-   references/index
    architecture/index
+   references/index
    pipeline/index
    changelog
