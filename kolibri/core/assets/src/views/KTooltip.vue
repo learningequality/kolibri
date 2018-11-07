@@ -76,13 +76,6 @@
       options() {
         return {
           placement: this.placement,
-          modifiers: {
-            preventOverflow: {
-              // enabled: true,
-              // escapeWithReference: true,
-              // boundariesElement: 'viewport',
-            },
-          },
         };
       },
       htmlElement() {
@@ -114,12 +107,13 @@
   @import '~kolibri.styles.definitions';
 
   .k-tooltip-container {
-    display: block;
+    display: inline-block;
   }
 
   .k-tooltip {
     position: absolute;
     z-index: 24;
+    width: max-content;
     min-width: 75px;
     padding: 8px;
     font-size: 12px;
