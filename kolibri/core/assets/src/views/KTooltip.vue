@@ -43,7 +43,7 @@
         required: true,
       },
       /**
-       * Refs object.
+       * Parent's refs object which should contain the reference.
        */
       refs: {
         type: Object,
