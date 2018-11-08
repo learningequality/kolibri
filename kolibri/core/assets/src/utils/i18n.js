@@ -198,6 +198,15 @@ function _loadDefaultFonts() {
   const htmlEl = document.documentElement;
   const FULL_FONTS = 'full-fonts-loaded';
   const PARTIAL_FONTS = 'partial-fonts-loaded';
+
+  // Skip partial font usage and observer for Edge browser as a workaround for
+  //   https://github.com/learningequality/kolibri/issues/4515
+  // TODO: figure out exactly why this was happening and remove this logic.
+  if (/Edge/.test(global.navigator.userAgent)) {
+    htmlEl.classList.add(FULL_FONTS);
+    return;
+  }
+
   htmlEl.classList.add(PARTIAL_FONTS);
 
   const uiNormal = new FontFaceObserver('noto-full', { weight: 400 });

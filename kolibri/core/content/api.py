@@ -66,7 +66,7 @@ def cache_forever(some_func):
         except IndexError:
             request = kwargs.get('request', None)
         if isinstance(request, HttpRequest):
-            if any(map(lambda x: x in request.GET, ['popular', 'next_steps', 'resume'])):
+            if any(map(lambda x: x in request.path, ['popular', 'next_steps', 'resume'])):
                 timeout = 600
         patch_response_headers(response, cache_timeout=timeout)
         return response
@@ -454,18 +454,24 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @list_route(methods=['get'])
+    @detail_route(methods=['get'])
     def next_steps(self, request, **kwargs):
         """
         Recommend content that has user completed content as a prerequisite, or leftward sibling.
+        Note that this is a slightly smelly use of a detail route, as the id in question is not for
+        a contentnode, but rather for a user. Recommend we move recommendation endpoints to their own
+        endpoints in future.
 
         :param request: request object
+        :param pk: id of the user whose recommendations they are
         :return: uncompleted content nodes, or empty queryset if user is anonymous
         """
         user = request.user
+        user_id = kwargs.get('pk', None)
         queryset = self.get_queryset(prefetch=True)
         # if user is anonymous, don't return any nodes
-        if not user.is_facility_user:
+        # if person requesting is not the data they are requesting for, also return no nodes
+        if not user.is_facility_user or user.id != user_id:
             queryset = queryset.none()
         else:
             completed_content_ids = ContentSummaryLog.objects.filter(
@@ -526,18 +532,24 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
 
         return Response(cache.get(cache_key))
 
-    @list_route(methods=['get'])
+    @detail_route(methods=['get'])
     def resume(self, request, **kwargs):
         """
         Recommend content that the user has recently engaged with, but not finished.
+        Note that this is a slightly smelly use of a detail route, as the id in question is not for
+        a contentnode, but rather for a user. Recommend we move recommendation endpoints to their own
+        endpoints in future.
 
         :param request: request object
+        :param pk: id of the user whose recommendations they are
         :return: 10 most recently viewed content nodes
         """
         user = request.user
+        user_id = kwargs.get('pk', None)
         queryset = self.get_queryset(prefetch=True)
-        # if user is anonymous, return no nodes
-        if not user.is_facility_user:
+        # if user is anonymous, don't return any nodes
+        # if person requesting is not the data they are requesting for, also return no nodes
+        if not user.is_facility_user or user.id != user_id:
             queryset = queryset.none()
         else:
             # get the most recently viewed, but not finished, content nodes

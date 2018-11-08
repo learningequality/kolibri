@@ -41,7 +41,7 @@ exports[`side nav component should be hidden if navShown is false 1`] = `
           <p>Kolibri testversion</p>
           <p>© 2018 Learning Equality</p>
           <p>
-            <button dir="auto" type="button" class="link">
+            <button dir="auto" type="button" class="privacy-link link">
               Usage and privacy
               <!---->
             </button>
@@ -104,7 +104,7 @@ exports[`side nav component should show nothing if no components are added and u
           <p>Kolibri testversion</p>
           <p>© 2018 Learning Equality</p>
           <p>
-            <button dir="auto" type="button" class="link">
+            <button dir="auto" type="button" class="privacy-link link">
               Usage and privacy
               <!---->
             </button>
