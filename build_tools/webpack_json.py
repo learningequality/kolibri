@@ -12,9 +12,6 @@ from kolibri.plugins.registry import initialize
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 logging.StreamHandler(sys.stdout)
 
-os.environ.setdefault(
-    "BUILD_TIME_PLUGINS", os.path.realpath(os.path.join(os.path.dirname(__file__), "build_plugins.txt"))
-)
 
 def validate_modules(build_list):
     valid_module_names = [hook.__module__.replace('.kolibri_plugin', '') for hook in WebpackBundleHook().registered_hooks]
@@ -39,6 +36,8 @@ def main():
         build_list = args.plugins
     elif "BUILD_TIME_PLUGINS" in os.environ and os.environ["BUILD_TIME_PLUGINS"]:
         build_list = load_plugins_from_file(os.environ["BUILD_TIME_PLUGINS"])
+    else:
+        build_list = load_plugins_from_file(os.path.realpath(os.path.join(os.path.dirname(__file__), "build_plugins.txt")))
 
     logging.info("Gathering relevant modules from {}".format(build_list))
     initialize(build_list)
