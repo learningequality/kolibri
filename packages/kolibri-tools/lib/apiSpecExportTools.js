@@ -130,7 +130,7 @@ const baseAliasDistPaths = {
 };
 
 // Assume if kolibri_module is not available on the source path, then we need to use the dist
-if (fs.existsSync(baseAliasSourcePaths.kolibri_module)) {
+if (fs.existsSync(baseAliasSourcePaths.kolibri_module + '.js')) {
   baseAliases = baseAliasSourcePaths;
 } else {
   baseAliases = baseAliasDistPaths;
