@@ -1,6 +1,6 @@
 <template>
 
-  <div class="pos-rel">
+  <span class="pos-rel">
     <span ref="icon">
       <mat-svg
         v-if="hasSuperAdminPermission"
@@ -28,7 +28,7 @@
         {{ $tr('limitedPermissionsTooltip') }}
       </template>
     </KTooltip>
-  </div>
+  </span>
 
 </template>
 

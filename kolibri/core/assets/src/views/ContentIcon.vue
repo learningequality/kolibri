@@ -1,6 +1,6 @@
 <template>
 
-  <div class="d-ib">
+  <span>
     <UiIcon ref="icon">
       <mat-svg
         v-if="is(ContentNodeKinds.CHANNEL)"
@@ -77,7 +77,7 @@
     >
       {{ tooltipText }}
     </KTooltip>
-  </div>
+  </span>
 
 </template>
 
@@ -162,10 +162,6 @@
 
 
 <style lang="scss" scoped>
-
-  .d-ib {
-    display: inline-block;
-  }
 
   .ui-icon {
     font-size: 1em;

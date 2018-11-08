@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <span>
     <span ref="icon">
       <UiIcon
         v-if="isInProgress"
@@ -23,7 +23,7 @@
     >
       {{ isInProgress ? $tr('inProgress') : $tr('completed') }}
     </KTooltip>
-  </div>
+  </span>
 
 </template>
 
