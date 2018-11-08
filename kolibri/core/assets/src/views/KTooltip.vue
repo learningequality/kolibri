@@ -7,7 +7,6 @@
     :visibleArrow="false"
     :options="options"
     trigger="hover"
-    class="k-tooltip-container"
   >
     <div
       dir="auto"
@@ -61,7 +60,7 @@
        */
       placement: {
         type: String,
-        default: 'auto',
+        default: 'bottom',
       },
     },
     data() {
@@ -106,15 +105,12 @@
 
   @import '~kolibri.styles.definitions';
 
-  .k-tooltip-container {
-    display: inline-block;
-  }
-
   .k-tooltip {
     position: absolute;
     z-index: 24;
     width: max-content;
     min-width: 75px;
+    max-width: calc(100vw - 10px);
     padding: 8px;
     font-size: 12px;
     font-weight: normal;
