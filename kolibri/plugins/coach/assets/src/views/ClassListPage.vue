@@ -46,8 +46,17 @@
                 :to="learnerPageLink(classroom.id)"
               />
             </td>
-            <td data-test="coach-names" :title="formattedCoachNamesTooltip(classroom)">
-              {{ formattedCoachNames(classroom) }}
+            <td data-test="coach-names">
+              <span :ref="`coachNames${classroom.id}`">
+                {{ formattedCoachNames(classroom) }}
+              </span>
+              <KTooltip
+                v-if="formattedCoachNamesTooltip(classroom)"
+                :reference="`coachNames${classroom.id}`"
+                :refs="$refs"
+              >
+                {{ formattedCoachNamesTooltip(classroom) }}
+              </KTooltip>
             </td>
             <td>{{ classroom.learner_count }}</td>
           </tr>
@@ -71,6 +80,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import urls from 'kolibri.urls';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import { PageNames } from '../constants';
   import { filterAndSortUsers } from '../../../../facility_management/assets/src/userSearchUtils';
 
@@ -94,6 +104,12 @@
       ContentIcon,
       KRouterLink,
       KExternalLink,
+      KTooltip,
+    },
+    data() {
+      return {
+        ready: false,
+      };
     },
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
@@ -131,6 +147,9 @@
           return facilityUrl();
         }
       },
+    },
+    mounted() {
+      this.ready = true;
     },
     methods: {
       learnerPageLink,

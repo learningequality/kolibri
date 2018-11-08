@@ -76,13 +76,9 @@
         if (this.waitingForAttempt) {
           xPos += ANSWER_WIDTH;
         }
-        if (this.isRtl) {
-          xPos *= -1;
-        }
         const style = {};
-        // translateZ(0) is there to try and force GPU-acceleration.
-        // (see e.g. http://blog.teamtreehouse.com/increase-your-sites-performance-with-hardware-accelerated-css)
-        style.transform = `translateX(${xPos}px) translateZ(0)`;
+        const side = this.isRtl ? 'right' : 'left';
+        style[side] = `${xPos}px`;
         // hidden "slide-off" item
         if (visualIndex === this.numItemsToRender - 1) {
           style.opacity = 0;
@@ -121,9 +117,6 @@
     position: absolute;
     text-align: center;
     transition: all 0.5s ease-in-out;
-    // try to improve performance - http://stackoverflow.com/a/10133679
-    backface-visibility: hidden;
-    perspective: 1000px;
   }
 
   .placeholder {

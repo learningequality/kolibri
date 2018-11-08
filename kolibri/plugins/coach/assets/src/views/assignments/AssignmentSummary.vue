@@ -20,7 +20,6 @@
         <CoreInfoIcon
           :iconAriaLabel="$tr('statusDescription')"
           :tooltipText="tooltipText"
-          tooltipPosition="bottom left"
         />
       </dt>
       <dd>

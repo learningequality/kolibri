@@ -25,9 +25,13 @@
         class="rectified"
       />
     </div>
-    <UiTooltip trigger="icon">
+    <KTooltip
+      reference="icon"
+      :refs="$refs"
+      placement="right"
+    >
       {{ tooltipText }}
-    </UiTooltip>
+    </KTooltip>
   </div>
 
 </template>
@@ -35,12 +39,12 @@
 
 <script>
 
-  import UiTooltip from 'keen-ui/src/UiTooltip';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'AnswerIcon',
     components: {
-      UiTooltip,
+      KTooltip,
     },
     props: {
       answer: {
