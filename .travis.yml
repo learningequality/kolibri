@@ -55,7 +55,7 @@ matrix:
         - TOX_ENV=py3.6
     - python: "2.7"
       env:
-        - TOX_ENV=node6.x
+        - TOX_ENV=node10.x
     - python: "3.5"
       env:
         - TOX_ENV=postgres

@@ -29,7 +29,20 @@ except ImportError:
         def import_package(package_name, package_path):
             return imp.load_source(package_name, package_path)
 
-from kolibri.core.webpack.hooks import WebpackBundleHook
+try:
+
+    from kolibri.core.webpack.hooks import WebpackBundleHook
+
+except ImportError:
+    # This can happen if we are running from the Kolibri source repo
+    # and we have not installed Kolibri in the local environment.
+    # Try adding the path to the kolibri package in the source file
+    # and then reimport.
+    import sys
+
+    sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '../../..')))
+
+    from kolibri.core.webpack.hooks import WebpackBundleHook
 
 logger = logging.getLogger('webpack_json')
 logger.setLevel(level=logging.WARN)
