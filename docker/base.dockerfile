@@ -17,6 +17,7 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
       gettext \
       git \
+      git-lfs \
       nodejs=6.14.1-1nodesource1 \
       psmisc \
       python2.7 \
@@ -24,6 +25,7 @@ RUN apt-get update && \
       python-sphinx \
       yarn
 
+RUN git lfs install
 
 # copy Kolibri source code into image
 COPY . /kolibri

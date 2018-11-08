@@ -8,24 +8,24 @@
       </KGridItem>
       <KGridItem sizes="100, 50, 50" percentage align="right">
         <KButton
-          @click="displayModal(Modals.CREATE_USER)"
           :text="$tr('newUserButtonLabel')"
           :primary="true"
+          @click="displayModal(Modals.CREATE_USER)"
         />
       </KGridItem>
       <KGridItem sizes="3, 3, 3">
         <KSelect
+          v-model="roleFilter"
           :label="$tr('filterUserType')"
           :options="userKinds"
           :inline="true"
-          v-model="roleFilter"
           class="type-filter"
         />
       </KGridItem>
       <KGridItem sizes="4, 5, 5">
         <KFilterTextbox
-          :placeholder="$tr('searchText')"
           v-model="searchFilter"
+          :placeholder="$tr('searchText')"
           class="user-filter"
         />
       </KGridItem>
@@ -80,7 +80,6 @@
 <script>
 
   import { mapActions, mapState, mapGetters } from 'vuex';
-  import UiIcon from 'keen-ui/src/UiIcon';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
@@ -117,13 +116,14 @@
       KGrid,
       KGridItem,
       UserTable,
-      UiIcon,
     },
-    data: () => ({
-      searchFilter: '',
-      roleFilter: null,
-      selectedUser: null,
-    }),
+    data() {
+      return {
+        searchFilter: '',
+        roleFilter: null,
+        selectedUser: null,
+      };
+    },
     computed: {
       ...mapGetters(['currentUserId', 'isSuperuser']),
       ...mapState('userManagement', ['facilityUsers', 'modalShown']),

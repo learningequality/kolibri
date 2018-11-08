@@ -18,7 +18,7 @@
             <h1 :style="{'font-size': `${logoTextSize}px`}">
               {{ $tr('kolibri') }}
             </h1>
-            <form class="login-form" ref="form" @submit.prevent="signIn">
+            <form ref="form" class="login-form" @submit.prevent="signIn">
               <UiAlert
                 v-if="invalidCredentials"
                 type="error"
@@ -28,8 +28,9 @@
               </UiAlert>
               <transition name="textbox">
                 <KTextbox
-                  ref="username"
                   id="username"
+                  ref="username"
+                  v-model="username"
                   autocomplete="username"
                   :autofocus="!hasMultipleFacilities"
                   :label="$tr('username')"
@@ -38,7 +39,6 @@
                   @blur="handleUsernameBlur"
                   @input="showDropdown = true"
                   @keydown="handleKeyboardNav"
-                  v-model="username"
                 />
               </transition>
               <transition name="list">
@@ -59,8 +59,9 @@
               <transition name="textbox">
                 <KTextbox
                   v-if="needPasswordField"
-                  ref="password"
                   id="password"
+                  ref="password"
+                  v-model="password"
                   type="password"
                   autocomplete="current-password"
                   :label="$tr('password')"
@@ -70,7 +71,6 @@
                   :floatingLabel="!autoFilledByChromeAndNotEdited"
                   @blur="passwordBlurred = true"
                   @input="handlePasswordChanged"
-                  v-model="password"
                 />
               </transition>
               <div>

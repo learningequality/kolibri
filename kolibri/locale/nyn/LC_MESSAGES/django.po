@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-17 17:16-0700\n"
-"PO-Revision-Date: 2018-10-25 02:12\n"
+"POT-Creation-Date: 2018-10-25 15:19-0700\n"
+"PO-Revision-Date: 2018-10-29 23:39\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Chewa\n"
 "Language: ny_MW\n"
@@ -30,9 +30,9 @@ msgstr "Gulu lophunzirira pamodzi"
 
 #: kolibri/core/content/api.py:131
 msgid "Content"
-msgstr "Zam'kati"
+msgstr "Zimene zilipo"
 
-#: kolibri/core/content/api.py:672
+#: kolibri/core/content/api.py:715
 msgid "The requested channel does not exist on the content server"
 msgstr "Tchanelo imene mukufuna sikupezeka pa seva"
 

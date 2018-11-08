@@ -16,17 +16,17 @@
 
     <template v-else>
       <ProgressToolbar
-        @backButtonClicked="goToPreviousStep"
         :currentStep="onboardingStep"
         :totalSteps="totalOnboardingSteps"
+        @backButtonClicked="goToPreviousStep"
       />
 
       <component
         :is="currentOnboardingForm"
         :submitText="submitText"
-        @submit="continueOnboarding"
         class="body"
         :class="!windowIsLarge ? 'mobile' : ''"
+        @submit="continueOnboarding"
       />
     </template>
 

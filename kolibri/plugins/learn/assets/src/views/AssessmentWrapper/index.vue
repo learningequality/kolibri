@@ -20,8 +20,8 @@ oriented data synchronization.
     </UiAlert>
     <div>
       <ContentRenderer
-        ref="contentRenderer"
         :id="content.id"
+        ref="contentRenderer"
         :kind="content.kind"
         :files="content.files"
         :contentId="content.content_id"
@@ -114,7 +114,6 @@ oriented data synchronization.
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
   import { ClassesPageNames } from '../../constants';
   import ExerciseAttempts from './ExerciseAttempts';
@@ -126,7 +125,6 @@ oriented data synchronization.
       ContentRenderer,
       KButton,
       UiAlert,
-      KRouterLink,
     },
     mixins: [responsiveWindow],
     $trs: {

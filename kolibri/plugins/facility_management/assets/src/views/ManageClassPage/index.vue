@@ -9,9 +9,9 @@
       </KGridItem>
       <KGridItem sizes="100, 25, 25" percentage alignment="right">
         <KButton
-          @click="displayModal(Modals.CREATE_CLASS)"
           :text="$tr('addNew')"
           :primary="true"
+          @click="displayModal(Modals.CREATE_CLASS)"
         />
       </KGridItem>
     </KGrid>
@@ -62,8 +62,8 @@
           <td>
             <KButton
               appearance="flat-button"
-              @click="openDeleteClassModal(classroom)"
               :text="$tr('deleteClass')"
+              @click="openDeleteClassModal(classroom)"
             />
           </td>
         </tr>

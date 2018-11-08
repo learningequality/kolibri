@@ -3,7 +3,7 @@
   <th scope="col" :style="{ textAlign: align }">
     <button v-if="sortable" class="header-text no-padding" @click="setSortOrder">
       <span>{{ text }}</span>
-      <span class="icon-wrapper" v-if="sortable">
+      <span v-if="sortable" class="icon-wrapper">
         <mat-svg
           class="icon"
           :class="{ sorted: sortedDescending }"
@@ -17,8 +17,8 @@
           name="keyboard_arrow_up"
         />
       </span>
-      <span class="visuallyhidden" v-if="sortedAscending">{{ $tr('ascending') }}</span>
-      <span class="visuallyhidden" v-if="sortedDescending">{{ $tr('descending') }}</span>
+      <span v-if="sortedAscending" class="visuallyhidden">{{ $tr('ascending') }}</span>
+      <span v-if="sortedDescending" class="visuallyhidden">{{ $tr('descending') }}</span>
     </button>
     <div v-else class="header-text">{{ text }}</div>
   </th>

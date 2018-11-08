@@ -22,7 +22,8 @@
         </KGrid>
         <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
         <p v-if="completionRequirements">{{ completionRequirements }}</p>
-        <p v-if="description" v-html="description" dir="auto"></p>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <p v-if="description" dir="auto" v-html="description"></p>
         <ul class="meta">
           <li v-if="content.author">
             {{ $tr('authorDataHeader') }}:
@@ -47,12 +48,12 @@
     </div>
 
     <QuestionList
-      slot="aside"
       v-if="isPerseusExercise"
-      @select="selectedQuestionIndex = $event"
+      slot="aside"
       :questions="questions"
       :questionLabel="questionLabel"
       :selectedIndex="selectedQuestionIndex"
+      @select="selectedQuestionIndex = $event"
     />
 
     <ContentArea
@@ -69,7 +70,6 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -91,7 +91,6 @@
       QuestionList,
       ContentArea,
       SelectOptions,
-      KButton,
       CoachContentLabel,
       InfoIcon,
       KGrid,

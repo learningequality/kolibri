@@ -7,7 +7,7 @@
 
     <div>
       <template v-for="section in navMenu">
-        <div class="section-heading" :key="`${section.sectionName}-heading`">
+        <div :key="`${section.sectionName}-heading`" class="section-heading">
           {{ section.sectionName }}
         </div>
         <ul :key="`${section.sectionName}-ul`">

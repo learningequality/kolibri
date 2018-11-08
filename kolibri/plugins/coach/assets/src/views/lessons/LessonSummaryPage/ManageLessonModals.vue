@@ -14,6 +14,7 @@
 
     <AssignmentDetailsModal
       v-else-if="lessonsModalSet === AssignmentActions.EDIT_DETAILS"
+      ref="detailsModal"
       :modalTitle="$tr('editLessonDetails')"
       :submitErrorMessage="$tr('saveLessonError')"
       :initialDescription="currentLesson.description"
@@ -25,7 +26,6 @@
       :groups="learnerGroups"
       @save="handleDetailsModalSave"
       @cancel="setLessonsModal(null)"
-      ref="detailsModal"
     />
 
     <AssignmentCopyModal

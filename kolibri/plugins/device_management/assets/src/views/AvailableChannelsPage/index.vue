@@ -20,19 +20,19 @@
       </KGridItem>
       <KGridItem sizes="4, 3, 3" alignments="left, left, right">
         <KSelect
+          v-model="languageFilter"
           class="align-left"
           :options="languageFilterOptions"
-          v-model="languageFilter"
           :label="$tr('languageFilterLabel')"
           :inline="true"
         />
       </KGridItem>
       <KGridItem sizes="4, 5, 5">
         <KFilterTextbox
+          v-model="titleFilter"
           :class="{ 'search-box-offset': !windowIsSmall }"
           :placeholder="$tr('titleFilterPlaceholder')"
           class="seach-box"
-          v-model="titleFilter"
         />
       </KGridItem>
     </KGrid>
@@ -72,11 +72,11 @@
         <ChannelListItem
           v-for="channel in availableChannels"
           v-show="channelIsVisible(channel)"
-          :channel="channel"
           :key="channel.id"
+          :channel="channel"
           :onDevice="channelIsOnDevice(channel)"
-          @clickselect="goToSelectContentPageForChannel(channel)"
           :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
+          @clickselect="goToSelectContentPageForChannel(channel)"
         />
       </div>
     </div>
@@ -95,7 +95,6 @@
   import { mapState, mapMutations, mapGetters } from 'vuex';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
@@ -121,7 +120,6 @@
       ChannelListItem,
       ChannelTokenModal,
       ContentWizardUiAlert,
-      ImmersiveFullScreen,
       KButton,
       KFilterTextbox,
       KGrid,

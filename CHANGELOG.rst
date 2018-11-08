@@ -33,7 +33,7 @@ Changed or fixed
 Internationalization and localization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- - Languages: [ coming soon... ]
+ - Languages: English, Arabic, Bengali, Bulgarian, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Telugu, Urdu, and Yoruba
  - Improved consistency of language across the application, and renamed "Superuser" to "Super admin"
  - Many fixes to translation and localization
  - Consistent font rendering across all languages

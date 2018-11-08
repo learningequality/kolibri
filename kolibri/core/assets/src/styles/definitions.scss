@@ -50,3 +50,8 @@ $core-outline: $core-action-light 2px solid;
     font-family: 'noto-full', 'noto-subset', 'noto-common', sans-serif;
   }
 }
+
+// Matches the Keen-UI/UiToolbar box-shadow property
+%ui-toolbar-box-shadow {
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+}

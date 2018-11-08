@@ -16,21 +16,21 @@
       {{ submitErrorMessage }}
     </UiAlert>
     <KTextbox
-      @blur="titleIsVisited = true"
       ref="titleField"
+      v-model="title"
       :label="$tr('titlePlaceholder')"
       :maxlength="50"
       :autofocus="true"
       :invalid="titleIsInvalid"
       :invalidText="titleIsInvalidText"
-      v-model="title"
       :disabled="formIsSubmitted"
+      @blur="titleIsVisited = true"
     />
     <KTextbox
       v-if="showDescriptionField"
+      v-model="description"
       :label="$tr('description')"
       :maxlength="200"
-      v-model="description"
       :disabled="formIsSubmitted"
     />
 

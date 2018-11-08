@@ -52,14 +52,15 @@ describe('Table of Contents Section', () => {
       depth: 0,
     });
 
-    expect(wrapper.findAll({ name: 'TableOfContentsSection' }).length).toBe(0);
+    expect(wrapper.find('ul.toc-list').exists()).toBe(false);
   });
+
   it('should handle section with sub items', () => {
     const wrapper = createWrapper({
       section: sectionWithSubItems,
       depth: 0,
     });
-    expect(wrapper.findAll({ name: 'TableOfContentsSection' }).length).toBe(2);
+    expect(wrapper.find('ul.toc-list').findAll({ name: 'TableOfContentsSection' }).length).toBe(2);
   });
 
   it('should display href if label is empty', () => {

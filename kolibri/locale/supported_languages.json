@@ -56,13 +56,6 @@
     "default_font": "NotoSansDevanagari"
   },
   {
-    "crowdin_code": "kn",
-    "intl_code": "kn",
-    "language_name": "ಕನ್ನಡ",
-    "english_name": "Kannada",
-    "default_font": "NotoSansKannada"
-  },
-  {
     "crowdin_code": "mr",
     "intl_code": "mr",
     "language_name": "मराठी",
@@ -116,13 +109,6 @@
     "intl_code": "yo",
     "language_name": "Yorùbá",
     "english_name": "Yoruba",
-    "default_font": "NotoSans"
-  },
-  {
-    "crowdin_code": "zu",
-    "intl_code": "zu",
-    "language_name": "isiZulu",
-    "english_name": "Zulu",
     "default_font": "NotoSans"
   }
 ]

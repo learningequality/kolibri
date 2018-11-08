@@ -131,7 +131,7 @@
   }
 
   .ui-menu-header-lp {
-    padding-left: 56px; // TODO make a variable?
+    padding-left: 50px; // TODO make a variable?
   }
 
   /* stylelint-enable */

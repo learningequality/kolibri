@@ -108,3 +108,21 @@ def local_perseus_locale_path(lang_object):
     return os.path.join(
         PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
     )
+
+
+def json_dump_formatted(data, file_path):
+    """
+    dump json in a way that plays nicely with source control and our precommit hooks:
+    - prevents trailing whitespace
+    - sorted keys
+    - make sure it's utf-8
+    """
+    with io.open(file_path, mode="w", encoding="utf-8") as file_object:
+        json.dump(
+            data,
+            file_object,
+            sort_keys=True,
+            indent=2,
+            separators=(",", ": "),
+            ensure_ascii=False,
+        )

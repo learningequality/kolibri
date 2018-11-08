@@ -6,10 +6,10 @@
     <!-- @input has compatibility issues for input of type radio -->
     <!-- Here, manually listen for @change (no compatibility issues) -->
     <input
+      :id="id"
       ref="input"
       type="radio"
       class="input"
-      :id="id"
       :checked="isChecked"
       :value="value"
       :disabled="disabled"

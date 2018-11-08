@@ -8,7 +8,8 @@ import sys
 import requests
 from bs4 import BeautifulSoup
 
-DIST_CEXT = 'kolibri/dist/cext'
+DIST_CEXT = os.path.join(
+    os.path.dirname(os.path.realpath(os.path.dirname(__file__))), 'kolibri', 'dist', 'cext')
 PYPI_DOWNLOAD = 'https://pypi.python.org/simple/'
 PIWHEEL_DOWNLOAD = 'https://www.piwheels.hostedpi.com/simple/'
 

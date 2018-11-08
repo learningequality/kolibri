@@ -10,26 +10,28 @@
   -->
 
   <div class="ui-textbox" :class="classes">
-    <div class="ui-textbox-icon-wrapper" v-if="icon || $slots.icon">
+    <div v-if="icon || $slots.icon" class="ui-textbox-icon-wrapper">
       <slot name="icon">
-        <ui-icon :icon="icon" />
+        <UiIcon :icon="icon" />
       </slot>
     </div>
 
     <div class="ui-textbox-content">
       <label class="ui-textbox-label">
         <div
+          v-if="label || $slots.default"
           class="ui-textbox-label-text"
           :class="labelClasses"
-          v-if="label || $slots.default"
         >
           <slot>{{ label }}</slot>
         </div>
 
         <input
-          class="ui-textbox-input"
+          v-if="!multiLine"
           ref="input"
 
+          v-autofocus="autofocus"
+          class="ui-textbox-input"
           :autocomplete="autocomplete ? autocomplete : null"
           :disabled="disabled"
           :max="maxValue"
@@ -41,57 +43,55 @@
           :readonly="readonly"
           :required="required"
           :step="stepValue"
+
           :type="type"
           :value="value"
-
           @blur="onBlur"
           @change="onChange"
           @focus="onFocus"
           @input="updateValue($event.target.value)"
+
           @keydown.enter="onKeydownEnter"
           @keydown="onKeydown"
-
-          v-autofocus="autofocus"
-          v-if="!multiLine"
         >
 
         <textarea
-          class="ui-textbox-textarea"
+          v-else
           ref="textarea"
 
+          v-model="value"
+          v-autofocus="autofocus"
+          class="ui-textbox-textarea"
           :autocomplete="autocomplete ? autocomplete : null"
           :disabled="disabled"
           :maxlength="enforceMaxlength ? maxlength : null"
           :name="name"
           :placeholder="hasFloatingLabel ? null : placeholder"
+
           :readonly="readonly"
+
           :required="required"
           :rows="rows"
-
-          v-model="value"
-
           @blur="onBlur"
           @change="onChange"
           @focus="onFocus"
           @input="updateValue($event.target.value)"
+
           @keydown.enter="onKeydownEnter"
           @keydown="onKeydown"
-
-          v-autofocus="autofocus"
-          v-else
         ></textarea>
       </label>
 
-      <div class="ui-textbox-feedback" v-if="hasFeedback || maxlength">
-        <div class="ui-textbox-feedback-text" v-if="showError">
+      <div v-if="hasFeedback || maxlength" class="ui-textbox-feedback">
+        <div v-if="showError" class="ui-textbox-feedback-text">
           <slot name="error">{{ error }}</slot>
         </div>
 
-        <div class="ui-textbox-feedback-text" v-else-if="showHelp">
+        <div v-else-if="showHelp" class="ui-textbox-feedback-text">
           <slot name="help">{{ help }}</slot>
         </div>
 
-        <div class="ui-textbox-counter" v-if="maxlength">
+        <div v-if="maxlength" class="ui-textbox-counter">
           {{ $tr('maxLengthCounter', { current: valueLength, max: maxlength }) }}
         </div>
       </div>

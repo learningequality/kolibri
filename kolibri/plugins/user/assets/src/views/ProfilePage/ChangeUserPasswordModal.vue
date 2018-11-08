@@ -11,22 +11,22 @@
   >
     <KTextbox
       ref="newPassword"
+      v-model="newPassword"
       type="password"
       :label="$tr('newPasswordFieldLabel')"
       :invalid="newPasswordIsInvalid"
       :invalidText="newPasswordInvalidErrorText"
       :autofocus="true"
       @blur="newPasswordBlurred = true"
-      v-model="newPassword"
     />
     <KTextbox
       ref="confirmedNewPassword"
+      v-model="confirmedNewPassword"
       type="password"
       :label="$tr('confirmNewPasswordFieldLabel')"
       :invalid="confirmedNewPasswordIsInvalid"
       :invalidText="confirmedNewPasswordInvalidErrorText"
       @blur="confirmedNewPasswordBlurred = true"
-      v-model="confirmedNewPassword"
     />
   </KModal>
 

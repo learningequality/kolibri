@@ -4,10 +4,10 @@
     <ul class="history-list">
       <template v-for="(question, index) in questions">
         <li
-          @click="$emit('goToQuestion', index)"
+          :key="index"
           :class="isSelected(index)"
           class="clickable"
-          :key="index"
+          @click="$emit('goToQuestion', index)"
         >
           <svg class="item svg-item">
             <circle

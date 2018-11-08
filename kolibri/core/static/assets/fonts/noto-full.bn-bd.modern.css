@@ -82,60 +82,6 @@
 
 @font-face {
   font-family: 'noto-full';
-  src: url('noto-full.NotoSansKannada.400.woff') format('woff');
-  font-style: normal;
-  font-weight: normal;
-  unicode-range: U+C80-C83,U+C85-C8C,U+C8E-C90,U+C92-CA8,U+CAA-CB3,U+CB5-CB9,U+CBC-CC4,U+CC6-CC8,U+CCA-CCD,U+CD5-CD6,U+CDE,U+CE0-CE3,U+CE6-CEF,U+CF1-CF2;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansKannada.700.woff') format('woff');
-  font-style: normal;
-  font-weight: bold;
-  unicode-range: U+C80-C83,U+C85-C8C,U+C8E-C90,U+C92-CA8,U+CAA-CB3,U+CB5-CB9,U+CBC-CC4,U+CC6-CC8,U+CCA-CCD,U+CD5-CD6,U+CDE,U+CE0-CE3,U+CE6-CEF,U+CF1-CF2;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansMyanmar.400.woff') format('woff');
-  font-style: normal;
-  font-weight: normal;
-  unicode-range: U+1000-109F,U+A9E0-A9FE,U+AA60-AA7F;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansMyanmar.700.woff') format('woff');
-  font-style: normal;
-  font-weight: bold;
-  unicode-range: U+1000-109F,U+A9E0-A9FE,U+AA60-AA7F;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansTamil.400.woff') format('woff');
-  font-style: normal;
-  font-weight: normal;
-  unicode-range: U+B82-B83,U+B85-B8A,U+B8E-B90,U+B92-B95,U+B99-B9A,U+B9C,U+B9E-B9F,U+BA3-BA4,U+BA8-BAA,U+BAE-BB9,U+BBE-BC2,U+BC6-BC8,U+BCA-BCD,U+BD0,U+BD7,U+BE6-BFA,U+11303,U+1133C;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansTamil.700.woff') format('woff');
-  font-style: normal;
-  font-weight: bold;
-  unicode-range: U+B82-B83,U+B85-B8A,U+B8E-B90,U+B92-B95,U+B99-B9A,U+B9C,U+B9E-B9F,U+BA3-BA4,U+BA8-BAA,U+BAE-BB9,U+BBE-BC2,U+BC6-BC8,U+BCA-BCD,U+BD0,U+BD7,U+BE6-BFA,U+11303,U+1133C;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
   src: url('noto-full.NotoSansTelugu.400.woff') format('woff');
   font-style: normal;
   font-weight: normal;
@@ -185,6 +131,24 @@
   font-style: normal;
   font-weight: bold;
   unicode-range: U+1400-167F,U+18B0-18F5;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansCham.400.woff') format('woff');
+  font-style: normal;
+  font-weight: normal;
+  unicode-range: U+AA00-AA36,U+AA40-AA4D,U+AA50-AA59,U+AA5C-AA5F;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansCham.700.woff') format('woff');
+  font-style: normal;
+  font-weight: bold;
+  unicode-range: U+AA00-AA36,U+AA40-AA4D,U+AA50-AA59,U+AA5C-AA5F;
   font-display: swap;
 }
 
@@ -298,6 +262,24 @@
 
 @font-face {
   font-family: 'noto-full';
+  src: url('noto-full.NotoSansKannada.400.woff') format('woff');
+  font-style: normal;
+  font-weight: normal;
+  unicode-range: U+C80-C83,U+C85-C8C,U+C8E-C90,U+C92-CA8,U+CAA-CB3,U+CB5-CB9,U+CBC-CC4,U+CC6-CC8,U+CCA-CCD,U+CD5-CD6,U+CDE,U+CE0-CE3,U+CE6-CEF,U+CF1-CF2;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansKannada.700.woff') format('woff');
+  font-style: normal;
+  font-weight: bold;
+  unicode-range: U+C80-C83,U+C85-C8C,U+C8E-C90,U+C92-CA8,U+CAA-CB3,U+CB5-CB9,U+CBC-CC4,U+CC6-CC8,U+CCA-CCD,U+CD5-CD6,U+CDE,U+CE0-CE3,U+CE6-CEF,U+CF1-CF2;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
   src: url('noto-full.NotoSansKhmer.400.woff') format('woff');
   font-style: normal;
   font-weight: normal;
@@ -352,6 +334,24 @@
 
 @font-face {
   font-family: 'noto-full';
+  src: url('noto-full.NotoSansMyanmar.400.woff') format('woff');
+  font-style: normal;
+  font-weight: normal;
+  unicode-range: U+1000-109F,U+A9E0-A9FE,U+AA60-AA7F;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansMyanmar.700.woff') format('woff');
+  font-style: normal;
+  font-weight: bold;
+  unicode-range: U+1000-109F,U+A9E0-A9FE,U+AA60-AA7F;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
   src: url('noto-full.NotoSansOriya.400.woff') format('woff');
   font-style: normal;
   font-weight: normal;
@@ -401,6 +401,24 @@
   font-style: normal;
   font-weight: bold;
   unicode-range: U+20DD-20E0,U+20E2-20E4,U+2160-2183,U+2185-2188,U+218A-218B,U+2190-2199,U+2300-230F,U+2311-2315,U+2317,U+231C-231F,U+2322-2323,U+2329-232A,U+232C-2335,U+237C,U+2380-2394,U+2396-239A,U+23AF,U+23BE-23CD,U+23D0-23DB,U+23E2-23E8,U+2460-24FF,U+260A-260D,U+2613,U+2624-262B,U+262D-262F,U+2638-263B,U+263D-2653,U+2669-267E,U+2690-269D,U+26A2-26A9,U+26AD-26BC,U+26CE,U+26E2-26FF,U+271D-2721,U+2776-2793,U+2921-2922,U+1F100-1F10C,U+1F110-1F12E,U+1F130-1F16B,U+1F170-1F190,U+1F19B-1F1AC,U+1F546-1F549,U+1F54F,U+1F610,U+1F700-1F773;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansTamil.400.woff') format('woff');
+  font-style: normal;
+  font-weight: normal;
+  unicode-range: U+B82-B83,U+B85-B8A,U+B8E-B90,U+B92-B95,U+B99-B9A,U+B9C,U+B9E-B9F,U+BA3-BA4,U+BA8-BAA,U+BAE-BB9,U+BBE-BC2,U+BC6-BC8,U+BCA-BCD,U+BD0,U+BD7,U+BE6-BFA,U+11303,U+1133C;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansTamil.700.woff') format('woff');
+  font-style: normal;
+  font-weight: bold;
+  unicode-range: U+B82-B83,U+B85-B8A,U+B8E-B90,U+B92-B95,U+B99-B9A,U+B9C,U+B9E-B9F,U+BA3-BA4,U+BA8-BAA,U+BAE-BB9,U+BBE-BC2,U+BC6-BC8,U+BCA-BCD,U+BD0,U+BD7,U+BE6-BFA,U+11303,U+1133C;
   font-display: swap;
 }
 

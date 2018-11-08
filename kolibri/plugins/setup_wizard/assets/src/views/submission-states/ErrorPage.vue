@@ -52,17 +52,17 @@
 
   @import '~kolibri.styles.definitions';
 
-  .error-page {
-    &-subheader {
-      margin-bottom: 24px;
-    }
-    &-retry-button {
-      margin-bottom: 16px;
-    }
-    &-subtext {
-      font-size: 12px;
-      color: $core-text-annotation;
-    }
+  .error-page-subheader {
+    margin-bottom: 24px;
+  }
+
+  .error-page-retry-button {
+    margin-bottom: 16px;
+  }
+
+  .error-page-subtext {
+    font-size: 12px;
+    color: $core-text-annotation;
   }
 
 </style>

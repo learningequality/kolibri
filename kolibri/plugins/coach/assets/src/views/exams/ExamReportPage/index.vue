@@ -23,8 +23,8 @@
     <KCheckbox
       :label="$tr('viewByGroups')"
       :checked="viewByGroups"
-      @change="viewByGroups = !viewByGroups"
       :disabled="viewByGroupsIsDisabled"
+      @change="viewByGroups = !viewByGroups"
     />
 
     <template v-if="reportGroupings.length">
@@ -49,7 +49,7 @@
             </tr>
           </thead>
           <tbody slot="tbody">
-            <tr v-for="(examTaker, i) in reportGrouping" :key="i">
+            <tr v-for="(examTaker, j) in reportGrouping" :key="j">
               <td class="core-table-icon-col">
                 <ContentIcon :kind="USER" />
               </td>
@@ -59,7 +59,7 @@
                   :text="examTaker.name"
                   :to="examDetailPageLink(examTaker.id)"
                 />
-                <span dir="auto" v-else>
+                <span v-else dir="auto">
                   {{ examTaker.name }}
                 </span>
               </td>
@@ -69,7 +69,7 @@
               <td>
                 {{ examTakerScoreText(examTaker) }}
               </td>
-              <td dir="auto" v-if="!viewByGroups">{{ examTaker.group.name || '–' }}</td>
+              <td v-if="!viewByGroups" dir="auto">{{ examTaker.group.name || '–' }}</td>
             </tr>
           </tbody>
         </CoreTable>

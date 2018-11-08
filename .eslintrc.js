@@ -1,4 +1,7 @@
 var path = require('path');
+var OFF = 0;
+var WARNING = 1;
+var ERROR = 2;
 
 module.exports = {
   env: {
@@ -22,10 +25,9 @@ module.exports = {
   ],
   parserOptions: {
     sourceType: 'module',
-    ecmaVersion: 7,
+    ecmaVersion: 2018,
     ecmaFeatures: {
       impliedStrict: true,
-      experimentalObjectRestSpread: true,
     },
   },
   globals: {
@@ -37,10 +39,10 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
-    'prettier',
     'plugin:vue/recommended',
     'plugin:import/errors',
     'plugin:import/warnings',
+    'prettier',
   ],
   plugins: ['import', 'vue', 'kolibri'],
   settings: {
@@ -53,9 +55,9 @@ module.exports = {
     },
   },
   rules: {
-    'comma-style': 2,
+    'comma-style': ERROR,
     'max-len': [
-      'error',
+      ERROR,
       100,
       {
         ignoreStrings: true,
@@ -63,11 +65,10 @@ module.exports = {
         ignoreUrls: true,
       },
     ],
-    'vue/attribute-hyphenation': [2, 'never'],
-    'vue/name-property-casing': [2, 'PascalCase'],
-    'vue/require-default-prop': 0,
+    'vue/attribute-hyphenation': [ERROR, 'never'],
+    'vue/require-default-prop': OFF,
     'vue/html-self-closing': [
-      'error',
+      ERROR,
       {
         html: {
           void: 'never',
@@ -79,7 +80,7 @@ module.exports = {
       },
     ],
     'vue/max-attributes-per-line': [
-      2,
+      ERROR,
       {
         singleline: 5,
         multiline: {
@@ -89,23 +90,35 @@ module.exports = {
       },
     ],
     'vue/html-closing-bracket-newline': [
-      'error',
+      ERROR,
       {
         singleline: 'never',
         multiline: 'always',
       },
     ],
-    'vue/html-closing-bracket-spacing': ['error'],
-    // Waiting on https://github.com/vuejs/eslint-plugin-vue/pull/397
-    // 'vue/component-name-in-template-casing': 3
-
-    'import/first': 1,
-    'import/no-duplicates': 1,
-    'import/newline-after-import': 1,
-    'import/order': 1,
+    'vue/component-name-in-template-casing': [
+      ERROR,
+      'PascalCase',
+      {
+        ignores: [
+          'mat-svg',
+          'file-svg',
+          'component',
+          'transition',
+          'transition-group',
+          'router-link',
+          'router-view',
+        ],
+      },
+    ],
+    'vue/no-spaces-around-equal-signs-in-attribute': ERROR,
+    'import/first': ERROR,
+    'import/no-duplicates': ERROR,
+    'import/newline-after-import': ERROR,
+    'import/order': ERROR,
 
     // Custom vue rules
-    'kolibri/vue-filename-and-component-name-match': 2,
-    'kolibri/vue-component-registration-casing': 2,
+    'kolibri/vue-filename-and-component-name-match': ERROR,
+    'kolibri/vue-component-registration-casing': ERROR,
   },
 };

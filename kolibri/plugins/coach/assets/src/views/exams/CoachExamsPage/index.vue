@@ -4,10 +4,10 @@
     <h1>{{ $tr('exams') }}</h1>
     <div class="filter-and-button">
       <KSelect
+        v-model="statusSelected"
         :label="$tr('show')"
         :options="statusOptions"
         :inline="true"
-        v-model="statusSelected"
       />
       <KRouterLink
         :primary="true"

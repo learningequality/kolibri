@@ -1,92 +1,101 @@
 <template>
 
-  <UiToolbar
-    :title="title"
-    type="colored"
-    textColor="white"
-    class="app-bar"
-    :style="{ height: height + 'px' }"
-  >
-    <UiIconButton
-      slot="icon"
-      type="secondary"
-      @click="$emit('toggleSideNav')"
+  <div class="wrapper">
+    <UiToolbar
+      :title="title"
+      type="colored"
+      textColor="white"
+      class="app-bar"
+      :style="{ height: height + 'px' }"
+      :raised="false"
     >
-      <mat-svg
-        class="icon"
-        name="menu"
-        category="navigation"
-      />
-    </UiIconButton>
-
-    <div>
-      <div class="app-bar-title-icon"></div>
-      {{ title }}
-    </div>
-
-    <div slot="actions">
-      <slot name="app-bar-actions"></slot>
-
-      <UiButton
-        ref="userMenuButton"
-        type="primary"
-        color="primary"
-        class="user-menu-button"
-        :ariaLabel="$tr('userMenu')"
-        @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
+      <UiIconButton
+        slot="icon"
+        type="secondary"
+        @click="$emit('toggleSideNav')"
       >
         <mat-svg
-          slot="icon"
-          name="person"
-          category="social"
+          class="icon"
+          name="menu"
+          category="navigation"
         />
-        <template v-if="isUserLoggedIn">{{ username }}</template>
-        <mat-svg name="arrow_drop_down" category="navigation" />
-      </UiButton>
+      </UiIconButton>
 
-      <CoreMenu
-        v-show="userMenuDropdownIsOpen"
-        ref="userMenuDropdown"
-        class="user-menu-dropdown"
-        :raised="true"
-        :containFocus="true"
-        :hasIcons="true"
-        @close="userMenuDropdownIsOpen = false"
-      >
-        <template slot="header" v-if="isUserLoggedIn">
-          <div class="role">{{ $tr('userTypeLabel') }}</div>
-          <div>
-            <UserTypeDisplay
-              :distinguishCoachTypes="false"
-              :userType="getUserKind"
-            />
-          </div>
-        </template>
+      <div>
+        <div class="app-bar-title-icon"></div>
+        {{ title }}
+      </div>
 
-        <template slot="options">
-          <component v-for="component in menuOptions" :is="component" :key="component.name" />
-          <CoreMenuOption
-            :label="$tr('languageSwitchMenuOption')"
-            @select="showLanguageModal = true"
-          >
-            <mat-svg
-              slot="icon"
-              name="language"
-              category="action"
-            />
-          </CoreMenuOption>
-          <LogoutSideNavEntry v-if="isUserLoggedIn" />
-        </template>
+      <div slot="actions">
+        <slot name="app-bar-actions"></slot>
 
-      </CoreMenu>
+        <UiButton
+          ref="userMenuButton"
+          type="primary"
+          color="primary"
+          class="user-menu-button"
+          :ariaLabel="$tr('userMenu')"
+          @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
+        >
+          <mat-svg
+            slot="icon"
+            name="person"
+            category="social"
+          />
+          <template v-if="isUserLoggedIn">{{ username }}</template>
+          <mat-svg name="arrow_drop_down" category="navigation" />
+        </UiButton>
 
-      <LanguageSwitcherModal
-        v-if="showLanguageModal"
-        @close="showLanguageModal = false"
-        class="override-ui-toolbar"
-      />
+        <CoreMenu
+          v-show="userMenuDropdownIsOpen"
+          ref="userMenuDropdown"
+          class="user-menu-dropdown"
+          :raised="true"
+          :containFocus="true"
+          :hasIcons="true"
+          @close="userMenuDropdownIsOpen = false"
+        >
+          <template v-if="isUserLoggedIn" slot="header">
+            <div class="role">{{ $tr('userTypeLabel') }}</div>
+            <div>
+              <UserTypeDisplay
+                :distinguishCoachTypes="false"
+                :userType="getUserKind"
+              />
+            </div>
+            <div class="total-points">
+              <slot name="totalPointsMenuItem"></slot>
+            </div>
+          </template>
+
+          <template slot="options">
+            <component :is="component" v-for="component in menuOptions" :key="component.name" />
+            <CoreMenuOption
+              :label="$tr('languageSwitchMenuOption')"
+              @select="showLanguageModal = true"
+            >
+              <mat-svg
+                slot="icon"
+                name="language"
+                category="action"
+              />
+            </CoreMenuOption>
+            <LogoutSideNavEntry v-if="isUserLoggedIn" />
+          </template>
+
+        </CoreMenu>
+
+        <LanguageSwitcherModal
+          v-if="showLanguageModal"
+          class="override-ui-toolbar"
+          @close="showLanguageModal = false"
+        />
+      </div>
+    </UiToolbar>
+    <div class="subpage-nav">
+      <slot name="sub-nav"></slot>
     </div>
-  </UiToolbar>
+  </div>
 
 </template>
 
@@ -130,19 +139,17 @@
         type: String,
         required: true,
       },
-      navShown: {
-        type: Boolean,
-        required: true,
-      },
       height: {
         type: Number,
         required: true,
       },
     },
-    data: () => ({
-      showLanguageModal: false,
-      userMenuDropdownIsOpen: false,
-    }),
+    data() {
+      return {
+        showLanguageModal: false,
+        userMenuDropdownIsOpen: false,
+      };
+    },
     computed: {
       ...mapGetters(['isUserLoggedIn', 'getUserKind']),
       ...mapState({
@@ -186,6 +193,10 @@
     color: $core-text-default;
   }
 
+  .wrapper {
+    background-color: $core-action-normal;
+  }
+
   .app-bar {
     overflow: hidden;
   }
@@ -212,6 +223,11 @@
 
   .icon {
     fill: white;
+  }
+
+  .total-points {
+    margin-top: 16px;
+    margin-left: -32px;
   }
 
 </style>

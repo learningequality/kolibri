@@ -3,8 +3,8 @@
   <div>
     <transition mode="out-in">
       <p
-        class="no-channels"
         v-if="noChannelsToShow"
+        class="no-channels"
       >
         {{ $tr('emptyChannelListMessage') }}
       </p>
@@ -47,7 +47,6 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import DeleteChannelModal from './DeleteChannelModal';
   import ChannelListItem from './ChannelListItem';
@@ -58,11 +57,12 @@
       ChannelListItem,
       KLinearLoader,
       DeleteChannelModal,
-      KButton,
     },
-    data: () => ({
-      selectedChannelId: null,
-    }),
+    data() {
+      return {
+        selectedChannelId: null,
+      };
+    },
     computed: {
       ...mapState('manageContent', ['channelListLoading']),
       ...mapGetters('manageContent', ['installedChannelsWithResources']),

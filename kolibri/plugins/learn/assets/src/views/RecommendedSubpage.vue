@@ -19,7 +19,6 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
-  import ContentCardGroupHeader from './ContentCardGroupHeader';
 
   export default {
     name: 'RecommendedSubpage',
@@ -35,7 +34,6 @@
     },
     components: {
       ContentCardGroupGrid,
-      ContentCardGroupHeader,
       KBreadcrumbs,
     },
     metaInfo() {

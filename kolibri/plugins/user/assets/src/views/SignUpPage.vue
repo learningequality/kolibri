@@ -20,8 +20,8 @@
     </UiToolbar>
 
     <form
-      class="signup-form"
       ref="form"
+      class="signup-form"
       @submit.prevent="signUp"
     >
       <UiAlert
@@ -35,8 +35,9 @@
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
 
       <KTextbox
-        ref="name"
         id="name"
+        ref="name"
+        v-model="name"
         type="text"
         autocomplete="name"
         :label="$tr('name')"
@@ -45,12 +46,12 @@
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
         @blur="nameBlurred = true"
-        v-model="name"
       />
 
       <KTextbox
-        ref="username"
         id="username"
+        ref="username"
+        v-model="username"
         type="text"
         autocomplete="username"
         :label="$tr('username')"
@@ -59,36 +60,35 @@
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
         @input="resetSignUpState"
-        v-model="username"
       />
 
       <KTextbox
-        ref="password"
         id="password"
+        ref="password"
+        v-model="password"
         type="password"
         autocomplete="new-password"
         :label="$tr('password')"
         :invalid="passwordIsInvalid"
         :invalidText="passwordIsInvalidText"
         @blur="passwordBlurred = true"
-        v-model="password"
       />
 
       <KTextbox
-        ref="confirmedPassword"
         id="confirmed-password"
+        ref="confirmedPassword"
+        v-model="confirmedPassword"
         type="password"
         autocomplete="new-password"
         :label="$tr('reEnterPassword')"
         :invalid="confirmedPasswordIsInvalid"
         :invalidText="confirmedPasswordIsInvalidText"
         @blur="confirmedPasswordBlurred = true"
-        v-model="confirmedPassword"
       />
 
       <KSelect
-        :label="$tr('facility')"
         v-model="selectedFacility"
+        :label="$tr('facility')"
         :options="facilityList"
         :invalid="facilityIsInvalid"
         :invalidText="facilityIsInvalidText"
@@ -121,8 +121,8 @@
 
     <PrivacyInfoModal
       v-if="privacyModalVisible"
-      @cancel="privacyModalVisible = false"
       hideOwnersSection
+      @cancel="privacyModalVisible = false"
     />
 
   </div>

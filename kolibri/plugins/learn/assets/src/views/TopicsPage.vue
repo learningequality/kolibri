@@ -32,7 +32,6 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { PageNames } from '../constants';
   import PageHeader from './PageHeader';
-  import ContentCard from './ContentCard';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
 
   export default {
@@ -45,7 +44,6 @@
     },
     components: {
       PageHeader,
-      ContentCard,
       ContentCardGroupGrid,
       TextTruncator,
     },

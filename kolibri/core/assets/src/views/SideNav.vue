@@ -1,6 +1,6 @@
 <template>
 
-  <div @keydown.esc="toggleNav" ref="sideNav" class="side-nav-wrapper">
+  <div ref="sideNav" class="side-nav-wrapper" @keydown.esc="toggleNav">
     <transition name="side-nav">
       <div
         v-show="navShown"
@@ -42,7 +42,7 @@
             :aria-label="$tr('navigationLabel')"
           >
             <template slot="options">
-              <component v-for="component in menuOptions" :is="component" :key="component.name" />
+              <component :is="component" v-for="component in menuOptions" :key="component.name" />
               <SideNavDivider />
             </template>
           </CoreMenu>
@@ -91,7 +91,6 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
-  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -117,7 +116,6 @@
       CoreMenu,
       UiIconButton,
       CoreLogo,
-      CoreMenuOption,
       SideNavDivider,
       KButton,
       PrivacyInfoModal,
@@ -232,14 +230,13 @@
   $side-nav-box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
     0 1px 10px 0 rgba(0, 0, 0, 0.12);
 
-  // matches keen-ui toolbar's spec
-  $side-nav-header-box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
-
   .side-nav-wrapper {
     overflow-x: hidden;
   }
 
   .side-nav {
+    @extend %ui-toolbar-box-shadow;
+
     position: fixed;
     top: 0;
     bottom: 0;
@@ -274,6 +271,8 @@
   }
 
   .side-nav-header {
+    @extend %ui-toolbar-box-shadow;
+
     position: fixed;
     top: 0;
     left: 0;
@@ -281,7 +280,6 @@
     font-size: 14px;
     text-transform: uppercase;
     background-color: $core-text-default;
-    box-shadow: $side-nav-header-box-shadow;
   }
 
   .side-nav-header-close {

@@ -10,9 +10,9 @@
       </p>
     </div>
     <ContentCard
-      class="content-card"
       v-for="exam in exams"
       :key="exam.id"
+      class="content-card"
       :link="genExamLink(exam)"
       :showContentIcon="false"
       :title="exam.title"

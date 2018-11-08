@@ -5,16 +5,16 @@
       :value="true"
       :label="$tr('entireClass')"
       :currentValue="entireClassIsSelected"
-      @change="selectEntireClass()"
       :disabled="disabled"
+      @change="selectEntireClass()"
     />
     <KCheckbox
       v-for="group in groups"
       :key="group.id"
       :label="group.name"
       :checked="groupIsChecked(group.id)"
-      @change="toggleGroup($event, group.id)"
       :disabled="disabled"
+      @change="toggleGroup($event, group.id)"
     />
   </div>
 
@@ -24,14 +24,12 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
   export default {
     name: 'RecipientSelector',
     components: {
-      KButton,
       KCheckbox,
       KRadioButton,
     },

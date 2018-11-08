@@ -5,12 +5,12 @@
 
       <thead slot="thead">
         <tr>
-          <th class="core-table-icon-col" v-if="selectable">
+          <th v-if="selectable" class="core-table-icon-col">
             <KCheckbox
-              @change="selectAll($event)"
               :label="selectAllLabel"
               :showLabel="false"
               :checked="allAreSelected"
+              @change="selectAll($event)"
             />
           </th>
           <th aria-hidden="true" class="core-table-icon-col"></th>
@@ -34,12 +34,12 @@
           v-for="user in users"
           :key="user.id"
         >
-          <td class="core-table-icon-col" v-if="selectable">
+          <td v-if="selectable" class="core-table-icon-col">
             <KCheckbox
-              @change="selectUser(user.id, $event)"
               :label="userCheckboxLabel"
               :showLabel="false"
               :checked="userIsSelected(user.id)"
+              @change="selectUser(user.id, $event)"
             />
 
           </td>

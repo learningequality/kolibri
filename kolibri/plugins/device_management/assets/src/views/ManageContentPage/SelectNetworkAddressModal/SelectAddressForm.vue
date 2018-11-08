@@ -5,16 +5,16 @@
     :submitText="$tr('submitButtonLabel')"
     :cancelText="$tr('cancelButtonLabel')"
     size="medium"
-    @submit="handleSubmit"
     :submitDisabled="submitDisabled"
+    @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
     <KButton
+      v-show="!newAddressButtonDisabled"
       class="new-address-button"
       :text="$tr('newAddressButtonLabel')"
-      @click="$emit('click_add_address')"
       appearance="basic-link"
-      v-show="!newAddressButtonDisabled"
+      @click="$emit('click_add_address')"
     />
 
     <UiAlert
@@ -35,19 +35,19 @@
     <template v-for="(a, idx) in addresses">
       <div :key="`div-${idx}`">
         <KRadioButton
-          class="radio-button"
-          v-model="selectedAddressId"
           :key="idx"
+          v-model="selectedAddressId"
+          class="radio-button"
           :value="a.id"
           :label="a.device_name"
           :description="a.base_url"
           :disabled="!a.available || !a.hasContent"
         />
         <KButton
-          @click="removeAddress(a.id)"
           :key="`forget-${idx}`"
           :text="$tr('forgetAddressButtonLabel')"
           appearance="basic-link"
+          @click="removeAddress(a.id)"
         />
       </div>
     </template>

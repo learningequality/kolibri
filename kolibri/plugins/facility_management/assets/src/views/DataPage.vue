@@ -17,7 +17,7 @@
       </p>
       <div>
         <KButton :text="$tr('download')" :disabled="cannotDownload" @click="downloadSessionLog" />
-        <span class="no-dl" v-if="cannotDownload">{{ $tr('noDownload') }}</span>
+        <span v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</span>
       </div>
       <p class="infobox">
         <b>{{ $tr('note') }}</b>: {{ $tr('detailsInfo') }}
@@ -31,7 +31,7 @@
       </p>
       <div>
         <KButton :text="$tr('download')" :disabled="cannotDownload" @click="downloadSummaryLog" />
-        <span class="no-dl" v-if="cannotDownload">{{ $tr('noDownload') }}</span>
+        <span v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</span>
       </div>
       <p class="infobox">
         <b>{{ $tr('note') }}</b>: {{ $tr('summaryInfo') }}

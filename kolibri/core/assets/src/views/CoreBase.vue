@@ -16,15 +16,23 @@
 
       <template v-else>
         <AppBar
-          class="app-bar align-to-parent"
+          ref="appBar"
+          class="core-base-app-bar align-to-parent"
           :title="toolbarTitle || appBarTitle"
           :height="headerHeight"
           :navShown="navShown"
           @toggleSideNav="navShown=!navShown"
         >
+          <slot slot="totalPointsMenuItem" name="totalPointsMenuItem"></slot>
           <div slot="app-bar-actions" class="app-bar-actions">
             <slot name="app-bar-actions"></slot>
           </div>
+          <slot
+            v-if="showSubNav"
+            slot="sub-nav"
+            name="sub-nav"
+          >
+          </slot>
         </AppBar>
         <SideNav
           :navShown="navShown"
@@ -37,7 +45,7 @@
     </template>
 
     <AppBody
-      :topGap="headerHeight"
+      :topGap="appBodyTopGap"
       :bottomGap="bottomMargin"
     >
       <AuthMessage
@@ -145,6 +153,12 @@
         required: false,
         default: '',
       },
+      // If true, will render the component in the "sub-nav" slot and add 48px
+      // to AppBody's top offset.
+      showSubNav: {
+        type: Boolean,
+        default: false,
+      },
     },
     metaInfo() {
       return {
@@ -162,13 +176,24 @@
         },
       };
     },
-    data: () => ({ navShown: false }),
+    data() {
+      return {
+        navShown: false,
+      };
+    },
     computed: {
       ...mapState({
         error: state => state.core.error,
       }),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
+      },
+      appBodyTopGap() {
+        if (this.showSubNav) {
+          // Adds the height of KNavBar
+          return this.headerHeight + 48;
+        }
+        return this.headerHeight;
       },
       navWidth() {
         return this.headerHeight * 4;
@@ -196,9 +221,10 @@
     left: 0;
   }
 
-  .app-bar {
+  .core-base-app-bar {
+    @extend %ui-toolbar-box-shadow;
+
     width: 100%;
-    height: 64px;
   }
 
   .app-bar-actions {

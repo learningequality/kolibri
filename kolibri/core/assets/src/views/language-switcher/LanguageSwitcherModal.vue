@@ -19,10 +19,10 @@
         <KRadioButton
           v-for="language in languageCol"
           :key="language.id"
+          v-model="selectedLanguage"
           :value="language.id"
           :label="language.lang_name"
           :title="language.english_name"
-          v-model="selectedLanguage"
           class="language-name"
         />
       </KGridItem>

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-17 17:16-0700\n"
-"PO-Revision-Date: 2018-10-25 02:11\n"
+"POT-Creation-Date: 2018-10-25 15:19-0700\n"
+"PO-Revision-Date: 2018-10-29 23:38\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Telugu\n"
 "Language: te_IN\n"
@@ -18,7 +18,7 @@ msgstr ""
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
-msgstr "సౌకర్యం"
+msgstr "ఫెసిలిటీ"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Classroom"
@@ -32,7 +32,7 @@ msgstr "విద్యార్థుల సమూహం"
 msgid "Content"
 msgstr "కాంటెంట్"
 
-#: kolibri/core/content/api.py:672
+#: kolibri/core/content/api.py:715
 msgid "The requested channel does not exist on the content server"
 msgstr "కావలసిన ఛానల్ కంటెంట్ సర్వర్ ఫై లేదు"
 

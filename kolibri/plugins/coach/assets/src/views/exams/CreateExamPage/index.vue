@@ -5,22 +5,22 @@
     <template v-if="!inSearchMode">
       <KTextbox
         ref="title"
+        v-model.trim="examTitle"
         :label="$tr('title')"
         :autofocus="true"
         :invalid="titleIsInvalid"
         :invalidText="titleIsInvalidText"
         :maxlength="100"
         @blur="titleBlurred = true"
-        v-model.trim="examTitle"
       />
       <KTextbox
         ref="numQuest"
+        v-model.trim.number="examNumberOfQuestions"
         type="number"
         :label="$tr('numQuestions')"
         :invalid="numQuestIsInvalid"
         :invalidText="numQuestIsInvalidText"
         @blur="numQuestBlurred = true"
-        v-model.trim.number="examNumberOfQuestions"
       />
 
       <UiAlert
@@ -36,8 +36,8 @@
         <KButton
           :text="$tr('saveButtonlabel')"
           :primary="true"
-          @click="finish"
           :disabled="submitting"
+          @click="finish"
         />
       </div>
     </template>
@@ -73,9 +73,9 @@
       />
 
       <LessonsSearchFilters
+        v-model="filters"
         :searchTerm="searchTerm"
         :searchResults="searchResults"
-        v-model="filters"
       />
     </template>
 

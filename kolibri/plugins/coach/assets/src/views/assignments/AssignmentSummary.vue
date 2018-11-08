@@ -56,9 +56,9 @@
           class="group-list"
         >
           <li
-            class="group-list-item"
             v-for="recipientGroup in recipientGroups"
             :key="recipientGroup.id"
+            class="group-list-item"
           >
             <span dir="auto">{{ recipientGroup.name }}</span>
           </li>
@@ -190,13 +190,14 @@
   .group-list {
     padding: 0;
     margin: 0;
-    &-item {
-      display: inline;
-      margin: 0;
-      list-style: none;
-      &:not(:last-child)::after {
-        content: ', ';
-      }
+  }
+
+  .group-list-item {
+    display: inline;
+    margin: 0;
+    list-style: none;
+    &:not(:last-child)::after {
+      content: ', ';
     }
   }
 

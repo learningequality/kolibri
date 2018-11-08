@@ -11,17 +11,10 @@
           :delay="false"
         />
         <component
-          class="content-renderer-component"
-          v-else
           :is="currentViewClass"
-          @startTracking="startTracking"
-          @stopTracking="stopTracking"
-          @updateProgress="updateProgress"
-          @updateContentState="updateContentState"
-          @answerGiven="answerGiven"
-          @hintTaken="hintTaken"
-          @itemError="itemError"
-          @interaction="interaction"
+          v-else
+          ref="contentView"
+          class="content-renderer-component"
           :files="availableFiles"
           :defaultFile="defaultFile"
           :itemId="itemId"
@@ -33,7 +26,14 @@
           :interactive="interactive"
           :lang="lang"
           :showCorrectAnswer="showCorrectAnswer"
-          ref="contentView"
+          @startTracking="startTracking"
+          @stopTracking="stopTracking"
+          @updateProgress="updateProgress"
+          @updateContentState="updateContentState"
+          @answerGiven="answerGiven"
+          @hintTaken="hintTaken"
+          @itemError="itemError"
+          @interaction="interaction"
         />
       </transition>
     </template>

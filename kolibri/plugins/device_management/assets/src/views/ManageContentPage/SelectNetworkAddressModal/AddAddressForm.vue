@@ -5,8 +5,8 @@
     :submitText="$tr('submitButtonLabel')"
     :cancelText="$tr('cancelButtonLabel')"
     size="medium"
-    @submit="handleSubmit"
     :submitDisabled="attemptingToConnect"
+    @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
     <KTextbox

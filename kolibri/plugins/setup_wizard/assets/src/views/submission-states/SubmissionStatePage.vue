@@ -43,23 +43,23 @@
 
   .submission-state-page {
     text-align: center;
+  }
 
-    &-header {
-      margin-top: 0;
-      margin-bottom: 24px;
-      font-size: 21px;
-      color: $core-accent-color;
-    }
+  .submission-state-page-header {
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-size: 21px;
+    color: $core-accent-color;
+  }
 
-    &-body {
-      font-size: 14px;
-    }
+  .submission-state-page-body {
+    font-size: 14px;
+  }
 
-    &-spinner {
-      display: inline-block;
-      height: 32px; // setting to the height of the spinner to make the wrapper hug it
-      margin-bottom: 40px;
-    }
+  .submission-state-page-spinner {
+    display: inline-block;
+    height: 32px; // setting to the height of the spinner to make the wrapper hug it
+    margin-bottom: 40px;
   }
 
 </style>

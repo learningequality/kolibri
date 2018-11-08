@@ -7,11 +7,11 @@
     >
       <div class="d-tr">
         <input
-          class="d-tc search-input"
           ref="searchInput"
+          v-model.trim="searchQuery"
+          class="d-tc search-input"
           type="search"
           :aria-label="$tr('enterSearchQuery')"
-          v-model.trim="searchQuery"
           @keyup.esc.stop
         >
 
@@ -62,9 +62,9 @@
     </transition>
 
     <ol
+      v-show="searchHasBeenMade && !searchIsLoading && searchResults.length > 0"
       ref="searchResultsList"
       class="search-results-list"
-      v-show="searchHasBeenMade && !searchIsLoading && searchResults.length > 0"
     >
       <li
         v-for="(item, index) in searchResults"

@@ -24,10 +24,10 @@
         <div class="settings">
           <template v-for="setting in settingsList">
             <KCheckbox
+              :key="setting"
               :label="$tr(setting)"
               :checked="settings[setting]"
               @change="toggleSetting(setting)"
-              :key="setting"
             />
           </template>
         </div>
@@ -36,26 +36,26 @@
           <KButton
             :primary="false"
             appearance="raised-button"
-            @click="showModal=true"
             :text="$tr('resetToDefaultSettings')"
             name="reset-settings"
+            @click="showModal=true"
           />
 
           <KButton
             :primary="true"
             appearance="raised-button"
-            @click="saveConfig()"
             :text="$tr('saveChanges')"
             name="save-settings"
             :disabled="!settingsHaveChanged"
+            @click="saveConfig()"
           />
         </div>
       </div>
     </template>
 
     <ConfirmResetModal
-      id="confirm-reset"
       v-if="showModal"
+      id="confirm-reset"
       @click-confirm="resetToDefaultSettings"
       @click-cancel="showModal=false"
     />

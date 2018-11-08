@@ -10,15 +10,15 @@
       <!-- technically, these should be buttons -->
       <li
         v-for="(question, index) in questions"
-        class="item"
         :key="index"
+        class="item"
       >
         <KButton
-          @click="$emit('select',index)"
           :class="{selected: index === selectedIndex}"
           class="button"
           :text="questionLabel(index)"
           appearance="flat-button"
+          @click="$emit('select',index)"
         />
       </li>
     </ul>

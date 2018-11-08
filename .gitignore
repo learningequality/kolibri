@@ -121,3 +121,8 @@ build_tools/crowdin-cli.jar
 
 # Do not ignore this lib dir
 !eslint-plugin-kolibri/**/lib/
+
+# ignore source font files
+*.ttf
+*.ttc
+*.otf

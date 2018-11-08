@@ -15,7 +15,7 @@
       <h1 v-else class="search-results">
         {{ $tr('showingResultsFor', {
           searchTerm,
-            totalResults: total_results
+          totalResults: total_results
         }) }}
       </h1>
 
@@ -48,7 +48,6 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import { PageNames } from '../constants';
-  import ContentCard from './ContentCard';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import SearchBox from './SearchBox';
 
@@ -69,7 +68,6 @@
       };
     },
     components: {
-      ContentCard,
       ContentCardGroupGrid,
       KButton,
       KCircularLoader,

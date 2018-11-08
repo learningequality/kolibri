@@ -5,8 +5,8 @@
     class="d-ib"
   >
     <div
-      class="d-ib vab"
       ref="icon"
+      class="d-ib vab"
     >
       <UiIcon class="coach-mat-icon">
         <mat-svg

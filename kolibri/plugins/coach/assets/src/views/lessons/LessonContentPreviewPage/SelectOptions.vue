@@ -9,19 +9,19 @@
       />
       {{ $tr('addedIndicator') }}
       <KButton
-        @click="$emit('removeResource')"
         :text="$tr('removeLabel')"
         :primary="true"
         class="no-margin"
+        @click="$emit('removeResource')"
       />
       <!-- TODO include undo button here -->
     </template>
     <KButton
       v-else
-      @click="$emit('addResource')"
       :text="$tr('addButtonLabel')"
       :primary="true"
       class="no-margin"
+      @click="$emit('addResource')"
     />
   </div>
 

@@ -1,6 +1,6 @@
 <template>
 
-  <popper
+  <Popper
     v-if="readyToInit"
     :reference="htmlElement"
     :disabled="disabled"
@@ -16,7 +16,7 @@
       <!--Default slot that will contain the tooltip content.-->
       <slot></slot>
     </div>
-  </popper>
+  </Popper>
 
 </template>
 

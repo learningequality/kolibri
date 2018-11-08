@@ -14,9 +14,9 @@
       <KRadioButton
         v-for="classroom in availableClassrooms"
         :key="classroom.id"
+        v-model="selectedClassroomId"
         :label="classroomLabel(classroom)"
         :value="classroom.id"
-        v-model="selectedClassroomId"
       />
     </KModal>
 

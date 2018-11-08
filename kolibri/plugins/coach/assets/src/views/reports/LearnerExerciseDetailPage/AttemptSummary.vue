@@ -54,8 +54,8 @@
           <strong>{{ statusText }}</strong>
         </div>
         <div
-          class="update-time"
           v-if="isCompleted || isCompleted !== null"
+          class="update-time"
         >
           <ElapsedTime :date="updateTime" />
         </div>

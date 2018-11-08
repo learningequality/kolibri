@@ -1,7 +1,7 @@
 <template>
 
   <div v-if="isUserLoggedIn">
-    <div class="points" ref="icon">
+    <div ref="icon" class="points">
       <PointsIcon class="icon" :active="true" />
       <div class="description">
         <div class="description-value">
@@ -22,7 +22,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'vuex';
+  import { mapGetters } from 'vuex';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -38,10 +38,7 @@
     },
     watch: { currentUserId: 'fetchPoints' },
     created() {
-      this.fetchPoints();
-    },
-    methods: {
-      ...mapActions(['fetchPoints']),
+      this.$store.dispatch('fetchPoints');
     },
   };
 
@@ -53,25 +50,21 @@
   @import '~kolibri.styles.definitions';
 
   .points {
-    font-size: small;
-    font-weight: bold;
+    padding: 8px 0;
+    color: $core-text-annotation;
   }
 
   .icon {
     position: relative;
     top: 2px;
     display: inline-block;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
   }
 
   .description {
     display: inline-block;
-    margin-left: 8px;
-  }
-
-  .description-value {
-    font-size: x-large;
+    margin-left: 16px;
   }
 
 </style>

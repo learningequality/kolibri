@@ -1,8 +1,8 @@
 <template>
 
   <span
-    class="user-type-display"
     v-if="typeDisplay"
+    class="user-type-display"
   >
     {{ typeDisplay }}
   </span>

@@ -6,8 +6,8 @@
     :backPageText="$tr('backToExamList')"
   >
     <MultiPaneLayout ref="multiPaneLayout">
-      <div class="exam-status-container" slot="header">
-        <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late" />
+      <div slot="header" class="exam-status-container">
+        <mat-svg slot="content-icon" class="exam-icon" category="action" name="assignment_late" />
         <h1 class="exam-title">{{ exam.title }}</h1>
         <div class="exam-status">
           <p class="questions-answered">
@@ -18,7 +18,7 @@
               )
             }}
           </p>
-          <KButton @click="toggleModal" :text="$tr('submitExam')" :primary="true" />
+          <KButton :text="$tr('submitExam')" :primary="true" @click="toggleModal" />
         </div>
         <div :style="{ clear: 'both' }"></div>
       </div>
@@ -34,9 +34,9 @@
         class="question-container"
       >
         <ContentRenderer
-          ref="contentRenderer"
           v-if="itemId"
           :id="content.id"
+          ref="contentRenderer"
           :kind="content.kind"
           :files="content.files"
           :contentId="content.content_id"
@@ -54,16 +54,16 @@
         </UiAlert>
       </div>
 
-      <div class="question-navbutton-container" slot="footer">
+      <div slot="footer" class="question-navbutton-container">
         <KButton
           :disabled="questionNumber===0"
-          @click="goToQuestion(questionNumber - 1)"
           :text="$tr('previousQuestion')"
+          @click="goToQuestion(questionNumber - 1)"
         />
         <KButton
           :disabled="questionNumber===exam.question_count-1"
-          @click="goToQuestion(questionNumber + 1)"
           :text="$tr('nextQuestion')"
+          @click="goToQuestion(questionNumber + 1)"
         />
       </div>
     </MultiPaneLayout>

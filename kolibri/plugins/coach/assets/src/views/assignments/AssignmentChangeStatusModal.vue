@@ -9,14 +9,14 @@
   >
     <p>{{ modalDescription }}</p>
     <KRadioButton
+      v-model="activeIsSelected"
       :label="modalActiveOption"
       :value="true"
-      v-model="activeIsSelected"
     />
     <KRadioButton
+      v-model="activeIsSelected"
       :label="modalInactiveOption"
       :value="false"
-      v-model="activeIsSelected"
     />
   </KModal>
 

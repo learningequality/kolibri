@@ -20,21 +20,21 @@
 
     <div>
       <KRadioButton
-        :label="$tr('network')"
         v-model="source"
+        :label="$tr('network')"
         :value="ContentSources.KOLIBRI_STUDIO"
         :disabled="kolibriStudioIsOffline || formIsDisabled"
         :autofocus="!kolibriStudioIsOffline"
       />
       <KRadioButton
-        :label="$tr('localNetworkOrInternet')"
         v-model="source"
+        :label="$tr('localNetworkOrInternet')"
         :value="ContentSources.PEER_KOLIBRI_SERVER"
         :disabled="formIsDisabled"
       />
       <KRadioButton
-        :label="$tr('localDrives')"
         v-model="source"
+        :label="$tr('localDrives')"
         :value="ContentSources.LOCAL_DRIVE"
         :disabled="formIsDisabled"
       />

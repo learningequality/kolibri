@@ -1,6 +1,6 @@
 <template>
 
-  <core-fullscreen
+  <CoreFullscreen
     ref="epubRenderer"
     class="epub-renderer"
     :style="epubRendererStyle"
@@ -105,9 +105,9 @@
           :style="navigationButtonContainerStyle"
         >
           <PreviousButton
-            @goToPreviousPage="goToPreviousPage"
             :color="navigationButtonColor"
             :style="navigationButtonsStyle"
+            @goToPreviousPage="goToPreviousPage"
           />
         </div>
         <div
@@ -137,7 +137,7 @@
         @sliderChanged="handleSliderChanged"
       />
     </div>
-  </core-fullscreen>
+  </CoreFullscreen>
 
 </template>
 

@@ -11,8 +11,8 @@
 
     <KRadioButton
       v-for="facility in facilities"
-      v-model="selectedFacility"
       :key="facility.id"
+      v-model="selectedFacility"
       :label="facility.name"
       :value="facility.id"
     />
@@ -26,14 +26,12 @@
   import { mapGetters, mapActions, mapMutations } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
     name: 'FacilityModal',
     components: {
       KModal,
       KRadioButton,
-      KButton,
     },
     data() {
       return {
