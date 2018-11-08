@@ -25,7 +25,6 @@
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
-  import Show from '../../shell/Show';
 
   import example from 'raw-loader!./example.html';
   import KTooltipApi from '!vue-doc!kolibri.coreVue.components.KTooltip';
@@ -38,8 +37,6 @@
       PageTemplate,
       ComponentDocs,
       VueExample,
-      KTooltip,
-      Show,
     },
     data: () => ({
       KTooltipApi,

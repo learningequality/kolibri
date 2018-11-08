@@ -73,6 +73,7 @@
       v-if="tooltipText && showTooltip"
       reference="icon"
       :refs="$refs"
+      placement="bottom"
     >
       {{ tooltipText }}
     </KTooltip>
