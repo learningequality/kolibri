@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="d-ib">
     <UiIcon ref="icon">
       <mat-svg
         v-if="is(ContentNodeKinds.CHANNEL)"
@@ -161,6 +161,10 @@
 
 
 <style lang="scss" scoped>
+
+  .d-ib {
+    display: inline-block;
+  }
 
   .ui-icon {
     font-size: 1em;
