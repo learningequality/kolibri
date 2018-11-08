@@ -3,8 +3,12 @@ import UiIcon from 'keen-ui/src/UiIcon';
 import ProgressIcon from '../src/views/ProgressIcon';
 
 function testIcon(wrapper, expectedText) {
-  // prettier-ignore
-  expect(wrapper.find({ name: 'KTooltip'}).text().trim()).toEqual(expectedText);
+  expect(
+    wrapper
+      .find({ name: 'KTooltip' })
+      .text()
+      .trim()
+  ).toEqual(expectedText);
 }
 
 describe('ProgressIcon Component', () => {
