@@ -7,7 +7,7 @@ RUN apt-get update && \
       software-properties-common
 
 # Install nodejs and add 'hold' such that it doesn't get upgraded
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
 # add yarn ppa
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
@@ -18,7 +18,7 @@ RUN apt-get update && \
       gettext \
       git \
       git-lfs \
-      nodejs=6.14.1-1nodesource1 \
+      nodejs=10.13.0-1nodesource1 \
       psmisc \
       python2.7 \
       python-pip \

@@ -397,12 +397,10 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         urls = [chunk['url'] for chunk in self.sorted_chunks()]
         tags = self.frontend_message_tag() +\
-            ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"], {events}, {once});</script>'.format(
+            ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
                 kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
                 bundle=self.unique_slug,
                 urls='","'.join(urls),
-                events=json.dumps(self.events),
-                once=json.dumps(self.once),
             )]
         return mark_safe('\n'.join(tags))
 
