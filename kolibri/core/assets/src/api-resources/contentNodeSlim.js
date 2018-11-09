@@ -1,3 +1,4 @@
+import Store from 'kolibri.coreVue.vuex.store';
 import { Resource } from '../api-resource';
 
 /**
@@ -15,12 +16,12 @@ export default new Resource({
     return this.fetchDetailCollection('recommendations_for', id, getParams);
   },
   fetchResume(getParams) {
-    return this.fetchListCollection('resume', getParams);
+    return this.fetchDetailCollection('resume', Store.getters.currentUserId, getParams);
   },
   fetchPopular(getParams) {
     return this.fetchListCollection('popular', getParams);
   },
   fetchNextSteps(getParams) {
-    return this.fetchListCollection('next_steps', getParams);
+    return this.fetchDetailCollection('next_steps', Store.getters.currentUserId, getParams);
   },
 });

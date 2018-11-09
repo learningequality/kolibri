@@ -56,6 +56,7 @@
               <p>
                 <KButton
                   :text="$tr('privacyLink')"
+                  class="privacy-link"
                   appearance="basic-link"
                   @click="privacyModalVisible = true"
                 />
@@ -378,6 +379,10 @@
       margin-top: 0;
       margin-bottom: 0;
     }
+  }
+
+  .privacy-link {
+    text-align: left;
   }
 
 </style>

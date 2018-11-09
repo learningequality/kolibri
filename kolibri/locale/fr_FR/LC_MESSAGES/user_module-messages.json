@@ -36,7 +36,7 @@
   "SignInPage.poweredBy": "Kolibri {version}",
   "SignInPage.privacyLink": "Utilisation et confidentialité",
   "SignInPage.required": "Ce champ est requis",
-  "SignInPage.requiredForCoachesAdmins": "Le mot de passe est requis pour les enseignants et les administrateurs",
+  "SignInPage.requiredForCoachesAdmins": "Le mot de passe est requis pour les coachs et les administrateurs",
   "SignInPage.signIn": "Se connecter",
   "SignInPage.signInError": "Nom d'utilisateur ou mot de passe incorrect",
   "SignInPage.username": "Nom d'utilisateur",
