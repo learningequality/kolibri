@@ -9,7 +9,6 @@ from __future__ import unicode_literals
 
 from datetime import timedelta
 
-from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
@@ -74,13 +73,7 @@ class BaseLogModel(AbstractFacilityDataModel):
 
     def infer_dataset(self, *args, **kwargs):
         if self.user_id:
-            cache_key = 'log_infer_dataset_{user_id}'.format(user_id=self.user_id)
-            if cache.get(cache_key) is not None:
-                return cache.get(cache_key)
-            else:
-                dataset_id = self.user.dataset_id
-                cache.set(cache_key, dataset_id, 60 * 10)
-                return dataset_id
+            return self.cache_related_dataset_lookup('user')
         elif self.dataset_id:
             # confirm that there exists a facility with that dataset_id
             try:
@@ -206,13 +199,7 @@ class MasteryLog(BaseLogModel):
     complete = models.BooleanField(default=False)
 
     def infer_dataset(self, *args, **kwargs):
-        cache_key = 'log_infer_dataset_{user_id}'.format(user_id=self.user_id)
-        if cache.get(cache_key) is not None:
-            return cache.get(cache_key)
-        else:
-            dataset_id = self.user.dataset_id
-            cache.set(cache_key, dataset_id, 60 * 10)
-            return dataset_id
+        return self.cache_related_dataset_lookup('user')
 
     def calculate_source_id(self):
         return "{summarylog_id}:{mastery_level}".format(summarylog_id=self.summarylog_id, mastery_level=self.mastery_level)
