@@ -321,7 +321,9 @@ We have a project-level *.editorconfig* file to help you configure your text edi
 Frontend dev tools
 ~~~~~~~~~~~~~~~~~~
 
-If you're working with frontend Vue.js and use Google Chrome Dev Tools, you may find the `Vue.js devtools <https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd?hl=en>`__ helpful
+`Vue.js devtools <https://github.com/vuejs/vue-devtools>`__ is a browser plugin that is very helpful when working with Vue.js components and Vuex.
+
+So ensure an more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylint.
 
 
 Database setup
