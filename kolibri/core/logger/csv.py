@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import math
 
+from django.core.cache import cache
 from rest_framework import serializers
 
 from .models import ContentSessionLog
@@ -11,6 +12,35 @@ from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+
+
+def cache_channel_name(channel_id):
+        key = '{id}_ChannelMetadata_name'.format(id=channel_id)
+        cached_value = cache.get(key)
+        if cached_value is not None:
+            return cached_value
+        else:
+            try:
+                channel_name = ChannelMetadata.objects.get(id=channel_id)
+            except ChannelMetadata.DoesNotExist:
+                channel_name = ""
+            cache.set(key, channel_name, 60 * 10)
+            return channel_name
+
+
+def cache_content_title(content_id):
+        key = '{id}_ContentNode_title'.format(id=content_id)
+        cached_value = cache.get(key)
+        if cached_value is not None:
+            return cached_value
+        else:
+            node = ContentNode.objects.filter(content_id=content_id).first()
+            if node:
+                title = node.title
+            else:
+                title = ""
+            cache.set(key, title, 60 * 10)
+            return title
 
 
 class LogCSVSerializerBase(serializers.ModelSerializer):
@@ -35,18 +65,10 @@ class LogCSVSerializerBase(serializers.ModelSerializer):
             return ""
 
     def get_channel_name(self, obj):
-        try:
-            channel = ChannelMetadata.objects.get(id=obj.channel_id)
-        except ChannelMetadata.DoesNotExist:
-            return ""
-        return channel.name
+        return cache_channel_name(obj.channel_id)
 
     def get_content_title(self, obj):
-        node = ContentNode.objects.filter(content_id=obj.content_id).first()
-        if node:
-            return node.title
-        else:
-            return ""
+        return cache_content_title(obj.content_id)
 
     def get_time_spent(self, obj):
         return "{:.1f}".format(round(obj.time_spent, 1))
