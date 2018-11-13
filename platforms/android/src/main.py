@@ -16,16 +16,14 @@ logging.info("Entering main.py...")
 
 if pew.ui.platform == "android":
     from jnius import autoclass
-    Environment = autoclass('android.os.Environment')
+    PythonActivity = autoclass('org.kivy.android.PythonActivity')
     File = autoclass('java.io.File')
     Timezone = autoclass('java.util.TimeZone')
 
 
-# TODO check for storage availibility
+# TODO check for storage availibility, allow user to chose sd card or internal
 def get_home_folder():
-    kolibri_home_file = File(Environment.getExternalStorageDirectory().toString(), ".kolibri")
-    # prevents content from showing up in things like "gallery"
-    kolibri_home_file.mkdirs()
+    kolibri_home_file = PythonActivity.getExternalFilesDir(None)
     return kolibri_home_file.toString()
 
 
